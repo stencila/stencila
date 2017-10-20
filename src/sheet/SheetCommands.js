@@ -252,3 +252,34 @@ export class EditCellExpressionCommand extends Command {
   }
 
 }
+
+export class ChangeModeCommand extends Command {
+  getCommandState(params) {
+    const editor = params.editorSession.getEditor()
+    if(editor) {
+      const surface = editor.refs.sheet
+      if(surface) {
+        const mode = surface.state.mode
+        return {
+          newMode: this.config.mode,
+          disabled: false,
+          active: this.config.mode === mode
+        }
+      }
+    }
+
+    return {
+      // TODO: we should get default value from outside
+      active: this.config.mode === 'normal',
+      disabled: false
+    }
+  }
+
+  execute(params) {
+    const editor = params.editorSession.getEditor()
+    let surface = editor.refs.sheet
+    surface.extendState({mode: this.config.mode})
+    params.editorSession._setDirty('commandStates')
+    params.editorSession.performFlow()
+  }
+}

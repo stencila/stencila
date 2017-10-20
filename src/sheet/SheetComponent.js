@@ -32,7 +32,9 @@ export default class SheetComponent extends CustomSurface {
     }
     // state used to ignore events when dialog is open
     this._isShowingDialog = false
-    return {}
+    return {
+      mode: 'normal'
+    }
   }
 
   didMount() {
@@ -66,10 +68,11 @@ export default class SheetComponent extends CustomSurface {
   render($$) {
     const sheet = this._getSheet()
     const viewport = this._viewport
+    const mode = this.state.mode
     let el = $$('div').addClass('sc-sheet')
     let contentEl = $$('div').addClass('se-content').append(
       $$(SheetView, {
-        sheet, viewport
+        sheet, viewport, mode
       }).ref('sheetView')
     )
       .on('wheel', this._onWheel, this)

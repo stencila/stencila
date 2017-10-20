@@ -8,7 +8,8 @@ import getBoundingRect from '../util/getBoundingRect'
 
 export default class SheetView extends Component {
 
-  shouldRerender() {
+  shouldRerender(newProps) {
+    if(newProps.mode !== this.props.mode) return true
     return false
   }
 
@@ -31,10 +32,11 @@ export default class SheetView extends Component {
 
   render($$) {
     const sheet = this.props.sheet
+    const mode = this.props.mode
     const viewport = this.props.viewport
     const M = sheet.getColumnCount()
 
-    let el = $$('table').addClass('sc-table-view')
+    let el = $$('table').addClass('sc-table-view sm-mode-' + mode)
     let head = $$('tr').addClass('se-head').ref('head')
     let corner = $$('th').addClass('se-corner').ref('corner')
 

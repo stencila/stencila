@@ -238,3 +238,9 @@
 .sc-table-page.sm-loading {
   background: #ccc;
 }
+
+/* Sheet View Modes */
+
+.sc-sheet .sc-table-view.sm-mode-minimum td {
+  border: none;
+}
