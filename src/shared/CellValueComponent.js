@@ -13,7 +13,7 @@ class CellValueComponent extends Component {
       // TODO: we want to treat values like Promises
       // to support complexer things, such as pointer types, etc.
       let value = cellState.getValue()
-      let valueType = value.getType()
+      let valueType = value.type
       let ValueDisplay = registry.get('value:'+valueType)
       if (ValueDisplay) {
         let valueEl = $$(ValueDisplay, {value, cell}).ref('value')
