@@ -32,7 +32,7 @@ export default class FunctionDocument extends XMLDocument {
    */
   getSummary() {
     let summaryEl = this.find('summary')
-    return summaryEl ? summaryEl.textContent : ''
+    return summaryEl ? summaryEl.text() : ''
   }
 
   /**
@@ -58,7 +58,7 @@ export default class FunctionDocument extends XMLDocument {
         const descriptionEl = paramEl.find('description')
         let description = descriptionEl ? descriptionEl.text() : ''
 
-        let defaultValue
+        let defaultValue = null
         const defaultEl = paramEl.find('default')
         if (defaultEl) {
           defaultValue = {
@@ -111,27 +111,31 @@ export default class FunctionDocument extends XMLDocument {
     let implem = this.getRootNode().find(`implem[language=${language}]`)
     if (implem) {
       let code = implem.find('code')
-      if (code) return code.textContent
+      if (code) return code.text()
     } else {
       throw new Error(`An implementation is not available for language ${language}`)
     }
   }
 
-  /*
-    Get most basic usage example (to be displayed in popover)
-
-    TODO: We just need to store a simple <usage-example> element here, more
-    complex usages could live in a separate rich documentation field (JATS body)
+  /**
+  * Get examples
   */
   getExamples() {
-    return [
-      'sum(A1:A5)',
-      'sum(1,4)'
-    ]
+    return this.getRootNode().findAll(`example`)
+  }
+
+  /**
+  * Get basic usage examples (to be displayed in popover)
+  */
+  getUsageExamples() {
+    return this.getExamples().map((example) => {
+      let usageEl = example.find('usage')
+      return usageEl ? usageEl.text() : ''
+    })
   }
 
   /*
-    NOTE: Used to populate FunctionUsage Component
+    Get a usage summary used to populate FunctionUsage Component
 
     {
       name: 'sum',
@@ -145,12 +149,12 @@ export default class FunctionDocument extends XMLDocument {
       return: { type: 'number', description: 'The sum of numbers in the given range'}
     }
   */
-  getSpec() {
+  getUsage() {
     return {
       name: this.getName(),
       summary: this.getSummary(),
-      examples: this.getExamples(),
-      params: this.getParameters(),
+      examples: this.getUsageExamples(),
+      params: this.getParams(),
       return: this.getReturn()
     }
   }
