@@ -1,5 +1,5 @@
 import { Configurator } from 'substance'
-import { SheetPackage, SheetPage, SheetSchema, Host, getQueryStringParam} from 'stencila'
+import { SheetPackage, SheetPage, SheetSchema, Host, getQueryStringParam, FunctionManager} from 'stencila'
 
 import blank from './blank'
 import dataClean from './dataClean'
@@ -13,7 +13,11 @@ window.addEventListener('load', () => {
 
   const discover = window.STENCILA_DISCOVER ? parseFloat(window.STENCILA_DISCOVER) : false
 
+  let functionManager = new FunctionManager()
+  functionManager.importLibrary('core', window.STENCILA_LIBCORE)
+
   let host = new Host({
+    functionManager,
     peers: peers,
     discover: discover,
   })
@@ -21,7 +25,7 @@ window.addEventListener('load', () => {
     let configurator = new Configurator()
     configurator.import(SheetPackage)
     const importer = configurator.createImporter(SheetSchema.getName())
-    
+
     let generator = {
       'blank': blank,
       'data-clean': dataClean,
