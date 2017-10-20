@@ -8,6 +8,7 @@ export default class SheetCellEditor extends AbstractEditor {
     // Initialize pseudo node when node is given on construction
     if (props.node) {
       this.node.setText(props.node.getText())
+      this.props.editorSession.resetHistory()
     }
   }
 
@@ -18,6 +19,7 @@ export default class SheetCellEditor extends AbstractEditor {
     } else if (node) {
       this.node.setText(node.getText())
     }
+    this.props.editorSession.resetHistory()
   }
 
   render($$) {
@@ -58,6 +60,10 @@ export default class SheetCellEditor extends AbstractEditor {
     })
   }
 
+  blur() {
+    this.refs.editor.blur()
+  }
+
   _onMousedown(e) {
     e.stopPropagation()
   }
@@ -66,4 +72,9 @@ export default class SheetCellEditor extends AbstractEditor {
     e.preventDefault()
   }
 
+  /*
+    HACK: Override onKeyDown as AbstractEditor activates a global key handler, which
+    we don't want to allow here.
+  */
+  onKeyDown() { }
 }
