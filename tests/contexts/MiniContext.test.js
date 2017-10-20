@@ -75,7 +75,16 @@ test('MiniContext: one_param()', t => {
   let c = setupContextWithFunctions()
   c.executeCode('one_param()').then((res) => {
     t.ok(res instanceof Error, 'should error')
-    t.equal(res.message, 'Parameter not given and no default value available:param1', 'error message should be correct')
+    t.equal(res.message, 'Required parameter "param1" was not supplied', 'error message should be correct')
+    t.end()
+  })
+})
+
+test('MiniContext: one_param(1, 2, 3)', t => {
+  let c = setupContextWithFunctions()
+  c.executeCode('one_param(1, 2, 3)').then((res) => {
+    t.ok(res instanceof Error, 'should error')
+    t.equal(res.message, 'Too many parameters supplied (3), expected 1 at most', 'error message should be correct')
     t.end()
   })
 })

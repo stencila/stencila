@@ -43,20 +43,12 @@ export default class MiniContext {
     */
     let funcDoc = this._functionManager.getFunction(functionName)
     if (!funcDoc) {
-      let msg = `Could not resolve function "${functionName}"`
-      funcCall.addErrors([{
-        message: msg
-      }])
-      return new Error(msg)
+      return _error(`Could not resolve function "${functionName}"`)
     }
     let impls = funcDoc.getImplementations()
     let language = impls[0]
     if (!language) {
-      let msg = `Could not find implementation for function "${functionName}"`
-      funcCall.addErrors([{
-        message: msg
-      }])
-      return new Error(msg)
+      return _error(`Could not find implementation for function "${functionName}"`)
     }
     let libraryName = this._functionManager.getLibraryName(functionName)
     let context = this._contexts[language]
@@ -65,23 +57,33 @@ export default class MiniContext {
     // - choose the right context
 
     // Generate a correctly ordered array of argument values taking into account
-    // named arguments and default values
+    // named arguments and default values and check for:
+    //  - missing parameters
+    //  - superfluous arguments
+    //  - arguments of wrong type
+    let params = funcDoc.getParams()
     let args = funcCall.args || []
+    if (args.length > params.length) {
+      return _error(`Too many parameters supplied (${args.length}), expected ${params.length} at most`)
+    }
     let namedArgs = funcCall.namedArgs || {}
     let argValues = []
     let index = 0
-    for (let param of funcDoc.getParams()) {
+    for (let param of params) {
       const arg = args[index] || namedArgs[param.name]
       const value = arg ? arg.getValue() : param.default
       if (!value) {
-        const msg = 'Parameter not given and no default value available:' + param.name
-        funcCall.addErrors([{
-          message: msg
-        }])
-        return new Error(msg)
+        return _error(`Required parameter "${param.name}" was not supplied`)
       }
       argValues.push(value)
       index++
+    }
+    
+    function _error(msg) {
+      funcCall.addErrors([{
+        message: msg
+      }])
+      return new Error(msg)
     }
 
     // Cal the function implementation in the context, capturing any 
