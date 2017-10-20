@@ -498,7 +498,6 @@ export default class SheetComponent extends CustomSurface {
   _closeCellEditor() {
     const cellEditor = this.refs.cellEditor
     const cell = this._cell
-
     let newVal = this.context.cellEditorSession.getValue()
     cellEditor.css({
       display: 'none',
@@ -797,7 +796,9 @@ export default class SheetComponent extends CustomSurface {
   */
   _onInput(e) {
     let data = this._getSelection()
-    this._openCellEditor(data.anchorRow, data.anchorCol, true, e.data)
+    if (e.inputType === 'insertText') {
+      this._openCellEditor(data.anchorRow, data.anchorCol, true, e.data)
+    }
   }
 
   _onKeyDown(e) {
