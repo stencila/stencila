@@ -21,6 +21,9 @@ class IssueManager extends EventEmitter {
     this.editorSession.on('render', this._onSelectionChange, this, {
       resource: 'selection'
     })
+    this.editorSession.onUpdate('document', this._onDocumentChange, this, {
+      resource: 'document'
+    })
     this._byKey = new ArrayTree()
     this._bySeverity = new ArrayTree()
     this._byCell = new ArrayTree()
@@ -52,12 +55,52 @@ class IssueManager extends EventEmitter {
     this._notifyObservers(issue.cellId)
   }
 
+  removeByColumn(colId, issue) {
+    this._byColumn.remove(colId, issue)
+    this._byCell.remove(issue.cellId, issue)
+    this._bySeverity.remove(SEVERITY_MAP[issue.severity], issue)
+    this._byRow.remove(issue.rowId, issue)
+    this._byKey.remove(issue.scope, issue)
+
+    let rowCell = this.doc.get(issue.rowId)
+    rowCell.emit('issue:changed')
+  }
+
+  removeByRow(rowId, issue) {
+    this._byRow.remove(rowId, issue)
+    this._byColumn.remove(issue.colId, issue)
+    this._byCell.remove(issue.cellId, issue)
+    this._bySeverity.remove(SEVERITY_MAP[issue.severity], issue)
+    this._byKey.remove(issue.scope, issue)
+
+    let columnHeader = this.doc.getColumnForCell(issue.colId)
+    columnHeader.emit('issue:changed')
+  }
+
   clear(key) {
     let issues = this._byKey.get(key)
     let issuesArr = clone(issues)
     issuesArr.forEach((issue) => {
       this.remove(key, issue)
     })
+  }
+
+  clearByColumn(colId) {
+    let issues = this._byColumn.get(colId)
+    let issuesArr = clone(issues)
+    issuesArr.forEach((issue) => {
+      this.removeByColumn(colId, issue)
+    })
+    this.emit('issues:changed')
+  }
+
+  clearByRow(rowId) {
+    let issues = this._byRow.get(rowId)
+    let issuesArr = clone(issues)
+    issuesArr.forEach((issue) => {
+      this.removeByRow(rowId, issue)
+    })
+    this.emit('issues:changed')
   }
 
   getIssues(key) {
@@ -129,9 +172,12 @@ class IssueManager extends EventEmitter {
   }
 
   _add(key, issue) {
-    let column = this.doc.getColumnForCell(issue.cellId)
-    let cell = this.doc.get(issue.cellId)
-    let rowId = cell.parentNode.id
+    const column = this.doc.getColumnForCell(issue.cellId)
+    const cell = this.doc.get(issue.cellId)
+    const rowId = cell.parentNode.id
+    issue.colId = column.id
+    issue.rowId = rowId
+    issue.scope = key
     this._byKey.add(key, issue)
     this._byCell.add(issue.cellId, issue)
     this._byColumn.add(column.id, issue)
@@ -171,6 +217,43 @@ class IssueManager extends EventEmitter {
           }
         }
       }
+    }
+  }
+
+  _onDocumentChange(change) {
+    const columnsUpdate = change.updated.columns
+    const columnsChanged = columnsUpdate !== undefined
+    if(columnsChanged) {
+      let deletedColumns = []
+      columnsUpdate.ops.forEach(op => {
+        if(op.diff.type === 'delete') {
+          deletedColumns.push(op.diff.val)
+        }
+      })
+      deletedColumns.forEach(colId => {
+        this.clearByColumn(colId)
+      })
+    }
+
+    let rowsChanged = false
+    const updatedKeys = Object.keys(change.updated)
+    updatedKeys.forEach(key => {
+      if(key.indexOf('row') > -1) rowsChanged = true
+    })
+    if(rowsChanged) {
+      let deletedRows = []
+      const data = change.updated.data
+      if(data) {
+        data.ops.forEach(op => {
+          if(op.diff.type === 'delete' && op.diff.val.indexOf('row') > -1) {
+            deletedRows.push(op.diff.val)
+          }
+        })
+      }
+
+      deletedRows.forEach(rowlId => {
+        this.clearByRow(rowlId)
+      })
     }
   }
 }
