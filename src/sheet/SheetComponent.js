@@ -600,7 +600,9 @@ export default class SheetComponent extends CustomSurface {
     // if editing a cell save the content
     if (cellEditorSession.isEditing) {
       cellEditorSession.confirmEditing('silent')
-      this._closeCellEditor()
+      if(this._cell !== null) {
+        this._closeCellEditor()
+      }
     }
 
     // TODO: do not update the selection if right-clicked and already having a selection
