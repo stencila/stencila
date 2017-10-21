@@ -96,6 +96,30 @@
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
 
+      <p>A JavaScript cell:</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="js"><![CDATA[let js_var = 2.2]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
+      <p>A R cell:</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="r"><![CDATA[r_var <- 3.3]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
+      <p>A Python cell:</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="r"><![CDATA[py_var = 4.4]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
+      <p>A SQL cell:</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="sql"><![CDATA[sql_var = SELECT julianday('now') AS now]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
       <p>Cells use a very simple expression language called <italic>Mini</italic> to allow you to perform common data analysis and visualisation tasks within the document.</p>
       <p>You can edit this document just like in a traditional word processor. Press <monospace>enter</monospace> to start a new paragraph or insert a table or cell.</p>
       <p>Here's a cell that reads some fictitous ice cream sales data from a CSV (comma separated values) string using the <monospace>csv</monospace> function.</p>
