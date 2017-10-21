@@ -110,7 +110,7 @@
 
       <p>A Python cell:</p>
       <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="r"><![CDATA[py_var = 4.4]]></code>
+        <code specific-use="source" language="py"><![CDATA[py_var = 4.4]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
 
