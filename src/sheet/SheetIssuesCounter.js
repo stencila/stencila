@@ -1,4 +1,5 @@
-import { Component } from 'substance'
+import { Component, Tooltip } from 'substance'
+const ISSUE_TYPES = ['errors', 'warnings', 'info', 'failed', 'passed']
 
 export default class SheetIssuesCounter extends Component {
   constructor(...args) {
@@ -25,29 +26,11 @@ export default class SheetIssuesCounter extends Component {
       disabled: !hasIssues,
       theme: 'light'
     }).addClass('se-toggle-issues-list')
+      .on('click', this.onClick)
 
-    let stats = this.issueManager.getStats()
-
-    let errorBtn = $$('span').addClass('se-icon se-errors-counter').append(
-      this.renderIcon($$, 'toggle-errors'),
-      $$('span').addClass('se-label').append(stats.errors)
-    )
-    if(stats.errors > 0) errorBtn.addClass('sm-highlighted')
-
-    let warningBtn = $$('span').addClass('se-icon se-errors-counter').append(
-      this.renderIcon($$, 'toggle-warnings'),
-      $$('span').addClass('se-label').append(stats.warnings)
-    )
-    if(stats.warnings > 0) warningBtn.addClass('sm-highlighted')
-
-    btn.append(
-      errorBtn,
-      warningBtn,
-      $$('span').addClass('se-icon se-info-counter').append(
-        this.renderIcon($$, 'toggle-info'),
-        $$('span').addClass('se-label').append(stats.info)
-      )
-    ).on('click', this.onClick)
+    ISSUE_TYPES.forEach(type => {
+      btn.append(this.renderItem($$, type))
+    })
 
     el.append(btn)
 
@@ -57,6 +40,19 @@ export default class SheetIssuesCounter extends Component {
   renderIcon($$, icon) {
     let iconEl = this.context.iconProvider.renderIcon($$, icon)
     return iconEl
+  }
+
+  renderItem($$, type) {
+    const stats = this.issueManager.getStats()
+    let itemEl = $$('span').addClass('se-icon se-' + type + '-counter').append(
+      this.renderIcon($$, 'toggle-' + type),
+      $$('span').addClass('se-label').append(stats[type]),
+      $$(Tooltip, {
+        text: this.getLabel('toggle-' + type)
+      })
+    )
+    if(stats[type] > 0) itemEl.addClass('sm-highlighted')
+    return itemEl
   }
 
   onClick() {
