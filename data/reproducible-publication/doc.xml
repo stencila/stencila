@@ -92,7 +92,7 @@
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
       <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="mini"><![CDATA[cor([1, cos(23)])]]></code>
+        <code specific-use="source" language="mini"><![CDATA[mini_var = 40 + 2]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
 
@@ -116,7 +116,7 @@
 
       <p>A SQL cell:</p>
       <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="sql"><![CDATA[sql_var = SELECT julianday('now') AS now]]></code>
+        <code specific-use="source" language="sql"><![CDATA[sql_var = SELECT julianday("now")]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
 
