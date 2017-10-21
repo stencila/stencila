@@ -63,6 +63,12 @@ export default class Engine {
     let lang = cell.language
     this._getContext(lang)
     .then((context) => {
+      if (context instanceof Error) {
+        cellState.messages = [context]
+        this._notifyCell(cell)
+        return Promise.resolve()
+      }
+
       let token = uuid()
       this._tokens[cell.id] = token
       let source = cell.source || ''
@@ -78,10 +84,6 @@ export default class Engine {
         cellState.nodes = res.nodes
         this._notifyCell(cell)
       })
-    })
-    .catch((err) => {
-      cellState.messages = [err]
-      this._notifyCell(cell)
     })
   }
 

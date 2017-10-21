@@ -8,7 +8,7 @@ export default class FunctionUsageCommand extends Command {
     if (selection.isPropertySelection()) {
       let nodeId = selection.getNodeId()
       let node = doc.get(nodeId)
-      if (node.type === 'source-code') {
+      if (node.type === 'source-code' && node.attributes.language === 'mini') {
         let cellNode = node.parentNode
         let cellState = getCellState(cellNode)
         let cursorPos = selection.start.offset
