@@ -1,4 +1,5 @@
 import { NodeComponent } from 'substance'
+import CellValueComponent from '../shared/CellValueComponent'
 
 export default class SheetCell extends NodeComponent {
   didMount() {
@@ -30,9 +31,12 @@ export default class SheetCell extends NodeComponent {
     // TODO: this should be delegated to components
     let textValue = cell.text()
     const isTextCell = textValue.charAt(0) !== '='
+    if(textValue.indexOf('=test') > -1) this.setFakeState(cell)
     if(this.props.mode === 'maximum') {
       const value = isTextCell ? textValue : this.getResponse()
-      let valueEl = $$('div').addClass('sc-cell-value').append(value)
+      let valueEl = $$('div').addClass('sc-cell-value').append(
+        $$(CellValueComponent, {cell: cell}).ref('value')
+      )
       if(!isTextCell) valueEl.addClass('sm-response-value')
 
       const source = !isTextCell ? textValue : ' '
@@ -40,11 +44,16 @@ export default class SheetCell extends NodeComponent {
         valueEl,
         $$('div').addClass('sc-equation').append(source)
       )
-    } else if (this.props.mode === 'minimum') {
-      if(!isTextCell) textValue = this.getResponse() || ' '
-      return $$('div').addClass('sc-text-content').text(textValue)
-    } else {
-      return $$('div').addClass('sc-text-content').text(textValue)
+    }
+    // else if (this.props.mode === 'minimum') {
+    //   if(!isTextCell) textValue = this.getResponse() || ' '
+    //   return $$('div').addClass('sc-text-content').text(textValue)
+    // }
+    else {
+      //return $$('div').addClass('sc-text-content').text(textValue)
+      return $$('div').addClass('sc-text-content').append(
+        $$(CellValueComponent, {cell: cell}).ref('value')
+      )
     }
   }
 
@@ -54,6 +63,24 @@ export default class SheetCell extends NodeComponent {
 
   getResponse() {
     return '24.2324'
+  }
+
+  setFakeState(cell) {
+    cell.state = {
+      hasValue: function() {
+        return true
+      },
+      getValue: function() {
+        return {
+          type: 'test',
+          passed: true,
+          message: 'Sorry, my friend'
+        }
+      },
+      hasErrors: function() {
+        return false
+      }
+    }
   }
 
 }

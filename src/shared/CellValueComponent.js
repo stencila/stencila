@@ -30,6 +30,11 @@ class CellValueComponent extends Component {
           $$('div').addClass('se-default-value').append(valueStr)
         )
       }
+    } else {
+      const textValue = cell.text()
+      el.append(
+        $$('div').addClass('se-default-value').text(textValue)
+      )
     }
     return el
   }
