@@ -133,10 +133,10 @@ export default class Host {
     if (found) {
       let {url, spec} = found
       return POST(url + '/' + spec.name, args).then(id => {
+        // Determine the client class to use (support deprecated spec.base)
         let Client
-        let client = spec.client || spec.base // support deprecated spec.base 
-        if (client === 'Context') Client = ContextHttpClient
-        else throw new Error(`Unsupported type: ${client}`)
+        if (spec.client === 'ContextHttpClient' || spec.base === 'Context') Client = ContextHttpClient
+        else throw new Error(`Unsupported type: ${spec.client}`)
 
         let instance = new Client(url + '/' + id)
         this._instances[id] = instance
