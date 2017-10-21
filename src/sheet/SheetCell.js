@@ -33,7 +33,7 @@ export default class SheetCell extends NodeComponent {
     const isTextCell = textValue.charAt(0) !== '='
     if(textValue.indexOf('=test') > -1) this.setFakeState(cell)
     if(this.props.mode === 'maximum') {
-      const value = isTextCell ? textValue : this.getResponse()
+      //const value = isTextCell ? textValue : this.getResponse()
       let valueEl = $$('div').addClass('sc-cell-value').append(
         $$(CellValueComponent, {cell: cell}).ref('value')
       )
@@ -50,10 +50,13 @@ export default class SheetCell extends NodeComponent {
     //   return $$('div').addClass('sc-text-content').text(textValue)
     // }
     else {
-      //return $$('div').addClass('sc-text-content').text(textValue)
-      return $$('div').addClass('sc-text-content').append(
-        $$(CellValueComponent, {cell: cell}).ref('value')
-      )
+      if(cell.state) {
+        return $$('div').addClass('sc-text-content').append(
+          $$(CellValueComponent, {cell: cell}).ref('value')
+        )
+      } else {
+        return $$('div').addClass('sc-text-content').text(textValue)
+      }      
     }
   }
 
