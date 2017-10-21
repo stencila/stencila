@@ -1,8 +1,9 @@
-import { uuid } from 'substance'
+import { uuid, isEqual } from 'substance'
 import { getCellState } from '../shared/cellHelpers'
-import { INITIAL, ANALYSED } from './CellState'
+import { INITIAL, ANALYSED, EVALUATED } from './CellState'
 // HACK: using DocumentChange to communicate node state changes
 import { DocumentChange } from 'substance'
+import DependencyGraph from './DependencyGraph'
 
 export default class Engine {
 
@@ -11,13 +12,23 @@ export default class Engine {
 
     this._cells = {}
 
-    // dependency graph
-    this._ins = {}
-    this._outs = {}
+    // table to lookup cells by
+    // symbol (i.e. var or cell)
+    // TODO: we need to introduce scopes
+    // to allow for inter sheet references
+    this._lookupTable = {}
 
-    // cell id -> token
+    // dependency graph
+    this._graph = new DependencyGraph()
+
+    // used to make sure that an asynchronous
+    // job gets ignored, if another job has been
+    // scheduled instead
     this._tokens = {}
 
+    // whenever a cell goes into ANALYSED
+    // it will be added here
+    this._candidates = {}
   }
 
   addCell(cell) {
@@ -74,20 +85,154 @@ export default class Engine {
       let source = cell.source || ''
       return context.analyseCode(source).then((res) => {
         if (this._tokens[cell.id] !== token) return
-        // console.log('ANALYSED cell', cell, res)
-
+        console.log('ANALYSED cell', cell, res)
+        // takes local symbol names and compiles into
+        // symbols for the shared value scope
+        // e.g. variable 'x' in 'doc1' is compiled to 'doc1.x'
+        // or 'A1:A2' is compiled to ['sheet1.A1', 'sheet1.A2']
+        let { inputs, output } = this._compile(res.inputs, res.output, cell.scope)
+        let oldOutput = cellState.output
+        let oldInputs = cellState.inputs
+        if (oldOutput && oldOutput !== output) {
+          this._graph._removeResource(oldOutput)
+          this._graph._update()
+          this._lookupTable.delete(oldOutput)
+        } else if (!isEqual(oldInputs, inputs)) {
+          this._graph._setDependencies(output, inputs)
+          this._graph._update()
+        }
+        this._candidates[cell.id] = true
         cellState.state = ANALYSED
-        cellState.inputs = res.inputs
-        cellState.output = res.output
+        cellState.inputs = inputs
+        cellState.output = output
         cellState.messages = res.messages
         cellState.tokens = res.tokens
         cellState.nodes = res.nodes
         this._notifyCell(cell)
+
+        if (output) {
+          this._lookupTable[output] = cell.id
+        }
+        this._scheduleEvaluation()
       })
     })
   }
 
+  _compile(inputs, output, scope) {
+    let result = {
+      inputs: []
+    }
+    if (inputs) {
+      result.inputs = inputs.map((input) => {
+        // TODO: we need to support more complex symbols
+        return scope ? `${scope}.${input}` : input
+      })
+    }
+    if (output) {
+      result.output = scope ? `${scope}.${output}` : output
+    }
+    return result
+  }
+
+  _invalidate() {
+    // invalidate a cell / output
+  }
+
+  _scheduleEvaluation() {
+    let candidates = Object.keys(this._candidates)
+    for (let i = 0; i < candidates.length; i++) {
+      let cellId = candidates[i]
+      let cell = this._getCell(cellId)
+      // go through all candidates and evaluate
+      // when ready
+      if (cell && this._isReady(cell)) {
+        let cellState = getCellState(cell)
+        let lang = cell.language
+        let source = cell.source
+        // remove this from candidates to avoid
+        // being retriggered withtout being changed
+        delete this._candidates[cell.id]
+        this._getContext(lang)
+        .then((context) => {
+          let token = uuid()
+          this._tokens[cell.id] = token
+          console.log('EXECUTING cell', cell.id, source)
+
+          // TODO: we want to force simple expression for Spreadsheet cells
+          // We need to somehow 'transpile' cell and range expressions
+          // and provide them using a generated symbol name
+          let inputs = this._resolveInputs(cellState.inputs)
+          context.executeCode(source, inputs).then((res) => {
+            if (!this._tokens[cell.id] === token) return
+            console.log('executed cell', cell.id, res)
+            // TODO: need better MiniContext to continue
+            cellState.state = EVALUATED
+            cellState.value = res.value
+            cellState.messages = res.messages
+            // cellState.messages = res.messages
+            this._notifyCell(cell)
+
+            this._scheduleEvaluation()
+          })
+        })
+      }
+    }
+  }
+
+  _isReady(cell) {
+    // TODO: go through all deps of the cell
+    // and see if they have been evaluated and
+    // not errored
+    let cellState = getCellState(cell)
+    let inputs = cellState.inputs
+    for (let i = 0; i < inputs.length; i++) {
+      let input = this._lookup(inputs[i])
+      if (!input) {
+        console.error('FIXME: depending on an unregistered cell')
+        return false
+      }
+      // TODO: we will have other type of dependencies, such
+      // cell-references (A1) or externally managed values
+      if (input.isCell()) {
+        let cellState = getCellState(input)
+        if (cellState.state !== EVALUATED) {
+          return false
+        }
+        if (cellState.hasErrors()) {
+          return false
+        }
+      } else {
+        console.error('TODO: need to check the availability of inputs other than expression cells')
+      }
+    }
+    return true
+  }
+
+  _lookup(symbol) {
+    // TODO: at some point we will introduce more complex symbols
+    // such as cell-references or inputs
+    let id = this._lookupTable[symbol]
+    return this._getCell(id)
+  }
+
+  _resolveInputs(inputs) {
+    let result = {}
+    inputs.forEach((symbol) => {
+      // TODO: we need complex symbols
+      let name = symbol
+      let res = this._lookup(name)
+      let val
+      if (res.isCell()) {
+        val = getCellState(res).value
+      }
+      result[name] = val
+    })
+    return result
+  }
+
   _notifyCell(cell) {
+    // Note: need to defer to avoid triggering
+    // a reflow while already flowing
     setTimeout(() => {
       const editorSession = this.editorSession
       if (!editorSession) return

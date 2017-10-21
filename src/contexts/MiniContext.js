@@ -1,7 +1,7 @@
 import { parse } from 'stencila-mini'
 import libcore from 'stencila-libcore'
 
-import { descendantTypes } from '../types'
+import { descendantTypes, coercedArrayType } from '../types'
 
 export default class MiniContext {
 
@@ -109,6 +109,7 @@ export default class MiniContext {
     })
 
     function _error(msg) {
+      console.error(msg)
       funcCall.addErrors([{
         message: msg
       }])
@@ -223,11 +224,26 @@ class ExprContext {
 
   // used to create Stencila Values
   // such as { type: 'number', data: 5 }
+  // TODO: coerce arrays,
   marshal(type, value) {
     // TODO: maybe there are more cases where we want to
     // cast the type according to the value
-    if (type === 'number') {
-      type = libcore.type(value)
+    switch (type) {
+      case 'number': {
+        type = libcore.type(value)
+        break
+      }
+      case 'array': {
+        type = coercedArrayType(value)
+        // HACK: to unmarshalling of types here as long as mini does not
+        // have built-in support for types
+        value = value.map((v) => {
+          return v.data
+        })
+        break
+      }
+      default:
+        //
     }
     return {
       type,
@@ -235,38 +251,77 @@ class ExprContext {
     }
   }
 
+  unmarshal(val) {
+    return val.data
+  }
+
   plus(left, right) {
-    return {
-      type: this._numericType(left, right),
-      data: left.data + right.data
+    if (left && right) {
+      return {
+        type: this._numericType(left, right),
+        data: left.data + right.data
+      }
+    } else {
+      return {
+        type: this._numericType(left, right),
+        data: undefined
+      }
     }
   }
 
   minus(left, right) {
-    return {
-      type: this._numericType(left, right),
-      data: left.data - right.data
+    if (left && right) {
+      return {
+        type: this._numericType(left, right),
+        data: left.data - right.data
+      }
+    } else {
+      return {
+        type: this._numericType(left, right),
+        data: undefined
+      }
     }
   }
 
   multiply(left, right) {
-    return {
-      type: this._numericType(left, right),
-      data: left.data * right.data
+    if (left && right) {
+      return {
+        type: this._numericType(left, right),
+        data: left.data * right.data
+      }
+    } else {
+      return {
+        type: this._numericType(left, right),
+        data: undefined
+      }
     }
   }
 
   divide(left, right) {
-    return {
-      type: this._numericType(left, right),
-      data: left.data / right.data
+    if (left && right) {
+      return {
+        type: this._numericType(left, right),
+        data: left.data / right.data
+      }
+    } else {
+      return {
+        type: this._numericType(left, right),
+        data: undefined
+      }
     }
   }
 
   pow(left, right) {
-    return {
-      type: this._numericType(left, right),
-      data: Math.pow(left.data, right.data)
+    if (left && right) {
+      return {
+        type: this._numericType(left, right),
+        data: Math.pow(left.data, right.data)
+      }
+    } else {
+      return {
+        type: this._numericType(left, right),
+        data: undefined
+      }
     }
   }
 
@@ -276,7 +331,11 @@ class ExprContext {
 
   _numericType(left, right) {
     let type
-    if (left.type === 'integer' && right.type === 'integer') {
+    if (!left) {
+      return right
+    } else if (!right) {
+      return left
+    } else if (left.type === 'integer' && right.type === 'integer') {
       type = 'integer'
     } else {
       type = 'number'

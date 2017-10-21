@@ -38,6 +38,10 @@ class CellAdapter {
     this.node.emit(...args)
   }
 
+  isCell() {
+    return true
+  }
+
   isInput() {
     return false
   }

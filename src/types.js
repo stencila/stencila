@@ -5,7 +5,7 @@ const parentTypes = {
   'any': null,
 
   'boolean': 'any',
-  
+
   'number': 'any',
   'integer': 'number',
 
@@ -44,3 +44,31 @@ for (let type of Object.keys(parentTypes)) {
 }
 
 export { parentTypes, childrenTypes, descendantTypes }
+
+export function coercedArrayType(arr) {
+  let valType = arr.reduce(_mostSpecificType, undefined)
+  if (valType === 'any') {
+    return 'array'
+  } else {
+    return `array[${valType}]`
+  }
+}
+
+function _mostSpecificType(type, next) {
+  let nextType = next.type
+  if (!type) return nextType
+  if (type === nextType) {
+    return type
+  }
+  switch(type) {
+    case 'number': {
+      if (nextType === 'integer') {
+        return 'number'
+      }
+      break
+    }
+    default:
+      //
+  }
+  return 'any'
+}
