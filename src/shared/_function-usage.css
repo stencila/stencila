@@ -21,7 +21,7 @@
 
 .sc-function-usage .se-documentation {
   padding: 2px 5px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  /*border-bottom: 1px solid rgba(255,255,255,0.1);*/
 }
 
 .sc-function-usage .se-documentation .se-title {
@@ -34,8 +34,7 @@
 }
 
 .sc-function-usage .se-documentation .se-signature .se-signature-param.sm-active {
-	background: #fff;
-	color: #222;
+	border-bottom: 2px solid #fff;
 }
 
 .sc-function-usage .se-documentation .se-parameters {
