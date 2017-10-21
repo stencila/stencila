@@ -202,33 +202,20 @@ export class SetTypeCommand extends Command {
     let state = {
       disabled: true
     }
-    const { anchorRow, anchorCol } = selection.data
-    if(anchorRow === -1 || anchorCol === -1) {
-      const selectionType = selection.data.type
-      if(selectionType === 'columns') {
-        let columnMeta = doc.getColumnMeta(anchorCol)
-        let columnType = columnMeta.attr('type')
-        state = {
-          cellId: columnMeta.id,
-          newType: this.config.type,
-          columnType: labelProvider.getLabel(columnType),
-          disabled: false,
-          active: this.config.type === columnType
-        }
-      } else if (selectionType === 'rows') {
-        let anchorCell = doc.getCell(anchorRow, 0)
-        let columnMeta = doc.getColumnForCell(anchorCell.id)
-        let columnType = columnMeta.attr('type')
-        let cellType = anchorCell.attr('type')
-        state = {
-          cellId: anchorCell.id,
-          newType: this.config.type,
-          columnType: labelProvider.getLabel(columnType),
-          disabled: false,
-          active: this.config.type === cellType
-        }
+    let { anchorRow, anchorCol } = selection.data
+    const selectionType = selection.data.type
+    if(selectionType === 'columns') {
+      let columnMeta = doc.getColumnMeta(anchorCol)
+      let columnType = columnMeta.attr('type')
+      state = {
+        cellId: columnMeta.id,
+        newType: this.config.type,
+        columnType: labelProvider.getLabel(columnType),
+        disabled: false,
+        active: this.config.type === columnType
       }
     } else {
+      if (selectionType === 'rows') anchorCol = 0
       let anchorCell = doc.getCell(anchorRow, anchorCol)
       let columnMeta = doc.getColumnForCell(anchorCell.id)
       let columnType = columnMeta.attr('type')
