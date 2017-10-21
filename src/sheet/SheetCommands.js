@@ -154,6 +154,8 @@ export class OpenColumnSettings extends ColumnMetaCommand {
     // NOTE: when the OpenColumnSettings command is active
     // params.surface is the corresponding SheetComponent
     params.surface.openColumnSettings(params)
+    params.editorSession._setDirty('commandStates')
+    params.editorSession.performFlow()
   }
 }
 
