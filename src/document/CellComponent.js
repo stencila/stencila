@@ -3,6 +3,7 @@ import CellValueComponent from '../shared/CellValueComponent'
 import CellErrorDisplay from '../shared/CellErrorDisplay'
 import MiniLangEditor from '../shared/MiniLangEditor'
 import { getCellState } from '../shared/cellHelpers'
+import NodeMenu from './NodeMenu'
 
 export default
 class CellComponent extends NodeComponent {
@@ -20,8 +21,8 @@ class CellComponent extends NodeComponent {
   getInitialState() {
     return {
       showMenu: false,
-      showCode: true,
-      forceShowOutput: false
+      hideCode: false,
+      forceOutput: false
     }
   }
 
@@ -30,26 +31,7 @@ class CellComponent extends NodeComponent {
     const cellState = getCellState(cell)
     let el = $$('div').addClass('sc-cell')
 
-    let toggleCell = $$('div').addClass('se-toggle-cell').append(
-      $$('div').addClass('se-toggle-cell-inner')
-    ).on('click', this._toggleMenu)
-
-    if (this.state.showMenu) {
-      toggleCell.append(
-        this._renderMenu($$)
-      )
-    }
-
-    if (this.state.showCode) {
-      toggleCell.addClass('sm-code-shown')
-    }
-
-    if (cellState && cellState.hasErrors()) {
-      toggleCell.addClass('sm-has-errors')
-    }
-    el.append(toggleCell)
-
-    if (this.state.showCode) {
+    if (!this.state.hideCode) {
       let source = cell.find('source-code')
       let cellEditorContainer = $$('div').addClass('se-cell-editor-container')
       cellEditorContainer.append(
@@ -66,11 +48,45 @@ class CellComponent extends NodeComponent {
       el.append(
         $$(CellErrorDisplay, {cell})
       )
+    } else {
+      // TODO: Create proper visual style
+      el.append(
+        $$('button').append('Show Code')
+      )
     }
+
+    el.append(
+      this._renderEllipsis($$)
+    )
 
     if (this._showOutput()) {
       el.append(
         $$(CellValueComponent, {cell}).ref('value')
+      )
+    }
+    return el
+  }
+
+  /*
+    Move this into an overlay, shown depending on app state
+  */
+  _renderEllipsis($$) {
+    let Button = this.getComponent('button')
+    let el = $$('div').addClass('se-ellipsis')
+    let configurator = this.context.editorSession.getConfigurator()
+    let button = $$(Button, {
+      icon: 'ellipsis',
+      active: false,
+      theme: 'light'
+    }).on('click', this._toggleMenu)
+    el.append(button)
+
+    let sel = this.context.editorSession.getSelection()
+    if (sel.isNodeSelection() && sel.getNodeId() === this.props.node.id) {
+      el.append(
+        $$(NodeMenu, {
+          toolPanel: configurator.getToolPanel('node-menu')
+        }).ref('menu')
       )
     }
     return el
@@ -167,8 +183,11 @@ class CellComponent extends NodeComponent {
   }
 
   _toggleMenu() {
-    this.extendState({
-      showMenu: !this.state.showMenu
+    this.context.editorSession.setSelection({
+      type: 'node',
+      containerId: 'body-content-1',
+      surfaceId: 'bodyEditor',
+      nodeId: this.props.node.id,
     })
   }
 

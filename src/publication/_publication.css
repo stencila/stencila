@@ -8,12 +8,13 @@
 }
 
 .sc-publication .sc-editor {
-  top: 50px;
-  border-top: 1px solid #e1e4e8;
+  /*top: 50px;
+  border-top: 1px solid #e1e4e8;*/
 }
 
 .sc-publication .se-header {
-  display: flex;
+  /*display: flex;*/
+  display: none;
   padding: 10px;
   background: #eef0f2;
 }
