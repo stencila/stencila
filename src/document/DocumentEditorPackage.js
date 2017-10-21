@@ -17,7 +17,7 @@ import TestValueComponent from '../shared/TestValueComponent'
 import ImageValueComponent from '../shared/ImageValueComponent'
 import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
-import { SetLanguageCommand } from './DocumentCommands'
+import { SetLanguageCommand, ToggleAllCodeCommand, HideCellCodeCommand } from './DocumentCommands'
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
 
@@ -45,6 +45,45 @@ export default {
     })
     config.addTool('function-usage', FunctionUsageTool)
 
+
+    config.addToolPanel('toolbar', [
+      {
+        name: 'text-types',
+        type: 'tool-dropdown',
+        showDisabled: false,
+        style: 'descriptive',
+        commandGroups: ['text-types']
+      },
+      {
+        name: 'persistence',
+        type: 'tool-group',
+        showDisabled: true,
+        style: 'descriptive',
+        commandGroups: ['persistence']
+      },
+      {
+        name: 'annotations',
+        type: 'tool-group',
+        showDisabled: true,
+        style: 'minimal',
+        commandGroups: ['formatting']
+      },
+      {
+        name: 'insert',
+        type: 'tool-dropdown',
+        showDisabled: true,
+        style: 'descriptive',
+        commandGroups: ['insert-xref', 'insert-block-element']
+      },
+      {
+        name: 'view',
+        type: 'tool-dropdown',
+        showDisabled: false,
+        style: 'descriptive',
+        commandGroups: ['view']
+      }
+    ])
+
     config.addToolPanel('node-menu', [
       {
         name: 'cell-actions',
@@ -58,8 +97,11 @@ export default {
     /*
       Cell Actions
     */
-    // config.addCommand('hide-cell-code', ToggleCodeCommand, { hideCode: true, commandGroup: 'cell-actions' })
+
     // config.addCommand('force-cell-output', ToggleCodeCommand, { forceOutput: true, commandGroup: 'cell-actions' })
+
+
+    config.addCommand('hide-cell-code', HideCellCodeCommand, { commandGroup: 'cell-actions' })
     config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-actions' })
     config.addCommand('set-js', SetLanguageCommand, { language: 'js', commandGroup: 'cell-actions' })
     config.addCommand('set-py', SetLanguageCommand, { language: 'py', commandGroup: 'cell-actions' })
@@ -76,5 +118,24 @@ export default {
     config.addLabel('set-sql', 'SQL')
 
     config.addIcon('ellipsis', { 'fontawesome': 'fa-ellipsis-v' })
+
+
+    config.addLabel('view', 'View')
+    config.addLabel('show-all-code', 'Show All Code')
+    config.addLabel('hide-all-code', 'Hide All Code')
+
+    // View Commands
+    config.addCommand('hide-all-code', ToggleAllCodeCommand, {
+      hideCode: true,
+      commandGroup: 'view'
+    })
+    config.addCommand('show-all-code', ToggleAllCodeCommand, {
+      hideCode: false,
+      commandGroup: 'view'
+    })
+
+    config.addKeyboardShortcut('CommandOrControl+Alt+L', { command: 'show-all-code' })
+    config.addKeyboardShortcut('CommandOrControl+Alt+O', { command: 'hide-all-code' })
+
   }
 }
