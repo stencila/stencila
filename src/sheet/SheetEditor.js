@@ -168,6 +168,24 @@ export default class SheetEditor extends AbstractEditor {
     })
   }
 
+  setSelectionOnSheet() {
+    const sheet = this.getDocument()
+    let selData = {
+      type: 'range',
+      anchorRow: 0,
+      focusRow: sheet.getRowCount() - 1,
+      anchorCol: 0,
+      focusCol: sheet.getColumnCount() - 1
+    }
+
+    this.context.editorSession.setSelection({
+      type: 'custom',
+      customType: 'sheet',
+      data: selData,
+      surfaceId: this.refs.sheet.getId()
+    })
+  }
+
   toggleConsole(consoleContent, consoleCell) {
     if (this.state.showConsole && this.state.consoleContent === consoleContent && consoleCell === undefined) {
       this.setState({

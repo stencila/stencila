@@ -1,4 +1,5 @@
 import { Command } from 'substance'
+import { getRange } from './sheetHelpers'
 
 class RowsCommand extends Command {
 
@@ -153,6 +154,8 @@ export class OpenColumnSettings extends ColumnMetaCommand {
     // NOTE: when the OpenColumnSettings command is active
     // params.surface is the corresponding SheetComponent
     params.surface.openColumnSettings(params)
+    params.editorSession._setDirty('commandStates')
+    params.editorSession.performFlow()
   }
 }
 
@@ -198,31 +201,57 @@ export class SetTypeCommand extends Command {
     }
     let labelProvider = editorSession.getConfigurator().getLabelProvider()
     let doc = editorSession.getDocument()
-    const { anchorRow, anchorCol } = selection.data
-    if(anchorRow === -1 || anchorCol === -1) {
-      return { disabled: true }
-    }
-    let anchorCell = doc.getCell(anchorRow, anchorCol)
-    let columnMeta = doc.getColumnForCell(anchorCell.id)
-    let columnType = columnMeta.attr('type')
-    let cellType = anchorCell.attr('type')
     let state = {
-      cellId: anchorCell.id,
-      newType: this.config.type,
-      columnType: labelProvider.getLabel(columnType),
-      disabled: false,
-      active: this.config.type === cellType
+      disabled: true
+    }
+    let { anchorRow, anchorCol } = selection.data
+    const selectionType = selection.data.type
+    if(selectionType === 'columns') {
+      let columnMeta = doc.getColumnMeta(anchorCol)
+      let columnType = columnMeta.attr('type')
+      state = {
+        cellId: columnMeta.id,
+        newType: this.config.type,
+        columnType: labelProvider.getLabel(columnType),
+        disabled: false,
+        active: this.config.type === columnType
+      }
+    } else {
+      if (selectionType === 'rows') anchorCol = 0
+      let anchorCell = doc.getCell(anchorRow, anchorCol)
+      let columnMeta = doc.getColumnForCell(anchorCell.id)
+      let columnType = columnMeta.attr('type')
+      let cellType = anchorCell.attr('type')
+
+      state = {
+        cellId: anchorCell.id,
+        newType: this.config.type,
+        columnType: labelProvider.getLabel(columnType),
+        disabled: false,
+        active: this.config.type === cellType
+      }
     }
     return state
   }
 
-  execute({ editorSession, commandState }) {
-    let { cellId, newType, disabled } = commandState
+  execute({ editorSession, commandState, selection }) {
+    let { newType, disabled } = commandState
+    const selectionType = selection.data.type
     if (!disabled) {
-      editorSession.transaction((tx) => {
-        let cell = tx.get(cellId)
-        cell.attr({ type: newType })
-      })
+      if(selectionType === 'range' || selectionType === 'rows') {
+        const range = getRange(editorSession)
+        editorSession.transaction((tx) => {
+          tx.getDocument().setTypeForRange(range.startRow, range.startCol, range.endRow, range.endCol, newType)
+        })
+      } else if (selectionType === 'columns') {
+        const range = getRange(editorSession)
+        editorSession.transaction((tx) => {
+          for (let colIdx = range.startCol; colIdx <= range.endCol; colIdx++) {
+            let cell = tx.getDocument().getColumnMeta(colIdx)
+            cell.attr({type: newType})
+          }
+        })
+      }
     }
   }
 }

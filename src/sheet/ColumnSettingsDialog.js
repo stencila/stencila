@@ -15,6 +15,7 @@ export default class ColumnSettingsDialog extends Component {
       .append(this._renderFoot($$))
       .addClass('sm-hidden')
       .on('mousedown', stop)
+      .on('keydown', this._onKeyDown)
     return el
   }
 
@@ -29,7 +30,7 @@ export default class ColumnSettingsDialog extends Component {
     const node = this._getNode()
     const type = node.attr('type')
     let body = $$('div').addClass('se-body')
-    body.append($$('div').append(
+    body.append($$('div').addClass('se-item').append(
       $$('div').addClass('se-label').text(this.getLabel('name')),
       $$('input').ref('name')
         .addClass('se-input sm-name')
@@ -50,7 +51,7 @@ export default class ColumnSettingsDialog extends Component {
       }
       typeSelect.append(option)
     })
-    body.append($$('div').append(
+    body.append($$('div').addClass('se-item').append(
       $$('div').addClass('se-label').text(this.getLabel('type')),
       typeSelect
     ))
@@ -139,6 +140,14 @@ export default class ColumnSettingsDialog extends Component {
 
   _onCancel() {
     this._hide()
+  }
+
+  _onKeyDown(e) {
+    if(e.keyCode === 13) {
+      this._onConfirm()
+    } else if (e.keyCode === 27) {
+      this._hide()
+    }
   }
 
 }
