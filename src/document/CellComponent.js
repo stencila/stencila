@@ -1,4 +1,4 @@
-import { NodeComponent } from 'substance'
+import { NodeComponent, FontAwesomeIcon } from 'substance'
 import CellValueComponent from '../shared/CellValueComponent'
 import CellErrorDisplay from '../shared/CellErrorDisplay'
 import MiniLangEditor from '../shared/MiniLangEditor'
@@ -20,13 +20,13 @@ class CellComponent extends NodeComponent {
 
   getInitialState() {
     return {
-      showMenu: false,
       hideCode: false,
       forceOutput: false
     }
   }
 
   render($$) {
+    console.log('cell rerender', this.props.node.id, this.state.hideCode)
     const cell = this.props.node
     const cellState = getCellState(cell)
     let el = $$('div').addClass('sc-cell')
@@ -48,16 +48,21 @@ class CellComponent extends NodeComponent {
       el.append(
         $$(CellErrorDisplay, {cell})
       )
+
+      el.append(
+        this._renderEllipsis($$)
+      )
     } else {
       // TODO: Create proper visual style
       el.append(
-        $$('button').append('Show Code')
+        $$('button').append(
+          $$(FontAwesomeIcon, { icon: 'fa-code' })
+        )
+          .addClass('se-show-code')
+          .attr('title', 'Show Code')
+          .on('click', this._showCode)
       )
     }
-
-    el.append(
-      this._renderEllipsis($$)
-    )
 
     if (this._showOutput()) {
       el.append(
@@ -105,39 +110,6 @@ class CellComponent extends NodeComponent {
     return menuEl
   }
 
-  /*
-    Displays 'Show Code' or 'Hide Code' depending on the current state
-  */
-  _renderToggleCode($$) {
-    let el = $$('div')
-      .addClass('se-menu-item')
-      .on('click', this._toggleShowCode)
-
-    if (this.state.showCode) {
-      el.append('Hide Code')
-    } else {
-      el.append('Show Code')
-    }
-    return el
-  }
-
-  _renderToggleOutput($$) {
-    let el = $$('div')
-      .addClass('se-menu-item')
-      .on('click', this._toggleForceShowOutput)
-
-    // If cell is not a definition we ensure output is always shown
-    if (!this._isDefinition()) {
-      el.addClass('sm-disabled')
-    }
-    if (this._showOutput()) {
-      el.append('Hide Output')
-    } else {
-      el.append('Show Output')
-    }
-    return el
-  }
-
   _getBlackListedCommands() {
     const commandGroups = this.context.commandGroups
     let result = []
@@ -149,23 +121,9 @@ class CellComponent extends NodeComponent {
     return result
   }
 
-  _toggleShowCode(event) {
-    event.preventDefault()
-    event.stopPropagation()
+  _showCode() {
     this.extendState({
-      showCode: !this.state.showCode,
-      showMenu: false
-    })
-  }
-
-  _toggleForceShowOutput(event) {
-    event.preventDefault()
-    event.stopPropagation()
-    // No toggling allowed if cell is not a definition
-    if (!this._isDefinition()) return
-    this.extendState({
-      forceShowOutput: !this.state.forceShowOutput,
-      showMenu: false
+      hideCode: false
     })
   }
 

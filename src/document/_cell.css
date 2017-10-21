@@ -2,6 +2,19 @@
   background: var(--stencila-green-transparent);
 }
 
+.sc-cell .se-show-code {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto;
+
+  background: #ddd;
+  text-align: center;
+}
+
+.sc-cell .se-show-code:hover {
+  background: #ccc;
+}
+
 .sc-cell {
   position: relative;
 }
