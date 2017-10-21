@@ -60,6 +60,14 @@ class CellAdapter {
     return sourceEl.getAttribute('language')
   }
 
+  get inputs() {
+    return this.state.inputs
+  }
+
+  get output() {
+    return this.state.output
+  }
+
   _getSourceElement() {
     if (!this._source) {
       this._source = this.node.find('source-code')

@@ -10,14 +10,6 @@ export default class Engine {
   constructor(host) {
     this._host = host
 
-    this._cells = {}
-
-    // table to lookup cells by
-    // symbol (i.e. var or cell)
-    // TODO: we need to introduce scopes
-    // to allow for inter sheet references
-    this._lookupTable = {}
-
     // dependency graph
     this._graph = new DependencyGraph()
 
@@ -32,14 +24,14 @@ export default class Engine {
   }
 
   addCell(cell) {
-    if (this._cells[cell.id]) {
+    if (this._graph.contains(cell.id)) {
       throw new Error('Cell with the same id already exists.')
     }
-    this._cells[cell.id] = cell
+    this._graph.addCell(cell)
 
     let cellState = getCellState(cell)
     cellState.state = INITIAL
-    this._notifyCell(cell)
+    this._notifyCells(cell.id)
 
     this._analyse(cell)
   }
@@ -49,14 +41,18 @@ export default class Engine {
     let cell = this._getCell(cellId)
     let cellState = getCellState(cell)
     cellState.state = INITIAL
-    this._notifyCell(cell)
+    this._notifyCells(cell.id)
 
     this._analyse(cell)
   }
 
   removeCell(cellId) {
     // TODO: need to reorganize the dep graph
-    delete this._cells[cellId]
+    let cell = this._getCell(cellId)
+    if (cell) {
+      this._invalidateDependencies(cell)
+      this._graph.removeCell(cellId)
+    }
   }
 
   _getContext(lang) {
@@ -64,7 +60,7 @@ export default class Engine {
   }
 
   _getCell(cellId) {
-    let cell = this._cells[cellId]
+    let cell = this._graph.getCell(cellId)
     if (!cell) throw new Error(`Unknown cell ${cellId}`)
     return cell
   }
@@ -76,7 +72,8 @@ export default class Engine {
     .then((context) => {
       if (context instanceof Error) {
         cellState.messages = [context]
-        this._notifyCell(cell)
+        this._notifyCells(cell.id)
+
         return Promise.resolve()
       }
 
@@ -84,8 +81,10 @@ export default class Engine {
       this._tokens[cell.id] = token
       let source = cell.source || ''
       return context.analyseCode(source).then((res) => {
+        // skip if this cell has been rescheduled in the meantime
         if (this._tokens[cell.id] !== token) return
-        console.log('ANALYSED cell', cell, res)
+
+        // console.log('ANALYSED cell', cell, res)
         // takes local symbol names and compiles into
         // symbols for the shared value scope
         // e.g. variable 'x' in 'doc1' is compiled to 'doc1.x'
@@ -93,27 +92,23 @@ export default class Engine {
         let { inputs, output } = this._compile(res.inputs, res.output, cell.scope)
         let oldOutput = cellState.output
         let oldInputs = cellState.inputs
-        if (oldOutput && oldOutput !== output) {
-          this._graph._removeResource(oldOutput)
-          this._graph._update()
-          this._lookupTable.delete(oldOutput)
-        } else if (!isEqual(oldInputs, inputs)) {
-          this._graph._setDependencies(output, inputs)
-          this._graph._update()
-        }
-        this._candidates[cell.id] = true
+
         cellState.state = ANALYSED
         cellState.inputs = inputs
         cellState.output = output
         cellState.messages = res.messages
         cellState.tokens = res.tokens
         cellState.nodes = res.nodes
-        this._notifyCell(cell)
+        this._triggerScheduler()
 
-        if (output) {
-          this._lookupTable[output] = cell.id
+        // FIXME: to be able to broadcast changes to cells
+        // we need to make the DepGraph based on cell ids, not on symbols
+        if (!isEqual(oldOutput, output) || !isEqual(oldInputs, inputs)) {
+          this._graph.updateCell(cell)
         }
-        this._scheduleEvaluation()
+
+        this._candidates[cell.id] = true
+        this._invalidateDependencies(cell)
       })
     })
   }
@@ -124,7 +119,7 @@ export default class Engine {
     }
     if (inputs) {
       result.inputs = inputs.map((input) => {
-        // TODO: we need to support more complex symbols
+        // TODO: complex symbols
         return scope ? `${scope}.${input}` : input
       })
     }
@@ -134,59 +129,68 @@ export default class Engine {
     return result
   }
 
-  _invalidate() {
-    // invalidate a cell / output
+  _triggerScheduler() {
+    setTimeout(() => {
+      // TODO: we should avoid that the scheduler gets stuck
+      // because of exceptions somewhere in the code
+      // maybe we should trigger scheduleEvaluation() via a background process
+      this._scheduleEvaluation()
+    })
   }
 
   _scheduleEvaluation() {
     let candidates = Object.keys(this._candidates)
-    for (let i = 0; i < candidates.length; i++) {
-      let cellId = candidates[i]
+    candidates.forEach((cellId) => {
       let cell = this._getCell(cellId)
-      // go through all candidates and evaluate
-      // when ready
+      // go through all candidates and evaluate when ready
       if (cell && this._isReady(cell)) {
         let cellState = getCellState(cell)
+        if (cellState.state === EVALUATED) {
+          throw new Error('FIXME: retriggering an already evaluated cell')
+        }
         let lang = cell.language
         let source = cell.source
-        // remove this from candidates to avoid
-        // being retriggered withtout being changed
+        // remove this from candidates otherwise it will be re-evaluated infinitely
         delete this._candidates[cell.id]
         this._getContext(lang)
         .then((context) => {
           let token = uuid()
           this._tokens[cell.id] = token
-          console.log('EXECUTING cell', cell.id, source)
+          // console.log('EXECUTING cell', cell.id, source)
 
           // TODO: we want to force simple expression for Spreadsheet cells
           // We need to somehow 'transpile' cell and range expressions
           // and provide them using a generated symbol name
-          let inputs = this._resolveInputs(cellState.inputs)
+          let inputs = this._getInputValues(cellId)
           context.executeCode(source, inputs).then((res) => {
             if (!this._tokens[cell.id] === token) return
-            console.log('executed cell', cell.id, res)
+            // console.log('executed cell', cell.id, res)
             // TODO: need better MiniContext to continue
+            delete this._candidates[cellId]
             cellState.state = EVALUATED
             cellState.value = res.value
             cellState.messages = res.messages
-            // cellState.messages = res.messages
-            this._notifyCell(cell)
 
-            this._scheduleEvaluation()
+            this._triggerScheduler()
+
+            // TODO: this should be named differently
+            // it should do different things, such as
+            // 'invalidating' evaluated cells
+            // but also
+            this._invalidateDependencies(cell)
           })
         })
       }
-    }
+    })
   }
 
   _isReady(cell) {
     // TODO: go through all deps of the cell
     // and see if they have been evaluated and
     // not errored
-    let cellState = getCellState(cell)
-    let inputs = cellState.inputs
+    let inputs = this._graph.getInputs(cell.id)
     for (let i = 0; i < inputs.length; i++) {
-      let input = this._lookup(inputs[i])
+      let input = inputs[i]
       if (!input) {
         console.error('FIXME: depending on an unregistered cell')
         return false
@@ -195,10 +199,7 @@ export default class Engine {
       // cell-references (A1) or externally managed values
       if (input.isCell()) {
         let cellState = getCellState(input)
-        if (cellState.state !== EVALUATED) {
-          return false
-        }
-        if (cellState.hasErrors()) {
+        if (cellState.state !== EVALUATED || cellState.hasErrors()) {
           return false
         }
       } else {
@@ -208,29 +209,51 @@ export default class Engine {
     return true
   }
 
-  _lookup(symbol) {
-    // TODO: at some point we will introduce more complex symbols
-    // such as cell-references or inputs
-    let id = this._lookupTable[symbol]
-    return this._getCell(id)
-  }
-
-  _resolveInputs(inputs) {
+  _getInputValues(cellId) {
     let result = {}
-    inputs.forEach((symbol) => {
-      // TODO: we need complex symbols
-      let name = symbol
-      let res = this._lookup(name)
-      let val
-      if (res.isCell()) {
-        val = getCellState(res).value
+    this._graph.getInputs(cellId).forEach((input) => {
+      if (input.isCell()) {
+        let cellState = getCellState(input)
+        let output = cellState.output
+        if (output) {
+          result[output] = cellState.value
+        }
+      } else {
+        console.error('TODO: other input types?')
       }
-      result[name] = val
     })
     return result
   }
 
-  _notifyCell(cell) {
+  _invalidateDependencies(cell) {
+    const graph = this._graph
+    // invalidate all cells depending on this one
+    // invalidate a cell / output
+    // console.log('invalidate cell', cell)
+    let visited = {}
+    let queue = [].concat(graph.getOutputs(cell.id))
+    let dirty = [cell.id]
+    while (queue.length > 0) {
+      let next = queue.shift()
+      if (visited[next.id]) continue
+      if (next.isCell()) {
+        let cellState = getCellState(next)
+        if (cellState.state === EVALUATED) {
+          cellState.state = ANALYSED
+          this._candidates[next.id] = true
+          dirty.push(next.id)
+          queue = queue.concat(
+            graph.getOutputs(next.id).filter(c => !visited[c.id])
+          )
+        }
+      }
+      visited[cell.id] = true
+    }
+    this._notifyCells(...dirty)
+  }
+
+  _notifyCells(...cellIds) {
+    if (cellIds.length === 0) return
     // Note: need to defer to avoid triggering
     // a reflow while already flowing
     setTimeout(() => {
@@ -240,7 +263,10 @@ export default class Engine {
       editorSession._setDirty('commandStates')
       let change = new DocumentChange([], {}, {})
       change._extractInformation()
-      change.updated[cell.id] = true
+      cellIds.forEach((cellId) => {
+        // console.log('notifying', cellId)
+        change.updated[cellId] = true
+      })
       editorSession._change = change
       editorSession._info = {}
       editorSession.startFlow()
@@ -248,116 +274,3 @@ export default class Engine {
   }
 
 }
-
-/*
-
-  // we are storing the graph as a mapping from
-  // cellId -> { inputs, output }
-  // and reconstruct the whole graph after changes
-  // (can be optimized later)
-  _buildDependencyGraph() {
-    let cells = this._cells
-    // cellId -> [successors]
-    let outs = {}
-    // cellId -> [predecessors]
-    let ins = {}
-    // mapping from qualified name to cellId
-    let byName = {}
-
-    // DFS to detect cyclic deps
-    let visited = {}
-    forEach(this._cells, cell => this.__buildDependencyGraph(cell, visited))
-
-    this._ins = ins
-    this._outs = outs
-  }
-
-  __buildDependencyGraph(cell, visited) {
-    // create a slot in outs
-    if (visited[cell.id] === -1) {
-      throw new Error('Found cyclic dependency')
-    }
-    if (visited[cell.id]) return
-    visited[cell.id] = -1
-    // TODO: requires successful code analysis
-    let name = cell.getName()
-    if (name) {
-      byName[name] = cell.id
-    }
-    outs[cell.id] = new Set()
-    // TODO: cell.inputs should not just be names
-    // but rather records (var, cell, range)
-    // in case of 'range', input expands to a list of ids
-    cell.inputs.forEach((input) => {
-      let prevIds = this._mapInput(input)
-      prevIds.forEach(prevIds, (prevId) => {
-        let prev = cells[prevId]
-        if (!prev) {
-          // ohoh... could not find cell
-          return
-        }
-        if (!ins[prevId]) {
-          ins[prevId] = new Set()
-        }
-        ins[prevId].add(cell.id)
-        this.__buildDependencyGraph(prev)
-      })
-    })
-    visited[cell.id] = true
-  }
-
-  _mapInput(input) {
-    let ids = []
-    switch(input.type) {
-      case 'var': {
-
-        break
-      }
-      case 'cell': {
-
-        break
-      }
-      case 'range': {
-
-        break
-      }
-    }
-    return ids
-  }
-
-  _getTrace(cellId) {
-    // TODO: we could cache such things
-    // and invalidate when cells are changed
-    let trace = []
-    this._traverseDependencies(cellId, (cell) => {
-      trace.push(cell)
-    })
-    return trace
-  }
-
-  _traverseDependencies(id, fn, visited = {}) {
-    // compute the schedule first
-    const outs = this._outs
-    let queue = [id]
-    while(queue.length > 0) {
-      let nextId = queue.shift()
-      if (visited[nextId] === -1) {
-        throw new Error('Cyclic dependency')
-      }
-      if (visited[nextId]) continue
-      visited[nextId] = -1
-      let next = this._getEntry(nextId)
-      if (!next) {
-        // next is not an entry
-      } else {
-        fn(next)
-      }
-      visited[nextId] = true
-      let out = outs[id]
-      if (out && out.size>0) {
-        queue = queue.concat(...out)
-      }
-    }
-  }
-
-*/
