@@ -221,7 +221,7 @@ export default class Host {
    * @param {string} url - A URL for the peer
    */
   pokePeer (url) {
-    GET(url).then(manifest => {
+    return GET(url).then(manifest => {
       // Register if this is a Stencila Host manifest
       if (manifest.stencila) this.registerPeer(url, manifest)
     })
