@@ -61,10 +61,10 @@ export function getRange(editorSession) {
   let endCol = Math.max(sel.anchorCol, sel.focusCol)
   if (sel.type === 'columns') {
     startRow = 0
-    endRow = sheet.getRowCount()
+    endRow = sheet.getRowCount() - 1
   } else if (sel.type === 'rows') {
     startCol = 0
-    endRow = sheet.getColumnCount()
+    endCol = sheet.getColumnCount() - 1
   }
   return {
     startRow, endRow, startCol, endCol

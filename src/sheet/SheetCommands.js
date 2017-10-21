@@ -199,21 +199,48 @@ export class SetTypeCommand extends Command {
     }
     let labelProvider = editorSession.getConfigurator().getLabelProvider()
     let doc = editorSession.getDocument()
+    let state = {
+      disabled: true
+    }
     const { anchorRow, anchorCol } = selection.data
     if(anchorRow === -1 || anchorCol === -1) {
-      return { disabled: true }
-    }
-    let anchorCell = doc.getCell(anchorRow, anchorCol)
-    let columnMeta = doc.getColumnForCell(anchorCell.id)
-    let columnType = columnMeta.attr('type')
-    let cellType = anchorCell.attr('type')
+      const selectionType = selection.data.type
+      if(selectionType === 'columns') {
+        let columnMeta = doc.getColumnMeta(anchorCol)
+        let columnType = columnMeta.attr('type')
+        state = {
+          cellId: columnMeta.id,
+          newType: this.config.type,
+          columnType: labelProvider.getLabel(columnType),
+          disabled: false,
+          active: this.config.type === columnType
+        }
+      } else if (selectionType === 'rows') {
+        let anchorCell = doc.getCell(anchorRow, 0)
+        let columnMeta = doc.getColumnForCell(anchorCell.id)
+        let columnType = columnMeta.attr('type')
+        let cellType = anchorCell.attr('type')
+        state = {
+          cellId: anchorCell.id,
+          newType: this.config.type,
+          columnType: labelProvider.getLabel(columnType),
+          disabled: false,
+          active: this.config.type === cellType
+        }
+      }
+    } else {
+      let anchorCell = doc.getCell(anchorRow, anchorCol)
+      let columnMeta = doc.getColumnForCell(anchorCell.id)
+      let columnType = columnMeta.attr('type')
+      let cellType = anchorCell.attr('type')
 
-    let state = {
-      cellId: anchorCell.id,
-      newType: this.config.type,
-      columnType: labelProvider.getLabel(columnType),
-      disabled: false,
-      active: this.config.type === cellType
+      state = {
+        cellId: anchorCell.id,
+        newType: this.config.type,
+        columnType: labelProvider.getLabel(columnType),
+        disabled: false,
+        active: this.config.type === cellType
+      }
     }
     return state
   }
@@ -222,7 +249,7 @@ export class SetTypeCommand extends Command {
     let { newType, disabled } = commandState
     const selectionType = selection.data.type
     if (!disabled) {
-      if(selectionType === 'range') {
+      if(selectionType === 'range' || selectionType === 'rows') {
         const range = getRange(editorSession)
         editorSession.transaction((tx) => {
           tx.getDocument().setTypeForRange(range.startRow, range.startCol, range.endRow, range.endCol, newType)
