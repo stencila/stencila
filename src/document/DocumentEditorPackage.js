@@ -17,6 +17,7 @@ import TestValueComponent from '../shared/TestValueComponent'
 import ImageValueComponent from '../shared/ImageValueComponent'
 import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
+import { SetLanguageCommand } from './DocumentCommands'
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
 
@@ -39,10 +40,41 @@ export default {
     config.addComponent('value:image', ImageValueComponent)
     config.addComponent('value:plotly', PlotlyValueComponent)
 
-    // HACK: override
     config.addCommand('function-usage', FunctionUsageCommand, {
       commandGroup: 'prompt'
     })
     config.addTool('function-usage', FunctionUsageTool)
+
+    config.addToolPanel('node-menu', [
+      {
+        name: 'cell-actions',
+        type: 'tool-group',
+        style: 'descriptive',
+        showDisabled: false,
+        commandGroups: ['cell-actions']
+      }
+    ])
+
+    /*
+      Cell Actions
+    */
+    // config.addCommand('hide-cell-code', ToggleCodeCommand, { hideCode: true, commandGroup: 'cell-actions' })
+    // config.addCommand('force-cell-output', ToggleCodeCommand, { forceOutput: true, commandGroup: 'cell-actions' })
+    config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-actions' })
+    config.addCommand('set-js', SetLanguageCommand, { language: 'js', commandGroup: 'cell-actions' })
+    config.addCommand('set-py', SetLanguageCommand, { language: 'py', commandGroup: 'cell-actions' })
+    config.addCommand('set-r', SetLanguageCommand, { language: 'r', commandGroup: 'cell-actions' })
+    config.addCommand('set-sql', SetLanguageCommand, { language: 'sql', commandGroup: 'cell-actions' })
+
+    // Labels and icons
+    config.addLabel('hide-cell-code', 'Hide code')
+    config.addLabel('force-cell-output', 'Show output')
+    config.addLabel('set-mini', 'Mini')
+    config.addLabel('set-js', 'Javascript')
+    config.addLabel('set-py', 'Python')
+    config.addLabel('set-r', 'R')
+    config.addLabel('set-sql', 'SQL')
+
+    config.addIcon('ellipsis', { 'fontawesome': 'fa-ellipsis-v' })
   }
 }

@@ -1,5 +1,5 @@
 .sc-function-usage {
-	min-width: 300px;
+	/*min-width: 300px;*/
   font-size: 12px;
   color: #fff;
   box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.50);
@@ -20,8 +20,8 @@
 }
 
 .sc-function-usage .se-documentation {
-  padding: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 2px 5px;
+  /*border-bottom: 1px solid rgba(255,255,255,0.1);*/
 }
 
 .sc-function-usage .se-documentation .se-title {
@@ -34,7 +34,7 @@
 }
 
 .sc-function-usage .se-documentation .se-signature .se-signature-param.sm-active {
-  text-decoration: underline;
+	border-bottom: 2px solid #fff;
 }
 
 .sc-function-usage .se-documentation .se-parameters {

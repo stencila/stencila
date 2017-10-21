@@ -26,27 +26,27 @@ export default class FunctionUsageComponent extends Component {
       paramsEl.append(paramEl)
     })
 
-    let summaryEl = $$('div').addClass('se-summary').append(spec.summary)
+    // let summaryEl = $$('div').addClass('se-summary').append(spec.summary)
 
     // Documentation
     let docEl = $$('div').addClass('se-documentation')
     docEl.append(
-      signatureEl,
-      paramsEl,
-      summaryEl
+      signatureEl
+      // paramsEl,
+      // summaryEl
     )
     el.append(docEl)
-
-    if (spec.examples.length > 0) {
-      // Display first example
-      let example = spec.examples[0]
-      el.append(
-        $$('div').addClass('se-example').append(
-          $$('div').addClass('se-label').append('Example'),
-          $$('div').addClass('se-example-code').append(example)
-        )
-      )
-    }
+    //
+    // if (spec.examples.length > 0) {
+    //   // Display first example
+    //   let example = spec.examples[0]
+    //   el.append(
+    //     $$('div').addClass('se-example').append(
+    //       $$('div').addClass('se-label').append('Example'),
+    //       $$('div').addClass('se-example-code').append(example)
+    //     )
+    //   )
+    // }
     return el
   }
 }
