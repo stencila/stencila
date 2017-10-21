@@ -38,6 +38,10 @@ class CellAdapter {
     this.node.emit(...args)
   }
 
+  isCell() {
+    return true
+  }
+
   isInput() {
     return false
   }
@@ -54,6 +58,14 @@ class CellAdapter {
   get language() {
     const sourceEl = this._getSourceElement()
     return sourceEl.getAttribute('language')
+  }
+
+  get inputs() {
+    return this.state.inputs
+  }
+
+  get output() {
+    return this.state.output
   }
 
   _getSourceElement() {
