@@ -39,6 +39,7 @@ export default class SheetView extends Component {
     let el = $$('table').addClass('sc-table-view sm-mode-' + mode)
     let head = $$('tr').addClass('se-head').ref('head')
     let corner = $$('th').addClass('se-corner').ref('corner')
+      .on('click', this._selectAll)
 
     // ATTENTION: we have a slight problem here.
     // <table> with fixed layout needs the exact width
@@ -252,6 +253,9 @@ export default class SheetView extends Component {
     }
   }
 
+  _selectAll() {
+    this.context.editor.setSelectionOnSheet()
+  }
 }
 
 function _isXInside(x, rect) {
