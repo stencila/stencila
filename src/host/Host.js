@@ -153,7 +153,9 @@ export default class Host {
       // it can obtain other contexts for executing functions
       instance = new MiniContext(this)
     } else {
-      return Promise.reject(new Error(`No peers able to provide: ${type}`))
+      // Resolve an error so that this does not get caught in debugger during
+      // development and instead handle error elsewhere
+      return Promise.resolve(new Error(`No peers able to provide: ${type}`))
     }
 
     // Generate an id for the instance
@@ -183,7 +185,8 @@ export default class Host {
         return Promise.reject(new Error(`Unable to create an execution context for language ${language}`))
       } else {
         let p = this.create(type).then((res) => {
-          return res.instance
+          if (res instanceof Error) return res
+          else return res.instance
         })
         this._contexts[language] = p
         return p
