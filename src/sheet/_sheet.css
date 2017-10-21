@@ -250,6 +250,10 @@
   visibility: hidden;
 }
 
+.sc-sheet .sc-table-view.sm-mode-minimum .sc-test-value {
+  visibility: hidden;
+}
+
 .sc-sheet-cell .se-function-cell .sc-cell-value {
   font-size: 10px;
 }

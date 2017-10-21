@@ -296,5 +296,8 @@ export default {
       en: 'Info'
     })
 
+
+    config.addIcon('test-failed', {'fontawesome': 'fa-times' })
+    config.addIcon('test-passed', {'fontawesome': 'fa-check' })
   }
 }
