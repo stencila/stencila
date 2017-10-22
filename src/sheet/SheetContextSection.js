@@ -13,7 +13,15 @@ export default class SheetContextSection extends Component {
       const ComponentClass = this.getComponent(contextId)
 
       el.append(
-        $$(ComponentClass, { cellId: this.props.cellId })
+        $$('div').addClass('se-context-header').append(
+          $$('div').addClass('se-label').append(this.getLabel(contextId)),
+          $$('div').addClass('se-close').append(
+            this.context.iconProvider.renderIcon($$, 'context-close')
+          )
+        ),
+        $$('div').addClass('se-context-content').append(
+          $$(ComponentClass, { cellId: this.props.cellId })
+        )
       )
     }
 
