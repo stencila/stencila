@@ -1,6 +1,7 @@
 @import './_sheet-variables.css';
 @import './_sheet-scrollbar.css';
 @import './_sheet-dialogs.css';
+@import './_sheet-context.css';
 @import './_sheet-linter.css';
 @import './_sheet-issues.css';
 @import './_edit-cell-expression-tool.css';
@@ -43,14 +44,6 @@
 .sc-sheet-editor > .se-main-section > .se-status-bar {
   width: 100%;
   height: var(--sheet-header-height);
-}
-
-.sc-sheet-editor > .sc-context-section {
-  display: flex;
-  flex-direction: column;
-  flex: 0 2 300px;
-  background: #fafbfc;
-  border-left: 1px solid #e1e4e8;
 }
 
 .sc-sheet {
