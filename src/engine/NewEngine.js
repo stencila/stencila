@@ -1,6 +1,10 @@
 import { uuid, isEqual } from 'substance'
 import { getCellState } from '../shared/cellHelpers'
-import { INITIAL, ANALYSED, EVALUATED } from './CellState'
+import { INITIAL, ANALYSED, EVALUATED,
+  PENDING, INPUT_ERROR, INPUT_READY,
+  RUNNING, ERROR, OK,
+  deriveCellStatus
+} from './CellState'
 // HACK: using DocumentChange to communicate node state changes
 import { DocumentChange } from 'substance'
 import DependencyGraph from './DependencyGraph'
@@ -20,7 +24,7 @@ export default class Engine {
 
     // whenever a cell goes into ANALYSED
     // it will be added here
-    this._candidates = {}
+    this._candidates = new Set()
   }
 
   addCell(cell) {
@@ -30,7 +34,8 @@ export default class Engine {
     this._graph.addCell(cell)
 
     let cellState = getCellState(cell)
-    cellState.state = INITIAL
+    cellState._engineState = INITIAL
+    deriveCellStatus(cellState)
     this._notifyCells(cell.id)
 
     this._analyse(cell)
@@ -40,7 +45,8 @@ export default class Engine {
     // console.log('updating cell', cellId)
     let cell = this._getCell(cellId)
     let cellState = getCellState(cell)
-    cellState.state = INITIAL
+    cellState._engineState = INITIAL
+    deriveCellStatus(cellState)
     this._notifyCells(cell.id)
 
     this._analyse(cell)
@@ -50,7 +56,8 @@ export default class Engine {
     // TODO: need to reorganize the dep graph
     let cell = this._getCell(cellId)
     if (cell) {
-      this._invalidateDependencies(cell)
+      this._candidates.remove(cell)
+      this._updateDependencies(cell)
       this._graph.removeCell(cellId)
     }
   }
@@ -93,13 +100,13 @@ export default class Engine {
         let oldOutput = cellState.output
         let oldInputs = cellState.inputs
 
-        cellState.state = ANALYSED
+        cellState._engineState = ANALYSED
         cellState.inputs = inputs
         cellState.output = output
         cellState.messages = res.messages
         cellState.tokens = res.tokens
         cellState.nodes = res.nodes
-        this._triggerScheduler()
+        deriveCellStatus(cellState)
 
         // FIXME: to be able to broadcast changes to cells
         // we need to make the DepGraph based on cell ids, not on symbols
@@ -107,8 +114,19 @@ export default class Engine {
           this._graph.updateCell(cell)
         }
 
-        this._candidates[cell.id] = true
-        this._invalidateDependencies(cell)
+        // if there was no error before be
+        if (cellState.status === PENDING) {
+          // TODO: we should not implicitly schedule : this call also
+          cellState.status = this._getInputState(cell)
+          if (cellState.status === INPUT_READY) {
+            this._candidates.add(cell)
+          } else {
+            this._candidates.delete(cell)
+          }
+        }
+        this._updateDependencies(cell)
+
+        this._triggerScheduler()
       })
     })
   }
@@ -139,74 +157,64 @@ export default class Engine {
   }
 
   _scheduleEvaluation() {
-    let candidates = Object.keys(this._candidates)
-    candidates.forEach((cellId) => {
-      let cell = this._getCell(cellId)
-      // go through all candidates and evaluate when ready
-      if (cell && this._isReady(cell)) {
-        let cellState = getCellState(cell)
-        if (cellState.state === EVALUATED) {
-          throw new Error('FIXME: retriggering an already evaluated cell')
-        }
-        let lang = cell.language
-        let source = cell.source
-        // remove this from candidates otherwise it will be re-evaluated infinitely
-        delete this._candidates[cell.id]
-        this._getContext(lang)
-        .then((context) => {
-          let token = uuid()
-          this._tokens[cell.id] = token
-          // console.log('EXECUTING cell', cell.id, source)
-
-          // TODO: we want to force simple expression for Spreadsheet cells
-          // We need to somehow 'transpile' cell and range expressions
-          // and provide them using a generated symbol name
-          let inputs = this._getInputValues(cellId)
-          context.executeCode(source, inputs).then((res) => {
-            if (!this._tokens[cell.id] === token) return
-            // console.log('executed cell', cell.id, res)
-            // TODO: need better MiniContext to continue
-            delete this._candidates[cellId]
-            cellState.state = EVALUATED
-            cellState.value = res.value
-            cellState.messages = res.messages
-
-            this._triggerScheduler()
-
-            // TODO: this should be named differently
-            // it should do different things, such as
-            // 'invalidating' evaluated cells
-            // but also
-            this._invalidateDependencies(cell)
-          })
-        })
+    let candidates = this._candidates
+    if (this._running) {
+      return
+    }
+    this._running = true
+    try {
+      while(candidates.size > 0) {
+        this._step()
       }
-    })
+    } finally {
+      this._running = false
+    }
   }
 
-  _isReady(cell) {
-    // TODO: go through all deps of the cell
-    // and see if they have been evaluated and
-    // not errored
-    let inputs = this._graph.getInputs(cell.id)
-    for (let i = 0; i < inputs.length; i++) {
-      let input = inputs[i]
-      if (!input) {
-        console.error('FIXME: depending on an unregistered cell')
-        return false
-      }
-      // TODO: we will have other type of dependencies, such
-      // cell-references (A1) or externally managed values
-      if (input.isCell()) {
-        let cellState = getCellState(input)
-        if (cellState.state !== EVALUATED || cellState.hasErrors()) {
-          return false
-        }
-      } else {
-        console.error('TODO: need to check the availability of inputs other than expression cells')
-      }
+  _step() {
+    const candidates = this._candidates
+    if (candidates.size === 0) return
+    let cell = candidates.values().next().value
+    candidates.delete(cell)
+
+    let cellId = cell.id
+    // go through all candidates and evaluate when ready
+    let cellState = getCellState(cell)
+    if (cellState._engineState === EVALUATED) {
+      throw new Error('FIXME: retriggering an already evaluated cell')
     }
-    return true
+    let lang = cell.language
+    let source = cell.source
+    // remove this from candidates otherwise it will be re-evaluated infinitely
+    delete this._candidates[cell.id]
+    this._getContext(lang)
+    .then((context) => {
+      let token = uuid()
+      this._tokens[cell.id] = token
+      // console.log('EXECUTING cell', cell.id, source)
+
+      // TODO: we want to force simple expression for Spreadsheet cells
+      // We need to somehow 'transpile' cell and range expressions
+      // and provide them using a generated symbol name
+      let inputs = this._getInputValues(cellId)
+      cellState.status = RUNNING
+      this._notifyCells([cell.id])
+
+      context.executeCode(source, inputs).then((res) => {
+        if (!this._tokens[cell.id] === token) return
+        // console.log('executed cell', cell.id, res)
+        // TODO: need better MiniContext to continue
+        delete this._candidates[cellId]
+        cellState._engineState = EVALUATED
+        cellState.value = res.value
+        cellState.messages = res.messages
+        deriveCellStatus(cellState)
+
+        this._updateDependencies(cell)
+
+        this._triggerScheduler()
+      })
+    })
   }
 
   _getInputValues(cellId) {
@@ -225,11 +233,8 @@ export default class Engine {
     return result
   }
 
-  _invalidateDependencies(cell) {
+  _updateDependencies(cell) {
     const graph = this._graph
-    // invalidate all cells depending on this one
-    // invalidate a cell / output
-    // console.log('invalidate cell', cell)
     let visited = {}
     let queue = [].concat(graph.getOutputs(cell.id))
     let dirty = [cell.id]
@@ -238,18 +243,50 @@ export default class Engine {
       if (visited[next.id]) continue
       if (next.isCell()) {
         let cellState = getCellState(next)
-        if (cellState.state === EVALUATED) {
-          cellState.state = ANALYSED
-          this._candidates[next.id] = true
-          dirty.push(next.id)
-          queue = queue.concat(
-            graph.getOutputs(next.id).filter(c => !visited[c.id])
-          )
+        let _state = cellState._engineState
+        if (_state === ANALYSED || _state === EVALUATED) {
+          cellState._engineState = ANALYSED
+          cellState.status = this._getInputState(next)
+          if (cellState.status === INPUT_READY) {
+            this._candidates.add(next)
+          } else {
+            this._candidates.delete(next)
+          }
         }
+        dirty.push(next.id)
+        queue = queue.concat(
+          graph.getOutputs(next.id).filter(c => !visited[c.id])
+        )
       }
       visited[cell.id] = true
     }
     this._notifyCells(...dirty)
+  }
+
+  _getInputState(cell) {
+    let inputs = this._graph.getInputs(cell.id)
+    let ready = true
+    for (let i = 0; i < inputs.length; i++) {
+      let input = inputs[i]
+      if (!input) {
+        console.error('FIXME: depending on an unregistered cell')
+        return INPUT_ERROR
+      }
+      // TODO: we will have other type of dependencies, such
+      // cell-references (A1) or externally managed values
+      if (input.isCell()) {
+        let cellState = getCellState(input)
+        if (cellState.status === ERROR || cellState.status === INPUT_ERROR) {
+          return INPUT_ERROR
+        } else if (cellState.status !== OK) {
+          ready = false
+        }
+      } else {
+        console.error('TODO: need to check the availability of inputs other than expression cells')
+      }
+    }
+
+    return ready ? INPUT_READY : PENDING
   }
 
   _notifyCells(...cellIds) {
@@ -274,3 +311,4 @@ export default class Engine {
   }
 
 }
+
