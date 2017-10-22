@@ -90,7 +90,7 @@ export default class CellGraph {
           console.error('TODO: store an error message')
         }
         return input
-      })
+      }).filter(Boolean)
       ins[cell.id] = inputs
     })
     this._ins = ins
