@@ -5,12 +5,16 @@ const MAX_ROWS = 10
 export default
 class TableValueComponent extends Component {
   render($$) {
-    let nrows
-    const table = this.props.value
+    const table = this.props.value.data
+    const data = table.data
+    const rows = table.rows
+    const cols = table.columns
+
     let el = $$('div').addClass('sc-table-value')
 
     let tableEl = $$('table').addClass('sc-table-value')
-    const columnNames = Object.keys(table.data)
+    
+    const columnNames = Object.keys(data)
     const thead = $$('thead')
     columnNames.forEach((name)=>{
       thead.append(
@@ -18,16 +22,14 @@ class TableValueComponent extends Component {
       )
     })
     tableEl.append(thead)
-    if (columnNames.length>0) {
-      const tbody = $$('tbody')
-      const data = table.data
-      nrows = data[columnNames[0]].values.length
 
-      for (let i = 0; i < nrows && i < MAX_ROWS; i++) {
+    if (cols > 0) {
+      const tbody = $$('tbody')
+      for (let row = 0; row < rows && row < MAX_ROWS; row++) {
         let tr = $$('tr')
         columnNames.forEach((name)=>{
           tr.append(
-            $$('td').text(data[name].values[i])
+            $$('td').text(data[name][row])
           )
         })
         tbody.append(tr)
@@ -36,14 +38,10 @@ class TableValueComponent extends Component {
     }
     el.append(tableEl)
 
-    if (nrows > MAX_ROWS) {
+    if (rows > MAX_ROWS) {
       el.append(
         $$('div').addClass('se-more-records').append(
-          'Showing ',
-          MAX_ROWS,
-          ' out of ',
-          nrows,
-          ' rows'
+          `Showing ${MAX_ROWS} of ${rows} rows`
         )
       )
     }
