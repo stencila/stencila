@@ -270,6 +270,14 @@ export default {
     config.addIcon('toggle-errors', {'fontawesome': 'fa-times-circle' })
     config.addIcon('toggle-warnings', {'fontawesome': 'fa-warning' })
     config.addIcon('toggle-info', {'fontawesome': 'fa-info-circle' })
+    config.addIcon('toggle-failed', {'fontawesome': 'fa-times' })
+    config.addIcon('toggle-passed', {'fontawesome': 'fa-check' })
+
+    config.addLabel('toggle-errors', 'Errors')
+    config.addLabel('toggle-warnings', 'Warnings')
+    config.addLabel('toggle-info', 'Info')
+    config.addLabel('toggle-failed', 'Test: failed')
+    config.addLabel('toggle-passed', 'Test: passed')
 
     config.addIcon('string-cell-type', {'fontawesome': 'fa-align-left' })
     config.addIcon('number-cell-type', {'fontawesome': 'fa-hashtag' })
@@ -288,5 +296,8 @@ export default {
       en: 'Info'
     })
 
+
+    config.addIcon('test-failed', {'fontawesome': 'fa-times' })
+    config.addIcon('test-passed', {'fontawesome': 'fa-check' })
   }
 }

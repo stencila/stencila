@@ -5,8 +5,14 @@ class TestValueComponent extends Component {
   render($$) {
     let value = this.props.value
     let el = $$('div').addClass('sc-test-value')
-    el.addClass(value.passed ? 'sm-test-passed' : 'sm-test-failed')
-    el.text(value.message)
+    let result = value.passed ? 'test-passed' : 'test-failed'
+    el.addClass(value.passed ? 'sm-' + result : 'sm-' + result)
+    el.append(
+      $$('div').addClass('se-icon').append(
+        this.context.iconProvider.renderIcon($$, result)
+      ),
+      $$('div').addClass('se-message').text(value.message)
+    )
     return el
   }
 }
