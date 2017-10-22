@@ -17,7 +17,7 @@ export default class SheetContextSection extends Component {
           $$('div').addClass('se-label').append(this.getLabel(contextId)),
           $$('div').addClass('se-close').append(
             this.context.iconProvider.renderIcon($$, 'context-close')
-          )
+          ).on('click', this.close)
         ),
         $$('div').addClass('se-context-content').append(
           $$(ComponentClass, { cellId: this.props.cellId })
@@ -26,5 +26,13 @@ export default class SheetContextSection extends Component {
     }
 
     return el
+  }
+
+  close() {
+    const contextId = this.props.contextId
+    let sheetEditor = this.context.app.getSheetEditor()
+    if (sheetEditor) {
+      sheetEditor.toggleContext(contextId)
+    }
   }
 }
