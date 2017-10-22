@@ -6,14 +6,14 @@
   box-shadow: 3px 3px 3px 3px #ccc;
 }
 
-.sc-sheet-statusbar .sc-sheet-issues-counter {
+.sc-sheet-statusbar .sc-toolbar {
   display: flex;
   flex: 1 1 0;
 }
 
-.sc-sheet-statusbar .sc-toolbar {
-  flex: 0 0 0;
+.sc-sheet-statusbar .sc-sheet-issues-counter {
   display: flex;
+  margin-right: auto;
 }
 
 .sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list {
@@ -56,15 +56,15 @@
 
 .sc-sheet-issues-list {
   position: relative;
-  height: 50px;
+  height: 100%;
   padding: 4px 0px;
   font-size: 14px;
-  border: 1px solid #ededed;
 }
 
 .sc-sheet-issues-list .sc-cell-issue {
   padding: 2px 5px;
   cursor: pointer;
+  border-bottom: 1px solid var(--sheet-cell-bordercolor);
 }
 
 .sc-sheet-issues-list > .sc-cell-issue + .sc-cell-issue {
