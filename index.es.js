@@ -17,5 +17,6 @@ export { default as JsContext } from './src/contexts/JsContext'
 export { address, value }
 export { default as getQueryStringParam } from './src/util/getQueryStringParam'
 
-export * from './src/sheet/index.js'
-export * from './src/function/index.js'
+export * from './src/article'
+export * from './src/function'
+export * from './src/sheet'
