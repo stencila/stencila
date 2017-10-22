@@ -4,15 +4,26 @@ const INITIAL = Symbol('initial')
 const ANALYSED = Symbol('analysed')
 const EVALUATED = Symbol('evaluated')
 
-/*
-  Managed by Engine.
-*/
+// some of the inputs are not ready yet
+const PENDING = Symbol('pending')
+// some of the inputs has errored
+const INPUT_ERROR = Symbol('input-error')
+// all inputs are ready and this cell will be executed ASAP
+const INPUT_READY = Symbol('input-ready')
+// cell is being evluated
+const RUNNING = Symbol('running')
+// cell has been evaluated but failed
+const ERROR = Symbol('error')
+// cell has successfully been evaluated
+const OK = Symbol('ok')
+
 export default class CellState extends EventEmitter {
 
   constructor() {
     super()
 
-    this.state = INITIAL
+    this.status = PENDING
+    this._engineState = INITIAL
 
     this.inputs = []
     this.output = null
@@ -22,7 +33,7 @@ export default class CellState extends EventEmitter {
   }
 
   hasErrors() {
-    return this.messages && this.messages.length > 0
+    return hasError(this)
   }
 
   hasOutput() {
@@ -39,4 +50,49 @@ export default class CellState extends EventEmitter {
 
 }
 
-export { CellState, INITIAL, ANALYSED, EVALUATED }
+function deriveCellStatus(cellState) {
+  switch(cellState._engineState) {
+    case INITIAL: {
+      cellState.status = PENDING
+      break
+    }
+    case ANALYSED: {
+      if (hasError(cellState)) {
+        cellState.status = ERROR
+      } else {
+        cellState.status = PENDING
+      }
+      break
+    }
+    case EVALUATED: {
+      if (hasError(cellState)) {
+        cellState.status = ERROR
+      } else {
+        cellState.status = OK
+      }
+      break
+    }
+    default:
+      // should not happen
+      throw new Error('Invalid state')
+  }
+}
+
+function hasError(cellState) {
+  if (cellState.messages) {
+    let messages = cellState.messages
+    for(let i = 0; i < messages.length; i++) {
+      if (messages[i].type === 'error') {
+        return true
+      }
+    }
+  }
+  return false
+}
+
+export { CellState,
+  INITIAL, ANALYSED, EVALUATED,
+  PENDING, INPUT_ERROR, INPUT_READY,
+  RUNNING, ERROR, OK,
+  deriveCellStatus, hasError
+}
