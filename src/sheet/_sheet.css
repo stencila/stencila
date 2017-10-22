@@ -19,23 +19,43 @@
 
 .sc-sheet-editor {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
 }
 
-.sc-sheet-editor > .se-body {
+.sc-sheet-editor > .se-main-section {
+  flex: 1 1 600px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sc-sheet-editor > .se-main-section > .se-body {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.sc-sheet-editor > .sc-sheet {
+.sc-sheet-editor > .se-main-section > .sc-sheet {
   flex: 1;
 }
 
-.sc-sheet-editor > .se-status-bar {
+.sc-sheet-editor > .se-main-section > .se-status-bar {
   width: 100%;
   height: var(--sheet-header-height);
+}
+
+.sc-sheet-editor > .sc-context-section {
+  display: flex;
+  flex-direction: column;
+  flex: 0 2 300px;
+  background: #fafbfc;
+  border-left: 1px solid #e1e4e8;
 }
 
 .sc-sheet {

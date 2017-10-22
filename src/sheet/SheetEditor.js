@@ -1,4 +1,5 @@
 import { platform, DefaultDOMElement, AbstractEditor, Toolbar, EditorSession } from 'substance'
+import SheetContextSection from './SheetContextSection'
 import SheetLinter from './SheetLinter'
 import SheetStatusBar from './SheetStatusBar'
 
@@ -65,9 +66,12 @@ export default class SheetEditor extends AbstractEditor {
   render($$) {
     let el = $$('div').addClass('sc-sheet-editor')
     el.append(
-      this._renderToolbar($$),
-      this._renderContent($$),
-      this._renderStatusbar($$)
+      $$('div').addClass('se-main-section').append(
+        this._renderToolbar($$),
+        this._renderContent($$),
+        this._renderStatusbar($$)
+      ),
+      $$(SheetContextSection).ref('context')
     )
     return el
   }
