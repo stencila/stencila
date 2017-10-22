@@ -1,5 +1,6 @@
-import { forEach } from 'substance'
+import { forEach, uuid } from 'substance'
 import CellState from '../engine/CellState'
+import { valueFromText } from '../shared/cellHelpers'
 
 const CELL_TYPES = {
   'cell': true
@@ -14,6 +15,12 @@ export default class SheetEngineAdapter {
     this.editorSession = editorSession
     this.doc = editorSession.getDocument()
 
+    // Note: this id is used internally to
+    // lookup variables and cells
+    if (!this.doc.UUID) {
+      this.doc.UUID = uuid()
+    }
+
     // set by Engine
     this.engine = null
   }
@@ -22,14 +29,21 @@ export default class SheetEngineAdapter {
     if (this.engine) throw new Error('This resource is already connected to an engine.')
     this.engine = engine
 
-    this._initializeEngine()
+    // register the document
+    this.engine.registerDocument(this.doc.UUID, this.doc)
+    // TODO: to allow cross document references
+    // we need to register a name, too
+    // e.g. doc.UUID -> 'sheet-1'
+    this.engine.registerScope('sheet', this.doc.UUID)
+
+    this._initialize()
 
     this.editorSession.on('render', this._onDocumentChange, this, {
       resource: 'document'
     })
   }
 
-  _initializeEngine() {
+  _initialize() {
     forEach(this.doc.getNodes(), (node) => {
       this._onCreate(node)
     })
@@ -69,7 +83,7 @@ export default class SheetEngineAdapter {
     if (CELL_TYPES[node.type]) {
       let adapter = new CellAdapter(node)
       if (adapter._type === EXPRESSION) {
-        engine.addCell(adapter)
+        engine.registerCell(adapter)
       }
     }
   }
@@ -96,14 +110,13 @@ export default class SheetEngineAdapter {
         }
       } else {
         if (oldType === CONSTANT) {
-          engine.addCell(adapter)
+          engine.registerCell(adapter)
         } else {
           engine.updateCell(node.id)
         }
       }
     }
   }
-
 }
 
 class CellAdapter {
@@ -134,6 +147,10 @@ class CellAdapter {
     return this.node.id
   }
 
+  get docId() {
+    return this.node.document.UUID
+  }
+
   get source() {
     return this._source
   }
@@ -151,20 +168,29 @@ class CellAdapter {
   }
 
   _update() {
-    let source = this.node.textContent
+    let cell = this.node
+    let source = cell.text()
     let prefix = /^\s*=/.exec(source)
     if (prefix) {
       this._type = EXPRESSION
       this._source = new Array(prefix.length).fill(' ') + source.substring(prefix.length)
-      this._lang = this.node.getAttribute('language') || 'mini'
+      this._lang = cell.getAttribute('language') || 'mini'
     } else {
       this._type = CONSTANT
       this._source = source
       this._lang = null
+      let sheet = cell.getDocument()
+      let type = sheet.getCellType(cell)
+      // HACK: this marshalling should be done somewhere else
+      this.state.value = {
+        type,
+        data: valueFromText(type, cell.text())
+      }
     }
-    if (source) {
-      console.log('updated cell adapter', this)
-    }
+    // if (source) {
+    //   console.log('updated cell adapter', this)
+    // }
   }
 
 }
+

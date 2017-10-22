@@ -62,9 +62,13 @@ export default class CellGraph {
 
   lookup(symbol) {
     switch(symbol.type) {
-      case 'var':
+      case 'var': {
+        let cellId = this._resolve(symbol)[0]
+        return this._cells[cellId]
+      }
       case 'cell': {
-        return this._resolve(symbol)[0]
+        let sheet = this._documents[symbol.docId]
+        return sheet.getCell(symbol.row, symbol.col)
       }
       case 'range': {
         // TODO: lookup all cells and then
@@ -103,7 +107,8 @@ export default class CellGraph {
         // Note: symbol can be either var, cell, or range
         // in case of range this resolves to multiple ids
         // TODO: handle lookup errors
-        inputs = inputs.concat(this._resolve(symbol))
+        let cellIds = this._resolve(symbol)
+        inputs = inputs.concat(cellIds.map(id => this._cells[id]))
       })
       // HACK: for now we strip all unresolved symbols
       inputs = inputs.filter(Boolean)

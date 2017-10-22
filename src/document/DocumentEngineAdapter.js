@@ -50,62 +50,45 @@ export default class DocumentEngineAdapter {
     })
   }
 
-  /*
-    Update the engine when:
-    - a cell/input is created
-    - a cell/input is deleted
-    - cell source code is changed
-    - input name is changed
-    - input value is changed
-  */
   _onDocumentChange(change) {
     const doc = this.doc
     const ops = change.ops
-    // let needsUpdate = false
     for (let i = 0; i < ops.length; i++) {
       const op = ops[i]
       switch (op.type) {
         case 'create': {
           let node = doc.get(op.path[0])
-          if (node && this._onCreate(node)) {
-            // console.log('detected cell creation')
-            // needsUpdate = true
+          if (node) {
+            this._onCreate(node)
           }
           break
         }
         case 'delete': {
-          if (this._onDelete(op.val)) {
-            // console.log('detected cell deletion')
-            // needsUpdate = true
-          }
+          this._onDelete(op.val)
           break
         }
         case 'set':
         case 'update': {
           let node = doc.get(op.path[0])
-          if (this._onChange(node, op)) {
-            // console.log('detected cell update')
-            // needsUpdate = true
+          if (node) {
+            this._onChange(node, op)
           }
           break
         }
         default:
-          //
+          throw new Error('Invalid state')
       }
     }
-    // TODO: let's see if we still gonna need this
-    // if (needsUpdate) engine.update()
   }
 
   _onCreate(node) {
     const engine = this.engine
     if (CELL_TYPES[node.type]) {
       let adapter = new CellAdapter(node)
-      engine.addCell(adapter)
-      return true
+      engine.registerCell(adapter)
     } else if (INPUT_TYPES[node.type]) {
       let adapter = new InputAdapter(node)
-      engine.addCell(adapter)
+      engine.registerCell(adapter)
       return true
     }
     return false

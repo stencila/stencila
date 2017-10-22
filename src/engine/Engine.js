@@ -1,5 +1,5 @@
 import { uuid, isEqual } from 'substance'
-import { getCellState, getValue } from '../shared/cellHelpers'
+import { getCellState, getCellValue, getCellLabel } from '../shared/cellHelpers'
 import { INITIAL, ANALYSED, EVALUATED,
   PENDING, INPUT_ERROR, INPUT_READY,
   RUNNING, ERROR, OK,
@@ -37,7 +37,7 @@ export default class Engine {
     this._scopes[name] = uuid
   }
 
-  addCell(cell) {
+  registerCell(cell) {
     if (this._graph.contains(cell.id)) {
       throw new Error('Cell with the same id already exists.')
     }
@@ -66,7 +66,7 @@ export default class Engine {
     // TODO: need to reorganize the dep graph
     let cell = this._getCell(cellId)
     if (cell) {
-      this._candidates.remove(cell)
+      this._candidates.delete(cell)
       this._updateDependencies(cell)
       this._graph.removeCell(cellId)
     }
@@ -242,20 +242,22 @@ export default class Engine {
     let cell = this._getCell(cellId)
     let cellState = getCellState(cell)
     let result = {}
-    // TODO: the graph contains all inputs flattened
-    // to allow easy dependency propagation
-    // here we want to marshal symbolic dependencies
-    // e.g. ranges should be pulled together as
+    // TODO: for cross-references we must
+    // mangle the name of a symbol
     cellState.inputs.forEach((symbol) => {
       switch (symbol.type) {
         case 'var': {
           let cell = graph.lookup(symbol)
-          let val = getValue(cell)
+          let val = getCellValue(cell)
           result[symbol.name] = val
           break
         }
         case 'cell': {
-          throw new Error('Not implemented yet.')
+          let cell = graph.lookup(symbol)
+          let val = getCellValue(cell)
+          let name = getCellLabel(symbol.row, symbol.col)
+          result[name] = val
+          break
         }
         case 'range': {
           throw new Error('Not implemented yet.')
