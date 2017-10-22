@@ -58,7 +58,7 @@ export default class SheetIssuesCounter extends Component {
   onClick() {
     let sheetEditor = this.context.app.getSheetEditor()
     if (sheetEditor) {
-      sheetEditor.toggleConsole('sheet-issues')
+      sheetEditor.toggleContext('sheet-issues')
     }
   }
 }

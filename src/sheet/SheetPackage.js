@@ -285,6 +285,7 @@ export default {
     config.addIcon('boolean-cell-type', {'fontawesome': 'fa-check-square-o' })
 
     config.addComponent('sheet-issues', SheetIssuesComponent)
+    config.addLabel('sheet-issues', 'Issues')
 
     config.addLabel('title:error', {
       en: 'Error'
@@ -296,8 +297,9 @@ export default {
       en: 'Info'
     })
 
-
     config.addIcon('test-failed', {'fontawesome': 'fa-times' })
     config.addIcon('test-passed', {'fontawesome': 'fa-check' })
+
+    config.addIcon('context-close', {'fontawesome': 'fa-times' })
   }
 }

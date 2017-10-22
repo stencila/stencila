@@ -72,14 +72,11 @@ class CellIssueComponent extends Component {
     }
     let cellName = $$('div').addClass('se-cell-name')
       .text(doc.getCellLabel(issue.cellId))
-    let title = $$('div').addClass('se-title')
-      .text(this.getLabel(`title:${severity}`))
-    let message = $$('div').addClass('se-message')
-      .text(issue.message)
+    let content = this.getLabel(`title:${severity}`) + ': ' + issue.message
+
     el.append(
       cellName,
-      title,
-      message
+      $$('div').addClass('se-content').text(content)
     )
     el.on('click', this._onClick)
     return el

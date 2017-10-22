@@ -1,11 +1,12 @@
 @import './_sheet-variables.css';
 @import './_sheet-scrollbar.css';
 @import './_sheet-dialogs.css';
+@import './_sheet-context.css';
 @import './_sheet-linter.css';
 @import './_sheet-issues.css';
 @import './_edit-cell-expression-tool.css';
 
-.sc-sheet-editor > .sc-toolbar {
+.sc-sheet-editor .sc-toolbar {
   z-index: 3;
 }
 
@@ -19,21 +20,28 @@
 
 .sc-sheet-editor {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100%;
 }
 
-.sc-sheet-editor > .se-body {
+.sc-sheet-editor > .se-main-section {
+  flex: 1 1 600px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sc-sheet-editor > .se-main-section > .se-body {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.sc-sheet-editor > .sc-sheet {
+.sc-sheet-editor > .se-main-section > .sc-sheet {
   flex: 1;
 }
 
-.sc-sheet-editor > .se-status-bar {
+.sc-sheet-editor > .se-main-section > .se-status-bar {
   width: 100%;
   height: var(--sheet-header-height);
 }

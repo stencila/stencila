@@ -1,4 +1,5 @@
 import { platform, DefaultDOMElement, AbstractEditor, Toolbar, EditorSession } from 'substance'
+import SheetContextSection from './SheetContextSection'
 import SheetLinter from './SheetLinter'
 import SheetStatusBar from './SheetStatusBar'
 
@@ -33,9 +34,9 @@ export default class SheetEditor extends AbstractEditor {
 
   getInitialState() {
     return {
-      showConsole: false,
-      consoleContent: null,
-      consoleCell: null
+      showContext: false,
+      contextId: null,
+      cellId: null
     }
   }
 
@@ -65,10 +66,22 @@ export default class SheetEditor extends AbstractEditor {
   render($$) {
     let el = $$('div').addClass('sc-sheet-editor')
     el.append(
-      this._renderToolbar($$),
-      this._renderContent($$),
-      this._renderStatusbar($$)
+      $$('div').addClass('se-main-section').append(
+        this._renderToolbar($$),
+        this._renderContent($$),
+        this._renderStatusbar($$)
+      )
     )
+
+    if(this.state.showContext) {
+      el.append(
+        $$(SheetContextSection, {
+          contextId: this.state.contextId,
+          cellId: this.state.cellId
+        }).ref('context')
+      )
+    }
+
     return el
   }
 
@@ -83,9 +96,6 @@ export default class SheetEditor extends AbstractEditor {
     let el = $$('div').addClass('se-body')
     el.append(
       this._renderSheet($$)
-    )
-    el.append(
-      this._renderConsole($$)
     )
     return el
   }
@@ -105,29 +115,8 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
-  _renderConsole($$) {
-    let el = $$('div').addClass('se-console')
-    if (this.state.showConsole) {
-      let ConsoleContent = this.getComponent(this.state.consoleContent)
-      el.append(
-        $$(ConsoleContent, { editor: this, cellId: this.state.consoleCell })
-      )
-    }
-    return el
-  }
-
   _renderStatusbar($$) {
     return $$(SheetStatusBar, {}).ref('sheet-statusbar')
-  }
-
-  getLinter() {
-    return this.linter
-  }
-
-  getIssues() {
-    let editorSession = this.props.editorSession
-    let issueManager = editorSession.issueManager
-    return issueManager.getIssues('linter')
   }
 
   getWidth() {
@@ -186,22 +175,22 @@ export default class SheetEditor extends AbstractEditor {
     })
   }
 
-  toggleConsole(consoleContent, consoleCell) {
-    if (this.state.showConsole && this.state.consoleContent === consoleContent && consoleCell === undefined) {
+  toggleContext(contextId, cellId) {
+    if (this.state.showContext && this.state.contextId === contextId && cellId === undefined) {
       this.setState({
-        showConsole: false
+        showContext: false
       })
     } else {
       this.setState({
-        showConsole: true,
-        consoleContent,
-        consoleCell
+        showContext: true,
+        contextId,
+        cellId
       })
     }
   }
 
   _onIssueFocus(cellId) {
-    this.toggleConsole('sheet-issues', cellId)
+    this.toggleContext('sheet-issues', cellId)
   }
 
   _onResize() {
