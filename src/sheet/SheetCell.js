@@ -1,13 +1,18 @@
 import { NodeComponent } from 'substance'
 import CellValueComponent from '../shared/CellValueComponent'
+import { isExpression } from '../shared/cellHelpers'
 
 export default class SheetCell extends NodeComponent {
   didMount() {
+    super.didMount()
+
     const cell = this.props.node
     cell.on('issue:changed', this.rerender, this)
   }
 
   dispose() {
+    super.dispose()
+
     const cell = this.props.node
     cell.off(this)
   }
@@ -15,7 +20,6 @@ export default class SheetCell extends NodeComponent {
   render($$) {
     const cell = this.props.node
     const issueManager = this.context.issueManager
-    // TODO: implement this fully
     let el = $$('div').addClass('sc-sheet-cell')
 
     let cellIssues = issueManager.getCellIssues(cell.id)
@@ -28,18 +32,16 @@ export default class SheetCell extends NodeComponent {
   }
 
   _renderContent($$, cell) {
-    // TODO: this should be delegated to components
-    let textValue = cell.text()
-    const isTextCell = textValue.charAt(0) !== '='
-    if(textValue.indexOf('=test') > -1) this.setFakeState(cell)
+    let text = cell.text()
+    let isExpressionCell = isExpression(text)
     if(this.props.mode === 'maximum') {
-      //const value = isTextCell ? textValue : this.getResponse()
+      // TODO: in case of constant cells we need to render the text content
+      // as value
       let valueEl = $$('div').addClass('sc-cell-value').append(
         $$(CellValueComponent, {cell: cell}).ref('value')
       )
-      if(!isTextCell) valueEl.addClass('sm-response-value')
-
-      const source = !isTextCell ? textValue : ' '
+      if(isExpressionCell) valueEl.addClass('sm-response-value')
+      const source = isExpressionCell ? text : ' '
       return $$('div').addClass('se-function-cell').append(
         valueEl,
         $$('div').addClass('sc-equation').append(source)
@@ -50,13 +52,13 @@ export default class SheetCell extends NodeComponent {
     //   return $$('div').addClass('sc-text-content').text(textValue)
     // }
     else {
-      if(cell.state) {
+      if (isExpressionCell) {
         return $$('div').addClass('sc-text-content').append(
           $$(CellValueComponent, {cell: cell}).ref('value')
         )
       } else {
-        return $$('div').addClass('sc-text-content').text(textValue)
-      }      
+        return $$('div').addClass('sc-text-content').text(text)
+      }
     }
   }
 
