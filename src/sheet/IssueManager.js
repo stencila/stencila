@@ -4,7 +4,9 @@ import { clone } from 'lodash-es'
 const SEVERITY_MAP = {
   0: 'info',
   1: 'warning',
-  2: 'error'
+  2: 'error',
+  3: 'test-failed',
+  4: 'test-passed'
 }
 
 class IssueManager extends EventEmitter {
@@ -140,7 +142,9 @@ class IssueManager extends EventEmitter {
     return {
       errors: index.get('error').length,
       warnings: index.get('warning').length,
-      info: index.get('info').length
+      info: index.get('info').length,
+      failed: index.get('failed').length,
+      passed: index.get('passed').length
     }
   }
 

@@ -29,6 +29,19 @@
   margin-right: 5px;
 }
 
+.sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list .se-icon > .sc-tooltip {
+  display: none;
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translate(-50%);
+  color: #000;
+}
+
+.sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list .se-icon:hover > .sc-tooltip {
+  display: block;
+}
+
 .sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list .se-icon.se-errors-counter.sm-highlighted {
   color: var(--sheet-error-color);
 }
