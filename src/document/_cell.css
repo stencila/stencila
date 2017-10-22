@@ -7,7 +7,9 @@
   height: 30px;
   margin: 0 auto;
   background: #ddd;
+  border-radius: 0;
   text-align: center;
+  position: relative;
 }
 
 .sc-cell .se-show-code:hover {
@@ -18,7 +20,7 @@
   position: relative;
 }
 
-.sc-cell > .se-cell-editor-container > .se-status {
+.sc-cell .se-status {
   position: absolute;
   left: 0px;
   top: 0px;
@@ -26,15 +28,15 @@
   width: 2px;
 }
 
-.sc-cell > .se-cell-editor-container > .se-status.sm-ok {
+.sc-cell .se-status.sm-ok {
   background: #00DD00;
 }
 
-.sc-cell > .se-cell-editor-container > .se-status.sm-error {
+.sc-cell .se-status.sm-error {
   background: #FF0300;
 }
 
-.sc-cell > .se-cell-editor-container > .se-status.sm-pending {
+.sc-cell .se-status.sm-pending {
   background: #575757;
 }
 

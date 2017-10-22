@@ -19,7 +19,7 @@ import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
 import {
   SetLanguageCommand, ToggleAllCodeCommand,
-  HideCellCodeCommand, CodeErrorsCommand
+  HideCellCodeCommand, CodeErrorsCommand, InsertCellCommand
 } from './DocumentCommands'
 
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
@@ -44,6 +44,13 @@ export default {
     config.addComponent('value:test', TestValueComponent)
     config.addComponent('value:image', ImageValueComponent)
     config.addComponent('value:plotly', PlotlyValueComponent)
+
+    config.addCommand('insert-cell', InsertCellCommand, {
+      nodeType: 'disp-quote',
+      commandGroup: 'insert-block-element'
+    })
+    config.addLabel('insert-cell', 'Cell')
+    config.addKeyboardShortcut('CommandOrControl+Enter', { command: 'insert-cell' })
 
     config.addCommand('function-usage', FunctionUsageCommand, {
       commandGroup: 'prompt'
