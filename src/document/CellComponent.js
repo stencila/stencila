@@ -1,7 +1,8 @@
 import { NodeComponent, FontAwesomeIcon } from 'substance'
 import CellValueComponent from '../shared/CellValueComponent'
-import CellErrorDisplay from '../shared/CellErrorDisplay'
+// import CellErrorDisplay from '../shared/CellErrorDisplay'
 import MiniLangEditor from '../shared/MiniLangEditor'
+import { PENDING, INPUT_ERROR, INPUT_READY, RUNNING, ERROR, OK } from '../engine/CellState'
 import { getCellState } from '../shared/cellHelpers'
 import NodeMenu from './NodeMenu'
 
@@ -25,6 +26,31 @@ class CellComponent extends NodeComponent {
     }
   }
 
+  _renderStatus($$) {
+    const cellState = getCellState(this.props.node)
+    let statusName
+    switch(cellState.status) {
+      case PENDING:
+      case INPUT_ERROR:
+      case INPUT_READY:
+        statusName = 'pending'
+        break
+      case RUNNING:
+        statusName = 'running'
+        break
+      case ERROR:
+        statusName = 'error'
+        break
+      case OK:
+        statusName = 'ok'
+        break
+      default:
+        statusName = 'pending'
+        break
+    }
+    return $$('div').addClass(`se-status sm-${statusName}`)
+  }
+
   render($$) {
     //console.log('cell rerender', this.props.node.id, this.state.hideCode)
     const cell = this.props.node
@@ -35,6 +61,7 @@ class CellComponent extends NodeComponent {
       let source = cell.find('source-code')
       let cellEditorContainer = $$('div').addClass('se-cell-editor-container')
       cellEditorContainer.append(
+        this._renderStatus($$),
         $$('div').addClass('se-expression').append(
           $$(MiniLangEditor, {
             path: source.getPath(),
@@ -45,9 +72,10 @@ class CellComponent extends NodeComponent {
         )
       )
       el.append(cellEditorContainer)
-      el.append(
-        $$(CellErrorDisplay, {cell})
-      )
+
+      // el.append(
+      //   $$(CellErrorDisplay, {cell})
+      // )
 
       el.append(
         this._renderEllipsis($$)
