@@ -10,7 +10,7 @@
         padding: 2em 1em;
         font-family: Helvetica, sans;
         color: #555;
-        font-size: 1.3em;
+        font-size: 1.2em;
       }
       a {
         text-decoration: none;
@@ -22,28 +22,56 @@
     <img src="./images/logo-name-beta.svg" style="display: block; width: 50%; margin: 0 auto 3em auto">
     <h1>Examples</h1>
 
-    <h2>Sheet</h2>
-    <ul>
-      <li>
-        <a href="./examples/sheet/index.html?example=blank"><h4>Blank</h4></a>
-        <p>Just a blank spreadsheet</p>
-      </li>
-      <li>
-        <a href="./examples/sheet/index.html?example=data-clean"><h4>Data cleaning</h4></a>
-        <p>A sheet illustrating cleaning data</p>
-      </li>
-      <li>
-        <a href="./examples/sheet/index.html?example=fullup"><h4>Full up</h4></a>
-        <p>A sheet full of random numbers</p>
-      </li>
-    </ul>
+    <h2>Sheets</h2>
+    <p>
 
-    <h2>Project</h2>
-    <ul>
-      <li>
-        <a href="./examples/publication/index.html?publicationId=reproducible-publication"><h4>Reproducible publication</h4></a>
-      </li>
-    </ul>
+    </p>
+    <p>
+      <a href="./examples/sheet/index.html?example=data-clean">Data cleaning</a>:
+      a sheet illustrating cleaning data.
+    </p>
+    <p>
+      <a href="./examples/sheet/index.html?example=blank">Blank</a>:
+      just a blank spreadsheet, mainly for testing.
+    </p>
+    <p>
+      <a href="./examples/sheet/index.html?example=fullup">Full up</a>:
+      a sheet full of random numbers.
+    </p>
+
+    <h2>Notebooks</h2>
+    <p>
+    </p>
+
+
+    <h2>Articles</h2>
+    <p>
+    </p>
+    <p>
+      <a href="./examples/article/index.html?example=mini-cells">Mini cells</a></b>:
+      an article with some code cells written in Mini, Stencila's simple embedded language.
+    </p>
+    <p>
+      <a href="./examples/article/index.html?example=external-cells">Extenal language cells</a></b>:
+      an article with some code cells written in external languages R, Python and SQL.
+    <p>
+      <a href="./examples/article/index.html?example=blank">Blank article</a></b>:
+      mainly for testing
+    </p>
+
+    <h2>Projects</h2>
+    <p>
+    </p>
+    <p>
+      <b><a href="./examples/publication/index.html?publicationId=reproducible-publication">Reproducible publication</a></b>: illustrates a publication that bundles together and article and a sheet.
+    </p>
+
+
+    <h3>Notes</h3>
+    <p>
+      To execute external code cells you will need to have an external Stencila Host running (using either one of Stencila's Docker images, or by installing one of our packages). Then append <code>&amp;peers=http://localhost:2000</code> to the end of the URL.
+      See our <a href="https://community.stenci.la/t/getting-started-with-stencila">getting started guide</a>. Alternatively, you can append <code>&amp;peers=https://cloud.stenci.la?ticket=XXXXXXXX</code> to the end of the URL. Ask us for a ticket.
+    </p>
 
   </body>
 </html>

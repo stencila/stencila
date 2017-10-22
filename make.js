@@ -99,7 +99,7 @@ function buildExamples() {
   b.copy('./examples/*/*.html', './build/')
   b.copy('index.html', './build/index.html')
   //
-  ;['publication', 'dashboard', 'sheet'].forEach((example) => {
+  ;['publication', 'dashboard', 'sheet', 'article'].forEach((example) => {
     b.js(`examples/${example}/app.js`, {
       dest: `build/examples/${example}/app.js`,
       format: 'umd', moduleName: `${example}Example`,
@@ -112,7 +112,7 @@ function buildExamples() {
 function buildData() {
   // TODO: we should also be able to map images
   vfs(b, {
-    src: ['./data/**/*.xml'],
+    src: ['./data/**/*.xml', './examples/**/*.xml'],
     dest: 'build/vfs.js',
     format: 'umd', moduleName: 'vfs'
   })

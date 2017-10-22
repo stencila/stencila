@@ -14,6 +14,7 @@
 @import './_pagestyle.css';
 @import '../publication/_publication.css';
 @import '../dashboard/_dashboard.css';
+@import '../article/_article.css';
 @import '../sheet/_sheet.css';
 @import '../shared/_index.css';
 @import '../document/_index.css';
