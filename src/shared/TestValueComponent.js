@@ -3,7 +3,7 @@ import { Component } from 'substance'
 export default
 class TestValueComponent extends Component {
   render($$) {
-    let value = this.props.value
+    let value = this.props.value.data
     let el = $$('div').addClass('sc-test-value')
     let result = value.passed ? 'test-passed' : 'test-failed'
     el.addClass(value.passed ? 'sm-' + result : 'sm-' + result)
