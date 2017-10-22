@@ -1,6 +1,5 @@
 import { NodeComponent, FontAwesomeIcon } from 'substance'
 import CellValueComponent from '../shared/CellValueComponent'
-// import CellErrorDisplay from '../shared/CellErrorDisplay'
 import MiniLangEditor from '../shared/MiniLangEditor'
 import { PENDING, INPUT_ERROR, INPUT_READY, RUNNING, ERROR, OK } from '../engine/CellState'
 import { getCellState } from '../shared/cellHelpers'
@@ -52,10 +51,12 @@ class CellComponent extends NodeComponent {
   }
 
   render($$) {
-    //console.log('cell rerender', this.props.node.id, this.state.hideCode)
     const cell = this.props.node
     const cellState = getCellState(cell)
     let el = $$('div').addClass('sc-cell')
+    if (!cellState) {
+      return el
+    }
 
     if (!this.state.hideCode) {
       let source = cell.find('source-code')
@@ -73,10 +74,6 @@ class CellComponent extends NodeComponent {
       )
       el.append(cellEditorContainer)
 
-      // el.append(
-      //   $$(CellErrorDisplay, {cell})
-      // )
-
       el.append(
         this._renderEllipsis($$)
       )
@@ -84,6 +81,7 @@ class CellComponent extends NodeComponent {
       // TODO: Create proper visual style
       el.append(
         $$('button').append(
+          this._renderStatus($$),
           $$(FontAwesomeIcon, { icon: 'fa-code' })
         )
           .addClass('se-show-code')

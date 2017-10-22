@@ -1,7 +1,7 @@
 import { Command } from 'substance'
+import { InsertNodeCommand } from 'substance-texture'
 import { getCellState } from '../shared/cellHelpers'
 import { ERROR } from '../engine/CellState'
-
 
 export class SetLanguageCommand extends Command {
 
@@ -132,4 +132,17 @@ export class CodeErrorsCommand extends Command {
   }
 
   execute(params) { } // eslint-disable-line
+}
+
+
+export class InsertCellCommand extends InsertNodeCommand {
+
+  createNode(tx) {
+    let cell = tx.createElement('cell')
+    cell.append(
+      tx.createElement('source-code').attr('language', 'mini'),
+      tx.createElement('output').attr('language', 'json')
+    )
+    return cell
+  }
 }
