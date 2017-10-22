@@ -1,5 +1,5 @@
 import { uuid, isEqual } from 'substance'
-import { getCellState } from '../shared/cellHelpers'
+import { getCellState, getValue } from '../shared/cellHelpers'
 import { INITIAL, ANALYSED, EVALUATED,
   PENDING, INPUT_ERROR, INPUT_READY,
   RUNNING, ERROR, OK,
@@ -7,7 +7,7 @@ import { INITIAL, ANALYSED, EVALUATED,
 } from './CellState'
 // HACK: using DocumentChange to communicate node state changes
 import { DocumentChange } from 'substance'
-import DependencyGraph from './DependencyGraph'
+import CellGraph from './CellGraph'
 
 export default class Engine {
 
@@ -15,16 +15,26 @@ export default class Engine {
     this._host = host
 
     // dependency graph
-    this._graph = new DependencyGraph()
+    this._graph = new CellGraph()
+
+    this._scopes = {}
 
     // used to make sure that an asynchronous
     // job gets ignored, if another job has been
     // scheduled instead
     this._tokens = {}
 
-    // whenever a cell goes into ANALYSED
-    // it will be added here
+    // whenever a cell goes is ANALYSED and all inputs are ready
+    // it will be added to candidates
     this._candidates = new Set()
+  }
+
+  registerDocument(uuid, doc) {
+    this._graph.registerDocument(uuid, doc)
+  }
+
+  registerScope(name, uuid) {
+    this._scopes[name] = uuid
   }
 
   addCell(cell) {
@@ -78,25 +88,26 @@ export default class Engine {
     this._getContext(lang)
     .then((context) => {
       if (context instanceof Error) {
+        console.error('Could not get context for %s', lang)
         cellState.messages = [context]
-        this._notifyCells(cell.id)
-
-        return Promise.resolve()
+        deriveCellStatus(cellState)
+        this._notifyCells([cell.id])
+        return
       }
 
       let token = uuid()
       this._tokens[cell.id] = token
       let source = cell.source || ''
       return context.analyseCode(source).then((res) => {
+        console.log('ANALYSED cell', cell, res)
         // skip if this cell has been rescheduled in the meantime
         if (this._tokens[cell.id] !== token) return
 
-        // console.log('ANALYSED cell', cell, res)
         // takes local symbol names and compiles into
         // symbols for the shared value scope
         // e.g. variable 'x' in 'doc1' is compiled to 'doc1.x'
         // or 'A1:A2' is compiled to ['sheet1.A1', 'sheet1.A2']
-        let { inputs, output } = this._compile(res.inputs, res.output, cell.scope)
+        let { inputs, output } = this._compile(res.inputs, res.output, cell.docId)
         let oldOutput = cellState.output
         let oldInputs = cellState.inputs
 
@@ -131,18 +142,25 @@ export default class Engine {
     })
   }
 
-  _compile(inputs, output, scope) {
+  _compile(inputs, output, docId) {
+    console.log('_compile', inputs, output, docId)
     let result = {
-      inputs: []
-    }
-    if (inputs) {
-      result.inputs = inputs.map((input) => {
-        // TODO: complex symbols
-        return scope ? `${scope}.${input}` : input
-      })
+      inputs: inputs ? inputs.map((input) => {
+        let _docId
+        if (input.scope) {
+          _docId = this._scopes[input.scope]
+          if (!docId) {
+            throw new Error(`Unknown document ${input.scope}`)
+          }
+        } else {
+          _docId = docId
+        }
+        input.docId = _docId
+        return input
+      }) : []
     }
     if (output) {
-      result.output = scope ? `${scope}.${output}` : output
+      result.output = output
     }
     return result
   }
@@ -207,7 +225,9 @@ export default class Engine {
         delete this._candidates[cellId]
         cellState._engineState = EVALUATED
         cellState.value = res.value
-        cellState.messages = res.messages
+        // Note: we want to retain messages from
+        // the code analysis, so we concat here
+        cellState.messages = (cellState.messages || []).concat(res.messages)
         deriveCellStatus(cellState)
 
         this._updateDependencies(cell)
@@ -218,16 +238,30 @@ export default class Engine {
   }
 
   _getInputValues(cellId) {
+    let graph = this._graph
+    let cell = this._getCell(cellId)
+    let cellState = getCellState(cell)
     let result = {}
-    this._graph.getInputs(cellId).forEach((input) => {
-      if (input.isCell()) {
-        let cellState = getCellState(input)
-        let output = cellState.output
-        if (output) {
-          result[output] = cellState.value
+    // TODO: the graph contains all inputs flattened
+    // to allow easy dependency propagation
+    // here we want to marshal symbolic dependencies
+    // e.g. ranges should be pulled together as
+    cellState.inputs.forEach((symbol) => {
+      switch (symbol.type) {
+        case 'var': {
+          let cell = graph.lookup(symbol)
+          let val = getValue(cell)
+          result[symbol.name] = val
+          break
         }
-      } else {
-        console.error('TODO: other input types?')
+        case 'cell': {
+          throw new Error('Not implemented yet.')
+        }
+        case 'range': {
+          throw new Error('Not implemented yet.')
+        }
+        default:
+          throw new Error('Invalid state')
       }
     })
     return result
@@ -272,8 +306,8 @@ export default class Engine {
         console.error('FIXME: depending on an unregistered cell')
         return INPUT_ERROR
       }
-      // TODO: we will have other type of dependencies, such
-      // cell-references (A1) or externally managed values
+      // TODO: we will have other type of dependencies, such as
+      // cell-references or externally managed values
       if (input.isCell()) {
         let cellState = getCellState(input)
         if (cellState.status === ERROR || cellState.status === INPUT_ERROR) {
@@ -309,6 +343,4 @@ export default class Engine {
       editorSession.startFlow()
     })
   }
-
 }
-

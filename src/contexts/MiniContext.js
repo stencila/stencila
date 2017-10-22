@@ -128,11 +128,33 @@ export default class MiniContext {
       })
     }
     if (expr.inputs) {
-      // extract input names
-      // TODO: we probably need something different, considering different
-      // input types: var, cell, range
-      inputs = expr.inputs.map((node)=>{
-        return node.name
+      inputs = expr.inputs.map((node) => {
+        switch(node.type) {
+          case 'var': {
+            return {
+              type: 'var',
+              name: node.name
+            }
+          }
+          case 'cell': {
+            return {
+              type: 'cell',
+              row: node.row,
+              col: node.col
+            }
+          }
+          case 'range': {
+            return {
+              type: 'range',
+              startRow: node.startRow,
+              startCol: node.startCol,
+              endRow: node.endRow,
+              endCol: node.endCol,
+            }
+          }
+          default:
+            throw new Error('Invalid input type.')
+        }
       })
     }
     if (expr.name) {

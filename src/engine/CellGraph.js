@@ -1,25 +1,17 @@
 /*
-  A graph allowing to define dependencies
-  between symbols.
-
-  For example, for an Expression engine a topologically correct
-  evaluation order can be derived by ordering the expressions
-  by the rank of their input dependencies.
-
-  The `rank` of a variable denotes the number of reduction steps
-  necessary to retrieve the value of a variable.
-  This can be used to implement static scheduling strategies.
-
+  Dependency graph for Stencila Cell Engine.
 */
 export default class CellGraph {
 
-  constructor(context) {
-    this._context = context
+  constructor() {
 
-    // graph's source containing the dependency formulated
-    // in terms of symbol names
-    // e.g. { cell1: { id: 'cell1', inputs: ['x', 'y'], output: 'z' }}
+    // store for cells containing expressions
     this._cells = {}
+
+    // documents get registered via their name
+    // so that we can lookup cells and inputs via
+    // references such as 'sheet1.C1' or 'sheet1.A1:B10'
+    this._documents = {}
 
     // which cell is producing a symbol
     this._createdBy = {}
@@ -50,6 +42,10 @@ export default class CellGraph {
     return this._outs[cellId] || []
   }
 
+  registerDocument(name, doc) {
+    this._documents[name] = doc
+  }
+
   addCell(cell) {
     this._cells[cell.id] = cell
   }
@@ -64,6 +60,22 @@ export default class CellGraph {
     this._compile()
   }
 
+  lookup(symbol) {
+    switch(symbol.type) {
+      case 'var':
+      case 'cell': {
+        return this._resolve(symbol)[0]
+      }
+      case 'range': {
+        // TODO: lookup all cells and then
+        // reduce to either a table, an array, or a value
+        throw new Error('Not Implemented yet')
+      }
+      default:
+        throw new Error('Invalid state')
+    }
+  }
+
   _compile() {
     let ids = Object.keys(this._cells)
     // 1. Create a mapping from symbol name to cell
@@ -71,11 +83,13 @@ export default class CellGraph {
     ids.forEach((id) => {
       let cell = this._cells[id]
       let output = cell.output
+      let docId = cell.docId
       if (output) {
-        if (createdBy[output]) {
+        let varId = `${docId}.${output}`
+        if (createdBy[varId]) {
           throw new Error(`Multiple cells create the same output: ${output}`)
         }
-        createdBy[output] = cell
+        createdBy[varId] = cell
       }
     })
     this._createdBy = createdBy
@@ -84,13 +98,15 @@ export default class CellGraph {
     let ins = {}
     ids.forEach((id) => {
       let cell = this._cells[id]
-      let inputs = cell.inputs.map((symbol) => {
-        let input = this._resolve(symbol)
-        if (!input) {
-          console.error('TODO: store an error message')
-        }
-        return input
-      }).filter(Boolean)
+      let inputs = []
+      cell.inputs.forEach((symbol) => {
+        // Note: symbol can be either var, cell, or range
+        // in case of range this resolves to multiple ids
+        // TODO: handle lookup errors
+        inputs = inputs.concat(this._resolve(symbol))
+      })
+      // HACK: for now we strip all unresolved symbols
+      inputs = inputs.filter(Boolean)
       ins[cell.id] = inputs
     })
     this._ins = ins
@@ -125,14 +141,40 @@ export default class CellGraph {
   }
 
   _resolve(symbol) {
-    // TODO: support complex symbols
-    let res = this._createdBy[symbol]
-    // TODO: we would need to use a context to lookup
-    // other things not being an evaluated cell, e.g. spreadsheet cells with
-    // constant values
-    // if (res) return res
-    // return this._context.lookup(symbol)
-    return res
+    switch(symbol.type) {
+      case 'var': {
+        let id = `${symbol.docId}.${symbol.name}`
+        return [this._createdBy[id]]
+      }
+      case 'cell': {
+        let sheet = this._documents[symbol.docId]
+        if (!sheet) {
+          // TODO: return this error
+          console.error('Could find sheet with name', symbol.scope)
+          return undefined
+        }
+        let cell = sheet.getCell(symbol.row, symbol.col)
+        return [cell.id]
+      }
+      case 'range': {
+        let ids = []
+        let sheet = this._documents[symbol.docId]
+        if (!sheet) {
+          // TODO: return this error
+          console.error('Could find sheet with name', symbol.scope)
+          return undefined
+        }
+        for (let i = symbol.startRow; i <= symbol.endRow; i++) {
+          for (let j = symbol.startCol; j <= symbol.endCol; j++) {
+            let cell = sheet.getCell(i, j)
+            ids.push(cell.id)
+          }
+        }
+        return ids
+      }
+      default:
+        throw new Error('Invalid state')
+    }
   }
 
   _computeRank(id, inputs, ranks) {
@@ -163,5 +205,4 @@ export default class CellGraph {
     ranks[id] = rank
     return rank
   }
-
 }

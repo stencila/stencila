@@ -68,7 +68,7 @@ export default class SheetEngineAdapter {
     const engine = this.engine
     if (CELL_TYPES[node.type]) {
       let adapter = new CellAdapter(node)
-      if (adapter.type === 'expression') {
+      if (adapter._type === EXPRESSION) {
         engine.addCell(adapter)
       }
     }
@@ -161,6 +161,9 @@ class CellAdapter {
       this._type = CONSTANT
       this._source = source
       this._lang = null
+    }
+    if (source) {
+      console.log('updated cell adapter', this)
     }
   }
 

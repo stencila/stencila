@@ -1,7 +1,7 @@
 import { Component, EditorSession, Configurator } from 'substance'
 import SheetEditor from './SheetEditor'
 import SheetPackage from './SheetPackage'
-import Engine from '../engine/NewEngine'
+import Engine from '../engine/Engine'
 import SheetEngineAdapter from './SheetEngineAdapter'
 
 export default class SheetPage extends Component {

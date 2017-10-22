@@ -1,4 +1,4 @@
-import { forEach } from 'substance'
+import { forEach, uuid } from 'substance'
 import CellState from '../engine/CellState'
 
 const CELL_TYPES = {
@@ -16,7 +16,11 @@ export default class DocumentEngineAdapter {
   constructor(editorSession) {
     this.editorSession = editorSession
     this.doc = editorSession.getDocument()
-
+    // Note: this id is used internally to
+    // lookup variables and cells
+    if (!this.doc.UUID) {
+      this.doc.UUID = uuid()
+    }
     // set by Engine
     this.engine = null
   }
@@ -25,14 +29,22 @@ export default class DocumentEngineAdapter {
     if (this.engine) throw new Error('This resource is already connected to an engine.')
     this.engine = engine
 
-    this._initializeEngine()
+    // register the document
+    this.engine.registerDocument(this.doc.UUID, this.doc)
+    // TODO: to allow cross document references
+    // we need to register a name, too
+    // e.g. doc.UUID -> 'doc-1'
+    this.engine.registerScope('doc', this.doc.UUID)
+
+    // register all existing cells
+    this._initialize()
 
     this.editorSession.on('render', this._onDocumentChange, this, {
       resource: 'document'
     })
   }
 
-  _initializeEngine() {
+  _initialize() {
     forEach(this.doc.getNodes(), (node) => {
       this._onCreate(node)
     })
@@ -132,13 +144,9 @@ export default class DocumentEngineAdapter {
 
 }
 
-class CellAdapter {
-
-  constructor(cell) {
-    this.node = cell
-
-    this.state = new CellState()
-    cell.state = this.state
+class NodeAdapter {
+  constructor(node) {
+    this.node = node
   }
 
   emit(...args) {
@@ -146,7 +154,7 @@ class CellAdapter {
   }
 
   isCell() {
-    return true
+    return false
   }
 
   isInput() {
@@ -155,6 +163,26 @@ class CellAdapter {
 
   get id() {
     return this.node.id
+  }
+
+  get docId() {
+    return this.node.document.UUID
+  }
+
+}
+
+class CellAdapter extends NodeAdapter {
+
+  constructor(cell) {
+    super(cell)
+    this.node = cell
+
+    this.state = new CellState()
+    cell.state = this.state
+  }
+
+  isCell() {
+    return true
   }
 
   get source() {
@@ -175,6 +203,10 @@ class CellAdapter {
     return this.state.output
   }
 
+  get value() {
+    return this.state.value
+  }
+
   _getSourceElement() {
     if (!this._source) {
       this._source = this.node.find('source-code')
@@ -184,22 +216,14 @@ class CellAdapter {
 
 }
 
-class InputAdapter {
+class InputAdapter extends NodeAdapter {
 
   constructor(input) {
-    this.node = input
-  }
-
-  emit(...args) {
-    this.node.emit(...args)
+    super(input)
   }
 
   isInput() {
     return true
-  }
-
-  get id() {
-    return this.node.id
   }
 
   get name() {
@@ -209,6 +233,4 @@ class InputAdapter {
   get value() {
     return this.node.getAttribute('value')
   }
-
 }
-
