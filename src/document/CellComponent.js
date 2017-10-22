@@ -26,7 +26,7 @@ class CellComponent extends NodeComponent {
   }
 
   render($$) {
-    console.log('cell rerender', this.props.node.id, this.state.hideCode)
+    //console.log('cell rerender', this.props.node.id, this.state.hideCode)
     const cell = this.props.node
     const cellState = getCellState(cell)
     let el = $$('div').addClass('sc-cell')
