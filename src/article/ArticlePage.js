@@ -29,7 +29,9 @@ export default class ArticlePage extends Component {
     return {
       app: this,
       editorSession: this.state.editorSession,
-      configurator: this.props.configurator
+      configurator: this.props.configurator,
+      functionManager: this.functionManager,
+      cellEngine: this.engine
     }
   }
 
