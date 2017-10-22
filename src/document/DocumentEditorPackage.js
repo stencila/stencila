@@ -17,9 +17,14 @@ import TestValueComponent from '../shared/TestValueComponent'
 import ImageValueComponent from '../shared/ImageValueComponent'
 import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
-import { SetLanguageCommand, ToggleAllCodeCommand, HideCellCodeCommand } from './DocumentCommands'
+import {
+  SetLanguageCommand, ToggleAllCodeCommand,
+  HideCellCodeCommand, CodeErrorsCommand
+} from './DocumentCommands'
+
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
+import CodeErrorsTool from './CodeErrorsTool'
 
 export default {
   name: 'editor',
@@ -99,7 +104,10 @@ export default {
     */
 
     // config.addCommand('force-cell-output', ToggleCodeCommand, { forceOutput: true, commandGroup: 'cell-actions' })
-
+    config.addCommand('code-errors', CodeErrorsCommand, {
+      commandGroup: 'prompt'
+    })
+    config.addTool('code-errors', CodeErrorsTool)
 
     config.addCommand('hide-cell-code', HideCellCodeCommand, { commandGroup: 'cell-actions' })
     config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-actions' })

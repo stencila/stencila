@@ -1,4 +1,7 @@
 import { Command } from 'substance'
+import { getCellState } from '../shared/cellHelpers'
+import { ERROR } from '../engine/CellState'
+
 
 export class SetLanguageCommand extends Command {
 
@@ -101,4 +104,32 @@ export class HideCellCodeCommand extends Command {
       hideCode: true
     })
   }
+}
+
+export class CodeErrorsCommand extends Command {
+  getCommandState({ selection, editorSession }) {
+    let doc = editorSession.getDocument()
+    // console.log('selection', selection)
+    if (selection.isPropertySelection()) {
+      let nodeId = selection.getNodeId()
+      let node = doc.get(nodeId)
+      if (node.type === 'source-code') {
+        let cellNode = node.parentNode
+        let cellState = getCellState(cellNode)
+
+        if (cellState.status === ERROR) {
+          return {
+            disabled: false,
+            messages: cellState.messages
+          }
+        }
+      }
+    }
+
+    return {
+      disabled: true
+    }
+  }
+
+  execute(params) { } // eslint-disable-line
 }
