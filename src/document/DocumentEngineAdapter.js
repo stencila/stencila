@@ -1,5 +1,5 @@
 import { forEach } from 'substance'
-import { getCellAdapter, getInputAdapter } from '../shared/cellHelpers'
+import CellState from '../engine/CellState'
 
 const CELL_TYPES = {
   'cell': true,
@@ -88,11 +88,11 @@ export default class DocumentEngineAdapter {
   _onCreate(node) {
     const engine = this.engine
     if (CELL_TYPES[node.type]) {
-      let adapter = getCellAdapter(node)
+      let adapter = new CellAdapter(node)
       engine.addCell(adapter)
       return true
     } else if (INPUT_TYPES[node.type]) {
-      let adapter = getInputAdapter(node)
+      let adapter = new InputAdapter(node)
       engine.addCell(adapter)
       return true
     }
@@ -131,3 +131,84 @@ export default class DocumentEngineAdapter {
   }
 
 }
+
+class CellAdapter {
+
+  constructor(cell) {
+    this.node = cell
+
+    this.state = new CellState()
+    cell.state = this.state
+  }
+
+  emit(...args) {
+    this.node.emit(...args)
+  }
+
+  isCell() {
+    return true
+  }
+
+  isInput() {
+    return false
+  }
+
+  get id() {
+    return this.node.id
+  }
+
+  get source() {
+    const sourceEl = this._getSourceElement()
+    return sourceEl.textContent
+  }
+
+  get language() {
+    const sourceEl = this._getSourceElement()
+    return sourceEl.getAttribute('language')
+  }
+
+  get inputs() {
+    return this.state.inputs
+  }
+
+  get output() {
+    return this.state.output
+  }
+
+  _getSourceElement() {
+    if (!this._source) {
+      this._source = this.node.find('source-code')
+    }
+    return this._source
+  }
+
+}
+
+class InputAdapter {
+
+  constructor(input) {
+    this.node = input
+  }
+
+  emit(...args) {
+    this.node.emit(...args)
+  }
+
+  isInput() {
+    return true
+  }
+
+  get id() {
+    return this.node.id
+  }
+
+  get name() {
+    return this.node.getAttribute('name')
+  }
+
+  get value() {
+    return this.node.getAttribute('value')
+  }
+
+}
+

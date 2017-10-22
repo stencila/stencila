@@ -1,12 +1,21 @@
 import { Component, EditorSession, Configurator } from 'substance'
 import SheetEditor from './SheetEditor'
 import SheetPackage from './SheetPackage'
+import Engine from '../engine/NewEngine'
+import SheetEngineAdapter from './SheetEngineAdapter'
 
 export default class SheetPage extends Component {
 
-  getInitialState() {
-    this._configurator = new Configurator().import(SheetPackage)
+  constructor(parent, props) {
+    super(parent, props)
 
+    const host = props.host
+    this._configurator = new Configurator().import(SheetPackage)
+    this.engine = new Engine(host)
+    this.functionManager = host.functionManager
+  }
+
+  getInitialState() {
     return {
       editorSession: null,
       sheet: null
@@ -80,6 +89,10 @@ export default class SheetPage extends Component {
     })
 
     editorSession.issueManager = editorSession.getManager('issue-manager')
+
+    let engineAdapter = new SheetEngineAdapter(editorSession)
+    engineAdapter.connect(this.engine)
+    this.engine.editorSession = editorSession
 
     this.extendState({
       editorSession,
