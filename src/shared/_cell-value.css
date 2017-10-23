@@ -39,3 +39,34 @@ plotly defaults
 .sc-test-value.sm-test-passed {
   color: #68bd0b;
 }
+
+/* Table Value */
+.sc-table-value {
+  margin-top: 20px;
+}
+
+.sc-table-value table {
+  overflow: auto;
+  margin: 0 auto;
+  text-align: center;
+  display: table;
+  table-layout: fixed;
+  min-width: 100px;
+}
+
+.sc-table-value table thead {
+  font-weight: 600;
+}
+
+.sc-table-value table th,
+.sc-table-value table td {
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: right;
+}
+
+.sc-table-value .se-more-records {
+  padding-top: 10px;
+  text-align: center;
+  font-size: 12px;
+}
