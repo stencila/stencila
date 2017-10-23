@@ -133,7 +133,8 @@ export default {
     config.addLabel('set-sql', 'SQL')
 
     config.addIcon('ellipsis', { 'fontawesome': 'fa-ellipsis-v' })
-
+    config.addIcon('test-failed', {'fontawesome': 'fa-times' })
+    config.addIcon('test-passed', {'fontawesome': 'fa-check' })
 
     config.addLabel('view', 'View')
     config.addLabel('show-all-code', 'Show All Code')
