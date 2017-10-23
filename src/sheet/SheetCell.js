@@ -54,27 +54,4 @@ export default class SheetCell extends NodeComponent {
   getContent() {
     return this.props.node.getText()
   }
-
-  getResponse() {
-    return '24.2324'
-  }
-
-  setFakeState(cell) {
-    cell.state = {
-      hasValue: function() {
-        return true
-      },
-      getValue: function() {
-        return {
-          type: 'test',
-          passed: true,
-          message: 'Sorry, my friend'
-        }
-      },
-      hasErrors: function() {
-        return false
-      }
-    }
-  }
-
 }
