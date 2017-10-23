@@ -116,6 +116,10 @@ export default class SheetComponent extends CustomSurface {
     return this.refs.sheetView
   }
 
+  getMode() {
+    return this.state.mode
+  }
+
   resize() {
     this.refs.sheetView.update()
     this.refs.scrollX.rerender()

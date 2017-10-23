@@ -45,7 +45,7 @@ export default {
       {
         name: 'edit-cell-expression',
         type: 'tool-group',
-        showDisabled: true,
+        showDisabled: false,
         style: 'descriptive',
         commandGroups: ['edit-cell-expression']
       },

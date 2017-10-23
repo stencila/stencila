@@ -263,9 +263,14 @@ export class EditCellExpressionCommand extends Command {
     if (selection.isNull() || !(selection.isCustomSelection() && selection.customType === 'sheet')) {
       return { disabled: true }
     }
-    let doc = editorSession.getDocument()
+    const doc = editorSession.getDocument()
     const { anchorRow, anchorCol } = selection.data
     if(anchorRow === -1 || anchorCol === -1) {
+      return { disabled: true }
+    }
+    const editor = editorSession.getEditor()
+    const mode = editor.refs.sheet.getMode()
+    if(mode === 'minimum') {
       return { disabled: true }
     }
     let anchorCell = doc.getCell(anchorRow, anchorCol)
