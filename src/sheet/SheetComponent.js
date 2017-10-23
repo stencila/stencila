@@ -116,6 +116,10 @@ export default class SheetComponent extends CustomSurface {
     return this.refs.sheetView
   }
 
+  getMode() {
+    return this.state.mode
+  }
+
   resize() {
     this.refs.sheetView.update()
     this.refs.scrollX.rerender()
@@ -158,7 +162,8 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _renderSelectionOverlay($$) {
-    let el = $$('div').addClass('sc-selection-overlay')
+    const mode = this.state.mode
+    let el = $$('div').addClass('sc-selection-overlay sm-mode-' + mode)
     el.append(
       $$('div').addClass('se-selection-anchor').ref('selAnchor').css('visibility', 'hidden'),
       $$('div').addClass('se-selection-range').ref('selRange').css('visibility', 'hidden'),
