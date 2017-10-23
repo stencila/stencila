@@ -48,7 +48,7 @@ export default class SheetIssuesComponent extends Component {
   _close() {
     let sheetEditor = this.context.app.getSheetEditor()
     if (sheetEditor) {
-      sheetEditor.toggleConsole('sheet-issues')
+      sheetEditor.toggleContext('sheet-issues')
     }
   }
 }
