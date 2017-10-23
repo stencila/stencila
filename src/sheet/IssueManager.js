@@ -1,5 +1,6 @@
 import { ArrayTree, EventEmitter } from 'substance'
 import { clone } from 'lodash-es'
+import CellIssue from '../shared/CellIssue'
 
 const SEVERITY_MAP = {
   0: 'info',
@@ -84,6 +85,15 @@ class IssueManager extends EventEmitter {
     let issuesArr = clone(issues)
     issuesArr.forEach((issue) => {
       this.remove(key, issue)
+    })
+  }
+
+  clearCellEngineIssues(cellId) {
+    const cellIssues = this._byCell.get(cellId)
+    cellIssues.forEach(issue => {
+      if(issue.scope === 'engine') {
+        this.remove('engine', issue)
+      }
     })
   }
 
@@ -256,6 +266,23 @@ class IssueManager extends EventEmitter {
 
       deletedRows.forEach(rowlId => {
         this.clearByRow(rowlId)
+      })
+    }
+    const stateUpdate = change.updated.setState
+    const stateUpdated = stateUpdate !== undefined
+    if(stateUpdated) {
+      stateUpdate.forEach(cellId => {
+        const cell = this.doc.get(cellId)
+        if(cell.state) {
+          this.clearCellEngineIssues(cellId)
+          const hasErrors = cell.state.hasErrors()
+          if(hasErrors) {
+            cell.state.messages.forEach((err) => {
+              const error = new CellIssue(cell.id, 'engine', err.message, 2)
+              this.add('engine', error)
+            })
+          }
+        }
       })
     }
   }

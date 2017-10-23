@@ -346,6 +346,7 @@ export default class Engine {
         // console.log('notifying', cellId)
         change.updated[cellId] = true
       })
+      change.updated['setState'] = cellIds
       editorSession._change = change
       editorSession._info = {}
       editorSession.startFlow()
