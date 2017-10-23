@@ -19,7 +19,8 @@ import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
 import {
   SetLanguageCommand, ToggleAllCodeCommand,
-  HideCellCodeCommand, CodeErrorsCommand, InsertCellCommand
+  HideCellCodeCommand, CodeErrorsCommand, InsertCellCommand,
+  ForceCellOutputCommand
 } from './DocumentCommands'
 
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
@@ -117,6 +118,7 @@ export default {
     config.addTool('code-errors', CodeErrorsTool)
 
     config.addCommand('hide-cell-code', HideCellCodeCommand, { commandGroup: 'cell-actions' })
+    config.addCommand('force-cell-output', ForceCellOutputCommand, { commandGroup: 'cell-actions' })
     config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-actions' })
     config.addCommand('set-js', SetLanguageCommand, { language: 'js', commandGroup: 'cell-actions' })
     config.addCommand('set-py', SetLanguageCommand, { language: 'py', commandGroup: 'cell-actions' })
@@ -125,7 +127,7 @@ export default {
 
     // Labels and icons
     config.addLabel('hide-cell-code', 'Hide code')
-    config.addLabel('force-cell-output', 'Show output')
+    config.addLabel('force-cell-output', 'Force output')
     config.addLabel('set-mini', 'Mini')
     config.addLabel('set-js', 'Javascript')
     config.addLabel('set-py', 'Python')

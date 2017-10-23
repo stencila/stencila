@@ -88,23 +88,54 @@ export class HideCellCodeCommand extends Command {
     return { disabled: true }
   }
 
-  /*
-    Returns all cell components found in the document
-  */
-  _getCellComponents(params) {
-    let editor = params.editorSession.getEditor()
-    return editor.findAll('.sc-cell')
-  }
-
   execute({ commandState, editorSession }) {
     const { cellId } = commandState
     let editor = editorSession.getEditor()
     let cellComponent = editor.find(`[data-id=${cellId}] .sc-cell`)
-    cellComponent.setState({
+    cellComponent.extendState({
       hideCode: true
     })
   }
 }
+
+
+export class ForceCellOutputCommand extends Command {
+
+  getCommandState({ selection, editorSession }) {
+    let doc = editorSession.getDocument()
+    if (selection.isNodeSelection()) {
+      let nodeId = selection.getNodeId()
+      let node = doc.get(nodeId)
+      if (node.type === 'cell') {
+        let cellComponent = this._getCellComponent(editorSession, nodeId)
+        return {
+          cellId: node.id,
+          active: Boolean(cellComponent.state.forceOutput),
+          disabled: false
+        }
+      }
+    }
+    return { disabled: true }
+  }
+
+  /*
+    Returns all cell components found in the document
+  */
+  _getCellComponent(editorSession, cellId) {
+    let editor = editorSession.getEditor()
+    return editor.find(`[data-id=${cellId}] .sc-cell`)
+  }
+
+  execute({ commandState, editorSession }) {
+    const { cellId } = commandState
+    let cellComponent = this._getCellComponent(editorSession, cellId)
+    cellComponent.extendState({
+      forceOutput: !cellComponent.state.forceOutput
+    })
+    editorSession.setSelection(null)
+  }
+}
+
 
 export class CodeErrorsCommand extends Command {
   getCommandState({ selection, editorSession }) {

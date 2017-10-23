@@ -158,7 +158,7 @@ class CellComponent extends NodeComponent {
     enforced
   */
   _showOutput() {
-    return !this._isDefinition() || this.state.forceShowOutput
+    return !this._isDefinition() || this.state.forceOutput
   }
 
   _isDefinition() {
