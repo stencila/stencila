@@ -54,6 +54,8 @@ class CellComponent extends NodeComponent {
     const cell = this.props.node
     const cellState = getCellState(cell)
     let el = $$('div').addClass('sc-cell')
+    el.attr('data-id', cell.id)
+
     if (!cellState) {
       return el
     }
@@ -73,7 +75,6 @@ class CellComponent extends NodeComponent {
         )
       )
       el.append(cellEditorContainer)
-
       el.append(
         this._renderEllipsis($$)
       )
