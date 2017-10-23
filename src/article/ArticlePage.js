@@ -1,7 +1,7 @@
 import { Component, EditorSession } from 'substance'
 import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 
-import Engine from '../engine/NewEngine'
+import Engine from '../engine/Engine'
 import DocumentEngineAdapter from '../document/DocumentEngineAdapter'
 
 export default class ArticlePage extends Component {

@@ -6,7 +6,7 @@ import Context from './Context'
  *
  * Implements the `Context` API by remote procedure calls (RPC) to a remote
  * context (e.g. a `RContext` running in a different process)
- * 
+ *
  * @extends Context
  */
 export default class ContextHttpClient extends Context {
@@ -18,7 +18,7 @@ export default class ContextHttpClient extends Context {
 
   /**
    * Get the list of supported programming languages
-   * 
+   *
    * @override
    */
   supportedLanguages () {
@@ -27,19 +27,19 @@ export default class ContextHttpClient extends Context {
 
   /**
    * Analyse code
-   * 
+   *
    * @override
    */
-  analyseCode (code, exprOnly = false) {
+  _analyseCode (code, exprOnly = false) {
     return PUT(this.url + '!analyseCode', {code: code, exprOnly: exprOnly})
   }
 
   /**
    * Execute code
-   * 
+   *
    * @override
    */
-  executeCode (code, inputs, exprOnly = false) {
+  _executeCode (code, inputs, exprOnly = false) {
     return PUT(this.url + '!executeCode', {code: code, inputs: inputs, exprOnly: exprOnly})
   }
 

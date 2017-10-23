@@ -187,6 +187,9 @@ export default class SheetLinter extends EventEmitter {
 function checkType(cell, sheet, linter) {
   let type = sheet.getCellType(cell)
   let str = cell.textContent
+  // HACK: do not test dynamic expressions for now
+  if (/^\s*=/.exec(str)) return
+
   let wrongType = false
   switch (type) {
     case 'integer': {

@@ -1,6 +1,6 @@
 import { parse } from 'stencila-mini'
 import libcore from 'stencila-libcore'
-
+import { getCellLabel } from '../shared/cellHelpers'
 import { descendantTypes, coercedArrayType } from '../types'
 
 export default class MiniContext {
@@ -128,11 +128,33 @@ export default class MiniContext {
       })
     }
     if (expr.inputs) {
-      // extract input names
-      // TODO: we probably need something different, considering different
-      // input types: var, cell, range
-      inputs = expr.inputs.map((node)=>{
-        return node.name
+      inputs = expr.inputs.map((node) => {
+        switch(node.type) {
+          case 'var': {
+            return {
+              type: 'var',
+              name: node.name
+            }
+          }
+          case 'cell': {
+            return {
+              type: 'cell',
+              row: node.row,
+              col: node.col
+            }
+          }
+          case 'range': {
+            return {
+              type: 'range',
+              startRow: node.startRow,
+              startCol: node.startCol,
+              endRow: node.endRow,
+              endCol: node.endCol,
+            }
+          }
+          default:
+            throw new Error('Invalid input type.')
+        }
       })
     }
     if (expr.name) {
@@ -217,8 +239,15 @@ class ExprContext {
       case 'var': {
         return this.values[symbol.name]
       }
+      case 'cell': {
+        let name = getCellLabel(symbol.row, symbol.col)
+        return this.values[name]
+      }
+      case 'range': {
+        throw new Error('Not implmented yet')
+      }
       default:
-        console.error('FIXME: lookup symbol', symbol)
+        throw new Error('Invalid state')
     }
   }
 

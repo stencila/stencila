@@ -53,7 +53,11 @@ export default class CellState extends EventEmitter {
 function deriveCellStatus(cellState) {
   switch(cellState._engineState) {
     case INITIAL: {
-      cellState.status = PENDING
+      if (hasError(cellState)) {
+        cellState.status = ERROR
+      } else {
+        cellState.status = PENDING
+      }
       break
     }
     case ANALYSED: {
@@ -82,7 +86,10 @@ function hasError(cellState) {
   if (cellState.messages) {
     let messages = cellState.messages
     for(let i = 0; i < messages.length; i++) {
-      if (messages[i].type === 'error') {
+      if (messages[i].type === 'error'
+        // HACK: messages should have the right format
+        // but we want to get things running
+        || messages[i] instanceof Error) {
         return true
       }
     }

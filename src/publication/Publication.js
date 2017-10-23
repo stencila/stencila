@@ -1,7 +1,7 @@
 import { EditorSession, DefaultDOMElement, Component } from 'substance'
 import { JATSImporter, JATSExporter, TextureConfigurator, EditorPackage as TextureEditorPackage } from 'substance-texture'
 import PublicationManifest from './PublicationManifest'
-import Engine from '../engine/NewEngine'
+import Engine from '../engine/Engine'
 import DocumentEditorPackage from '../document/DocumentEditorPackage'
 import DocumentEngineAdapter from '../document/DocumentEngineAdapter'
 
