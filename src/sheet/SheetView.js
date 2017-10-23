@@ -48,6 +48,9 @@ export default class SheetView extends Component {
     // to make sure to set the correct value here
     // Unfortunately this means that we must set the corner width here
     corner.css({ width: 50 })
+    if (mode === 'minimum') {
+      corner.css({ width: 5 })
+    }
     let width = 50
     head.append(corner)
     for(let colIdx = 0; colIdx < M; colIdx++) {

@@ -258,6 +258,11 @@
   visibility: hidden;
 }
 
+.sc-sheet .sc-table-view.sm-mode-minimum .se-column-title {
+  height: 0px;
+  border: none;
+}
+
 .sc-sheet .sc-table-view.sm-mode-minimum .sc-test-value {
   visibility: hidden;
 }
