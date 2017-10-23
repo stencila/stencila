@@ -24,67 +24,67 @@ test('JsContext.analyseCode', t => {
   let c = new JsContext()
   t.plan(10)
 
-  c.analyseCode('Math.pi').then(result => t.deepEqual(result, {
+  c._analyseCode('Math.pi').then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
     messages: []
   }))
 
-  c.analyseCode('foo').then(result => t.deepEqual(result, {
+  c._analyseCode('foo').then(result => t.deepEqual(result, {
     inputs: ['foo'],
     output: 'foo',
     messages: []
   }))
 
-  c.analyseCode('let foo\nfoo').then(result => t.deepEqual(result, {
+  c._analyseCode('let foo\nfoo').then(result => t.deepEqual(result, {
     inputs: [],
     output: 'foo',
     messages: []
   }))
 
 
-  c.analyseCode('let foo\nfoo * 3').then(result => t.deepEqual(result, {
+  c._analyseCode('let foo\nfoo * 3').then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
     messages: []
   }))
 
-  c.analyseCode('let foo').then(result => t.deepEqual(result, {
+  c._analyseCode('let foo').then(result => t.deepEqual(result, {
     inputs: [],
     output: 'foo',
     messages: []
   }))
 
   // Last statement is a declaration (first identifier used)
-  c.analyseCode('foo\nbar\nlet baz, urg\n\n').then(result => t.deepEqual(result, {
+  c._analyseCode('foo\nbar\nlet baz, urg\n\n').then(result => t.deepEqual(result, {
     inputs: ['foo','bar'],
     output: 'baz',
     messages: []
   }))
 
   // Last statement is not a declaration or identifier
-  c.analyseCode('let foo\n{bar\nlet baz}').then(result => t.deepEqual(result, {
+  c._analyseCode('let foo\n{bar\nlet baz}').then(result => t.deepEqual(result, {
     inputs: ['bar'],
     output: null,
     messages: []
   }))
 
   // Last statement is not a declaration or identifier
-  c.analyseCode('let foo\nbar\nlet baz\ntrue').then(result => t.deepEqual(result, {
+  c._analyseCode('let foo\nbar\nlet baz\ntrue').then(result => t.deepEqual(result, {
     inputs: ['bar'],
     output: null,
     messages: []
   }))
 
   // Variable declaration after usage (this will be a runtime error but this tests static analysis of code regardless)
-  c.analyseCode('foo\nlet foo\n').then(result => t.deepEqual(result, {
+  c._analyseCode('foo\nlet foo\n').then(result => t.deepEqual(result, {
     inputs: ['foo'],
     output: 'foo',
     messages: []
   }))
 
   // Syntax error
-  c.analyseCode('for(){').then(result => t.deepEqual(result, {
+  c._analyseCode('for(){').then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
     messages: [ { line: 1, column: 4, type: 'error', message: 'SyntaxError: Unexpected token (1:4)'} ]
@@ -95,35 +95,35 @@ test('JsContext.analyseCode expression only', t => {
   let c = new JsContext()
   t.plan(6)
 
-  c.analyseCode('42', true).then(result => t.deepEqual(result, {
+  c._analyseCode('42', true).then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
     messages: []
   }))
 
-  c.analyseCode('x * 3', true).then(result => t.deepEqual(result, {
+  c._analyseCode('x * 3', true).then(result => t.deepEqual(result, {
     inputs: ['x'],
     output: null,
     messages: []
   }))
 
-  c.analyseCode('let y = x * 3', true).then(result => t.deepEqual(result, {
+  c._analyseCode('let y = x * 3', true).then(result => t.deepEqual(result, {
     inputs: [],
     output: null,
     messages: [{ line: 0, column: 0, type: 'error', message: 'Error: Code is not a single, simple expression' }]
   }))
 
-  c.analyseCode('y = x * 3', true).then(result => t.equal(
+  c._analyseCode('y = x * 3', true).then(result => t.equal(
     result.messages[0].message,
     'Error: Code is not a single, simple expression'
   ))
 
-  c.analyseCode('x++', true).then(result => t.equal(
+  c._analyseCode('x++', true).then(result => t.equal(
     result.messages[0].message,
     'Error: Code is not a single, simple expression'
   ))
 
-  c.analyseCode('y--', true).then(result => t.equal(
+  c._analyseCode('y--', true).then(result => t.equal(
     result.messages[0].message,
     'Error: Code is not a single, simple expression'
   ))
@@ -133,11 +133,11 @@ test('JsContext.executeCode no value', t => {
   let c = new JsContext()
   t.plan(2)
 
-  c.executeCode('\n').then(result => {
+  c._executeCode('\n').then(result => {
     t.deepEqual(result.value, null, 'nothing returned when empty')
   })
 
-  c.executeCode('if(true){\n  let x = 4\n}\n').then(result => {
+  c._executeCode('if(true){\n  let x = 4\n}\n').then(result => {
     t.deepEqual(result, {
       inputs: [],
       output: null,
@@ -152,7 +152,7 @@ test('JsContext.executeCode with no inputs, no output, no errors', t => {
   let c = new JsContext()
   t.plan(3)
 
-  c.executeCode('1.1 * 2').then(result => {
+  c._executeCode('1.1 * 2').then(result => {
     t.deepEqual(result, {
       inputs: [],
       output: null,
@@ -162,7 +162,7 @@ test('JsContext.executeCode with no inputs, no output, no errors', t => {
     })
   })
 
-  c.executeCode('let x = 3\nMath.sqrt(x*3)').then(result => {
+  c._executeCode('let x = 3\nMath.sqrt(x*3)').then(result => {
     t.deepEqual(result, {
       inputs: [],
       output: null,
@@ -172,7 +172,7 @@ test('JsContext.executeCode with no inputs, no output, no errors', t => {
     })
   })
 
-  c.executeCode('// Multiple lines and comments\nlet x = {}\nObject.assign(x, {a:1})\n').then(result => {
+  c._executeCode('// Multiple lines and comments\nlet x = {}\nObject.assign(x, {a:1})\n').then(result => {
     t.deepEqual(result, {
       inputs: [],
       output: null,
@@ -187,7 +187,7 @@ test('JsContext.executeCode with inputs, outputs, no errors', t => {
   let c = new JsContext()
   t.plan(2)
 
-  c.executeCode('let b = a*6', {
+  c._executeCode('let b = a*6', {
     a: {type: 'integer', data: 6}
   }).then(result => {
     t.deepEqual(result, {
@@ -199,7 +199,7 @@ test('JsContext.executeCode with inputs, outputs, no errors', t => {
     })
   })
 
-  c.executeCode('let c = a*b[1]\nc', {
+  c._executeCode('let c = a*b[1]\nc', {
     a: {type: 'integer', data: 6},
     b: {type: 'array[number]', data: [1, 2, 3]}
   }).then(result => {
@@ -217,7 +217,7 @@ test('JsContext.executeCode value is multiline', t => {
   let c = new JsContext()
   t.plan(1)
 
-  c.executeCode(`let x = {
+  c._executeCode(`let x = {
     a: 1,
     b: "foo"
   }`).then(result => {
@@ -235,19 +235,19 @@ test('JsContext.executeCode with errors', t => {
   let c = new JsContext()
   t.plan(3)
 
-  c.executeCode('foo').then(result => {
+  c._executeCode('foo').then(result => {
     t.deepEqual(result.messages, [
       { line: 0, column: 0, type: 'warn', message: 'Input variable "foo" is not managed' },
       { line: 1, column: 1, type: 'error', message: 'ReferenceError: foo is not defined' }
     ])
   })
-  c.executeCode('1\n2\n foo\n4').then(result => {
+  c._executeCode('1\n2\n foo\n4').then(result => {
     t.deepEqual(result.messages, [
       { line: 0, column: 0, type: 'warn', message: 'Input variable "foo" is not managed' },
       { line: 3, column: 2, type: 'error', message: 'ReferenceError: foo is not defined' }
     ])
   })
-  c.executeCode(' <>').then(result => {
+  c._executeCode(' <>').then(result => {
     t.deepEqual(result.messages, [
       { line: 1, column: 1, type: 'error', message: 'SyntaxError: Unexpected token (1:1)' }
     ])
@@ -258,19 +258,19 @@ test('JsContext.executeCode with global variables', t => {
   let c = new JsContext()
   t.plan(3)
 
-  c.executeCode('foo = "bar"')
+  c._executeCode('foo = "bar"')
 
-  c.executeCode('foo').then(result => {
+  c._executeCode('foo').then(result => {
     t.deepEqual(result.value, {type: 'string', data: 'bar'}, 'can get global variable')
   })
 
-  c.executeCode('foo + "t_simpson"').then(result => {
+  c._executeCode('foo + "t_simpson"').then(result => {
     t.deepEqual(result.value, {type: 'string', data: 'bart_simpson'}, 'can get global variable expression')
   })
 
-  c.executeCode('foo = 42')
+  c._executeCode('foo = 42')
 
-  c.executeCode('foo').then(result => {
+  c._executeCode('foo').then(result => {
     t.deepEqual(result.value, {type: 'integer', data: 42}, 'can change global variable')
   })
 })
@@ -279,15 +279,15 @@ test('JsContext.executeCode with console output', t => {
   let c = new JsContext()
   t.plan(3)
 
-  c.executeCode('console.log("Hello!")').then(result => {
+  c._executeCode('console.log("Hello!")').then(result => {
     t.equal(result.streams.stdout, "Hello!")
   })
 
-  c.executeCode('console.warn("Warning")').then(result => {
+  c._executeCode('console.warn("Warning")').then(result => {
     t.equal(result.streams.stdout, "Warning")
   })
 
-  c.executeCode('console.error("Errrrr!")').then(result => {
+  c._executeCode('console.error("Errrrr!")').then(result => {
     t.equal(result.streams.stderr, "Errrrr!")
   })
 })
