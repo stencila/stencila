@@ -582,7 +582,7 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _onDocumentChange(change) {
-    if (change.hasUpdated('data')) {
+    if (change.hasUpdated('data') || change.hasUpdated('columns')) {
       this.refs.sheetView.update()
     }
   }
