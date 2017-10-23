@@ -255,12 +255,19 @@
 
 .sc-sheet .sc-table-view.sm-mode-minimum .sc-column-header,
 .sc-sheet .sc-table-view.sm-mode-minimum .se-corner {
+  padding: 0px;
   visibility: hidden;
+  background: none;
 }
 
 .sc-sheet .sc-table-view.sm-mode-minimum .se-column-title {
   height: 0px;
   border: none;
+}
+
+.sc-sheet .sc-selection-overlay.sm-mode-minimum > .se-selection-columns,
+.sc-sheet .sc-selection-overlay > .se-selection-rows {
+  background: none;
 }
 
 .sc-sheet .sc-table-view.sm-mode-minimum .sc-test-value {
