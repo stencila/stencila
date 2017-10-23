@@ -22,7 +22,7 @@
 
 .sc-cell .se-status {
   position: absolute;
-  left: 0px;
+  left: -2px;
   top: 0px;
   bottom: 0px;
   width: 2px;

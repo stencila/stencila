@@ -9,6 +9,7 @@
 @import './_substance-core.css';
 @import './_variables.css';
 @import './_reset.css';
+@import './_overrides.css';
 
 @import './_style-transforms';
 @import './_pagestyle.css';
