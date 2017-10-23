@@ -15,8 +15,10 @@ export default class SheetEditor extends AbstractEditor {
     this._cellEditorDoc = sheet.newInstance()
     // Just adds one cell, used for text editing
     this._cellEditorDoc._node = this._cellEditorDoc.createElement('cell')
+
+    const configurator = this.context.editorSession.configurator
     this._cellEditorSession = new CellEditorSession(this._cellEditorDoc, {
-      configurator: this.context.editorSession.configurator,
+      configurator: configurator
       // EXPERIMENTAL: trying to setup an editor session using the same CommandManager
       // but working on a different doc
       // NOTE: Disabled this, as it was causing problems with SelectAllCommand

@@ -37,6 +37,8 @@ export default {
       ImporterClass: SheetDocumentImporter
     })
 
+    config.addEditorOption({key: 'forcePlainTextPaste', value: true})
+
     config.import(BasePackage)
 
     config.addManager('issue-manager', IssueManager)
