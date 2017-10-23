@@ -16,6 +16,10 @@ SheetSchema.getDocTypeParams = function() {
   return ['sheet', 'Stencila Sheet 1.0', SheetSchema.uri]
 }
 
+SheetSchema.getDefaultTextType = function () {
+  return 'cell'
+}
+
 SheetSchema.uri = 'http://stenci.la/Sheet-1.0.dtd'
 
 export default SheetSchema
