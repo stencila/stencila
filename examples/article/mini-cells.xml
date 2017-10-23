@@ -39,6 +39,40 @@
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
 
+      <p>
+        A plot...
+      </p>
+
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[plot(x)]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
+      <p>
+        Assign another array and use it to create a table...
+      </p>
+
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[y = [1, 2, 3]]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
+
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[table({x: x, y: y})]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
+
+      <p>
+        Test cells....
+      </p>
+
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[test_equal(1.23, 1.23)]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
     </sec>
   </body>
   <back>
