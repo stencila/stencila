@@ -165,17 +165,16 @@
       -->
 
       <!-- Reproducible figure -->
-      <!-- <fig id="f1" fig-type="repro-fig">
+      <fig id="f1" fig-type="repro-fig">
         <caption>
           <title>Biodiversity on Mars</title>
           <p>Lorem ipsum</p>
         </caption>
         <alternatives>
-          <code specific-use="source" language="mini"><![CDATA[scatter3d(co_occurence_matrix)]]></code>
+          <code specific-use="source" language="mini"><![CDATA[plot([11,98])]]></code>
           <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "plot-ly", "value": {} }]]></code>
         </alternatives>
-        <graphic specific-use="output" xlink:href="89f8b53e361f.png"/>
-      </fig> -->
+      </fig>
     </sec>
   </body>
   <back>
