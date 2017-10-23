@@ -91,6 +91,21 @@
         <code specific-use="source" language="mini"><![CDATA[3 * 0.25]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
+
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[data = table({
+  temp: [18,20,24,23,26,25,20,17,18,28],
+  sales: [50,126,118,126,280,102,93,32,103,246],
+  sunny: ['no', 'yes', 'yes','yes', 'yes', 'no', 'no', 'no', 'yes', 'yes']
+})]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[filter(data,'temp < 22') | plot()]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
       <code specific-use="cell"><named-content><alternatives>
         <code specific-use="source" language="mini"><![CDATA[mini_var = 40 + 2]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
@@ -123,24 +138,7 @@
       <p>Cells use a very simple expression language called <italic>Mini</italic> to allow you to perform common data analysis and visualisation tasks within the document.</p>
       <p>You can edit this document just like in a traditional word processor. Press <monospace>enter</monospace> to start a new paragraph or insert a table or cell.</p>
       <p>Here's a cell that reads some fictitous ice cream sales data from a CSV (comma separated values) string using the <monospace>csv</monospace> function.</p>
-      <code specific-use="cell"><named-content><alternatives>
-        <!--
-        <code specific-use="source" language="mini"><![CDATA[data = data!A1:C10]]></code>
-        -->
-        <code specific-use="source" language="mini"><![CDATA[data = csv('temp,sunny,sales
-18,no,50
-20,yes,126
-24,yes,118
-23,yes,126
-26,yes,280
-25,no,102
-20,no,93
-17,no,32
-18,yes,103
-28,yes,246
-')]]></code>
-        <code specific-use="output" language="json"><![CDATA[{}]]></code>
-      </alternatives></named-content></code>
+
       <p>The variable <monospace>data</monospace> is a table and is now a part of of the document scope - the set of variables the document knows about. Let's filter the table to only show data for days when the temperature is less than 20 degrees.</p>
       <code specific-use="cell"><named-content><alternatives>
             <code specific-use="source" language="mini"><![CDATA[filter(data,'temp < 20')]]></code>
