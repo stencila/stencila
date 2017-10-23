@@ -81,15 +81,15 @@ export default class SheetComponent extends CustomSurface {
       .on('dblclick', this._onDblclick)
       .on('contextmenu', this._onContextMenu)
       .on('contextmenuitemclick', this._hideMenus)
-      .on('copy', this._onCopy)
-      .on('paste', this._onPaste)
-      .on('cut', this._onCut)
 
     el.append(
       $$('textarea').addClass('se-keytrap').ref('keytrap')
         .css({ position: 'absolute', width: 0, height: 0 })
         .on('keydown', this._onKeyDown)
-        .on('input', this._onInput),
+        .on('input', this._onInput)
+        .on('copy', this._onCopy)
+        .on('paste', this._onPaste)
+        .on('cut', this._onCut),
       contentEl,
       this._renderOverlay($$),
       this._renderCellEditor($$),
