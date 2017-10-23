@@ -34,31 +34,20 @@ export default class SheetCell extends NodeComponent {
   _renderContent($$, cell) {
     let text = cell.text()
     let isExpressionCell = isExpression(text)
-    if(this.props.mode === 'maximum') {
-      // TODO: in case of constant cells we need to render the text content
-      // as value
-      let valueEl = $$('div').addClass('sc-cell-value').append(
-        $$(CellValueComponent, {cell: cell}).ref('value')
-      )
-      if(isExpressionCell) valueEl.addClass('sm-response-value')
-      const source = isExpressionCell ? text : ' '
-      return $$('div').addClass('se-function-cell').append(
-        valueEl,
-        $$('div').addClass('sc-equation').append(source)
-      )
-    }
-    // else if (this.props.mode === 'minimum') {
-    //   if(!isTextCell) textValue = this.getResponse() || ' '
-    //   return $$('div').addClass('sc-text-content').text(textValue)
-    // }
-    else {
-      if (isExpressionCell) {
+
+    if(isExpressionCell) {
+      if(this.props.mode === 'maximum') {
+        return $$('div').addClass('se-function-cell').append(
+          $$(CellValueComponent, {cell: cell}).ref('value'),
+          $$('div').addClass('sc-equation').append(text)
+        )
+      } else {
         return $$('div').addClass('sc-text-content').append(
           $$(CellValueComponent, {cell: cell}).ref('value')
         )
-      } else {
-        return $$('div').addClass('sc-text-content').text(text)
       }
+    } else {
+      return $$('div').addClass('sc-text-content').text(text)
     }
   }
 
