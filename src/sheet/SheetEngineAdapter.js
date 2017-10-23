@@ -106,7 +106,7 @@ export default class SheetEngineAdapter {
         if (oldType === EXPRESSION) {
           engine.removeCell(node.id)
         } else {
-          console.warn('TODO: trigger propagation of value')
+          engine.updateInput(node.id)
         }
       } else {
         if (oldType === CONSTANT) {

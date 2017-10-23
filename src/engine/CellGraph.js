@@ -1,3 +1,4 @@
+import { isArray, forEach } from 'substance'
 /*
   Dependency graph for Stencila Cell Engine.
 */
@@ -63,8 +64,7 @@ export default class CellGraph {
   lookup(symbol) {
     switch(symbol.type) {
       case 'var': {
-        let cellId = this._resolve(symbol)[0]
-        return this._cells[cellId]
+        return this._resolve(symbol)[0]
       }
       case 'cell': {
         let sheet = this._documents[symbol.docId]
@@ -107,8 +107,11 @@ export default class CellGraph {
         // Note: symbol can be either var, cell, or range
         // in case of range this resolves to multiple ids
         // TODO: handle lookup errors
-        let cellIds = this._resolve(symbol)
-        inputs = inputs.concat(cellIds.map(id => this._cells[id]))
+        let cells = this.lookup(symbol)
+        if (!isArray(cells)) {
+          cells = [cells]
+        }
+        inputs = inputs.concat(cells)
       })
       // HACK: for now we strip all unresolved symbols
       inputs = inputs.filter(Boolean)
@@ -134,12 +137,13 @@ export default class CellGraph {
     })
     this._outs = outs
 
+    // HACK: transforming outs into an array making it easier to work with
+    forEach(outs, (cells, id) => {
+      outs[id] = Array.from(cells)
+    })
+
     let ranks = {}
     ids.forEach((id) => {
-      // HACK: transforming outs into an array making it easier to work with
-      if (outs[id]) {
-        outs[id] = Array.from(outs[id])
-      }
       this._computeRank(id, this.getInputs(id), ranks)
     })
     this._ranks = ranks

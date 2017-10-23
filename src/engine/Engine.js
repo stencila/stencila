@@ -62,12 +62,17 @@ export default class Engine {
     this._analyse(cell)
   }
 
+  updateInput(cellId) {
+    this._updateDependencies(cellId)
+    this._triggerScheduler()
+  }
+
   removeCell(cellId) {
     // TODO: need to reorganize the dep graph
     let cell = this._getCell(cellId)
     if (cell) {
       this._candidates.delete(cell)
-      this._updateDependencies(cell)
+      this._updateDependencies(cellId)
       this._graph.removeCell(cellId)
     }
   }
@@ -135,7 +140,7 @@ export default class Engine {
             this._candidates.delete(cell)
           }
         }
-        this._updateDependencies(cell)
+        this._updateDependencies(cell.id)
 
         this._triggerScheduler()
       })
@@ -143,7 +148,7 @@ export default class Engine {
   }
 
   _compile(inputs, output, docId) {
-    console.log('_compile', inputs, output, docId)
+    // console.log('_compile', inputs, output, docId)
     let result = {
       inputs: inputs ? inputs.map((input) => {
         let _docId
@@ -199,7 +204,7 @@ export default class Engine {
     // go through all candidates and evaluate when ready
     let cellState = getCellState(cell)
     if (cellState._engineState === EVALUATED) {
-      throw new Error('FIXME: retriggering an already evaluated cell')
+      console.error('FIXME: retriggering an already evaluated cell')
     }
     let lang = cell.language
     let source = cell.source
@@ -230,7 +235,7 @@ export default class Engine {
         cellState.messages = (cellState.messages || []).concat(res.messages)
         deriveCellStatus(cellState)
 
-        this._updateDependencies(cell)
+        this._updateDependencies(cell.id)
 
         this._triggerScheduler()
       })
@@ -269,11 +274,11 @@ export default class Engine {
     return result
   }
 
-  _updateDependencies(cell) {
+  _updateDependencies(cellId) {
     const graph = this._graph
     let visited = {}
-    let queue = [].concat(graph.getOutputs(cell.id))
-    let dirty = [cell.id]
+    let queue = [].concat(graph.getOutputs(cellId))
+    let dirty = [cellId]
     while (queue.length > 0) {
       let next = queue.shift()
       if (visited[next.id]) continue
@@ -294,7 +299,7 @@ export default class Engine {
           graph.getOutputs(next.id).filter(c => !visited[c.id])
         )
       }
-      visited[cell.id] = true
+      visited[next.id] = true
     }
     this._notifyCells(...dirty)
   }
@@ -310,7 +315,8 @@ export default class Engine {
       }
       // TODO: we will have other type of dependencies, such as
       // cell-references or externally managed values
-      if (input.isCell()) {
+      // HACK
+      if (input.isCell && input.isCell()) {
         let cellState = getCellState(input)
         if (cellState.status === ERROR || cellState.status === INPUT_ERROR) {
           return INPUT_ERROR
@@ -318,7 +324,7 @@ export default class Engine {
           ready = false
         }
       } else {
-        console.error('TODO: need to check the availability of inputs other than expression cells')
+        // console.error('TODO: need to check the availability of inputs other than expression cells')
       }
     }
 
