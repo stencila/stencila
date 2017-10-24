@@ -22,6 +22,7 @@ export default function template(colSpecs = {}, cells = {}, cols = 20, rows = 10
     if (colSpec) {
       if (colSpec.name) colEl.setAttribute('name', colSpec.name)
       if (colSpec.type) colEl.setAttribute('type', colSpec.type)
+      if (colSpec.width) colEl.setAttribute('width', colSpec.width)
     }
     columnsEl.append(colEl)
   }
