@@ -20,6 +20,9 @@ export function request (method, url, data) {
     var request = new XMLHttpRequest()
     request.open(method, url, true)
     request.setRequestHeader('Accept', 'application/json')
+    // Send any credentials (e.g. cookies) in request headers
+    // (necessary for remote peers)
+    request.withCredentials = true
 
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
