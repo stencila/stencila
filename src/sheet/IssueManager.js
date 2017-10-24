@@ -238,6 +238,7 @@ class IssueManager extends EventEmitter {
             this.emit('issue:focus', cellId)
             this.selectedCell = cellId
           } else if (this.selectedCell) {
+            this.emit('issue:focus', null)
             this.selectedCell = null
           }
         }
