@@ -24,7 +24,11 @@ export default class SheetCell extends NodeComponent {
 
     let cellIssues = issueManager.getCellIssues(cell.id)
     if(cellIssues.length > 0) {
-      el.addClass('sm-issue sm-error')
+      if (cellIssues.length === 1 && cellIssues[0].severity === 4) {
+        el.addClass('sm-issue sm-passed')
+      } else {
+        el.addClass('sm-issue sm-error')
+      }
     }
 
     el.append(this._renderContent($$, cell))

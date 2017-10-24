@@ -6,8 +6,8 @@ const SEVERITY_MAP = {
   0: 'info',
   1: 'warning',
   2: 'error',
-  3: 'test-failed',
-  4: 'test-passed'
+  3: 'failed',
+  4: 'passed'
 }
 
 class IssueManager extends EventEmitter {
@@ -93,6 +93,15 @@ class IssueManager extends EventEmitter {
     cellIssues.forEach(issue => {
       if(issue.scope === 'engine') {
         this.remove('engine', issue)
+      }
+    })
+  }
+
+  clearTestIssues(cellId) {
+    const cellIssues = this._byCell.get(cellId)
+    cellIssues.forEach(issue => {
+      if(issue.scope === 'test') {
+        this.remove('test', issue)
       }
     })
   }
@@ -194,8 +203,11 @@ class IssueManager extends EventEmitter {
     issue.scope = key
     this._byKey.add(key, issue)
     this._byCell.add(issue.cellId, issue)
-    this._byColumn.add(column.id, issue)
-    this._byRow.add(rowId, issue)
+    // We want to show test:passed issues only in issue list and counters
+    if(issue.severity !== 4) {
+      this._byColumn.add(column.id, issue)
+      this._byRow.add(rowId, issue)
+    }
     this._bySeverity.add(SEVERITY_MAP[issue.severity], issue)
     this._notifyObservers(issue.cellId)
   }
@@ -273,14 +285,25 @@ class IssueManager extends EventEmitter {
     if(stateUpdated) {
       stateUpdate.forEach(cellId => {
         const cell = this.doc.get(cellId)
-        if(cell.state) {
+        const cellState = cell.state
+        if(cellState) {
           this.clearCellEngineIssues(cellId)
-          const hasErrors = cell.state.hasErrors()
+          this.clearTestIssues(cellId)
+          const hasErrors = cellState.hasErrors()
           if(hasErrors) {
-            cell.state.messages.forEach((err) => {
+            cellState.messages.forEach((err) => {
               const error = new CellIssue(cell.id, 'engine', err.message, 2)
               this.add('engine', error)
             })
+          }
+          if(cellState.value) {
+            const isTestCell = cellState.value.type === 'test'
+            if(isTestCell) {
+              const testData = cellState.value.data
+              const severity = testData.passed ? 4 : 3
+              const error = new CellIssue(cellId, 'test', testData.message, severity)
+              this.add('test', error)
+            }
           }
         }
       })
