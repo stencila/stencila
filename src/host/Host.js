@@ -227,7 +227,14 @@ export default class Host {
   pokePeer (url) {
     return GET(url).then(manifest => {
       // Register if this is a Stencila Host manifest
-      if (manifest.stencila) this.registerPeer(url, manifest)
+      if (manifest.stencila) {
+        // Remove any query parameters from the peer URL
+        // e.g. authentication tokens. Necessary because we append strings to this
+        // URL for requests to e.g POST http://xxxxx/RContext
+        let match = url.match(/^https?:\/\/[\w-.]+(:\d+)?/)
+        if (match) url = match[0]
+        this.registerPeer(url, manifest)
+      }
     })
   }
 

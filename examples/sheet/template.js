@@ -20,8 +20,9 @@ export default function template(colSpecs = {}, cells = {}, cols = 20, rows = 10
     let colId = String.fromCharCode(65 + col)
     let colSpec = colSpecs[colId]
     if (colSpec) {
-      colEl.setAttribute('name', colSpec.name)
-      colEl.setAttribute('type', colSpec.type)
+      if (colSpec.name) colEl.setAttribute('name', colSpec.name)
+      if (colSpec.type) colEl.setAttribute('type', colSpec.type)
+      if (colSpec.width) colEl.setAttribute('width', colSpec.width)
     }
     columnsEl.append(colEl)
   }
@@ -32,8 +33,16 @@ export default function template(colSpecs = {}, cells = {}, cols = 20, rows = 10
     for (let col = 0; col < cols; col++) {
       let cellEl = doc.createElement('cell')
       let cellId = String.fromCharCode(65 + col) + row
-      let content = cells[cellId] || ''
-      cellEl.append(content)
+      let cellSpec = cells[cellId]
+      if (typeof cellSpec === 'undefined') {
+        cellEl.append('')
+      } else if (typeof cellSpec === 'object') {
+        if (cellSpec.type) cellEl.setAttribute('type', cellSpec.type)
+        if (cellSpec.language) cellEl.setAttribute('language', cellSpec.language )
+        cellEl.append(cellSpec.content || '')
+      } else {
+        cellEl.append(cellSpec)
+      }
       rowEl.append(cellEl)
     }
     data.append(rowEl)

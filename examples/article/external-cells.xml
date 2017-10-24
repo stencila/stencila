@@ -7,32 +7,91 @@
       <title-group>
         <article-title>An article with code cells in external languages</article-title>
       </title-group>
+      <contrib-group>
+        <contrib contrib-type="author" aff-ids="aff1">
+          <x specific-use="display">Nokome Bentley</x>
+        </contrib>
+        <contrib contrib-type="author" aff-ids="aff2">
+          <x specific-use="display">Michael Aufreiter</x>
+        </contrib>
+        <contrib contrib-type="author" aff-ids="aff2">
+          <x specific-use="display">Oliver Buchtala</x>
+        </contrib>
+        <contrib contrib-type="author" aff-ids="aff2">
+          <x specific-use="display">Daniel Bellison</x>
+        </contrib>
+      </contrib-group>
+      <aff id="aff1">
+        <x specific-use="display">Stencila</x>
+      </aff>
+      <aff id="aff2">
+        <x specific-use="display">Substance Software GmbH</x>
+      </aff>
+      <abstract>
+        <p>This example includes code cells for "external" languages - R, Python and SQL.</p>
+      </abstract>
     </article-meta>
   </front>
   <body>
-    <sec>
 
-      <p>
-        Para one
-      </p>
+    <sec>
+      <title>Introduction</title>
+
+      <p>To execute the code cells you will need to have an external Stencila Host running which supports R, Python and SQL languages. See our <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://community.stenci.la/t/getting-started-with-stencila" ext-link-type="uri" xlink:type="simple">getting started guide</ext-link> for instructions on running a Stencila Host. Then append <bold>&amp;peers=http://localhost:2000></bold> to the end of the URL.</p>
+
+      <p>Alternatively, you can use Stencila Cloud by appending <bold>&amp;peers=https://cloud.stenci.la?ticket=XXXXXXXX</bold> to the end of the URL. Ask us for a ticket (the XXXXXXXX part).</p>
+    </sec>
+
+    <sec>
+      <title>R</title>
+
+      <p><italic>R</italic> is a popular computing language for statistical data analysis. You can insert a new code cell and choose "R" from the menu to switch the language to R. When you alter the R code in the cell it is re-executed by sending the chunk of code to the externally running R session. For example, here is an R cell with which plots some random numbers, try changing any of the cell (the comments for example) and the plot will update.</p>
 
       <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="r"><![CDATA[hist(rnorm(10000), breaks=50, col=hsv(0.6,0.9,0.9), xlab="Value", main="")]]></code>
+        <code specific-use="source" language="r"><![CDATA[# A random (but colourful!) plot in R
+x <- runif(1000)
+y <- cos(x + runif(1000))
+col <- hsv((y+1)/2, 0.9, 1, 0.3)
+plot(x, y, pch=16, cex=1.8, col=col, ylab='cos(x)+e')]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
 
-      <p>
-        Para two
-      </p>
+      <p>You can pass variables from <italic>Mini</italic> to <italic>R</italic>. For example, below is a Mini cell which defines a variable called <bold>sample_size</bold> which we then pass through to an R cell. The R cell draws <bold>sample_size</bold> random samples from a Normal (Guassian) distribution. Try altering sample size .... </p>
+
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[sample_size = 1000]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="r"><![CDATA[hist(rnorm(min(sample_size, 1e5)), breaks=40, col=hsv(0.6, 0.9, 1), xlab="Value", main="")]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
+      <p>You can also pass variables from <italic>R</italic> to <italic>Mini</italic>. For example, below is a R cell which creates a table from the "diamonds</p>
+
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="r"><![CDATA[library(ggplot2)
+head(diamonds)]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+
+    </sec>
+
+    <sec>
+      <title>Python</title>
 
       <code specific-use="cell"><named-content><alternatives>
         <code specific-use="source" language="py"><![CDATA[num_from_py = 56]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
 
-      <p>
-        Para three
-      </p>
+    </sec>
+
+    <sec>
+      <title>SQL</title>
+
+      <p>Para three</p>
 
       <code specific-use="cell"><named-content><alternatives>
         <code specific-use="source" language="sql"><![CDATA[SELECT datetime("now")]]></code>
@@ -40,6 +99,7 @@
       </alternatives></named-content></code>
 
     </sec>
+
   </body>
   <back>
   </back>

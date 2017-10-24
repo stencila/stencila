@@ -64,6 +64,9 @@
       <ref name="sheet:data-type"/>
     </optional>
     <optional>
+      <attribute name="width"/>
+    </optional>
+    <optional>
       <ref name="sheet:data-unit"/>
     </optional>
   </define>
