@@ -4,12 +4,14 @@ import { SheetPackage, SheetPage, SheetSchema, Host, getQueryStringParam, Functi
 import blank from './blank'
 import dataClean from './data-clean'
 import rCells from './r-cells'
+import viewModes from './view-modes'
 import fullup from './fullup'
 
 const EXAMPLES = {
   'blank': blank,
   'data-clean': dataClean,
   'r-cells': rCells,
+  'view-modes': viewModes,
   'fullup': fullup
 }
 
