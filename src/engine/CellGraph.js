@@ -43,8 +43,12 @@ export default class CellGraph {
     return this._outs[cellId] || []
   }
 
-  registerDocument(name, doc) {
-    this._documents[name] = doc
+  registerDocument(id, doc) {
+    this._documents[id] = doc
+  }
+
+  getDocument(id) {
+    return this._documents[id]
   }
 
   addCell(cell) {
