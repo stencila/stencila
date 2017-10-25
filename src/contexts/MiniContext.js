@@ -1,7 +1,8 @@
 import { parse } from 'stencila-mini'
 import libcore from 'stencila-libcore'
 import { getCellLabel } from '../shared/cellHelpers'
-import { descendantTypes, coercedArrayType } from '../types'
+import { descendantTypes } from '../types'
+import { gather } from '../value'
 
 export default class MiniContext {
 
@@ -90,7 +91,7 @@ export default class MiniContext {
         }
         if (value.type !== param.type) {
           if (descendantTypes[param.type].indexOf(value.type) < 0) {
-            return _error(`Parameter "${param.name}" must be of type "${param.type}"`)
+            return _error(`Parameter "${param.name}" must be of type "${param.type}" but was of type "${value.type}"`)
           }
         }
         argValues.push(value)
@@ -240,11 +241,15 @@ class ExprContext {
         return this.values[symbol.name]
       }
       case 'cell': {
+        // TODO: would be good to have the symbol name stored in the symbol
         let name = getCellLabel(symbol.row, symbol.col)
         return this.values[name]
       }
       case 'range': {
-        throw new Error('Not implmented yet')
+        // TODO: would be good to have the symbol name stored in the symbol
+        let startName = getCellLabel(symbol.startRow, symbol.startCol)
+        let endName = getCellLabel(symbol.endRow, symbol.endCol)
+        return this.values[`${startName}_${endName}`]
       }
       default:
         throw new Error('Invalid state')
@@ -259,24 +264,25 @@ class ExprContext {
     // cast the type according to the value
     switch (type) {
       case 'number': {
-        type = libcore.type(value)
-        break
+        return {
+          type: libcore.type(value),
+          data: value
+        }
       }
       case 'array': {
-        type = coercedArrayType(value)
-        // HACK: to unmarshalling of types here as long as mini does not
-        // have built-in support for types
-        value = value.map((v) => {
-          return v.data
-        })
-        break
+        return gather('array', value)
+      }
+      case 'range': {
+        // TODO: the API is bit inconsistent here
+        // range already have a correct type because
+        // they are gathered by the engine
+        return value
       }
       default:
-        //
-    }
-    return {
-      type,
-      data: value
+        return {
+          type,
+          data: value
+        }
     }
   }
 
