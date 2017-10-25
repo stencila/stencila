@@ -65,6 +65,10 @@ class CellIssueComponent extends Component {
       severity = 'warning'
     } else if (issue.severity === 2) {
       severity = 'error'
+    } else if (issue.severity === 3) {
+      severity = 'failed'
+    } else if (issue.severity === 4) {
+      severity = 'passed'
     }
     el.addClass(`sm-${severity}`)
     if(highlighted) {

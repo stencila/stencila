@@ -178,6 +178,7 @@ export default class SheetEditor extends AbstractEditor {
   }
 
   toggleContext(contextId, cellId) {
+    if(cellId === null && !this.state.showContext) return
     if (this.state.showContext && this.state.contextId === contextId && cellId === undefined) {
       this.setState({
         showContext: false

@@ -9,6 +9,7 @@
   --sheet-cell-bordercolor: #d5d5d5;
   --sheet-error-color: #ff0d0d;
   --sheet-error-bgcolor: rgba(204, 0, 0, 0.3);
+  --sheet-passed-color: #68bd0b;
   --sheet-warning-color: #ffc41e;
   --sheet-warning-bgcolor: rgba(206, 157, 7, 0.3);
 }
