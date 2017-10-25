@@ -46,7 +46,9 @@ class SheetColumnHeader extends NodeComponent {
   }
 
   getWidth() {
-    return this.props.node.attr('width') || DEFAULT_COLUMN_WIDTH
+    // HACK: because XML importer does not convert to the right type
+    // we need to do it here
+    return Number.parseInt(this.props.node.attr('width'),10) || DEFAULT_COLUMN_WIDTH
   }
 
   renderIcon($$, icon) {
