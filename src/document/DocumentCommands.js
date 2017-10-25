@@ -91,7 +91,7 @@ export class HideCellCodeCommand extends Command {
   execute({ commandState, editorSession }) {
     const { cellId } = commandState
     let editor = editorSession.getEditor()
-    let cellComponent = editor.find(`[data-id=${cellId}] .sc-cell`)
+    let cellComponent = editor.find(`.sc-cell[data-id=${cellId}]`)
     cellComponent.extendState({
       hideCode: true
     })
@@ -123,7 +123,7 @@ export class ForceCellOutputCommand extends Command {
   */
   _getCellComponent(editorSession, cellId) {
     let editor = editorSession.getEditor()
-    return editor.find(`[data-id=${cellId}] .sc-cell`)
+    return editor.find(`.sc-cell[data-id=${cellId}]`)
   }
 
   execute({ commandState, editorSession }) {
