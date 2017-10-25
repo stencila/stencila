@@ -1,5 +1,5 @@
 import { uuid, isEqual } from 'substance'
-import { getCellState, getCellValue, getCellLabel } from '../shared/cellHelpers'
+import { getCellState, getCellValue, getCellLabel, getColumnLabel } from '../shared/cellHelpers'
 import { gather } from '../value'
 import { INITIAL, ANALYSED, EVALUATED,
   PENDING, INPUT_ERROR, INPUT_READY,
@@ -296,9 +296,45 @@ export default class Engine {
             } else if (startRow === endRow) {
               val = gather('array', matrix[0].map(cell => getCellValue(cell)))
             } else {
-              console.error('TODO: 2D ranges should be provided as table instead of as an array')
-              let rows = matrix.map(row => row.map(cell => getCellValue(cell)))
-              val = gather('array', [].concat(...rows))
+              let sheet = this._graph.getDocument(symbol.docId)
+              if (startCol > endCol) {
+                [startCol, endCol] = [endCol, startCol]
+              }
+              if (startRow > endRow) {
+                [startRow, endRow] = [endRow, startRow]
+              }
+              let ncols = endCol-startCol+1
+              let nrows = endRow-startRow+1
+              // data as columns by name
+              // get the column name from the sheet
+              let data = {}
+              for (let i = 0; i < ncols; i++) {
+                let colIdx = startCol+i
+                let col = sheet.getColumnMeta(colIdx)
+                let name = col.attr('name') || getColumnLabel(colIdx)
+                data[name] = matrix.map((row) => {
+                  let val = getCellValue(row[i])
+                  if (val) {
+                    return val.data
+                  } else {
+                    return undefined
+                  }
+                })
+              }
+              val = {
+                // Note: first 'type' is for packing
+                // and second type for diambiguation against other complex types
+                type: 'table',
+                data: {
+                  type: 'table',
+                  data,
+                  columns: ncols,
+                  rows: nrows
+                }
+              }
+              // console.error('TODO: 2D ranges should be provided as table instead of as an array')
+              // let rows = matrix.map(row => row.map(cell => getCellValue(cell)))
+              // val = gather('array', [].concat(...rows))
             }
           }
           result[name] = val
