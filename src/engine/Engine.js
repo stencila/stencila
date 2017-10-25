@@ -105,7 +105,7 @@ export default class Engine {
       this._tokens[cell.id] = token
       let source = cell.source || ''
       return context.analyseCode(source).then((res) => {
-        console.log('ANALYSED cell', cell, res)
+        // console.log('ANALYSED cell', cell, res)
         // skip if this cell has been rescheduled in the meantime
         if (this._tokens[cell.id] !== token) return
 

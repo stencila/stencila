@@ -122,7 +122,11 @@ export function gather(type, value) {
       return {
         type: coercedArrayType(value),
         data: value.map((v) => {
-          if (v) return v.data
+          if (v) {
+            return v.data
+          } else {
+            return undefined
+          }
         })
       }
     }
