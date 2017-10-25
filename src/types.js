@@ -55,6 +55,7 @@ export function coercedArrayType(arr) {
 }
 
 function _mostSpecificType(type, next) {
+  if (!next) return 'any'
   let nextType = next.type
   if (!type) return nextType
   if (type === nextType) {
@@ -63,6 +64,12 @@ function _mostSpecificType(type, next) {
   switch(type) {
     case 'number': {
       if (nextType === 'integer') {
+        return 'number'
+      }
+      break
+    }
+    case 'integer': {
+      if (nextType === 'number') {
         return 'number'
       }
       break
