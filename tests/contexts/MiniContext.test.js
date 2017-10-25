@@ -142,7 +142,7 @@ test('MiniContext: one_param("wrong type")', t => {
   let c = setupContextWithFunctions()
   c.executeCode('one_param("wrong type")').then((res) => {
     t.ok(_hasError(res), 'should error')
-    t.equal(_getMessage(res), 'Parameter "param1" must be of type "number"', 'error message should be correct')
+    t.equal(_getMessage(res), 'Parameter "param1" must be of type "number" but was of type "string"', 'error message should be correct')
     t.end()
   })
 })
