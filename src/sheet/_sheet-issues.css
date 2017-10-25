@@ -50,6 +50,14 @@
   color: var(--sheet-warning-color);
 }
 
+.sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list .se-icon.se-failed-counter.sm-highlighted {
+  color: var(--sheet-error-color);
+}
+
+.sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list .se-icon.se-passed-counter.sm-highlighted {
+  color: var(--sheet-passed-color);
+}
+
 .sc-sheet-statusbar .sc-sheet-issues-counter .se-toggle-issues-list .se-icon .se-label {
   margin-left: 3px;
 }
@@ -87,6 +95,10 @@
   border-left: 2px solid var(--sheet-error-color);
 }
 
+.sc-sheet-issues-list .sc-cell-issue.sm-passed.sm-highlighted {
+  border-left: 2px solid var(--sheet-passed-color);
+}
+
 .sc-sheet-issues-list .sc-cell-issue::after {
   content: "";
   width: 0;
@@ -104,4 +116,12 @@
 
 .sc-sheet-issues-list .sc-cell-issue.sm-warning::after {
   border-top: 7px solid var(--sheet-warning-color);
+}
+
+.sc-sheet-issues-list .sc-cell-issue.sm-failed::after {
+  border-top: 7px solid var(--sheet-error-color);
+}
+
+.sc-sheet-issues-list .sc-cell-issue.sm-passed::after {
+  border-top: 7px solid var(--sheet-passed-color);
 }
