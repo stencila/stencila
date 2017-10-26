@@ -5,6 +5,7 @@ import blank from './blank'
 import dataClean from './data-clean'
 import rCells from './r-cells'
 import viewModes from './view-modes'
+import geneErrors from './gene-errors'
 import fullup from './fullup'
 
 const EXAMPLES = {
@@ -12,6 +13,7 @@ const EXAMPLES = {
   'data-clean': dataClean,
   'r-cells': rCells,
   'view-modes': viewModes,
+  'gene-errors': geneErrors,
   'fullup': fullup
 }
 

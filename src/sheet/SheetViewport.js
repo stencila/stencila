@@ -26,7 +26,7 @@ export default class SheetViewport extends EventEmitter {
     // size of a cell
     this.D = 30
     // number of rows to be rendered (regardless of actual container size)
-    this.P = 20
+    this.P = 30
   }
 
   getContainerWidth() {

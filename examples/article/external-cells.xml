@@ -63,10 +63,16 @@ plot(x, y, pch=16, cex=1.8, col=col, ylab='cos(x)+e')]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
 
-      <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="r"><![CDATA[hist(rnorm(min(sample_size, 1e5)), breaks=40, col=hsv(0.6, 0.9, 1), xlab="Value", main="")]]></code>
-        <code specific-use="output" language="json"><![CDATA[{}]]></code>
-      </alternatives></named-content></code>
+      <fig id="f1" fig-type="repro-fig">
+        <caption>
+          <title>Histogram of a random sample of variates from a normal distribution</title>
+          <p>An example plot in R</p>
+        </caption>
+        <alternatives>
+          <code specific-use="source" language="r"><![CDATA[hist(rnorm(min(sample_size, 1e5)), breaks=40, col=hsv(0.6, 0.9, 1), xlab="Value", main="")]]></code>
+          <code specific-use="output" language="json"><![CDATA[{}]]></code>
+        </alternatives>
+      </fig>
 
       <p>You can also pass variables from <italic>R</italic> to <italic>Mini</italic>. For example, below is a R cell which creates a table from the "diamonds</p>
 
@@ -79,22 +85,18 @@ head(diamonds)]]></code>
     </sec>
 
     <sec>
-      <title>Python</title>
+      <title>SQL</title>
+
+      <p>You can execute SQL cells using a "SqliteContext". As with other languages you can pass data to the execution context. Here, we assign the built in R dataset "mtcars" to a variable called "cars_data" and then query it using SQL:</p>
 
       <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="py"><![CDATA[num_from_py = 56]]></code>
+        <code specific-use="source" language="r"><![CDATA[cars_data = mtcars
+cars_data]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
 
-    </sec>
-
-    <sec>
-      <title>SQL</title>
-
-      <p>Para three</p>
-
       <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="sql"><![CDATA[SELECT datetime("now")]]></code>
+        <code specific-use="source" language="sql"><![CDATA[SELECT * FROM cars_data WHERE carb=4 ORDER BY hp DESC]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
 
@@ -102,5 +104,32 @@ head(diamonds)]]></code>
 
   </body>
   <back>
+    <ref-list>
+      <title>References</title>
+      <ref id="R1">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author"><name><surname>Eve</surname><given-names>Martin</given-names></name></person-group>
+          <year>2016</year>
+          <article-title>Of LaTeX and labour.</article-title>
+          <source>https://www.martineve.com/2016/09/14/of-latex-and-labour/</source>
+        </element-citation>
+      </ref>
+      <ref id="R2">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author"><name><surname>Garnett</surname><given-names>Alex</given-names></name><name><surname>Alperin</surname><given-names>Juan Pablo</given-names></name><name><surname>Willinsky</surname><given-names>John</given-names></name></person-group>
+          <year>2015</year>
+          <article-title>The Public Knowledge Project XML Publishing Service and meTypeset: Don’t call it "Yet Another Word-to-JATS Conversion Kit."</article-title>
+          <source>https://www.ncbi.nlm.nih.gov/books/NBK279666/</source>
+        </element-citation>
+      </ref>
+      <ref id="R3">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author"><name><surname>Eve</surname><given-names>Martin</given-names></name></person-group>
+          <year>2015</year>
+          <article-title>Building a real XML-first (XML-in) workflow for scholarly typesetting.</article-title>
+          <source>https://www.martineve.com/2015/07/20/building-a-real-xml-first-workflow-for-scholarly-typesetting/</source>
+        </element-citation>
+      </ref>
+    </ref-list>
   </back>
 </article>
