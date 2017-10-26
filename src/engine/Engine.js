@@ -1,5 +1,6 @@
 import { uuid, isEqual } from 'substance'
-import { getCellState, getCellValue, getCellLabel } from '../shared/cellHelpers'
+import { getCellState, getCellValue, getCellLabel, getColumnLabel } from '../shared/cellHelpers'
+import { gather } from '../value'
 import { INITIAL, ANALYSED, EVALUATED,
   PENDING, INPUT_ERROR, INPUT_READY,
   RUNNING, ERROR, OK,
@@ -242,6 +243,14 @@ export default class Engine {
     })
   }
 
+  /*
+    This gets called before calling into
+    contexts.
+    It provides packed values stored in a
+    hash by their name.
+    Ranges are stored by a the mangled name
+    e.g. 'A1:B1' -> 'A1_B1'
+  */
   _getInputValues(cellId) {
     let graph = this._graph
     let cell = this._getCell(cellId)
@@ -265,7 +274,71 @@ export default class Engine {
           break
         }
         case 'range': {
-          throw new Error('Not implemented yet.')
+          // TODO: this is redundant with what we do
+          // in MiniContext
+          // We neet to rethink how values should
+          // be propagated through the engine
+          let startName = getCellLabel(symbol.startRow, symbol.startCol)
+          let endName = getCellLabel(symbol.endRow, symbol.endCol)
+          let name = `${startName}_${endName}`
+          let matrix = graph.lookup(symbol)
+          let { startRow, endRow, startCol, endCol } = symbol
+          let val
+          if (startRow === endRow) {
+            if (startCol === endCol) {
+              val = getCellValue(matrix[0][0])
+            } else {
+              val = gather('array', matrix[0].map(c => getCellValue(c)))
+            }
+          } else {
+            if (startCol === endCol) {
+              val = gather('array', matrix.map(row => getCellValue(row[0])))
+            } else if (startRow === endRow) {
+              val = gather('array', matrix[0].map(cell => getCellValue(cell)))
+            } else {
+              let sheet = this._graph.getDocument(symbol.docId)
+              if (startCol > endCol) {
+                [startCol, endCol] = [endCol, startCol]
+              }
+              if (startRow > endRow) {
+                [startRow, endRow] = [endRow, startRow]
+              }
+              let ncols = endCol-startCol+1
+              let nrows = endRow-startRow+1
+              // data as columns by name
+              // get the column name from the sheet
+              let data = {}
+              for (let i = 0; i < ncols; i++) {
+                let colIdx = startCol+i
+                let col = sheet.getColumnMeta(colIdx)
+                let name = col.attr('name') || getColumnLabel(colIdx)
+                data[name] = matrix.map((row) => {
+                  let val = getCellValue(row[i])
+                  if (val) {
+                    return val.data
+                  } else {
+                    return undefined
+                  }
+                })
+              }
+              val = {
+                // Note: first 'type' is for packing
+                // and second type for diambiguation against other complex types
+                type: 'table',
+                data: {
+                  type: 'table',
+                  data,
+                  columns: ncols,
+                  rows: nrows
+                }
+              }
+              // console.error('TODO: 2D ranges should be provided as table instead of as an array')
+              // let rows = matrix.map(row => row.map(cell => getCellValue(cell)))
+              // val = gather('array', [].concat(...rows))
+            }
+          }
+          result[name] = val
+          break
         }
         default:
           throw new Error('Invalid state')

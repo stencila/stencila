@@ -1,4 +1,4 @@
-import { isArray, forEach } from 'substance'
+import { forEach } from 'substance'
 /*
   Dependency graph for Stencila Cell Engine.
 */
@@ -43,8 +43,12 @@ export default class CellGraph {
     return this._outs[cellId] || []
   }
 
-  registerDocument(name, doc) {
-    this._documents[name] = doc
+  registerDocument(id, doc) {
+    this._documents[id] = doc
+  }
+
+  getDocument(id) {
+    return this._documents[id]
   }
 
   addCell(cell) {
@@ -61,6 +65,7 @@ export default class CellGraph {
     this._compile()
   }
 
+
   lookup(symbol) {
     switch(symbol.type) {
       case 'var': {
@@ -73,7 +78,23 @@ export default class CellGraph {
       case 'range': {
         // TODO: lookup all cells and then
         // reduce to either a table, an array, or a value
-        throw new Error('Not Implemented yet')
+        let sheet = this._documents[symbol.docId]
+        let { startRow, endRow, startCol, endCol } = symbol
+        if (startRow > endRow) {
+          ([startRow, endRow] = [endRow, startRow])
+        }
+        if (startCol > endCol) {
+          ([startCol, endCol] = [endCol, startCol])
+        }
+        let matrix = []
+        for (let i = startRow; i <= endRow; i++) {
+          let row = []
+          for (let j = startCol; j <= endCol; j++) {
+            row.push(sheet.getCell(i, j))
+          }
+          matrix.push(row)
+        }
+        return matrix
       }
       default:
         throw new Error('Invalid state')
@@ -103,15 +124,29 @@ export default class CellGraph {
     ids.forEach((id) => {
       let cell = this._cells[id]
       let inputs = []
+      // TODO: handle lookup errors
       cell.inputs.forEach((symbol) => {
-        // Note: symbol can be either var, cell, or range
-        // in case of range this resolves to multiple ids
-        // TODO: handle lookup errors
-        let cells = this.lookup(symbol)
-        if (!isArray(cells)) {
-          cells = [cells]
+        switch(symbol.type) {
+          case 'var': {
+            let cell = this.lookup(symbol)
+            inputs.push(cell)
+            break
+          }
+          case 'cell': {
+            let cell = this.lookup(symbol)
+            inputs.push(cell)
+            break
+          }
+          case 'range': {
+            let matrix = this.lookup(symbol)
+            for (let i = 0; i < matrix.length; i++) {
+              inputs = inputs.concat(matrix[i])
+            }
+            break
+          }
+          default:
+            throw new Error('FIXME: invalid state')
         }
-        inputs = inputs.concat(cells)
       })
       // HACK: for now we strip all unresolved symbols
       inputs = inputs.filter(Boolean)

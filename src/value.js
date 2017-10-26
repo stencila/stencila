@@ -1,3 +1,5 @@
+import { coercedArrayType } from './types'
+
 /**
  * @namespace value
  */
@@ -108,6 +110,28 @@ export function unpack (pkg) {
   } else {
     if (format === 'json') return JSON.parse(content)
     else return content
+  }
+}
+
+/*
+  A helper to gather values of a composite value (object, array, range)
+*/
+export function gather(type, value) {
+  switch(type) {
+    case 'array': {
+      return {
+        type: coercedArrayType(value),
+        data: value.map((v) => {
+          if (v) {
+            return v.data
+          } else {
+            return undefined
+          }
+        })
+      }
+    }
+    default:
+      throw new Error('Not implemented.')
   }
 }
 
