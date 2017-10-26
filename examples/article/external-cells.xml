@@ -63,10 +63,16 @@ plot(x, y, pch=16, cex=1.8, col=col, ylab='cos(x)+e')]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
 
-      <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="r"><![CDATA[hist(rnorm(min(sample_size, 1e5)), breaks=40, col=hsv(0.6, 0.9, 1), xlab="Value", main="")]]></code>
-        <code specific-use="output" language="json"><![CDATA[{}]]></code>
-      </alternatives></named-content></code>
+      <fig id="f1" fig-type="repro-fig">
+        <caption>
+          <title>Histogram of a random sample of variates from a normal distribution</title>
+          <p>An example plot in R</p>
+        </caption>
+        <alternatives>
+          <code specific-use="source" language="r"><![CDATA[hist(rnorm(min(sample_size, 1e5)), breaks=40, col=hsv(0.6, 0.9, 1), xlab="Value", main="")]]></code>
+          <code specific-use="output" language="json"><![CDATA[{}]]></code>
+        </alternatives>
+      </fig>
 
       <p>You can also pass variables from <italic>R</italic> to <italic>Mini</italic>. For example, below is a R cell which creates a table from the "diamonds</p>
 
