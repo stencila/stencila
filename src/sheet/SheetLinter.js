@@ -185,8 +185,12 @@ export default class SheetLinter extends EventEmitter {
 
 // EXPERIMENTAL:
 function checkType(cell, sheet, linter) {
+  let str = cell.text()
+
+  // Do not check cell type if it has no content!
+  if (!str) return
+  
   let type = sheet.getCellType(cell)
-  let str = cell.textContent
   // HACK: do not test dynamic expressions for now
   if (/^\s*=/.exec(str)) return
 
