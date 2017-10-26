@@ -67,15 +67,15 @@ for (let row = 0; row < 20; row++) {
 }
 
 for (let row = 0; row < 19; row++) {
-  cells[`H${row}`] = `= (F${row}/D${row})*100`
+  cells[`H${row}`] = `= F${row}/D${row}*100`
 }
 
 cells['F20'] = "= sum(F1:F18)"
 cells['D20'] = "= sum(D1:D18)"
-cells['H20'] = "= (F20/D20)*100"
+cells['H20'] = "= F20/D20*100"
 cells['I20'] = "= test_between(H20, 0, 100)"
 
-cells['A21'] = "= plot(A1:C18, 'supp_files')" //, 'gene_papers')"
+cells['A21'] = "= plot(A1:C18)"
 
 export default function () {
   return template(COLS, cells)
