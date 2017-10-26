@@ -328,10 +328,9 @@ class ExprContext {
 
   divide(left, right) {
     if (left && right) {
-      return {
-        type: this._numericType(left, right),
-        data: left.data / right.data
-      }
+      let data = left.data / right.data
+      let type = libcore.type(data)
+      return { data, type }
     } else {
       return {
         type: this._numericType(left, right),
@@ -342,10 +341,9 @@ class ExprContext {
 
   pow(left, right) {
     if (left && right) {
-      return {
-        type: this._numericType(left, right),
-        data: Math.pow(left.data, right.data)
-      }
+      let data = Math.pow(left.data, right.data)
+      let type = libcore.type(data)
+      return { data, type }
     } else {
       return {
         type: this._numericType(left, right),
