@@ -179,4 +179,24 @@ export class InsertCellCommand extends InsertNodeCommand {
     )
     return cell
   }
+
+  execute(params, context) {
+    var state = params.commandState
+    if (state.disabled) return
+    let editorSession = this._getEditorSession(params, context)
+    editorSession.transaction((tx) => {
+      let node = this.createNode(tx, params, context)
+      tx.insertBlockNode(node)
+      let code = node.find('source-code')
+      let sel = tx.selection
+      tx.setSelection({
+        type: 'property',
+        path: code.getPath(),
+        startOffset: 0,
+        surfaceId: sel.surfaceId,
+        containerId: sel.containerId
+      })
+    })
+  }
+
 }
