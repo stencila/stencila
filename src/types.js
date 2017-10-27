@@ -26,6 +26,7 @@ const parentTypes = {
 // Children of each type
 let childrenTypes = {}
 for (let type of Object.keys(parentTypes)) {
+  if (!childrenTypes[type]) childrenTypes[type] = []
   let base = parentTypes[type]
   if (!base) continue
   if (childrenTypes[base]) childrenTypes[base].push(type)
@@ -35,6 +36,7 @@ for (let type of Object.keys(parentTypes)) {
 // Descendants (children, grandchildren etc) of each type
 let descendantTypes = {}
 for (let type of Object.keys(parentTypes)) {
+  if (!descendantTypes[type]) descendantTypes[type] = []
   let parent = parentTypes[type]
   while (parent) {
     if (descendantTypes[parent]) descendantTypes[parent].push(type)
