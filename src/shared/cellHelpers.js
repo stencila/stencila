@@ -1,7 +1,10 @@
 import { isNumber } from 'substance'
+import CellState from '../engine/CellState'
 
 export function getCellState(cell) {
-  return cell.state
+  // FIXME: we should make sure that cellState is
+  // initialized as early as possible
+  return cell.state || new CellState()
 }
 
 export function isExpression(source) {

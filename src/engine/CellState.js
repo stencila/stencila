@@ -27,6 +27,7 @@ export default class CellState extends EventEmitter {
 
     this.inputs = []
     this.output = null
+    this.nodes = []
 
     this.messages = []
     this.value = null
