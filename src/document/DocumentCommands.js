@@ -107,11 +107,14 @@ export class ForceCellOutputCommand extends Command {
       let nodeId = selection.getNodeId()
       let node = doc.get(nodeId)
       if (node.type === 'cell') {
+        // TODO: we should use the node state instead
         let cellComponent = this._getCellComponent(editorSession, nodeId)
-        return {
-          cellId: node.id,
-          active: Boolean(cellComponent.state.forceOutput),
-          disabled: false
+        if (cellComponent && cellComponent.state) {
+          return {
+            cellId: node.id,
+            active: Boolean(cellComponent.state.forceOutput),
+            disabled: false
+          }
         }
       }
     }
