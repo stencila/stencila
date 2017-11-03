@@ -28,7 +28,7 @@
         <x specific-use="display">Substance Software GmbH</x>
       </aff>
       <abstract>
-        <p>This example includes code cells for "external" languages - R, Python and SQL.</p>
+        <p>This example includes code cells for "external" languages - R, Python and SQL. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit essecillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
       </abstract>
     </article-meta>
   </front>
@@ -66,7 +66,7 @@ plot(x, y, pch=16, cex=1.8, col=col, ylab='cos(x)+e')]]></code>
       <fig id="f1" fig-type="repro-fig">
         <caption>
           <title>Histogram of a random sample of variates from a normal distribution</title>
-          <p>An example plot in R</p>
+          <p>An example plot in R. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit essecillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         </caption>
         <alternatives>
           <code specific-use="source" language="r"><![CDATA[hist(rnorm(min(sample_size, 1e5)), breaks=40, col=hsv(0.6, 0.9, 1), xlab="Value", main="")]]></code>
