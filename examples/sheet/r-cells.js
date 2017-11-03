@@ -2,17 +2,15 @@ import template from './template'
 
 export default function () {
   return template({
-    'A': {
-      width: 400
-    }
   },{
-    A1: 'Mean:', 'B1': 0,
-    A2: 'Standard dev.', 'B2': 1,
-    A3: 'Sample size', 'B3': 10000,
-    A4: 'Colour', 'B4': 'grey',
-    A5: {
+    A1: 'Intercept', B1: 0,
+    A2: 'Slope',     B2: 1,
+    A3: 'Epsilon',   B3: 3,
+    A5: 'X',         B5: 10,
+    A6: 'Y (predicted)', B6: '= B1 + B2 * B5',
+    A7: {
       language: 'r',
-      content: '= hist(rnorm(min(B3, 1e6), B1, B2), col=B4, breaks=50, xlim=c(-4,4), main="", xlab="")'
+      content: '= plot(B1 + seq(0,B5,0.1) * B2 + rnorm(B5/0.1, 0, B3), pch=16, cex=2, col=hsv(0.6,0.9,0.9), ylab="Y", xlab="X")'
     }
   })
 }

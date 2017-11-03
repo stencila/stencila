@@ -2,8 +2,8 @@ import { Configurator } from 'substance'
 import { SheetPackage, SheetPage, SheetSchema, Host, getQueryStringParam, FunctionManager} from 'stencila'
 
 import blank from './blank'
-import dataClean from './data-clean'
 import rCells from './r-cells'
+import rModel from './r-model'
 import viewModes from './view-modes'
 import geneData from './gene-data'
 import geneErrors from './gene-errors'
@@ -11,8 +11,8 @@ import fullup from './fullup'
 
 const EXAMPLES = {
   'blank': blank,
-  'data-clean': dataClean,
   'r-cells': rCells,
+  'r-model': rModel,
   'view-modes': viewModes,
   'gene-data': geneData,
   'gene-errors': geneErrors,
