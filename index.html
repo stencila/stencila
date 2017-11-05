@@ -12,6 +12,9 @@
         color: #555;
         font-size: 1.2em;
       }
+      li {
+        margin: 1em;
+      }
       a {
         text-decoration: none;
         color: #506bec;
@@ -22,11 +25,24 @@
     <img src="http://static.stenci.la/img/logo-name-274x60.png" style="display: block; margin: 0 auto 3em auto">
 
     <p>
-      These examples of Stencila components are for testing and demoing. Expect bugs, missing features and general annoyances! And, when you find them, feel free to let use know at <a href="https://community.stenci.la/">https://community.stenci.la/</a> or <a href="https://github.com/stencila/stencila/issues">https://github.com/stencila/stencila/issues</a>
+      These examples of Stencila components are for testing and demoing. <strong>Expect bugs, missing features and general annoyances!</strong> And, when you find them, please let use know at <a href="https://community.stenci.la/">https://community.stenci.la/</a> or <a href="https://github.com/stencila/stencila/issues">https://github.com/stencila/stencila/issues</a>
     </p>
 
     <p>
-      Some examples use external code cells (e.g. in R or SQL). To execute them you will need to have an external Stencila Host running (using either one of Stencila's Docker images, or by installing one of our packages). Then append <code>&amp;peers=http://localhost:2000</code> to the end of the URL. See our <a href="https://community.stenci.la/t/getting-started-with-stencila">getting started guide</a>. Alternatively, you use our cluster of Stencila Hosts by appending <code>&amp;peers=http://cloud.stenci.la?ticket=XXXXXXXX</code> to the end of the URL. Ask us for a ticket.
+      Some examples use external code cells (e.g. in R or SQL). To execute them you will need to have an external Stencila Host running:
+    </p>
+    <ul>
+      <li>
+        Use our cluster of Stencila Hosts by appending <code>&amp;peers=http://cloud.stenci.la?ticket=XXXXXXXX</code> to the end of the URL. Ask us for a ticket.
+      </li>
+      <li>
+        Run one of Stencila's Docker images locally:
+        <pre><code>docker run -p 2100:2000 stencila/alpha:0.29-preview</code></pre>
+        Then append <code>&amp;peers=http://localhost:2100</code> to the end of the URL
+      </li>
+      <li>
+        Run one of our language packages locally. See our <a href="https://community.stenci.la/t/getting-started-with-stencila">getting started guide</a>
+      </li>
     </p>
 
     <h2>Sheets</h2>
