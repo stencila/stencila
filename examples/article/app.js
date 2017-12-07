@@ -24,7 +24,7 @@ window.addEventListener('load', () => {
     let configurator = new TextureConfigurator()
     configurator.import(ArticlePackage)
     const articleImporter = configurator.createImporter('texture-jats')
-    const article = articleImporter.importDocument(jats)
+    const article = articleImporter.importDocument(jats.dom)
     ArticlePage.mount({ article, configurator, host }, window.document.body)
 
     window.stencila = { host, article }

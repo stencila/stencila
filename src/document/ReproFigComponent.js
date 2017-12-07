@@ -1,27 +1,16 @@
 import { NodeComponent } from 'substance'
-import { REF_TYPES } from 'substance-texture'
+import { getLabel } from 'substance-texture'
 
 export default class ReproFigComponent extends NodeComponent {
 
-  didMount() {
-    super.didMount()
-    this.context.labelGenerator.on('labels:generated', this._onLabelsChanged, this)
-  }
-
-  dispose() {
-    super.dispose()
-    this.context.labelGenerator.off(this)
-  }
-
   render($$) {
     const node = this.props.node
-    const labelGenerator = this.context.labelGenerator
 
     let el = $$('div')
       .addClass('sc-'+node.type)
       .attr('data-id', node.id)
 
-    let label = labelGenerator.getLabel(REF_TYPES[node.type], [node.id])
+    let label = getLabel(node)
     let labelEl = $$('div').addClass('se-label').text(label)
     el.append(labelEl)
 

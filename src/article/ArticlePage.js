@@ -1,8 +1,12 @@
 import { Component, EditorSession } from 'substance'
-import { EditorPackage as TextureEditorPackage } from 'substance-texture'
-
+import {
+  EditorPackage as TextureEditorPackage,
+  createEntityDbSession,
+  JATSExporter
+} from 'substance-texture'
 import Engine from '../engine/Engine'
 import DocumentEngineAdapter from '../document/DocumentEngineAdapter'
+
 
 export default class ArticlePage extends Component {
 
@@ -12,6 +16,10 @@ export default class ArticlePage extends Component {
     const host = props.host
     this.functionManager = host.functionManager
     this.engine = new Engine(host)
+
+    // TODO: we need to see where the best place is for the entityDb
+    this.entityDbSession = createEntityDbSession()
+    this.entityDb = this.entityDbSession.getDocument()
   }
 
   getInitialState() {
@@ -28,10 +36,28 @@ export default class ArticlePage extends Component {
   getChildContext() {
     return {
       app: this,
-      editorSession: this.state.editorSession,
       configurator: this.props.configurator,
       functionManager: this.functionManager,
-      cellEngine: this.engine
+      cellEngine: this.engine,
+      host: this.props.host,
+      exporter: {
+        export(dom) {
+          const entityDb = this.entityDb
+          let jatsExporter = new JATSExporter()
+          return jatsExporter.export(dom, { entityDb })
+        }
+      },
+      entityDb: this.entityDb,
+      entityDbSession: this.entityDbSession,
+      // TODO: Update components to use entityDb, entityDbSession instead.
+      get db() {
+        console.warn('DEPRECATED: use context.entityDb instead')
+        return this.entityDb
+      },
+      get dbSession() {
+        console.warn('DEPRECATED: use context.entityDbSession instead')
+        return this.entityDbSession
+      }
     }
   }
 
@@ -42,8 +68,9 @@ export default class ArticlePage extends Component {
       el.text('Loading...')
     } else {
       el.append(
-        $$(TextureEditorPackage.Editor, {editorSession}
-      ).addClass('sc-document-editor'))
+        $$(TextureEditorPackage.Editor, {editorSession})
+          .addClass('sc-document-editor')
+      )
     }
     return el
   }
@@ -55,10 +82,7 @@ export default class ArticlePage extends Component {
   _initializeEditorSession(article) {
     let editorSession = new EditorSession(article, {
       configurator: this.props.configurator,
-      context: {
-        app: this,
-        host: this.props.host
-      }
+      context: this.getChildContext()
     })
 
     let engineAdapter = new DocumentEngineAdapter(editorSession)
@@ -71,4 +95,3 @@ export default class ArticlePage extends Component {
     })
   }
 }
-
