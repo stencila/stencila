@@ -57,7 +57,10 @@ SheetApp:
     - `true` => FloatingCellEditor is visible (and positioned)
     - `false` => FloatingCellEditor is hidden
 ```
+
 - Derive the `cellEditing` state from the selection:
   - either it changes on the 'real' session, then quit cell-editing
   - or it changes in the 'staging' session, then start / continue cell-editing
   - set selection in the 'staging' session to null when closing (confirm, cancel, blur)
+
+- Just remove or deactivate existing code which is 'in the way'
