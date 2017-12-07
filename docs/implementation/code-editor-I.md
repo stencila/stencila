@@ -1,4 +1,4 @@
-# Instructions for Implementing `CodeEditor - Iteration I`
+# Instructions `CodeEditor - Iteration I`
 
 Use the same node model in Sheet and Document, so that rendering and manipulation works in the same way
 
