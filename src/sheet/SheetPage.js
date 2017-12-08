@@ -1,17 +1,14 @@
-import { Component, EditorSession, Configurator } from 'substance'
-import SheetEditor from './SheetEditor'
-import SheetPackage from './SheetPackage'
+import { Component } from 'substance'
+// import SheetEditor from './SheetEditor'
 import Engine from '../engine/Engine'
 import SheetEngineAdapter from './SheetEngineAdapter'
 
-export default class SheetPage extends Component {
+export default class SheetEditor extends Component {
 
   constructor(parent, props) {
     super(parent, props)
-
-    const host = props.host
-    this._configurator = new Configurator().import(SheetPackage)
     this.engine = new Engine(host)
+    this.host = this.engine.getHost()
     this.functionManager = host.functionManager
   }
 

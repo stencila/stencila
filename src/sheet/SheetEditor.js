@@ -16,7 +16,7 @@ export default class SheetEditor extends AbstractEditor {
     // Just adds one cell, used for text editing
     this._cellEditorDoc._node = this._cellEditorDoc.createElement('cell')
 
-    const configurator = this.context.editorSession.configurator
+    const configurator = this.props.editorSession.configurator
     this._cellEditorSession = new CellEditorSession(this._cellEditorDoc, {
       configurator: configurator
       // EXPERIMENTAL: trying to setup an editor session using the same CommandManager
@@ -29,7 +29,9 @@ export default class SheetEditor extends AbstractEditor {
   getChildContext() {
     let editorSession = this.props.editorSession
     return Object.assign({}, super.getChildContext(), {
-      issueManager: editorSession.issueManager,
+      configurator: editorSession.getConfigurator(),
+      host: this.props.host,
+      issueManager: editorSession.getManager('issue-manager'),
       cellEditorSession: this._cellEditorSession
     })
   }
@@ -51,7 +53,7 @@ export default class SheetEditor extends AbstractEditor {
     }
     this.linter.start()
     const editorSession = this.props.editorSession
-    const issueManager = editorSession.issueManager
+    const issueManager = editorSession.getManager('issue-manager')
     issueManager.on('issue:focus', this._onIssueFocus, this)
   }
 
@@ -61,7 +63,7 @@ export default class SheetEditor extends AbstractEditor {
       DefaultDOMElement.wrap(window).off(this)
     }
     const editorSession = this.props.editorSession
-    const issueManager = editorSession.issueManager
+    const issueManager = editorSession.getManager('issue-manager')
     issueManager.off(this)
   }
 
@@ -151,7 +153,7 @@ export default class SheetEditor extends AbstractEditor {
       focusCol: colIdx
     }
 
-    this.context.editorSession.setSelection({
+    this.props.editorSession.setSelection({
       type: 'custom',
       customType: 'sheet',
       data: selData,
@@ -169,7 +171,7 @@ export default class SheetEditor extends AbstractEditor {
       focusCol: sheet.getColumnCount() - 1
     }
 
-    this.context.editorSession.setSelection({
+    this.props.editorSession.setSelection({
       type: 'custom',
       customType: 'sheet',
       data: selData,

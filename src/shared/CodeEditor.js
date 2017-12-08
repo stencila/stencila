@@ -5,7 +5,7 @@ import {
 import { getSyntaxTokens } from '../engine/expressionHelpers'
 
 export default
-class MiniLangEditor extends Component {
+class CodeEditor extends Component {
 
   render($$) {
     let el = $$('div').addClass('sc-mini-lang-editor')
