@@ -19,11 +19,7 @@ All Issues are collected in the `IssuesPanel`.
 
 A summary of the number of errors and warnings is displayed in the `StatusBar`.
 
-## Dynamically Evaluated Issues
-
-Most issues are generated automatically when a cell is changed. See [TODO: Cell States]() to understand more about the life-cycle of cells.
-
-### Syntax Errors
+## Syntax Errors
 
 After a cell expression is changed, the Cell Engine analyses the expression. Any errors detected here are added to the cell's state. A syntax error provides the location in the expression and has severity level `error`.
 
@@ -41,7 +37,7 @@ x = sum(1 2)
 Syntax Error: expected ','
 ```
 
-### Runtime Errors
+## Runtime Errors
 
 Runtime errors can occur when a cell expression is evaluated.
 
@@ -65,7 +61,7 @@ Runtime Error: Illegal argument. Expected a number, but received a string.
 > TODO: Another source of runtime errors is the rendering of a cell's result.
 > For example, a plot specification could have an invalid format
 
-### Tests
+## Tests
 
 A test is defined as an expression and a set of cells that the test is applied on. Whenever one of the cells has been (re-)computed, the expression is evaluated. The expression is a lambda expression, evaluating to a result that is captured as a test result.
 
@@ -77,9 +73,9 @@ language: js,
 expression: assert(value > 0, 'The value should be greater zero.')
 ```
 
-### Custom Issues
+## Custom Issues
 
-Custom Issues are addressed using [TODO: Comments]().
+Custom Issues are addressed using [Comments](./0004-comments.md).
 
 # Issues Panel
 
