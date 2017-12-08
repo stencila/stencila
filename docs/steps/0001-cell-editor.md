@@ -1,4 +1,12 @@
-# Cell Editor
+---
+title: Cell editor
+author:
+  - Oliver Buchtala
+type: Feature
+status: Draft
+---
+
+## Introduction
 
 In Stencila there are two different environments with cells, Documents and Sheets, with different requirements regarding UX.
 
@@ -33,7 +41,7 @@ The main problem here that existing Code Editor widgets (`CodeMirror`, `ACE`, `M
 ### Iteration I
 
 - Goal: a reusable CodeEditor component, used in Sheets as well as in Documents
-- [Implementation Instructions](../implementation/code-editor-I.md)
+- [Implementation Instructions](cell-editor-it1.md)
 
 ### Iteration II - Code Analyzer
 

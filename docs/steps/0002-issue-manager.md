@@ -1,6 +1,9 @@
-# IssueManager
-
-> This is an ongoing discussion
+title: Issue manager
+author:
+  - Oliver Buchtala
+type: Feature
+status: Draft
+---
 
 ## What we have so far
 
