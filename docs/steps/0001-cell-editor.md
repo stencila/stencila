@@ -41,7 +41,7 @@ The main problem here that existing Code Editor widgets (`CodeMirror`, `ACE`, `M
 ### Iteration I
 
 - Goal: a reusable CodeEditor component, used in Sheets as well as in Documents
-- [Implementation Instructions](cell-editor-it1.md)
+- [Implementation Instructions](0001-cell-editor-it1.md)
 
 ### Iteration II - Code Analyzer
 
