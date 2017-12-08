@@ -1,7 +1,6 @@
-title: Issues
+title: Comments
 author:
   - Oliver Buchtala
-  - Nokome Bentley
 type: Feature
 status: Draft
 ---
