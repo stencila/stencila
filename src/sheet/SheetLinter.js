@@ -11,7 +11,7 @@ export default class SheetLinter extends EventEmitter {
 
     this.sheet = sheet
     this.editorSession = editorSession
-    this.issueManager = editorSession.issueManager
+    this.issueManager = editorSession.getManager('issue-manager')
 
     this.queue = []
     this.issues = []
@@ -189,7 +189,7 @@ function checkType(cell, sheet, linter) {
 
   // Do not check cell type if it has no content!
   if (!str) return
-  
+
   let type = sheet.getCellType(cell)
   // HACK: do not test dynamic expressions for now
   if (/^\s*=/.exec(str)) return

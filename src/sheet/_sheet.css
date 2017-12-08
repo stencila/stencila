@@ -10,15 +10,8 @@
   z-index: 3;
 }
 
-.sc-sheet-page {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  bottom: 0px;
-  right: 0px;
-}
-
 .sc-sheet-editor {
+  height: 100%;
   display: flex;
   flex-direction: row;
   height: 100%;

@@ -8,7 +8,7 @@ export default
 class CodeEditor extends Component {
 
   render($$) {
-    let el = $$('div').addClass('sc-mini-lang-editor')
+    let el = $$('div').addClass('sc-code-editor')
     // the source code
     const path = this.props.path
     const commands = this.props.commands
