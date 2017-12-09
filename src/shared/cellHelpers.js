@@ -2,6 +2,8 @@ import { isNumber } from 'substance'
 import CellState from '../engine/CellState'
 import { type } from '../value'
 
+export const SEVERITY_NAMES = ['info', 'warning', 'error']
+
 export function getCellState(cell) {
   // FIXME: we should make sure that cellState is
   // initialized as early as possible
