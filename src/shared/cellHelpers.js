@@ -4,6 +4,13 @@ import { type } from '../value'
 
 export const SEVERITY_NAMES = ['info', 'warning', 'error']
 
+export function getMaxSeverity(issues) {
+  return issues.reduce((level, issue) => {
+    let severity = issue.severity || 0
+    return Math.max(level, severity)
+  }, 0)
+}
+
 export function getCellState(cell) {
   // FIXME: we should make sure that cellState is
   // initialized as early as possible
