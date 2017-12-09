@@ -14,7 +14,7 @@ StEPs are inspired by PEPs (Python Enhancement Proposals). Rather than reinvent 
 
 # Creating a StEP
 
-StEPs are usually created for larger features or fixes. If you have a feature idea it worthwhile to discuss it on the [community forum](https://community.stenci.la/) before submitting. For smaller bugs please use [Github issues ](https://github.com/stencila/stencila/issues).
+StEPs are usually created for larger features or fixes. If you have a feature idea it worthwhile to discuss it on the [community forum](https://community.stenci.la/) before submitting. For smaller bugs please use [Github issues](https://github.com/stencila/stencila/issues). If you're not sure, we're happy to chat about it on the [community forum](https://community.stenci.la/) - pop on over and say hi!
 
 ## Format
 
@@ -35,10 +35,23 @@ type: <Process | Feature | Fix>
 status: <Draft | Active | Accepted | Deferred | Rejected | Withdrawn | Final | Superseded>
 ---
 ```
+Definitions: 
+**Process** - A Process StEP describes a process surrounding Stencila, or proposes a change to a process. Examples include procedures, guidelines, changes to the decision-making process, and changes to Stencila.
+**Feature** - A Feature StEP describes a new feature for Stencila, or proposes a major change to an exisiting feature. Examples here.
+**Fix** - A Fix StEP [definition here]. Examples here.
 
 ## File name
 
 StEPs should have a file name with the pattern `step-XXXX-SLUG.md`, where `XXXX` is the StEP number and `SLUG` is a human readable shortened title (e.g. `cell-editor`).
+
+## Parts of a great StEP
+**Introduction**: provide an informal context and motivation
+**Definitions**: provide terms used in Stencila
+**Concepts**: explain concepts and rationale
+**[Distinction]**: if necessary position to existing solutions
+**Examples**
+**Implementation**: links to specifications etc.
+
 
 ## Auxiliary files
 
