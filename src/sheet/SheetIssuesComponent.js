@@ -4,7 +4,7 @@ import CellIssueComponent from './CellIssueComponent'
 export default class SheetIssuesComponent extends Component {
 
   didMount() {
-    const issueManager = this.context.issueManager
+    const issueManager = this._getIssueManager()
     issueManager.on('issues:changed', this._onIssuesChnage, this)
     const cellId = this.props.cellId
     if(cellId) {
@@ -13,12 +13,12 @@ export default class SheetIssuesComponent extends Component {
   }
 
   dispose() {
-    const issueManager = this.context.issueManager
+    const issueManager = this._getIssueManager()
     issueManager.off(this)
   }
 
   render($$) {
-    const issueManager = this.context.issueManager
+    const issueManager = this._getIssueManager()
     const issues = issueManager.getAllIssues()
     const cellId = this.props.cellId
     let el = $$('div').addClass('sc-sheet-issues-list')
@@ -32,12 +32,16 @@ export default class SheetIssuesComponent extends Component {
     return el
   }
 
+  _getIssueManager() {
+    return this.context.issueManager
+  }
+
   _renderIssue($$, issue, highlighted) {
     return $$(CellIssueComponent, { issue, highlighted: highlighted })
   }
 
   _onIssuesChnage() {
-    const issueManager = this.context.issueManager
+    const issueManager = this._getIssueManager()
     const hasIssues = issueManager.hasAnyIssues()
     if(hasIssues) {
       this.rerender()
