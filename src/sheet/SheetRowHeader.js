@@ -1,5 +1,7 @@
 import { Component } from 'substance'
 
+export default class SheetRowHeader extends NodeComponent {
+
 export default class SheetRowHeader extends Component {
   render($$) {
     const rowIdx = this.props.rowIdx
