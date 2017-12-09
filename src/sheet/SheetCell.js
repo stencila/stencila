@@ -4,20 +4,6 @@ import { isExpression, getError } from '../shared/cellHelpers'
 
 export default class SheetCell extends NodeComponent {
 
-  didMount() {
-    super.didMount()
-
-    const cell = this.props.node
-    cell.on('issue:changed', this.rerender, this)
-  }
-
-  dispose() {
-    super.dispose()
-
-    const cell = this.props.node
-    cell.off(this)
-  }
-
   render($$) {
     const cell = this.props.node
     let el = $$('div').addClass('sc-sheet-cell')
@@ -38,8 +24,8 @@ export default class SheetCell extends NodeComponent {
   }
 
   _renderContent($$, cell) {
-    let text = cell.text()
-    let isExpressionCell = isExpression(text)
+    const text = cell.text()
+    const isExpressionCell = isExpression(text)
 
     if(isExpressionCell) {
       const displayMode = this._getDisplayMode()
@@ -56,10 +42,6 @@ export default class SheetCell extends NodeComponent {
     } else {
       return $$('div').addClass('sc-text-content').text(text)
     }
-  }
-
-  getContent() {
-    return this.props.node.getText()
   }
 
   _getDisplayMode() {
