@@ -41,6 +41,10 @@ export default class CellState extends EventEmitter {
     return hasError(this)
   }
 
+  getIssues() {
+    return this.messages || []
+  }
+
   hasOutput() {
     return Boolean(this.output)
   }
