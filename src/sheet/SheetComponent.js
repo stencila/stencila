@@ -88,7 +88,7 @@ export default class SheetComponent extends CustomSurface {
         .on('cut', this._onCut),
       contentEl,
       this._renderOverlay($$),
-      this._renderCellEditor($$),
+      this._renderFormulaEditor($$),
       this._renderRowContextMenu($$),
       this._renderColumnContextMenu($$),
       $$(DialogPanel).ref('dialog').addClass('sm-hidden'),
@@ -137,11 +137,11 @@ export default class SheetComponent extends CustomSurface {
     this._showDialog('column-settings-dialog', params)
   }
 
-  _renderCellEditor($$) {
+  _renderFormulaEditor($$) {
     return $$(FormulaEditor, {
       context: this.props.formulaEditorContext
     })
-      .ref('cellEditor')
+      .ref('formulaEditor')
       .css({
         position: 'absolute',
         display: 'none',
@@ -445,46 +445,44 @@ export default class SheetComponent extends CustomSurface {
     return this.refs.sheetView.getTargetForEvent(e)
   }
 
-  _onCellEditingStarted() {
-    let data = this._getSelection()
-    // Cell editing started somewhere else (ExpressionBar)
-    if (!this._cell) {
-      // We open the cell editor but without focussing it
-      this._openCellEditor(data.anchorRow, data.anchorCol)
-    }
-  }
+  // _onCellEditingStarted() {
+  //   let data = this._getSelection()
+  //   // Cell editing started somewhere else (ExpressionBar)
+  //   if (!this._cell) {
+  //     // We open the cell editor but without focussing it
+  //     this._openCellEditor(data.anchorRow, data.anchorCol)
+  //   }
+  // }
 
-  _onCellEditingConfirmed() {
-    this._closeCellEditor()
-    this._nav(1, 0)
-  }
+  // _onCellEditingConfirmed() {
+  //   this._closeCellEditor()
+  //   this._nav(1, 0)
+  // }
 
-  _onCellEditingCancelled() {
-    const cellEditor = this.refs.cellEditor
-    cellEditor.css({
-      display: 'none',
-      top: 0, left: 0
-    })
-    this._cell = null
+  // _onCellEditingCancelled() {
+  //   const cellEditor = this.refs.cellEditor
+  //   cellEditor.css({
+  //     display: 'none',
+  //     top: 0, left: 0
+  //   })
+  //   this._cell = null
+  //
+  //   // HACK: resetting the selection
+  //   const editorSession = this.context.editorSession
+  //   editorSession.setSelection(editorSession.getSelection())
+  // }
 
-    // HACK: resetting the selection
-    const editorSession = this.context.editorSession
-    editorSession.setSelection(editorSession.getSelection())
-  }
 
   /*
-    This gets called when the user enters a cell.
+    This gets called when the user starts editing a cell
     At this time it should be sure that the table cell
     is already rendered.
   */
-  _openCellEditor(rowIdx, colIdx, withFocus, initialVal) {
-    const cellEditor = this.refs.cellEditor
+  showFormulaEditor(rowIdx, colIdx) {
+    const formulaEditor = this.refs.formulaEditor
     let td = this._getCellComponent(rowIdx, colIdx)
     let rect = getRelativeBoundingRect(td.el, this.el)
-    let cellComp = td.getChildAt(0)
-    let cell = cellComp.props.node
-    cellEditor.extendProps({ node: cell, initialVal })
-    cellEditor.css({
+    formulaEditor.css({
       display: 'block',
       position: 'absolute',
       top: rect.top,
@@ -492,25 +490,14 @@ export default class SheetComponent extends CustomSurface {
       "min-width": rect.width+'px',
       "min-height": rect.height+'px'
     })
-
-    this._cell = cell
-    if (withFocus) {
-      cellEditor.focus()
-    }
   }
 
-  _closeCellEditor() {
-    const cellEditor = this.refs.cellEditor
-    const cell = this._cell
-    let newVal = this.formulaEditorContext.editorSession.getValue()
-    cellEditor.css({
+  hideFormulaEditor() {
+    const formulaEditor = this.refs.formulaEditor
+    formulaEditor.css({
       display: 'none',
       top: 0, left: 0
     })
-    this.context.editorSession.transaction((tx) => {
-      tx.set(cell.getPath(), newVal)
-    })
-    this._cell = null
   }
 
   _showRowMenu(e) {
@@ -758,7 +745,7 @@ export default class SheetComponent extends CustomSurface {
     let rowIdx = sheetView.getRowIndex(e.clientY)
     let colIdx = sheetView.getColumnIndex(e.clientX)
     if (rowIdx > -1 && colIdx > -1) {
-      this._openCellEditor(rowIdx, colIdx, true)
+      this.send('editCell', rowIdx, colIdx, { withFocus: true })
     }
   }
 
@@ -792,7 +779,10 @@ export default class SheetComponent extends CustomSurface {
   _onInput(e) {
     let data = this._getSelection()
     if (e.inputType === 'insertText') {
-      this._openCellEditor(data.anchorRow, data.anchorCol, true, e.data)
+      this.send('editCell', data.anchorRow, data.anchorCol, {
+        withFocus: true,
+        initialValue: e.data
+      })
     }
   }
 
@@ -817,7 +807,7 @@ export default class SheetComponent extends CustomSurface {
         break
       case keys.ENTER: {
         let data = this._getSelection()
-        this._openCellEditor(data.anchorRow, data.anchorCol, true)
+        this.send('editCell', data.anchorRow, data.anchorCol, { withFocus: true })
         handled = true
         break
       }

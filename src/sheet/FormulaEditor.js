@@ -8,6 +8,7 @@ export default class FormulaEditor extends Component {
     let el = $$('div').addClass('sc-formula-editor')
     el.append(
       $$(CodeEditor, {
+        name: 'formular-editor',
         path: node.getPath(),
         excludedCommands: [],
       }).ref('cellEditor')

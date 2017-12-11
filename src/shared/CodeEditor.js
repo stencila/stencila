@@ -15,6 +15,7 @@ class CodeEditor extends Component {
     const excludedCommands = this.props.excludedCommands
     const markers = this._getMarkers()
     let content = $$(TextPropertyEditor, {
+      name: this.props.name,
       path,
       commands,
       excludedCommands,

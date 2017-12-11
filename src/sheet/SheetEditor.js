@@ -14,6 +14,7 @@ export default class SheetEditor extends AbstractEditor {
     // an editor session for the overlay cell editor
     // and the expression bar
     this._formulaEditorContext = this._createFormulaEditorContext()
+    this._isEditing = false
   }
 
   getChildContext() {
@@ -215,13 +216,15 @@ export default class SheetEditor extends AbstractEditor {
     // or change DOMSelection's ctor to be better usable
     let domSelection = new DOMSelection({
       getDocument() { return cellEditorDoc },
-      getSurfaceManager() { return editorSession.getSurfaceManager() },
+      getSurfaceManager() { return editorSession.surfaceManager },
       getElement() { return self.getElement() }
     })
     return {
       editorSession,
       domSelection,
-      node
+      node,
+      markersManager: editorSession.markersManager,
+      surfaceManager: editorSession.surfaceManager
     }
   }
 
@@ -236,12 +239,43 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
-  _onSelectionChange(sel) {
-    console.log('SELECTION CHANGED (TABLE)', sel)
+  _getSheetSelection() {
+    return this.getEditorSession().getSelection().data || {}
+  }
+
+  _onSelectionChange() {
+    let formulaEditorSession = this._formulaEditorContext.editorSession
+    this._setFormula()
+    if (this._isEditing) {
+      this._isEditing = false
+      this.refs.sheet.hideFormulaEditor()
+      formulaEditorSession.setSelection(null)
+      console.log('_isEditing FALSE')
+    }
+    
+  }
+
+  _setFormula() {
+    let sel = this._getSheetSelection()
+    let cell = this.getDocument().getCell(sel.anchorRow, sel.anchorCol)
+    let context = this._formulaEditorContext
+    let node = context.node
+    let formulaEditorSession = this._formulaEditorContext.editorSession
+    formulaEditorSession.transaction(tx => {
+      tx.set(node.getPath(), cell.textContent)
+    })
   }
 
   _onCellEditorSelectionChange(sel) {
-    console.log('SELECTION CHANGED (CELL EDITOR)', sel)
+    let sheetSel = this._getSheetSelection()
+    let formulaEditorSession = this._formulaEditorContext.editorSession
+    if (!sel.isNull() && !this._isEditing) {
+      this._isEditing = true
+      this.refs.sheet.showFormulaEditor(sheetSel.anchorRow, sheetSel.anchorCol)
+      formulaEditorSession.resetHistory()
+      console.log('_isEditing TRUE')
+    }
+
   }
 
 }

@@ -6,7 +6,7 @@
 @import './_sheet-issues.css';
 @import './_formula-bar.css';
 
-.sc-sheet-editor .sc-toolbar {
+.sc-sheet-editor .se-tool-pane {
   z-index: 3;
 }
 

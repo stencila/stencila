@@ -5,7 +5,7 @@ export default class FormulaBar extends Component {
 
   render($$) {
     let node = this.props.node
-    let el = $$('div').addClass('sc-edit-cell-expression-tool').append(
+    let el = $$('div').addClass('sc-formula-bar').append(
       $$('div').addClass('se-function-icon').append(
         $$('em').append(
           'ƒ',
@@ -13,6 +13,7 @@ export default class FormulaBar extends Component {
         )
       ),
       $$(CodeEditor, {
+        name: 'formula-bar',
         path: node.getPath(),
         excludedCommands: [],
       }).ref('cellEditor')
