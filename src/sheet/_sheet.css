@@ -6,8 +6,23 @@
 @import './_sheet-issues.css';
 @import './_formula-bar.css';
 
+/* HACK: */
+.sc-button {
+  white-space: nowrap;
+}
+
+/* ToolPane */
 .sc-sheet-editor .se-tool-pane {
+  display: flex;
   z-index: 3;
+}
+
+.sc-sheet-editor .se-tool-pane .sc-formula-bar {
+  flex: 1 1 0;
+}
+
+.sc-sheet-editor .se-tool-pane .sc-toolbar {
+  flex: 0 1 0;
 }
 
 .sc-sheet-editor {
@@ -93,8 +108,6 @@
   width: var(--sheet-header-width);
   vertical-align: middle;
 }
-
-
 
 .sc-sheet .sc-column-header .se-column-title {
   display: flex;

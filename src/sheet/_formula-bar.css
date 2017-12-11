@@ -1,17 +1,3 @@
-.sc-formula-bar {
-  width: 100%;
-}
-
-/* HACK: Make this use up all available space */
-.sc-tool-group.sm-edit-cell-expression {
-  flex: 1 1 0 !important;
-}
-
-.sc-formula-bar input {
-  width: 100%;
-  border: none;
-}
-
 .sc-formula-bar .se-function-icon {
   border-right: 1px solid #ddd;
   padding-right: 15px;
@@ -21,6 +7,7 @@
   font-size: 18px;
   color: #999;
 }
+
 .sc-formula-bar sub {
   vertical-align: sub;
   font-size: smaller;
