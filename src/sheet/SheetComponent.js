@@ -445,34 +445,6 @@ export default class SheetComponent extends CustomSurface {
     return this.refs.sheetView.getTargetForEvent(e)
   }
 
-  // _onCellEditingStarted() {
-  //   let data = this._getSelection()
-  //   // Cell editing started somewhere else (ExpressionBar)
-  //   if (!this._cell) {
-  //     // We open the cell editor but without focussing it
-  //     this._openCellEditor(data.anchorRow, data.anchorCol)
-  //   }
-  // }
-
-  // _onCellEditingConfirmed() {
-  //   this._closeCellEditor()
-  //   this._nav(1, 0)
-  // }
-
-  // _onCellEditingCancelled() {
-  //   const cellEditor = this.refs.cellEditor
-  //   cellEditor.css({
-  //     display: 'none',
-  //     top: 0, left: 0
-  //   })
-  //   this._cell = null
-  //
-  //   // HACK: resetting the selection
-  //   const editorSession = this.context.editorSession
-  //   editorSession.setSelection(editorSession.getSelection())
-  // }
-
-
   /*
     This gets called when the user starts editing a cell
     At this time it should be sure that the table cell
@@ -745,7 +717,7 @@ export default class SheetComponent extends CustomSurface {
     let rowIdx = sheetView.getRowIndex(e.clientY)
     let colIdx = sheetView.getColumnIndex(e.clientX)
     if (rowIdx > -1 && colIdx > -1) {
-      this.send('editCell', rowIdx, colIdx, { withFocus: true })
+      this.send('editCell')
     }
   }
 
@@ -777,12 +749,8 @@ export default class SheetComponent extends CustomSurface {
     Type into cell (replacing the existing content)
   */
   _onInput(e) {
-    let data = this._getSelection()
     if (e.inputType === 'insertText') {
-      this.send('editCell', data.anchorRow, data.anchorCol, {
-        withFocus: true,
-        initialValue: e.data
-      })
+      this.send('editCell', e.data)
     }
   }
 
@@ -806,8 +774,7 @@ export default class SheetComponent extends CustomSurface {
         handled = true
         break
       case keys.ENTER: {
-        let data = this._getSelection()
-        this.send('editCell', data.anchorRow, data.anchorCol, { withFocus: true })
+        this.send('editCell')
         handled = true
         break
       }

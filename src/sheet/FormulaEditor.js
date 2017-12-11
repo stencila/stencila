@@ -8,9 +8,10 @@ export default class FormulaEditor extends Component {
     let el = $$('div').addClass('sc-formula-editor')
     el.append(
       $$(CodeEditor, {
-        name: 'formular-editor',
+        name: 'formula-editor',
         path: node.getPath(),
         excludedCommands: [],
+        withoutBreak: true
       }).ref('cellEditor')
         .on('enter', this._onCodeEditorEnter)
         .on('escape', this._onCodeEditorEscape)
@@ -23,11 +24,11 @@ export default class FormulaEditor extends Component {
   }
 
   _onCodeEditorEnter() {
-    this.send('onFormulaEditorEnter')
+    this.send('updateCell')
   }
 
   _onCodeEditorEscape() {
-    this.send('onFormulaEditorEscape')
+    this.send('cancelCellEditing')
   }
 
 }

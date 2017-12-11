@@ -1,5 +1,5 @@
 import {
-  Component, TextPropertyEditor, isArrayEqual, parseKeyEvent
+  Component, TextPropertyEditor, isArrayEqual
 } from 'substance'
 
 import { getSyntaxTokens } from '../engine/expressionHelpers'
@@ -20,10 +20,12 @@ class CodeEditor extends Component {
       commands,
       excludedCommands,
       markers,
-      handleTab: false
+      handleTab: false,
+      withoutBreak: this.props.withoutBreak,
+      multiLine: this.props.withoutBreak
     }).ref('contentEditor')
       // EXPERIMENTAL: adding "\n" plus indent of current line
-      .on('enter', this._onEnterKey)
+      // .on('enter', this._onEnterKey)
       // EXPERIMENTAL: adding 2 spaces if at begin of line
       .on('tab', this._onTabKey)
       .on('escape', this._onEscapeKey)
@@ -35,24 +37,6 @@ class CodeEditor extends Component {
   _getMarkers() {
     const path = this.props.path
     return getSyntaxTokens(path, this.props.tokens)
-  }
-
-  _onEnterKey(event) {
-    const data = event.detail
-    const modifiers = parseKeyEvent(data, 'modifiers-only')
-    switch(modifiers) {
-      case 'ALT': {
-        this.send('break')
-        break
-      }
-      case 'CTRL': {
-        this.send('execute')
-        break
-      }
-      default:
-        //
-        this._insertNewLine()
-    }
   }
 
   _onEscapeKey() {

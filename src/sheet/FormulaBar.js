@@ -16,6 +16,7 @@ export default class FormulaBar extends Component {
         name: 'formula-bar',
         path: node.getPath(),
         excludedCommands: [],
+        withoutBreak: true
       }).ref('cellEditor')
         .on('enter', this._onCodeEditorEnter)
         .on('escape', this._onCodeEditorEscape)
@@ -28,11 +29,11 @@ export default class FormulaBar extends Component {
   }
 
   _onCodeEditorEnter() {
-    this.send('onCellEditorEnter')
+    this.send('updateCell')
   }
 
   _onCodeEditorEscape() {
-    this.send('onCellEditorEscape')
+    this.send('cancelCellEditing')
   }
 
 }

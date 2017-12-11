@@ -10,11 +10,15 @@ export default class SheetEditor extends AbstractEditor {
 
   constructor(...args) {
     super(...args)
-
     // an editor session for the overlay cell editor
     // and the expression bar
     this._formulaEditorContext = this._createFormulaEditorContext()
     this._isEditing = false
+    this.handleActions({
+      'updateCell': this._updateCell,
+      'cancelCellEditing': this._cancelCellEditing,
+      'editCell': this._editCell
+    })
   }
 
   getChildContext() {
@@ -54,7 +58,6 @@ export default class SheetEditor extends AbstractEditor {
 
   dispose() {
     super.dispose()
-
     const editorSession = this.props.editorSession
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window).off(this)
@@ -72,7 +75,6 @@ export default class SheetEditor extends AbstractEditor {
         this._renderStatusbar($$)
       )
     )
-
     if(this.state.showContext) {
       el.append(
         $$(SheetContextSection, {
@@ -81,7 +83,6 @@ export default class SheetEditor extends AbstractEditor {
         }).ref('context')
       )
     }
-
     return el
   }
 
@@ -89,13 +90,13 @@ export default class SheetEditor extends AbstractEditor {
     const configurator = this.getConfigurator()
     let el = $$('div').addClass('se-tool-pane')
     el.append(
-      $$(Toolbar, {
-        toolPanel: configurator.getToolPanel('toolbar')
-      }).ref('toolbar'),
       $$(FormulaBar, {
         node: this._formulaEditorContext.node,
         context: this._formulaEditorContext
-      })
+      }),
+      $$(Toolbar, {
+        toolPanel: configurator.getToolPanel('toolbar')
+      }).ref('toolbar')
     )
     return el
   }
@@ -245,25 +246,13 @@ export default class SheetEditor extends AbstractEditor {
 
   _onSelectionChange() {
     let formulaEditorSession = this._formulaEditorContext.editorSession
-    this._setFormula()
+    let cell = this._getAnchorCell()
+    this._setFormula(cell.textContent)
     if (this._isEditing) {
       this._isEditing = false
       this.refs.sheet.hideFormulaEditor()
       formulaEditorSession.setSelection(null)
-      console.log('_isEditing FALSE')
     }
-    
-  }
-
-  _setFormula() {
-    let sel = this._getSheetSelection()
-    let cell = this.getDocument().getCell(sel.anchorRow, sel.anchorCol)
-    let context = this._formulaEditorContext
-    let node = context.node
-    let formulaEditorSession = this._formulaEditorContext.editorSession
-    formulaEditorSession.transaction(tx => {
-      tx.set(node.getPath(), cell.textContent)
-    })
   }
 
   _onCellEditorSelectionChange(sel) {
@@ -273,9 +262,54 @@ export default class SheetEditor extends AbstractEditor {
       this._isEditing = true
       this.refs.sheet.showFormulaEditor(sheetSel.anchorRow, sheetSel.anchorCol)
       formulaEditorSession.resetHistory()
-      console.log('_isEditing TRUE')
     }
+  }
 
+  _setFormula(val, sel) {
+    let context = this._formulaEditorContext
+    let node = context.node
+    let formulaEditorSession = this._formulaEditorContext.editorSession
+    formulaEditorSession.transaction(tx => {
+      tx.set(node.getPath(), val)
+      tx.setSelection(sel)
+    })
+  }
+
+  _cancelCellEditing() {
+    // Same behviour as if user selected the active cell again
+    this._onSelectionChange()
+  }
+
+  /*
+    Request inline editor
+  */
+  _editCell(initialValue) {
+    let formulaEditorSession = this._formulaEditorContext.editorSession
+    let formulaNode = this._formulaEditorContext.node
+    if (initialValue) {
+      this._setFormula(initialValue)
+    }
+    let pos = formulaNode.textContent.length
+    formulaEditorSession.setSelection({
+      type: 'property',
+      path: formulaNode.getPath(),
+      startOffset: pos,
+      surfaceId: 'formula-editor'
+    })
+  }
+
+  _updateCell() {
+    let editorSession = this.getEditorSession()
+    let cell = this._getAnchorCell()
+    let newValue = this._formulaEditorContext.node.getText()
+    editorSession.transaction(tx => {
+      tx.set(cell.getPath(), newValue)
+    })
+  }
+
+  _getAnchorCell() {
+    let sel = this._getSheetSelection()
+    return this.getDocument().getCell(sel.anchorRow, sel.anchorCol)
   }
 
 }
