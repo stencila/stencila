@@ -18,7 +18,7 @@ StEPs are usually created for larger features or fixes. If you have a feature id
 
 ## Format
 
-StEPs are written in Markdown. Markdown is used because of it's wide use amongst developers (and increasingly researchers), because it is rendered nicely by default on Github and easily integrated with documentation tools.
+StEPs are written in Markdown. Markdown is used because of it's wide use amongst developers (and increasingly researchers), because it is rendered nicely by default on Github, and easily integrated with documentation tools.
 
 ## Header
 
@@ -37,20 +37,20 @@ status: <Draft | Active | Accepted | Deferred | Rejected | Withdrawn | Final | S
 ```
 Definitions: 
 **Process** - A Process StEP describes a process surrounding Stencila, or proposes a change to a process. Examples include procedures, guidelines, changes to the decision-making process, and changes to Stencila.
-**Feature** - A Feature StEP describes a new feature for Stencila, or proposes a major change to an exisiting feature. Examples here.
-**Fix** - A Fix StEP [definition here]. Examples here.
+**Feature** - A Feature StEP describes a new feature for Stencila, or proposes a major change to an exisiting feature. A feature could be an entirely new or an extention to an exisiting feature.
+**Fix** - A Fix StEP identifies a feature that is not working and proposes a solution to get up and running. Alternately a Fix StEP may propose an alternate way to solve, approach, or address an exisiting (working) feature.
 
 ## File name
 
 StEPs should have a file name with the pattern `step-XXXX-SLUG.md`, where `XXXX` is the StEP number and `SLUG` is a human readable shortened title (e.g. `cell-editor`).
 
 ## Parts of a great StEP
-**Introduction**: provide an informal context and motivation
-**Definitions**: provide terms used in Stencila
-**Concepts**: explain concepts and rationale
-**[Distinction]**: if necessary position to existing solutions
-**Examples**
-**Implementation**: links to specifications etc.
+**Introduction**: Provide an informal context and motivation for the StEP.
+**Definitions**: Provide terms used in Stencila, and define any new terms introduced in the StEP.
+**Concepts**: Explain concepts and rationale for the approach.
+**[Distinction]**: If necessary position with respect to existing solutions. For example, why a proposed Fix StEP is better than an existing solution.
+**Examples**: Include examples!
+**Implementation**: Links to specifications, notes on dependencies, or other conditions for implementation.
 
 
 ## Auxiliary files
