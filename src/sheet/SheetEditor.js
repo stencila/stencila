@@ -10,10 +10,11 @@ export default class SheetEditor extends AbstractEditor {
 
   constructor(...args) {
     super(...args)
-    // an editor session for the overlay cell editor
-    // and the expression bar
+    // a context for FormulaBar and FormulaEditor
     this._formulaEditorContext = this._createFormulaEditorContext()
+    // true when the cursor is either in the FormularBar or the FormulaEditor
     this._isEditing = false
+
     this.handleActions({
       'updateCell': this._updateCell,
       'cancelCellEditing': this._cancelCellEditing,
