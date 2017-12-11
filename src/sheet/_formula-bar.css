@@ -1,4 +1,4 @@
-.sc-edit-cell-expression-tool {
+.sc-formula-bar {
   width: 100%;
 }
 
@@ -7,12 +7,12 @@
   flex: 1 1 0 !important;
 }
 
-.sc-edit-cell-expression-tool input {
+.sc-formula-bar input {
   width: 100%;
   border: none;
 }
 
-.sc-edit-cell-expression-tool .se-function-icon {
+.sc-formula-bar .se-function-icon {
   border-right: 1px solid #ddd;
   padding-right: 15px;
   position: absolute;
@@ -21,12 +21,12 @@
   font-size: 18px;
   color: #999;
 }
-.sc-edit-cell-expression-tool sub {
+.sc-formula-bar sub {
   vertical-align: sub;
   font-size: smaller;
 }
 
-.sc-edit-cell-expression-tool .sc-code-editor {
+.sc-formula-bar .sc-code-editor {
   margin-left: 50px;
   font-size: 14px;
   padding-top: 5px;

@@ -4,7 +4,7 @@
 @import './_sheet-context.css';
 @import './_sheet-linter.css';
 @import './_sheet-issues.css';
-@import './_edit-cell-expression-tool.css';
+@import './_formula-bar.css';
 
 .sc-sheet-editor .sc-toolbar {
   z-index: 3;
@@ -225,7 +225,7 @@
   border-top: 7px solid var(--sheet-passed-color);;
 }
 
-.sc-sheet-cell-editor {
+.sc-formula-editor {
   background: #fff;
   border: 2px solid #2684FC;
   cursor: text;

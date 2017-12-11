@@ -3,7 +3,7 @@ import {
   getRelativeBoundingRect, platform, DefaultDOMElement,
   keys, clone
 } from 'substance'
-import SheetCellEditor from './SheetCellEditor'
+import FormulaEditor from './FormulaEditor'
 import SheetView from './SheetView'
 import SheetViewport from './SheetViewport'
 import SheetScrollbar from './SheetScrollbar'
@@ -50,15 +50,11 @@ export default class SheetComponent extends CustomSurface {
     this.refs.sheetView.update()
     // position selection overlays to reflect an initial selection
     this._positionOverlays()
-    this.context.cellEditorSession.on('editing:started', this._onCellEditingStarted, this)
-    this.context.cellEditorSession.on('editing:confirmed', this._onCellEditingConfirmed, this)
-    this.context.cellEditorSession.on('editing:cancelled', this._onCellEditingCancelled, this)
   }
 
   dispose() {
     super.dispose()
     this.context.editorSession.off(this)
-    this.context.cellEditorSession.off(this)
   }
 
   didUpdate() {
@@ -142,8 +138,8 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _renderCellEditor($$) {
-    return $$(SheetCellEditor, {
-      editorSession: this.context.cellEditorSession
+    return $$(FormulaEditor, {
+      context: this.props.formulaEditorContext
     })
       .ref('cellEditor')
       .css({
@@ -506,7 +502,7 @@ export default class SheetComponent extends CustomSurface {
   _closeCellEditor() {
     const cellEditor = this.refs.cellEditor
     const cell = this._cell
-    let newVal = this.context.cellEditorSession.getValue()
+    let newVal = this.formulaEditorContext.editorSession.getValue()
     cellEditor.css({
       display: 'none',
       top: 0, left: 0
@@ -594,21 +590,12 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _onMousedown(e) {
-    let cellEditorSession = this.context.cellEditorSession
     // console.log('_onMousedown', e)
     e.stopPropagation()
     e.preventDefault()
 
     // close context menus
     this._hideMenus()
-
-    // if editing a cell save the content
-    if (cellEditorSession.isEditing) {
-      cellEditorSession.confirmEditing('silent')
-      if(this._cell !== null) {
-        this._closeCellEditor()
-      }
-    }
 
     // TODO: do not update the selection if right-clicked and already having a selection
     if (platform.inBrowser) {
@@ -767,13 +754,11 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _onDblclick(e) {
-    if (!this.context.cellEditorSession.isEditing) {
-      const sheetView = this.refs.sheetView
-      let rowIdx = sheetView.getRowIndex(e.clientY)
-      let colIdx = sheetView.getColumnIndex(e.clientX)
-      if (rowIdx > -1 && colIdx > -1) {
-        this._openCellEditor(rowIdx, colIdx, true)
-      }
+    const sheetView = this.refs.sheetView
+    let rowIdx = sheetView.getRowIndex(e.clientY)
+    let colIdx = sheetView.getColumnIndex(e.clientX)
+    if (rowIdx > -1 && colIdx > -1) {
+      this._openCellEditor(rowIdx, colIdx, true)
     }
   }
 
