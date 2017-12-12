@@ -1,5 +1,6 @@
 import { isNumber } from 'substance'
 import CellState from '../engine/CellState'
+import { type } from '../value'
 
 export function getCellState(cell) {
   // FIXME: we should make sure that cellState is
@@ -23,6 +24,12 @@ export function getCellValue(cell) {
 }
 
 export function valueFromText(preferredType, text) {
+  const data = _parseText(preferredType, text)
+  const type_ = type(data)
+  return { type: type_, data }
+}
+
+function _parseText(preferredType, text) {
   switch (preferredType) {
     case 'any': {
       // guess value

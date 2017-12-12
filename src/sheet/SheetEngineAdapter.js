@@ -181,11 +181,9 @@ class CellAdapter {
       this._lang = null
       let sheet = cell.getDocument()
       let type = sheet.getCellType(cell)
+      let text = cell.text()
       // HACK: this marshalling should be done somewhere else
-      this.state.value = {
-        type,
-        data: valueFromText(type, cell.text())
-      }
+      this.state.value = text ? valueFromText(type, text) : null
     }
     // if (source) {
     //   console.log('updated cell adapter', this)
