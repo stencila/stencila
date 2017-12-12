@@ -315,8 +315,9 @@ export default class SheetEditor extends AbstractEditor {
   }
 
   _cancelCellEditing() {
-    // Same behviour as if user selected the active cell again
-    this._onSelectionChange()
+    // just renew the the selection
+    let editorSession = this.getEditorSession()
+    editorSession.setSelection(editorSession.getSelection())
   }
 
   /*
