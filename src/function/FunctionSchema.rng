@@ -37,6 +37,9 @@
         <optional>
           <ref name="function:tests"/>
         </optional>
+        <optional>
+          <ref name="function:authors"/>
+        </optional>
       </interleave>
     </element>
   </define>
@@ -220,6 +223,20 @@
         </optional>
         <ref name="function:result"/>
       </interleave>
+    </element>
+  </define>
+
+  <define name="function:authors">
+    <element name="authors">
+      <zeroOrMore>
+        <ref name="function:author"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="function:author">
+    <element name="author">
+      <text/>
     </element>
   </define>
 

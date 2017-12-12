@@ -83,13 +83,16 @@ export default class MiniContext {
       }
       let argValues = []
       let index = 0
+      let syntax = false
       for (let param of params) {
         const arg = args[index] || namedArgsMap[param.name]
         const value = arg ? arg.getValue() : param.default
         if (!value) {
           return _error(`Required parameter "${param.name}" was not supplied`)
         }
-        if (value.type !== param.type) {
+        if (value.type === 'call' || value.type === 'symbol') {
+          syntax = true
+        } else if (value.type !== param.type) {
           if (descendantTypes[param.type].indexOf(value.type) < 0) {
             return _error(`Parameter "${param.name}" must be of type "${param.type}" but was of type "${value.type}"`)
           }
@@ -97,16 +100,30 @@ export default class MiniContext {
         argValues.push(value)
         index++
       }
-      // Call the function implementation in the context, capturing any
-      // messages or returning the value
-      let libraryName = this._functionManager.getLibraryName(functionName)
-      return context.callFunction(libraryName, functionName, argValues).then((res) => {
-        if (res.messages && res.messages.length > 0) {
-          funcCall.addErrors(res.messages)
-          return undefined
-        }
-        return res.value
-      })
+      if (syntax) {
+        // Return a `call` value which will be evaluated within the 
+        // execution context within a particular scope
+        return Promise.resolve({
+          type: 'call', 
+          data: {
+            type: 'call', 
+            name: functionName,
+            // TODO: Unmashall the arguments of the function call properly
+            args: argValues.map(value => value.data)
+          }
+        })
+      } else {
+        // Call the function implementation in the context, capturing any
+        // messages or returning the value
+        let libraryName = this._functionManager.getLibraryName(functionName)
+        return context.callFunction(libraryName, functionName, argValues).then((res) => {
+          if (res.messages && res.messages.length > 0) {
+            funcCall.addErrors(res.messages)
+            return undefined
+          }
+          return res.value
+        })
+      }
     })
 
     function _error(msg) {

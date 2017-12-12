@@ -4,6 +4,10 @@
 const parentTypes = {
   'any': null,
 
+  'syntax': 'any',
+  'call': 'syntax',
+  'symbol': 'syntax',
+
   'boolean': 'any',
 
   'number': 'any',
