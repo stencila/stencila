@@ -1,6 +1,6 @@
 import { NodeComponent, FontAwesomeIcon } from 'substance'
 import CellValueComponent from '../shared/CellValueComponent'
-import MiniLangEditor from '../shared/MiniLangEditor'
+import CodeEditor from '../shared/CodeEditor'
 import { PENDING, INPUT_ERROR, INPUT_READY, RUNNING, ERROR, OK } from '../engine/CellState'
 import { getCellState } from '../shared/cellHelpers'
 import NodeMenu from './NodeMenu'
@@ -66,7 +66,7 @@ class CellComponent extends NodeComponent {
       cellEditorContainer.append(
         this._renderStatus($$),
         $$('div').addClass('se-expression').append(
-          $$(MiniLangEditor, {
+          $$(CodeEditor, {
             path: source.getPath(),
             excludedCommands: this._getBlackListedCommands(),
             tokens: cellState.tokens

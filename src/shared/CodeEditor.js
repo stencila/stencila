@@ -1,28 +1,31 @@
 import {
-  Component, TextPropertyEditor, isArrayEqual, parseKeyEvent
+  Component, TextPropertyEditor, isArrayEqual
 } from 'substance'
 
 import { getSyntaxTokens } from '../engine/expressionHelpers'
 
 export default
-class MiniLangEditor extends Component {
+class CodeEditor extends Component {
 
   render($$) {
-    let el = $$('div').addClass('sc-mini-lang-editor')
+    let el = $$('div').addClass('sc-code-editor')
     // the source code
     const path = this.props.path
     const commands = this.props.commands
     const excludedCommands = this.props.excludedCommands
     const markers = this._getMarkers()
     let content = $$(TextPropertyEditor, {
+      // TextPropertyEditor props
+      name: this.props.name,
       path,
+      withoutBreak: this.props.multiline,
+      multiLine: this.props.multiline,
+      // Surface props
       commands,
       excludedCommands,
       markers,
       handleTab: false
     }).ref('contentEditor')
-      // EXPERIMENTAL: adding "\n" plus indent of current line
-      .on('enter', this._onEnterKey)
       // EXPERIMENTAL: adding 2 spaces if at begin of line
       .on('tab', this._onTabKey)
       .on('escape', this._onEscapeKey)
@@ -34,24 +37,6 @@ class MiniLangEditor extends Component {
   _getMarkers() {
     const path = this.props.path
     return getSyntaxTokens(path, this.props.tokens)
-  }
-
-  _onEnterKey(event) {
-    const data = event.detail
-    const modifiers = parseKeyEvent(data, 'modifiers-only')
-    switch(modifiers) {
-      case 'ALT': {
-        this.send('break')
-        break
-      }
-      case 'CTRL': {
-        this.send('execute')
-        break
-      }
-      default:
-        //
-        this._insertNewLine()
-    }
   }
 
   _onEscapeKey() {

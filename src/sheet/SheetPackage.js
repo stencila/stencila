@@ -7,10 +7,9 @@ import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
   OpenColumnSettings, SetLanguageCommand,
-  SetTypeCommand, EditCellExpressionCommand, ChangeModeCommand
+  SetTypeCommand, ChangeModeCommand
 } from './SheetCommands'
 
-import EditCellExpressionTool from './EditCellExpressionTool'
 import SheetDocumentImporter from './SheetDocumentImporter'
 import ColumnSettingsDialog from './ColumnSettingsDialog'
 import SheetIssuesComponent from './SheetIssuesComponent'
@@ -141,10 +140,6 @@ export default {
         commandGroups: ['cell-languages']
       }
     ])
-
-    // Edit Expression Tool
-    config.addCommand('edit-cell-expression', EditCellExpressionCommand, { language: 'mini', commandGroup: 'edit-cell-expression' })
-    config.addTool('edit-cell-expression', EditCellExpressionTool)
 
     // Cell Languages
     config.addCommand('set-mini', SetLanguageCommand, { language: undefined, commandGroup: 'cell-languages' })

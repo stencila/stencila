@@ -1,35 +1,37 @@
-import { platform, DefaultDOMElement, AbstractEditor, Toolbar, EditorSession } from 'substance'
+import {
+  platform, DefaultDOMElement, AbstractEditor,
+  Toolbar, EditorSession, DOMSelection
+} from 'substance'
 import SheetContextSection from './SheetContextSection'
-import SheetLinter from './SheetLinter'
 import SheetStatusBar from './SheetStatusBar'
+import FormulaBar from './FormulaBar'
+import FormulaEditor from './FormulaEditor'
+
 
 export default class SheetEditor extends AbstractEditor {
 
   constructor(...args) {
     super(...args)
+    // a context for FormulaBar and FormulaEditor
+    this._formulaEditorContext = this._createFormulaEditorContext()
+    // true when the cursor is either in the FormularBar or the FormulaEditor
+    this._isEditing = false
 
-    this.__onResize = this.__onResize.bind(this)
-    const sheet = this.getDocument()
-    this.linter = new SheetLinter(sheet, this.getEditorSession())
-    // _cellEditorDoc is used by cell editors (expression bar, or popover editor on enter)
-    this._cellEditorDoc = sheet.newInstance()
-    // Just adds one cell, used for text editing
-    this._cellEditorDoc._node = this._cellEditorDoc.createElement('cell')
-
-    const configurator = this.context.editorSession.configurator
-    this._cellEditorSession = new CellEditorSession(this._cellEditorDoc, {
-      configurator: configurator
-      // EXPERIMENTAL: trying to setup an editor session using the same CommandManager
-      // but working on a different doc
-      // NOTE: Disabled this, as it was causing problems with SelectAllCommand
-      // commandManager: this.context.editorSession.commandManager
+    this.handleActions({
+      'updateCell': this._updateCell,
+      'cancelCellEditing': this._cancelCellEditing,
+      'editCell': this._editCell,
+      'requestSelectionChange': this._requestSelectionChange
     })
   }
 
   getChildContext() {
     let editorSession = this.props.editorSession
     return Object.assign({}, super.getChildContext(), {
-      issueManager: editorSession.issueManager,
+      configurator: editorSession.getConfigurator(),
+      host: this.props.host,
+      issueManager: editorSession.getManager('issue-manager'),
+      // TODO: get rid of this
       cellEditorSession: this._cellEditorSession
     })
   }
@@ -43,38 +45,40 @@ export default class SheetEditor extends AbstractEditor {
   }
 
   didMount() {
-    // always render a second time to render for the real element dimensions
-    this.rerender()
     super.didMount()
+
+    const editorSession = this.props.editorSession
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
     }
-    this.linter.start()
-    const editorSession = this.props.editorSession
-    const issueManager = editorSession.issueManager
-    issueManager.on('issue:focus', this._onIssueFocus, this)
+    editorSession.onUpdate('selection', this._onSelectionChange, this)
+
+    this._formulaEditorContext.editorSession.onUpdate('selection', this._onCellEditorSelectionChange, this)
+    // TODO: is it really necessary to have this in the first line?
+    // always render a second time to render for the real element dimensions
+    // because the table with fixed layout needs exact dimensions
+    this.rerender()
   }
 
   dispose() {
     super.dispose()
+    const editorSession = this.props.editorSession
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window).off(this)
     }
-    const editorSession = this.props.editorSession
-    const issueManager = editorSession.issueManager
-    issueManager.off(this)
+    editorSession.off(this)
+    this._formulaEditorContext.editorSession.off(this)
   }
 
   render($$) {
     let el = $$('div').addClass('sc-sheet-editor')
     el.append(
       $$('div').addClass('se-main-section').append(
-        this._renderToolbar($$),
+        this._renderToolpane($$),
         this._renderContent($$),
         this._renderStatusbar($$)
       )
     )
-
     if(this.state.showContext) {
       el.append(
         $$(SheetContextSection, {
@@ -83,15 +87,22 @@ export default class SheetEditor extends AbstractEditor {
         }).ref('context')
       )
     }
-
     return el
   }
 
-  _renderToolbar($$) {
+  _renderToolpane($$) {
     const configurator = this.getConfigurator()
-    return $$(Toolbar, {
-      toolPanel: configurator.getToolPanel('toolbar')
-    }).ref('toolbar')
+    let el = $$('div').addClass('se-tool-pane')
+    el.append(
+      $$(FormulaBar, {
+        node: this._formulaEditorContext.node,
+        context: this._formulaEditorContext
+      }),
+      $$(Toolbar, {
+        toolPanel: configurator.getToolPanel('toolbar')
+      }).ref('toolbar')
+    )
+    return el
   }
 
   _renderContent($$) {
@@ -104,13 +115,23 @@ export default class SheetEditor extends AbstractEditor {
 
   _renderSheet($$) {
     const sheet = this.getDocument()
-    const linter = this.linter
+    const formulaEditorContext = this._formulaEditorContext
     // only rendering the sheet when mounted
     // so that we have real width and height
     if (this.isMounted()) {
       const SheetComponent = this.getComponent('sheet')
       return $$(SheetComponent, {
-        sheet, linter
+        sheet,
+        overlays: [
+          $$(FormulaEditor, {
+            context: formulaEditorContext
+          })
+            .ref('formulaEditor')
+            .css({
+              position: 'absolute',
+              display: 'none'
+            })
+        ]
       }).ref('sheet')
     } else {
       return $$('div')
@@ -151,7 +172,7 @@ export default class SheetEditor extends AbstractEditor {
       focusCol: colIdx
     }
 
-    this.context.editorSession.setSelection({
+    this.props.editorSession.setSelection({
       type: 'custom',
       customType: 'sheet',
       data: selData,
@@ -169,7 +190,7 @@ export default class SheetEditor extends AbstractEditor {
       focusCol: sheet.getColumnCount() - 1
     }
 
-    this.context.editorSession.setSelection({
+    this.props.editorSession.setSelection({
       type: 'custom',
       customType: 'sheet',
       data: selData,
@@ -192,63 +213,153 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
-  _onIssueFocus(cellId) {
-    this.toggleContext('sheet-issues', cellId)
+  // a context propagated by FormulaBar and FormulaEditor
+  _createFormulaEditorContext() {
+    const configurator = this.props.editorSession.configurator
+    // a document with only one node used by cell editors
+    // i.e. expression bar, or popover editor on enter
+    let cellEditorDoc = this.getDocument().newInstance()
+    // TODO: use an id instead of storing the node on the doc
+    let node = cellEditorDoc.createElement('cell')
+    let editorSession = new EditorSession(cellEditorDoc, {
+      configurator: configurator
+    })
+    const self = this
+    // HACK: creating inline an object which DOMSelection needs to work
+    // TODO: either use a helper to create the DOMSelection
+    // or change DOMSelection's ctor to be better usable
+    let domSelection = new DOMSelection({
+      getDocument() { return cellEditorDoc },
+      getSurfaceManager() { return editorSession.surfaceManager },
+      getElement() { return self.getElement() }
+    })
+    return {
+      editorSession,
+      domSelection,
+      node,
+      markersManager: editorSession.markersManager,
+      surfaceManager: editorSession.surfaceManager
+    }
   }
 
   _onResize() {
     if (platform.inBrowser) {
       if (!this._rafId) {
-        this._rafId = window.requestAnimationFrame(this.__onResize)
+        this._rafId = window.requestAnimationFrame(() => {
+          this._rafId = null
+          this.refs.sheet.resize()
+        })
       }
     }
   }
 
-  __onResize() {
-    this._rafId = null
-    this.refs.sheet.resize()
+  _getSheetSelection() {
+    return this.getEditorSession().getSelection().data || {}
   }
 
-}
+  _onSelectionChange() {
+    let formulaEditorSession = this._formulaEditorContext.editorSession
+    let cell = this._getAnchorCell()
+    this._setFormula(cell.textContent)
+    if (this._isEditing) {
+      this._isEditing = false
+      this._hideFormulaEditor()
+      formulaEditorSession.setSelection(null)
+    }
+  }
 
-class CellEditorSession extends EditorSession {
-
-  /*
-    Triggered when a cell editor is focused
-  */
-  startEditing() {
-    if (!this.isEditing) {
-      this.isEditing = true
-      this.emit('editing:started')
+  _onCellEditorSelectionChange(sel) {
+    let sheetSel = this._getSheetSelection()
+    let formulaEditorSession = this._formulaEditorContext.editorSession
+    if (!sel.isNull() && !this._isEditing) {
+      this._isEditing = true
+      this._showFormulaEditor(sheetSel.anchorRow, sheetSel.anchorCol)
+      formulaEditorSession.resetHistory()
     }
   }
 
   /*
-    Triggered when cell editing is confirmed (e.g. enter is pressed in the cell editor)
+    This gets called when the user starts editing a cell
+    At this time it should be sure that the table cell
+    is already rendered.
   */
-  confirmEditing(silent) {
-    if (this.isEditing) {
-      this.isEditing = false
-      if (!silent) this.emit('editing:confirmed')
-    }
+  _showFormulaEditor(rowIdx, colIdx) {
+    const formulaEditor = this.refs.formulaEditor
+    let rect = this.refs.sheet.getCellRect(rowIdx, colIdx)
+    formulaEditor.css({
+      display: 'block',
+      position: 'absolute',
+      top: rect.top,
+      left: rect.left,
+      "min-width": rect.width+'px',
+      "min-height": rect.height+'px'
+    })
+  }
+
+  _hideFormulaEditor() {
+    const formulaEditor = this.refs.formulaEditor
+    formulaEditor.css({
+      display: 'none',
+      top: 0, left: 0
+    })
+  }
+
+  _setFormula(val, sel) {
+    let context = this._formulaEditorContext
+    let node = context.node
+    let formulaEditorSession = this._formulaEditorContext.editorSession
+    formulaEditorSession.transaction(tx => {
+      tx.set(node.getPath(), val)
+      tx.setSelection(sel)
+    })
+  }
+
+  _cancelCellEditing() {
+    // Same behviour as if user selected the active cell again
+    this._onSelectionChange()
   }
 
   /*
-    Triggered when cell editing is cancelled (e.g. escape is pressed in the cell editor)
+    Request inline editor
   */
-  cancelEditing() {
-    if (this.isEditing) {
-      this.isEditing = false
-      this.emit('editing:cancelled')
+  _editCell(initialValue) {
+    let formulaEditorSession = this._formulaEditorContext.editorSession
+    let formulaNode = this._formulaEditorContext.node
+    if (initialValue) {
+      this._setFormula(initialValue)
+    }
+    let pos = formulaNode.textContent.length
+    formulaEditorSession.setSelection({
+      type: 'property',
+      path: formulaNode.getPath(),
+      startOffset: pos,
+      surfaceId: 'formula-editor'
+    })
+  }
+
+  _requestSelectionChange(newSelection) {
+    let editorSession = this.getEditorSession()
+    if (this._isEditing) {
+      console.info('TODO: Implement range selector', newSelection)
+    } else {
+      editorSession.setSelection(newSelection)
     }
   }
 
-  /*
-    Get the current value of the cell editor
-  */
-  getValue() {
-    let node = this.getDocument()._node
-    return node.getText()
+  _updateCell() {
+    let editorSession = this.getEditorSession()
+    let cell = this._getAnchorCell()
+    let newValue = this._formulaEditorContext.node.getText()
+    editorSession.transaction(tx => {
+      tx.set(cell.getPath(), newValue)
+      let newSel = this.refs.sheet.shiftSelection(1, 0, false)
+      tx.setSelection(newSel)
+    })
+  }
+
+  _getAnchorCell() {
+    let sel = this._getSheetSelection()
+    return this.getDocument().getCell(sel.anchorRow, sel.anchorCol)
   }
 
 }

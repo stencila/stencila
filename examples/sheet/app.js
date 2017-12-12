@@ -1,5 +1,8 @@
-import { Configurator } from 'substance'
-import { SheetPackage, SheetPage, SheetSchema, Host, getQueryStringParam, FunctionManager} from 'stencila'
+import { Configurator, EditorSession } from 'substance'
+import {
+  SheetPackage, SheetEditor, SheetSchema, Host, getQueryStringParam,
+  FunctionManager, Engine, SheetEngineAdapter
+} from 'stencila'
 
 import blank from './blank'
 import rCells from './r-cells'
@@ -43,10 +46,29 @@ window.addEventListener('load', () => {
     let generator = EXAMPLES[example]
     if (!generator) console.error('No such example: ' + example)
     const xml = generator()
-
     const sheet = importer.importDocument(xml)
-    SheetPage.mount({ sheet, host }, window.document.body)
 
-    window.stencila = { host, sheet }
+    const editorSession = new EditorSession(sheet, {
+      configurator: configurator,
+      context: {
+        host
+      }
+    })
+
+    // editorSession.issueManager = editorSession.getManager('issue-manager')
+    const engine = new Engine(host)
+    let engineAdapter = new SheetEngineAdapter(editorSession)
+    engineAdapter.connect(engine)
+    engine.editorSession = editorSession
+
+    new SheetEditor(null, {
+      editorSession
+    }, {
+      context: {
+        // editorSession,
+        host,
+        engine
+      }
+    }).mount(window.document.body)
   })
 })

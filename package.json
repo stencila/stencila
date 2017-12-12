@@ -44,7 +44,7 @@
     "plotly.js": "^1.31.1",
     "stencila-libcore": "^0.2.6",
     "stencila-mini": "^0.13.0",
-    "substance": "1.0.0-preview.5",
+    "substance": "1.0.0-preview.15",
     "substance-texture": "1.0.0-alpha.4-preview.7",
     "timeago.js": "3.0.0",
     "xmlhttprequest": "^1.8.0"
