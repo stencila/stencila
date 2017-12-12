@@ -363,7 +363,6 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _nav(dr, dc, shift) {
-    const editorSession = this.context.editorSession
     const viewport = this._getViewport()
     let data = this._getSelection()
     // TODO: move viewport if necessary
