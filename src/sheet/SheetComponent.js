@@ -362,6 +362,10 @@ export default class SheetComponent extends CustomSurface {
     return this._viewport.scroll(deltaX, deltaY)
   }
 
+  /*
+    TODO: Function is expected to be side-effect free but implicitly updates
+    the viewport.
+  */
   shiftSelection(dr, dc, shift) {
     const viewport = this._getViewport()
     let data = this._getSelection()
