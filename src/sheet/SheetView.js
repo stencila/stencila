@@ -6,9 +6,17 @@ import SheetRowHeader from './SheetRowHeader'
 import SheetCell from './SheetCell'
 import getBoundingRect from '../util/getBoundingRect'
 
+/*
+ This Component renders a part of a sheet which is defined
+ by a viewport.
+
+ It is a pure renderer without any interaction (as opposed to SheetComponent).
+ It provides an API to map from screen coordinates to column and row indexes.
+*/
 export default class SheetView extends Component {
 
   shouldRerender(newProps) {
+    // TODO: this is app specific and should be propagated via context
     if(newProps.mode !== this.props.mode) return true
     return false
   }
@@ -216,6 +224,7 @@ export default class SheetView extends Component {
     return { type, rowIdx, colIdx }
   }
 
+  // TODO: rename this to indicate usage: map clientX to column
   getColumnIndex(x) {
     const headEl = this.refs.head.el
     const children = headEl.children
@@ -228,6 +237,7 @@ export default class SheetView extends Component {
     return undefined
   }
 
+  // TODO: rename this to indicate usage: map clientY to row
   getRowIndex(y) {
     const headEl = this.refs.head.el
     if (_isYInside(y, getBoundingRect(headEl))) {
@@ -256,6 +266,7 @@ export default class SheetView extends Component {
     }
   }
 
+  // TODO: send an action
   _selectAll() {
     this.context.editor.setSelectionOnSheet()
   }
@@ -296,13 +307,12 @@ class TableBody extends Component {
     return el
   }
 
-  /*
-    TODO: this could be speeded-up by incrementally
-    adding rows and cols instead of relying on reactive rendering.
-  */
   update() {
     const viewport = this.props.viewport
     let dr = viewport.startRow - this._startRow
+    // doing an incremental render if scrolling
+    // in steps smaller than the viewport size, i.e. 'prefetching' rows
+    // otherwise just a full rerender because everything changes
     if (dr > 0 && dr < viewport.P) {
       this._append(dr)
     } else if (dr < 0 && dr > -viewport.P) {
