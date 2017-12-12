@@ -362,7 +362,7 @@ export default class SheetComponent extends CustomSurface {
     return this._viewport.scroll(deltaX, deltaY)
   }
 
-  _nav(dr, dc, shift) {
+  shiftSelection(dr, dc, shift) {
     const viewport = this._getViewport()
     let data = this._getSelection()
     // TODO: move viewport if necessary
@@ -393,17 +393,24 @@ export default class SheetComponent extends CustomSurface {
         viewport.shift(dr, dc)
       }
     }
+
+    return {
+      type: 'custom',
+      customType: 'sheet',
+      data,
+      surfaceId: this.getId()
+    }
+
+  }
+
+  _nav(dr, dc, shift) {
+    let newSel = this.shiftSelection(dr, dc, shift)
     // HACK: Now that the rows get rendered asynchronously
     // we need to wait with rendering the selection
     // TODO: we could also show the selection only
     // when the rows are ready
     setTimeout(() => {
-      this.send('requestSelectionChange', {
-        type: 'custom',
-        customType: 'sheet',
-        data,
-        surfaceId: this.getId()
-      })
+      this.send('requestSelectionChange', newSel)
     }, 0)
   }
 
