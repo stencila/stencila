@@ -24,7 +24,7 @@ In a Sheet, the user enters a cell explicitly for editing (`ENTER`) or uses the 
 
 This interaction pattern is necessary as a cell has two representations: source and value. Entering a cell for editing opens the source version, leaving the cell flips back to the value representation.
 
-While editing a preview is evluated in a reactive manner, but the entire Sheet is updated only after confirming the change.
+While editing, a preview value is evluated in a reactive manner, but the entire Sheet is updated only after confirming the change.
 
 # Concepts
 
@@ -32,7 +32,7 @@ While editing a preview is evluated in a reactive manner, but the entire Sheet i
 
 > TODO: we should move this into a dedicated StEP
 
-When using functions the user is assisted by showing a contextual help
+When using functions, the user is assisted by showing a contextual help
 describing how to use a function. When the cursor is over a part of the expression belonging to a function call a short information is shown in a pop-up.
 
 ```
@@ -43,7 +43,7 @@ describing how to use a function. When the cursor is over a part of the expressi
 -------------------------------
 ```
 
-To assist the user with providing the function arguments, the current argument is hightlighted when the cursor is at the corresponding position.  
+To assist the user with providing the function arguments, the argument corresponding to the current cursor position is hightlighted.  
 
 ```
 = sum(1|)
@@ -54,24 +54,23 @@ To assist the user with providing the function arguments, the current argument i
 -------------------------------
 ```
 
-A detailed description of the function can be opend via a button `[ℹ]`, which is then shown side-by-side in the `Context Panel`.
+A detailed description of the function can be opend via a button `[ℹ]`, which is shown side-by-side in the `Context Panel`.
 
 ## Cell References
 
 > TODO: we should move this into a dedicated StEP
 
-If the cursor is not on a cell reference, a new symbol is inserted.
-
 ```
 = 1 + |
 ```
-After clicking on `A1`
+
+If the cursor is not on a cell reference, a new symbol is inserted.
 
 ```
 = 1 + A1|
 ```
 
-If the cursor is on a cell reference this symbol is replaced, otherwise a new symbol is inserted. I.e. in the previous case the user clicks on cell `A2`, the symbol `A1` is replaced.
+If the cursor is on a cell reference this symbol is replaced.
 
 ```
 = 1 + A2|
