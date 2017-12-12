@@ -1,66 +1,64 @@
-# Instructions `CodeEditor - Iteration I`
+# CodeEditor - Iteration I
 
-Use the same node model in Sheet and Document, so that rendering and manipulation works in the same way
+## Goal
+
+Restructure Sheets and Document to use a shared `CodeEditor` component and improve the architecture of `SheetEditor`.
+
+## Tasks
+
+- Use the same node model in Sheet and Document, so that rendering and manipulation works in the same way
+- Turn `MiniLangEditor` into a generalized `CodeEditor` component
+- Restructure `SheetEditor` and improve handling of the state for controlling cell editing.
 
 ## CodeEditor
 
-A Component that is as general as possible, so that we can re-use it for other purposes later
+Keep this componenent as simple and general as possible.
+Disable experimental features
 
-Props:
-  - `editorSession`: an editorSession with a document, containing a node with a `string` or `text` property
-  - `path`: path to a property containing source code
+Context:
+- `editorSession`: an editorSession with a document, containing a node with a `string` or `text` property
 
-## Embedding into Document
+Properties:
+- `name`: (optional) used to distinguish surface
+- `path`: path to a property containing source code
 
-- Use a Component extending `IsolatedNodeComponent`
-- embed a `CodeEditor` providing the real editorSession and cell
+## Restructure `SheetEditor`
 
-## Embedding into Sheet
+- Sheet maintains an extra tiny document with one cell used for the `FormulaBar` and for the `FormulaEditor`
+- Sheet has a state controlling if the `FormulaEditor` is visible
+- Setting the selection in either the `FormulaBar` or the `FormulaEditor` activates the edit mode
+- Setting the selection in the sheet de-activates the edit mode
+- Entering a cell puts the selection into the `FormulaEditor`
+- Canceling editing sets the selection into the current anchor cell
+- Confirming (`ENTER`) updates the current anchor cell and selects the next cell below the current cell
+- When the selection is changed on the sheet while editing a cell, then the last anchor cell is updated
+- The `FormulaBar` always displays the content of the current anchor cell
+- The `FormulaEditor` is a floating element positioned over the current anchor cell; it is invisible when not in edit mode
 
-- Sheet maintains a stub instance of a sheet document, with one cell
-- There are two components with a `CodeEditor` instance for the very same
-  cell of the stub-sheet: for the expression bar and the cell-editor
-- Sheet has a state controlling if the cell-editor is visible
-- Focusing the ExpressionBar or entering the cell-editor activates the edit mode
-- Confirming, canceling, or blurring the editor deactivates the edit mode
-- Expression-Bar: should render the source of the currently selected (anchor) cell
-- Cell-Editor:
-  - is a floating element that is positioned over the currently selected cell
-  - if not in edit mode: render as invisible, otherwise visible and position over the current (anchor) cell
-- when entering edit mode: reset the history of the stub editor session and set the content of the stub-cell to the content of the original cell
-- when confirming (enter): write the content into the original cell and select the next cell
-- when leaving (enter or blur): write the content into the original cell
-- when canceling: clear the content of the stub cell and on cancel the editor is closed without changes
+**Proposed Structure:**
 
-### Notes from Reviewing the current implementation
-
-We need to re-factor a bit.
-
-- for Sheets try to create a structure like this (feel free to change naming)
 ```
-SheetApp:
-- gets EditorSession for a SheetDocument
-- creates a staging EditorSession for cell editing (with a sheet document with only one cell)
-- layout:
-  - ToolPane (?)
-    - SheetToolbar (-> regular `Toolbar`)
-    - ExpressionBar
+App -> loads document, creates EditorSession)
+  - SheetEditor
+    - ToolPane
+      - Toolbar
+      - ExpressionBar
   - ContentPane
-      - SheetPane: scrollable canvas for sheet (currently SheetComponent)
-      - ContextPane: e.g. to show contextual function documentation, issues panel etc.
-      - "FloatingCellEditor"
-  - StatusPane:
-    - StatusBar: a bar at the bottom, e.g. shows number of errors, etc.
-    - WorkflowPanes: e.g. FindAndReplace
-- state:
-  - `cellEditing`: ~ 'is cursor in cell editor'
-    - `true` => FloatingCellEditor is visible (and positioned)
-    - `false` => FloatingCellEditor is hidden
+      - SheetComponent scrollable canvas for sheet
+        - FormulaEditor -> owned by SheetEditor, passed as 'overlay'
+      - ContextPane -> e.g. for contextual function documentation, issues panel etc.
+  - StatusPane
+    - StatusBar
+    - WorkflowPane -> e.g. FindAndReplace
 ```
 
-- Derive the `cellEditing` state from the selection:
-  - either it changes on the 'real' session, then quit cell-editing
-  - or it changes in the 'staging' session, then start / continue cell-editing
-  - set selection in the 'staging' session to null when closing (confirm, cancel, blur)
+** Maintaining `edit` state
 
-- Just remove or deactivate existing code which is 'in the way'
+- Watch for selection changes in both `EditorSession`s, of the sheet, and of the formula:
+  - selection has changed in sheet:
+    - update the formula (for `FormulaBar`)
+    - if in edit mode: de-activate edit mode
+  - selection changed in formula:
+    - if not in edit mode: activate edito mode
+- When entering edit mode, clear the history of the `FormulaEditor`
+- Keep the cell id of the anchor cell, so that you know which cell to update when the editor is 'blurred' via selection change
