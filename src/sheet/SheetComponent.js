@@ -3,6 +3,7 @@ import {
   getRelativeBoundingRect, platform, DefaultDOMElement,
   keys, clone
 } from 'substance'
+import throttle from 'lodash.throttle'
 import SheetView from './SheetView'
 import SheetViewport from './SheetViewport'
 import SheetScrollbar from './SheetScrollbar'
@@ -11,6 +12,12 @@ import SheetClipboard from './SheetClipboard'
 import { getRange } from './sheetHelpers'
 
 export default class SheetComponent extends CustomSurface {
+
+  constructor(...args) {
+    super(...args)
+
+    this._nav = throttle(this._nav.bind(this), 50, { leading: true })
+  }
 
   // TODO: we should think about using Component state instead
   getInitialState() {
