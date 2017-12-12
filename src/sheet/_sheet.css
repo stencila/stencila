@@ -169,26 +169,32 @@
   Only elements with real dimensions such as buttons consume
   the events.
 */
-.sc-sheet > .se-overlay {
+.sc-sheet > .se-unclickable-overlays {
   height: 0px;
   overflow:visible;
   pointer-events:none;
   background:none !important;
 }
 
-.sc-selection-overlay > .se-selection-anchor {
+.sc-sheet > .se-clickable-overlays {
+  height: 0px;
+  overflow:visible;
+  background:none !important;
+}
+
+.se-selection-overlay > .se-selection-anchor {
   position: absolute;
   border: solid 2px #2684FC;
 }
 
-.sc-selection-overlay > .se-selection-range {
+.se-selection-overlay > .se-selection-range {
   position: absolute;
   border: solid 1px #2684FC;
   background: rgba(38, 132, 252, 0.1)
 }
 
-.sc-selection-overlay > .se-selection-columns,
-.sc-selection-overlay > .se-selection-rows {
+.se-selection-overlay > .se-selection-columns,
+.se-selection-overlay > .se-selection-rows {
   position: absolute;
   background: rgba(0,0,0,0.05)
 }
@@ -275,8 +281,8 @@
   border: none;
 }
 
-.sc-sheet .sc-selection-overlay.sm-mode-minimum > .se-selection-columns,
-.sc-sheet .sc-selection-overlay > .se-selection-rows {
+.sc-sheet .se-selection-overlay.sm-mode-minimum > .se-selection-columns,
+.sc-sheet .se-selection-overlay > .se-selection-rows {
   background: none;
 }
 

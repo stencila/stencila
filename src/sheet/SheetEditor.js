@@ -5,6 +5,8 @@ import {
 import SheetContextSection from './SheetContextSection'
 import SheetStatusBar from './SheetStatusBar'
 import FormulaBar from './FormulaBar'
+import FormulaEditor from './FormulaEditor'
+
 
 export default class SheetEditor extends AbstractEditor {
 
@@ -119,7 +121,16 @@ export default class SheetEditor extends AbstractEditor {
       const SheetComponent = this.getComponent('sheet')
       return $$(SheetComponent, {
         sheet,
-        formulaEditorContext
+        overlays: [
+          $$(FormulaEditor, {
+            context: formulaEditorContext
+          })
+            .ref('formulaEditor')
+            .css({
+              position: 'absolute',
+              display: 'none'
+            })
+        ]
       }).ref('sheet')
     } else {
       return $$('div')
@@ -251,7 +262,7 @@ export default class SheetEditor extends AbstractEditor {
     this._setFormula(cell.textContent)
     if (this._isEditing) {
       this._isEditing = false
-      this.refs.sheet.hideFormulaEditor()
+      this._hideFormulaEditor()
       formulaEditorSession.setSelection(null)
     }
   }
@@ -261,9 +272,35 @@ export default class SheetEditor extends AbstractEditor {
     let formulaEditorSession = this._formulaEditorContext.editorSession
     if (!sel.isNull() && !this._isEditing) {
       this._isEditing = true
-      this.refs.sheet.showFormulaEditor(sheetSel.anchorRow, sheetSel.anchorCol)
+      this._showFormulaEditor(sheetSel.anchorRow, sheetSel.anchorCol)
       formulaEditorSession.resetHistory()
     }
+  }
+
+  /*
+    This gets called when the user starts editing a cell
+    At this time it should be sure that the table cell
+    is already rendered.
+  */
+  _showFormulaEditor(rowIdx, colIdx) {
+    const formulaEditor = this.refs.formulaEditor
+    let rect = this.refs.sheet.getCellRect(rowIdx, colIdx)
+    formulaEditor.css({
+      display: 'block',
+      position: 'absolute',
+      top: rect.top,
+      left: rect.left,
+      "min-width": rect.width+'px',
+      "min-height": rect.height+'px'
+    })
+  }
+
+  _hideFormulaEditor() {
+    const formulaEditor = this.refs.formulaEditor
+    formulaEditor.css({
+      display: 'none',
+      top: 0, left: 0
+    })
   }
 
   _setFormula(val, sel) {

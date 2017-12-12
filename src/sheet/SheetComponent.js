@@ -3,7 +3,6 @@ import {
   getRelativeBoundingRect, platform, DefaultDOMElement,
   keys, clone
 } from 'substance'
-import FormulaEditor from './FormulaEditor'
 import SheetView from './SheetView'
 import SheetViewport from './SheetViewport'
 import SheetScrollbar from './SheetScrollbar'
@@ -87,8 +86,8 @@ export default class SheetComponent extends CustomSurface {
         .on('paste', this._onPaste)
         .on('cut', this._onCut),
       contentEl,
-      this._renderOverlay($$),
-      this._renderFormulaEditor($$),
+      this._renderUnclickableOverlays($$),
+      this._renderClickableOverlays($$),
       this._renderRowContextMenu($$),
       this._renderColumnContextMenu($$),
       $$(DialogPanel).ref('dialog').addClass('sm-hidden'),
@@ -137,29 +136,25 @@ export default class SheetComponent extends CustomSurface {
     this._showDialog('column-settings-dialog', params)
   }
 
-  _renderFormulaEditor($$) {
-    return $$(FormulaEditor, {
-      context: this.props.formulaEditorContext
-    })
-      .ref('formulaEditor')
-      .css({
-        position: 'absolute',
-        display: 'none',
-        top: 0, left: 0
-      })
-  }
-
-  _renderOverlay($$) {
-    let el = $$('div').addClass('se-overlay')
+  _renderUnclickableOverlays($$) {
+    let el = $$('div').addClass('se-unclickable-overlays')
     el.append(
       this._renderSelectionOverlay($$)
     )
     return el
   }
 
+  _renderClickableOverlays($$) {
+    let el = $$('div').addClass('se-clickable-overlays')
+    el.append(
+      this.props.overlays
+    )
+    return el
+  }
+
   _renderSelectionOverlay($$) {
     const mode = this.state.mode
-    let el = $$('div').addClass('sc-selection-overlay sm-mode-' + mode)
+    let el = $$('div').addClass('se-selection-overlay sm-mode-' + mode)
     el.append(
       $$('div').addClass('se-selection-anchor').ref('selAnchor').css('visibility', 'hidden'),
       $$('div').addClass('se-selection-range').ref('selRange').css('visibility', 'hidden'),
@@ -446,30 +441,12 @@ export default class SheetComponent extends CustomSurface {
   }
 
   /*
-    This gets called when the user starts editing a cell
-    At this time it should be sure that the table cell
-    is already rendered.
+    Get bounding rectangle. This is useful for controlling positioning
+    of overlays, which happens outside of SheetComponent
   */
-  showFormulaEditor(rowIdx, colIdx) {
-    const formulaEditor = this.refs.formulaEditor
+  getCellRect(rowIdx, colIdx) {
     let td = this._getCellComponent(rowIdx, colIdx)
-    let rect = getRelativeBoundingRect(td.el, this.el)
-    formulaEditor.css({
-      display: 'block',
-      position: 'absolute',
-      top: rect.top,
-      left: rect.left,
-      "min-width": rect.width+'px',
-      "min-height": rect.height+'px'
-    })
-  }
-
-  hideFormulaEditor() {
-    const formulaEditor = this.refs.formulaEditor
-    formulaEditor.css({
-      display: 'none',
-      top: 0, left: 0
-    })
+    return getRelativeBoundingRect(td.el, this.el)
   }
 
   _showRowMenu(e) {
