@@ -20,7 +20,8 @@ export default class SheetEditor extends AbstractEditor {
     this.handleActions({
       'updateCell': this._updateCell,
       'cancelCellEditing': this._cancelCellEditing,
-      'editCell': this._editCell
+      'editCell': this._editCell,
+      'requestSelectionChange': this._requestSelectionChange
     })
   }
 
@@ -334,6 +335,15 @@ export default class SheetEditor extends AbstractEditor {
       startOffset: pos,
       surfaceId: 'formula-editor'
     })
+  }
+
+  _requestSelectionChange(newSelection) {
+    let editorSession = this.getEditorSession()
+    if (this._isEditing) {
+      console.info('TODO: Implement range selector', newSelection)
+    } else {
+      editorSession.setSelection(newSelection)
+    }
   }
 
   _updateCell() {

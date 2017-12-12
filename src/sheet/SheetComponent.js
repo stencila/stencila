@@ -399,7 +399,7 @@ export default class SheetComponent extends CustomSurface {
     // TODO: we could also show the selection only
     // when the rows are ready
     setTimeout(() => {
-      editorSession.setSelection({
+      this.send('requestSelectionChange', {
         type: 'custom',
         customType: 'sheet',
         data,
@@ -418,9 +418,9 @@ export default class SheetComponent extends CustomSurface {
     ]
   }
 
-  _setSelection() {
+  _requestSelectionChange() {
     let data = clone(this._selectionData)
-    this.context.editorSession.setSelection({
+    this.send('requestSelectionChange', {
       type: 'custom',
       customType: 'sheet',
       data,
@@ -568,7 +568,7 @@ export default class SheetComponent extends CustomSurface {
           selData.type = 'columns'
           selData.anchorCol = target.colIdx
           selData.focusCol = target.colIdx
-          this._setSelection()
+          this._requestSelectionChange()
         }
       } else if (target.type === 'row') {
         let _needSetSelection = true
@@ -582,7 +582,7 @@ export default class SheetComponent extends CustomSurface {
           selData.type = 'rows'
           selData.anchorRow = target.rowIdx
           selData.focusRow = target.rowIdx
-          this._setSelection()
+          this._requestSelectionChange()
         }
       } else if (target.type === 'cell') {
         let _needSetSelection = true
@@ -603,7 +603,7 @@ export default class SheetComponent extends CustomSurface {
           selData.focusRow = target.rowIdx
           selData.anchorCol = target.colIdx
           selData.focusCol = target.colIdx
-          this._setSelection()
+          this._requestSelectionChange()
         }
       }
     } else {
@@ -617,7 +617,7 @@ export default class SheetComponent extends CustomSurface {
             selData.anchorRow = selData.focusRow
             selData.anchorCol = selData.focusCol
           }
-          this._setSelection()
+          this._requestSelectionChange()
           break
         }
         case 'column': {
@@ -627,7 +627,7 @@ export default class SheetComponent extends CustomSurface {
           if (!e.shiftKey) {
             selData.anchorCol = selData.focusCol
           }
-          this._setSelection()
+          this._requestSelectionChange()
           break
         }
         case 'row': {
@@ -637,7 +637,7 @@ export default class SheetComponent extends CustomSurface {
           if (!e.shiftKey) {
             selData.anchorRow = selData.focusRow
           }
-          this._setSelection()
+          this._requestSelectionChange()
           break
         }
         default:
@@ -663,7 +663,7 @@ export default class SheetComponent extends CustomSurface {
           if (rowIdx !== sel.focusRow || colIdx !== sel.focusCol) {
             sel.focusRow = rowIdx
             sel.focusCol = colIdx
-            this._setSelection()
+            this._requestSelectionChange()
           }
           break
         }
@@ -671,7 +671,7 @@ export default class SheetComponent extends CustomSurface {
           let colIdx = sheetView.getColumnIndex(e.clientX)
           if (colIdx !== sel.focusCol) {
             sel.focusCol = colIdx
-            this._setSelection()
+            this._requestSelectionChange()
           }
           break
         }
@@ -679,7 +679,7 @@ export default class SheetComponent extends CustomSurface {
           let rowIdx = sheetView.getRowIndex(e.clientY)
           if (rowIdx !== sel.focusRow) {
             sel.focusRow = rowIdx
-            this._setSelection()
+            this._requestSelectionChange()
           }
           break
         }
