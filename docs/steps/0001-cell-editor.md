@@ -89,6 +89,10 @@ If the user clicks on `A3` this would lead to
 = 1 + A3| + B2
 ```
 
+> Idea: in Documents, when clicking on a cell that exports a variable, the variable could be inserted
+
+> TODO: how should cell referencing be done across multiple sheets / documents?
+
 ## Auto-Completion
 
 > TODO
