@@ -374,7 +374,6 @@ export default class SheetComponent extends CustomSurface {
     the viewport.
   */
   shiftSelection(dr, dc, shift) {
-    const viewport = this._getViewport()
     let data = this._getSelection()
     // TODO: move viewport if necessary
     let newFocusRow, newFocusCol
@@ -387,23 +386,8 @@ export default class SheetComponent extends CustomSurface {
       data.focusRow = newFocusRow
       data.focusCol = newFocusCol
     }
-    {
-      let dr = 0
-      let dc = 0
-      if (newFocusRow < viewport.startRow) {
-        dr = newFocusRow - viewport.startRow
-      } else if (newFocusRow > viewport.endRow) {
-        dr = newFocusRow - viewport.endRow
-      }
-      if(newFocusCol < viewport.startCol) {
-        dc = newFocusCol - viewport.startCol
-      } else if (newFocusCol > viewport.endCol) {
-        dc = newFocusCol - viewport.endCol
-      }
-      if (dr || dc) {
-        viewport.shift(dr, dc)
-      }
-    }
+    // TODO: this has a side effect as mentioned above
+    this._ensureFocusInView(newFocusRow, newFocusCol)
 
     return {
       type: 'custom',
@@ -411,7 +395,25 @@ export default class SheetComponent extends CustomSurface {
       data,
       surfaceId: this.getId()
     }
+  }
 
+  _ensureFocusInView(newFocusRow, newFocusCol) {
+    const viewport = this._viewport
+    let dr = 0
+    let dc = 0
+    if (newFocusRow < viewport.startRow) {
+      dr = newFocusRow - viewport.startRow
+    } else if (newFocusRow > viewport.endRow) {
+      dr = newFocusRow - viewport.endRow
+    }
+    if(newFocusCol < viewport.startCol) {
+      dc = newFocusCol - viewport.startCol
+    } else if (newFocusCol > viewport.endCol) {
+      dc = newFocusCol - viewport.endCol
+    }
+    if (dr || dc) {
+      viewport.shift(dr, dc)
+    }
   }
 
   _nav(dr, dc, shift) {
@@ -527,6 +529,12 @@ export default class SheetComponent extends CustomSurface {
   _onSelectionChange(sel) {
     if (sel.surfaceId !== this.getId()) {
       this._hideSelection()
+    } else {
+      // ensure that the view port is showing
+      const sel = this._getSelection()
+      if (sel.type === 'range') {
+        this._ensureFocusInView(sel.focusRow, sel.focusCol)
+      }
     }
   }
 
