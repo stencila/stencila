@@ -59,20 +59,15 @@ x = sum('foo')
 Runtime Error: Illegal argument. Expected a number, but received a string.
 ```
 
-> TODO: Another source of runtime errors is the rendering of a cell's result.
-> For example, a plot specification could have an invalid format
+> TODO: Another source of runtime errors is the rendering of a cell's result. For example, a plot specification could have an invalid format
 
 ## Tests
 
-A test is defined as an expression and a set of cells that the test is applied on. Whenever one of the cells has been (re-)computed, the expression is evaluated. The expression is a lambda expression, evaluating to a result that is captured as a test result.
+> TODO: create a dedicated step for that
 
-Example:
+## Type Checkers
 
-```
-cells: C1:C10,
-language: js,
-expression: assert(value > 0, 'The value should be greater zero.')
-```
+> TODO: create a dedicated step for that
 
 ## Custom Issues
 
@@ -92,4 +87,18 @@ The Statusbar displays aggregated information for certain issues:
 - number of errors and warnings
 - number of failed tests
 
-> TODO: are there more?
+# Iterations
+
+## Iteration I
+
+Tidy-up the implementation, removing experimental and hacky code.
+
+## Iteration II
+
+Observing Cells: being able to observe a range of cells and get notified when a cell has been analysed or evaluated.
+
+## Iteration III
+
+Framework: Issues Manager and Issues Panel should integrate Tests, Type Checkers, and Custom Issues.
+
+> This goes together with first iterations on StEPs 'tests', 'type-checker', and 'comments'.
