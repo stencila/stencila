@@ -15,8 +15,7 @@ export default class FormulaBar extends Component {
       $$(CodeEditor, {
         name: 'formula-bar',
         path: node.getPath(),
-        excludedCommands: [],
-        withoutBreak: true
+        multiline: false
       }).ref('cellEditor')
         .on('enter', this._onCodeEditorEnter)
         .on('escape', this._onCodeEditorEscape)

@@ -15,17 +15,17 @@ class CodeEditor extends Component {
     const excludedCommands = this.props.excludedCommands
     const markers = this._getMarkers()
     let content = $$(TextPropertyEditor, {
+      // TextPropertyEditor props
       name: this.props.name,
       path,
+      withoutBreak: this.props.multiline,
+      multiLine: this.props.multiline,
+      // Surface props
       commands,
       excludedCommands,
       markers,
-      handleTab: false,
-      withoutBreak: this.props.withoutBreak,
-      multiLine: this.props.withoutBreak
+      handleTab: false
     }).ref('contentEditor')
-      // EXPERIMENTAL: adding "\n" plus indent of current line
-      // .on('enter', this._onEnterKey)
       // EXPERIMENTAL: adding 2 spaces if at begin of line
       .on('tab', this._onTabKey)
       .on('escape', this._onEscapeKey)
