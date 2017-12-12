@@ -350,8 +350,25 @@ export default class SheetEditor extends AbstractEditor {
     let editorSession = this.getEditorSession()
     let cell = this._getAnchorCell()
     let newValue = this._formulaEditorContext.node.getText()
+    let { anchorRow, anchorCol} = this._getSheetSelection()
+
+    // Select cell below
+    anchorRow += 1
+
     editorSession.transaction(tx => {
       tx.set(cell.getPath(), newValue)
+      tx.setSelection({
+        type: 'custom',
+        customType: 'sheet',
+        data: {
+          type: 'range',
+          anchorRow,
+          anchorCol,
+          focusRow: anchorRow,
+          focusCol: anchorCol
+        },
+        surfaceId: this.refs.sheet.getId()
+      })
     })
   }
 
