@@ -358,7 +358,12 @@ export default class SheetEditor extends AbstractEditor {
     // leads to an inintuitiv undo/redo behavior
     // thus we are updating the selection in an extra update (which is not landing in the history)
     let newSel = this.refs.sheet.shiftSelection(1, 0, false)
-    editorSession._setSelection(this._currentSelection)
+    let selBefore = this._currentSelection
+    // Note: collapsing the selection to the anchor cell
+    // so that on undo/redo only the change cell is selected
+    selBefore.data.focusRow = selBefore.data.anchorRow
+    selBefore.data.focusCol = selBefore.data.anchorCol
+    editorSession._setSelection(selBefore)
     editorSession.transaction(tx => {
       tx.set(cell.getPath(), newValue)
     })
