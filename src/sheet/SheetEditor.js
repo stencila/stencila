@@ -273,6 +273,7 @@ export default class SheetEditor extends AbstractEditor {
     let formulaEditorSession = this._formulaEditorContext.editorSession
     if (!sel.isNull() && !this._isEditing) {
       this._isEditing = true
+      this._currentSelection = this.getEditorSession().getSelection()
       this._showFormulaEditor(sheetSel.anchorRow, sheetSel.anchorCol)
       formulaEditorSession.resetHistory()
     }
@@ -351,9 +352,12 @@ export default class SheetEditor extends AbstractEditor {
     let editorSession = this.getEditorSession()
     let cell = this._getAnchorCell()
     let newValue = this._formulaEditorContext.node.getText()
+    // HACK: need to set the selection 'silently' so that
+    // this works fine with undo/redo (-> before state)
+    let newSel = this.refs.sheet.shiftSelection(1, 0, false)
+    editorSession._setSelection(this._currentSelection)
     editorSession.transaction(tx => {
       tx.set(cell.getPath(), newValue)
-      let newSel = this.refs.sheet.shiftSelection(1, 0, false)
       tx.setSelection(newSel)
     })
   }
