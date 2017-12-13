@@ -245,10 +245,15 @@ export default class SheetEditor extends AbstractEditor {
     return this.getEditorSession().getSelection().data || {}
   }
 
-  _onSelectionChange() {
+  _onSelectionChange(sel) {
+    // TODO: what to do if the sheet seleciton is null?
+    if (!sel) return
+
     let formulaEditorSession = this._formulaEditorContext.editorSession
     let cell = this._getAnchorCell()
-    this._setFormula(cell.textContent)
+    if (cell) {
+      this._setFormula(cell.textContent)
+    }
     if (this._isEditing) {
       this._isEditing = false
       this._hideFormulaEditor()
