@@ -7,7 +7,7 @@ import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
   OpenColumnSettings, SetLanguageCommand,
-  SetTypeCommand, ChangeModeCommand,
+  SetTypeCommand, ChangeDisplayModeCommand,
   SelectAllCommand
 } from './SheetCommands'
 
@@ -191,14 +191,14 @@ export default {
     config.addComponent('value:plotly', PlotlyValueComponent)
 
     // Sheet modes
-    config.addCommand('normal-mode', ChangeModeCommand, { mode: 'normal', commandGroup: 'sheet-view-mode' })
-    config.addCommand('minimum-mode', ChangeModeCommand, { mode: 'minimum', commandGroup: 'sheet-view-mode' })
-    config.addCommand('maximum-mode', ChangeModeCommand, { mode: 'maximum', commandGroup: 'sheet-view-mode' })
+    config.addCommand('normal-mode', ChangeDisplayModeCommand, { displayMode: 'normal', commandGroup: 'sheet-view-mode' })
+    config.addCommand('minimum-mode', ChangeDisplayModeCommand, { displayMode: 'minimum', commandGroup: 'sheet-view-mode' })
+    config.addCommand('maximum-mode', ChangeDisplayModeCommand, { displayMode: 'maximum', commandGroup: 'sheet-view-mode' })
 
     config.addLabel('view-mode', 'View Mode')
-    config.addLabel('normal-mode', 'Normal Mode')
-    config.addLabel('maximum-mode', 'Maximum Mode')
-    config.addLabel('minimum-mode', 'Minimum Mode')
+    config.addLabel('normal-mode', 'Normal')
+    config.addLabel('minimum-mode', 'Presentation')
+    config.addLabel('maximum-mode', 'Source')
 
     config.addComponent('sheet', SheetComponent)
 

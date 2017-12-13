@@ -1,4 +1,4 @@
-import { Command } from 'substance'
+import { Command, DocumentChange } from 'substance'
 import { getRange } from './sheetHelpers'
 
 class RowsCommand extends Command {
@@ -77,8 +77,7 @@ class ColumnMetaCommand extends Command {
 
 }
 
-function insertRows({editorSession, selection, commandState}, mode) {
-  //const sel = selection.data
+function insertRows({editorSession, commandState}, mode) {
   const refRow = mode === 'above' ?
     commandState.startRow :
     commandState.endRow + 1
@@ -88,7 +87,7 @@ function insertRows({editorSession, selection, commandState}, mode) {
   })
 }
 
-function insertCols({editorSession, selection, commandState}, mode) {
+function insertCols({editorSession, commandState}, mode) {
   //const sel = selection.data
   const refCol = mode === 'left' ?
     commandState.startCol :
@@ -252,46 +251,51 @@ export class SetTypeCommand extends Command {
   }
 }
 
-export class ChangeModeCommand extends Command {
+export class ChangeDisplayModeCommand extends Command {
   getCommandState(params) {
-    const editor = params.editorSession.getEditor()
-    if(editor) {
-      const surface = editor.getSheetComponent()
-      if(surface) {
-        const mode = surface.state.mode
-        return {
-          newMode: this.config.mode,
-          disabled: false,
-          active: this.config.mode === mode
-        }
-      }
-    }
-
-    return {
+    const sheet = params.editorSession.getDocument()
+    const state = sheet.getState()
+    if (state) {
       // TODO: we should get default value from outside
-      active: this.config.mode === 'normal',
-      disabled: false
+      const displayMode = state.displayMode
+      return {
+        disabled: false,
+        newMode: this.config.displayMode,
+        active: this.config.displayMode === displayMode
+      }
+    } else {
+      return {
+        disabled: true
+      }
     }
   }
 
   execute(params) {
-    const editor = params.editorSession.getEditor()
-    let surface = editor.refs.sheet
-    surface.extendState({mode: this.config.mode})
-    params.editorSession._setDirty('commandStates')
-    params.editorSession.performFlow()
+    const editorSession = params.editorSession
+    const sheet = editorSession.getDocument()
+    // TODO need a better API for this
+    let sheetState = sheet.getState()
+    sheetState.displayMode = this.config.displayMode
+    editorSession._setDirty('document')
+    editorSession._setDirty('commandStates')
+    let change = new DocumentChange([], {}, {})
+    change._extractInformation()
+    change.updated['sheet.state'] = true
+    editorSession._change = change
+    editorSession._info = {}
+    editorSession.performFlow()
   }
 }
 
 export class SelectAllCommand extends Command {
 
-  getCommandState(params) {
+  getCommandState() {
     return {
       disabled: false
     }
   }
 
-  execute(params, context) {
+  execute(params) {
     const editorSession = params.editorSession
     const sheet = editorSession.getDocument()
     const editor = editorSession.getEditor()
