@@ -15,9 +15,7 @@ import getBoundingRect from '../util/getBoundingRect'
 */
 export default class SheetView extends Component {
 
-  shouldRerender(newProps) {
-    // TODO: this is app specific and should be propagated via context
-    if(newProps.mode !== this.props.mode) return true
+  shouldRerender() {
     return false
   }
 
@@ -40,11 +38,10 @@ export default class SheetView extends Component {
 
   render($$) {
     const sheet = this.props.sheet
-    const mode = this.props.mode
     const viewport = this.props.viewport
     const M = sheet.getColumnCount()
 
-    let el = $$('table').addClass('sc-table-view sm-mode-' + mode)
+    let el = $$('table').addClass('sc-table-view')
     let head = $$('tr').addClass('se-head').ref('head')
     let corner = $$('th').addClass('se-corner').ref('corner')
       .on('click', this._selectAll)
@@ -55,11 +52,8 @@ export default class SheetView extends Component {
     // To avoid that corrupting the layout we need
     // to make sure to set the correct value here
     // Unfortunately this means that we must set the corner width here
-    corner.css({ width: 50 })
-    if (mode === 'minimum') {
-      corner.css({ width: 5 })
-    }
-    let width = 50
+    let width = this.props.cornerWidth || 50
+    corner.css({ width })
     head.append(corner)
     for(let colIdx = 0; colIdx < M; colIdx++) {
       let columnMeta = sheet.getColumnMeta(colIdx)
@@ -75,7 +69,7 @@ export default class SheetView extends Component {
     el.css({ width })
     el.append(head)
     el.append(
-      $$(TableBody, { sheet, viewport, mode }).ref('body')
+      $$(TableBody, { sheet, viewport }).ref('body')
     )
     return el
   }
@@ -289,16 +283,13 @@ class TableBody extends Component {
     let el = $$('tbody')
     let sheet = this.props.sheet
     let viewport = this.props.viewport
-    const mode = this.props.mode
     let N = sheet.getRowCount()
     let n = Math.min(viewport.startRow+viewport.P, N)
-    for (let i = viewport.startRow; i < n; i++) {
+    for (let rowIdx = viewport.startRow; rowIdx < n; rowIdx++) {
       el.append(
         $$(TableRow, {
-          sheet, viewport,
-          rowIdx: i,
-          mode
-        }).ref(String(i))
+          sheet, viewport, rowIdx
+        }).ref(String(rowIdx))
       )
     }
     this._startRow = viewport.startRow
@@ -388,7 +379,6 @@ class TableRow extends Component {
     let sheet = this.props.sheet
     let rowIdx = this.props.rowIdx
     let viewport = this.props.viewport
-    const mode = this.props.mode
     let height = sheet.getRowHeight(rowIdx)
     let el = $$('tr')
     switch (this.state) {
@@ -407,7 +397,7 @@ class TableRow extends Component {
           const cell = sheet.getCell(rowIdx, j)
           let td = $$('td').ref(String(j))
             .append(
-              $$(SheetCell, { node: cell, mode }).ref(cell.id)
+              $$(SheetCell, { node: cell }).ref(cell.id)
             ).attr({
               'data-row': rowIdx,
               'data-col': j,
