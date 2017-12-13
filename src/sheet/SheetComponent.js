@@ -3,6 +3,7 @@ import {
   getRelativeBoundingRect, platform, DefaultDOMElement,
   keys, clone
 } from 'substance'
+import throttle from 'lodash.throttle'
 import SheetView from './SheetView'
 import SheetViewport from './SheetViewport'
 import SheetScrollbar from './SheetScrollbar'
@@ -11,6 +12,12 @@ import SheetClipboard from './SheetClipboard'
 import { getRange } from './sheetHelpers'
 
 export default class SheetComponent extends CustomSurface {
+
+  constructor(...args) {
+    super(...args)
+
+    this._nav = throttle(this._nav.bind(this), 50, { leading: true })
+  }
 
   // TODO: we should think about using Component state instead
   getInitialState() {
@@ -29,11 +36,11 @@ export default class SheetComponent extends CustomSurface {
       focusRow: -1,
       focusCol: -1
     }
+    // TODO: we could shift the dialog up into SheetEditor
+    // treating it as an overlay
     // state used to ignore events when dialog is open
     this._isShowingDialog = false
-    return {
-      mode: 'normal'
-    }
+    return {}
   }
 
   didMount() {
@@ -63,11 +70,11 @@ export default class SheetComponent extends CustomSurface {
   render($$) {
     const sheet = this._getSheet()
     const viewport = this._viewport
-    const mode = this.state.mode
     let el = $$('div').addClass('sc-sheet')
     let contentEl = $$('div').addClass('se-content').append(
       $$(SheetView, {
-        sheet, viewport, mode
+        sheet,
+        viewport
       }).ref('sheetView')
     )
       .on('wheel', this._onWheel, this)
@@ -111,11 +118,7 @@ export default class SheetComponent extends CustomSurface {
     return this.refs.sheetView
   }
 
-  getMode() {
-    return this.state.mode
-  }
-
-  resize() {
+  forceUpdate() {
     this.refs.sheetView.update()
     this.refs.scrollX.rerender()
     this.refs.scrollY.rerender()
@@ -153,8 +156,7 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _renderSelectionOverlay($$) {
-    const mode = this.state.mode
-    let el = $$('div').addClass('se-selection-overlay sm-mode-' + mode)
+    let el = $$('div').addClass('se-selection-overlay')
     el.append(
       $$('div').addClass('se-selection-anchor').ref('selAnchor').css('visibility', 'hidden'),
       $$('div').addClass('se-selection-range').ref('selRange').css('visibility', 'hidden'),
@@ -362,13 +364,8 @@ export default class SheetComponent extends CustomSurface {
     return this._viewport.scroll(deltaX, deltaY)
   }
 
-  /*
-    TODO: Function is expected to be side-effect free but implicitly updates
-    the viewport.
-  */
   shiftSelection(dr, dc, shift) {
-    const viewport = this._getViewport()
-    let data = this._getSelection()
+    let data = clone(this._getSelection())
     // TODO: move viewport if necessary
     let newFocusRow, newFocusCol
     if (!shift) {
@@ -380,31 +377,43 @@ export default class SheetComponent extends CustomSurface {
       data.focusRow = newFocusRow
       data.focusCol = newFocusCol
     }
-    {
-      let dr = 0
-      let dc = 0
-      if (newFocusRow < viewport.startRow) {
-        dr = newFocusRow - viewport.startRow
-      } else if (newFocusRow > viewport.endRow) {
-        dr = newFocusRow - viewport.endRow
-      }
-      if(newFocusCol < viewport.startCol) {
-        dc = newFocusCol - viewport.startCol
-      } else if (newFocusCol > viewport.endCol) {
-        dc = newFocusCol - viewport.endCol
-      }
-      if (dr || dc) {
-        viewport.shift(dr, dc)
-      }
-    }
+    return this._createSelection(data)
+  }
 
+  selectFirstCell() {
+    return this._createSelection({
+      type: 'range',
+      anchorRow: 0, anchorCol: 0,
+      focusRow: 0, focusCol: 0
+    })
+  }
+
+  _createSelection(data) {
     return {
       type: 'custom',
       customType: 'sheet',
-      data,
+      data: data,
       surfaceId: this.getId()
     }
+  }
 
+  _ensureFocusInView(newFocusRow, newFocusCol) {
+    const viewport = this._viewport
+    let dr = 0
+    let dc = 0
+    if (newFocusRow < viewport.startRow) {
+      dr = newFocusRow - viewport.startRow
+    } else if (newFocusRow > viewport.endRow) {
+      dr = newFocusRow - viewport.endRow
+    }
+    if(newFocusCol < viewport.startCol) {
+      dc = newFocusCol - viewport.startCol
+    } else if (newFocusCol > viewport.endCol) {
+      dc = newFocusCol - viewport.endCol
+    }
+    if (dr || dc) {
+      viewport.shift(dr, dc)
+    }
   }
 
   _nav(dr, dc, shift) {
@@ -429,13 +438,8 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _requestSelectionChange() {
-    let data = clone(this._selectionData)
-    this.send('requestSelectionChange', {
-      type: 'custom',
-      customType: 'sheet',
-      data,
-      surfaceId: this.getId()
-    })
+    let sel = this._createSelection(clone(this._selectionData))
+    this.send('requestSelectionChange', sel)
   }
 
   _getSheet() {
@@ -456,7 +460,9 @@ export default class SheetComponent extends CustomSurface {
   */
   getCellRect(rowIdx, colIdx) {
     let td = this._getCellComponent(rowIdx, colIdx)
-    return getRelativeBoundingRect(td.el, this.el)
+    if (td) {
+      return getRelativeBoundingRect(td.el, this.el)
+    }
   }
 
   _showRowMenu(e) {
@@ -520,6 +526,14 @@ export default class SheetComponent extends CustomSurface {
   _onSelectionChange(sel) {
     if (sel.surfaceId !== this.getId()) {
       this._hideSelection()
+    } else {
+      // ensure that the view port is showing
+      const sel = this._getSelection()
+      // NOTE: not scrolling to focusCell for select-all
+      // which would be uncommon behavior
+      if (sel.type === 'range' && !sel.all) {
+        this._ensureFocusInView(sel.focusRow, sel.focusCol)
+      }
     }
   }
 
@@ -668,8 +682,8 @@ export default class SheetComponent extends CustomSurface {
       const sel = this._selectionData
       switch (sel.type) {
         case 'range': {
-          let rowIdx = sheetView.getRowIndex(e.clientY)
-          let colIdx = sheetView.getColumnIndex(e.clientX)
+          let rowIdx = sheetView.getRowIndexForClientY(e.clientY)
+          let colIdx = sheetView.getColumnIndexForClientX(e.clientX)
           if (rowIdx !== sel.focusRow || colIdx !== sel.focusCol) {
             sel.focusRow = rowIdx
             sel.focusCol = colIdx
@@ -678,7 +692,7 @@ export default class SheetComponent extends CustomSurface {
           break
         }
         case 'columns': {
-          let colIdx = sheetView.getColumnIndex(e.clientX)
+          let colIdx = sheetView.getColumnIndexForClientX(e.clientX)
           if (colIdx !== sel.focusCol) {
             sel.focusCol = colIdx
             this._requestSelectionChange()
@@ -686,7 +700,7 @@ export default class SheetComponent extends CustomSurface {
           break
         }
         case 'rows': {
-          let rowIdx = sheetView.getRowIndex(e.clientY)
+          let rowIdx = sheetView.getRowIndexForClientY(e.clientY)
           if (rowIdx !== sel.focusRow) {
             sel.focusRow = rowIdx
             this._requestSelectionChange()
@@ -701,8 +715,8 @@ export default class SheetComponent extends CustomSurface {
 
   _onDblclick(e) {
     const sheetView = this.refs.sheetView
-    let rowIdx = sheetView.getRowIndex(e.clientY)
-    let colIdx = sheetView.getColumnIndex(e.clientX)
+    let rowIdx = sheetView.getRowIndexForClientY(e.clientY)
+    let colIdx = sheetView.getColumnIndexForClientX(e.clientX)
     if (rowIdx > -1 && colIdx > -1) {
       this.send('editCell')
     }
@@ -773,6 +787,13 @@ export default class SheetComponent extends CustomSurface {
       }
       default:
         //
+    }
+    // let an optional keyboard manager handle the key
+    if (!handled) {
+      const keyboardManager = this.context.keyboardManager
+      if (keyboardManager) {
+        handled = keyboardManager.onKeydown(e)
+      }
     }
     if (handled) {
       e.preventDefault()

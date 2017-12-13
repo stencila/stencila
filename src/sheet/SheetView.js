@@ -6,10 +6,16 @@ import SheetRowHeader from './SheetRowHeader'
 import SheetCell from './SheetCell'
 import getBoundingRect from '../util/getBoundingRect'
 
+/*
+ This Component renders a part of a sheet which is defined
+ by a viewport.
+
+ It is a pure renderer without any interaction (as opposed to SheetComponent).
+ It provides an API to map from screen coordinates to column and row indexes.
+*/
 export default class SheetView extends Component {
 
-  shouldRerender(newProps) {
-    if(newProps.mode !== this.props.mode) return true
+  shouldRerender() {
     return false
   }
 
@@ -32,11 +38,10 @@ export default class SheetView extends Component {
 
   render($$) {
     const sheet = this.props.sheet
-    const mode = this.props.mode
     const viewport = this.props.viewport
     const M = sheet.getColumnCount()
 
-    let el = $$('table').addClass('sc-table-view sm-mode-' + mode)
+    let el = $$('table').addClass('sc-table-view')
     let head = $$('tr').addClass('se-head').ref('head')
     let corner = $$('th').addClass('se-corner').ref('corner')
       .on('click', this._selectAll)
@@ -47,11 +52,8 @@ export default class SheetView extends Component {
     // To avoid that corrupting the layout we need
     // to make sure to set the correct value here
     // Unfortunately this means that we must set the corner width here
-    corner.css({ width: 50 })
-    if (mode === 'minimum') {
-      corner.css({ width: 5 })
-    }
-    let width = 50
+    let width = this.props.cornerWidth || 50
+    corner.css({ width })
     head.append(corner)
     for(let colIdx = 0; colIdx < M; colIdx++) {
       let columnMeta = sheet.getColumnMeta(colIdx)
@@ -67,7 +69,7 @@ export default class SheetView extends Component {
     el.css({ width })
     el.append(head)
     el.append(
-      $$(TableBody, { sheet, viewport, mode }).ref('body')
+      $$(TableBody, { sheet, viewport }).ref('body')
     )
     return el
   }
@@ -199,8 +201,8 @@ export default class SheetView extends Component {
   getTargetForEvent(e) {
     const clientX = e.clientX
     const clientY = e.clientY
-    let colIdx = this.getColumnIndex(clientX)
-    let rowIdx = this.getRowIndex(clientY)
+    let colIdx = this.getColumnIndexForClientX(clientX)
+    let rowIdx = this.getRowIndexForClientY(clientY)
     let type
     if (colIdx >= 0 && rowIdx >= 0) {
       type = 'cell'
@@ -216,7 +218,8 @@ export default class SheetView extends Component {
     return { type, rowIdx, colIdx }
   }
 
-  getColumnIndex(x) {
+  // TODO: rename this to indicate usage: map clientX to column
+  getColumnIndexForClientX(x) {
     const headEl = this.refs.head.el
     const children = headEl.children
     for (let i = 0; i < children.length; i++) {
@@ -228,7 +231,8 @@ export default class SheetView extends Component {
     return undefined
   }
 
-  getRowIndex(y) {
+  // TODO: rename this to indicate usage: map clientY to row
+  getRowIndexForClientY(y) {
     const headEl = this.refs.head.el
     if (_isYInside(y, getBoundingRect(headEl))) {
       return -1
@@ -257,7 +261,7 @@ export default class SheetView extends Component {
   }
 
   _selectAll() {
-    this.context.editor.setSelectionOnSheet()
+    this.send('selectAll')
   }
 }
 
@@ -279,16 +283,13 @@ class TableBody extends Component {
     let el = $$('tbody')
     let sheet = this.props.sheet
     let viewport = this.props.viewport
-    const mode = this.props.mode
     let N = sheet.getRowCount()
     let n = Math.min(viewport.startRow+viewport.P, N)
-    for (let i = viewport.startRow; i < n; i++) {
+    for (let rowIdx = viewport.startRow; rowIdx < n; rowIdx++) {
       el.append(
         $$(TableRow, {
-          sheet, viewport,
-          rowIdx: i,
-          mode
-        }).ref(String(i))
+          sheet, viewport, rowIdx
+        }).ref(String(rowIdx))
       )
     }
     this._startRow = viewport.startRow
@@ -296,13 +297,12 @@ class TableBody extends Component {
     return el
   }
 
-  /*
-    TODO: this could be speeded-up by incrementally
-    adding rows and cols instead of relying on reactive rendering.
-  */
   update() {
     const viewport = this.props.viewport
     let dr = viewport.startRow - this._startRow
+    // doing an incremental render if scrolling
+    // in steps smaller than the viewport size, i.e. 'prefetching' rows
+    // otherwise just a full rerender because everything changes
     if (dr > 0 && dr < viewport.P) {
       this._append(dr)
     } else if (dr < 0 && dr > -viewport.P) {
@@ -379,7 +379,6 @@ class TableRow extends Component {
     let sheet = this.props.sheet
     let rowIdx = this.props.rowIdx
     let viewport = this.props.viewport
-    const mode = this.props.mode
     let height = sheet.getRowHeight(rowIdx)
     let el = $$('tr')
     switch (this.state) {
@@ -398,7 +397,7 @@ class TableRow extends Component {
           const cell = sheet.getCell(rowIdx, j)
           let td = $$('td').ref(String(j))
             .append(
-              $$(SheetCell, { node: cell, mode }).ref(cell.id)
+              $$(SheetCell, { node: cell }).ref(cell.id)
             ).attr({
               'data-row': rowIdx,
               'data-col': j,
