@@ -374,7 +374,7 @@ export default class SheetComponent extends CustomSurface {
     the viewport.
   */
   shiftSelection(dr, dc, shift) {
-    let data = this._getSelection()
+    let data = clone(this._getSelection())
     // TODO: move viewport if necessary
     let newFocusRow, newFocusCol
     if (!shift) {
