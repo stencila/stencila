@@ -206,6 +206,22 @@ export default class SheetDocument extends XMLDocument {
     })
   }
 
+  getInitialState() {
+    return {
+      displayMode: 'normal'
+    }
+  }
+
+  getState() {
+    let sheet = this.getRootNode()
+    if (sheet) {
+      if (!sheet.state) {
+        sheet.state = this.getInitialState()
+      }
+      return sheet.state
+    }
+  }
+
   _getData() {
     if (!this._dataNode) {
       this._dataNode = this.get('data')
@@ -219,5 +235,4 @@ export default class SheetDocument extends XMLDocument {
     }
     return this._columnsNode
   }
-
 }
