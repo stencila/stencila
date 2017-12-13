@@ -28,7 +28,6 @@ class CodeEditor extends Component {
     }).ref('contentEditor')
       // EXPERIMENTAL: adding 2 spaces if at begin of line
       .on('tab', this._onTabKey)
-      .on('escape', this._onEscapeKey)
     content.addClass('se-content')
     el.append(content)
     return el
@@ -37,10 +36,6 @@ class CodeEditor extends Component {
   _getMarkers() {
     const path = this.props.path
     return getSyntaxTokens(path, this.props.tokens)
-  }
-
-  _onEscapeKey() {
-    this.send('escape')
   }
 
   _onTabKey() {
