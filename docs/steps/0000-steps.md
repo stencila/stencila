@@ -40,8 +40,11 @@ status: <Draft | Active | Accepted | Deferred | Rejected | Withdrawn | Final | S
 ---
 ```
 Definitions:
+
 **Process** - A Process StEP describes a process surrounding Stencila, or proposes a change to a process. Examples include procedures, guidelines, changes to the decision-making process, and changes to Stencila.
+
 **Feature** - A Feature StEP describes a new feature for Stencila, or proposes a major change to an existing feature. A feature could be an entirely new or an extension to an existing feature.
+
 **Fix** - A Fix StEP identifies a feature that is not working and proposes a solution to get up and running. Alternately a Fix StEP may propose an alternate way to solve, approach, or address an existing (working) feature.
 
 
@@ -50,11 +53,17 @@ Definitions:
 The StEP template below includes the following headings.
 
 **Introduction**: Provide an informal context and motivation for the StEP.
+
 **Definitions**: Provide terms used in Stencila, and define any new terms introduced in the StEP.
+
 **Concepts**: Explain concepts and rationale for the approach.
+
 **Distinction**: If necessary position with respect to existing solutions. For example, why a proposed Fix StEP is better than an existing solution.
+
 **Examples**: Include examples!
+
 **Implementation**: Links to specifications, notes on dependencies, or other conditions for implementation.
+
 **Auxiliary files**: StEPs may include auxiliary files such as diagrams, code samples, or Markdown files. Such files must start with the filename of the StEP (e.g. `0001-cell-editor-auxiliary-file.md`).
 
 ## Submitting
