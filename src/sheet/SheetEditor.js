@@ -7,7 +7,6 @@ import SheetStatusBar from './SheetStatusBar'
 import FormulaBar from './FormulaBar'
 import FormulaEditor from './FormulaEditor'
 
-
 export default class SheetEditor extends AbstractEditor {
 
   constructor(...args) {
@@ -28,13 +27,16 @@ export default class SheetEditor extends AbstractEditor {
   }
 
   getChildContext() {
-    let editorSession = this.props.editorSession
+    const editorSession = this.props.editorSession
+    const keyboardManager = this.keyboardManager
+    const issueManager = editorSession.getManager('issue-manager')
+    const host = this.props.host
+    const configurator = editorSession.getConfigurator()
     return Object.assign({}, super.getChildContext(), {
-      configurator: editorSession.getConfigurator(),
-      host: this.props.host,
-      issueManager: editorSession.getManager('issue-manager'),
-      // TODO: get rid of this
-      cellEditorSession: this._cellEditorSession
+      configurator,
+      host,
+      issueManager,
+      keyboardManager
     })
   }
 
@@ -279,15 +281,25 @@ export default class SheetEditor extends AbstractEditor {
   */
   _showFormulaEditor(rowIdx, colIdx) {
     const formulaEditor = this.refs.formulaEditor
-    let rect = this.refs.sheet.getCellRect(rowIdx, colIdx)
-    formulaEditor.css({
-      display: 'block',
-      position: 'absolute',
-      top: rect.top,
-      left: rect.left,
-      "min-width": rect.width+'px',
-      "min-height": rect.height+'px'
-    })
+    const sheetComponent = this.getSheetComponent()
+    // only show if we actually get a rectangle
+    // e.g. this is null if the cell is not in the
+    // viewport
+    let rect = sheetComponent.getCellRect(rowIdx, colIdx)
+    if (rect) {
+      formulaEditor.css({
+        display: 'block',
+        position: 'absolute',
+        top: rect.top,
+        left: rect.left,
+        "min-width": rect.width+'px',
+        "min-height": rect.height+'px'
+      })
+    } else {
+      formulaEditor.css({
+        display: 'none'
+      })
+    }
   }
 
   _hideFormulaEditor() {
