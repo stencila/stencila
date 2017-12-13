@@ -68,11 +68,12 @@ The StEP template below includes the following headings.
 
 ## Submitting
 
-Check in with the team on the [community forum](https://community.stenci.la/) as you're thinking about submitting a StEP. When you're ready to submit a StEP, send a pull request to https://github.com/stencila/stencila to add the Markdown file, (titled following the format  `step-XXXX-SLUG.md`, where `XXXX` is the StEP number and `SLUG` is a human readable shortened title (e.g. `cell-editor`)) to [this repository](https://github.com/stencila/stencila/tree/develop/docs/steps). Create another pull request to add your StEP to the [README.md](https://github.com/stencila/stencila/blob/develop/docs/steps/README.md). Let us know if you have any questions about the StEP format or submission process!
+Check in with the team on the [community forum](https://community.stenci.la/) as you're thinking about submitting a StEP. As with all contributions, please review our contributor guide found at CONTRIBUTING.md and our [Code of Conduct](https://github.com/stencila/stencila/blob/develop/CONDUCT.md). When you're ready to submit a StEP, send a pull request to https://github.com/stencila/stencila to add the Markdown file, (titled following the format  `step-XXXX-SLUG.md`, where `XXXX` is the StEP number and `SLUG` is a human readable shortened title (e.g. `cell-editor`)) to [this repository](https://github.com/stencila/stencila/tree/develop/docs/steps). Create another pull request to add your StEP to the [README.md](https://github.com/stencila/stencila/blob/develop/docs/steps/README.md). Let us know if you have any questions about the StEP format or submission process. 
 
 
 
 # StEP Template
+Copy the markdown below to begin writing a StEP. Thank you for your contribution!
 
 ```yaml
 ---
