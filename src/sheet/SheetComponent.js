@@ -465,7 +465,9 @@ export default class SheetComponent extends CustomSurface {
   */
   getCellRect(rowIdx, colIdx) {
     let td = this._getCellComponent(rowIdx, colIdx)
-    return getRelativeBoundingRect(td.el, this.el)
+    if (td) {
+      return getRelativeBoundingRect(td.el, this.el)
+    }
   }
 
   _showRowMenu(e) {
@@ -532,7 +534,9 @@ export default class SheetComponent extends CustomSurface {
     } else {
       // ensure that the view port is showing
       const sel = this._getSelection()
-      if (sel.type === 'range') {
+      // NOTE: not scrolling to focusCell for select-all
+      // which would be uncommon behavior
+      if (sel.type === 'range' && !sel.all) {
         this._ensureFocusInView(sel.focusRow, sel.focusCol)
       }
     }
@@ -788,6 +792,13 @@ export default class SheetComponent extends CustomSurface {
       }
       default:
         //
+    }
+    // let an optional keyboard manager handle the key
+    if (!handled) {
+      const keyboardManager = this.context.keyboardManager
+      if (keyboardManager) {
+        handled = keyboardManager.onKeydown(e)
+      }
     }
     if (handled) {
       e.preventDefault()
