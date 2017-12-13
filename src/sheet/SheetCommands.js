@@ -22,6 +22,7 @@ class RowsCommand extends Command {
       disabled: true
     }
   }
+
 }
 
 class ColsCommand extends Command {
@@ -86,9 +87,6 @@ function insertRows({editorSession, selection, commandState}, mode) {
     tx.getDocument().createRowsAt(refRow, nrows)
   })
 }
-
-
-
 
 function insertCols({editorSession, selection, commandState}, mode) {
   //const sel = selection.data
@@ -192,7 +190,6 @@ export class SetLanguageCommand extends Command {
   }
 }
 
-
 export class SetTypeCommand extends Command {
 
   getCommandState({ selection, editorSession }) {
@@ -222,7 +219,6 @@ export class SetTypeCommand extends Command {
       let columnMeta = doc.getColumnForCell(anchorCell.id)
       let columnType = columnMeta.attr('type')
       let cellType = anchorCell.attr('type')
-
       state = {
         cellId: anchorCell.id,
         newType: this.config.type,
@@ -256,42 +252,11 @@ export class SetTypeCommand extends Command {
   }
 }
 
-
-export class EditCellExpressionCommand extends Command {
-
-  getCommandState({ selection, editorSession }) {
-    if (selection.isNull() || !(selection.isCustomSelection() && selection.customType === 'sheet')) {
-      return { disabled: true }
-    }
-    const doc = editorSession.getDocument()
-    const { anchorRow, anchorCol } = selection.data
-    if(anchorRow === -1 || anchorCol === -1) {
-      return { disabled: true }
-    }
-    const editor = editorSession.getEditor()
-    const mode = editor.refs.sheet.getMode()
-    if(mode === 'minimum') {
-      return { disabled: true }
-    }
-    let anchorCell = doc.getCell(anchorRow, anchorCol)
-    let state = {
-      cellId: anchorCell.id,
-      disabled: false
-    }
-    return state
-  }
-
-  execute() {
-    // no execute
-  }
-
-}
-
 export class ChangeModeCommand extends Command {
   getCommandState(params) {
     const editor = params.editorSession.getEditor()
     if(editor) {
-      const surface = editor.refs.sheet
+      const surface = editor.getSheetComponent()
       if(surface) {
         const mode = surface.state.mode
         return {
@@ -315,5 +280,35 @@ export class ChangeModeCommand extends Command {
     surface.extendState({mode: this.config.mode})
     params.editorSession._setDirty('commandStates')
     params.editorSession.performFlow()
+  }
+}
+
+export class SelectAllCommand extends Command {
+
+  getCommandState(params) {
+    return {
+      disabled: false
+    }
+  }
+
+  execute(params, context) {
+    const editorSession = params.editorSession
+    const sheet = editorSession.getDocument()
+    const editor = editorSession.getEditor()
+    const surface = editor.getSheetComponent()
+    let selData = {
+      type: 'range',
+      anchorRow: 0,
+      focusRow: sheet.getRowCount() - 1,
+      anchorCol: 0,
+      focusCol: sheet.getColumnCount() - 1,
+      all: true
+    }
+    editorSession.setSelection({
+      type: 'custom',
+      customType: 'sheet',
+      data: selData,
+      surfaceId: surface.getId()
+    })
   }
 }

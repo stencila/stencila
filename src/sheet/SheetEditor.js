@@ -158,6 +158,10 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
+  getSheetComponent() {
+    return this.refs.sheet
+  }
+
   setSelectionOnCell(cellId) {
     const sheet = this.getDocument()
     let cell = sheet.get(cellId)

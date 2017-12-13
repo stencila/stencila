@@ -7,7 +7,8 @@ import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
   OpenColumnSettings, SetLanguageCommand,
-  SetTypeCommand, ChangeModeCommand
+  SetTypeCommand, ChangeModeCommand,
+  SelectAllCommand
 } from './SheetCommands'
 
 import SheetDocumentImporter from './SheetDocumentImporter'
@@ -200,6 +201,9 @@ export default {
     config.addLabel('minimum-mode', 'Minimum Mode')
 
     config.addComponent('sheet', SheetComponent)
+
+    config.addCommand('select-all', SelectAllCommand)
+    config.addKeyboardShortcut('CommandOrControl+a', { command: 'select-all' })
 
     config.addCommand('insert-rows-above', InsertRowsAbove, {
       commandGroup: 'table-row-commands'
