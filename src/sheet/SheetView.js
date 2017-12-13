@@ -207,8 +207,8 @@ export default class SheetView extends Component {
   getTargetForEvent(e) {
     const clientX = e.clientX
     const clientY = e.clientY
-    let colIdx = this.getColumnIndex(clientX)
-    let rowIdx = this.getRowIndex(clientY)
+    let colIdx = this.getColumnIndexForClientX(clientX)
+    let rowIdx = this.getRowIndexForClientY(clientY)
     let type
     if (colIdx >= 0 && rowIdx >= 0) {
       type = 'cell'
@@ -225,7 +225,7 @@ export default class SheetView extends Component {
   }
 
   // TODO: rename this to indicate usage: map clientX to column
-  getColumnIndex(x) {
+  getColumnIndexForClientX(x) {
     const headEl = this.refs.head.el
     const children = headEl.children
     for (let i = 0; i < children.length; i++) {
@@ -238,7 +238,7 @@ export default class SheetView extends Component {
   }
 
   // TODO: rename this to indicate usage: map clientY to row
-  getRowIndex(y) {
+  getRowIndexForClientY(y) {
     const headEl = this.refs.head.el
     if (_isYInside(y, getBoundingRect(headEl))) {
       return -1

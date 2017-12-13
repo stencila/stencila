@@ -683,8 +683,8 @@ export default class SheetComponent extends CustomSurface {
       const sel = this._selectionData
       switch (sel.type) {
         case 'range': {
-          let rowIdx = sheetView.getRowIndex(e.clientY)
-          let colIdx = sheetView.getColumnIndex(e.clientX)
+          let rowIdx = sheetView.getRowIndexForClientY(e.clientY)
+          let colIdx = sheetView.getColumnIndexForClientX(e.clientX)
           if (rowIdx !== sel.focusRow || colIdx !== sel.focusCol) {
             sel.focusRow = rowIdx
             sel.focusCol = colIdx
@@ -693,7 +693,7 @@ export default class SheetComponent extends CustomSurface {
           break
         }
         case 'columns': {
-          let colIdx = sheetView.getColumnIndex(e.clientX)
+          let colIdx = sheetView.getColumnIndexForClientX(e.clientX)
           if (colIdx !== sel.focusCol) {
             sel.focusCol = colIdx
             this._requestSelectionChange()
@@ -701,7 +701,7 @@ export default class SheetComponent extends CustomSurface {
           break
         }
         case 'rows': {
-          let rowIdx = sheetView.getRowIndex(e.clientY)
+          let rowIdx = sheetView.getRowIndexForClientY(e.clientY)
           if (rowIdx !== sel.focusRow) {
             sel.focusRow = rowIdx
             this._requestSelectionChange()
@@ -716,8 +716,8 @@ export default class SheetComponent extends CustomSurface {
 
   _onDblclick(e) {
     const sheetView = this.refs.sheetView
-    let rowIdx = sheetView.getRowIndex(e.clientY)
-    let colIdx = sheetView.getColumnIndex(e.clientX)
+    let rowIdx = sheetView.getRowIndexForClientY(e.clientY)
+    let colIdx = sheetView.getColumnIndexForClientX(e.clientX)
     if (rowIdx > -1 && colIdx > -1) {
       this.send('editCell')
     }
