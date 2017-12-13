@@ -354,12 +354,15 @@ export default class SheetEditor extends AbstractEditor {
     let newValue = this._formulaEditorContext.node.getText()
     // HACK: need to set the selection 'silently' so that
     // this works fine with undo/redo (-> before state)
+    // plus: setting the selection in the transaction
+    // leads to an inintuitiv undo/redo behavior
+    // thus we are updating the selection in an extra update (which is not landing in the history)
     let newSel = this.refs.sheet.shiftSelection(1, 0, false)
     editorSession._setSelection(this._currentSelection)
     editorSession.transaction(tx => {
       tx.set(cell.getPath(), newValue)
-      tx.setSelection(newSel)
     })
+    editorSession.setSelection(newSel)
   }
 
   _getAnchorCell() {
