@@ -21,7 +21,9 @@ export default class SheetEditor extends AbstractEditor {
       'updateCell': this._updateCell,
       'cancelCellEditing': this._cancelCellEditing,
       'editCell': this._editCell,
-      'requestSelectionChange': this._requestSelectionChange
+      'requestSelectionChange': this._requestSelectionChange,
+      'selectAll': this._selectAll,
+      'executeCommand': this._executeCommand
     })
   }
 
@@ -174,24 +176,6 @@ export default class SheetEditor extends AbstractEditor {
       focusRow: rowIdx,
       anchorCol: colIdx,
       focusCol: colIdx
-    }
-
-    this.props.editorSession.setSelection({
-      type: 'custom',
-      customType: 'sheet',
-      data: selData,
-      surfaceId: this.refs.sheet.getId()
-    })
-  }
-
-  setSelectionOnSheet() {
-    const sheet = this.getDocument()
-    let selData = {
-      type: 'range',
-      anchorRow: 0,
-      focusRow: sheet.getRowCount() - 1,
-      anchorCol: 0,
-      focusCol: sheet.getColumnCount() - 1
     }
 
     this.props.editorSession.setSelection({
@@ -384,4 +368,13 @@ export default class SheetEditor extends AbstractEditor {
     return this.getDocument().getCell(sel.anchorRow, sel.anchorCol)
   }
 
+  _selectAll() {
+    this._executeCommand('select-all')
+  }
+
+  _executeCommand(commandName, params) {
+    // TODO: soon we will pull out CommandManager from EditorSession
+    let commandManager = this.commandManager
+    commandManager.executeCommand(commandName, params)
+  }
 }
