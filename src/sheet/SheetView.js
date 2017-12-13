@@ -266,9 +266,8 @@ export default class SheetView extends Component {
     }
   }
 
-  // TODO: send an action
   _selectAll() {
-    this.context.editor.setSelectionOnSheet()
+    this.send('selectAll')
   }
 }
 
