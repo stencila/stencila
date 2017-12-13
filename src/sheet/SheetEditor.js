@@ -351,22 +351,27 @@ export default class SheetEditor extends AbstractEditor {
   _updateCell() {
     let editorSession = this.getEditorSession()
     let cell = this._getAnchorCell()
+    let oldValue = cell.getText()
     let newValue = this._formulaEditorContext.node.getText()
-    // HACK: need to set the selection 'silently' so that
-    // this works fine with undo/redo (-> before state)
-    // plus: setting the selection in the transaction
-    // leads to an inintuitiv undo/redo behavior
-    // thus we are updating the selection in an extra update (which is not landing in the history)
+
     let newSel = this.refs.sheet.shiftSelection(1, 0, false)
-    let selBefore = this._currentSelection
-    // Note: collapsing the selection to the anchor cell
-    // so that on undo/redo only the change cell is selected
-    selBefore.data.focusRow = selBefore.data.anchorRow
-    selBefore.data.focusCol = selBefore.data.anchorCol
-    editorSession._setSelection(selBefore)
-    editorSession.transaction(tx => {
-      tx.set(cell.getPath(), newValue)
-    })
+    // skip if there is no change
+    if (oldValue !== newValue) {
+      let selBefore = this._currentSelection
+      // Note: collapsing the selection to the anchor cell
+      // so that on undo/redo only the change cell is selected
+      selBefore.data.focusRow = selBefore.data.anchorRow
+      selBefore.data.focusCol = selBefore.data.anchorCol
+      // HACK: need to set the selection 'silently' so that
+      // this works fine with undo/redo (-> before state)
+      editorSession._setSelection(selBefore)
+      editorSession.transaction(tx => {
+        tx.set(cell.getPath(), newValue)
+      })
+    }
+    // setting the selection in the transaction
+    // leads to an inintuitiv undo/redo behavior
+    // thus we are updating the selection in an extra update here
     editorSession.setSelection(newSel)
   }
 
