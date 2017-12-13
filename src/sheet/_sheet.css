@@ -265,28 +265,28 @@
 
 /* Sheet View Modes */
 
-.sc-sheet .sc-table-view.sm-mode-minimum td {
+.sc-sheet.sm-mode-minimum .sc-table-view td {
   border: none;
 }
 
-.sc-sheet .sc-table-view.sm-mode-minimum .sc-column-header,
-.sc-sheet .sc-table-view.sm-mode-minimum .se-corner {
+.sc-sheet.sm-mode-minimum .sc-table-view .sc-column-header,
+.sc-sheet.sm-mode-minimum .sc-table-view .se-corner {
   padding: 0px;
   visibility: hidden;
   background: none;
 }
 
-.sc-sheet .sc-table-view.sm-mode-minimum .se-column-title {
+.sc-sheet.sm-mode-minimum .sc-table-view .se-column-title {
   height: 0px;
   border: none;
 }
 
-.sc-sheet .se-selection-overlay.sm-mode-minimum > .se-selection-columns,
+.sc-sheet.sm-mode-minimum .se-selection-overlay > .se-selection-columns,
 .sc-sheet .se-selection-overlay > .se-selection-rows {
   background: none;
 }
 
-.sc-sheet .sc-table-view.sm-mode-minimum .sc-test-value {
+.sc-sheet.sm-mode-minimum .sc-table-view .sc-test-value {
   visibility: hidden;
 }
 

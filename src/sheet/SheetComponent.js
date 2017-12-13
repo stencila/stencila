@@ -36,11 +36,11 @@ export default class SheetComponent extends CustomSurface {
       focusRow: -1,
       focusCol: -1
     }
+    // TODO: we could shift the dialog up into SheetEditor
+    // treating it as an overlay
     // state used to ignore events when dialog is open
     this._isShowingDialog = false
-    return {
-      mode: 'normal'
-    }
+    return {}
   }
 
   didMount() {
@@ -70,11 +70,11 @@ export default class SheetComponent extends CustomSurface {
   render($$) {
     const sheet = this._getSheet()
     const viewport = this._viewport
-    const mode = this.state.mode
     let el = $$('div').addClass('sc-sheet')
     let contentEl = $$('div').addClass('se-content').append(
       $$(SheetView, {
-        sheet, viewport, mode
+        sheet,
+        viewport
       }).ref('sheetView')
     )
       .on('wheel', this._onWheel, this)
@@ -118,11 +118,7 @@ export default class SheetComponent extends CustomSurface {
     return this.refs.sheetView
   }
 
-  getMode() {
-    return this.state.mode
-  }
-
-  resize() {
+  forceUpdate() {
     this.refs.sheetView.update()
     this.refs.scrollX.rerender()
     this.refs.scrollY.rerender()
@@ -160,8 +156,7 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _renderSelectionOverlay($$) {
-    const mode = this.state.mode
-    let el = $$('div').addClass('se-selection-overlay sm-mode-' + mode)
+    let el = $$('div').addClass('se-selection-overlay')
     el.append(
       $$('div').addClass('se-selection-anchor').ref('selAnchor').css('visibility', 'hidden'),
       $$('div').addClass('se-selection-range').ref('selRange').css('visibility', 'hidden'),
@@ -369,10 +364,6 @@ export default class SheetComponent extends CustomSurface {
     return this._viewport.scroll(deltaX, deltaY)
   }
 
-  /*
-    TODO: Function is expected to be side-effect free but implicitly updates
-    the viewport.
-  */
   shiftSelection(dr, dc, shift) {
     let data = clone(this._getSelection())
     // TODO: move viewport if necessary
@@ -386,13 +377,22 @@ export default class SheetComponent extends CustomSurface {
       data.focusRow = newFocusRow
       data.focusCol = newFocusCol
     }
-    // TODO: this has a side effect as mentioned above
-    this._ensureFocusInView(newFocusRow, newFocusCol)
+    return this._createSelection(data)
+  }
 
+  selectFirstCell() {
+    return this._createSelection({
+      type: 'range',
+      anchorRow: 0, anchorCol: 0,
+      focusRow: 0, focusCol: 0
+    })
+  }
+
+  _createSelection(data) {
     return {
       type: 'custom',
       customType: 'sheet',
-      data,
+      data: data,
       surfaceId: this.getId()
     }
   }
@@ -438,13 +438,8 @@ export default class SheetComponent extends CustomSurface {
   }
 
   _requestSelectionChange() {
-    let data = clone(this._selectionData)
-    this.send('requestSelectionChange', {
-      type: 'custom',
-      customType: 'sheet',
-      data,
-      surfaceId: this.getId()
-    })
+    let sel = this._createSelection(clone(this._selectionData))
+    this.send('requestSelectionChange', sel)
   }
 
   _getSheet() {

@@ -41,10 +41,12 @@ export default class SheetEditor extends AbstractEditor {
   }
 
   getInitialState() {
+    let sheetState = this._getSheetState()
     return {
       showContext: false,
       contextId: null,
-      cellId: null
+      cellId: null,
+      displayMode: sheetState.displayMode
     }
   }
 
@@ -52,16 +54,26 @@ export default class SheetEditor extends AbstractEditor {
     super.didMount()
 
     const editorSession = this.props.editorSession
+    const sheet = editorSession.getDocument()
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
     }
     editorSession.onUpdate('selection', this._onSelectionChange, this)
+    editorSession.onUpdate('document', this._onSheetStateChange, this, {
+      path: ['sheet.state']
+    })
 
     this._formulaEditorContext.editorSession.onUpdate('selection', this._onCellEditorSelectionChange, this)
-    // TODO: is it really necessary to have this in the first line?
-    // always render a second time to render for the real element dimensions
-    // because the table with fixed layout needs exact dimensions
+
     this.rerender()
+
+    // set the selection into the first cell
+    // Doing this delayed to be in a new flow
+    setTimeout(() => {
+      editorSession.setSelection(
+        this.getSheetComponent().selectFirstCell()
+      )
+    }, 0)
   }
 
   dispose() {
@@ -76,6 +88,7 @@ export default class SheetEditor extends AbstractEditor {
 
   render($$) {
     let el = $$('div').addClass('sc-sheet-editor')
+    el.addClass('sm-display-mode-'+this.state.displayMode)
     el.append(
       $$('div').addClass('se-main-section').append(
         this._renderToolpane($$),
@@ -137,6 +150,11 @@ export default class SheetEditor extends AbstractEditor {
             })
         ]
       }).ref('sheet')
+        // LEGACY
+        // TODO: the displayMode is app specific
+        // so it should be set on the sc-sheet-editor
+        // and the CSS should be reflect this
+        .addClass('sm-mode-'+this.state.displayMode)
     } else {
       return $$('div')
     }
@@ -237,7 +255,7 @@ export default class SheetEditor extends AbstractEditor {
       if (!this._rafId) {
         this._rafId = window.requestAnimationFrame(() => {
           this._rafId = null
-          this.refs.sheet.resize()
+          this.refs.sheet.forceUpdate()
         })
       }
     }
@@ -271,6 +289,17 @@ export default class SheetEditor extends AbstractEditor {
       this._currentSelection = this.getEditorSession().getSelection()
       this._showFormulaEditor(sheetSel.anchorRow, sheetSel.anchorCol)
       formulaEditorSession.resetHistory()
+    }
+  }
+
+  _onSheetStateChange() {
+    const sheet = this.props.editorSession.getDocument()
+    const sheetState = sheet.getState()
+    if (this.state.displayMode !== sheetState.displayMode) {
+      this.getSheetComponent().forceUpdate()
+      this.extendState({
+        displayMode: sheetState.displayMode
+      })
     }
   }
 
@@ -362,9 +391,9 @@ export default class SheetEditor extends AbstractEditor {
     let newSel = this.refs.sheet.shiftSelection(1, 0, false)
     // skip if there is no change
     if (oldValue !== newValue) {
-      let selBefore = this._currentSelection
-      // Note: collapsing the selection to the anchor cell
+      // collapsing the selection to the anchor cell
       // so that on undo/redo only the change cell is selected
+      let selBefore = this._currentSelection
       selBefore.data.focusRow = selBefore.data.anchorRow
       selBefore.data.focusCol = selBefore.data.anchorCol
       // HACK: need to set the selection 'silently' so that
@@ -383,6 +412,12 @@ export default class SheetEditor extends AbstractEditor {
   _getAnchorCell() {
     let sel = this._getSheetSelection()
     return this.getDocument().getCell(sel.anchorRow, sel.anchorCol)
+  }
+
+  _getSheetState() {
+    const editorSession = this.props.editorSession
+    const sheet = editorSession.getDocument()
+    return sheet.getState()
   }
 
   _selectAll() {
