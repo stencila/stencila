@@ -54,7 +54,6 @@ export default class SheetEditor extends AbstractEditor {
     super.didMount()
 
     const editorSession = this.props.editorSession
-    const sheet = editorSession.getDocument()
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
     }
