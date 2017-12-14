@@ -54,7 +54,8 @@
     "eslint": "^3.12.2",
     "istanbul": "^0.4.5",
     "lodash.merge": "4.6.0",
-    "substance-bundler": "^0.20.3",
+    "prismjs": "1.9.0",
+    "substance-bundler": "0.20.3",
     "substance-test": "^0.9.3",
     "tape": "^4.6.3"
   }
