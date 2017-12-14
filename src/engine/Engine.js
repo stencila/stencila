@@ -121,8 +121,6 @@ export default class Engine {
         cellState.inputs = inputs
         cellState.output = output
         cellState.messages = res.messages
-        cellState.tokens = res.tokens
-        cellState.nodes = res.nodes
         deriveCellStatus(cellState)
 
         // FIXME: to be able to broadcast changes to cells

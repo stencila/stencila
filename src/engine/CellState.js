@@ -25,9 +25,13 @@ export default class CellState extends EventEmitter {
     this.status = PENDING
     this._engineState = INITIAL
 
+    // result from rudimentary analysis
+    this.tokens = []
+    this.nodes = []
+
+    // result from full analysis done by language context
     this.inputs = []
     this.output = null
-    this.nodes = []
 
     this.messages = []
     this.value = null
