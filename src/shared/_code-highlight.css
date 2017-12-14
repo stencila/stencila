@@ -1,13 +1,9 @@
-.sc-code-highlight.sm-input-variable-name {
+.sc-code-highlight.sm-id {
   color: rgba(0,0,255,0.5);
   font-style: italic;
 }
 
-.sc-code-highlight.sm-output-name {
-  color: blue;
-}
-
-.sc-code-highlight.sm-function-name {
+.sc-code-highlight.sm-function {
   color: var(--stencila-green);
 }
 

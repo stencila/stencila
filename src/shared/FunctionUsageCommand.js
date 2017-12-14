@@ -1,18 +1,19 @@
 import { Command } from 'substance'
-import { getCellState } from './cellHelpers'
 
 export default class FunctionUsageCommand extends Command {
+
   getCommandState({ selection, editorSession }) {
     let doc = editorSession.getDocument()
     // console.log('selection', selection)
     if (selection.isPropertySelection()) {
       let nodeId = selection.getNodeId()
       let node = doc.get(nodeId)
-      if (node.type === 'source-code' && node.attributes.language === 'mini') {
-        let cellNode = node.parentNode
-        let cellState = getCellState(cellNode)
+      // TODO: how to generalized this? This should only
+      // be active if the cursor is inside of a CodeEditor
+      if (node.type === 'cell' || node.type === 'source-code') {
+        let state = node.state || {}
         let cursorPos = selection.start.offset
-        let match = this._findFunction(cellState, cursorPos)
+        let match = this._findFunction(state.nodes, cursorPos)
         if (match) {
           return {
             disabled: false,
@@ -28,9 +29,11 @@ export default class FunctionUsageCommand extends Command {
     }
   }
 
-  _findFunction(cellState, cursorPos) {
+  _findFunction(nodes, cursorPos) {
+    if (!nodes) return
+
     let candidate
-    cellState.nodes.forEach((node) => {
+    nodes.forEach((node) => {
       if (node.type === 'function' && node.start <= cursorPos && node.end >= cursorPos) {
         let offset = cursorPos - node.start
         if (!candidate || offset < candidate.offset ) {

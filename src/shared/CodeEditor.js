@@ -2,10 +2,29 @@ import {
   Component, TextPropertyEditor, isArrayEqual
 } from 'substance'
 
+import analyseCode from './analyseCode'
 import { getSyntaxTokens } from '../engine/expressionHelpers'
+// TODO: eventually this should be coupled with cells
+import { getCellState } from './cellHelpers'
 
-export default
-class CodeEditor extends Component {
+export default class CodeEditor extends Component {
+
+  didMount() {
+    super.didMount()
+
+    // this is used to run the code analysis
+    this.context.editorSession.onUpdate('document', this._onCodeUpdate, this, {
+      path: this.props.path
+    })
+
+    this._onCodeUpdate()
+  }
+
+  dispose() {
+    super.dispose()
+
+    this.context.editorSession.off(this)
+  }
 
   render($$) {
     let el = $$('div').addClass('sc-code-editor')
@@ -13,7 +32,6 @@ class CodeEditor extends Component {
     const path = this.props.path
     const commands = this.props.commands
     const excludedCommands = this.props.excludedCommands
-    const markers = this._getMarkers()
     let content = $$(TextPropertyEditor, {
       // TextPropertyEditor props
       name: this.props.name,
@@ -23,7 +41,6 @@ class CodeEditor extends Component {
       // Surface props
       commands,
       excludedCommands,
-      markers,
       handleTab: false
     }).ref('contentEditor')
       // EXPERIMENTAL: adding 2 spaces if at begin of line
@@ -33,9 +50,41 @@ class CodeEditor extends Component {
     return el
   }
 
-  _getMarkers() {
+  _onCodeUpdate() {
+    let code = this._getCode()
+    let {tokens, nodes} = analyseCode(code, this.props.language)
+    this._setMarkers(tokens)
+    // TODO: rethink - if there was a State API how would we do this?
+    // want to share code analysis e.g. with Commands
+    this._extendState({ tokens, nodes })
+  }
+
+  _getCode() {
     const path = this.props.path
-    return getSyntaxTokens(path, this.props.tokens)
+    return this.context.editorSession.getDocument().get(path)
+  }
+
+  _setMarkers(tokens) {
+    const path = this.props.path
+    const markersManager = this.context.editorSession.markersManager
+    // TODO: renamve this helper to `getMarkersForTokens`
+    let markers = getSyntaxTokens(path, tokens)
+    markersManager.setMarkers(`code-analysis@${path.join('.')}`, markers)
+  }
+
+  _extendState(values) {
+    // TODO: do we really want this?
+    let state = this._getState()
+    Object.assign(state, values)
+  }
+
+  _getState() {
+    // TODO: this should be general, not tied to Stencila Cells
+    const path = this.props.path
+    const nodeId = path[0]
+    const node = this.context.editorSession.getDocument().get(nodeId)
+    if (!node.state) node.state = getCellState(node)
+    return node.state
   }
 
   _onTabKey() {

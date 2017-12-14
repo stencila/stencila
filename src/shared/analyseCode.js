@@ -99,6 +99,8 @@ export default function analyzeCode(code, lang = 'mini') {
     switch (t.type) {
       case 'function': {
         let call = {
+          type: 'function',
+          name: t.text,
           start: t.start,
           // we want the end position of the closing paren here
           end: -1,
@@ -130,6 +132,15 @@ export default function analyzeCode(code, lang = 'mini') {
         break
       }
       case 'rparen': {
+        if (currentCall) {
+          if (t.start > currentCall.pos) {
+            currentCall.args.push({
+              start: currentCall.pos,
+              end: t.start
+            })
+            currentCall.pos = t.end
+          }
+        }
         _push(t.end)
         tokens.splice(i--, 1)
         break
