@@ -6,6 +6,9 @@ Provide a generalized API for functionality needed by the `CodeEditor`. It shoul
 
 This is a preparation for the next iterations, implementing `Function Usage Help`, `Auto-Complete`, etc.
 
+**Note**: it is intentional to use a rudimentary solution for code-analysis at this level, because while editing an expression, it
+is very often in an incomplete state. Still the `CodeEditor` should be providing contextual help etc.
+
 ## Tasks
 
 - Use PrismJS with customized language definitions to create an `analyseCode()` helper, that gives us a rudimentary code analysis with variabes, cell references, and function calls being detected, at least. I.e. this is a tokenizer plus a very rudimentary parser for extracting funtion call nodes.
@@ -37,4 +40,7 @@ let { tokens, nodes } = analyzeCode(code, 'mini')
 ```
 
 - Execute the code analysis just in the `CodeEditor` whenever the expression has changed
+
+> TODO: it is not clear where to store the result, in a universal way so that `Commands` etc. can also access it
+
 - Turn `tokens` to markers for rudimentary syntax-highlighting
