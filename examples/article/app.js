@@ -1,5 +1,11 @@
+import { platform, substanceGlobals } from 'substance'
 import { JATSImporter, TextureConfigurator } from 'substance-texture'
 import { ArticlePackage, ArticlePage, Host, getQueryStringParam, FunctionManager} from 'stencila'
+
+// Note: this way we enable debug rendering only when
+// devtools is open when this page is loaded
+substanceGlobals.DEBUG_RENDERING = platform.devtools
+console.log('USING DEBUG_RENDERING?', substanceGlobals.DEBUG_RENDERING)
 
 window.addEventListener('load', () => {
   const example = getQueryStringParam('example') || 'blank'

@@ -1,4 +1,6 @@
-import { Configurator, EditorSession } from 'substance'
+import {
+  platform, substanceGlobals, Configurator, EditorSession
+} from 'substance'
 import {
   SheetPackage, SheetEditor, SheetSchema, Host, getQueryStringParam,
   FunctionManager, Engine, SheetEngineAdapter
@@ -21,6 +23,11 @@ const EXAMPLES = {
   'gene-errors': geneErrors,
   'fullup': fullup
 }
+
+// Note: this way we enable debug rendering only when
+// devtools is open when this page is loaded
+substanceGlobals.DEBUG_RENDERING = platform.devtools
+console.log('USING DEBUG_RENDERING?', substanceGlobals.DEBUG_RENDERING)
 
 window.addEventListener('load', () => {
   const example = getQueryStringParam('example') || 'blank'
