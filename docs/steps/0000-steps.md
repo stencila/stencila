@@ -75,17 +75,16 @@ Check in with the team on the [community forum](https://community.stenci.la/) as
 # StEP Template
 Copy the markdown below to begin writing a StEP. Thank you for your contribution!
 
-```yaml
----
-title: <pep title>
-author:
+```
+
+Title: <pep title>
+Author:
   - <first author>
   - <second author>
   - <third author>
-type: <Process | Feature | Fix>
-status: <Draft | Active | Accepted | Deferred | Rejected | Withdrawn | Final | Superseded>
----
-```
+Type: <Process | Feature | Fix>
+Status: <Draft | Active | Accepted | Deferred | Rejected | Withdrawn | Final | Superseded>
+
 # Introduction
 Provide an informal context and motivation for the StEP.
 # Definitions
@@ -100,3 +99,5 @@ Include examples!
 Links to specifications, notes on dependencies, or other conditions for implementation.
 # Auxiliary files
 List of related files. Please name them starting with the filename of the StEP (e.g. `0001-cell-editor-auxiliary-file.md`).
+
+```
