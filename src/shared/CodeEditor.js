@@ -52,7 +52,18 @@ export default class CodeEditor extends Component {
 
   _onCodeUpdate() {
     let code = this._getCode()
-    let {tokens, nodes} = analyseCode(code, this.props.language)
+    let shouldAnalyse = true
+    // TODO: how can we generalize this?
+    // in spreadsheet cells there must be a leading '=' to be
+    // considered as expression
+    if (this.props.mode === 'cell') {
+      shouldAnalyse = Boolean(/^\s*=/.exec(code))
+    }
+    let tokens = []
+    let nodes = []
+    if (shouldAnalyse) {
+      ({tokens, nodes} = analyseCode(code, this.props.language))
+    }
     this._setMarkers(tokens)
     // TODO: rethink - if there was a State API how would we do this?
     // want to share code analysis e.g. with Commands

@@ -10,7 +10,8 @@ export default class FormulaEditor extends Component {
       $$(CodeEditor, {
         name: 'formula-editor',
         path: node.getPath(),
-        multiline: false
+        multiline: false,
+        mode: 'cell'
       }).ref('cellEditor')
         .on('enter', this._onCodeEditorEnter)
         .on('escape', this._onCodeEditorEscape)
