@@ -69,7 +69,7 @@ class CellComponent extends NodeComponent {
           $$(CodeEditor, {
             path: source.getPath(),
             excludedCommands: this._getBlackListedCommands(),
-            tokens: cellState.tokens
+            multiline: true
           }).ref('expressionEditor')
             .on('escape', this._onEscapeFromCodeEditor)
         )

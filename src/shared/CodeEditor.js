@@ -36,15 +36,17 @@ export default class CodeEditor extends Component {
       // TextPropertyEditor props
       name: this.props.name,
       path,
-      withoutBreak: this.props.multiline,
       multiLine: this.props.multiline,
       // Surface props
       commands,
       excludedCommands,
+      handleEnter: false,
       handleTab: false
     }).ref('contentEditor')
-      // EXPERIMENTAL: adding 2 spaces if at begin of line
-      .on('tab', this._onTabKey)
+    if (this.props.multiline) {
+      content.on('enter', this._onEnterKey)
+      content.on('tab', this._onTabKey)
+    }
     content.addClass('se-content')
     el.append(content)
     return el
@@ -98,7 +100,8 @@ export default class CodeEditor extends Component {
     return node.state
   }
 
-  _onTabKey() {
+  _onTabKey(e) {
+    e.stopPropagation()
     const editorSession = this.context.editorSession
     const head = this._getCurrentLineHead()
     // console.log('head', head)
@@ -109,9 +112,15 @@ export default class CodeEditor extends Component {
     }
   }
 
+  // only used if multiline=true
+  _onEnterKey(e) {
+    e.stopPropagation()
+    this._insertNewLine()
+  }
+
   _insertNewLine() {
     const editorSession = this.context.editorSession
-    const indent = this._getCurrentIndent() || ''
+    const indent = this._getCurrentIndent()
     editorSession.transaction((tx) => {
       tx.insertText('\n' + indent)
     })
@@ -122,6 +131,8 @@ export default class CodeEditor extends Component {
     const match = /^(\s+)/.exec(line)
     if (match) {
       return match[1]
+    } else {
+      return ''
     }
   }
 
@@ -135,7 +146,7 @@ export default class CodeEditor extends Component {
     const offset = sel.start.offset
     const exprStr = doc.get(this.props.path)
     const head = exprStr.slice(0, offset)
-    const lastNL = Math.max(0, head.lastIndexOf('\n'))
+    const lastNL = head.lastIndexOf('\n')
     return head.slice(lastNL+1)
   }
 }
