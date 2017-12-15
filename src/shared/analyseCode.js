@@ -1,6 +1,9 @@
 import Prism from '../../tmp/prism.js'
 
 const CELL = /\b([a-z0-9_]+[!])?([A-Z]{1,3}[1-9][0-9]*)(?:[:]([A-Z]{1,3}[1-9][0-9]*))?\b/
+const DEF = /(^|\n)[a-zA-Z_$][a-zA-Z_$0-9]*(?=\s*[\=])/
+const KEY = /\b[a-zA-Z_$][a-zA-Z_$0-9]*(?=\s*[\=:])/
+const ID = /\b[a-zA-Z_$][a-zA-Z_$0-9]*\b/
 
 let languages = {}
 
@@ -17,10 +20,9 @@ languages['mini'] = {
   'rparen': /[)]/,
   'comma': /[,]/,
   'cell': CELL,
-  'id': {
-    pattern: /\b[a-zA-Z_$][a-zA-Z_$0-9]*\b/,
-    greedy: true
-  }
+  'def': { pattern: DEF, greedy: true },
+  'key': { pattern: KEY, greedy: true },
+  'id': { pattern: ID, greedy: true }
 }
 
 Prism.languages.insertBefore('r', 'punctuation', {
@@ -29,10 +31,9 @@ Prism.languages.insertBefore('r', 'punctuation', {
   'rparen': /[)]/,
   'comma': /[,]/,
   'cell': CELL,
-  'id': {
-    pattern: /\b[a-zA-Z_$][a-zA-Z_$0-9]*\b/,
-    greedy: true
-  }
+  'def': { pattern: DEF, greedy: true },
+  'key': { pattern: KEY, greedy: true },
+  'id': { pattern: ID, greedy: true }
 })
 languages['r'] = Prism.languages.r
 
@@ -42,10 +43,9 @@ Prism.languages.insertBefore('python', 'punctuation', {
   'rparen': /[)]/,
   'comma': /[,]/,
   'cell': CELL,
-  'id': {
-    pattern: /\b[a-zA-Z_$][a-zA-Z_$0-9]*\b/,
-    greedy: true
-  }
+  'def': { pattern: DEF, greedy: true },
+  'key': { pattern: KEY, greedy: true },
+  'id': { pattern: ID, greedy: true }
 })
 languages['python'] = languages['py'] = Prism.languages.python
 

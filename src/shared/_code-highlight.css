@@ -14,17 +14,3 @@
 .sc-code-highlight.sm-key {
   color: #ee9900;
 }
-
-.sc-code-highlight.sm-string-literal {
-  color: #ad0000;
-}
-
-.sc-code-highlight.sm-function-modifier {
-  /* TODO */
-  color: #999;
-}
-
-.sc-code-highlight.sm-external-language {
-  /* TODO */
-  color: brown;
-}
