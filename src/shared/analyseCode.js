@@ -1,8 +1,8 @@
 import Prism from '../../tmp/prism.js'
 
 const CELL = /\b([a-z0-9_]+[!])?([A-Z]{1,3}[1-9][0-9]*)(?:[:]([A-Z]{1,3}[1-9][0-9]*))?\b/
-const DEF = /(^|\n)[a-zA-Z_$][a-zA-Z_$0-9]*(?=\s*[\=])/
-const KEY = /\b[a-zA-Z_$][a-zA-Z_$0-9]*(?=\s*[\=:])/
+const DEF = /(^|\n)[a-zA-Z_$][a-zA-Z_$0-9]*(?=\s*[=])/
+const KEY = /\b[a-zA-Z_$][a-zA-Z_$0-9]*(?=\s*[=:])/
 const ID = /\b[a-zA-Z_$][a-zA-Z_$0-9]*\b/
 
 let languages = {}

@@ -1,7 +1,7 @@
 import {
   platform, DefaultDOMElement, AbstractEditor,
   Toolbar, EditorSession, DOMSelection,
-  Configurator, BasePackage
+  Configurator
 } from 'substance'
 import SheetContextSection from './SheetContextSection'
 import SheetStatusBar from './SheetStatusBar'
