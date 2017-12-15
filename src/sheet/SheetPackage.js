@@ -26,6 +26,8 @@ import TestValueComponent from '../shared/TestValueComponent'
 import ImageValueComponent from '../shared/ImageValueComponent'
 import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
+import CodeHighlightComponent from '../shared/CodeHighlightComponent'
+
 import IssueManager from './IssueManager'
 
 export default {
@@ -189,6 +191,8 @@ export default {
     config.addComponent('value:test', TestValueComponent)
     config.addComponent('value:image', ImageValueComponent)
     config.addComponent('value:plotly', PlotlyValueComponent)
+
+    config.addComponent('code-highlight', CodeHighlightComponent)
 
     // Sheet modes
     config.addCommand('normal-mode', ChangeDisplayModeCommand, { displayMode: 'normal', commandGroup: 'sheet-view-mode' })
