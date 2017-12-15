@@ -286,27 +286,46 @@ export default class SheetComponent extends CustomSurface {
     let anchorRect = this._getBoundingRect(anchorRow, anchorCol)
     let ulRect = this._getBoundingRect(ulRow, ulCol)
     let lrRect = this._getBoundingRect(lrRow, lrCol)
-    let selRect = this._computeSelectionRectangle(ulRow, ulCol)
+    let selRect
+    if (ulRect&&lrRect) {
+      selRect = this._computeSelectionRectangle(ulRect, lrRect)
+    }
     return { anchorRect, selRect, ulRect, lrRect}
   }
 
   _computeSelectionStyles(sel, { anchorRect, ulRect, lrRect }) {
-    let styles = {}
-    if (anchorRect.width && anchorRect.height) {
+    let styles = {
+      range: { visibility: 'hidden' },
+      columns: { visibility: 'hidden' },
+      rows: { visibility: 'hidden' },
+      anchor: { visibility: 'hidden' }
+    }
+    if (anchorRect && anchorRect.width && anchorRect.height) {
       Object.assign(styles, this._computeAnchorStyles(anchorRect))
     }
-    Object.assign(styles, this._computeRangeStyles(ulRect, lrRect, sel.data.type))
+    if (ulRect && lrRect) {
+      Object.assign(
+        styles,
+        this._computeRangeStyles(ulRect, lrRect, sel.data.type)
+      )
+    }
     return styles
   }
 
   _computeAnchorStyles(anchorRect) {
-    let styles = { anchor: { visibility: 'hidden' } }
+    let styles = {
+      anchor: { visibility: 'hidden' }
+    }
     if (anchorRect) {
-      styles.anchor.top = anchorRect.top
-      styles.anchor.left = anchorRect.left
-      styles.anchor.width = anchorRect.width
-      styles.anchor.height = anchorRect.height
-      styles.anchor.visibility = 'visible'
+      Object.assign(styles.anchor, anchorRect)
+      if (
+        isFinite(anchorRect.top) &&
+        isFinite(anchorRect.left) &&
+        isFinite(anchorRect.width) &&
+        isFinite(anchorRect.height)
+      ) {
+        styles.anchor.visibility = 'visible'
+      }
     }
     return styles
   }
