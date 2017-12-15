@@ -33,9 +33,10 @@ export default class SheetEditor extends AbstractEditor {
   getChildContext() {
     const editorSession = this.props.editorSession
     const keyboardManager = this.keyboardManager
-    const issueManager = editorSession.getManager('issue-manager')
-    const host = this.props.host
     const configurator = editorSession.getConfigurator()
+    const issueManager = editorSession.getManager('issue-manager')
+    const host = this.context.host
+    const functionManager = host.functionManager
     return Object.assign({}, super.getChildContext(), {
       configurator,
       host,
@@ -234,6 +235,15 @@ export default class SheetEditor extends AbstractEditor {
       commandGroup: 'prompt'
     })
     configurator.addTool('function-usage', FunctionUsageTool)
+    configurator.addToolPanel('prompt', [
+      {
+        name: 'prompt',
+        type: 'tool-group',
+        showDisabled: false,
+        commandGroups: ['prompt']
+      }
+    ])
+
     // a document with only one node used by cell editors
     // i.e. expression bar, or popover editor on enter
     let cellEditorDoc = configurator.createDocument()
@@ -258,6 +268,10 @@ export default class SheetEditor extends AbstractEditor {
       node,
       markersManager: editorSession.markersManager,
       surfaceManager: editorSession.surfaceManager,
+      commandManager: editorSession.commandManager,
+      commandGroups: configurator.getCommandGroups(),
+      tools: configurator.getTools(),
+      functionManager: this.context.host.functionManager
     }
   }
 
