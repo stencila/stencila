@@ -2,10 +2,12 @@ import { Command } from 'substance'
 
 export default class FunctionUsageCommand extends Command {
 
-  getCommandState({ selection, editorSession }) {
-    let doc = editorSession.getDocument()
+  getCommandState({ selection, editorSession, surface }) {
+    // TODO: disable this command if there is no functionManager
+    const doc = editorSession.getDocument()
+    const functionManager = surface ? surface.context.functionManager : null
     // console.log('selection', selection)
-    if (selection.isPropertySelection()) {
+    if (functionManager && selection.isPropertySelection()) {
       let nodeId = selection.getNodeId()
       let node = doc.get(nodeId)
       // TODO: how to generalized this? This should only
