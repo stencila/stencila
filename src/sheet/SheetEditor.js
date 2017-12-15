@@ -420,7 +420,7 @@ export default class SheetEditor extends AbstractEditor {
   }
 
   _selectAll() {
-    this._executeCommand('select-all')
+    this._executeCommand('sheet:select-all')
   }
 
   _executeCommand(commandName, params) {

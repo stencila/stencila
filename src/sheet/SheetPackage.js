@@ -206,8 +206,8 @@ export default {
 
     config.addComponent('sheet', SheetComponent)
 
-    config.addCommand('select-all', SelectAllCommand)
-    config.addKeyboardShortcut('CommandOrControl+a', { command: 'select-all' })
+    config.addCommand('sheet:select-all', SelectAllCommand)
+    config.addKeyboardShortcut('CommandOrControl+a', { command: 'sheet:select-all' })
 
     config.addCommand('insert-rows-above', InsertRowsAbove, {
       commandGroup: 'table-row-commands'
