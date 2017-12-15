@@ -92,6 +92,7 @@ export default class SheetEditor extends AbstractEditor {
   render($$) {
     let el = $$('div').addClass('sc-sheet-editor')
     el.addClass('sm-display-mode-'+this.state.displayMode)
+    el.on('keydown', super.onKeyDown)
     el.append(
       $$('div').addClass('se-main-section').append(
         this._renderToolpane($$),
@@ -145,8 +146,7 @@ export default class SheetEditor extends AbstractEditor {
         overlays: [
           $$(FormulaEditor, {
             context: formulaEditorContext
-          })
-            .ref('formulaEditor')
+          }).ref('formulaEditor')
             .css({
               position: 'absolute',
               display: 'none'
