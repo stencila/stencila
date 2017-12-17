@@ -1,6 +1,6 @@
 import { Component } from 'substance'
 
-export default class SheetContextSection extends Component {
+export default class ContextSection extends Component {
 
   render($$) {
     const contextId = this.props.contextId
@@ -20,7 +20,10 @@ export default class SheetContextSection extends Component {
           ).on('click', this.close)
         ),
         $$('div').addClass('se-context-content').append(
-          $$(ComponentClass, { cellId: this.props.cellId })
+          $$(ComponentClass, {
+            cellId: this.props.cellId,
+            sectionId: this.props.sectionId
+          })
         )
       )
     }
