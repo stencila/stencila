@@ -10,6 +10,7 @@ import FormulaEditor from './FormulaEditor'
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
 import CodeEditorPackage from '../shared/CodeEditorPackage'
+import { getCellLabel } from './sheetHelpers'
 
 export default class SheetEditor extends AbstractEditor {
 
@@ -401,10 +402,28 @@ export default class SheetEditor extends AbstractEditor {
     })
   }
 
+  _replaceEditorToken(from, to) {
+    const formulaEditorSession = this._formulaEditorContext.editorSession
+    const selection = formulaEditorSession.getSelection().toJSON()
+    formulaEditorSession.transaction(tx => {
+      const range = from + ':' + to
+      tx.insertText(range)
+      if(selection.startOffset === selection.endOffset) {
+        selection.endOffset += range.length
+      }
+      tx.setSelection(selection)
+    })
+  }
+
   _requestSelectionChange(newSelection) {
     let editorSession = this.getEditorSession()
     if (this._isEditing) {
-      console.info('TODO: Implement range selector', newSelection)
+      //console.info('TODO: Implement range selector', newSelection)
+      //const formulaEditorSession = this._formulaEditorContext.editorSession
+      const selData = newSelection.data
+      const fromCell = getCellLabel(selData.anchorRow, selData.anchorCol)
+      const toCell = getCellLabel(selData.focusRow, selData.focusCol)
+      this._replaceEditorToken(fromCell, toCell)
     } else {
       editorSession.setSelection(newSelection)
     }
