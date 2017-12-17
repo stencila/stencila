@@ -201,9 +201,9 @@ export default class SheetDocument extends XMLDocument {
   }
 
   ensureRowAvailable() {
-    return new Promise((resolve)=>{
-      resolve(true)
-    })
+    // TODO: the UI is actually not ready yet to support a delayed rendering
+    // of rows.
+    return Promise.resolve(true)
   }
 
   getInitialState() {
