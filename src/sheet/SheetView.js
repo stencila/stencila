@@ -389,9 +389,10 @@ class TableRow extends Component {
       }
       case 'visible': {
         let M = sheet.getColumnCount()
-        let row = sheet.get('row-' + (rowIdx + 1))
         el.append(
-          $$(SheetRowHeader, {node: row, rowIdx: rowIdx}).ref(String(-1))
+          $$(SheetRowHeader, { rowIdx: rowIdx })
+          // within a row, the header is referenced as '-1'
+          .ref(String(-1))
         )
         for (let j = 0; j < M; j++) {
           const cell = sheet.getCell(rowIdx, j)
