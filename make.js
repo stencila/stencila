@@ -253,14 +253,13 @@ function bundlePrism() {
           // cut out the core
           let start = content.indexOf('var Prism = (function(){')
           let end = content.lastIndexOf('})();')+5
-          console.log('START', start, 'END', end)
           content = content.substring(start, end)
         }
         chunks.push(content)
         chunks.push(`/** END ${basename} **/`)
       })
       chunks.push('export default Prism')
-      b.writeSync('tmp/prism.js', chunks.join('\n'))
+      b.writeFileSync('tmp/prism.js', chunks.join('\n'))
     }
   })
 }
@@ -332,6 +331,8 @@ b.task('schema:debug', () => {
   _compileSchema('FunctionSchema', './src/function/FunctionSchema.rng', { debug: true})
 })
 
+b.task('prism', bundlePrism)
+
 // required by MemoryBackend
 b.task('build:data', buildData)
 
@@ -343,11 +344,9 @@ b.task('build:stencila:nodejs', buildStencilaNodeJS)
 
 b.task('build', ['build:data', 'build:env', 'build:stencila:browser', 'build:stencila:nodejs'])
 
-b.task('stencila', ['clean', 'assets', 'css', 'schema', 'build'])
+b.task('stencila:deps', ['schema', 'prism'])
 
-b.task('prism', bundlePrism)
-
-b.task('stencila', ['clean', 'assets', 'css', 'schema', 'prism', 'build'])
+b.task('stencila', ['clean', 'assets', 'css', 'stencila:deps', 'build'])
 .describe('Build the stencila library.')
 
 b.task('examples', ['stencila'], () => {
@@ -357,7 +356,8 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('test:backend', ['schema'], () => {
+// add all depe
+b.task('test:backend', ['stencila:deps'], () => {
   buildTestBackend()
 })
 
