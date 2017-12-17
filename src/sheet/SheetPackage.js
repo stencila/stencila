@@ -310,6 +310,13 @@ export default {
     config.addIcon('test-passed', {'fontawesome': 'fa-check' })
 
     config.addIcon('context-close', {'fontawesome': 'fa-times' })
-    config.addIcon('function-helper', {'fontawesome': 'fa-question-circle-o' })
+
+    config.addIcon('function-helper', {'fontawesome': 'fa-question-circle' })
+    config.addLabel('function-examples', {
+      en: 'Example Usage'
+    })
+    config.addLabel('function-usage', {
+      en: 'Syntax'
+    })
   }
 }
