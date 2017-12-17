@@ -71,7 +71,7 @@ export default class FunctionReferenceComponent extends Component {
       const functionList = functionManager.getFunctionNames()
       functionList.forEach(func => {
         el.append(
-          $$('div').addCLass('se-item').append(func)
+          $$('div').addClass('se-item').append(func)
         )
       })
     }
