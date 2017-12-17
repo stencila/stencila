@@ -41,7 +41,7 @@ const BROWSER_EXTERNALS = {
   'stencila-mini': 'window.stencilaMini',
   'stencila-libcore': 'window.stencilaLibCore',
   'katex': 'window.katex',
-  'plotly': 'window.Plotly'
+  'plotly.js': 'window.Plotly'
 }
 
 const EXAMPLE_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
@@ -53,8 +53,10 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'substance-texture', 'stencila-mini', 'stencila-libcore', 'katex', 'plotly'
+  'substance', 'substance-texture', 'stencila-mini', 'stencila-libcore', 'katex', 'plotly.js'
 ]
+
+const NODEJS_IGNORE = ['plotly.js']
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
 
@@ -90,8 +92,9 @@ function buildStencilaNodeJS() {
   b.js('index.es.js', COMMON_SETTINGS({
     dest : 'build/stencila.cjs.js',
     format: 'cjs',
-    // Externals are not include into the bundle
+    // Externals are not included into the bundle
     external: NODEJS_EXTERNALS,
+    ignore: NODEJS_IGNORE
   }))
 }
 
@@ -129,7 +132,7 @@ function buildEnv() {
           variables.push(`window.${name} = "${process.env[name]}"`)
         }
       }
-      b.writeSync('build/env.js', variables.join('\n'), 'utf8')
+      b.writeFileSync('build/env.js', variables.join('\n'), 'utf8')
     }
   })
 }
@@ -149,7 +152,7 @@ function buildTestBackend() {
         vfs[relPath] = content
       })
       const data = ['export default ', JSON.stringify(vfs, null, 2)].join('')
-      b.writeSync('tmp/test-vfs.js', data)
+      b.writeFileSync('tmp/test-vfs.js', data)
     }
   })
 }
@@ -168,6 +171,7 @@ function buildNodeJSTests() {
     dest: 'tmp/tests.cjs.js',
     format: 'cjs',
     external: NODEJS_TEST_EXTERNALS,
+    ignore: NODEJS_IGNORE
   }))
 }
 
@@ -183,7 +187,8 @@ function buildInstrumentedTests() {
       exclude:[]
     },
     // these should be used directly from nodejs, not bundled
-    external: NODEJS_TEST_EXTERNALS.concat(['stream'])
+    external: NODEJS_TEST_EXTERNALS.concat(['stream']),
+    ignore: NODEJS_IGNORE
   }))
 }
 
@@ -192,7 +197,8 @@ function buildSingleTest(testFile) {
   b.js(testFile, COMMON_SETTINGS({
     dest: dest,
     format: 'cjs',
-    external: NODEJS_TEST_EXTERNALS
+    external: NODEJS_TEST_EXTERNALS,
+    ignore: NODEJS_IGNORE
   }))
   return dest
 }
@@ -250,12 +256,12 @@ function _compileSchema(name, src, options = {} ) {
     execute() {
       const { compileRNG, checkSchema } = require('substance')
       const xmlSchema = compileRNG(fs, RNG_SEARCH_DIRS, entry)
-      b.writeSync(DEST, `export default ${JSON.stringify(xmlSchema)}`)
-      b.writeSync(SCHEMA, xmlSchema.toMD())
+      b.writeFileSync(DEST, `export default ${JSON.stringify(xmlSchema)}`)
+      b.writeFileSync(SCHEMA, xmlSchema.toMD())
       if (options.debug) {
         const issues = checkSchema(xmlSchema)
         const issuesData = [`${issues.length} issues:`, ''].concat(issues).join('\n')
-        b.writeSync(ISSUES, issuesData)
+        b.writeFileSync(ISSUES, issuesData)
       }
     }
   })
@@ -296,12 +302,18 @@ b.task('schema:debug', () => {
   _compileSchema('FunctionSchema', './src/function/FunctionSchema.rng', { debug: true})
 })
 
-b.task('stencila', ['clean', 'assets', 'css', 'schema'], () => {
-  buildData() // required by MemoryBackend
-  buildEnv()
-  buildStencilaBrowser()
-  buildStencilaNodeJS()
-})
+// required by MemoryBackend
+b.task('build:data', buildData)
+
+b.task('build:env', buildEnv)
+
+b.task('build:stencila:browser', buildStencilaBrowser)
+
+b.task('build:stencila:nodejs', buildStencilaNodeJS)
+
+b.task('build', ['build:data', 'build:env', 'build:stencila:browser', 'build:stencila:nodejs'])
+
+b.task('stencila', ['clean', 'assets', 'css', 'schema', 'build'])
 .describe('Build the stencila library.')
 
 b.task('examples', ['stencila'], () => {
