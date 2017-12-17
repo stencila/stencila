@@ -1,11 +1,15 @@
 import {
   platform, DefaultDOMElement, AbstractEditor,
-  Toolbar, EditorSession, DOMSelection
+  Toolbar, EditorSession, DOMSelection,
+  Configurator
 } from 'substance'
 import SheetContextSection from './SheetContextSection'
 import SheetStatusBar from './SheetStatusBar'
 import FormulaBar from './FormulaBar'
 import FormulaEditor from './FormulaEditor'
+import FunctionUsageCommand from '../shared/FunctionUsageCommand'
+import FunctionUsageTool from '../shared/FunctionUsageTool'
+import CodeEditorPackage from '../shared/CodeEditorPackage'
 
 export default class SheetEditor extends AbstractEditor {
 
@@ -29,9 +33,9 @@ export default class SheetEditor extends AbstractEditor {
   getChildContext() {
     const editorSession = this.props.editorSession
     const keyboardManager = this.keyboardManager
-    const issueManager = editorSession.getManager('issue-manager')
-    const host = this.props.host
     const configurator = editorSession.getConfigurator()
+    const issueManager = editorSession.getManager('issue-manager')
+    const host = this.context.host
     return Object.assign({}, super.getChildContext(), {
       configurator,
       host,
@@ -88,6 +92,7 @@ export default class SheetEditor extends AbstractEditor {
   render($$) {
     let el = $$('div').addClass('sc-sheet-editor')
     el.addClass('sm-display-mode-'+this.state.displayMode)
+    el.on('keydown', super.onKeyDown)
     el.append(
       $$('div').addClass('se-main-section').append(
         this._renderToolpane($$),
@@ -141,8 +146,7 @@ export default class SheetEditor extends AbstractEditor {
         overlays: [
           $$(FormulaEditor, {
             context: formulaEditorContext
-          })
-            .ref('formulaEditor')
+          }).ref('formulaEditor')
             .css({
               position: 'absolute',
               display: 'none'
@@ -222,30 +226,51 @@ export default class SheetEditor extends AbstractEditor {
 
   // a context propagated by FormulaBar and FormulaEditor
   _createFormulaEditorContext() {
-    const configurator = this.props.editorSession.configurator
+    const configurator = new Configurator()
+    configurator.import(CodeEditorPackage)
+    // TODO: let's see if we can generalize this, so that it can
+    // go into the CodeEditorPackage
+    configurator.addCommand('function-usage', FunctionUsageCommand, {
+      commandGroup: 'prompt'
+    })
+    configurator.addTool('function-usage', FunctionUsageTool)
+    configurator.addToolPanel('prompt', [
+      {
+        name: 'prompt',
+        type: 'tool-group',
+        showDisabled: false,
+        commandGroups: ['prompt']
+      }
+    ])
+
     // a document with only one node used by cell editors
     // i.e. expression bar, or popover editor on enter
-    let cellEditorDoc = this.getDocument().newInstance()
-    // TODO: use an id instead of storing the node on the doc
-    let node = cellEditorDoc.createElement('cell')
-    let editorSession = new EditorSession(cellEditorDoc, {
-      configurator: configurator
+    let cellEditorDoc = configurator.createDocument()
+    let node = cellEditorDoc.create({
+      id: 'cell',
+      type: 'cell',
+      content: ''
     })
+    let editorSession = new EditorSession(cellEditorDoc, { configurator })
     const self = this
-    // HACK: creating inline an object which DOMSelection needs to work
-    // TODO: either use a helper to create the DOMSelection
-    // or change DOMSelection's ctor to be better usable
+    // provide an adapter for DOMSelection
+    // TODO: either use a helper to create the DOMSelection or change DOMSelection's ctor to be better usable
     let domSelection = new DOMSelection({
       getDocument() { return cellEditorDoc },
       getSurfaceManager() { return editorSession.surfaceManager },
       getElement() { return self.getElement() }
     })
     return {
+      configurator,
       editorSession,
       domSelection,
       node,
       markersManager: editorSession.markersManager,
-      surfaceManager: editorSession.surfaceManager
+      surfaceManager: editorSession.surfaceManager,
+      commandManager: editorSession.commandManager,
+      commandGroups: configurator.getCommandGroups(),
+      tools: configurator.getTools(),
+      functionManager: this.context.host.functionManager
     }
   }
 
@@ -358,16 +383,18 @@ export default class SheetEditor extends AbstractEditor {
     Request inline editor
   */
   _editCell(initialValue) {
-    let formulaEditorSession = this._formulaEditorContext.editorSession
-    let formulaNode = this._formulaEditorContext.node
+    const formulaEditorSession = this._formulaEditorContext.editorSession
+    const formulaNode = this._formulaEditorContext.node
     if (initialValue) {
       this._setFormula(initialValue)
     }
-    let pos = formulaNode.textContent.length
+    const path = formulaNode.getPath()
+    const text = formulaNode.getText()
+    const startOffset = text.length
     formulaEditorSession.setSelection({
       type: 'property',
-      path: formulaNode.getPath(),
-      startOffset: pos,
+      path,
+      startOffset,
       surfaceId: 'formula-editor'
     })
   }
@@ -420,7 +447,7 @@ export default class SheetEditor extends AbstractEditor {
   }
 
   _selectAll() {
-    this._executeCommand('select-all')
+    this._executeCommand('sheet:select-all')
   }
 
   _executeCommand(commandName, params) {

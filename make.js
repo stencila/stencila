@@ -233,6 +233,37 @@ function minifiedVendor(src, name, opts = {}) {
   }
 }
 
+function bundlePrism() {
+  // Note: we stitch together a version that contains only what we need
+  // and exposing it as an es6 module
+  b.custom('Bundling prism...', {
+    src: [
+      'node_modules/prismjs/components/prism-core.js',
+      'node_modules/prismjs/components/prism-r.js',
+      'node_modules/prismjs/components/prism-python.js'
+    ],
+    dest: 'tmp/prism.js',
+    execute(files) {
+      let chunks = ['const _self = {}']
+      files.forEach((file) => {
+        let basename = path.basename(file)
+        let content = fs.readFileSync(file, 'utf8')
+        chunks.push(`/** START ${basename} **/`)
+        if (basename === 'prism-core.js') {
+          // cut out the core
+          let start = content.indexOf('var Prism = (function(){')
+          let end = content.lastIndexOf('})();')+5
+          content = content.substring(start, end)
+        }
+        chunks.push(content)
+        chunks.push(`/** END ${basename} **/`)
+      })
+      chunks.push('export default Prism')
+      b.writeFileSync('tmp/prism.js', chunks.join('\n'))
+    }
+  })
+}
+
 function buildDocumentation() {
   const config = require.resolve('./docs/docs.yml')
   fork(b, "node_modules/documentation/bin/documentation", "build", "index.es.js", "--config", config, "--output", "docs", "--format", "html")
@@ -267,8 +298,6 @@ function _compileSchema(name, src, options = {} ) {
   })
 }
 
-
-
 // Tasks
 // -----
 
@@ -302,6 +331,8 @@ b.task('schema:debug', () => {
   _compileSchema('FunctionSchema', './src/function/FunctionSchema.rng', { debug: true})
 })
 
+b.task('prism', bundlePrism)
+
 // required by MemoryBackend
 b.task('build:data', buildData)
 
@@ -313,7 +344,9 @@ b.task('build:stencila:nodejs', buildStencilaNodeJS)
 
 b.task('build', ['build:data', 'build:env', 'build:stencila:browser', 'build:stencila:nodejs'])
 
-b.task('stencila', ['clean', 'assets', 'css', 'schema', 'build'])
+b.task('stencila:deps', ['schema', 'prism'])
+
+b.task('stencila', ['clean', 'assets', 'css', 'stencila:deps', 'build'])
 .describe('Build the stencila library.')
 
 b.task('examples', ['stencila'], () => {
@@ -323,7 +356,8 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('test:backend', ['schema'], () => {
+// add all depe
+b.task('test:backend', ['stencila:deps'], () => {
   buildTestBackend()
 })
 

@@ -1,10 +1,11 @@
-import { Component } from 'substance'
-import CodeEditor from '../shared/CodeEditor'
+import { BodyScrollPanePackage } from 'substance'
+import FormulaEditor from './FormulaEditor'
 
-export default class FormulaBar extends Component {
+const { BodyScrollPane } = BodyScrollPanePackage
+
+export default class FormulaBar extends FormulaEditor {
 
   render($$) {
-    let node = this.props.node
     let el = $$('div').addClass('sc-formula-bar').append(
       $$('div').addClass('se-function-icon').append(
         $$('em').append(
@@ -12,27 +13,13 @@ export default class FormulaBar extends Component {
           $$('sub').append('x')
         )
       ),
-      $$(CodeEditor, {
-        name: 'formula-bar',
-        path: node.getPath(),
-        multiline: false
-      }).ref('cellEditor')
-        .on('enter', this._onCodeEditorEnter)
-        .on('escape', this._onCodeEditorEscape)
+      this._renderCodeEditor($$, 'formula-bar')
     )
     return el
   }
 
-  getChildContext() {
-    return this.props.context
-  }
-
-  _onCodeEditorEnter() {
-    this.send('updateCell')
-  }
-
-  _onCodeEditorEscape() {
-    this.send('cancelCellEditing')
+  _renderScrollPane($$) {
+    return $$(BodyScrollPane)
   }
 
 }

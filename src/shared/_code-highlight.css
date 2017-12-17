@@ -1,30 +1,16 @@
-.sc-code-highlight.sm-input-variable-name {
+.sc-code-highlight.sm-function {
+  color: var(--stencila-green);
+}
+
+.sc-code-highlight.sm-id {
   color: rgba(0,0,255,0.5);
   font-style: italic;
 }
 
-.sc-code-highlight.sm-output-name {
-  color: blue;
-}
-
-.sc-code-highlight.sm-function-name {
-  color: var(--stencila-green);
+.sc-code-highlight.sm-cell {
+  color: rgba(0,0,255,0.5);
 }
 
 .sc-code-highlight.sm-key {
   color: #ee9900;
-}
-
-.sc-code-highlight.sm-string-literal {
-  color: #ad0000;
-}
-
-.sc-code-highlight.sm-function-modifier {
-  /* TODO */
-  color: #999;
-}
-
-.sc-code-highlight.sm-external-language {
-  /* TODO */
-  color: brown;
 }

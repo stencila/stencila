@@ -26,6 +26,8 @@ import TestValueComponent from '../shared/TestValueComponent'
 import ImageValueComponent from '../shared/ImageValueComponent'
 import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
+import CodeHighlightComponent from '../shared/CodeHighlightComponent'
+
 import IssueManager from './IssueManager'
 
 export default {
@@ -190,6 +192,8 @@ export default {
     config.addComponent('value:image', ImageValueComponent)
     config.addComponent('value:plotly', PlotlyValueComponent)
 
+    config.addComponent('code-highlight', CodeHighlightComponent)
+
     // Sheet modes
     config.addCommand('normal-mode', ChangeDisplayModeCommand, { displayMode: 'normal', commandGroup: 'sheet-view-mode' })
     config.addCommand('minimum-mode', ChangeDisplayModeCommand, { displayMode: 'minimum', commandGroup: 'sheet-view-mode' })
@@ -202,8 +206,8 @@ export default {
 
     config.addComponent('sheet', SheetComponent)
 
-    config.addCommand('select-all', SelectAllCommand)
-    config.addKeyboardShortcut('CommandOrControl+a', { command: 'select-all' })
+    config.addCommand('sheet:select-all', SelectAllCommand)
+    config.addKeyboardShortcut('CommandOrControl+a', { command: 'sheet:select-all' })
 
     config.addCommand('insert-rows-above', InsertRowsAbove, {
       commandGroup: 'table-row-commands'

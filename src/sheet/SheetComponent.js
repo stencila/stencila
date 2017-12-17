@@ -202,13 +202,13 @@ export default class SheetComponent extends CustomSurface {
 
   _positionOverlays() {
     this._positionSelection()
-    this._positionCellIssues()
   }
 
   _positionSelection() {
     const sel = this.context.editorSession.getSelection()
     if (sel.surfaceId === this.getId()) {
-      let styles = this._computeSelectionStyles(sel)
+      let rects = this._computeSelectionRects(sel)
+      let styles = this._computeSelectionStyles(sel, rects)
       this.refs.selAnchor.css(styles.anchor)
       this.refs.selRange.css(styles.range)
       this.refs.selColumns.css(styles.columns)
@@ -216,14 +216,7 @@ export default class SheetComponent extends CustomSurface {
     }
   }
 
-  _positionCellIssues() {
-    let issuesOverlay = this.refs.issuesOverlay
-    if (issuesOverlay) {
-      issuesOverlay.rerender()
-    }
-  }
-
-  _computeSelectionStyles(sel) {
+  _computeSelectionRects(sel) {
     const viewport = this._getViewport()
     const data = sel.data
     let styles = {
@@ -291,25 +284,59 @@ export default class SheetComponent extends CustomSurface {
     // TODO: We need to improve rendering for range selections
     // that are outside of the viewport
     let anchorRect = this._getBoundingRect(anchorRow, anchorCol)
-    if (anchorRect.width && anchorRect.height) {
-      Object.assign(styles, this._computeAnchorStyles(anchorRect))
-    }
     let ulRect = this._getBoundingRect(ulRow, ulCol)
     let lrRect = this._getBoundingRect(lrRow, lrCol)
-    Object.assign(styles, this._computeRangeStyles(ulRect, lrRect, data.type))
+    let selRect
+    if (ulRect&&lrRect) {
+      selRect = this._computeSelectionRectangle(ulRect, lrRect)
+    }
+    return { anchorRect, selRect, ulRect, lrRect}
+  }
+
+  _computeSelectionStyles(sel, { anchorRect, ulRect, lrRect }) {
+    let styles = {
+      range: { visibility: 'hidden' },
+      columns: { visibility: 'hidden' },
+      rows: { visibility: 'hidden' },
+      anchor: { visibility: 'hidden' }
+    }
+    if (anchorRect && anchorRect.width && anchorRect.height) {
+      Object.assign(styles, this._computeAnchorStyles(anchorRect))
+    }
+    if (ulRect && lrRect) {
+      Object.assign(
+        styles,
+        this._computeRangeStyles(ulRect, lrRect, sel.data.type)
+      )
+    }
     return styles
   }
 
   _computeAnchorStyles(anchorRect) {
-    let styles = { anchor: { visibility: 'hidden' } }
+    let styles = {
+      anchor: { visibility: 'hidden' }
+    }
     if (anchorRect) {
-      styles.anchor.top = anchorRect.top
-      styles.anchor.left = anchorRect.left
-      styles.anchor.width = anchorRect.width
-      styles.anchor.height = anchorRect.height
-      styles.anchor.visibility = 'visible'
+      Object.assign(styles.anchor, anchorRect)
+      if (
+        isFinite(anchorRect.top) &&
+        isFinite(anchorRect.left) &&
+        isFinite(anchorRect.width) &&
+        isFinite(anchorRect.height)
+      ) {
+        styles.anchor.visibility = 'visible'
+      }
     }
     return styles
+  }
+
+  _computeSelectionRectangle(ulRect, lrRect) {
+    let selRect = {}
+    selRect.top = ulRect.top
+    selRect.left = ulRect.left
+    selRect.width = lrRect.left + lrRect.width - selRect.left
+    selRect.height = lrRect.top + lrRect.height - selRect.top
+    return selRect
   }
 
   _computeRangeStyles(ulRect, lrRect, mode) {
@@ -319,9 +346,6 @@ export default class SheetComponent extends CustomSurface {
       rows: { visibility: 'hidden' }
     }
 
-    // FIXME: in GDocs the background is only blue if the range is over multiple cells
-    // TODO: the API does not state that the elements must be native elements here.
-    //       IMO it should work with DOMElement in first place, and use native elements where necessary
     styles.range.top = ulRect.top
     styles.range.left = ulRect.left
     styles.range.width = lrRect.left + lrRect.width - styles.range.left

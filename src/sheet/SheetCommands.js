@@ -289,17 +289,18 @@ export class ChangeDisplayModeCommand extends Command {
 
 export class SelectAllCommand extends Command {
 
-  getCommandState() {
-    return {
-      disabled: false
+  getCommandState(params) {
+    let sel = params.selection
+    if (sel.isNull() || !sel.isCustomSelection() || sel.customType !== 'sheet') {
+      return { disabled: true }
     }
+    return { disabled: false }
   }
 
   execute(params) {
     const editorSession = params.editorSession
     const sheet = editorSession.getDocument()
-    const editor = editorSession.getEditor()
-    const surface = editor.getSheetComponent()
+    const sel = params.selection
     let selData = {
       type: 'range',
       anchorRow: 0,
@@ -312,7 +313,7 @@ export class SelectAllCommand extends Command {
       type: 'custom',
       customType: 'sheet',
       data: selData,
-      surfaceId: surface.getId()
+      surfaceId: sel.surfaceId
     })
   }
 }
