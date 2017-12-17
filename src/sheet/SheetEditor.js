@@ -36,7 +36,6 @@ export default class SheetEditor extends AbstractEditor {
     const configurator = editorSession.getConfigurator()
     const issueManager = editorSession.getManager('issue-manager')
     const host = this.context.host
-    const functionManager = host.functionManager
     return Object.assign({}, super.getChildContext(), {
       configurator,
       host,
