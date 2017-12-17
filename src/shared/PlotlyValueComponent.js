@@ -1,5 +1,5 @@
 import { Component } from 'substance'
-import Plotly from 'plotly'
+import Plotly from 'plotly.js'
 
 export default class PlotlyValueComponent extends Component {
 
@@ -24,16 +24,16 @@ export default class PlotlyValueComponent extends Component {
     if (this.el) {
       let value = this.props.value
       let spec = value.data
-      let options = { 
-        // Find button names at 
+      let options = {
+        // Find button names at
         // https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js
         modeBarButtonsToRemove: [
-          'sendDataToCloud', 
-          'autoScale2d', 
-          'hoverClosestCartesian', 'hoverCompareCartesian', 
+          'sendDataToCloud',
+          'autoScale2d',
+          'hoverClosestCartesian', 'hoverCompareCartesian',
           'lasso2d', 'select2d'
-        ], 
-        displaylogo: false, 
+        ],
+        displaylogo: false,
         showTips: true
       }
       let el = this.el.getNativeElement()
