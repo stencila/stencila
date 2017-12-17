@@ -33,7 +33,7 @@ export default class ContextSection extends Component {
 
   close() {
     const contextId = this.props.contextId
-    let sheetEditor = this.context.app.getSheetEditor()
+    let sheetEditor = this.context.editor
     if (sheetEditor) {
       sheetEditor.toggleContext(contextId)
     }
