@@ -58,6 +58,7 @@ export default {
     })
     config.addTool('function-usage', FunctionUsageTool)
 
+    config.addIcon('function-helper', {'fontawesome': 'fa-question-circle-o' })
 
     config.addToolPanel('toolbar', [
       {

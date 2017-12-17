@@ -306,5 +306,7 @@ export default {
     config.addIcon('test-passed', {'fontawesome': 'fa-check' })
 
     config.addIcon('context-close', {'fontawesome': 'fa-times' })
+
+    config.addIcon('function-helper', {'fontawesome': 'fa-help' })
   }
 }
