@@ -3,7 +3,7 @@ import {
   Toolbar, EditorSession, DOMSelection,
   Configurator
 } from 'substance'
-import SheetContextSection from './SheetContextSection'
+import ContextSection from '../shared/ContextSection'
 import SheetStatusBar from './SheetStatusBar'
 import FormulaBar from './FormulaBar'
 import FormulaEditor from './FormulaEditor'
@@ -26,7 +26,8 @@ export default class SheetEditor extends AbstractEditor {
       'editCell': this._editCell,
       'requestSelectionChange': this._requestSelectionChange,
       'selectAll': this._selectAll,
-      'executeCommand': this._executeCommand
+      'executeCommand': this._executeCommand,
+      'help': this._openDocumentation,
     })
   }
 
@@ -102,9 +103,10 @@ export default class SheetEditor extends AbstractEditor {
     )
     if(this.state.showContext) {
       el.append(
-        $$(SheetContextSection, {
+        $$(ContextSection, {
           contextId: this.state.contextId,
-          cellId: this.state.cellId
+          cellId: this.state.cellId,
+          sectionId: this.state.sectionId
         }).ref('context')
       )
     }
@@ -454,5 +456,16 @@ export default class SheetEditor extends AbstractEditor {
     // TODO: soon we will pull out CommandManager from EditorSession
     let commandManager = this.commandManager
     commandManager.executeCommand(commandName, params)
+  }
+
+  _openDocumentation(helpPath) {
+    const path = helpPath.split(':')
+    const contextId = path[0]
+    const sectionId = path[1]
+    this.setState({
+      showContext: true,
+      contextId,
+      sectionId
+    })
   }
 }

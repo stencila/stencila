@@ -18,7 +18,16 @@
 }
 
 .sc-function-usage .se-documentation {
+  display: flex;
+  align-items: baseline;
   padding: 2px 5px;
+}
+
+.sc-function-usage .se-documentation .se-read-more {
+  margin-left: 10px;
+  padding-left: 5px;
+  font-size: 13px;
+  cursor: pointer;
 }
 
 .sc-function-usage .se-documentation .se-title {

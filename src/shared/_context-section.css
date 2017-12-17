@@ -15,6 +15,7 @@
 .sc-context-section > .se-context-content {
   flex: 1 1 0;
   overflow: auto;
+  padding: 10px;
 }
 
 .sc-context-section > .se-context-header > .se-label {

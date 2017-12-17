@@ -8,15 +8,15 @@ export default class FunctionUsageComponent extends Component {
     let paramIndex = this.props.paramIndex
 
     // Function signature
-    var signatureEl = $$(FunctionSignature, {
+    let signatureEl = $$(FunctionSignature, {
       spec,
       paramIndex
     })
 
     // Parameter descriptions
-    var paramsEl = $$('table').addClass('se-parameters')
+    let paramsEl = $$('table').addClass('se-parameters')
     spec.params.forEach((param, i) => {
-      var paramEl = $$('tr').addClass('se-param').append(
+      let paramEl = $$('tr').addClass('se-param').append(
         $$('td').addClass('se-param-name').append(param.name),
         $$('td').addClass('se-param-descr').append(param.description)
       )
@@ -28,10 +28,15 @@ export default class FunctionUsageComponent extends Component {
 
     // let summaryEl = $$('div').addClass('se-summary').append(spec.summary)
 
+    let documentationLink = $$('div').addClass('se-read-more').append(
+      this.context.iconProvider.renderIcon($$, 'function-helper')
+    ).on('click', this._openDocumentation)
+
     // Documentation
     let docEl = $$('div').addClass('se-documentation')
     docEl.append(
-      signatureEl
+      signatureEl,
+      documentationLink
       // paramsEl,
       // summaryEl
     )
@@ -49,15 +54,20 @@ export default class FunctionUsageComponent extends Component {
     // }
     return el
   }
+
+  _openDocumentation() {
+    const spec = this.props.spec
+    this.send('help', 'function-reference:' + spec.name)
+  }
 }
 
 class FunctionSignature extends Component {
   render($$) {
-    var spec = this.props.spec
-    var paramsEl = $$('span').addClass('se-signature-params');
+    let spec = this.props.spec
+    let paramsEl = $$('span').addClass('se-signature-params');
 
     spec.params.forEach((param, i) => {
-      var paramEl = $$('span').addClass('se-signature-param').append(param.name)
+      let paramEl = $$('span').addClass('se-signature-param').append(param.name)
 
       if (i === this.props.paramIndex) {
         paramEl.addClass('sm-active')
