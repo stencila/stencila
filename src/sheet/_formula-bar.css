@@ -1,8 +1,8 @@
 .sc-formula-bar .se-function-icon {
   border-right: 1px solid #ddd;
-  padding-right: 15px;
+  padding-right: 16px;
   position: absolute;
-  left: 15px;
+  left: 16px;
   top: 2px;
   font-size: 18px;
   color: #999;
@@ -16,6 +16,5 @@
 .sc-formula-bar .sc-code-editor {
   margin-left: 50px;
   font-size: 14px;
-  padding-top: 5px;
   border: none;
 }
