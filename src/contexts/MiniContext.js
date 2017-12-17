@@ -112,6 +112,7 @@ export default class MiniContext {
     function _error(msg) {
       console.error(msg)
       funcCall.addErrors([{
+        type: 'error',
         message: msg
       }])
       return new Error(msg)
