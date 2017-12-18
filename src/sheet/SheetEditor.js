@@ -10,6 +10,7 @@ import FormulaEditor from './FormulaEditor'
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
 import CodeEditorPackage from '../shared/CodeEditorPackage'
+import analyseCode from '../shared/analyseCode'
 import { getCellLabel } from './sheetHelpers'
 
 export default class SheetEditor extends AbstractEditor {
@@ -317,6 +318,14 @@ export default class SheetEditor extends AbstractEditor {
       this._showFormulaEditor(sheetSel.anchorRow, sheetSel.anchorCol)
       formulaEditorSession.resetHistory()
     }
+
+    const commandState = formulaEditorSession.getCommandStates()
+    const functionUsageState = commandState['function-usage']
+    const position = functionUsageState.position
+    if(position !== undefined) {
+      const cellState = formulaEditorSession.getDocument().get(['cell','state'])
+      const tokens = cellState.tokens
+    }
   }
 
   _onSheetStateChange() {
@@ -405,13 +414,22 @@ export default class SheetEditor extends AbstractEditor {
   _replaceEditorToken(from, to) {
     const formulaEditorSession = this._formulaEditorContext.editorSession
     const selection = formulaEditorSession.getSelection().toJSON()
+    const commandState = formulaEditorSession.getCommandStates()
+    const functionUsageState = commandState['function-usage']
     formulaEditorSession.transaction(tx => {
+      if(functionUsageState.position) {
+        selection.startOffset = functionUsageState.position.start
+        selection.endOffset = functionUsageState.position.end
+        tx.setSelection(selection)
+      }
       const range = from + ':' + to
       tx.insertText(range)
-      if(selection.startOffset === selection.endOffset) {
-        selection.endOffset += range.length
+      if(!functionUsageState.position) {
+        if(selection.startOffset === selection.endOffset) {
+          selection.endOffset += range.length
+        }
+        tx.setSelection(selection)
       }
-      tx.setSelection(selection)
     })
   }
 
@@ -420,10 +438,18 @@ export default class SheetEditor extends AbstractEditor {
     if (this._isEditing) {
       //console.info('TODO: Implement range selector', newSelection)
       //const formulaEditorSession = this._formulaEditorContext.editorSession
-      const selData = newSelection.data
-      const fromCell = getCellLabel(selData.anchorRow, selData.anchorCol)
-      const toCell = getCellLabel(selData.focusRow, selData.focusCol)
-      this._replaceEditorToken(fromCell, toCell)
+      const formulaEditorSession = this._formulaEditorContext.editorSession
+      const commandState = formulaEditorSession.getCommandStates()
+      const functionUsageState = commandState['function-usage']
+      if(functionUsageState.functionName) {
+        const selData = newSelection.data
+        const fromCell = getCellLabel(selData.anchorRow, selData.anchorCol)
+        const toCell = getCellLabel(selData.focusRow, selData.focusCol)
+        this._replaceEditorToken(fromCell, toCell)
+        const sheetComp = this.getSheetComponent()
+        sheetComp._positionRangeSelection(newSelection)
+      }
+      //sheetComp._hideSelection(newSelection)
     } else {
       editorSession.setSelection(newSelection)
     }

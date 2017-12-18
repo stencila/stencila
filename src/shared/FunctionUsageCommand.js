@@ -20,7 +20,8 @@ export default class FunctionUsageCommand extends Command {
           return {
             disabled: false,
             functionName: match.name,
-            paramIndex: match.paramIndex
+            paramIndex: match.paramIndex,
+            position: match.position
           }
         }
       }
@@ -41,15 +42,18 @@ export default class FunctionUsageCommand extends Command {
         if (!candidate || offset < candidate.offset ) {
           // Param index
           let paramIndex
+          let position
           node.args.forEach((arg, index) => {
             if (arg.start <= cursorPos && arg.end >= cursorPos) {
               paramIndex = index
+              position = arg
             }
           })
           candidate = {
             name: node.name,
             offset,
-            paramIndex
+            paramIndex,
+            position
           }
         }
       }
