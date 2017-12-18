@@ -30,6 +30,10 @@ export default class Engine {
     this._candidates = new Set()
   }
 
+  getHost() {
+    return this._host
+  }
+
   registerDocument(uuid, doc) {
     this._graph.registerDocument(uuid, doc)
   }

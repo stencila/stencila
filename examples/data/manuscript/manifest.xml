@@ -1,7 +1,6 @@
 <container>
   <documents>
-    <document id="doc-1" type="article" path="mini-cells.xml" />
-    <document id="sheet-1" type="sheet" path="fullup.xml" />
+    <document id="doc-1" type="article" path="manuscript.xml" />
     <document id="pub-meta" type="pub-meta" path="pub-meta.json" />
   </documents>
   <meta>
