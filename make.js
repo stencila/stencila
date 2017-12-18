@@ -99,15 +99,12 @@ function buildStencilaNodeJS() {
 }
 
 function buildExamples() {
-  b.copy('./examples/*/*.html', './build/')
+  b.copy('./examples/*.html', './build/')
   b.copy('index.html', './build/index.html')
-  //
-  ;['publication', 'dashboard', 'sheet', 'article'].forEach((example) => {
-    b.js(`examples/${example}/app.js`, {
-      dest: `build/examples/${example}/app.js`,
-      format: 'umd', moduleName: `${example}Example`,
-      external: EXAMPLE_EXTERNALS
-    })
+  b.js(`examples/app.js`, {
+    dest: `build/examples/app.js`,
+    format: 'umd', moduleName: `StencilaExample`,
+    external: EXAMPLE_EXTERNALS
   })
 }
 
@@ -115,7 +112,7 @@ function buildExamples() {
 function buildData() {
   // TODO: we should also be able to map images
   vfs(b, {
-    src: ['./data/**/*.xml', './examples/**/*.xml'],
+    src: ['./examples/**/*.xml'],
     dest: 'build/vfs.js',
     format: 'umd', moduleName: 'vfs'
   })

@@ -1,0 +1,10 @@
+<container>
+  <documents>
+    <document id="doc1" type="manuscript" path="hello-world.html" />
+    <document id="sheet1" type="prose" path="hello-world.html" />
+    <document id="pubMeta" type="pub-meta" path="pub-meta.json" />
+  </documents>
+  <meta>
+    <execution-engine>Stencila_LIBCORE_1.0</execution-engine>
+  </meta>
+</container>
