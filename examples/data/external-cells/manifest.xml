@@ -1,0 +1,6 @@
+<container>
+  <documents>
+    <document id="doc-1" type="article" path="external-cells.xml" />
+    <document id="pub-meta" type="pub-meta" path="pub-meta.json" />
+  </documents>
+</container>
