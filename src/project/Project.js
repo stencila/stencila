@@ -25,24 +25,7 @@ export default class Project extends Component {
       functionManager: this.props.functionManager,
       cellEngine: this.props.engine,
       host: this.props.host,
-      pubMetaDbSession: pubMetaDbSession,
-      // LEGACY:
-      get db() {
-        console.warn('DEPRECATED: Use context.pubMetaDbSession.getDocument()')
-        return pubMetaDbSession.getDocument()
-      },
-      get entityDb() {
-        console.warn('DEPRECATED: Use context.pubMetaDbSession.getDocument()')
-        return pubMetaDbSession.getDocument()
-      },     
-      get dbSession() {
-        console.warn('DEPRECATED: Use context.pubMetaDbSession')
-        return pubMetaDbSession
-      },
-      get entityDbSession() {
-        console.warn('DEPRECATED: Use context.pubMetaDbSession')
-        return pubMetaDbSession
-      }
+      pubMetaDbSession: pubMetaDbSession
     }
   }
 
@@ -90,7 +73,7 @@ export default class Project extends Component {
       el.append(
         $$(TextureEditorPackage.Editor, {
           editorSession,
-          entityDbSession: this._getPubMetaDbSession()
+          pubMetaDbSession: this._getPubMetaDbSession()
         })
       )
     } else if (documentType === 'sheet') {

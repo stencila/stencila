@@ -2,7 +2,8 @@ import {
   platform, substanceGlobals,
 } from 'substance'
 import {
-  createEntityDbSession
+  createEntityDbSession,
+  pubMetaDbSeed
 } from 'substance-texture'
 import {
   Project, getQueryStringParam,
@@ -12,10 +13,12 @@ import {
 import { VfsLoader } from 'rdc-js'
 import fullup from './util/fullup'
 
+
+
 // TODO: This loader should be provided by Texture
 const PubMetaLoader = {
-  load(jsonStr) {
-    return createEntityDbSession(jsonStr)
+  load(/*jsonStr*/) {
+    return createEntityDbSession(pubMetaDbSeed)
   }
 }
 
