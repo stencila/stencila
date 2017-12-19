@@ -16,6 +16,7 @@
 @import '../sheet/_sheet.css';
 @import '../shared/_index.css';
 @import '../article/_index.css';
+@import '../project/_index.css';
 
 /* Texture styles */
 @import '../../node_modules/substance-texture/texture.css';

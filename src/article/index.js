@@ -6,3 +6,4 @@ const Editor = TextureEditorPackage.Editor
 export { Editor as ArticleEditor }
 
 export { default as ArticleEditorPackage } from './ArticleEditorPackage'
+export { default as ArticleLoader } from './ArticleLoader'

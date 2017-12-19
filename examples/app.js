@@ -2,12 +2,32 @@ import {
   platform, substanceGlobals,
 } from 'substance'
 import {
-  Host, Project, getQueryStringParam, FunctionManager, Engine, VirtualRDCLoader
+  createEntityDbSession
+} from 'substance-texture'
+import {
+  Host, Project, getQueryStringParam, FunctionManager, Engine,
+  ArticleLoader, SheetLoader
 } from 'stencila'
+import { VfsLoader } from 'rdc-js'
 
-import fullup from './util/fullup'
+
+// TODO: This loader should be provided by Texture
+const PubMetaLoader = {
+  load(jsonStr) {
+    return createEntityDbSession(jsonStr)
+  }
+}
+
+const loaders = {
+  'article': ArticleLoader,
+  'sheet': SheetLoader,
+  'pub-meta': PubMetaLoader
+}
 
 let vfs = window.vfs
+let loader = new VfsLoader(vfs, loaders)
+
+import fullup from './util/fullup'
 
 // Add a full up sheet dynamically
 vfs.writeFileSync('examples/data/mini/fullup.xml', fullup().innerHTML)
@@ -21,7 +41,6 @@ window.addEventListener('load', () => {
   const example = getQueryStringParam('example') || 'mini'
 
   // Use virtual file system to construct document container
-  let loader = new VirtualRDCLoader(vfs)
   loader.load(`examples/data/${example}`).then(documentContainer => {
 
     let peers = (getQueryStringParam('peers') || window.STENCILA_PEERS)

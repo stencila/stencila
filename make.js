@@ -37,6 +37,7 @@ const COMMON_SETTINGS = (custom) => { return merge({
 
 const BROWSER_EXTERNALS = {
   'substance': 'window.substance',
+  'rdc-js': 'window.rdc',
   'substance-texture': 'window.texture',
   'stencila-mini': 'window.stencilaMini',
   'stencila-libcore': 'window.stencilaLibCore',
@@ -53,7 +54,7 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'substance-texture', 'stencila-mini', 'stencila-libcore', 'katex', 'plotly.js'
+  'substance', 'substance-texture', 'stencila-mini', 'stencila-libcore', 'katex', 'plotly.js', 'rdc-js'
 ]
 
 const NODEJS_IGNORE = ['plotly.js']
@@ -71,6 +72,7 @@ function copyAssets() {
   b.copy('./node_modules/substance-texture/dist/texture.js*', './build/lib/')
   b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', './build/lib/')
   b.copy('./node_modules/stencila-libcore/build/stencila-libcore.*', './build/lib/')
+  b.copy('./node_modules/rdc-js/dist/rdc.js*', './build/lib/')
 }
 
 function buildCss() {
@@ -112,7 +114,7 @@ function buildExamples() {
 function buildData() {
   // TODO: we should also be able to map images
   vfs(b, {
-    src: ['./examples/**/*.xml'],
+    src: ['./examples/data/**/*'],
     dest: 'build/vfs.js',
     format: 'umd', moduleName: 'vfs'
   })

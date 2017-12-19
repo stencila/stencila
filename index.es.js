@@ -15,6 +15,7 @@ export { address, value }
 export { default as getQueryStringParam } from './src/util/getQueryStringParam'
 
 export * from './src/article'
+export * from './src/project'
 export * from './src/function'
 export * from './src/sheet'
 export * from './src/engine'

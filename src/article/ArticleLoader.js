@@ -1,12 +1,15 @@
-import { Configurator, EditorSession } from 'substance'
+import { EditorSession } from 'substance'
+import { JATSImporter, TextureConfigurator } from 'substance-texture'
 import ArticleEditorPackage from './ArticleEditorPackage'
 
 export default {
-  load(html) {
-    let configurator = new Configurator()
+  load(xml) {
+    let configurator = new TextureConfigurator()
     configurator.import(ArticleEditorPackage)
-    let importer = configurator.createImporter('html')
-    let doc = importer.importDocument(html)
+    let jatsImporter = new JATSImporter()
+    let jats = jatsImporter.import(xml)
+    let importer = configurator.createImporter('texture-jats')
+    let doc = importer.importDocument(jats.dom)
     let editorSession = new EditorSession(doc, { configurator })
     return editorSession
   }

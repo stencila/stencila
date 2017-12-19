@@ -2,7 +2,7 @@ import { Component } from 'substance'
 import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
 
-import ProjectBar from './ProjectBar'
+// import ProjectBar from './ProjectBar'
 
 export default class Project extends Component {
 
@@ -15,12 +15,25 @@ export default class Project extends Component {
   }
 
   getChildContext() {
+    let pubMetaDbSession = this._getPubMetaDbSession()
     return {
       functionManager: this.props.functionManager,
       cellEngine: this.props.engine,
       host: this.props.engine.getHost(),
-      // TODO: use a more specific name (e.g. pubMetaDb)
-      pubMetaDbSession: this._getPubMetaDbSession()
+      pubMetaDbSession: pubMetaDbSession,
+      // LEGACY:
+      get db() {
+        console.warn('DEPRECATED: Use context.pubMetaDbSession.getDocument()')
+        return pubMetaDbSession.getDocument()
+      },
+      get dbSession() {
+        console.warn('DEPRECATED: Use context.pubMetaDbSession')
+        return pubMetaDbSession
+      },
+      get entityDbSession() {
+        console.warn('DEPRECATED: Use context.pubMetaDbSession')
+        return pubMetaDbSession
+      }
     }
   }
 
@@ -29,21 +42,21 @@ export default class Project extends Component {
     el.append(
       $$('div').addClass('se-main-pane').append(
         this._renderEditorPane($$)
-      ),
-      $$(ProjectBar, {
-        documentId: this.state.documentId,
-        documentContainer: this.props.documentContainer
-      })
+      )//,
+      // $$(ProjectBar, {
+      //   documentId: this.state.documentId,
+      //   documentContainer: this.props.documentContainer
+      // })
     )
     return el
   }
 
   _getPubMetaDbSession() {
-    return this.documentContainer.getEditorSession('pub-meta')
+    return this._getDocumentContainer().getEditorSession('pub-meta')
   }
 
   _getActiveDocument() {
-    let dc = this.props.documentContainer
+    let dc = this._getDocumentContainer()
     return dc.getDocumentEntries()[0]
   }
 
@@ -53,18 +66,19 @@ export default class Project extends Component {
 
   _renderEditorPane($$) {
     let el = $$('div').addClass('se-editor-pane')
-    let activeDocumentType = this.state.type
-    let activeDocumentId = this.state.type
+    let documentType = this.state.documentType
+    let documentId = this.state.documentId
     let dc = this._getDocumentContainer()
-    let editorSession = dc.getEditorSession(activeDocumentId)
+    let editorSession = dc.getEditorSession(documentId)
 
-    if (activeDocumentType === 'article') {
+    if (documentType === 'article') {
       el.append(
         $$(TextureEditorPackage.Editor, {
-          editorSession
+          editorSession,
+          entityDbSession: this._getPubMetaDbSession()
         })
       )
-    } else if (activeDocumentType === 'sheet') {
+    } else if (documentType === 'sheet') {
       el.append(
         $$(SheetEditor, {
           editorSession

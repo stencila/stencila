@@ -3,7 +3,4 @@
     <document id="doc-1" type="article" path="blank.xml" />
     <document id="pub-meta" type="pub-meta" path="pub-meta.json" />
   </documents>
-  <meta>
-    <execution-engine>Stencila_LIBCORE_1.0</execution-engine>
-  </meta>
 </container>
