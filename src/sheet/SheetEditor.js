@@ -342,26 +342,21 @@ export default class SheetEditor extends AbstractEditor {
       formulaEditorSession.resetHistory()
     }
 
-    const commandState = formulaEditorSession.getCommandStates()
-    const functionUsageState = commandState['function-usage']
-    const position = functionUsageState.position
-    if(position !== undefined) {
-      const formulaSelection = formulaEditorSession.getSelection()
-      if(formulaSelection.type !== 'null') {
-        const cursorOffset = formulaSelection.start.offset
-        const cellState = formulaEditorSession.getDocument().get(['cell','state'])
-        const tokens = cellState.tokens
-        const activeToken = tokens.find(token => {
-          return token.type === 'cell' && cursorOffset >= token.start && cursorOffset <= token.end
-        })
+    const formulaSelection = formulaEditorSession.getSelection()
+    if(formulaSelection.type !== 'null') {
+      const cursorOffset = formulaSelection.start.offset
+      const cellState = formulaEditorSession.getDocument().get(['cell','state'])
+      const tokens = cellState.tokens
+      const activeToken = tokens.find(token => {
+        return token.type === 'cell' && cursorOffset >= token.start && cursorOffset <= token.end
+      })
 
-        if(activeToken) {
-          const cellReference = activeToken.text
-          this._setReferenceSelection(cellReference)
-        } else {
-          const sheetComp = this.getSheetComponent()
-          sheetComp._hideSelection()
-        }
+      if(activeToken) {
+        const cellReference = activeToken.text
+        this._setReferenceSelection(cellReference)
+      } else {
+        const sheetComp = this.getSheetComponent()
+        sheetComp._hideSelection()
       }
     }
   }
@@ -452,17 +447,22 @@ export default class SheetEditor extends AbstractEditor {
   _replaceEditorToken(from, to) {
     const formulaEditorSession = this._formulaEditorContext.editorSession
     const selection = formulaEditorSession.getSelection().toJSON()
-    const commandState = formulaEditorSession.getCommandStates()
-    const functionUsageState = commandState['function-usage']
+
+    const cellState = formulaEditorSession.getDocument().get(['cell','state'])
+    const tokens = cellState.tokens
+    const activeToken = tokens.find(token => {
+      return token.type === 'cell' && selection.startOffset >= token.start && selection.startOffset <= token.end
+    })
+
     formulaEditorSession.transaction(tx => {
-      if(functionUsageState.position) {
-        selection.startOffset = functionUsageState.position.start
-        selection.endOffset = functionUsageState.position.end
+      if(activeToken) {
+        selection.startOffset = activeToken.start
+        selection.endOffset = activeToken.end
         tx.setSelection(selection)
       }
       const range = from + ':' + to
       tx.insertText(range)
-      if(!functionUsageState.position) {
+      if(!activeToken) {
         if(selection.startOffset === selection.endOffset) {
           selection.endOffset += range.length
         }
