@@ -20,7 +20,7 @@ export default class FunctionUsageCommand extends Command {
           return {
             disabled: false,
             functionName: match.name,
-            paramIndex: match.paramIndex
+            paramIndex: match.paramIndex,
           }
         }
       }
@@ -49,7 +49,7 @@ export default class FunctionUsageCommand extends Command {
           candidate = {
             name: node.name,
             offset,
-            paramIndex
+            paramIndex,
           }
         }
       }

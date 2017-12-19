@@ -216,6 +216,12 @@ export default class SheetComponent extends CustomSurface {
     }
   }
 
+  _positionRangeSelection(sel) {
+    const rects = this._computeSelectionRects(sel)
+    const styles = this._computeSelectionStyles(sel, rects)
+    this.refs.selRange.css(styles.range)
+  }
+
   _computeSelectionRects(sel) {
     const viewport = this._getViewport()
     const data = sel.data

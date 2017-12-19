@@ -11,6 +11,7 @@ import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
 import CodeEditorPackage from '../shared/CodeEditorPackage'
 import { getCellLabel } from './sheetHelpers'
+import { getRowCol, getCellState, isExpression} from '../shared/cellHelpers'
 
 export default class SheetEditor extends AbstractEditor {
 
@@ -308,6 +309,29 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
+  _setReferenceSelection(reference) {
+    const from = reference.split(':')[0]
+    const to = reference.split(':')[1]
+    const [startRow, startCol] = getRowCol(from)
+    const [endRow, endCol] = to ? getRowCol(to) : [startRow, startCol]
+
+    const selData = {
+      type: 'range',
+      anchorRow: startRow,
+      focusRow: endRow ? endRow : startRow,
+      anchorCol: startCol,
+      focusCol: endCol ? endCol: startCol
+    }
+
+    const sheetComp = this.getSheetComponent()
+    sheetComp._positionRangeSelection({
+      type: 'custom',
+      customType: 'sheet',
+      data: selData,
+      surfaceId: this.refs.sheet.getId()
+    })
+  }
+
   _onCellEditorSelectionChange(sel) {
     let sheetSel = this._getSheetSelection()
     let formulaEditorSession = this._formulaEditorContext.editorSession
@@ -316,6 +340,23 @@ export default class SheetEditor extends AbstractEditor {
       this._currentSelection = this.getEditorSession().getSelection()
       this._showFormulaEditor(sheetSel.anchorRow, sheetSel.anchorCol)
       formulaEditorSession.resetHistory()
+    }
+    const formulaSelection = formulaEditorSession.getSelection()
+    if(formulaSelection && !formulaSelection.isNull()) {
+      const cursorOffset = formulaSelection.start.offset
+      const cell = formulaEditorSession.getDocument().get('cell')
+      const cellState = getCellState(cell)
+      const tokens = cellState.tokens
+      const activeToken = tokens.find(token => {
+        return token.type === 'cell' && cursorOffset >= token.start && cursorOffset <= token.end
+      })
+      if(activeToken) {
+        const cellReference = activeToken.text
+        this._setReferenceSelection(cellReference)
+      } else {
+        const sheetComp = this.getSheetComponent()
+        sheetComp._hideSelection()
+      }
     }
   }
 
@@ -405,26 +446,43 @@ export default class SheetEditor extends AbstractEditor {
   _replaceEditorToken(from, to) {
     const formulaEditorSession = this._formulaEditorContext.editorSession
     const selection = formulaEditorSession.getSelection().toJSON()
+
+    const cellState = formulaEditorSession.getDocument().get(['cell','state'])
+    const tokens = cellState.tokens
+    const activeToken = tokens.find(token => {
+      return token.type === 'cell' && selection.startOffset >= token.start && selection.startOffset <= token.end
+    })
+
     formulaEditorSession.transaction(tx => {
-      const range = from + ':' + to
-      tx.insertText(range)
-      if(selection.startOffset === selection.endOffset) {
-        selection.endOffset += range.length
+      if(activeToken) {
+        selection.startOffset = activeToken.start
+        selection.endOffset = activeToken.end
+        tx.setSelection(selection)
       }
-      tx.setSelection(selection)
+      const symbol = (from === to) ? from : from + ':' + to
+      tx.insertText(symbol)
+      if(!activeToken) {
+        if(selection.startOffset === selection.endOffset) {
+          selection.endOffset += symbol.length
+        }
+        tx.setSelection(selection)
+      }
     })
   }
 
   _requestSelectionChange(newSelection) {
-    let editorSession = this.getEditorSession()
-    if (this._isEditing) {
-      //console.info('TODO: Implement range selector', newSelection)
-      //const formulaEditorSession = this._formulaEditorContext.editorSession
+    const formulaEditorSession = this._formulaEditorContext.editorSession
+    const cell = formulaEditorSession.getDocument().get('cell')
+    const _isExpression = isExpression(cell.content)
+    if (this._isEditing && _isExpression) {
       const selData = newSelection.data
       const fromCell = getCellLabel(selData.anchorRow, selData.anchorCol)
       const toCell = getCellLabel(selData.focusRow, selData.focusCol)
+      const sheetComp = this.getSheetComponent()
       this._replaceEditorToken(fromCell, toCell)
+      sheetComp._positionRangeSelection(newSelection)
     } else {
+      const editorSession = this.getEditorSession()
       editorSession.setSelection(newSelection)
     }
   }
