@@ -1,4 +1,4 @@
-import { uuid, isEqual } from 'substance'
+import { uuid, isEqual, forEach } from 'substance'
 import { getCellState, getCellValue, getCellLabel, getColumnLabel } from '../shared/cellHelpers'
 import { gather } from '../value'
 import { INITIAL, ANALYSED, EVALUATED,
@@ -408,23 +408,45 @@ export default class Engine {
 
   _notifyCells(...cellIds) {
     if (cellIds.length === 0) return
-    // Note: need to defer to avoid triggering
-    // a reflow while already flowing
-    setTimeout(() => {
-      const editorSession = this.editorSession
-      if (!editorSession) return
-      editorSession._setDirty('document')
-      editorSession._setDirty('commandStates')
-      let change = new DocumentChange([], {}, {})
-      change._extractInformation()
-      cellIds.forEach((cellId) => {
-        // console.log('notifying', cellId)
-        change.updated[cellId] = true
-      })
-      change.updated['setState'] = cellIds
-      editorSession._change = change
-      editorSession._info = {}
-      editorSession.startFlow()
+    // ATTENTION: cells are coming from different documents
+    // with different editorSessions
+    // we need to trigger an update in every editorSession
+    let affectedSessions = {}
+    cellIds.forEach((cellId) => {
+      const cellAdapter = this._graph.getCell(cellId)
+      if (!cellAdapter) return
+      const editorSession = cellAdapter.editorSession
+      console.assert(editorSession, 'CellAdapter should have an EditorSession')
+      const sessionId = editorSession.__id__
+      if (!affectedSessions[sessionId]) {
+        affectedSessions[sessionId] = {
+          editorSession,
+          cellIds: []
+        }
+      }
+      affectedSessions[sessionId].cellIds.push(cellId)
+    })
+    forEach(affectedSessions, ({ editorSession, cellIds}) => {
+      if (editorSession._flowing) {
+        editorSession.postpone(_updateSession.bind(null, editorSession, cellIds))
+      } else {
+        _updateSession(editorSession, cellIds)
+      }
     })
   }
+}
+
+function _updateSession(editorSession, cellIds) {
+  editorSession._setDirty('document')
+  editorSession._setDirty('commandStates')
+  let change = new DocumentChange([], {}, {})
+  change._extractInformation()
+  cellIds.forEach((cellId) => {
+    // console.log('notifying', cellId)
+    change.updated[cellId] = true
+  })
+  change.updated['setState'] = cellIds
+  editorSession._change = change
+  editorSession._info = {}
+  editorSession.startFlow()
 }

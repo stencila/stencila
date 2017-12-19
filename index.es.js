@@ -13,6 +13,7 @@ export { default as JsContext } from './src/contexts/JsContext'
 
 export { address, value }
 export { default as getQueryStringParam } from './src/util/getQueryStringParam'
+export { default as setupStencilaContext } from './src/util/setupStencilaContext'
 
 export * from './src/article'
 export * from './src/project'

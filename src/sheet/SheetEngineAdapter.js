@@ -81,7 +81,7 @@ export default class SheetEngineAdapter {
   _onCreate(node) {
     const engine = this.engine
     if (CELL_TYPES[node.type]) {
-      let adapter = new CellAdapter(node)
+      let adapter = new CellAdapter(this.editorSession, node)
       if (adapter._type === EXPRESSION) {
         engine.registerCell(adapter)
       }
@@ -121,7 +121,8 @@ export default class SheetEngineAdapter {
 
 class CellAdapter {
 
-  constructor(cell) {
+  constructor(editorSession, cell) {
+    this.editorSession = editorSession
     this.node = cell
 
     this.state = new CellState()
@@ -189,6 +190,4 @@ class CellAdapter {
     //   console.log('updated cell adapter', this)
     // }
   }
-
 }
-

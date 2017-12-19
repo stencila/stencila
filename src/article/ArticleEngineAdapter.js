@@ -84,10 +84,10 @@ export default class DocumentEngineAdapter {
   _onCreate(node) {
     const engine = this.engine
     if (CELL_TYPES[node.type]) {
-      let adapter = new CellAdapter(node)
+      let adapter = new CellAdapter(this.editorSession, node)
       engine.registerCell(adapter)
     } else if (INPUT_TYPES[node.type]) {
-      let adapter = new InputAdapter(node)
+      let adapter = new InputAdapter(this.editorSession, node)
       engine.registerCell(adapter)
       return true
     }
@@ -128,7 +128,9 @@ export default class DocumentEngineAdapter {
 }
 
 class NodeAdapter {
-  constructor(node) {
+
+  constructor(editorSession, node) {
+    this.editorSession = editorSession
     this.node = node
   }
 
@@ -156,12 +158,15 @@ class NodeAdapter {
 
 class CellAdapter extends NodeAdapter {
 
-  constructor(cell) {
-    super(cell)
-    this.node = cell
+  constructor(...args) {
+    super(...args)
 
-    this.state = new CellState()
-    cell.state = this.state
+    // initialize cell state
+    this.node.state = new CellState()
+  }
+
+  get state() {
+    return this.node.state
   }
 
   isCell() {
@@ -200,10 +205,6 @@ class CellAdapter extends NodeAdapter {
 }
 
 class InputAdapter extends NodeAdapter {
-
-  constructor(input) {
-    super(input)
-  }
 
   isInput() {
     return true

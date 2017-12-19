@@ -19,7 +19,7 @@ export default class Project extends Component {
     return {
       functionManager: this.props.functionManager,
       cellEngine: this.props.engine,
-      host: this.props.engine.getHost(),
+      host: this.props.host,
       pubMetaDbSession: pubMetaDbSession,
       // LEGACY:
       get db() {
