@@ -21,7 +21,7 @@ import {
   SetLanguageCommand, ToggleAllCodeCommand,
   HideCellCodeCommand, CodeErrorsCommand, InsertCellCommand,
   ForceCellOutputCommand
-} from './DocumentCommands'
+} from './ArticleEditorCommands'
 
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
