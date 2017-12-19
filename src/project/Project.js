@@ -31,6 +31,10 @@ export default class Project extends Component {
         console.warn('DEPRECATED: Use context.pubMetaDbSession.getDocument()')
         return pubMetaDbSession.getDocument()
       },
+      get entityDb() {
+        console.warn('DEPRECATED: Use context.pubMetaDbSession.getDocument()')
+        return pubMetaDbSession.getDocument()
+      },     
       get dbSession() {
         console.warn('DEPRECATED: Use context.pubMetaDbSession')
         return pubMetaDbSession

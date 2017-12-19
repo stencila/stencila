@@ -10,7 +10,7 @@ export default class ProjectTabs extends Component {
 
     documentEntries.forEach((entry) => {
       if (_isVisible(entry)) {
-        let button = $$('button').append(entry.name)
+        let button = $$('button').append(entry.name || entry.id)
           .on('click', this._openDocument.bind(this, entry.id))
         if (this.props.documentId === entry.id) {
           button.addClass('sm-active')
