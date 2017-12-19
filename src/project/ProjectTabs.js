@@ -1,4 +1,5 @@
-import { Component } from 'substance'
+import { Component, FontAwesomeIcon } from 'substance'
+import documentTypes from '../documentTypes'
 
 export default class ProjectTabs extends Component {
 
@@ -8,13 +9,23 @@ export default class ProjectTabs extends Component {
     let documentEntries = dc.getDocumentEntries()
 
     documentEntries.forEach((entry) => {
-      let button = $$('button').append(entry.name)
-        .on('click', this._openDocument.bind(this, entry.id))
-      if (this.props.documentId === entry.id) {
-        button.addClass('sm-active')
+      if (_isVisible(entry)) {
+        let button = $$('button').append(entry.name)
+          .on('click', this._openDocument.bind(this, entry.id))
+        if (this.props.documentId === entry.id) {
+          button.addClass('sm-active')
+        }
+        el.append(button)
       }
-      el.push(button)
     })
+
+    // Create new button
+    let button = $$('button').append(
+      $$(FontAwesomeIcon, {icon: 'fa-plus-circle'})
+    )
+      .on('click', this._addDocument)
+    el.append(button)
+
     return el
   }
 
@@ -22,4 +33,11 @@ export default class ProjectTabs extends Component {
     this.send('openDocument', documentId)
   }
 
+  _addDocument() {
+    this.send('addDocument')
+  }
+}
+
+function _isVisible(entry) {
+  return Boolean(documentTypes[entry.type])
 }

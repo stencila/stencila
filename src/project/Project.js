@@ -2,15 +2,20 @@ import { Component } from 'substance'
 import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
 
-// import ProjectBar from './ProjectBar'
+import ProjectBar from './ProjectBar'
 
 export default class Project extends Component {
+
+  didMount() {
+    this.handleActions({
+      'openDocument': this._openDocument
+    })
+  }
 
   getInitialState() {
     let activeDocument = this._getActiveDocument()
     return {
-      documentId: activeDocument.id,
-      documentType: activeDocument.type
+      documentId: activeDocument.id
     }
   }
 
@@ -42,11 +47,11 @@ export default class Project extends Component {
     el.append(
       $$('div').addClass('se-main-pane').append(
         this._renderEditorPane($$)
-      )//,
-      // $$(ProjectBar, {
-      //   documentId: this.state.documentId,
-      //   documentContainer: this.props.documentContainer
-      // })
+      ),
+      $$(ProjectBar, {
+        documentId: this.state.documentId,
+        documentContainer: this.props.documentContainer
+      })
     )
     return el
   }
@@ -64,10 +69,16 @@ export default class Project extends Component {
     return this.props.documentContainer
   }
 
+  _getDocumentRecordById(id) {
+    let dc = this._getDocumentContainer()
+    return dc.getDocumentEntries().find(e => e.id === id)
+  }
+
   _renderEditorPane($$) {
     let el = $$('div').addClass('se-editor-pane')
-    let documentType = this.state.documentType
     let documentId = this.state.documentId
+    let documentRecord = this._getDocumentRecordById(documentId)
+    let documentType = documentRecord.type
     let dc = this._getDocumentContainer()
     let editorSession = dc.getEditorSession(documentId)
 
@@ -86,6 +97,12 @@ export default class Project extends Component {
       )
     }
     return el
+  }
+
+  _openDocument(documentId) {
+    this.setState({
+      documentId: documentId
+    })
   }
 
 }
