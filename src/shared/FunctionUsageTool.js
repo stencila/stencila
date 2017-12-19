@@ -1,7 +1,5 @@
-import { ToggleTool, FontAwesomeIcon } from 'substance'
+import { ToggleTool } from 'substance'
 import FunctionUsageComponent from '../shared/FunctionUsageComponent'
-
-
 
 export default class FunctionUsageTool extends ToggleTool {
   render($$) {
@@ -15,13 +13,6 @@ export default class FunctionUsageTool extends ToggleTool {
           spec: func.getUsage(),
           paramIndex: this.props.commandState.paramIndex
         })
-      )
-    } else {
-      el.append(
-        $$('div').addClass('se-function-not-found').append(
-          $$(FontAwesomeIcon, { icon: 'fa-warning' }),
-          ` Function ${functionName} does not exist`
-        )
       )
     }
     return el
