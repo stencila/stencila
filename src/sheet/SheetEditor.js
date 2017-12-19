@@ -10,8 +10,8 @@ import FormulaEditor from './FormulaEditor'
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
 import CodeEditorPackage from '../shared/CodeEditorPackage'
-import analyseCode from '../shared/analyseCode'
 import { getCellLabel } from './sheetHelpers'
+import { getRowCol } from '../shared/cellHelpers'
 
 export default class SheetEditor extends AbstractEditor {
 
@@ -309,6 +309,29 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
+  _setReferenceSelection(reference) {
+    const from = reference.split(':')[0]
+    const to = reference.split(':')[1]
+    const [startRow, startCol] = getRowCol(from)
+    const [endRow, endCol] = to ? getRowCol(to) : [startRow, startCol]
+
+    const selData = {
+      type: 'range',
+      anchorRow: startRow,
+      focusRow: endRow ? endRow : startRow,
+      anchorCol: startCol,
+      focusCol: endCol ? endCol: startCol
+    }
+
+    const sheetComp = this.getSheetComponent()
+    sheetComp._positionRangeSelection({
+      type: 'custom',
+      customType: 'sheet',
+      data: selData,
+      surfaceId: this.refs.sheet.getId()
+    })
+  }
+
   _onCellEditorSelectionChange(sel) {
     let sheetSel = this._getSheetSelection()
     let formulaEditorSession = this._formulaEditorContext.editorSession
@@ -323,8 +346,23 @@ export default class SheetEditor extends AbstractEditor {
     const functionUsageState = commandState['function-usage']
     const position = functionUsageState.position
     if(position !== undefined) {
-      const cellState = formulaEditorSession.getDocument().get(['cell','state'])
-      const tokens = cellState.tokens
+      const formulaSelection = formulaEditorSession.getSelection()
+      if(formulaSelection.type !== 'null') {
+        const cursorOffset = formulaSelection.start.offset
+        const cellState = formulaEditorSession.getDocument().get(['cell','state'])
+        const tokens = cellState.tokens
+        const activeToken = tokens.find(token => {
+          return token.type === 'cell' && cursorOffset >= token.start && cursorOffset <= token.end
+        })
+
+        if(activeToken) {
+          const cellReference = activeToken.text
+          this._setReferenceSelection(cellReference)
+        } else {
+          const sheetComp = this.getSheetComponent()
+          sheetComp._hideSelection()
+        }
+      }
     }
   }
 
