@@ -88,7 +88,7 @@ test('MiniContext: no_params(param_foo=4)', t => {
   let c = setupContextWithFunctions()
   c.executeCode('no_params(param_foo=4)').then((res) => {
     t.ok(_hasError(res), 'should error')
-    t.equal(_getMessage(res), '"param_foo" is not a valid parameter names for function "no_params"', 'error message should be correct')
+    t.equal(_getMessage(res), '"param_foo" is not a valid parameter name for function "no_params"', 'error message should be correct')
     t.end()
   })
 })
@@ -133,7 +133,7 @@ test('MiniContext: one_param(param_foo=4)', t => {
   let c = setupContextWithFunctions()
   c.executeCode('one_param(param_foo=4)').then((res) => {
     t.ok(_hasError(res), 'should error')
-    t.equal(_getMessage(res), '"param_foo" is not a valid parameter names for function "one_param"', 'error message should be correct')
+    t.equal(_getMessage(res), '"param_foo" is not a valid parameter name for function "one_param"', 'error message should be correct')
     t.end()
   })
 })
