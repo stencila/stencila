@@ -42,7 +42,7 @@ export default class CellState extends EventEmitter {
   }
 
   getIssues() {
-    return this.messages || []
+    return this.issues || []
   }
 
   hasOutput() {
@@ -92,13 +92,14 @@ function deriveCellStatus(cellState) {
 }
 
 function hasError(cellState) {
-  if (cellState.messages) {
-    let messages = cellState.messages
-    for(let i = 0; i < messages.length; i++) {
-      if (messages[i].type === 'error'
-        // HACK: messages should have the right format
+  if (cellState.issues) {
+    let issues = cellState.issues
+    for(let i = 0; i < issues.length; i++) {
+      // FIXME: make sure that all issues have the same format
+      if (issues[i].type === 'error'
+        // HACK: issues should have the right format
         // but we want to get things running
-        || messages[i] instanceof Error) {
+        || issues[i] instanceof Error) {
         return true
       }
     }
