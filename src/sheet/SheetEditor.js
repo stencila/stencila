@@ -324,7 +324,7 @@ export default class SheetEditor extends AbstractEditor {
     }
 
     const sheetComp = this.getSheetComponent()
-    sheetComp._positionRangeSelection({
+    sheetComp._positionReferenceSelection({
       type: 'custom',
       customType: 'sheet',
       data: selData,
@@ -355,7 +355,7 @@ export default class SheetEditor extends AbstractEditor {
         this._setReferenceSelection(cellReference)
       } else {
         const sheetComp = this.getSheetComponent()
-        sheetComp._hideSelection()
+        sheetComp._hideReferenceSelection()
       }
     }
   }
@@ -480,7 +480,7 @@ export default class SheetEditor extends AbstractEditor {
       const toCell = getCellLabel(selData.focusRow, selData.focusCol)
       const sheetComp = this.getSheetComponent()
       this._replaceEditorToken(fromCell, toCell)
-      sheetComp._positionRangeSelection(newSelection)
+      sheetComp._positionReferenceSelection(newSelection)
     } else {
       const editorSession = this.getEditorSession()
       editorSession.setSelection(newSelection)
