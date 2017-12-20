@@ -19,13 +19,13 @@ import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
 import {
   SetLanguageCommand, ToggleAllCodeCommand,
-  HideCellCodeCommand, CodeErrorsCommand, InsertCellCommand,
+  HideCellCodeCommand, /* CodeErrorsCommand, */ InsertCellCommand,
   ForceCellOutputCommand
 } from './ArticleEditorCommands'
 
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
-import CodeErrorsTool from './CodeErrorsTool'
+// import CodeErrorsTool from './CodeErrorsTool'
 
 export default {
   name: 'editor',
@@ -119,10 +119,10 @@ export default {
     */
 
     // config.addCommand('force-cell-output', ToggleCodeCommand, { forceOutput: true, commandGroup: 'cell-actions' })
-    config.addCommand('code-errors', CodeErrorsCommand, {
-      commandGroup: 'prompt'
-    })
-    config.addTool('code-errors', CodeErrorsTool)
+    // config.addCommand('code-errors', CodeErrorsCommand, {
+    //   commandGroup: 'prompt'
+    // })
+    // config.addTool('code-errors', CodeErrorsTool)
 
     config.addCommand('hide-cell-code', HideCellCodeCommand, { commandGroup: 'cell-actions' })
     config.addCommand('force-cell-output', ForceCellOutputCommand, { commandGroup: 'cell-actions' })

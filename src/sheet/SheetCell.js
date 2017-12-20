@@ -1,6 +1,6 @@
 import { NodeComponent } from 'substance'
 import CellValueComponent from '../shared/CellValueComponent'
-import { isExpression } from '../shared/cellHelpers'
+import { isExpression, getError } from '../shared/cellHelpers'
 
 export default class SheetCell extends NodeComponent {
 
@@ -20,19 +20,20 @@ export default class SheetCell extends NodeComponent {
 
   render($$) {
     const cell = this.props.node
-    const issueManager = this.context.issueManager
     let el = $$('div').addClass('sc-sheet-cell')
+    let error = getError(cell)
 
-    let cellIssues = issueManager.getCellIssues(cell.id)
-    if(cellIssues.length > 0) {
-      if (cellIssues.length === 1 && cellIssues[0].severity === 4) {
-        el.addClass('sm-issue sm-passed')
-      } else {
-        el.addClass('sm-issue sm-error')
-      }
+    if (error) {
+      el.append(
+        $$('div').addClass('se-error').append(
+          getError(cell).message
+        )
+      )
+      el.addClass('sm-issue sm-error')
+    } else {
+      el.append(this._renderContent($$, cell))
     }
 
-    el.append(this._renderContent($$, cell))
     return el
   }
 

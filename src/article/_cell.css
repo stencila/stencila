@@ -79,3 +79,10 @@
 .sc-cell-value.sm-pending {
   opacity: 0.2;
 }
+
+.sc-cell .se-error {
+  padding-top: 20px;
+  color: #FF0300;
+  text-align: center;
+  font-size: 12px;
+}

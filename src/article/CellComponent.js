@@ -2,7 +2,7 @@ import { NodeComponent, FontAwesomeIcon } from 'substance'
 import CellValueComponent from '../shared/CellValueComponent'
 import CodeEditor from '../shared/CodeEditor'
 import { PENDING, INPUT_ERROR, INPUT_READY, RUNNING, ERROR, OK } from '../engine/CellState'
-import { getCellState } from '../shared/cellHelpers'
+import { getCellState, getError } from '../shared/cellHelpers'
 import NodeMenu from './NodeMenu'
 
 export default
@@ -91,9 +91,16 @@ class CellComponent extends NodeComponent {
       )
     }
 
-    if (this._showOutput()) {
+    if (this._showOutput() && cellState.status !== ERROR) {
       el.append(
         $$(CellValueComponent, {cell}).ref('value')
+      )
+    }
+    if (cellState.status === ERROR) {
+      el.append(
+        $$('div').addClass('se-error').append(
+          getError(cell).message
+        )
       )
     }
     return el
