@@ -301,3 +301,11 @@
   text-align: center;
   font-size: 12px;
 }
+
+.sc-sheet-cell .sc-plotly-value {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: #fff;
+  z-index: 10;
+}
