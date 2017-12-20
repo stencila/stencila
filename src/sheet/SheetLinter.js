@@ -229,20 +229,11 @@ function isInt(str) {
   return (parseInt(str, 10) == str) // eslint-disable-line eqeqeq
 }
 
-// TODO: we need to discuss if we want to
-// allow '1' as float, or if we want to force '1.0' when type is float
-function isFloat(str) {
-  return (str.indexOf('.') !== -1)
-}
-
 function autoDetectType(str) {
   // numbers
   if (!isNaN(str)) {
     if (isInt(str)) {
       return 'integer'
-    }
-    if (isFloat(str)) {
-      return 'float'
     }
     return 'number'
   }
