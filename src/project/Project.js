@@ -74,13 +74,14 @@ export default class Project extends Component {
         $$(TextureEditorPackage.Editor, {
           editorSession,
           pubMetaDbSession: this._getPubMetaDbSession()
-        })
+        }).ref('editor')
+          .addClass('sc-article-editor')
       )
     } else if (documentType === 'sheet') {
       el.append(
         $$(SheetEditor, {
           editorSession
-        })
+        }).ref('editor')
       )
     }
     return el
