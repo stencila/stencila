@@ -219,7 +219,6 @@ function checkType(cell, sheet, linter) {
     let expected = type
     let actual = autoDetectType(str)
     let msg = `Cell content is of wrong type. Expected a ${expected}, but it is a ${actual}`
-    //linter.addIssue(new CellTypeError(cell, expected, actual))
     linter.addIssue(new CellIssue(cell.id, 'linter', msg, 2))
   }
 }

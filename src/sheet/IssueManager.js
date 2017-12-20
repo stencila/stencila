@@ -1,315 +1,124 @@
-import { ArrayTree, EventEmitter } from 'substance'
-import { clone } from 'lodash-es'
+import { ArrayTree, EventEmitter, clone, uuid } from 'substance'
 import CellIssue from '../shared/CellIssue'
+import { SEVERITY_NAMES, getCellState } from '../shared/cellHelpers'
 
-const SEVERITY_MAP = {
-  0: 'info',
-  1: 'warning',
-  2: 'error',
-  3: 'failed',
-  4: 'passed'
-}
+export default class IssueManager extends EventEmitter {
 
-class IssueManager extends EventEmitter {
   constructor(context) {
-    super(context)
+    super()
 
     if (!context.editorSession) {
       throw new Error('EditorSession required.')
     }
-
     this.editorSession = context.editorSession
-    this.doc = this.editorSession.getDocument()
-    this.selectedCell = null
-    this.editorSession.on('render', this._onSelectionChange, this, {
-      resource: 'selection'
-    })
-    this.editorSession.onUpdate('document', this._onDocumentChange, this, {
-      resource: 'document'
-    })
-    this._byKey = new ArrayTree()
-    this._bySeverity = new ArrayTree()
-    this._byCell = new ArrayTree()
-    this._byColumn = new ArrayTree()
-    this._byRow = new ArrayTree()
+
+    // TODO: we should think about which indexes
+    // are really necessary, or what
+    // is ok to derive dynamically from all issues
+    this._issues = new Set()
+    this._byType = {}
+
+    // listening to document changes so that we can remove
+    // issues that are stored on nodes from the index
+    this.editorSession.onUpdate('document', this._onDocumentChange, this)
   }
 
-  add(key, issue) {
-    this._add(key, issue)
-    this.emit('issues:changed')
-  }
-
-  set(key, issues) {
-    issues.forEach(issue => {
-      this._add(key, issue)
+  add(...issues) {
+    issues.forEach((issue) => {
+      this._add(issue)
     })
     this.emit('issues:changed')
   }
 
-  remove(key, issue) {
-    this._byKey.remove(key, issue)
-    this._byCell.remove(issue.cellId, issue)
-    let column = this.doc.getColumnForCell(issue.cellId)
-    let cell = this.doc.get(issue.cellId)
-    let rowId = cell.parentNode.id
-    this._byColumn.remove(column.id, issue)
-    this._byRow.remove(rowId, issue)
-    this._bySeverity.remove(SEVERITY_MAP[issue.severity], issue)
-    this._notifyObservers(issue.cellId)
-  }
-
-  removeByColumn(colId, issue) {
-    this._byColumn.remove(colId, issue)
-    this._byCell.remove(issue.cellId, issue)
-    this._bySeverity.remove(SEVERITY_MAP[issue.severity], issue)
-    this._byRow.remove(issue.rowId, issue)
-    this._byKey.remove(issue.scope, issue)
-
-    let rowCell = this.doc.get(issue.rowId)
-    rowCell.emit('issue:changed')
-  }
-
-  removeByRow(rowId, issue) {
-    this._byRow.remove(rowId, issue)
-    this._byColumn.remove(issue.colId, issue)
-    this._byCell.remove(issue.cellId, issue)
-    this._bySeverity.remove(SEVERITY_MAP[issue.severity], issue)
-    this._byKey.remove(issue.scope, issue)
-
-    let columnHeader = this.doc.getColumnForCell(issue.colId)
-    columnHeader.emit('issue:changed')
-  }
-
-  clear(key) {
-    let issues = this._byKey.get(key)
-    let issuesArr = clone(issues)
-    issuesArr.forEach((issue) => {
-      this.remove(key, issue)
-    })
-  }
-
-  clearCellEngineIssues(cellId) {
-    const cellIssues = this._byCell.get(cellId)
-    cellIssues.forEach(issue => {
-      if(issue.scope === 'engine') {
-        this.remove('engine', issue)
-      }
-    })
-  }
-
-  clearTestIssues(cellId) {
-    const cellIssues = this._byCell.get(cellId)
-    cellIssues.forEach(issue => {
-      if(issue.scope === 'test') {
-        this.remove('test', issue)
-      }
-    })
-  }
-
-  clearByColumn(colId) {
-    let issues = this._byColumn.get(colId)
-    let issuesArr = clone(issues)
-    issuesArr.forEach((issue) => {
-      this.removeByColumn(colId, issue)
+  remove(...issues) {
+    issues.forEach((issue) => {
+      this._remove(issue)
     })
     this.emit('issues:changed')
   }
 
-  clearByRow(rowId) {
-    let issues = this._byRow.get(rowId)
-    let issuesArr = clone(issues)
-    issuesArr.forEach((issue) => {
-      this.removeByRow(rowId, issue)
-    })
-    this.emit('issues:changed')
+  clear(type) {
+    let issues = this._byType[type]
+    if (issues) {
+      Array.from(issues).forEach((issue) => {
+        this._remove(issue)
+      })
+      this.emit('issues:changed')
+    }
   }
 
-  getIssues(key) {
-    return this._byKey.get(key)
+  hasIssues(type) {
+    let issues = this.getIssues(type)
+    return issues.size > 0
   }
 
-  getAllIssues() {
-    let index = this._byKey
-    let scopes = Object.keys(index)
-    let issues = []
-    scopes.forEach(scope => {
-      issues = issues.concat(index[scope])
-    })
-
-    return issues
-  }
-
-  getCellIssues(cellId) {
-    return this._byCell.get(cellId)
-  }
-
-  getColumnIssues(columnId) {
-    return this._byColumn.get(columnId)
-  }
-
-  getRowIssues(rowId) {
-    return this._byRow.get(rowId)
-  }
-
-  getNumberOfIssues(key) {
-    let issues = this._byKey.get(key)
-    return issues.length
+  getIssues(type) {
+    if (type) {
+      return this._byType[type] || new Set()
+    } else {
+      return this._issues
+    }
   }
 
   getStats() {
-    let index = this._bySeverity
-    return {
-      errors: index.get('error').length,
-      warnings: index.get('warning').length,
-      info: index.get('info').length,
-      failed: index.get('failed').length,
-      passed: index.get('passed').length
+    if (!this._stats) {
+      this._computeStats()
+    }
+    return this._stats
+  }
+
+  _invalidateCache() {
+    this._stats = null
+  }
+
+  _computeStats() {
+    let issues = this.getIssues()
+    // count issues grouped by severity
+    let counters = {
+      error: 0,
+      warning: 0,
+      info: 0
+    }
+    this._stats = {
+      counters
     }
   }
 
-  hasIssues(key) {
-    let issues = this._byKey.get(key)
-    return issues.length > 0
-  }
-
-  hasAnyIssues() {
-    let index = this._byKey
-    let scopes = Object.keys(index)
-    let hasIssues = scopes.find(scope => {
-      return index[scope].length > 0
-    })
-
-    return hasIssues
-  }
-
-  cellHasIssue(cellId) {
-    return this._byCell.get(cellId).length > 0 ? true : false
-  }
-
-  hasErrors(key) {
-    let issues = this._byKey.get(key)
-    for (let i = 0; i < issues.length; i++) {
-      if (issues[i].isError()) return true
+  _add(issue) {
+    if (!(issue instanceof CellIssue)) {
+      issue = new CellIssue(issue)
     }
-    return false
-  }
-
-  _add(key, issue) {
-    const column = this.doc.getColumnForCell(issue.cellId)
-    const cell = this.doc.get(issue.cellId)
-    const rowId = cell.parentNode.id
-    issue.colId = column.id
-    issue.rowId = rowId
-    issue.scope = key
-    this._byKey.add(key, issue)
-    this._byCell.add(issue.cellId, issue)
-    // We want to show test:passed issues only in issue list and counters
-    if(issue.severity !== 4) {
-      this._byColumn.add(column.id, issue)
-      this._byRow.add(rowId, issue)
+    this._issues.add(issue)
+    const type = issue.type
+    let byType = this._byType[type]
+    if (!byType) {
+      this._byType[key] = new Set()
     }
-    this._bySeverity.add(SEVERITY_MAP[issue.severity], issue)
-    this._notifyObservers(issue.cellId)
+    byType.add(issue)
+    this._invalidateCache()
   }
 
-  _notifyObservers(cellId) {
-    let cell = this.doc.get(cellId)
-    cell.emit('issue:changed')
-
-    let columnHeader = this.doc.getColumnForCell(cellId)
-    columnHeader.emit('issue:changed')
-
-    let rowCell = this.doc.get(cell.parentNode.id)
-    rowCell.emit('issue:changed')
-  }
-
-  _onSelectionChange(sel) {
-    if(sel.type === 'custom' && sel.customType === 'sheet') {
-      if(sel.data.type === 'range') {
-        const anchorCol = sel.data.anchorCol
-        const anchorRow = sel.data.anchorRow
-        let doc = this.doc
-        let cell = doc.getCell(anchorRow, anchorCol)
-        let cellId = cell.id
-
-        if(this.selectedCell !== cellId) {
-          const hasIssue = this.cellHasIssue(cellId)
-          if(hasIssue) {
-            this.emit('issue:focus', cellId)
-            this.selectedCell = cellId
-          } else if (this.selectedCell) {
-            this.emit('issue:focus', null)
-            this.selectedCell = null
-          }
-        }
-      }
+  _remove(issue) {
+    const type = issue.type
+    this._issues.remove(issue)
+    let byType = this._byType[key]
+    if (byType) {
+      byType.remove(issue)
     }
+    this._invalidateCache()
   }
 
   _onDocumentChange(change) {
-    const columnsUpdate = change.updated.columns
-    const columnsChanged = columnsUpdate !== undefined
-    if(columnsChanged) {
-      let deletedColumns = []
-      columnsUpdate.ops.forEach(op => {
-        if(op.diff.type === 'delete') {
-          deletedColumns.push(op.diff.val)
-        }
-      })
-      deletedColumns.forEach(colId => {
-        this.clearByColumn(colId)
-      })
-    }
-
-    let rowsChanged = false
-    const updatedKeys = Object.keys(change.updated)
-    updatedKeys.forEach(key => {
-      if(key.indexOf('row') > -1) rowsChanged = true
-    })
-    if(rowsChanged) {
-      let deletedRows = []
-      const data = change.updated.data
-      if(data) {
-        data.ops.forEach(op => {
-          if(op.diff.type === 'delete' && op.diff.val.indexOf('row') > -1) {
-            deletedRows.push(op.diff.val)
-          }
+    forEach(change.deleted, (node) => {
+      // TODO: is it possible to generalize this?
+      if (node.type === 'cell') {
+        let cellState = getCellState(n)
+        let issues = cellState.getIssues()
+        issues.forEach((issue) => {
+          this._remove(issue)
         })
       }
-
-      deletedRows.forEach(rowlId => {
-        this.clearByRow(rowlId)
-      })
-    }
-    const stateUpdate = change.updated.setState
-    const stateUpdated = stateUpdate !== undefined
-    if(stateUpdated) {
-      stateUpdate.forEach(cellId => {
-        const cell = this.doc.get(cellId)
-        const cellState = cell.state
-        if(cellState) {
-          this.clearCellEngineIssues(cellId)
-          this.clearTestIssues(cellId)
-          const hasErrors = cellState.hasErrors()
-          if(hasErrors) {
-            cellState.messages.forEach((err) => {
-              const error = new CellIssue(cell.id, 'engine', err.message, 2)
-              this.add('engine', error)
-            })
-          }
-          if(cellState.value) {
-            const isTestCell = cellState.value.type === 'test'
-            if(isTestCell) {
-              const testData = cellState.value.data
-              const severity = testData.passed ? 4 : 3
-              const error = new CellIssue(cellId, 'test', testData.message, severity)
-              this.add('test', error)
-            }
-          }
-        }
-      })
-    }
+    })
   }
-}
 
-export default IssueManager
+}

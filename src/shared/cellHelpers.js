@@ -2,10 +2,26 @@ import { isNumber } from 'substance'
 import CellState from '../engine/CellState'
 import { type } from '../value'
 
+export const SEVERITY_NAMES = ['info', 'warning', 'error']
+
+const EMPTY_STATE = (() => {
+  let state = new CellState()
+  Object.freeze(state.issues)
+  Object.freeze(state)
+  return state
+})()
+
+export function getMaxSeverity(issues) {
+  return issues.reduce((level, issue) => {
+    let severity = issue.severity || 0
+    return Math.max(level, severity)
+  }, 0)
+}
+
 export function getCellState(cell) {
   // FIXME: we should make sure that cellState is
   // initialized as early as possible
-  return cell.state || new CellState()
+  return cell.state || EMPTY_STATE
 }
 
 export function isExpression(source) {

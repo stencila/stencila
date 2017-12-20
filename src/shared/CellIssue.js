@@ -1,19 +1,20 @@
-class CellIssue {
-  constructor(cellId, type, msg, severity, data) {
-    this.cellId = cellId
+import { uuid } from 'substance'
+
+export default class CellIssue {
+
+  constructor({ type, msg, severity, cellId, data }) {
+    if(!type) {
+      return new Error("'type' is mandatory")
+    }
+    if(!cellId) {
+      return new Error("'cellId' is mandatory")
+    }
+    // a generated id to identify the issue
+    this.id = uuid()
     this.type = type
     this.msg = msg
-
-    if(!cellId || !type || !msg) {
-      return new Error('cellId, type and message are mandatory')
-    }
-
-    if(severity !== null && typeof severity === 'object') {
-      data = severity
-      severity = 0
-    }
-
     this.severity = severity || 0
+    this.cellId = cellId
     this.data = data
   }
 
@@ -37,5 +38,3 @@ class CellIssue {
     return true
   }
 }
-
-export default CellIssue
