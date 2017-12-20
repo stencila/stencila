@@ -112,3 +112,8 @@ export function getRowCol(cellId) {
     getColumnIndex(match[1])
   ]
 }
+
+export function getError(cell) {
+  let cellState = getCellState(cell)
+  return cellState.messages[0]
+}
