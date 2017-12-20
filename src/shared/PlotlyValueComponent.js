@@ -34,6 +34,7 @@ export default class PlotlyValueComponent extends Component {
           'lasso2d', 'select2d'
         ],
         displaylogo: false,
+        displayModeBar: false,
         showTips: true
       }
       let el = this.el.getNativeElement()
