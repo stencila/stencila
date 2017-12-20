@@ -43,7 +43,7 @@
     "lodash": "^4.17.4",
     "lodash.throttle": "^4.1.1",
     "plotly.js": "^1.31.1",
-    "stencila-libcore": "^0.2.6",
+    "stencila-libcore": "^0.2.8",
     "stencila-mini": "^0.13.0",
     "substance": "1.0.0-preview.19",
     "substance-texture": "1.0.0-alpha.4-preview.8",
