@@ -4,6 +4,8 @@
 const parentTypes = {
   'any': null,
 
+  'null': 'any',
+
   'boolean': 'any',
 
   'number': 'any',

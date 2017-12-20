@@ -12,9 +12,9 @@ test('value.type', t => {
   t.equal(type(1000000000), 'integer')
   t.equal(type(1.1e20), 'integer')
 
-  t.equal(type(3.14), 'float')
-  t.equal(type(Math.PI), 'float')
-  t.equal(type(1.1e-20), 'float')
+  t.equal(type(3.14), 'number')
+  t.equal(type(Math.PI), 'number')
+  t.equal(type(1.1e-20), 'number')
 
   t.equal(type(''), 'string')
   t.equal(type('Yo!'), 'string')
@@ -52,11 +52,11 @@ test('value.pack works for primitive types', t => {
   check(t, 42, 'integer', 'text', '42')
   check(t, 1000000000, 'integer', 'text', '1000000000')
 
-  check(t, 3.14, 'float', 'text', '3.14')
-  check(t, Math.PI, 'float', 'text', '3.141592653589793')
+  check(t, 3.14, 'number', 'text', '3.14')
+  check(t, Math.PI, 'number', 'text', '3.141592653589793')
 
   check(t, 1.1e20, 'integer', 'text', '110000000000000000000')
-  check(t, 1.1e-20, 'float', 'text', '1.1e-20')
+  check(t, 1.1e-20, 'number', 'text', '1.1e-20')
 
   check(t, '', 'string', 'text', '')
   check(t, 'Yo!', 'string', 'text', 'Yo!')
@@ -129,8 +129,8 @@ test('value.unpack works for primitive types', t => {
   t.equal(unpack({type: 'integer', format: 'text', content: '42'}), 42)
   t.equal(unpack({type: 'integer', format: 'text', content: '1000000000'}), 1000000000)
 
-  t.equal(unpack({type: 'float', format: 'text', content: '3.12'}), 3.12)
-  t.equal(unpack({type: 'float', format: 'text', content: '1e20'}), 1e20)
+  t.equal(unpack({type: 'number', format: 'text', content: '3.12'}), 3.12)
+  t.equal(unpack({type: 'number', format: 'text', content: '1e20'}), 1e20)
 
   t.equal(unpack({type: 'string', format: 'text', content: 'Yo!'}), 'Yo!')
 

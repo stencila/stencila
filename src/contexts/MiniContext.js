@@ -77,7 +77,7 @@ export default class MiniContext {
           }
         }
         if (!found) {
-          return _error(`"${namedArg.name}" is not a valid parameter names for function "${functionName}"`)
+          return _error(`"${namedArg.name}" is not a valid parameter name for function "${functionName}"`)
         }
         namedArgsMap[namedArg.name] = namedArg
       }
