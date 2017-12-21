@@ -1,7 +1,8 @@
 import { Component } from 'substance'
+import { getFrameSize } from './cellHelpers'
 import Plotly from 'plotly.js'
 
-export default class PlotlyValueComponent extends Component {
+class PlotlyValueComponent extends Component {
 
   didMount() {
     this._renderPlotly()
@@ -24,6 +25,7 @@ export default class PlotlyValueComponent extends Component {
     if (this.el) {
       let value = this.props.value
       let spec = value.data
+      let size = getFrameSize(spec.layout)
       let options = {
         // Find button names at
         // https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js
@@ -37,9 +39,15 @@ export default class PlotlyValueComponent extends Component {
         displayModeBar: false,
         showTips: true
       }
+      spec.layout.width = size.width
+      spec.layout.height = size.height
       let el = this.el.getNativeElement()
       Plotly.purge(el)
       Plotly.plot(el, spec.traces, spec.layout, options)
     }
   }
 }
+
+PlotlyValueComponent.isResizable = true
+
+export default PlotlyValueComponent
