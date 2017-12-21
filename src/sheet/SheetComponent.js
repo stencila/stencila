@@ -477,6 +477,7 @@ export default class SheetComponent extends CustomSurface {
 
   _requestSelectionChange() {
     let sel = this._createSelection(clone(this._selectionData))
+    this._hideReferenceSelection()
     this.send('requestSelectionChange', sel)
   }
 
