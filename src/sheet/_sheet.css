@@ -302,10 +302,13 @@
   font-size: 12px;
 }
 
-.sc-sheet-cell .sc-plotly-value {
+.sc-sheet-cell .sc-cell-overflow {
   position: absolute;
   top: 0px;
   left: 0px;
   background: #fff;
   z-index: 10;
+  -webkit-box-shadow: 4px 2px 10px 6px #ccc;
+  -moz-box-shadow: 4px 2px 10px 6px #ccc;
+  box-shadow: 4px 2px 10px 6px #ccc;
 }
