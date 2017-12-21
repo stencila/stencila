@@ -12,6 +12,7 @@
   bottom: 0px;
   height: var(--sheet-scrollbar-width);
   width: 100%;
+  z-index: 20;
 }
 
 .sc-sheet-scrollbar .se-lspace {
