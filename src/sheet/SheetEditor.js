@@ -12,6 +12,7 @@ import FunctionUsageTool from '../shared/FunctionUsageTool'
 import CodeEditorPackage from '../shared/CodeEditorPackage'
 import { getCellLabel } from './sheetHelpers'
 import { getRowCol, getCellState, isExpression} from '../shared/cellHelpers'
+import CellRangesOverlay from './CellRangesOverlay'
 
 export default class SheetEditor extends AbstractEditor {
 
@@ -155,7 +156,12 @@ export default class SheetEditor extends AbstractEditor {
               position: 'absolute',
               display: 'none'
             })
-        ]
+        ],
+        unclickableOverlays: [
+          // a component that we use to highlight cell ranges
+          // e.g. while editing a formula
+          $$(CellRangesOverlay).ref('cellRanges')
+        ],
       }).ref('sheet')
         // LEGACY
         // TODO: the displayMode is app specific
@@ -304,7 +310,7 @@ export default class SheetEditor extends AbstractEditor {
     }
     if (this._isEditing) {
       this._isEditing = false
-      this._hideFormulaEditor()
+      this._hideOverlays()
       formulaEditorSession.setSelection(null)
     }
   }
@@ -314,22 +320,14 @@ export default class SheetEditor extends AbstractEditor {
     const to = reference.split(':')[1]
     const [startRow, startCol] = getRowCol(from)
     const [endRow, endCol] = to ? getRowCol(to) : [startRow, startCol]
-
-    const selData = {
-      type: 'range',
+    const sheetComp = this.getSheetComponent()
+    let rect = sheetComp.getRectangleForRange({
       anchorRow: startRow,
       focusRow: endRow ? endRow : startRow,
       anchorCol: startCol,
       focusCol: endCol ? endCol: startCol
-    }
-
-    const sheetComp = this.getSheetComponent()
-    sheetComp._positionRangeSelection({
-      type: 'custom',
-      customType: 'sheet',
-      data: selData,
-      surfaceId: this.refs.sheet.getId()
     })
+    this.refs.cellRanges.setProps({ ranges: [rect] })
   }
 
   _onCellEditorSelectionChange(sel) {
@@ -397,6 +395,15 @@ export default class SheetEditor extends AbstractEditor {
         display: 'none'
       })
     }
+  }
+
+  _hideOverlays() {
+    this._hideFormulaEditor()
+    this._hideCellRanges()
+  }
+
+  _hideCellRanges() {
+    this.refs.cellRanges.css({ display: 'none' })
   }
 
   _hideFormulaEditor() {
@@ -480,7 +487,8 @@ export default class SheetEditor extends AbstractEditor {
       const toCell = getCellLabel(selData.focusRow, selData.focusCol)
       const sheetComp = this.getSheetComponent()
       this._replaceEditorToken(fromCell, toCell)
-      sheetComp._positionRangeSelection(newSelection)
+      let rect = sheetComp.getRectangleForRange(selData)
+      this.refs.cellRanges.setProps({ ranges: [rect] })
     } else {
       const editorSession = this.getEditorSession()
       editorSession.setSelection(newSelection)

@@ -4,6 +4,7 @@
 @import './_sheet-linter.css';
 @import './_sheet-issues.css';
 @import './_formula-bar.css';
+@import './_cell-ranges.css';
 
 /* HACK: */
 .sc-button {
@@ -188,7 +189,8 @@
 
 .se-selection-overlay > .se-selection-range {
   position: absolute;
-  border: dashed 1px #2684FC;
+  border: solid 1px #2684FC;
+  background: rgba(38, 132, 252, 0.1)
 }
 
 .se-selection-overlay > .se-selection-columns,
