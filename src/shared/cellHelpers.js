@@ -117,3 +117,14 @@ export function getError(cell) {
   let cellState = getCellState(cell)
   return cellState.messages[0]
 }
+
+export function getFrameSize(layout) {
+  // WORKAROUND, this should be solved in libcore functions
+  const defaultSizes = {
+    'width': '400',
+    'height': '400'
+  }
+
+  const sizes = layout.width ? layout : defaultSizes
+  return sizes
+}
