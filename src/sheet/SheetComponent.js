@@ -216,10 +216,13 @@ export default class SheetComponent extends CustomSurface {
     }
   }
 
-  _positionRangeSelection(sel) {
+  _positionReferenceSelection(sel) {
     const rects = this._computeSelectionRects(sel)
     const styles = this._computeSelectionStyles(sel, rects)
-    this.refs.selRange.css(styles.range)
+    const selRange = this.refs.selRange
+    selRange
+      .addClass('sm-reference-selection')
+      .css(styles.range)
   }
 
   _computeSelectionRects(sel) {
@@ -379,6 +382,11 @@ export default class SheetComponent extends CustomSurface {
     return styles
   }
 
+  _hideReferenceSelection() {
+    this.refs.selRange.removeClass('sm-reference-selection')
+    this._hideSelection()
+  }
+
   _hideSelection() {
     this.refs.selAnchor.css('visibility', 'hidden')
     this.refs.selRange.css('visibility', 'hidden')
@@ -469,6 +477,7 @@ export default class SheetComponent extends CustomSurface {
 
   _requestSelectionChange() {
     let sel = this._createSelection(clone(this._selectionData))
+    this._hideReferenceSelection()
     this.send('requestSelectionChange', sel)
   }
 
@@ -555,7 +564,7 @@ export default class SheetComponent extends CustomSurface {
 
   _onSelectionChange(sel) {
     if (sel.surfaceId !== this.getId()) {
-      this._hideSelection()
+      this._hideReferenceSelection()
     } else {
       // ensure that the view port is showing
       const sel = this._getSelection()
