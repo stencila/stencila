@@ -321,8 +321,7 @@ export default class SheetEditor extends AbstractEditor {
     const [startRow, startCol] = getRowCol(from)
     const [endRow, endCol] = to ? getRowCol(to) : [startRow, startCol]
     const sheetComp = this.getSheetComponent()
-    let rect = sheetComp._getRectForSelection({
-      type: 'range',
+    let rect = sheetComp.getRectangleForRange({
       anchorRow: startRow,
       focusRow: endRow ? endRow : startRow,
       anchorCol: startCol,
@@ -488,7 +487,7 @@ export default class SheetEditor extends AbstractEditor {
       const toCell = getCellLabel(selData.focusRow, selData.focusCol)
       const sheetComp = this.getSheetComponent()
       this._replaceEditorToken(fromCell, toCell)
-      let rect = sheetComp._getRectForSelection(selData)
+      let rect = sheetComp.getRectangleForRange(selData)
       this.refs.cellRanges.setProps({ ranges: [rect] })
     } else {
       const editorSession = this.getEditorSession()

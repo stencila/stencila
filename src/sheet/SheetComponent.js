@@ -118,6 +118,12 @@ export default class SheetComponent extends CustomSurface {
     return this.refs.sheetView
   }
 
+  // data: {anchorRow, anchorCol, focusRow, focusCol}
+  getRectangleForRange(data) {
+    const rects = this._computeSelectionRects(data, 'range')
+    return rects.selRect
+  }
+
   forceUpdate() {
     this.refs.sheetView.update()
     this.refs.scrollX.rerender()
@@ -211,7 +217,7 @@ export default class SheetComponent extends CustomSurface {
     const sel = this.context.editorSession.getSelection()
     if (sel.surfaceId === this.getId()) {
       const data = sel.data
-      let rects = this._computeSelectionRects(data)
+      let rects = this._computeSelectionRects(data, data.type)
       let styles = this._computeSelectionStyles(data, rects)
       this.refs.selAnchor.css(styles.anchor)
       this.refs.selRange.css(styles.range)
@@ -220,21 +226,14 @@ export default class SheetComponent extends CustomSurface {
     }
   }
 
-  // E.g. used by SheetEditor to position cell ranges
-  _getRectForSelection(data) {
-    const rects = this._computeSelectionRects(data)
-    return rects.selRect
-  }
-
-
   _positionRangeSelection(sel) {
     const data = sel.data
-    const rects = this._computeSelectionRects(data)
+    const rects = this._computeSelectionRects(data, data.type)
     const styles = this._computeSelectionStyles(sel, rects)
     this.refs.selRange.css(styles.range)
   }
 
-  _computeSelectionRects(data) {
+  _computeSelectionRects(data, type) {
     const viewport = this._getViewport()
     let styles = {
       anchor: { visibility: 'hidden' },
@@ -244,7 +243,7 @@ export default class SheetComponent extends CustomSurface {
     }
     let anchorRow, anchorCol
     let ulRow, ulCol, lrRow, lrCol
-    switch(data.type) {
+    switch(type) {
       case 'range': {
         anchorRow = data.anchorRow
         anchorCol = data.anchorCol
