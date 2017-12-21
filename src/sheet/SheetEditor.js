@@ -3,8 +3,6 @@ import {
   Toolbar, EditorSession, DOMSelection,
   Configurator
 } from 'substance'
-import ContextSection from '../shared/ContextSection'
-import SheetStatusBar from './SheetStatusBar'
 import FormulaBar from './FormulaBar'
 import FormulaEditor from './FormulaEditor'
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
@@ -21,15 +19,13 @@ export default class SheetEditor extends AbstractEditor {
     this._formulaEditorContext = this._createFormulaEditorContext()
     // true when the cursor is either in the FormularBar or the FormulaEditor
     this._isEditing = false
-
     this.handleActions({
       'updateCell': this._updateCell,
       'cancelCellEditing': this._cancelCellEditing,
       'editCell': this._editCell,
       'requestSelectionChange': this._requestSelectionChange,
       'selectAll': this._selectAll,
-      'executeCommand': this._executeCommand,
-      'help': this._openDocumentation,
+      'executeCommand': this._executeCommand
     })
   }
 
@@ -99,17 +95,17 @@ export default class SheetEditor extends AbstractEditor {
     el.append(
       $$('div').addClass('se-main-section').append(
         this._renderToolpane($$),
-        this._renderContent($$),
-        this._renderStatusbar($$)
+        this._renderContent($$)
       )
     )
-    if(this.state.showContext) {
+
+    if (this.props.contextComponent) {
       el.append(
-        $$(ContextSection, {
-          contextId: this.state.contextId,
-          cellId: this.state.cellId,
-          sectionId: this.state.sectionId
-        }).ref('context')
+        $$('div').addClass('se-context-pane').append(
+          $$('div').addClass('se-context-pane-content').append(
+            this.props.contextComponent
+          )
+        )
       )
     }
     return el
@@ -122,7 +118,7 @@ export default class SheetEditor extends AbstractEditor {
       $$(FormulaBar, {
         node: this._formulaEditorContext.node,
         context: this._formulaEditorContext
-      }),
+      }).ref('formulaBar'),
       $$(Toolbar, {
         toolPanel: configurator.getToolPanel('toolbar')
       }).ref('toolbar')
@@ -165,10 +161,6 @@ export default class SheetEditor extends AbstractEditor {
     } else {
       return $$('div')
     }
-  }
-
-  _renderStatusbar($$) {
-    return $$(SheetStatusBar, {}).ref('sheet-statusbar')
   }
 
   getWidth() {
@@ -533,16 +525,5 @@ export default class SheetEditor extends AbstractEditor {
     // TODO: soon we will pull out CommandManager from EditorSession
     let commandManager = this.commandManager
     commandManager.executeCommand(commandName, params)
-  }
-
-  _openDocumentation(helpPath) {
-    const path = helpPath.split(':')
-    const contextId = path[0]
-    const sectionId = path[1]
-    this.setState({
-      showContext: true,
-      contextId,
-      sectionId
-    })
   }
 }

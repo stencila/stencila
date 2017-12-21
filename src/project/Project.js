@@ -1,20 +1,25 @@
 import { Component } from 'substance'
 import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
-
 import ProjectBar from './ProjectBar'
+import HelpComponent from '../shared/HelpComponent'
+
 
 export default class Project extends Component {
 
   didMount() {
     this.handleActions({
-      'openDocument': this._openDocument
+      'openDocument': this._openDocument,
+      'openHelp': this._openHelp,
+      'toggleHelp': this._toggleHelp
     })
   }
 
   getInitialState() {
     let activeDocument = this._getActiveDocument()
     return {
+      contextId: undefined,
+      contextProps: undefined,
       documentId: activeDocument.id
     }
   }
@@ -36,6 +41,7 @@ export default class Project extends Component {
         this._renderEditorPane($$)
       ),
       $$(ProjectBar, {
+        contextId: this.state.contextId,
         documentId: this.state.documentId,
         documentContainer: this.props.documentContainer
       })
@@ -68,19 +74,22 @@ export default class Project extends Component {
     let documentType = documentRecord.type
     let dc = this._getDocumentContainer()
     let editorSession = dc.getEditorSession(documentId)
+    let contextComponent = this._getContextComponent($$)
 
     if (documentType === 'article') {
       el.append(
         $$(TextureEditorPackage.Editor, {
           editorSession,
-          pubMetaDbSession: this._getPubMetaDbSession()
+          pubMetaDbSession: this._getPubMetaDbSession(),
+          contextComponent
         }).ref('editor')
           .addClass('sc-article-editor')
       )
     } else if (documentType === 'sheet') {
       el.append(
         $$(SheetEditor, {
-          editorSession
+          editorSession,
+          contextComponent
         }).ref('editor')
       )
     }
@@ -88,9 +97,56 @@ export default class Project extends Component {
   }
 
   _openDocument(documentId) {
-    this.setState({
+    this.extendState({
       documentId: documentId
     })
+  }
+
+  /*
+    E.g. _openHelp('function/sum')
+  */
+  _openHelp(page) {
+    this.extendState({
+      contextId: 'help',
+      contextProps: {
+        page
+      }
+    })
+  }
+
+  /*
+    Either hide help or show function index
+  */
+  _toggleHelp() {
+    if (this.state.contextId === 'help') {
+      this.extendState({
+        contextId: undefined,
+        contextProps: undefined
+      })
+    } else {
+      this.extendState({
+        contextId: 'help',
+        contextProps: { page: 'function/index'}
+      })
+    }
+  }
+
+  /*
+    TODO: We may want to make this extensible in the future
+
+    NOTE: This is injected into the active editor, so we need to make sure that
+    context
+  */
+  _getContextComponent($$) {
+    let contextId = this.state.contextId
+    let contextProps = this.state.contextProps
+    let contextComponent
+    if (contextId === 'help') {
+      contextComponent = $$(HelpComponent, contextProps).ref('contextComponent')
+    } else if (contextId === 'issues') {
+      console.warn('TODO: use issue component')
+    }
+    return contextComponent
   }
 
 }
