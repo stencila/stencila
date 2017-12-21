@@ -20,6 +20,11 @@
   opacity: 0.3;
 }
 
+/* Table Value */
+.sc-table-value {
+  margin-top: 20px;
+}
+
 /* String Value */
 .sc-document-editor .sc-string-value {
   padding-top: 20px;
