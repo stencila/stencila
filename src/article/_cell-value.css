@@ -1,18 +1,18 @@
 /* Integer Value */
-.sc-document-editor .sc-integer-value {
+.sc-article-editor .sc-integer-value {
   margin-top: 20px;
   font-size: 20px;
   text-align: center;
 }
 
 /* Number Value */
-.sc-document-editor .sc-number-value {
+.sc-article-editor .sc-number-value {
   margin-top: 20px;
   font-size: 20px;
   text-align: center;
 }
 
-.sc-document-editor .sc-float-value.sm-has-errors,
+.sc-article-editor .sc-float-value.sm-has-errors,
 .sc-string-value.sm-has-errors,
 .sc-table-value.sm-has-errors,
 .sc-integer-value.sm-has-errors,
@@ -21,12 +21,12 @@
 }
 
 /* Table Value */
-.sc-table-value {
+.sc-article-editor .sc-table-value {
   margin-top: 20px;
 }
 
 /* String Value */
-.sc-document-editor .sc-string-value {
+.sc-article-editor .sc-string-value {
   padding-top: 20px;
   font-size: 16px;
   color: #ad0000;
@@ -34,13 +34,13 @@
 }
 
 /* Array Value */
-.sc-document-editor .sc-array-value {
+.sc-article-editor .sc-array-value {
   margin-top: 20px;
   font-size: 16px;
   text-align: center;
 }
 
-.sc-document-editor .sc-array-value .se-array-item {
+.sc-article-editor .sc-array-value .se-array-item {
   border: 1px solid #ddd;
   display: inline-block;
   padding: 2px 5px;
