@@ -4,6 +4,7 @@
 @import './_sheet-linter.css';
 @import './_sheet-issues.css';
 @import './_formula-bar.css';
+@import './_cell-ranges.css';
 
 /* HACK: */
 .sc-button {

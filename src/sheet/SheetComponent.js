@@ -144,6 +144,9 @@ export default class SheetComponent extends CustomSurface {
     el.append(
       this._renderSelectionOverlay($$)
     )
+    el.append(
+      this.props.unclickableOverlays
+    )
     return el
   }
 
@@ -207,8 +210,9 @@ export default class SheetComponent extends CustomSurface {
   _positionSelection() {
     const sel = this.context.editorSession.getSelection()
     if (sel.surfaceId === this.getId()) {
-      let rects = this._computeSelectionRects(sel)
-      let styles = this._computeSelectionStyles(sel, rects)
+      const data = sel.data
+      let rects = this._computeSelectionRects(data)
+      let styles = this._computeSelectionStyles(data, rects)
       this.refs.selAnchor.css(styles.anchor)
       this.refs.selRange.css(styles.range)
       this.refs.selColumns.css(styles.columns)
@@ -216,15 +220,22 @@ export default class SheetComponent extends CustomSurface {
     }
   }
 
+  // E.g. used by SheetEditor to position cell ranges
+  _getRectForSelection(data) {
+    const rects = this._computeSelectionRects(data)
+    return rects.selRect
+  }
+
+
   _positionRangeSelection(sel) {
-    const rects = this._computeSelectionRects(sel)
+    const data = sel.data
+    const rects = this._computeSelectionRects(data)
     const styles = this._computeSelectionStyles(sel, rects)
     this.refs.selRange.css(styles.range)
   }
 
-  _computeSelectionRects(sel) {
+  _computeSelectionRects(data) {
     const viewport = this._getViewport()
-    const data = sel.data
     let styles = {
       anchor: { visibility: 'hidden' },
       range: { visibility: 'hidden' },
@@ -299,7 +310,7 @@ export default class SheetComponent extends CustomSurface {
     return { anchorRect, selRect, ulRect, lrRect}
   }
 
-  _computeSelectionStyles(sel, { anchorRect, ulRect, lrRect }) {
+  _computeSelectionStyles(data, { anchorRect, ulRect, lrRect }) {
     let styles = {
       range: { visibility: 'hidden' },
       columns: { visibility: 'hidden' },
@@ -312,7 +323,7 @@ export default class SheetComponent extends CustomSurface {
     if (ulRect && lrRect) {
       Object.assign(
         styles,
-        this._computeRangeStyles(ulRect, lrRect, sel.data.type)
+        this._computeRangeStyles(ulRect, lrRect, data.type)
       )
     }
     return styles
