@@ -1,23 +1,13 @@
 import { Component } from 'substance'
 
-export default class FunctionReferenceComponent extends Component {
-
-  didMount() {
-
-  }
-
-  dispose() {
-
-  }
-
+export default class FunctionHelpComponent extends Component {
   render($$) {
-    const sectionId = this.props.sectionId
     const functionManager = this.context.host.functionManager
-    const functionInstance = functionManager.getFunction(sectionId)
+    const functionInstance = functionManager.getFunction(this.props.functionName)
 
-    let el = $$('div').addClass('sc-function-reference')
+    let el = $$('div').addClass('sc-function-help')
 
-    if(functionInstance) {
+    if (functionInstance) {
       const usage = functionInstance.getUsage()
       el.append(
         $$('div').addClass('se-name').append(usage.name),
@@ -71,13 +61,18 @@ export default class FunctionReferenceComponent extends Component {
       const functionList = functionManager.getFunctionNames()
       functionList.forEach(func => {
         el.append(
-          $$('div').addClass('se-item').append(func)
+          $$('div').addClass('se-item').append(
+            $$('a').attr({href: '#'})
+              .append(func)
+              .on('click', this._openFunctionHelp.bind(this, func))
+          )
         )
       })
     }
-
     return el
   }
 
-
+  _openFunctionHelp(funcName) {
+    this.send('openHelp', `function/${funcName}`)
+  }
 }

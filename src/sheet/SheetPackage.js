@@ -14,7 +14,6 @@ import {
 import SheetDocumentImporter from './SheetDocumentImporter'
 import ColumnSettingsDialog from './ColumnSettingsDialog'
 import SheetIssuesComponent from './SheetIssuesComponent'
-import FunctionReferenceComponent from '../shared/FunctionReferenceComponent'
 
 import BooleanValueComponent from '../shared/BooleanValueComponent'
 import NumberValueComponent from '../shared/NumberValueComponent'
@@ -292,8 +291,6 @@ export default {
 
     config.addComponent('sheet-issues', SheetIssuesComponent)
     config.addLabel('sheet-issues', 'Issues')
-
-    config.addComponent('function-reference', FunctionReferenceComponent)
     config.addLabel('function-reference',' Function Reference')
 
     config.addLabel('title:error', {
