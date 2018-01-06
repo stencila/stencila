@@ -263,16 +263,6 @@ function bundlePrism() {
   })
 }
 
-function buildDocumentation() {
-  const config = require.resolve('./docs/docs.yml')
-  fork(b, "node_modules/documentation/bin/documentation", "build", "index.es.js", "--config", config, "--output", "docs", "--format", "html")
-}
-
-function serveDocumentation() {
-  const config = require.resolve('./docs/docs.yml')
-  fork(b, "node_modules/documentation/bin/documentation", "serve", "--config", config, "--watch")
-}
-
 const RNG_SEARCH_DIRS = ['src/sheet', 'src/function']
 
 function _compileSchema(name, src, options = {} ) {
@@ -385,23 +375,6 @@ b.task('test:one', ['test:backend'], () => {
   fork(b, 'node_modules/substance-test/bin/test', builtTestFile, { verbose: true })
 })
 .describe('Runs the tests and generates a coverage report.')
-
-
-b.task('docs', () => {
-  if (isInstalled('documentation')) {
-    buildDocumentation()
-  } else {
-    console.error("Please run 'npm install documentation'.\nSkipping task.")
-  }
-})
-
-b.task('docs:serve', () => {
-  if (isInstalled('documentation')) {
-    serveDocumentation()
-  } else {
-    console.error("Please run 'npm install documentation'.\nSkipping task.")
-  }
-})
 
 b.task('default', ['stencila', 'examples'])
 .describe('[stencila, examples].')
