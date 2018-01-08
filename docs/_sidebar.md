@@ -1,15 +1,18 @@
 - Welcome
   - [Intro](README.md)
-- Execution
-  - [Intro](execution/README.md)
-  - [Values](execution/values.md)
-  - [Operations](execution/operations.md)
-  - [Contexts](execution/contexts.md)
-  - [Engine](execution/engine.md)
+- Documents
+  - Notebooks
+  - Articles
+  - Sheets
+- [Computation](computation/README.md)
+  - [Data](computation/data.md)
+  - [Operations](computation/operations.md)
+  - [Contexts](computation/contexts.md)
+  - [Engine](computation/engine.md)
 - Languages
-  - Mini
-    - [Intro](languages/mini/README.md)
-    - [Values](languages/mini/values.md)
-    - [Functions](languages/mini/functions.md)
-  - [Python](py/README.md)
-  - [R](r/README.md)
+  - [Mini](languages/mini/README.md)
+  - [Javascript](languages/js/README.md)
+  - [Python](languages/py/README.md)
+  - [R](languages/r/README.md)
+  - [SQL](languages/sql/README.md)
+- Environments

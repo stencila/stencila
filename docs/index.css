@@ -63,6 +63,7 @@ textarea {
 
 .sidebar ul li {
 	margin: 0 0 0 15px;
+	line-height: 1.5em;
 }
 
 .sidebar ul li a {
