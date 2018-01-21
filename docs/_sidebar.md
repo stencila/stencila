@@ -9,6 +9,7 @@
   - [Operations](computation/operations.md)
   - [Contexts](computation/contexts.md)
   - [Engine](computation/engine.md)
+  - [Functions](computation/functions.md)
 - Languages
   - [Mini](languages/mini/README.md)
   - [Javascript](languages/js/README.md)
