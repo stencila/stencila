@@ -10,7 +10,7 @@ Stencila function libraries are collections of functions for data manipulation, 
 
 Stencila uses its own simple *glue-like* language [Mini](https://github.com/stencila/mini) which enables the communication between functions written in different programming lanaguages. On its own Mini cannot perform sophisticated calculations but that is not its main purpose. Mini is used for wrapping functions in other languages making them interoperable. Behnid the scenes Stencila uses Mini to call the relevant language context in order to execute the wrapped function.
 
-## Why are Stencila function libraries useful?
+### Why are Stencila function libraries useful?
 
 Users primarily using spreadsheets for analysing and storing their data have access to a much wider selection of functions than those available in standard spreadsheet applications. By using Stencila functions they can easily keep the record of their workflow aligning their work with the principle of reproducible research.
 
@@ -23,29 +23,31 @@ Developers can make their functions easily available and versatile which results
 However, CoreLib has also implementation in other languages (for example, [R](https://github.com/stencila/libcore/tree/master/r) and [Python](https://github.com/stencila/libcore/tree/master/py)).
 
 The scope of the Stencila Core Library is corresponding with:
- * a standard set of functions available in most popular spreadsheet applications (for example, in [Excel](](https://support.office.com/en-us/article/Excel-functions-alphabetical-b3944572-255d-4efb-bb96-c6d90033e188));
+ * a standard set of functions available in most popular spreadsheet applications (for example, in [Excel]((https://support.office.com/en-us/article/Excel-functions-alphabetical-b3944572-255d-4efb-bb96-c6d90033e188));
  * [Python Standard Library](https://docs.python.org/3/library/index.html);
  * [R Base Package](https://stat.ethz.ch/R-manual/R-devel/library/base/html/00Index.html).
 
-[See the list of functions currently implemented in Stencila Core Library.](https://stencila.github.io/libcore/#/).
+See the [list of functions currently implemented](https://stencila.github.io/libcore/#/) in Stencila Core Library..
 
 [Contriubute to the LibCore](https://github.com/stencila/libcore/blob/master/docs/CONTRIBUTING.md).
 
 ### Domain-specific libraries
 
-Domain-specific libraries are collections of functions developed and used within research communities. Using the simple API (by wrapping their functions in a Mini template) anyone can make their code for data analysis, management and plotting available for a wide audience. 
+Domain-specific libraries are collections of functions developed and used within research communities. Using the simple API (by wrapping their functions in a Mini template) anyone can make their code for data analysis, management and plotting available for a wide audience.
+
+Domain-specific libraries are particularily useful for making various tools for data analysis fully interoperable. Researchers who tend to do most of their work in spreadsheets are then able to extend their data analysis by a whole new array of functions in R, Python or other languages.
 
 ## Adding functions to Stencila function libraries
 
 Adding functions to Stencila function libraries is fairly straightforward. We provided templates for different languages (see below) which should help contributors wrap their functions in Mini and write documentation. As mentioned, Mini is intentionally simple to minimise the effort of adding new functions to the libraries.
 
-In order to add your function to the selected library,
+In order to add your function to the selected library, please use the template provided for the relevant programming lanague:
 
-### R functions
+* **R functions** [template](languages/r/README.md)
 
-### Python functions
+* **Python functions** [template](languages/python/README.md)
 
-### Javascript functions
+* **Javascript functions** [template](languages/js/README.md)
 
 ## Creating new Stencila function library
-We recommend that each library is located in its own separate directory, structured as in this [template](link). Preferably, to make it should be a public repository
+We recommend that each library is located in its own separate directory, structured as in this [template](link). Preferably, it should be a public repository.
