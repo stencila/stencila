@@ -49,6 +49,8 @@ export default class Host {
      */
     this._peers = {}
 
+    // TODO: consider instantiating the FunctionManager here, within this host, instead of in setupStencilaContext.
+    // ATM, its the only place that FunctionManager and used
     this._functionManager = options.functionManager
 
     if (!this._functionManager) {
@@ -184,20 +186,41 @@ export default class Host {
       if (!type) {
         return Promise.reject(new Error(`Unable to create an execution context for language ${language}`))
       } else {
-        let p = this.create(type).then((res) => {
-          if (res instanceof Error) {
+        const promise = this.create(type).then((result) => {
+          if (result instanceof Error) {
             // Unable to create so set the cached context promise to null
             // so a retry is performed next time this method is called
             // (at which time another peer that provides the context may be available)
             this._contexts[language] = null
-            return res
+            return result
+          } else {
+            // Get a list of fuctions from the context so that `FunctionManager` can
+            // dispatch a `call` operation to the context if necessary. Implemented
+            // optimistically i.e. will not fail if the context does not implement `getLibraries`
+            const context = result.instance
+            if (typeof context.getLibraries === 'function') {
+              context.getLibraries().then((libraries) => {
+                for (let name of Object.keys(libraries)) {
+                  this._functionManager.importLibrary(name, libraries[name])
+                }
+              }).catch((error) => {
+                console.log(error) // eslint-disable-line
+              })
+            }
+            return context
           }
-          else return res.instance
         })
-        this._contexts[language] = p
-        return p
+        this._contexts[language] = promise
+        return promise
       }
     }
+  }
+
+  /**
+   * Get the execution contexts managed by this host
+   */
+  get contexts() {
+    return this._contexts
   }
 
   get functionManager() {
