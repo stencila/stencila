@@ -1,9 +1,17 @@
 - Welcome
-  - [Intro](README.md)
+  - [About](README.md)
+  - Getting started
+    - [Installation](installation.md)
+    - [Quick start]
+    - [Tutorials]
+    - [FAQ]
 - Documents
   - Notebooks
   - Articles
   - Sheets
+- Contributing
+  - [Guidelines](CONTRIBUTING.md)
+  - [Architecture]()
 - [Computation](computation/README.md)
   - [Data](computation/data.md)
   - [Operations](computation/operations.md)

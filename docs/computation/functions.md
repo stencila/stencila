@@ -16,9 +16,9 @@ Users primarily using spreadsheets for analysing and storing their data have acc
 
 Developers can make their functions easily available and versatile which results in expanded userbase.
 
-### Stencila Core Library (CoreLib)
+### Stencila Core Library
 
-[Stencila Core Library](https://github.com/stencila/libcore) is a library of functions that are built into Stencila's Mini language. The default implementation of Mini is done in [Javascript](https://github.com/stencila/libcore/tree/master/js). That is, in fact, Mini calls upon Javascript operations. The default implementation in Javascript allows for performing work in Stencila only by the means of a browser. Users who do not have access to other execution contexts (R, Python and so forth) are still able to manipulate their data.
+[Stencila Core Library](https://github.com/stencila/libcore) (LibCore) is a library of functions that are built into Stencila's Mini language. The default implementation of Mini is done in [Javascript](https://github.com/stencila/libcore/tree/master/js). That is, in fact, Mini calls upon Javascript operations. The default implementation in Javascript allows for performing work in Stencila only by the means of a browser. Users who do not have access to other execution contexts (R, Python and so forth) are still able to manipulate their data.
 
 However, CoreLib has also implementation in other languages (for example, [R](https://github.com/stencila/libcore/tree/master/r) and [Python](https://github.com/stencila/libcore/tree/master/py)).
 
@@ -37,7 +37,7 @@ Domain-specific libraries are collections of functions developed and used within
 
 Domain-specific libraries are particularily useful for making various tools for data analysis fully interoperable. Researchers who tend to do most of their work in spreadsheets are then able to extend their data analysis by a whole new array of functions in R, Python or other languages.
 
-## Adding functions to Stencila function libraries
+## Adding new functions
 
 Adding functions to Stencila function libraries is fairly straightforward. We provided templates for different languages (see below) which should help contributors wrap their functions in Mini and write documentation. As mentioned, Mini is intentionally simple to minimise the effort of adding new functions to the libraries.
 
@@ -49,5 +49,5 @@ In order to add your function to the selected library, please use the template p
 
 * **Javascript functions** [template](languages/js/README.md)
 
-## Creating new Stencila function library
+## Creating new libraries
 We recommend that each library is located in its own separate directory, structured as in this [template](link). Preferably, it should be a public repository.
