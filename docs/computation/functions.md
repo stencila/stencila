@@ -51,3 +51,4 @@ In order to add your function to the selected library, please use the template p
 
 ## Creating new libraries
 We recommend that each library is located in its own separate directory, structured as in this [template](link). Preferably, it should be a public repository.
+TODO: structure of the repo: libraries in folder with subfolder for tests.

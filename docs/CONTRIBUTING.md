@@ -35,28 +35,30 @@ We prefer the contributions to be made via [GitHub][github].
 3.  If you are comfortable with Git,
     you can submit a pull request (PR).
     In Stencila we follow a commonly used workflow
-    for [contributing to open source projects][how-contribute].
+    for [contributing to open source projects][how-contribute]
+    (see also [GitHub instructions][github-flow]).
 
 ## How to contribute to:
 
 If you develop code for data manipulation (in Python, R and other languages), you may be interested in:
-1. [Core Library (LibCore)][libcore]
-2. Domain-specific libraries
+1. [Core Library (LibCore)][libcore-contribute]
+2. [Domain-specific libraries][libraries-contribute]
 
 If you use Javascript, you may be interested in:
-3. Node
-4. Stencila Desktop
-5. Stencila CLI (Command Line Interface)
+3. [Node][node-contribute]
+4. [Stencila Desktop][desktop-contribute]
+5. [Stencila CLI (Command Line Interface)][cli-contribute]
 
 If you are a Python developer, you may be interested in:
 6. Stencila Hub
 
-
+If you are into cloud computing, Docker and Kubernetes, you may be interested in:
 7. Stencila Cloud
+
+If you build Docker containers, contribute to:
 8. Stencila Images
 
-And if you are frustrated reading this documentation:
-9. Documentation
+9. And if you are frustrated reading this documentation:
 
 Documentation files are written in [Markdown][markdown]. The documentation source
 files are contained in the main [Stencila repository][stencila-repo]. As per the instructions
@@ -83,5 +85,8 @@ on Twitter [@Stencila][stencila-twitter],
 [stencila-twitter]: https://twitter.com/stencila
 [stencila-gitter]: https://gitter.im/stencila/stencila/
 [markdown]: https://daringfireball.net/projects/markdown
-[libcore]: computation/functions.md#stencila-core-library
+[libcore-contribute]: https://github.com/stencila/libcore/blob/master/CONTRIBUTING.md
+[libraries-contribute]: computation/functions.md#domain-specific-libraries
 [new-functions]: computation/functions.md#adding-new-functions
+[node-contribute]: https://github.com/stencila/node/CONTRIBUTING.md
+[desktop-contribute]: https://github.com/stencila/desktop/blob/master/CONTRIBUTING.md
