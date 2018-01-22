@@ -297,6 +297,12 @@
   font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
 }
 
+.sc-sheet-cell .sc-null-value {
+  color: #cacaca;
+  text-align: center;
+  font-size: 12px;
+}
+
 .sc-sheet-cell .se-error {
   color: #FF0300;
   text-align: center;
