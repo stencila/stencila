@@ -29,7 +29,7 @@ The scope of the Stencila Core Library is corresponding with:
 
 See the [list of functions currently implemented](https://stencila.github.io/libcore/#/) in Stencila Core Library..
 
-[Contriubute to the LibCore](https://github.com/stencila/libcore/blob/master/docs/CONTRIBUTING.md).
+See detailed guidelines on how to [contriubute to the LibCore](https://github.com/stencila/libcore/blob/master/docs/CONTRIBUTING.md).
 
 ### Domain-specific libraries
 
@@ -51,4 +51,15 @@ In order to add your function to the selected library, please use the template p
 
 ## Creating new libraries
 We recommend that each library is located in its own separate directory, structured as in this [template](link). Preferably, it should be a public repository.
-TODO: structure of the repo: libraries in folder with subfolder for tests.
+The structure of the new library repository should be simple:
+
+```
+func/
+    functionA.R
+    functionB.js
+    functionB.py
+    ....
+    tests/
+README.md
+LICENSE
+```

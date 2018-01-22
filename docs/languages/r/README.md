@@ -1,22 +1,13 @@
 # R
-
-Cells and functions can be written using Javascript. An execution context for Javascript, `JsContext` is implemented in the [`stencila/stencila`](https://github.com/stencila/stencila) repository so it's already availble to all Stencila documents without the need for external hosts.
+You can write the contents of Stencila cells in R as well as make your existing R functions available in Stencila through [function libraries][libraries-contribute]. An execution context for R, `RContext`. Currrently, in order to have `RContext` available, you need to have an R sesssion running either locally or point to a session running in a remote location.
 
 ## Data interchange
 
-
-
 ## Cells
 
-
-
 ## Functions
+You can make almost any R functions for data manipulation available from within Stencila by using our API (which is a simple wrapper). You can either contribute new functions to the Stencila Core Library, existing domain-specific libraries or create a new domain-specific library and add your functions there.
 
-TODO - revise!
-
-### Create
-
-See the [`meta`](../meta) folder for which functions are the highet priority for implementation. Each function needs an XML file in the `../xml` folder. If necessary, create a new function using `../xml/.fun.xml` as a template.
 
 ### Implement
 
@@ -38,7 +29,7 @@ Check for lint,
 
 ```bash
 lintr::lint_package()
-``
+```
 
 Then run all the tests,
 
@@ -51,3 +42,8 @@ Alternatively, you can run the tests and calculate test coverage using,
 ```bash
 covr::package_coverage()
 ```
+
+### Register
+
+
+[libraries-contribute]: computation/functions.md#domain-specific-libraries

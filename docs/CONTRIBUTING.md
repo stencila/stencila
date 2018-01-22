@@ -41,29 +41,29 @@ We prefer the contributions to be made via [GitHub][github].
 ## How to contribute to:
 
 If you develop code for data manipulation (in Python, R and other languages), you may be interested in:
-1. [Core Library (LibCore)][libcore-contribute]
-2. [Domain-specific libraries][libraries-contribute]
+* [Core Library (LibCore)][libcore-contribute]
+* [Domain-specific libraries][libraries-contribute]
 
 If you use Javascript, you may be interested in:
-3. [Node][node-contribute]
-4. [Stencila Desktop][desktop-contribute]
-5. [Stencila CLI (Command Line Interface)][cli-contribute]
+* [Node][node-contribute]
+* [Stencila Desktop][desktop-contribute]
+* [Stencila CLI (Command Line Interface)][cli-contribute]
 
 If you are a Python developer, you may be interested in:
-6. Stencila Hub
+* [Stencila Hub][hub-contribute]
 
 If you are into cloud computing, Docker and Kubernetes, you may be interested in:
-7. Stencila Cloud
+* [Stencila Cloud][cloud-contribute]
 
 If you build Docker containers, contribute to:
-8. Stencila Images
+* [Stencila Images][images-contribute]
 
-9. And if you are frustrated reading this documentation:
+* And if you are frustrated reading this documentation...
 
-Documentation files are written in [Markdown][markdown]. The documentation source
+...please help us fix it! Documentation files are written in [Markdown][markdown]. The documentation source
 files are contained in the main [Stencila repository][stencila-repo]. As per the instructions
 above, we welcome all contributions submitted by [opening an issue](https://github.com/stencila/stencila/issues),
-sending us a Pull Request or simply and [email][contact].
+sending us a Pull Request or simply an [email][contact].
 
 
 ## Get in touch!
@@ -90,3 +90,7 @@ on Twitter [@Stencila][stencila-twitter],
 [new-functions]: computation/functions.md#adding-new-functions
 [node-contribute]: https://github.com/stencila/node/CONTRIBUTING.md
 [desktop-contribute]: https://github.com/stencila/desktop/blob/master/CONTRIBUTING.md
+[cli-contribute]: https://github.com/stencila/cli/CONTRIBUTING.md
+[hub-contribute]: https://github.com/stencila/hub/CONTRIBUTING.md
+[cloud-contribute]: https://github.com/stencila/cloud/CONTRIBUTING.md
+[images-contribute]: https://github.com/stencila/images/CONTRIBUTING.md
