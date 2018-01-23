@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Archiving and Interchange DTD v1.1d3 20150301//EN"  "JATS-archivearticle1.dtd">
-<!--
-  Kitchen XML for Texture
--->
+
 <article xmlns:xlink="http://www.w3.org/1999/xlink">
   <front>
     <article-meta>
@@ -79,7 +77,53 @@
         <code specific-use="source" language="mini"><![CDATA[6 * 7]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
+      <p>Cells use a very simple expression language called Mini to allow you to perform common data analysis and visualisation tasks within the document.</p>
+      <p>You can edit this document just like in a traditional word processor. Press enter to start a new paragraph or insert a table or cell.</p>
 
+
+    </sec>
+    <sec>
+      <title>Functions</title>
+      <p>Here's a cell that reads some fictitous ice cream sales data from a CSV (comma separated values) string using the csv function.</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[data = table({
+  sunny: ['no','yes','yes','yes','yes','no','no','no','yes','yes'],
+  temp: [18,20,24,23,26,25,20,17,18,28],
+  sales: [50,126,118,126,280,102,93,32,103,246]
+})]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+      <p>The variable data is a table and is now a part of of the document scope - the set of variables the document knows about. Let's filter the table to only show data for days when the temperature is less than 20 degrees.</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[filter(data, 'temp < 20')]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+      <p>Notice that because we didn't assign the result of filter to a value the output gets displayed. You can change this behaviour by setting the cell's output visibility to Hide.</p>
+      <p>Cells can also be used to plot your data. The plot function is a generic function that allows you to visualize data using various visual encodings.</p>
+      <p>TODO: Are we able to supply which colums should be displayed in plot function?</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="mini"><![CDATA[plot(data, 'sales')]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+    </sec>
+    <sec>
+      <title>Polyglot programming</title>
+      <p>You can mix programming languages. Here we use SQL to filter a table</p>
+      <code specific-use="cell"><named-content><alternatives>
+        <code specific-use="source" language="sql"><![CDATA[grouped_sales = SELECT SUM(sales) AS total_sales FROM data GROUP BY sunny ]]></code>
+        <code specific-use="output" language="json"><![CDATA[{}]]></code>
+      </alternatives></named-content></code>
+      <p>The variable data is a table and is now a part of of the document scope - the set of variables the document knows about. Let's filter the table to only show data for days when the temperature is less than 20 degrees.</p>
+      <fig id="f1" fig-type="repro-fig">
+        <caption>
+          <title>Ice Cream Sales on Sunny vs. Cloudy Days</title>
+          <p>TODO: Use R code to create a bar chart of total sales (sunny vs not sunny)</p>
+        </caption>
+        <alternatives>
+          <code specific-use="source" language="mini"><![CDATA[plot([11,98])]]></code>
+          <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "plot-ly", "value": {} }]]></code>
+        </alternatives>
+      </fig>
     </sec>
   </body>
   <back>

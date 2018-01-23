@@ -11,13 +11,13 @@ import {
   ArticleLoader
 } from 'stencila'
 
-
-import fullup from './util/fullup'
+import iceCreamSales from './util/ice-cream-sales'
 
 // prepare the VFS on-the-fly expanding all examples
 let vfs = window.vfs
-// Add a full up sheet dynamically
-vfs.writeFileSync('examples/data/publication/fullup.xml', fullup().innerHTML)
+// Add a sheet to dar dynamically
+vfs.writeFileSync('examples/data/publication/ice-cream-sales.xml', iceCreamSales().innerHTML)
+
 
 
 window.addEventListener('load', () => {
