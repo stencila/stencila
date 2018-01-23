@@ -1,15 +1,14 @@
-/* Integer Value */
+.sc-article-editor .sc-null-value,
+.sc-article-editor .sc-boolean-value,
+.sc-article-editor .sc-number-value,
 .sc-article-editor .sc-integer-value {
   margin-top: 20px;
   font-size: 20px;
   text-align: center;
 }
 
-/* Number Value */
-.sc-article-editor .sc-number-value {
-  margin-top: 20px;
-  font-size: 20px;
-  text-align: center;
+.sc-article-editor .sc-null-value {
+  color: #cacaca;
 }
 
 .sc-article-editor .sc-float-value.sm-has-errors,

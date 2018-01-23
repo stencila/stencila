@@ -15,6 +15,7 @@ import SheetDocumentImporter from './SheetDocumentImporter'
 import ColumnSettingsDialog from './ColumnSettingsDialog'
 import SheetIssuesComponent from './SheetIssuesComponent'
 
+import NullValueComponent from '../shared/NullValueComponent'
 import BooleanValueComponent from '../shared/BooleanValueComponent'
 import NumberValueComponent from '../shared/NumberValueComponent'
 import IntegerValueComponent from '../shared/IntegerValueComponent'
@@ -181,6 +182,7 @@ export default {
 
 
     // Cell values
+    config.addComponent('value:null', NullValueComponent)
     config.addComponent('value:boolean', BooleanValueComponent)
     config.addComponent('value:integer', IntegerValueComponent)
     config.addComponent('value:number', NumberValueComponent)

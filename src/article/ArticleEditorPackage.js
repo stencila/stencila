@@ -6,6 +6,7 @@ import ReproFigComponent from './ReproFigComponent'
 import CellComponent from './CellComponent'
 import CodeHighlightComponent from '../shared/CodeHighlightComponent'
 
+import NullValueComponent from '../shared/NullValueComponent'
 import BooleanValueComponent from '../shared/BooleanValueComponent'
 import NumberValueComponent from '../shared/NumberValueComponent'
 import IntegerValueComponent from '../shared/IntegerValueComponent'
@@ -35,6 +36,7 @@ export default {
     config.addComponent('cell', CellComponent)
     config.addComponent('code-highlight', CodeHighlightComponent)
 
+    config.addComponent('value:null', NullValueComponent)
     config.addComponent('value:boolean', BooleanValueComponent)
     config.addComponent('value:integer', IntegerValueComponent)
     config.addComponent('value:number', NumberValueComponent)
