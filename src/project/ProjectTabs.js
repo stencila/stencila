@@ -5,9 +5,8 @@ export default class ProjectTabs extends Component {
 
   render($$) {
     let el = $$('div').addClass('sc-project-tabs')
-    let dc = this.props.documentContainer
-    let documentEntries = dc.getDocumentEntries()
-
+    let da = this.props.documentArchive
+    let documentEntries = da.getDocumentEntries()
     documentEntries.forEach((entry) => {
       if (_isVisible(entry)) {
         let button = $$('button').append(entry.name || entry.id)
@@ -18,14 +17,12 @@ export default class ProjectTabs extends Component {
         el.append(button)
       }
     })
-
     // Create new button
     let button = $$('button').append(
       $$(FontAwesomeIcon, {icon: 'fa-plus-circle'})
     )
       .on('click', this._addDocument)
     el.append(button)
-
     return el
   }
 

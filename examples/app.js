@@ -1,61 +1,77 @@
 import {
-  platform, substanceGlobals,
+  DocumentArchive, ManifestLoader,
+  platform, substanceGlobals
 } from 'substance'
-import {
-  createEntityDbSession,
-  pubMetaDbSeed
-} from 'substance-texture'
+import { PubMetaLoader } from 'substance-texture'
+
 import {
   Project, getQueryStringParam,
-  ArticleLoader, SheetLoader,
-  setupStencilaContext
+  SheetLoader,
+  setupStencilaContext,
+  ArticleLoader
 } from 'stencila'
-import { VfsLoader } from 'rdc-js'
+
+
 import fullup from './util/fullup'
 
+// prepare the VFS on-the-fly expanding all examples
+let vfs = window.vfs
+// Add a full up sheet dynamically
+vfs.writeFileSync('examples/data/publication/fullup.xml', fullup().innerHTML)
 
-
-// TODO: This loader should be provided by Texture
-const PubMetaLoader = {
-  load(/*jsonStr*/) {
-    return createEntityDbSession(pubMetaDbSeed)
-  }
-}
 
 window.addEventListener('load', () => {
   // Note: this way we enable debug rendering only when
   // devtools is open when this page is loaded
   substanceGlobals.DEBUG_RENDERING = platform.devtools
-
   const example = getQueryStringParam('example') || 'mini'
   const discover = window.STENCILA_DISCOVER ? parseFloat(window.STENCILA_DISCOVER) : false
   const peers = getQueryStringParam('peers') || window.STENCILA_PEERS
   const libs = { 'core': window.STENCILA_LIBCORE }
-
-  // prepare the VFS on-the-fly expanding all examples
-  let vfs = window.vfs
-  // Add a full up sheet dynamically
-  vfs.writeFileSync('examples/data/mini/fullup.xml', fullup().innerHTML)
-  const loaders = {
-    'article': ArticleLoader,
-    'sheet': SheetLoader,
-    'pub-meta': PubMetaLoader
-  }
-  // Use virtual file system to construct document container
-  let loader = new VfsLoader(vfs, loaders)
-  loader.load(`examples/data/${example}`).then(documentContainer => {
-    const { host, functionManager, engine } = setupStencilaContext(documentContainer, {
-      discover,
-      peers,
-      libs,
-    })
-    host.initialize().then(() => {
-      new Project(null, {
-        documentContainer,
-        host,
-        functionManager,
-        engine
-      }).mount(window.document.body)
-    })
+  let documentArchive = _loadExamleDar(example, vfs)
+  const { host, functionManager, engine } = setupStencilaContext(documentArchive, {
+    discover,
+    peers,
+    libs,
+  })
+  host.initialize().then(() => {
+    new Project(null, {
+      documentArchive,
+      host,
+      functionManager,
+      engine
+    }).mount(window.document.body)
   })
 })
+
+
+/*
+  HACK: We can't use a regular loader pattern as pub-meta and manuscript
+        depend on each other. Can we instead formulate dependencies in the
+        loader configuration?
+*/
+function _loadExamleDar(example, vfs) {
+  let manifestXML = vfs.readFileSync(`examples/data/${example}/manifest.xml`)
+  let manifest = ManifestLoader.load(manifestXML)
+  let sessions = {
+    manifest: manifest.editorSession
+  }
+  let docs = manifest.manifest.findAll('documents > document')
+  let pubMetaDbSession = PubMetaLoader.load()
+
+  docs.forEach(entry => {
+    let id = entry.attr('id')
+    let type = entry.attr('type')
+    let xml = vfs.readFileSync(`examples/data/${example}/${entry.path}`)
+    if (type === 'article') {
+      sessions[id] = ArticleLoader.load(xml, {
+        pubMetaDb: pubMetaDbSession.getDocument()
+      })
+    } else if (type === 'sheet') {
+      sessions[id] = SheetLoader.load(xml)
+    }
+  })
+
+  sessions['pub-meta'] = pubMetaDbSession
+  return new DocumentArchive(sessions)
+}

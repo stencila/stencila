@@ -1,0 +1,7 @@
+<container>
+  <documents>
+    <document id="doc-1" name="Manuscript" type="article" path="manuscript.xml" />
+    <document id="sheet-1" name="Mini Sheet" type="sheet" path="fullup.xml" />
+    <document id="pub-meta" type="pub-meta" path="pub-meta.json" />
+  </documents>
+</container>
