@@ -238,8 +238,11 @@ function bundlePrism() {
   b.custom('Bundling prism...', {
     src: [
       'node_modules/prismjs/components/prism-core.js',
+      'node_modules/prismjs/components/prism-clike.js',
       'node_modules/prismjs/components/prism-r.js',
-      'node_modules/prismjs/components/prism-python.js'
+      'node_modules/prismjs/components/prism-python.js',
+      'node_modules/prismjs/components/prism-sql.js',
+      'node_modules/prismjs/components/prism-javascript.js'
     ],
     dest: 'tmp/prism.js',
     execute(files) {

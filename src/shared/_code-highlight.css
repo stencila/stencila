@@ -1,3 +1,8 @@
+.sc-code-highlight.sm-keyword {
+  color: rgba(50,50,50,0.7);
+  font-weight: 700;
+}
+
 .sc-code-highlight.sm-function {
   color: var(--stencila-green);
 }

@@ -185,7 +185,13 @@ export default class Host {
         return Promise.reject(new Error(`Unable to create an execution context for language ${language}`))
       } else {
         let p = this.create(type).then((res) => {
-          if (res instanceof Error) return res
+          if (res instanceof Error) {
+            // Unable to create so set the cached context promise to null
+            // so a retry is performed next time this method is called
+            // (at which time another peer that provides the context may be available)
+            this._contexts[language] = null
+            return res
+          }
           else return res.instance
         })
         this._contexts[language] = p

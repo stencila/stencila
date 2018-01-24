@@ -245,6 +245,7 @@
 
 .sc-formula-editor {
   background: #fff;
+  z-index: 200;
   border: 2px solid #2684FC;
   cursor: text;
   font-family: Monaco;

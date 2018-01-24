@@ -1,0 +1,7 @@
+<container>
+  <documents>
+    <document id="doc-1" name="Reproducible Document Stack" type="article" path="manuscript.xml" />
+    <document id="sheet-1" name="Ice Cream Sales" type="sheet" path="ice-cream-sales.xml" />
+    <document id="pub-meta" type="pub-meta" path="pub-meta.json" />
+  </documents>
+</container>

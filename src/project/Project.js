@@ -43,27 +43,27 @@ export default class Project extends Component {
       $$(ProjectBar, {
         contextId: this.state.contextId,
         documentId: this.state.documentId,
-        documentContainer: this.props.documentContainer
+        documentArchive: this.props.documentArchive
       })
     )
     return el
   }
 
   _getPubMetaDbSession() {
-    return this._getDocumentContainer().getEditorSession('pub-meta')
+    return this._getDocumentArchive().getEditorSession('pub-meta')
   }
 
   _getActiveDocument() {
-    let dc = this._getDocumentContainer()
+    let dc = this._getDocumentArchive()
     return dc.getDocumentEntries()[0]
   }
 
-  _getDocumentContainer() {
-    return this.props.documentContainer
+  _getDocumentArchive() {
+    return this.props.documentArchive
   }
 
   _getDocumentRecordById(id) {
-    let dc = this._getDocumentContainer()
+    let dc = this._getDocumentArchive()
     return dc.getDocumentEntries().find(e => e.id === id)
   }
 
@@ -72,8 +72,8 @@ export default class Project extends Component {
     let documentId = this.state.documentId
     let documentRecord = this._getDocumentRecordById(documentId)
     let documentType = documentRecord.type
-    let dc = this._getDocumentContainer()
-    let editorSession = dc.getEditorSession(documentId)
+    let da = this._getDocumentArchive()
+    let editorSession = da.getEditorSession(documentId)
     let contextComponent = this._getContextComponent($$)
 
     if (documentType === 'article') {

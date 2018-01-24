@@ -5,7 +5,6 @@ export default class ProjectBar extends Component {
 
   render($$) {
     let contextId = this.props.contextId
-
     let helpToggle = $$('button')
       .addClass('se-toggle')
       .append('Help').on('click', this._toggleHelp)
@@ -17,7 +16,7 @@ export default class ProjectBar extends Component {
     let el = $$('div').addClass('sc-project-bar')
     el.append(
       $$(ProjectTabs, {
-        documentContainer: this.props.documentContainer,
+        documentArchive: this.props.documentArchive,
         documentId: this.props.documentId
       }),
       helpToggle
