@@ -25,16 +25,18 @@ export default class DocumentEngineAdapter {
     this.engine = null
   }
 
-  connect(engine) {
+  connect(engine, { id }) {
     if (this.engine) throw new Error('This resource is already connected to an engine.')
     this.engine = engine
 
     // register the document
     this.engine.registerDocument(this.doc.UUID, this.doc)
-    // TODO: to allow cross document references
-    // we need to register a name, too
-    // e.g. doc.UUID -> 'doc-1'
-    this.engine.registerScope('doc', this.doc.UUID)
+    if (id) {
+      // TODO: to allow cross document references
+      // we need to register a name, too
+      // e.g. doc.UUID -> 'doc-1'
+      this.engine.registerScope('doc', this.doc.UUID)
+    }
 
     // register all existing cells
     this._initialize()

@@ -30,10 +30,10 @@ export default function setupStencilaContext(documentContainer, config = {}) {
       let editorSession = documentContainer.getEditorSession(entry.id)
       if (entry.type === 'article') {
         let engineAdapter = new ArticleEngineAdapter(editorSession)
-        engineAdapter.connect(engine)
+        engineAdapter.connect(engine, { id: entry.id })
       } else if (entry.type === 'sheet') {
         let engineAdapter = new SheetEngineAdapter(editorSession)
-        engineAdapter.connect(engine)
+        engineAdapter.connect(engine, { id: entry.id })
       }
     })
     return { host, functionManager, engine }
