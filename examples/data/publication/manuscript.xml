@@ -100,7 +100,6 @@
       </alternatives></named-content></code>
       <p>Notice that because we didn't assign the result of filter to a value the output gets displayed. You can change this behaviour by setting the cell's output visibility to Hide.</p>
       <p>Cells can also be used to plot your data. The plot function is a generic function that allows you to visualize data using various visual encodings.</p>
-      <p>TODO: Are we able to supply which colums should be displayed in plot function?</p>
       <code specific-use="cell"><named-content><alternatives>
         <code specific-use="source" language="mini"><![CDATA[plot(data, 'sales')]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
@@ -120,7 +119,7 @@
           <p>Bug? This paragraph needs to be here?</p>
         </caption>
         <alternatives>
-          <code specific-use="source" language="r"><![CDATA[ggplot(grouped_sales, aes(x=sunny, y=total_sales, fill=sunny)) + 
+          <code specific-use="source" language="r"><![CDATA[ggplot(grouped_sales, aes(x=sunny, y=total_sales, fill=sunny)) +
   geom_bar(stat='identity') +
   labs(x='Sunny day?', y='Ice cream sales')]]></code>
           <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "plot-ly", "value": {} }]]></code>
