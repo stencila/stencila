@@ -120,7 +120,9 @@
           <p>Bug? This paragraph needs to be here?</p>
         </caption>
         <alternatives>
-          <code specific-use="source" language="r"><![CDATA[ggplot(grouped_sales, aes(x=sunny, y=total_sales, fill=sunny)) + geom_bar(stat='identity') + labs(x='Sunny day?', y='Ice cream sales')]]></code>
+          <code specific-use="source" language="r"><![CDATA[ggplot(grouped_sales, aes(x=sunny, y=total_sales, fill=sunny)) + 
+  geom_bar(stat='identity') +
+  labs(x='Sunny day?', y='Ice cream sales')]]></code>
           <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "plot-ly", "value": {} }]]></code>
         </alternatives>
       </fig>
