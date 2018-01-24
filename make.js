@@ -239,7 +239,8 @@ function bundlePrism() {
     src: [
       'node_modules/prismjs/components/prism-core.js',
       'node_modules/prismjs/components/prism-r.js',
-      'node_modules/prismjs/components/prism-python.js'
+      'node_modules/prismjs/components/prism-python.js',
+      'node_modules/prismjs/components/prism-sql.js'
     ],
     dest: 'tmp/prism.js',
     execute(files) {
