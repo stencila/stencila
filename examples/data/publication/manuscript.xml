@@ -110,17 +110,17 @@
       <title>Polyglot programming</title>
       <p>You can mix programming languages. Here we use SQL to filter a table</p>
       <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="sql"><![CDATA[grouped_sales = SELECT SUM(sales) AS total_sales FROM data GROUP BY sunny ]]></code>
+        <code specific-use="source" language="sql"><![CDATA[grouped_sales = SELECT sunny, SUM(sales) AS total_sales FROM data GROUP BY sunny]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
       <p>The variable data is a table and is now a part of of the document scope - the set of variables the document knows about. Let's filter the table to only show data for days when the temperature is less than 20 degrees.</p>
       <fig id="f1" fig-type="repro-fig">
         <caption>
           <title>Ice Cream Sales on Sunny vs. Cloudy Days</title>
-          <p>TODO: Use R code to create a bar chart of total sales (sunny vs not sunny)</p>
+          <p>Bug? This paragraph needs to be here?</p>
         </caption>
         <alternatives>
-          <code specific-use="source" language="mini"><![CDATA[plot([11,98])]]></code>
+          <code specific-use="source" language="r"><![CDATA[ggplot(grouped_sales, aes(x=sunny, y=total_sales, fill=sunny)) + geom_bar(stat='identity') + labs(x='Sunny day?', y='Ice cream sales')]]></code>
           <code specific-use="output" language="json"><![CDATA[{"execution_time": 1, "value_type": "plot-ly", "value": {} }]]></code>
         </alternatives>
       </fig>
