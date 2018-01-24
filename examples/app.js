@@ -29,12 +29,11 @@ window.addEventListener('load', () => {
   const peers = getQueryStringParam('peers') || window.STENCILA_PEERS
   const libs = { 'core': window.STENCILA_LIBCORE }
   let documentArchive = _loadExamleDar(example, vfs)
-  const { host, functionManager, engine } = setupStencilaContext(documentArchive, {
+  setupStencilaContext(documentArchive, {
     discover,
     peers,
     libs,
-  })
-  host.initialize().then(() => {
+  }).then((host, functionManager, engine) => {
     new Project(null, {
       documentArchive,
       host,
