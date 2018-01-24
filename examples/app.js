@@ -33,7 +33,7 @@ window.addEventListener('load', () => {
     discover,
     peers,
     libs,
-  }).then((host, functionManager, engine) => {
+  }).then(({host, functionManager, engine}) => {
     new Project(null, {
       documentArchive,
       host,
