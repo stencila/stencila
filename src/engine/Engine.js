@@ -421,31 +421,31 @@ export default class Engine {
       if (!affectedSessions[sessionId]) {
         affectedSessions[sessionId] = {
           editorSession,
-          cellIds: []
+          nodeIds: []
         }
       }
-      affectedSessions[sessionId].cellIds.push(cellId)
+      affectedSessions[sessionId].nodeIds.push(cellAdapter.nodeId)
     })
-    forEach(affectedSessions, ({ editorSession, cellIds}) => {
+    forEach(affectedSessions, ({ editorSession, nodeIds}) => {
       if (editorSession._flowing) {
-        editorSession.postpone(_updateSession.bind(null, editorSession, cellIds))
+        editorSession.postpone(_updateSession.bind(null, editorSession, nodeIds))
       } else {
-        _updateSession(editorSession, cellIds)
+        _updateSession(editorSession, nodeIds)
       }
     })
   }
 }
 
-function _updateSession(editorSession, cellIds) {
+function _updateSession(editorSession, nodeIds) {
   editorSession._setDirty('document')
   editorSession._setDirty('commandStates')
   let change = new DocumentChange([], {}, {})
   change._extractInformation()
-  cellIds.forEach((cellId) => {
+  nodeIds.forEach((nodeId) => {
     // console.log('notifying', cellId)
-    change.updated[cellId] = true
+    change.updated[nodeId] = true
   })
-  change.updated['setState'] = cellIds
+  change.updated['setState'] = nodeIds
   editorSession._change = change
   editorSession._info = {}
   editorSession.startFlow()
