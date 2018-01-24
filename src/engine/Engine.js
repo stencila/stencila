@@ -157,7 +157,7 @@ export default class Engine {
         let _docId
         if (input.scope) {
           _docId = this._scopes[input.scope]
-          if (!docId) {
+          if (!_docId) {
             throw new Error(`Unknown document ${input.scope}`)
           }
         } else {
