@@ -58,7 +58,7 @@ export default class Context {
   _transpile (code, symbols) {
     // TODO: this needs to be maintained carefully
     // to be consistent with the code below
-    let re = /\b([A-Z]+[1-9]+)([:]([A-Z]+[1-9]+))?/g
+    let re = /\b([A-Z]+[1-9][0-9]*)([:]([A-Z]+[1-9][0-9]*))?/g
     let m
     while ((m = re.exec(code))) {
       let type
