@@ -31,9 +31,9 @@ You can prepopulate the internal host's list of peers (i.e. `host.peers`) using 
 
 ## Tasks
 
-- `HostComponent` that can be opened in the side panel (see 0007-hosts-interface-wireframe.svg):
+- `HostComponent` that can be opened in the side panel (see `0007-hosts-interface-wireframe.svg`):
 
-![0007-hosts-interface-wireframe.svg]()
+![](0007-hosts-interface-wireframe.svg)
 
 - a list of hosts starting with the _internal_ host, followed by _external_ hosts (get the list from `host.peers`)
 - under each host a nested list of contexts that is supports (get the list from `host.peers[].types`)
