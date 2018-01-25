@@ -95,13 +95,13 @@
       </alternatives></named-content></code>
       <p>The variable data is a table and is now a part of of the document scope - the set of variables the document knows about. Let's filter the table to only show data for days when the temperature is less than 20 degrees.</p>
       <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="mini"><![CDATA[filter(data, 'temp < 20')]]></code>
+        <code specific-use="source" language="mini"><![CDATA[filtered_data = filter(data, 'temp < 20')]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
       <p>Notice that because we didn't assign the result of filter to a value the output gets displayed. You can change this behaviour by setting the cell's output visibility to Hide.</p>
       <p>Cells can also be used to plot your data. The plot function is a generic function that allows you to visualize data using various visual encodings.</p>
       <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="mini"><![CDATA[plot(data, 'sales')]]></code>
+        <code specific-use="source" language="mini"><![CDATA[plot(filtered_data, 'sales')]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
     </sec>
@@ -116,7 +116,7 @@
       <fig id="f1" fig-type="repro-fig">
         <caption>
           <title>Ice Cream Sales on Sunny vs. Cloudy Days</title>
-          <p>Bug? This paragraph needs to be here?</p>
+          <p>This is a reproducible figure, including a chart implented in R using the ggplot function.</p>
         </caption>
         <alternatives>
           <code specific-use="source" language="r"><![CDATA[ggplot(grouped_sales, aes(x=sunny, y=total_sales, fill=sunny)) +
