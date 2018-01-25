@@ -14,8 +14,7 @@
     "watch": "node make -w",
     "start": "node make -w -s",
     "cover": "node make cover",
-    "docs": "node make docs",
-    "docs-serve": "node make docs:serve"
+    "docs-serve": "docsify serve docs"
   },
   "repository": {
     "type": "git",
@@ -51,6 +50,7 @@
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
+    "docsify-cli": "^4.2.0",
     "eslint": "^3.12.2",
     "istanbul": "^0.4.5",
     "lodash.merge": "4.6.0",

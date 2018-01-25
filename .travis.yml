@@ -33,7 +33,6 @@ script:
   - make test-all
   - make cover
   - make build
-  - make docs
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
