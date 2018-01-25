@@ -424,7 +424,7 @@ export default class Engine {
           nodeIds: []
         }
       }
-      affectedSessions[sessionId].nodeIds.push(cellAdapter.nodeId)
+      affectedSessions[sessionId].nodeIds.push(cellAdapter.node.id)
     })
     forEach(affectedSessions, ({ editorSession, nodeIds}) => {
       if (editorSession._flowing) {
