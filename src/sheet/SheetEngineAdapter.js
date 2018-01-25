@@ -94,7 +94,7 @@ export default class SheetEngineAdapter {
   _onDelete(node) {
     const engine = this.engine
     if (CELL_TYPES[node.type]) {
-      engine.removeCell(node.id)
+      engine.removeCell(`${this.doc.UUID}#${node.id}`)
     }
   }
 
@@ -107,15 +107,15 @@ export default class SheetEngineAdapter {
       let newType = adapter._type
       if (newType === CONSTANT) {
         if (oldType === EXPRESSION) {
-          engine.removeCell(node.id)
+          engine.removeCell(adapter.id)
         } else {
-          engine.updateInput(node.id)
+          engine.updateInput(adapter.id)
         }
       } else {
         if (oldType === CONSTANT) {
           engine.registerCell(adapter)
         } else {
-          engine.updateCell(node.id)
+          engine.updateCell(adapter.id)
         }
       }
     }

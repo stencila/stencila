@@ -100,7 +100,7 @@ export default class DocumentEngineAdapter {
   _onDelete(node) {
     const engine = this.engine
     if (CELL_TYPES[node.type] || INPUT_TYPES[node.type]) {
-      engine.removeCell(node.id)
+      engine.removeCell(`${this.doc.UUID}#${node.id}`)
       return true
     }
     return false
@@ -110,7 +110,7 @@ export default class DocumentEngineAdapter {
     const engine = this.engine
     if (node.type === 'source-code') {
       let cell = node.parentNode
-      engine.updateCell(cell.id)
+      engine.updateCell(getFullyQualifiedNodeId(cell))
       return true
     } else if (INPUT_TYPES[node.type]) {
       // TODO: this needs to be rethought
