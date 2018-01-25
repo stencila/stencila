@@ -1,5 +1,6 @@
 import { forEach, uuid } from 'substance'
 import CellState from '../engine/CellState'
+import getFullyQualifiedNodeId from '../util/getFullyQualifiedNodeId'
 
 const CELL_TYPES = {
   'cell': true,
@@ -134,6 +135,7 @@ class NodeAdapter {
   constructor(editorSession, node) {
     this.editorSession = editorSession
     this.node = node
+    this._id = getFullyQualifiedNodeId(node)
   }
 
   emit(...args) {
@@ -149,7 +151,7 @@ class NodeAdapter {
   }
 
   get id() {
-    return this.node.id
+    return this._id
   }
 
   get docId() {

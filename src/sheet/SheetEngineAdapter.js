@@ -1,6 +1,7 @@
 import { forEach, uuid } from 'substance'
 import CellState from '../engine/CellState'
 import { valueFromText } from '../shared/cellHelpers'
+import getFullyQualifiedNodeId from '../util/getFullyQualifiedNodeId'
 
 const CELL_TYPES = {
   'cell': true
@@ -131,6 +132,8 @@ class CellAdapter {
     cell.state = this.state
     cell._adapter = this
 
+    this._id = getFullyQualifiedNodeId(cell)
+
     this._update()
   }
 
@@ -147,7 +150,7 @@ class CellAdapter {
   }
 
   get id() {
-    return this.node.id
+    return this._id
   }
 
   get docId() {
