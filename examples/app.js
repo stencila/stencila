@@ -34,6 +34,8 @@ window.addEventListener('load', () => {
     peers,
     libs,
   }).then(({host, functionManager, engine}) => {
+    // Added for easier inspection of host during development
+    window.host = host
     new Project(null, {
       documentArchive,
       host,
