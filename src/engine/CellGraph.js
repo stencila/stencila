@@ -166,7 +166,6 @@ export default class CellGraph {
         let adapter = input // input._adapter
         // HACK
         if (input._adapter) adapter = input._adapter
-        if (adapter.id.indexOf('#') === -1) debugger
         let outputs = outs[adapter.id]
         if (!outputs) {
           outputs = new Set()
