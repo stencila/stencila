@@ -75,24 +75,6 @@ test('MiniContext: no_params() + 1', t => {
   })
 })
 
-test('MiniContext: no_params(4)', t => {
-  let c = setupContextWithFunctions()
-  c.executeCode('no_params(4)').then((res) => {
-    t.ok(_hasError(res), 'should error')
-    t.equal(_getMessage(res), 'Too many parameters supplied (1), expected 0 at most', 'error message should be correct')
-    t.end()
-  })
-})
-
-test('MiniContext: no_params(param_foo=4)', t => {
-  let c = setupContextWithFunctions()
-  c.executeCode('no_params(param_foo=4)').then((res) => {
-    t.ok(_hasError(res), 'should error')
-    t.equal(_getMessage(res), '"param_foo" is not a valid parameter name for function "no_params"', 'error message should be correct')
-    t.end()
-  })
-})
-
 test('MiniContext: one_param(2)', t => {
   let c = setupContextWithFunctions()
   c.executeCode('one_param(2)').then((res) => {
@@ -103,49 +85,6 @@ test('MiniContext: one_param(2)', t => {
   })
 })
 
-test('MiniContext: one_param()', t => {
-  let c = setupContextWithFunctions()
-  c.executeCode('one_param()').then((res) => {
-    t.ok(_hasError(res), 'should error')
-    t.equal(_getMessage(res), 'Required parameter "param1" was not supplied', 'error message should be correct')
-    t.end()
-  })
-})
-
-test('MiniContext: one_param(1, 2, 3)', t => {
-  let c = setupContextWithFunctions()
-  c.executeCode('one_param(1, 2, 3)').then((res) => {
-    t.ok(_hasError(res), 'should error')
-    t.equal(_getMessage(res), 'Too many parameters supplied (3), expected 1 at most', 'error message should be correct')
-    t.end()
-  })
-})
-
-test('MiniContext: one_param(param1=4)', t => {
-  let c = setupContextWithFunctions()
-  c.executeCode('one_param(param1=4)').then((res) => {
-    t.equal(res.value.data, 4.4, 'result should be correct')
-    t.end()
-  })
-})
-
-test('MiniContext: one_param(param_foo=4)', t => {
-  let c = setupContextWithFunctions()
-  c.executeCode('one_param(param_foo=4)').then((res) => {
-    t.ok(_hasError(res), 'should error')
-    t.equal(_getMessage(res), '"param_foo" is not a valid parameter name for function "one_param"', 'error message should be correct')
-    t.end()
-  })
-})
-
-test('MiniContext: one_param("wrong type")', t => {
-  let c = setupContextWithFunctions()
-  c.executeCode('one_param("wrong type")').then((res) => {
-    t.ok(_hasError(res), 'should error')
-    t.equal(_getMessage(res), 'Parameter "param1" must be of type "number" but was of type "string"', 'error message should be correct')
-    t.end()
-  })
-})
 
 test('MiniContext: one_param_with_default("Howdy!")', t => {
   let c = setupContextWithFunctions()
@@ -162,12 +101,3 @@ test('MiniContext: one_param_with_default()', t => {
     t.end()
   })
 })
-
-function _hasError(res) {
-  return res.messages && res.messages.length > 0
-}
-
-function _getMessage(res) {
-  let error = res.messages[0]
-  return error ? error.message : undefined
-}

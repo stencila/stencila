@@ -1,7 +1,6 @@
 import { parse } from 'stencila-mini'
 import libcore from 'stencila-libcore'
 import { getCellLabel } from '../shared/cellHelpers'
-import { descendantTypes } from '../types'
 import { gather } from '../value'
 
 export default class MiniContext {
@@ -56,51 +55,15 @@ export default class MiniContext {
     // Get a context for the implementation language
     return this._host.createContext(language)
     .then((context) => {
-      // Generate a correctly ordered array of argument values taking into account
-      // named arguments and default values and check for:
-      //  - missing parameters
-      //  - superfluous arguments
-      //  - arguments of wrong type
-      let params = funcDoc.getParams()
-      let args = funcCall.args || []
-      if (args.length > params.length) {
-        return _error(`Too many parameters supplied (${args.length}), expected ${params.length} at most`)
-      }
-      let namedArgs = funcCall.namedArgs || []
-      let namedArgsMap = {}
-      for (let namedArg of namedArgs) {
-        let found = false
-        for (let param of params) {
-          if (param.name === namedArg.name) {
-            found = true
-            break
-          }
-        }
-        if (!found) {
-          return _error(`"${namedArg.name}" is not a valid parameter name for function "${functionName}"`)
-        }
-        namedArgsMap[namedArg.name] = namedArg
-      }
-      let argValues = []
-      let index = 0
-      for (let param of params) {
-        const arg = args[index] || namedArgsMap[param.name]
-        const value = arg ? arg.getValue() : param.default
-        if (!value) {
-          return _error(`Required parameter "${param.name}" was not supplied`)
-        }
-        if (value.type !== param.type) {
-          if (descendantTypes[param.type].indexOf(value.type) < 0) {
-            return _error(`Parameter "${param.name}" must be of type "${param.type}" but was of type "${value.type}"`)
-          }
-        }
-        argValues.push(value)
-        index++
-      }
       // Call the function implementation in the context, capturing any
       // messages or returning the value
       let libraryName = this._functionManager.getLibraryName(functionName)
-      return context.callFunction(libraryName, functionName, argValues).then((res) => {
+      let argValues = funcCall.args.map(arg => arg.getValue())
+      let namedArgValues = {}
+      for (let name of Object.keys(funcCall.namedArgs)) {
+        namedArgValues[name] = funcCall.namedArgs[name].getValue()
+      }
+      return context.callFunction(libraryName, functionName, argValues, namedArgValues).then((res) => {
         if (res.messages && res.messages.length > 0) {
           funcCall.addErrors(res.messages)
           return undefined

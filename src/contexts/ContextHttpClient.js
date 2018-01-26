@@ -26,6 +26,15 @@ export default class ContextHttpClient extends Context {
   }
 
   /**
+   * Get a list of function libraries
+   *
+   * @override
+   */
+  getLibraries () {
+    return PUT(this.url + '!getLibraries')
+  }
+
+  /**
    * Analyse code
    *
    * @override
@@ -58,7 +67,7 @@ export default class ContextHttpClient extends Context {
    *
    * @override
    */
-  callFunction (name, inputs, namedInputs, options) {
-    return PUT(this.url + '!callFunction', {name: name, inputs: inputs, namedInputs: namedInputs, options: options})
+  callFunction (library, name, args, namedArgs) {
+    return PUT(this.url + '!callFunction', {library: library, name: name, args: args, namedArgs: namedArgs})
   }
 }

@@ -60,7 +60,7 @@ const one_param_with_defaultXML = `
 </function>
 `
 
-function one_param_with_default(param1) {
+function one_param_with_default(param1='Hello!') {
   return param1
 }
 
