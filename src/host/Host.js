@@ -49,8 +49,6 @@ export default class Host {
      */
     this._peers = {}
 
-    // TODO: consider instantiating the FunctionManager here, within this host, instead of in setupStencilaContext.
-    // ATM, its the only place that FunctionManager and used
     this._functionManager = options.functionManager
 
     if (!this._functionManager) {
