@@ -105,7 +105,8 @@ export default class MiniContext {
             return {
               type: 'cell',
               row: node.row,
-              col: node.col
+              col: node.col,
+              scope: node.sheetId
             }
           }
           case 'range': {
@@ -115,6 +116,7 @@ export default class MiniContext {
               startCol: node.startCol,
               endRow: node.endRow,
               endCol: node.endCol,
+              scope: node.sheetId
             }
           }
           default:

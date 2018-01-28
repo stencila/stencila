@@ -1,6 +1,7 @@
 import { forEach, uuid } from 'substance'
 import CellState from '../engine/CellState'
 import { valueFromText } from '../shared/cellHelpers'
+import getFullyQualifiedNodeId from '../util/getFullyQualifiedNodeId'
 
 const CELL_TYPES = {
   'cell': true
@@ -25,16 +26,18 @@ export default class SheetEngineAdapter {
     this.engine = null
   }
 
-  connect(engine) {
+  connect(engine, { id }) {
     if (this.engine) throw new Error('This resource is already connected to an engine.')
     this.engine = engine
 
     // register the document
     this.engine.registerDocument(this.doc.UUID, this.doc)
-    // TODO: to allow cross document references
-    // we need to register a name, too
-    // e.g. doc.UUID -> 'sheet-1'
-    this.engine.registerScope('sheet', this.doc.UUID)
+    if (id) {
+      // TODO: to allow cross document references
+      // we need to register a name, too
+      // e.g. doc.UUID -> 'sheet-1'
+      this.engine.registerScope(id, this.doc.UUID)
+    }
 
     this._initialize()
 
@@ -91,7 +94,7 @@ export default class SheetEngineAdapter {
   _onDelete(node) {
     const engine = this.engine
     if (CELL_TYPES[node.type]) {
-      engine.removeCell(node.id)
+      engine.removeCell(`${this.doc.UUID}#${node.id}`)
     }
   }
 
@@ -104,15 +107,15 @@ export default class SheetEngineAdapter {
       let newType = adapter._type
       if (newType === CONSTANT) {
         if (oldType === EXPRESSION) {
-          engine.removeCell(node.id)
+          engine.removeCell(adapter.id)
         } else {
-          engine.updateInput(node.id)
+          engine.updateInput(adapter.id)
         }
       } else {
         if (oldType === CONSTANT) {
           engine.registerCell(adapter)
         } else {
-          engine.updateCell(node.id)
+          engine.updateCell(adapter.id)
         }
       }
     }
@@ -128,6 +131,8 @@ class CellAdapter {
     this.state = new CellState()
     cell.state = this.state
     cell._adapter = this
+
+    this._id = getFullyQualifiedNodeId(cell)
 
     this._update()
   }
@@ -145,7 +150,7 @@ class CellAdapter {
   }
 
   get id() {
-    return this.node.id
+    return this._id
   }
 
   get docId() {

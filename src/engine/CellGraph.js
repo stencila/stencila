@@ -162,10 +162,14 @@ export default class CellGraph {
       inputs.forEach((input) => {
         // Note: this should have been reported before
         if (!input) return
-        let outputs = outs[input.id]
+        // FIXME: need to avoid this confusion with adapter and cell
+        let adapter = input // input._adapter
+        // HACK
+        if (input._adapter) adapter = input._adapter
+        let outputs = outs[adapter.id]
         if (!outputs) {
           outputs = new Set()
-          outs[input.id] = outputs
+          outs[adapter.id] = outputs
         }
         outputs.add(cell)
       })

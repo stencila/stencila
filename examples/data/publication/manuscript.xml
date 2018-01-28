@@ -86,11 +86,14 @@
       <title>Functions</title>
       <p>Here's a cell that reads some fictitous ice cream sales data from a CSV (comma separated values) string using the csv function.</p>
       <code specific-use="cell"><named-content><alternatives>
+<!--
         <code specific-use="source" language="mini"><![CDATA[data = table({
   sunny: ['no','yes','yes','yes','yes','no','no','no','yes','yes'],
   temp: [18,20,24,23,26,25,20,17,18,28],
   sales: [50,126,118,126,280,102,93,32,103,246]
 })]]></code>
+-->
+        <code specific-use="source" language="mini"><![CDATA[data = sheet1!A1:C9]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
       <p>The variable data is a table and is now a part of of the document scope - the set of variables the document knows about. Let's filter the table to only show data for days when the temperature is less than 20 degrees.</p>

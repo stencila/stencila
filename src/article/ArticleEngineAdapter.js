@@ -1,5 +1,6 @@
 import { forEach, uuid } from 'substance'
 import CellState from '../engine/CellState'
+import getFullyQualifiedNodeId from '../util/getFullyQualifiedNodeId'
 
 const CELL_TYPES = {
   'cell': true,
@@ -25,16 +26,18 @@ export default class DocumentEngineAdapter {
     this.engine = null
   }
 
-  connect(engine) {
+  connect(engine, { id }) {
     if (this.engine) throw new Error('This resource is already connected to an engine.')
     this.engine = engine
 
     // register the document
     this.engine.registerDocument(this.doc.UUID, this.doc)
-    // TODO: to allow cross document references
-    // we need to register a name, too
-    // e.g. doc.UUID -> 'doc-1'
-    this.engine.registerScope('doc', this.doc.UUID)
+    if (id) {
+      // TODO: to allow cross document references
+      // we need to register a name, too
+      // e.g. doc.UUID -> 'doc-1'
+      this.engine.registerScope('doc', this.doc.UUID)
+    }
 
     // register all existing cells
     this._initialize()
@@ -97,7 +100,7 @@ export default class DocumentEngineAdapter {
   _onDelete(node) {
     const engine = this.engine
     if (CELL_TYPES[node.type] || INPUT_TYPES[node.type]) {
-      engine.removeCell(node.id)
+      engine.removeCell(`${this.doc.UUID}#${node.id}`)
       return true
     }
     return false
@@ -107,7 +110,7 @@ export default class DocumentEngineAdapter {
     const engine = this.engine
     if (node.type === 'source-code') {
       let cell = node.parentNode
-      engine.updateCell(cell.id)
+      engine.updateCell(getFullyQualifiedNodeId(cell))
       return true
     } else if (INPUT_TYPES[node.type]) {
       // TODO: this needs to be rethought
@@ -132,6 +135,7 @@ class NodeAdapter {
   constructor(editorSession, node) {
     this.editorSession = editorSession
     this.node = node
+    this._id = getFullyQualifiedNodeId(node)
   }
 
   emit(...args) {
@@ -147,7 +151,7 @@ class NodeAdapter {
   }
 
   get id() {
-    return this.node.id
+    return this._id
   }
 
   get docId() {
