@@ -1,4 +1,4 @@
-import { Component } from 'substance'
+import { Component, FontAwesomeIcon } from 'substance'
 import ProjectTabs from './ProjectTabs'
 
 export default class ProjectBar extends Component {
@@ -8,9 +8,16 @@ export default class ProjectBar extends Component {
     let helpToggle = $$('button')
       .addClass('se-toggle')
       .append('Help').on('click', this._toggleHelp)
+    let hostsToggle = $$('button')
+      .addClass('se-toggle se-hosts-toggle')
+      .append(
+        $$(FontAwesomeIcon, {icon: 'fa-server'})
+      ).on('click', this._toggleHosts)
 
     if (contextId === 'help') {
       helpToggle.addClass('sm-active')
+    } else if (contextId === 'hosts') {
+      hostsToggle.addClass('sm-active')
     }
 
     let el = $$('div').addClass('sc-project-bar')
@@ -19,7 +26,8 @@ export default class ProjectBar extends Component {
         documentArchive: this.props.documentArchive,
         documentId: this.props.documentId
       }),
-      helpToggle
+      helpToggle,
+      hostsToggle
     )
     // TODO: Render toggles for issues and help panel
     return el
@@ -27,6 +35,10 @@ export default class ProjectBar extends Component {
 
   _toggleHelp() {
     this.send('toggleHelp')
+  }
+
+  _toggleHosts() {
+    this.send('toggleHosts')
   }
 
 }

@@ -1,0 +1,26 @@
+.sc-hosts {
+  padding: 10px;
+}
+
+.sc-hosts .se-host-item {
+  margin-bottom: 10px;
+}
+
+.sc-hosts .se-host-item .se-name {
+  margin-bottom: 2px;
+}
+
+.sc-hosts .se-host-item .se-context {
+  margin-left: 10px;
+  font-size: 13px;
+}
+
+.sc-hosts .se-options {
+  margin-top: 100px;
+  padding: 10px;
+  border: 1px solid #eee;
+}
+
+.sc-hosts .se-options .se-input {
+  margin-left: 10px;
+}
