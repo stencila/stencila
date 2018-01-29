@@ -1,4 +1,6 @@
 import { GET, POST, PUT } from '../util/requests'
+import FunctionManager from '../function/FunctionManager'
+import Engine from '../engine/Engine'
 import JsContext from '../contexts/JsContext'
 import MiniContext from '../contexts/MiniContext'
 import ContextHttpClient from '../contexts/ContextHttpClient'
@@ -49,12 +51,51 @@ export default class Host {
      */
     this._peers = {}
 
-    this._functionManager = options.functionManager
+    /**
+     * Execution engine for scheduling execution across contexts
+     *
+     * @type {Engine}
+     */
+    this._engine = null
 
-    if (!this._functionManager) {
-      throw new Error('FunctionManager is required.')
-    }
 
+    /**
+     * Manages functions imported from libraries
+     * 
+     * @type {FunctionManager}
+     */
+    this._functionManager = new FunctionManager(options.libraries)
+
+  }
+
+  // Getters...
+
+  /**
+   * Get this host's peers
+   */
+  get peers () {
+    return this._peers
+  }
+
+  /**
+   * Get the execution contexts managed by this host
+   */
+  get contexts() {
+    return this._contexts
+  }
+
+  /**
+   * Get this host's peers
+   */
+  get engine () {
+    return this._engine
+  }
+
+  /**
+   * Get this host's function manager
+   */
+  get functionManager() {
+    return this._functionManager
   }
 
   /**
@@ -83,7 +124,11 @@ export default class Host {
       this.discoverPeers(options.discover)
     }
 
-    return Promise.all(promises)
+    return Promise.all(promises).then(() => {
+      // Instantiate the engine after connecting to any peer hosts so that they are connected to before the engine attempts
+      // to create contexts for external languages like R, SQL etc
+      this._engine = new Engine(this)
+    })
   }
 
   /**
@@ -212,24 +257,6 @@ export default class Host {
         return promise
       }
     }
-  }
-
-  /**
-   * Get the execution contexts managed by this host
-   */
-  get contexts() {
-    return this._contexts
-  }
-
-  get functionManager() {
-    return this._functionManager
-  }
-
-  /**
-   * Get this host's peers
-   */
-  get peers () {
-    return this._peers
   }
 
   /**

@@ -12,14 +12,18 @@ import FunctionPackage from './FunctionPackage'
 */
 export default class FunctionManager {
 
-  constructor() {
+  constructor(libraries = null) {
     // Maps function names to the library in which they have been defined
     this.functionMap = {}
     // Holds function instances scoped by libraryName and functionName
     this.functions = {}
 
     this.configurator = new Configurator().import(FunctionPackage)
+
+    if (libraries) this.importLibraries(libraries)
   }
+
+
 
   /*
     Import a function library (XML) and register function instances in the manager
@@ -39,6 +43,17 @@ export default class FunctionManager {
       }
       this.functions[libraryName][functionName] = functionDoc
       this.functionMap[functionName] = libraryName
+    })
+  }
+
+  /**
+   * Import a set of libraries
+   * 
+   * @param  {object} libraries An object of libraries like `{name:xml}`
+   */
+  importLibraries(libraries) {
+    Object.keys(libraries).forEach((name) => {
+      this.importLibrary(name, libraries[name])
     })
   }
 
