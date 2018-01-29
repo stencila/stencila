@@ -1,3 +1,5 @@
+import { EventEmitter } from 'substance'
+
 import { GET, POST, PUT } from '../util/requests'
 import FunctionManager from '../function/FunctionManager'
 import Engine from '../engine/Engine'
@@ -10,9 +12,11 @@ import MemoryBuffer from '../backend/MemoryBuffer'
  * Each Stencila process has a single instance of the `Host` class which
  * orchestrates instances of other classes.
  */
-export default class Host {
+export default class Host extends EventEmitter {
 
   constructor (options = {}) {
+    super()
+
     /**
      * Options used to configure this host
      *
@@ -69,6 +73,13 @@ export default class Host {
   }
 
   // Getters...
+
+  /**
+   * Get this host's configuration options
+   */
+  get options () {
+    return this._options
+  }
 
   /**
    * Get this host's peers
@@ -271,6 +282,7 @@ export default class Host {
    */
   registerPeer (url, manifest) {
     this._peers[url] = manifest
+    this.emit('peer:registered')
   }
 
   /**
@@ -305,15 +317,27 @@ export default class Host {
    * The easiest approach is silence these errors in Chrome is to check the
    * 'Hide network' checkbox in the console filter.
    *
-   * Set the `interval` parameter to trigger ongoing discovery.
+   * Set the `interval` parameter to a value greater than zero to trigger ongoing discovery and
+   * to a negative number to turn off discovery.
    *
    * @param {number} interval - The interval (seconds) between discovery attempts
    */
   discoverPeers (interval=10) {
-    for (let port=2000; port<=2100; port+=10) {
-      this.pokePeer(`http://127.0.0.1:${port}`)
+    this.options.discover = interval
+    if (interval >= 0) {
+      for (let port=2000; port<=2100; port+=10) {
+        this.pokePeer(`http://127.0.0.1:${port}`)
+      }
+      if (interval > 0) {
+        this.discoverPeers(-1) // Ensure any existing interval is turned off
+        this._dicoverPeersInterval = setInterval(() => this.discoverPeers(0), interval*1000)
+      }
+    } else {
+      if (this._dicoverPeersInterval) {
+        clearInterval(this._dicoverPeersInterval)
+        this._dicoverPeersInterval = null
+      }
     }
-    if (interval) setTimeout(() => this.discoverPeers(interval), interval*1000)
   }
 
   // Experimental

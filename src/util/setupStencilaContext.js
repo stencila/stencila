@@ -14,7 +14,7 @@ export default function setupStencilaContext(documentContainer) {
     getQueryStringParam('peers') || window.STENCILA_PEERS
   )
   if (peers) peers = peers.split(',')
-  const discover = (getQueryStringParam('discover') || window.STENCILA_DISCOVER) === 'true'
+  const discover = parseFloat(getQueryStringParam('discover') || window.STENCILA_DISCOVER || '-1')
 
   // Instantiate and initialise the host
   let host = new Host({libs, peers, discover})

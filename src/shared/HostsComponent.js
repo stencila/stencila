@@ -2,6 +2,20 @@ import { Component } from 'substance'
 
 export default class HostsComponent extends Component {
 
+  constructor(...args) {
+    super(...args)
+
+    let host = this.context.host
+    host.on('peer:registered', () => this.rerender())
+  }
+
+  getInitialState() {
+    let host = this.context.host
+    return {
+      discover: host.options.discover >= 0
+    }
+  }
+
   render($$) {
     let host = this.context.host
     let peers = host.peers
@@ -24,6 +38,7 @@ export default class HostsComponent extends Component {
         $$('div').append(
           $$('span').addClass('se-label').append('Auto-discover hosts'),
           $$('input').attr({type: 'checkbox'}).addClass('se-checkbox')
+            .attr(this.state.discover ? 'checked' : 'unchecked', true)
             .on('change', this._onDiscoverToggle)
         )
       )
@@ -68,7 +83,13 @@ export default class HostsComponent extends Component {
 
   _onDiscoverToggle() {
     let host = this.context.host
-    host.discover()
+    if (this.state.discover) {
+      host.discoverPeers(-1)
+      this.setState({discover: false})
+    } else {
+      host.discoverPeers(10)
+      this.setState({discover: true})
+    }
   }
 
 }
