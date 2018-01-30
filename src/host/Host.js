@@ -184,9 +184,9 @@ export default class Host extends EventEmitter {
         // Gather an object of types from the peer and it's peers
         let specs = []
         let addSpecs = (manifest) => {
-          if (manifest.schemes && manifest.schemes.new) {
-            for (let type of Object.keys(manifest.schemes.new)) {
-              specs.push(manifest.schemes.new[type])
+          if (manifest.types) {
+            for (let type of Object.keys(manifest.types)) {
+              specs.push(manifest.types[type])
             }
           }
         }
