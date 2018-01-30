@@ -333,6 +333,8 @@ export default class Host extends EventEmitter {
         if (match) url = match[0]
         this.registerPeer(url, manifest)
       }
+    }).catch((error) => {
+      console.error(error)
     })
   }
 
