@@ -22,17 +22,19 @@ export default class HostsComponent extends Component {
     let peers = host.peers
 
     let el = $$('div').addClass('sc-hosts')
+    let listEl = $$('div').addClass('se-host-list')
 
-    el.append(
+    listEl.append(
       this.renderHost($$, host, host, 'internal')
     )
     Object.keys(peers).forEach(url => {
-      el.append(
+      listEl.append(
         this.renderHost($$, host, peers[url], url)
       )
     })
 
     el.append(
+      listEl,
       $$('div').addClass('se-options').append(
         $$('div').append(
           $$('span').addClass('se-label').append('Add a host'),
@@ -54,7 +56,7 @@ export default class HostsComponent extends Component {
   renderHost($$, internalHost, host, url) {
     let el = $$('div').addClass('se-host-item')
 
-    
+
     let name
     let details
     if (url === 'internal') {

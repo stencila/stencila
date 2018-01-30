@@ -1,5 +1,10 @@
 .sc-hosts {
-  
+
+}
+
+.sc-hosts .se-host-list {
+  overflow: scroll;
+  height: calc(100% - 5em);
 }
 
 .sc-hosts .se-host-item {
@@ -25,10 +30,25 @@
 }
 
 .sc-hosts .se-host-item .se-type {
+  margin-left: 0.5em;
+}
+
+.sc-hosts .se-host-item .se-type::before {
+  content: " ";
+  position: absolute;
+  left: 0.5em;
+  margin: 0.6em 0;
+  width: 0.3em;
+  height: 0.3em;
+  border-radius: 50%;
 }
 
 .sc-hosts .se-host-item .se-type.sm-instantiated {
   font-weight: bold;
+}
+
+.sc-hosts .se-host-item .se-type.sm-instantiated::before {
+  background-color: #ABFF00;
 }
 
 .sc-hosts .se-options {
@@ -36,6 +56,7 @@
   bottom: 0;
   border-top: 1px solid #eee;
   padding: 1em;
+  height: 5em;
   width: 100%;
 }
 

@@ -3,7 +3,7 @@ import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
 import ProjectBar from './ProjectBar'
 import HelpComponent from '../shared/HelpComponent'
-import HostsComponent from '../shared/HostsComponent'
+import HostsComponent from '../host/HostsComponent'
 
 export default class Project extends Component {
 
