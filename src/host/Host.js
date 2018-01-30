@@ -72,6 +72,25 @@ export default class Host extends EventEmitter {
 
   }
 
+  // For compatability with Stencila Host Manifest API (as is stored in this._peers)
+
+  /**
+   * The URL of this internal host
+   */
+  get url() {
+    return 'internal'
+  }
+
+  /**
+   * The resource types supported by this internal host
+   */
+  get types() {
+    return {
+      JsContext: { name: 'JsContext' },
+      MiniContext: { name: 'MiniContext' }
+    }
+  }
+
   // Getters...
 
   /**
@@ -86,6 +105,13 @@ export default class Host extends EventEmitter {
    */
   get peers () {
     return this._peers
+  }
+
+  /**
+   * Get the resource instances (e.g. contexts, storers) managed by this host
+   */
+  get instances() {
+    return this._instances
   }
 
   /**
@@ -183,6 +209,12 @@ export default class Host extends EventEmitter {
       }
     }
 
+    // Register a created instance
+    let _register = (id, host, type, instance) => {
+      this._instances[id] = {host, type, instance}
+      this.emit('instance:created')
+    }
+
     // Attempt to find resource type amongst...
     let found = find(false) //...peers
     if (!found) found = find(true) //...peers of peers
@@ -195,7 +227,7 @@ export default class Host extends EventEmitter {
         else throw new Error(`Unsupported type: ${spec.client}`)
 
         let instance = new Client(url + '/' + id)
-        this._instances[id] = instance
+        _register(id, url, type, instance)
         return {id, instance}
       })
     }
@@ -218,7 +250,7 @@ export default class Host extends EventEmitter {
     let number = (this._counts[type] || 0) + 1
     this._counts[type] = number
     let id = type[0].toLowerCase() + type.substring(1) + number
-    this._instances[id] = instance
+    _register(id, this.url, type, instance)
 
     return Promise.resolve({id, instance})
   }

@@ -10,9 +10,13 @@
   margin-bottom: 2px;
 }
 
-.sc-hosts .se-host-item .se-context {
+.sc-hosts .se-host-item .se-type {
   margin-left: 10px;
   font-size: 13px;
+}
+
+.sc-hosts .se-host-item .se-type.sm-instantiated {
+  font-weight: bold;
 }
 
 .sc-hosts .se-options {

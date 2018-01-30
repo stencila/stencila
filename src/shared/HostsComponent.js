@@ -7,6 +7,7 @@ export default class HostsComponent extends Component {
 
     let host = this.context.host
     host.on('peer:registered', () => this.rerender())
+    host.on('instance:created', () => this.rerender())
   }
 
   getInitialState() {
@@ -22,9 +23,12 @@ export default class HostsComponent extends Component {
 
     let el = $$('div').addClass('sc-hosts')
 
-    Object.keys(peers).forEach(peerKey => {
+    el.append(
+      this.renderHost($$, host, 'Internal', host)
+    )
+    Object.keys(peers).forEach(name => {
       el.append(
-        this.renderPeer($$, peers[peerKey], peerKey)
+        this.renderHost($$, host, name, peers[name])
       )
     })
 
@@ -47,29 +51,30 @@ export default class HostsComponent extends Component {
     return el
   }
 
-  renderPeer($$, peer, name) {
-    const contexts = this._getPeerContexts(peer)
-
+  renderHost($$, internalHost, name, host) {
     let el = $$('div').addClass('se-host-item').append(
       $$('div').addClass('se-name').append(name)
     )
 
-    contexts.forEach(context => {
+    const types = host.types
+    const instances = internalHost.instances
+    for (let type of Object.keys(types)) {
+      if(types[type].base === 'Storer') continue
+      let instantiated = false
+      for (let key of Object.keys(instances)) {
+        let instance = instances[key]
+        if (instance.type === type && instance.host === host.url) {
+          instantiated = true
+          break
+        }
+      }
       el.append(
-        $$('div').addClass('se-context').append(context)
+        $$('div').addClass('se-type').addClass(instantiated ? 'sm-instantiated': '')
+          .text(type)
       )
-    })
+    }
 
     return el
-  }
-
-  _getPeerContexts(peer) {
-    const types = peer.types
-    let contexts = []
-    Object.keys(types).forEach(type => {
-      if(types[type].base !== 'Storer') contexts.push(types[type].name)
-    })
-    return contexts
   }
 
   _onHostAdd(e) {
