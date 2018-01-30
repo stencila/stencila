@@ -68,7 +68,7 @@ export default class Host extends EventEmitter {
      * 
      * @type {FunctionManager}
      */
-    this._functionManager = new FunctionManager(options.libraries)
+    this._functionManager = new FunctionManager(options.libs)
 
   }
 
