@@ -1,18 +1,30 @@
 .sc-hosts {
-  padding: 10px;
+  
 }
 
 .sc-hosts .se-host-item {
-  margin-bottom: 10px;
+  border-top: 1px solid #eee;
+  margin-bottom: 1em;
+}
+
+.sc-hosts .se-host-item .se-header {
+  background: #F5F5F5;
+  padding: 0.5em;
 }
 
 .sc-hosts .se-host-item .se-name {
-  margin-bottom: 2px;
+}
+
+.sc-hosts .se-host-item .se-details {
+  color: #999;
+  font-size: 0.8em;
+}
+
+.sc-hosts .se-host-item .se-types {
+  padding: 0.5em;
 }
 
 .sc-hosts .se-host-item .se-type {
-  margin-left: 10px;
-  font-size: 13px;
 }
 
 .sc-hosts .se-host-item .se-type.sm-instantiated {
@@ -20,9 +32,11 @@
 }
 
 .sc-hosts .se-options {
-  margin-top: 100px;
-  padding: 10px;
-  border: 1px solid #eee;
+  position: absolute;
+  bottom: 0;
+  border-top: 1px solid #eee;
+  padding: 1em;
+  width: 100%;
 }
 
 .sc-hosts .se-options .se-input {

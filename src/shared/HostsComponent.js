@@ -52,8 +52,24 @@ export default class HostsComponent extends Component {
   }
 
   renderHost($$, internalHost, host, url) {
-    let el = $$('div').addClass('se-host-item').append(
-      $$('div').addClass('se-name').append(url)
+    let el = $$('div').addClass('se-host-item')
+
+    
+    let name
+    let details
+    if (url === 'internal') {
+      name = 'Internal host'
+      details = 'stencila/stencila'
+    } else {
+      let location = url.match(/^https?:\/\/(127\.0\.0\.1|localhost)/) ? 'Local' : 'Remote'
+      name = location + ' host ' + url
+      details = 'stencila/' + host.stencila.package + ' ' + host.stencila.version
+    }
+    el.append(
+      $$('div').addClass('se-header').append(
+        $$('div').addClass('se-name').append(name),
+        $$('div').addClass('se-details').append(details)
+      )
     )
 
     let types = host.types || {}
@@ -64,6 +80,7 @@ export default class HostsComponent extends Component {
       }
     }
     const instances = internalHost.instances
+    let typesEl = $$('div').addClass('se-types')
     for (let type of Object.keys(types)) {
       if(types[type].base === 'Storer') continue
       let instantiated = false
@@ -74,11 +91,12 @@ export default class HostsComponent extends Component {
           break
         }
       }
-      el.append(
+      typesEl.append(
         $$('div').addClass('se-type').addClass(instantiated ? 'sm-instantiated': '')
           .text(type)
       )
     }
+    el.append(typesEl)
 
     return el
   }
