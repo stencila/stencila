@@ -24,11 +24,11 @@ export default class HostsComponent extends Component {
     let el = $$('div').addClass('sc-hosts')
 
     el.append(
-      this.renderHost($$, host, 'Internal', host)
+      this.renderHost($$, host, host, 'internal')
     )
-    Object.keys(peers).forEach(name => {
+    Object.keys(peers).forEach(url => {
       el.append(
-        this.renderHost($$, host, name, peers[name])
+        this.renderHost($$, host, peers[url], url)
       )
     })
 
@@ -51,19 +51,25 @@ export default class HostsComponent extends Component {
     return el
   }
 
-  renderHost($$, internalHost, name, host) {
+  renderHost($$, internalHost, host, url) {
     let el = $$('div').addClass('se-host-item').append(
-      $$('div').addClass('se-name').append(name)
+      $$('div').addClass('se-name').append(url)
     )
 
-    const types = host.types
+    let types = host.types || {}
+    if (url !== 'internal') {
+      let peers = host.peers || {}
+      for (let key of Object.keys(peers)) {
+        types = Object.assign(types, peers[key].types || {})
+      }
+    }
     const instances = internalHost.instances
     for (let type of Object.keys(types)) {
       if(types[type].base === 'Storer') continue
       let instantiated = false
       for (let key of Object.keys(instances)) {
         let instance = instances[key]
-        if (instance.type === type && instance.host === host.url) {
+        if (instance.type === type && instance.host === url) {
           instantiated = true
           break
         }
