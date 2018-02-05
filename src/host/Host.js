@@ -265,7 +265,7 @@ export default class Host extends EventEmitter {
       const type = {
         'js': 'JsContext',
         'mini': 'MiniContext',
-        'py': 'PyContext',
+        'py': 'PythonContext',
         'r': 'RContext',
         'sql': 'SqliteContext'
       }[language]
