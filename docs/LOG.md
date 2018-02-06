@@ -1,3 +1,24 @@
+# 2018-02-06 Dev call
+
+Priorities on stencila/stencila repo:
+
+- saving/reading from (virtual) file systems - available this week?
+
+- focus on removing usability bugs over next week
+
+- cell execution - do not execute if op still pending; allow for 'pausing'/'breakpoints'
+
+- cell error reporting - delay syntax errors (from all contexts); more readable errors from Mini
+
+- creating new documents within project (plus sign tab down the bottom)
+
+- allow for blank Articles:
+    - remove 'Article starts here' & 'Article ends here'
+    - remove references and footnotes titles?
+
+- do some general usability testing and create issues
+
+
 # 2018-01-31 Dev call
 
 ## Roadmap
