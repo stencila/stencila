@@ -32,6 +32,10 @@ export function request (method, url, data) {
       }
     }
 
+    request.onerror = function () {
+      reject(new Error('An error occurred with request "' + method + ' ' + url + '"'))
+    }
+
     if (data) {
       request.setRequestHeader('Content-Type', 'application/json')
       request.send(JSON.stringify(data))

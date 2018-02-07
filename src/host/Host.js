@@ -1,4 +1,8 @@
+import { EventEmitter } from 'substance'
+
 import { GET, POST, PUT } from '../util/requests'
+import FunctionManager from '../function/FunctionManager'
+import Engine from '../engine/Engine'
 import JsContext from '../contexts/JsContext'
 import MiniContext from '../contexts/MiniContext'
 import ContextHttpClient from '../contexts/ContextHttpClient'
@@ -8,9 +12,11 @@ import MemoryBuffer from '../backend/MemoryBuffer'
  * Each Stencila process has a single instance of the `Host` class which
  * orchestrates instances of other classes.
  */
-export default class Host {
+export default class Host extends EventEmitter {
 
   constructor (options = {}) {
+    super()
+
     /**
      * Options used to configure this host
      *
@@ -49,12 +55,84 @@ export default class Host {
      */
     this._peers = {}
 
-    this._functionManager = options.functionManager
+    /**
+     * Execution engine for scheduling execution across contexts
+     *
+     * @type {Engine}
+     */
+    this._engine = null
 
-    if (!this._functionManager) {
-      throw new Error('FunctionManager is required.')
+
+    /**
+     * Manages functions imported from libraries
+     * 
+     * @type {FunctionManager}
+     */
+    this._functionManager = new FunctionManager(options.libs)
+
+  }
+
+  // For compatability with Stencila Host Manifest API (as is stored in this._peers)
+
+  /**
+   * The URL of this internal host
+   */
+  get url() {
+    return 'internal'
+  }
+
+  /**
+   * The resource types supported by this internal host
+   */
+  get types() {
+    return {
+      JsContext: { name: 'JsContext' },
+      MiniContext: { name: 'MiniContext' }
     }
+  }
 
+  // Getters...
+
+  /**
+   * Get this host's configuration options
+   */
+  get options () {
+    return this._options
+  }
+
+  /**
+   * Get this host's peers
+   */
+  get peers () {
+    return this._peers
+  }
+
+  /**
+   * Get the resource instances (e.g. contexts, storers) managed by this host
+   */
+  get instances() {
+    return this._instances
+  }
+
+  /**
+   * Get the execution contexts managed by this host
+   */
+  get contexts() {
+    return this._contexts
+  }
+
+  /**
+   * Get this host's peers
+   */
+  get engine () {
+    return this._engine
+  }
+
+  /**
+   * Get this host's function manager
+   */
+  get functionManager() {
+    return this._functionManager
   }
 
   /**
@@ -83,7 +161,11 @@ export default class Host {
       this.discoverPeers(options.discover)
     }
 
-    return Promise.all(promises)
+    return Promise.all(promises).then(() => {
+      // Instantiate the engine after connecting to any peer hosts so that they are connected to before the engine attempts
+      // to create contexts for external languages like R, SQL etc
+      this._engine = new Engine(this)
+    })
   }
 
   /**
@@ -102,9 +184,9 @@ export default class Host {
         // Gather an object of types from the peer and it's peers
         let specs = []
         let addSpecs = (manifest) => {
-          if (manifest.schemes && manifest.schemes.new) {
-            for (let type of Object.keys(manifest.schemes.new)) {
-              specs.push(manifest.schemes.new[type])
+          if (manifest.types) {
+            for (let type of Object.keys(manifest.types)) {
+              specs.push(manifest.types[type])
             }
           }
         }
@@ -127,6 +209,12 @@ export default class Host {
       }
     }
 
+    // Register a created instance
+    let _register = (id, host, type, instance) => {
+      this._instances[id] = {host, type, instance}
+      this.emit('instance:created')
+    }
+
     // Attempt to find resource type amongst...
     let found = find(false) //...peers
     if (!found) found = find(true) //...peers of peers
@@ -139,7 +227,7 @@ export default class Host {
         else throw new Error(`Unsupported type: ${spec.client}`)
 
         let instance = new Client(url + '/' + id)
-        this._instances[id] = instance
+        _register(id, url, type, instance)
         return {id, instance}
       })
     }
@@ -162,7 +250,7 @@ export default class Host {
     let number = (this._counts[type] || 0) + 1
     this._counts[type] = number
     let id = type[0].toLowerCase() + type.substring(1) + number
-    this._instances[id] = instance
+    _register(id, this.url, type, instance)
 
     return Promise.resolve({id, instance})
   }
@@ -177,7 +265,7 @@ export default class Host {
       const type = {
         'js': 'JsContext',
         'mini': 'MiniContext',
-        'py': 'PyContext',
+        'py': 'PythonContext',
         'r': 'RContext',
         'sql': 'SqliteContext'
       }[language]
@@ -215,24 +303,6 @@ export default class Host {
   }
 
   /**
-   * Get the execution contexts managed by this host
-   */
-  get contexts() {
-    return this._contexts
-  }
-
-  get functionManager() {
-    return this._functionManager
-  }
-
-  /**
-   * Get this host's peers
-   */
-  get peers () {
-    return this._peers
-  }
-
-  /**
    * Register a peer
    *
    * Peers may have several URLs (listed in the manifest's `urls` property; e.g. http://, ws://).
@@ -244,6 +314,7 @@ export default class Host {
    */
   registerPeer (url, manifest) {
     this._peers[url] = manifest
+    this.emit('peer:registered')
   }
 
   /**
@@ -262,6 +333,8 @@ export default class Host {
         if (match) url = match[0]
         this.registerPeer(url, manifest)
       }
+    }).catch((error) => {
+      console.error(error)
     })
   }
 
@@ -278,15 +351,27 @@ export default class Host {
    * The easiest approach is silence these errors in Chrome is to check the
    * 'Hide network' checkbox in the console filter.
    *
-   * Set the `interval` parameter to trigger ongoing discovery.
+   * Set the `interval` parameter to a value greater than zero to trigger ongoing discovery and
+   * to a negative number to turn off discovery.
    *
    * @param {number} interval - The interval (seconds) between discovery attempts
    */
   discoverPeers (interval=10) {
-    for (let port=2000; port<=2100; port+=10) {
-      this.pokePeer(`http://127.0.0.1:${port}`)
+    this.options.discover = interval
+    if (interval >= 0) {
+      for (let port=2000; port<=2100; port+=10) {
+        this.pokePeer(`http://127.0.0.1:${port}`)
+      }
+      if (interval > 0) {
+        this.discoverPeers(-1) // Ensure any existing interval is turned off
+        this._dicoverPeersInterval = setInterval(() => this.discoverPeers(0), interval*1000)
+      }
+    } else {
+      if (this._dicoverPeersInterval) {
+        clearInterval(this._dicoverPeersInterval)
+        this._dicoverPeersInterval = null
+      }
     }
-    if (interval) setTimeout(() => this.discoverPeers(interval), interval*1000)
   }
 
   // Experimental

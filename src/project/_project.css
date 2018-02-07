@@ -41,6 +41,11 @@
   background: white;
 }
 
+.sc-project-bar > .se-hosts-toggle {
+  float: right;
+  margin-right: 10px;
+}
+
 .sc-project .se-main-pane .se-editor-pane {
   height: 100%;
 }

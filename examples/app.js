@@ -25,15 +25,11 @@ window.addEventListener('load', () => {
   // devtools is open when this page is loaded
   substanceGlobals.DEBUG_RENDERING = platform.devtools
   const example = getQueryStringParam('example') || 'mini'
-  const discover = window.STENCILA_DISCOVER ? parseFloat(window.STENCILA_DISCOVER) : false
-  const peers = getQueryStringParam('peers') || window.STENCILA_PEERS
-  const libs = { 'core': window.STENCILA_LIBCORE }
+
   let documentArchive = _loadExamleDar(example, vfs)
-  setupStencilaContext(documentArchive, {
-    discover,
-    peers,
-    libs,
-  }).then(({host, functionManager, engine}) => {
+  setupStencilaContext(documentArchive).then(({host, functionManager, engine}) => {
+    // Added for easier inspection of host during development
+    window.host = host
     new Project(null, {
       documentArchive,
       host,

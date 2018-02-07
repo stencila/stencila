@@ -3,7 +3,7 @@ import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
 import ProjectBar from './ProjectBar'
 import HelpComponent from '../shared/HelpComponent'
-
+import HostsComponent from '../host/HostsComponent'
 
 export default class Project extends Component {
 
@@ -11,7 +11,8 @@ export default class Project extends Component {
     this.handleActions({
       'openDocument': this._openDocument,
       'openHelp': this._openHelp,
-      'toggleHelp': this._toggleHelp
+      'toggleHelp': this._toggleHelp,
+      'toggleHosts': this._toggleHosts
     })
   }
 
@@ -132,6 +133,23 @@ export default class Project extends Component {
   }
 
   /*
+    Either open or hide hosts connection information
+  */
+  _toggleHosts() {
+    if (this.state.contextId === 'hosts') {
+      this.extendState({
+        contextId: undefined,
+        contextProps: undefined
+      })
+    } else {
+      this.extendState({
+        contextId: 'hosts',
+        contextProps: { page: 'hosts'}
+      })
+    }
+  }
+
+  /*
     TODO: We may want to make this extensible in the future
 
     NOTE: This is injected into the active editor, so we need to make sure that
@@ -143,7 +161,9 @@ export default class Project extends Component {
     let contextComponent
     if (contextId === 'help') {
       contextComponent = $$(HelpComponent, contextProps).ref('contextComponent')
-    } else if (contextId === 'issues') {
+    } else if (contextId === 'hosts') {
+      contextComponent = $$(HostsComponent, contextProps).ref('contextComponent')
+    }else if (contextId === 'issues') {
       console.warn('TODO: use issue component')
     }
     return contextComponent
