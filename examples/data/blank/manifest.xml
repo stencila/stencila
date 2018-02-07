@@ -1,6 +1,7 @@
 <container>
   <documents>
-    <document id="doc-1" type="article" path="blank.xml" />
+    <document id="article" type="article" path="blank-article.xml" />
+    <document id="sheet" type="sheet" path="blank-sheet.xml" />
     <document id="pub-meta" type="pub-meta" path="pub-meta.json" />
   </documents>
 </container>
