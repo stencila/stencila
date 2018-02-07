@@ -5,12 +5,12 @@
     <title>stencila/stencila Examples</title>
     <style type="text/css">
       body {
-        max-width: 45rem;
+        max-width: 50rem;
         margin: 0 auto;
         padding: 2em 1em;
         font-family: Helvetica, sans;
         color: #555;
-        font-size: 1.2em;
+        font-size: 1em;
       }
       li {
         margin: 1em;
@@ -19,69 +19,74 @@
         text-decoration: none;
         color: #506bec;
       }
+      .examples {
+        margin: 2em auto;
+        font-size: 1.2em;
+      }
+      .header {
+        width: 20em;
+        margin: 0 auto;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
-    <img src="http://static.stenci.la/img/logo-name-274x60.png" style="display: block; margin: 0 auto 3em auto">
-
+    <div class="header">
+      <img src="http://static.stenci.la/img/logo-name-274x60.png">
+      <h2>Test and demo examples</h2>
+    </div>
+    <div class="examples">
+      <p>
+        <a href="./examples/index.html?example=blank"><b>Blank</b></a>:
+        blank text and spreadsheet documents, mainly for testing.
+      </p>
+        <a href="./examples/index.html?example=mini"><b>Mini cells</b></a>:
+        text and spreadsheet documents with some code cells written in Mini, Stencila's simple embedded language.
+      </p>
+      <p>
+        <a href="./examples/index.html?example=external-cells"><b>External language cells</b></a>:
+        an article with some code cells written in external languages R, Python and SQL.
+      </p>
+      <p>
+        <a href="./examples/index.html?example=r-cells"><b>R spreadsheet</b></a>:
+        a sheet with R code in it's cells
+      </p>
+      <p>
+        <a href="./examples/index.html?example=gene-errors"><b>Gene conversion errors</b></a>:
+        a sheet using data on gene name auto-conversion errors from <a href="https://doi.org/10.1186/s13059-016-1044-7">Ziemann et al (2016) Gene name errors are widespread in the scientific literature</a>
+      </p>
+      <p>
+        <a href="./examples/index.html?example=gene-data"><b>Gene data</b></a>:
+        a sheet with an example of gene data as used in Ziemann et al (2016).
+      </p>
+      <p>
+        <a href="./examples/index.html?example=publication"><b>Reproducible publication</b></a>:
+        Illustrates a publication that bundles together an article and a sheet.
+      </p>
+    </div>
+  
     <p>
-      These examples of Stencila components are for testing and demoing. <strong>Expect bugs, missing features and general annoyances!</strong> And, when you find them, please let use know at <a href="https://community.stenci.la/">https://community.stenci.la/</a> or <a href="https://github.com/stencila/stencila/issues">https://github.com/stencila/stencila/issues</a>
+      These examples of Stencila documents are intended for testing and demoing. <strong>Expect bugs, missing features and general annoyances!</strong> And, when you find them, please let use know at <a href="https://community.stenci.la/">https://community.stenci.la/</a> or <a href="https://github.com/stencila/stencila/issues">https://github.com/stencila/stencila/issues</a>
     </p>
-
     <p>
       Some examples use external code cells (e.g. in R or SQL). To execute them you will need to have an external Stencila Host running:
     </p>
     <ul>
       <li>
-        Use our cluster of Stencila Hosts by appending <code>&amp;peers=http://cloud.stenci.la?ticket=XXXXXXXX</code> to the end of the URL. Ask us for a ticket.
+        Visit <code>http://alpha.stenci.la?ticket=XXXXXXXX</code> with a valid access ticket (ask us for that).
+      </li>
+      <li>
+        Use our cluster of Stencila Hosts by appending <code>&amp;peers=http://cloud.stenci.la?ticket=XXXXXXXX</code> to the end of each example's URL. Ask us for a ticket.
       </li>
       <li>
         Run one of Stencila's Docker images locally:
-        <pre><code>docker run -p 2100:2000 stencila/alpha:0.29-preview</code></pre>
-        Then append <code>&amp;peers=http://localhost:2100</code> to the end of the URL
+        <pre><code>docker run -p 2100:2000 stencila/core</code></pre>
+        Then append <code>&amp;peers=http://localhost:2100</code> to the end of each example's URL
       </li>
       <li>
         Run one of our language packages locally. See our <a href="https://community.stenci.la/t/getting-started-with-stencila">getting started guide</a>
       </li>
-    </p>
-
-    <h2>Examples</h2>
-    <p>
-      <a href="./examples/index.html?example=blank"><b>Blank</b></a>:
-      just a blank document, mainly for testing.
-    </p>
-    <!-- <p>
-      <a href="./examples/sheet/index.html?example=gene-errors"><b>Gene conversion errors</b></a>:
-      a sheet using data on gene name auto-conversion errors from <a href="https://doi.org/10.1186/s13059-016-1044-7">Ziemann et al (2016) Gene name errors are widespread in the scientific literature</a>
-    </p> -->
-    <!-- <p>
-      <a href="./examples/sheet/index.html?example=gene-data"><b>Gene data</b></a>:
-      a sheet with an example of gene data as used in Ziemann et al (2016).
-    </p> -->
-    <!-- <p>
-      <a href="./examples/sheet/index.html?example=r-cells"><b>R spreadsheet</b></a>:
-      a sheet with R code in it's cells
-    </p> -->
-    <!-- <p>
-      <a href="./examples/sheet/index.html?example=r-model"><b>R regression model</b></a>:
-      a plot and linear regression in R
-    </p> -->
-    <p>
-      <a href="./examples/index.html?example=mini"><b>Mini cells</b></a>:
-      A document and a sheet with some code cells written in Mini, Stencila's simple embedded language.
-    </p>
-    <p>
-      <a href="./examples/index.html?example=external-cells"><b>External language cells</b></a>:
-      an article with some code cells written in external languages R, Python and SQL.
-    </p>
-    <!-- <p>
-      <a href="./examples/article/index.html?example=blank">Blank article</a></b>:
-      mainly for testing
-    </p> -->
-    <p>
-      <a href="./examples/index.html?example=publication"><b>Reproducible publication</b></a>:
-      Illustrates a publication that bundles together an article and a sheet.
-    </p>
-
+    </ul>
+    
   </body>
 </html>

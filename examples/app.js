@@ -12,13 +12,17 @@ import {
 } from 'stencila'
 
 import iceCreamSales from './util/ice-cream-sales'
+import geneErrors from './util/gene-errors'
+import geneData from './util/gene-data'
+import rCells from './util/r-cells'
 
 // prepare the VFS on-the-fly expanding all examples
 let vfs = window.vfs
 // Add a sheet to dar dynamically
 vfs.writeFileSync('examples/data/publication/ice-cream-sales.xml', iceCreamSales().innerHTML)
-
-
+vfs.writeFileSync('examples/data/gene-data/sheet.xml', geneData().innerHTML)
+vfs.writeFileSync('examples/data/gene-errors/sheet.xml', geneErrors().innerHTML)
+vfs.writeFileSync('examples/data/r-cells/sheet.xml', rCells().innerHTML)
 
 window.addEventListener('load', () => {
   // Note: this way we enable debug rendering only when
