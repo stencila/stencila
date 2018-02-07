@@ -55,8 +55,9 @@ export default class Project extends Component {
   }
 
   _getActiveDocument() {
-    let dc = this._getDocumentArchive()
-    return dc.getDocumentEntries()[0]
+    let archive = this._getDocumentArchive()
+    let firstEntry = archive.getDocumentEntries()[0]
+    return firstEntry
   }
 
   _getDocumentArchive() {
@@ -65,7 +66,8 @@ export default class Project extends Component {
 
   _getDocumentRecordById(id) {
     let dc = this._getDocumentArchive()
-    return dc.getDocumentEntries().find(e => e.id === id)
+    let entries = dc.getDocumentEntries()
+    return entries.find(e => e.id === id)
   }
 
   _renderEditorPane($$) {
@@ -77,7 +79,7 @@ export default class Project extends Component {
     let editorSession = da.getEditorSession(documentId)
     let contextComponent = this._getContextComponent($$)
 
-    if (documentType === 'article') {
+    if (documentType === 'application/jats4m') {
       el.append(
         $$(TextureEditorPackage.Editor, {
           editorSession,
@@ -86,7 +88,7 @@ export default class Project extends Component {
         }).ref('editor')
           .addClass('sc-article-editor')
       )
-    } else if (documentType === 'sheet') {
+    } else if (documentType === 'application/sheetml') {
       el.append(
         $$(SheetEditor, {
           editorSession,
@@ -151,9 +153,6 @@ export default class Project extends Component {
 
   /*
     TODO: We may want to make this extensible in the future
-
-    NOTE: This is injected into the active editor, so we need to make sure that
-    context
   */
   _getContextComponent($$) {
     let contextId = this.state.contextId
@@ -163,7 +162,7 @@ export default class Project extends Component {
       contextComponent = $$(HelpComponent, contextProps).ref('contextComponent')
     } else if (contextId === 'hosts') {
       contextComponent = $$(HostsComponent, contextProps).ref('contextComponent')
-    }else if (contextId === 'issues') {
+    } else if (contextId === 'issues') {
       console.warn('TODO: use issue component')
     }
     return contextComponent

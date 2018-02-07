@@ -44,12 +44,13 @@
     "plotly.js": "^1.31.1",
     "stencila-libcore": "^0.2.8",
     "stencila-mini": "^0.13.1",
-    "substance": "1.0.0-preview.20",
-    "substance-texture": "1.0.0-alpha.4-preview.10",
+    "substance": "^1.0.0-preview.24",
+    "substance-texture": "1.0.0-alpha.4-preview.11",
     "timeago.js": "3.0.0",
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
+    "dar-server": "0.2.0",
     "docsify-cli": "^4.2.0",
     "eslint": "^3.12.2",
     "istanbul": "^0.4.5",

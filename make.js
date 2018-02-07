@@ -2,8 +2,8 @@
 const b = require('substance-bundler')
 const fork = require('substance-bundler/extensions/fork')
 const install = require('substance-bundler/extensions/install')
-const isInstalled = require('substance-bundler/util/isInstalled')
 const path = require('path')
+const isInstalled = require('substance-bundler/util/isInstalled')
 const fs = require('fs')
 const merge = require('lodash.merge')
 // used to bundle example files for demo
@@ -116,7 +116,8 @@ function buildData() {
   vfs(b, {
     src: ['./examples/data/**/*'],
     dest: 'build/vfs.js',
-    format: 'umd', moduleName: 'vfs'
+    format: 'umd', moduleName: 'vfs',
+    rootDir: path.join(__dirname, 'examples/data')
   })
 }
 
@@ -381,5 +382,29 @@ b.task('test:one', ['test:backend'], () => {
 
 b.task('default', ['stencila', 'examples'])
 .describe('[stencila, examples].')
+
+
+/* Server */
+// TODO: make this configurable
+const port = 4000
+b.setServerPort(port)
+
+b.yargs.option('d', {
+  type: 'string',
+  alias: 'rootDir',
+  describe: 'Root directory of served archives'
+})
+let argv = b.yargs.argv
+if (argv.d) {
+  const darServer = require('dar-server')
+  const rootDir = argv.d
+  const archiveDir = path.resolve(path.join(__dirname, rootDir))
+  darServer.serve(b.server, {
+    port,
+    serverUrl: 'http://localhost:'+port,
+    rootDir: archiveDir,
+    apiUrl: '/archives'
+  })
+}
 
 b.serve({ static: true, route: '/', folder: 'build' })
