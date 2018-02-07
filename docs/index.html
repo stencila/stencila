@@ -33,15 +33,15 @@
         function (hook) {
           var footer = [
             '<hr/>',
-            '<footer>',
+            '<header>',
             '<p class="tip">Please note - this documentation is under development.',
             '<a href="https://github.com/stencila/stencila/tree/develop/docs"  target="_blank"> Help out</a></p>',
             '<p class="warn"> We are using document driven development. Throughout these docs we use the sparkles emoji, <img class="emoji" src="https://assets-cdn.github.com/images/icons/emoji/sparkles.png" alt="sparkles">, to indicate features that have not yet been implemented.</p>',
-            '</footer>'
+            '</header>'
           ].join('')
 
           hook.afterEach(function (html) {
-            return  footer + html
+            return  header + html
           })
         }
       ]
