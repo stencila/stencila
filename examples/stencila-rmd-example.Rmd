@@ -1,0 +1,77 @@
+---
+title: "Introductory data analysis with R"
+output:
+  html_document:
+    df_print: paged
+---
+
+**Note** The material presented in this file comes from 
+[Software Carpentry training materials](https://swcarpentry.github.io/r-novice-gapminder)
+
+#### Setup 
+
+One of R's most powerful features is its ability to deal with tabular data -
+such as you may already have in a spreadsheet or a CSV file. Let's start by
+making a toy dataset, called `feline-data.csv`:
+
+```{r}
+cats <- data.frame(coat = c("calico", "black", "tabby"), 
+                    weight = c(2.1, 5.0,3.2), 
+                    likes_string = c(1, 0, 1))
+write.csv(x = cats, file = "feline-data.csv", row.names = FALSE)
+```
+
+```{r, eval=FALSE}
+coat,weight,likes_string
+calico,2.1,1
+black,5.0,0
+tabby,3.2,1
+```
+
+We can load this into R via the following:
+
+```{r}
+cats <- read.csv(file = "feline-data.csv")
+cats
+```
+
+We can begin exploring our dataset right away, pulling out columns by specifying
+them using the `$` operator:
+
+```{r}
+cats$weight
+cats$coat
+```
+
+We can do other operations on the columns:
+
+```{r}
+## Say we discovered that the scale weighs two Kg light:
+cats$weight + 2
+paste("My cat is", cats$coat)
+```
+
+
+
+ggplot2 is built on the grammar of graphics, the idea that any plot can be
+expressed from the same set of components: a **data** set, a
+**coordinate system**, and a set of **geoms**--the visual representation of data
+points.
+
+The key to understanding ggplot2 is thinking about a figure in layers.
+This idea may be familiar to you if you have used image editing programs like Photoshop, Illustrator, or
+Inkscape.
+
+Let's start off with an example:
+
+First we will read in the data from a file in a remote location
+
+```{r}
+gapminder <- read.csv("https://raw.githubusercontent.com/resbaz/r-novice-gapminder-files/master/data/gapminder-FiveYearData.csv", header = TRUE)
+```
+
+```{r lifeExp-vs-gdpPercap-scatter, message=FALSE}
+library("ggplot2")
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point()
+```
