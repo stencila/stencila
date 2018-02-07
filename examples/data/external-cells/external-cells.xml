@@ -14,8 +14,7 @@
   <body>
     <sec>
       <title>Introduction</title>
-      <p>To execute the code cells you will need to have an external Stencila Host running which supports R, Python and SQL languages. See our <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://community.stenci.la/t/getting-started-with-stencila" ext-link-type="uri" xlink:type="simple">getting started guide</ext-link> for instructions on running a Stencila Host. Then append <bold>&amp;peers=http://localhost:2000></bold> to the end of the URL.</p>
-      <p>Alternatively, you can use Stencila Cloud by appending <bold>&amp;peers=https://cloud.stenci.la?ticket=XXXXXXXX</bold> to the end of the URL. Ask us for a ticket (the XXXXXXXX part).</p>
+      <p>To execute the code cells you will need to have an external Stencila Host running which supports R, Python and SQL languages. See the notes on <ext-link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/" ext-link-type="uri" xlink:type="simple">the index page</ext-link>.</p>
     </sec>
     <sec>
       <title>R</title>
