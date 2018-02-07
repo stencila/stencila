@@ -16,6 +16,7 @@
 </head>
 <body>
   <div id="app"></div>
+
   <script>
     window.$docsify = {
       themeColor: '#2568ef',
@@ -25,13 +26,32 @@
       },
       loadSidebar: true,
       loadNavbar: true,
+      footer: true,
       plugins: [
-        window.DocsifyCopyCodePlugin.init()
+        window.DocsifyCopyCodePlugin.init(),
+
+        function (hook) {
+          var footer = [
+            '<hr/>',
+            '<footer>',
+            '<p class="tip">Please note - this documentation is under development.',
+            '<a href="https://github.com/stencila/stencila/tree/develop/docs"  target="_blank"> Help out</a></p>',
+            '<p class="warn"> We are using document driven development. Throughout these docs we use the sparkles emoji, <img class="emoji" src="https://assets-cdn.github.com/images/icons/emoji/sparkles.png" alt="sparkles">, to indicate features that have not yet been implemented.</p>',
+            '</footer>'
+          ].join('')
+
+          hook.afterEach(function (html) {
+            return  footer + html
+          })
+        }
       ]
     }
   </script>
+
   <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+
   <script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>
+
   <script src="//unpkg.com/docsify/lib/plugins/emoji.min.js"></script>
   <script src="//unpkg.com/prismjs/components/prism-bash.min.js"></script>
   <script src="//unpkg.com/prismjs/components/prism-json.min.js"></script>
@@ -40,5 +60,6 @@
   <script src="//unpkg.com/prismjs/components/prism-sql.min.js"></script>
   <script src="//unpkg.com/prismjs/components/prism-markdown.min.js"></script>
   <script src="prism-mini.js"></script>
+
 </body>
 </html>
