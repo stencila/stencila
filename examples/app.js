@@ -104,7 +104,8 @@ class App extends Component {
 
   _keyDown(e) {
     let key = parseKeyEvent(e)
-    if (key === 'META+83') {
+    // CommandOrControl+S
+    if (key === 'META+83' || key === 'CTRL+83') {
       this._save()
       e.preventDefault()
     }
