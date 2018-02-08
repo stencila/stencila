@@ -57,6 +57,8 @@ const NODEJS_EXTERNALS = [
   'substance', 'substance-texture', 'stencila-mini', 'stencila-libcore', 'katex', 'plotly.js', 'rdc-js'
 ]
 
+const DIST = './build/'
+
 const NODEJS_IGNORE = ['plotly.js']
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
@@ -65,25 +67,25 @@ const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
 // ---------
 
 function copyAssets() {
-  b.copy('./node_modules/font-awesome', './build/font-awesome')
-  b.copy('./node_modules/katex/dist/', './build/katex')
-  b.copy('./node_modules/plotly.js/dist/plotly*.js*', './build/lib/')
-  b.copy('./node_modules/substance/dist/substance.js*', './build/lib/')
-  b.copy('./node_modules/substance-texture/dist/texture.js*', './build/lib/')
-  b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', './build/lib/')
-  b.copy('./node_modules/stencila-libcore/build/stencila-libcore.*', './build/lib/')
-  b.copy('./node_modules/rdc-js/dist/rdc.js*', './build/lib/')
+  b.copy('./node_modules/font-awesome', DIST+'font-awesome')
+  b.copy('./node_modules/katex/dist/', DIST+'katex')
+  b.copy('./node_modules/plotly.js/dist/plotly*.js*', DIST+'lib/')
+  b.copy('./node_modules/substance/dist/substance.js*', DIST+'lib/')
+  b.copy('./node_modules/substance-texture/dist/texture.js*', DIST+'lib/')
+  b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', DIST+'lib/')
+  b.copy('./node_modules/stencila-libcore/build/stencila-libcore.*', DIST+'lib/')
+  b.copy('./node_modules/rdc-js/dist/rdc.js*', DIST+'lib/')
 }
 
 function buildCss() {
-  b.css('src/pagestyle/stencila.css', 'build/stencila.css', {
+  b.css('src/pagestyle/stencila.css', DIST+'stencila.css', {
     variables: true
   })
 }
 
 function buildStencilaBrowser() {
   b.js('index.es.js', COMMON_SETTINGS({
-    dest: 'build/stencila.js',
+    dest: DIST+'stencila.js',
     format: 'umd', moduleName: 'stencila',
     globals: BROWSER_EXTERNALS,
     external: NODEJS_EXTERNALS
@@ -92,7 +94,7 @@ function buildStencilaBrowser() {
 
 function buildStencilaNodeJS() {
   b.js('index.es.js', COMMON_SETTINGS({
-    dest : 'build/stencila.cjs.js',
+    dest : DIST+'stencila.cjs.js',
     format: 'cjs',
     // Externals are not included into the bundle
     external: NODEJS_EXTERNALS,
@@ -101,10 +103,14 @@ function buildStencilaNodeJS() {
 }
 
 function buildExamples() {
-  b.copy('./examples/*.html', './build/')
-  b.copy('index.html', './build/index.html')
-  b.js(`examples/app.js`, {
-    dest: `build/examples/app.js`,
+  // b.copy('./examples/*.html', './build/')
+  b.copy('./examples/*.html', DIST, { root: './examples/'})
+  // copy('./node_modules/substance/packages/** /*.css', 'dist/styles/', { root: './node_modules/substance/'})
+  // copy('./node_modules/substance/packages/** /*.css', 'dist/styles/', { root: './node_modules/substance/'})
+
+  // b.copy('index.html', './build/index.html')
+  b.js(`./examples/app.js`, {
+    dest: `${DIST}app.js`,
     format: 'umd', moduleName: `StencilaExample`,
     external: EXAMPLE_EXTERNALS
   })
@@ -115,7 +121,7 @@ function buildData() {
   // TODO: we should also be able to map images
   vfs(b, {
     src: ['./data/**/*'],
-    dest: 'build/vfs.js',
+    dest: `${DIST}vfs.js`,
     format: 'umd', moduleName: 'vfs',
     rootDir: path.join(__dirname, 'data')
   })
@@ -124,7 +130,7 @@ function buildData() {
 // This is used to expose `STENCILA_XXXX` environment variables to the js app
 function buildEnv() {
   b.custom('Creating environment variables (env.js)...', {
-    dest: './build/env.js',
+    dest: DIST+'env.js',
     execute() {
       const variables = []
       for (let name of Object.keys(process.env)) {
@@ -132,7 +138,7 @@ function buildEnv() {
           variables.push(`window.${name} = "${process.env[name]}"`)
         }
       }
-      b.writeFileSync('build/env.js', variables.join('\n'), 'utf8')
+      b.writeFileSync(DIST+'env.js', variables.join('\n'), 'utf8')
     }
   })
 }
@@ -295,7 +301,7 @@ function _compileSchema(name, src, options = {} ) {
 // -----
 
 b.task('clean', () => {
-  b.rm('build')
+  b.rm(DIST)
   b.rm('tmp')
   b.rm('coverage')
 })
@@ -307,7 +313,7 @@ b.task('vendor', buildVendor)
 b.task('assets', () => {
   copyAssets()
 })
-.describe('Copies assets into build folder.')
+.describe('Copies assets into dist folder.')
 
 b.task('css', () => {
   buildCss()
@@ -407,4 +413,6 @@ if (argv.d) {
   })
 }
 
-b.serve({ static: true, route: '/', folder: 'build' })
+b.serve({ static: true, route: '/', folder: DIST })
+
+// b.serve({ static: true, route: '/', folder: 'build' })

@@ -1,6 +1,7 @@
 import { prettyPrintXML, PersistedDocumentArchive } from 'substance'
-import { ArticleLoader, PubMetaLoader, JATSExporter } from 'substance-texture'
+import { PubMetaLoader, JATSExporter } from 'substance-texture'
 import SheetLoader from './sheet/SheetLoader'
+import ArticleLoader from './article/ArticleLoader'
 
 export default class StencilaArchive extends PersistedDocumentArchive {
 
@@ -40,16 +41,15 @@ export default class StencilaArchive extends PersistedDocumentArchive {
         let dom = doc.toXML()
         let res = jatsExporter.export(dom, { pubMetaDb, doc })
         console.info('saving jats', res.dom.getNativeElement())
-        let xmlStr = prettyPrintXML(res.dom)
+        // TODO: bring back pretty printing (currently messes up CDATA content)
+        // let xmlStr = prettyPrintXML(res.dom)
+        let xmlStr = res.dom.serialize()
         return xmlStr
       }
       case 'application/sheetml': {
         let dom = session.getDocument().toXML()
         let xmlStr = prettyPrintXML(dom)
-        console.log(xmlStr)
         return xmlStr
-
-        // sessions['pub-meta']
       }
       default:
         throw new Error('Unsupported document type')

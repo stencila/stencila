@@ -93,8 +93,9 @@ npm install
 npm run start
 ```
 
-Now you can access the examples in the browser at [http://localhost:4000/](http://localhost:4000/).
+And navigate to [http://localhost:4000](http://localhost:4000/?archive=kitchen-sink&storage=fs).
 
+You can save your document changes by pressing `CommandOrControl+S`.
 
 Use external contexts during development:
 
