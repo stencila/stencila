@@ -1,6 +1,0 @@
-<container>
-  <documents>
-    <document id="doc-1" name="Mini Article" type="article" path="mini-cells.xml" />
-    <document id="pub-meta" type="pub-meta" path="pub-meta.json" />
-  </documents>
-</container>

@@ -1,5 +1,4 @@
 export default {
-  'article': 'Article',
-  'sheet': 'Sheet',
-  'notebook': 'Notebook'
+  'application/jats4m': 'Article',
+  'application/sheetml': 'Sheet'
 }

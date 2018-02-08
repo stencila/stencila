@@ -9,6 +9,7 @@ export { default as Host } from './src/host/Host'
 // stubs (needed only by the examples)
 export { default as MemoryBackend } from './src/backend/MemoryBackend'
 export { default as MemoryBuffer } from './src/backend/MemoryBuffer'
+export { default as StencilaArchive } from './src/StencilaArchive'
 export { default as JsContext } from './src/contexts/JsContext'
 
 export { address, value }

@@ -1,72 +1,113 @@
 import {
-  DocumentArchive, ManifestLoader,
-  platform, substanceGlobals
+  getQueryStringParam, Component, DefaultDOMElement, parseKeyEvent,
+  HttpStorageClient, VfsStorageClient, InMemoryDarBuffer, substanceGlobals,
+  platform
 } from 'substance'
-import { PubMetaLoader } from 'substance-texture'
+
+import { JATSImportDialog } from 'substance-texture'
 
 import {
-  Project, getQueryStringParam,
-  SheetLoader,
+  Project,
   setupStencilaContext,
-  ArticleLoader
+  StencilaArchive
 } from 'stencila'
 
-import iceCreamSales from './util/ice-cream-sales'
-
-// prepare the VFS on-the-fly expanding all examples
-let vfs = window.vfs
-// Add a sheet to dar dynamically
-vfs.writeFileSync('examples/data/publication/ice-cream-sales.xml', iceCreamSales().innerHTML)
-
-
-
 window.addEventListener('load', () => {
-  // Note: this way we enable debug rendering only when
-  // devtools is open when this page is loaded
   substanceGlobals.DEBUG_RENDERING = platform.devtools
-  const example = getQueryStringParam('example') || 'mini'
-
-  let documentArchive = _loadExamleDar(example, vfs)
-  setupStencilaContext(documentArchive).then(({host, functionManager, engine}) => {
-    // Added for easier inspection of host during development
-    window.host = host
-    new Project(null, {
-      documentArchive,
-      host,
-      functionManager,
-      engine
-    }).mount(window.document.body)
-  })
+  App.mount({}, window.document.body)
 })
 
+class App extends Component {
 
-/*
-  HACK: We can't use a regular loader pattern as pub-meta and manuscript
-        depend on each other. Can we instead formulate dependencies in the
-        loader configuration?
-*/
-function _loadExamleDar(example, vfs) {
-  let manifestXML = vfs.readFileSync(`examples/data/${example}/manifest.xml`)
-  let manifest = ManifestLoader.load(manifestXML)
-  let sessions = {
-    manifest: manifest.editorSession
+  didMount() {
+    this._init()
+    DefaultDOMElement.getBrowserWindow().on('keydown', this._keyDown, this)
   }
-  let docs = manifest.manifest.findAll('documents > document')
-  let pubMetaDbSession = PubMetaLoader.load()
 
-  docs.forEach(entry => {
-    let id = entry.attr('id')
-    let type = entry.attr('type')
-    let xml = vfs.readFileSync(`examples/data/${example}/${entry.path}`)
-    if (type === 'article') {
-      sessions[id] = ArticleLoader.load(xml, {
-        pubMetaDb: pubMetaDbSession.getDocument()
-      })
-    } else if (type === 'sheet') {
-      sessions[id] = SheetLoader.load(xml)
+  dispose() {
+    DefaultDOMElement.getBrowserWindow().off(this)
+  }
+
+  getInitialState() {
+    return {
+      archive: undefined,
+      error: undefined
     }
-  })
+  }
 
-  sessions['pub-meta'] = pubMetaDbSession
-  return new DocumentArchive(sessions)
+  render($$) {
+    let el = $$('div').addClass('sc-app')
+    let { archive, host, functionManager, engine, error } = this.state
+
+    if (archive) {
+
+      el.append(
+        $$(Project, {
+          documentArchive: archive,
+          host,
+          functionManager,
+          engine
+        })
+      )
+    } else if (error) {
+      if (error.type === 'jats-import-error') {
+        el.append(
+          $$(JATSImportDialog, { errors: error.detail })
+        )
+      } else {
+        el.append(
+          'ERROR:',
+          error.message
+        )
+      }
+    } else {
+      // LOADING...
+    }
+    return el
+  }
+
+  _init() {
+    let archiveId = getQueryStringParam('archive') || 'kitchen-sink'
+    let storageType = getQueryStringParam('storage') || 'vfs'
+    let storageUrl = getQueryStringParam('storageUrl') || '/archives'
+    let storage
+    if (storageType==='vfs') {
+      storage = new VfsStorageClient(window.vfs, './data/')
+    } else {
+      storage = new HttpStorageClient(storageUrl)
+    }
+    let buffer = new InMemoryDarBuffer()
+    let archive = new StencilaArchive(storage, buffer)
+    archive.load(archiveId)
+    .then(() => {
+      return setupStencilaContext(archive)
+    }).then(({host, functionManager, engine}) => {
+      this.setState({archive, functionManager, engine, host})
+    })
+    .catch(error => {
+      console.error(error)
+      this.setState({error})
+    })
+  }
+
+  /*
+    We may want an explicit save button, that can be configured on app level,
+    but passed down to editor toolbars.
+  */
+  _save() {
+    this.state.archive.save().then(() => {
+      console.info('successfully saved')
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  _keyDown(e) {
+    let key = parseKeyEvent(e)
+    // CommandOrControl+S
+    if (key === 'META+83' || key === 'CTRL+83') {
+      this._save()
+      e.preventDefault()
+    }
+  }
 }

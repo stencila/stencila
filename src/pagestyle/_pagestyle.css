@@ -9,6 +9,10 @@ html, body {
   height: 100%;
 }
 
+.sc-app {
+  height: 100%;
+}
+
 body,
 input,
 textarea {

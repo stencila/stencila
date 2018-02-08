@@ -1,0 +1,8 @@
+<archive type="rda">
+  <documents>
+    <document id="doc1" name="Reproducible Document Stack" type="application/jats4m" path="manuscript.xml" />
+    <document id="sheet1" name="Ice Cream Sales" type="application/sheetml" path="ice-cream-sales.xml" />
+  </documents>
+  <assets>
+  </assets>
+</archive>
