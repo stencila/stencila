@@ -20,7 +20,7 @@ import iceCreamSales from './util/ice-cream-sales'
 // prepare the VFS on-the-fly expanding all examples
 let vfs = window.vfs
 // Add a sheet to dar dynamically
-vfs.writeFileSync('examples/data/publication/ice-cream-sales.xml', iceCreamSales().innerHTML)
+vfs.writeFileSync('publication/ice-cream-sales.xml', iceCreamSales().innerHTML)
 
 class App extends Component {
 
@@ -66,13 +66,13 @@ class App extends Component {
     let storageUrl = getQueryStringParam('storageUrl') || '/archives'
     let storage
     if (storageType==='vfs') {
-      storage = new VfsStorageClient(window.vfs, './examples/data/')
+      storage = new VfsStorageClient(window.vfs, './data/')
     } else {
       storage = new HttpStorageClient(storageUrl)
     }
     let buffer = new InMemoryDarBuffer()
     let archive = new StencilaArchive(storage, buffer)
-    archive.load('examples/data/'+archiveId)
+    archive.load(archiveId)
     .then(() => {
       return setupStencilaContext(archive)
     }).then(({host, functionManager, engine}) => {

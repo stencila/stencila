@@ -114,10 +114,10 @@ function buildExamples() {
 function buildData() {
   // TODO: we should also be able to map images
   vfs(b, {
-    src: ['./examples/data/**/*'],
+    src: ['./data/**/*'],
     dest: 'build/vfs.js',
     format: 'umd', moduleName: 'vfs',
-    rootDir: path.join(__dirname, 'examples/data')
+    rootDir: path.join(__dirname, 'data')
   })
 }
 

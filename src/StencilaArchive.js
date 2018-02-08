@@ -43,6 +43,14 @@ export default class StencilaArchive extends PersistedDocumentArchive {
         let xmlStr = prettyPrintXML(res.dom)
         return xmlStr
       }
+      case 'application/sheetml': {
+        let dom = session.getDocument().toXML()
+        let xmlStr = prettyPrintXML(dom)
+        console.log(xmlStr)
+        return xmlStr
+
+        // sessions['pub-meta']
+      }
       default:
         throw new Error('Unsupported document type')
     }
