@@ -61,7 +61,7 @@ class App extends Component {
   }
 
   _init() {
-    let archiveId = getQueryStringParam('archive') || 'publication'
+    let archiveId = getQueryStringParam('archive') || 'kitchen-sink'
     let storageType = getQueryStringParam('storage') || 'vfs'
     let storageUrl = getQueryStringParam('storageUrl') || '/archives'
     let storage
