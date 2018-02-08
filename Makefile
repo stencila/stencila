@@ -36,10 +36,9 @@ cover:
 
 build:
 	npm run build
-.PHONY: build
 
 docs-serve:
 	npm run docs-serve
 
 clean:
-	rm -rf node_modules build tmp
+	node make clean

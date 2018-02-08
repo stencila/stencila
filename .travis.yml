@@ -48,7 +48,7 @@ before_deploy:
     BUILD_NAME=$COMMIT_SLUG-$(date --utc --iso-8601)-$(echo $TRAVIS_COMMIT | cut -c 1-7)
     # Create a versioned folder for the build
     mkdir -p bucket/stencila
-    mv build bucket/stencila/$BUILD_NAME
+    mv dist bucket/stencila/$BUILD_NAME
     # Update the list of builds
     curl -s http://builds.stenci.la/stencila/builds.txt > bucket/stencila/builds.txt
     echo $BUILD_NAME >> bucket/stencila/builds.txt
