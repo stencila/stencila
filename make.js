@@ -57,7 +57,7 @@ const NODEJS_EXTERNALS = [
   'substance', 'substance-texture', 'stencila-mini', 'stencila-libcore', 'katex', 'plotly.js', 'rdc-js'
 ]
 
-const DIST = './build/'
+const DIST = './dist/'
 
 const NODEJS_IGNORE = ['plotly.js']
 
@@ -414,5 +414,3 @@ if (argv.d) {
 }
 
 b.serve({ static: true, route: '/', folder: DIST })
-
-// b.serve({ static: true, route: '/', folder: 'build' })
