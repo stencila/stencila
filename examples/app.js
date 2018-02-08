@@ -4,6 +4,8 @@ import {
   platform
 } from 'substance'
 
+import { JATSImportDialog } from 'substance-texture'
+
 import {
   Project,
   setupStencilaContext,
@@ -14,13 +16,6 @@ window.addEventListener('load', () => {
   substanceGlobals.DEBUG_RENDERING = platform.devtools
   App.mount({}, window.document.body)
 })
-
-import iceCreamSales from './util/ice-cream-sales'
-
-// prepare the VFS on-the-fly expanding all examples
-let vfs = window.vfs
-// Add a sheet to dar dynamically
-vfs.writeFileSync('publication/ice-cream-sales.xml', iceCreamSales().innerHTML)
 
 class App extends Component {
 
@@ -42,7 +37,7 @@ class App extends Component {
 
   render($$) {
     let el = $$('div').addClass('sc-app')
-    let { archive, host, functionManager, engine } = this.state
+    let { archive, host, functionManager, engine, error } = this.state
 
     if (archive) {
 
@@ -54,6 +49,17 @@ class App extends Component {
           engine
         })
       )
+    } else if (error) {
+      if (error.type === 'jats-import-error') {
+        el.append(
+          $$(JATSImportDialog, { errors: error.detail })
+        )
+      } else {
+        el.append(
+          'ERROR:',
+          error.message
+        )
+      }
     } else {
       // LOADING...
     }
@@ -78,10 +84,10 @@ class App extends Component {
     }).then(({host, functionManager, engine}) => {
       this.setState({archive, functionManager, engine, host})
     })
-    // .catch(error => {
-    //   console.error(error)
-    //   this.setState({error})
-    // })
+    .catch(error => {
+      console.error(error)
+      this.setState({error})
+    })
   }
 
   /*
