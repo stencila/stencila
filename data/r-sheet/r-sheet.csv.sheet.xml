@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sheet PUBLIC "Stencila Sheet 1.0" "http://stenci.la/Sheet-1.0.dtd">
+<sheet>
+  <meta>
+    <name/>
+    <title/>
+    <description/>
+    <columns>
+      <col/>
+    </columns>
+  </meta>
+  <data>
+    <row>
+      <cell language="r">= cos(1)</cell>
+    </row>
+    <row>
+      <cell language="r">= plot(1,A1)</cell>
+    </row>
+  </data>
+</sheet>
