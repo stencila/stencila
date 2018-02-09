@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Archiving and Interchange DTD v1.1d3 20150301//EN"  "JATS-archivearticle1.dtd">
+<article xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <front>
+    <article-meta>
+    </article-meta>
+  </front>
+
+  <body>
+    <sec>
+      <title>Jupyter and Stencila</title>
+      <p>A very simple Jupyter notebook with one Python code cell which tells us the Python version being used and the current time. Try changing the code in the cell.</p>
+      <code specific-use="cell"><named-content><alternatives>
+          <code specific-use="source" language="py" executable="yes">import sys
+import time
+&apos;Hello this is Python %s and it is %s&apos; % (sys.version, time.strftime(&apos;%c&apos;))</code>
+      <code specific-use="output" language="json">{}</code>
+      </alternatives>
+      </named-content>
+      </code>
+    </sec>
+  </body>
+  <back/>
+</article>

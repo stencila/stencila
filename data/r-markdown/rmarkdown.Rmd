@@ -1,0 +1,38 @@
+---
+title: RMarkdown and Stencila
+author:
+  - Stencila Contributors
+abstract: |
+  RMarkdown is a popular ... 
+---
+
+# Introduction
+
+[RMarkdown](https://rmarkdown.rstudio.com/)
+
+
+# Translation of RMarkdown code chunks
+
+A plain RMarkdown cell:
+
+    ```{r}
+    # This is a
+    ```
+
+```{r}
+names(starwars)
+```
+
+``{r}
+starwars %>% group_by(gender) %>% count()
+```
+
+Figure captions should be translated to/from the RMarkdown fig.caption option:
+
+```{r fig.width=7,fig.height=6,fig.cap="Figure caption"}
+hist(rnorm(min(1000, 1e5)), breaks=40, col=hsv(0.6, 0.9, 1), xlab="Value", main="")
+```
+
+## Inline code chunks
+
+
