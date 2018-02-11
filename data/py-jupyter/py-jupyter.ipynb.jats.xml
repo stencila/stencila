@@ -18,6 +18,8 @@ import time
       </alternatives>
       </named-content>
       </code>
+      <p>Document title and authors in metadata (see stencila convert issue for details) - (need to do that manually in JSON for Jupyter) References - how do you use references in Jupyter notebook? research that.</p>
+      <p>A plot w/ matplotlib?</p>
     </sec>
   </body>
   <back/>
