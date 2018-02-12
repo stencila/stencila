@@ -3,6 +3,7 @@ import {
 } from 'substance-texture'
 
 import ReproFigComponent from './ReproFigComponent'
+import ReproFigPreview from './ReproFigPreview'
 import CellComponent from './CellComponent'
 import CodeHighlightComponent from '../shared/CodeHighlightComponent'
 
@@ -33,6 +34,7 @@ export default {
   configure(config) {
     config.import(TextureEditorPackage)
     config.addComponent('repro-fig', ReproFigComponent)
+    config.addComponent('repro-fig-preview', ReproFigPreview)
     config.addComponent('cell', CellComponent)
     config.addComponent('code-highlight', CodeHighlightComponent)
 
