@@ -31,7 +31,8 @@ export default class Project extends Component {
       functionManager: this.props.functionManager,
       cellEngine: this.props.engine,
       host: this.props.host,
-      pubMetaDbSession: pubMetaDbSession
+      pubMetaDbSession: pubMetaDbSession,
+      urlResolver: this.props.documentArchive
     }
   }
 
