@@ -79,20 +79,19 @@
       </alternatives></named-content></code>
       <p>Cells use a very simple expression language called Mini to allow you to perform common data analysis and visualisation tasks within the document.</p>
       <p>You can edit this document just like in a traditional word processor. Press enter to start a new paragraph or insert a table or cell.</p>
-
-
+      <fig id="fig1">
+        <label>Figure 1</label>
+        <caption id="caption-1">
+          <title id="title-1">Behavioural design and implantation details.</title>
+          <p id="p-4">Lorem ipsum dolor sit amet, ea ludus intellegat his, graece fastidii phaedrum ea mea, ne duo esse omnium. Ne mel quas quodsi. Ea pri semper nostrum necessitatibus. Mea salutatus gloriatur persecuti eu, augue oportere efficiendi at eum. Ex eam mutat falli dicit.</p>
+        </caption>
+        <graphic id="graphic-1" mime-subtype="jpeg" mimetype="image" xlink:href="fig1.jpg" />
+      </fig>
     </sec>
     <sec>
       <title>Functions</title>
       <p>Here's a cell that reads some fictitous ice cream sales data from a CSV (comma separated values) string using the csv function.</p>
       <code specific-use="cell"><named-content><alternatives>
-<!--
-        <code specific-use="source" language="mini"><![CDATA[data = table({
-  sunny: ['no','yes','yes','yes','yes','no','no','no','yes','yes'],
-  temp: [18,20,24,23,26,25,20,17,18,28],
-  sales: [50,126,118,126,280,102,93,32,103,246]
-})]]></code>
--->
         <code specific-use="source" language="mini"><![CDATA[data = sheet1!A1:C9]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
@@ -134,9 +133,6 @@
     <fn-group>
       <fn id="fn1">
         <p>Lorem ipsum dolor sit amet, ea ludus intellegat his, graece fastidii phaedrum ea mea, ne duo esse omnium. Ne mel quas quodsi. Ea pri semper nostrum necessitatibus. Mea salutatus gloriatur persecuti eu, augue oportere efficiendi at eum. Ex eam mutat falli dicit.</p>
-      </fn>
-      <fn id="fn2">
-        <p>Phasellus ex nulla, interdum condimentum pretium ac, auctor et tellus. Maecenas eu est a neque vestibulum laoreet. Mauris libero nulla, pretium eu iaculis id, mollis ac erat. Suspendisse rutrum gravida malesuada</p>
       </fn>
     </fn-group>
     <ref-list>
