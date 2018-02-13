@@ -26,4 +26,11 @@ export default class Cell {
   hasErrors() {
     return this.errors.length > 0
   }
+
+  hasError(type) {
+    for (let i = 0; i < this.errors.length; i++) {
+      if (this.errors[i].type === type) return true
+    }
+    return false
+  }
 }
