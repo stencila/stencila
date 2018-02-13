@@ -47,11 +47,15 @@ export default class CellGraph {
     // TODO: handle collisions
     // -> it would be nice if the graph could keep competing outputs and resolve
     //    automatically if all ambiguities have been resolved
+    // TODO: if only the output of a cell changed, we could retain the runtime result
+    // and leave the cell's state untouched
     let cell = this._cells[id]
     let oldOutput = cell.output
     if (this._registerOutput(id, oldOutput, newOutput)) {
       cell.output = newOutput
-      cell.clearErrors('graph')
+      // TODO: do we need to clear a potential old graph error
+      // e.g. from a previous cyclic dependency
+      // cell.clearErrors('graph')
     }
   }
 
@@ -120,7 +124,13 @@ export default class CellGraph {
       delete this._out[oldOutput]
       // mark old deps as affected
       let ids = this._ins[oldOutput] || []
-      ids.forEach(id => this._structureChanged.add(id))
+      ids.forEach(_id => {
+        let cell = this._cells[_id]
+        if (cell.state === BROKEN) {
+          cell.clearErrors('graph')
+        }
+        this._structureChanged.add(_id)
+      })
     }
     if (newOutput) {
       // TODO: detect collisions
@@ -128,7 +138,13 @@ export default class CellGraph {
       this._out[newOutput] = id
       // mark new deps as affected
       let ids = this._ins[newOutput] || []
-      ids.forEach(id => this._structureChanged.add(id))
+      ids.forEach(_id => {
+        let cell = this._cells[_id]
+        if (cell.state === BROKEN) {
+          cell.clearErrors('graph')
+        }
+        this._structureChanged.add(_id)
+      })
     }
     return true
   }

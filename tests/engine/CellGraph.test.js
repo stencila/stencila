@@ -8,8 +8,6 @@ import { BROKEN, BLOCKED, WAITING, READY, OK, FAILED, toString } from '../../src
 /*
 
 TODO: add tests
-- change inputs
-- change output symbol
 - resolving an issue by providing the link between two cells
 - detect cycle
 - detect duplicate export
@@ -143,6 +141,10 @@ test('CellGraph: Diamond', t => {
   t.end()
 })
 
+/*
+  The cell graph detects if a cell is depending on a variable that
+  can not be resolved, and marks the cell as 'broken'
+*/
 test('CellGraph: unresolvable input', t => {
   let g = new CellGraph()
   let cells = [
@@ -157,6 +159,14 @@ test('CellGraph: unresolvable input', t => {
   t.end()
 })
 
+/*
+  A broken cell blocks subsequent cells.
+  While graph errors are managed by the graph automatically,
+  other errors, such as SyntaxErrors must be managed, e.g., cleared,
+  by the engine.
+  When an error has been resolved, the graph un-blocks depending
+  cells automatically.
+*/
 test('CellGraph: blocked cell', t => {
   let g = new CellGraph()
   let cells = [
@@ -188,7 +198,10 @@ test('CellGraph: blocked cell', t => {
   t.end()
 })
 
-
+/*
+  If a an evaluation of a cell fails with a runtime error,
+  all subsequent cells are blocked.
+*/
 test('CellGraph: failed evaluation', t => {
   let g = new CellGraph()
   let cells = [
@@ -209,6 +222,10 @@ test('CellGraph: failed evaluation', t => {
   t.end()
 })
 
+/*
+  Inputs of a cell can be changed, and the graph
+  propagates state updates accordingly.
+*/
 test('CellGraph: changing inputs', t => {
   let g = new CellGraph()
   let cells = [
@@ -235,6 +252,39 @@ test('CellGraph: changing inputs', t => {
   updates = g.update()
   _checkUpdates(t, updates, ['cell3'])
   _checkStates(t, cells, [OK, READY, WAITING])
+
+  t.end()
+})
+
+/*
+  Output of a cell can be changed, and the graph reacts automatically.
+*/
+test('CellGraph: changing output', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', output: 'x' }),
+    new Cell({ id: 'cell2', inputs: ['y'] }),
+    new Cell({ id: 'cell3', inputs: ['z'] })
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkStates(t, cells, [READY, BROKEN, BROKEN])
+
+  g.setResult('cell1', 1)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1'])
+  _checkStates(t, cells, [OK, BROKEN, BROKEN])
+
+  g.setOutput('cell1', 'y')
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell2'])
+  _checkStates(t, cells, [OK, READY, BROKEN])
+
+  g.setOutput('cell1', 'z')
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell2', 'cell3'])
+  _checkStates(t, cells, [OK, BROKEN, READY])
 
   t.end()
 })
