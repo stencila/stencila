@@ -56,6 +56,7 @@ export default {
       nodeType: 'repro-fig'
     })
     config.addIcon('insert-repro-fig', { 'fontawesome': 'fa-area-chart' })
+    config.addLabel('insert-repro-fig', 'Reproducible Figure')
 
     config.addCommand('insert-cell', InsertCellCommand, {
       nodeType: 'disp-quote',
