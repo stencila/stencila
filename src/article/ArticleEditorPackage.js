@@ -50,7 +50,11 @@ export default {
 
     config.addComponent('repro-fig', ReproFigComponent)
     config.addComponent('repro-fig-preview', ReproFigPreview)
-    config.addCommand('insert-repro-fig', InsertReproFigCommand, { commandGroup: 'insert-repro-figure' })
+    
+    config.addCommand('insert-repro-fig', InsertReproFigCommand, {
+      commandGroup: 'insert-repro-figure',
+      nodeType: 'repro-fig'
+    })
     config.addIcon('insert-repro-fig', { 'fontawesome': 'fa-area-chart' })
 
     config.addCommand('insert-cell', InsertCellCommand, {
