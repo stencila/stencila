@@ -1,256 +1,259 @@
-import { forEach } from 'substance'
-/*
-  Dependency graph for Stencila Cell Engine.
-*/
+import { flatten } from 'substance'
+import { GraphError } from './CellErrors'
+import { UNKNOWN, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, _cellStatesToInt } from './CellStates'
+
+const MSG_UNRESOLVED_INPUT = 'Unresolved input.'
+
 export default class CellGraph {
 
   constructor() {
-
-    // store for cells containing expressions
+    // cell data by id
     this._cells = {}
-
-    // documents get registered via their name
-    // so that we can lookup cells and inputs via
-    // references such as 'sheet1.C1' or 'sheet1.A1:B10'
-    this._documents = {}
-
-    // which cell is producing a symbol
-    this._createdBy = {}
-
-    // which cells is a cell depending on
+    // symbols -> cell ids; which cell is depending on a symbol
     this._ins = {}
+    // symbol -> cell id; which symbol is provided by which cell
+    this._out = {}
 
-    // which cells are depending on the output of a cell
-    this._outs = {}
-
-    // cell ranks denoting the level of dependencies
-    this._ranks = null
-  }
-
-  contains(cellId) {
-    return Boolean(this._cells[cellId])
-  }
-
-  getCell(cellId) {
-    return this._cells[cellId]
-  }
-
-  getInputs(cellId) {
-    return this._ins[cellId] || []
-  }
-
-  getOutputs(cellId) {
-    return this._outs[cellId] || []
-  }
-
-  registerDocument(id, doc) {
-    this._documents[id] = doc
-  }
-
-  getDocument(id) {
-    return this._documents[id]
+    // to record which cells have been affected (batched update)
+    this._structureChanged = new Set()
+    this._valueUpdated = new Set()
   }
 
   addCell(cell) {
-    this._cells[cell.id] = cell
-  }
+    const id = cell.id
+    if (this._cells[id]) throw new Error(`Cell with ${id} already exists`)
+    this._cells[id] = cell
+    this._structureChanged.add(id)
 
-  updateCell(cell) {
-    this._cells[cell.id] = cell
-    this._compile()
-  }
-
-  removeCell(id) {
-    delete this._cells[id]
-    this._compile()
-  }
-
-
-  lookup(symbol) {
-    switch(symbol.type) {
-      case 'var': {
-        return this._resolve(symbol)[0]
-      }
-      case 'cell': {
-        let sheet = this._documents[symbol.docId]
-        return sheet.getCell(symbol.row, symbol.col)
-      }
-      case 'range': {
-        // TODO: lookup all cells and then
-        // reduce to either a table, an array, or a value
-        let sheet = this._documents[symbol.docId]
-        let { startRow, endRow, startCol, endCol } = symbol
-        if (startRow > endRow) {
-          ([startRow, endRow] = [endRow, startRow])
-        }
-        if (startCol > endCol) {
-          ([startCol, endCol] = [endCol, startCol])
-        }
-        let matrix = []
-        for (let i = startRow; i <= endRow; i++) {
-          let row = []
-          for (let j = startCol; j <= endCol; j++) {
-            row.push(sheet.getCell(i, j))
-          }
-          matrix.push(row)
-        }
-        return matrix
-      }
-      default:
-        throw new Error('Invalid state')
+    if (cell.inputs.size > 0) {
+      this.setInputs(id, cell.inputs)
+    }
+    if (cell.output) {
+      this._setOutput(cell, cell.output)
     }
   }
 
-  _compile() {
-    let ids = Object.keys(this._cells)
-    // 1. Create a mapping from symbol name to cell
-    let createdBy = {}
-    ids.forEach((id) => {
-      let cell = this._cells[id]
-      let output = cell.output
-      let docId = cell.docId
-      if (output) {
-        let varId = `${docId}.${output}`
-        if (createdBy[varId]) {
-          throw new Error(`Multiple cells create the same output: ${output}`)
-        }
-        createdBy[varId] = cell
+  setInputs(id, symbols) {
+    let cell = this._cells[id]
+    if (!cell) throw new Error(`Unknown cell ${id}`)
+    this._setInputs(cell, symbols)
+  }
+
+  setOutput(id, newOutput) {
+    // TODO: handle collisions
+    // -> it would be nice if the graph could keep competing outputs and resolve
+    //    automatically if all ambiguities have been resolved
+    let cell = this._cells[id]
+    let oldOutput = cell.output
+    // nothing has changed?
+    if (oldOutput === newOutput) return
+    if (oldOutput) {
+      // TODO: auto-resolve collisions
+      delete this._out[oldOutput]
+      // mark old deps as affected
+      let oldDeps = this._ins[oldOutput]
+      if (oldDeps) {
+        oldDeps.forEach(id => {
+          this._structureChanged.add(id)
+        })
       }
-    })
-    this._createdBy = createdBy
+      cell.output = undefined
+    }
+    this._setOutput(cell, newOutput)
+  }
 
-    // 2. Create backward graph i.e. in-going edges
-    let ins = {}
-    ids.forEach((id) => {
-      let cell = this._cells[id]
-      let inputs = []
-      // TODO: handle lookup errors
-      cell.inputs.forEach((symbol) => {
-        switch(symbol.type) {
-          case 'var': {
-            let cell = this.lookup(symbol)
-            inputs.push(cell)
-            break
-          }
-          case 'cell': {
-            let cell = this.lookup(symbol)
-            inputs.push(cell)
-            break
-          }
-          case 'range': {
-            let matrix = this.lookup(symbol)
-            for (let i = 0; i < matrix.length; i++) {
-              inputs = inputs.concat(matrix[i])
-            }
-            break
-          }
-          default:
-            throw new Error('FIXME: invalid state')
+  setResult(id, value, errors) {
+    let cell = this._cells[id]
+    cell.value = value
+    // TODO: make sure that this is only set when we want it
+    if (errors && errors.length > 0) {
+      cell.state = FAILED
+      cell.addErrors(errors)
+    } else {
+      cell.state = OK
+    }
+    this._valueUpdated.add(id)
+  }
+
+  _setInputs(cell, newInputs) {
+    const id = cell.id
+    if (cell.inputs.size > 0) {
+      cell.inputs.forEach(s => {
+        if (this._ins[s]) {
+          this._ins[s].remove(id)
         }
       })
-      // HACK: for now we strip all unresolved symbols
-      inputs = inputs.filter(Boolean)
-      ins[cell.id] = inputs
+    }
+    newInputs.forEach(s => {
+      if (!this._ins[s]) this._ins[s] = new Set()
+      this._ins[s].add(id)
     })
-    this._ins = ins
+    cell.inputs = newInputs
+    this._structureChanged.add(id)
+  }
 
-    // 3. Compute a forward graph i.e. out-going edges
-    let outs = {}
-    ids.forEach((id) => {
-      let inputs = ins[id]
-      let cell = this._cells[id]
-      inputs.forEach((input) => {
-        // Note: this should have been reported before
-        if (!input) return
-        // FIXME: need to avoid this confusion with adapter and cell
-        let adapter = input // input._adapter
-        // HACK
-        if (input._adapter) adapter = input._adapter
-        let outputs = outs[adapter.id]
-        if (!outputs) {
-          outputs = new Set()
-          outs[adapter.id] = outputs
-        }
-        outputs.add(cell)
-      })
-    })
-    this._outs = outs
+  _setOutput(cell, newOutput) {
+    const id = cell.id
+    if (newOutput) {
+      // TODO: detect collisions
+      if (this._out[newOutput]) throw new Error('TODO: handle collisions')
+      this._out[newOutput] = id
+      // mark new deps as affected
+      let newDeps = this._ins[newOutput]
+      if (newDeps) {
+        newDeps.forEach(id => {
+          this._structureChanged.add(id)
+        })
+      }
+    }
+    cell.output = newOutput
+  }
 
-    // HACK: transforming outs into an array making it easier to work with
-    forEach(outs, (cells, id) => {
-      outs[id] = Array.from(cells)
+  update() {
+    // a set of cell ids that have been updated
+    let updated = new Set()
+
+    // examine the graph structure
+    // Note: we should not need to update the whole graph, still, we can do an
+    // exhaustive update, because this is not performance critical
+    let levels = {}
+    this._structureChanged.forEach(id => {
+      // detect unresolvable inputs
+      this._detectUnresolvableInputs(id)
+      // deterimine the dependency level and check for cyclic dependencies
+      // Note: in case of a cyclic dependency we want to set all involved
+      // cells into BROKEN state
+      // TODO: handle cyclic deps
+      this._computeDependencyLevel(id, levels)
+      updated.add(id)
     })
 
-    let ranks = {}
-    ids.forEach((id) => {
-      this._computeRank(id, this.getInputs(id), ranks)
+    updated.add(...this._valueUpdated)
+
+    // propagate state updates starting at cells after the cells that had a value update
+    this._updateStates(this._getFollowSet(this._valueUpdated), updated)
+    // then propagate state updates for all structural changes
+    this._updateStates(this._structureChanged, updated)
+
+    this._structureChanged.clear()
+    this._valueUpdated.clear()
+
+    return updated
+  }
+
+  _detectUnresolvableInputs(id) {
+    let cell = this._cells[id]
+    // detect unresolvable inputs
+    let inputs = Array.from(cell.inputs)
+    let unresolved = inputs.filter(s => !this._resolve(s))
+    if (unresolved.length > 0) {
+      cell.clearErrors('graph')
+      cell.addErrors([new GraphError(MSG_UNRESOLVED_INPUT, { unresolved })])
+      cell.state = BROKEN
+    }
+  }
+
+  _computeDependencyLevel(id, levels, trace = new Set()) {
+    let cell = this._cells[id]
+    let inputs = Array.from(cell.inputs)
+    trace = new Set(trace)
+    trace.add(id)
+    let inputLevels = inputs.map(s => {
+      let inputId = this._resolve(s)
+      if (!inputId) return 0
+      if (trace.has(inputId)) throw new Error('TODO: implement handling of cylcic dependencies')
+      // do not recurse if the level has been computed already
+      if (levels[inputId]) return levels[s]
+      return this._computeDependencyLevel(inputId, levels, trace)
     })
-    this._ranks = ranks
+    let level = inputLevels.length > 0 ? Math.max(...inputLevels) + 1 : 0
+    levels[id] = level
+    cell.level = level
+    return level
+  }
+
+  _getAffectedCellsSorted(ids) {
+    let cells = []
+    let visited = new Set()
+    let q = Array.from(ids)
+    while(q.length > 0) {
+      let id = q.pop()
+      if (visited.has(id)) continue
+      visited.add(id)
+      const cell = this._cells[id]
+      const level = cell.level
+      if (!cells[level]) cells[level] = []
+      cells[level].push(cell)
+      // skip propagation if the cell is not actually providing the symbol
+      if (cell.id !== this._resolve(cell.output)) continue
+      let deps = Array.from(this._ins[cell.output] || [])
+      q = q.concat(deps.filter(id => !visited[id]))
+    }
+    return flatten(cells.filter(Boolean))
+  }
+
+  _updateStates(ids, updated) {
+    // get all affected cells, i.e. all cells that are depending
+    // on the cells with given ids
+    let cells = this._getAffectedCellsSorted(ids)
+    // determine the cell state from the state of their inputs
+    cells.forEach(cell => this._updateCellState(cell, updated))
+  }
+
+  _updateCellState(cell, updated) {
+    if (cell.state === BROKEN) {
+      if (cell.hasError('engine') || cell.hasError('graph')) return
+      cell.state = UNKNOWN
+    }
+    let inputs = Array.from(cell.inputs)
+    if (inputs.length === 0) {
+      cell.state = READY
+      return
+    }
+    let inputStates = inputs.map(s => {
+      let cell = this._cells[this._resolve(s)]
+      if (cell) {
+        return cell.state
+      } else {
+        return undefined
+      }
+    }).filter(Boolean)
+    // NOTE: for development we kept the less performant but more readable
+    // representation as symbols, instead of ints
+    inputStates = inputStates.map(_cellStatesToInt)
+    let inputState = Math.min(inputStates)
+    // Note: it is easier to do this in an arithmetic way
+    // than in boolean logic
+    let newState
+    if (inputState <= _cellStatesToInt(BLOCKED)) {
+      newState = BLOCKED
+    } else if (inputState <= _cellStatesToInt(RUNNING)) {
+      newState = WAITING
+    } else { // if (inputState === OK) {
+      newState = READY
+    }
+    if (newState && newState !== cell.state) {
+      cell.state = newState
+      updated.add(cell.id)
+    }
   }
 
   _resolve(symbol) {
-    switch(symbol.type) {
-      case 'var': {
-        let id = `${symbol.docId}.${symbol.name}`
-        return [this._createdBy[id]]
-      }
-      case 'cell': {
-        let sheet = this._documents[symbol.docId]
-        if (!sheet) {
-          // TODO: return this error
-          console.error('Could find sheet with name', symbol.scope)
-          return undefined
-        }
-        let cell = sheet.getCell(symbol.row, symbol.col)
-        return [cell.id]
-      }
-      case 'range': {
-        let ids = []
-        let sheet = this._documents[symbol.docId]
-        if (!sheet) {
-          // TODO: return this error
-          console.error('Could find sheet with name', symbol.scope)
-          return undefined
-        }
-        for (let i = symbol.startRow; i <= symbol.endRow; i++) {
-          for (let j = symbol.startCol; j <= symbol.endCol; j++) {
-            let cell = sheet.getCell(i, j)
-            ids.push(cell.id)
-          }
-        }
-        return ids
-      }
-      default:
-        throw new Error('Invalid state')
-    }
+    return this._out[symbol]
   }
 
-  _computeRank(id, inputs, ranks) {
-    let rank
-    // dependencies might have been computed already
-    // when this entry has been visited through the dependencies
-    // of another entry
-    // Initially, we set level=-1, so when we visit
-    // an entry with level===-1, we know that there
-    // must be a cyclic dependency.
-    if (ranks.hasOwnProperty(id)) {
-      rank = ranks[id]
-      if (rank === -1) {
-        throw new Error('Found a cyclic dependency.')
+  // set of cell ids that depend on the given
+  _getFollowSet(ids) {
+    let followSet = new Set()
+    ids.forEach(id => {
+      const cell = this._cells[id]
+      if (cell.output && id === this._resolve(cell.output)) {
+        let followers = this._ins[cell.output]
+        if (followers) {
+          followSet.add(...followers)
+        }
       }
-      return rank
-    }
-    // using value -1 as guard to detect cyclic deps
-    ranks[id] = -1
-    // a resource without dependencies has rank = 0
-    rank = 0
-    if (inputs.length > 0) {
-      let depRanks = inputs.map((cell) => {
-        return this._computeRank(cell.id, this.getInputs(cell.id), ranks)
-      })
-      rank = Math.max(...depRanks) + 1
-    }
-    ranks[id] = rank
-    return rank
+    })
+    return followSet
   }
 }
