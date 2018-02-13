@@ -62,6 +62,9 @@ export default {
     config.addTool('function-usage', FunctionUsageTool)
 
     config.addIcon('function-helper', {'fontawesome': 'fa-question-circle' })
+
+    config.addIcon('insert-cell', { 'fontawesome': 'fa-caret-square-o-right' })
+
     config.addLabel('function-examples', {
       en: 'Example Usage'
     })
