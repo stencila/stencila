@@ -1,5 +1,5 @@
-import { flatten } from 'substance'
-import { UnresolvedInputError, CyclicDependencyError } from './CellErrors'
+import { flatten, isString, isArray } from 'substance'
+import { UnresolvedInputError, CyclicDependencyError, OutputCollisionError } from './CellErrors'
 import { UNKNOWN, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, toInteger } from './CellStates'
 
 const MSG_UNRESOLVED_INPUT = 'Unresolved input.'
@@ -13,9 +13,13 @@ export default class CellGraph {
     this._ins = {}
     // symbol -> cell id; which symbol is provided by which cell
     this._out = {}
-
     // to record which cells have been affected (batched update)
+    // state changes are propagated through the graph in topological order
+    // 'structureChanged': all cells which should be re-examined regarding
+    // structural consistency.
     this._structureChanged = new Set()
+    // 'valueUpdated': all cells that have a new value or a runtime error,
+    // i.e. the new state is OK or FAILED.
     this._valueUpdated = new Set()
   }
 
@@ -120,24 +124,36 @@ export default class CellGraph {
     // nothing to be done if no change
     if (oldOutput === newOutput) return false
     // deregister the old output first
-    if (oldOutput && id === this._resolve(oldOutput)) {
-      // TODO: auto-resolve collisions
-      delete this._out[oldOutput]
-      // mark old deps as affected
-      let ids = this._ins[oldOutput] || []
-      ids.forEach(_id => {
-        let cell = this._cells[_id]
-        if (cell.state === BROKEN) {
-          // TODO: probably we do not want to clear all graph errors, but only specific ones
-          cell.clearErrors('graph')
-        }
-        this._structureChanged.add(_id)
-      })
+    if (oldOutput) {
+      if (this._hasOutputCollision(oldOutput)) {
+        this._resolveOutputCollision(oldOutput, id)
+      } else {
+        delete this._out[oldOutput]
+        // mark old deps as affected
+        let ids = this._ins[oldOutput] || []
+        ids.forEach(_id => {
+          let cell = this._cells[_id]
+          if (cell.state === BROKEN) {
+            // TODO: probably we do not want to clear all graph errors, but only specific ones
+            cell.clearErrors('graph')
+          }
+          this._structureChanged.add(_id)
+        })
+      }
     }
     if (newOutput) {
       // TODO: detect collisions
-      if (this._out[newOutput]) throw new Error('TODO: handle collisions')
-      this._out[newOutput] = id
+      if (this._out[newOutput]) {
+        let conflictingIds = this._out[newOutput]
+        if (isString(conflictingIds)) conflictingIds = [conflictingIds]
+        conflictingIds = new Set(conflictingIds)
+        conflictingIds.add(id)
+        conflictingIds = Array.from(conflictingIds)
+        this._out[newOutput] = conflictingIds
+        this._addOutputCollisionError(conflictingIds)
+      } else {
+        this._out[newOutput] = id
+      }
       // mark new deps as affected
       let ids = this._ins[newOutput] || []
       ids.forEach(_id => {
@@ -299,7 +315,11 @@ export default class CellGraph {
   }
 
   _resolve(symbol) {
-    return this._out[symbol]
+    let out = this._out[symbol]
+    if (out) {
+      if (isString(out)) return out
+      else return out[0]
+    }
   }
 
   // set of cell ids that depend on the given
@@ -340,4 +360,46 @@ export default class CellGraph {
     }
   }
 
+  _hasOutputCollision(symbol) {
+    return isArray(this._out[symbol])
+  }
+
+  _addOutputCollisionError(ids) {
+    let err = new OutputCollisionError('Competing output declarations.', { ids })
+    ids.forEach(id => {
+      let cell = this._cells[id]
+      cell.clearErrors(e => e instanceof OutputCollisionError)
+      cell.errors.push(err)
+      this._structureChanged.add(id)
+    })
+  }
+
+  _removeOutputCollisionError(id) {
+    let cell = this._cells[id]
+    cell.clearErrors(e => e instanceof OutputCollisionError)
+    this._structureChanged.add(id)
+  }
+
+  /*
+    called whenever an output variable is changed
+    Removes the cell id from the list of competing cells
+    and removes errors if possible.
+  */
+  _resolveOutputCollision(symbol, id) {
+    let out = this._out[symbol]
+    // in case of collisions we store the competing cell ids as array
+    if (isArray(out)) {
+      this._removeOutputCollisionError(id)
+      let s = new Set(out)
+      s.delete(id)
+      s = Array.from(s)
+      if (s.length > 1) {
+        this._out[symbol] = s
+      } else {
+        let _id = s[0]
+        this._out[symbol] = _id
+        this._removeOutputCollisionError(_id)
+      }
+    }
+  }
 }

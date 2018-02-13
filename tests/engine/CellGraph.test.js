@@ -348,6 +348,37 @@ test('CellGraph: cycle', t => {
   t.end()
 })
 
+/*
+  Two cells exposing the same variable is considered a conflict.
+  All involved cells are marked as broken.
+  Graph returns to proper state when the problem is resolved.
+*/
+test('CellGraph: name collision', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', output: 'x' }),
+    new Cell({ id: 'cell2', output: 'x' }),
+    new Cell({ id: 'cell3', output: 'x' }),
+    new Cell({ id: 'cell4', inputs: ['x'] }),
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkStates(t, cells, [BROKEN, BROKEN, BROKEN, BLOCKED])
+
+  g.setOutput('cell2', 'y')
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell2'])
+  _checkStates(t, cells, [BROKEN, READY, BROKEN, BLOCKED])
+
+  g.setOutput('cell3', 'z')
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell3', 'cell4'])
+  _checkStates(t, cells, [READY, READY, READY, WAITING])
+
+  t.end()
+})
+
 
 /*
 test('CellGraph: TEMPLATE', t => {

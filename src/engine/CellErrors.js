@@ -21,6 +21,8 @@ export class CyclicDependencyError extends GraphError {
   }
 }
 
+export class OutputCollisionError extends GraphError {}
+
 export class RuntimeError extends CellError {
   get type() { return 'runtime' }
 }
