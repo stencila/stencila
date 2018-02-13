@@ -42,8 +42,8 @@ export default class StencilaArchive extends PersistedDocumentArchive {
         let res = jatsExporter.export(dom, { pubMetaDb, doc })
         console.info('saving jats', res.dom.getNativeElement())
         // TODO: bring back pretty printing (currently messes up CDATA content)
-        // let xmlStr = prettyPrintXML(res.dom)
-        let xmlStr = res.dom.serialize()
+        let xmlStr = prettyPrintXML(res.dom)
+        //let xmlStr = res.dom.serialize()
         return xmlStr
       }
       case 'application/sheetml': {
