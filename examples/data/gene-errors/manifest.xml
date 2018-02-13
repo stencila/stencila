@@ -1,6 +1,0 @@
-<container>
-  <documents>
-    <document id="sheet1" name="sheet1" type="sheet" path="sheet.xml" />
-    <document id="pub-meta" type="pub-meta" path="pub-meta.json" />
-  </documents>
-</container>
