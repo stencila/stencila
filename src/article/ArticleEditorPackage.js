@@ -21,13 +21,12 @@ import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
 import {
   SetLanguageCommand, ToggleAllCodeCommand,
-  HideCellCodeCommand, /* CodeErrorsCommand, */ InsertCellCommand,
+  HideCellCodeCommand, InsertCellCommand,
   ForceCellOutputCommand
 } from './ArticleEditorCommands'
 
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
-// import CodeErrorsTool from './CodeErrorsTool'
 
 export default {
   name: 'editor',
@@ -63,6 +62,9 @@ export default {
     config.addTool('function-usage', FunctionUsageTool)
 
     config.addIcon('function-helper', {'fontawesome': 'fa-question-circle' })
+
+    config.addIcon('insert-cell', { 'fontawesome': 'fa-caret-square-o-right' })
+
     config.addLabel('function-examples', {
       en: 'Example Usage'
     })
@@ -72,18 +74,18 @@ export default {
 
     config.addToolPanel('toolbar', [
       {
+        name: 'undo-redo',
+        type: 'tool-group',
+        showDisabled: true,
+        style: 'minimal',
+        commandGroups: ['undo-redo']
+      },
+      {
         name: 'text-types',
         type: 'tool-dropdown',
         showDisabled: false,
         style: 'descriptive',
         commandGroups: ['text-types']
-      },
-      {
-        name: 'persistence',
-        type: 'tool-group',
-        showDisabled: true,
-        style: 'descriptive',
-        commandGroups: ['persistence']
       },
       {
         name: 'annotations',
@@ -93,11 +95,18 @@ export default {
         commandGroups: ['formatting']
       },
       {
-        name: 'insert',
+        name: 'additinal-tools',
+        type: 'tool-group',
+        showDisabled: true,
+        style: 'minimal',
+        commandGroups: ['insert-figure', 'insert-table', 'insert-block-element']
+      },
+      {
+        name: 'cite',
         type: 'tool-dropdown',
         showDisabled: true,
         style: 'descriptive',
-        commandGroups: ['insert-xref', 'insert-block-element']
+        commandGroups: ['insert-xref']
       },
       {
         name: 'view',
@@ -121,12 +130,6 @@ export default {
     /*
       Cell Actions
     */
-
-    // config.addCommand('force-cell-output', ToggleCodeCommand, { forceOutput: true, commandGroup: 'cell-actions' })
-    // config.addCommand('code-errors', CodeErrorsCommand, {
-    //   commandGroup: 'prompt'
-    // })
-    // config.addTool('code-errors', CodeErrorsTool)
 
     config.addCommand('hide-cell-code', HideCellCodeCommand, { commandGroup: 'cell-actions' })
     config.addCommand('force-cell-output', ForceCellOutputCommand, { commandGroup: 'cell-actions' })
