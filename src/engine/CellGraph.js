@@ -1,6 +1,6 @@
 import { flatten } from 'substance'
 import { GraphError } from './CellErrors'
-import { UNKNOWN, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, _cellStatesToInt } from './CellStates'
+import { UNKNOWN, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, toInteger } from './CellStates'
 
 const MSG_UNRESOLVED_INPUT = 'Unresolved input.'
 
@@ -128,12 +128,17 @@ export default class CellGraph {
       updated.add(id)
     })
 
-    updated.add(...this._valueUpdated)
+    if (this._valueUpdated.size > 0) {
+      this._valueUpdated.forEach(id => updated.add(id))
+      // propagate state updates starting at cells after the cells that had a value update
+      this._updateStates(this._getFollowSet(this._valueUpdated), updated)
+    }
 
-    // propagate state updates starting at cells after the cells that had a value update
-    this._updateStates(this._getFollowSet(this._valueUpdated), updated)
-    // then propagate state updates for all structural changes
-    this._updateStates(this._structureChanged, updated)
+    if (this._structureChanged.size > 0) {
+      // then propagate state updates for all structural changes
+      this._updateStates(this._structureChanged, updated)
+    }
+
 
     this._structureChanged.clear()
     this._valueUpdated.clear()
@@ -163,8 +168,11 @@ export default class CellGraph {
       if (!inputId) return 0
       if (trace.has(inputId)) throw new Error('TODO: implement handling of cylcic dependencies')
       // do not recurse if the level has been computed already
-      if (levels[inputId]) return levels[s]
-      return this._computeDependencyLevel(inputId, levels, trace)
+      if (levels.hasOwnProperty(inputId)) {
+        return levels[inputId]
+      } else {
+        return this._computeDependencyLevel(inputId, levels, trace)
+      }
     })
     let level = inputLevels.length > 0 ? Math.max(...inputLevels) + 1 : 0
     levels[id] = level
@@ -177,17 +185,19 @@ export default class CellGraph {
     let visited = new Set()
     let q = Array.from(ids)
     while(q.length > 0) {
-      let id = q.pop()
+      let id = q.shift()
       if (visited.has(id)) continue
       visited.add(id)
       const cell = this._cells[id]
       const level = cell.level
       if (!cells[level]) cells[level] = []
       cells[level].push(cell)
-      // skip propagation if the cell is not actually providing the symbol
-      if (cell.id !== this._resolve(cell.output)) continue
-      let deps = Array.from(this._ins[cell.output] || [])
-      q = q.concat(deps.filter(id => !visited[id]))
+      // process dependencies
+      // ensuring that this cell is actually providing the output
+      if (cell.output && cell.id === this._resolve(cell.output)) {
+        let deps = Array.from(this._ins[cell.output] || [])
+        q = q.concat(deps.filter(id => !visited[id]))
+      }
     }
     return flatten(cells.filter(Boolean))
   }
@@ -213,21 +223,20 @@ export default class CellGraph {
     let inputStates = inputs.map(s => {
       let cell = this._cells[this._resolve(s)]
       if (cell) {
-        return cell.state
+        // NOTE: for development we kept the less performant but more readable
+        // representation as symbols, instead of ints
+        return toInteger(cell.state)
       } else {
         return undefined
       }
     }).filter(Boolean)
-    // NOTE: for development we kept the less performant but more readable
-    // representation as symbols, instead of ints
-    inputStates = inputStates.map(_cellStatesToInt)
-    let inputState = Math.min(inputStates)
+    let inputState = Math.min(...inputStates)
     // Note: it is easier to do this in an arithmetic way
     // than in boolean logic
     let newState
-    if (inputState <= _cellStatesToInt(BLOCKED)) {
+    if (inputState <= toInteger(BLOCKED)) {
       newState = BLOCKED
-    } else if (inputState <= _cellStatesToInt(RUNNING)) {
+    } else if (inputState <= toInteger(RUNNING)) {
       newState = WAITING
     } else { // if (inputState === OK) {
       newState = READY
@@ -250,7 +259,7 @@ export default class CellGraph {
       if (cell.output && id === this._resolve(cell.output)) {
         let followers = this._ins[cell.output]
         if (followers) {
-          followSet.add(...followers)
+          followers.forEach(id => followSet.add(id))
         }
       }
     })

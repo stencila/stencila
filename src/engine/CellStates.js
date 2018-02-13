@@ -16,9 +16,9 @@ const RUNNING = Symbol('RUNNING')
 // evaluation succeeded
 const OK = Symbol('OK')
 
-function _cellStatesToInt(state) {
+function toInteger(state) {
   switch (state) {
-    case UNKNOWN: return 0
+    case UNKNOWN: return -1
     case BROKEN: return 1
     case FAILED: return 2
     case BLOCKED: return 3
@@ -31,4 +31,19 @@ function _cellStatesToInt(state) {
   }
 }
 
-export { UNKNOWN, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, _cellStatesToInt }
+function toString(state) {
+  switch (state) {
+    case UNKNOWN: return 'unknown'
+    case BROKEN: return 'broken'
+    case FAILED: return 'failed'
+    case BLOCKED: return 'blocked'
+    case WAITING: return 'waiting'
+    case READY: return 'ready'
+    case RUNNING: return 'running'
+    case OK: return 'ok'
+    default:
+      throw new Error('Illegal state.')
+  }
+}
+
+export { UNKNOWN, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, toInteger, toString }
