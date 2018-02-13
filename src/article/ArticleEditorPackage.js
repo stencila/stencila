@@ -52,6 +52,7 @@ export default {
     config.addComponent('repro-fig-preview', ReproFigPreview)
     config.addCommand('insert-repro-fig', InsertReproFigCommand, { commandGroup: 'insert-repro-figure' })
     config.addIcon('insert-repro-fig', { 'fontawesome': 'fa-area-chart' })
+    config.addLabel('insert-repro-fig', 'Reproducible Figure')
 
     config.addCommand('insert-cell', InsertCellCommand, {
       nodeType: 'disp-quote',
