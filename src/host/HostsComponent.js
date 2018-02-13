@@ -61,7 +61,6 @@ export default class HostsComponent extends Component {
     let details
     if (url === 'internal') {
       name = 'Internal host'
-      details = 'stencila/stencila'
     } else {
       let location = url.match(/^https?:\/\/(127\.0\.0\.1|localhost)/) ? 'Local' : 'Remote'
       name = location + ' host ' + url
