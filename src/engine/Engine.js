@@ -197,7 +197,7 @@ export default class Engine {
     }
   }
 
-  _step() {
+  _step(cb) {
     const candidates = this._candidates
     if (candidates.size === 0) return
     let cell = candidates.values().next().value
