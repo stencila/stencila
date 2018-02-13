@@ -1,0 +1,8 @@
+.sc-preformat,
+.sc-monospace {
+  background: #f5f5f5;
+  font-family: var(--mono-font-family);
+  font-weight: normal;
+  color: #737373;
+  padding: 0.5em;
+}
