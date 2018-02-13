@@ -38,7 +38,8 @@ export default class HostsComponent extends Component {
       $$('div').addClass('se-options').append(
         $$('div').append(
           $$('span').addClass('se-label').append('Add a host'),
-          $$('input').addClass('se-input').ref('urlInput')
+          $$('input').addClass('se-input').attr({'placeholder': 'http://127.0.0.1:2100'})
+            .ref('urlInput')
             .on('keyup', this._onHostAdd)
         ),
         $$('div').append(
