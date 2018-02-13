@@ -101,6 +101,43 @@ test('CellGraph: Y shaped graph', t => {
   t.end()
 })
 
+test('CellGraph: Diamond', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', output: 'x' }),
+    new Cell({ id: 'cell2', inputs: ['x'], output: 'y' }),
+    new Cell({ id: 'cell3', inputs: ['x'], output: 'z' }),
+    new Cell({ id: 'cell4', inputs: ['y', 'z'] }),
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3', 'cell4'])
+  _checkStates(t, cells, [READY, WAITING, WAITING, WAITING])
+
+  g.setResult('cell1', 2)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3'])
+  _checkStates(t, cells, [OK, READY, READY, WAITING])
+
+  g.setResult('cell2', 4)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell2'])
+  _checkStates(t, cells, [OK, OK, READY, WAITING])
+
+  g.setResult('cell3', 6)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell3', 'cell4'])
+  _checkStates(t, cells, [OK, OK, OK, READY])
+
+  g.setResult('cell4', 10)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell4'])
+  _checkStates(t, cells, [OK, OK, OK, OK])
+
+  t.end()
+})
+
 function _checkStates(t, cells, states) {
   for (let i = 0; i < cells.length; i++) {
     const cell = cells[i]
