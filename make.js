@@ -103,13 +103,11 @@ function buildStencilaNodeJS() {
 }
 
 function buildExamples() {
-  // b.copy('./examples/*.html', './build/')
-  b.copy('./examples/*.html', DIST, { root: './examples/'})
+  b.copy('./app/*.html', DIST, { root: './app/'})
   // copy('./node_modules/substance/packages/** /*.css', 'dist/styles/', { root: './node_modules/substance/'})
   // copy('./node_modules/substance/packages/** /*.css', 'dist/styles/', { root: './node_modules/substance/'})
 
-  // b.copy('index.html', './build/index.html')
-  b.js(`./examples/app.js`, {
+  b.js(`./app/app.js`, {
     dest: `${DIST}app.js`,
     format: 'umd', moduleName: `StencilaExample`,
     external: EXAMPLE_EXTERNALS
@@ -119,6 +117,12 @@ function buildExamples() {
 // reads all test projects
 function buildData() {
   // TODO: we should also be able to map images
+  //b.custom('Converting examples from external formats', {
+  //  src: ['./data/rmarkdown/rmarkdown.Rmd'],
+  //  execute(files) {
+  //    fork(b, 'node_modules/.bin/stencila-convert', 'import', './data/rmarkdown', { verbose: true })
+  //  }
+  //})
   vfs(b, {
     src: ['./data/**/*'],
     dest: `${DIST}vfs.js`,
