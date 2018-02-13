@@ -1,7 +1,8 @@
-<container>
+<archive type="rda">
   <documents>
-    <document id="article" type="article" path="blank-article.xml" />
-    <document id="sheet" type="sheet" path="blank-sheet.xml" />
-    <document id="pub-meta" type="pub-meta" path="pub-meta.json" />
+    <document id="article" name="article" type="application/jats4m" path="blank-article.xml" />
+    <document id="sheet" name="sheet" type="application/sheetml" path="blank-sheet.xml" />
   </documents>
-</container>
+  <assets>
+  </assets>
+</archive>
