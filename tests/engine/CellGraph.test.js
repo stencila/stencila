@@ -2,7 +2,8 @@ import test from 'tape'
 
 import CellGraph from '../../src/engine/CellGraph'
 import Cell from '../../src/engine/Cell'
-import { BROKEN, WAITING, READY, OK, toString } from '../../src/engine/CellStates'
+import { SyntaxError } from '../../src/engine/CellErrors'
+import { BROKEN, BLOCKED, WAITING, READY, OK, toString } from '../../src/engine/CellStates'
 
 /*
 
@@ -153,6 +154,37 @@ test('CellGraph: unresolvable input', t => {
   let updates = g.update()
   _checkUpdates(t, updates, ['cell1'])
   _checkStates(t, cells, [BROKEN])
+
+  t.end()
+})
+
+test('CellGraph: blocked cell', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', output: 'x' }),
+    new Cell({ id: 'cell2', inputs: ['x'], output: 'y' }),
+    new Cell({ id: 'cell3', inputs: ['y'] }),
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkStates(t, cells, [READY, WAITING, WAITING])
+
+  // this should break cell2, and block cell3
+  g.addError('cell2', new SyntaxError('ERROR'))
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell2', 'cell3'])
+  _checkStates(t, cells, [READY, BROKEN, BLOCKED])
+
+  g.setResult('cell1', 1)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1'])
+  _checkStates(t, cells, [OK, BROKEN, BLOCKED])
+
+  g.clearErrors('cell2', 'engine')
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell2', 'cell3'])
+  _checkStates(t, cells, [OK, READY, WAITING])
 
   t.end()
 })
