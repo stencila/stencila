@@ -36,8 +36,11 @@ export default class CellGraph {
   setInputs(id, newInputs) {
     let cell = this._cells[id]
     if (!cell) throw new Error(`Unknown cell ${id}`)
-    this._registerInputs(cell.id, cell.inputs, newInputs)
-    cell.inputs = newInputs
+    newInputs = new Set(newInputs)
+    if(this._registerInputs(cell.id, cell.inputs, newInputs)) {
+      cell.inputs = newInputs
+      cell.clearErrors('graph')
+    }
   }
 
   setOutput(id, newOutput) {
@@ -46,8 +49,10 @@ export default class CellGraph {
     //    automatically if all ambiguities have been resolved
     let cell = this._cells[id]
     let oldOutput = cell.output
-    this._registerOutput(id, oldOutput, newOutput)
-    cell.output = newOutput
+    if (this._registerOutput(id, oldOutput, newOutput)) {
+      cell.output = newOutput
+      cell.clearErrors('graph')
+    }
   }
 
   addError(id, error) {
@@ -82,7 +87,7 @@ export default class CellGraph {
     if (oldInputs) {
       oldInputs.forEach(s => {
         if (newInputs.has(s)) {
-          toAdd.remove(s)
+          toAdd.delete(s)
         } else {
           toRemove.add(s)
         }
@@ -100,12 +105,15 @@ export default class CellGraph {
     })
     if (toAdd.size > 0 || toRemove.size > 0) {
       this._structureChanged.add(id)
+      return true
+    } else {
+      return false
     }
   }
 
   _registerOutput(id, oldOutput, newOutput) {
     // nothing to be done if no change
-    if (oldOutput === newOutput) return
+    if (oldOutput === newOutput) return false
     // deregister the old output first
     if (oldOutput && id === this._resolve(oldOutput)) {
       // TODO: auto-resolve collisions
@@ -122,6 +130,7 @@ export default class CellGraph {
       let ids = this._ins[newOutput] || []
       ids.forEach(id => this._structureChanged.add(id))
     }
+    return true
   }
 
   update() {

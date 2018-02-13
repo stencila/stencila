@@ -2,13 +2,12 @@ import test from 'tape'
 
 import CellGraph from '../../src/engine/CellGraph'
 import Cell from '../../src/engine/Cell'
-import { SyntaxError } from '../../src/engine/CellErrors'
-import { BROKEN, BLOCKED, WAITING, READY, OK, toString } from '../../src/engine/CellStates'
+import { SyntaxError, RuntimeError } from '../../src/engine/CellErrors'
+import { BROKEN, BLOCKED, WAITING, READY, OK, FAILED, toString } from '../../src/engine/CellStates'
 
 /*
 
 TODO: add tests
-- blocked cell (variants: by engine, graph, or runtime error)
 - change inputs
 - change output symbol
 - resolving an issue by providing the link between two cells
@@ -190,6 +189,57 @@ test('CellGraph: blocked cell', t => {
 })
 
 
+test('CellGraph: failed evaluation', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', output: 'x' }),
+    new Cell({ id: 'cell2', inputs: ['x'], output: 'y' }),
+    new Cell({ id: 'cell3', inputs: ['y'] }),
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkStates(t, cells, [READY, WAITING, WAITING])
+
+  g.setResult('cell1', undefined, [new RuntimeError('ERROR')])
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3'])
+  _checkStates(t, cells, [FAILED, BLOCKED, BLOCKED])
+
+  t.end()
+})
+
+test('CellGraph: changing inputs', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', output: 'x' }),
+    new Cell({ id: 'cell2', output: 'y' }),
+    new Cell({ id: 'cell3', inputs: ['z'] }),
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkStates(t, cells, [READY, READY, BROKEN])
+
+  g.setResult('cell1', 1)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1'])
+  _checkStates(t, cells, [OK, READY, BROKEN])
+
+  g.setInputs('cell3', ['x'])
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell3'])
+  _checkStates(t, cells, [OK, READY, READY])
+
+  g.setInputs('cell3', ['x', 'y'])
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell3'])
+  _checkStates(t, cells, [OK, READY, WAITING])
+
+  t.end()
+})
+
+
 /*
 test('CellGraph: TEMPLATE', t => {
   let g = new CellGraph()
@@ -223,5 +273,5 @@ function _checkStates(t, cells, states) {
 function _checkUpdates(t, updates, expected) {
   let actual = Array.from(updates)
   actual.sort()
-  t.deepEqual(actual, expected, 'Updates should be correct')
+  t.deepEqual(actual, expected, `${expected.join(', ')} should have been updated`)
 }
