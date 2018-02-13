@@ -102,28 +102,31 @@ function buildStencilaNodeJS() {
   }))
 }
 
-function buildExamples() {
-  // b.copy('./examples/*.html', './build/')
-  b.copy('./examples/*.html', DIST, { root: './examples/'})
+function buildApp() {
+  b.copy('./app/*.html', DIST, { root: './app/'})
   // copy('./node_modules/substance/packages/** /*.css', 'dist/styles/', { root: './node_modules/substance/'})
   // copy('./node_modules/substance/packages/** /*.css', 'dist/styles/', { root: './node_modules/substance/'})
 
-  // b.copy('index.html', './build/index.html')
-  b.js(`./examples/app.js`, {
+  b.js(`./app/app.js`, {
     dest: `${DIST}app.js`,
     format: 'umd', moduleName: `StencilaExample`,
     external: EXAMPLE_EXTERNALS
   })
 }
 
-// reads all test projects
-function buildData() {
+function buildExamples() {
   // TODO: we should also be able to map images
+  //b.custom('Converting examples from external formats', {
+  //  src: ['./examples/rmarkdown/rmarkdown.Rmd'],
+  //  execute(files) {
+  //    fork(b, 'node_modules/.bin/stencila-convert', 'import', './examples/rmarkdown', { verbose: true })
+  //  }
+  //})
   vfs(b, {
-    src: ['./data/**/*'],
+    src: ['./examples/**/*'],
     dest: `${DIST}vfs.js`,
     format: 'umd', moduleName: 'vfs',
-    rootDir: path.join(__dirname, 'data')
+    rootDir: path.join(__dirname, 'examples')
   })
 }
 
@@ -332,8 +335,9 @@ b.task('schema:debug', () => {
 
 b.task('prism', bundlePrism)
 
-// required by MemoryBackend
-b.task('build:data', buildData)
+b.task('build:app', buildApp)
+
+b.task('build:examples', buildExamples)
 
 b.task('build:env', buildEnv)
 
@@ -341,19 +345,12 @@ b.task('build:stencila:browser', buildStencilaBrowser)
 
 b.task('build:stencila:nodejs', buildStencilaNodeJS)
 
-b.task('build', ['build:data', 'build:env', 'build:stencila:browser', 'build:stencila:nodejs'])
+b.task('build', ['build:app', 'build:examples', 'build:env', 'build:stencila:browser', 'build:stencila:nodejs'])
 
 b.task('stencila:deps', ['schema', 'prism'])
 
 b.task('stencila', ['clean', 'assets', 'css', 'stencila:deps', 'build'])
 .describe('Build the stencila library.')
-
-b.task('examples', ['stencila'], () => {
-  // TODO: Make all examples use the single stencila.js build, so we don't
-  // need individual builds
-  buildExamples()
-})
-.describe('Build the examples.')
 
 // add all depe
 b.task('test:backend', ['stencila:deps'], () => {
@@ -386,8 +383,8 @@ b.task('test:one', ['test:backend'], () => {
 })
 .describe('Runs the tests and generates a coverage report.')
 
-b.task('default', ['stencila', 'examples'])
-.describe('[stencila, examples].')
+b.task('default', ['stencila'])
+.describe('[stencila].')
 
 
 /* Server */
