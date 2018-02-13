@@ -26,17 +26,18 @@ export default class CellGraph {
     this._structureChanged.add(id)
 
     if (cell.inputs.size > 0) {
-      this.setInputs(id, cell.inputs)
+      this._registerInputs(id, new Set(), cell.inputs)
     }
     if (cell.output) {
-      this._setOutput(cell, cell.output)
+      this._registerOutput(id, null, cell.output)
     }
   }
 
-  setInputs(id, symbols) {
+  setInputs(id, newInputs) {
     let cell = this._cells[id]
     if (!cell) throw new Error(`Unknown cell ${id}`)
-    this._setInputs(cell, symbols)
+    this._registerInputs(cell.id, cell.inputs, newInputs)
+    cell.inputs = newInputs
   }
 
   setOutput(id, newOutput) {
@@ -45,21 +46,8 @@ export default class CellGraph {
     //    automatically if all ambiguities have been resolved
     let cell = this._cells[id]
     let oldOutput = cell.output
-    // nothing has changed?
-    if (oldOutput === newOutput) return
-    if (oldOutput) {
-      // TODO: auto-resolve collisions
-      delete this._out[oldOutput]
-      // mark old deps as affected
-      let oldDeps = this._ins[oldOutput]
-      if (oldDeps) {
-        oldDeps.forEach(id => {
-          this._structureChanged.add(id)
-        })
-      }
-      cell.output = undefined
-    }
-    this._setOutput(cell, newOutput)
+    this._registerOutput(id, oldOutput, newOutput)
+    cell.output = newOutput
   }
 
   setResult(id, value, errors) {
@@ -75,38 +63,53 @@ export default class CellGraph {
     this._valueUpdated.add(id)
   }
 
-  _setInputs(cell, newInputs) {
-    const id = cell.id
-    if (cell.inputs.size > 0) {
-      cell.inputs.forEach(s => {
-        if (this._ins[s]) {
-          this._ins[s].remove(id)
+  _registerInputs(id, oldInputs, newInputs) {
+    let toAdd = new Set(newInputs)
+    let toRemove = new Set()
+
+    if (oldInputs) {
+      oldInputs.forEach(s => {
+        if (newInputs.has(s)) {
+          toAdd.remove(s)
+        } else {
+          toRemove.add(s)
         }
       })
     }
-    newInputs.forEach(s => {
-      if (!this._ins[s]) this._ins[s] = new Set()
-      this._ins[s].add(id)
+    toRemove.forEach(s => {
+      // TODO: should this be made robust
+      // actually it should not happen that the symbol is not registered yet
+      this._ins[s].delete(id)
     })
-    cell.inputs = newInputs
-    this._structureChanged.add(id)
+    toAdd.forEach(s => {
+      let ins = this._ins[s]
+      if (!ins) ins = this._ins[s] = new Set()
+      ins.add(id)
+    })
+    if (toAdd.size > 0 || toRemove.size > 0) {
+      this._structureChanged.add(id)
+    }
   }
 
-  _setOutput(cell, newOutput) {
-    const id = cell.id
+  _registerOutput(id, oldOutput, newOutput) {
+    // nothing to be done if no change
+    if (oldOutput === newOutput) return
+    // deregister the old output first
+    if (oldOutput && id === this._resolve(oldOutput)) {
+      // TODO: auto-resolve collisions
+      delete this._out[oldOutput]
+      // mark old deps as affected
+      let ids = this._ins[oldOutput] || []
+      ids.forEach(id => this._structureChanged.add(id))
+    }
     if (newOutput) {
       // TODO: detect collisions
       if (this._out[newOutput]) throw new Error('TODO: handle collisions')
       this._out[newOutput] = id
       // mark new deps as affected
-      let newDeps = this._ins[newOutput]
-      if (newDeps) {
-        newDeps.forEach(id => {
-          this._structureChanged.add(id)
-        })
-      }
+      let ids = this._ins[newOutput] || []
+      ids.forEach(id => this._structureChanged.add(id))
     }
-    cell.output = newOutput
   }
 
   update() {
