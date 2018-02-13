@@ -8,7 +8,6 @@ import { BROKEN, BLOCKED, WAITING, READY, OK, FAILED, toString } from '../../src
 /*
 
 TODO: add tests
-- resolving an issue by providing the link between two cells
 - detect cycle
 - detect duplicate export
 */
@@ -137,6 +136,29 @@ test('CellGraph: Diamond', t => {
   updates = g.update()
   _checkUpdates(t, updates, ['cell4'])
   _checkStates(t, cells, [OK, OK, OK, OK])
+
+  t.end()
+})
+
+test('CellGraph: missing link', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', output: 'x' }),
+    new Cell({ id: 'cell3', inputs: ['y'] })
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell3'])
+  _checkStates(t, cells, [READY, BROKEN])
+
+  let missingLink = new Cell({ id: 'cell2', inputs: ['x'], output: 'y' })
+  cells.splice(1, 0, missingLink)
+  g.addCell(missingLink)
+  g.setResult('cell1', 1)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3'])
+  _checkStates(t, cells, [OK, READY, WAITING])
 
   t.end()
 })
