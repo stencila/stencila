@@ -1,5 +1,5 @@
 import { flatten } from 'substance'
-import { GraphError } from './CellErrors'
+import { UnresolvedInputError, CyclicDependencyError } from './CellErrors'
 import { UNKNOWN, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, toInteger } from './CellStates'
 
 const MSG_UNRESOLVED_INPUT = 'Unresolved input.'
@@ -39,6 +39,7 @@ export default class CellGraph {
     newInputs = new Set(newInputs)
     if(this._registerInputs(cell.id, cell.inputs, newInputs)) {
       cell.inputs = newInputs
+      this._clearCyclicDependencyError(cell)
       cell.clearErrors('graph')
     }
   }
@@ -55,7 +56,7 @@ export default class CellGraph {
       cell.output = newOutput
       // TODO: do we need to clear a potential old graph error
       // e.g. from a previous cyclic dependency
-      // cell.clearErrors('graph')
+      this._clearCyclicDependencyError(cell)
     }
   }
 
@@ -163,8 +164,7 @@ export default class CellGraph {
       // deterimine the dependency level and check for cyclic dependencies
       // Note: in case of a cyclic dependency we want to set all involved
       // cells into BROKEN state
-      // TODO: handle cyclic deps
-      this._computeDependencyLevel(id, levels)
+      this._computeDependencyLevel(id, levels, updated)
       updated.add(id)
     })
 
@@ -193,12 +193,12 @@ export default class CellGraph {
     let unresolved = inputs.filter(s => !this._resolve(s))
     if (unresolved.length > 0) {
       cell.clearErrors('graph')
-      cell.addErrors([new GraphError(MSG_UNRESOLVED_INPUT, { unresolved })])
+      cell.addErrors([new UnresolvedInputError(MSG_UNRESOLVED_INPUT, { unresolved })])
       cell.state = BROKEN
     }
   }
 
-  _computeDependencyLevel(id, levels, trace = new Set()) {
+  _computeDependencyLevel(id, levels, updated, trace = new Set()) {
     let cell = this._cells[id]
     let inputs = Array.from(cell.inputs)
     trace = new Set(trace)
@@ -206,12 +206,15 @@ export default class CellGraph {
     let inputLevels = inputs.map(s => {
       let inputId = this._resolve(s)
       if (!inputId) return 0
-      if (trace.has(inputId)) throw new Error('TODO: implement handling of cylcic dependencies')
+      if (trace.has(inputId)) {
+        this._handleCycle(trace, updated)
+        return Infinity
+      }
       // do not recurse if the level has been computed already
       if (levels.hasOwnProperty(inputId)) {
         return levels[inputId]
       } else {
-        return this._computeDependencyLevel(inputId, levels, trace)
+        return this._computeDependencyLevel(inputId, levels, updated, trace)
       }
     })
     let level = inputLevels.length > 0 ? Math.max(...inputLevels) + 1 : 0
@@ -310,4 +313,28 @@ export default class CellGraph {
     })
     return followSet
   }
+
+  _handleCycle(trace, updated) {
+    let error = new CyclicDependencyError('Cyclic dependency', { trace })
+    trace.forEach(id => {
+      let cell = this._cells[id]
+      cell.state = BROKEN
+      cell.errors.push(error)
+      cell.level = Infinity
+      updated.add(id)
+    })
+  }
+
+  _clearCyclicDependencyError(cell) {
+    let err = cell.errors.find(err => err instanceof CyclicDependencyError)
+    if (err) {
+      const trace = err.trace
+      trace.forEach(id => {
+        let cell = this._cells[id]
+        cell.errors = cell.errors.filter(err => !(err instanceof CyclicDependencyError))
+        this._structureChanged.add(id)
+      })
+    }
+  }
+
 }
