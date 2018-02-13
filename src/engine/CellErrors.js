@@ -6,7 +6,7 @@ export class CellError extends Error {
 }
 
 export class SyntaxError extends Error {
-  get type() { return 'syntax' }
+  get type() { return 'engine' }
 }
 
 export class GraphError extends Error {

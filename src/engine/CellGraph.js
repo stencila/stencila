@@ -50,6 +50,18 @@ export default class CellGraph {
     cell.output = newOutput
   }
 
+  addError(id, error) {
+    let cell = this._cells[id]
+    cell.errors.push(error)
+    this._structureChanged.add(id)
+  }
+
+  clearErrors(id, type) {
+    let cell = this._cells[id]
+    cell.clearErrors(type)
+    this._structureChanged.add(id)
+  }
+
   setResult(id, value, errors) {
     let cell = this._cells[id]
     cell.value = value
@@ -214,8 +226,13 @@ export default class CellGraph {
   }
 
   _updateCellState(cell, updated) {
+    if (cell.hasError('engine') || cell.hasError('graph')) {
+      if (cell.state === BROKEN) return
+      cell.state = BROKEN
+      updated.add(cell.id)
+      return
+    }
     if (cell.state === BROKEN) {
-      if (cell.hasError('engine') || cell.hasError('graph')) return
       cell.state = UNKNOWN
     }
     let inputs = Array.from(cell.inputs)
