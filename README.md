@@ -93,7 +93,7 @@ npm install
 npm run start
 ```
 
-And navigate to [http://localhost:4000/?archive=kitchen-sink&storage=fs](http://localhost:4000/?archive=kitchen-sink&storage=fs).
+And navigate to [http://localhost:4000/?archive=kitchen-sink&storage=fs](http://localhost:4000/example.html?archive=kitchen-sink&storage=fs).
 
 You can save your document changes by pressing `CommandOrControl+S`.
 
