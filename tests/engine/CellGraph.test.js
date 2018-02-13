@@ -311,6 +311,44 @@ test('CellGraph: changing output', t => {
   t.end()
 })
 
+/*
+  An example where a cyclic dependency is created and resolved.
+
+  'cell1' is outside the cycle, to see the difference in updated states.
+  'cell2' has an unresolved dependency at the beginning.
+  Then 'cell4' is added, consuming the output of 'cell3',
+  and providing the unresolved input of 'cell2', which forms a cycle.
+  All involved cells are set to broken.
+  Removing the dependency from 'cell2' brings all cells back
+  into an unbroken state.
+*/
+test('CellGraph: cycle', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', output: 'x1' }),
+    new Cell({ id: 'cell2', inputs: ['x1', 'x4'], output: 'x2' }),
+    new Cell({ id: 'cell3', inputs: ['x2'], output: 'x3' }),
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkStates(t, cells, [READY, BROKEN, BLOCKED])
+
+  let cell4 = new Cell({ id: 'cell4', inputs: ['x3'], output: 'x4' })
+  cells.push(cell4)
+  g.addCell(cell4)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell2', 'cell3', 'cell4'])
+  _checkStates(t, cells, [READY, BROKEN, BROKEN, BROKEN])
+
+  g.setInputs('cell2', ['x1'])
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell2', 'cell3', 'cell4'])
+  _checkStates(t, cells, [READY, WAITING, WAITING, WAITING])
+
+  t.end()
+})
+
 
 /*
 test('CellGraph: TEMPLATE', t => {
