@@ -1,4 +1,4 @@
-import { Component } from 'substance'
+import { Component, DefaultDOMElement, platform } from 'substance'
 import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
 import ProjectBar from './ProjectBar'
@@ -14,6 +14,17 @@ export default class Project extends Component {
       'toggleHelp': this._toggleHelp,
       'toggleHosts': this._toggleHosts
     })
+
+    if (platform.inBrowser) {
+      this.documentEl = DefaultDOMElement.wrapNativeElement(document)
+      this.documentEl.on('keydown', this.onKeyDown, this)
+    }
+  }
+
+  _dispose() {
+    if (platform.inBrowser) {
+      this.documentEl.off(this)
+    }
   }
 
   getInitialState() {
@@ -59,6 +70,11 @@ export default class Project extends Component {
     let archive = this._getDocumentArchive()
     let firstEntry = archive.getDocumentEntries()[0]
     return firstEntry
+  }
+
+  _getActiveEditorSession() {
+    let documentId = this.state.documentId
+    return this.props.documentArchive.getEditorSession(documentId)
   }
 
   _getDocumentArchive() {
@@ -150,6 +166,15 @@ export default class Project extends Component {
         contextProps: { page: 'hosts'}
       })
     }
+  }
+
+  onKeyDown(event) {
+    // ignore fake IME events (emitted in IE and Chromium)
+    if ( event.key === 'Dead' ) return
+    // Handle custom keyboard shortcuts globally
+    let editorSession = this._getActiveEditorSession()
+    let custom = editorSession.keyboardManager.onKeydown(event)
+    return custom
   }
 
   /*
