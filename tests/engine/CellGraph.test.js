@@ -8,7 +8,6 @@ import { BROKEN, BLOCKED, WAITING, READY, OK, FAILED, toString } from '../../src
 /*
 
 TODO: add tests
-- detect cycle
 - detect duplicate export
 */
 

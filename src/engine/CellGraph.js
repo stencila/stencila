@@ -40,7 +40,7 @@ export default class CellGraph {
     if(this._registerInputs(cell.id, cell.inputs, newInputs)) {
       cell.inputs = newInputs
       this._clearCyclicDependencyError(cell)
-      cell.clearErrors('graph')
+      cell.clearErrors(e => e instanceof UnresolvedInputError)
     }
   }
 
@@ -128,6 +128,7 @@ export default class CellGraph {
       ids.forEach(_id => {
         let cell = this._cells[_id]
         if (cell.state === BROKEN) {
+          // TODO: probably we do not want to clear all graph errors, but only specific ones
           cell.clearErrors('graph')
         }
         this._structureChanged.add(_id)
@@ -142,6 +143,7 @@ export default class CellGraph {
       ids.forEach(_id => {
         let cell = this._cells[_id]
         if (cell.state === BROKEN) {
+          // TODO: probably we do not want to clear all graph errors, but only specific ones
           cell.clearErrors('graph')
         }
         this._structureChanged.add(_id)
@@ -192,8 +194,9 @@ export default class CellGraph {
     let inputs = Array.from(cell.inputs)
     let unresolved = inputs.filter(s => !this._resolve(s))
     if (unresolved.length > 0) {
+      // TODO: maybe only clear UnresolvedInputErrors
       cell.clearErrors('graph')
-      cell.addErrors([new UnresolvedInputError(MSG_UNRESOLVED_INPUT, { unresolved })])
+      cell.errors.push(new UnresolvedInputError(MSG_UNRESOLVED_INPUT, { unresolved }))
       cell.state = BROKEN
     }
   }
