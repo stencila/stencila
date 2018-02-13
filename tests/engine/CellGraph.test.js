@@ -2,21 +2,17 @@ import test from 'tape'
 
 import CellGraph from '../../src/engine/CellGraph'
 import Cell from '../../src/engine/Cell'
-import { READY, WAITING, OK, toString } from '../../src/engine/CellStates'
+import { BROKEN, WAITING, READY, OK, toString } from '../../src/engine/CellStates'
 
 /*
 
 TODO: add tests
-- detect cycle
-- detect duplicate export
-- parallel evaluation
+- blocked cell (variants: by engine, graph, or runtime error)
 - change inputs
 - change output symbol
 - resolving an issue by providing the link between two cells
-
-TODO: beyond having correct states I want to ensure that the minimum amount
-of updates are communicated. I.e. a cell should not be affected if not necessary.
-
+- detect cycle
+- detect duplicate export
 */
 
 
@@ -64,6 +60,10 @@ test('CellGraph: two linked cells', t => {
   t.end()
 })
 
+/*
+  3 levels, where  shaped like this `>-`
+  Merge node should become ready only after both inputs are ok.
+*/
 test('CellGraph: Y shaped graph', t => {
   let g = new CellGraph()
   let cells = [
@@ -101,6 +101,11 @@ test('CellGraph: Y shaped graph', t => {
   t.end()
 })
 
+/*
+  A diamond shaped graph, which could allow parallel computation `<>`
+  After the first cell being ok, the next cells should be ready simultanously,
+  while the last merging cell has to wait for both being finished.
+*/
 test('CellGraph: Diamond', t => {
   let g = new CellGraph()
   let cells = [
@@ -137,6 +142,43 @@ test('CellGraph: Diamond', t => {
 
   t.end()
 })
+
+test('CellGraph: unresolvable input', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', inputs: ['y'], output: 'x' }),
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkUpdates(t, updates, ['cell1'])
+  _checkStates(t, cells, [BROKEN])
+
+  t.end()
+})
+
+
+/*
+test('CellGraph: TEMPLATE', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', output: 'x' }),
+    new Cell({ id: 'cell2', inputs: ['x'] })
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2'])
+  _checkStates(t, cells, [READY, WAITING])
+
+  g.setResult('cell1', 1)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2'])
+  _checkStates(t, cells, [OK, READY])
+
+  t.end()
+})
+*/
 
 function _checkStates(t, cells, states) {
   for (let i = 0; i < cells.length; i++) {
