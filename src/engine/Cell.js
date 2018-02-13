@@ -1,3 +1,4 @@
+import { isString } from 'substance'
 import { UNKNOWN } from './CellStates'
 
 export default class Cell {
@@ -15,8 +16,14 @@ export default class Cell {
     this.level = 0
   }
 
-  clearErrors(type) {
-    this.errors = this.errors.filter(e => e.type !== type)
+  clearErrors(filter) {
+    if (isString(filter)) {
+      const type = filter
+      filter = (e) => {
+        return e.type === type
+      }
+    }
+    this.errors = this.errors.filter(e => !filter(e))
   }
 
   addErrors(errors) {
