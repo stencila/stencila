@@ -1,256 +1,405 @@
-import { forEach } from 'substance'
-/*
-  Dependency graph for Stencila Cell Engine.
-*/
+import { flatten, isString, isArray } from 'substance'
+import { UnresolvedInputError, CyclicDependencyError, OutputCollisionError } from './CellErrors'
+import { UNKNOWN, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, toInteger } from './CellStates'
+
+const MSG_UNRESOLVED_INPUT = 'Unresolved input.'
+
 export default class CellGraph {
 
   constructor() {
-
-    // store for cells containing expressions
+    // cell data by id
     this._cells = {}
-
-    // documents get registered via their name
-    // so that we can lookup cells and inputs via
-    // references such as 'sheet1.C1' or 'sheet1.A1:B10'
-    this._documents = {}
-
-    // which cell is producing a symbol
-    this._createdBy = {}
-
-    // which cells is a cell depending on
+    // symbols -> cell ids; which cell is depending on a symbol
     this._ins = {}
-
-    // which cells are depending on the output of a cell
-    this._outs = {}
-
-    // cell ranks denoting the level of dependencies
-    this._ranks = null
-  }
-
-  contains(cellId) {
-    return Boolean(this._cells[cellId])
-  }
-
-  getCell(cellId) {
-    return this._cells[cellId]
-  }
-
-  getInputs(cellId) {
-    return this._ins[cellId] || []
-  }
-
-  getOutputs(cellId) {
-    return this._outs[cellId] || []
-  }
-
-  registerDocument(id, doc) {
-    this._documents[id] = doc
-  }
-
-  getDocument(id) {
-    return this._documents[id]
+    // symbol -> cell id; which symbol is provided by which cell
+    this._out = {}
+    // to record which cells have been affected (batched update)
+    // state changes are propagated through the graph in topological order
+    // 'structureChanged': all cells which should be re-examined regarding
+    // structural consistency.
+    this._structureChanged = new Set()
+    // 'valueUpdated': all cells that have a new value or a runtime error,
+    // i.e. the new state is OK or FAILED.
+    this._valueUpdated = new Set()
   }
 
   addCell(cell) {
-    this._cells[cell.id] = cell
-  }
+    const id = cell.id
+    if (this._cells[id]) throw new Error(`Cell with ${id} already exists`)
+    this._cells[id] = cell
+    this._structureChanged.add(id)
 
-  updateCell(cell) {
-    this._cells[cell.id] = cell
-    this._compile()
-  }
-
-  removeCell(id) {
-    delete this._cells[id]
-    this._compile()
-  }
-
-
-  lookup(symbol) {
-    switch(symbol.type) {
-      case 'var': {
-        return this._resolve(symbol)[0]
-      }
-      case 'cell': {
-        let sheet = this._documents[symbol.docId]
-        return sheet.getCell(symbol.row, symbol.col)
-      }
-      case 'range': {
-        // TODO: lookup all cells and then
-        // reduce to either a table, an array, or a value
-        let sheet = this._documents[symbol.docId]
-        let { startRow, endRow, startCol, endCol } = symbol
-        if (startRow > endRow) {
-          ([startRow, endRow] = [endRow, startRow])
-        }
-        if (startCol > endCol) {
-          ([startCol, endCol] = [endCol, startCol])
-        }
-        let matrix = []
-        for (let i = startRow; i <= endRow; i++) {
-          let row = []
-          for (let j = startCol; j <= endCol; j++) {
-            row.push(sheet.getCell(i, j))
-          }
-          matrix.push(row)
-        }
-        return matrix
-      }
-      default:
-        throw new Error('Invalid state')
+    if (cell.inputs.size > 0) {
+      this._registerInputs(id, new Set(), cell.inputs)
+    }
+    if (cell.output) {
+      this._registerOutput(id, null, cell.output)
     }
   }
 
-  _compile() {
-    let ids = Object.keys(this._cells)
-    // 1. Create a mapping from symbol name to cell
-    let createdBy = {}
-    ids.forEach((id) => {
-      let cell = this._cells[id]
-      let output = cell.output
-      let docId = cell.docId
-      if (output) {
-        let varId = `${docId}.${output}`
-        if (createdBy[varId]) {
-          throw new Error(`Multiple cells create the same output: ${output}`)
+  setInputs(id, newInputs) {
+    let cell = this._cells[id]
+    if (!cell) throw new Error(`Unknown cell ${id}`)
+    newInputs = new Set(newInputs)
+    if(this._registerInputs(cell.id, cell.inputs, newInputs)) {
+      cell.inputs = newInputs
+      this._clearCyclicDependencyError(cell)
+      cell.clearErrors(e => e instanceof UnresolvedInputError)
+    }
+  }
+
+  setOutput(id, newOutput) {
+    // TODO: handle collisions
+    // -> it would be nice if the graph could keep competing outputs and resolve
+    //    automatically if all ambiguities have been resolved
+    // TODO: if only the output of a cell changed, we could retain the runtime result
+    // and leave the cell's state untouched
+    let cell = this._cells[id]
+    let oldOutput = cell.output
+    if (this._registerOutput(id, oldOutput, newOutput)) {
+      cell.output = newOutput
+      // TODO: do we need to clear a potential old graph error
+      // e.g. from a previous cyclic dependency
+      this._clearCyclicDependencyError(cell)
+    }
+  }
+
+  addError(id, error) {
+    let cell = this._cells[id]
+    cell.errors.push(error)
+    this._structureChanged.add(id)
+  }
+
+  clearErrors(id, type) {
+    let cell = this._cells[id]
+    cell.clearErrors(type)
+    this._structureChanged.add(id)
+  }
+
+  setResult(id, value, errors) {
+    let cell = this._cells[id]
+    cell.value = value
+    // TODO: make sure that this is only set when we want it
+    if (errors && errors.length > 0) {
+      cell.state = FAILED
+      cell.addErrors(errors)
+    } else {
+      cell.state = OK
+    }
+    this._valueUpdated.add(id)
+  }
+
+  _registerInputs(id, oldInputs, newInputs) {
+    let toAdd = new Set(newInputs)
+    let toRemove = new Set()
+
+    if (oldInputs) {
+      oldInputs.forEach(s => {
+        if (newInputs.has(s)) {
+          toAdd.delete(s)
+        } else {
+          toRemove.add(s)
         }
-        createdBy[varId] = cell
+      })
+    }
+    toRemove.forEach(s => {
+      // TODO: should this be made robust
+      // actually it should not happen that the symbol is not registered yet
+      this._ins[s].delete(id)
+    })
+    toAdd.forEach(s => {
+      let ins = this._ins[s]
+      if (!ins) ins = this._ins[s] = new Set()
+      ins.add(id)
+    })
+    if (toAdd.size > 0 || toRemove.size > 0) {
+      this._structureChanged.add(id)
+      return true
+    } else {
+      return false
+    }
+  }
+
+  _registerOutput(id, oldOutput, newOutput) {
+    // nothing to be done if no change
+    if (oldOutput === newOutput) return false
+    // deregister the old output first
+    if (oldOutput) {
+      if (this._hasOutputCollision(oldOutput)) {
+        this._resolveOutputCollision(oldOutput, id)
+      } else {
+        delete this._out[oldOutput]
+        // mark old deps as affected
+        let ids = this._ins[oldOutput] || []
+        ids.forEach(_id => {
+          let cell = this._cells[_id]
+          if (cell.state === BROKEN) {
+            // TODO: probably we do not want to clear all graph errors, but only specific ones
+            cell.clearErrors('graph')
+          }
+          this._structureChanged.add(_id)
+        })
+      }
+    }
+    if (newOutput) {
+      // TODO: detect collisions
+      if (this._out[newOutput]) {
+        let conflictingIds = this._out[newOutput]
+        if (isString(conflictingIds)) conflictingIds = [conflictingIds]
+        conflictingIds = new Set(conflictingIds)
+        conflictingIds.add(id)
+        conflictingIds = Array.from(conflictingIds)
+        this._out[newOutput] = conflictingIds
+        this._addOutputCollisionError(conflictingIds)
+      } else {
+        this._out[newOutput] = id
+      }
+      // mark new deps as affected
+      let ids = this._ins[newOutput] || []
+      ids.forEach(_id => {
+        let cell = this._cells[_id]
+        if (cell.state === BROKEN) {
+          // TODO: probably we do not want to clear all graph errors, but only specific ones
+          cell.clearErrors('graph')
+        }
+        this._structureChanged.add(_id)
+      })
+    }
+    return true
+  }
+
+  update() {
+    // a set of cell ids that have been updated
+    let updated = new Set()
+
+    // examine the graph structure
+    // Note: we should not need to update the whole graph, still, we can do an
+    // exhaustive update, because this is not performance critical
+    let levels = {}
+    this._structureChanged.forEach(id => {
+      // detect unresolvable inputs
+      this._detectUnresolvableInputs(id)
+      // deterimine the dependency level and check for cyclic dependencies
+      // Note: in case of a cyclic dependency we want to set all involved
+      // cells into BROKEN state
+      this._computeDependencyLevel(id, levels, updated)
+      updated.add(id)
+    })
+
+    if (this._valueUpdated.size > 0) {
+      this._valueUpdated.forEach(id => updated.add(id))
+      // propagate state updates starting at cells after the cells that had a value update
+      this._updateStates(this._getFollowSet(this._valueUpdated), updated)
+    }
+
+    if (this._structureChanged.size > 0) {
+      // then propagate state updates for all structural changes
+      this._updateStates(this._structureChanged, updated)
+    }
+
+
+    this._structureChanged.clear()
+    this._valueUpdated.clear()
+
+    return updated
+  }
+
+  _detectUnresolvableInputs(id) {
+    let cell = this._cells[id]
+    // detect unresolvable inputs
+    let inputs = Array.from(cell.inputs)
+    let unresolved = inputs.filter(s => !this._resolve(s))
+    if (unresolved.length > 0) {
+      // TODO: maybe only clear UnresolvedInputErrors
+      cell.clearErrors('graph')
+      cell.errors.push(new UnresolvedInputError(MSG_UNRESOLVED_INPUT, { unresolved }))
+      cell.state = BROKEN
+    }
+  }
+
+  _computeDependencyLevel(id, levels, updated, trace = new Set()) {
+    let cell = this._cells[id]
+    let inputs = Array.from(cell.inputs)
+    trace = new Set(trace)
+    trace.add(id)
+    let inputLevels = inputs.map(s => {
+      let inputId = this._resolve(s)
+      if (!inputId) return 0
+      if (trace.has(inputId)) {
+        this._handleCycle(trace, updated)
+        return Infinity
+      }
+      // do not recurse if the level has been computed already
+      if (levels.hasOwnProperty(inputId)) {
+        return levels[inputId]
+      } else {
+        return this._computeDependencyLevel(inputId, levels, updated, trace)
       }
     })
-    this._createdBy = createdBy
+    let level = inputLevels.length > 0 ? Math.max(...inputLevels) + 1 : 0
+    levels[id] = level
+    cell.level = level
+    return level
+  }
 
-    // 2. Create backward graph i.e. in-going edges
-    let ins = {}
-    ids.forEach((id) => {
-      let cell = this._cells[id]
-      let inputs = []
-      // TODO: handle lookup errors
-      cell.inputs.forEach((symbol) => {
-        switch(symbol.type) {
-          case 'var': {
-            let cell = this.lookup(symbol)
-            inputs.push(cell)
-            break
-          }
-          case 'cell': {
-            let cell = this.lookup(symbol)
-            inputs.push(cell)
-            break
-          }
-          case 'range': {
-            let matrix = this.lookup(symbol)
-            for (let i = 0; i < matrix.length; i++) {
-              inputs = inputs.concat(matrix[i])
-            }
-            break
-          }
-          default:
-            throw new Error('FIXME: invalid state')
-        }
-      })
-      // HACK: for now we strip all unresolved symbols
-      inputs = inputs.filter(Boolean)
-      ins[cell.id] = inputs
-    })
-    this._ins = ins
+  _getAffectedCellsSorted(ids) {
+    let cells = []
+    let visited = new Set()
+    let q = Array.from(ids)
+    while(q.length > 0) {
+      let id = q.shift()
+      if (visited.has(id)) continue
+      visited.add(id)
+      const cell = this._cells[id]
+      const level = cell.level
+      if (!cells[level]) cells[level] = []
+      cells[level].push(cell)
+      // process dependencies
+      // ensuring that this cell is actually providing the output
+      if (cell.output && cell.id === this._resolve(cell.output)) {
+        let deps = Array.from(this._ins[cell.output] || [])
+        q = q.concat(deps.filter(id => !visited[id]))
+      }
+    }
+    return flatten(cells.filter(Boolean))
+  }
 
-    // 3. Compute a forward graph i.e. out-going edges
-    let outs = {}
-    ids.forEach((id) => {
-      let inputs = ins[id]
-      let cell = this._cells[id]
-      inputs.forEach((input) => {
-        // Note: this should have been reported before
-        if (!input) return
-        // FIXME: need to avoid this confusion with adapter and cell
-        let adapter = input // input._adapter
-        // HACK
-        if (input._adapter) adapter = input._adapter
-        let outputs = outs[adapter.id]
-        if (!outputs) {
-          outputs = new Set()
-          outs[adapter.id] = outputs
-        }
-        outputs.add(cell)
-      })
-    })
-    this._outs = outs
+  _updateStates(ids, updated) {
+    // get all affected cells, i.e. all cells that are depending
+    // on the cells with given ids
+    let cells = this._getAffectedCellsSorted(ids)
+    // determine the cell state from the state of their inputs
+    cells.forEach(cell => this._updateCellState(cell, updated))
+  }
 
-    // HACK: transforming outs into an array making it easier to work with
-    forEach(outs, (cells, id) => {
-      outs[id] = Array.from(cells)
-    })
-
-    let ranks = {}
-    ids.forEach((id) => {
-      this._computeRank(id, this.getInputs(id), ranks)
-    })
-    this._ranks = ranks
+  _updateCellState(cell, updated) {
+    if (cell.hasError('engine') || cell.hasError('graph')) {
+      if (cell.state === BROKEN) return
+      cell.state = BROKEN
+      updated.add(cell.id)
+      return
+    }
+    if (cell.state === BROKEN) {
+      cell.state = UNKNOWN
+    }
+    let inputs = Array.from(cell.inputs)
+    if (inputs.length === 0) {
+      cell.state = READY
+      return
+    }
+    let inputStates = inputs.map(s => {
+      let cell = this._cells[this._resolve(s)]
+      if (cell) {
+        // NOTE: for development we kept the less performant but more readable
+        // representation as symbols, instead of ints
+        return toInteger(cell.state)
+      } else {
+        return undefined
+      }
+    }).filter(Boolean)
+    let inputState = Math.min(...inputStates)
+    // Note: it is easier to do this in an arithmetic way
+    // than in boolean logic
+    let newState
+    if (inputState <= toInteger(BLOCKED)) {
+      newState = BLOCKED
+    } else if (inputState <= toInteger(RUNNING)) {
+      newState = WAITING
+    } else { // if (inputState === OK) {
+      newState = READY
+    }
+    if (newState && newState !== cell.state) {
+      cell.state = newState
+      updated.add(cell.id)
+    }
   }
 
   _resolve(symbol) {
-    switch(symbol.type) {
-      case 'var': {
-        let id = `${symbol.docId}.${symbol.name}`
-        return [this._createdBy[id]]
-      }
-      case 'cell': {
-        let sheet = this._documents[symbol.docId]
-        if (!sheet) {
-          // TODO: return this error
-          console.error('Could find sheet with name', symbol.scope)
-          return undefined
-        }
-        let cell = sheet.getCell(symbol.row, symbol.col)
-        return [cell.id]
-      }
-      case 'range': {
-        let ids = []
-        let sheet = this._documents[symbol.docId]
-        if (!sheet) {
-          // TODO: return this error
-          console.error('Could find sheet with name', symbol.scope)
-          return undefined
-        }
-        for (let i = symbol.startRow; i <= symbol.endRow; i++) {
-          for (let j = symbol.startCol; j <= symbol.endCol; j++) {
-            let cell = sheet.getCell(i, j)
-            ids.push(cell.id)
-          }
-        }
-        return ids
-      }
-      default:
-        throw new Error('Invalid state')
+    let out = this._out[symbol]
+    if (out) {
+      if (isString(out)) return out
+      else return out[0]
     }
   }
 
-  _computeRank(id, inputs, ranks) {
-    let rank
-    // dependencies might have been computed already
-    // when this entry has been visited through the dependencies
-    // of another entry
-    // Initially, we set level=-1, so when we visit
-    // an entry with level===-1, we know that there
-    // must be a cyclic dependency.
-    if (ranks.hasOwnProperty(id)) {
-      rank = ranks[id]
-      if (rank === -1) {
-        throw new Error('Found a cyclic dependency.')
+  // set of cell ids that depend on the given
+  _getFollowSet(ids) {
+    let followSet = new Set()
+    ids.forEach(id => {
+      const cell = this._cells[id]
+      if (cell.output && id === this._resolve(cell.output)) {
+        let followers = this._ins[cell.output]
+        if (followers) {
+          followers.forEach(id => followSet.add(id))
+        }
       }
-      return rank
-    }
-    // using value -1 as guard to detect cyclic deps
-    ranks[id] = -1
-    // a resource without dependencies has rank = 0
-    rank = 0
-    if (inputs.length > 0) {
-      let depRanks = inputs.map((cell) => {
-        return this._computeRank(cell.id, this.getInputs(cell.id), ranks)
+    })
+    return followSet
+  }
+
+  _handleCycle(trace, updated) {
+    let error = new CyclicDependencyError('Cyclic dependency', { trace })
+    trace.forEach(id => {
+      let cell = this._cells[id]
+      cell.state = BROKEN
+      cell.errors.push(error)
+      cell.level = Infinity
+      updated.add(id)
+    })
+  }
+
+  _clearCyclicDependencyError(cell) {
+    let err = cell.errors.find(err => err instanceof CyclicDependencyError)
+    if (err) {
+      const trace = err.trace
+      trace.forEach(id => {
+        let cell = this._cells[id]
+        cell.errors = cell.errors.filter(err => !(err instanceof CyclicDependencyError))
+        this._structureChanged.add(id)
       })
-      rank = Math.max(...depRanks) + 1
     }
-    ranks[id] = rank
-    return rank
+  }
+
+  _hasOutputCollision(symbol) {
+    return isArray(this._out[symbol])
+  }
+
+  _addOutputCollisionError(ids) {
+    let err = new OutputCollisionError('Competing output declarations.', { ids })
+    ids.forEach(id => {
+      let cell = this._cells[id]
+      cell.clearErrors(e => e instanceof OutputCollisionError)
+      cell.errors.push(err)
+      this._structureChanged.add(id)
+    })
+  }
+
+  _removeOutputCollisionError(id) {
+    let cell = this._cells[id]
+    cell.clearErrors(e => e instanceof OutputCollisionError)
+    this._structureChanged.add(id)
+  }
+
+  /*
+    called whenever an output variable is changed
+    Removes the cell id from the list of competing cells
+    and removes errors if possible.
+  */
+  _resolveOutputCollision(symbol, id) {
+    let out = this._out[symbol]
+    // in case of collisions we store the competing cell ids as array
+    if (isArray(out)) {
+      this._removeOutputCollisionError(id)
+      let s = new Set(out)
+      s.delete(id)
+      s = Array.from(s)
+      if (s.length > 1) {
+        this._out[symbol] = s
+      } else {
+        let _id = s[0]
+        this._out[symbol] = _id
+        this._removeOutputCollisionError(_id)
+      }
+    }
   }
 }
