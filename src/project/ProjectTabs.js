@@ -7,6 +7,7 @@ export default class ProjectTabs extends Component {
     const da = this.props.documentArchive
     const documentEntries = da.getDocumentEntries()
     const nameEditor = this.state.nameEditor
+    const menu = this.state.menu
     let el = $$('div').addClass('sc-project-tabs')
 
     documentEntries.forEach(entry => {
@@ -28,7 +29,22 @@ export default class ProjectTabs extends Component {
           if (this.props.documentId === entry.id) {
             tab.addClass('sm-active')
           }
+
+          if (entry.id === menu) {
+            tab.append(
+              $$('ul').addClass('se-menu').append(
+                $$('li').append('Remove')
+                  .on('click', this._removeDocument.bind(this, entry.id))
+              )
+            )
+          }
         }
+
+        tab.append(
+          $$('div').addClass('se-toggle-menu').append(
+            $$(FontAwesomeIcon, {icon: 'fa-caret-up'})
+          ).on('click', this._toggleMenu.bind(this, entry.id))
+        )
 
         el.append(tab)
       }
@@ -60,6 +76,19 @@ export default class ProjectTabs extends Component {
 
   _addDocument() {
     this.send('addDocument')
+  }
+
+  _removeDocument(documentId, e) {
+    e.preventDefault()
+    e.stopPropagation()
+    this.send('removeDocument', documentId)
+    this.extendState({menu: undefined})
+  }
+
+  _toggleMenu(documentId, e) {
+    e.preventDefault()
+    e.stopPropagation()
+    this.extendState({menu: documentId})
   }
 }
 

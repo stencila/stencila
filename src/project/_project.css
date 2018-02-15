@@ -11,12 +11,10 @@
 .sc-project .sc-project-bar {
   background: #F3F3F3;
   border-top: 1px solid #e1e4e8;
-  flex: 0 0 35px;
-  overflow: auto;
+  flex: 0 0 34px;
 }
 
 .sc-project-tabs {
-  overflow: hidden;
   padding-left: 10px;
   display: block;
   float: left;
@@ -25,6 +23,7 @@
 .sc-project-tabs > button,
 .sc-project-tabs > .se-tab,
 .sc-project-bar > button {
+  position: relative;
   font-size: 13px;
   font-weight: 600;
   display: block;
@@ -56,6 +55,35 @@
 .sc-project-tabs > .se-tab > .se-input {
   font-size: 13px;
   border: none;
+}
+
+.sc-project-tabs > .se-tab > .se-toggle-menu {
+  float: right;
+  padding-left: 8px;
+}
+
+.sc-project-tabs > .se-tab.sm-edit > .se-toggle-menu {
+  line-height: 30px;
+}
+
+.sc-project-tabs > .se-tab > .se-menu {
+  position: absolute;
+  top: auto;
+  bottom: 100%;
+  right: 0;
+  list-style-type: none;
+  margin: 3px 0px;
+  padding: 2px 10px;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  background: #fff;
+  z-index: 99;
+}
+
+.sc-project-tabs > .se-tab > .se-menu > li {
+  list-style: none;
+  padding: 2px 10px;
 }
 
 .sc-project-bar > .se-hosts-toggle {

@@ -11,6 +11,7 @@ export default class Project extends Component {
     this.handleActions({
       'openDocument': this._openDocument,
       'editDocumentName': this._editDocumentName,
+      'removeDocument': this._removeDocument,
       'openHelp': this._openHelp,
       'toggleHelp': this._toggleHelp,
       'toggleHosts': this._toggleHosts
@@ -125,6 +126,10 @@ export default class Project extends Component {
 
   _editDocumentName(documentId, name) { // eslint-disable-line no-unused-vars
     console.warn('TODO: Handle document name editing')
+  }
+
+  _removeDocument(documentId) { // eslint-disable-line no-unused-vars
+    console.warn('TODO: Handle document deletion')
   }
 
   /*
