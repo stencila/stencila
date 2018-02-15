@@ -27,7 +27,9 @@ export default class ProjectTabs extends Component {
   }
 
   _openDocument(documentId) {
-    this.send('openDocument', documentId)
+    if(this.props.documentId !== documentId) {
+      this.send('openDocument', documentId)
+    }
   }
 
   _addDocument() {
