@@ -32,6 +32,16 @@
   padding: 5px 8px;
   margin-left: 5px;
   margin-top: 5px;
+  user-select: none;
+  cursor: pointer;
+}
+
+.sc-project-tabs > .se-tab.sm-edit {
+  padding: 0px 5px;
+  border-top: 1px solid #e1e4e8;
+  border-right: 1px solid #e1e4e8;
+  border-left: 1px solid #e1e4e8;
+  background: white;
 }
 
 .sc-project-tabs > button.sm-active,
@@ -41,6 +51,11 @@
   border-right: 1px solid #e1e4e8;
   border-left: 1px solid #e1e4e8;
   background: white;
+}
+
+.sc-project-tabs > .se-tab > .se-input {
+  font-size: 13px;
+  border: none;
 }
 
 .sc-project-bar > .se-hosts-toggle {

@@ -15,7 +15,7 @@ export default class ProjectTabs extends Component {
 
         if (entry.id === nameEditor) {
           // Render input for document name editing
-          tab.append(
+          tab.addClass('sm-edit').append(
             $$('input').addClass('se-input').attr({value: entry.name})
               .ref('documentName')
               .on('change', this._changeDocumentName.bind(this, entry.id))
