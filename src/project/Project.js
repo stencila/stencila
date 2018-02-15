@@ -10,6 +10,7 @@ export default class Project extends Component {
   didMount() {
     this.handleActions({
       'openDocument': this._openDocument,
+      'editDocumentName': this._editDocumentName,
       'openHelp': this._openHelp,
       'toggleHelp': this._toggleHelp,
       'toggleHosts': this._toggleHosts
@@ -120,6 +121,10 @@ export default class Project extends Component {
     this.extendState({
       documentId: documentId
     })
+  }
+
+  _editDocumentName(documentId, name) { // eslint-disable-line no-unused-vars
+    console.warn('TODO: Handle document name editing')
   }
 
   /*
