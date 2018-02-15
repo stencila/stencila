@@ -1,0 +1,88 @@
+.sc-isolated-node .sc-cell .se-expression ::selection {
+  background: var(--stencila-green-transparent);
+}
+
+.sc-cell .se-show-code {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto;
+  background: #ddd;
+  border-radius: 0;
+  text-align: center;
+  position: relative;
+}
+
+.sc-cell .se-show-code:hover {
+  background: #ccc;
+}
+
+.sc-cell {
+  position: relative;
+}
+
+.sc-cell .se-status {
+  position: absolute;
+  left: -2px;
+  top: 0px;
+  bottom: 0px;
+  width: 2px;
+}
+
+.sc-cell .se-status.sm-ok {
+  background: #00DD00;
+}
+
+.sc-cell .se-status.sm-error {
+  background: #FF0300;
+}
+
+.sc-cell .se-status.sm-pending {
+  background: #575757;
+}
+
+.sc-cell .se-cell-editor-container {
+  position: relative;
+  background: #F5F5F5;
+}
+
+.sc-cell .se-ellipsis {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+/* HACK: overriding button styles */
+.sc-cell .se-ellipsis > button {
+  border-radius: 0;
+  height: 29px;
+}
+
+.sc-cell .se-ellipsis .sc-menu {
+  position: absolute;
+  top: 30px;
+  right: 0px;
+}
+
+.sc-cell .se-expression {
+  font-family: var(--mono-font-family);
+  font-size: 13px;
+  font-weight: normal;
+  color: #737373;
+}
+
+.sc-cell-value img {
+  max-width: 100%;
+  margin: 0 auto;
+  display: block;
+}
+
+.sc-cell-value.sm-pending {
+  opacity: 0.2;
+}
+
+.sc-cell .se-error {
+  padding-top: 20px;
+  color: #FF0300;
+  text-align: center;
+  font-size: 12px;
+}

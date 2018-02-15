@@ -1,0 +1,15 @@
+/* TODO: this should go into _variables.css */
+:root {
+  --sheet-header-width: 50px;
+  --sheet-header-height: 32px;
+  --sheet-header-height-plus-1: 33px;
+  --sheet-header-background: #f3f3f3;
+  --sheet-header-bordercolor: #C1C1C1;
+  --sheet-scrollbar-width: 16px;
+  --sheet-cell-bordercolor: #d5d5d5;
+  --sheet-error-color: #ff0d0d;
+  --sheet-error-bgcolor: rgba(204, 0, 0, 0.3);
+  --sheet-passed-color: #68bd0b;
+  --sheet-warning-color: #ffc41e;
+  --sheet-warning-bgcolor: rgba(206, 157, 7, 0.3);
+}

@@ -1,0 +1,21 @@
+.sc-sheet-issues-status.sm-error {
+  color: var(--sheet-error-color);
+}
+
+.sc-sheet-issues-status.sm-warning {
+  color: var(--sheet-warning-color);
+}
+
+/* HACK: had troubles with the flex-box layout here */
+.sc-tool-group.sm-metrics {
+  flex: none !important;
+  font-size: var(--small-font-size);
+}
+
+.sc-sheet-issues-status {
+  display: inline-block;
+}
+
+.sc-sheet-issues-status > * {
+  display: inline;
+}

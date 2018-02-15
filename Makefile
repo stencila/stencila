@@ -27,21 +27,18 @@ test-integration:
 test-one:
 	npm run test-one -- $(FILE)
 
-test-all: test test-integration
+# TODO: bring back integration test
+# test-all: test test-integration
+test-all: test
 
 cover:
 	npm run cover
 
 build:
 	npm run build
-.PHONY: build
-
-docs:
-	npm run docs
-.PHONY: docs
 
 docs-serve:
 	npm run docs-serve
 
 clean:
-	rm -rf node_modules build tmp
+	node make clean

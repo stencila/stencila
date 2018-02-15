@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<grammar
+  xmlns="http://relaxng.org/ns/structure/1.0"
+  xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+>
+  <start>
+    <ref name="sheet"/>
+  </start>
+
+  <define name="sheet">
+    <element name="sheet">
+      <ref name="sheet:meta"/>
+      <ref name="sheet:data"/>
+    </element>
+  </define>
+
+  <define name="sheet:meta">
+    <element name="meta">
+      <interleave>
+        <ref name="sheet:name"/>
+        <ref name="sheet:title"/>
+        <ref name="sheet:description"/>
+        <ref name="sheet:columns"/>
+      </interleave>
+    </element>
+  </define>
+
+  <define name="sheet:name">
+    <element name="name">
+      <text/>
+    </element>
+  </define>
+
+  <define name="sheet:title">
+    <element name="title">
+      <text/>
+    </element>
+  </define>
+
+  <define name="sheet:description">
+    <element name="description">
+      <text/>
+    </element>
+  </define>
+
+  <define name="sheet:columns">
+    <element name="columns">
+      <zeroOrMore>
+        <ref name="sheet:col"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="sheet:col">
+    <element name="col">
+      <ref name="sheet:col-attributes"/>
+    </element>
+    <empty />
+  </define>
+
+  <define name="sheet:col-attributes">
+    <optional>
+      <ref name="sheet:data-type"/>
+    </optional>
+    <optional>
+      <attribute name="width"/>
+    </optional>
+    <optional>
+      <ref name="sheet:data-unit"/>
+    </optional>
+  </define>
+
+  <define name="sheet:data">
+    <element name="data">
+      <zeroOrMore>
+        <ref name="sheet:row"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="sheet:row">
+    <element name="row">
+      <attribute name="height" />
+      <zeroOrMore>
+        <ref name="sheet:cell"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name="sheet:cell">
+    <element name="cell">
+      <ref name="sheet:cell-attributes"/>
+      <text />
+    </element>
+  </define>
+
+  <define name="sheet:cell-attributes">
+    <optional>
+      <ref name="sheet:data-type"/>
+    </optional>
+    <optional>
+      <ref name="sheet:data-language"/>
+    </optional>
+    <optional>
+      <!-- some types, particularly number often have a unit -->
+      <ref name="sheet:data-unit"/>
+    </optional>
+  </define>
+
+  <define name="sheet:data-type">
+    <attribute name="type">
+      <choice>
+        <value>any</value>
+        <value>string</value>
+        <value>number</value>
+        <value>integer</value>
+        <value>boolean</value>
+      </choice>
+    </attribute>
+  </define>
+
+  <define name="sheet:data-language">
+    <attribute name="language">
+      <choice>
+        <value>js</value>
+        <value>py</value>
+        <value>r</value>
+      </choice>
+    </attribute>
+  </define>
+
+  <define name="sheet:data-unit">
+    <attribute name="unit">
+      <choice>
+        <!-- currencies -->
+        <value>$</value>
+        <value>€</value>
+        <!-- phyisical units -->
+        <value>W</value>
+        <value>kW</value>
+        <value>MW</value>
+      </choice>
+    </attribute>
+  </define>
+
+</grammar>

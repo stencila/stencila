@@ -1,0 +1,13 @@
+.sc-repro-fig {
+  border: 1px solid #ddd;
+  padding: 20px;
+}
+
+.sc-repro-fig > .se-label {
+  font-style: italic;
+}
+
+.sc-repro-fig .se-title {
+  padding-top: 20px;
+  font-weight: 600;
+}

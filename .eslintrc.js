@@ -3,7 +3,6 @@ module.exports = {
     "sourceType": "module",
     "ecmaVersion": 6
   },
-  "installedESLint": true,
   "extends": "eslint:recommended",
   "globals": [
     // browser

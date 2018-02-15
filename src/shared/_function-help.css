@@ -1,0 +1,40 @@
+.sc-function-help {
+  font-weight: 600;
+  padding: 20px;
+}
+
+.sc-function-help > .se-name {
+  color: #34913c;
+  font-family: monospace;
+  font-size: 18px;
+}
+
+.sc-function-help > .se-description {
+  font-size: 12px;
+  margin: 5px 0 10px;
+}
+
+.sc-function-help > .se-section-title {
+  font-size: 14px;
+  margin: 15px 0 5px;
+}
+
+.sc-function-help > .se-example,
+.sc-function-help > .se-syntax {
+  color: #34913c;
+  font-family: monospace;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.sc-function-help > .se-param {
+  display: list-item;
+  list-style-type: disc;
+  margin-left: 20px;
+  font-size: 12px;
+}
+
+.sc-function-help > .se-param > .se-name {
+  color: #34913c;
+  font-family: monospace;
+}

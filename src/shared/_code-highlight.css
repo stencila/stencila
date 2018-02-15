@@ -1,0 +1,21 @@
+.sc-code-highlight.sm-keyword {
+  color: rgba(50,50,50,0.7);
+  font-weight: 700;
+}
+
+.sc-code-highlight.sm-function {
+  color: var(--stencila-green);
+}
+
+.sc-code-highlight.sm-id {
+  color: rgba(0,0,255,0.5);
+  font-style: italic;
+}
+
+.sc-code-highlight.sm-cell {
+  color: rgba(0,0,255,0.5);
+}
+
+.sc-code-highlight.sm-key {
+  color: #ee9900;
+}

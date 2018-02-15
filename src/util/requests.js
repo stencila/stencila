@@ -20,6 +20,9 @@ export function request (method, url, data) {
     var request = new XMLHttpRequest()
     request.open(method, url, true)
     request.setRequestHeader('Accept', 'application/json')
+    // Send any credentials (e.g. cookies) in request headers
+    // (necessary for remote peers)
+    request.withCredentials = true
 
     request.onload = function () {
       if (request.status >= 200 && request.status < 400) {
@@ -27,6 +30,10 @@ export function request (method, url, data) {
       } else {
         reject(`${request.status}:${request.responseText}`)
       }
+    }
+
+    request.onerror = function () {
+      reject(new Error('An error occurred with request "' + method + ' ' + url + '"'))
     }
 
     if (data) {

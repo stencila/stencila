@@ -1,0 +1,8 @@
+<archive type="rda">
+  <documents>
+    <document id="article" name="article" type="application/jats4m" path="blank-article.xml" />
+    <document id="sheet" name="sheet" type="application/sheetml" path="blank-sheet.xml" />
+  </documents>
+  <assets>
+  </assets>
+</archive>

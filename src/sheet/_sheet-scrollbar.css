@@ -1,0 +1,116 @@
+.sc-sheet-scrollbar {
+  position: absolute;
+  display: flex;
+  background: #FAFAFA;
+  box-shadow: inset -4px 0 4px 0 rgba(25,25,25,0.04);
+}
+
+.sc-sheet-scrollbar.sm-horizontal {
+  flex-direction: row;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  height: var(--sheet-scrollbar-width);
+  width: 100%;
+  z-index: 20;
+}
+
+.sc-sheet-scrollbar .se-lspace {
+  background: #f0f0f0;
+}
+
+.sc-sheet-scrollbar.sm-horizontal .se-lspace {
+  width: var(--sheet-header-width);
+  height: var(--sheet-scrollbar-width);
+}
+
+.sc-sheet-scrollbar.sm-vertical .se-lspace {
+  width: var(--sheet-scrollbar-width);
+  /*height: var(--sheet-header-height-plus-1);*/
+  /*border: solid 1px var(--sheet-header-bordercolor);*/
+}
+
+
+.sc-sheet-scrollbar .se-rspace {
+  background: #f0f0f0;
+  border: 1px solid var(--sheet-cell-bordercolor);
+  width: var(--sheet-scrollbar-width);
+  height: var(--sheet-scrollbar-width);
+}
+
+.sc-sheet-scrollbar.sm-vertical {
+  flex-direction: column;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  width: var(--sheet-scrollbar-width);
+  height: 100%;
+}
+
+.sc-sheet-scrollbar.sm-vertical .se-buttons {
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+.sc-sheet-scrollbar.sm-vertical .se-buttons > * + * {
+  margin-top: 1px;
+}
+
+.sc-sheet-scrollbar.sm-vertical .se-button {
+  padding-left: 3px;
+}
+
+.sc-sheet-scrollbar.sm-horizontal .se-buttons {
+  display: flex;
+  flex-direction: row;
+  margin-left: 1px;
+  margin-right: 1px;
+}
+
+.sc-sheet-scrollbar.sm-horizontal .se-buttons > * + * {
+  margin-left: 1px;
+}
+
+.sc-sheet-scrollbar.sm-horizontal .se-button {
+  padding-left: 5px;
+}
+
+.sc-sheet-scrollbar .se-button {
+  width: var(--sheet-scrollbar-width);
+  height: var(--sheet-scrollbar-width);
+  line-height: var(--sheet-scrollbar-width);
+  background: var(--sheet-header-background);
+}
+
+.sc-sheet-scrollbar .se-button:hover {
+  outline: 1px solid #666;
+}
+
+.sc-sheet-scrollbar .se-prev {
+  /*background: blue;*/
+}
+
+.sc-sheet-scrollbar .se-next {
+  /*background: green;*/
+}
+
+.sc-sheet-scrollbar .se-scroll-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.sc-sheet-scrollbar .se-thumb {
+  position: absolute;
+  background-color: rgba(0,0,0, 0.2);
+}
+
+.sc-sheet-scrollbar.sm-vertical .se-thumb {
+  width: var(--sheet-scrollbar-width);
+  min-height: var(--sheet-scrollbar-width);
+}
+
+.sc-sheet-scrollbar.sm-horizontal .se-thumb {
+  height: var(--sheet-scrollbar-width);
+  min-width: var(--sheet-scrollbar-width);
+}

@@ -1,0 +1,69 @@
+.sc-dialog-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.sc-dialog-panel > .se-wrapper {
+  position: relative;
+}
+
+.sc-dialog-panel > .se-wrapper > * {
+  position: absolute;
+  background: var(--fill-dark-color);
+  color: #fff;
+}
+
+.sc-dialog {
+  padding: 5px 10px;
+}
+
+.sc-dialog .se-body > .se-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 10px 0px;
+}
+
+.sc-dialog .se-item > .se-label {
+  flex: 1;
+}
+
+.sc-dialog .se-item > .se-input {
+  flex: 2;
+}
+
+.sc-dialog > .se-foot {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 100%;
+  margin-top: 10px;
+}
+
+.sc-dialog > .se-foot > * {
+  padding: 2px 10px;
+  border: 1px solid #c7c7c7;
+  border-radius: 5px;
+}
+
+.sc-column-settings-dialog .se-input {
+  width: 100%;
+  height: 30px;
+  margin: 0;
+  outline: none;
+  padding: 5px;
+  background: #fff;
+  border: 1px solid #dadada;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.sc-column-settings-dialog .se-input.sm-type {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}

@@ -3,9 +3,14 @@
   else should live in component scope.
 */
 
-body {
+html, body {
   /* Since we use scrollpanes throughout the app, we disable any body overflow */
   overflow: hidden;
+  height: 100%;
+}
+
+.sc-app {
+  height: 100%;
 }
 
 body,

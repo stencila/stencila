@@ -1,3 +1,5 @@
+import { coercedArrayType } from './types'
+
 /**
  * @namespace value
  */
@@ -20,7 +22,7 @@ export function type (value) {
     let isInteger = false
     if (value.isInteger) isInteger = value.isInteger()
     else isInteger = (value % 1) === 0
-    return isInteger ? 'integer' : 'float'
+    return isInteger ? 'integer' : 'number'
   } else if (type === 'string') {
     return 'string'
   } else if (type === 'object') {
@@ -50,7 +52,7 @@ export function pack (value) {
 
   if (type_ === 'null') {
     content = 'null'
-  } else if (type_ === 'boolean' || type_ === 'integer' || type_ === 'float') {
+  } else if (type_ === 'boolean' || type_ === 'integer' || type_ === 'number') {
     content = value.toString()
   } else if (type_ === 'string') {
     content = value
@@ -92,7 +94,7 @@ export function unpack (pkg) {
     return content === 'true'
   } else if (type === 'integer') {
     return parseInt(content, 10)
-  } else if (type === 'float') {
+  } else if (type === 'number') {
     return parseFloat(content)
   } else if (type === 'string') {
     return content
@@ -108,6 +110,28 @@ export function unpack (pkg) {
   } else {
     if (format === 'json') return JSON.parse(content)
     else return content
+  }
+}
+
+/*
+  A helper to gather values of a composite value (object, array, range)
+*/
+export function gather(type, value) {
+  switch(type) {
+    case 'array': {
+      return {
+        type: coercedArrayType(value),
+        data: value.map((v) => {
+          if (v) {
+            return v.data
+          } else {
+            return undefined
+          }
+        })
+      }
+    }
+    default:
+      throw new Error('Not implemented.')
   }
 }
 
