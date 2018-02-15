@@ -4,6 +4,7 @@ import {
 
 import ReproFigComponent from './ReproFigComponent'
 import ReproFigPreview from './ReproFigPreview'
+import InsertReproFigCommand from './InsertReproFigCommand'
 import CellComponent from './CellComponent'
 import CodeHighlightComponent from '../shared/CodeHighlightComponent'
 
@@ -32,8 +33,6 @@ export default {
   name: 'editor',
   configure(config) {
     config.import(TextureEditorPackage)
-    config.addComponent('repro-fig', ReproFigComponent)
-    config.addComponent('repro-fig-preview', ReproFigPreview)
     config.addComponent('cell', CellComponent)
     config.addComponent('code-highlight', CodeHighlightComponent)
 
@@ -48,6 +47,16 @@ export default {
     config.addComponent('value:test', TestValueComponent)
     config.addComponent('value:image', ImageValueComponent)
     config.addComponent('value:plotly', PlotlyValueComponent)
+
+    config.addComponent('repro-fig', ReproFigComponent)
+    config.addComponent('repro-fig-preview', ReproFigPreview)
+    
+    config.addCommand('insert-repro-fig', InsertReproFigCommand, {
+      commandGroup: 'insert-repro-figure',
+      nodeType: 'repro-fig'
+    })
+    config.addIcon('insert-repro-fig', { 'fontawesome': 'fa-area-chart' })
+    config.addLabel('insert-repro-fig', 'Reproducible Figure')
 
     config.addCommand('insert-cell', InsertCellCommand, {
       nodeType: 'disp-quote',
@@ -99,7 +108,7 @@ export default {
         type: 'tool-group',
         showDisabled: true,
         style: 'minimal',
-        commandGroups: ['insert-figure', 'insert-table', 'insert-block-element']
+        commandGroups: ['insert-figure', 'insert-repro-figure', 'insert-table', 'insert-block-element']
       },
       {
         name: 'cite',

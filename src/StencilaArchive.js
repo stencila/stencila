@@ -68,4 +68,13 @@ export default class StencilaArchive extends PersistedDocumentArchive {
       }
     })
   }
+
+  /*
+    We use the name of the first document
+  */
+  getTitle() {
+    let entries = this.getDocumentEntries()
+    let firstEntry = entries[0]
+    return firstEntry.name || firstEntry.id
+  }
 }

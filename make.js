@@ -122,6 +122,7 @@ function buildExamples() {
   //    fork(b, 'node_modules/.bin/stencila-convert', 'import', './examples/rmarkdown', { verbose: true })
   //  }
   //})
+  b.copy('./examples', DIST+'examples')
   vfs(b, {
     src: ['./examples/**/*'],
     dest: `${DIST}vfs.js`,

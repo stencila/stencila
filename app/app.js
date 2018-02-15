@@ -72,7 +72,7 @@ class App extends Component {
     let storageUrl = getQueryStringParam('storageUrl') || '/archives'
     let storage
     if (storageType==='vfs') {
-      storage = new VfsStorageClient(window.vfs, './data/')
+      storage = new VfsStorageClient(window.vfs, './examples/')
     } else {
       storage = new HttpStorageClient(storageUrl)
     }

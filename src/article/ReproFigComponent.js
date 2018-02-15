@@ -28,7 +28,8 @@ export default class ReproFigComponent extends NodeComponent {
     const title = node.findChild('title')
     let titleEl = $$(this.getComponent('text-property-editor'), {
       path: title.getPath(),
-      disabled: this.props.disabled
+      disabled: this.props.disabled,
+      placeholder: 'Enter Title'
     }).addClass('se-title').ref('title')
     el.append(titleEl)
 
