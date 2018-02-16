@@ -8,7 +8,7 @@ Stencila function libraries make it easy for users to expand their analysis with
 
 Stencila function libraries are collections of functions for data manipulation, analysis and plotting. These collections are grouped per research discipline and programming language. For example, an "R Metagenomics Stencila Library" will contain functions written in R developed and used within the metagenomics research community.
 
-Stencila uses its own simple *glue-like* language [Mini](https://github.com/stencila/mini) which enables the communication between functions written in different programming lanaguages. On its own Mini cannot perform sophisticated calculations but that is not its main purpose. Mini is used for wrapping functions in other languages making them interoperable. Behnid the scenes Stencila uses Mini to call the relevant language context in order to execute the wrapped function.
+Stencila uses its own simple *glue-like* language [Mini](languages/mini/README.md) which enables the communication between functions written in different programming lanaguages. On its own Mini cannot perform sophisticated calculations but that is not its main purpose. Mini is used for wrapping functions in other languages making them interoperable. Behnid the scenes Stencila uses Mini to call the relevant language context in order to execute the wrapped function.
 
 ### Why are Stencila function libraries useful?
 
@@ -50,7 +50,7 @@ In order to add your function to the selected library, please use the template p
 * **Javascript functions** [template](languages/js/README.md)
 
 ## Creating new libraries
-We recommend that each library is located in its own separate directory, structured as in this [template](link). Preferably, it should be a public repository.
+We recommend that each library is located in its own separate directory, structured as in this [template](https://github.com/stencila/libtemplate). Preferably, it should be a public repository.
 The structure of the new library repository should be simple:
 
 ```
