@@ -13,6 +13,12 @@ export default class ProjectTabs extends Component {
     documentEntries.forEach(entry => {
       if (_isVisible(entry)) {
         let tab = $$('div').addClass('se-tab').ref(entry.id)
+          .on('mousedown', this._activateTabDrag.bind(this, entry.id))
+          .on('dragend', this._onDragend.bind(this, entry.id))
+          .on('dragover', this._onDragOver.bind(this, entry.id))
+          .on('dragleave', this._onDragLeave.bind(this, entry.id))
+          .on('dragstart', this._onDrag)
+          .on('dragenter', this._onDrag)
 
         if (entry.id === nameEditor) {
           // Render input for document name editing
@@ -91,6 +97,55 @@ export default class ProjectTabs extends Component {
     const active = this.state.menu
     const menu = active === documentId ? undefined : documentId
     this.extendState({menu: menu})
+  }
+
+  _activateTabDrag(entityId) {
+    let tab = this.refs[entityId]
+    tab.attr('draggable', true)
+  }
+
+  _deactivateTabDrag(entityId) {
+    let tab = this.refs[entityId]
+    tab.attr('draggable', false)
+  }
+
+  _onDragend(entityId) {
+    this._deactivateTabDrag(entityId)
+    this._onReorder(entityId, this.currentTarget)
+    delete this.currentTarget
+    delete this.currentVisualTarget
+  }
+
+  _onDragOver(entityId) {
+    if(this.currentVisualTarget !== entityId && this.props.documentId !== entityId) {
+      this.currentTarget = entityId
+      this.currentVisualTarget = entityId
+      let tab = this.refs[entityId]
+      tab.addClass('sm-drop')
+    }
+  }
+
+  _onDragLeave(entityId) {
+    delete this.currentVisualTarget
+    let tab = this.refs[entityId]
+    tab.removeClass('sm-drop')
+  }
+
+  _onDrag(e) {
+    // Stop event propagation for the dragstart and dragenter
+    // events, to avoid editor drag manager errors
+    e.stopPropagation()
+  }
+
+  _onReorder(documentId, target) {
+    const da = this.props.documentArchive
+    const documentEntries = da.getDocumentEntries()
+    let entriesIds = documentEntries.map(entry => { return entry.id })
+    const currentPos = entriesIds.indexOf(documentId)
+    const targetPos = entriesIds.indexOf(target)
+    entriesIds[currentPos] = target
+    entriesIds[targetPos] = documentId
+    this.send('editDocumentOrder', entriesIds)
   }
 }
 

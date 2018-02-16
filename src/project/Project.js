@@ -11,6 +11,7 @@ export default class Project extends Component {
     this.handleActions({
       'openDocument': this._openDocument,
       'editDocumentName': this._editDocumentName,
+      'editDocumentOrder': this._editDocumentOrder,
       'removeDocument': this._removeDocument,
       'openHelp': this._openHelp,
       'toggleHelp': this._toggleHelp,
@@ -126,6 +127,10 @@ export default class Project extends Component {
 
   _editDocumentName(documentId, name) { // eslint-disable-line no-unused-vars
     console.warn('TODO: Handle document name editing')
+  }
+
+  _editDocumentOrder(documentIds) { // eslint-disable-line no-unused-vars
+    console.warn('TODO: Handle document order')
   }
 
   _removeDocument(documentId) { // eslint-disable-line no-unused-vars
