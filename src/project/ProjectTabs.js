@@ -117,7 +117,7 @@ export default class ProjectTabs extends Component {
   }
 
   _onDragOver(entityId) {
-    if(this.currentVisualTarget !== entityId && this.props.documentId !== entityId) {
+    if(this.currentVisualTarget !== entityId) {
       this.currentTarget = entityId
       this.currentVisualTarget = entityId
       let tab = this.refs[entityId]

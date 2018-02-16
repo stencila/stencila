@@ -51,10 +51,11 @@
 
 .sc-project-tabs > .se-tab.sm-drop::after {
   content: " ";
-  background-color: #e5e5e5;
-  width: 70px;
+  position: absolute;
+  background-color: #9d9d9d;
+  width: 6px;
   height: 20px;
-  margin: 0px 5px 0px 15px;
+  right: -6px;
 }
 
 .sc-project-tabs > .se-tab > .se-input {
