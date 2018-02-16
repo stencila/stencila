@@ -1,17 +1,17 @@
 - Welcome
   - [About](README.md)
   - Getting started
-    - [Installation](installation.md)
-    - [Quick start]
-    - [Tutorials]
-    - [FAQ]
+    - [Installation](getting-started/installation.md)
+    - [Quick start](getting-started/quick-start.md)
+    - [Tutorials](getting-started/tutorials.md)
+    - [FAQ](getting-started/faq.md)
 - Documents
   - Notebooks
   - Articles
   - Sheets
 - Contributing
   - [Guidelines](CONTRIBUTING.md)
-  - [Architecture]()
+  - [Architecture](architecture/README.md)
 - [Computation](computation/README.md)
   - [Data](computation/data.md)
   - [Operations](computation/operations.md)
