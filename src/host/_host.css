@@ -1,10 +1,11 @@
 .sc-hosts {
-
+  display: flex;
+  height: calc(100vh - 35px);
+  flex-direction: column;
 }
 
 .sc-hosts .se-host-list {
-  overflow: hidden;
-  margin-bottom: 4em;
+  flex: 1;
 }
 
 .sc-hosts .se-host-item {
@@ -52,8 +53,6 @@
 }
 
 .sc-hosts .se-options {
-  position: fixed;
-  bottom: 35px;
   border-top: 1px solid #eee;
   background: #fafbfc;
   padding: 1em;
