@@ -1,5 +1,12 @@
 # Mini
 
+Code cells in Stencila Documents use a simple expression language called Mini. Mini is meant to be only slightly more advanced than the expressions that you write in your calculator or into the cell of a spreadsheet. It is intended to be easy to write and easy to understand.
+
+Mini is implemented in JavaScript - so it can run in a browser without the need for external processes.
+
+
+Mini has a simple type system that is similar to most high level languages. Each type can be constructed using literals
+
 ## Data
 
 The simplest atomic type is `boolean` which can only have one of two values:
@@ -32,7 +39,7 @@ Strings are sequences of characters. String literals can use either single or do
 "hello world"
 ```
 
-An array is a sequence of values e.g. 
+An array is a sequence of values e.g.
 
 ```mini
 [1, 2, 3]
@@ -66,7 +73,7 @@ add(1, other=2)
 
 ## Operators
 
-Most operators in Mini are simply shortcuts to writing function calls. For example, the forward slash operator `/` is a short cut for the `divide` function, so the expression `4/5`, is equivalent to the function call expression `divide(4, 5)`. 
+Most operators in Mini are simply shortcuts to writing function calls. For example, the forward slash operator `/` is a short cut for the `divide` function, so the expression `4/5`, is equivalent to the function call expression `divide(4, 5)`.
 
 This allows you to write shorter, more readable and comprehensible expressions. For example, instead of writing a nested set of calls like:
 
@@ -86,7 +93,7 @@ However, there are two operators, the dot (`.`) and the (`|`) pipe which behave 
 
 The dot operator, `.`, is used to select members from an object or table. For example, to get a column `age` from a table named `data` you use `data.age` which is equivalent to `select(data, 'age')`. When used in this way, the dot operator acts like a function call shortcut just like the other operators.
 
-But the dot operator can also be used to define a _symbol_ within a syntax expression. A syntax expression is a partially evaluated expression that can be used as an argument in a function call so that it's evaluation can be completed within an alternative scope. For example, the second parameter of the `filter` function is a syntax expression e.g. 
+But the dot operator can also be used to define a _symbol_ within a syntax expression. A syntax expression is a partially evaluated expression that can be used as an argument in a function call so that it's evaluation can be completed within an alternative scope. For example, the second parameter of the `filter` function is a syntax expression e.g.
 
 ```mini
 filter(data, .age < 40)
@@ -115,7 +122,7 @@ Operators have differing levels of precedence. Precedence determines the order i
 The following table list the operators in Mini in order of decreasing precedence (in groups of equal precedence) along with their function call equivalents. See [`stencila/libcore`](https://github.com/stencila/libcore) for implementation and documentation for these functions.
 
 Precedence | Operator | Usage example     | Function call equivalent
-:--------- | :------: | :-----------      | :---------------------- 
+:--------- | :------: | :-----------      | :----------------------
 1          | `.`      | `value.member`    | `select(value, member)`
 1          | `[]`     | `value[member]`   | `select(value, member)`
 2          | `!`      | `!value`          | `not(value)`
@@ -140,7 +147,7 @@ Precedence | Operator | Usage example     | Function call equivalent
 
 ## Functions
 
-A more convenient way to define a function in Mini is using the `function` keyword. So, our simple function for _pi_ above could be written in Mini using: 
+A more convenient way to define a function in Mini is using the `function` keyword. So, our simple function for _pi_ above could be written in Mini using:
 
 ```mini
 function() 3.14159265359
@@ -183,7 +190,7 @@ function(x, y...) x * sum(y)
 ```
 
 ```mini
-show = function(args...) names(args) 
+show = function(args...) names(args)
 ```
 
 ### Recursion
