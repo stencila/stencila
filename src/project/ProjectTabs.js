@@ -88,7 +88,9 @@ export default class ProjectTabs extends Component {
   _toggleMenu(documentId, e) {
     e.preventDefault()
     e.stopPropagation()
-    this.extendState({menu: documentId})
+    const active = this.state.menu
+    const menu = active === documentId ? undefined : documentId
+    this.extendState({menu: menu})
   }
 }
 
