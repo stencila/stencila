@@ -8,7 +8,7 @@ create and embed plots, and so on.
 
 ## Data interchange
 Stencila provides you with ability to use multiple programming languages to write interactive code within
-one document, working on the same data. You can manipulate the same data switching between different programming
+one document, working on the same data. In other words, you can manipulate the same data switching between different programming
 languages. This capability is achieved through `data interchange` feature.
 
 When you pass data between cells Stencila temporarily converts it into its built-in [Mini language](languages/mini/README.md) object.
@@ -34,7 +34,16 @@ With Stencila you have full control over the sequence in which your code cells a
 You can refer to specific outputs from the given cell in any part of your Stencila document.
 Stencila does all this using its [execution engine](computation/engine.md).
 
-The engine manages automatic dependencies between the cells which are specific for each language.
+The engine manages automatic dependencies between the cells which are specific for each language. For cells written in
+Python it is farily simple.  If you want to capture the output of the cell, create a variable and assign (`=`) the output.
+Note that the variables in Stencila are non-mutable :sparkles: . Whatever is on the right hand of the assignment (`=`)
+will become the cell input.
+
+You can the refer to this cell's input and output in the Stencila document.
+
+If you do not capture the output explicitly, you will not be able to refer to it later on. But the input of the cell
+will still be available.
+
 
 
 ## Functions
@@ -55,7 +64,21 @@ the [Stencila libtemplate](https://github.com/stencila/libtemplate).
 
 ### Test
 
-All functions should have tests written
+All functions should have tests written in the `tests` folder, following the standard naming. For example, tests for `func1.py` should be named `test_func1.py`.
+You can use Python's `unittest` library.
+
+```
+import unittest
+from func1 import function_A
+......
+```
+
+Then run the tests:
+
+```
+$ python test_func1.py
+```
+
 
 ### Register :sparkles:
 Once you finished implementing and testing your Python function, you need to register it to make it available from within Stencila. In order to do

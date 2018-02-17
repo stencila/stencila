@@ -12,7 +12,6 @@ You can make almost any R functions for data manipulation available from within 
 ### Implement
 
 
-
 Create the R function implementation in a `.R` file in the `R` folder e.g. `R/sum.R` for the `sum` function.
 
 ### Test
@@ -49,8 +48,7 @@ or via Stencila Sheets.
 
 See the demo below how to register functions from RStudio.
 
-
-
+![Registering R Functions with Stencila Spreadsheet](img/registering-functions.gif)
 
 In order to do
 that select `Register function` from the menu and point to the main directory (for example, `libgenomics`) where the `.py` file with the function is located. Stencila will automatically
