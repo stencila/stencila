@@ -37,29 +37,25 @@ Domain-specific libraries are collections of functions developed and used within
 
 Domain-specific libraries are particularily useful for making various tools for data analysis fully interoperable. Researchers who tend to do most of their work in spreadsheets are then able to extend their data analysis by a whole new array of functions in R, Python or other languages.
 
-## Adding new functions
+## Adding new functions :sparkles:
 
 Adding functions to Stencila function libraries is fairly straightforward. We provided templates for different languages (see below) which should help contributors wrap their functions in Mini and write documentation. As mentioned, Mini is intentionally simple to minimise the effort of adding new functions to the libraries.
 
-In order to add your function to the selected library, please use the template provided for the relevant programming lanague:
-
-* **R functions** [template](languages/r/README.md)
-
-* **Python functions** [template](languages/python/README.md)
-
-* **Javascript functions** [template](languages/js/README.md)
-
-## Creating new libraries
 We recommend that each library is located in its own separate directory, structured as in this [template](https://github.com/stencila/libtemplate). Preferably, it should be a public repository.
 The structure of the new library repository should be simple:
 
 ```
-func/
-    functionA.R
-    functionB.js
-    functionB.py
+docs/
+funcs/
+    func1.R
+    func1.js
+    func1.py
     ....
-    tests/
+tests/test_func1.R
 README.md
 LICENSE
 ```
+
+Your functions should be implemented in the `funcs` directory. There should be just one function per file (i.e. do not implement two functions in the same file).
+Follow the templates for each language for writing the documentation strings. When you register a function, the documentation strings will be automatically converted
+into documentation files which will be placed in the `docs` folder.
