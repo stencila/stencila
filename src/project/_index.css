@@ -1,2 +1,3 @@
 @import './_project.css';
-@import '../host/_host.css';
+@import './_project-bar.css';
+@import './_project-tab.css';

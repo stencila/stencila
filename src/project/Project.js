@@ -11,9 +11,8 @@ export default class Project extends Component {
     this.handleActions({
       'addDocument': this._addDocument,
       'openDocument': this._openDocument,
-      'editDocumentName': this._editDocumentName,
-      'editDocumentOrder': this._editDocumentOrder,
       'removeDocument': this._removeDocument,
+      'updateDocumentName': this._updateDocumentName,
       'openHelp': this._openHelp,
       'toggleHelp': this._toggleHelp,
       'toggleHosts': this._toggleHosts
@@ -60,7 +59,7 @@ export default class Project extends Component {
       $$(ProjectBar, {
         contextId: this.state.contextId,
         documentId: this.state.documentId,
-        documentArchive: this.props.documentArchive
+        archive: this.props.documentArchive
       }).ref('projectBar')
     )
     return el
@@ -120,11 +119,21 @@ export default class Project extends Component {
     return el
   }
 
+  /*
+    FIXME: Don't rely on vfs to be present for blank documents
+  */
   _addDocument(type) {
-    type = 'application/sheetml'
+    let name
+    let xml
+    if (type === 'application/sheetml') {
+      name = 'Untitled Sheet'
+      xml = window.vfs.readFileSync('blank/blank-sheet.xml')
+    } else if (type === 'application/jats4m') {
+      name = 'Untitled Article'
+      xml = window.vfs.readFileSync('blank/blank-article.xml')
+    }
     let archive = this._getDocumentArchive()
-    let blankSheetXML = window.vfs.readFileSync('blank/blank-sheet.xml')
-    let newDocumentId = archive.addDocument(type, blankSheetXML)
+    let newDocumentId = archive.addDocument(type, name, xml)
     this._openDocument(newDocumentId)
   }
 
@@ -134,14 +143,10 @@ export default class Project extends Component {
     })
   }
 
-  _editDocumentName(documentId, name) { // eslint-disable-line no-unused-vars
+  _updateDocumentName(documentId, name) { // eslint-disable-line no-unused-vars
     let archive = this._getDocumentArchive()
     archive.renameDocument(documentId, name)
     this.refs.projectBar.rerender()
-  }
-
-  _editDocumentOrder(documentIds) { // eslint-disable-line no-unused-vars
-    console.warn('TODO: Handle document order', documentIds)
   }
 
   _removeDocument(documentId) { // eslint-disable-line no-unused-vars

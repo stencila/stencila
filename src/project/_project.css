@@ -8,92 +8,10 @@
   flex: 1 1 0;
 }
 
-.sc-project .sc-project-bar {
+.sc-project > .sc-project-bar {
   background: #F3F3F3;
   border-top: 1px solid #e1e4e8;
   flex: 0 0 34px;
-}
-
-.sc-project-tabs {
-  padding-left: 10px;
-  display: block;
-  float: left;
-}
-
-.sc-project-tabs > button,
-.sc-project-tabs > .se-tab,
-.sc-project-bar > button {
-  position: relative;
-  display: flex;
-  float: left;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 5px 8px;
-  margin-left: 5px;
-  margin-top: 5px;
-  user-select: none;
-  cursor: pointer;
-}
-
-.sc-project-tabs > .se-tab.sm-edit {
-  padding: 0px 5px;
-}
-
-.sc-project-tabs > button.sm-active,
-.sc-project-tabs > .se-tab.sm-active,
-.sc-project-bar > button.sm-active {
-  border-top: 1px solid #e1e4e8;
-  border-right: 1px solid #e1e4e8;
-  border-left: 1px solid #e1e4e8;
-  background: white;
-}
-
-.sc-project-tabs > .se-tab.sm-drop::after {
-  content: " ";
-  position: absolute;
-  background-color: #9d9d9d;
-  width: 6px;
-  height: 20px;
-  right: -6px;
-}
-
-.sc-project-tabs > .se-tab > .se-input {
-  font-size: 13px;
-  border: none;
-  border: 1px solid #2484FC;
-  font-weight: 600;
-}
-
-.sc-project-tabs > .se-tab > .se-toggle-menu {
-  padding-left: 8px;
-}
-
-.sc-project-tabs > .se-tab.sm-edit > .se-toggle-menu {
-  line-height: 30px;
-}
-
-.sc-project-tabs > .se-tab > .se-menu {
-  position: absolute;
-  top: auto;
-  bottom: 100%;
-  right: 0;
-  list-style-type: none;
-  margin: 3px 0px;
-  padding: 2px 10px;
-  border: 1px solid rgba(0,0,0,.2);
-  border-radius: 2px;
-  background: #fff;
-  z-index: 99;
-}
-
-.sc-project-tabs > .se-tab > .se-menu > li {
-  list-style: none;
-  padding: 2px 10px;
-}
-
-.sc-project-bar > .se-hosts-toggle {
-  float: right;
-  margin-right: 10px;
 }
 
 .sc-project .se-main-pane .se-editor-pane {

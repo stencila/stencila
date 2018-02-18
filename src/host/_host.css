@@ -52,8 +52,6 @@
 }
 
 .sc-hosts .se-options {
-  position: fixed;
-  bottom: 35px;
   border-top: 1px solid #eee;
   background: #fafbfc;
   padding: 1em;
