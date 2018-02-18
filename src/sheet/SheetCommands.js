@@ -204,7 +204,7 @@ export class SetTypeCommand extends Command {
     const selectionType = selection.data.type
     if(selectionType === 'columns') {
       let columnMeta = doc.getColumnMeta(anchorCol)
-      let columnType = columnMeta.attr('type')
+      let columnType = columnMeta.attr('type') || 'Auto'
       state = {
         cellId: columnMeta.id,
         newType: this.config.type,
@@ -216,7 +216,7 @@ export class SetTypeCommand extends Command {
       if (selectionType === 'rows') anchorCol = 0
       let anchorCell = doc.getCell(anchorRow, anchorCol)
       let columnMeta = doc.getColumnForCell(anchorCell.id)
-      let columnType = columnMeta.attr('type')
+      let columnType = columnMeta.attr('type') || 'Auto'
       let cellType = anchorCell.attr('type')
       state = {
         cellId: anchorCell.id,
