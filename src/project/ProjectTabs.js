@@ -76,8 +76,8 @@ export default class ProjectTabs extends Component {
 
   _changeDocumentName(documentId) {
     const name = this.refs.documentName.val()
-    this.send('editDocumentName', documentId, name)
     this.extendState({nameEditor: undefined})
+    this.send('editDocumentName', documentId, name)
   }
 
   _addDocument() {

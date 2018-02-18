@@ -9,6 +9,7 @@ export default class Project extends Component {
 
   didMount() {
     this.handleActions({
+      'addDocument': this._addDocument,
       'openDocument': this._openDocument,
       'editDocumentName': this._editDocumentName,
       'editDocumentOrder': this._editDocumentOrder,
@@ -60,7 +61,7 @@ export default class Project extends Component {
         contextId: this.state.contextId,
         documentId: this.state.documentId,
         documentArchive: this.props.documentArchive
-      })
+      }).ref('projectBar')
     )
     return el
   }
@@ -119,6 +120,14 @@ export default class Project extends Component {
     return el
   }
 
+  _addDocument(type) {
+    type = 'application/sheetml'
+    let archive = this._getDocumentArchive()
+    let blankSheetXML = window.vfs.readFileSync('blank/blank-sheet.xml')
+    let newDocumentId = archive.addDocument(type, blankSheetXML)
+    this._openDocument(newDocumentId)
+  }
+
   _openDocument(documentId) {
     this.extendState({
       documentId: documentId
@@ -126,15 +135,27 @@ export default class Project extends Component {
   }
 
   _editDocumentName(documentId, name) { // eslint-disable-line no-unused-vars
-    console.warn('TODO: Handle document name editing')
+    let archive = this._getDocumentArchive()
+    archive.renameDocument(documentId, name)
+    this.refs.projectBar.rerender()
   }
 
   _editDocumentOrder(documentIds) { // eslint-disable-line no-unused-vars
-    console.warn('TODO: Handle document order')
+    console.warn('TODO: Handle document order', documentIds)
   }
 
   _removeDocument(documentId) { // eslint-disable-line no-unused-vars
-    console.warn('TODO: Handle document deletion')
+    let archive = this._getDocumentArchive()
+    let documentEntries = archive.getDocumentEntries()
+    if (documentEntries.length > 1) {
+      archive.removeDocument(documentId)
+      let firstDocument = this._getActiveDocument()
+      this.extendState({
+        documentId: firstDocument.id
+      })
+    } else {
+      console.warn('Not allowed to delete the last document in the archive. Skipping.')
+    }
   }
 
   /*
