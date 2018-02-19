@@ -5,13 +5,17 @@
   <front>
     <article-meta>
       <title-group>
-        <article-title>Almost blank...</article-title>
+        <article-title></article-title>
       </title-group>
+      <abstract>
+        <p>Enter abstract</p>
+      </abstract>
     </article-meta>
   </front>
   <body>
     <sec>
-      <p>You can't start editing a completely blank article (bug?)...so this is here</p>
+      <title>Heading</title>
+      <p>First paragraph</p>
     </sec>
   </body>
   <back>
