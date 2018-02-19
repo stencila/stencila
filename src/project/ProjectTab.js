@@ -82,10 +82,6 @@ export default class ProjectTab extends Component {
     this.send('updateDocumentName', this.props.entry.id, name)
   }
 
-  _addDocument() {
-    this.send('addDocument')
-  }
-
   _removeDocument() {
     this.send('removeDocument', this.props.entry.id)
   }
