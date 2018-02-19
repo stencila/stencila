@@ -1,44 +1,59 @@
-import { Component, FontAwesomeIcon } from 'substance'
-import ProjectTabs from './ProjectTabs'
+import { Component } from 'substance'
+import ProjectTab from './ProjectTab'
+import AddProjectTab from './AddProjectTab'
+import ContextToggle from './ContextToggle'
+import documentTypes from '../documentTypes'
 
 export default class ProjectBar extends Component {
 
   render($$) {
+    const archive = this.props.archive
+    const documentEntries = archive.getDocumentEntries()
     let contextId = this.props.contextId
-    let helpToggle = $$('button')
-      .addClass('se-toggle')
-      .append('Help').on('click', this._toggleHelp)
-    let hostsToggle = $$('button')
-      .addClass('se-toggle se-hosts-toggle')
-      .append(
-        $$(FontAwesomeIcon, {icon: 'fa-server'})
-      ).on('click', this._toggleHosts)
-
-    if (contextId === 'help') {
-      helpToggle.addClass('sm-active')
-    } else if (contextId === 'hosts') {
-      hostsToggle.addClass('sm-active')
-    }
 
     let el = $$('div').addClass('sc-project-bar')
-    el.append(
-      $$(ProjectTabs, {
-        documentArchive: this.props.documentArchive,
-        documentId: this.props.documentId
-      }),
-      helpToggle,
-      hostsToggle
+    let projectTabs = $$('div').addClass('se-project-tabs')
+
+    documentEntries.forEach(entry => {
+      if (_isVisible(entry)) {
+        projectTabs.append(
+          $$(ProjectTab, {
+            entry,
+            active: this.props.documentId === entry.id
+          })
+        )
+      }
+    })
+
+    projectTabs.append(
+      $$(AddProjectTab)
     )
-    // TODO: Render toggles for issues and help panel
+
+    let contextToggles = $$('div').addClass('se-context-toggles')
+
+    contextToggles.append(
+      $$(ContextToggle, {
+        action: 'toggleHelp',
+        icon: 'fa-question-circle',
+        active: contextId === 'help'
+      }),
+      $$(ContextToggle, {
+        action: 'toggleHosts',
+        icon: 'fa-server',
+        active: contextId === 'hosts'
+      })
+    )
+
+    el.append(
+      projectTabs,
+      contextToggles
+    )
+
     return el
   }
 
-  _toggleHelp() {
-    this.send('toggleHelp')
-  }
+}
 
-  _toggleHosts() {
-    this.send('toggleHosts')
-  }
-
+function _isVisible(entry) {
+  return Boolean(documentTypes[entry.type])
 }

@@ -9,7 +9,10 @@ export default class Project extends Component {
 
   didMount() {
     this.handleActions({
+      'addDocument': this._addDocument,
       'openDocument': this._openDocument,
+      'removeDocument': this._removeDocument,
+      'updateDocumentName': this._updateDocumentName,
       'openHelp': this._openHelp,
       'toggleHelp': this._toggleHelp,
       'toggleHosts': this._toggleHosts
@@ -56,8 +59,8 @@ export default class Project extends Component {
       $$(ProjectBar, {
         contextId: this.state.contextId,
         documentId: this.state.documentId,
-        documentArchive: this.props.documentArchive
-      })
+        archive: this.props.documentArchive
+      }).ref('projectBar')
     )
     return el
   }
@@ -116,10 +119,48 @@ export default class Project extends Component {
     return el
   }
 
+  /*
+    FIXME: Don't rely on vfs to be present for blank documents
+  */
+  _addDocument(type) {
+    let name
+    let xml
+    if (type === 'application/sheetml') {
+      name = 'Untitled Sheet'
+      xml = window.vfs.readFileSync('blank/blank-sheet.xml')
+    } else if (type === 'application/jats4m') {
+      name = 'Untitled Article'
+      xml = window.vfs.readFileSync('blank/blank-article.xml')
+    }
+    let archive = this._getDocumentArchive()
+    let newDocumentId = archive.addDocument(type, name, xml)
+    this._openDocument(newDocumentId)
+  }
+
   _openDocument(documentId) {
     this.extendState({
       documentId: documentId
     })
+  }
+
+  _updateDocumentName(documentId, name) { // eslint-disable-line no-unused-vars
+    let archive = this._getDocumentArchive()
+    archive.renameDocument(documentId, name)
+    this.refs.projectBar.rerender()
+  }
+
+  _removeDocument(documentId) { // eslint-disable-line no-unused-vars
+    let archive = this._getDocumentArchive()
+    let documentEntries = archive.getDocumentEntries()
+    if (documentEntries.length > 1) {
+      archive.removeDocument(documentId)
+      let firstDocument = this._getActiveDocument()
+      this.extendState({
+        documentId: firstDocument.id
+      })
+    } else {
+      console.warn('Not allowed to delete the last document in the archive. Skipping.')
+    }
   }
 
   /*
