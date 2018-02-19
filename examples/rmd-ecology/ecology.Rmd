@@ -1,0 +1,85 @@
+---
+title: RMarkdown and Stencila
+author:
+  - surname: Bentley
+    given-names: Nokome
+    affiliation: stencila
+  - surname: Pawlik
+    given-names: Aleksandra
+    affiliation: stencila
+organisations:
+  - id: stencila
+    name: Stencila
+    city: Kaikoura
+    country: New Zealand
+abstract: |
+  Stencila allows combining interactive bits of code within the same document. For example, you can use R and SQL to manipulate a dataset in the same
+  notebook. This allows collaborators with different skillset to work together without the need to give up their preferred programming
+  language. Stencila currently supports import of documents written in different formats, such as RMarkdown. In the future,
+  Stencila will provide ability to losslesly convert (back) the document into RMarkdown. Since Stencila saves the files in JATS format
+  commonly used by publishers, it enables you put the final touches on a paper before final submission to a journal.
+bibliography: ecology-bib.bibtex
+---
+
+# Introduction
+This document demonstrates Stencila's ability to include more than two different programming languages in one reproducible publication.
+The document is written in [RMarkdown](https://rmarkdown.rstudio.com/), which is a popular format for reproducible research using the R programming language ([@baumer2014r],[@xie2016bookdown]). Stencila is a able to import RMarkdown documents. The document includes also code written in SQL which
+Stencila can execute. This makes it easy for collaborators with different skills to work on the same document.
+
+Eventually, we'll also support exporting documents (back) to RMarkdown. Thanks to this the collaborators who prefer to use RStudio
+can be sure that the conversion to Stencila and back is lossless, and yet allows their colleagues to work on the document in
+WYSIWG mode.
+
+# Set up
+
+First, let's read in the data from the `csv` file. This sample data comes from the Data Carpentry ecology workshop([@dc2018]) and contains data collected during surveying
+small mammals in Arizona for several years([@ernest2009long]).
+
+```{r}
+surveys <- read.csv("combined.csv")
+```
+
+And now preview the data:
+
+```{r}
+head(surveys)
+```
+We can now use SQL to filter out some interesting for us subset
+
+```
+SELECT * FROM surveys WHERE species_id="DM"
+```
+
+# Cells
+The input of the above cell is `surveys`. The output of the cell is empty. That is, we see the result of the
+query in the Stencila document but we cannot refer to it further on. In order to do that, we need to explicitly
+capture the output:
+
+```
+dm_species = SELECT * FROM surveys WHERE species_id="DM"
+```
+
+Let's get the summary of the number of animals of each species"
+
+```
+summary_counts <- count SELECT species_id, COUNT(*)
+FROM surveys
+GROUP BY species_id;
+```
+
+# Plotting
+
+We can now create a bar plot looking at the gender distribution of the animals from the DM species:
+
+```{r}
+plot(dm_species$sex)
+```
+
+
+We can do more complex plotting:
+```{r}
+library(ggplot2)
+
+ggplot(data = surveys_complete, aes(x = weight, y = hindfoot_length)) +
+  geom_point()
+```
