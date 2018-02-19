@@ -84,10 +84,10 @@ class App extends Component {
     }).then(({host, functionManager, engine}) => {
       this.setState({archive, functionManager, engine, host})
     })
-    .catch(error => {
-      console.error(error)
-      this.setState({error})
-    })
+    // .catch(error => {
+    //   console.error(error)
+    //   this.setState({error})
+    // })
   }
 
   /*
