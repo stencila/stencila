@@ -58,11 +58,21 @@ export default class ProjectTab extends Component {
   }
 
   _onKeyDown(e) {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      if (e.key === 'Escape') {
+        this._resetDocumentName()
+      }
       // ATTENTION: It is important to trigger a blur event here, to ensure
       // that there is only one event source for updating the document name.
       this.refs.documentName.el.blur()
     }
+  }
+
+  /*
+    Reset document name to original value
+  */
+  _resetDocumentName() {
+    this.refs.documentName.val(this.props.entry.name)
   }
 
   _openDocument() {
@@ -72,7 +82,7 @@ export default class ProjectTab extends Component {
   }
 
   _editDocumentName() {
-    this.extendState({edit: true})
+    this.extendState({ edit: true })
     this.refs.documentName.el.focus()
   }
 
