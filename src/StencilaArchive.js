@@ -56,18 +56,6 @@ export default class StencilaArchive extends PersistedDocumentArchive {
     }
   }
 
-  getDocumentEntries() {
-    let manifest = this.getEditorSession('manifest').getDocument()
-    let documents = manifest.findAll('documents > document')
-    return documents.map(doc => {
-      return {
-        id: doc.id,
-        name: doc.attr('name'),
-        type: doc.attr('type'),
-        editorSession: this.getEditorSession(doc.id)
-      }
-    })
-  }
 
   /*
     We use the name of the first document

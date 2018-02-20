@@ -1,0 +1,10 @@
+.sc-project-bar > .se-project-tabs {
+  padding-left: 10px;
+  display: block;
+  float: left;
+}
+
+.sc-project-bar > .se-context-toggles {
+  float: right;
+  margin-right: 10px;
+}
