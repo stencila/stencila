@@ -15,7 +15,6 @@ export default class SheetComponent extends CustomSurface {
 
   constructor(...args) {
     super(...args)
-
     this._nav = throttle(this._nav.bind(this), 50, { leading: true })
   }
 
@@ -197,8 +196,13 @@ export default class SheetComponent extends CustomSurface {
     return colMenu
   }
 
+  /*
+    NOTE: sheet.UUID is set in SheetDocument's constructor and is also used
+          by SheetEngineAdapter
+  */
   _getCustomResourceId() {
-    return this._getSheet().getName()
+    let sheet = this._getSheet()
+    return sheet.UUID
   }
 
   _getBoundingRect(rowIdx, colIdx) {
