@@ -21,7 +21,8 @@ You can refer to specific outputs from the given cell in any part of your Stenci
 Stencila does all this using its [execution engine](computation/engine.md).
 
 Cell inputs are determined by parsing the `FROM` clause of the SQL statement.
-For example, the following cell has a single input `people`:
+For example, the following cell has a single input `people`, the value is the result of
+the SQL statement and the output is empty (`null`).
 
 ```sql
 SELECT * FROM people ORDER BY height DESC
@@ -31,7 +32,8 @@ Parsing of inputs from more complicated SQL statements involving joins or sub-qu
 
 The the standard syntax of SQL means that the above cell has empty output in Stencila. If you want to refer to its
 output, you need to explicitly capture it by  using an assignment operator before the `SELECT` statements.
-For example, the following cell has an output `brown_hair` and an input `people`.
+For example, the following cell has an output `brown_hair` and an input `people`. The value is the result
+of the SQL statement.
 
 ```sql
 brown_hair = SELECT * FROM people WHERE hair_color == 'Brown'

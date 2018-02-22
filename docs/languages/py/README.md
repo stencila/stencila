@@ -44,6 +44,29 @@ You can the refer to this cell's input and output in the Stencila document.
 If you do not capture the output explicitly, you will not be able to refer to it later on. But the input of the cell
 will still be available.
 
+For example:
+
+```{python}
+import math
+
+x = 4
+math.sqt(x)
+```
+
+The input for this cell is `x`, the output is empty (`null`) and the value is 2 (`math.sqrt(4)`).
+
+If you want to caputure the output and be able to refer back to it in the future you need to
+modify the cell as follows:
+
+```{python}
+import math
+
+x = 4
+y = math.sqrt(x)
+```
+
+The output is now `y` and you can refer back to this variable in any other cell in Stencila.
+
 
 
 ## Functions
