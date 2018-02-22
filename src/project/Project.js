@@ -127,10 +127,10 @@ export default class Project extends Component {
     let xml
     if (type === 'application/sheetml') {
       name = 'Untitled Sheet'
-      xml = window.vfs.readFileSync('blank/blank-sheet.xml')
+      xml = window.vfs.readFileSync('blank/sheet.xml')
     } else if (type === 'application/jats4m') {
       name = 'Untitled Article'
-      xml = window.vfs.readFileSync('blank/blank-article.xml')
+      xml = window.vfs.readFileSync('blank/article.xml')
     }
     let archive = this._getDocumentArchive()
     let newDocumentId = archive.addDocument(type, name, xml)
