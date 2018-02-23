@@ -13,9 +13,9 @@ export default class ProjectTab extends Component {
     let el = $$('div').addClass('sc-project-tab')
     let entry = this.props.entry
     let docTypeEl = $$('div').addClass('se-doc-type')
-    if (entry.type === 'application/jats4m') {
+    if (entry.type === 'article') {
       docTypeEl.append($$(FontAwesomeIcon, {icon: 'fa-align-left'}))
-    } else if (entry.type === 'application/sheetml') {
+    } else if (entry.type === 'sheet') {
       docTypeEl.append($$(FontAwesomeIcon, {icon: 'fa-table'}))
     }
     el.append(docTypeEl)

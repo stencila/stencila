@@ -1,6 +1,6 @@
-<archive type="rda">
+<dar>
   <documents>
-    <document id="starwars-people.csv" name="starwars-people.csv" type="application/sheetml" path="starwars-people.csv.sheet.xml" src="starwars-people.csv" />
+    <document id="starwars-people.csv" name="starwars-people.csv" type="sheet" path="starwars-people.csv.sheet.xml" src="starwars-people.csv" />
   </documents>
   <assets/>
-</archive>
+</dar>

@@ -7,7 +7,7 @@ export default class StencilaArchive extends PersistedDocumentArchive {
 
   _loadDocument(type, record, sessions) {
     switch (type) {
-      case 'application/jats4m': {
+      case 'article': {
         // FIXME: we should not mix ingestion and regular loading
         // I.e. importing JATS4M should work without a pub-meta
         let pubMetaSession = PubMetaLoader.load()
@@ -21,7 +21,7 @@ export default class StencilaArchive extends PersistedDocumentArchive {
           archive: this
         })
       }
-      case 'application/sheetml': {
+      case 'sheet': {
         return SheetLoader.load(record.data)
       }
       default:
@@ -31,7 +31,7 @@ export default class StencilaArchive extends PersistedDocumentArchive {
 
   _exportDocument(type, session, sessions) {
     switch (type) {
-      case 'application/jats4m': {
+      case 'article': {
         // FIXME: hard-coded, and thus bad
         // TODO: export only those resources which have been changed
         // Also we need to
@@ -46,7 +46,7 @@ export default class StencilaArchive extends PersistedDocumentArchive {
         //let xmlStr = res.dom.serialize()
         return xmlStr
       }
-      case 'application/sheetml': {
+      case 'sheet': {
         let dom = session.getDocument().toXML()
         let xmlStr = prettyPrintXML(dom)
         return xmlStr
