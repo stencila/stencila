@@ -53,7 +53,7 @@ export default class Context {
     // transpiling the code so that it is syntactically correct in the target language
     let symbols = {}
     const transpiledCode = transpile(code, symbols)
-    return this._executeCode(code, inputs, exprOnly)
+    return this._executeCode(transpiledCode, inputs, exprOnly)
     .then((res) => {
       // map transpiled symbols back to their original form
       if (res.inputs) {
