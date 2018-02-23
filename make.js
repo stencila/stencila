@@ -150,7 +150,7 @@ function buildEnv() {
 // reads all fixtures from /tests/ and writes them into a script
 function buildTestBackend() {
   b.custom('Creating test backend...', {
-    src: ['./tests/documents/**/*', './tests/function/fixtures/*'],
+    src: ['./tests/document/fixtures/**/*'],
     dest: './tmp/test-vfs.js',
     execute(files) {
       const rootDir = b.rootDir
@@ -353,7 +353,13 @@ b.task('stencila:deps', ['schema', 'prism'])
 b.task('stencila', ['clean', 'assets', 'css', 'stencila:deps', 'build'])
 .describe('Build the stencila library.')
 
-// add all depe
+b.task('examples', ['stencila'], () => {
+  // TODO: Make all examples use the single stencila.js build, so we don't
+  // need individual builds
+  buildExamples()
+})
+.describe('Build the examples.')
+
 b.task('test:backend', ['stencila:deps'], () => {
   buildTestBackend()
 })
