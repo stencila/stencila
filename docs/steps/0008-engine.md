@@ -36,7 +36,7 @@ The cell graph itself works deterministically, like an automaton. For that a sys
 
 > TODO: provide some examples to illustrate the concept
 
-## Cell States
+### Cell States
 
 - `BROKEN`: the cell has a problem within the current system, that prevents further evaluation.
 - `FAILED`: the cell has been evaluated but there was a error during evaluation (runtime and validation errors)
@@ -45,6 +45,30 @@ The cell graph itself works deterministically, like an automaton. For that a sys
 - `READY`: the cell is ready for evaluation
 - `RUNNING`: evaluation has been started
 - `OK`: evaluation succeeded, i.e. the cell's value is up-to-date
+
+### Engine
+
+The Engine analyses cell code and registers it with the CellGraph.
+As soon as a cell is ready for evaluation it collects the input values and calls
+the associated context for evaluation. When an evaluation is done the Engine
+updates the CellGraph accordingly.
+
+With respect to the engine, a cell's life cycle has three stages: analysis, registration, and evaluation.
+To allow transclusions, there is a special syntax which is not valid in target languages,
+requiring a transpilation step. For example in Stencila you can write an expression:
+
+```
+ggplot('Ice cream data'!A1:C20, aes(x=sunny, y=total_sales, fill=sunny))
+```
+
+which gets transpiled to
+
+```
+ggplot(_Ice_cream_data__A1_C20, aes(x=sunny, y=total_sales, fill=sunny))
+```
+
+When evaluating the cell, the respective value, a table with the data of the specified range,
+is passed to the context.
 
 
 ## Implementation
