@@ -58,7 +58,7 @@ To allow transclusions, there is a special syntax which is not valid in target l
 requiring a transpilation step. For example in Stencila you can write an expression:
 
 ```
-ggplot('Ice cream data'!A1:C20, aes(x=sunny, y=total_sales, fill=sunny))
+ggplot('Ice-cream data'!A1:C20, aes(x=sunny, y=total_sales, fill=sunny))
 ```
 
 which gets transpiled to
@@ -70,6 +70,16 @@ ggplot(_Ice_cream_data__A1_C20, aes(x=sunny, y=total_sales, fill=sunny))
 When evaluating the cell, the respective value, a table with the data of the specified range,
 is passed to the context.
 
+> Note: while it is convenient to use such a syntax, it could be a good practice
+> to preserve the purity of external code, by assigning a variable in advance, such as:
+>
+> ```mini
+> data = 'Ice-cream data'!A1:C20
+> ```
+>
+> ```py
+> ggplot(data, aes(x=sunny, y=total_sales, fill=sunny))
+> ```
 
 ## Implementation
 
