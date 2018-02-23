@@ -1,6 +1,6 @@
 # Python
 
-Stencila allows you use interactive Python code accross the whole Stencila suite (atricles, notebooks and sheets).
+Stencila allows you use interactive Python code across the whole Stencila suite (articles, notebooks and sheets).
 In order to be able to use Python within Stencila documents you need to have the
 [Python execution context](getting-started/installation.md#execution-contexts) enabled. You can write Python code
 just like you would in any other editor or reproducible notebook. You can install Python packages and import them,
@@ -11,20 +11,19 @@ Stencila provides you with ability to use multiple programming languages to writ
 one document, working on the same data. In other words, you can manipulate the same data switching between different programming
 languages. This capability is achieved through `data interchange` feature.
 
-When you pass data between cells Stencila temporarily converts it into its built-in [Mini language](languages/mini/README.md) object.
+When you pass data between cells Stencila temporarily converts it into its built-in [Mini language](languages/mini/README.md) data type.
 The table below shows (roughly) how data interchange between Mini and Python is implemented. For more details
 see [source code](https://github.com/stencila/py/blob/master/stencila/value.py).
 
 | Mni     | Python           |
-| ------- | ---------------- |
+|:--------|:-----------------|
 | boolean | bool             |
 | integer | int              |
 | float   | float            |
 | string  | str              |
-| table   | pandas.DataFrame |
+| array   | Python list      |
 | object  | Python object*   |
-| array   | Python object*   |
-
+| table   | pandas.DataFrame |
 
 *The object fields and methods are saved within the Mini object/array and converted accordingly.
 
@@ -35,7 +34,7 @@ You can refer to specific outputs from the given cell in any part of your Stenci
 Stencila does all this using its [execution engine](computation/engine.md).
 
 The engine manages automatic dependencies between the cells which are specific for each language. For cells written in
-Python it is farily simple.  If you want to capture the output of the cell, create a variable and assign (`=`) the output.
+Python it is fairly simple.  If you want to capture the output of the cell, create a variable and assign (`=`) the output.
 Note that the variables in Stencila are non-mutable :sparkles: . Whatever is on the right hand of the assignment (`=`)
 will become the cell input.
 
@@ -55,7 +54,7 @@ math.sqt(x)
 
 The input for this cell is `x`, the output is empty (`null`) and the value is 2 (`math.sqrt(4)`).
 
-If you want to caputure the output and be able to refer back to it in the future you need to
+If you want to capture the output and be able to refer back to it in the future you need to
 modify the cell as follows:
 
 ```{python}
