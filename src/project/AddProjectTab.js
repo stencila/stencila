@@ -33,11 +33,11 @@ export default class AddProjectTab extends Component {
   }
 
   _addSheet() {
-    this.send('addDocument', 'application/sheetml')
+    this.send('addDocument', 'sheet')
   }
 
   _addArticle() {
-    this.send('addDocument', 'application/jats4m')
+    this.send('addDocument', 'article')
   }
 
 }

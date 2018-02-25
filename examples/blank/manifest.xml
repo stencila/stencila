@@ -1,8 +1,8 @@
-<archive type="rda">
+<dar>
   <documents>
-    <document id="article" name="Untitled Article" type="application/jats4m" path="article.xml" />
-    <document id="sheet" name="Untitled Sheet" type="application/sheetml" path="sheet.xml" />
+    <document id="article" name="Untitled Article" type="article" path="article.xml" />
+    <document id="sheet" name="Untitled Sheet" type="sheet" path="sheet.xml" />
   </documents>
   <assets>
   </assets>
-</archive>
+</dar>

@@ -1,6 +1,6 @@
-<archive type="rda">
+<dar>
   <documents>
-    <document id="rmarkdown.Rmd" name="rmarkdown.Rmd" type="application/jats4m" path="rmarkdown.Rmd.jats.xml" src="rmarkdown.Rmd" />
+    <document id="rmarkdown.Rmd" name="rmarkdown.Rmd" type="article" path="rmarkdown.Rmd.jats.xml" src="rmarkdown.Rmd" />
   </documents>
   <assets/>
-</archive>
+</dar>

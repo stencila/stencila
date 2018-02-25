@@ -1,9 +1,9 @@
-<archive type="rda">
+<dar>
   <documents>
-    <document id="doc1" name="Reproducible Document Stack" type="application/jats4m" path="manuscript.xml" />
-    <document id="sheet1" name="Ice Cream Sales" type="application/sheetml" path="ice-cream-sales.xml" />
+    <document id="doc1" name="Reproducible Document Stack" type="article" path="manuscript.xml" />
+    <document id="sheet1" name="Ice Cream Sales" type="sheet" path="ice-cream-sales.xml" />
   </documents>
   <assets>
     <asset id="fig1" type="image/jpg" path="fig1.jpg"/>
   </assets>
-</archive>
+</dar>
