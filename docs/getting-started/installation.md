@@ -5,7 +5,7 @@ You can run Stencila on Windows, Mac OS and Linux. There are two main ways to de
 If you decide to install Stencila Desktop, then you also need to enable the execution context, you want to run (R, Python, Javascript, SQL and so on). You can do that through installing relevant [Stencila packages](#execution-contexts). If you decide to use the Stencila Docker image, you do not have to install separately the execution contexts. However, you need to have [Docker](https://docs.docker.com/install/) installed on your machine.
 
 
-## Stencila Desktop <img class="emoji" src="https://assets-cdn.github.com/images/icons/emoji/sparkles.png" alt="sparkles">
+## Stencila Desktop :sparkles:
 
 <p class="tip">Stencila Desktop edition is still in under development. You can install it and run it using the built-in
 [Mini language](languages/mini/README.md) which will allow you do some standard data manipulation. The current Stencila Desktop releases will not work with other

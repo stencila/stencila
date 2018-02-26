@@ -1,6 +1,6 @@
 # Frequently Asked Questions
 
-**Q** I already use RMarkdown/JupyerNotebook. How can Stencila be useful for me?<br/>
+**Q** I already use RMarkdown/JupyterNotebook. How can Stencila be useful for me?<br/>
 **A** Stencila allows you collaborate with colleagues who use other tools than RMarkdown and Jupyter Notebook,
 without you having to give up your favourite tool. Stencila Coverter :sparkles: makes it possible to open documents in
 various formats (`Rmd`, `ipynb` and so on) in Stencila. The conversion is completly lossless and the file can be saved back
@@ -24,16 +24,18 @@ Using Stencila you can easily save your work :sparkles: in formats compatible wi
 (such as Jupyter Notebook) creating more opportunities for collaboration.
 
 <hr />
-**Q** What are Stencila Sheets?<br/>
+**Q** What are Stencila Spreadheets?<br/>
 **A** Stencila Sheets provide a way towards working within an environment similar to spreadsheet software but supporting
 reproducible approach by linking spreadsheet directly to the article allowing for capturing the analysis steps.
 
-Stencila Spreadsheets make it possible for extending the spreadsheet functionality by registering functions written in other
+Stencila will tie together the data in the spreadsheet, the methods you used to process the data and the researchers
+publication.
+![Example ofStencila Spreadsheet](img/stencila-mini-spreadsheet.png)
+
+Stencila Spreadsheets make it possible for [extending the spreadsheet functionality](computation/functions.md#add-new-functions) by registering functions written in other
 programming languages :sparkles: . Using simple Stencila API researchers can wrap up functions written in R, Python and other
 languages, register them and thus make them available through the Stencila Spreadsheet interface.
 
-See the demo of registering an R function with Stencila Spreadsheet:
-![Registering R Functions with Stencila Spreadsheet](img/registering-functions.gif)
 
 <hr />
 **Q** I would like to try out Stencila but don't want to (or can't) install the whole suite on my machine. What can I do?<br/>

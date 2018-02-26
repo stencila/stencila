@@ -1,11 +1,14 @@
-# Operations
+# Operations :sparkles:
 
-Computations are done on data using _operations_. Operations are just data encapulationg what should be done to what.
+> :sparkles: Currently, the operations in Stencila are still under development and
+> many of the described here features may work only in the development version. We
+> welcome any [help with Stencila development](CONTRIBUTING.md)!
+
+Stencila performs computations on data using _operations_.
+Operations are objects encapsulating what should be done to what.
 
 
-
-
-There are 
+There are
 
 - `set`
 - `get`
@@ -17,6 +20,9 @@ Commands are just values. Homoiconic - code is data
 ## Set
 
 
+## Get
+
+## Call
 
 ## Function
 
@@ -50,8 +56,8 @@ is equivalent to executing a `call` of function `multiply` like this,
 
 ```mini
 execute {
-  type: 'call', 
-  func: {type: 'get', name: 'multiply'}, 
+  type: 'call',
+  func: {type: 'get', name: 'multiply'},
   args: [ 3, 4 ]
 }
 ```
@@ -62,12 +68,12 @@ An here's a slightly more complex example of a function which multiplies a numbe
 {
   type: 'function',
   pars: [{
-    name: 'x', 
+    name: 'x',
     type: 'number'
   }],
   body: [{
-    type: 'call', 
-    name: {type: 'get', name: 'multiply'}, 
+    type: 'call',
+    name: {type: 'get', name: 'multiply'},
     args: [
       {type: 'get', 'x'},
       {type: 'get', 'x'}
@@ -82,12 +88,12 @@ An here's a slightly more complex example of a function which multiplies a numbe
 {
   type: 'function',
   pars: [{
-    name: 'x', 
+    name: 'x',
     type: 'number'
   }],
   body: [{
-    type: 'external', 
-    lang: 'r', 
+    type: 'external',
+    lang: 'r',
     code: 'x * x'
   }]
 }
@@ -101,5 +107,3 @@ function (*) r >>>
   x * x
 <<<
 ```
-
-
