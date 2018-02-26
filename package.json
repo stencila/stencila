@@ -50,7 +50,7 @@
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
-    "dar-server": "0.4.0",
+    "dar-server": "0.4.1",
     "docsify-cli": "^4.2.0",
     "eslint": "^3.12.2",
     "istanbul": "^0.4.5",
