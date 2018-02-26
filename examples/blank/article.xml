@@ -8,15 +8,10 @@
         <article-title></article-title>
       </title-group>
       <abstract>
-        <p>Enter abstract</p>
       </abstract>
     </article-meta>
   </front>
   <body>
-    <sec>
-      <title>Heading</title>
-      <p>First paragraph</p>
-    </sec>
   </body>
   <back>
   </back>

@@ -1,8 +1,13 @@
-import { XMLDocument } from 'substance'
+import { XMLDocument, uuid } from 'substance'
 import SheetSchema from './SheetSchema'
 import { getCellLabel } from './sheetHelpers'
 
 export default class SheetDocument extends XMLDocument {
+
+  constructor(...args) {
+    super(...args)
+    this.UUID = uuid()
+  }
 
   getDocTypeParams() {
     return SheetSchema.getDocTypeParams()

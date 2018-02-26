@@ -30,10 +30,10 @@ export default function setupStencilaContext(archive) {
     let entries = archive.getDocumentEntries()
     forEach(entries, entry => {
       let { editorSession, id, type } = entry
-      if (type === 'application/jats4m') {
+      if (type === 'article') {
         let engineAdapter = new ArticleEngineAdapter(editorSession)
         engineAdapter.connect(host.engine, { id })
-      } else if (type === 'application/sheetml') {
+      } else if (type === 'sheet') {
         let engineAdapter = new SheetEngineAdapter(editorSession)
         engineAdapter.connect(host.engine, { id })
       }

@@ -14,12 +14,30 @@ import CellRangesOverlay from './CellRangesOverlay'
 
 export default class SheetEditor extends AbstractEditor {
 
-  constructor(...args) {
-    super(...args)
+  _initialize(props) {
+    super._initialize(props)
+
     // a context for FormulaBar and FormulaEditor
     this._formulaEditorContext = this._createFormulaEditorContext()
     // true when the cursor is either in the FormularBar or the FormulaEditor
     this._isEditing = false
+
+    const editorSession = props.editorSession
+    if (platform.inBrowser) {
+      DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
+    }
+    editorSession.onUpdate('selection', this._onSelectionChange, this)
+    editorSession.onUpdate('document', this._onSheetStateChange, this, {
+      path: ['sheet.state']
+    })
+
+    this._formulaEditorContext.editorSession.onUpdate('selection', this._onCellEditorSelectionChange, this)
+  }
+
+  didMount() {
+    super.didMount()
+    this._postRender()
+
     this.handleActions({
       'updateCell': this._updateCell,
       'cancelCellEditing': this._cancelCellEditing,
@@ -28,6 +46,38 @@ export default class SheetEditor extends AbstractEditor {
       'selectAll': this._selectAll,
       'executeCommand': this._executeCommand
     })
+  }
+
+  /*
+    An extra render cycle, once we know the sheet's dimensions
+  */
+  _postRender() {
+    this._postrendering = true
+    this.rerender()
+    this._postrendering = false
+    this._selectFirstCell()
+  }
+
+  /*
+    Like in didMount we need to call _postRender when the component has been
+    updated (e.g. new props). But we need to guard it, as the explicit in
+    rerender also triggers a didUpdate call.
+  */
+  didUpdate() {
+    if (!this._postrendering) {
+      this._postRender()
+    }
+  }
+
+  _selectFirstCell() {
+    const editorSession = this.props.editorSession
+    // set the selection into the first cell
+    // Doing this delayed to be in a new flow
+    setTimeout(() => {
+      editorSession.setSelection(
+        this.getSheetComponent().selectFirstCell()
+      )
+    }, 0)
   }
 
   getChildContext() {
@@ -54,33 +104,8 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
-  didMount() {
-    super.didMount()
-
-    const editorSession = this.props.editorSession
-    if (platform.inBrowser) {
-      DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
-    }
-    editorSession.onUpdate('selection', this._onSelectionChange, this)
-    editorSession.onUpdate('document', this._onSheetStateChange, this, {
-      path: ['sheet.state']
-    })
-
-    this._formulaEditorContext.editorSession.onUpdate('selection', this._onCellEditorSelectionChange, this)
-
-    this.rerender()
-
-    // set the selection into the first cell
-    // Doing this delayed to be in a new flow
-    setTimeout(() => {
-      editorSession.setSelection(
-        this.getSheetComponent().selectFirstCell()
-      )
-    }, 0)
-  }
-
-  dispose() {
-    super.dispose()
+  _dispose() {
+    super._dispose()
     const editorSession = this.props.editorSession
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window).off(this)
@@ -162,7 +187,7 @@ export default class SheetEditor extends AbstractEditor {
         // LEGACY
         // TODO: the displayMode is app specific
         // so it should be set on the sc-sheet-editor
-        // and the CSS should be reflect this
+        // and the CSS should reflect this
         .addClass('sm-mode-'+this.state.displayMode)
     } else {
       return $$('div')
@@ -297,6 +322,7 @@ export default class SheetEditor extends AbstractEditor {
 
     let formulaEditorSession = this._formulaEditorContext.editorSession
     let cell = this._getAnchorCell()
+
     if (cell) {
       this._setFormula(cell.textContent)
     }

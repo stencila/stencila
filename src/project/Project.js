@@ -99,7 +99,7 @@ export default class Project extends Component {
     let editorSession = da.getEditorSession(documentId)
     let contextComponent = this._getContextComponent($$)
 
-    if (documentType === 'application/jats4m') {
+    if (documentType === 'article') {
       el.append(
         $$(TextureEditorPackage.Editor, {
           editorSession,
@@ -108,7 +108,7 @@ export default class Project extends Component {
         }).ref('editor')
           .addClass('sc-article-editor')
       )
-    } else if (documentType === 'application/sheetml') {
+    } else if (documentType === 'sheet') {
       el.append(
         $$(SheetEditor, {
           editorSession,
@@ -125,12 +125,12 @@ export default class Project extends Component {
   _addDocument(type) {
     let name
     let xml
-    if (type === 'application/sheetml') {
+    if (type === 'sheet') {
       name = 'Untitled Sheet'
-      xml = window.vfs.readFileSync('blank/blank-sheet.xml')
-    } else if (type === 'application/jats4m') {
+      xml = window.vfs.readFileSync('blank/sheet.xml')
+    } else if (type === 'article') {
       name = 'Untitled Article'
-      xml = window.vfs.readFileSync('blank/blank-article.xml')
+      xml = window.vfs.readFileSync('blank/article.xml')
     }
     let archive = this._getDocumentArchive()
     let newDocumentId = archive.addDocument(type, name, xml)
