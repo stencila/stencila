@@ -12,7 +12,7 @@
 - Contributing
   - [Guidelines](CONTRIBUTING.md)
   - [Architecture](architecture/README.md)
-- [Computation](computation/README.md)
+- Computation
   - [Data](computation/data.md)
   - [Operations](computation/operations.md)
   - [Contexts](computation/contexts.md)
@@ -24,4 +24,4 @@
   - [Python](languages/py/README.md)
   - [R](languages/r/README.md)
   - [SQL](languages/sql/README.md)
-- Environments
+- Images
