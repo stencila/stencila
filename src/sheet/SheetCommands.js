@@ -1,4 +1,4 @@
-import { Command, DocumentChange } from 'substance'
+import { Command } from 'substance'
 import { getRange } from './sheetHelpers'
 
 class RowsCommand extends Command {
@@ -248,42 +248,6 @@ export class SetTypeCommand extends Command {
         })
       }
     }
-  }
-}
-
-export class ChangeDisplayModeCommand extends Command {
-  getCommandState(params) {
-    const sheet = params.editorSession.getDocument()
-    const state = sheet.getState()
-    if (state) {
-      // TODO: we should get default value from outside
-      const displayMode = state.displayMode
-      return {
-        disabled: false,
-        newMode: this.config.displayMode,
-        active: this.config.displayMode === displayMode
-      }
-    } else {
-      return {
-        disabled: true
-      }
-    }
-  }
-
-  execute(params) {
-    const editorSession = params.editorSession
-    const sheet = editorSession.getDocument()
-    // TODO need a better API for this
-    let sheetState = sheet.getState()
-    sheetState.displayMode = this.config.displayMode
-    editorSession._setDirty('document')
-    editorSession._setDirty('commandStates')
-    let change = new DocumentChange([], {}, {})
-    change._extractInformation()
-    change.updated['sheet.state'] = true
-    editorSession._change = change
-    editorSession._info = {}
-    editorSession.performFlow()
   }
 }
 
