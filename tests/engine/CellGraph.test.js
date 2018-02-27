@@ -6,13 +6,6 @@ import { SyntaxError, RuntimeError } from '../../src/engine/CellErrors'
 import { BROKEN, BLOCKED, WAITING, READY, OK, FAILED, toString } from '../../src/engine/CellStates'
 
 /*
-
-TODO: add tests
-- detect duplicate export
-*/
-
-
-/*
  add a single cell with no deps
  should be READY after first update
 */
@@ -43,12 +36,12 @@ test('CellGraph: two linked cells', t => {
   _checkUpdates(t, updates, ['cell1', 'cell2'])
   _checkStates(t, cells, [READY, WAITING])
 
-  g.setResult('cell1', 1)
+  g.setValue('cell1', 1)
   updates = g.update()
   _checkUpdates(t, updates, ['cell1', 'cell2'])
   _checkStates(t, cells, [OK, READY])
 
-  g.setResult('cell2', 2)
+  g.setValue('cell2', 2)
   updates = g.update()
   _checkUpdates(t, updates, ['cell2'])
   _checkStates(t, cells, [OK, OK])
@@ -74,22 +67,22 @@ test('CellGraph: Y shaped graph', t => {
   _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3', 'cell4'])
   _checkStates(t, cells, [READY, READY, WAITING, WAITING])
 
-  g.setResult('cell1', 1)
+  g.setValue('cell1', 1)
   updates = g.update()
   _checkUpdates(t, updates, ['cell1'])
   _checkStates(t, cells, [OK, READY, WAITING, WAITING])
 
-  g.setResult('cell2', 2)
+  g.setValue('cell2', 2)
   updates = g.update()
   _checkUpdates(t, updates, ['cell2', 'cell3'])
   _checkStates(t, cells, [OK, OK, READY, WAITING])
 
-  g.setResult('cell3', 3)
+  g.setValue('cell3', 3)
   updates = g.update()
   _checkUpdates(t, updates, ['cell3', 'cell4'])
   _checkStates(t, cells, [OK, OK, OK, READY])
 
-  g.setResult('cell4', 6)
+  g.setValue('cell4', 6)
   updates = g.update()
   _checkUpdates(t, updates, ['cell4'])
   _checkStates(t, cells, [OK, OK, OK, OK])
@@ -116,22 +109,22 @@ test('CellGraph: Diamond', t => {
   _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3', 'cell4'])
   _checkStates(t, cells, [READY, WAITING, WAITING, WAITING])
 
-  g.setResult('cell1', 2)
+  g.setValue('cell1', 2)
   updates = g.update()
   _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3'])
   _checkStates(t, cells, [OK, READY, READY, WAITING])
 
-  g.setResult('cell2', 4)
+  g.setValue('cell2', 4)
   updates = g.update()
   _checkUpdates(t, updates, ['cell2'])
   _checkStates(t, cells, [OK, OK, READY, WAITING])
 
-  g.setResult('cell3', 6)
+  g.setValue('cell3', 6)
   updates = g.update()
   _checkUpdates(t, updates, ['cell3', 'cell4'])
   _checkStates(t, cells, [OK, OK, OK, READY])
 
-  g.setResult('cell4', 10)
+  g.setValue('cell4', 10)
   updates = g.update()
   _checkUpdates(t, updates, ['cell4'])
   _checkStates(t, cells, [OK, OK, OK, OK])
@@ -154,7 +147,7 @@ test('CellGraph: missing link', t => {
   let missingLink = new Cell({ id: 'cell2', inputs: ['x'], output: 'y' })
   cells.splice(1, 0, missingLink)
   g.addCell(missingLink)
-  g.setResult('cell1', 1)
+  g.setValue('cell1', 1)
   updates = g.update()
   _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3'])
   _checkStates(t, cells, [OK, READY, WAITING])
@@ -206,7 +199,7 @@ test('CellGraph: blocked cell', t => {
   _checkUpdates(t, updates, ['cell2', 'cell3'])
   _checkStates(t, cells, [READY, BROKEN, BLOCKED])
 
-  g.setResult('cell1', 1)
+  g.setValue('cell1', 1)
   updates = g.update()
   _checkUpdates(t, updates, ['cell1'])
   _checkStates(t, cells, [OK, BROKEN, BLOCKED])
@@ -235,7 +228,7 @@ test('CellGraph: failed evaluation', t => {
   let updates = g.update()
   _checkStates(t, cells, [READY, WAITING, WAITING])
 
-  g.setResult('cell1', undefined, [new RuntimeError('ERROR')])
+  g.addError('cell1', new RuntimeError('ERROR'))
   updates = g.update()
   _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3'])
   _checkStates(t, cells, [FAILED, BLOCKED, BLOCKED])
@@ -259,7 +252,7 @@ test('CellGraph: changing inputs', t => {
   let updates = g.update()
   _checkStates(t, cells, [READY, READY, BROKEN])
 
-  g.setResult('cell1', 1)
+  g.setValue('cell1', 1)
   updates = g.update()
   _checkUpdates(t, updates, ['cell1'])
   _checkStates(t, cells, [OK, READY, BROKEN])
@@ -292,7 +285,7 @@ test('CellGraph: changing output', t => {
   let updates = g.update()
   _checkStates(t, cells, [READY, BROKEN, BROKEN])
 
-  g.setResult('cell1', 1)
+  g.setValue('cell1', 1)
   updates = g.update()
   _checkUpdates(t, updates, ['cell1'])
   _checkStates(t, cells, [OK, BROKEN, BROKEN])
@@ -379,6 +372,91 @@ test('CellGraph: name collision', t => {
   t.end()
 })
 
+/*
+  Cells with side effects are primarily updated in the order of their occurrence.
+*/
+test('CellGraph: cells with side effects', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', hasSideEffects: true, next: 'cell2' }),
+    new Cell({ id: 'cell2', hasSideEffects: true, prev: 'cell1' })
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2'])
+  _checkStates(t, cells, [READY, WAITING])
+
+  g.setValue('cell1', 1)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2'])
+  _checkStates(t, cells, [OK, READY])
+
+  t.end()
+})
+
+/*
+  Cells with side effects can be mixed with pure ones.
+  While for cells without side-effects a minimal update can be done,
+  for cells with side-effects all subsequent cells (with side-effects) must be invalidated.
+  Example:
+  ```
+  x = 2
+  y = 3
+  foo(x,y)
+  z = 4
+  bar(x,z)
+  3*x
+  ```
+  Consider every line as a single cell, and 'foo()' and 'bar()' having side-effects.
+  Because 'bar()' is called after 'foo()', and 'foo()' might have an unknown side-effect that might affect 'bar()',
+  we will re-evaluate 'bar()' whenever 'foo(x,y)' has changed.
+
+  TODO: discuss if this is really what we want. At least we should make sure, that these cells are always run in the correct order
+  -> which is an indicator for automatically invalidating the 'bar()'
+*/
+test('CellGraph: mixing cells with/without side-effects', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell({ id: 'cell1', output: 'x' }),
+    new Cell({ id: 'cell2', output: 'y' }),
+    new Cell({ id: 'cell3', inputs: ['x', 'y'], hasSideEffects: true, next: 'cell5' }),
+    new Cell({ id: 'cell4', output: 'z' }),
+    new Cell({ id: 'cell5', inputs: ['x', 'z'], hasSideEffects: true, prev: 'cell3' }),
+    new Cell({ id: 'cell6', inputs: ['x'] })
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3', 'cell4', 'cell5', 'cell6'])
+  _checkStates(t, cells, [READY, READY, WAITING, READY, WAITING, WAITING])
+
+  g.setValue('cell1', 1)
+  g.setValue('cell2', 2)
+  g.setValue('cell4', 4)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3', 'cell4', 'cell6'])
+  // it is important here, that cell5 is not READY, because it must wait for 'cell3' first
+  _checkStates(t, cells, [OK, OK, READY, OK, WAITING, READY])
+
+  // 'evaluating' cell6 so that we can see that subsequent updates do not affect this cell
+  g.setValue('cell6', 6)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell6'])
+  _checkStates(t, cells, [OK, OK, READY, OK, WAITING, OK])
+
+  g.setValue('cell3', 3)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell3', 'cell5'])
+  _checkStates(t, cells, [OK, OK, OK, OK, READY, OK])
+
+  g.setValue('cell5', 5)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell5'])
+  _checkStates(t, cells, [OK, OK, OK, OK, OK, OK])
+
+  t.end()
+})
 
 /*
 test('CellGraph: TEMPLATE', t => {
@@ -393,7 +471,7 @@ test('CellGraph: TEMPLATE', t => {
   _checkUpdates(t, updates, ['cell1', 'cell2'])
   _checkStates(t, cells, [READY, WAITING])
 
-  g.setResult('cell1', 1)
+  g.setValue('cell1', 1)
   updates = g.update()
   _checkUpdates(t, updates, ['cell1', 'cell2'])
   _checkStates(t, cells, [OK, READY])

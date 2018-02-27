@@ -9,6 +9,10 @@ export class SyntaxError extends CellError {
   get type() { return 'engine' }
 }
 
+export class ContextError extends CellError {
+  get type() { return 'engine' }
+}
+
 export class GraphError extends CellError {
   get type() { return 'graph' }
 }
@@ -28,5 +32,5 @@ export class RuntimeError extends CellError {
 }
 
 export class ValidationError extends CellError {
-  get type() { return 'validation' }
+  get type() { return 'runtime' }
 }

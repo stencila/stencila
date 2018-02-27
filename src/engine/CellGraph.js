@@ -14,13 +14,17 @@ export default class CellGraph {
     // symbol -> cell id; which symbol is provided by which cell
     this._out = {}
     // to record which cells have been affected (batched update)
-    // state changes are propagated through the graph in topological order
-    // 'structureChanged': all cells which should be re-examined regarding
-    // structural consistency.
+    // - 'stateChanged': an error has been added or the state has been updated otherwise
+    // - 'structureChanged': cells that have changed w.r.t. inputs or output, and thus need to be checked for structural consistency
+    // - 'valueUpdated': all cells that have a new value or a runtime error, i.e. the new state is OK or FAILED.
+    // TODO: shouldn't be 'valueUpdated' just be the same as 'stateChanged'?
+    this._stateChanged = new Set()
     this._structureChanged = new Set()
-    // 'valueUpdated': all cells that have a new value or a runtime error,
-    // i.e. the new state is OK or FAILED.
     this._valueUpdated = new Set()
+  }
+
+  getCell(id) {
+    return this._cells[id]
   }
 
   addCell(cell) {
@@ -29,12 +33,22 @@ export default class CellGraph {
     this._cells[id] = cell
     this._structureChanged.add(id)
 
-    if (cell.inputs.size > 0) {
+    if (cell.inputs && cell.inputs.size > 0) {
       this._registerInputs(id, new Set(), cell.inputs)
     }
     if (cell.output) {
       this._registerOutput(id, null, cell.output)
     }
+  }
+
+  getValue(symbol) {
+    let cellId = this._out[symbol]
+    if (!cellId) return undefined
+    const cell = this._cells[cellId]
+    if (!cell) throw new Error('Internal error: cell does not exist.')
+    // Note, that the cell value is actually not interpreted in any way by the graph
+    // it is maintained by the engine.
+    return cell.value
   }
 
   setInputs(id, newInputs) {
@@ -64,25 +78,47 @@ export default class CellGraph {
     }
   }
 
+  // this is used for cells, which can not be analysed or are do have side effects
+  // and thus must be evaluated in a specific order
+  setSideEffects(id, val) {
+    let cell = this._cells[id]
+    cell.hasSideEffects = val
+    this._structureChanged.add(id)
+  }
+
+  setNext(id, nextId) {
+    let cell = this._cells[id]
+    cell.next = nextId
+    // TODO do we need to consider this a structural change?
+    this._structureChanged.add(id)
+    this._structureChanged.add(nextId)
+  }
+
+  setPred(id, prevId) {
+    let cell = this._cells[id]
+    cell.prev = prevId
+    // TODO do we need to consider this a structural change?
+    this._structureChanged.add(id)
+    this._structureChanged.add(prevId)
+  }
+
   addError(id, error) {
     let cell = this._cells[id]
     cell.errors.push(error)
-    this._structureChanged.add(id)
+    this._stateChanged.add(id)
   }
 
   clearErrors(id, type) {
     let cell = this._cells[id]
     cell.clearErrors(type)
-    this._structureChanged.add(id)
+    this._stateChanged.add(id)
   }
 
-  setResult(id, value, errors) {
+  setValue(id, value) {
     let cell = this._cells[id]
     cell.value = value
-    // TODO: make sure that this is only set when we want it
-    if (errors && errors.length > 0) {
+    if (cell.hasErrors()) {
       cell.state = FAILED
-      cell.addErrors(errors)
     } else {
       cell.state = OK
     }
@@ -171,6 +207,7 @@ export default class CellGraph {
   update() {
     // a set of cell ids that have been updated
     let updated = new Set()
+    let stateChanged = this._stateChanged
 
     // examine the graph structure
     // Note: we should not need to update the whole graph, still, we can do an
@@ -184,20 +221,25 @@ export default class CellGraph {
       // cells into BROKEN state
       this._computeDependencyLevel(id, levels, updated)
       updated.add(id)
+      // mark cells with structure changes for state update
+      stateChanged.add(id)
     })
 
     if (this._valueUpdated.size > 0) {
-      this._valueUpdated.forEach(id => updated.add(id))
-      // propagate state updates starting at cells after the cells that had a value update
-      this._updateStates(this._getFollowSet(this._valueUpdated), updated)
+      this._valueUpdated.forEach(id => {
+        updated.add(id)
+      })
+      // mark all followers for a state update
+      this._getFollowSet(this._valueUpdated).forEach(id => stateChanged.add(id))
     }
 
-    if (this._structureChanged.size > 0) {
+    if (stateChanged.size > 0) {
       // then propagate state updates for all structural changes
-      this._updateStates(this._structureChanged, updated)
+      this._updateStates(stateChanged, updated)
     }
 
 
+    this._stateChanged.clear()
     this._structureChanged.clear()
     this._valueUpdated.clear()
 
@@ -236,6 +278,14 @@ export default class CellGraph {
         return this._computeDependencyLevel(inputId, levels, updated, trace)
       }
     })
+    // EXPERIMENTAL: considering an explicitly set predecessor to preserve natural order where appropriate
+    if (cell.prev) {
+      if (levels.hasOwnProperty(cell.prev)) {
+        inputLevels.push(levels[cell.prev])
+      } else {
+        inputLevels.push(this._computeDependencyLevel(cell.prev, levels, updated, trace))
+      }
+    }
     let level = inputLevels.length > 0 ? Math.max(...inputLevels) + 1 : 0
     levels[id] = level
     cell.level = level
@@ -273,30 +323,41 @@ export default class CellGraph {
   }
 
   _updateCellState(cell, updated) {
+    // invariant detection of BROKEN state
     if (cell.hasError('engine') || cell.hasError('graph')) {
       if (cell.state === BROKEN) return
       cell.state = BROKEN
       updated.add(cell.id)
       return
     }
-    if (cell.state === BROKEN) {
-      cell.state = UNKNOWN
+    // invariant detection of FAILED state
+    if (cell.hasErrors()) {
+      if (cell.state === FAILED) return
+      cell.state = FAILED
+      updated.add(cell.id)
+      return
     }
     let inputs = Array.from(cell.inputs)
-    if (inputs.length === 0) {
+    if (!cell.hasSideEffects && inputs.length === 0) {
       cell.state = READY
       return
     }
     let inputStates = inputs.map(s => {
-      let cell = this._cells[this._resolve(s)]
-      if (cell) {
+      let _cell = this._cells[this._resolve(s)]
+      if (_cell) {
         // NOTE: for development we kept the less performant but more readable
         // representation as symbols, instead of ints
-        return toInteger(cell.state)
+        return toInteger(_cell.state)
       } else {
         return undefined
       }
     }).filter(Boolean)
+    if (cell.hasSideEffects && cell.prev) {
+      let _cell = this._cells[cell.prev]
+      if (_cell) {
+        inputStates.push(toInteger(_cell.state))
+      }
+    }
     let inputState = Math.min(...inputStates)
     // Note: it is easier to do this in an arithmetic way
     // than in boolean logic
@@ -317,6 +378,7 @@ export default class CellGraph {
   _resolve(symbol) {
     let out = this._out[symbol]
     if (out) {
+      // Note: `out` is an array if multiple cells produce the same variable
       if (isString(out)) return out
       else return out[0]
     }
@@ -331,6 +393,17 @@ export default class CellGraph {
         let followers = this._ins[cell.output]
         if (followers) {
           followers.forEach(id => followSet.add(id))
+        }
+      }
+      // EXPERIMENTAL: trying to trigger an update when a cell with side-effects is updated
+      if (cell.hasSideEffects && cell.next) {
+        // find next cell with side effects
+        for (let nextId = cell.next; nextId; nextId = cell.next) {
+          let nextCell = this._cells[nextId]
+          if (nextCell && nextCell.hasSideEffects) {
+            followSet.add(nextId)
+            break
+          }
         }
       }
     })
