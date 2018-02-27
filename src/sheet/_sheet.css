@@ -154,6 +154,7 @@
 }
 
 .sc-sheet td {
+  overflow: hidden;
   white-space: pre-wrap;
   overflow-wrap: break-word;
   border: 1px solid var(--sheet-cell-bordercolor);
