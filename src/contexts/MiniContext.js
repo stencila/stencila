@@ -83,6 +83,15 @@ export default class MiniContext {
   }
 
   _analyseCode(code) {
+    if (!code) {
+      return {
+        inputs: [],
+        output: undefined,
+        messages: [],
+        tokens: [],
+        nodes: []
+      }
+    }
     let expr = parse(code)
     let inputs, output, tokens, nodes
     let messages = []
@@ -93,36 +102,11 @@ export default class MiniContext {
       })
     }
     if (expr.inputs) {
-      inputs = expr.inputs.map((node) => {
-        switch(node.type) {
-          case 'var': {
-            return {
-              type: 'var',
-              name: node.name
-            }
-          }
-          case 'cell': {
-            return {
-              type: 'cell',
-              row: node.row,
-              col: node.col,
-              scope: node.sheetId
-            }
-          }
-          case 'range': {
-            return {
-              type: 'range',
-              startRow: node.startRow,
-              startCol: node.startCol,
-              endRow: node.endRow,
-              endCol: node.endCol,
-              scope: node.sheetId
-            }
-          }
-          default:
-            throw new Error('Invalid input type.')
-        }
-      })
+      // TODO: we are simplifying the requirements regarding
+      // extracted symbols. Simple strings are fine
+      // TODO: this should just return symbol strings in
+      // transclusion syntax
+      inputs = expr.inputs.map(node => node.toString())
     }
     if (expr.name) {
       output = expr.name

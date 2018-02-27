@@ -1,452 +1,166 @@
-import { uuid, isEqual, forEach } from 'substance'
-import { getCellState, getCellValue, getCellLabel, getColumnLabel } from '../shared/cellHelpers'
-import { gather } from '../value'
-import { INITIAL, ANALYSED, EVALUATED,
-  PENDING, INPUT_ERROR, INPUT_READY,
-  RUNNING, ERROR, OK,
-  deriveCellStatus
-} from './CellState'
-// HACK: using DocumentChange to communicate node state changes
-import { DocumentChange } from 'substance'
+import { uuid, isEqual } from 'substance'
 import CellGraph from './CellGraph'
+import { ContextError, RuntimeError } from './CellErrors'
+import { READY } from './CellStates'
+import Cell from './Cell'
 
+/*
+  WIP
+  The Engine will be run in a worker, together with a MiniContext and a JsContext
+
+
+  Possible Errors:
+  - language context is not available
+  - cell expression has syntax errors
+  - cell evaulation yields runtime errors (including validation)
+*/
 export default class Engine {
 
   constructor(host) {
     this._host = host
-
-    // dependency graph
     this._graph = new CellGraph()
 
-    this._scopes = {}
-
-    // used to make sure that an asynchronous
-    // job gets ignored, if another job has been
-    // scheduled instead
-    this._tokens = {}
-
-    // whenever a cell goes is ANALYSED and all inputs are ready
-    // it will be added to candidates
-    this._candidates = new Set()
+    // a list of change requests
+    this._requests = []
+    // for every (changed) cell there is information what to do next
+    // not including cells that have not been changed
+    // the order does not matter here, as dependencies are managed in the graph
+    // Note: using a hash, because there can be only one valid next action for a single cell
+    this._state = {}
+    // the engine records any kind of changes first, and then decides
+    // what to do actually, actions on the same cell can supersede each other
   }
 
-  getHost() {
-    return this._host
-  }
-
-  registerDocument(uuid, doc) {
-    this._graph.registerDocument(uuid, doc)
-  }
-
-  registerScope(name, uuid) {
-    this._scopes[name] = uuid
-  }
-
-  registerCell(cell) {
-    if (this._graph.contains(cell.id)) {
-      throw new Error('Cell with the same id already exists.')
-    }
+  addCell(cellData) {
+    let cell = new Cell(cellData)
     this._graph.addCell(cell)
-
-    let cellState = getCellState(cell)
-    cellState._engineState = INITIAL
-    deriveCellStatus(cellState)
-    this._notifyCells(cell.id)
-
-    this._analyse(cell)
+    this._addRequest(cell.id, 'updateCell', { cell })
   }
 
-  updateCell(cellId) {
-    // console.log('updating cell', cellId)
-    let cell = this._getCell(cellId)
-    let cellState = getCellState(cell)
-    cellState._engineState = INITIAL
-    deriveCellStatus(cellState)
-    this._notifyCells(cell.id)
-
-    this._analyse(cell)
+  step() {
+    // take all requests, consider superseded ones
+    // then update the graph
+    // then trigger actions
+    // and update the app
   }
 
-  updateInput(cellId) {
-    this._updateDependencies(cellId)
-    this._triggerScheduler()
+  _addRequest(id, action, data) {
   }
 
-  removeCell(cellId) {
-    // TODO: need to reorganize the dep graph
-    let cell = this._getCell(cellId)
-    if (cell) {
-      this._candidates.delete(cell)
-      this._updateDependencies(cellId)
-      this._graph.removeCell(cellId)
+  _updateCell(cell) {
+    const graph = this._graph
+    // analyse the source code
+    const id = cell.id
+    const source = cell.source
+    const docId = cell.docId
+    // document | sheet
+    // TODO: document cells can be multi-line, and have a special semantics for exposing variables
+    // sheet expressions must be single-line and have a prefix `(ID)?=`
+    // variables, simple expressions
+    const lang = cell.lang
+    let context, token
+
+    return this._getContext(lang)
+    .then(res => {
+      if (res instanceof Error) {
+        const msg = `Could not get context for ${lang}`
+        console.error(msg)
+        graph.addError(id, new ContextError(msg, { lang }))
+        return
+      }
+      context = res
+    })
+    .then(() => {
+      token = uuid()
+      this._tokens[id] = token
+      return context.analyseCode(source)
+    })
+    .then(res => {
+      // TODO: we want to use 'hidden' cells with explicit dependencies
+      // for range symbols (or column/row symbols)
+
+      // console.log('ANALYSED cell', cell, res)
+      // skip if this cell has been rescheduled in the meantime
+      if (this._tokens[id] !== token) return
+      // transform the extracted symbols into fully-qualified symbols
+      // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
+      let { inputs, output } = this._compile(res, docId)
+      const oldState = graph.getCell(id)
+      let oldOutput = oldState.output
+      let oldInputs = oldState.inputs
+      // only update the graph if inputs or output have changed
+      if (!isEqual(oldOutput, output)) {
+        graph.setOutput(id, output)
+      }
+      if (!isEqual(oldInputs, inputs)) {
+        graph.setInputs(id, inputs)
+      }
+    })
+  }
+
+  _compile(res, docId = 'global') {
+    // TODO: create CellSymbol instances by 'parsing' the received string symbols
+    let inputs = new Set()
+    let output = undefined
+    return { inputs, output }
+  }
+
+  _evaluate(cell) {
+    console.log('evaluating cell', cell.id)
+    const graph = this._graph
+    const lang = cell.lang
+    const source = cell.source
+    let token
+    this._getContext(lang)
+    .then(context => {
+      token = uuid()
+      this._tokens[cell.id] = token
+      // console.log('EXECUTING cell', cell.id, source)
+      let inputs = this._getInputValues(cell.inputs)
+      return context.executeCode(source, inputs)
+    })
+    .then(res => {
+      if (!this._tokens[cell.id] === token) return
+      // console.log('executed cell', cell.id, res)
+      graph.setResult(cell.id, res.value, this._createRuntimeErrors(res.messages))
+    })
+  }
+
+  /*
+    Provides packed values stored in a hash by their name.
+    Ranges and transcluded symbols are stored via their mangled name.
+
+    > Attention: this requires that cell code is being transpiled accordingly.
+
+    ```
+    $ graph._getInputValues(['x', 'sheet1!A1:B3'])
+    {
+      'x': ...,
+      'sheet1_A1_B3': ...
     }
+    ```
+  */
+  _getInputValues(inputs) {
+    const graph = this._graph
+    let result = {}
+    inputs.forEach(symbol => {
+      let val = graph.getValue(symbol)
+      result[symbol] = val
+    })
+    return result
   }
 
   _getContext(lang) {
     return this._host.createContext(lang)
   }
 
-  _getCell(cellId) {
-    let cell = this._graph.getCell(cellId)
-    if (!cell) throw new Error(`Unknown cell ${cellId}`)
-    return cell
-  }
-
-  _analyse(cell) {
-    let cellState = getCellState(cell)
-    let lang = cell.language
-    this._getContext(lang)
-    .then((context) => {
-      if (context instanceof Error) {
-        console.error('Could not get context for %s', lang)
-        cellState.messages = [context]
-        deriveCellStatus(cellState)
-        this._notifyCells([cell.id])
-        return
-      }
-
-      let token = uuid()
-      this._tokens[cell.id] = token
-      let source = cell.source || ''
-      return context.analyseCode(source).then((res) => {
-        // console.log('ANALYSED cell', cell, res)
-        // skip if this cell has been rescheduled in the meantime
-        if (this._tokens[cell.id] !== token) return
-
-        // takes local symbol names and compiles into
-        // symbols for the shared value scope
-        // e.g. variable 'x' in 'doc1' is compiled to 'doc1.x'
-        // or 'A1:A2' is compiled to ['sheet1.A1', 'sheet1.A2']
-        let { inputs, output } = this._compile(res.inputs, res.output, cell.docId)
-        let oldOutput = cellState.output
-        let oldInputs = cellState.inputs
-
-        cellState._engineState = ANALYSED
-        cellState.inputs = inputs
-        cellState.output = output
-        cellState.messages = res.messages
-        deriveCellStatus(cellState)
-
-        // FIXME: to be able to broadcast changes to cells
-        // we need to make the DepGraph based on cell ids, not on symbols
-        if (!isEqual(oldOutput, output) || !isEqual(oldInputs, inputs)) {
-          this._graph.updateCell(cell)
-        }
-
-        // if there was no error before be
-        if (cellState.status === PENDING) {
-          // TODO: we should not implicitly schedule : this call also
-          cellState.status = this._getInputState(cell)
-          if (cellState.status === INPUT_READY) {
-            this._candidates.add(cell)
-          } else {
-            this._candidates.delete(cell)
-          }
-        }
-        this._updateDependencies(cell.id)
-
-        this._triggerScheduler()
+  _createRuntimeErrors(messages) {
+    if (messages) {
+      return messages.map(msg => {
+        return new RuntimeError(msg)
       })
-    })
-  }
-
-  _compile(inputs, output, docId) {
-    // console.log('_compile', inputs, output, docId)
-    let result = {
-      inputs: inputs ? inputs.map((input) => {
-        let _docId
-        if (input.scope) {
-          _docId = this._scopes[input.scope]
-          if (!_docId) {
-            throw new Error(`Unknown document ${input.scope}`)
-          }
-        } else {
-          _docId = docId
-        }
-        input.docId = _docId
-        return input
-      }) : []
-    }
-    if (output) {
-      result.output = output
-    }
-    return result
-  }
-
-  _triggerScheduler() {
-    setTimeout(() => {
-      // TODO: we should avoid that the scheduler gets stuck
-      // because of exceptions somewhere in the code
-      // maybe we should trigger scheduleEvaluation() via a background process
-      this._scheduleEvaluation()
-    })
-  }
-
-  _scheduleEvaluation() {
-    let candidates = this._candidates
-    if (this._running) {
-      return
-    }
-    this._running = true
-    try {
-      while(candidates.size > 0) {
-        this._step()
-      }
-    } finally {
-      this._running = false
+    } else {
+      return []
     }
   }
-
-  _step(cb) {
-    const candidates = this._candidates
-    if (candidates.size === 0) return
-    let cell = candidates.values().next().value
-    candidates.delete(cell)
-
-    let cellId = cell.id
-    // go through all candidates and evaluate when ready
-    let cellState = getCellState(cell)
-    if (cellState._engineState === EVALUATED) {
-      console.error('FIXME: retriggering an already evaluated cell')
-    }
-    let lang = cell.language
-    let source = cell.source
-    // remove this from candidates otherwise it will be re-evaluated infinitely
-    delete this._candidates[cell.id]
-    this._getContext(lang)
-    .then((context) => {
-      let token = uuid()
-      this._tokens[cell.id] = token
-      // console.log('EXECUTING cell', cell.id, source)
-
-      // TODO: we want to force simple expression for Spreadsheet cells
-      // We need to somehow 'transpile' cell and range expressions
-      // and provide them using a generated symbol name
-      let inputs = this._getInputValues(cellId)
-      cellState.status = RUNNING
-      this._notifyCells([cell.id])
-
-      context.executeCode(source, inputs).then((res) => {
-        if (!this._tokens[cell.id] === token) return
-        // console.log('executed cell', cell.id, res)
-        // TODO: need better MiniContext to continue
-        delete this._candidates[cellId]
-        cellState._engineState = EVALUATED
-        cellState.value = res.value
-        // Note: we want to retain messages from
-        // the code analysis, so we concat here
-        cellState.messages = (cellState.messages || []).concat(res.messages)
-        deriveCellStatus(cellState)
-
-        this._updateDependencies(cell.id)
-
-        this._triggerScheduler()
-      })
-    })
-  }
-
-  /*
-    This gets called before calling into
-    contexts.
-    It provides packed values stored in a
-    hash by their name.
-    Ranges are stored by a the mangled name
-    e.g. 'A1:B1' -> 'A1_B1'
-  */
-  _getInputValues(cellId) {
-    let graph = this._graph
-    let cell = this._getCell(cellId)
-    let cellState = getCellState(cell)
-    let result = {}
-    // TODO: for cross-references we must
-    // mangle the name of a symbol
-    cellState.inputs.forEach((symbol) => {
-      switch (symbol.type) {
-        case 'var': {
-          let cell = graph.lookup(symbol)
-          let val = getCellValue(cell)
-          result[symbol.name] = val
-          break
-        }
-        case 'cell': {
-          let cell = graph.lookup(symbol)
-          let val = getCellValue(cell)
-          let name = getCellLabel(symbol.row, symbol.col)
-          result[name] = val
-          break
-        }
-        case 'range': {
-          // TODO: this is redundant with what we do
-          // in MiniContext
-          // We neet to rethink how values should
-          // be propagated through the engine
-          let startName = getCellLabel(symbol.startRow, symbol.startCol)
-          let endName = getCellLabel(symbol.endRow, symbol.endCol)
-          let name = `${startName}_${endName}`
-          let matrix = graph.lookup(symbol)
-          let { startRow, endRow, startCol, endCol } = symbol
-          let val
-          if (startRow === endRow) {
-            if (startCol === endCol) {
-              val = getCellValue(matrix[0][0])
-            } else {
-              val = gather('array', matrix[0].map(c => getCellValue(c)))
-            }
-          } else {
-            if (startCol === endCol) {
-              val = gather('array', matrix.map(row => getCellValue(row[0])))
-            } else if (startRow === endRow) {
-              val = gather('array', matrix[0].map(cell => getCellValue(cell)))
-            } else {
-              let sheet = this._graph.getDocument(symbol.docId)
-              if (startCol > endCol) {
-                [startCol, endCol] = [endCol, startCol]
-              }
-              if (startRow > endRow) {
-                [startRow, endRow] = [endRow, startRow]
-              }
-              let ncols = endCol-startCol+1
-              let nrows = endRow-startRow+1
-              // data as columns by name
-              // get the column name from the sheet
-              let data = {}
-              for (let i = 0; i < ncols; i++) {
-                let colIdx = startCol+i
-                let col = sheet.getColumnMeta(colIdx)
-                let name = col.attr('name') || getColumnLabel(colIdx)
-                data[name] = matrix.map((row) => {
-                  let val = getCellValue(row[i])
-                  if (val) {
-                    return val.data
-                  } else {
-                    return undefined
-                  }
-                })
-              }
-              val = {
-                // Note: first 'type' is for packing
-                // and second type for diambiguation against other complex types
-                type: 'table',
-                data: {
-                  type: 'table',
-                  data,
-                  columns: ncols,
-                  rows: nrows
-                }
-              }
-              // console.error('TODO: 2D ranges should be provided as table instead of as an array')
-              // let rows = matrix.map(row => row.map(cell => getCellValue(cell)))
-              // val = gather('array', [].concat(...rows))
-            }
-          }
-          result[name] = val
-          break
-        }
-        default:
-          throw new Error('Invalid state')
-      }
-    })
-    return result
-  }
-
-  _updateDependencies(cellId) {
-    const graph = this._graph
-    let visited = {}
-    let queue = [].concat(graph.getOutputs(cellId))
-    let dirty = [cellId]
-    while (queue.length > 0) {
-      let next = queue.shift()
-      if (visited[next.id]) continue
-      if (next.isCell()) {
-        let cellState = getCellState(next)
-        let _state = cellState._engineState
-        if (_state === ANALYSED || _state === EVALUATED) {
-          cellState._engineState = ANALYSED
-          cellState.status = this._getInputState(next)
-          if (cellState.status === INPUT_READY) {
-            this._candidates.add(next)
-          } else {
-            this._candidates.delete(next)
-          }
-        }
-        dirty.push(next.id)
-        queue = queue.concat(
-          graph.getOutputs(next.id).filter(c => !visited[c.id])
-        )
-      }
-      visited[next.id] = true
-    }
-    this._notifyCells(...dirty)
-  }
-
-  _getInputState(cell) {
-    let inputs = this._graph.getInputs(cell.id)
-    let ready = true
-    for (let i = 0; i < inputs.length; i++) {
-      let input = inputs[i]
-      if (!input) {
-        console.error('FIXME: depending on an unregistered cell')
-        return INPUT_ERROR
-      }
-      // TODO: we will have other type of dependencies, such as
-      // cell-references or externally managed values
-      // HACK
-      if (input.isCell && input.isCell()) {
-        let cellState = getCellState(input)
-        if (cellState.status === ERROR || cellState.status === INPUT_ERROR) {
-          return INPUT_ERROR
-        } else if (cellState.status !== OK) {
-          ready = false
-        }
-      } else {
-        // console.error('TODO: need to check the availability of inputs other than expression cells')
-      }
-    }
-
-    return ready ? INPUT_READY : PENDING
-  }
-
-  _notifyCells(...cellIds) {
-    if (cellIds.length === 0) return
-    // ATTENTION: cells are coming from different documents
-    // with different editorSessions
-    // we need to trigger an update in every editorSession
-    let affectedSessions = {}
-    cellIds.forEach((cellId) => {
-      const cellAdapter = this._graph.getCell(cellId)
-      if (!cellAdapter) return
-      const editorSession = cellAdapter.editorSession
-      console.assert(editorSession, 'CellAdapter should have an EditorSession')
-      const sessionId = editorSession.__id__
-      if (!affectedSessions[sessionId]) {
-        affectedSessions[sessionId] = {
-          editorSession,
-          nodeIds: []
-        }
-      }
-      affectedSessions[sessionId].nodeIds.push(cellAdapter.node.id)
-    })
-    forEach(affectedSessions, ({ editorSession, nodeIds}) => {
-      if (editorSession._flowing) {
-        editorSession.postpone(_updateSession.bind(null, editorSession, nodeIds))
-      } else {
-        _updateSession(editorSession, nodeIds)
-      }
-    })
-  }
-}
-
-function _updateSession(editorSession, nodeIds) {
-  editorSession._setDirty('document')
-  editorSession._setDirty('commandStates')
-  let change = new DocumentChange([], {}, {})
-  change._extractInformation()
-  nodeIds.forEach((nodeId) => {
-    // console.log('notifying', cellId)
-    change.updated[nodeId] = true
-  })
-  change.updated['setState'] = nodeIds
-  editorSession._change = change
-  editorSession._info = {}
-  editorSession.startFlow()
 }

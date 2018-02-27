@@ -29,7 +29,7 @@ test('Document: switching documents', (t) => {
       documentId: '/tests/document/fixtures/simple/default.html'
     })
   })
-  .then(wait(10))
+  .then(() => wait(10))
   .then(() => {
     let simple = page.find('[data-id=simple]')
     t.notOk(isNil(simple), 'Element #simple should be on the page.')
@@ -39,7 +39,7 @@ test('Document: switching documents', (t) => {
       documentId: '/tests/document/fixtures/paragraph/default.html'
     })
   })
-  .then(wait(10))
+  .then(() => wait(10))
   .then(() => {
     let paragraph = page.find('[data-id=paragraph]')
     t.notOk(isNil(paragraph), 'Element #paragraph should be on the page.')
@@ -67,7 +67,7 @@ test('Document: open all test documents', (t) => {
         documentId: docId
       })
     })
-    .then(wait(10))
+    .then(() => wait(10))
     .then(() => {
       t.notOk(isNil(page.state.editorSession), `Page should have opened ${docId}`)
     })
@@ -89,7 +89,7 @@ test('Document: storing buffer', (t) => {
   .then(() => {
     page.save()
   })
-  .then(wait(10))
+  .then(() => wait(10))
   .then(() => {
     t.equal(_storeBuffer.callCount, 1, 'backend._storeBuffer should have been called.')
   })
