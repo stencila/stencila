@@ -263,31 +263,8 @@
   background: #ccc;
 }
 
-/* Sheet View Modes */
-
-.sc-sheet.sm-mode-minimum .sc-table-view td {
-  border: none;
-}
-
-.sc-sheet.sm-mode-minimum .sc-table-view .sc-column-header,
-.sc-sheet.sm-mode-minimum .sc-table-view .se-corner {
-  padding: 0px;
-  visibility: hidden;
-  background: none;
-}
-
-.sc-sheet.sm-mode-minimum .sc-table-view .se-column-title {
-  height: 0px;
-  border: none;
-}
-
-.sc-sheet.sm-mode-minimum .se-selection-overlay > .se-selection-columns,
 .sc-sheet .se-selection-overlay > .se-selection-rows {
   background: none;
-}
-
-.sc-sheet.sm-mode-minimum .sc-table-view .sc-test-value {
-  visibility: hidden;
 }
 
 .sc-sheet-cell .se-function-cell .sc-cell-value.sm-response-value {

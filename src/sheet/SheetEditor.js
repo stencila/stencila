@@ -27,9 +27,6 @@ export default class SheetEditor extends AbstractEditor {
       DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
     }
     editorSession.onUpdate('selection', this._onSelectionChange, this)
-    editorSession.onUpdate('document', this._onSheetStateChange, this, {
-      path: ['sheet.state']
-    })
 
     this._formulaEditorContext.editorSession.onUpdate('selection', this._onCellEditorSelectionChange, this)
   }
@@ -95,12 +92,10 @@ export default class SheetEditor extends AbstractEditor {
   }
 
   getInitialState() {
-    let sheetState = this._getSheetState()
     return {
       showContext: false,
       contextId: null,
-      cellId: null,
-      displayMode: sheetState.displayMode
+      cellId: null
     }
   }
 
@@ -116,7 +111,6 @@ export default class SheetEditor extends AbstractEditor {
 
   render($$) {
     let el = $$('div').addClass('sc-sheet-editor')
-    el.addClass('sm-display-mode-'+this.state.displayMode)
     el.on('keydown', super.onKeyDown)
     el.append(
       $$('div').addClass('se-main-section').append(
@@ -184,11 +178,6 @@ export default class SheetEditor extends AbstractEditor {
           $$(CellRangesOverlay).ref('cellRanges')
         ],
       }).ref('sheet')
-        // LEGACY
-        // TODO: the displayMode is app specific
-        // so it should be set on the sc-sheet-editor
-        // and the CSS should reflect this
-        .addClass('sm-mode-'+this.state.displayMode)
     } else {
       return $$('div')
     }
@@ -373,17 +362,6 @@ export default class SheetEditor extends AbstractEditor {
         const sheetComp = this.getSheetComponent()
         sheetComp._hideSelection()
       }
-    }
-  }
-
-  _onSheetStateChange() {
-    const sheet = this.props.editorSession.getDocument()
-    const sheetState = sheet.getState()
-    if (this.state.displayMode !== sheetState.displayMode) {
-      this.getSheetComponent().forceUpdate()
-      this.extendState({
-        displayMode: sheetState.displayMode
-      })
     }
   }
 
