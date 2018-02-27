@@ -1,20 +1,20 @@
 # Data
 
-Computation is done on _data_. Data values are of different _types_.
+At the heart of computation in Stencila are data _values_ of different _types_. Data values are passed to, and returned from, function calls. Some functions are strongly typed, meaning that they will only accept data values of a particular type. This section introduces the various data types in Stencila. 
 
 ## Fundamental data types
 
-The fundamental value types are built-in to Stencila and used internally. The fundamental types are the same as in [JSON](https://www.json.org/), a commonly used, lightweight, data-interchange format. In this section, we use JSON to represent values of each fundamental data type. But as is shown later, these values may have alternative representations in different languages.
+There are several fundamental data types built-in to, an used internally within, Stencila. These fundamental types are the same as in [JSON](https://www.json.org/), a commonly used, lightweight, data-interchange format. In this section, we use JSON to represent values of each fundamental data type. But as is shown later, these values may have alternative representations in different languages (e.g. Mini, R).
 
 There are two categories of fundamental types: _atomics_, and _compounds_.
 
-### Atomics
+### Atomic data types
 
 The _atomic_ value types are the smallest kind of value, they can not be broken into smaller parts. There are four atomic types: `boolean`, `number`, `integer`, and `string`.
 
 #### Null
 
-A `null` value is used to represent missing values:
+A `null` value is used to represent missing or empty data values:
 
 ```json
 null
@@ -50,7 +50,7 @@ The `integer` type represents [integers](https://en.wikipedia.org/wiki/Integer) 
 42
 ```
 
-`integer` is a child type of `number`, so any function having a `number` as a parameter can also take an `integer`.
+The `integer` type is a child type of `number`, so any function having a `number` as a parameter can also take an `integer`.
 
 #### String
 
@@ -60,7 +60,7 @@ Strings are sequences of characters. e.g.
 "hello world"
 ```
 
-### Compounds
+### Compounds data types
 
 There are two _compound_ fundamental types, `array` and `object`, that consist of combinations of atomic types.
 
