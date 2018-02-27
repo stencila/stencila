@@ -1,8 +1,6 @@
 import { NodeComponent } from 'substance'
 import CellValueComponent from '../shared/CellValueComponent'
-import CellOverflowComponent from './CellOverflowComponent'
 import { isExpression, getError } from '../shared/cellHelpers'
-import { isOverflowable } from './sheetHelpers'
 
 export default class SheetCell extends NodeComponent {
 
@@ -44,13 +42,8 @@ export default class SheetCell extends NodeComponent {
     let isExpressionCell = isExpression(text)
 
     if(isExpressionCell) {
-      const needsOverflow = isOverflowable(cell)
       const valueEl = $$(CellValueComponent, {cell: cell}).ref('value')
-      if(needsOverflow) {
-        return $$(CellOverflowComponent).append(valueEl)
-      } else {
-        return $$('div').addClass('sc-text-content').append(valueEl)
-      }
+      return $$('div').addClass('sc-text-content').append(valueEl)
     } else {
       return $$('div').addClass('sc-text-content').text(text)
     }

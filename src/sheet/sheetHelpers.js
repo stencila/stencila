@@ -28,16 +28,3 @@ export function getRange(editorSession) {
     startRow, endRow, startCol, endCol
   }
 }
-
-export function isOverflowable(cell) {
-  const overflowableTypes = ['plotly', 'table', 'image']
-  const cellState = cell.state
-  if (cellState && cellState.hasValue()) {
-    let value = cellState.getValue()
-    let valueType = value.type
-    const isOverflowable = overflowableTypes.indexOf(valueType)
-    return isOverflowable > -1
-  } else {
-    return false
-  }
-}
