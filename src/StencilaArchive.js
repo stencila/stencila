@@ -1,23 +1,15 @@
-import { prettyPrintXML, PersistedDocumentArchive } from 'substance'
-import { PubMetaLoader, JATSExporter } from 'substance-texture'
-import SheetLoader from './sheet/SheetLoader'
+import { prettyPrintXML } from 'substance'
+import { JATSExporter, TextureArchive } from 'substance-texture'
 import ArticleLoader from './article/ArticleLoader'
+import SheetLoader from './sheet/SheetLoader'
 
-export default class StencilaArchive extends PersistedDocumentArchive {
+export default class StencilaArchive extends TextureArchive {
 
   _loadDocument(type, record, sessions) {
     switch (type) {
       case 'article': {
-        // FIXME: we should not mix ingestion and regular loading
-        // I.e. importing JATS4M should work without a pub-meta
-        let pubMetaSession = PubMetaLoader.load()
-        // HACK: we need to think about how to generalize this
-        sessions['pub-meta'] = pubMetaSession
-        // let dom = substance.DefaultDOMElement.parseXML(record.data)
-        // console.log(prettyPrintXML(dom))
-        // debugger
         return ArticleLoader.load(record.data, {
-          pubMetaDb: pubMetaSession.getDocument(),
+          pubMetaDb: sessions['pub-meta'].getDocument(),
           archive: this
         })
       }

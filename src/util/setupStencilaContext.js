@@ -29,7 +29,8 @@ export default function setupStencilaContext(archive) {
   return host.initialize().then(() => {
     let entries = archive.getDocumentEntries()
     forEach(entries, entry => {
-      let { editorSession, id, type } = entry
+      let { id, type } = entry
+      let editorSession = archive.getEditorSession(id)
       if (type === 'article') {
         let engineAdapter = new ArticleEngineAdapter(editorSession)
         engineAdapter.connect(host.engine, { id })

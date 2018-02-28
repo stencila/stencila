@@ -18,7 +18,7 @@ export default {
       throw err
     }
 
-    let importer = configurator.createImporter('texture-jats')
+    let importer = configurator.createImporter('texture-article')
     let doc = importer.importDocument(jats.dom)
     let editorSession = new EditorSession(doc, { configurator, context })
     return editorSession
