@@ -794,13 +794,10 @@ export default class SheetComponent extends CustomSurface {
     Type into cell (replacing the existing content)
   */
   _onInput() {
-    this.send('editCell')
-  }
-
-  _pullKeyTrapValue() {
     const value = this.refs.keytrap.val()
+    this.send('editCell', value)
+    // Clear keytrap after sending an action
     this.refs.keytrap.val('')
-    return value
   }
 
   _onKeyDown(e) {

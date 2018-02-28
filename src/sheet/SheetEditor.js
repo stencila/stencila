@@ -429,11 +429,9 @@ export default class SheetEditor extends AbstractEditor {
   /*
     Request inline editor
   */
-  _editCell() {
+  _editCell(initialValue) {
     const formulaEditorSession = this._formulaEditorContext.editorSession
     const formulaNode = this._formulaEditorContext.node
-    const sheetComp = this.getSheetComponent()
-    const initialValue = sheetComp._pullKeyTrapValue()
     if (initialValue) {
       this._setFormula(initialValue)
     }
