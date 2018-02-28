@@ -23,6 +23,10 @@ export default class CellGraph {
     this._valueUpdated = new Set()
   }
 
+  hasCell(id) {
+    return this._cells.hasOwnProperty(id)
+  }
+
   getCell(id) {
     return this._cells[id]
   }
@@ -103,8 +107,12 @@ export default class CellGraph {
   }
 
   addError(id, error) {
+    this.addErrors(id, [error])
+  }
+
+  addErrors(id, errors) {
     let cell = this._cells[id]
-    cell.errors.push(error)
+    cell.errors = cell.errors.concat(errors)
     this._stateChanged.add(id)
   }
 
