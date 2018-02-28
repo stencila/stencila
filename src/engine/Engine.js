@@ -21,7 +21,7 @@ export default class Engine {
     // - cell evaluation (context)
     // - validation (engine)
     // - graph update
-    this._nextActions = {}
+    this._nextActions = new Map()
   }
 
   addCell(cellData) {
@@ -29,48 +29,37 @@ export default class Engine {
   }
 
   updateCell(id, cellData) {
-    this._nextActions[cellData.id] = {
+    this._nextActions.set(cellData.id, {
       id,
       type: 'analyse',
       cellData,
       // used to detect invalidations
       token: uuid(),
-    }
+    })
   }
 
   cycle() {
     const nextActions = this._nextActions
     // clearing next actions so that we can record new next actions
-    this._nextActions = {}
+    this._nextActions = new Map()
 
-    let analysis = []
-    let registrations = []
-    let evals = []
-    let updates = []
-    Object.keys(nextActions).forEach(id => {
-      let a = nextActions[id]
-      switch (a.type) {
-        case 'analyse':
-          return this._analyse(a)
-        case 'register':
-          return this._register(a)
-        case 'evaluate':
-          return this._evaluate(a)
-        case 'update':
-          return this._update(a)
-        default:
-          throw new Error('Illegal action type')
-      }
-    })
+    // group actions by type
+    let actions = {
+      analyse: [],
+      register: [],
+      evaluate: [],
+      update: []
+    }
+    nextActions.forEach(a => actions[a.type].push(a))
     const graph = this._graph
-    updates.forEach(a => {
-      if (a.errors) {
+    actions.update.forEach(a => {
+      if (a.errors && a.errors.length > 0) {
         graph.addErrors(a.id, a.errors)
       } else {
         graph.setValue(a.id, a.value)
       }
     })
-    registrations.forEach(a => {
+    actions.register.forEach(a => {
       if (!graph.hasCell(a.id)) {
         let cell = new Cell(a.cellData)
         graph.addCell(cell)
@@ -86,23 +75,25 @@ export default class Engine {
       let cell = graph.getCell(id)
       if (cell) {
         if (cell.state === READY) {
-          this._nextActions[cell.id] = {
+          this._nextActions.set(cell.id, {
             type: 'evaluate',
             id: cell.id
-          }
+          })
         }
         updatedCells.push(cell)
       }
     })
+    if (updatedCells.length > 0) {
+      this._sendUpdate(updatedCells)
+    }
 
-    this._sendUpdate(updatedCells)
-
-    return analysis.map(a => this._analyse(a))
-      .concat(evals.map(a => this._evaluate(a)))
+    let A = actions.analyse.map(a => this._analyse(a))
+    let B = actions.evaluate.map(a => this._evaluate(a))
+    return A.concat(B)
   }
 
-  awaitCycle() {
-    return Promise.all(this.cycle())
+  getNextActions() {
+    return this._nextActions
   }
 
   _sendUpdate() {
@@ -133,12 +124,13 @@ export default class Engine {
       // transform the extracted symbols into fully-qualified symbols
       // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
       let { inputs, output } = this._compile(res, docId)
-      this._nextActions[id] = {
+      this._nextActions.set(id, {
         type: 'register',
         id,
         inputs,
-        output
-      }
+        output,
+        cellData
+      })
     })
   }
 
@@ -155,7 +147,7 @@ export default class Engine {
     const cell = graph.getCell(id)
     console.log('evaluating cell', id)
     const { lang, source } = cell
-    this._getContext(lang)
+    return this._getContext(lang)
     .then(res => {
       if (res instanceof Error) {
         const msg = `Could not get context for ${lang}`
@@ -170,12 +162,12 @@ export default class Engine {
       }
     })
     .then(res => {
-      this._nextActions[id] = {
+      this._nextActions.set(id, {
         type: 'update',
         id,
         errors: res.messages,
         value: res.value
-      }
+      })
     })
   }
 
