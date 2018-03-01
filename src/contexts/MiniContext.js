@@ -102,11 +102,9 @@ export default class MiniContext {
       })
     }
     if (expr.inputs) {
-      // TODO: we are simplifying the requirements regarding
-      // extracted symbols. Simple strings are fine
-      // TODO: this should just return symbol strings in
-      // transclusion syntax
-      inputs = expr.inputs.map(node => node.toString())
+      inputs = expr.inputs.map(node => {
+        return node.name
+      })
     }
     if (expr.name) {
       output = expr.name

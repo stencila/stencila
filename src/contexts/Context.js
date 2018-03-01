@@ -1,5 +1,5 @@
 import { getRowCol } from '../shared/cellHelpers'
-import transpile from '../shared/transpile'
+import { transpile } from '../shared/expressionHelpers'
 
 /**
  * Abstract base class for a Stencila execution context
@@ -69,7 +69,7 @@ export default class Context {
    * @param  {string} name - Function name e.g. 'sum'
    * @return {array<string>} - A Promise resolving to a boolean value
    */
-  hasFunction (name) {  // eslint-disable-line no-unused-vars
+  hasFunction (name) { // eslint-disable-line no-unused-vars
     return Promise.reject(new Error('Not implemented'))
   }
 
@@ -84,7 +84,7 @@ export default class Context {
    * @return {array<string>} - A Promise resolving to an object with any `errors` (an object with line numbers as keys) and `outputs` (
    *                         a data package)
    */
-  callFunction (name, args, namedArgs, options) {  // eslint-disable-line no-unused-vars
+  callFunction (name, args, namedArgs, options) { // eslint-disable-line no-unused-vars
     return Promise.reject(new Error('Not implemented'))
   }
 

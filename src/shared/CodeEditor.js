@@ -3,7 +3,7 @@ import {
 } from 'substance'
 
 import analyseCode from './analyseCode'
-import { getSyntaxTokens } from '../engine/expressionHelpers'
+import { getSyntaxTokens } from '../shared/expressionHelpers'
 // TODO: eventually this should be coupled with cells
 import { getCellState } from './cellHelpers'
 

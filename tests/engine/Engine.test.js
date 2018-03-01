@@ -6,7 +6,7 @@ import FunctionManager from '../../src/function/FunctionManager'
 import { libtestXML, libtest } from '../contexts/libtest'
 // import { wait } from '../testHelpers'
 
-test('Engine: simple cell', t => {
+test('Engine: single cell', t => {
   t.plan(8)
   let { engine, graph } = _setup()
   const id = 'sheet1.cell1'
@@ -45,7 +45,34 @@ test('Engine: simple cell', t => {
     t.equal(nextActions.size, 0, 'There should be no pending actions')
     let cell = graph.getCell(id)
     t.notOk(cell.hasErrors(), 'the cell should have no error')
-    t.equal(_getValue(cell.value), 3, 'the value should have been computed correctly')
+    t.equal(_getValue(cell), 3, 'the value should have been computed correctly')
+  })
+})
+
+test('Engine: play', t => {
+  t.plan(1)
+  let { engine, graph } = _setup()
+  engine.addCell({
+    id: 'cell1',
+    lang: 'mini',
+    source: 'x = 2',
+    docId: 'doc1'
+  })
+  engine.addCell({
+    id: 'cell2',
+    lang: 'mini',
+    source: 'y = 3',
+    docId: 'doc1'
+  })
+  engine.addCell({
+    id: 'cell3',
+    lang: 'mini',
+    source: 'z = x + y',
+    docId: 'doc1'
+  })
+  _play(engine)
+  .then(() => {
+    t.deepEqual(_getValues(graph, 'cell1', 'cell2', 'cell3'), [2,3,5], 'values should have been computed')
   })
 })
 
@@ -54,10 +81,35 @@ function _cycle(engine) {
   return Promise.all(actions)
 }
 
+function _play(engine) {
+  return new Promise((resolve) => {
+    function step() {
+      if (engine.hasNextAction()) {
+        _cycle(engine).then(step)
+      } else {
+        resolve()
+      }
+    }
+    step()
+  })
+}
+
 // TODO: there must be a helper, already
 // look into other tests
-function _getValue(res) {
-  return res.data
+function _getValue(cell) {
+  if (cell.value) {
+    return cell.value.data
+  }
+}
+
+function _getValues(graph, ...ids) {
+  return ids.map(id => {
+    let cell = graph.getCell(id)
+    if (cell) {
+      return _getValue(cell)
+    }
+    return undefined
+  })
 }
 
 function _setup() {

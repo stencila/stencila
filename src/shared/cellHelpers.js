@@ -127,23 +127,3 @@ export function getFrameSize(layout) {
   const sizes = layout.width ? layout : defaultSizes
   return sizes
 }
-
-/*
-  Matches expressions such as:
-  - `A1`
-  - `A1:B10`
-  - `sheet1!A1`
-
-  ((ID|'ID_WITH_SPACES')!)?CELL_ID([:]CELL_ID)
-
-
-*/
-
-
-// regex literals used to match transclusions
-const ID = "([_A-Za-z][_A-Za-z0-9]*)"
-const TITLE = "[']([_A-Za-z0-9\\s]+)[']"
-const CELL_ID = "([A-Z]+[1-9][0-9]*)"
-const TRANSCLUSION = "\\b(?:(?:"+ID+"|"+TITLE+")[!])?"+CELL_ID+"(?:[:]"+CELL_ID+")?"
-
-// /\b([A-Z]+[1-9][0-9]*)([:]([A-Z]+[1-9][0-9]*))?/g

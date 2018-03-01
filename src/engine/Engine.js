@@ -3,6 +3,8 @@ import CellGraph from './CellGraph'
 import { ContextError, RuntimeError } from './CellErrors'
 import { READY } from './CellStates'
 import Cell from './Cell'
+import CellSymbol from './CellSymbol'
+import { parseSymbol } from '../shared/expressionHelpers'
 
 /*
   WIP
@@ -63,10 +65,9 @@ export default class Engine {
       if (!graph.hasCell(a.id)) {
         let cell = new Cell(a.cellData)
         graph.addCell(cell)
-      } else {
-        if (a.inputs) graph.setInputs(a.id, a.inputs)
-        if (a.output) graph.setOutput(a.id, a.output)
       }
+      if (a.inputs) graph.setInputs(a.id, a.inputs)
+      if (a.output) graph.setOutput(a.id, a.output)
     })
 
     let updatedIds = graph.update()
@@ -90,6 +91,10 @@ export default class Engine {
     let A = actions.analyse.map(a => this._analyse(a))
     let B = actions.evaluate.map(a => this._evaluate(a))
     return A.concat(B)
+  }
+
+  hasNextAction() {
+    return this._nextActions.size > 0
   }
 
   getNextActions() {
@@ -134,13 +139,6 @@ export default class Engine {
     })
   }
 
-  _compile(res, docId = 'global') {
-    // TODO: create CellSymbol instances by 'parsing' the received string symbols
-    let inputs = new Set()
-    let output
-    return { inputs, output }
-  }
-
   _evaluate(action) {
     const graph = this._graph
     const id = action.id
@@ -171,6 +169,29 @@ export default class Engine {
     })
   }
 
+  _compile(res, scopeId = 'global') {
+    // TODO: create CellSymbol instances by 'parsing' the received string symbols
+    let inputs = new Set()
+    res.inputs.forEach(str => {
+      const { type, scope, name, mangledStr } = parseSymbol(str)
+      // if there is a scope given explicily try to lookup the doc
+      if (scope) {
+        // trying to lookup the given scope
+        // if that fails then we just pass through the
+        // given scope identifier
+        // which very likely will result in an 'UnresolvedInputError'
+        scopeId = this._lookupDocument(scope) || scopeId
+      }
+      let qualifiedId = scopeId + '!' + name
+      const symbol = new CellSymbol(type, qualifiedId, scopeId, name, mangledStr)
+      inputs.add(symbol)
+    })
+    // turn the output into a qualified id
+    let output
+    if (res.output) output = scopeId + '!' + res.output
+    return { inputs, output }
+  }
+
   /*
     Provides packed values stored in a hash by their name.
     Ranges and transcluded symbols are stored via their mangled name.
@@ -190,7 +211,11 @@ export default class Engine {
     let result = {}
     inputs.forEach(symbol => {
       let val = graph.getValue(symbol)
-      result[symbol] = val
+      // use the mangled symbol string, to expose
+      // the value for evaluation
+      // This representation is particularly valid only
+      // within the transpiled cell code
+      result[symbol.mangledStr] = val
     })
     return result
   }
