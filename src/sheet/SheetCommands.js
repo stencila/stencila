@@ -1,5 +1,4 @@
 import { Command } from 'substance'
-import { getRange } from './sheetHelpers'
 
 class RowsCommand extends Command {
 
