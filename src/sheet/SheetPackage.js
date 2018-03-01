@@ -7,7 +7,6 @@ import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
   OpenColumnSettings, SetLanguageCommand,
-  SetTypeCommand,
   SelectAllCommand
 } from './SheetCommands'
 
