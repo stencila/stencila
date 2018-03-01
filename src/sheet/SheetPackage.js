@@ -123,13 +123,6 @@ export default {
 
     config.addToolPanel('cell-context-menu', [
       {
-        name: 'cell-types',
-        type: 'tool-group',
-        style: 'descriptive',
-        showDisabled: true,
-        commandGroups: ['cell-types']
-      },
-      {
         name: 'cell-languages',
         type: 'tool-group',
         style: 'descriptive',
@@ -149,30 +142,6 @@ export default {
     config.addLabel('set-js', 'Javascript')
     config.addLabel('set-py', 'Python')
     config.addLabel('set-r', 'R')
-
-    // Cell Types
-    config.addCommand('set-inherit', SetTypeCommand, { type: undefined, commandGroup: 'cell-types' })
-    config.addCommand('set-any', SetTypeCommand, { type: 'any', commandGroup: 'cell-types' })
-    config.addCommand('set-string', SetTypeCommand, { type: 'string', commandGroup: 'cell-types' })
-    config.addCommand('set-number', SetTypeCommand, { type: 'number', commandGroup: 'cell-types' })
-    config.addCommand('set-integer', SetTypeCommand, { type: 'integer', commandGroup: 'cell-types' })
-    config.addCommand('set-boolean', SetTypeCommand, { type: 'boolean', commandGroup: 'cell-types' })
-
-    config.addLabel('cell-types', 'Choose Cell Type')
-    config.addLabel('set-inherit', 'Inherited (${columnType})')
-    config.addLabel('set-any', 'Any')
-    config.addLabel('set-string', 'String')
-    config.addLabel('set-number', 'Number')
-    config.addLabel('set-integer', 'Integer')
-    config.addLabel('set-boolean', 'Boolean')
-
-    // Labels for types
-    config.addLabel('any', 'Any')
-    config.addLabel('string', 'String')
-    config.addLabel('number', 'Number')
-    config.addLabel('integer', 'Integer')
-    config.addLabel('boolean', 'Boolean')
-
 
     // Cell values
     config.addComponent('value:null', NullValueComponent)

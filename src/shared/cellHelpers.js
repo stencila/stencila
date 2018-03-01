@@ -30,44 +30,20 @@ export function valueFromText(preferredType, text) {
 }
 
 function _parseText(preferredType, text) {
-  switch (preferredType) {
-    case 'any': {
-      // guess value
-      if (text === 'false') {
-        return false
-      } else if (text === 'true') {
-        return true
-      } else if (!isNaN(text)) {
-        let _int = Number.parseInt(text, 10)
-        if (_int == text) { // eslint-disable-line
-          return _int
-        } else {
-          return Number.parseFloat(text)
-        }
-      } else {
-        return text
-      }
-    }
-    case 'integer': {
-      return Number.parseInt(text, 10)
-    }
-    case 'number': {
+  // guess value
+  if (text === 'false') {
+    return false
+  } else if (text === 'true') {
+    return true
+  } else if (!isNaN(text)) {
+    let _int = Number.parseInt(text, 10)
+    if (_int == text) { // eslint-disable-line
+      return _int
+    } else {
       return Number.parseFloat(text)
     }
-    case 'string': {
-      return text
-    }
-    case 'boolean': {
-      if (text) {
-        return text !== 'false'
-      } else {
-        return false
-      }
-    }
-    default: {
-      console.warn('FIXME: need to cast to type', preferredType)
-      return text
-    }
+  } else {
+    return text
   }
 }
 
