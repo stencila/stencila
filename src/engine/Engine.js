@@ -79,6 +79,10 @@ export default class Engine {
       this._candidates.delete(cell)
       this._updateDependencies(cellId)
       this._graph.removeCell(cellId)
+      let cellState = getCellState(cell)
+      cellState.messages = []
+      deriveCellStatus(cellState)
+      this._notifyCells(cell.id)
     }
   }
 
