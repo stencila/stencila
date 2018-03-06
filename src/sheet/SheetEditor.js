@@ -455,7 +455,6 @@ export default class SheetEditor extends AbstractEditor {
     const activeToken = tokens.find(token => {
       return token.type === 'cell' && selection.startOffset >= token.start && selection.startOffset <= token.end
     })
-
     formulaEditorSession.transaction(tx => {
       if(activeToken) {
         selection.startOffset = activeToken.start
@@ -478,13 +477,17 @@ export default class SheetEditor extends AbstractEditor {
     const cell = formulaEditorSession.getDocument().get('cell')
     const _isExpression = isExpression(cell.content)
     if (this._isEditing && _isExpression) {
-      const selData = newSelection.data
-      const fromCell = getCellLabel(selData.anchorRow, selData.anchorCol)
-      const toCell = getCellLabel(selData.focusRow, selData.focusCol)
-      const sheetComp = this.getSheetComponent()
-      this._replaceEditorToken(fromCell, toCell)
-      let rect = sheetComp.getRectangleForRange(selData)
-      this.refs.cellRanges.setProps({ ranges: [rect] })
+      const selection = formulaEditorSession.getSelection().toJSON()
+      const _insideExpression = selection.startOffset > 0
+      if(_insideExpression) {
+        const selData = newSelection.data
+        const fromCell = getCellLabel(selData.anchorRow, selData.anchorCol)
+        const toCell = getCellLabel(selData.focusRow, selData.focusCol)
+        const sheetComp = this.getSheetComponent()
+        this._replaceEditorToken(fromCell, toCell)
+        let rect = sheetComp.getRectangleForRange(selData)
+        this.refs.cellRanges.setProps({ ranges: [rect] })
+      }
     } else {
       const editorSession = this.getEditorSession()
       editorSession.setSelection(newSelection)

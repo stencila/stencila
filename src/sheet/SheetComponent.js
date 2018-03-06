@@ -729,8 +729,8 @@ export default class SheetComponent extends CustomSurface {
           let rowIdx = sheetView.getRowIndexForClientY(e.clientY)
           let colIdx = sheetView.getColumnIndexForClientX(e.clientX)
           if (rowIdx !== sel.focusRow || colIdx !== sel.focusCol) {
-            sel.focusRow = rowIdx
-            sel.focusCol = colIdx
+            sel.focusRow = rowIdx > 0 ? rowIdx : 0
+            sel.focusCol = colIdx > 0 ? colIdx : 0
             this._requestSelectionChange()
           }
           break
