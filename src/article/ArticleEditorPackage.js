@@ -50,7 +50,7 @@ export default {
 
     config.addComponent('repro-fig', ReproFigComponent)
     config.addComponent('repro-fig-preview', ReproFigPreview)
-    
+
     config.addCommand('insert-repro-fig', InsertReproFigCommand, {
       commandGroup: 'insert-repro-figure',
       nodeType: 'repro-fig'
@@ -122,7 +122,7 @@ export default {
         type: 'tool-dropdown',
         showDisabled: false,
         style: 'descriptive',
-        commandGroups: ['view']
+        commandGroups: ['toggle-content-section', 'view']
       }
     ])
 
@@ -161,7 +161,7 @@ export default {
     config.addIcon('test-failed', {'fontawesome': 'fa-times' })
     config.addIcon('test-passed', {'fontawesome': 'fa-check' })
 
-    config.addLabel('view', 'View')
+    
     config.addLabel('show-all-code', 'Show All Code')
     config.addLabel('hide-all-code', 'Hide All Code')
 
