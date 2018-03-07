@@ -154,6 +154,7 @@
 }
 
 .sc-sheet td {
+  overflow: hidden;
   white-space: pre-wrap;
   overflow-wrap: break-word;
   border: 1px solid var(--sheet-cell-bordercolor);
@@ -263,31 +264,8 @@
   background: #ccc;
 }
 
-/* Sheet View Modes */
-
-.sc-sheet.sm-mode-minimum .sc-table-view td {
-  border: none;
-}
-
-.sc-sheet.sm-mode-minimum .sc-table-view .sc-column-header,
-.sc-sheet.sm-mode-minimum .sc-table-view .se-corner {
-  padding: 0px;
-  visibility: hidden;
-  background: none;
-}
-
-.sc-sheet.sm-mode-minimum .sc-table-view .se-column-title {
-  height: 0px;
-  border: none;
-}
-
-.sc-sheet.sm-mode-minimum .se-selection-overlay > .se-selection-columns,
 .sc-sheet .se-selection-overlay > .se-selection-rows {
   background: none;
-}
-
-.sc-sheet.sm-mode-minimum .sc-table-view .sc-test-value {
-  visibility: hidden;
 }
 
 .sc-sheet-cell .se-function-cell .sc-cell-value.sm-response-value {
@@ -308,17 +286,6 @@
   color: #FF0300;
   text-align: center;
   font-size: 12px;
-}
-
-.sc-sheet-cell .sc-cell-overflow {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  background: #fff;
-  z-index: 10;
-  -webkit-box-shadow: 4px 2px 10px 6px #ccc;
-  -moz-box-shadow: 4px 2px 10px 6px #ccc;
-  box-shadow: 4px 2px 10px 6px #ccc;
 }
 
 .sc-sheet-editor .se-context-pane {

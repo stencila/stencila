@@ -1,7 +1,5 @@
 import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 
-// HACK: can this be done with a simple forward instead of subclassing?
-// export default class ArticleEditor extends TextureEditorPackage.Editor {}
 const Editor = TextureEditorPackage.Editor
 export { Editor as ArticleEditor }
 

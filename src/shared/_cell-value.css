@@ -57,7 +57,7 @@ plotly defaults
   text-align: center;
   display: table;
   table-layout: fixed;
-  min-width: 100px;
+  min-width: 80px;
 }
 
 .sc-table-value table thead {

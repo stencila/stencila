@@ -729,8 +729,8 @@ export default class SheetComponent extends CustomSurface {
           let rowIdx = sheetView.getRowIndexForClientY(e.clientY)
           let colIdx = sheetView.getColumnIndexForClientX(e.clientX)
           if (rowIdx !== sel.focusRow || colIdx !== sel.focusCol) {
-            sel.focusRow = rowIdx
-            sel.focusCol = colIdx
+            sel.focusRow = rowIdx > 0 ? rowIdx : 0
+            sel.focusCol = colIdx > 0 ? colIdx : 0
             this._requestSelectionChange()
           }
           break
@@ -793,10 +793,11 @@ export default class SheetComponent extends CustomSurface {
   /*
     Type into cell (replacing the existing content)
   */
-  _onInput(e) {
-    if (e.inputType === 'insertText') {
-      this.send('editCell', e.data)
-    }
+  _onInput() {
+    const value = this.refs.keytrap.val()
+    this.send('editCell', value)
+    // Clear keytrap after sending an action
+    this.refs.keytrap.val('')
   }
 
   _onKeyDown(e) {

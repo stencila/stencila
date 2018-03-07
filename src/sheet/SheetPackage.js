@@ -7,7 +7,7 @@ import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
   OpenColumnSettings, SetLanguageCommand,
-  SetTypeCommand, ChangeDisplayModeCommand,
+  SetTypeCommand,
   SelectAllCommand
 } from './SheetCommands'
 
@@ -88,13 +88,6 @@ export default {
         showDisabled: true,
         style: 'minimal',
         commandGroups: ['undo-redo']
-      },
-      {
-        name: 'view-mode',
-        type: 'tool-dropdown',
-        style: 'descriptive',
-        showDisabled: true,
-        commandGroups: ['sheet-view-mode']
       }
     ])
 
@@ -195,16 +188,6 @@ export default {
     config.addComponent('value:plotly', PlotlyValueComponent)
 
     config.addComponent('code-highlight', CodeHighlightComponent)
-
-    // Sheet modes
-    config.addCommand('normal-mode', ChangeDisplayModeCommand, { displayMode: 'normal', commandGroup: 'sheet-view-mode' })
-    config.addCommand('minimum-mode', ChangeDisplayModeCommand, { displayMode: 'minimum', commandGroup: 'sheet-view-mode' })
-    config.addCommand('maximum-mode', ChangeDisplayModeCommand, { displayMode: 'maximum', commandGroup: 'sheet-view-mode' })
-
-    config.addLabel('view-mode', 'View Mode')
-    config.addLabel('normal-mode', 'Normal')
-    config.addLabel('minimum-mode', 'Presentation')
-    config.addLabel('maximum-mode', 'Source')
 
     config.addComponent('sheet', SheetComponent)
 

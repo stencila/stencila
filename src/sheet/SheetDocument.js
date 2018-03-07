@@ -211,12 +211,6 @@ export default class SheetDocument extends XMLDocument {
     return Promise.resolve(true)
   }
 
-  getInitialState() {
-    return {
-      displayMode: 'normal'
-    }
-  }
-
   getState() {
     let sheet = this.getRootNode()
     if (sheet) {
