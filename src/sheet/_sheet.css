@@ -287,23 +287,3 @@
   text-align: center;
   font-size: 12px;
 }
-
-.sc-sheet-editor .se-context-pane {
-  flex: 0 2 300px;
-  overflow: auto;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-  background: #F3F3F3;
-  border-left: 1px solid #e1e4e8;
-}
-
-/* HACK: this is a rather hacky solution */
-.sc-sheet-editor .se-context-pane > .se-context-pane-content {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  overflow: auto;
-}

@@ -1,5 +1,14 @@
 import { Component } from 'substance'
 
+// TODO: Replace fake tutorials with real documents
+const tutorials = [
+  {title: 'Five-Minute introduction', link: '/tutorials.html?archive=1'},
+  {title: 'Introduction to Stencila Articles', link: '/tutorials.html?archive=2'},
+  {title: 'Introduction to Stencila Sheets', link: '/tutorials.html?archive=3'},
+  {title: 'Polyglot Programming', link: '/tutorials.html?archive=4'},
+  {title: 'Big Data', link: '/tutorials.html?archive=5'}
+]
+
 export default class FunctionHelpComponent extends Component {
   render($$) {
     const functionManager = this.context.host.functionManager
@@ -58,16 +67,32 @@ export default class FunctionHelpComponent extends Component {
       })
 
     } else {
+
+      const tutorialListEl = tutorials.map(t => $$('li').addClass('se-item').append(
+        $$('a').attr('href',t.link).append(t.title)
+      ))
+      let tutorialsSection = $$('div').addClass('se-tutorials').append(
+        $$('div').addClass('se-title').append('Getting started with Stencila'),
+        $$('div').addClass('se-subtitle').append('Please read the following tutorials'),
+        $$('div').addClass('se-tutorials-list').append(tutorialListEl)
+      )
+
       const functionList = functionManager.getFunctionNames()
-      functionList.forEach(func => {
-        el.append(
-          $$('div').addClass('se-item').append(
-            $$('a').attr({href: '#'})
-              .append(func)
-              .on('click', this._openFunctionHelp.bind(this, func))
-          )
-        )
-      })
+      const functionListEl = functionList.map(func => $$('div').addClass('se-item').append(
+        $$('a').attr({href: '#'})
+          .append(func)
+          .on('click', this._openFunctionHelp.bind(this, func))
+      ))
+      let functionsSection = $$('div').addClass('se-functions').append(
+        $$('div').addClass('se-title').append('Functions'),
+        $$('div').addClass('se-subtitle').append('Use the following built-in functions of Stencila'),
+        $$('div').addClass('se-functions-list').append(functionListEl)
+      )
+
+      el.append(
+        tutorialsSection,
+        functionsSection
+      )
     }
     return el
   }
