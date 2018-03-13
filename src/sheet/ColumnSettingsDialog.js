@@ -28,6 +28,7 @@ export default class ColumnSettingsDialog extends Component {
 
   _renderBody($$) {
     const node = this._getNode()
+    // const type = node.attr('type')
     let body = $$('div').addClass('se-body')
     body.append($$('div').addClass('se-item').append(
       $$('div').addClass('se-label').text(this.getLabel('name')),
@@ -36,6 +37,25 @@ export default class ColumnSettingsDialog extends Component {
         .attr('type', 'text')
         .val(node.attr('name'))
     ))
+
+    // TODO: Bring back typed cells
+    // let typeSelect = $$('select').ref('type')
+    //   .addClass('se-input sm-type')
+    //   .val(node.attr('type'))
+    // // TODO: get types from schema
+    // ;['any', 'number', 'integer', 'string', 'boolean'].forEach((t) => {
+    //   let option = $$('option')
+    //     .attr('value', t)
+    //     .text(this.getLabel(t))
+    //   if (t === type) {
+    //     option.attr('selected', true)
+    //   }
+    //   typeSelect.append(option)
+    // })
+    // body.append($$('div').addClass('se-item').append(
+    //   $$('div').addClass('se-label').text(this.getLabel('type')),
+    //   typeSelect
+    // ))
 
     return body
   }
@@ -103,10 +123,12 @@ export default class ColumnSettingsDialog extends Component {
     // and update the model
     const node = this._getNode()
     let oldAttr = {
-      name: node.attr('name')
+      name: node.attr('name'),
+      // type: node.attr('type')
     }
     let newAttr = {
-      name: this.refs.name.val()
+      name: this.refs.name.val(),
+      // type: this.refs.type.val()
     }
     if (!isEqual(oldAttr, newAttr)) {
       let editorSession = this._getEditorSession()

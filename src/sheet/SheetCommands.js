@@ -1,4 +1,5 @@
 import { Command } from 'substance'
+import { getRange } from './sheetHelpers'
 
 class RowsCommand extends Command {
 
@@ -184,6 +185,68 @@ export class SetLanguageCommand extends Command {
         let cell = tx.get(cellId)
         cell.attr({ language: newLanguage })
       })
+    }
+  }
+}
+
+export class SetTypeCommand extends Command {
+
+  getCommandState({ selection, editorSession }) {
+    if (selection.isNull() || !(selection.isCustomSelection() && selection.customType === 'sheet')) {
+      return { disabled: true }
+    }
+    let labelProvider = editorSession.getConfigurator().getLabelProvider()
+    let doc = editorSession.getDocument()
+    let state = {
+      disabled: true
+    }
+    let { anchorRow, anchorCol } = selection.data
+    const selectionType = selection.data.type
+    if(selectionType === 'columns') {
+      let columnMeta = doc.getColumnMeta(anchorCol)
+      let columnType = columnMeta.attr('type') || 'Auto'
+      state = {
+        cellId: columnMeta.id,
+        newType: this.config.type,
+        columnType: labelProvider.getLabel(columnType),
+        disabled: false,
+        active: this.config.type === columnType
+      }
+    } else {
+      if (selectionType === 'rows') anchorCol = 0
+      let anchorCell = doc.getCell(anchorRow, anchorCol)
+      let columnMeta = doc.getColumnForCell(anchorCell.id)
+      let columnType = columnMeta.attr('type') || 'Auto'
+      let cellType = anchorCell.attr('type')
+      state = {
+        cellId: anchorCell.id,
+        newType: this.config.type,
+        columnType: labelProvider.getLabel(columnType),
+        disabled: false,
+        active: this.config.type === cellType
+      }
+    }
+    return state
+  }
+
+  execute({ editorSession, commandState, selection }) {
+    let { newType, disabled } = commandState
+    const selectionType = selection.data.type
+    if (!disabled) {
+      if(selectionType === 'range' || selectionType === 'rows') {
+        const range = getRange(editorSession)
+        editorSession.transaction((tx) => {
+          tx.getDocument().setTypeForRange(range.startRow, range.startCol, range.endRow, range.endCol, newType)
+        })
+      } else if (selectionType === 'columns') {
+        const range = getRange(editorSession)
+        editorSession.transaction((tx) => {
+          for (let colIdx = range.startCol; colIdx <= range.endCol; colIdx++) {
+            let cell = tx.getDocument().getColumnMeta(colIdx)
+            cell.attr({type: newType})
+          }
+        })
+      }
     }
   }
 }

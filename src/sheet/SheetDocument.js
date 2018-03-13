@@ -95,6 +95,15 @@ export default class SheetDocument extends XMLDocument {
     }
   }
 
+  setTypeForRange(startRow, startCol, endRow, endCol, type) {
+    for (let rowIdx = startRow; rowIdx <= endRow; rowIdx++) {
+      for (let colIdx = startCol; colIdx <= endCol; colIdx++) {
+        let cell = this.getCell(rowIdx, colIdx)
+        cell.attr({type: type})
+      }
+    }
+  }
+
   clearRange(startRow, startCol, endRow, endCol) {
     for (let rowIdx = startRow; rowIdx <= endRow; rowIdx++) {
       for (let colIdx = startCol; colIdx <= endCol; colIdx++) {
