@@ -18,10 +18,10 @@
   - [Contexts](computation/contexts.md)
   - [Engine](computation/engine.md)
   - [Functions](computation/functions.md)
+  - [Hosts](computation/hosts.md)
 - Languages
   - [Mini](languages/mini/README.md)
   - [Javascript](languages/js/README.md)
   - [Python](languages/py/README.md)
   - [R](languages/r/README.md)
   - [SQL](languages/sql/README.md)
-- Images
