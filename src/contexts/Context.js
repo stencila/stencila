@@ -29,17 +29,7 @@ export default class Context {
    * @param {object} exprOnly - Check that code is a simple expression only?
    */
   analyseCode (code, exprOnly = false) { // eslint-disable-line no-unused-vars
-    // transpiling the code so that it is syntactically correct in the target language
-    let symbols = {}
-    const transpiledCode = transpile(code, symbols)
-    return this._analyseCode(transpiledCode, exprOnly)
-    .then((res) => {
-      // map transpiled symbols back to their original form
-      if (res.inputs) {
-        res.inputs = res.inputs.map(name => symbols[name]||name)
-      }
-      return res
-    })
+    return this._analyseCode(code, exprOnly)
   }
 
   /**
@@ -50,17 +40,7 @@ export default class Context {
    * @param {object} exprOnly - Check that code is a simple expression only?
    */
   executeCode (code = '', inputs = {}, exprOnly = false) { // eslint-disable-line no-unused-vars
-    // transpiling the code so that it is syntactically correct in the target language
-    let symbols = {}
-    const transpiledCode = transpile(code, symbols)
-    return this._executeCode(transpiledCode, inputs, exprOnly)
-    .then((res) => {
-      // map transpiled symbols back to their original form
-      if (res.inputs) {
-        res.inputs = res.inputs.map(name => symbols[name]||name)
-      }
-      return res
-    })
+    return this._executeCode(code, inputs, exprOnly)
   }
 
   /**

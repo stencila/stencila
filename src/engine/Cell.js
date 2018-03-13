@@ -1,16 +1,41 @@
 import { isString } from 'substance'
 import { UNKNOWN } from './CellStates'
+import { transpile } from '../shared/expressionHelpers'
+import { isExpression } from '../shared/cellHelpers'
 
 export default class Cell {
 
-  constructor({ id, docId, lang, source, inputs, output, value, errors, hasSideEffects, next, prev }) {
-    if (!id) throw new Error("'id' is required.")
-    this.id = id
-    this.docId = docId
+  constructor(doc, { id, lang, source, state, inputs, output, value, errors, hasSideEffects, next, prev }) {
+
+    this.doc = doc
+
+    // Attention: the given cell id is not necessarily globally unique
+    // thus, we derive a unique id using the document id and the node id
+    // localId is used later to be able to map back to the associated node
+    // TODO: I would rather go for only one id, and always have a doc
+    if (doc) {
+      this.id = doc.id + '_' + id
+      this.localId = id
+      this.docId = doc.id
+    } else {
+      this.id = id
+      this.localId = id
+      this.docId = null
+    }
+
+    this._isSheetCell = (this.doc && this.doc.type === 'sheet')
+
     this.lang = lang
-    this.source = source
+
+    // the source code is transpiled to an object with
+    // - (original) source
+    // - transpiledSource
+    // - symbolMapping
+    // - isConstant
+    this._source = this._transpile(source)
+
     // managed by CellGraph
-    this.state = UNKNOWN
+    this.state = state || UNKNOWN
     // a set of symbols ('x', 'A1', 'A1:B10', 'doc1!x', 'sheet1!A1', 'sheet1!A1:A10', 'sheet1!foo')
     this.inputs = new Set(inputs || [])
     // an output symbol (typically only used for document cells)
@@ -54,5 +79,73 @@ export default class Cell {
       if (this.errors[i].type === type) return true
     }
     return false
+  }
+
+  getLang() {
+    return this.lang || this.doc ? this.doc.lang : 'mini'
+  }
+
+  updateSource(source) {
+    this._source = this._transpile(source)
+  }
+
+  get source() {
+    return this._source.original
+  }
+
+  get transpiledSource() {
+    return this._source.transpiled
+  }
+
+  get symbolMapping() {
+    return this._source.symbolMapping
+  }
+
+  isConstant() {
+    return this._source.isConstant
+  }
+
+  isSheetCell() {
+    return this._isSheetCell
+  }
+
+  toString() {
+    // sheet1!A1 <- { ... source }
+    let parts = []
+    if (this.output) {
+      parts.push(this.output)
+      parts.push(' <- ')
+    } else {
+      parts.push(this.id)
+      parts.push(': ')
+    }
+    parts.push(this._source.original)
+    return parts.join('')
+  }
+
+  _transpile(source) {
+    let original = source
+    let transpiled
+    let symbolMapping = {}
+    let isConstant = false
+    if (this._isSheetCell) {
+      let m = isExpression(source)
+      if (m) {
+        let L = m[0].length
+        let prefix = new Array(L)
+        prefix.fill(' ')
+        transpiled = prefix + transpile(source.slice(L), symbolMapping)
+      } else {
+        isConstant = true
+      }
+    } else {
+      transpiled = transpile(source, symbolMapping)
+    }
+    return {
+      original,
+      transpiled,
+      symbolMapping,
+      isConstant
+    }
   }
 }

@@ -1,5 +1,7 @@
 // not yet analysed
 const UNKNOWN = Symbol('UNKNOWN')
+// analysed
+const ANALYSED = Symbol('ANALYSED')
 // syntax or graph errors
 const BROKEN = Symbol('BROKEN')
 // runtime or validation errors
@@ -18,7 +20,8 @@ const OK = Symbol('OK')
 
 function toInteger(state) {
   switch (state) {
-    case UNKNOWN: return -1
+    case UNKNOWN: return -2
+    case ANALYSED: return -1
     case BROKEN: return 1
     case FAILED: return 2
     case BLOCKED: return 3
@@ -34,6 +37,7 @@ function toInteger(state) {
 function toString(state) {
   switch (state) {
     case UNKNOWN: return 'unknown'
+    case ANALYSED: return 'analysed'
     case BROKEN: return 'broken'
     case FAILED: return 'failed'
     case BLOCKED: return 'blocked'
@@ -46,4 +50,4 @@ function toString(state) {
   }
 }
 
-export { UNKNOWN, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, toInteger, toString }
+export { UNKNOWN, ANALYSED, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, toInteger, toString }

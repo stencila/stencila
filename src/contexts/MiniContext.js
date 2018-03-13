@@ -103,6 +103,8 @@ export default class MiniContext {
     }
     if (expr.inputs) {
       inputs = expr.inputs.map(node => {
+        // TODO: instead of interpreting the symbols
+        // the mini parser should just return the symbol
         return node.name
       })
     }
@@ -153,6 +155,9 @@ export default class MiniContext {
 
   _evaluateExpression(res, values) {
     let expr = res.expr
+    if (expr.syntaxError) {
+      return Promise.resolve(res)
+    }
     return new Promise((resolve) => {
       expr.on('evaluation:finished', (val) => {
         expr.off('evaluation:finished')

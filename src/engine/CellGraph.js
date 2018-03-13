@@ -1,6 +1,6 @@
 import { flatten, isString, isArray } from 'substance'
 import { UnresolvedInputError, CyclicDependencyError, OutputCollisionError } from './CellErrors'
-import { UNKNOWN, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, toInteger } from './CellStates'
+import { UNKNOWN, ANALYSED, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, toInteger } from './CellStates'
 
 const MSG_UNRESOLVED_INPUT = 'Unresolved input.'
 
@@ -36,7 +36,6 @@ export default class CellGraph {
     if (this._cells[id]) throw new Error(`Cell with ${id} already exists`)
     this._cells[id] = cell
     this._structureChanged.add(id)
-
     if (cell.inputs && cell.inputs.size > 0) {
       this._registerInputs(id, new Set(), cell.inputs)
     }
@@ -55,9 +54,36 @@ export default class CellGraph {
     return cell.value
   }
 
+  setInputsOutputs(id, newInputs, newOutput) {
+    let cell = this._cells[id]
+    if (!cell) throw new Error(`Unknown cell ${id}`)
+    this._setInputs(cell, newInputs)
+    this._setOutput(cell, newOutput)
+    if (cell.state === UNKNOWN) {
+      this._structureChanged.add(id)
+      cell.state = ANALYSED
+    }
+  }
+
+  // Note: we use this for sheet cells
   setInputs(id, newInputs) {
     let cell = this._cells[id]
     if (!cell) throw new Error(`Unknown cell ${id}`)
+    this._setInputs(cell, newInputs)
+    if (cell.state === UNKNOWN) {
+      this._structureChanged.add(id)
+      cell.state = ANALYSED
+    }
+  }
+
+  // TODO: do we really need this?
+  setOutput(id, newOutput) {
+    let cell = this._cells[id]
+    if (!cell) throw new Error(`Unknown cell ${id}`)
+    this._setOutput(cell, newOutput)
+  }
+
+  _setInputs(cell, newInputs) {
     newInputs = new Set(newInputs)
     if(this._registerInputs(cell.id, cell.inputs, newInputs)) {
       cell.inputs = newInputs
@@ -66,15 +92,14 @@ export default class CellGraph {
     }
   }
 
-  setOutput(id, newOutput) {
+  _setOutput(cell, newOutput) {
     // TODO: handle collisions
     // -> it would be nice if the graph could keep competing outputs and resolve
     //    automatically if all ambiguities have been resolved
     // TODO: if only the output of a cell changed, we could retain the runtime result
     // and leave the cell's state untouched
-    let cell = this._cells[id]
     let oldOutput = cell.output
-    if (this._registerOutput(id, oldOutput, newOutput)) {
+    if (this._registerOutput(cell.id, oldOutput, newOutput)) {
       cell.output = newOutput
       // TODO: do we need to clear a potential old graph error
       // e.g. from a previous cyclic dependency
@@ -314,7 +339,7 @@ export default class CellGraph {
       cells[level].push(cell)
       // process dependencies
       // ensuring that this cell is actually providing the output
-      if (cell.output && cell.id === this._resolve(cell.output)) {
+      if (cell.output && id === this._resolve(cell.output)) {
         let deps = Array.from(this._ins[cell.output] || [])
         q = q.concat(deps.filter(id => !visited[id]))
       }
@@ -331,6 +356,8 @@ export default class CellGraph {
   }
 
   _updateCellState(cell, updated) {
+    // skip cells which have not been registered yet
+    if (cell.state === UNKNOWN) return
     // invariant detection of BROKEN state
     if (cell.hasError('engine') || cell.hasError('graph')) {
       if (cell.state === BROKEN) return

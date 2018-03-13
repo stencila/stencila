@@ -3,7 +3,7 @@ import test from 'tape'
 import CellGraph from '../../src/engine/CellGraph'
 import Cell from '../../src/engine/Cell'
 import { SyntaxError, RuntimeError } from '../../src/engine/CellErrors'
-import { BROKEN, BLOCKED, WAITING, READY, OK, FAILED, toString } from '../../src/engine/CellStates'
+import { ANALYSED, BROKEN, BLOCKED, WAITING, READY, OK, FAILED, toString } from '../../src/engine/CellStates'
 
 /*
  add a single cell with no deps
@@ -11,7 +11,7 @@ import { BROKEN, BLOCKED, WAITING, READY, OK, FAILED, toString } from '../../src
 */
 test('CellGraph: single cell with no deps', t => {
   let g = new CellGraph()
-  let cell = new Cell({ id: 'cell1' })
+  let cell = new Cell(null, { id: 'cell1', state: ANALYSED })
   g.addCell(cell)
   g.update()
   t.equal(cell.state, READY, 'cell should be ready')
@@ -27,8 +27,8 @@ test('CellGraph: single cell with no deps', t => {
 test('CellGraph: two linked cells', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x' }),
-    new Cell({ id: 'cell2', inputs: ['x'] })
+    new Cell(null, { id: 'cell1', output: 'x', state: ANALYSED}),
+    new Cell(null, { id: 'cell2', inputs: ['x'], state: ANALYSED })
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -56,10 +56,10 @@ test('CellGraph: two linked cells', t => {
 test('CellGraph: Y shaped graph', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x' }),
-    new Cell({ id: 'cell2', output: 'y' }),
-    new Cell({ id: 'cell3', inputs: ['x', 'y'], output: 'z' }),
-    new Cell({ id: 'cell4', inputs: ['z'] }),
+    new Cell(null, { id: 'cell1', output: 'x', state: ANALYSED }),
+    new Cell(null, { id: 'cell2', output: 'y', state: ANALYSED }),
+    new Cell(null, { id: 'cell3', inputs: ['x', 'y'], output: 'z', state: ANALYSED }),
+    new Cell(null, { id: 'cell4', inputs: ['z'], state: ANALYSED }),
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -98,10 +98,10 @@ test('CellGraph: Y shaped graph', t => {
 test('CellGraph: Diamond', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x' }),
-    new Cell({ id: 'cell2', inputs: ['x'], output: 'y' }),
-    new Cell({ id: 'cell3', inputs: ['x'], output: 'z' }),
-    new Cell({ id: 'cell4', inputs: ['y', 'z'] }),
+    new Cell(null, { id: 'cell1', output: 'x', state: ANALYSED }),
+    new Cell(null, { id: 'cell2', inputs: ['x'], output: 'y', state: ANALYSED }),
+    new Cell(null, { id: 'cell3', inputs: ['x'], output: 'z', state: ANALYSED }),
+    new Cell(null, { id: 'cell4', inputs: ['y', 'z'], state: ANALYSED }),
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -135,8 +135,8 @@ test('CellGraph: Diamond', t => {
 test('CellGraph: missing link', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x' }),
-    new Cell({ id: 'cell3', inputs: ['y'] })
+    new Cell(null, { id: 'cell1', output: 'x', state: ANALYSED }),
+    new Cell(null, { id: 'cell3', inputs: ['y'], state: ANALYSED })
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -144,7 +144,7 @@ test('CellGraph: missing link', t => {
   _checkUpdates(t, updates, ['cell1', 'cell3'])
   _checkStates(t, cells, [READY, BROKEN])
 
-  let missingLink = new Cell({ id: 'cell2', inputs: ['x'], output: 'y' })
+  let missingLink = new Cell(null, { id: 'cell2', inputs: ['x'], output: 'y', state: ANALYSED })
   cells.splice(1, 0, missingLink)
   g.addCell(missingLink)
   g.setValue('cell1', 1)
@@ -162,7 +162,7 @@ test('CellGraph: missing link', t => {
 test('CellGraph: unresolvable input', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', inputs: ['y'], output: 'x' }),
+    new Cell(null, { id: 'cell1', inputs: ['y'], output: 'x', state: ANALYSED }),
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -184,9 +184,9 @@ test('CellGraph: unresolvable input', t => {
 test('CellGraph: blocked cell', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x' }),
-    new Cell({ id: 'cell2', inputs: ['x'], output: 'y' }),
-    new Cell({ id: 'cell3', inputs: ['y'] }),
+    new Cell(null, { id: 'cell1', output: 'x', state: ANALYSED }),
+    new Cell(null, { id: 'cell2', inputs: ['x'], output: 'y', state: ANALYSED }),
+    new Cell(null, { id: 'cell3', inputs: ['y'], state: ANALYSED }),
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -219,9 +219,9 @@ test('CellGraph: blocked cell', t => {
 test('CellGraph: failed evaluation', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x' }),
-    new Cell({ id: 'cell2', inputs: ['x'], output: 'y' }),
-    new Cell({ id: 'cell3', inputs: ['y'] }),
+    new Cell(null, { id: 'cell1', output: 'x', state: ANALYSED }),
+    new Cell(null, { id: 'cell2', inputs: ['x'], output: 'y', state: ANALYSED }),
+    new Cell(null, { id: 'cell3', inputs: ['y'], state: ANALYSED }),
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -243,9 +243,9 @@ test('CellGraph: failed evaluation', t => {
 test('CellGraph: changing inputs', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x' }),
-    new Cell({ id: 'cell2', output: 'y' }),
-    new Cell({ id: 'cell3', inputs: ['z'] }),
+    new Cell(null, { id: 'cell1', output: 'x', state: ANALYSED }),
+    new Cell(null, { id: 'cell2', output: 'y', state: ANALYSED }),
+    new Cell(null, { id: 'cell3', inputs: ['z'], state: ANALYSED }),
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -276,9 +276,9 @@ test('CellGraph: changing inputs', t => {
 test('CellGraph: changing output', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x' }),
-    new Cell({ id: 'cell2', inputs: ['y'] }),
-    new Cell({ id: 'cell3', inputs: ['z'] })
+    new Cell(null, { id: 'cell1', output: 'x', state: ANALYSED }),
+    new Cell(null, { id: 'cell2', inputs: ['y'], state: ANALYSED }),
+    new Cell(null, { id: 'cell3', inputs: ['z'], state: ANALYSED })
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -317,16 +317,16 @@ test('CellGraph: changing output', t => {
 test('CellGraph: cycle', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x1' }),
-    new Cell({ id: 'cell2', inputs: ['x1', 'x4'], output: 'x2' }),
-    new Cell({ id: 'cell3', inputs: ['x2'], output: 'x3' }),
+    new Cell(null, { id: 'cell1', output: 'x1', state: ANALYSED }),
+    new Cell(null, { id: 'cell2', inputs: ['x1', 'x4'], output: 'x2', state: ANALYSED }),
+    new Cell(null, { id: 'cell3', inputs: ['x2'], output: 'x3', state: ANALYSED }),
   ]
   cells.forEach(c => g.addCell(c))
 
   let updates = g.update()
   _checkStates(t, cells, [READY, BROKEN, BLOCKED])
 
-  let cell4 = new Cell({ id: 'cell4', inputs: ['x3'], output: 'x4' })
+  let cell4 = new Cell(null, { id: 'cell4', inputs: ['x3'], output: 'x4' })
   cells.push(cell4)
   g.addCell(cell4)
   updates = g.update()
@@ -349,10 +349,10 @@ test('CellGraph: cycle', t => {
 test('CellGraph: name collision', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x' }),
-    new Cell({ id: 'cell2', output: 'x' }),
-    new Cell({ id: 'cell3', output: 'x' }),
-    new Cell({ id: 'cell4', inputs: ['x'] }),
+    new Cell(null, { id: 'cell1', output: 'x', state: ANALYSED }),
+    new Cell(null, { id: 'cell2', output: 'x', state: ANALYSED }),
+    new Cell(null, { id: 'cell3', output: 'x', state: ANALYSED }),
+    new Cell(null, { id: 'cell4', inputs: ['x'], state: ANALYSED }),
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -378,8 +378,8 @@ test('CellGraph: name collision', t => {
 test('CellGraph: cells with side effects', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', hasSideEffects: true, next: 'cell2' }),
-    new Cell({ id: 'cell2', hasSideEffects: true, prev: 'cell1' })
+    new Cell(null, { id: 'cell1', hasSideEffects: true, next: 'cell2', state: ANALYSED }),
+    new Cell(null, { id: 'cell2', hasSideEffects: true, prev: 'cell1', state: ANALYSED })
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -418,12 +418,12 @@ test('CellGraph: cells with side effects', t => {
 test('CellGraph: mixing cells with/without side-effects', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x' }),
-    new Cell({ id: 'cell2', output: 'y' }),
-    new Cell({ id: 'cell3', inputs: ['x', 'y'], hasSideEffects: true, next: 'cell5' }),
-    new Cell({ id: 'cell4', output: 'z' }),
-    new Cell({ id: 'cell5', inputs: ['x', 'z'], hasSideEffects: true, prev: 'cell3' }),
-    new Cell({ id: 'cell6', inputs: ['x'] })
+    new Cell(null, { id: 'cell1', output: 'x', state: ANALYSED }),
+    new Cell(null, { id: 'cell2', output: 'y', state: ANALYSED }),
+    new Cell(null, { id: 'cell3', inputs: ['x', 'y'], hasSideEffects: true, next: 'cell5', state: ANALYSED }),
+    new Cell(null, { id: 'cell4', output: 'z', state: ANALYSED }),
+    new Cell(null, { id: 'cell5', inputs: ['x', 'z'], hasSideEffects: true, prev: 'cell3', state: ANALYSED }),
+    new Cell(null, { id: 'cell6', inputs: ['x'], state: ANALYSED })
   ]
   cells.forEach(c => g.addCell(c))
 
@@ -462,8 +462,8 @@ test('CellGraph: mixing cells with/without side-effects', t => {
 test('CellGraph: TEMPLATE', t => {
   let g = new CellGraph()
   let cells = [
-    new Cell({ id: 'cell1', output: 'x' }),
-    new Cell({ id: 'cell2', inputs: ['x'] })
+    new Cell(null, { id: 'cell1', output: 'x' }),
+    new Cell(null, { id: 'cell2', inputs: ['x'] })
   ]
   cells.forEach(c => g.addCell(c))
 

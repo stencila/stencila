@@ -4,31 +4,35 @@ import JsContext from '../../src/contexts/JsContext'
 import MiniContext from '../../src/contexts/MiniContext'
 import FunctionManager from '../../src/function/FunctionManager'
 import { libtestXML, libtest } from '../contexts/libtest'
+import { UNKNOWN } from '../../src/engine/CellStates'
 // import { wait } from '../testHelpers'
 
-test('Engine: single cell', t => {
-  t.plan(8)
+test('Engine: [steps] single cell', t => {
+  t.plan(9)
   let { engine, graph } = _setup()
-  const id = 'sheet1.cell1'
   // this should automatically trigger code analysis and
   // incremental graph updates
-  engine.addCell({
-    id,
+  let doc = engine.addDocument({
+    id: 'doc1',
     lang: 'mini',
-    source: '1+2',
-    docId: 'sheet1'
+    cells: [
+      '1+2'
+    ]
   })
-  // wait for all actions to be finished
+  let cells = doc.getCells()
+  const cell = cells[0]
+  const id = cell.id
   _cycle(engine)
   .then(() => {
     let nextActions = engine.getNextActions()
     t.equal(nextActions.size, 1, 'There should be one next action')
     let a = nextActions.get(id)
     t.equal(a.type, 'register', '.. which should a registration action')
+    t.equal(cell.state, UNKNOWN, 'cell state should be UNKNOWN')
   })
   .then(() => _cycle(engine))
   .then(() => {
-    t.ok(graph.hasCell('sheet1.cell1'), 'The cell should now be registered')
+    t.ok(graph.hasCell(id), 'The cell should now be registered')
     let nextActions = engine.getNextActions()
     let a = nextActions.get(id)
     t.equal(a.type, 'evaluate', 'next action should be evaluate')
@@ -43,44 +47,102 @@ test('Engine: single cell', t => {
   .then(() => {
     let nextActions = engine.getNextActions()
     t.equal(nextActions.size, 0, 'There should be no pending actions')
-    let cell = graph.getCell(id)
     t.notOk(cell.hasErrors(), 'the cell should have no error')
     t.equal(_getValue(cell), 3, 'the value should have been computed correctly')
   })
 })
 
-test('Engine: play', t => {
-  t.plan(1)
-  let { engine, graph } = _setup()
-  engine.addCell({
-    id: 'cell1',
+test('Engine: [steps] sheet', t=> {
+  t.plan(7)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    // default lang
     lang: 'mini',
-    source: 'x = 2',
-    docId: 'doc1'
+    cells: [
+      ['1', '= A1 * 2'],
+      ['2', '= A2 * 2']
+    ]
   })
-  engine.addCell({
-    id: 'cell2',
-    lang: 'mini',
-    source: 'y = 3',
-    docId: 'doc1'
-  })
-  engine.addCell({
-    id: 'cell3',
-    lang: 'mini',
-    source: 'z = x + y',
-    docId: 'doc1'
-  })
-  _play(engine)
+  let [ [, cell2], [, cell4] ] = sheet.getCells()
+  _cycle(engine)
   .then(() => {
-    t.deepEqual(_getValues(graph, 'cell1', 'cell2', 'cell3'), [2,3,5], 'values should have been computed')
+    _checkActions(t, engine, [cell2, cell4], ['register', 'register'])
+  })
+  .then(() => {
+    return _cycle(engine)
+  })
+  .then(() => {
+    _checkActions(t, engine, [cell2, cell4], ['evaluate', 'evaluate'])
+  })
+  .then(() => {
+    return _cycle(engine)
+  })
+  .then(() => {
+    _checkActions(t, engine, [cell2, cell4], ['update', 'update'])
+  })
+  .then(() => {
+    return _cycle(engine)
+  })
+  .then(() => {
+    t.deepEqual(_getValues([cell2, cell4]), [2,4], 'values should have been computed')
   })
 })
 
+test('Engine: [play] sheet', t=> {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    // default lang
+    lang: 'mini',
+    cells: [
+      ['1', '= A1 * 2'],
+      ['2', '= A2 * 2']
+    ]
+  })
+  _play(engine)
+  .then(() => {
+    t.deepEqual(_getValues(sheet.getCells('B1:B2')), [2,4], 'values should have been computed')
+  })
+})
+
+test('Engine: [play] simple doc', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    cells: [
+      'x = 2',
+      'y = 3',
+      'z = x + y'
+    ]
+  })
+  let cells = doc.getCells()
+  _play(engine)
+  .then(() => {
+    t.deepEqual(_getValues(cells), [2,3,5], 'values should have been computed')
+  })
+})
+
+
+/*
+  Waits for all actions to be finished.
+  This is the slowest kind of scheduling, as every cycle
+  takes as long as the longest evaluation.
+  In a real environment, the Engine should be triggered as often as possible,
+  but still with a little delay, so that all 'simultanous' actions can be
+  done at once.
+*/
 function _cycle(engine) {
   let actions = engine.cycle()
   return Promise.all(actions)
 }
 
+/*
+  Triggers a cycle as long as next actions are coming in.
+*/
 function _play(engine) {
   return new Promise((resolve) => {
     function step() {
@@ -94,6 +156,17 @@ function _play(engine) {
   })
 }
 
+function _checkActions(t, engine, cells, actions) {
+  let nextActions = engine.getNextActions()
+  for (let i = 0; i < cells.length; i++) {
+    const cell = cells[i]
+    const action = nextActions.get(cell.id)
+    const actual = action ? action.type : undefined
+    const expected = actions[i]
+    t.equal(actual, expected, 'action should be registered correctly')
+  }
+}
+
 // TODO: there must be a helper, already
 // look into other tests
 function _getValue(cell) {
@@ -102,14 +175,8 @@ function _getValue(cell) {
   }
 }
 
-function _getValues(graph, ...ids) {
-  return ids.map(id => {
-    let cell = graph.getCell(id)
-    if (cell) {
-      return _getValue(cell)
-    }
-    return undefined
-  })
+function _getValues(cells) {
+  return cells.map(cell => _getValue(cell))
 }
 
 function _setup() {
