@@ -1,43 +1,55 @@
-import { DocumentAdapter } from '../shared/DocumentAdapter'
+import { uuid, DocumentChange } from 'substance'
 
 /*
-  Connects Engine and Sheet.
+  Base-Class for adapters between document and engine.
 */
-export default class SheetAdapter extends DocumentAdapter {
+export class DocumentAdapter {
+
+  // TODO: dicuss ownership of 'name'
+  // It seems that this is a property inside the manifest,
+  // and not part of the JATS file
+  constructor(engine, editorSession, name) {
+    this.engine = engine
+    this.editorSession = editorSession
+    this.doc = editorSession.getDocument()
+    this.name = name
+    // Note: this id is used internally to
+    // lookup variables and cells
+    if (!this.doc.UUID) {
+      this.doc.UUID = uuid()
+    }
+    this._initialize()
+  }
 
   _initialize() {
-    // find all
-    const docId = this._getDocId()
-    const sheet = this.doc
-    const engine = this.engine
-    // create a matrix of cells from the model
-    // TODO: maybe the SheetDocument provide this as a random
-    // access layer on top of the model
-    let matrix = sheet.getCellMatrix()
-    let nodeAdapters = matrix.map(row => {
-      return row.map(node => this.adaptNode(node))
-    })
-    // TODO: also provide column data
-    let sheetAdapter = engine.addSheet({
-      id: docId,
-      name: this.name,
-      // default language
-      lang: 'mini',
-      cells: nodeAdapters
-    })
-    // use the Engine's cell data as state of the Article's node
-    // NOTE: we can do this as long as we run the Engine in the same thread
-    // Otherwise we would need to keep a local version of the state
-    let cells = sheetAdapter.getCells()
-    for (let i = 0; i < cells.length; i++) {
-      let row = cells[i]
-      for (let j = 0; j < row.length; j++) {
-        const cell = row[j]
-        nodeAdapters[i][j].node.state = cell
-      }
+    throw new Error('This method is abstract')
+  }
+
+  _getDocId() {
+    return this.doc.UUID
+  }
+
+  _onEngineUpdate(updates) {
+    // Note: for now we are sharing the cell states with the engine
+    // thus, we can just notify the session about the changed cells
+    const docId = this.doc.UUID
+    const editorSession = this.editorSession
+    let nodeIds = updates.filter(cell => cell.docId === docId).map(cell => cell.localId)
+    if (nodeIds.length > 0) {
+      // TODO: there should be a built in means to trigger a reflow
+      // after updates of node states
+      editorSession._setDirty('document')
+      let change = new DocumentChange([], {}, {})
+      change._extractInformation()
+      nodeIds.forEach(nodeId => {
+        change.updated[nodeId] = true
+      })
+      // TODO: what is this for?
+      change.updated['setState'] = nodeIds
+      editorSession._change = change
+      editorSession._info = {}
+      editorSession.startFlow()
     }
-    this.editorSession.on('render', this._onDocumentChange, this, { resource: 'document' })
-    this.engine.on('update', this._onEngineUpdate, this)
   }
 
   _onDocumentChange(change) {
@@ -115,7 +127,39 @@ export default class SheetAdapter extends DocumentAdapter {
     // return false
   }
 
-  static connect(engine, editorSession, name) {
-    return new SheetAdapter(engine, editorSession, name)
+  adaptNode(node) {
+    if (node._engineAdapter) return node._engineAdapter
+    return this._adaptNode(node)
   }
+
+  _adaptNode(node) {
+    return new CellAdapter(node)
+  }
+
+}
+
+export class CellAdapter {
+
+  constructor(node) {
+    this.node = node
+    // store this adapter so that we can reuse it later
+    node._engineAdapter = this
+  }
+
+  get id() {
+    return this.node.id
+  }
+
+  get source() {
+    return this._getSourceElement().textContent
+  }
+
+  get lang() {
+    return this._getSourceElement().getAttribute('language')
+  }
+
+  _getSourceElement() {
+    return this.node
+  }
+
 }

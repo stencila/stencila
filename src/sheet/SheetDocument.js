@@ -7,6 +7,11 @@ export default class SheetDocument extends XMLDocument {
   constructor(...args) {
     super(...args)
     this.UUID = uuid()
+
+    // a cached random-access version of the sheet
+    // this gets invalidated whenever the structure is changed (i.e. rows or cols changed)
+    // TODO: we must invalidate the matrix whenever we detect structural changes
+    this._matrix = null
   }
 
   getDocTypeParams() {
@@ -44,6 +49,13 @@ export default class SheetDocument extends XMLDocument {
       let cell = row.getChildAt(colIdx)
       return cell
     }
+  }
+
+  getCellMatrix() {
+    if (!this._matrix) {
+      this._matrix = this._getCellMatrix()
+    }
+    return this._matrix
   }
 
   getCellLabel(cellId) {
@@ -233,5 +245,24 @@ export default class SheetDocument extends XMLDocument {
       this._columnsNode = this.getRootNode().find('columns')
     }
     return this._columnsNode
+  }
+
+  _getCellMatrix() {
+    const data = this._getData()
+    let matrix = []
+    let rows = data.getChildren()
+    let nrows = rows.length
+    if (nrows === 0) return matrix
+    let ncols = rows[0].getChildCount()
+    for (let i = 0; i < nrows; i++) {
+      let row = rows[i]
+      let cells = row.getChildren()
+      let m = cells.length
+      if (m !== ncols) {
+        throw new Error(`Invalid dimension: row ${i} has ${m} cells, expected ${ncols}.`)
+      }
+      matrix.push(cells)
+    }
+    return matrix
   }
 }

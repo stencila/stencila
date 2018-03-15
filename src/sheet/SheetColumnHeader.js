@@ -3,6 +3,7 @@ import { getColumnLabel } from './sheetHelpers'
 const DEFAULT_COLUMN_WIDTH = 100
 
 class SheetColumnHeader extends NodeComponent {
+
   didMount() {
     super.didMount()
     const cell = this.props.node
@@ -17,18 +18,10 @@ class SheetColumnHeader extends NodeComponent {
 
   render($$) {
     const colIdx = this.props.colIdx
-    const node = this.props.node
-    const issueManager = this.context.issueManager
 
     let th = $$('th')
       .attr('data-col', colIdx)
       .addClass('sc-column-header')
-
-
-    let cellIssues = issueManager.getColumnIssues(node.id)
-    if(cellIssues.length > 0) {
-      th.addClass('sm-issue sm-error')
-    }
 
     let columnHeader = $$('div').addClass('se-column-title').append(
       $$('div').addClass('se-column-label').text(getColumnLabel(colIdx)),

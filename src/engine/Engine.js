@@ -134,100 +134,6 @@ export default class Engine extends EventEmitter {
     return sheet
   }
 
-  _registerResource(doc) {
-    const id = doc.id
-    if (this._docs.hasOwnProperty(id)) throw new Error(`document with id ${id} already exists`)
-    this._docs[id] = doc
-    doc._registerCells(this)
-  }
-
-  // Document updates
-
-  _updateDocumentSequence(docId, cellIds) { // eslint-disable-line
-    // update the graph accordingly
-  }
-
-
-  // Sheet updates
-
-  /*
-    Registers a sheet column.
-  */
-  _addColumn(sheetId, idx, colData, cellIds) { // eslint-disable-line
-    // TODO:
-    // - make sure that cells have been registered already
-    // - length of cellIds must be consistent with sheet dimensions
-    // - create a column record
-  }
-
-  _removeColumn(sheetId, idx) { // eslint-disable-line
-    // TODO:
-    // - remove the column record
-    // - and update sheet symbols
-  }
-
-  _updateColumn(sheetId, idx, colData) { // eslint-disable-line
-    // TODO:
-    // - update column meta data
-    // - invalidate cells accordingly (e.g. for type validation)
-  }
-
-  _addRow(sheetId, rowIdx, cellIds) { // eslint-disable-line
-    // TODO:
-    // - make sure that cells have been registered already
-    // - length of cellIds must be consistent with sheet dimensions
-    // - update column records
-  }
-
-  _removeRow(sheetId, rowIdx) { // eslint-disable-line
-    // - update column records
-  }
-
-  _updateSheetSymbols(sheetId) { // eslint-disable-line
-    // TODO:
-    // - set output symbols of all sheet cells
-    // - according to the current sheet structure
-
-    // maybe this could be done automatically, however, this API
-    // is considered low-level and I want to avoid that this is called
-    // unnecessarily often
-  }
-
-  /*
-    Registers a cell.
-
-    A cell is registered independent from the topology it resides in.
-
-    Cells are treated differently w.r.t. their parent document.
-
-    For instance, in a document cells can be block expressions,
-    and can define a variable. In a sheet every cell must be a simple expression
-    and it is is assigned to a variable implicitly (such as `sheet1!A1`).
-  */
-  _registerCell(cell) {
-    this._graph.addCell(cell)
-    this._updateCell(cell.id, cell)
-  }
-
-  /*
-    Removes a cell from the engine.
-  */
-  _removeCell(id) { // eslint-disable-line
-  }
-
-  _updateCell(id, cellData) {
-    // TODO: instead of waiting for another cycle
-    // we could update the CellGraph right away
-    // if in case of sheet cells the source is not an expression
-    this._nextActions.set(id, {
-      id,
-      type: 'analyse',
-      cellData,
-      // used to detect invalidations
-      token: uuid(),
-    })
-  }
-
   needsUpdate() {
     return this._nextActions.size > 0 || this._graph.needsUpdate()
   }
@@ -278,6 +184,50 @@ export default class Engine extends EventEmitter {
 
   getNextActions() {
     return this._nextActions
+  }
+
+  _registerResource(doc) {
+    const id = doc.id
+    if (this._docs.hasOwnProperty(id)) throw new Error(`document with id ${id} already exists`)
+    this._docs[id] = doc
+    doc._registerCells(this)
+  }
+
+
+  /*
+    Registers a cell.
+
+    A cell is registered independent from the topology it resides in.
+
+    Cells are treated differently w.r.t. their parent document.
+
+    For instance, in a document cells can be block expressions,
+    and can define a variable. In a sheet every cell must be a simple expression
+    and it is is assigned to a variable implicitly (such as `sheet1!A1`).
+  */
+  _registerCell(cell) {
+    this._graph.addCell(cell)
+    this._updateCell(cell.id, cell)
+  }
+
+  /*
+    Removes a cell from the engine.
+  */
+  _removeCell(id) { // eslint-disable-line
+    // TODO
+  }
+
+  _updateCell(id, cellData) {
+    // TODO: instead of waiting for another cycle
+    // we could update the CellGraph right away
+    // if in case of sheet cells the source is not an expression
+    this._nextActions.set(id, {
+      id,
+      type: 'analyse',
+      cellData,
+      // used to detect invalidations
+      token: uuid(),
+    })
   }
 
   _sendUpdate(updatedCells) {
@@ -497,6 +447,11 @@ class Document {
   _registerCells(engine) {
     this.cells.forEach(cell => engine._registerCell(cell))
   }
+
+  _updateDocumentSequence(docId, cellIds) { // eslint-disable-line
+    // update the graph accordingly
+  }
+
 }
 
 /*
@@ -589,6 +544,49 @@ class Sheet {
 
   _registerCells(engine) {
     this.cells.forEach(row => row.forEach(cell => engine._registerCell(cell)))
+  }
+
+  /*
+    Registers a sheet column.
+  */
+  _addColumn(sheetId, idx, colData, cellIds) { // eslint-disable-line
+    // TODO:
+    // - make sure that cells have been registered already
+    // - length of cellIds must be consistent with sheet dimensions
+    // - create a column record
+  }
+
+  _removeColumn(sheetId, idx) { // eslint-disable-line
+    // TODO:
+    // - remove the column record
+    // - and update sheet symbols
+  }
+
+  _updateColumn(sheetId, idx, colData) { // eslint-disable-line
+    // TODO:
+    // - update column meta data
+    // - invalidate cells accordingly (e.g. for type validation)
+  }
+
+  _addRow(sheetId, rowIdx, cellIds) { // eslint-disable-line
+    // TODO:
+    // - make sure that cells have been registered already
+    // - length of cellIds must be consistent with sheet dimensions
+    // - update column records
+  }
+
+  _removeRow(sheetId, rowIdx) { // eslint-disable-line
+    // - update column records
+  }
+
+  _updateSheetSymbols(sheetId) { // eslint-disable-line
+    // TODO:
+    // - set output symbols of all sheet cells
+    // - according to the current sheet structure
+
+    // maybe this could be done automatically, however, this API
+    // is considered low-level and I want to avoid that this is called
+    // unnecessarily often
   }
 
 }
