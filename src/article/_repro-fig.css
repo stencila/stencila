@@ -13,3 +13,8 @@
   padding-top: 20px;
   font-weight: 600;
 }
+
+/* Use a super bold font weight */
+.sc-repro-fig .se-title .sc-bold {
+  font-weight: 900;
+}
