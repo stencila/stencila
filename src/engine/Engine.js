@@ -1,4 +1,4 @@
-import { uuid, isString } from 'substance'
+import { uuid, isString, EventEmitter } from 'substance'
 import CellGraph from './CellGraph'
 import { ContextError, RuntimeError } from './CellErrors'
 import { READY } from './CellStates'
@@ -9,9 +9,9 @@ import { getRowCol, valueFromText, getCellLabel } from '../shared/cellHelpers'
 
 /*
   WIP
-  The Engine will be run in a worker, together with a MiniContext and a JsContext
+  The Engine implements the Stencila Execution Model.
 
-  As the Engine is run independently, it needs to have its own model.
+  As the Engine can be run independently, and thus has its own model.
   There are two types of resources containing cells, Documents and Sheets.
   Every document defines a variable scope. Variables are produced by cells.
   A document has an id but also a human readable name.
@@ -50,46 +50,42 @@ import { getRowCol, valueFromText, getCellLabel } from '../shared/cellHelpers'
   Sheet specifics:
   - columns have meta data (name and type)
   - cell type comes either from cell data, or from its column (necessary for type validation)
+  - spanning cells are rather a visual aspect. E.g. in GSheets the app
+    clears spanned cells, and thus cell references yield empty values
 
   Open Questions:
 
-  Which data representation do we want to use for sheets?
+  Should the Engine be run inside the Application/Render thread?
 
-  - generally, having a copy of the sheet model bears the danger
-    that the copy gets out-of-sync
-  - a matrix of ids could be very handy
-  - a column-first representation could be interesting, particularly
-    when we support column-names as symbols in formulas
+  On the one hand this could help to lower the load on the rendering thread.
+  On the other hand, it is very usefule to have a more direct linking
+  between the application and the engine: e.g. sharing the Host instance,
+  and in the other direction.
+  It is more important to run all contexts independently, so that
+  code can be executed in multiple threads.
 
   How should we address merged/spanning cells?
 
-  - spanning cells are a bit of conflicting with the notion of
-    'strict' columns (as in a database)
-    To which column does the content of a spanning cell belong?
-  - in GSheets a spanned/shadowed cell are cleared and are
-    ignored in computations
-    => this makes sense. Still we must decide how to deal with it
-    in the engine. The app could clear the values (which is the case in GSheets).
-    Then the engine does not need to deal with this.
 
   How do structural changes of sheets affect the cell graph?
 
-  CellGraph works with symbols. Is associated to a variable looking like this
-  `sheet1!A1`.
+  Sheet cells produce variables that look like `sheet1!A1`.
   Changing the structure of a sheet means that all cells after
   that need to be re-assigned. Changing the output symbol name only should not lead to a re-evaluation
   of the cell.
   The current state propagation mechanism does probably lead to potentially
   unnecessary re-evaluations when structure has been changed.
   This is because any kind of structural change leads to a reset of cell state
-  We should improve this at some point. At the same time, it is not
+  We should improve this at some point. For now, it is not
   critical, because structural changes in sheets do not happen often,
-  and in documents re-evaluation is most often necessary in this case.
+  and in documents re-evaluation is most often necessary anyways.
 
 */
-export default class Engine {
+export default class Engine extends EventEmitter {
 
   constructor(host) {
+    super()
+
     this._host = host
 
     this._docs = {}
@@ -103,6 +99,18 @@ export default class Engine {
     // - validation (engine)
     // - graph update
     this._nextActions = new Map()
+  }
+
+  run(interval) {
+    // TODO: does this only work in the browser?
+    if (this._runner) {
+      clearInterval(this._runner)
+    }
+    this._runner = setInterval(() => {
+      if (this.needsUpdate()) {
+        this.cycle()
+      }
+    }, interval)
   }
 
   /*
@@ -220,42 +228,72 @@ export default class Engine {
     })
   }
 
+  needsUpdate() {
+    return this._nextActions.size > 0 || this._graph.needsUpdate()
+  }
+
   cycle() {
-    const nextActions = this._nextActions
-    // clearing next actions so that we can record new next actions
-    this._nextActions = new Map()
-
-    // group actions by type
-    let actions = {
-      analyse: [],
-      register: [],
-      evaluate: [],
-      update: []
-    }
-    nextActions.forEach(a => actions[a.type].push(a))
     const graph = this._graph
-    actions.update.forEach(a => {
-      if (a.errors && a.errors.length > 0) {
-        graph.addErrors(a.id, a.errors)
-      } else {
-        graph.setValue(a.id, a.value)
-      }
-    })
-    actions.register.forEach(a => {
-      let cell = graph.getCell(a.id)
-      if (cell.isSheetCell()) {
-        graph.setInputs(cell.id, a.inputs)
-      } else {
-        graph.setInputsOutputs(cell.id, a.inputs, a.output)
-      }
-    })
+    const nextActions = this._nextActions
+    if (nextActions.size > 0) {
+      // clearing next actions so that we can record new next actions
+      this._nextActions = new Map()
 
+      // group actions by type
+      let actions = {
+        analyse: [],
+        register: [],
+        evaluate: [],
+        update: []
+      }
+      nextActions.forEach(a => actions[a.type].push(a))
+      actions.update.forEach(a => {
+        if (a.errors && a.errors.length > 0) {
+          graph.addErrors(a.id, a.errors)
+        } else {
+          graph.setValue(a.id, a.value)
+        }
+      })
+      actions.register.forEach(a => {
+        let cell = graph.getCell(a.id)
+        if (cell.isSheetCell()) {
+          graph.setInputs(cell.id, a.inputs)
+        } else {
+          graph.setInputsOutputs(cell.id, a.inputs, a.output)
+        }
+      })
+
+      this._updateGraph()
+
+      let A = actions.analyse.map(a => this._analyse(a))
+      let B = actions.evaluate.map(a => this._evaluate(a))
+      return A.concat(B)
+    } else if (graph.needsUpdate()) {
+      this._updateGraph()
+      return Promise.resolve(true)
+    } else {
+      return Promise.resolve(false)
+    }
+  }
+
+  getNextActions() {
+    return this._nextActions
+  }
+
+  _sendUpdate(updatedCells) {
+    // TODO: this should send a batch update over to the app
+    // and for testing this method should be 'spied'
+    this.emit('update', updatedCells)
+  }
+
+  _updateGraph() {
+    const graph = this._graph
     let updatedIds = graph.update()
     let updatedCells = []
     updatedIds.forEach(id => {
       let cell = graph.getCell(id)
       if (cell) {
-        if (cell.state === READY) {
+        if (cell.status === READY) {
           this._nextActions.set(cell.id, {
             type: 'evaluate',
             id: cell.id
@@ -267,23 +305,6 @@ export default class Engine {
     if (updatedCells.length > 0) {
       this._sendUpdate(updatedCells)
     }
-
-    let A = actions.analyse.map(a => this._analyse(a))
-    let B = actions.evaluate.map(a => this._evaluate(a))
-    return A.concat(B)
-  }
-
-  hasNextAction() {
-    return this._nextActions.size > 0
-  }
-
-  getNextActions() {
-    return this._nextActions
-  }
-
-  _sendUpdate() {
-    // TODO: this should send a batch update over to the app
-    // and for testing this method should be 'spied'
   }
 
   _analyse(action) {
@@ -316,7 +337,7 @@ export default class Engine {
     })
     .then(res => {
       if (!res) return
-      console.log('ANALYSED cell', cell, res)
+      // console.log('ANALYSED cell', cell, res)
       // transform the extracted symbols into fully-qualified symbols
       // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
       let { inputs, output } = this._compile(res, cell)
@@ -365,14 +386,15 @@ export default class Engine {
     const symbolMapping = cell.symbolMapping
     let inputs = new Set()
     res.inputs.forEach(str => {
-      // TODO: we already have transpiled the symbol
-      // can we reuse that here?
+      // TODO: we already have transpiled the symbol, can we reuse it here?
       str = symbolMapping[str] || str
       const { type, scope, name, mangledStr } = parseSymbol(str)
       // if there is a scope given explicily try to lookup the doc
       let _scopeId = scopeId
       if (scope) {
-        _scopeId = this._lookupDocument(scope)
+        // Note: a failed lookup will eventually lead to a broken dependency
+        // thus, we rely on the CellGraph to figure this out
+        _scopeId = this._lookupDocumentId(scope) || scope
       }
       let qualifiedId = _scopeId + '!' + name
       const symbol = new CellSymbol(type, qualifiedId, _scopeId, name, mangledStr)
@@ -423,8 +445,17 @@ export default class Engine {
       return []
     }
   }
-}
 
+  _lookupDocumentId(name) {
+    for (var id in this.docs) { // eslint-disable-line guard-for-in
+      let doc = this.docs
+      if (doc.name === name || id === name) {
+        return doc.id
+      }
+    }
+  }
+
+}
 
 /*
   Engine's Internal model of a Document.
@@ -438,6 +469,7 @@ class Document {
     const docId = data.id
     if (!docId) throw new Error("'id' is required")
     this.id = docId
+    this.name = data.name
     // default language
     const defaultLang = data.lang || 'mini'
     this.lang = defaultLang

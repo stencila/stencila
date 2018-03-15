@@ -1,7 +1,6 @@
 import { Command } from 'substance'
 import { InsertNodeCommand } from 'substance-texture'
 import { getCellState } from '../shared/cellHelpers'
-import { ERROR } from '../engine/CellState'
 
 export class SetLanguageCommand extends Command {
 
@@ -139,7 +138,7 @@ export class ForceCellOutputCommand extends Command {
   }
 }
 
-
+// TODO: what is this for?
 export class CodeErrorsCommand extends Command {
   getCommandState({ selection, editorSession }) {
     let doc = editorSession.getDocument()
@@ -150,21 +149,18 @@ export class CodeErrorsCommand extends Command {
       if (node.type === 'source-code') {
         let cellNode = node.parentNode
         let cellState = getCellState(cellNode)
-
-        if (cellState.status === ERROR) {
+        if (cellState.hasErrors()) {
           return {
             disabled: false,
-            messages: cellState.messages
+            messages: cellState.errors
           }
         }
       }
     }
-
     return {
       disabled: true
     }
   }
-
   execute(params) { } // eslint-disable-line
 }
 

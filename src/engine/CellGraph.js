@@ -23,6 +23,10 @@ export default class CellGraph {
     this._valueUpdated = new Set()
   }
 
+  needsUpdate() {
+    return this._stateChanged.size > 0 || this._structureChanged.size > 0 || this._valueUpdated.size > 0
+  }
+
   hasCell(id) {
     return this._cells.hasOwnProperty(id)
   }
@@ -59,9 +63,9 @@ export default class CellGraph {
     if (!cell) throw new Error(`Unknown cell ${id}`)
     this._setInputs(cell, newInputs)
     this._setOutput(cell, newOutput)
-    if (cell.state === UNKNOWN) {
+    if (cell.status === UNKNOWN) {
       this._structureChanged.add(id)
-      cell.state = ANALYSED
+      cell.status = ANALYSED
     }
   }
 
@@ -70,9 +74,9 @@ export default class CellGraph {
     let cell = this._cells[id]
     if (!cell) throw new Error(`Unknown cell ${id}`)
     this._setInputs(cell, newInputs)
-    if (cell.state === UNKNOWN) {
+    if (cell.status === UNKNOWN) {
       this._structureChanged.add(id)
-      cell.state = ANALYSED
+      cell.status = ANALYSED
     }
   }
 
@@ -151,9 +155,9 @@ export default class CellGraph {
     let cell = this._cells[id]
     cell.value = value
     if (cell.hasErrors()) {
-      cell.state = FAILED
+      cell.status = FAILED
     } else {
-      cell.state = OK
+      cell.status = OK
     }
     this._valueUpdated.add(id)
   }
@@ -202,7 +206,7 @@ export default class CellGraph {
         let ids = this._ins[oldOutput] || []
         ids.forEach(_id => {
           let cell = this._cells[_id]
-          if (cell.state === BROKEN) {
+          if (cell.status === BROKEN) {
             // TODO: probably we do not want to clear all graph errors, but only specific ones
             cell.clearErrors('graph')
           }
@@ -227,7 +231,7 @@ export default class CellGraph {
       let ids = this._ins[newOutput] || []
       ids.forEach(_id => {
         let cell = this._cells[_id]
-        if (cell.state === BROKEN) {
+        if (cell.status === BROKEN) {
           // TODO: probably we do not want to clear all graph errors, but only specific ones
           cell.clearErrors('graph')
         }
@@ -288,7 +292,7 @@ export default class CellGraph {
       // TODO: maybe only clear UnresolvedInputErrors
       cell.clearErrors('graph')
       cell.errors.push(new UnresolvedInputError(MSG_UNRESOLVED_INPUT, { unresolved }))
-      cell.state = BROKEN
+      cell.status = BROKEN
     }
   }
 
@@ -356,25 +360,25 @@ export default class CellGraph {
   }
 
   _updateCellState(cell, updated) {
-    // skip cells which have not been registered yet
-    if (cell.state === UNKNOWN) return
     // invariant detection of BROKEN state
     if (cell.hasError('engine') || cell.hasError('graph')) {
-      if (cell.state === BROKEN) return
-      cell.state = BROKEN
+      if (cell.status === BROKEN) return
+      cell.status = BROKEN
       updated.add(cell.id)
       return
     }
+    // skip cells which have not been registered yet
+    if (cell.status === UNKNOWN) return
     // invariant detection of FAILED state
     if (cell.hasErrors()) {
-      if (cell.state === FAILED) return
-      cell.state = FAILED
+      if (cell.status === FAILED) return
+      cell.status = FAILED
       updated.add(cell.id)
       return
     }
     let inputs = Array.from(cell.inputs)
     if (!cell.hasSideEffects && inputs.length === 0) {
-      cell.state = READY
+      cell.status = READY
       return
     }
     let inputStates = inputs.map(s => {
@@ -382,7 +386,7 @@ export default class CellGraph {
       if (_cell) {
         // NOTE: for development we kept the less performant but more readable
         // representation as symbols, instead of ints
-        return toInteger(_cell.state)
+        return toInteger(_cell.status)
       } else {
         return undefined
       }
@@ -390,7 +394,7 @@ export default class CellGraph {
     if (cell.hasSideEffects && cell.prev) {
       let _cell = this._cells[cell.prev]
       if (_cell) {
-        inputStates.push(toInteger(_cell.state))
+        inputStates.push(toInteger(_cell.status))
       }
     }
     let inputState = Math.min(...inputStates)
@@ -404,8 +408,8 @@ export default class CellGraph {
     } else { // if (inputState === OK) {
       newState = READY
     }
-    if (newState && newState !== cell.state) {
-      cell.state = newState
+    if (newState && newState !== cell.status) {
+      cell.status = newState
       updated.add(cell.id)
     }
   }
@@ -449,7 +453,7 @@ export default class CellGraph {
     let error = new CyclicDependencyError('Cyclic dependency', { trace })
     trace.forEach(id => {
       let cell = this._cells[id]
-      cell.state = BROKEN
+      cell.status = BROKEN
       cell.errors.push(error)
       cell.level = Infinity
       updated.add(id)

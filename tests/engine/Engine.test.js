@@ -28,7 +28,7 @@ test('Engine: [steps] single cell', t => {
     t.equal(nextActions.size, 1, 'There should be one next action')
     let a = nextActions.get(id)
     t.equal(a.type, 'register', '.. which should a registration action')
-    t.equal(cell.state, UNKNOWN, 'cell state should be UNKNOWN')
+    t.equal(cell.status, UNKNOWN, 'cell state should be UNKNOWN')
   })
   .then(() => _cycle(engine))
   .then(() => {
@@ -146,7 +146,7 @@ function _cycle(engine) {
 function _play(engine) {
   return new Promise((resolve) => {
     function step() {
-      if (engine.hasNextAction()) {
+      if (engine.needsUpdate()) {
         _cycle(engine).then(step)
       } else {
         resolve()

@@ -1,11 +1,10 @@
 import { isNumber } from 'substance'
-import CellState from '../engine/CellState'
 import { type } from '../value'
 
 export function getCellState(cell) {
   // FIXME: we should make sure that cellState is
   // initialized as early as possible
-  return cell.state || new CellState()
+  return cell.state
 }
 
 export function isExpression(source) {
@@ -115,7 +114,7 @@ export function getRowCol(cellId) {
 
 export function getError(cell) {
   let cellState = getCellState(cell)
-  return cellState.messages[0]
+  return cellState.errors[0]
 }
 
 export function getFrameSize(layout) {

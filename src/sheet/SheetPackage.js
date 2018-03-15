@@ -29,8 +29,6 @@ import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
 import CodeHighlightComponent from '../shared/CodeHighlightComponent'
 
-import IssueManager from './IssueManager'
-
 export default {
   name: 'Sheet',
 
@@ -43,8 +41,6 @@ export default {
     config.addEditorOption({key: 'forcePlainTextPaste', value: true})
 
     config.import(BasePackage)
-
-    config.addManager('issue-manager', IssueManager)
 
     config.addToolPanel('toolbar', [
       {

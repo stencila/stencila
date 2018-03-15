@@ -21,7 +21,7 @@ class CellErrorDisplay extends Component {
 
     let errorsEl = $$('div').addClass('se-errors')
     if (cellState.hasErrors()) {
-      cellState.messages.forEach((err) => {errorsEl.append(
+      cellState.errors.forEach((err) => {errorsEl.append(
           $$('div').addClass('se-error').append(
             'Error: ',
             err.message

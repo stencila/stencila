@@ -5,7 +5,7 @@ import { isExpression } from '../shared/cellHelpers'
 
 export default class Cell {
 
-  constructor(doc, { id, lang, source, state, inputs, output, value, errors, hasSideEffects, next, prev }) {
+  constructor(doc, { id, lang, source, status, inputs, output, value, errors, hasSideEffects, next, prev }) {
 
     this.doc = doc
 
@@ -35,7 +35,7 @@ export default class Cell {
     this._source = this._transpile(source)
 
     // managed by CellGraph
-    this.state = state || UNKNOWN
+    this.status = status || UNKNOWN
     // a set of symbols ('x', 'A1', 'A1:B10', 'doc1!x', 'sheet1!A1', 'sheet1!A1:A10', 'sheet1!foo')
     this.inputs = new Set(inputs || [])
     // an output symbol (typically only used for document cells)
@@ -81,8 +81,25 @@ export default class Cell {
     return false
   }
 
+  get state() {
+    console.warn('DEPRECATED: use cellState.status instead.')
+    return this.status
+  }
+
+  hasOutput() {
+    return Boolean(this.output)
+  }
+
+  hasValue() {
+    return Boolean(this.value)
+  }
+
+  getValue() {
+    return this.value
+  }
+
   getLang() {
-    return this.lang || this.doc ? this.doc.lang : 'mini'
+    return this.lang || (this.doc ? this.doc.lang : 'mini')
   }
 
   updateSource(source) {

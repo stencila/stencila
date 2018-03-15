@@ -1,8 +1,8 @@
 import { NodeComponent, FontAwesomeIcon } from 'substance'
 import CellValueComponent from '../shared/CellValueComponent'
 import CodeEditor from '../shared/CodeEditor'
-import { PENDING, INPUT_ERROR, INPUT_READY, RUNNING, ERROR, OK } from '../engine/CellState'
 import { getCellState, getError } from '../shared/cellHelpers'
+import { toString as stateToString } from '../engine/CellStates'
 import NodeMenu from './NodeMenu'
 
 export default
@@ -27,26 +27,7 @@ class CellComponent extends NodeComponent {
 
   _renderStatus($$) {
     const cellState = getCellState(this.props.node)
-    let statusName
-    switch(cellState.status) {
-      case PENDING:
-      case INPUT_ERROR:
-      case INPUT_READY:
-        statusName = 'pending'
-        break
-      case RUNNING:
-        statusName = 'running'
-        break
-      case ERROR:
-        statusName = 'error'
-        break
-      case OK:
-        statusName = 'ok'
-        break
-      default:
-        statusName = 'pending'
-        break
-    }
+    let statusName = stateToString(cellState.status)
     return $$('div').addClass(`se-status sm-${statusName}`)
   }
 
@@ -92,12 +73,13 @@ class CellComponent extends NodeComponent {
       )
     }
 
-    if (this._showOutput() && cellState.status !== ERROR) {
+    if (this._showOutput() && !cellState.hasErrors()) {
       el.append(
         $$(CellValueComponent, {cell}).ref('value')
       )
     }
-    if (cellState.status === ERROR) {
+    if (cellState.hasErrors()) {
+      // TODO: should we render only the first error?
       el.append(
         $$('div').addClass('se-error').append(
           getError(cell).message
