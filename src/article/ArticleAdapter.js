@@ -64,7 +64,7 @@ export default class ArticleAdapter extends DocumentAdapter {
     }
   }
 
-  _onCreate(node) {
+  _onCreate(node) { // eslint-disable-line
     // const engine = this.engine
     // if (CELL_TYPES[node.type]) {
     //   let adapter = new CellAdapter(this.editorSession, node)
@@ -77,7 +77,7 @@ export default class ArticleAdapter extends DocumentAdapter {
     // return false
   }
 
-  _onDelete(node) {
+  _onDelete(node) { // eslint-disable-line
     // const engine = this.engine
     // if (CELL_TYPES[node.type] || INPUT_TYPES[node.type]) {
     //   engine.removeCell(`${this.doc.UUID}#${node.id}`)

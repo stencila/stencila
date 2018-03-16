@@ -1,6 +1,3 @@
-import { getRowCol } from '../shared/cellHelpers'
-import { transpile } from '../shared/expressionHelpers'
-
 /**
  * Abstract base class for a Stencila execution context
  *

@@ -5,7 +5,7 @@ import transpile from '../../src/shared/transpile'
 test('transpile: local variables should not be transpiled', t => {
   let source = 'x + y'
   let map = {}
-  let transpiled = transpile(source, map)
+  transpile(source, map)
   t.equal(Object.keys(map).length, 0, 'no symbols should have been transpiled')
   t.end()
 })
@@ -13,7 +13,7 @@ test('transpile: local variables should not be transpiled', t => {
 test('transpile: local cells should not be transpiled', t => {
   let source = 'x + A10'
   let map = {}
-  let transpiled = transpile(source, map)
+  transpile(source, map)
   t.equal(Object.keys(map).length, 0, 'no symbols should have been transpiled')
   t.end()
 })

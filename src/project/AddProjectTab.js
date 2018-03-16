@@ -13,8 +13,8 @@ export default class AddProjectTab extends Component {
     let el = $$('div').addClass('sc-add-project-tab sc-project-tab')
 
     el.append(
-      $$(FontAwesomeIcon, {icon: 'fa-plus-circle'}
-    ))
+      $$(FontAwesomeIcon, {icon: 'fa-plus-circle'})
+    )
     .on('click', this._toggleMenu)
 
     if (this.state.menu) {
