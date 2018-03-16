@@ -153,7 +153,7 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     const nextActions = this._nextActions
     if (nextActions.size > 0) {
-      console.log('executing cycle')
+      // console.log('executing cycle')
       // clearing next actions so that we can record new next actions
       this._nextActions = new Map()
 
@@ -177,6 +177,7 @@ export default class Engine extends EventEmitter {
           if (symbol.type === 'range') {
             let rangeCell = graph.getCell(symbol)
             if (!rangeCell) {
+              // console.log('registering RangeCell for', symbol.id)
               rangeCell = new RangeCell(symbol)
               graph.addCell(rangeCell)
             }
@@ -191,10 +192,8 @@ export default class Engine extends EventEmitter {
             let rangeCell = graph.getCell(symbol)
             rangeCell.refs--
             if (rangeCell.refs === 0) {
-              graph.removeCell(cell.id)
-            }
-            if (!rangeCell) {
-              graph.addCell(new RangeCell(symbol))
+              // console.log('removing RangeCell for', rangeCell.symbol.id)
+              graph.removeCell(rangeCell.id)
             }
           }
         })
@@ -328,7 +327,7 @@ export default class Engine extends EventEmitter {
     .then(res => {
       // stop if this was aboreted or there is already a new action for this id
       if (this._nextActions.has(id)) {
-        console.log('action has been superseded')
+        // console.log('action has been superseded')
         return
       }
       if (res instanceof Error) {
@@ -345,10 +344,10 @@ export default class Engine extends EventEmitter {
       // stop if this was aboreted or there is already a new action for this id
       if (!res) return
       if (this._nextActions.has(id)) {
-        console.log('action has been superseded')
+        // console.log('action has been superseded')
         return
       }
-      console.log('ANALYSED cell', cell, res)
+      // console.log('analysed cell', cell, res)
       // transform the extracted symbols into fully-qualified symbols
       // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
       let { inputs, output } = this._compile(res, cell)
@@ -365,13 +364,13 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     const id = action.id
     const cell = graph.getCell(id)
-    console.log('evaluating cell', cell.toString())
+    // console.log('evaluating cell', cell.toString())
     const lang = cell.getLang()
     let transpiledSource = cell.transpiledSource
     return this._getContext(lang)
     .then(res => {
       if (this._nextActions.has(id)) {
-        console.log('action has been superseded')
+        // console.log('action has been superseded')
         return
       }
       if (res instanceof Error) {
@@ -390,7 +389,7 @@ export default class Engine extends EventEmitter {
       // stop if this was aboreted or there is already a new action for this id
       if (!res) return
       if (this._nextActions.has(id)) {
-        console.log('action has been superseded')
+        // console.log('action has been superseded')
         return
       }
       this._nextActions.set(id, {

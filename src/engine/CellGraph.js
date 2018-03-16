@@ -55,6 +55,7 @@ export default class CellGraph {
       this._ins[s].delete(id)
     })
     this._deregisterOutput(id, cell.output)
+    delete this._cells[id]
   }
 
   getValue(symbol) {
