@@ -364,6 +364,8 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     const id = action.id
     const cell = graph.getCell(id)
+    // TODO: is it really ok to wipe all the errors?
+    cell.errors = []
     // console.log('evaluating cell', cell.toString())
     const lang = cell.getLang()
     let transpiledSource = cell.transpiledSource
