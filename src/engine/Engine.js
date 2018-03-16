@@ -1,7 +1,7 @@
 import { uuid, isString, EventEmitter } from 'substance'
 import CellGraph from './CellGraph'
 import { ContextError, RuntimeError } from './CellErrors'
-import { ANALYSED, READY } from './CellStates'
+import { UNKNOWN, ANALYSED, READY } from './CellStates'
 import Cell from './Cell'
 import CellSymbol from './CellSymbol'
 import { parseSymbol } from '../shared/expressionHelpers'
@@ -153,6 +153,7 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     const nextActions = this._nextActions
     if (nextActions.size > 0) {
+      console.log('executing cycle')
       // clearing next actions so that we can record new next actions
       this._nextActions = new Map()
 
@@ -243,7 +244,7 @@ export default class Engine extends EventEmitter {
   */
   _registerCell(cell) {
     this._graph.addCell(cell)
-    this._updateCell(cell.id, cell)
+    this._updateCell(cell.id, {})
   }
 
   /*
@@ -254,15 +255,13 @@ export default class Engine extends EventEmitter {
   }
 
   _updateCell(id, cellData) {
-    // TODO: instead of waiting for another cycle
-    // we could update the CellGraph right away
-    // if in case of sheet cells the source is not an expression
+    const graph = this._graph
+    let cell = graph.getCell(id)
+    Object.assign(cell, cellData)
     this._nextActions.set(id, {
       id,
       type: 'analyse',
-      cellData,
-      // used to detect invalidations
-      token: uuid(),
+      cellData
     })
   }
 
@@ -319,11 +318,19 @@ export default class Engine extends EventEmitter {
       graph.setValue(id, value)
       return
     }
+    // TODO: we need to reset the cell status. Should we let CellGraph do this?
+    cell.status = UNKNOWN
+    cell.errors = []
     // otherwise the cell source is assumed to be dynamic source code
     const transpiledSource = cell.transpiledSource
     const lang = cell.getLang()
     return this._getContext(lang)
     .then(res => {
+      // stop if this was aboreted or there is already a new action for this id
+      if (this._nextActions.has(id)) {
+        console.log('action has been superseded')
+        return
+      }
       if (res instanceof Error) {
         const msg = `Could not get context for ${lang}`
         console.error(msg)
@@ -335,8 +342,13 @@ export default class Engine extends EventEmitter {
       }
     })
     .then(res => {
+      // stop if this was aboreted or there is already a new action for this id
       if (!res) return
-      // console.log('ANALYSED cell', cell, res)
+      if (this._nextActions.has(id)) {
+        console.log('action has been superseded')
+        return
+      }
+      console.log('ANALYSED cell', cell, res)
       // transform the extracted symbols into fully-qualified symbols
       // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
       let { inputs, output } = this._compile(res, cell)
@@ -358,6 +370,10 @@ export default class Engine extends EventEmitter {
     let transpiledSource = cell.transpiledSource
     return this._getContext(lang)
     .then(res => {
+      if (this._nextActions.has(id)) {
+        console.log('action has been superseded')
+        return
+      }
       if (res instanceof Error) {
         const msg = `Could not get context for ${lang}`
         console.error(msg)
@@ -371,6 +387,12 @@ export default class Engine extends EventEmitter {
       }
     })
     .then(res => {
+      // stop if this was aboreted or there is already a new action for this id
+      if (!res) return
+      if (this._nextActions.has(id)) {
+        console.log('action has been superseded')
+        return
+      }
       this._nextActions.set(id, {
         type: 'update',
         id,

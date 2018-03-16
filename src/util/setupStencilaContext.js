@@ -42,7 +42,7 @@ export default function setupStencilaContext(archive) {
         Adapter.connect(engine, editorSession, id)
       }
     })
-    engine.run(100)
+    engine.run(10)
     return {
       host,
       functionManager: host.functionManager,

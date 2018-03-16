@@ -110,6 +110,10 @@ export default class Cell {
     return this._source.original
   }
 
+  set source(source) {
+    this._source = this._transpile(source)
+  }
+
   get transpiledSource() {
     return this._source.transpiled
   }
