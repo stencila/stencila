@@ -1,11 +1,12 @@
 import { uuid, isString, EventEmitter } from 'substance'
 import CellGraph from './CellGraph'
 import { ContextError, RuntimeError } from './CellErrors'
-import { READY } from './CellStates'
+import { ANALYSED, READY } from './CellStates'
 import Cell from './Cell'
 import CellSymbol from './CellSymbol'
 import { parseSymbol } from '../shared/expressionHelpers'
-import { getRowCol, valueFromText, getCellLabel } from '../shared/cellHelpers'
+import { getRowCol, valueFromText, getCellLabel, getColumnLabel } from '../shared/cellHelpers'
+import { gather } from '../value'
 
 /*
   WIP
@@ -53,6 +54,19 @@ import { getRowCol, valueFromText, getCellLabel } from '../shared/cellHelpers'
   - spanning cells are rather a visual aspect. E.g. in GSheets the app
     clears spanned cells, and thus cell references yield empty values
 
+  Sheet Ranges:
+
+  Sheet Ranges such as `sheet1!A1:B10` are treated as independent symbols produced by so called RangeCells.
+  RangeCells act as a proxy cell for the underlying cells.
+  E.g. `sheet1!A1:B10` is produced by a RangeCell with dependencies `['A1', ..., 'B10']`.
+  In contrast to a regular cell, a RangeCell does not need an extra evaluation step. Instead its value
+  can be derived synchronously, as soon as all dependencies are ready.
+
+  One challenge is that such cells should be pruned automatically, when not used anymore.
+  E.g., when the source of a cell is changed from `sheet1!A1:B10` to `sheet1!A1:B11`,
+  the former hidden cell should be removed if there is no other cell left that depends on it.
+
+
   Open Questions:
 
   Should the Engine be run inside the Application/Render thread?
@@ -63,9 +77,6 @@ import { getRowCol, valueFromText, getCellLabel } from '../shared/cellHelpers'
   and in the other direction.
   It is more important to run all contexts independently, so that
   code can be executed in multiple threads.
-
-  How should we address merged/spanning cells?
-
 
   How do structural changes of sheets affect the cell graph?
 
@@ -161,7 +172,32 @@ export default class Engine extends EventEmitter {
         }
       })
       actions.register.forEach(a => {
+        a.inputs.forEach(symbol => {
+          if (symbol.type === 'range') {
+            let rangeCell = graph.getCell(symbol)
+            if (!rangeCell) {
+              rangeCell = new RangeCell(symbol)
+              graph.addCell(rangeCell)
+            }
+            rangeCell.refs++
+          }
+        })
         let cell = graph.getCell(a.id)
+        // Note: we do a ref-couting for RangeCells and remove it
+        // when it is not referenced somewhere else
+        cell.inputs.forEach(symbol => {
+          if (symbol.type === 'range') {
+            let rangeCell = graph.getCell(symbol)
+            rangeCell.refs--
+            if (rangeCell.refs === 0) {
+              graph.removeCell(cell.id)
+            }
+            if (!rangeCell) {
+              graph.addCell(new RangeCell(symbol))
+            }
+          }
+        })
+
         if (cell.isSheetCell()) {
           graph.setInputs(cell.id, a.inputs)
         } else {
@@ -176,9 +212,9 @@ export default class Engine extends EventEmitter {
       return A.concat(B)
     } else if (graph.needsUpdate()) {
       this._updateGraph()
-      return Promise.resolve(true)
+      return []
     } else {
-      return Promise.resolve(false)
+      return []
     }
   }
 
@@ -243,13 +279,26 @@ export default class Engine extends EventEmitter {
     updatedIds.forEach(id => {
       let cell = graph.getCell(id)
       if (cell) {
+        // WIP: adding support for RangeCells
+        // Instead of registering an evaluation, we just update the graph.
+        // TODO: this requires another cycle to propagate the result of the RangeCell,
+        // which would not be necessary in theory
         if (cell.status === READY) {
-          this._nextActions.set(cell.id, {
-            type: 'evaluate',
-            id: cell.id
-          })
+          if (cell instanceof RangeCell) {
+            // TODO: collect the inputs and produce a coerced output value
+            // and update the graph
+            let value = this._getRangeValue(cell)
+            graph.setValue(cell.id, value)
+          } else {
+            this._nextActions.set(cell.id, {
+              type: 'evaluate',
+              id: cell.id
+            })
+          }
         }
-        updatedCells.push(cell)
+        if (!cell.hidden) {
+          updatedCells.push(cell)
+        }
       }
     })
     if (updatedCells.length > 0) {
@@ -397,21 +446,88 @@ export default class Engine extends EventEmitter {
   }
 
   _lookupDocumentId(name) {
-    for (var id in this.docs) { // eslint-disable-line guard-for-in
-      let doc = this.docs
+    for (var id in this._docs) { // eslint-disable-line guard-for-in
+      let doc = this._docs[id]
       if (doc.name === name || id === name) {
         return doc.id
       }
     }
   }
 
+  _lookupDocument(name) {
+    let docId = this._lookupDocumentId(name)
+    return this._docs[docId]
+  }
+
+  /*
+    Gathers the value for a cell range
+    - `A1:A1`: value
+    - `A1:A10`: array
+    - `A1:E1`: array
+    - `A1:B10`: table
+
+    TODO: we should try to avoid using specific coercion here
+    and instead let this be done by hooks
+  */
+  _getRangeValue(rangeCell) {
+    const { startRow, endRow, startCol, endCol } = rangeCell
+    // TODO: rangeCell.docId is not accurate; it seems that this is the rather 'name'
+    let sheet = this._lookupDocument(rangeCell.docId)
+    let matrix = sheet.getCells()
+    let val
+    // range is a single cell
+    if (startRow === endRow && startCol === endCol) {
+      val = getCellValue(matrix[startRow][startCol])
+    }
+    // range is 1D
+    else if (startRow === endRow) {
+      let cells = matrix[startRow].slice(startCol, endCol+1)
+      val = gather('array', cells.map(c => getCellValue(c)))
+    }
+    else if (startCol === endCol) {
+      let cells = []
+      for (let i = startRow; i <= endRow; i++) {
+        cells.push(matrix[i][startCol])
+      }
+      val = gather('array', cells.map(c => getCellValue(c)))
+    }
+    // range is 2D (-> creating a table)
+    else {
+      let data = {}
+      for (let j = startCol; j <= endCol; j++) {
+        let name = sheet.getColumnName(j) || getColumnLabel(j)
+        let cells = []
+        for (let i = startRow; i <= endRow; i++) {
+          cells.push(matrix[i][j])
+        }
+        // TODO: why is it necessary to extract the primitive value here, instead of just using getCellValue()?
+        data[name] = cells.map(c => {
+          let val = getCellValue(c)
+          if (val) {
+            return val.data
+          } else {
+            return undefined
+          }
+        })
+      }
+      val = {
+        // Note: first 'type' is for packing
+        // and second type for diambiguation against other complex types
+        type: 'table',
+        data: {
+          type: 'table',
+          data,
+          columns: endCol-startCol+1,
+          rows: endRow-startRow+1
+        }
+      }
+    }
+    return val
+  }
 }
 
 /*
-  Engine's Internal model of a Document.
-
-  WIP: Aim is create a simple model for all types of
-  documents/notebooks, independent from the document model used by Stencila.
+  Engine's internal model of a Document.
 */
 class Document {
 
@@ -455,10 +571,7 @@ class Document {
 }
 
 /*
-  Engine's Internal model of a Spreadsheet.
-
-  WIP: Aim is create a simple model for all types of
-  spreadsheets, independent from the document model used by Stencila.
+  Engine's internal model of a Spreadsheet.
 */
 class Sheet {
 
@@ -466,6 +579,7 @@ class Sheet {
     const docId = data.id
     if (!docId) throw new Error("'id' is required")
     this.id = docId
+    this.name = data.name
     // default language
     const defaultLang = data.lang || 'mini'
     this.lang = defaultLang
@@ -536,9 +650,15 @@ class Sheet {
         default:
           throw new Error('Unsupported query')
       }
-      // single cell
-      // or cell array
-      // or cell matrix
+    }
+  }
+
+  getColumnName(colIdx) {
+    let columnMeta = this.columns[colIdx]
+    if (columnMeta && columnMeta.name) {
+      return columnMeta.name
+    } else {
+      return getColumnLabel(colIdx)
     }
   }
 
@@ -589,4 +709,73 @@ class Sheet {
     // unnecessarily often
   }
 
+}
+
+/*
+  An internal cell that is used to represent range expressions such as `A1:B10`.
+  This cell is used as proxy with a canonical expansion to primitive cells.
+  I.e. `A1:B10` is proxied to `['A1',...,'B10']
+*/
+class RangeCell {
+
+  constructor(symbol) {
+    this.symbol = symbol
+    this.id = symbol.id
+    this.docId = symbol.scope
+    this.inputs = new Set()
+    this.output = symbol.id
+
+    // managed by CellGraph
+    this.status = ANALYSED
+    this.value = undefined
+
+    this.refs = 0
+
+    this._initialize()
+  }
+
+  get hidden() { return true }
+
+  hasError() { return false }
+
+  hasErrors() { return false }
+
+  clearErrors() {}
+
+  addErrors() {}
+
+  getValue() { return this.value }
+
+  _initialize() {
+    const docId = this.docId
+    const name = this.symbol.name
+    let [start, end] = name.split(':')
+    let [startRow, startCol] = getRowCol(start)
+    let [endRow, endCol] = getRowCol(end)
+    if (startRow > endRow) {
+      ([startRow, endRow] = [endRow, startRow])
+    }
+    if (startCol > endCol) {
+      ([startCol, endCol] = [endCol, startCol])
+    }
+
+    this.startRow = startRow
+    this.endRow = endRow
+    this.startCol = startCol
+    this.endCol = endCol
+
+    for (let i = startRow; i <= endRow; i++) {
+      for (let j = startCol; j <= endCol; j++) {
+        let cellName = getCellLabel(i, j)
+        let id = docId + '!' + cellName
+        // Note: it should be fine to use a string here, because we do not need
+        // to do any deeper reflection, and just use it as a key
+        this.inputs.add(id)
+      }
+    }
+  }
+}
+
+function getCellValue(cell) {
+  return cell ? cell.value : undefined
 }

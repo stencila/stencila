@@ -53,7 +53,7 @@ test('Engine: [steps] single cell', t => {
 })
 
 test('Engine: [steps] sheet', t=> {
-  t.plan(7)
+  t.plan(4)
   let { engine } = _setup()
   let sheet = engine.addSheet({
     id: 'sheet1',
@@ -86,6 +86,47 @@ test('Engine: [steps] sheet', t=> {
   })
   .then(() => {
     t.deepEqual(_getValues([cell2, cell4]), [2,4], 'values should have been computed')
+  })
+})
+
+test('Engine: [steps] range expression', t=> {
+  t.plan(4)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2', '= A1:B1'],
+      ['3', '4', '5'],
+      ['= A1:A2', '6', '= A1:B2'],
+    ]
+  })
+  let [ [,,cell1], [,,], [cell2,,cell3] ] = sheet.getCells()
+  _cycle(engine)
+  .then(() => {
+    _checkActions(t, engine, [cell1, cell2, cell3], ['register', 'register','register'])
+    return _cycle(engine)
+  })
+  // an extra cycle because RangeCell to propagate the gathered values of RangeCells
+  .then(() => {
+    return _cycle(engine)
+  })
+  // and another cycle to get the mini cells evaluated
+  .then(() => {
+    _checkActions(t, engine, [cell1, cell2, cell3], ['evaluate', 'evaluate','evaluate'])
+    return _cycle(engine)
+  })
+  // and another one to update the values
+  .then(() => {
+    _checkActions(t, engine, [cell1, cell2, cell3], ['update', 'update','update'])
+    return _cycle(engine)
+  })
+  .then(() => {
+    t.deepEqual(
+      _getValues([cell1, cell2, cell3]),
+      [[1,2], [1,3], {"type":"table","data":{"A":[1,3],"B":[2,4]},"columns":2,"rows":2}],
+      'values should have been computed'
+    )
   })
 })
 
@@ -156,15 +197,15 @@ function _play(engine) {
   })
 }
 
-function _checkActions(t, engine, cells, actions) {
+function _checkActions(t, engine, cells, expected) {
   let nextActions = engine.getNextActions()
+  let actual = []
   for (let i = 0; i < cells.length; i++) {
     const cell = cells[i]
     const action = nextActions.get(cell.id)
-    const actual = action ? action.type : undefined
-    const expected = actions[i]
-    t.equal(actual, expected, 'action should be registered correctly')
+    actual.push(action ? action.type : undefined)
   }
+  t.deepEqual(actual, expected, 'next actions should be registered correctly')
 }
 
 // TODO: there must be a helper, already

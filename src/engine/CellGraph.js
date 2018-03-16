@@ -48,6 +48,15 @@ export default class CellGraph {
     }
   }
 
+  removeCell(id) {
+    const cell = this._cells[id]
+    if (!cell) throw new Error('Internal error: cell does not exist.')
+    cell.inputs.forEach(s => {
+      this._ins[s].delete(id)
+    })
+    this._deregisterOutput(id, cell.output)
+  }
+
   getValue(symbol) {
     let cellId = this._out[symbol]
     if (!cellId) return undefined
@@ -97,9 +106,6 @@ export default class CellGraph {
   }
 
   _setOutput(cell, newOutput) {
-    // TODO: handle collisions
-    // -> it would be nice if the graph could keep competing outputs and resolve
-    //    automatically if all ambiguities have been resolved
     // TODO: if only the output of a cell changed, we could retain the runtime result
     // and leave the cell's state untouched
     let oldOutput = cell.output
@@ -141,7 +147,7 @@ export default class CellGraph {
 
   addErrors(id, errors) {
     let cell = this._cells[id]
-    cell.errors = cell.errors.concat(errors)
+    cell.addErrors(errors)
     this._stateChanged.add(id)
   }
 
@@ -198,21 +204,7 @@ export default class CellGraph {
     if (oldOutput === newOutput) return false
     // deregister the old output first
     if (oldOutput) {
-      if (this._hasOutputCollision(oldOutput)) {
-        this._resolveOutputCollision(oldOutput, id)
-      } else {
-        delete this._out[oldOutput]
-        // mark old deps as affected
-        let ids = this._ins[oldOutput] || []
-        ids.forEach(_id => {
-          let cell = this._cells[_id]
-          if (cell.status === BROKEN) {
-            // TODO: probably we do not want to clear all graph errors, but only specific ones
-            cell.clearErrors('graph')
-          }
-          this._structureChanged.add(_id)
-        })
-      }
+      this._deregisterOutput(id, oldOutput)
     }
     if (newOutput) {
       // TODO: detect collisions
@@ -239,6 +231,24 @@ export default class CellGraph {
       })
     }
     return true
+  }
+
+  _deregisterOutput(id, output) {
+    if (this._hasOutputCollision(output)) {
+      this._resolveOutputCollision(output, id)
+    } else {
+      delete this._out[output]
+      // mark old deps as affected
+      let ids = this._ins[output] || []
+      ids.forEach(_id => {
+        let cell = this._cells[_id]
+        if (cell.status === BROKEN) {
+          // TODO: probably we do not want to clear all graph errors, but only specific ones
+          cell.clearErrors('graph')
+        }
+        this._structureChanged.add(_id)
+      })
+    }
   }
 
   update() {
@@ -291,7 +301,7 @@ export default class CellGraph {
     if (unresolved.length > 0) {
       // TODO: maybe only clear UnresolvedInputErrors
       cell.clearErrors('graph')
-      cell.errors.push(new UnresolvedInputError(MSG_UNRESOLVED_INPUT, { unresolved }))
+      cell.addErrors([new UnresolvedInputError(MSG_UNRESOLVED_INPUT, { unresolved })])
       cell.status = BROKEN
     }
   }
@@ -466,7 +476,7 @@ export default class CellGraph {
       const trace = err.trace
       trace.forEach(id => {
         let cell = this._cells[id]
-        cell.errors = cell.errors.filter(err => !(err instanceof CyclicDependencyError))
+        cell.clearErrors(err => (err instanceof CyclicDependencyError))
         this._structureChanged.add(id)
       })
     }
