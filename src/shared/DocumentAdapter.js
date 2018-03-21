@@ -12,12 +12,15 @@ export class DocumentAdapter {
     this.engine = engine
     this.editorSession = editorSession
     this.doc = editorSession.getDocument()
+    // a unique id to identify documents (e.g. used as for variable scopes and transclusions)
+    if (!this.doc.UUID) this.doc.UUID = uuid()
+    this.docId = this.doc.UUID
     this.name = name
-    // Note: this id is used internally to
-    // lookup variables and cells
-    if (!this.doc.UUID) {
-      this.doc.UUID = uuid()
-    }
+
+    // used internally to record changes applied to the document model
+    // and that need to transfered to the Engine.
+    this._updates = new Map()
+
     this._initialize()
   }
 
@@ -25,10 +28,28 @@ export class DocumentAdapter {
     throw new Error('This method is abstract')
   }
 
-  _getDocId() {
-    return this.doc.UUID
+  /*
+    Called after every DocumentChange to keep the Engine in sync.
+  */
+  _update() {
+    throw new Error('This method is abstract.')
   }
 
+  _adaptNode(node) {
+    if (node._engineAdapter) return node._engineAdapter
+    return new CellAdapter(node)
+  }
+
+  _qualifiedId(cell) {
+    // TODO: where is this notation coming from?
+    return `${this.docId}_${cell.id}`
+  }
+
+  /*
+    Called after each Engine cycle.
+
+    @param {Set<Cell>} updates updated cells.
+  */
   _onEngineUpdate(updates) {
     // Note: for now we are sharing the cell states with the engine
     // thus, we can just notify the session about the changed cells
@@ -51,16 +72,6 @@ export class DocumentAdapter {
       editorSession.startFlow()
     }
   }
-
-  adaptNode(node) {
-    if (node._engineAdapter) return node._engineAdapter
-    return this._adaptNode(node)
-  }
-
-  _adaptNode(node) {
-    return new CellAdapter(node)
-  }
-
 }
 
 export class CellAdapter {

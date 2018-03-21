@@ -6,50 +6,121 @@ import { DocumentAdapter } from '../shared/DocumentAdapter'
 export default class SheetAdapter extends DocumentAdapter {
 
   _initialize() {
-    // find all
-    const docId = this._getDocId()
-    const sheet = this.doc
+    const doc = this.doc
+    const docId = this.docId
     const engine = this.engine
-    // create a matrix of cells from the model
-    // TODO: maybe the SheetDocument provide this as a random
-    // access layer on top of the model
-    let matrix = sheet.getCellMatrix()
-    let nodeAdapters = matrix.map(row => {
-      return row.map(node => this.adaptNode(node))
-    })
     // TODO: also provide column data
-    let sheetAdapter = engine.addSheet({
+    this.adapter = engine.addSheet({
       id: docId,
       name: this.name,
       // default language
       lang: 'mini',
-      cells: nodeAdapters
-    })
-    // use the Engine's cell data as state of the Article's node
-    // NOTE: we can do this as long as we run the Engine in the same thread
-    // Otherwise we would need to keep a local version of the state
-    let cells = sheetAdapter.getCells()
-    for (let i = 0; i < cells.length; i++) {
-      let row = cells[i]
-      for (let j = 0; j < row.length; j++) {
-        const cell = row[j]
-        nodeAdapters[i][j].node.state = cell
+      cells: this._getNodeAdapters(),
+      onRegister(cell) {
+        let node = doc.get(cell.localId)
+        node.state = cell
       }
-    }
+    })
     this.editorSession.on('render', this._onDocumentChange, this, { resource: 'document' })
     this.engine.on('update', this._onEngineUpdate, this)
   }
 
-  _onDocumentChange(change) { // eslint-disable-line
+  _onDocumentChange(change) {
+    // TODO: deal with updates to columns (name, types)
+
+    // TODO: with 'semantic' changes this could be much simpler,
+    // i.e. `change.info.action` consistently, and then detect
+    // structural changes more easily.
+    // For now we follow the old approach handling changes on op-per-op basis
+    const doc = this.doc
+    const adapter = this.adapter
+    const engine = this.engine
+    const ops = change.ops
+    let updates = new Map()
+    for (let i = 0; i < ops.length; i++) {
+      const op = ops[i]
+      // TODO: this very similar to what is done in ArticleAdapter
+      // we should reuse code, by either moving things into DocumentAdapter
+      // or by using helpers
+      switch (op.type) {
+        case 'create': {
+          let node = doc.get(op.path[0])
+          if (node && this._isCell(node)) {
+            updates.set(node.id, { type: 'add', node })
+          }
+          break
+        }
+        case 'delete': {
+          let nodeData = op.val
+          if (this._isCell(nodeData)) {
+            updates.set(nodeData.id, { type: 'remove', node: nodeData })
+          }
+          break
+        }
+        case 'set':
+        case 'update': {
+          let node = doc.get(op.path[0])
+          // node can be null if it has been deleted later on
+          if (this._isCell(node)) {
+            this._updates.set(node.id, { type: 'change', node })
+          }
+          break
+        }
+        default:
+          throw new Error('Invalid state')
+      }
+    }
+    // stop here if there were no updates
+    if (updates.size === 0) return
+    // otherwise update the engine
+    // TODO: we need to consolidate the adapter/engine API
+    // either we use only the Engine's document API
+    // or only use the Engine's API
+    let structureChanged = false
+    updates.forEach(update => {
+      const node = update.node
+      switch (update.type) {
+        case 'add': {
+          adapter.registerCell(this._adaptNode(node))
+          structureChanged = true
+          break
+        }
+        case 'remove': {
+          engine.removeCell(this._qualifiedId(node))
+          structureChanged = true
+          break
+        }
+        case 'change': {
+          // TODO: we should use a helper to access the hidden fields 'state' and '_engineAdapter'
+          let cellState = node.state
+          let cellAdapter = node._engineAdapter
+          if (cellState && cellAdapter) {
+            const { source, lang } = cellAdapter
+            engine._updateCell(cellState.id, { source, lang })
+          }
+          break
+        }
+        default:
+          throw new Error('Invalid update.')
+      }
+    })
+    if (structureChanged) {
+      // TODO: updating the matrix feels still a bit clumsy here
+      adapter.cells = this._getNodeAdapters()
+      adapter.updateCellSymbols(engine)
+    }
   }
 
-  _onCreate(node) { // eslint-disable-line
+
+  _getNodeAdapters() {
+    let matrix = this.doc.getCellMatrix()
+    return matrix.map(row => {
+      return row.map(node => this._adaptNode(node))
+    })
   }
 
-  _onDelete(node) { // eslint-disable-line
-  }
-
-  _onChange(node) { // eslint-disable-line
+  _isCell(node) {
+    return node.type === 'cell'
   }
 
   static connect(engine, editorSession, name) {

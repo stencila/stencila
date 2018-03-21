@@ -250,7 +250,7 @@ export default class Engine extends EventEmitter {
     Removes a cell from the engine.
   */
   _removeCell(id) { // eslint-disable-line
-    // TODO
+    this._graph.removeCell(id)
   }
 
   _updateCell(id, cellData) {
@@ -555,6 +555,7 @@ export default class Engine extends EventEmitter {
 class Document {
 
   constructor(data) {
+    this.data = data
     const docId = data.id
     if (!docId) throw new Error("'id' is required")
     this.id = docId
@@ -562,19 +563,8 @@ class Document {
     // default language
     const defaultLang = data.lang || 'mini'
     this.lang = defaultLang
-
-    this.cells = data.cells.map(cellData => {
-      if (isString(cellData)) {
-        let source = cellData
-        cellData = {
-          id: uuid(),
-          docId,
-          source
-        }
-      }
-      let cell = new Cell(this, cellData)
-      return cell
-    })
+    this.onRegister = data.onRegister
+    this.cells = data.cells.map(cellData => this._createCell(cellData))
   }
 
   get type() { return 'document' }
@@ -583,12 +573,23 @@ class Document {
     return this.cells
   }
 
-  _registerCells(engine) {
-    this.cells.forEach(cell => engine._registerCell(cell))
+  _createCell(cellData) {
+    const onRegister = this.onRegister
+    if (isString(cellData)) {
+      let source = cellData
+      cellData = {
+        id: uuid(),
+        docId: this.id,
+        source
+      }
+    }
+    let cell = new Cell(this, cellData)
+    if (onRegister) onRegister(cell)
+    return cell
   }
 
-  _updateDocumentSequence(docId, cellIds) { // eslint-disable-line
-    // update the graph accordingly
+  _registerCells(engine) {
+    this.cells.forEach(cell => engine._registerCell(cell))
   }
 
 }
@@ -619,62 +620,14 @@ class Sheet {
       })
     }
     const ncols = this.columns.length
-    this.cells = data.cells.map((rowData, rowIdx) => {
+    this.cells = data.cells.map((rowData) => {
       if (rowData.length !== ncols) throw new Error('Invalid data')
-      let row = rowData.map((cellData, colIdx) => {
-        // simple format: just the expression
-        if (isString(cellData)) {
-          let source = cellData
-          cellData = {
-            id: uuid(),
-            docId,
-            source,
-            output: docId + '!' + getCellLabel(rowIdx, colIdx)
-          }
-        }
-        let cell = new Cell(this, cellData)
-        return cell
-      })
-      return row
+      return rowData.map(cellData => this._createCell(cellData))
     })
+    this._setCellOutputs()
   }
 
   get type() { return 'sheet' }
-
-  getCells(query) {
-    if (!query) {
-      return this.cells
-    } else {
-      let { type, name } = parseSymbol(query)
-      switch (type) {
-        case 'cell': {
-          const [row, col] = getRowCol(name)
-          return this.cells[row][col]
-        }
-        case 'range': {
-          let [anchor, focus] = name.split(':')
-          const [anchorRow, anchorCol] = getRowCol(anchor)
-          const [focusRow, focusCol] = getRowCol(focus)
-          if (anchorRow === focusRow && anchorCol === focusCol) {
-            return this.cells[anchorCol][focusCol]
-          }
-          if (anchorRow === focusRow) {
-            return this.cells[anchorRow].slice(anchorCol, focusCol+1)
-          }
-          if (anchorCol === focusCol) {
-            let cells = []
-            for (let i = anchorRow; i <= focusRow; i++) {
-              cells.push(this.cells[i][anchorCol])
-            }
-            return cells
-          }
-          throw new Error('Unsupported query')
-        }
-        default:
-          throw new Error('Unsupported query')
-      }
-    }
-  }
 
   getColumnName(colIdx) {
     let columnMeta = this.columns[colIdx]
@@ -685,53 +638,50 @@ class Sheet {
     }
   }
 
+  getCells() {
+    return this.cells
+  }
+
+  updateCellSymbols(engine) {
+    this._setCellOutputs(engine)
+  }
+
+  // This must be called after structural changes to update
+  // the output symbol a cell which is derived from its position in the sheet
+  // i.e. `cells[0][0]` in `sheet1` is associated to symbol `sheet1!A1`
+  _setCellOutputs(engine) {
+    const graph = engine ? engine._graph : false
+    this.cells.forEach((row, rowIdx) => {
+      row.forEach((cell, colIdx) => {
+        cell._rowIdx = rowIdx
+        cell._colIdx = colIdx
+        cell.output = this._getCellSymbol(rowIdx, colIdx)
+        if (graph) graph.setOutput(cell.id, cell.output)
+      })
+    })
+  }
+
+  _getCellSymbol(rowIdx, colIdx) {
+    return `${this.id}!${getCellLabel(rowIdx, colIdx)}`
+  }
+
+  _createCell(cellData) {
+    // simple format: just the expression
+    if (isString(cellData)) {
+      let source = cellData
+      cellData = {
+        id: uuid(),
+        docId: this.id,
+        source,
+      }
+    }
+    let cell = new Cell(this, cellData)
+    return cell
+  }
+
   _registerCells(engine) {
     this.cells.forEach(row => row.forEach(cell => engine._registerCell(cell)))
   }
-
-  /*
-    Registers a sheet column.
-  */
-  _addColumn(sheetId, idx, colData, cellIds) { // eslint-disable-line
-    // TODO:
-    // - make sure that cells have been registered already
-    // - length of cellIds must be consistent with sheet dimensions
-    // - create a column record
-  }
-
-  _removeColumn(sheetId, idx) { // eslint-disable-line
-    // TODO:
-    // - remove the column record
-    // - and update sheet symbols
-  }
-
-  _updateColumn(sheetId, idx, colData) { // eslint-disable-line
-    // TODO:
-    // - update column meta data
-    // - invalidate cells accordingly (e.g. for type validation)
-  }
-
-  _addRow(sheetId, rowIdx, cellIds) { // eslint-disable-line
-    // TODO:
-    // - make sure that cells have been registered already
-    // - length of cellIds must be consistent with sheet dimensions
-    // - update column records
-  }
-
-  _removeRow(sheetId, rowIdx) { // eslint-disable-line
-    // - update column records
-  }
-
-  _updateSheetSymbols(sheetId) { // eslint-disable-line
-    // TODO:
-    // - set output symbols of all sheet cells
-    // - according to the current sheet structure
-
-    // maybe this could be done automatically, however, this API
-    // is considered low-level and I want to avoid that this is called
-    // unnecessarily often
-  }
-
 }
 
 /*
@@ -775,12 +725,8 @@ class RangeCell {
     let [start, end] = name.split(':')
     let [startRow, startCol] = getRowCol(start)
     let [endRow, endCol] = getRowCol(end)
-    if (startRow > endRow) {
-      ([startRow, endRow] = [endRow, startRow])
-    }
-    if (startCol > endCol) {
-      ([startCol, endCol] = [endCol, startCol])
-    }
+    if (startRow > endRow) ([startRow, endRow] = [endRow, startRow])
+    if (startCol > endCol) ([startCol, endCol] = [endCol, startCol])
 
     this.startRow = startRow
     this.endRow = endRow

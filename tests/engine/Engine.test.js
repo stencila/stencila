@@ -5,6 +5,7 @@ import MiniContext from '../../src/contexts/MiniContext'
 import FunctionManager from '../../src/function/FunctionManager'
 import { libtestXML, libtest } from '../contexts/libtest'
 import { UNKNOWN } from '../../src/engine/CellStates'
+import { queryCells } from '../../src/shared/cellHelpers'
 // import { wait } from '../testHelpers'
 
 test('Engine: [steps] single cell', t => {
@@ -144,7 +145,7 @@ test('Engine: [play] sheet', t=> {
   })
   _play(engine)
   .then(() => {
-    t.deepEqual(_getValues(sheet.getCells('B1:B2')), [2,4], 'values should have been computed')
+    t.deepEqual(_getValues(queryCells(sheet.getCells(), 'B1:B2')), [2,4], 'values should have been computed')
   })
 })
 

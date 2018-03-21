@@ -1,5 +1,7 @@
 import { isNumber } from 'substance'
 import { type } from '../value'
+import { parseSymbol } from './expressionHelpers'
+
 
 export function getCellState(cell) {
   // FIXME: we should make sure that cellState is
@@ -125,4 +127,36 @@ export function getFrameSize(layout) {
   }
   const sizes = layout.width ? layout : defaultSizes
   return sizes
+}
+
+// This is useful for writing tests, to use queries such as 'A1:A10'
+export function queryCells(cells, query) {
+  let { type, name } = parseSymbol(query)
+  switch (type) {
+    case 'cell': {
+      const [row, col] = getRowCol(name)
+      return cells[row][col]
+    }
+    case 'range': {
+      let [anchor, focus] = name.split(':')
+      const [anchorRow, anchorCol] = getRowCol(anchor)
+      const [focusRow, focusCol] = getRowCol(focus)
+      if (anchorRow === focusRow && anchorCol === focusCol) {
+        return cells[anchorCol][focusCol]
+      }
+      if (anchorRow === focusRow) {
+        return cells[anchorRow].slice(anchorCol, focusCol+1)
+      }
+      if (anchorCol === focusCol) {
+        let res = []
+        for (let i = anchorRow; i <= focusRow; i++) {
+          res.push(cells[i][anchorCol])
+        }
+        return res
+      }
+      throw new Error('Unsupported query')
+    }
+    default:
+      throw new Error('Unsupported query')
+  }
 }

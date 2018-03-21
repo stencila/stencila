@@ -90,7 +90,8 @@ export default class CellGraph {
     }
   }
 
-  // TODO: do we really need this?
+  // used to update sheet cell output symbols after structural
+  // changes. In this case there are typically a lot of other changes, too
   setOutput(id, newOutput) {
     let cell = this._cells[id]
     if (!cell) throw new Error(`Unknown cell ${id}`)
