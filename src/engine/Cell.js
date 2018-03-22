@@ -1,12 +1,12 @@
 import { isString } from 'substance'
 import { UNKNOWN } from './CellStates'
 import { transpile } from '../shared/expressionHelpers'
-import { isExpression } from '../shared/cellHelpers'
+import { isExpression, qualifiedId } from '../shared/cellHelpers'
 
 export default class Cell {
 
-  constructor(doc, { id, lang, source, status, inputs, output, value, errors, hasSideEffects, next, prev }) {
-
+  constructor(doc, cellData) {
+    const { id, lang, source, status, inputs, output, value, errors, hasSideEffects, next, prev } = cellData
     this.doc = doc
 
     // Attention: the given cell id is not necessarily globally unique
@@ -14,13 +14,19 @@ export default class Cell {
     // localId is used later to be able to map back to the associated node
     // TODO: I would rather go for only one id, and always have a doc
     if (doc) {
-      this.id = doc.id + '_' + id
-      this.localId = id
-      this.docId = doc.id
+      let docId = this.docId = doc.id
+      // is the id already a qualified id?
+      if (id.startsWith(docId)) {
+        this.id = id
+        this.unqualifiedId = id.slice(docId.length+1)
+      } else {
+        this.id = qualifiedId(doc, cellData)
+        this.unqualifiedId = id
+      }
     } else {
-      this.id = id
-      this.localId = id
       this.docId = null
+      this.id = id
+      this.unqualifiedId = id
     }
 
     this._isSheetCell = (this.doc && this.doc.type === 'sheet')

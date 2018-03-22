@@ -1,4 +1,5 @@
 import { uuid, DocumentChange } from 'substance'
+import { qualifiedId } from './cellHelpers'
 
 /*
   Base-Class for adapters between document and engine.
@@ -13,36 +14,16 @@ export class DocumentAdapter {
     this.editorSession = editorSession
     this.doc = editorSession.getDocument()
     // a unique id to identify documents (e.g. used as for variable scopes and transclusions)
-    if (!this.doc.UUID) this.doc.UUID = uuid()
-    this.docId = this.doc.UUID
+    // WORKAROND: because Substance Document does not provide a setter
+    // for `id` we are setting the underlying property directly
+    if (!this.doc.id) this.doc.__id__ = uuid()
     this.name = name
-
-    // used internally to record changes applied to the document model
-    // and that need to transfered to the Engine.
-    this._updates = new Map()
 
     this._initialize()
   }
 
   _initialize() {
     throw new Error('This method is abstract')
-  }
-
-  /*
-    Called after every DocumentChange to keep the Engine in sync.
-  */
-  _update() {
-    throw new Error('This method is abstract.')
-  }
-
-  _adaptNode(node) {
-    if (node._engineAdapter) return node._engineAdapter
-    return new CellAdapter(node)
-  }
-
-  _qualifiedId(cell) {
-    // TODO: where is this notation coming from?
-    return `${this.docId}_${cell.id}`
   }
 
   /*
@@ -53,9 +34,9 @@ export class DocumentAdapter {
   _onEngineUpdate(updates) {
     // Note: for now we are sharing the cell states with the engine
     // thus, we can just notify the session about the changed cells
-    const docId = this.doc.UUID
+    const docId = this.doc.id
     const editorSession = this.editorSession
-    let nodeIds = updates.filter(cell => cell.docId === docId).map(cell => cell.localId)
+    let nodeIds = updates.filter(cell => cell.docId === docId).map(cell => cell.unqualifiedId)
     if (nodeIds.length > 0) {
       // TODO: there should be a built in means to trigger a reflow
       // after updates of node states
@@ -74,28 +55,20 @@ export class DocumentAdapter {
   }
 }
 
-export class CellAdapter {
 
-  constructor(node) {
-    this.node = node
-    // store this adapter so that we can reuse it later
-    node._engineAdapter = this
+export function getQualifiedId(node) {
+  if (!node._qualifiedId) {
+    node._qualifiedId = qualifiedId(node.getDocument(), node)
   }
+  return node._qualifiedId
+}
 
-  get id() {
-    return this.node.id
-  }
-
-  get source() {
-    return this._getSourceElement().textContent
-  }
-
-  get lang() {
-    return this._getSourceElement().getAttribute('language')
-  }
-
-  _getSourceElement() {
-    return this.node
-  }
-
+export function mapCellState(doc, cellState) {
+  // TODO: we need to be careful with this
+  // The node state should be something general, document specific
+  // Instead we take all necessary parts of the engine's cell state
+  // and use the document's node state API (future)
+  // For now, we just share the state
+  let node = doc.get(cellState.unqualifiedId)
+  node.state = cellState
 }

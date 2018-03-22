@@ -160,3 +160,8 @@ export function queryCells(cells, query) {
       throw new Error('Unsupported query')
   }
 }
+
+export function qualifiedId(doc, cell) {
+  if (doc) return `${cell.getDocument().id}_${cell.id}`
+  return cell.id
+}

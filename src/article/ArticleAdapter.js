@@ -1,4 +1,4 @@
-import { DocumentAdapter, CellAdapter } from '../shared/DocumentAdapter'
+import { DocumentAdapter, getQualifiedId, mapCellState } from '../shared/DocumentAdapter'
 
 /*
   Connects Engine and Article.
@@ -6,28 +6,22 @@ import { DocumentAdapter, CellAdapter } from '../shared/DocumentAdapter'
 export default class ArticleAdapter extends DocumentAdapter {
 
   _initialize() {
-    const docId = this.docId
     const doc = this.doc
     const engine = this.engine
-    // a plain
-    let adapter = engine.addDocument({
-      id: docId,
+    let model = engine.addDocument({
+      id: doc.id,
       name: this.name,
       lang: 'mini',
-      cells: this._getNodeAdapters(),
-      onRegister(cell) {
-        let node = doc.get(cell.localId)
-        node.state = cell
-      }
+      cells: this._getCellNodes().map(_getCellData),
+      onCellRegister: mapCellState.bind(null, doc)
     })
-    this.adapter = adapter
-    this.editorSession.on('render', this._onDocumentChange, this, { resource: 'document' })
+    this.model = model
+    this.editorSession.on('update', this._onDocumentChange, this, { resource: 'document' })
     this.engine.on('update', this._onEngineUpdate, this)
   }
 
-  _getNodeAdapters() {
-    // TODO: in future there might be more node types that need to be registered
-    return this.doc.findAll('cell').map(node => this._adaptNode(node))
+  _getCellNodes() {
+    return this.doc.findAll('cell')
   }
 
   /*
@@ -36,18 +30,21 @@ export default class ArticleAdapter extends DocumentAdapter {
   */
   _onDocumentChange(change) {
     const doc = this.doc
-    const adapter = this.adapter
-    const engine = this.engine
-
+    const model = this.model
+    // inspecting ops to detect structural changes and updates
+    // Cell removals are applied directly to the engine model
+    // while insertions are applied at the end
+    // 1. removes, 2. creates, 3. updates, 3. creates
+    let created, updated
     const ops = change.ops
-    let updates = new Map()
     for (let i = 0; i < ops.length; i++) {
       const op = ops[i]
       switch (op.type) {
         case 'create': {
           let node = doc.get(op.path[0])
-          if (node && this._isCell(node)) {
-            updates.set(node.id, { type: 'add', node })
+          if (this._isCell(node)) {
+            if (!created) created = new Set()
+            created.add(node.id)
           }
           break
         }
@@ -55,19 +52,22 @@ export default class ArticleAdapter extends DocumentAdapter {
           // TODO: would be good to still have the node instance
           let nodeData = op.val
           if (this._isCell(nodeData)) {
-            updates.set(nodeData.id, { type: 'remove', node: nodeData })
+            let qualifiedId = this._qualifiedId(nodeData)
+            model.removeCell(qualifiedId)
           }
           break
         }
         case 'set':
         case 'update': {
           let node = doc.get(op.path[0])
-          // node can be null if it has been deleted later on
-          if (node) {
-            if (node.type === 'source-code') {
-              let cellNode = node.parentNode
-              this._updates.set(cellNode.id, { type: 'change', node: cellNode })
-            }
+          // null if node is deleted within the same change
+          if (!node) continue
+          if (node.type === 'source-code') {
+            node = node.parentNode
+          }
+          if (this._isCell(node)) {
+            if (!updated) updated = new Set()
+            updated.add(node.id)
           }
           break
         }
@@ -75,52 +75,26 @@ export default class ArticleAdapter extends DocumentAdapter {
           throw new Error('Invalid state')
       }
     }
-    // stop here if there were no updates
-    if (updates.size === 0) return
-    // otherwise update the engine
-    // TODO: we need to consolidate the adapter/engine API
-    // either we use only the Engine's document API
-    // or only use the Engine's API
-    let structureChanged = false
-    updates.forEach(update => {
-      const node = update.node
-      switch (update.type) {
-        case 'add': {
-          adapter.registerCell(this._adaptNode(node))
-          structureChanged = true
-          break
+    if (created) {
+      let cellNodes = this._getCellNodes()
+      for (let i = 0; i < cellNodes.length; i++) {
+        const cellNode = cellNodes[i]
+        if (created.has(cellNode.id)) {
+          model.insertCellAt(i, _getCellData(cellNode))
         }
-        case 'remove': {
-          engine.removeCell(this._qualifiedId(node))
-          structureChanged = true
-          break
-        }
-        case 'change': {
-          // TODO: we should use a helper to access the hidden fields 'state' and '_engineAdapter'
-          let cellState = node.state
-          let cellAdapter = node._engineAdapter
-          if (cellState && cellAdapter) {
-            const { source, lang } = cellAdapter
-            engine._updateCell(cellState.id, { source, lang })
-          }
-          break
-        }
-        default:
-          throw new Error('Invalid update.')
       }
-    })
-    // TODO: updating the array of cells feels a bit clumsy,
-    // still we want to go down this route to make the Engine more independent of
-    // specific application models (such as Stencila Document/Sheet).
-    if (structureChanged) {
-      adapter.cells = this._getNodeAdapters()
     }
-  }
-
-
-  _adaptNode(node) {
-    if (node._engineAdapter) return node._engineAdapter
-    return new ArticleCellAdapter(node)
+    if (updated) {
+      updated.forEach(id => {
+        const cell = this.doc.get(id)
+        const qualifiedId = getQualifiedId(cell)
+        const cellData = {
+          source: _getSource(cell),
+          lang: _getLang(cell)
+        }
+        model.updateCell(qualifiedId, cellData)
+      })
+    }
   }
 
   /*
@@ -136,18 +110,27 @@ export default class ArticleAdapter extends DocumentAdapter {
   }
 }
 
-/*
-  An adpater for cells from Stencila Articles.
-*/
-class ArticleCellAdapter extends CellAdapter {
+function _getSourceElement(node) {
+  // ATTENTION: this caching would be problematic if the cell element
+  // was changed structurally. But we do not do this.
+  if (!node._sourceEl) {
+    node._sourceEl = node.find('source-code')
+  }
+  return node._sourceEl
+}
 
-  /*
-    Article cells have a special layout, with the source code in an extra element.
-  */
-  _getSourceElement() {
-    if (!this._sourceEl) {
-      this._sourceEl = this.node.find('source-code')
-    }
-    return this._sourceEl
+function _getSource(node) {
+  return _getSourceElement(node).textContent
+}
+
+function _getLang(node) {
+  return _getSourceElement(node).getAttribute('language')
+}
+
+function _getCellData(cell) {
+  return {
+    id: getQualifiedId(cell),
+    lang: _getLang(cell),
+    source: _getSource(cell)
   }
 }

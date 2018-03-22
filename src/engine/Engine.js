@@ -134,13 +134,13 @@ export default class Engine extends EventEmitter {
       - 'sequence': (for documents) initial order of cells
   */
   addDocument(data) {
-    let doc = new Document(data)
+    let doc = new Document(this, data)
     this._registerResource(doc)
     return doc
   }
 
   addSheet(data) {
-    let sheet = new Sheet(data)
+    let sheet = new Sheet(this, data)
     this._registerResource(sheet)
     return sheet
   }
@@ -249,8 +249,8 @@ export default class Engine extends EventEmitter {
   /*
     Removes a cell from the engine.
   */
-  _removeCell(id) { // eslint-disable-line
-    this._graph.removeCell(id)
+  _unregisterCell(cell) { // eslint-disable-line
+    this._graph.removeCell(cell.id)
   }
 
   _updateCell(id, cellData) {
@@ -283,9 +283,7 @@ export default class Engine extends EventEmitter {
         // which would not be necessary in theory
         if (cell.status === READY) {
           if (cell instanceof RangeCell) {
-            // TODO: collect the inputs and produce a coerced output value
-            // and update the graph
-            let value = this._getRangeValue(cell)
+            let value = this._getValueForRange(cell)
             graph.setValue(cell.id, value)
           } else {
             this._nextActions.set(cell.id, {
@@ -490,9 +488,8 @@ export default class Engine extends EventEmitter {
     - `A1:B10`: table
 
     TODO: we should try to avoid using specific coercion here
-    and instead let this be done by hooks
   */
-  _getRangeValue(rangeCell) {
+  _getValueForRange(rangeCell) {
     const { startRow, endRow, startCol, endCol } = rangeCell
     // TODO: rangeCell.docId is not accurate; it seems that this is the rather 'name'
     let sheet = this._lookupDocument(rangeCell.docId)
@@ -505,14 +502,14 @@ export default class Engine extends EventEmitter {
     // range is 1D
     else if (startRow === endRow) {
       let cells = matrix[startRow].slice(startCol, endCol+1)
-      val = gather('array', cells.map(c => getCellValue(c)))
+      val = this._getArrayValueForCells(cells)
     }
     else if (startCol === endCol) {
       let cells = []
       for (let i = startRow; i <= endRow; i++) {
         cells.push(matrix[i][startCol])
       }
-      val = gather('array', cells.map(c => getCellValue(c)))
+      val = this._getArrayValueForCells(cells)
     }
     // range is 2D (-> creating a table)
     else {
@@ -547,6 +544,15 @@ export default class Engine extends EventEmitter {
     }
     return val
   }
+
+  _getArrayValueForCells(cells) {
+    // TODO: we should try to decouple this implementation from
+    // the rest of the application.
+    // this is related to the Stencila's type system
+    // Either, the engine is strongly coupled to the type system
+    // or we need to introduce an abstraction.
+    return gather('array', cells.map(c => getCellValue(c)))
+  }
 }
 
 /*
@@ -554,17 +560,16 @@ export default class Engine extends EventEmitter {
 */
 class Document {
 
-  constructor(data) {
+  constructor(engine, data) {
+    this.engine = engine
     this.data = data
-    const docId = data.id
-    if (!docId) throw new Error("'id' is required")
-    this.id = docId
+    if (!data.id) throw new Error("'id' is required")
+    this.id = data.id
     this.name = data.name
-    // default language
-    const defaultLang = data.lang || 'mini'
-    this.lang = defaultLang
-    this.onRegister = data.onRegister
+    this.lang = data.lang || 'mini'
     this.cells = data.cells.map(cellData => this._createCell(cellData))
+    // registration hook used for propagating initial cell state to the application
+    if (data.onCellRegister) this.onCellRegister = data.onCellRegister
   }
 
   get type() { return 'document' }
@@ -573,25 +578,53 @@ class Document {
     return this.cells
   }
 
+  insertCellAt(pos, cellData) {
+    let cell = this._createCell(cellData)
+    this._registerCell(cell)
+    this.cells.splice(pos, 0, cell)
+  }
+
+  removeCell(id) {
+    const cells = this.cells
+    let pos = cells.findIndex(cell => id === cell.id)
+    if (pos >= 0) {
+      let cell = cells[pos]
+      this.cells.splice(pos,1)
+      this.engine._unregisterCell(cell)
+    } else {
+      console.error('Unknown cell', id)
+    }
+  }
+
+  updateCell(id, cellData) {
+    this.engine._updateCell(id, cellData)
+  }
+
+  onCellRegister(cell) { // eslint-disable-line
+  }
+
   _createCell(cellData) {
-    const onRegister = this.onRegister
     if (isString(cellData)) {
       let source = cellData
       cellData = {
         id: uuid(),
         docId: this.id,
-        source
+        source,
+        lang: this.lang
       }
     }
-    let cell = new Cell(this, cellData)
-    if (onRegister) onRegister(cell)
-    return cell
+    return new Cell(this, cellData)
   }
 
-  _registerCells(engine) {
-    this.cells.forEach(cell => engine._registerCell(cell))
+  _registerCell(cell) {
+    const engine = this.engine
+    engine._registerCell(cell)
+    this.onCellRegister(cell)
   }
 
+  _registerCells() {
+    this.cells.forEach(cell => this._registerCell(cell))
+  }
 }
 
 /*
@@ -599,7 +632,8 @@ class Document {
 */
 class Sheet {
 
-  constructor(data) {
+  constructor(engine, data) {
+    this.engine = engine
     const docId = data.id
     if (!docId) throw new Error("'id' is required")
     this.id = docId
@@ -625,6 +659,8 @@ class Sheet {
       return rowData.map(cellData => this._createCell(cellData))
     })
     this._setCellOutputs()
+
+    if (data.onCellRegister) this.onCellRegister = data.onCellRegister
   }
 
   get type() { return 'sheet' }
@@ -642,21 +678,20 @@ class Sheet {
     return this.cells
   }
 
-  updateCellSymbols(engine) {
-    this._setCellOutputs(engine)
+  updateCellSymbols() {
+    this._setCellOutputs(true)
   }
 
   // This must be called after structural changes to update
   // the output symbol a cell which is derived from its position in the sheet
   // i.e. `cells[0][0]` in `sheet1` is associated to symbol `sheet1!A1`
-  _setCellOutputs(engine) {
-    const graph = engine ? engine._graph : false
+  _setCellOutputs(update) {
     this.cells.forEach((row, rowIdx) => {
       row.forEach((cell, colIdx) => {
         cell._rowIdx = rowIdx
         cell._colIdx = colIdx
         cell.output = this._getCellSymbol(rowIdx, colIdx)
-        if (graph) graph.setOutput(cell.id, cell.output)
+        if (update) this.engine._graph.setOutput(cell.id, cell.output)
       })
     })
   }
@@ -679,8 +714,14 @@ class Sheet {
     return cell
   }
 
+  _registerCell(cell) {
+    const engine = this.engine
+    engine._registerCell(cell)
+    this.onCellRegister(cell)
+  }
+
   _registerCells(engine) {
-    this.cells.forEach(row => row.forEach(cell => engine._registerCell(cell)))
+    this.cells.forEach(row => row.forEach(cell => this._registerCell(cell)))
   }
 }
 

@@ -27,7 +27,7 @@ class CellComponent extends NodeComponent {
 
   _renderStatus($$) {
     const cellState = getCellState(this.props.node)
-    let statusName = stateToString(cellState.status)
+    let statusName = cellState ? stateToString(cellState.status) : 'unknown'
     return $$('div').addClass(`se-status sm-${statusName}`)
   }
 
@@ -36,10 +36,6 @@ class CellComponent extends NodeComponent {
     const cellState = getCellState(cell)
     let el = $$('div').addClass('sc-cell')
     el.attr('data-id', cell.id)
-
-    if (!cellState) {
-      return el
-    }
 
     if (!this.state.hideCode) {
       let source = cell.find('source-code')
@@ -73,18 +69,21 @@ class CellComponent extends NodeComponent {
       )
     }
 
-    if (this._showOutput() && !cellState.hasErrors()) {
-      el.append(
-        $$(CellValueComponent, {cell}).ref('value')
-      )
-    }
-    if (cellState.hasErrors()) {
-      // TODO: should we render only the first error?
-      el.append(
-        $$('div').addClass('se-error').append(
-          getError(cell).message
+    // cellState is null if the cell has not been registered
+    // with the engine
+    if (cellState) {
+      if (cellState.hasErrors()) {
+        // TODO: should we render only the first error?
+        el.append(
+          $$('div').addClass('se-error').append(
+            getError(cell).message
+          )
         )
-      )
+      } else if (this._showOutput()) {
+        el.append(
+          $$(CellValueComponent, {cell}).ref('value')
+        )
+      }
     }
     return el
   }
