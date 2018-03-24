@@ -698,6 +698,11 @@ class Sheet {
     return this.cells
   }
 
+  updateCell(id, cellData) {
+    let qualifiedId = _qualifiedId(this.id, id)
+    this.engine._updateCell(qualifiedId, cellData)
+  }
+
   updateCellSymbols() {
     this._setCellOutputs(true)
   }
