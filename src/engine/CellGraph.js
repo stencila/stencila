@@ -1,5 +1,5 @@
 import { flatten, isString, isArray } from 'substance'
-import { UnresolvedInputError, CyclicDependencyError, OutputCollisionError } from './CellErrors'
+import { CellError, UnresolvedInputError, CyclicDependencyError, OutputCollisionError } from './CellErrors'
 import { UNKNOWN, ANALYSED, BROKEN, FAILED, BLOCKED, WAITING, READY, RUNNING, OK, toInteger } from './CellStates'
 
 const MSG_UNRESOLVED_INPUT = 'Unresolved input.'
@@ -155,6 +155,7 @@ export default class CellGraph {
 
   addErrors(id, errors) {
     let cell = this._cells[id]
+    errors = errors.map(err => CellError.cast(err))
     cell.addErrors(errors)
     this._stateChanged.add(id)
   }
