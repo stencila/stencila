@@ -3,6 +3,14 @@ export class CellError extends Error {
     super(msg)
     this.details = details
   }
+
+  static cast(err) {
+    if (err instanceof CellError) {
+      return err
+    } else {
+      return new RuntimeError(err.message, err)
+    }
+  }
 }
 
 export class SyntaxError extends CellError {
