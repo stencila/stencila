@@ -582,6 +582,7 @@ class Document {
     let cell = this._createCell(cellData)
     this._registerCell(cell)
     this.cells.splice(pos, 0, cell)
+    return cell
   }
 
   removeCell(id) {
