@@ -61,6 +61,12 @@ export default class CellGraph {
   getValue(symbol) {
     let cellId = this._out[symbol]
     if (!cellId) return undefined
+    // if there is a name collision return undefined
+    // TODO: should we allow this at all?
+    if (isArray(cellId)) {
+      throw new Error('Ambigous symbol: '+symbol)
+    }
+
     const cell = this._cells[cellId]
     if (!cell) throw new Error('Internal error: cell does not exist.')
     // Note, that the cell value is actually not interpreted in any way by the graph
@@ -217,7 +223,8 @@ export default class CellGraph {
         conflictingIds.add(id)
         conflictingIds = Array.from(conflictingIds)
         this._out[newOutput] = conflictingIds
-        this._addOutputCollisionError(conflictingIds)
+        // consider every related id for re-examination
+        conflictingIds.forEach(_id => this._structureChanged.add(_id))
       } else {
         this._out[newOutput] = id
       }
@@ -265,6 +272,8 @@ export default class CellGraph {
     this._structureChanged.forEach(id => {
       // detect unresolvable inputs
       this._detectUnresolvableInputs(id)
+      // detect output collisions
+      this._detectOutputCollisions(id)
       // deterimine the dependency level and check for cyclic dependencies
       // Note: in case of a cyclic dependency we want to set all involved
       // cells into BROKEN state
@@ -305,6 +314,18 @@ export default class CellGraph {
       cell.clearErrors('graph')
       cell.addErrors([new UnresolvedInputError(MSG_UNRESOLVED_INPUT, { unresolved })])
       cell.status = BROKEN
+    }
+  }
+
+  _detectOutputCollisions(id) {
+    let cell = this._cells[id]
+    let output = cell.output
+    if (!output) return
+    let ids = this._out[output]
+    if (isArray(ids)) {
+      // TODO: is there a more efficient way?
+      cell.clearErrors(e => e instanceof OutputCollisionError)
+      cell.addErrors([new OutputCollisionError('Competing output declarations.', { ids })])
     }
   }
 
