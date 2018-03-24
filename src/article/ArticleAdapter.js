@@ -1,4 +1,5 @@
 import { DocumentAdapter, getQualifiedId, mapCellState } from '../shared/DocumentAdapter'
+import { qualifiedId as _qualifiedId} from '../shared/cellHelpers'
 
 /*
   Connects Engine and Article.
@@ -52,7 +53,7 @@ export default class ArticleAdapter extends DocumentAdapter {
           // TODO: would be good to still have the node instance
           let nodeData = op.val
           if (this._isCell(nodeData)) {
-            let qualifiedId = this._qualifiedId(nodeData)
+            let qualifiedId = _qualifiedId(this.doc, nodeData)
             model.removeCell(qualifiedId)
           }
           break
