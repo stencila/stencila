@@ -18,6 +18,8 @@ export default class Cell {
       // is the id already a qualified id?
       if (id.startsWith(docId)) {
         this.id = id
+        // ATTENTION: assuming that the qualified id is joining
+        // the doc id and the node id with a single character (e.g. '!')
         this.unqualifiedId = id.slice(docId.length+1)
       } else {
         this.id = qualifiedId(doc, cellData)
