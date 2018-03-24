@@ -91,6 +91,18 @@ import { gather } from '../value'
   critical, because structural changes in sheets do not happen often,
   and in documents re-evaluation is most often necessary anyways.
 
+  Sheet: should we allow to use column names as alias?
+
+  ATM, when using a 2D cell range, a table value is created
+  using column names when present, otherwise using the classical
+  column label (e.g. 'A'). This is somewhat inconsistent,
+  as someone could write code that makes use of the default column
+  labels, say `filter(data, 'A < 20')`, which breaks as soon that column
+  gets an explicit name.
+  If we wanted to still allow this, we would need some kind of an alias mechanism
+  in the table type.
+
+
 */
 export default class Engine extends EventEmitter {
 
@@ -381,8 +393,13 @@ export default class Engine extends EventEmitter {
       } else {
         const context = res
         // console.log('EXECUTING cell', cell.id, transpiledSource)
-        let inputs = this._getInputValues(cell.inputs)
-        return context.executeCode(transpiledSource, inputs)
+        // Catching errors here and turn them into a runtime error
+        try {
+          let inputs = this._getInputValues(cell.inputs)
+          return context.executeCode(transpiledSource, inputs)
+        } catch (err) {
+          graph.addError(id, new RuntimeError(err.message, err))
+        }
       }
     })
     .then(res => {
