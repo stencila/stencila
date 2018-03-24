@@ -6,7 +6,6 @@ import FunctionManager from '../../src/function/FunctionManager'
 import { libtestXML, libtest } from '../contexts/libtest'
 import { UNKNOWN } from '../../src/engine/CellStates'
 import { queryCells } from '../../src/shared/cellHelpers'
-// import { wait } from '../testHelpers'
 
 test('Engine: [steps] single cell', t => {
   t.plan(9)
@@ -168,6 +167,43 @@ test('Engine: [play] simple doc', t => {
   })
 })
 
+test('Engine: graph errors should not be cleared without resolving', t => {
+  // Note: this error is a bit unspecific, because
+  // I have not understood the general requirement
+  // TODO: we should turn this into a more general test case later
+
+  // 1. create a doc with two cells 'x = 1' and 'x = 2'
+  // -> now there should be an error because of the name collision
+  // 2. update both cells (not resolving the issue)
+  // -> both should still have the same error
+  // -> this fails if the errors are wiped without ensuring that
+  //    they have been resolved
+
+  t.plan(2)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    cells: [
+      { id: 'cell1', source: 'x = 1' },
+      { id: 'cell2', source: 'x = 2' }
+    ]
+  })
+  let cells = doc.getCells()
+  _play(engine)
+  .then(() => {
+    t.deepEqual(_getErrors(cells), [['collision'], ['collision']], 'Both cells should have a collision error.')
+  })
+  .then(() => {
+    doc.updateCell('cell1', { source: 'x =  1'})
+    doc.updateCell('cell2', { source: 'x = 3'})
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getErrors(cells), [['collision'], ['collision']], 'still both cells should have a collision error.')
+  })
+})
+
 
 /*
   Waits for all actions to be finished.
@@ -219,6 +255,14 @@ function _getValue(cell) {
 
 function _getValues(cells) {
   return cells.map(cell => _getValue(cell))
+}
+
+function _getErrors(cells) {
+  return cells.map(cell => {
+    return cell.errors.map(err => {
+      return err.name || 'unknown'
+    })
+  })
 }
 
 function _setup() {
