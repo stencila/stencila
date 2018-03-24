@@ -289,7 +289,11 @@ export default class CellGraph {
         updated.add(id)
       })
       // mark all followers for a state update
-      this._getFollowSet(this._valueUpdated).forEach(id => stateChanged.add(id))
+      this._getFollowSet(this._valueUpdated).forEach(id => {
+        let cell = this._cells[id]
+        cell.clearErrors('runtime')
+        stateChanged.add(id)
+      })
     }
 
     if (stateChanged.size > 0) {
