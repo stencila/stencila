@@ -743,7 +743,7 @@ class Sheet {
     this.onCellRegister(cell)
   }
 
-  _registerCells(engine) {
+  _registerCells() {
     this.cells.forEach(row => row.forEach(cell => this._registerCell(cell)))
   }
 }
