@@ -1,4 +1,4 @@
-import { isNumber } from 'substance'
+import { isNumber, isString } from 'substance'
 import { type } from '../value'
 import { parseSymbol } from './expressionHelpers'
 
@@ -162,6 +162,11 @@ export function queryCells(cells, query) {
 }
 
 export function qualifiedId(doc, cell) {
-  if (doc) return `${cell.getDocument().id}_${cell.id}`
-  return cell.id
+  let cellId = isString(cell) ? cell : cell.id
+  if (doc) {
+    let docId = isString(doc) ? doc : doc.id
+    return `${docId}!${cellId}`
+  } else {
+    return cellId
+  }
 }
