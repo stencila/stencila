@@ -684,6 +684,9 @@ class Sheet {
     this._setCellOutputs(true)
   }
 
+  onCellRegister(cell) { // eslint-disable-line
+  }
+
   // This must be called after structural changes to update
   // the output symbol a cell which is derived from its position in the sheet
   // i.e. `cells[0][0]` in `sheet1` is associated to symbol `sheet1!A1`
