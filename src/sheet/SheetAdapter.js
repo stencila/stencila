@@ -1,4 +1,4 @@
-import { DocumentAdapter, getQualifiedId, mapCellState } from '../shared/DocumentAdapter'
+import { DocumentAdapter, mapCellState } from '../shared/DocumentAdapter'
 
 /*
   Connects Engine and Sheet.
@@ -71,12 +71,11 @@ export default class SheetAdapter extends DocumentAdapter {
     if (updated) {
       updated.forEach(id => {
         const cell = this.doc.get(id)
-        const qualifiedId = getQualifiedId(cell)
         const cellData = {
           source: _getSource(cell),
           lang: _getLang(cell)
         }
-        model.updateCell(qualifiedId, cellData)
+        model.updateCell(id, cellData)
       })
     }
   }
@@ -109,7 +108,7 @@ function _getLang(node) {
 
 function _getCellData(cell) {
   return {
-    id: getQualifiedId(cell),
+    id: cell.id,
     lang: _getLang(cell),
     source: _getSource(cell)
   }
