@@ -5,7 +5,7 @@ import { UNKNOWN, ANALYSED, READY } from './CellStates'
 import Cell from './Cell'
 import CellSymbol from './CellSymbol'
 import { parseSymbol } from '../shared/expressionHelpers'
-import { getRowCol, valueFromText, getCellLabel, getColumnLabel } from '../shared/cellHelpers'
+import { getRowCol, valueFromText, getCellLabel, getColumnLabel, qualifiedId as _qualifiedId } from '../shared/cellHelpers'
 import { gather } from '../value'
 
 /*
@@ -416,13 +416,13 @@ export default class Engine extends EventEmitter {
         // thus, we rely on the CellGraph to figure this out
         _scopeId = this._lookupDocumentId(scope) || scope
       }
-      let qualifiedId = _scopeId + '!' + name
+      let qualifiedId = _qualifiedId(_scopeId, name)
       const symbol = new CellSymbol(type, qualifiedId, _scopeId, name, mangledStr)
       inputs.add(symbol)
     })
     // turn the output into a qualified id
     let output
-    if (res.output) output = scopeId + '!' + res.output
+    if (res.output) output = _qualifiedId(scopeId, res.output)
     return { inputs, output }
   }
 
@@ -585,8 +585,9 @@ class Document {
   }
 
   removeCell(id) {
+    const qualifiedId = _qualifiedId(this.id, id)
     const cells = this.cells
-    let pos = cells.findIndex(cell => id === cell.id)
+    let pos = cells.findIndex(cell => cell.id === qualifiedId)
     if (pos >= 0) {
       let cell = cells[pos]
       this.cells.splice(pos,1)
@@ -597,7 +598,8 @@ class Document {
   }
 
   updateCell(id, cellData) {
-    this.engine._updateCell(id, cellData)
+    let qualifiedId = _qualifiedId(this.id, id)
+    this.engine._updateCell(qualifiedId, cellData)
   }
 
   onCellRegister(cell) { // eslint-disable-line
