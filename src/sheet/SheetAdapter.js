@@ -13,6 +13,7 @@ export default class SheetAdapter extends DocumentAdapter {
       id: doc.id,
       name: this.name,
       lang: 'mini',
+      columns: this._getColumnNodes().map(_getColumnData),
       cells: this._getCellNodes().map(row => {
         return row.map(_getCellData)
       }),
@@ -85,6 +86,10 @@ export default class SheetAdapter extends DocumentAdapter {
     return this.doc.getCellMatrix()
   }
 
+  _getColumnNodes() {
+    return this.doc.findAll('columns > col')
+  }
+
   _isCell(node) {
     return node.type === 'cell'
   }
@@ -107,5 +112,20 @@ function _getCellData(cell) {
     id: getQualifiedId(cell),
     lang: _getLang(cell),
     source: _getSource(cell)
+  }
+}
+
+function _getColumnName(column) {
+  return column.getAttribute('name')
+}
+
+function _getColumnType(column) {
+  return column.getAttribute('type')
+}
+
+function _getColumnData(column) {
+  return {
+    name: _getColumnName(column),
+    type: _getColumnType(column)
   }
 }
