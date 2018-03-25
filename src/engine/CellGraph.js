@@ -56,6 +56,12 @@ export default class CellGraph {
     })
     this._deregisterOutput(id, cell.output)
     delete this._cells[id]
+    if (cell.prev) {
+      this._setNext(cell.prev, cell.next)
+    }
+    if (cell.next) {
+      this._setPrev(cell.next, cell.prev)
+    }
   }
 
   getValue(symbol) {
@@ -125,28 +131,16 @@ export default class CellGraph {
     }
   }
 
-  // this is used for cells, which can not be analysed or are do have side effects
-  // and thus must be evaluated in a specific order
-  setSideEffects(id, val) {
-    let cell = this._cells[id]
-    cell.hasSideEffects = val
-    this._structureChanged.add(id)
-  }
-
-  setNext(id, nextId) {
+  _setNext(id, nextId) {
     let cell = this._cells[id]
     cell.next = nextId
-    // TODO do we need to consider this a structural change?
-    this._structureChanged.add(id)
     this._structureChanged.add(nextId)
   }
 
-  setPred(id, prevId) {
+  _setPrev(id, prevId) {
     let cell = this._cells[id]
     cell.prev = prevId
-    // TODO do we need to consider this a structural change?
     this._structureChanged.add(id)
-    this._structureChanged.add(prevId)
   }
 
   addError(id, error) {
