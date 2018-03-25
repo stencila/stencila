@@ -477,6 +477,34 @@ test('CellGraph: adding an engine error should imply BROKEN state', t => {
   t.end()
 })
 
+test('CellGraph: remove a cell', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell(null, { id: 'cell1', output: 'x', status: ANALYSED}),
+    new Cell(null, { id: 'cell2', inputs: ['x'], output: 'y', status: ANALYSED }),
+    new Cell(null, { id: 'cell3', inputs: ['y'], status: ANALYSED })
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+
+  g.removeCell('cell1')
+  updates = g.update()
+  t.notOk(g.hasCell('cell1'), 'cell1 should have been removed')
+  cells = cells.slice(1)
+  _checkUpdates(t, updates, ['cell2', 'cell3'])
+  _checkStates(t, cells, [BROKEN, BLOCKED])
+
+  g.removeCell('cell2')
+  updates = g.update()
+  t.notOk(g.hasCell('cell2'), 'cell2 should have been removed')
+  cells = cells.slice(1)
+  _checkUpdates(t, updates, ['cell3'])
+  _checkStates(t, cells, [BROKEN])
+
+  t.end()
+})
+
 /*
 test('CellGraph: TEMPLATE', t => {
   let g = new CellGraph()
