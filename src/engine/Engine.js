@@ -473,16 +473,6 @@ export default class Engine extends EventEmitter {
     return this._host.createContext(lang)
   }
 
-  _createRuntimeErrors(messages) {
-    if (messages) {
-      return messages.map(msg => {
-        return new RuntimeError(msg)
-      })
-    } else {
-      return []
-    }
-  }
-
   _lookupDocumentId(name) {
     for (var id in this._docs) { // eslint-disable-line guard-for-in
       let doc = this._docs[id]
