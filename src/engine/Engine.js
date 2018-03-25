@@ -801,7 +801,7 @@ class RangeCell {
     for (let i = startRow; i <= endRow; i++) {
       for (let j = startCol; j <= endCol; j++) {
         let cellName = getCellLabel(i, j)
-        let id = docId + '!' + cellName
+        let id = _qualifiedId(docId, cellName)
         // Note: it should be fine to use a string here, because we do not need
         // to do any deeper reflection, and just use it as a key
         this.inputs.add(id)
