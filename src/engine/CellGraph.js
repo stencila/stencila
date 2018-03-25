@@ -514,16 +514,6 @@ export default class CellGraph {
     return isArray(this._out[symbol])
   }
 
-  _addOutputCollisionError(ids) {
-    let err = new OutputCollisionError('Competing output declarations.', { ids })
-    ids.forEach(id => {
-      let cell = this._cells[id]
-      cell.clearErrors(e => e instanceof OutputCollisionError)
-      cell.errors.push(err)
-      this._structureChanged.add(id)
-    })
-  }
-
   _removeOutputCollisionError(id) {
     let cell = this._cells[id]
     cell.clearErrors(e => e instanceof OutputCollisionError)
