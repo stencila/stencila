@@ -607,6 +607,9 @@ class Document {
 
   updateCell(id, cellData) {
     let qualifiedId = _qualifiedId(this.id, id)
+    if (isString(cellData)) {
+      cellData = { source: cellData }
+    }
     this.engine._updateCell(qualifiedId, cellData)
   }
 
@@ -690,6 +693,9 @@ class Sheet {
 
   updateCell(id, cellData) {
     let qualifiedId = _qualifiedId(this.id, id)
+    if (isString(cellData)) {
+      cellData = { source: cellData }
+    }
     this.engine._updateCell(qualifiedId, cellData)
   }
 
