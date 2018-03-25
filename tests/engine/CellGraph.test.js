@@ -458,6 +458,33 @@ test('CellGraph: mixing cells with/without side-effects', t => {
   t.end()
 })
 
+test('CellGraph: removing a cell from a notebook', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell(null, { id: 'cell1', hasSideEffects: true, next: 'cell2', status: ANALYSED }),
+    new Cell(null, { id: 'cell2', hasSideEffects: true, next: 'cell3', prev: 'cell1', status: ANALYSED }),
+    new Cell(null, { id: 'cell3', hasSideEffects: true, prev: 'cell2', status: ANALYSED })
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2', 'cell3'])
+  _checkStates(t, cells, [READY, WAITING, WAITING])
+
+  g.setValue('cell1', 1)
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2'])
+  _checkStates(t, cells, [OK, READY, WAITING])
+
+  g.removeCell('cell2')
+  updates = g.update()
+  cells = [cells[0], cells[2]]
+  _checkUpdates(t, updates, ['cell3'])
+  _checkStates(t, cells, [OK, READY])
+
+  t.end()
+})
+
 test('CellGraph: adding an engine error should imply BROKEN state', t => {
   let g = new CellGraph()
   let cells = [
@@ -478,6 +505,34 @@ test('CellGraph: adding an engine error should imply BROKEN state', t => {
 })
 
 test('CellGraph: remove a cell', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell(null, { id: 'cell1', output: 'x', status: ANALYSED}),
+    new Cell(null, { id: 'cell2', inputs: ['x'], output: 'y', status: ANALYSED }),
+    new Cell(null, { id: 'cell3', inputs: ['y'], status: ANALYSED })
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+
+  g.removeCell('cell1')
+  updates = g.update()
+  t.notOk(g.hasCell('cell1'), 'cell1 should have been removed')
+  cells = cells.slice(1)
+  _checkUpdates(t, updates, ['cell2', 'cell3'])
+  _checkStates(t, cells, [BROKEN, BLOCKED])
+
+  g.removeCell('cell2')
+  updates = g.update()
+  t.notOk(g.hasCell('cell2'), 'cell2 should have been removed')
+  cells = cells.slice(1)
+  _checkUpdates(t, updates, ['cell3'])
+  _checkStates(t, cells, [BROKEN])
+
+  t.end()
+})
+
+test('CellGraph: cells with side-effects', t => {
   let g = new CellGraph()
   let cells = [
     new Cell(null, { id: 'cell1', output: 'x', status: ANALYSED}),
