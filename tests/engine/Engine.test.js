@@ -8,7 +8,44 @@ import { UNKNOWN } from '../../src/engine/CellStates'
 import { RuntimeError } from '../../src/engine/CellErrors'
 import { queryCells } from '../../src/shared/cellHelpers'
 
-test('Engine: [steps] single cell', t => {
+test('Engine: simple sheet', t=> {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    // default lang
+    lang: 'mini',
+    cells: [
+      ['1', '= A1 * 2'],
+      ['2', '= A2 * 2']
+    ]
+  })
+  _play(engine)
+  .then(() => {
+    t.deepEqual(_getValues(queryCells(sheet.getCells(), 'B1:B2')), [2,4], 'values should have been computed')
+  })
+})
+
+test('Engine: simple doc', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    cells: [
+      'x = 2',
+      'y = 3',
+      'z = x + y'
+    ]
+  })
+  let cells = doc.getCells()
+  _play(engine)
+  .then(() => {
+    t.deepEqual(_getValues(cells), [2,3,5], 'values should have been computed')
+  })
+})
+
+test('Engine: single cell', t => {
   t.plan(9)
   let { engine, graph } = _setup()
   // this should automatically trigger code analysis and
@@ -53,7 +90,7 @@ test('Engine: [steps] single cell', t => {
   })
 })
 
-test('Engine: [steps] sheet', t=> {
+test('Engine: sheet', t=> {
   t.plan(4)
   let { engine } = _setup()
   let sheet = engine.addSheet({
@@ -90,7 +127,7 @@ test('Engine: [steps] sheet', t=> {
   })
 })
 
-test('Engine: [steps] range expression', t=> {
+test('Engine: range expression', t=> {
   t.plan(4)
   let { engine } = _setup()
   let sheet = engine.addSheet({
@@ -98,14 +135,14 @@ test('Engine: [steps] range expression', t=> {
     lang: 'mini',
     cells: [
       ['1', '2', '= A1:B1'],
-      ['3', '4', '5'],
+      ['3', '4', '= B2:B2'],
       ['= A1:A2', '6', '= A1:B2'],
     ]
   })
-  let [ [,,cell1], [,,], [cell2,,cell3] ] = sheet.getCells()
+  let [ [,,cell1], [,,cell2], [cell3,,cell4] ] = sheet.getCells()
   _cycle(engine)
   .then(() => {
-    _checkActions(t, engine, [cell1, cell2, cell3], ['register', 'register','register'])
+    _checkActions(t, engine, [cell1, cell2, cell3, cell4], ['register', 'register','register', 'register'])
     return _cycle(engine)
   })
   // an extra cycle because RangeCell to propagate the gathered values of RangeCells
@@ -114,57 +151,21 @@ test('Engine: [steps] range expression', t=> {
   })
   // and another cycle to get the mini cells evaluated
   .then(() => {
-    _checkActions(t, engine, [cell1, cell2, cell3], ['evaluate', 'evaluate','evaluate'])
+    // Note: that 'B2:B2' is treated as a cell reference, and thus it does not need to be evaluated
+    _checkActions(t, engine, [cell1, cell2, cell3, cell4], ['evaluate', 'update','evaluate', 'evaluate'])
     return _cycle(engine)
   })
   // and another one to update the values
   .then(() => {
-    _checkActions(t, engine, [cell1, cell2, cell3], ['update', 'update','update'])
+    _checkActions(t, engine, [cell1, cell2, cell3, cell4], ['update', undefined, 'update','update'])
     return _cycle(engine)
   })
   .then(() => {
     t.deepEqual(
-      _getValues([cell1, cell2, cell3]),
-      [[1,2], [1,3], {"type":"table","data":{"A":[1,3],"B":[2,4]},"columns":2,"rows":2}],
+      _getValues([cell1, cell2, cell3, cell4]),
+      [[1,2], 4, [1,3], {"type":"table","data":{"A":[1,3],"B":[2,4]},"columns":2,"rows":2}],
       'values should have been computed'
     )
-  })
-})
-
-test('Engine: [play] sheet', t=> {
-  t.plan(1)
-  let { engine } = _setup()
-  let sheet = engine.addSheet({
-    id: 'sheet1',
-    // default lang
-    lang: 'mini',
-    cells: [
-      ['1', '= A1 * 2'],
-      ['2', '= A2 * 2']
-    ]
-  })
-  _play(engine)
-  .then(() => {
-    t.deepEqual(_getValues(queryCells(sheet.getCells(), 'B1:B2')), [2,4], 'values should have been computed')
-  })
-})
-
-test('Engine: [play] simple doc', t => {
-  t.plan(1)
-  let { engine } = _setup()
-  let doc = engine.addDocument({
-    id: 'doc1',
-    lang: 'mini',
-    cells: [
-      'x = 2',
-      'y = 3',
-      'z = x + y'
-    ]
-  })
-  let cells = doc.getCells()
-  _play(engine)
-  .then(() => {
-    t.deepEqual(_getValues(cells), [2,3,5], 'values should have been computed')
   })
 })
 
@@ -289,7 +290,7 @@ test('Engine (Document): updating a cell', t => {
   })
   _play(engine)
   .then(() => {
-    doc.updateCell('cell1', { source: 'x = 21' })
+    doc.updateCell('cell1', 'x = 21')
   })
   .then(() => _play(engine))
   .then(() => {
@@ -314,6 +315,158 @@ test('Engine (Sheet): column names', t => {
   })
   t.equal(sheet.getColumnName(0), 'x', 'first column name should be correct')
   t.equal(sheet.getColumnName(1), 'y', 'second column name should be correct')
+})
+
+test('Engine (Sheet): cell expressions', t => {
+  t.plan(2)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['= A1 + 1', '= B1 + 1']
+    ]
+  })
+  let cells = sheet.getCells()
+  _play(engine)
+  .then(() => {
+    t.deepEqual(_getValues(cells[1]), [2,3], 'values should have been computed')
+  })
+  .then(() => {
+    // TODO: still the difference between qualified vs unqualified id
+    // is sometimes confusing
+    // Note: Document and Sheet API uses unqualified ids (i.e. local to the resource)
+    // while the engine uses qualified ids.
+    sheet.updateCell(cells[0][0].unqualifiedId, '3')
+    sheet.updateCell(cells[0][1].unqualifiedId, '4')
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(cells[1]), [4,5], 'values should have been computed')
+  })
+})
+
+test('Engine: changing a range expression', t=> {
+  // Note: internally we instantiate a proxy cell
+  // which should be pruned automatically if it is not needed anymore
+  t.plan(4)
+  let { engine, graph } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [['1'],['2'],['3'],['= A1:A2']]
+  })
+  let [,,,[cell4]] = sheet.getCells()
+  _play(engine)
+  .then(() => {
+    t.ok(graph.hasCell('sheet1!A1:A2'), 'a range cell should be registered')
+    t.deepEqual(_getValue(cell4), [1,2], 'range expression should be evaluated')
+  })
+  .then(() => {
+    sheet.updateCell(cell4.unqualifiedId, '= A1:A3')
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.notOk(graph.hasCell('sheet1!A1:A2'), 'the former range cell should have been pruned')
+    t.deepEqual(_getValue(cell4), [1,2,3], 'range expression should be updated')
+  })
+})
+
+test('Engine: inverse range expression are normalized', t=> {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4'],
+      ['= A2:A1', '= B1:A1']
+    ]
+  })
+  let cells = sheet.getCells()
+  _play(engine)
+  .then(() => {
+    t.deepEqual(_getValues(cells[2]), [[1,3], [1,2]], 'values should be in normal order')
+  })
+})
+
+test('Engine: no context for lang', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'foo',
+    cells: [
+      'x = 2'
+    ]
+  })
+  let cells = doc.getCells()
+  _play(engine)
+  .then(() => {
+    t.deepEqual(_getErrors(cells), [['context']], 'there should an error about missing context')
+  })
+})
+
+test('Engine: lost context', t => {
+  t.plan(2)
+  let { engine, host } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    cells: [
+      'x = 2'
+    ]
+  })
+  let cells = doc.getCells()
+  _cycle(engine)
+  .then(() => _cycle(engine))
+  .then(() => {
+    // now the cell should be scheduled for evaluation
+    _checkActions(t, engine, cells, ['evaluate'])
+    // and there we pretend a lost connection
+    host._disable(true)
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getErrors(cells), [['context']], 'there should an error about missing context')
+  })
+})
+
+test('Engine: transclusion', t => {
+  t.plan(2)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    cells: [
+      'x = sheet1!A3',
+      'x * 2'
+    ]
+  })
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4'],
+      ['= A1 + A2', '= B1 + B2']
+    ]
+  })
+  let docCells = doc.getCells()
+  let sheetCells = sheet.getCells()
+  _play(engine)
+  .then(() => {
+    t.deepEqual(_getValues(docCells), [4, 8], 'document cells should have been computed')
+  })
+  .then(() => {
+    sheet.updateCell(sheetCells[0][0].unqualifiedId, '5')
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(docCells), [8, 16], 'document cells should have been computed')
+  })
 })
 
 /*
@@ -386,14 +539,20 @@ function _setup() {
   functionManager.importLibrary('test', libtestXML)
   // A mock Host that provides the JsContext when requested
   let host = {
+    _disable(val) {
+      this._disabled = val
+    },
     createContext: function(lang) {
+      if (this._disabled) {
+        return Promise.resolve(new Error('No context for language '+lang))
+      }
       switch (lang) {
         case 'js':
           return Promise.resolve(jsContext)
         case 'mini':
           return Promise.resolve(miniContext)
         default:
-          return Promise.reject(new Error('No context for language '+lang))
+          return Promise.resolve(new Error('No context for language '+lang))
       }
     },
     functionManager
