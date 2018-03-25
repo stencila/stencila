@@ -503,6 +503,8 @@ export default class Engine extends EventEmitter {
     let matrix = sheet.getCells()
     let val
     // range is a single cell
+    // NOTE: with the current implementation of parseSymbol this should not happen
+    /* istanbul ignore if */
     if (startRow === endRow && startCol === endCol) {
       val = getCellValue(matrix[startRow][startCol])
     }
