@@ -124,7 +124,7 @@ export default class Engine extends EventEmitter {
     this._nextActions = new Map()
   }
 
-  run(interval) {
+  run /* istanbul ignore next */ (interval) {
     // TODO: does this only work in the browser?
     if (this._runner) {
       clearInterval(this._runner)

@@ -225,14 +225,95 @@ test('Engine: runtime errors should be wiped when inputs are updated', t => {
   .then(() => {
     t.equal(_getValue(cells[1]), 2, 'y should be updated.')
   })
-  // .then(() => {
-  //   doc.updateCell('cell1', { source: 'x =  1'})
-  //   doc.updateCell('cell2', { source: 'x = 3'})
-  // })
-  // .then(() => _play(engine))
-  // .then(() => {
-  //   t.deepEqual(_getErrors(cells), [['collision'], ['collision']], 'still both cells should have a collision error.')
-  // })
+})
+
+test('Engine (Document): inserting a cell', t => {
+  // this is a complex tests that covers
+  t.plan(1)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    cells: [
+      { id: 'cell1', source: 'x = 2' },
+      { id: 'cell2', source: 'z = 3*x' }
+    ]
+  })
+  _play(engine)
+  .then(() => {
+    doc.insertCellAt(1, { id: 'cell3', source: 'y = x + 1' })
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    doc.updateCell('cell1', { source: 'x = 2' })
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(doc.getCells()), [2,3,6], 'values should have been computed')
+  })
+})
+
+test('Engine (Document): removing a cell', t => {
+  // this is a complex tests that covers
+  t.plan(1)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    cells: [
+      { id: 'cell1', source: 'x = 2' },
+      { id: 'cell2', source: 'y = 3*x' },
+      { id: 'cell3', source: 'z = 2*y' }
+    ]
+  })
+  _play(engine)
+  .then(() => {
+    doc.removeCell('cell2')
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getErrors(doc.getCells()), [[],['unresolved']], 'cell3 should be broken now')
+  })
+})
+
+test('Engine (Document): updating a cell', t => {
+  // this is a complex tests that covers
+  t.plan(1)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    cells: [
+      { id: 'cell1', source: 'x = 2' },
+    ]
+  })
+  _play(engine)
+  .then(() => {
+    doc.updateCell('cell1', { source: 'x = 21' })
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(doc.getCells()), [21], 'cell should have been updated')
+  })
+})
+
+test('Engine (Sheet): column names', t => {
+  t.plan(2)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    columns: [
+      { name: 'x' },
+      { name: 'y' },
+    ],
+    cells: [
+      [ '1', '2'],
+      [ '3', '4']
+    ]
+  })
+  t.equal(sheet.getColumnName(0), 'x', 'first column name should be correct')
+  t.equal(sheet.getColumnName(1), 'y', 'second column name should be correct')
 })
 
 /*
