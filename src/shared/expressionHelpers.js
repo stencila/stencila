@@ -100,7 +100,6 @@ export function parseSymbol(str) {
       type = 'cell'
       name = anchorCell
     }
-    type = focusCell ? 'range' : 'cell'
   } else if (varName) {
     type = 'var'
     name = varName
