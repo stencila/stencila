@@ -147,6 +147,8 @@ export function qualifiedId(doc, cell) {
   }
 }
 
+export const BROKEN_REF = '#REF!'
+
 export function transformCellRangeExpression(expr, params) {
   const mode = params.mode
   const idx = params.idx
