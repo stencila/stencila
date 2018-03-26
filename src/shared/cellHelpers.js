@@ -153,11 +153,12 @@ export function transformCellRangeExpression(expr, params) {
   const mode = params.mode
   const idx = params.idx
   const count = params.count
-  if(params.length !== 3 || !isNumber(idx) || !isNumber(count) || (mode !== 'col' || mode !== 'row')) {
+  if(!isNumber(idx) || !isNumber(count) || (mode !== 'col' && mode !== 'row')) {
     throw new Error('Illegal arguments')
   }
 
   let borders = getCellRangeBorders(expr, mode)
+  const isCellReference = borders.start === borders.end
 
   // If operation applied to col/rows after given borders we shoudn't modify expression
   if(borders.end < idx) {
@@ -165,7 +166,7 @@ export function transformCellRangeExpression(expr, params) {
   }
 
   // If it is removing of cell reference or cell range is inside removed range we should return error
-  if(borders.start === borders.end === idx && count < 0 || borders.start > idx && borders.end < idx + count) {
+  if(isCellReference && borders.start === idx && count < 0 || borders.start > idx && borders.end < idx + count) {
     return '#BROKENREF'
   }
 
@@ -173,7 +174,7 @@ export function transformCellRangeExpression(expr, params) {
     borders.start += count
   }
 
-  if(idx <= borders.end) {
+  if(idx <= borders.end && !isCellReference) {
     borders.end += count
   }
 
@@ -218,24 +219,34 @@ export function modifyCellRangeLabel(expr, borders, mode) {
     throw new Error('Illegal arguments.')
   }
   const range = expr.split(':')
-  if(range.length !== 2) {
-    throw new Error('Illegal cell range.')
-  }
 
   let startRow = getRowCol(range[0])[0]
-  let endRow = getRowCol(range[1])[0]
   let startCol = getRowCol(range[0])[1]
+
+  if(range.length === 1) {
+    if(mode === 'col') {
+      startCol = borders.start
+    } else if (mode === 'row') {
+      startRow = borders.start
+    } else {
+      throw new Error('Illegal mode: ' + mode)
+    }
+
+    return getCellLabel(startRow, startCol)
+  }
+
+  let endRow = getRowCol(range[1])[0]
   let endCol = getRowCol(range[1])[1]
 
   if(mode === 'col') {
-    startCol += borders.start
-    endCol += borders.end
+    startCol = borders.start
+    endCol = borders.end
   } else if (mode === 'row') {
-    startRow += borders.start
-    endRow += borders.end
+    startRow = borders.start
+    endRow = borders.end
   } else {
     throw new Error('Illegal mode: ' + mode)
   }
 
-  return getColumnLabel(startCol) + (startRow + 1) + ':' + getColumnLabel(endCol) + (endRow + 1)
+  return getCellLabel(startRow, startCol) + ':' + getCellLabel(endRow, endColl)
 }
