@@ -174,7 +174,7 @@ test('transformCellRangeExpression: range / col / delete before', (t) => {
   let expr = 'C3:F10'
   let mode = 'col'
   let idx = 1
-  let count = 1
+  let count = -1
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
   t.equal(transformed, 'B3:E10', MSG)
   t.end()
@@ -184,7 +184,7 @@ test('transformCellRangeExpression: range / col / delete overlapping start', (t)
   let expr = 'C3:F10'
   let mode = 'col'
   let idx = 1
-  let count = 4
+  let count = -4
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
   t.equal(transformed, 'B3:B10', MSG)
   t.end()
@@ -194,7 +194,7 @@ test('transformCellRangeExpression: range / col / delete inside', (t) => {
   let expr = 'C3:F10'
   let mode = 'col'
   let idx = 3
-  let count = 2
+  let count = -2
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
   t.equal(transformed, 'C3:D10', MSG)
   t.end()
@@ -204,7 +204,7 @@ test('transformCellRangeExpression: range / col / delete overlapping end', (t) =
   let expr = 'C3:F10'
   let mode = 'col'
   let idx = 4
-  let count = 3
+  let count = -3
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
   t.equal(transformed, 'C3:D10', MSG)
   t.end()
@@ -214,7 +214,7 @@ test('transformCellRangeExpression: range / col / delete after', (t) => {
   let expr = 'C3:F10'
   let mode = 'col'
   let idx = 7
-  let count = 1
+  let count = -1
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
   t.equal(transformed, 'C3:F10', MSG)
   t.end()
@@ -256,7 +256,7 @@ test('transformCellRangeExpression: range / row / delete before', (t) => {
   let expr = 'C3:F10'
   let mode = 'row'
   let idx = 1
-  let count = 1
+  let count = -1
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
   t.equal(transformed, 'C2:F9', MSG)
   t.end()
@@ -266,7 +266,7 @@ test('transformCellRangeExpression: range / row / delete overlapping start', (t)
   let expr = 'C3:F10'
   let mode = 'row'
   let idx = 1
-  let count = 4
+  let count = -4
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
   t.equal(transformed, 'C2:F6', MSG)
   t.end()
@@ -276,7 +276,7 @@ test('transformCellRangeExpression: range / row / delete inside', (t) => {
   let expr = 'C3:F10'
   let mode = 'row'
   let idx = 5
-  let count = 2
+  let count = -2
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
   t.equal(transformed, 'C3:F8', MSG)
   t.end()
@@ -286,7 +286,7 @@ test('transformCellRangeExpression: range / row / delete overlapping end', (t) =
   let expr = 'C3:F10'
   let mode = 'row'
   let idx = 7
-  let count = 6
+  let count = -6
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
   t.equal(transformed, 'C3:F7', MSG)
   t.end()
@@ -296,7 +296,7 @@ test('transformCellRangeExpression: range / row / delete after', (t) => {
   let expr = 'C3:F10'
   let mode = 'row'
   let idx = 12
-  let count = 1
+  let count = -1
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
   t.equal(transformed, 'C3:F10', MSG)
   t.end()
