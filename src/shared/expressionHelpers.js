@@ -134,10 +134,6 @@ export function getCellExpressions(source) {
     const text = m[0]
     const startPos = m.index
     const endPos = text.length + startPos
-
-    // if this is given, the reference is a transclusion
-    const docName = m[1] || m[2]
-    const focusCell = m[4]
     const varName = m[5]
 
     if(!varName) {
