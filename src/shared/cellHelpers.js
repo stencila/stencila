@@ -82,8 +82,8 @@ export function getColumnIndex(colStr) {
   return index
 }
 
-export function getRowCol(cellId) {
-  var match = /^([A-Z]+)([1-9][0-9]*)$/.exec(cellId)
+export function getRowCol(cellLabel) {
+  var match = /^([A-Z]+)([1-9][0-9]*)$/.exec(cellLabel)
   return [
     parseInt(match[2], 10)-1,
     getColumnIndex(match[1])
@@ -145,4 +145,95 @@ export function qualifiedId(doc, cell) {
   } else {
     return cellId
   }
+}
+
+export function transformCellRangeExpression(expr, params) {
+  const mode = params.mode
+  const idx = params.idx
+  const count = params.count
+  if(params.length !== 3 || !isNumber(idx) || !isNumber(count) || (mode !== 'col' || mode !== 'row')) {
+    throw new Error('Illegal arguments')
+  }
+
+  let borders = getCellRangeBorders(expr, mode)
+
+  // If operation applied to col/rows after given borders we shoudn't modify expression
+  if(borders.end < idx) {
+    return expr
+  }
+
+  // If it is removing of cell reference or cell range is inside removed range we should return error
+  if(borders.start === borders.end === idx && count < 0 || borders.start > idx && borders.end < idx + count) {
+    return '#BROKENREF'
+  }
+
+  if(idx <= borders.start) {
+    borders.start += count
+  }
+
+  if(idx <= borders.end) {
+    borders.end += count
+  }
+
+  // get labels
+  return modifyCellRangeLabel(expr, borders, mode)
+}
+
+export function getCellRangeBorders(expr, mode) {
+  if(!expr || !mode) {
+    throw new Error('Illegal arguments.')
+  }
+
+  const range = expr.split(':')
+  let borders = {
+    start: 0,
+    end: 0
+  }
+
+  if(mode === 'col') {
+    if(range.length === 2) {
+      borders.start = getRowCol(range[0])[1]
+      borders.end = getRowCol(range[1])[1]
+    } else {
+      borders.start = borders.end = getRowCol(range[0])[1]
+    }
+  } else if (mode === 'row') {
+    if(range.length === 2) {
+      borders.start = getRowCol(range[0])[0]
+      borders.end = getRowCol(range[1])[0]
+    } else {
+      borders.start = borders.end = getRowCol(range[0])[0]
+    }
+  } else {
+    throw new Error('Illegal mode: ' + mode)
+  }
+
+  return borders
+}
+
+export function modifyCellRangeLabel(expr, borders, mode) {
+  if(!expr || !borders || !mode) {
+    throw new Error('Illegal arguments.')
+  }
+  const range = expr.split(':')
+  if(range.length !== 2) {
+    throw new Error('Illegal cell range.')
+  }
+
+  let startRow = getRowCol(range[0])[0]
+  let endRow = getRowCol(range[1])[0]
+  let startCol = getRowCol(range[0])[1]
+  let endCol = getRowCol(range[1])[1]
+
+  if(mode === 'col') {
+    startCol += borders.start
+    endCol += borders.end
+  } else if (mode === 'row') {
+    startRow += borders.start
+    endRow += borders.end
+  } else {
+    throw new Error('Illegal mode: ' + mode)
+  }
+
+  return getColumnLabel(startCol) + (startRow + 1) + ':' + getColumnLabel(endCol) + (endRow + 1)
 }
