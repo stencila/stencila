@@ -373,41 +373,4 @@ export default class Host extends EventEmitter {
       }
     }
   }
-
-  // Experimental
-  // Implements methods of `Backend` so that this `Host` can serve as a backend
-  // Towards merging these two classes
-
-  getBuffer(address) {
-    // TODO this PUTs to the current server but it could be some other peer
-    return PUT(`/${address}!buffer`).then(data => {
-      let buffer = new MemoryBuffer()
-
-      buffer.writeFile('stencila-manifest.json', 'application/json', JSON.stringify({
-        type: 'document',
-        title: 'Untitled',
-        createdAt: '2017-03-10T00:03:12.060Z',
-        updatedAt: '2017-03-10T00:03:12.060Z',
-        storage: {
-          storerType: "filesystem",
-          contentType: "html",
-          archivePath: "",
-          mainFilePath: "index.html"
-        }
-      }))
-
-      buffer.writeFile('index.html', 'text/html', data['index.html'])
-
-      return buffer
-    })
-  }
-
-  storeBuffer(/*buffer*/) {
-    return Promise.resolve()
-  }
-
-  updateManifest(/* documentId, props */) {
-    return Promise.resolve()
-  }
-
 }
