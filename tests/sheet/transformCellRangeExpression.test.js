@@ -63,7 +63,7 @@ test('transformCellRangeExpression: single / col / delete same', (t) => {
   let idx = 2
   let count = -1
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
-  t.equal(transformed, 'C1', BROKEN_REF)
+  t.equal(transformed, BROKEN_REF, MSG)
   t.end()
 })
 
@@ -73,7 +73,7 @@ test('transformCellRangeExpression: single / col / delete surrounding', (t) => {
   let idx = 1
   let count = -4
   let transformed = transformCellRangeExpression(expr, { mode, idx, count})
-  t.equal(transformed, 'C1', BROKEN_REF)
+  t.equal(transformed, BROKEN_REF, MSG)
   t.end()
 })
 
@@ -119,7 +119,7 @@ test('transformCellRangeExpression: single / row / delete after', (t) => {
   t.end()
 })
 
-test('transformCellRangeExpression: single / col / delete same', (t) => {
+test('transformCellRangeExpression: single / row / delete same', (t) => {
   let expr = 'C3'
   let mode = 'row'
   let idx = 2

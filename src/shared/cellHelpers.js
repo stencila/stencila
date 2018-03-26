@@ -150,14 +150,15 @@ export function qualifiedId(doc, cell) {
 export const BROKEN_REF = '#REF!'
 
 export function transformCellRangeExpression(expr, params) {
-  const mode = params.mode
+  const dim = params.mode
   const idx = params.idx
-  const count = params.count
-  if(!isNumber(idx) || !isNumber(count) || (mode !== 'col' && mode !== 'row')) {
+  const count = Math.abs(params.count)
+  const mode = params.count > 0 ? 'insert' : 'remove'
+  if(!isNumber(idx) || !isNumber(count) || (dim !== 'col' && dim !== 'row')) {
     throw new Error('Illegal arguments')
   }
 
-  let borders = getCellRangeBorders(expr, mode)
+  let borders = getCellRangeBorders(expr, dim)
   const isCellReference = borders.start === borders.end
 
   // If operation applied to col/rows after given borders we shoudn't modify expression
@@ -165,25 +166,43 @@ export function transformCellRangeExpression(expr, params) {
     return expr
   }
 
-  // If it is removing of cell reference or cell range is inside removed range we should return error
-  if(isCellReference && borders.start === idx && count < 0 || borders.start > idx && borders.end < idx + count) {
-    return '#BROKENREF'
-  }
+  if(mode === 'insert') {
+    if(idx <= borders.start) {
+      borders.start += count
+    }
 
-  if(idx <= borders.start) {
-    borders.start += count
-  }
+    if(idx <= borders.end && !isCellReference) {
+      borders.end += count
+    }
+  } else {
+    // If it is removing of cell reference or cell range is inside removed range we should return error
+    if(isCellReference && borders.start === idx && mode === 'remove' || borders.start > idx && borders.end < idx + count && mode === 'remove') {
+      return BROKEN_REF
+    }
 
-  if(idx <= borders.end && !isCellReference) {
-    borders.end += count
+    const pos1 = idx
+    const pos2 = idx + count
+    const start = borders.start
+    const end = borders.end
+    if (pos2 <= start) {
+      borders.start -= count
+      borders.end -= count
+    } else {
+      if (pos1 <= start) {
+        borders.start = start - Math.min(pos2-pos1, start-pos1)
+      }
+      if (pos1 <= end) {
+        borders.end = end - Math.min(pos2-pos1, end-pos1)
+      }
+    }
   }
 
   // get labels
-  return modifyCellRangeLabel(expr, borders, mode)
+  return modifyCellRangeLabel(expr, borders, dim)
 }
 
-export function getCellRangeBorders(expr, mode) {
-  if(!expr || !mode) {
+export function getCellRangeBorders(expr, dim) {
+  if(!expr || !dim) {
     throw new Error('Illegal arguments.')
   }
 
@@ -193,14 +212,14 @@ export function getCellRangeBorders(expr, mode) {
     end: 0
   }
 
-  if(mode === 'col') {
+  if(dim === 'col') {
     if(range.length === 2) {
       borders.start = getRowCol(range[0])[1]
       borders.end = getRowCol(range[1])[1]
     } else {
       borders.start = borders.end = getRowCol(range[0])[1]
     }
-  } else if (mode === 'row') {
+  } else if (dim === 'row') {
     if(range.length === 2) {
       borders.start = getRowCol(range[0])[0]
       borders.end = getRowCol(range[1])[0]
@@ -208,14 +227,14 @@ export function getCellRangeBorders(expr, mode) {
       borders.start = borders.end = getRowCol(range[0])[0]
     }
   } else {
-    throw new Error('Illegal mode: ' + mode)
+    throw new Error('Illegal dimension: ' + dim)
   }
 
   return borders
 }
 
-export function modifyCellRangeLabel(expr, borders, mode) {
-  if(!expr || !borders || !mode) {
+export function modifyCellRangeLabel(expr, borders, dim) {
+  if(!expr || !borders || !dim) {
     throw new Error('Illegal arguments.')
   }
   const range = expr.split(':')
@@ -224,12 +243,12 @@ export function modifyCellRangeLabel(expr, borders, mode) {
   let startCol = getRowCol(range[0])[1]
 
   if(range.length === 1) {
-    if(mode === 'col') {
+    if(dim === 'col') {
       startCol = borders.start
-    } else if (mode === 'row') {
+    } else if (dim === 'row') {
       startRow = borders.start
     } else {
-      throw new Error('Illegal mode: ' + mode)
+      throw new Error('Illegal dimension: ' + dim)
     }
 
     return getCellLabel(startRow, startCol)
@@ -238,15 +257,15 @@ export function modifyCellRangeLabel(expr, borders, mode) {
   let endRow = getRowCol(range[1])[0]
   let endCol = getRowCol(range[1])[1]
 
-  if(mode === 'col') {
+  if(dim === 'col') {
     startCol = borders.start
     endCol = borders.end
-  } else if (mode === 'row') {
+  } else if (dim === 'row') {
     startRow = borders.start
     endRow = borders.end
   } else {
-    throw new Error('Illegal mode: ' + mode)
+    throw new Error('Illegal dimension: ' + dim)
   }
 
-  return getCellLabel(startRow, startCol) + ':' + getCellLabel(endRow, endColl)
+  return getCellLabel(startRow, startCol) + ':' + getCellLabel(endRow, endCol)
 }
