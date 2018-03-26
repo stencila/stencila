@@ -48,8 +48,6 @@ test('Engine: simple doc', t => {
 test('Engine: single cell', t => {
   t.plan(9)
   let { engine, graph } = _setup()
-  // this should automatically trigger code analysis and
-  // incremental graph updates
   let doc = engine.addDocument({
     id: 'doc1',
     lang: 'mini',
@@ -145,7 +143,8 @@ test('Engine: range expression', t=> {
     _checkActions(t, engine, [cell1, cell2, cell3, cell4], ['register', 'register','register', 'register'])
     return _cycle(engine)
   })
-  // an extra cycle because RangeCell to propagate the gathered values of RangeCells
+  // an extra cycle because a RangeCell is a proxy to the referenced cells
+  // and to propagate he gathered values
   .then(() => {
     return _cycle(engine)
   })
@@ -169,13 +168,14 @@ test('Engine: range expression', t=> {
   })
 })
 
+/*
+  Scenario:
+  1. create a doc with two cells 'x = 1' and 'x = 2'
+    -> now there should be an error because of the name collision
+  2. update both cells (not resolving the issue)
+    -> both should still have the same error
+*/
 test('Engine: graph errors should not be cleared without resolving', t => {
-  // 1. create a doc with two cells 'x = 1' and 'x = 2'
-  // -> now there should be an error because of the name collision
-  // 2. update both cells (not resolving the issue)
-  // -> both should still have the same error
-  // -> this fails if the errors are wiped without ensuring that
-  //    they have been resolved
   t.plan(2)
   let { engine } = _setup()
   let doc = engine.addDocument({
@@ -229,7 +229,6 @@ test('Engine: runtime errors should be wiped when inputs are updated', t => {
 })
 
 test('Engine (Document): inserting a cell', t => {
-  // this is a complex tests that covers
   t.plan(1)
   let { engine } = _setup()
   let doc = engine.addDocument({
@@ -255,7 +254,6 @@ test('Engine (Document): inserting a cell', t => {
 })
 
 test('Engine (Document): removing a cell', t => {
-  // this is a complex tests that covers
   t.plan(1)
   let { engine } = _setup()
   let doc = engine.addDocument({
@@ -278,7 +276,6 @@ test('Engine (Document): removing a cell', t => {
 })
 
 test('Engine (Document): updating a cell', t => {
-  // this is a complex tests that covers
   t.plan(1)
   let { engine } = _setup()
   let doc = engine.addDocument({
@@ -336,8 +333,8 @@ test('Engine (Sheet): cell expressions', t => {
   .then(() => {
     // TODO: still the difference between qualified vs unqualified id
     // is sometimes confusing
-    // Note: Document and Sheet API uses unqualified ids (i.e. local to the resource)
-    // while the engine uses qualified ids.
+    // Note: Document and Sheet API uses unqualified ids (local to the resource, like 'A1')
+    // while the engine and the graph uses qualified ids (globally unique, like 'sheet1!A1').
     sheet.updateCell(cells[0][0].unqualifiedId, '3')
     sheet.updateCell(cells[0][1].unqualifiedId, '4')
   })
