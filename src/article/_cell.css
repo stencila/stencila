@@ -32,8 +32,14 @@
   background: #00DD00;
 }
 
-.sc-cell .se-status.sm-error {
+.sc-cell .se-status.sm-error,
+.sc-cell .se-status.sm-broken,
+.sc-cell .se-status.sm-failed {
   background: #FF0300;
+}
+
+.sc-cell .se-status.sm-blocked {
+  background: #FFAA00;
 }
 
 .sc-cell .se-status.sm-pending {

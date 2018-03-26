@@ -1,5 +1,3 @@
-import { getRowCol } from '../shared/cellHelpers'
-
 /**
  * Abstract base class for a Stencila execution context
  *
@@ -28,77 +26,7 @@ export default class Context {
    * @param {object} exprOnly - Check that code is a simple expression only?
    */
   analyseCode (code, exprOnly = false) { // eslint-disable-line no-unused-vars
-    // TODO: we want to have a general implementation
-    // dealing with cell references and range expressions
-    // transpiling the code so that it is syntactically
-    // correct in the target language
-    let symbols = {}
-    code = this._transpile (code, symbols)
     return this._analyseCode(code, exprOnly)
-    .then((res) => {
-      // Note: external contexts can only analyse
-      // input variables, so we have transpiled the code
-      // before, and now need to map back
-      if (res.inputs) {
-        res.inputs = res.inputs.map((name) => {
-          if (symbols[name]) {
-            return symbols[name]
-          } else {
-            return {
-              type: 'var',
-              name
-            }
-          }
-        })
-      }
-      return res
-    })
-  }
-
-  _transpile (code, symbols) {
-    // TODO: this needs to be maintained carefully
-    // to be consistent with the code below
-    let re = /\b([A-Z]+[1-9][0-9]*)([:]([A-Z]+[1-9][0-9]*))?/g
-    let m
-    while ((m = re.exec(code))) {
-      let type
-      let name
-      if (m[3]) {
-        type = 'range'
-      } else if (m[1]) {
-        type = 'cell'
-      }
-      switch (type) {
-        case 'range': {
-          let [startRow, startCol] = getRowCol(m[1])
-          let [endRow, endCol] = getRowCol(m[3])
-          name = `${m[1]}_${m[3]}`
-          symbols[name] = {
-            type, name,
-            startRow, startCol, endRow, endCol
-          }
-          break
-        }
-        case 'cell': {
-          let [row, col] = getRowCol(m[1])
-          name = m[1]
-          symbols[name] = {
-            type, name,
-            row, col
-          }
-          break
-        }
-        default:
-          console.error('FIXME: invalid type')
-          continue
-      }
-      code = code.substring(0, m.index) + name + code.substring(m.index+name.length)
-    }
-    return code
-  }
-
-  _analyseCode (code, exprOnly) { // eslint-disable-line
-    return Promise.reject(new Error('Not implemented'))
   }
 
   /**
@@ -109,35 +37,7 @@ export default class Context {
    * @param {object} exprOnly - Check that code is a simple expression only?
    */
   executeCode (code = '', inputs = {}, exprOnly = false) { // eslint-disable-line no-unused-vars
-    // TODO: we want to have a general implementation
-    // dealing with cell references and range expressions
-    // transpiling the code so that it is syntactically
-    // correct in the target language
-    let symbols = {}
-    code = this._transpile (code, symbols)
     return this._executeCode(code, inputs, exprOnly)
-    .then((res) => {
-      // Note: external contexts can only analyse
-      // input variables, so we have transpiled the code
-      // before, and now need to map back
-      if (res.inputs) {
-        res.inputs = res.inputs.map((name) => {
-          if (symbols[name]) {
-            return symbols[name]
-          } else {
-            return {
-              type: 'var',
-              name
-            }
-          }
-        })
-      }
-      return res
-    })
-  }
-
-  _executeCode (code = '', inputs = {}, exprOnly = false) { // eslint-disable-line no-unused-vars
-    return Promise.reject(new Error('Not implemented'))
   }
 
   /**
@@ -146,7 +46,7 @@ export default class Context {
    * @param  {string} name - Function name e.g. 'sum'
    * @return {array<string>} - A Promise resolving to a boolean value
    */
-  hasFunction (name) {  // eslint-disable-line no-unused-vars
+  hasFunction (name) { // eslint-disable-line no-unused-vars
     return Promise.reject(new Error('Not implemented'))
   }
 
@@ -161,8 +61,15 @@ export default class Context {
    * @return {array<string>} - A Promise resolving to an object with any `errors` (an object with line numbers as keys) and `outputs` (
    *                         a data package)
    */
-  callFunction (name, args, namedArgs, options) {  // eslint-disable-line no-unused-vars
+  callFunction (name, args, namedArgs, options) { // eslint-disable-line no-unused-vars
     return Promise.reject(new Error('Not implemented'))
   }
 
+  _analyseCode (code, exprOnly) { // eslint-disable-line
+    return Promise.reject(new Error('Not implemented'))
+  }
+
+  _executeCode (code = '', inputs = {}, exprOnly = false) { // eslint-disable-line no-unused-vars
+    return Promise.reject(new Error('Not implemented'))
+  }
 }

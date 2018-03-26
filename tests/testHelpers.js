@@ -38,13 +38,11 @@ export function spy(self, name) {
 }
 
 export function wait(ms) {
-  return () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve()
-      }, ms)
-    })
-  }
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, ms)
+  })
 }
 
 export function getSandbox(t) {

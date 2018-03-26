@@ -265,7 +265,7 @@ export default class JsContext extends Context {
    * Unpack a value passed from the `Engine` or another `Context`
    */
   _unpackValue(packed) {
-    return packed.data
+    return packed ? packed.data : null
   }
 
   /**

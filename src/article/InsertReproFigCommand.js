@@ -21,12 +21,12 @@ export default class InsertReproFigCommand extends SubstanceInsertNodeCommand {
     )
     let fig = tx.createElement('repro-fig')
     fig.append(
-     tx.createElement('object-id').text(fig.id).attr({'pub-id-type': 'doi'}),
-     tx.createElement('title'),
-     tx.createElement('caption').append(
-       tx.createElement('p')
-     ),
-     cell
+      tx.createElement('object-id').text(fig.id).attr({'pub-id-type': 'doi'}),
+      tx.createElement('title'),
+      tx.createElement('caption').append(
+        tx.createElement('p')
+      ),
+      cell
     )
     return fig
   }

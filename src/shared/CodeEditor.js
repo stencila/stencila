@@ -3,9 +3,7 @@ import {
 } from 'substance'
 
 import analyseCode from './analyseCode'
-import { getSyntaxTokens } from '../engine/expressionHelpers'
-// TODO: eventually this should be coupled with cells
-import { getCellState } from './cellHelpers'
+import { getSyntaxTokens } from '../shared/expressionHelpers'
 
 export default class CodeEditor extends Component {
 
@@ -96,7 +94,9 @@ export default class CodeEditor extends Component {
     const path = this.props.path
     const nodeId = path[0]
     const node = this.context.editorSession.getDocument().get(nodeId)
-    if (!node.state) node.state = getCellState(node)
+    if (!node.state) {
+      node.state = {}
+    }
     return node.state
   }
 

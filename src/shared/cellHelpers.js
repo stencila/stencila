@@ -1,11 +1,12 @@
-import { isNumber } from 'substance'
-import CellState from '../engine/CellState'
+import { isNumber, isString } from 'substance'
 import { type } from '../value'
+import { parseSymbol } from './expressionHelpers'
+
 
 export function getCellState(cell) {
   // FIXME: we should make sure that cellState is
   // initialized as early as possible
-  return cell.state || new CellState()
+  return cell.state
 }
 
 export function isExpression(source) {
@@ -115,7 +116,7 @@ export function getRowCol(cellId) {
 
 export function getError(cell) {
   let cellState = getCellState(cell)
-  return cellState.messages[0]
+  return cellState.errors[0]
 }
 
 export function getFrameSize(layout) {
@@ -124,7 +125,48 @@ export function getFrameSize(layout) {
     'width': '400',
     'height': '400'
   }
-
   const sizes = layout.width ? layout : defaultSizes
   return sizes
+}
+
+// This is useful for writing tests, to use queries such as 'A1:A10'
+export function queryCells(cells, query) {
+  let { type, name } = parseSymbol(query)
+  switch (type) {
+    case 'cell': {
+      const [row, col] = getRowCol(name)
+      return cells[row][col]
+    }
+    case 'range': {
+      let [anchor, focus] = name.split(':')
+      const [anchorRow, anchorCol] = getRowCol(anchor)
+      const [focusRow, focusCol] = getRowCol(focus)
+      if (anchorRow === focusRow && anchorCol === focusCol) {
+        return cells[anchorCol][focusCol]
+      }
+      if (anchorRow === focusRow) {
+        return cells[anchorRow].slice(anchorCol, focusCol+1)
+      }
+      if (anchorCol === focusCol) {
+        let res = []
+        for (let i = anchorRow; i <= focusRow; i++) {
+          res.push(cells[i][anchorCol])
+        }
+        return res
+      }
+      throw new Error('Unsupported query')
+    }
+    default:
+      throw new Error('Unsupported query')
+  }
+}
+
+export function qualifiedId(doc, cell) {
+  let cellId = isString(cell) ? cell : cell.id
+  if (doc) {
+    let docId = isString(doc) ? doc : doc.id
+    return `${docId}!${cellId}`
+  } else {
+    return cellId
+  }
 }

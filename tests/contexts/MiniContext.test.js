@@ -34,7 +34,7 @@ test('MiniContext: analyseCode(foo(x,y,z))', t => {
   let c = setupContextWithFunctions()
   t.plan(1)
   c.analyseCode('foo(x,y,z)').then((res) => {
-    t.deepEqual(res.inputs.map(s => s.name), ['x','y','z'], 'there should be input variables x,y,z')
+    t.deepEqual(res.inputs, ['x','y','z'], 'there should be input variables x,y,z')
   })
 })
 

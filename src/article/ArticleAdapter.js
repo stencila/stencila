@@ -1,0 +1,134 @@
+import { DocumentAdapter, mapCellState } from '../shared/DocumentAdapter'
+
+/*
+  Connects Engine and Article.
+*/
+export default class ArticleAdapter extends DocumentAdapter {
+
+  _initialize() {
+    const doc = this.doc
+    const engine = this.engine
+    let model = engine.addDocument({
+      id: doc.id,
+      name: this.name,
+      lang: 'mini',
+      cells: this._getCellNodes().map(_getCellData),
+      onCellRegister: mapCellState.bind(null, doc)
+    })
+    this.model = model
+    this.editorSession.on('update', this._onDocumentChange, this, { resource: 'document' })
+    this.engine.on('update', this._onEngineUpdate, this)
+  }
+
+  _getCellNodes() {
+    return this.doc.findAll('cell')
+  }
+
+  /*
+    Call on every document change detecting updates to cells that
+    are used to keep the Engine's model in sync.
+  */
+  _onDocumentChange(change) {
+    const doc = this.doc
+    const model = this.model
+    // inspecting ops to detect structural changes and updates
+    // Cell removals are applied directly to the engine model
+    // while insertions are applied at the end
+    // 1. removes, 2. creates, 3. updates, 3. creates
+    let created, updated
+    const ops = change.ops
+    for (let i = 0; i < ops.length; i++) {
+      const op = ops[i]
+      switch (op.type) {
+        case 'create': {
+          let node = doc.get(op.path[0])
+          if (this._isCell(node)) {
+            if (!created) created = new Set()
+            created.add(node.id)
+          }
+          break
+        }
+        case 'delete': {
+          // TODO: would be good to still have the node instance
+          let nodeData = op.val
+          if (this._isCell(nodeData)) {
+            model.removeCell(nodeData.id)
+          }
+          break
+        }
+        case 'set':
+        case 'update': {
+          let node = doc.get(op.path[0])
+          // null if node is deleted within the same change
+          if (!node) continue
+          if (node.type === 'source-code') {
+            node = node.parentNode
+          }
+          if (this._isCell(node)) {
+            if (!updated) updated = new Set()
+            updated.add(node.id)
+          }
+          break
+        }
+        default:
+          throw new Error('Invalid state')
+      }
+    }
+    if (created) {
+      let cellNodes = this._getCellNodes()
+      for (let i = 0; i < cellNodes.length; i++) {
+        const cellNode = cellNodes[i]
+        if (created.has(cellNode.id)) {
+          model.insertCellAt(i, _getCellData(cellNode))
+        }
+      }
+    }
+    if (updated) {
+      updated.forEach(id => {
+        const cell = this.doc.get(id)
+        const cellData = {
+          source: _getSource(cell),
+          lang: _getLang(cell)
+        }
+        model.updateCell(id, cellData)
+      })
+    }
+  }
+
+  /*
+    Used internally to filter cells.
+  */
+  _isCell(node) {
+    return node.type === 'cell'
+  }
+
+
+  static connect(engine, editorSession, name) {
+    return new ArticleAdapter(engine, editorSession, name)
+  }
+}
+
+function _getSourceElement(node) {
+  // ATTENTION: this caching would be problematic if the cell element
+  // was changed structurally. But we do not do this.
+  if (!node._sourceEl) {
+    node._sourceEl = node.find('source-code')
+  }
+  return node._sourceEl
+}
+
+function _getSource(node) {
+  return _getSourceElement(node).textContent
+}
+
+function _getLang(node) {
+  return _getSourceElement(node).getAttribute('language')
+}
+
+function _getCellData(cell) {
+  return {
+    id: cell.id,
+    lang: _getLang(cell),
+    source: _getSource(cell)
+  }
+}
