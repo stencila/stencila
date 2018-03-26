@@ -150,7 +150,7 @@ export function qualifiedId(doc, cell) {
 export const BROKEN_REF = '#REF!'
 
 export function transformCellRangeExpression(expr, params) {
-  const dim = params.mode
+  const dim = params.dim
   const idx = params.idx
   const count = Math.abs(params.count)
   const mode = params.count > 0 ? 'insert' : 'remove'

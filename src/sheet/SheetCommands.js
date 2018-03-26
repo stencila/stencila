@@ -1,5 +1,7 @@
 import { Command } from 'substance'
 import { getRange } from './sheetHelpers'
+import { getCellExpressions } from '../shared/expressionHelpers'
+import { transformCellRangeExpression } from '../shared/cellHelpers'
 
 class RowsCommand extends Command {
 
@@ -81,9 +83,13 @@ function insertRows({editorSession, commandState}, mode) {
   const refRow = mode === 'above' ?
     commandState.startRow :
     commandState.endRow + 1
-  const nrows = commandState.nrows
+  const nRows = commandState.nrows
   editorSession.transaction((tx) => {
-    tx.getDocument().createRowsAt(refRow, nrows)
+    tx.getDocument().createRowsAt(refRow, nRows)
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      transformCellExpressions(cell, {dim: 'row', idx: refRow, count: nRows})
+    })
   })
 }
 
@@ -92,21 +98,35 @@ function insertCols({editorSession, commandState}, mode) {
   const refCol = mode === 'left' ?
     commandState.startCol :
     commandState.endCol + 1
-  const ncols = commandState.ncolumns
+  const nCols = commandState.ncolumns
   editorSession.transaction((tx) => {
-    tx.getDocument().createColumnsAt(refCol, ncols)
+    tx.getDocument().createColumnsAt(refCol, nCols)
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      transformCellExpressions(cell, {dim: 'col', idx: refCol, count: nCols})
+    })
   })
 }
 
 function deleteRows({editorSession, commandState}) {
   editorSession.transaction((tx) => {
     tx.getDocument().deleteRows(commandState.startRow, commandState.endRow)
+    const count = commandState.endRow - commandState.startRow
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      transformCellExpressions(cell, {dim: 'col', idx: commandState.startRow, count: count})
+    })
   })
 }
 
 function deleteColumns({editorSession, commandState}) {
   editorSession.transaction((tx) => {
     tx.getDocument().deleteColumns(commandState.startCol, commandState.endCol)
+    const count = commandState.endCol - commandState.startCol
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      transformCellExpressions(cell, {dim: 'col', idx: commandState.startCol, count: count})
+    })
   })
 }
 
@@ -279,5 +299,20 @@ export class SelectAllCommand extends Command {
       data: selData,
       surfaceId: sel.surfaceId
     })
+  }
+}
+
+function transformCellExpressions(cell, params) {
+  let source = cell.textContent
+  const symbols = getCellExpressions(source)
+  for (let i = symbols.length-1; i >= 0; i--) {
+    const symbol = symbols[i]
+    const tExp = transformCellRangeExpression(symbol.text, params)
+    if(symbol.text !== tExp) {
+      source = source.substring(0, symbol.startPos) + tExp + source.substring(symbol.endPos)
+    }
+  }
+  if(cell.source !== source) {
+    cell.textContent = source
   }
 }

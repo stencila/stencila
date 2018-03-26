@@ -86,6 +86,8 @@ export function transpile(code, map = {}) {
 export function parseSymbol(str) {
   let m = REF_RE.exec(str)
   if (!m) throw new Error('Unrecognised symbol format.')
+  const startPos = m.index
+  const endPos = m[0].length + startPos
   const mangledStr = toIdentifier(m[0])
   const scope = m[1] || m[2]
   const anchorCell = m[3]
@@ -106,7 +108,7 @@ export function parseSymbol(str) {
   } else {
     throw new Error('Invalid symbol expression')
   }
-  return { type, scope, name, mangledStr }
+  return { type, scope, name, mangledStr, startPos, endPos }
 }
 
 /*
@@ -119,4 +121,28 @@ export function parseSymbol(str) {
 */
 export function toIdentifier(str, c = '_') {
   return str.replace(new RegExp(INVALID_ID_CHARACTERS,'g'), c)
+}
+
+
+export function getCellExpressions(source) {
+  let re = new RegExp(REF, 'g')
+  let m
+  let result = []
+  while ((m = re.exec(source))) {
+    // NOTE: the array indexes used here correspond to the position of the capturing group
+    // make sure to update these if you change the structure of the regular expression
+    const text = m[0]
+    const startPos = m.index
+    const endPos = text.length + startPos
+
+    // if this is given, the reference is a transclusion
+    const docName = m[1] || m[2]
+    const focusCell = m[4]
+    const varName = m[5]
+
+    if(!varName) {
+      result.push({text, startPos, endPos})
+    }
+  }
+  return result
 }
