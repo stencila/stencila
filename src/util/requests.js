@@ -25,10 +25,19 @@ export function request (method, url, data) {
     request.withCredentials = true
 
     request.onload = function () {
+      let result
+      try {
+        result = JSON.parse(request.responseText)
+      } catch (error) {
+        result = request.responseText
+      }
       if (request.status >= 200 && request.status < 400) {
-        resolve(JSON.parse(request.responseText))
+        resolve(result)
       } else {
-        reject(`${request.status}:${request.responseText}`)
+        reject({
+          status: request.status,
+          body: result
+        })
       }
     }
 

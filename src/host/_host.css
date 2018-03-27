@@ -4,30 +4,33 @@
   flex-direction: column;
 }
 
-.sc-hosts .se-host-list {
-  flex: 1;
+.sc-hosts .se-label {
+  color: #555;
+  font-weight: bold;
+  font-size: 0.7em;
 }
 
-.sc-hosts .se-host-item {
-  border-top: 1px solid #eee;
-  margin-bottom: 1em;
-}
-
-.sc-hosts .se-host-item .se-header {
-  background: #F5F5F5;
+.sc-hosts .se-message {
+  border: 1px solid #AAA;
+  border-radius: 3px;
   padding: 0.5em;
-}
-
-.sc-hosts .se-host-item .se-name {
-}
-
-.sc-hosts .se-host-item .se-details {
-  color: #999;
   font-size: 0.8em;
+  line-height: 1.1em;
+  background: #ffeaea;
+  color: #555;
 }
 
-.sc-hosts .se-host-item .se-types {
+.sc-hosts .se-environ,
+.sc-hosts .se-hosts {
+  padding: 1em;
+}
+
+.sc-hosts .se-environ-select {
+  width: 100%;
+  background: white;
   padding: 0.5em;
+  border-radius: 3px;
+  font-size: 0.9em;
 }
 
 .sc-hosts .se-host-item .se-type {
@@ -45,22 +48,6 @@
   border-radius: 50%;
 }
 
-.sc-hosts .se-host-item .se-type.sm-instantiated {
-  font-weight: bold;
-}
-
-.sc-hosts .se-host-item .se-type.sm-instantiated::before {
-  background-color: #ABFF00;
-}
-
-.sc-hosts .se-options {
-  border-top: 1px solid #eee;
-  background: #fafbfc;
-  padding: 1em;
-  height: 5em;
-  width: 100%;
-}
-
-.sc-hosts .se-options .se-input {
-  margin-left: 10px;
+.sc-hosts .se-host-item.sm-selected {
+  background: #bcffb4;
 }

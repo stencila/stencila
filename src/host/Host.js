@@ -1,12 +1,11 @@
-import { EventEmitter } from 'substance'
+import { EventEmitter, uuid } from 'substance'
 
-import { GET, POST, PUT } from '../util/requests'
+import { GET, POST } from '../util/requests'
 import FunctionManager from '../function/FunctionManager'
 import Engine from '../engine/Engine'
 import JsContext from '../contexts/JsContext'
 import MiniContext from '../contexts/MiniContext'
 import ContextHttpClient from '../contexts/ContextHttpClient'
-import MemoryBuffer from '../backend/MemoryBuffer'
 
 /**
  * Each Stencila process has a single instance of the `Host` class which
@@ -46,6 +45,8 @@ export default class Host extends EventEmitter {
      * @type {object}
      */
     this._counts = {}
+
+    this._environs = {}
 
     /**
      * Peer manifests which detail the capabilities
@@ -122,7 +123,7 @@ export default class Host extends EventEmitter {
   }
 
   /**
-   * Get this host's peers
+   * Get this host's execution engine
    */
   get engine () {
     return this._engine
@@ -302,39 +303,52 @@ export default class Host extends EventEmitter {
     }
   }
 
-  /**
-   * Register a peer
-   *
-   * Peers may have several URLs (listed in the manifest's `urls` property; e.g. http://, ws://).
-   * The URL used to register a peer is a unique identier used by this host and is
-   * usually the URL that the peer was discoved on.
-   *
-   * @param {string} url - The identifying URL for the peer
-   * @param {object} manifest - The peer's manifest
-   */
-  registerPeer (url, manifest) {
-    this._peers[url] = manifest
-    this.emit('peer:registered')
+  registerEnvirons (url) {
+    return GET(url + '/environs').then(environs => {
+      this._environs[url] = environs.map(environ => {
+        return Object.assign(environ, {
+          uuid: url + environ.id,
+          origin: url
+        })
+      })
+      this.emit('environs:registered')
+    }).catch(() => {
+      delete this._environs[url]
+    })
   }
 
   /**
-   * Pokes a URL to see if it is a Stencila Host
-   *
-   * @param {string} url - A URL for the peer
+   * Generate a map of environment ids to the hosts that support them
    */
-  pokePeer (url) {
-    return GET(url).then(manifest => {
-      // Register if this is a Stencila Host manifest
-      if (manifest.stencila) {
-        // Remove any query parameters from the peer URL
-        // e.g. authentication tokens. Necessary because we append strings to this
-        // URL for requests to e.g POST http://xxxxx/RContext
-        let match = url.match(/^https?:\/\/[\w-.]+(:\d+)?/)
-        if (match) url = match[0]
-        this.registerPeer(url, manifest)
+  mapEnvirons () {
+    let map = {}
+    for (let environs of Object.values(this._environs)) {
+      for (let environ of environs) {
+        let hosts = map[environ.id] || []
+        let selected = environ.uuid === (this._environ && this._environ.uuid)
+        hosts.push(Object.assign(environ, {selected}))
+        map[environ.id] = hosts
       }
+    }
+    return map
+  }
+
+  /**
+   * Select an environment for a peer remote host
+   */
+  selectEnviron (environ) {
+    let url = environ.url
+    if (!url) url = environ.origin + environ.path
+    return GET(url + '/manifest').then(manifest => {
+      // Currently, selecting this environment for a single peer host
+      this._peers = {}
+      this._peers[url] = manifest
+      this._environ = environ
+      this.emit('environ:selected')
     }).catch((error) => {
-      console.error(error)
+      if (error && (error.status === 403 || (error.body && error.body.error === 'Forbidden'))) {
+        this.emit('environ:authenticate', environ)
+      }
     })
   }
 
@@ -360,7 +374,7 @@ export default class Host extends EventEmitter {
     this.options.discover = interval
     if (interval >= 0) {
       for (let port=2000; port<=2100; port+=10) {
-        this.pokePeer(`http://127.0.0.1:${port}`)
+        this.registerEnvirons(`http://127.0.0.1:${port}`)
       }
       if (interval > 0) {
         this.discoverPeers(-1) // Ensure any existing interval is turned off
