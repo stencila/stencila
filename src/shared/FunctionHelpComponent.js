@@ -9,6 +9,11 @@ const tutorials = [
   {title: 'Big Data', link: '/tutorials.html?archive=5'}
 ]
 
+
+/*
+  TODO: This code is really in a bad shape. We should implement this properly soon.
+*/
+
 export default class FunctionHelpComponent extends Component {
   render($$) {
     const functionManager = this.context.host.functionManager
@@ -25,7 +30,7 @@ export default class FunctionHelpComponent extends Component {
 
       if(usage.examples.length > 0) {
         el.append(
-          $$('div').addClass('se-section-title').append(this.getLabel('function-examples'))
+          $$('div').addClass('se-section-title').append('Examples')
         )
 
         usage.examples.forEach(example => {
@@ -52,7 +57,7 @@ export default class FunctionHelpComponent extends Component {
       syntaxEl.append(')')
 
       el.append(
-        $$('div').addClass('se-section-title').append(this.getLabel('function-usage')),
+        $$('div').addClass('se-section-title').append('Functions'),
         syntaxEl
       )
 
@@ -65,6 +70,13 @@ export default class FunctionHelpComponent extends Component {
           )
         )
       })
+
+      el.append(
+        $$('div').addClass('se-function-index').append(
+          $$('a').attr({href: '#'}).append('← Function Index')
+            .on('click', this._openFunctionHelp.bind(this, 'index'))
+        )
+      )
 
     } else {
 

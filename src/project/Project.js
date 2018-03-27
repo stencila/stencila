@@ -2,8 +2,7 @@ import { Component, DefaultDOMElement, platform } from 'substance'
 import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
 import ProjectBar from './ProjectBar'
-import HelpComponent from '../shared/HelpComponent'
-import HostsComponent from '../host/HostsComponent'
+import ContextPane from './ContextPane'
 
 export default class Project extends Component {
 
@@ -13,6 +12,7 @@ export default class Project extends Component {
       'openDocument': this._openDocument,
       'removeDocument': this._removeDocument,
       'updateDocumentName': this._updateDocumentName,
+      'closeContext': this._closeContext,
       'openHelp': this._openHelp,
       'toggleHelp': this._toggleHelp,
       'toggleHosts': this._toggleHosts
@@ -33,8 +33,6 @@ export default class Project extends Component {
   getInitialState() {
     let activeDocument = this._getActiveDocument()
     return {
-      contextId: undefined,
-      contextProps: undefined,
       documentId: activeDocument.id
     }
   }
@@ -54,10 +52,14 @@ export default class Project extends Component {
     let el = $$('div').addClass('sc-project')
     el.append(
       $$('div').addClass('se-main-pane').append(
-        this._renderEditorPane($$)
+        this._renderEditorPane($$),
+        $$(ContextPane, {
+          contextId: this._contextId,
+          contextProps: this._contextProps
+        }).ref('contextPane')
       ),
       $$(ProjectBar, {
-        contextId: this.state.contextId,
+        contextId: this._contextId,
         documentId: this.state.documentId,
         archive: this.props.documentArchive
       }).ref('projectBar')
@@ -97,22 +99,19 @@ export default class Project extends Component {
     let documentType = documentRecord.type
     let da = this._getDocumentArchive()
     let editorSession = da.getEditorSession(documentId)
-    let contextComponent = this._getContextComponent($$)
 
     if (documentType === 'article') {
       el.append(
         $$(TextureEditorPackage.Editor, {
           editorSession,
-          pubMetaDbSession: this._getPubMetaDbSession(),
-          contextComponent
+          pubMetaDbSession: this._getPubMetaDbSession()
         }).ref('editor')
           .addClass('sc-article-editor')
       )
     } else if (documentType === 'sheet') {
       el.append(
         $$(SheetEditor, {
-          editorSession,
-          contextComponent
+          editorSession
         }).ref('editor')
       )
     }
@@ -167,11 +166,26 @@ export default class Project extends Component {
     E.g. _openHelp('function/sum')
   */
   _openHelp(page) {
-    this.extendState({
-      contextId: 'help',
-      contextProps: {
-        page
-      }
+    this._contextId = 'help'
+    this._contextProps = { page }
+    this.refs.contextPane.extendProps({
+      contextId: this._contextId,
+      contextProps: this._contextProps
+    })
+    this.refs.projectBar.extendProps({
+      contextId: this._contextId
+    })
+  }
+
+  _closeContext() {
+    this._contextId = undefined
+    this._contextProps = undefined
+    this.refs.contextPane.extendProps({
+      contextId: this._contextId,
+      contextProps: this._contextProps
+    })
+    this.refs.projectBar.extendProps({
+      contextId: this._contextId
     })
   }
 
@@ -179,34 +193,43 @@ export default class Project extends Component {
     Either hide help or show function index
   */
   _toggleHelp() {
-    if (this.state.contextId === 'help') {
-      this.extendState({
-        contextId: undefined,
-        contextProps: undefined
-      })
+    let contextId = this._contextId
+    if (contextId === 'help') {
+      this._contextId = undefined
+      this._contextProps = undefined
     } else {
-      this.extendState({
-        contextId: 'help',
-        contextProps: { page: 'function/index'}
-      })
+      this._contextId = 'help'
+      this._contextProps = { page: 'function/index'}
     }
+    this.refs.contextPane.extendProps({
+      contextId: this._contextId,
+      contextProps: this._contextProps
+    })
+    this.refs.projectBar.extendProps({
+      contextId: this._contextId
+    })
   }
 
   /*
     Either open or hide hosts connection information
   */
   _toggleHosts() {
-    if (this.state.contextId === 'hosts') {
-      this.extendState({
-        contextId: undefined,
-        contextProps: undefined
-      })
+    let contextId = this._contextId
+    if (contextId === 'hosts') {
+      this._contextId = undefined
+      this._contextProps = undefined
     } else {
-      this.extendState({
-        contextId: 'hosts',
-        contextProps: { page: 'hosts'}
-      })
+      this._contextId = 'hosts'
+      this._contextProps = { page: 'hosts' }
     }
+
+    this.refs.contextPane.extendProps({
+      contextId: this._contextId,
+      contextProps: this._contextProps
+    })
+    this.refs.projectBar.extendProps({
+      contextId: this._contextId
+    })
   }
 
   onKeyDown(event) {
@@ -216,23 +239,6 @@ export default class Project extends Component {
     let editorSession = this._getActiveEditorSession()
     let custom = editorSession.keyboardManager.onKeydown(event)
     return custom
-  }
-
-  /*
-    TODO: We may want to make this extensible in the future
-  */
-  _getContextComponent($$) {
-    let contextId = this.state.contextId
-    let contextProps = this.state.contextProps
-    let contextComponent
-    if (contextId === 'help') {
-      contextComponent = $$(HelpComponent, contextProps).ref('contextComponent')
-    } else if (contextId === 'hosts') {
-      contextComponent = $$(HostsComponent, contextProps).ref('contextComponent')
-    } else if (contextId === 'issues') {
-      console.warn('TODO: use issue component')
-    }
-    return contextComponent
   }
 
 }

@@ -14,10 +14,14 @@
   color: #4d4d4d;
 }
 
-.sc-function-help .se-tutorials-list .se-item a {
+.sc-function-help a {
   font-size: 14px;
   color: #2b8aff;
   text-decoration: none;
+}
+
+.sc-function-help .se-function-index {
+  padding: 15px 0;
 }
 
 .sc-function-help .se-functions {
@@ -33,7 +37,6 @@
 }
 
 .sc-function-help > .se-name {
-  color: #34913c;
   font-family: monospace;
   font-size: 18px;
 }
@@ -50,7 +53,6 @@
 
 .sc-function-help > .se-example,
 .sc-function-help > .se-syntax {
-  color: #34913c;
   font-family: monospace;
   font-size: 12px;
   margin-bottom: 5px;
@@ -64,6 +66,5 @@
 }
 
 .sc-function-help > .se-param > .se-name {
-  color: #34913c;
   font-family: monospace;
 }

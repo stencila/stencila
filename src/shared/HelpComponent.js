@@ -1,4 +1,4 @@
-import { Component, FontAwesomeIcon } from 'substance'
+import { Component } from 'substance'
 import FunctionHelpComponent from './FunctionHelpComponent'
 
 export default class HelpComponent extends Component {
@@ -7,14 +7,7 @@ export default class HelpComponent extends Component {
     const page = this.props.page
     const [section, name] = page.split('/')
 
-    let el = $$('div').addClass('sc-help').append(
-      $$('div').addClass('se-context-header').append(
-        $$('div').addClass('se-title').append('Help'),
-        $$('div').addClass('se-icon').append(
-          $$(FontAwesomeIcon, { icon: 'fa-close' })
-        ).on('click', this._closeContext)
-      )
-    )
+    let el = $$('div').addClass('sc-help')
 
     // Do a little routing
     if (section === 'function') {

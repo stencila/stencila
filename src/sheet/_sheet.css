@@ -14,6 +14,8 @@
 .sc-sheet-editor .se-tool-pane {
   display: flex;
   z-index: 3;
+  padding: 4px;
+  height: 40px;
 }
 
 .sc-sheet-editor .se-tool-pane .sc-formula-bar {
