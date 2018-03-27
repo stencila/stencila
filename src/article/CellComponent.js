@@ -1,8 +1,8 @@
 import { NodeComponent, FontAwesomeIcon } from 'substance'
-import CellValueComponent from '../shared/CellValueComponent'
+import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
 import { getCellState, getError } from '../shared/cellHelpers'
-import { toString as stateToString } from '../engine/CellStates'
+import { toString as stateToString, BROKEN, FAILED, OK } from '../engine/CellStates'
 import NodeMenu from './NodeMenu'
 
 export default
@@ -16,6 +16,10 @@ class CellComponent extends NodeComponent {
       'execute': this._onExecute,
       'break': this._onBreak
     })
+  }
+
+  didMount() {
+    this.context.editorSession.onRender('document', this._onNodeChange, this, { path: [this.props.node.id]})
   }
 
   getInitialState() {
@@ -69,20 +73,33 @@ class CellComponent extends NodeComponent {
       )
     }
 
-    // cellState is null if the cell has not been registered
-    // with the engine
     if (cellState) {
-      if (cellState.hasErrors()) {
-        // TODO: should we render only the first error?
+      const status = cellState.status
+      if(status === FAILED || status === BROKEN) {
         el.append(
           $$('div').addClass('se-error').append(
             getError(cell).message
+          ).ref('error').setStyle('visibility', 'hidden')
+        )
+      } else if (status === OK) {
+        if (this._showOutput()) {
+          el.append(
+            $$(ValueComponent, cellState.value).ref('value')
           )
-        )
-      } else if (this._showOutput()) {
-        el.append(
-          $$(CellValueComponent, {cell}).ref('value')
-        )
+        }
+      } else if (this.oldValue) {
+        el.addClass('sm-pending')
+        if(this.oldValue.error) {
+          el.append(
+            $$('div').addClass('se-error').append(
+              this.oldValue.error
+            ).ref('error').setStyle('visibility', 'hidden')
+          )
+        } else {
+          el.append(
+            $$(ValueComponent, this.oldValue).ref('value')
+          )
+        }
       }
     }
     return el
@@ -165,6 +182,30 @@ class CellComponent extends NodeComponent {
     })
   }
 
+  _onNodeChange() {
+    const cell = this.props.node
+    const cellState = getCellState(cell)
+    if(cellState) {
+      const status = cellState.status
+      if(status === BROKEN || status === FAILED) {
+        this.oldValue = {
+          error: getError(cell).message
+        }
+        clearTimeout(this.delayError) // eslint-disable-line no-undef
+        this.delayError = setTimeout(() => {
+          const errEl = this.refs.error
+          if(errEl) {
+            errEl.setStyle('visibility', 'visible')
+          }
+        }, 500)
+      } else if (status === OK) {
+        this.oldValue = cellState.value
+        clearTimeout(this.delayError) // eslint-disable-line no-undef
+      }
+    }
+    this.rerender()
+  }
+
   _onExecute() {
     this.context.cellEngine.recompute(this.props.node.id)
   }
@@ -184,8 +225,7 @@ class CellComponent extends NodeComponent {
   }
 
   _afterNode() {
-    // TODO: not too happy about how difficult it is
-    // to set the selection
+    // TODO: not too happy about how difficult it is to set the selection
     const node = this.props.node
     const isolatedNode = this.context.isolatedNodeComponent
     const parentSurface = isolatedNode.getParentSurface()

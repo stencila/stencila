@@ -13,7 +13,7 @@ class TableValueComponent extends Component {
     let el = $$('div').addClass('sc-table-value')
 
     let tableEl = $$('table').addClass('sc-table-value')
-    
+
     const columnNames = Object.keys(data)
     const thead = $$('thead')
     columnNames.forEach((name)=>{
