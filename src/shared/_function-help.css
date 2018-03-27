@@ -14,10 +14,14 @@
   color: #4d4d4d;
 }
 
-.sc-function-help .se-tutorials-list .se-item a {
+.sc-function-help a {
   font-size: 14px;
   color: #2b8aff;
   text-decoration: none;
+}
+
+.sc-function-help .se-function-index {
+  padding: 15px 0;
 }
 
 .sc-function-help .se-functions {
