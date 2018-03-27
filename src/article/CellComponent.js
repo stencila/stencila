@@ -1,5 +1,5 @@
 import { NodeComponent, FontAwesomeIcon } from 'substance'
-import CellValueComponent from '../shared/CellValueComponent'
+import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
 import { getCellState, getError } from '../shared/cellHelpers'
 import { toString as stateToString } from '../engine/CellStates'
@@ -29,6 +29,17 @@ class CellComponent extends NodeComponent {
     const cellState = getCellState(this.props.node)
     let statusName = cellState ? stateToString(cellState.status) : 'unknown'
     return $$('div').addClass(`se-status sm-${statusName}`)
+  }
+
+  didUpdate() {
+    const cell = this.props.node
+    const cellState = getCellState(cell)
+
+    if(this._hasErrors()) {
+      this.oldValue = {error: getError(cell).message}
+    } else {
+      this.oldValue = cellState.value ? cellState.value.data : ''
+    }
   }
 
   render($$) {
@@ -72,7 +83,7 @@ class CellComponent extends NodeComponent {
     // cellState is null if the cell has not been registered
     // with the engine
     if (cellState) {
-      if (cellState.hasErrors()) {
+      if (this._hasErrors()) {
         // TODO: should we render only the first error?
         el.append(
           $$('div').addClass('se-error').append(
@@ -80,8 +91,9 @@ class CellComponent extends NodeComponent {
           )
         )
       } else if (this._showOutput()) {
+        const value = cellState.value
         el.append(
-          $$(CellValueComponent, {cell}).ref('value')
+          $$(ValueComponent, value).ref('value')
         )
       }
     }
@@ -149,6 +161,16 @@ class CellComponent extends NodeComponent {
   */
   _showOutput() {
     return !this._isDefinition() || this.state.forceOutput
+  }
+
+  _isReady() {
+    const cellState = getCellState(this.props.node)
+    return stateToString(cellState.status) === 'ok'
+  }
+
+  _hasErrors() {
+    const cellState = getCellState(this.props.node)
+    return stateToString(cellState.status) === 'broken' || stateToString(cellState.status) === 'failed'
   }
 
   _isDefinition() {
