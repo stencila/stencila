@@ -76,14 +76,19 @@
   color: #737373;
 }
 
-.sc-cell-value img {
+.sc-cell .sc-cell-value {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.sc-cell .sc-cell-value img {
   max-width: 100%;
   margin: 0 auto;
   display: block;
 }
 
-.sc-cell-value.sm-pending {
-  opacity: 0.2;
+.sc-cell.sm-pending .sc-cell-value {
+  opacity: 0.3;
 }
 
 .sc-cell .se-error {
@@ -91,4 +96,10 @@
   color: #FF0300;
   text-align: center;
   font-size: 12px;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.sc-cell.sm-pending .se-error {
+  opacity: 0.3;
 }

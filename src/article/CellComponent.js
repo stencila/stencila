@@ -18,6 +18,10 @@ class CellComponent extends NodeComponent {
     })
   }
 
+  didMount() {
+    this.context.editorSession.onRender('document', this._onNodeChange, this, { path: [this.props.node.id]})
+  }
+
   getInitialState() {
     return {
       hideCode: false,
@@ -29,17 +33,6 @@ class CellComponent extends NodeComponent {
     const cellState = getCellState(this.props.node)
     let statusName = cellState ? stateToString(cellState.status) : 'unknown'
     return $$('div').addClass(`se-status sm-${statusName}`)
-  }
-
-  didUpdate() {
-    const cell = this.props.node
-    const cellState = getCellState(cell)
-
-    if(this._hasErrors()) {
-      this.oldValue = {error: getError(cell).message}
-    } else {
-      this.oldValue = cellState.value ? cellState.value.data : ''
-    }
   }
 
   render($$) {
@@ -80,24 +73,49 @@ class CellComponent extends NodeComponent {
       )
     }
 
-    // cellState is null if the cell has not been registered
-    // with the engine
     if (cellState) {
-      if (this._hasErrors()) {
-        // TODO: should we render only the first error?
-        el.append(
-          $$('div').addClass('se-error').append(
-            getError(cell).message
+      if(this._hasErrors() || this._isReady()) {
+        if (this._hasErrors()) {
+          el.append(
+            $$('div').addClass('se-error').append(
+              getError(cell).message
+            )
           )
-        )
-      } else if (this._showOutput()) {
-        const value = cellState.value
-        el.append(
-          $$(ValueComponent, value).ref('value')
-        )
+        } else if (this._showOutput()) {
+          const value = cellState.value
+          el.append(
+            $$(ValueComponent, value).ref('value')
+          )
+        }
+      } else if (this.oldValue) {
+        el.addClass('sm-pending')
+
+        if(this.oldValue.error) {
+          el.append(
+            $$('div').addClass('se-error').append(this.oldValue.error)
+          )
+        } else {
+          el.append(
+            $$(ValueComponent, this.oldValue).ref('value')
+          )
+        }
       }
     }
     return el
+  }
+
+  _onNodeChange() {
+    const cell = this.props.node
+    const cellState = getCellState(cell)
+
+    if(cellState) {
+      if(this._hasErrors()) {
+        this.oldValue = {error: getError(cell).message}
+      } else if (this._isReady()) {
+        this.oldValue = cellState.value
+      }
+    }
+    this.rerender()
   }
 
   /*
