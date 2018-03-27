@@ -30,6 +30,34 @@ export default class SheetDocument extends XMLDocument {
     return this.getRootNode().find('name').text()
   }
 
+  // EXPERIMENTAL: introducing
+  invert(change) {
+    let inverted = change.invert()
+    let info = inverted.info || {}
+    switch(change.info.action) {
+      case 'insertRows': {
+        info.action = 'deleteRows'
+        break
+      }
+      case 'deleteRows': {
+        info.action = 'insertRows'
+        break
+      }
+      case 'insertCols': {
+        info.action = 'deleteCols'
+        break
+      }
+      case 'deleteCols':  {
+        info.action = 'insertCols'
+        break
+      }
+      default:
+        //
+    }
+    inverted.info = info
+    return inverted
+  }
+
   getColumnForCell(cellId) {
     let cell = this.get(cellId)
     let row = cell.parentNode
