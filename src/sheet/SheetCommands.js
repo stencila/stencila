@@ -80,54 +80,61 @@ class ColumnMetaCommand extends Command {
 }
 
 function insertRows({editorSession, commandState}, mode) {
-  const refRow = mode === 'above' ?
+  const pos = mode === 'above' ?
     commandState.startRow :
     commandState.endRow + 1
-  const nRows = commandState.nrows
+  const count = commandState.nrows
   editorSession.transaction((tx) => {
-    tx.getDocument().createRowsAt(refRow, nRows)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, {dim: 'row', idx: refRow, count: nRows})
-    })
-  })
+    tx.getDocument().createRowsAt(pos, count)
+    // const cells = tx.findAll('cell')
+    // cells.forEach(cell => {
+    //   // TODO: rename 'idx' to 'pos'
+    //   transformCellExpressions(cell, { dim: 'row', idx: pos, count })
+    // })
+  }, { action: 'insertRows', pos, count })
 }
 
 function insertCols({editorSession, commandState}, mode) {
   //const sel = selection.data
-  const refCol = mode === 'left' ?
+  const pos = mode === 'left' ?
     commandState.startCol :
     commandState.endCol + 1
-  const nCols = commandState.ncolumns
+  const count = commandState.ncolumns
   editorSession.transaction((tx) => {
-    tx.getDocument().createColumnsAt(refCol, nCols)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, {dim: 'col', idx: refCol, count: nCols})
-    })
-  })
+    tx.getDocument().createColumnsAt(pos, count)
+    // const cells = tx.findAll('cell')
+    // cells.forEach(cell => {
+    //   transformCellExpressions(cell, { dim: 'col', idx: pos, count })
+    // })
+  }, { action: 'insertCols', pos, count })
 }
 
 function deleteRows({editorSession, commandState}) {
+  const start = commandState.startRow
+  const end = commandState.endRow
+  const pos = start
+  const count = end - start + 1
   editorSession.transaction((tx) => {
-    tx.getDocument().deleteRows(commandState.startRow, commandState.endRow)
-    const count = commandState.endRow - commandState.startRow
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, {dim: 'col', idx: commandState.startRow, count: count})
-    })
-  })
+    tx.getDocument().deleteRows(start, end)
+    // const cells = tx.findAll('cell')
+    // cells.forEach(cell => {
+    //   transformCellExpressions(cell, { dim: 'col', idx: pos, count })
+    // })
+  }, { action: 'deleteRows', pos, count })
 }
 
 function deleteColumns({editorSession, commandState}) {
+  const start = commandState.startCol
+  const end = commandState.endCol
+  const pos = start
+  const count = end - start + 1
   editorSession.transaction((tx) => {
-    tx.getDocument().deleteColumns(commandState.startCol, commandState.endCol)
-    const count = commandState.endCol - commandState.startCol
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, {dim: 'col', idx: commandState.startCol, count: count})
-    })
-  })
+    tx.getDocument().deleteColumns(start, end)
+    // const cells = tx.findAll('cell')
+    // cells.forEach(cell => {
+    //   transformCellExpressions(cell, { dim: 'col', idx: pos, count })
+    // })
+  }, { action: 'deleteCols', pos, count })
 }
 
 export class InsertRowsAbove extends RowsCommand {

@@ -233,6 +233,20 @@ export default class SheetDocument extends XMLDocument {
     }
   }
 
+  _apply(change) {
+    super._apply(change)
+    // update the matrix on structural changes
+    // TODO: we could be smarter by analysing the change
+    switch (change.info.action) {
+      case 'insertRows':
+      case 'deleteRows':
+      case 'insertCols':
+      case 'deleteCols': {
+        this._matrix = this._getCellMatrix()
+      }
+    }
+  }
+
   _getData() {
     if (!this._dataNode) {
       this._dataNode = this.get('data')
