@@ -2,7 +2,7 @@ import { NodeComponent, FontAwesomeIcon } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
 import { getCellState, getError } from '../shared/cellHelpers'
-import { toString as stateToString } from '../engine/CellStates'
+import { toString as stateToString, BROKEN, FAILED, OK } from '../engine/CellStates'
 import NodeMenu from './NodeMenu'
 
 export default
@@ -74,22 +74,21 @@ class CellComponent extends NodeComponent {
     }
 
     if (cellState) {
-      if(this._hasErrors() || this._isReady()) {
-        if (this._hasErrors()) {
+      const status = cellState.status
+      if(status === FAILED || status === BROKEN) {
+        el.append(
+          $$('div').addClass('se-error').append(
+            getError(cell).message
+          ).ref('error').setStyle('visibility', 'hidden')
+        )
+      } else if (status === OK) {
+        if (this._showOutput()) {
           el.append(
-            $$('div').addClass('se-error').append(
-              getError(cell).message
-            ).ref('error').setStyle('visibility', 'hidden')
-          )
-        } else if (this._showOutput()) {
-          const value = cellState.value
-          el.append(
-            $$(ValueComponent, value).ref('value')
+            $$(ValueComponent, cellState.value).ref('value')
           )
         }
       } else if (this.oldValue) {
         el.addClass('sm-pending')
-
         if(this.oldValue.error) {
           el.append(
             $$('div').addClass('se-error').append(
@@ -104,33 +103,6 @@ class CellComponent extends NodeComponent {
       }
     }
     return el
-  }
-
-  _onNodeChange() {
-    const cell = this.props.node
-    const cellState = getCellState(cell)
-
-    if(cellState) {
-      if(this._hasErrors()) {
-        this.oldValue = {error: getError(cell).message}
-      } else if (this._isReady()) {
-        this.oldValue = cellState.value
-      }
-    }
-
-    this.rerender()
-
-    if (this._isReady()) {
-      clearTimeout(this.delayError) // eslint-disable-line no-undef
-    } else {
-      clearTimeout(this.delayError) // eslint-disable-line no-undef
-      this.delayError = setTimeout(() => {
-        const errEl = this.refs.error
-        if(errEl) {
-          errEl.setStyle('visibility', 'visible')
-        }
-      }, 500)
-    }
   }
 
   /*
@@ -196,16 +168,6 @@ class CellComponent extends NodeComponent {
     return !this._isDefinition() || this.state.forceOutput
   }
 
-  _isReady() {
-    const cellState = getCellState(this.props.node)
-    return stateToString(cellState.status) === 'ok'
-  }
-
-  _hasErrors() {
-    const cellState = getCellState(this.props.node)
-    return stateToString(cellState.status) === 'broken' || stateToString(cellState.status) === 'failed'
-  }
-
   _isDefinition() {
     const cellState = getCellState(this.props.node)
     return cellState && cellState.hasOutput()
@@ -218,6 +180,30 @@ class CellComponent extends NodeComponent {
       surfaceId: 'bodyEditor',
       nodeId: this.props.node.id,
     })
+  }
+
+  _onNodeChange() {
+    const cell = this.props.node
+    const cellState = getCellState(cell)
+    if(cellState) {
+      const status = cellState.status
+      if(status === BROKEN || status === FAILED) {
+        this.oldValue = {
+          error: getError(cell).message
+        }
+        clearTimeout(this.delayError) // eslint-disable-line no-undef
+        this.delayError = setTimeout(() => {
+          const errEl = this.refs.error
+          if(errEl) {
+            errEl.setStyle('visibility', 'visible')
+          }
+        }, 500)
+      } else if (status === OK) {
+        this.oldValue = cellState.value
+        clearTimeout(this.delayError) // eslint-disable-line no-undef
+      }
+    }
+    this.rerender()
   }
 
   _onExecute() {
@@ -239,8 +225,7 @@ class CellComponent extends NodeComponent {
   }
 
   _afterNode() {
-    // TODO: not too happy about how difficult it is
-    // to set the selection
+    // TODO: not too happy about how difficult it is to set the selection
     const node = this.props.node
     const isolatedNode = this.context.isolatedNodeComponent
     const parentSurface = isolatedNode.getParentSurface()
