@@ -37,7 +37,7 @@ function sum(...vals) {
   return vals.reduce((a,b) => {
     if (b.type === 'table') {
       forEach(b.data, (vals) => {
-        return a += sum(vals)
+        a += sum(vals)
       })
       return a
     } else if (isArray(b)) {

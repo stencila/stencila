@@ -47,7 +47,7 @@ export default class SheetDocument extends XMLDocument {
         info.action = 'deleteCols'
         break
       }
-      case 'deleteCols':  {
+      case 'deleteCols': {
         info.action = 'insertCols'
         break
       }
@@ -271,7 +271,10 @@ export default class SheetDocument extends XMLDocument {
       case 'insertCols':
       case 'deleteCols': {
         this._matrix = this._getCellMatrix()
+        break
       }
+      default:
+        //
     }
   }
 
