@@ -1,4 +1,5 @@
 import test from 'tape'
+import { isArray } from 'substance'
 import Engine from '../../src/engine/Engine'
 import JsContext from '../../src/contexts/JsContext'
 import MiniContext from '../../src/contexts/MiniContext'
@@ -6,7 +7,6 @@ import FunctionManager from '../../src/function/FunctionManager'
 import { libtestXML, libtest } from '../contexts/libtest'
 import { UNKNOWN, toString as cellStatusToString } from '../../src/engine/CellStates'
 import { RuntimeError } from '../../src/engine/CellErrors'
-import { queryCells } from '../../src/shared/cellHelpers'
 
 test('Engine: simple sheet', t=> {
   t.plan(1)
@@ -22,7 +22,7 @@ test('Engine: simple sheet', t=> {
   })
   _play(engine)
   .then(() => {
-    t.deepEqual(_getValues(queryCells(sheet.getCells(), 'B1:B2')), [2,4], 'values should have been computed')
+    t.deepEqual(_getValues(sheet.queryCells('B1:B2')), [2,4], 'values should have been computed')
   })
 })
 
@@ -583,6 +583,121 @@ test('Engine: cells with errors should not be scheduled (manual mode)', t => {
   })
 })
 
+test('Engine: insert rows', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4']
+    ]
+  })
+  _play(engine)
+  .then(() => {
+    sheet.insertRows(1, [['5', '6'], ['7', '8']])
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(sheet.queryCells('A2:B3')), [[5, 6],[7, 8]], 'cells should have been inserted')
+  })
+})
+
+test('Engine: delete rows', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4'],
+      ['5', '6'],
+      ['7', '8']
+    ]
+  })
+  _play(engine)
+  .then(() => {
+    sheet.deleteRows(0, 2)
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(sheet.getCells()), [[5, 6],[7, 8]], 'rows should have been removed')
+  })
+})
+
+test('Engine: insert cols', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      [{id:'c1',source:'1'}, {id:'c2',source:'2'}],
+      [{id:'c3',source:'3'},{id:'c4',source:'4'}]
+    ]
+  })
+  _play(engine)
+  .then(() => {
+    sheet.insertCols(1, [[{id:'c5',source:'5'}], [{id:'c6',source:'6'}]])
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(sheet.queryCells('A1:C2')), [[1, 5, 2],[3, 6, 4]], 'cells should have been inserted')
+  })
+})
+
+test('Engine: delete cols', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2', '3', '4'],
+      ['5', '6', '7', '8'],
+      ['9', '10', '11', '12']
+    ]
+  })
+  _play(engine)
+  .then(() => {
+    sheet.deleteCols(1, 2)
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(sheet.getCells()), [[1,4],[5,8],[9,12]], 'cols should have been removed')
+  })
+})
+
+test('Engine: insert and delete a row', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4'],
+      ['5', '6'],
+      ['7', '8'],
+      ['9', '=sum(A1:B4)'],
+    ]
+  })
+  _play(engine)
+  .then(() => {
+    sheet.insertRows(1, [['0', '0']])
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    sheet.deleteRows(2, 1)
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(sheet.getCells()), [[1,2],[0,0],[5, 6],[7,8],[9,29]], 'sheet should have correct values')
+  })
+})
+
 /*
   Waits for all actions to be finished.
   This is the slowest kind of scheduling, as every cycle
@@ -644,7 +759,13 @@ function _getValue(cell) {
 }
 
 function _getValues(cells) {
-  return cells.map(cell => _getValue(cell))
+  return cells.map(rowOrCell => {
+    if (isArray(rowOrCell)) {
+      return rowOrCell.map(_getValue)
+    } else {
+      return _getValue(rowOrCell)
+    }
+  })
 }
 
 function _getErrors(cells) {

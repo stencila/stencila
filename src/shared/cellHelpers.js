@@ -92,7 +92,9 @@ export function getRowCol(cellLabel) {
 
 export function getError(cell) {
   let cellState = getCellState(cell)
-  return cellState.errors[0]
+  if (cellState) {
+    return cellState.errors[0]
+  }
 }
 
 export function getFrameSize(layout) {
@@ -115,22 +117,27 @@ export function queryCells(cells, query) {
     }
     case 'range': {
       let [anchor, focus] = name.split(':')
-      const [anchorRow, anchorCol] = getRowCol(anchor)
-      const [focusRow, focusCol] = getRowCol(focus)
-      if (anchorRow === focusRow && anchorCol === focusCol) {
-        return cells[anchorCol][focusCol]
+      const [startRow, startCol] = getRowCol(anchor)
+      const [endRow, endCol] = getRowCol(focus)
+      if (startRow === endRow && startCol === endCol) {
+        return cells[startCol][endCol]
       }
-      if (anchorRow === focusRow) {
-        return cells[anchorRow].slice(anchorCol, focusCol+1)
+      if (startRow === endRow) {
+        return cells[startRow].slice(startCol, endCol+1)
       }
-      if (anchorCol === focusCol) {
+      if (startCol === endCol) {
         let res = []
-        for (let i = anchorRow; i <= focusRow; i++) {
-          res.push(cells[i][anchorCol])
+        for (let i = startRow; i <= endRow; i++) {
+          res.push(cells[i][startCol])
+        }
+        return res
+      } else {
+        let res = []
+        for (var i = startRow; i < endRow+1; i++) {
+          res.push(cells[i].slice(startCol, endCol+1))
         }
         return res
       }
-      throw new Error('Unsupported query')
     }
     default:
       throw new Error('Unsupported query')

@@ -5,7 +5,7 @@ import { UNKNOWN, ANALYSED, READY } from './CellStates'
 import Cell from './Cell'
 import CellSymbol from './CellSymbol'
 import { parseSymbol } from '../shared/expressionHelpers'
-import { getRowCol, valueFromText, getCellLabel, getColumnLabel, qualifiedId as _qualifiedId } from '../shared/cellHelpers'
+import { getRowCol, valueFromText, getCellLabel, getColumnLabel, qualifiedId as _qualifiedId, queryCells } from '../shared/cellHelpers'
 import { gather } from '../value'
 
 /*
@@ -169,6 +169,7 @@ export default class Engine extends EventEmitter {
   }
 
   cycle() {
+    let res = []
     const graph = this._graph
     const nextActions = this._nextActions
     if (nextActions.size > 0) {
@@ -243,13 +244,11 @@ export default class Engine extends EventEmitter {
           return false
         }
       })
-      return A.concat(B)
+      res = A.concat(B)
     } else if (graph.needsUpdate()) {
       this._updateGraph()
-      return []
-    } else {
-      return []
     }
+    return res
   }
 
   getNextActions() {
@@ -260,7 +259,7 @@ export default class Engine extends EventEmitter {
     const id = doc.id
     if (this._docs.hasOwnProperty(id)) throw new Error(`document with id ${id} already exists`)
     this._docs[id] = doc
-    doc._registerCells(this)
+    doc._registerCells()
   }
 
   /*
@@ -282,8 +281,9 @@ export default class Engine extends EventEmitter {
   /*
     Removes a cell from the engine.
   */
-  _unregisterCell(cell) { // eslint-disable-line
-    this._graph.removeCell(cell.id)
+  _unregisterCell(cellOrId) { // eslint-disable-line
+    let id = isString(cellOrId) ? cellOrId : cellOrId.id
+    this._graph.removeCell(id)
   }
 
   _updateCell(id, cellData) {
@@ -729,8 +729,9 @@ class Document {
     this.onCellRegister(cell)
   }
 
-  _registerCells() {
-    this.cells.forEach(cell => this._registerCell(cell))
+  _registerCells(block) {
+    if (!block) block = this.cells
+    block.forEach(cell => this._registerCell(cell))
   }
 }
 
@@ -759,20 +760,23 @@ class Sheet {
     // for now, data.cells must be present being a sequence of rows of cells.
     // data.columns is optional, but if present every data row have corresponding dimensions
     if (!data.cells) throw new Error("'cells' is mandatory")
+    let ncols
     if (data.columns) {
       this.columns = data.columns
     } else {
-      let ncols = data.cells[0].length
-      this.columns = new Array(ncols).map(() => {
-        return { type: 'auto' }
-      })
+      ncols = data.cells[0].length
+      let columns = []
+      for (let i = 0; i < ncols; i++) {
+        columns.push({ type: 'auto' })
+      }
+      this.columns = columns
     }
-    const ncols = this.columns.length
+    ncols = this.columns.length
     this.cells = data.cells.map((rowData) => {
       if (rowData.length !== ncols) throw new Error('Invalid data')
       return rowData.map(cellData => this._createCell(cellData))
     })
-    this._setCellOutputs()
+    this._initializeOutputs()
 
     if (data.onCellRegister) this.onCellRegister = data.onCellRegister
   }
@@ -796,6 +800,10 @@ class Sheet {
     return this.cells
   }
 
+  queryCells(range) {
+    return queryCells(this.cells, range)
+  }
+
   updateCell(id, cellData) {
     let qualifiedId = _qualifiedId(this.id, id)
     if (isString(cellData)) {
@@ -804,8 +812,58 @@ class Sheet {
     this.engine._updateCell(qualifiedId, cellData)
   }
 
-  updateCellSymbols() {
-    this._setCellOutputs(true)
+  insertRows(pos, dataBlock) {
+    // TODO: what if all columns and all rows had been removed
+    let ncols = this.columns.length
+    let block = dataBlock.map((rowData) => {
+      if (rowData.length !== ncols) throw new Error('Invalid data')
+      return rowData.map(cellData => this._createCell(cellData))
+    })
+    this.cells.splice(pos, 0, ...block)
+    this._registerCells(block)
+    this._updateCellOutputs(pos, 0)
+  }
+
+  deleteRows(pos, count) {
+    let block = this.cells.slice(pos, pos+count)
+    this.cells.splice(pos, count)
+    this._unregisterCells(block)
+    this._updateCellOutputs(pos, 0)
+  }
+
+  insertCols(pos, dataBlock) {
+    const N = this.cells.length
+    if (dataBlock.length !== N) throw new Error('Invalid dimensions')
+    if (dataBlock.length === 0) return
+    let m = dataBlock[0].length
+    let block = dataBlock.map((rowData) => {
+      if (rowData.length !== m) throw new Error('Invalid data')
+      return rowData.map(cellData => this._createCell(cellData))
+    })
+    let cols = []
+    for (let i = 0; i < m; i++) {
+      cols.push({ type: 'auto' })
+    }
+    this.columns.splice(pos, 0, ...cols)
+    for (let i = 0; i < N; i++) {
+      let row = this.cells[i]
+      row.splice(pos, 0, ...block[i])
+    }
+    this._registerCells(block)
+    this._updateCellOutputs(0, pos)
+  }
+
+  deleteCols(pos, count) {
+    const N = this.cells.length
+    let block = []
+    this.columns.splice(pos, count)
+    for (var i = 0; i < N; i++) {
+      let row = this.cells[i]
+      block.push(row.slice(pos, pos+count))
+      row.splice(pos, count)
+    }
+    this._unregisterCells(block)
+    this._updateCellOutputs(0, pos)
   }
 
   onCellRegister(cell) { // eslint-disable-line
@@ -814,15 +872,39 @@ class Sheet {
   // This must be called after structural changes to update
   // the output symbol a cell which is derived from its position in the sheet
   // i.e. `cells[0][0]` in `sheet1` is associated to symbol `sheet1!A1`
-  _setCellOutputs(update) {
-    this.cells.forEach((row, rowIdx) => {
-      row.forEach((cell, colIdx) => {
-        cell._rowIdx = rowIdx
-        cell._colIdx = colIdx
-        cell.output = this._getCellSymbol(rowIdx, colIdx)
-        if (update) this.engine._graph.setOutput(cell.id, cell.output)
-      })
-    })
+  _updateCellOutputs(startRow, startCol) {
+    const graph = this.engine._graph
+    const cells = this.cells
+    const N = cells.length
+    const M = this.columns.length
+    for (let i = startRow; i < N; i++) {
+      for (let j = startCol; j < M; j++) {
+        let cell = cells[i][j]
+        if (cell.output) {
+          graph._deregisterOutput(cell.id, cell.output)
+        }
+      }
+    }
+    for (let i = startRow; i < N; i++) {
+      for (let j = startCol; j < M; j++) {
+        let cell = cells[i][j]
+        cell.output = this._getCellSymbol(i, j)
+        graph._registerOutput(cell.id, null, cell.output)
+      }
+    }
+  }
+
+  _initializeOutputs() {
+    const cells = this.cells
+    const N = cells.length
+    const M = this.columns.length
+    for (let i = 0; i < N; i++) {
+      for (let j = 0; j < M; j++) {
+        let cell = cells[i][j]
+        let output = this._getCellSymbol(i, j)
+        cell.output = output
+      }
+    }
   }
 
   _getCellSymbol(rowIdx, colIdx) {
@@ -849,8 +931,19 @@ class Sheet {
     this.onCellRegister(cell)
   }
 
-  _registerCells() {
-    this.cells.forEach(row => row.forEach(cell => this._registerCell(cell)))
+  _unregisterCell(cell) {
+    const engine = this.engine
+    engine._unregisterCell(cell)
+  }
+
+  _registerCells(block) {
+    if (!block) block = this.cells
+    block.forEach(row => row.forEach(cell => this._registerCell(cell)))
+  }
+
+  _unregisterCells(block) {
+    if (!block) block = this.cells
+    block.forEach(row => row.forEach(cell => this._unregisterCell(cell)))
   }
 }
 
