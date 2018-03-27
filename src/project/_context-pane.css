@@ -1,0 +1,37 @@
+.sc-context-pane {
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.sc-context-pane.sm-hidden {
+  display: none;
+}
+
+.sc-context-pane .se-header {
+  flex: 0 0 40px;
+  /* box-shadow: 0 0 0 0.75pt #d1d1d1, 0 0 3pt 0.75pt #ccc; */
+  border-bottom: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  position: relative;
+  font-weight: 600;
+  line-height: 40px;
+  padding-left: 20px;
+}
+
+.sc-context-pane .se-header .se-icon {
+  float: right;
+  padding: 9px;
+  padding-right: 14px;
+  color: #777;
+}
+
+.sc-context-pane .se-header .se-icon:hover {
+  color: #222;
+}
+
+.sc-context-pane .se-content {
+  border-left: 1px solid #ddd;
+  flex: 1 1 0;
+  overflow: auto;
+}

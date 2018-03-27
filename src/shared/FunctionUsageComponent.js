@@ -28,7 +28,7 @@ export default class FunctionUsageComponent extends Component {
 
     let documentationLink = $$('div').addClass('se-read-more').append(
       this.context.iconProvider.renderIcon($$, 'function-helper')
-    ).on('click', this._openDocumentation)
+    ).on('mousedown', this._openDocumentation)
 
     // Documentation
     let docEl = $$('div').addClass('se-documentation')
@@ -40,7 +40,9 @@ export default class FunctionUsageComponent extends Component {
     return el
   }
 
-  _openDocumentation() {
+  _openDocumentation(e) {
+    e.preventDefault()
+    e.stopPropagation()
     const spec = this.props.spec
     this.send('openHelp', `function/${spec.name}`)
   }

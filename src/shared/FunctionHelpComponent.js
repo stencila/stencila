@@ -25,7 +25,7 @@ export default class FunctionHelpComponent extends Component {
 
       if(usage.examples.length > 0) {
         el.append(
-          $$('div').addClass('se-section-title').append(this.getLabel('function-examples'))
+          $$('div').addClass('se-section-title').append('Getting Started with Stencila')
         )
 
         usage.examples.forEach(example => {
@@ -52,7 +52,7 @@ export default class FunctionHelpComponent extends Component {
       syntaxEl.append(')')
 
       el.append(
-        $$('div').addClass('se-section-title').append(this.getLabel('function-usage')),
+        $$('div').addClass('se-section-title').append('Functions'),
         syntaxEl
       )
 

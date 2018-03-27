@@ -8,12 +8,21 @@
   flex: 1 1 0;
 }
 
+.sc-project .se-main-pane {
+  display: flex;
+  flex-direction: row;
+}
+
 .sc-project > .sc-project-bar {
-  background: #F3F3F3;
-  border-top: 1px solid #e1e4e8;
-  flex: 0 0 34px;
+  background: #fff;
+  border-top: 1px solid #ddd;
+  flex: 0 0 40px;
 }
 
 .sc-project .se-main-pane .se-editor-pane {
-  height: 100%;
+  flex: 1 1 0;
+}
+
+.sc-project .se-main-pane .sc-context-pane {
+  flex: 0 0 300px;
 }
