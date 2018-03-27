@@ -79,7 +79,7 @@ class CellComponent extends NodeComponent {
           el.append(
             $$('div').addClass('se-error').append(
               getError(cell).message
-            )
+            ).ref('error').setStyle('visibility', 'hidden')
           )
         } else if (this._showOutput()) {
           const value = cellState.value
@@ -92,7 +92,9 @@ class CellComponent extends NodeComponent {
 
         if(this.oldValue.error) {
           el.append(
-            $$('div').addClass('se-error').append(this.oldValue.error)
+            $$('div').addClass('se-error').append(
+              this.oldValue.error
+            ).ref('error').setStyle('visibility', 'hidden')
           )
         } else {
           el.append(
@@ -115,7 +117,20 @@ class CellComponent extends NodeComponent {
         this.oldValue = cellState.value
       }
     }
+
     this.rerender()
+
+    if (this._isReady()) {
+      clearTimeout(this.delayError) // eslint-disable-line no-undef
+    } else {
+      clearTimeout(this.delayError) // eslint-disable-line no-undef
+      this.delayError = setTimeout(() => {
+        const errEl = this.refs.error
+        if(errEl) {
+          errEl.setStyle('visibility', 'visible')
+        }
+      }, 500)
+    }
   }
 
   /*
