@@ -86,11 +86,11 @@ function insertRows({editorSession, commandState}, mode) {
   const count = commandState.nrows
   editorSession.transaction((tx) => {
     tx.getDocument().createRowsAt(pos, count)
-    // const cells = tx.findAll('cell')
-    // cells.forEach(cell => {
-    //   // TODO: rename 'idx' to 'pos'
-    //   transformCellExpressions(cell, { dim: 'row', idx: pos, count })
-    // })
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      // TODO: rename 'idx' to 'pos'
+      transformCellExpressions(cell, { dim: 'row', idx: pos, count })
+    })
   }, { action: 'insertRows', pos, count })
 }
 
@@ -102,10 +102,10 @@ function insertCols({editorSession, commandState}, mode) {
   const count = commandState.ncolumns
   editorSession.transaction((tx) => {
     tx.getDocument().createColumnsAt(pos, count)
-    // const cells = tx.findAll('cell')
-    // cells.forEach(cell => {
-    //   transformCellExpressions(cell, { dim: 'col', idx: pos, count })
-    // })
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
+    })
   }, { action: 'insertCols', pos, count })
 }
 
@@ -116,10 +116,10 @@ function deleteRows({editorSession, commandState}) {
   const count = end - start + 1
   editorSession.transaction((tx) => {
     tx.getDocument().deleteRows(start, end)
-    // const cells = tx.findAll('cell')
-    // cells.forEach(cell => {
-    //   transformCellExpressions(cell, { dim: 'col', idx: pos, count })
-    // })
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
+    })
   }, { action: 'deleteRows', pos, count })
 }
 
@@ -130,10 +130,10 @@ function deleteColumns({editorSession, commandState}) {
   const count = end - start + 1
   editorSession.transaction((tx) => {
     tx.getDocument().deleteColumns(start, end)
-    // const cells = tx.findAll('cell')
-    // cells.forEach(cell => {
-    //   transformCellExpressions(cell, { dim: 'col', idx: pos, count })
-    // })
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
+    })
   }, { action: 'deleteCols', pos, count })
 }
 
