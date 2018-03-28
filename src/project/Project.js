@@ -40,9 +40,6 @@ export default class Project extends Component {
   getChildContext() {
     let pubMetaDbSession = this._getPubMetaDbSession()
     return {
-      functionManager: this.props.functionManager,
-      cellEngine: this.props.engine,
-      host: this.props.host,
       pubMetaDbSession: pubMetaDbSession,
       urlResolver: this.props.documentArchive
     }
