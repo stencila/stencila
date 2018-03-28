@@ -38,7 +38,8 @@
   background: #FF0300;
 }
 
-.sc-cell .se-status.sm-blocked {
+.sc-cell .se-status.sm-blocked,
+.sc-cell .se-status.sm-ready {
   background: #FFAA00;
 }
 
