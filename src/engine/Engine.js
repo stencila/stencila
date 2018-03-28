@@ -1,4 +1,4 @@
-import { uuid, isString, EventEmitter } from 'substance'
+import { uuid, isString, EventEmitter, flatten } from 'substance'
 import CellGraph from './CellGraph'
 import { ContextError, RuntimeError } from './CellErrors'
 import { UNKNOWN, ANALYSED, READY } from './CellStates'
@@ -611,6 +611,25 @@ export default class Engine extends EventEmitter {
     if (action) {
       delete action.suspended
     }
+  }
+
+  _allowRunningAllCellsOfDocument(docId) {
+    const graph = this._graph
+    let doc = this._docs[docId]
+    let cells = doc.getCells()
+    if (doc instanceof Sheet) {
+      cells = flatten(cells)
+    }
+    let ids = new Set()
+    cells.forEach(cell => {
+      ids.add(cell.id)
+    })
+    cells.forEach(cell => {
+      graph._getPredecessorSet(cell.id, ids)
+    })
+    ids.forEach(id => {
+      this._allowRunningCell(id)
+    })
   }
 }
 

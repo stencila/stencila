@@ -523,6 +523,31 @@ test('Engine: manually run cell and predecessors', t => {
   })
 })
 
+test('Engine: run all cells in manual execution mode', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    autorun: false,
+    cells: [
+      'x = 2',
+      'y = x * 3',
+      'z = y + 2'
+    ]
+  })
+  let cells = doc.getCells()
+  _play(engine)
+  .then(() => {
+    debugger
+    engine._allowRunningAllCellsOfDocument('doc1')
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(cells), [2, 6, 8], 'cells should have been computed')
+  })
+})
+
 /*
   Waits for all actions to be finished.
   This is the slowest kind of scheduling, as every cycle
@@ -558,7 +583,7 @@ function _needsUpdate(engine) {
   const nextActions = engine._nextActions
   if (nextActions.size === 0) return false
   // update is required if there is an action that has not been suspended
-  for (let [id, a] of nextActions) {
+  for (let [, a] of nextActions) {
     if (!a.suspended) return true
   }
   return false

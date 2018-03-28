@@ -487,11 +487,15 @@ export default class CellGraph {
     let cell = this.getCell(id)
     cell.inputs.forEach(s => {
       let id = this._resolve(s)
-      if (id && isString(id)) res.add(id)
-      this._getPredecessorSet(id, res)
+      if (!res.has(id)) {
+        if (id && isString(id)) res.add(id)
+        this._getPredecessorSet(id, res)
+      }
     })
     if (cell.hasSideEffects && cell.prev) {
-      this._getPredecessorSet(cell.prev, res)
+      if (!res.has(id)) {
+        this._getPredecessorSet(cell.prev, res)
+      }
     }
     return res
   }
