@@ -8,14 +8,23 @@ export default class ArticleAdapter extends DocumentAdapter {
   _initialize() {
     const doc = this.doc
     const engine = this.engine
+
+    // hack: monkey patching the instance to register a setter that updates this adapter
+    _addAutorunFeature(doc, this)
+
     let model = engine.addDocument({
       id: doc.id,
       name: this.name,
       lang: 'mini',
       cells: this._getCellNodes().map(_getCellData),
+      autorun: doc.autorun,
       onCellRegister: mapCellState.bind(null, doc)
     })
     this.model = model
+
+    // TODO: do this somewhere else
+    doc.autorun = false
+
     this.editorSession.on('update', this._onDocumentChange, this, { resource: 'document' })
     this.engine.on('update', this._onEngineUpdate, this)
   }
@@ -131,4 +140,16 @@ function _getCellData(cell) {
     lang: _getLang(cell),
     source: _getSource(cell)
   }
+}
+
+function _addAutorunFeature(doc, adapter) {
+  Object.assign(doc, {
+    set autorun(val) {
+      doc._autorun = val
+      adapter.model.setAutorun(val)
+    },
+    get autorun() {
+      return doc._autorun
+    }
+  })
 }
