@@ -23,11 +23,14 @@ import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 import {
   SetLanguageCommand, ToggleAllCodeCommand,
   HideCellCodeCommand, InsertCellCommand,
-  ForceCellOutputCommand
+  ForceCellOutputCommand, RunCellCommand
 } from './ArticleEditorCommands'
 
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
+
+import AutoRunCommand from '../shared/AutoRunCommand'
+import RunAllCommand from '../shared/RunAllCommand'
 
 export default {
   name: 'editor',
@@ -60,7 +63,7 @@ export default {
 
     config.addCommand('insert-cell', InsertCellCommand, {
       nodeType: 'disp-quote',
-      commandGroup: 'insert-block-element'
+      commandGroup: 'insert-cell-element'
     })
     config.addLabel('insert-cell', 'Cell')
     config.addKeyboardShortcut('CommandOrControl+Enter', { command: 'insert-cell' })
@@ -72,7 +75,7 @@ export default {
 
     config.addIcon('function-helper', {'fontawesome': 'fa-question-circle' })
 
-    config.addIcon('insert-cell', { 'fontawesome': 'fa-caret-square-o-right' })
+    config.addIcon('insert-cell', { 'fontawesome': 'fa-plus-square' })
 
     config.addLabel('function-examples', {
       en: 'Example Usage'
@@ -80,6 +83,17 @@ export default {
     config.addLabel('function-usage', {
       en: 'Syntax'
     })
+
+    config.addCommand('auto-run', AutoRunCommand, {
+      commandGroup: 'auto-run'
+    })
+
+    config.addCommand('run-all', RunAllCommand, {
+      commandGroup: 'run-all'
+    })
+    config.addIcon('run-all', { 'fontawesome': 'fa-caret-square-o-right' })
+    config.addLabel('run-all', 'Run All Code')
+    config.addKeyboardShortcut('Shift+Enter+A', { command: 'run-all' })
 
     config.addToolPanel('toolbar', [
       {
@@ -108,7 +122,14 @@ export default {
         type: 'tool-group',
         showDisabled: true,
         style: 'minimal',
-        commandGroups: ['insert-figure', 'insert-repro-figure', 'insert-table', 'insert-block-element']
+        commandGroups: ['insert-figure', 'insert-repro-figure', 'insert-table', 'insert-cell-element']
+      },
+      {
+        name: 'cell-execution',
+        type: 'tool-group',
+        showDisabled: false,
+        style: 'minimal',
+        commandGroups: ['run-all']
       },
       {
         name: 'cite',
@@ -123,6 +144,13 @@ export default {
         showDisabled: false,
         style: 'descriptive',
         commandGroups: ['toggle-content-section', 'view']
+      },
+      {
+        name: 'settings',
+        type: 'tool-dropdown',
+        showDisabled: true,
+        style: 'descriptive',
+        commandGroups: ['auto-run']
       }
     ])
 
@@ -140,6 +168,7 @@ export default {
       Cell Actions
     */
 
+    config.addCommand('run-cell-code', RunCellCommand, { commandGroup: 'cell-actions' })
     config.addCommand('hide-cell-code', HideCellCodeCommand, { commandGroup: 'cell-actions' })
     config.addCommand('force-cell-output', ForceCellOutputCommand, { commandGroup: 'cell-actions' })
     config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-actions' })
@@ -149,6 +178,7 @@ export default {
     config.addCommand('set-sql', SetLanguageCommand, { language: 'sql', commandGroup: 'cell-actions' })
 
     // Labels and icons
+    config.addLabel('run-cell-code', 'Run cell')
     config.addLabel('hide-cell-code', 'Hide code')
     config.addLabel('force-cell-output', 'Force output')
     config.addLabel('set-mini', 'Mini')
@@ -161,9 +191,12 @@ export default {
     config.addIcon('test-failed', {'fontawesome': 'fa-times' })
     config.addIcon('test-passed', {'fontawesome': 'fa-check' })
 
-    
+
     config.addLabel('show-all-code', 'Show All Code')
     config.addLabel('hide-all-code', 'Hide All Code')
+
+    config.addLabel('settings', 'Settings')
+    config.addLabel('auto-run', '${autoOrManual} Run Cells')
 
     // View Commands
     config.addCommand('hide-all-code', ToggleAllCodeCommand, {
@@ -177,6 +210,5 @@ export default {
 
     config.addKeyboardShortcut('CommandOrControl+Alt+L', { command: 'show-all-code' })
     config.addKeyboardShortcut('CommandOrControl+Alt+O', { command: 'hide-all-code' })
-
   }
 }

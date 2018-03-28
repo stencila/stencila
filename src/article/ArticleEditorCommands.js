@@ -196,3 +196,22 @@ export class InsertCellCommand extends InsertNodeCommand {
   }
 
 }
+
+export class RunCellCommand extends Command {
+
+  /*
+    Always enabled
+  */
+  getCommandState({ editorSession }) {
+    const doc = editorSession.getDocument()
+    const autorun = doc.autorun
+    return {
+      disabled: autorun,
+      active: false
+    }
+  }
+
+  execute(params) {
+    console.info(params)
+  }
+}
