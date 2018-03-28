@@ -227,7 +227,22 @@ export default class Engine extends EventEmitter {
       this._updateGraph()
 
       let A = actions.analyse.map(a => this._analyse(a))
-      let B = actions.evaluate.map(a => this._evaluate(a))
+      let B = actions.evaluate.map(a => {
+        let cell = graph.getCell(a.id)
+        // This is necessary because we make sure the cell still exists
+        if (cell) {
+          if (this._canRunCell(cell)) {
+            return this._evaluate(a)
+          } else {
+            // otherwise keep this as a next action
+            a.suspended = true
+            this._nextActions.set(a.id, a)
+            return false
+          }
+        } else {
+          return false
+        }
+      })
       return A.concat(B)
     } else if (graph.needsUpdate()) {
       this._updateGraph()
@@ -247,7 +262,6 @@ export default class Engine extends EventEmitter {
     this._docs[id] = doc
     doc._registerCells(this)
   }
-
 
   /*
     Registers a cell.
@@ -386,6 +400,8 @@ export default class Engine extends EventEmitter {
     // console.log('evaluating cell', cell.toString())
     const lang = cell.getLang()
     let transpiledSource = cell.transpiledSource
+    // EXPERIMENTAL: remove 'autorun'
+    delete cell.autorun
     return this._getContext(lang)
     .then(res => {
       if (this._nextActions.has(id)) {
@@ -569,6 +585,33 @@ export default class Engine extends EventEmitter {
     // or we need to introduce an abstraction.
     return gather('array', cells.map(c => getCellValue(c)))
   }
+
+  _canRunCell(cell) {
+    if (cell.hasOwnProperty('autorun')) {
+      return cell.autorun
+    }
+    return cell.doc.autorun
+  }
+
+  // EXPERIMENTAL: used for manual execution
+  _allowRunningCellAndPredecessors(id) {
+    const graph = this._graph
+    let predecessors = graph._getPredecessorSet(id)
+    this._allowRunningCell(id)
+    predecessors.forEach(_id => {
+      this._allowRunningCell(_id)
+    })
+  }
+
+  _allowRunningCell(id) {
+    const graph = this._graph
+    let cell = graph.getCell(id)
+    cell.autorun = true
+    let action = this._nextActions.get(id)
+    if (action) {
+      delete action.suspended
+    }
+  }
 }
 
 /*
@@ -583,6 +626,12 @@ class Document {
     this.id = data.id
     this.name = data.name
     this.lang = data.lang || 'mini'
+    if (data.hasOwnProperty('autorun')) {
+      this.autorun = data.autorun
+    } else {
+      // TODO: using manual execution as a default for now
+      this.autorun = true
+    }
     this.cells = data.cells.map(cellData => this._createCell(cellData))
     // registration hook used for propagating initial cell state to the application
     if (data.onCellRegister) this.onCellRegister = data.onCellRegister
@@ -663,6 +712,13 @@ class Sheet {
     // default language
     const defaultLang = data.lang || 'mini'
     this.lang = defaultLang
+    if (data.hasOwnProperty('autorun')) {
+      this.autorun = data.autorun
+    } else {
+      // TODO: using auto/ cells automatically by default
+      this.autorun = true
+    }
+    this.autorun = true
     // TODO: we can revise this as we move on
     // for now, data.cells must be present being a sequence of rows of cells.
     // data.columns is optional, but if present every data row have corresponding dimensions
