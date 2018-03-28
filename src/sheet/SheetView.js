@@ -20,8 +20,8 @@ export default class SheetView extends Component {
   }
 
   didMount() {
-    this._updateViewport()
     this.props.viewport.on('scroll', this._onScroll, this)
+    this._updateViewport()
   }
 
   didUpdate() {

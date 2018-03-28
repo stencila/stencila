@@ -27,7 +27,6 @@ export default class SheetEditor extends AbstractEditor {
       DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
     }
     editorSession.onUpdate('selection', this._onSelectionChange, this)
-
     this._formulaEditorContext.editorSession.onUpdate('selection', this._onCellEditorSelectionChange, this)
   }
 
@@ -43,6 +42,20 @@ export default class SheetEditor extends AbstractEditor {
       'selectAll': this._selectAll,
       'executeCommand': this._executeCommand
     })
+
+    this._updateViewport()
+  }
+
+
+  _updateViewport() {
+    let viewport = this.props.viewport
+    if (viewport) {
+      this.refs.sheet._viewport.update(viewport)
+    }
+  }
+
+  getViewport() {
+    return this.refs.sheet._viewport.toJSON()
   }
 
   /*
@@ -63,18 +76,26 @@ export default class SheetEditor extends AbstractEditor {
   didUpdate() {
     if (!this._postrendering) {
       this._postRender()
+      this._updateViewport()
     }
   }
 
   _selectFirstCell() {
     const editorSession = this.props.editorSession
-    // set the selection into the first cell
-    // Doing this delayed to be in a new flow
-    setTimeout(() => {
-      editorSession.setSelection(
-        this.getSheetComponent().selectFirstCell()
-      )
-    }, 0)
+    let sel = editorSession.getSelection().toJSON()
+
+    if (!sel) {
+      // Set the selection into the first cell
+      // Doing this delayed to be in a new flow
+      setTimeout(() => {
+        editorSession.setSelection(
+          this.getSheetComponent().selectFirstCell()
+        )
+      }, 0)
+    } else {
+      this.refs.sheet.rerenderDOMSelection()
+    }
+
   }
 
   getChildContext() {
@@ -156,12 +177,14 @@ export default class SheetEditor extends AbstractEditor {
 
   _renderSheet($$) {
     const sheet = this.getDocument()
+    const viewport = this.props.viewport
     const formulaEditorContext = this._formulaEditorContext
     // only rendering the sheet when mounted
     // so that we have real width and height
     if (this.isMounted()) {
       const SheetComponent = this.getComponent('sheet')
       return $$(SheetComponent, {
+        viewport,
         sheet,
         overlays: [
           $$(FormulaEditor, {
