@@ -95,7 +95,7 @@ class CellComponent extends NodeComponent {
               this.oldValue.error
             ).ref('error').setStyle('visibility', 'hidden')
           )
-        } else {
+        } else if (this._showOutput()) {
           el.append(
             $$(ValueComponent, this.oldValue).ref('value')
           )
