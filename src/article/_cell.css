@@ -39,7 +39,8 @@
 }
 
 .sc-cell .se-status.sm-blocked,
-.sc-cell .se-status.sm-ready {
+.sc-cell .se-status.sm-ready,
+.sc-cell .se-status.sm-waiting {
   background: #FFAA00;
 }
 

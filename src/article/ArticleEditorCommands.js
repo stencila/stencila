@@ -1,6 +1,6 @@
 import { Command } from 'substance'
 import { InsertNodeCommand } from 'substance-texture'
-import { getCellState } from '../shared/cellHelpers'
+import { getCellState, qualifiedId } from '../shared/cellHelpers'
 
 export class SetLanguageCommand extends Command {
 
@@ -202,16 +202,30 @@ export class RunCellCommand extends Command {
   /*
     Always enabled
   */
-  getCommandState({ editorSession }) {
+  getCommandState({ editorSession, selection }) {
     const doc = editorSession.getDocument()
-    const autorun = doc.autorun
+    if (selection.isPropertySelection()) {
+      let nodeId = selection.getNodeId()
+      let node = doc.get(nodeId)
+      if (node.type === 'source-code') {
+        let cellNode = node.parentNode
+        return {
+          disabled: false,
+          active: false,
+          docId: doc.id,
+          cellId: cellNode.id
+        }
+      }
+    }
     return {
-      disabled: autorun,
-      active: false
+      disabled: false,
     }
   }
 
-  execute(params) {
-    console.info(params)
+  execute(params, context) {
+    const { docId, cellId } = params.commandState
+    const engine = context.engine
+    const id = qualifiedId(docId, cellId)
+    engine._allowRunningCellAndPredecessors(id)
   }
 }

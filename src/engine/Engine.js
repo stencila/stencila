@@ -593,7 +593,6 @@ export default class Engine extends EventEmitter {
     return cell.doc.autorun
   }
 
-  // EXPERIMENTAL: used for manual execution
   _allowRunningCellAndPredecessors(id) {
     const graph = this._graph
     let predecessors = graph._getPredecessorSet(id)
