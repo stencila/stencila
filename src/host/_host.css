@@ -31,13 +31,14 @@
 }
 
 .sc-hosts .se-host-item .se-type {
+  position: relative;
   margin-left: 0.5em;
 }
 
 .sc-hosts .se-host-item .se-type::before {
   content: " ";
   position: absolute;
-  left: 0.5em;
+  left: -0.5em;
   margin: 0.6em 0;
   width: 0.3em;
   height: 0.3em;

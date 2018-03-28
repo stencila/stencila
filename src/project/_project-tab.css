@@ -28,6 +28,10 @@
   color: white;
 }
 
+.sc-project-tab.sc-add-project-tab {
+  padding: 8px;
+}
+
 .sc-project-tab > .se-input {
   font-size: 13px;
   border: none;
@@ -57,6 +61,7 @@
   padding: 2px 10px;
   border: 1px solid rgba(0,0,0,.2);
   border-radius: 2px;
+  color: var(--default-text-color);
   background: #fff;
   z-index: 99;
 }
