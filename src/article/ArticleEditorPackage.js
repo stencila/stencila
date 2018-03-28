@@ -210,5 +210,7 @@ export default {
 
     config.addKeyboardShortcut('CommandOrControl+Alt+L', { command: 'show-all-code' })
     config.addKeyboardShortcut('CommandOrControl+Alt+O', { command: 'hide-all-code' })
+    config.addKeyboardShortcut('Shift+Enter', { command: 'run-cell-code' })
+
   }
 }
