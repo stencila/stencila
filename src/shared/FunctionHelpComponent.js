@@ -57,7 +57,7 @@ export default class FunctionHelpComponent extends Component {
       syntaxEl.append(')')
 
       el.append(
-        $$('div').addClass('se-section-title').append('Functions'),
+        $$('div').addClass('se-section-title').append('Signature'),
         syntaxEl
       )
 

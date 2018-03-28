@@ -6,6 +6,13 @@ import ContextPane from './ContextPane'
 
 export default class Project extends Component {
 
+  constructor(...args) {
+    super(...args)
+
+    // Store the viewports, so we can restore scroll positions
+    this._viewports = {}
+  }
+
   didMount() {
     this.handleActions({
       'addDocument': this._addDocument,
@@ -22,6 +29,11 @@ export default class Project extends Component {
       this.documentEl = DefaultDOMElement.wrapNativeElement(document)
       this.documentEl.on('keydown', this.onKeyDown, this)
     }
+  }
+
+  willUpdateState() {
+    let oldDocumentId = this.state.documentId
+    this._viewports[oldDocumentId] = this.refs.editor.getViewport()
   }
 
   _dispose() {
@@ -97,12 +109,14 @@ export default class Project extends Component {
     let documentId = this.state.documentId
     let documentRecord = this._getDocumentRecordById(documentId)
     let documentType = documentRecord.type
+    let viewport = this._viewports[documentId]
     let da = this._getDocumentArchive()
     let editorSession = da.getEditorSession(documentId)
 
     if (documentType === 'article') {
       el.append(
         $$(TextureEditorPackage.Editor, {
+          viewport,
           editorSession,
           pubMetaDbSession: this._getPubMetaDbSession()
         }).ref('editor')
@@ -111,6 +125,7 @@ export default class Project extends Component {
     } else if (documentType === 'sheet') {
       el.append(
         $$(SheetEditor, {
+          viewport,
           editorSession
         }).ref('editor')
       )

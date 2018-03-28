@@ -13,6 +13,7 @@
   border-top: 1px solid transparent;
   border-right: 1px solid transparent;
   border-left: 1px solid transparent;
+  color: #777;
 }
 
 .sc-project-tab.sm-edit {
@@ -20,12 +21,9 @@
 }
 
 .sc-project-tab.sm-active {
-  /* border-top: 1px solid #e1e4e8;
-  border-right: 1px solid #e1e4e8;
-  border-left: 1px solid #e1e4e8; */
-  background: #2E2E2E;
+  background: #ececec;
   border-radius: 3px;
-  color: white;
+  color: #111;
 }
 
 .sc-project-tab > .se-input {
