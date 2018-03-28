@@ -60,7 +60,7 @@ export default class Host extends EventEmitter {
      *
      * @type {Engine}
      */
-    this._engine = null
+    this._engine = options.engine || new Engine({ host: this })
 
 
     /**

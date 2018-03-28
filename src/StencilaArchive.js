@@ -5,16 +5,24 @@ import SheetLoader from './sheet/SheetLoader'
 
 export default class StencilaArchive extends TextureArchive {
 
+  constructor(storage, buffer, context) {
+    super(storage, buffer)
+
+    this._context = context
+  }
+
   _loadDocument(type, record, sessions) {
+    let context = this._context
     switch (type) {
       case 'article': {
-        return ArticleLoader.load(record.data, {
+        context = Object.assign({}, this._context, {
           pubMetaDb: sessions['pub-meta'].getDocument(),
           archive: this
         })
+        return ArticleLoader.load(record.data, context)
       }
       case 'sheet': {
-        return SheetLoader.load(record.data)
+        return SheetLoader.load(record.data, context)
       }
       default:
         throw new Error('Unsupported document type')

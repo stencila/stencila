@@ -1,15 +1,14 @@
 import {
   getQueryStringParam, Component, DefaultDOMElement, parseKeyEvent,
   HttpStorageClient, VfsStorageClient, InMemoryDarBuffer, substanceGlobals,
-  platform
+  platform, forEach
 } from 'substance'
-
 import { JATSImportDialog } from 'substance-texture'
-
 import {
   Project,
   setupStencilaContext,
-  StencilaArchive
+  StencilaArchive,
+  SheetAdapter, ArticleAdapter
 } from 'stencila'
 
 window.addEventListener('load', () => {
@@ -18,6 +17,24 @@ window.addEventListener('load', () => {
 })
 
 class App extends Component {
+
+  constructor(...args) {
+    super(...args)
+
+    // this is initialized in _init()
+    this._childContext = null
+  }
+
+  getInitialState() {
+    return {
+      archive: undefined,
+      error: undefined
+    }
+  }
+
+  getChildContext() {
+    return this._childContext
+  }
 
   didMount() {
     this._init()
@@ -28,25 +45,13 @@ class App extends Component {
     DefaultDOMElement.getBrowserWindow().off(this)
   }
 
-  getInitialState() {
-    return {
-      archive: undefined,
-      error: undefined
-    }
-  }
-
   render($$) {
     let el = $$('div').addClass('sc-app')
-    let { archive, host, functionManager, engine, error } = this.state
-
+    let { archive, error } = this.state
     if (archive) {
-
       el.append(
         $$(Project, {
-          documentArchive: archive,
-          host,
-          functionManager,
-          engine
+          documentArchive: archive
         })
       )
     } else if (error) {
@@ -68,6 +73,31 @@ class App extends Component {
 
   _init() {
     let archiveId = getQueryStringParam('archive') || 'kitchen-sink'
+    const context = setupStencilaContext()
+    const { host, engine } = context
+    // update the component's context which is
+    this._childContext = Object.assign({}, this.context, context)
+
+    // initialize the host
+    host.initialize()
+    // load the archive
+    .then(() => this._loadArchive(archiveId, context))
+    .then(archive => {
+      // register documents and sheets with the engine
+      this._connectArchiveEntriesWithEngine(archive, engine)
+      // start the engine
+      const ENGINE_REFRESH_INTERVAL = 10 // ms
+      engine.run(ENGINE_REFRESH_INTERVAL)
+      // finally trigger a rerender with the loaded article
+      this.setState({ archive })
+    })
+    // .catch(error => {
+    //   console.error(error)
+    //   this.setState({error})
+    // })
+  }
+
+  _loadArchive(archiveId, context) {
     let storageType = getQueryStringParam('storage') || 'vfs'
     let storageUrl = getQueryStringParam('storageUrl') || '/archives'
     let storage
@@ -76,18 +106,26 @@ class App extends Component {
     } else {
       storage = new HttpStorageClient(storageUrl)
     }
-    let buffer = new InMemoryDarBuffer()
-    let archive = new StencilaArchive(storage, buffer)
-    archive.load(archiveId)
-    .then(() => {
-      return setupStencilaContext(archive)
-    }).then(({host, functionManager, engine}) => {
-      this.setState({archive, functionManager, engine, host})
+    const buffer = new InMemoryDarBuffer()
+    const archive = new StencilaArchive(storage, buffer, context)
+    return archive.load(archiveId)
+  }
+
+  _connectArchiveEntriesWithEngine(archive, engine) {
+    let entries = archive.getDocumentEntries()
+    forEach(entries, entry => {
+      let { id, type } = entry
+      let editorSession = archive.getEditorSession(id)
+      let Adapter
+      if (type === 'article') {
+        Adapter = ArticleAdapter
+      } else if (type === 'sheet') {
+        Adapter = SheetAdapter
+      }
+      if (Adapter) {
+        Adapter.connect(engine, editorSession, id)
+      }
     })
-    // .catch(error => {
-    //   console.error(error)
-    //   this.setState({error})
-    // })
   }
 
   /*

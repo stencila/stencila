@@ -1,10 +1,8 @@
-import { forEach } from 'substance'
 import Host from '../host/Host'
-import ArticleAdapter from '../article/ArticleAdapter'
-import SheetAdapter from '../sheet/SheetAdapter'
 import getQueryStringParam from '../util/getQueryStringParam'
+import Engine from '../engine/Engine'
 
-export default function setupStencilaContext(archive) {
+export default function setupStencilaContext() {
   // Get configuration options from environment variables and query parameters
   const libs = {
     core: window.STENCILA_LIBCORE
@@ -25,28 +23,10 @@ export default function setupStencilaContext(archive) {
   // Try to discover hosts on http://127.0.0.1?
   const discover = parseFloat(getQueryStringParam('discover') || window.STENCILA_DISCOVER || '-1')
   // Instantiate and initialise the host
-  const host = new Host({libs, peers:hosts, discover})
-  return host.initialize().then(() => {
-    const engine = host.engine
-    let entries = archive.getDocumentEntries()
-    forEach(entries, entry => {
-      let { id, type } = entry
-      let editorSession = archive.getEditorSession(id)
-      let Adapter
-      if (type === 'article') {
-        Adapter = ArticleAdapter
-      } else if (type === 'sheet') {
-        Adapter = SheetAdapter
-      }
-      if (Adapter) {
-        Adapter.connect(engine, editorSession, id)
-      }
-    })
-    engine.run(10)
-    return {
-      host,
-      functionManager: host.functionManager,
-      engine
-    }
-  })
+  const engine = new Engine()
+  const host = new Host({libs, peers:hosts, discover, engine })
+  engine.setHost(host)
+  const functionManager = host._functionManager
+
+  return { host, functionManager, engine}
 }

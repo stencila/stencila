@@ -555,7 +555,7 @@ function _setup() {
     functionManager
   }
   miniContext = new MiniContext(host)
-  let engine = new Engine(host)
+  let engine = new Engine({ host })
   let graph = engine._graph
   return { host, engine, graph }
 }

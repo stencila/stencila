@@ -106,10 +106,11 @@ import { gather } from '../value'
 */
 export default class Engine extends EventEmitter {
 
-  constructor(host) {
+  constructor(options = {}) {
     super()
 
-    this._host = host
+    // needs to be connected to a host to be able to create contexts
+    this._host = options.host
 
     this._docs = {}
     this._graph = new CellGraph()
@@ -124,7 +125,13 @@ export default class Engine extends EventEmitter {
     this._nextActions = new Map()
   }
 
+  setHost(host) {
+    this._host = host
+  }
+
   run /* istanbul ignore next */ (interval) {
+    if (!this._host) throw new Error('Must call setHost() before starting the Engine')
+
     // TODO: does this only work in the browser?
     if (this._runner) {
       clearInterval(this._runner)
