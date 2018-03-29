@@ -143,12 +143,12 @@ function _getCellData(cell) {
 }
 
 function _addAutorunFeature(doc, adapter) {
-  Object.assign(doc, {
-    set autorun(val) {
+  Object.defineProperty(doc, 'autorun', {
+    set(val) {
       doc._autorun = val
       adapter.model.setAutorun(val)
     },
-    get autorun() {
+    get() {
       return doc._autorun
     }
   })

@@ -661,6 +661,10 @@ class Document {
     return this.cells
   }
 
+  setAutorun(val) {
+    this.autorun = val
+  }
+
   insertCellAt(pos, cellData) {
     let cell = this._createCell(cellData)
     this._registerCell(cell)
@@ -760,6 +764,10 @@ class Sheet {
   }
 
   get type() { return 'sheet' }
+
+  setAutorun(val) {
+    this.autorun = val
+  }
 
   getColumnName(colIdx) {
     let columnMeta = this.columns[colIdx]
