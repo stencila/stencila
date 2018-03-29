@@ -93,7 +93,7 @@ export default {
     })
     config.addIcon('run-all', { 'fontawesome': 'fa-caret-square-o-right' })
     config.addLabel('run-all', 'Run All Code')
-    config.addKeyboardShortcut('Shift+Enter+A', { command: 'run-all' })
+    config.addKeyboardShortcut('CommandOrControl+Shift+Enter', { command: 'run-all' })
 
     config.addToolPanel('toolbar', [
       {
