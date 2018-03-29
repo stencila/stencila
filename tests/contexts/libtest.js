@@ -1,3 +1,5 @@
+import { forEach, isArray } from 'substance'
+
 const addXML = `
 <function>
   <name>add</name>
@@ -13,6 +15,39 @@ const addXML = `
 
 function add(value, other) {
   return value + other
+}
+
+const sumXML = `
+<function>
+  <name>sum</name>
+  <params>
+    <param name="a" type="number" />
+    <param name="b" type="number" />
+    <param name="c" type="number" />
+    <param name="d" type="number" />
+    <param name="e" type="number" />
+  </params>
+  <implems>
+    <implem language="js" />
+  </implems>
+</function>
+`
+
+function sum(...vals) {
+  return vals.reduce((a,b) => {
+    if (b.type === 'table') {
+      forEach(b.data, (vals) => {
+        a += sum(vals)
+      })
+      return a
+    } else if (isArray(b)) {
+      return sum(...b)
+    } else if (isArray(b.data)) {
+      return sum(...b.data)
+    } else {
+      return a+b
+    }
+  }, 0)
 }
 
 const multiplyXML = `
@@ -86,6 +121,7 @@ export const libtestXML = `
 <!DOCTYPE function PUBLIC "StencilaFunctionLibrary 1.0" "StencilaFunctionLibrary.dtd">
 <library name="test">
 ${addXML}
+${sumXML}
 ${multiplyXML}
 ${no_paramsXML}
 ${one_paramXML}
@@ -95,6 +131,7 @@ ${one_param_with_defaultXML}
 
 export const libtest = {
   add,
+  sum,
   multiply,
   no_params,
   one_param,

@@ -1,5 +1,7 @@
 import { Command } from 'substance'
 import { getRange } from './sheetHelpers'
+import { getCellExpressions } from '../shared/expressionHelpers'
+import { transformCellRangeExpression } from '../shared/cellHelpers'
 
 class RowsCommand extends Command {
 
@@ -78,36 +80,61 @@ class ColumnMetaCommand extends Command {
 }
 
 function insertRows({editorSession, commandState}, mode) {
-  const refRow = mode === 'above' ?
+  const pos = mode === 'above' ?
     commandState.startRow :
     commandState.endRow + 1
-  const nrows = commandState.nrows
+  const count = commandState.nrows
   editorSession.transaction((tx) => {
-    tx.getDocument().createRowsAt(refRow, nrows)
-  })
+    tx.getDocument().createRowsAt(pos, count)
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      // TODO: rename 'idx' to 'pos'
+      transformCellExpressions(cell, { dim: 'row', idx: pos, count })
+    })
+  }, { action: 'insertRows', pos, count })
 }
 
 function insertCols({editorSession, commandState}, mode) {
   //const sel = selection.data
-  const refCol = mode === 'left' ?
+  const pos = mode === 'left' ?
     commandState.startCol :
     commandState.endCol + 1
-  const ncols = commandState.ncolumns
+  const count = commandState.ncolumns
   editorSession.transaction((tx) => {
-    tx.getDocument().createColumnsAt(refCol, ncols)
-  })
+    tx.getDocument().createColumnsAt(pos, count)
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
+    })
+  }, { action: 'insertCols', pos, count })
 }
 
 function deleteRows({editorSession, commandState}) {
+  const start = commandState.startRow
+  const end = commandState.endRow
+  const pos = start
+  const count = end - start + 1
   editorSession.transaction((tx) => {
-    tx.getDocument().deleteRows(commandState.startRow, commandState.endRow)
-  })
+    tx.getDocument().deleteRows(start, end)
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
+    })
+  }, { action: 'deleteRows', pos, count })
 }
 
 function deleteColumns({editorSession, commandState}) {
+  const start = commandState.startCol
+  const end = commandState.endCol
+  const pos = start
+  const count = end - start + 1
   editorSession.transaction((tx) => {
-    tx.getDocument().deleteColumns(commandState.startCol, commandState.endCol)
-  })
+    tx.getDocument().deleteColumns(start, end)
+    const cells = tx.findAll('cell')
+    cells.forEach(cell => {
+      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
+    })
+  }, { action: 'deleteCols', pos, count })
 }
 
 export class InsertRowsAbove extends RowsCommand {
@@ -279,5 +306,20 @@ export class SelectAllCommand extends Command {
       data: selData,
       surfaceId: sel.surfaceId
     })
+  }
+}
+
+function transformCellExpressions(cell, params) {
+  let source = cell.textContent
+  const symbols = getCellExpressions(source)
+  for (let i = symbols.length-1; i >= 0; i--) {
+    const symbol = symbols[i]
+    const tExp = transformCellRangeExpression(symbol.text, params)
+    if(symbol.text !== tExp) {
+      source = source.substring(0, symbol.startPos) + tExp + source.substring(symbol.endPos)
+    }
+  }
+  if(cell.source !== source) {
+    cell.textContent = source
   }
 }
