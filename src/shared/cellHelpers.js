@@ -92,8 +92,15 @@ export function getRowCol(cellLabel) {
 
 export function getError(cell) {
   let cellState = getCellState(cell)
-  if (cellState) {
+  if (cellState && cellState.errors) {
     return cellState.errors[0]
+  }
+}
+
+export function getValue(cell) {
+  let cellState = getCellState(cell)
+  if (cellState) {
+    return cellState.value
   }
 }
 
