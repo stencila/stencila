@@ -1,6 +1,6 @@
 import { EventEmitter, uuid } from 'substance'
+import { KJUR } from 'jsrsasign'
 
-import { GET, POST, DELETE } from '../util/requests'
 import FunctionManager from '../function/FunctionManager'
 import Engine from '../engine/Engine'
 import JsContext from '../contexts/JsContext'
@@ -15,6 +15,9 @@ export default class Host extends EventEmitter {
 
   constructor (options = {}) {
     super()
+
+
+    this._id = 'client-host-' + uuid()
 
     /**
      * Options used to configure this host
@@ -181,8 +184,14 @@ export default class Host extends EventEmitter {
     let hosts = options.hosts
     if (hosts) {
       for (let url of hosts) {
+        let key = null
         if (url === 'origin') url = options.origin
-        let promise = this.registerHost(url)
+        else if (url.indexOf('|') > -1) {
+          let parts =  url.split('|')
+          url = parts[0]
+          key = parts[1]
+        }
+        let promise = this.registerHost(url, key)
         promises.push(promise)
       }
     }
@@ -208,11 +217,12 @@ export default class Host extends EventEmitter {
   }
 
   registerHost (url, key = null, optimistic = false) {
-    return GET(url + '/manifest').then(manifest => {
+    return this._request('GET', url + '/manifest').then(manifest => {
       if (manifest.stencila) {
         const host = {
           key,
           manifest,
+          sent: 0,
           messages: []
         }
         this._hosts.set(url, host)
@@ -228,15 +238,15 @@ export default class Host extends EventEmitter {
     this.emit('hosts:changed')
   }
 
-  selectHost (hostUrl) {
-    this._hosts.get(hostUrl).selected = true
+  selectHost (url) {
+    this._hosts.get(url).selected = true
     this.emit('hosts:changed')
-    return POST(hostUrl + '/environ/' + this._environ).then(location => {
+    return this._post(url, '/environ/' + this._environ).then(location => {
       let peerUrl
       if (location.url) peerUrl = location.url
-      else if (location.path) peerUrl = hostUrl + location.path
-      else peerUrl = hostUrl
-      return GET(peerUrl + '/manifest').then(manifest => {
+      else if (location.path) peerUrl = url + location.path
+      else peerUrl = url
+      return this._get(peerUrl, '/manifest').then(manifest => {
         this._peers.set(peerUrl, manifest)
         this.emit('peers:changed')
       })
@@ -248,7 +258,7 @@ export default class Host extends EventEmitter {
     if (host.selected) {
       host.selected = false
       this.emit('hosts:changed')
-      return DELETE(url + '/environ/' + this._environ).then(() => {
+      return this._delete(url, '/environ/' + this._environ).then(() => {
         this._peers.delete(url)
         this.emit('peers:changed')
       })
@@ -299,60 +309,28 @@ export default class Host extends EventEmitter {
    * @return {Promise} Resolves to an instance
    */
   create (type, args) {
-    // Search for the type amongst peers or peers-of-peers
-    let find = (peersOfPeers) => {
-      for (let url of Object.keys(this._peers)) {
-        let manifest = this._peers[url]
-
-        // Gather an object of types from the peer and it's peers
-        let specs = []
-        let addSpecs = (manifest) => {
-          if (manifest.types) {
-            for (let type of Object.keys(manifest.types)) {
-              specs.push(manifest.types[type])
-            }
-          }
-        }
-        if (!peersOfPeers) {
-          addSpecs(manifest)
-        } else if (manifest.peers) {
-          for (let peer of manifest.peers) addSpecs(peer)
-        }
-
-        // Find a type that has a matching name or alias
-        for (let spec of specs) {
-          if (spec.name === type) {
-            return {url, spec}
-          } else if (spec.aliases) {
-            if (spec.aliases.indexOf(type) >= 0) {
-              return {url, spec}
-            }
-          }
-        }
-      }
-    }
-
     // Register a created instance
     let _register = (id, host, type, instance) => {
       this._instances[id] = {host, type, instance}
       this.emit('instance:created')
     }
 
-    // Attempt to find resource type amongst...
-    let found = find(false) //...peers
-    if (!found) found = find(true) //...peers of peers
-    if (found) {
-      let {url, spec} = found
-      return POST(url + '/' + spec.name, args).then(id => {
-        // Determine the client class to use (support deprecated spec.base)
-        let Client
-        if (spec.client === 'ContextHttpClient' || spec.base === 'Context') Client = ContextHttpClient
-        else throw new Error(`Unsupported type: ${spec.client}`)
+    // Look for type in peer hosts
+    for (let [url, manifest] of this._peers) {
+      for (let spec of Object.values(manifest.types)) {
+        console.log(url, manifest)
+        if (spec.name === type) {
+          return this._post(url, '/' + type, args).then(id => {
+            let Client
+            if (spec.client === 'ContextHttpClient') Client = ContextHttpClient
+            else throw new Error(`Unsupported type: ${spec.client}`)
 
-        let instance = new Client(url + '/' + id)
-        _register(id, url, type, instance)
-        return {id, instance}
-      })
+            let instance = new Client(this, url, id)
+            _register(id, url, type, instance)
+            return {id, instance}
+          })
+        }
+      }
     }
 
     // Fallback to providing an in-browser instances of resources where available
@@ -388,6 +366,7 @@ export default class Host extends EventEmitter {
       const type = {
         'js': 'JsContext',
         'mini': 'MiniContext',
+        'node': 'NodeContext',
         'py': 'PythonContext',
         'r': 'RContext',
         'sql': 'SqliteContext'
@@ -423,5 +402,85 @@ export default class Host extends EventEmitter {
         return promise
       }
     }
+  }
+
+  _get(host, path) {
+    const token = this._token(host)
+    return this._request('GET', host + path, null, token)
+  }
+
+  _post(host, path, data) {
+    const token = this._token(host)
+    return this._request('POST', host + path, data, token)
+  }
+
+  _put(host, path, data) {
+    const token = this._token(host)
+    return this._request('PUT', host + path, data, token)
+  }
+
+  _delete(host, path) {
+    const token = this._token(host)
+    return this._request('DELETE', host + path, null, token)
+  }
+
+  _token(url) {
+    const host = this._hosts.get(url)
+    const key = host.key
+    const iat = Math.round(Date.now() / 1000)
+    const hid = this._id
+    const seq = host.sent + 1
+    host.sent = seq
+    const payload = { iat, hid, seq }
+    console.log(payload)
+    const token = KJUR.jws.JWS.sign('HS256', '{"alg":"HS256","typ":"JWT"}', payload, {rstr: key})
+    return token
+  }
+
+  _request (method, url, data, token) {
+    var XMLHttpRequest
+    if (typeof window === 'undefined') XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest
+    else XMLHttpRequest = window.XMLHttpRequest
+
+    return new Promise((resolve, reject) => {
+      var request = new XMLHttpRequest()
+      request.open(method, url, true)
+      request.setRequestHeader('Accept', 'application/json')
+      // Send any credentials (e.g. cookies) in request headers
+      // (necessary for remote peers)
+      request.withCredentials = true
+
+      if (token) {
+        request.setRequestHeader('Authorization', 'Bearer ' + token)
+      }
+
+      request.onload = function () {
+        let result
+        try {
+          result = JSON.parse(request.responseText)
+        } catch (error) {
+          result = request.responseText
+        }
+        if (request.status >= 200 && request.status < 400) {
+          resolve(result)
+        } else {
+          reject({
+            status: request.status,
+            body: result
+          })
+        }
+      }
+
+      request.onerror = function () {
+        reject(new Error('An error occurred with request "' + method + ' ' + url + '"'))
+      }
+
+      if (data) {
+        request.setRequestHeader('Content-Type', 'application/json')
+        request.send(JSON.stringify(data))
+      } else {
+        request.send()
+      }
+    })
   }
 }

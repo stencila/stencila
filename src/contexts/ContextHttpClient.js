@@ -1,4 +1,3 @@
-import {PUT} from '../util/requests'
 import Context from './Context'
 
 /**
@@ -11,9 +10,11 @@ import Context from './Context'
  */
 export default class ContextHttpClient extends Context {
 
-  constructor(url) {
+  constructor(host, url, name) {
     super()
-    this.url = url
+    this.host = host
+    this.peer = url
+    this.name = name
   }
 
   /**
@@ -22,7 +23,7 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   supportedLanguages () {
-    return PUT(this.url + '!supportedLanguages')
+    return this.host._put(this.peer, '/' + this.name + '!supportedLanguages')
   }
 
   /**
@@ -31,7 +32,7 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   getLibraries () {
-    return PUT(this.url + '!getLibraries')
+    return this.host._put(this.peer, '/' + this.name + '!getLibraries')
   }
 
   /**
@@ -40,7 +41,7 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   _analyseCode (code, exprOnly = false) {
-    return PUT(this.url + '!analyseCode', {code: code, exprOnly: exprOnly})
+    return this.host._put(this.peer, '/' + this.name + '!analyseCode', {code: code, exprOnly: exprOnly})
   }
 
   /**
@@ -49,7 +50,7 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   _executeCode (code, inputs, exprOnly = false) {
-    return PUT(this.url + '!executeCode', {code: code, inputs: inputs, exprOnly: exprOnly})
+    return this.host._put(this.peer, '/' + this.name + '!executeCode', {code: code, inputs: inputs, exprOnly: exprOnly})
   }
 
 
@@ -59,7 +60,7 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   hasFunction (name) {
-    return PUT(this.url + '!hasFunction', {name: name})
+    return this.host._put(this.peer, '/' + this.name + '!hasFunction', {name: name})
   }
 
   /**
@@ -68,6 +69,6 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   callFunction (library, name, args, namedArgs) {
-    return PUT(this.url + '!callFunction', {library: library, name: name, args: args, namedArgs: namedArgs})
+    return this.host._put(this.peer, '/' + this.name + '!callFunction', {library: library, name: name, args: args, namedArgs: namedArgs})
   }
 }
