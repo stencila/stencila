@@ -22,7 +22,8 @@ export class GraphError extends CellError {
   get type() { return 'graph' }
 }
 
-export class SyntaxError extends GraphError {
+export class SyntaxError extends CellError {
+  get type() { return 'engine' }
   get name() { return 'syntax' }
 }
 
