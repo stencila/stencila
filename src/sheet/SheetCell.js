@@ -1,6 +1,6 @@
 import { NodeComponent } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
-import { isExpression, getError } from '../shared/cellHelpers'
+import { isExpression, getError, getValue } from '../shared/cellHelpers'
 
 export default class SheetCell extends NodeComponent {
 
@@ -40,7 +40,7 @@ export default class SheetCell extends NodeComponent {
   _renderContent($$, cell) {
     const text = cell.text()
     const isExpressionCell = isExpression(text)
-    const value = cell.state.value
+    const value = getValue(cell)
     if(isExpressionCell) {
       const valueEl = $$(ValueComponent, value).ref('value')
       return $$('div').addClass('sc-text-content').append(valueEl)
