@@ -1,6 +1,6 @@
-import { uuid, isString, EventEmitter } from 'substance'
+import { uuid, isString, EventEmitter, flatten } from 'substance'
 import CellGraph from './CellGraph'
-import { ContextError, RuntimeError } from './CellErrors'
+import { ContextError, RuntimeError, SyntaxError } from './CellErrors'
 import { UNKNOWN, ANALYSED, READY } from './CellStates'
 import Cell from './Cell'
 import CellSymbol from './CellSymbol'
@@ -227,7 +227,22 @@ export default class Engine extends EventEmitter {
       this._updateGraph()
 
       let A = actions.analyse.map(a => this._analyse(a))
-      let B = actions.evaluate.map(a => this._evaluate(a))
+      let B = actions.evaluate.map(a => {
+        let cell = graph.getCell(a.id)
+        // This is necessary because we make sure the cell still exists
+        if (cell) {
+          if (this._canRunCell(cell)) {
+            return this._evaluate(a)
+          } else {
+            // otherwise keep this as a next action
+            a.suspended = true
+            this._nextActions.set(a.id, a)
+            return false
+          }
+        } else {
+          return false
+        }
+      })
       return A.concat(B)
     } else if (graph.needsUpdate()) {
       this._updateGraph()
@@ -247,7 +262,6 @@ export default class Engine extends EventEmitter {
     this._docs[id] = doc
     doc._registerCells(this)
   }
-
 
   /*
     Registers a cell.
@@ -276,6 +290,7 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     let cell = graph.getCell(id)
     Object.assign(cell, cellData)
+    cell.status = UNKNOWN
     this._nextActions.set(id, {
       id,
       type: 'analyse',
@@ -286,6 +301,9 @@ export default class Engine extends EventEmitter {
   _sendUpdate(updatedCells) {
     // TODO: this should send a batch update over to the app
     // and for testing this method should be 'spied'
+    // updatedCells.forEach(cell => {
+    //   console.log(`Updated cell ${cell.id}: ${cell._getStatusString()}`)
+    // })
     this.emit('update', updatedCells)
   }
 
@@ -325,6 +343,7 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     const id = action.id
     const cell = graph.getCell(id)
+    cell.errors = []
     // in case of constants, casting the string into a value,
     // updating the cell graph and returning without further evaluation
     if (cell.isConstant()) {
@@ -336,7 +355,6 @@ export default class Engine extends EventEmitter {
     }
     // TODO: we need to reset the cell status. Should we let CellGraph do this?
     cell.status = UNKNOWN
-    cell.errors = []
     // otherwise the cell source is assumed to be dynamic source code
     const transpiledSource = cell.transpiledSource
     const lang = cell.getLang()
@@ -364,16 +382,26 @@ export default class Engine extends EventEmitter {
         // console.log('action has been superseded')
         return
       }
-      // console.log('analysed cell', cell, res)
-      // transform the extracted symbols into fully-qualified symbols
-      // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
-      let { inputs, output } = this._compile(res, cell)
-      this._nextActions.set(id, {
-        type: 'register',
-        id,
-        inputs,
-        output
-      })
+      // Note: treating all errors coming from analyseCode() as SyntaxErrors
+      // TODO: we might want to be more specific here
+      if (res.messages && res.messages.length > 0) {
+        // TODO: we should not need to set this manually
+        cell.status = ANALYSED
+        graph.addErrors(id, res.messages.map(err => {
+          return new SyntaxError(err.message)
+        }))
+      } else {
+        // console.log('analysed cell', cell, res)
+        // transform the extracted symbols into fully-qualified symbols
+        // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
+        let { inputs, output } = this._compile(res, cell)
+        this._nextActions.set(id, {
+          type: 'register',
+          id,
+          inputs,
+          output
+        })
+      }
     })
   }
 
@@ -386,6 +414,8 @@ export default class Engine extends EventEmitter {
     // console.log('evaluating cell', cell.toString())
     const lang = cell.getLang()
     let transpiledSource = cell.transpiledSource
+    // EXPERIMENTAL: remove 'autorun'
+    delete cell.autorun
     return this._getContext(lang)
     .then(res => {
       if (this._nextActions.has(id)) {
@@ -569,6 +599,51 @@ export default class Engine extends EventEmitter {
     // or we need to introduce an abstraction.
     return gather('array', cells.map(c => getCellValue(c)))
   }
+
+  _canRunCell(cell) {
+    if (cell.hasOwnProperty('autorun')) {
+      return cell.autorun
+    }
+    return cell.doc.autorun
+  }
+
+  _allowRunningCellAndPredecessors(id) {
+    const graph = this._graph
+    let predecessors = graph._getPredecessorSet(id)
+    this._allowRunningCell(id)
+    predecessors.forEach(_id => {
+      this._allowRunningCell(_id)
+    })
+  }
+
+  _allowRunningCell(id) {
+    const graph = this._graph
+    let cell = graph.getCell(id)
+    cell.autorun = true
+    let action = this._nextActions.get(id)
+    if (action) {
+      delete action.suspended
+    }
+  }
+
+  _allowRunningAllCellsOfDocument(docId) {
+    const graph = this._graph
+    let doc = this._docs[docId]
+    let cells = doc.getCells()
+    if (doc instanceof Sheet) {
+      cells = flatten(cells)
+    }
+    let ids = new Set()
+    cells.forEach(cell => {
+      ids.add(cell.id)
+    })
+    cells.forEach(cell => {
+      graph._getPredecessorSet(cell.id, ids)
+    })
+    ids.forEach(id => {
+      this._allowRunningCell(id)
+    })
+  }
 }
 
 /*
@@ -583,6 +658,12 @@ class Document {
     this.id = data.id
     this.name = data.name
     this.lang = data.lang || 'mini'
+    if (data.hasOwnProperty('autorun')) {
+      this.autorun = data.autorun
+    } else {
+      // TODO: using manual execution as a default for now
+      this.autorun = true
+    }
     this.cells = data.cells.map(cellData => this._createCell(cellData))
     // registration hook used for propagating initial cell state to the application
     if (data.onCellRegister) this.onCellRegister = data.onCellRegister
@@ -592,6 +673,10 @@ class Document {
 
   getCells() {
     return this.cells
+  }
+
+  setAutorun(val) {
+    this.autorun = val
   }
 
   insertCellAt(pos, cellData) {
@@ -663,6 +748,13 @@ class Sheet {
     // default language
     const defaultLang = data.lang || 'mini'
     this.lang = defaultLang
+    if (data.hasOwnProperty('autorun')) {
+      this.autorun = data.autorun
+    } else {
+      // TODO: using auto/ cells automatically by default
+      this.autorun = true
+    }
+    this.autorun = true
     // TODO: we can revise this as we move on
     // for now, data.cells must be present being a sequence of rows of cells.
     // data.columns is optional, but if present every data row have corresponding dimensions
@@ -686,6 +778,10 @@ class Sheet {
   }
 
   get type() { return 'sheet' }
+
+  setAutorun(val) {
+    this.autorun = val
+  }
 
   getColumnName(colIdx) {
     let columnMeta = this.columns[colIdx]

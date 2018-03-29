@@ -1,5 +1,5 @@
 import { isString } from 'substance'
-import { UNKNOWN } from './CellStates'
+import { UNKNOWN, toString as cellStatusToString } from './CellStates'
 import { transpile } from '../shared/expressionHelpers'
 import { isExpression, qualifiedId } from '../shared/cellHelpers'
 
@@ -150,6 +150,10 @@ export default class Cell {
     }
     parts.push(this._source.original)
     return parts.join('')
+  }
+
+  _getStatusString() {
+    return cellStatusToString(this.status)
   }
 
   _transpile(source) {

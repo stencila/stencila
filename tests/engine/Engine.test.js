@@ -4,7 +4,7 @@ import JsContext from '../../src/contexts/JsContext'
 import MiniContext from '../../src/contexts/MiniContext'
 import FunctionManager from '../../src/function/FunctionManager'
 import { libtestXML, libtest } from '../contexts/libtest'
-import { UNKNOWN } from '../../src/engine/CellStates'
+import { UNKNOWN, toString as cellStatusToString } from '../../src/engine/CellStates'
 import { RuntimeError } from '../../src/engine/CellErrors'
 import { queryCells } from '../../src/shared/cellHelpers'
 
@@ -466,6 +466,123 @@ test('Engine: transclusion', t => {
   })
 })
 
+test('Engine: manual execution', t => {
+  t.plan(3)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    autorun: false,
+    cells: [
+      'x = 2',
+      'x * 3'
+    ]
+  })
+  let cells = doc.getCells()
+  _play(engine)
+  .then(() => {
+    t.deepEqual(_getStates(cells), ['ready', 'waiting'], 'cell states should be correct')
+  })
+  .then(() => {
+    engine._allowRunningCell(cells[0].id)
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getStates(cells), ['ok', 'ready'], 'cell states should be correct')
+  })
+  .then(() => {
+    engine._allowRunningCell(cells[1].id)
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(cells), [2, 6], 'cells should have been computed')
+  })
+})
+
+test('Engine: manually run cell and predecessors', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    autorun: false,
+    cells: [
+      'x = 2',
+      'y = x * 3',
+      'z = y + 2'
+    ]
+  })
+  let cells = doc.getCells()
+  _play(engine)
+  .then(() => {
+    engine._allowRunningCellAndPredecessors(cells[2].id)
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(cells), [2, 6, 8], 'cells should have been computed')
+  })
+})
+
+test('Engine: run all cells in manual execution mode', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    autorun: false,
+    cells: [
+      'x = 2',
+      'y = x * 3',
+      'z = y + 2'
+    ]
+  })
+  let cells = doc.getCells()
+  _play(engine)
+  .then(() => {
+    engine._allowRunningAllCellsOfDocument('doc1')
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(cells), [2, 6, 8], 'cells should have been computed')
+  })
+})
+
+test('Engine: cells with errors should not be scheduled (manual mode)', t => {
+  t.plan(3)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    autorun: false,
+    cells: [
+      '6 * 2',
+    ]
+  })
+  let cells = doc.getCells()
+  _play(engine)
+  .then(() => {
+    engine._allowRunningAllCellsOfDocument('doc1')
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(cells), [12], 'cells should have been computed')
+  })
+  .then(() => {
+    doc.updateCell(cells[0].unqualifiedId, { source: '6 * 2 +'})
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getStates(cells), ['broken'], 'cell should be broken')
+  })
+  .then(() => {
+    doc.updateCell(cells[0].unqualifiedId, { source: '6 * 2 + 1'})
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getStates(cells), ['ready'], 'cell should be ready')
+  })
+})
+
 /*
   Waits for all actions to be finished.
   This is the slowest kind of scheduling, as every cycle
@@ -485,7 +602,7 @@ function _cycle(engine) {
 function _play(engine) {
   return new Promise((resolve) => {
     function step() {
-      if (engine.needsUpdate()) {
+      if (_needsUpdate(engine)) {
         _cycle(engine).then(step)
       } else {
         resolve()
@@ -493,6 +610,18 @@ function _play(engine) {
     }
     step()
   })
+}
+
+function _needsUpdate(engine) {
+  const graph = engine._graph
+  if (graph.needsUpdate()) return true
+  const nextActions = engine._nextActions
+  if (nextActions.size === 0) return false
+  // update is required if there is an action that has not been suspended
+  for (let [, a] of nextActions) {
+    if (!a.suspended) return true
+  }
+  return false
 }
 
 function _checkActions(t, engine, cells, expected) {
@@ -523,6 +652,12 @@ function _getErrors(cells) {
     return cell.errors.map(err => {
       return err.name || 'unknown'
     })
+  })
+}
+
+function _getStates(cells) {
+  return cells.map(cell => {
+    return cellStatusToString(cell.status)
   })
 }
 

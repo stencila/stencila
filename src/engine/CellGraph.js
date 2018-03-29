@@ -481,6 +481,25 @@ export default class CellGraph {
     return followSet
   }
 
+  // get a set of all ids a cell is depending on
+  _getPredecessorSet(id, res) {
+    if (!res) res = new Set()
+    let cell = this.getCell(id)
+    cell.inputs.forEach(s => {
+      let id = this._resolve(s)
+      if (!res.has(id)) {
+        if (id && isString(id)) res.add(id)
+        this._getPredecessorSet(id, res)
+      }
+    })
+    if (cell.hasSideEffects && cell.prev) {
+      if (!res.has(id)) {
+        this._getPredecessorSet(cell.prev, res)
+      }
+    }
+    return res
+  }
+
   _handleCycle(trace, updated) {
     let error = new CyclicDependencyError('Cyclic dependency', { trace })
     trace.forEach(id => {

@@ -13,11 +13,6 @@ export class CellError extends Error {
   }
 }
 
-export class SyntaxError extends CellError {
-  get type() { return 'engine' }
-  get name() { return 'syntax' }
-}
-
 export class ContextError extends CellError {
   get type() { return 'engine' }
   get name() { return 'context' }
@@ -25,6 +20,11 @@ export class ContextError extends CellError {
 
 export class GraphError extends CellError {
   get type() { return 'graph' }
+}
+
+export class SyntaxError extends CellError {
+  get type() { return 'engine' }
+  get name() { return 'syntax' }
 }
 
 export class UnresolvedInputError extends GraphError {
