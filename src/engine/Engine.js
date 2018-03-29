@@ -301,6 +301,9 @@ export default class Engine extends EventEmitter {
   _sendUpdate(updatedCells) {
     // TODO: this should send a batch update over to the app
     // and for testing this method should be 'spied'
+    // updatedCells.forEach(cell => {
+    //   console.log(`Updated cell ${cell.id}: ${cell._getStatusString()}`)
+    // })
     this.emit('update', updatedCells)
   }
 
