@@ -2,7 +2,7 @@ import { NodeComponent, FontAwesomeIcon } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
 import { getCellState, getError } from '../shared/cellHelpers'
-import { toString as stateToString, BROKEN, FAILED, OK } from '../engine/CellStates'
+import { toString as stateToString, BROKEN, FAILED, OK, READY } from '../engine/CellStates'
 import NodeMenu from './NodeMenu'
 
 export default
@@ -200,6 +200,8 @@ class CellComponent extends NodeComponent {
         }, 500)
       } else if (status === OK) {
         this.oldValue = cellState.value
+        clearTimeout(this.delayError) // eslint-disable-line no-undef
+      } else if (status === READY) {
         clearTimeout(this.delayError) // eslint-disable-line no-undef
       }
     }
