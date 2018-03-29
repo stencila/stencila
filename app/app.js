@@ -13,16 +13,29 @@ import {
 
 window.addEventListener('load', () => {
   substanceGlobals.DEBUG_RENDERING = platform.devtools
-  App.mount({}, window.document.body)
+  StencilaWeb.mount({
+    archiveId: getQueryStringParam('archive') || 'kitchen-sink',
+    storageType: getQueryStringParam('storage') || 'vfs',
+    storageUrl: getQueryStringParam('storageUrl') || '/archives'
+  }, window.document.body)
 })
 
-class App extends Component {
 
-  constructor(...args) {
-    super(...args)
+class AppChrome extends Component {
 
-    // this is initialized in _init()
-    this._childContext = null
+  didMount() {
+    this._init()
+    DefaultDOMElement.getBrowserWindow().on('keydown', this._keyDown, this)
+    DefaultDOMElement.getBrowserWindow().on('drop', this._supressDnD, this)
+    DefaultDOMElement.getBrowserWindow().on('dragover', this._supressDnD, this)
+  }
+
+  dispose() {
+    DefaultDOMElement.getBrowserWindow().off(this)
+  }
+
+  getChildContext() {
+    return this._childContext
   }
 
   getInitialState() {
@@ -32,100 +45,46 @@ class App extends Component {
     }
   }
 
-  getChildContext() {
-    return this._childContext
-  }
+  /*
+    4 initialisation stages
 
-  didMount() {
-    this._init()
-    DefaultDOMElement.getBrowserWindow().on('keydown', this._keyDown, this)
-  }
-
-  dispose() {
-    DefaultDOMElement.getBrowserWindow().off(this)
-  }
-
-  render($$) {
-    let el = $$('div').addClass('sc-app')
-    let { archive, error } = this.state
-    if (archive) {
-      el.append(
-        $$(Project, {
-          documentArchive: archive
-        })
-      )
-    } else if (error) {
-      if (error.type === 'jats-import-error') {
-        el.append(
-          $$(JATSImportDialog, { errors: error.detail })
-        )
-      } else {
-        el.append(
-          'ERROR:',
-          error.message
-        )
-      }
-    } else {
-      // LOADING...
-    }
-    return el
-  }
-
+    - _setupChildContext (sync)
+    - _initContext (async)
+    - _loadArchive (async)
+    - _initArchive (async)
+  */
   _init() {
-    let archiveId = getQueryStringParam('archive') || 'kitchen-sink'
-    const context = setupStencilaContext()
-    const { host, engine } = context
-    // update the component's context which is
-    this._childContext = Object.assign({}, this.context, context)
+    this._childContext = this._setupChildContext()
 
-    // initialize the host
-    host.initialize()
-    // load the archive
-    .then(() => this._loadArchive(archiveId, context))
+    let promise = this._initContext(this._childContext)
+    .then(() => this._loadArchive(this.props.archiveId, this._childContext))
+    .then(archive => this._initArchive(archive, this._childContext))
     .then(archive => {
-      // register documents and sheets with the engine
-      this._connectArchiveEntriesWithEngine(archive, engine)
-      // start the engine
-      const ENGINE_REFRESH_INTERVAL = 10 // ms
-      engine.run(ENGINE_REFRESH_INTERVAL)
-      // finally trigger a rerender with the loaded article
-      this.setState({ archive })
+      this.setState({archive})
     })
-    // .catch(error => {
-    //   console.error(error)
-    //   this.setState({error})
-    // })
-  }
 
-  _loadArchive(archiveId, context) {
-    let storageType = getQueryStringParam('storage') || 'vfs'
-    let storageUrl = getQueryStringParam('storageUrl') || '/archives'
-    let storage
-    if (storageType==='vfs') {
-      storage = new VfsStorageClient(window.vfs, './examples/')
-    } else {
-      storage = new HttpStorageClient(storageUrl)
+    if (!platform.devtools) {
+      promise.catch(error => {
+        console.error(error)
+        this.setState({error})
+      })
     }
-    const buffer = new InMemoryDarBuffer()
-    const archive = new StencilaArchive(storage, buffer, context)
-    return archive.load(archiveId)
   }
 
-  _connectArchiveEntriesWithEngine(archive, engine) {
-    let entries = archive.getDocumentEntries()
-    forEach(entries, entry => {
-      let { id, type } = entry
-      let editorSession = archive.getEditorSession(id)
-      let Adapter
-      if (type === 'article') {
-        Adapter = ArticleAdapter
-      } else if (type === 'sheet') {
-        Adapter = SheetAdapter
-      }
-      if (Adapter) {
-        Adapter.connect(engine, editorSession, id)
-      }
-    })
+  _setupChildContext() {
+    throw new Error('_setupChildContext not implemented')
+  }
+
+  _initContext(context) {
+    return Promise.resolve(context)
+  }
+
+  _loadArchive() {
+    throw new Error('_loadArchive not implemented')
+  }
+
+  _initArchive() {
+    throw new Error('_initArchive not implemented')
   }
 
   /*
@@ -140,12 +99,126 @@ class App extends Component {
     })
   }
 
-  _keyDown(e) {
-    let key = parseKeyEvent(e)
+  _keyDown(event) {
+    if ( event.key === 'Dead' ) return
+    if (this._handleKeyDown) {
+      this._handleKeyDown(event)
+    }
+  }
+
+  _supressDnD(event) {
+    event.preventDefault()
+  }
+
+}
+
+class WebAppChrome extends AppChrome {
+  _handleKeyDown(event) {
+    let key = parseKeyEvent(event)
     // CommandOrControl+S
     if (key === 'META+83' || key === 'CTRL+83') {
       this._save()
-      e.preventDefault()
+      event.preventDefault()
     }
   }
+}
+
+export default class StencilaWeb extends WebAppChrome {
+
+  render($$) {
+    return _renderStencilaApp($$, this)
+  }
+
+  _setupChildContext() {
+    return _setupStencilaChildContext(this.context)
+  }
+
+  _initContext(context) {
+    return _initStencilaContext(context)
+  }
+
+  _loadArchive(archiveId, context) {
+    return _loadStencilaArchive(
+      archiveId,
+      context,
+      this.props.storageType,
+      this.props.storageUrl
+    )
+  }
+
+  _initArchive(archive, context) {
+    return _initStencilaArchive(archive, context)
+  }
+}
+
+
+function _renderStencilaApp($$, app) {
+  let el = $$('div').addClass('sc-app')
+  let { archive, error } = app.state
+  if (archive) {
+    el.append(
+      $$(Project, {
+        documentArchive: archive
+      })
+    )
+  } else if (error) {
+    if (error.type === 'jats-import-error') {
+      el.append(
+        $$(JATSImportDialog, { errors: error.detail })
+      )
+    } else {
+      el.append(
+        'ERROR:',
+        error.message
+      )
+    }
+  } else {
+    // LOADING...
+  }
+  return el
+}
+
+
+function _setupStencilaChildContext(originalContext) {
+  const context = setupStencilaContext()
+  return Object.assign({}, originalContext, context)
+}
+
+function _initStencilaContext(context) {
+  return context.host.initialize()
+}
+
+function _loadStencilaArchive(archiveId, context, storageType, storageUrl) {
+  let storage
+  if (storageType==='vfs') {
+    storage = new VfsStorageClient(window.vfs, './examples/')
+  } else {
+    storage = new HttpStorageClient(storageUrl)
+  }
+  let buffer = new InMemoryDarBuffer()
+  let archive = new StencilaArchive(storage, buffer, context)
+  return archive.load(archiveId)
+}
+
+
+function _initStencilaArchive(archive, {engine}) {
+  // register documents and sheets with the engine
+  let entries = archive.getDocumentEntries()
+  forEach(entries, entry => {
+    let { id, type } = entry
+    let editorSession = archive.getEditorSession(id)
+    let Adapter
+    if (type === 'article') {
+      Adapter = ArticleAdapter
+    } else if (type === 'sheet') {
+      Adapter = SheetAdapter
+    }
+    if (Adapter) {
+      Adapter.connect(engine, editorSession, id)
+    }
+  })
+  // start the engine
+  const ENGINE_REFRESH_INTERVAL = 10 // ms
+  engine.run(ENGINE_REFRESH_INTERVAL)
+  return Promise.resolve(archive)
 }
