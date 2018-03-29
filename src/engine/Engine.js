@@ -339,6 +339,7 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     const id = action.id
     const cell = graph.getCell(id)
+    cell.errors = []
     // in case of constants, casting the string into a value,
     // updating the cell graph and returning without further evaluation
     if (cell.isConstant()) {
@@ -350,7 +351,6 @@ export default class Engine extends EventEmitter {
     }
     // TODO: we need to reset the cell status. Should we let CellGraph do this?
     cell.status = UNKNOWN
-    cell.errors = []
     // otherwise the cell source is assumed to be dynamic source code
     const transpiledSource = cell.transpiledSource
     const lang = cell.getLang()
