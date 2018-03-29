@@ -1,6 +1,6 @@
 import { uuid, isString, EventEmitter, flatten } from 'substance'
 import CellGraph from './CellGraph'
-import { ContextError, RuntimeError } from './CellErrors'
+import { ContextError, RuntimeError, SyntaxError } from './CellErrors'
 import { UNKNOWN, ANALYSED, READY } from './CellStates'
 import Cell from './Cell'
 import CellSymbol from './CellSymbol'
@@ -290,6 +290,7 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     let cell = graph.getCell(id)
     Object.assign(cell, cellData)
+    cell.status = UNKNOWN
     this._nextActions.set(id, {
       id,
       type: 'analyse',
@@ -378,16 +379,26 @@ export default class Engine extends EventEmitter {
         // console.log('action has been superseded')
         return
       }
-      // console.log('analysed cell', cell, res)
-      // transform the extracted symbols into fully-qualified symbols
-      // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
-      let { inputs, output } = this._compile(res, cell)
-      this._nextActions.set(id, {
-        type: 'register',
-        id,
-        inputs,
-        output
-      })
+      // Note: treating all errors coming from analyseCode() as SyntaxErrors
+      // TODO: we might want to be more specific here
+      if (res.messages && res.messages.length > 0) {
+        // TODO: we should not need to set this manually
+        cell.status = ANALYSED
+        graph.addErrors(id, res.messages.map(err => {
+          return new SyntaxError(err.message)
+        }))
+      } else {
+        // console.log('analysed cell', cell, res)
+        // transform the extracted symbols into fully-qualified symbols
+        // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
+        let { inputs, output } = this._compile(res, cell)
+        this._nextActions.set(id, {
+          type: 'register',
+          id,
+          inputs,
+          output
+        })
+      }
     })
   }
 
