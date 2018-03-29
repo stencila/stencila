@@ -9,14 +9,19 @@ import ContextHttpClient from '../contexts/ContextHttpClient'
 
 /**
  * Each Stencila process has a single instance of the `Host` class which
- * orchestrates instances of other classes.
+ * orchestrates instances of executions contexts, including those in 
+ * in other processses.
  */
 export default class Host extends EventEmitter {
 
   constructor (options = {}) {
     super()
 
-
+    /**
+     * The id of this host. Used by other Stencila
+     * hosts to uniquely identify this host.
+     * e.g for sequence numbers when authenticating requests
+     */
     this._id = 'client-host-' + uuid()
 
     /**
