@@ -1,6 +1,6 @@
 import { EventEmitter, uuid } from 'substance'
 
-import { GET, POST } from '../util/requests'
+import { GET, POST, DELETE } from '../util/requests'
 import FunctionManager from '../function/FunctionManager'
 import Engine from '../engine/Engine'
 import JsContext from '../contexts/JsContext'
@@ -24,6 +24,33 @@ export default class Host extends EventEmitter {
     this._options = options
 
     /**
+     * Stencila hosts known to this host.
+     * A `Map` of `url` to `key`
+     * 
+     * @type {Map}
+     */
+    this._hosts = new Map()
+
+    /**
+     * Execution environments provided by other hosts.
+     * A `Map` of `url` to `[environ]`
+     * 
+     * @type {Map}
+     */
+    this._environs = new Map()
+
+
+    this._environ = 'local'
+
+    /**
+     * Stencila hosts that are peers (i.e. within the same
+     * execution environment). A `Map` of `url` to `manifest`.
+     *
+     * @type {Map}
+     */
+    this._peers = new Map()
+
+    /**
      * Instances managed by this host
      *
      * @type {object}
@@ -45,16 +72,6 @@ export default class Host extends EventEmitter {
      * @type {object}
      */
     this._counts = {}
-
-    this._environs = {}
-
-    /**
-     * Peer manifests which detail the capabilities
-     * of each of this host's peers
-     *
-     * @type {object}
-     */
-    this._peers = {}
 
     /**
      * Execution engine for scheduling execution across contexts
@@ -102,6 +119,20 @@ export default class Host extends EventEmitter {
   }
 
   /**
+   * Get known hosts
+   */
+  get hosts () {
+    return this._hosts
+  }
+
+  /**
+   * Get the environments registered with this host
+   */
+  get environs () {
+    return this._environs
+  }
+
+  /**
    * Get this host's peers
    */
   get peers () {
@@ -146,20 +177,19 @@ export default class Host extends EventEmitter {
 
     let promises = [Promise.resolve()]
 
-    // Seed with specified peers
-    let peers = options.peers
-    if (peers) {
-      // Add the initial peers
-      for (let url of peers) {
+    // Seed with specified hosts
+    let hosts = options.hosts
+    if (hosts) {
+      for (let url of hosts) {
         if (url === 'origin') url = options.origin
-        let promise = this.pokePeer(url)
+        let promise = this.registerHost(url)
         promises.push(promise)
       }
     }
 
     // Start discovery of other peers
     if (options.discover) {
-      this.discoverPeers(options.discover)
+      this.discoverHosts(options.discover)
     }
 
     return Promise.all(promises).then(() => {
@@ -167,6 +197,98 @@ export default class Host extends EventEmitter {
       // to create contexts for external languages like R, SQL etc
       this._engine = new Engine(this)
     })
+  }
+
+  selectEnviron (environId) {
+    if (environId !== this._environ) {
+      this._environ = environId
+      this.emit('environ:changed')
+      return this.deselectHost()
+    }
+  }
+
+  registerHost (url, key = null, optimistic = false) {
+    return GET(url + '/manifest').then(manifest => {
+      if (manifest.stencila) {
+        const host = {
+          key,
+          manifest,
+          messages: []
+        }
+        this._hosts.set(url, host)
+        this.emit('hosts:changed')
+      }
+    }).catch((error) => {
+      if (!optimistic) throw error
+    })
+  }
+
+  deregisterHost (url) {
+    this._hosts.delete(url)
+    this.emit('hosts:changed')
+  }
+
+  selectHost (hostUrl) {
+    this._hosts.get(hostUrl).selected = true
+    this.emit('hosts:changed')
+    return POST(hostUrl + '/environ/' + this._environ).then(location => {
+      let peerUrl
+      if (location.url) peerUrl = location.url
+      else if (location.path) peerUrl = hostUrl + location.path
+      else peerUrl = hostUrl
+      return GET(peerUrl + '/manifest').then(manifest => {
+        this._peers.set(peerUrl, manifest)
+        this.emit('peers:changed')
+      })
+    })
+  }
+
+  deselectHost (url) {
+    let host = this._hosts.get(url)
+    if (host.selected) {
+      host.selected = false
+      this.emit('hosts:changed')
+      return DELETE(url + '/environ/' + this._environ).then(() => {
+        this._peers.delete(url)
+        this.emit('peers:changed')
+      })
+    }
+  }
+
+  /**
+   * Discover peers
+   *
+   * Currently, this method just does a port scan on the localhost to find
+   * peers. More sophisticated peer discovery mechanisms for remote peers
+   * will be implemented later.
+   *
+   * Unfortunately if a port is not open then you'll get a console error like
+   * `GET http://127.0.0.1:2040/ net::ERR_CONNECTION_REFUSED`. In Chrome, this can
+   * not be avoided programatically (see http://stackoverflow.com/a/43056626/4625911).
+   * The easiest approach is silence these errors in Chrome is to check the
+   * 'Hide network' checkbox in the console filter.
+   *
+   * Set the `interval` parameter to a value greater than zero to trigger ongoing discovery and
+   * to a negative number to turn off discovery.
+   *
+   * @param {number} interval - The interval (seconds) between discovery attempts
+   */
+  discoverHosts (interval=10) {
+    this.options.discover = interval
+    if (interval >= 0) {
+      for (let port=2000; port<=2100; port+=10) {
+        this.registerHost(`http://127.0.0.1:${port}`, null, true)
+      }
+      if (interval > 0) {
+        this.discoverHosts(-1) // Ensure any existing interval is turned off
+        this._discoverHostsInterval = setInterval(() => this.discoverHosts(0), interval*1000)
+      }
+    } else {
+      if (this._discoverHostsInterval) {
+        clearInterval(this._discoverHostsInterval)
+        this._discoverHostsInterval = null
+      }
+    }
   }
 
   /**
@@ -299,91 +421,6 @@ export default class Host extends EventEmitter {
         })
         this._contexts[language] = promise
         return promise
-      }
-    }
-  }
-
-  registerEnvirons (url) {
-    return GET(url + '/environs').then(environs => {
-      this._environs[url] = environs.map(environ => {
-        return Object.assign(environ, {
-          uuid: url + environ.id,
-          origin: url
-        })
-      })
-      this.emit('environs:registered')
-    }).catch(() => {
-      delete this._environs[url]
-    })
-  }
-
-  /**
-   * Generate a map of environment ids to the hosts that support them
-   */
-  mapEnvirons () {
-    let map = {}
-    for (let environs of Object.values(this._environs)) {
-      for (let environ of environs) {
-        let hosts = map[environ.id] || []
-        let selected = environ.uuid === (this._environ && this._environ.uuid)
-        hosts.push(Object.assign(environ, {selected}))
-        map[environ.id] = hosts
-      }
-    }
-    return map
-  }
-
-  /**
-   * Select an environment for a peer remote host
-   */
-  selectEnviron (environ) {
-    let url = environ.url
-    if (!url) url = environ.origin + environ.path
-    return GET(url + '/manifest').then(manifest => {
-      // Currently, selecting this environment for a single peer host
-      this._peers = {}
-      this._peers[url] = manifest
-      this._environ = environ
-      this.emit('environ:selected')
-    }).catch((error) => {
-      if (error && (error.status === 403 || (error.body && error.body.error === 'Forbidden'))) {
-        this.emit('environ:authenticate', environ)
-      }
-    })
-  }
-
-  /**
-   * Discover peers
-   *
-   * Currently, this method just does a port scan on the localhost to find
-   * peers. More sophisticated peer discovery mechanisms for remote peers
-   * will be implemented later.
-   *
-   * Unfortunately if a port is not open then you'll get a console error like
-   * `GET http://127.0.0.1:2040/ net::ERR_CONNECTION_REFUSED`. In Chrome, this can
-   * not be avoided programatically (see http://stackoverflow.com/a/43056626/4625911).
-   * The easiest approach is silence these errors in Chrome is to check the
-   * 'Hide network' checkbox in the console filter.
-   *
-   * Set the `interval` parameter to a value greater than zero to trigger ongoing discovery and
-   * to a negative number to turn off discovery.
-   *
-   * @param {number} interval - The interval (seconds) between discovery attempts
-   */
-  discoverPeers (interval=10) {
-    this.options.discover = interval
-    if (interval >= 0) {
-      for (let port=2000; port<=2100; port+=10) {
-        this.registerEnvirons(`http://127.0.0.1:${port}`)
-      }
-      if (interval > 0) {
-        this.discoverPeers(-1) // Ensure any existing interval is turned off
-        this._dicoverPeersInterval = setInterval(() => this.discoverPeers(0), interval*1000)
-      }
-    } else {
-      if (this._dicoverPeersInterval) {
-        clearInterval(this._dicoverPeersInterval)
-        this._dicoverPeersInterval = null
       }
     }
   }

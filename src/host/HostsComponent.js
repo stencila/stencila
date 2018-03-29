@@ -6,16 +6,14 @@ export default class HostsComponent extends Component {
     super(...args)
 
     let host = this.context.host
-    host.on('environs:registered', () => this.rerender())
-    host.on('environ:selected', () => this.rerender())
-    host.on('environ:authenticate', (environ) => this._onEnvironAuthenticate(environ))
-    host.on('instance:created', () => this.rerender())
+    host.on('environ:changed', () => this.rerender())
+    host.on('hosts:changed', () => this.rerender())
+    host.on('peers:changed', () => this.rerender())
   }
 
   getInitialState() {
     let host = this.context.host
     return {
-      environ: null,
       hostAddShow: false,
       discover: host.options.discover >= 0
     }
@@ -23,19 +21,28 @@ export default class HostsComponent extends Component {
 
   render($$) {
     let host = this.context.host
-    let environs = host.mapEnvirons()
-    let selectedEnviron = this.state.environ || Object.keys(environs)[0]
+    
+    // Generate a list of available enviroments from the
+    // registered hosts
+    let availableEnvirons = {}
+    for (let [url, otherHost] of host.hosts) {
+      for (let environ of otherHost.manifest.environs) {
+        availableEnvirons[environ.id] = environ
+      }
+    }
+
+    let selectedEnviron = host._environ || Object.keys(availableEnvirons)[0]
 
     let el = $$('div').addClass('sc-hosts')
 
     let environEl = $$('div').addClass('se-environ').append(
       $$('div').addClass('se-label').append('Select an execution environment:')
     )
-    if (Object.keys(environs).length) {
+    if (Object.keys(availableEnvirons).length) {
       let environSelect = $$('select').addClass('se-environ-select')
         .ref('environSelect')
         .on('change', this._onEnvironChange)
-      Object.keys(environs).sort().forEach(environ => {
+      Object.keys(availableEnvirons).sort().forEach(environ => {
         let option = $$('option').attr('value', environ).text(environ)
         if (selectedEnviron === environ) option.attr('selected', 'true')
         environSelect.append(option)
@@ -50,13 +57,11 @@ export default class HostsComponent extends Component {
     let hostsEl = $$('div').addClass('se-hosts').append(
       $$('span').addClass('se-label').append('Select a host for environment:')
     )
-    let hostList = $$('div').addClass('se-host-list')
-    // List the hosts that provide the selected environment
-    let environsHosts = environs[selectedEnviron]
-    if (environsHosts) {
-      environsHosts.forEach(environ => {
-        let name = environ.origin
-        let match = environ.origin.match(/^https?:\/\/([^:]+)(:(\d+))?/)
+    if (host.hosts.size) {
+      let hostList = $$('div').addClass('se-host-list')
+      for (let [url, otherHost] of host.hosts) {
+        let name = url
+        let match = url.match(/^https?:\/\/([^:]+)(:(\d+))?/)
         if (match) {
           let domain = match[1]
           if (domain === '127.0.0.1') domain = 'localhost'
@@ -64,77 +69,97 @@ export default class HostsComponent extends Component {
           let port = match[3]
           if(port) name += ':' + port
         }
-        if (environ.path.length) name += '/' + environ.path
+        let nameEl = $$('div').addClass('se-name').append(name)
+
+        let environsEl = $$('div').addClass('se-host-environs')
+        for (let environ of otherHost.manifest.environs) {
+          environsEl.append($$('span').addClass('se-host-environ').append(environ.id))
+        }
+
         let hostItem = $$('div').addClass('se-host-item').append(
-          $$('div').addClass('se-name').append(name)
-        ).on('click', this._onEnvironSelected.bind(this, environ))
-        if (environ.selected) hostItem.addClass('sm-selected')
+          nameEl, environsEl
+        ).on('click', this._onHostClick.bind(this, url, otherHost))
+        if (otherHost.selected) hostItem.addClass('sm-selected')
         hostList.append(hostItem)
-      })
+      }
+      hostsEl.append(hostList)
     } else {
-      hostList.append(
-        $$('div').addClass('se-message').text(`No registered hosts provide ${this.state.environ}`)
+      hostsEl.append(
+        $$('div').addClass('se-message').text(`No registered hosts provide ${selectedEnviron}`)
       )
     }
-    hostsEl.append(hostList)
-    if (true) {//(this.state.hostAddShow) {
-      hostsEl.append(
-        $$('div').addClass('se-host-add').append(
-          $$('div').append(
-            $$('span').addClass('se-label').append('Add a host'),
-            $$('input').addClass('se-input').attr({'placeholder': 'URL e.g. http://127.0.0.1:2100'})
-              .ref('urlInput'),
-            $$('input').addClass('se-input').attr({'placeholder': 'Key'})
-              .ref('keyInput'),
-            $$('button').addClass('se-button')
-              .text('Add')
-              .on('click', this._onHostAdd)
-          ),
-          $$('div').append(
-            $$('span').addClass('se-label').append('Auto-discover hosts'),
-            $$('input').attr({type: 'checkbox'}).addClass('se-checkbox')
-              .attr(this.state.discover ? 'checked' : 'unchecked', true)
-              .on('change', this._onDiscoverToggle)
-          )
+    
+    /*
+    hostsEl.append(
+      $$('div').addClass('se-host-add').append(
+        $$('div').append(
+          $$('span').addClass('se-label').append('Add a host'),
+          $$('input').addClass('se-input').attr({'placeholder': 'URL e.g. http://127.0.0.1:2100'})
+            .ref('urlInput'),
+          $$('input').addClass('se-input').attr({'placeholder': 'Key'})
+            .ref('keyInput'),
+          $$('button').addClass('se-button')
+            .text('Add')
+            .on('click', this._onHostAdd)
+        ),
+        $$('div').append(
+          $$('span').addClass('se-label').append('Auto-discover hosts'),
+          $$('input').attr({type: 'checkbox'}).addClass('se-checkbox')
+            .attr(this.state.discover ? 'checked' : 'unchecked', true)
+            .on('change', this._onDiscoverToggle)
         )
       )
+    )
+    */
+   
+    let peersEl = $$('div').addClass('se-peers').append(
+      $$('span').addClass('se-label').append('Connected execution environments:')
+    )
+    if (host.peers.size) {
+      let peerList = $$('div').addClass('se-peer-list')
+      for (let [url, manifest] of host.peers) {
+        let name = url
+        let match = url.match(/^https?:\/\/([^:]+)(:(\d+))?/)
+        if (match) {
+          let domain = match[1]
+          if (domain === '127.0.0.1') domain = 'localhost'
+          name = domain
+          let port = match[3]
+          if(port) name += ':' + port
+        }
+        name += '/' + (manifest.environs && manifest.environs[0] && manifest.environs[0].id)
+        let nameEl = $$('div').addClass('se-name').append(name)
+
+        let contextsEl = $$('div').addClass('se-peer-contexts')
+        for (let [name, spec] of Object.entries(manifest.types)) {
+          contextsEl.append($$('span').addClass('se-peer-context').append(name))
+        }
+
+        peerList.append($$('div').addClass('se-peer-item').append(
+          nameEl, contextsEl
+        ))
+      }
+      peersEl.append(peerList)
     } else {
-      hostsEl.append(
-        $$('button').addClass('se-button')
-          .append($$(FontAwesomeIcon, {icon: 'fa-plus' }))
-          .append('Add host')
-          .on('click', this._onHostAddToggle)
+      peersEl.append(
+        $$('div').addClass('se-message').text('No external execution environments connected')
       )
     }
 
-    el.append(
-      environEl,
-      hostsEl
-    )
+    el.append(environEl, hostsEl, peersEl)
     return el
   }
 
   _onEnvironChange() {
     const environSelect = this.refs.environSelect
     const environ = environSelect.val()
-    this.setState({environ: environ})
-  }
-
-  _onEnvironSelected(environ) {
-    let host = this.context.host
     host.selectEnviron(environ)
   }
 
-  _onEnvironAuthenticate(environ) {
-    console.log('TODO: Prompt for key for environ with uuid: ' + environ.uuid)
-  }
-
-  _onHostAddToggle() {
-    if (this.state.hostAddShow) {
-      this.setState({hostAddShow: false})
-    } else {
-      this.setState({hostAddShow: true})
-    } 
+  _onHostClick(url, otherHost) {
+    let host = this.context.host
+    if (!otherHost.selected) host.selectHost(url)
+    else host.deselectHost(url)
   }
 
   _onHostAdd() {
@@ -143,16 +168,16 @@ export default class HostsComponent extends Component {
     const keyInput = this.refs.keyInput
     const key = keyInput.val()
     let host = this.context.host
-    host.registerPeer(url, key)
+    host.registerHost(url, key)
   }
 
   _onDiscoverToggle() {
     let host = this.context.host
     if (this.state.discover) {
-      host.discoverPeers(-1)
+      host.discoverHosts(-1)
       this.setState({discover: false})
     } else {
-      host.discoverPeers(10)
+      host.discoverHosts(10)
       this.setState({discover: true})
     }
   }

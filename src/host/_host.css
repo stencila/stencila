@@ -2,26 +2,27 @@
   display: flex;
   height: calc(100vh - 35px);
   flex-direction: column;
+  font-family: var(--sans-font-family);
 }
 
 .sc-hosts .se-label {
   color: #555;
   font-weight: bold;
-  font-size: 0.7em;
+  font-size: 0.8em;
 }
 
 .sc-hosts .se-message {
-  border: 1px solid #AAA;
-  border-radius: 3px;
+  background: white;
+  border-left: 3px solid red;
   padding: 0.5em;
-  font-size: 0.8em;
+  font-size: 0.9em;
   line-height: 1.1em;
-  background: #ffeaea;
   color: #555;
 }
 
 .sc-hosts .se-environ,
-.sc-hosts .se-hosts {
+.sc-hosts .se-hosts,
+.sc-hosts .se-peers {
   padding: 1em;
 }
 
@@ -29,25 +30,33 @@
   width: 100%;
   background: white;
   padding: 0.5em;
-  border-radius: 3px;
+  border: none;
+  font-family: var(--mono-font-family);
   font-size: 0.9em;
 }
 
-.sc-hosts .se-host-item .se-type {
-  position: relative;
-  margin-left: 0.5em;
+.sc-hosts .se-host-item,
+.sc-hosts .se-peer-item {
+  background: white;
+  border-left: 3px solid white;
+  font-family: var(--mono-font-family);
+  font-size: 0.9em;
+  padding: 0.5em;
+  margin: 0.2em 0;
 }
 
-.sc-hosts .se-host-item .se-type::before {
-  content: " ";
-  position: absolute;
-  left: -0.5em;
-  margin: 0.6em 0;
-  width: 0.3em;
-  height: 0.3em;
-  border-radius: 50%;
+.sc-hosts .se-host-item .se-host-environ,
+.sc-hosts .se-peer-item .se-peer-context {
+  display: inline-block;
+  line-height: 100%;
+  margin-right: 3px;
+  background: #EEE;
+  padding: 5px;
+  font-size: 0.9em;
+  color: #555;
 }
 
-.sc-hosts .se-host-item.sm-selected {
-  background: #bcffb4;
+.sc-hosts .se-host-item.sm-selected,
+.sc-hosts .se-peer-item {
+  border-left-color: var(--stencila-green);
 }
