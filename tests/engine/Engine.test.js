@@ -547,6 +547,42 @@ test('Engine: run all cells in manual execution mode', t => {
   })
 })
 
+test('Engine: cells with errors should not be scheduled (manual mode)', t => {
+  t.plan(3)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    autorun: false,
+    cells: [
+      '6 * 2',
+    ]
+  })
+  let cells = doc.getCells()
+  _play(engine)
+  .then(() => {
+    engine._allowRunningAllCellsOfDocument('doc1')
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getValues(cells), [12], 'cells should have been computed')
+  })
+  .then(() => {
+    doc.updateCell(cells[0].unqualifiedId, { source: '6 * 2 +'})
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getStates(cells), ['broken'], 'cell should be broken')
+  })
+  .then(() => {
+    doc.updateCell(cells[0].unqualifiedId, { source: '6 * 2 + 1'})
+  })
+  .then(() => _play(engine))
+  .then(() => {
+    t.deepEqual(_getStates(cells), ['ready'], 'cell should be ready')
+  })
+})
+
 /*
   Waits for all actions to be finished.
   This is the slowest kind of scheduling, as every cycle
