@@ -539,7 +539,6 @@ test('Engine: run all cells in manual execution mode', t => {
   let cells = doc.getCells()
   _play(engine)
   .then(() => {
-    debugger
     engine._allowRunningAllCellsOfDocument('doc1')
   })
   .then(() => _play(engine))
