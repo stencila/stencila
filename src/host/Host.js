@@ -431,13 +431,14 @@ export default class Host extends EventEmitter {
 
   _token(url) {
     const host = this._hosts.get(url)
+    if (!host) return
     const key = host.key
+    if (!key) return
     const iat = Math.round(Date.now() / 1000)
     const hid = this._id
     const seq = host.sent + 1
     host.sent = seq
     const payload = { iat, hid, seq }
-    console.log(payload)
     const token = KJUR.jws.JWS.sign('HS256', '{"alg":"HS256","typ":"JWT"}', payload, {rstr: key})
     return token
   }
