@@ -34,6 +34,15 @@ class TableValueComponent extends Component {
         })
         tbody.append(tr)
       }
+      if (this.props.pointer) {
+        let tr = $$('tr')
+        columnNames.forEach(()=>{
+          tr.append(
+            $$('td').text('...')
+          )
+        })
+        tbody.append(tr)  
+      }
       tableEl.append(tbody)
     }
     el.append(tableEl)
