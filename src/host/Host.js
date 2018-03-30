@@ -192,7 +192,7 @@ export default class Host extends EventEmitter {
         let key = null
         if (url === 'origin') url = options.origin
         else if (url.indexOf('|') > -1) {
-          let parts =  url.split('|')
+          let parts = url.split('|')
           url = parts[0]
           key = parts[1]
         }
@@ -207,6 +207,17 @@ export default class Host extends EventEmitter {
     }
 
     return Promise.all(promises).then(() => {
+      const urls = Array.from(this._hosts.keys())
+      if (urls.length > 0) {
+        const url = urls[0]
+        const host = this._hosts.get(url)
+        const environs = host.manifest.environs
+        if (environs.length > 0) {
+          this.selectEnviron(environs[0].id)
+          return this.selectHost(url)
+        }
+      }
+    }).then(() => {
       // Instantiate the engine after connecting to any peer hosts so that they are connected to before the engine attempts
       // to create contexts for external languages like R, SQL etc
       this._engine = new Engine(this)
@@ -217,7 +228,6 @@ export default class Host extends EventEmitter {
     if (environId !== this._environ) {
       this._environ = environId
       this.emit('environ:changed')
-      return this.deselectHost()
     }
   }
 
@@ -259,9 +269,8 @@ export default class Host extends EventEmitter {
   }
 
   deselectHost (url) {
-    let host = this._hosts.get(url)
-    if (host.selected) {
-      host.selected = false
+    if (this._hosts.has(url)) {
+      this._hosts.get(url).selected = false
       this.emit('hosts:changed')
       return this._delete(url, '/environ/' + this._environ).then(() => {
         this._peers.delete(url)
@@ -323,7 +332,6 @@ export default class Host extends EventEmitter {
     // Look for type in peer hosts
     for (let [url, manifest] of this._peers) {
       for (let spec of Object.values(manifest.types)) {
-        console.log(url, manifest)
         if (spec.name === type) {
           return this._post(url, '/' + type, args).then(id => {
             let Client

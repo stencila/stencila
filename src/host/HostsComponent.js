@@ -1,4 +1,4 @@
-import { Component, FontAwesomeIcon } from 'substance'
+import { Component } from 'substance'
 
 export default class HostsComponent extends Component {
 
@@ -25,7 +25,7 @@ export default class HostsComponent extends Component {
     // Generate a list of available enviroments from the
     // registered hosts
     let availableEnvirons = {}
-    for (let [url, otherHost] of host.hosts) {
+    for (let otherHost of host.hosts.values()) {
       for (let environ of otherHost.manifest.environs) {
         availableEnvirons[environ.id] = environ
       }
@@ -131,7 +131,7 @@ export default class HostsComponent extends Component {
         let nameEl = $$('div').addClass('se-name').append(name)
 
         let contextsEl = $$('div').addClass('se-peer-contexts')
-        for (let [name, spec] of Object.entries(manifest.types)) {
+        for (let name of Object.keys(manifest.types)) {
           contextsEl.append($$('span').addClass('se-peer-context').append(name))
         }
 
@@ -151,6 +151,7 @@ export default class HostsComponent extends Component {
   }
 
   _onEnvironChange() {
+    let host = this.context.host
     const environSelect = this.refs.environSelect
     const environ = environSelect.val()
     host.selectEnviron(environ)
