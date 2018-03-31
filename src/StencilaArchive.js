@@ -7,26 +7,31 @@ export default class StencilaArchive extends TextureArchive {
 
   constructor(storage, buffer, context) {
     super(storage, buffer)
-
     this._context = context
   }
 
   _loadDocument(type, record, sessions) {
     let context = this._context
+    let editorSession
     switch (type) {
       case 'article': {
         context = Object.assign({}, this._context, {
           pubMetaDb: sessions['pub-meta'].getDocument(),
           archive: this
         })
-        return ArticleLoader.load(record.data, context)
+        editorSession = ArticleLoader.load(record.data, context)
+        break
       }
       case 'sheet': {
-        return SheetLoader.load(record.data, context)
+        editorSession = SheetLoader.load(record.data, context)
+        break
       }
       default:
         throw new Error('Unsupported document type')
     }
+    let doc = editorSession.getDocument()
+    doc.documentType = type
+    return editorSession
   }
 
   _exportDocument(type, session, sessions) {
@@ -64,5 +69,11 @@ export default class StencilaArchive extends TextureArchive {
     let entries = this.getDocumentEntries()
     let firstEntry = entries[0]
     return firstEntry.name || firstEntry.id
+  }
+
+  getDocumentType(documentId) {
+    let editorSession = this.getEditorSession(documentId)
+    let doc = editorSession.getDocument()
+    return doc.documentType
   }
 }

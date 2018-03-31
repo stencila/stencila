@@ -42,24 +42,28 @@ export function _initStencilaContext(context) {
   return context.host.initialize()
 }
 
-export function _initStencilaArchive(archive, {engine}) {
+export function _initStencilaArchive(archive, context) {
+  // start the engine
+  const ENGINE_REFRESH_INTERVAL = 10 // ms
+  context.engine.run(ENGINE_REFRESH_INTERVAL)
   // register documents and sheets with the engine
   let entries = archive.getDocumentEntries()
   forEach(entries, entry => {
-    let { id, type } = entry
-    let editorSession = archive.getEditorSession(id)
-    let Adapter
-    if (type === 'article') {
-      Adapter = ArticleAdapter
-    } else if (type === 'sheet') {
-      Adapter = SheetAdapter
-    }
-    if (Adapter) {
-      Adapter.connect(engine, editorSession, id)
-    }
+    _connectDocumentToEngine(archive, entry.id, context)
   })
-  // start the engine
-  const ENGINE_REFRESH_INTERVAL = 10 // ms
-  engine.run(ENGINE_REFRESH_INTERVAL)
   return Promise.resolve(archive)
+}
+
+export function _connectDocumentToEngine(archive, documentId, { engine }) {
+  let editorSession = archive.getEditorSession(documentId)
+  let docType = archive.getDocumentType(documentId)
+  let Adapter
+  if (docType === 'article') {
+    Adapter = ArticleAdapter
+  } else if (docType === 'sheet') {
+    Adapter = SheetAdapter
+  }
+  if (Adapter) {
+    Adapter.connect(engine, editorSession, documentId)
+  }
 }
