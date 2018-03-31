@@ -45,7 +45,7 @@
     "stencila-libcore": "^0.2.8",
     "stencila-mini": "^0.14.0",
     "substance": "1.0.0-preview.34",
-    "substance-texture": "^1.0.0-preview.1.4",
+    "substance-texture": "^1.0.0-preview.1.5",
     "timeago.js": "3.0.0",
     "xmlhttprequest": "^1.8.0"
   },
