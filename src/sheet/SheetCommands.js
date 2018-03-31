@@ -1,6 +1,5 @@
 import { Command } from 'substance'
 import { getRange } from './sheetHelpers'
-import { getCellExpressions } from '../shared/expressionHelpers'
 import { transformCellRangeExpressions } from '../shared/cellHelpers'
 
 class RowsCommand extends Command {

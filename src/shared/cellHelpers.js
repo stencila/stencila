@@ -193,7 +193,7 @@ export function transformCellRangeExpressions(source, params) {
     if(transformed !== symbol.name) {
       let subs
       if (symbol.scope) {
-        subs = "'" + symbol.scope + "'" + '!' + transformed
+        subs = ["'",symbol.scope,"'",'!',transformed].join('')
       } else {
         subs = transformed
       }

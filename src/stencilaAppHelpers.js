@@ -98,7 +98,7 @@ function _onManifestChange(archive, change) {
   let action = change.info.action
   switch(action) {
     case 'renameDocument': {
-      console.log('TODO: transform transclusions')
+      console.warn('TODO: transform transclusions')
       break
     }
     default:
