@@ -9,15 +9,16 @@ export class DocumentAdapter {
   // TODO: dicuss ownership of 'name'
   // It seems that this is a property inside the manifest,
   // and not part of the JATS file
-  constructor(engine, editorSession, name) {
+  constructor(engine, editorSession, id, name) {
     this.engine = engine
     this.editorSession = editorSession
     this.doc = editorSession.getDocument()
+    this.id = id || uuid()
+    this.name = name
     // a unique id to identify documents (e.g. used as for variable scopes and transclusions)
     // WORKAROND: because Substance Document does not provide a setter
     // for `id` we are setting the underlying property directly
-    if (!this.doc.id) this.doc.__id__ = uuid()
-    this.name = name
+    if (!this.doc.id) this.doc.__id__ = this.id
 
     this._initialize()
   }
