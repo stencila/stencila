@@ -1,7 +1,7 @@
 import { Command } from 'substance'
 import { getRange } from './sheetHelpers'
 import { getCellExpressions } from '../shared/expressionHelpers'
-import { transformCellRangeExpression } from '../shared/cellHelpers'
+import { transformCellRangeExpressions } from '../shared/cellHelpers'
 
 class RowsCommand extends Command {
 
@@ -311,15 +311,8 @@ export class SelectAllCommand extends Command {
 
 function transformCellExpressions(cell, params) {
   let source = cell.textContent
-  const symbols = getCellExpressions(source)
-  for (let i = symbols.length-1; i >= 0; i--) {
-    const symbol = symbols[i]
-    const tExp = transformCellRangeExpression(symbol.text, params)
-    if(symbol.text !== tExp) {
-      source = source.substring(0, symbol.startPos) + tExp + source.substring(symbol.endPos)
-    }
-  }
-  if(cell.source !== source) {
-    cell.textContent = source
+  let newSource = transformCellRangeExpressions(source, params)
+  if(source !== newSource) {
+    cell.textContent = newSource
   }
 }
