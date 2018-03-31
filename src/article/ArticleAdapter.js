@@ -1,4 +1,5 @@
 import { DocumentAdapter, mapCellState } from '../shared/DocumentAdapter'
+import { getSource, getLang } from '../shared/cellHelpers'
 
 /*
   Connects Engine and Article.
@@ -96,8 +97,8 @@ export default class ArticleAdapter extends DocumentAdapter {
       updated.forEach(id => {
         const cell = this.doc.get(id)
         const cellData = {
-          source: _getSource(cell),
-          lang: _getLang(cell)
+          source: getSource(cell),
+          lang: getLang(cell)
         }
         model.updateCell(id, cellData)
       })
@@ -112,33 +113,16 @@ export default class ArticleAdapter extends DocumentAdapter {
   }
 
 
-  static connect(engine, editorSession, name) {
-    return new ArticleAdapter(engine, editorSession, name)
+  static connect(engine, editorSession, id, name) {
+    return new ArticleAdapter(engine, editorSession, id, name)
   }
-}
-
-function _getSourceElement(node) {
-  // ATTENTION: this caching would be problematic if the cell element
-  // was changed structurally. But we do not do this.
-  if (!node._sourceEl) {
-    node._sourceEl = node.find('source-code')
-  }
-  return node._sourceEl
-}
-
-function _getSource(node) {
-  return _getSourceElement(node).textContent
-}
-
-function _getLang(node) {
-  return _getSourceElement(node).getAttribute('language')
 }
 
 function _getCellData(cell) {
   return {
     id: cell.id,
-    lang: _getLang(cell),
-    source: _getSource(cell)
+    lang: getLang(cell),
+    source: getSource(cell)
   }
 }
 
