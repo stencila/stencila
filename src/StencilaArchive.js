@@ -61,7 +61,6 @@ export default class StencilaArchive extends TextureArchive {
     }
   }
 
-
   /*
     We use the name of the first document
   */
@@ -76,4 +75,13 @@ export default class StencilaArchive extends TextureArchive {
     let doc = editorSession.getDocument()
     return doc.documentType
   }
+
+  // TODO: added 'info.action'; this should go into substance.PersistedDocumentArchive
+  renameDocument(documentId, name) {
+    this._sessions.manifest.transaction(tx => {
+      let docEntry = tx.find(`#${documentId}`)
+      docEntry.attr({name})
+    }, { action: 'renameDocument' })
+  }
+
 }
