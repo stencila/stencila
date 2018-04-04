@@ -20,6 +20,7 @@ Stencila functions can be implemented using Javascript. To match Stencila's call
 function square(value) {
   return value * value
 }
+square.pars = ['value']
 ```
 
 
