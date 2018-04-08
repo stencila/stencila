@@ -38,6 +38,7 @@
     "acorn": "^4.0.11",
     "astring": "^1.0.5",
     "font-awesome": "^4.6.3",
+    "jsrsasign": "^8.0.7",
     "katex": "^0.6.0",
     "lodash": "^4.17.4",
     "lodash.throttle": "^4.1.1",

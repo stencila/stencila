@@ -1,4 +1,3 @@
-import {PUT} from '../util/requests'
 import Context from './Context'
 
 /**
@@ -11,27 +10,11 @@ import Context from './Context'
  */
 export default class ContextHttpClient extends Context {
 
-  constructor(url) {
+  constructor(host, url, name) {
     super()
-    this.url = url
-  }
-
-  /**
-   * Get the list of supported programming languages
-   *
-   * @override
-   */
-  supportedLanguages () {
-    return PUT(this.url + '!supportedLanguages')
-  }
-
-  /**
-   * Get a list of function libraries
-   *
-   * @override
-   */
-  getLibraries () {
-    return PUT(this.url + '!getLibraries')
+    this._host = host
+    this._peer = url
+    this._name = name
   }
 
   /**
@@ -40,7 +23,24 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   _analyseCode (code, exprOnly = false) {
-    return PUT(this.url + '!analyseCode', {code: code, exprOnly: exprOnly})
+    let before = {
+      type: exprOnly ? 'expr' : 'block',
+      source: {
+        type: 'text',
+        data: code
+      },
+      inputs: [],
+      output: {},
+      messages: []
+    }
+    return this._host._put(this._peer, '/' + this._name + '!compile', before).then(after => {
+      return {
+        inputs: after.inputs.map(input => input.name),
+        output: after.output.name || null,
+        value: after.output.value,
+        messages: after.messages
+      }      
+    })
   }
 
   /**
@@ -49,25 +49,25 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   _executeCode (code, inputs, exprOnly = false) {
-    return PUT(this.url + '!executeCode', {code: code, inputs: inputs, exprOnly: exprOnly})
-  }
-
-
-  /**
-   * Does the context provide a function?
-   *
-   * @override
-   */
-  hasFunction (name) {
-    return PUT(this.url + '!hasFunction', {name: name})
-  }
-
-  /**
-   * Call a function
-   *
-   * @override
-   */
-  callFunction (library, name, args, namedArgs) {
-    return PUT(this.url + '!callFunction', {library: library, name: name, args: args, namedArgs: namedArgs})
+    let before = {
+      type: exprOnly ? 'expr' : 'block',
+      source: {
+        type: 'text',
+        data: code
+      },
+      inputs: Object.entries(inputs).map(([name, value]) => {
+        return {name, value}
+      }),
+      output: {},
+      messages: []
+    }
+    return this._host._put(this._peer, '/' + this._name + '!execute', before).then(after => {
+      return {
+        inputs: after.inputs.map(input => input.name),
+        output: after.output.name || null,
+        value: after.output.value,
+        messages: after.messages
+      }
+    })
   }
 }

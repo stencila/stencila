@@ -24,7 +24,7 @@ export default function setupStencilaContext() {
   const discover = parseFloat(getQueryStringParam('discover') || window.STENCILA_DISCOVER || '-1')
   // Instantiate and initialise the host
   const engine = new Engine()
-  const host = new Host({libs, peers:hosts, discover, engine })
+  const host = new Host({libs, hosts, discover, engine })
   engine.setHost(host)
   const functionManager = host._functionManager
 
