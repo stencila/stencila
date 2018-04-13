@@ -10,7 +10,7 @@ export default class FunctionUsageTool extends ToggleTool {
     if (func) {
       el.append(
         $$(FunctionUsageComponent, {
-          spec: func.getUsage(),
+          spec: func,
           paramIndex: this.props.commandState.paramIndex
         })
       )
