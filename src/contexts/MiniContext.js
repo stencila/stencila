@@ -42,34 +42,21 @@ export default class MiniContext {
       return _error(`Could not find function "${functionName}"`)
     }
 
-    // Ensure there is an implementation
-    let implems = funcDoc.getImplementations()
-    if (implems.length === 0) {
-      return _error(`Could not find implementation for function "${functionName}"`)
-    }
-
-    // TODO: Determine the best implementation language to use based on
-    // where arguments reside etc
-    let language = implems[0]
-
     // Get a context for the implementation language
-    return this._host.createContext(language)
-    .then((context) => {
-      // Call the function implementation in the context, capturing any
-      // messages or returning the value
-      let libraryName = this._functionManager.getLibraryName(functionName)
-      let argValues = funcCall.args.map(arg => arg.getValue())
-      let namedArgValues = {}
-      for (let name of Object.keys(funcCall.namedArgs)) {
-        namedArgValues[name] = funcCall.namedArgs[name].getValue()
+    let {context, library} = this._functionManager.getContextLibrary(functionName)
+    // Call the function implementation in the context, capturing any
+    // messages or returning the value
+    let argValues = funcCall.args.map(arg => arg.getValue())
+    let namedArgValues = {}
+    for (let name of Object.keys(funcCall.namedArgs)) {
+      namedArgValues[name] = funcCall.namedArgs[name].getValue()
+    }
+    return context.callFunction(library, functionName, argValues, namedArgValues).then((res) => {
+      if (res.messages && res.messages.length > 0) {
+        funcCall.addErrors(res.messages)
+        return undefined
       }
-      return context.callFunction(libraryName, functionName, argValues, namedArgValues).then((res) => {
-        if (res.messages && res.messages.length > 0) {
-          funcCall.addErrors(res.messages)
-          return undefined
-        }
-        return res.value
-      })
+      return res.value
     })
 
     function _error(msg) {

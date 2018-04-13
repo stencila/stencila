@@ -1,4 +1,4 @@
-import { Configurator, DefaultDOMElement } from 'substance'
+import { Configurator } from 'substance'
 import FunctionPackage from './FunctionPackage'
 
 /*
@@ -23,27 +23,18 @@ export default class FunctionManager {
     if (libraries) this.importLibraries(libraries)
   }
 
-
-
   /*
     Import a function library (XML) and register function instances in the manager
   */
-  importLibrary(libraryName, xmlString) {
-    let dom = DefaultDOMElement.parseXML(xmlString)
-    let importer = this.configurator.createImporter('stencila-function')
-    let funcs = dom.findAll('function')
-    funcs.forEach((func) => {
-      let functionName = func.find('name').textContent
-      let functionDoc = importer.importDocument(func)
-      if (this.functionMap[functionName]) {
-        throw new Error(`Function ${functionName} is already defined.`)
+  importLibrary(context, library) {
+    for (let functionName of Object.keys(library.funcs)) {
+      const record = this.functionMap[functionName]
+      if (record && record.library !== library.name) {
+        throw new Error(`Function "${functionName}" is already defined in library "${record.library}"`)
       }
-      if (!this.functions[libraryName]) {
-        this.functions[libraryName] = {}
-      }
-      this.functions[libraryName][functionName] = functionDoc
-      this.functionMap[functionName] = libraryName
-    })
+      this.functionMap[functionName] = { context, library: library.name }
+    }
+    this.functions[library.name] = library.funcs
   }
 
   /**
@@ -57,7 +48,7 @@ export default class FunctionManager {
     })
   }
 
-  getLibraryName(functionName) {
+  getContextLibrary(functionName) {
     return this.functionMap[functionName]
   }
 
@@ -65,9 +56,9 @@ export default class FunctionManager {
     Get function instance by name
   */
   getFunction(functionName) {
-    let libraryName = this.getLibraryName(functionName)
-    if (libraryName) {
-      return this.functions[libraryName][functionName]
+    let record = this.functionMap[functionName]
+    if (record) {
+      return this.functions[record.library][functionName]
     }
   }
 
@@ -77,14 +68,4 @@ export default class FunctionManager {
   getFunctionNames() {
     return Object.keys(this.functionMap)
   }
-
-  // Reflection
-
-  /*
-    Get the function signature for inspection
-  */
-  getSignature(name) {
-    return this.functions[name].getSignature()
-  }
-
 }

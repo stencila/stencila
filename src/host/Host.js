@@ -397,10 +397,10 @@ export default class Host extends EventEmitter {
           } else {
             // Get a list of fuctions from the context so that `FunctionManager` can
             // dispatch a `call` operation to the context if necessary. Implemented
-            // optimistically i.e. will not fail if the context does not implement `getLibraries`
+            // optimistically i.e. will not fail if the context does not implement `libraries`
             const context = result.instance
-            if (typeof context.getLibraries === 'function') {
-              context.getLibraries().then((libraries) => {
+            if (typeof context.libraries === 'function') {
+              context.libraries().then((libraries) => {
                 for (let name of Object.keys(libraries)) {
                   this._functionManager.importLibrary(name, libraries[name])
                 }

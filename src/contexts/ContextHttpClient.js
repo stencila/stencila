@@ -18,17 +18,25 @@ export default class ContextHttpClient extends Context {
   }
 
   /**
+   * Get a list of libraries
+   */
+  libraries () {
+    return this._host._put(this._peer, '/' + this._name + '!libraries')
+  }
+
+  /**
    * Analyse code
    *
    * @override
    */
   _analyseCode (code, exprOnly = false) {
     let before = {
-      type: exprOnly ? 'expr' : 'block',
+      type: 'cell',
       source: {
         type: 'text',
         data: code
       },
+      expr: exprOnly,
       inputs: [],
       output: {},
       messages: []
@@ -49,12 +57,28 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   _executeCode (code, inputs, exprOnly = false) {
+    const match = code.match(/^(\/\/|#|--)!\s*(\w+)(\s+(.*))?$/)
+    if (match) {
+      const command = match[2]
+      const arg = match[4]
+      if (command === 'library') {
+        return this._host._put(this._peer, '/' + this._name + '!executeLibrary', arg).then(result => {
+          if (!result.messages) this._host._functionManager.importLibrary(this, result)
+          return {
+            value: null,
+            messages: result.messages
+          }
+        })
+      }
+    }
+
     let before = {
-      type: exprOnly ? 'expr' : 'block',
+      type: 'cell',
       source: {
         type: 'text',
         data: code
       },
+      expr: exprOnly,
       inputs: Object.entries(inputs).map(([name, value]) => {
         return {name, value}
       }),
@@ -69,5 +93,14 @@ export default class ContextHttpClient extends Context {
         messages: after.messages
       }
     })
+  }
+
+  callFunction (library, name, args, namedArgs) {
+    let call = {
+      type: 'call',
+      func: {type: 'get', name: name, from: {type: 'get', name: library}},
+      args, namedArgs
+    }
+    return this._host._put(this._peer, '/' + this._name + '!execute', call)
   }
 }
