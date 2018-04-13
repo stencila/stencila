@@ -5,7 +5,7 @@ import Engine from '../engine/Engine'
 export default function setupStencilaContext() {
   // Get configuration options from environment variables and query parameters
   const libs = {
-    core: window.STENCILA_LIBCORE
+    //core: window.STENCILA_LIBCORE
   }
   // Stencila Host (for requesting external execution contexts etc)
   let hosts = []
