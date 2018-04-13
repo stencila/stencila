@@ -22,38 +22,37 @@ export default class FunctionHelpComponent extends Component {
     let el = $$('div').addClass('sc-function-help')
 
     if (functionInstance) {
-      const usage = functionInstance.getUsage()
       el.append(
-        $$('div').addClass('se-name').append(usage.name),
-        $$('div').addClass('se-description').append(usage.summary)
+        $$('div').addClass('se-name').append(functionInstance.name),
+        $$('div').addClass('se-description').append(functionInstance.description)
       )
 
-      if(usage.examples.length > 0) {
+      if(functionInstance.examples && functionInstance.examples.length > 0) {
         el.append(
           $$('div').addClass('se-section-title').append('Examples')
         )
 
-        usage.examples.forEach(example => {
+        functionInstance.examples.forEach(example => {
           el.append(
-            $$('div').addClass('se-example').append(example)
+            $$('div').addClass('se-example').append(example.functionInstance)
           )
         })
       }
 
       let syntaxEl = $$('div').addClass('se-syntax').append(
-        $$('span').addClass('se-name').append(usage.name),
+        $$('span').addClass('se-name').append(functionInstance.name),
         '('
       )
+      if (functionInstance.params) {
+        functionInstance.params.forEach((param, i) => {
+          let paramEl = $$('span').addClass('se-signature-param').append(param.name)
 
-      usage.params.forEach((param, i) => {
-        let paramEl = $$('span').addClass('se-signature-param').append(param.name)
-
-        syntaxEl.append(paramEl);
-        if (i < usage.params.length - 1) {
-          syntaxEl.append(',')
-        }
-      })
-
+          syntaxEl.append(paramEl);
+          if (i < functionInstance.params.length - 1) {
+            syntaxEl.append(',')
+          }
+        })
+      }
       syntaxEl.append(')')
 
       el.append(
@@ -61,7 +60,7 @@ export default class FunctionHelpComponent extends Component {
         syntaxEl
       )
 
-      usage.params.forEach(param => {
+      functionInstance.params.forEach(param => {
         el.append(
           $$('div').addClass('se-param').append(
             $$('span').addClass('se-name').append(param.name),
