@@ -46,12 +46,12 @@ export default class MiniContext {
     let {context, library} = this._functionManager.getContextLibrary(functionName)
     // Call the function implementation in the context, capturing any
     // messages or returning the value
-    let argValues = funcCall.args.map(arg => arg.getValue())
-    let namedArgValues = {}
-    for (let name of Object.keys(funcCall.namedArgs)) {
-      namedArgValues[name] = funcCall.namedArgs[name].getValue()
+    let args = funcCall.args.map(arg => arg.getValue())
+    let namedArgs = {}
+    for (let namedArg of funcCall.namedArgs) {
+      namedArgs[namedArg.name] = namedArg.getValue()
     }
-    return context.callFunction(library, functionName, argValues, namedArgValues).then((res) => {
+    return context.callFunction(library, functionName, args, namedArgs).then((res) => {
       if (res.messages && res.messages.length > 0) {
         funcCall.addErrors(res.messages)
         return undefined
