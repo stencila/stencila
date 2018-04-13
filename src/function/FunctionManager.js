@@ -24,17 +24,25 @@ export default class FunctionManager {
   }
 
   /*
-    Import a function library (XML) and register function instances in the manager
+    Import a function
+  */
+  importFunction(context, libraryName, func) {
+    const record = this.functionMap[func.name]
+    if (record && record.library !== libraryName) {
+      throw new Error(`Function "${func.name}" is already defined in library "${record.library}"`)
+    }
+    this.functionMap[func.name] = { context, library: libraryName }
+    if (!this.functions[libraryName]) this.functions[libraryName] = {}
+    this.functions[libraryName][func.name] = func
+  }
+
+  /*
+    Import a function library
   */
   importLibrary(context, library) {
-    for (let functionName of Object.keys(library.funcs)) {
-      const record = this.functionMap[functionName]
-      if (record && record.library !== library.name) {
-        throw new Error(`Function "${functionName}" is already defined in library "${record.library}"`)
-      }
-      this.functionMap[functionName] = { context, library: library.name }
+    for (let func of Object.values(library.funcs)) {
+      this.importFunction(context, library.name, func)
     }
-    this.functions[library.name] = library.funcs
   }
 
   /**

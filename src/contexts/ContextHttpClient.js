@@ -30,8 +30,8 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   _analyseCode (code, exprOnly = false) {
-    let before = {
-      type: 'cell',
+    let pre = {
+      type: this._parseType(code),
       source: {
         type: 'text',
         data: code
@@ -41,12 +41,12 @@ export default class ContextHttpClient extends Context {
       output: {},
       messages: []
     }
-    return this._host._put(this._peer, '/' + this._name + '!compile', before).then(after => {
+    return this._host._put(this._peer, '/' + this._name + '!compile', pre).then(post => {
       return {
-        inputs: after.inputs.map(input => input.name),
-        output: after.output.name || null,
-        value: after.output.value,
-        messages: after.messages
+        inputs: post.inputs && post.inputs.map(input => input.name),
+        output: (post.output && post.output.name) || null,
+        value: post.output && post.output.value,
+        messages: post.messages
       }      
     })
   }
@@ -57,40 +57,34 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   _executeCode (code, inputs, exprOnly = false) {
-    const match = code.match(/^(\/\/|#|--)!\s*(\w+)(\s+(.*))?$/)
-    if (match) {
-      const command = match[2]
-      const arg = match[4]
-      if (command === 'library') {
-        return this._host._put(this._peer, '/' + this._name + '!executeLibrary', arg).then(result => {
-          if (!result.messages) this._host._functionManager.importLibrary(this, result)
-          return {
-            value: null,
-            messages: result.messages
-          }
-        })
-      }
-    }
-
-    let before = {
-      type: 'cell',
+    const type = this._parseType(code)
+    let pre = {
+      type,
       source: {
         type: 'text',
         data: code
-      },
-      expr: exprOnly,
-      inputs: Object.entries(inputs).map(([name, value]) => {
-        return {name, value}
-      }),
-      output: {},
-      messages: []
+      }
     }
-    return this._host._put(this._peer, '/' + this._name + '!execute', before).then(after => {
-      return {
-        inputs: after.inputs.map(input => input.name),
-        output: after.output.name || null,
-        value: after.output.value,
-        messages: after.messages
+    if (type === 'cell') {
+      pre.expr = exprOnly
+      pre.inputs = Object.entries(inputs).map(([name, value]) => {
+        return {name, value}
+      })
+    }
+    return this._host._put(this._peer, '/' + this._name + '!execute', pre).then(post => {
+      if (post.type === 'library') {
+        if (!post.status) this._host._functionManager.importLibrary(this, post)
+        return post
+      } else if (post.type === 'func') {
+        if (!post.status) this._host._functionManager.importFunction(this, 'local', post)
+        return post
+      } else {
+        return {
+          inputs: post.inputs && post.inputs.map(input => input.name),
+          output: (post.output && post.output.name) || null,
+          value: post.output && post.output.value,
+          messages: post.messages
+        }
       }
     })
   }
@@ -102,5 +96,14 @@ export default class ContextHttpClient extends Context {
       args, namedArgs
     }
     return this._host._put(this._peer, '/' + this._name + '!execute', call)
+  }
+
+  _parseType(code) {
+    const match = code.match(/^(\/\/|#|--)\s*!\s*(\w+)\s*/)
+    if (match) {
+      return match[2]
+    } else {
+      return 'cell'
+    }
   }
 }
