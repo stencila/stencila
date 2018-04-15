@@ -240,6 +240,10 @@ class ExprContext {
   }
 
   unmarshal(val) {
+    // TODO: better understand if it is ok to make this robust
+    // by guarding undefined values, and not obfuscating an error occurring elsewhere
+    // it happened whenever undefined is returned by a called function
+    if (!val) return undefined
     return val.data
   }
 
