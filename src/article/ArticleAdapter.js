@@ -23,7 +23,7 @@ export default class ArticleAdapter extends DocumentAdapter {
     this.model = model
 
     // TODO: do this somewhere else
-    doc.autorun = false
+    doc.autorun = true
 
     this.editorSession.on('update', this._onDocumentChange, this, { resource: 'document' })
     this.engine.on('update', this._onEngineUpdate, this)
