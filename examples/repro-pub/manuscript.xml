@@ -4,7 +4,7 @@
   <front id="front-1">
     <article-meta id="article-meta-1">
       <title-group id="title-group-1">
-        <article-title id="article-title-1">Create reproducible articles with Stencila</article-title>
+        <article-title id="article-title-1">Create reproducible publications with Stencila</article-title>
       </title-group>
       <contrib-group id="contrib-group-2" content-type="author">
         <contrib id="contrib-1" contrib-type="person">
@@ -62,7 +62,7 @@
       </aff>
       <history id="history-1" />
       <abstract id="abstract-1">
-        <p id="p-1">A reproducible article is one where any code used by the original researcher to compute an output (a graph, equation, table or statistical result) is embedded within the narrative describing the work <xref id="xref-1" ref-type="bibr" rid="ref-af9f346afcc40500c7b5e1f2e6cb60ac ref-bbb7969fe58decf52fb37c8ba255492d">[1,2]</xref>. </p>
+        <p id="p-1">A reproducible publication is one where any code used by the original researcher to compute an output (a graph, equation, table or statistical result) is embedded within the narrative describing the work <xref id="xref-1" ref-type="bibr" rid="ref-af9f346afcc40500c7b5e1f2e6cb60ac ref-bbb7969fe58decf52fb37c8ba255492d">[1,2]</xref>. </p>
       </abstract>
       <trans-abstract id="trans-abstract-1" xml:lang="de">
         <p id="p-2">Deutsche Übersetzung</p>
