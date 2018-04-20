@@ -72,8 +72,6 @@ export default class SheetAdapter extends DocumentAdapter {
         const ops = change.ops
         for (let i = 0; i < ops.length; i++) {
           const op = ops[i]
-          // TODO: detect insert/remove row/col
-          // TODO: detect change of column types
           switch (op.type) {
             case 'set':
             case 'update': {
