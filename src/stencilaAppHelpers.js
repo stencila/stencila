@@ -4,7 +4,7 @@ import Project from './project/Project'
 import setupStencilaContext from './util/setupStencilaContext'
 import SheetAdapter from './sheet/SheetAdapter'
 import ArticleAdapter from './article/ArticleAdapter'
-import { getSource, transformCellRangeExpressions } from './shared/cellHelpers'
+import { getSource, transformCellRangeExpressions, renameTransclusions } from './shared/cellHelpers'
 
 export function _renderStencilaApp($$, app) {
   let el = $$('div').addClass('sc-app')
@@ -43,10 +43,11 @@ export function _initStencilaContext(context) {
 
 export function _initStencilaArchive(archive, context) {
   // start the engine
+  const engine = context.engine
   const ENGINE_REFRESH_INTERVAL = 10 // ms
-  context.engine.run(ENGINE_REFRESH_INTERVAL)
+  engine.run(ENGINE_REFRESH_INTERVAL)
   // when a document is renamed, transclusions must be updated
-  _listenToDocumentRename(archive)
+  _listenForDocumentRename(archive, engine)
   // documents and sheets must be registered with the engine
   // and hooks for structural sheet updates must be established
   // to update transclusions.
@@ -85,20 +86,32 @@ export function _connectDocumentToEngine(archive, documentId, { engine }) {
   }
 }
 
-function _listenToDocumentRename(archive) {
+function _listenForDocumentRename(archive, engine) {
   let editorSession = archive.getEditorSession('manifest')
-  editorSession.on('update', _onManifestChange.bind(null, archive), null, { resource: 'document' })
+  editorSession.on('update', _onManifestChange.bind(null, archive, engine), null, { resource: 'document' })
 }
 
 function _listenForStructuralSheetUpdates(archive, editorSession) {
   editorSession.on('update', _onSheetChange.bind(null, archive, editorSession.getDocument()), null, { resource: 'document' })
 }
 
-function _onManifestChange(archive, change) {
+function _onManifestChange(archive, engine, change) {
   let action = change.info.action
   switch(action) {
     case 'renameDocument': {
-      console.warn('TODO: transform transclusions')
+      // extracting document id, old name and the new name
+      // TODO: maybe we can create an API to access such documentChange informations
+      let op = change.ops[0]
+      let docId = op.path[0]
+      let oldName = op.original
+      let newName = op.val
+      if (oldName !== newName) {
+        // TODO: it would be nice, if this could be done by the respective
+        // document/sheet adapter. However, ATM renaming is done on manifest only,
+        // so there is no document level notion of the name.
+        engine._setResourceName(docId, newName)
+        _updateTransclusionsInArchive(archive, docId, action, { oldName, newName })
+      }
       break
     }
     default:
@@ -111,22 +124,22 @@ function _onSheetChange(archive, doc, change) {
   switch(action) {
     case 'insertRows': {
       const { pos, count } = change.info
-      _updateTransclusionsInArchive(archive, doc.id, { dim: 'row', pos, count })
+      _updateTransclusionsInArchive(archive, doc.id, action, { dim: 'row', pos, count })
       break
     }
     case 'deleteRows': {
       const { pos, count } = change.info
-      _updateTransclusionsInArchive(archive, doc.id, { dim: 'row', pos, count: -count })
+      _updateTransclusionsInArchive(archive, doc.id, action, { dim: 'row', pos, count: -count })
       break
     }
     case 'insertCols': {
       const { pos, count } = change.info
-      _updateTransclusionsInArchive(archive, doc.id, { dim: 'col', pos, count })
+      _updateTransclusionsInArchive(archive, doc.id, action, { dim: 'col', pos, count })
       break
     }
     case 'deleteCols': {
       const { pos, count } = change.info
-      _updateTransclusionsInArchive(archive, doc.id, { dim: 'col', pos, count: -count })
+      _updateTransclusionsInArchive(archive, doc.id, action, { dim: 'col', pos, count: -count })
       break
     }
     default:
@@ -134,7 +147,7 @@ function _onSheetChange(archive, doc, change) {
   }
 }
 
-function _updateTransclusionsInArchive(archive, targetId, params) {
+function _updateTransclusionsInArchive(archive, targetId, action, params) {
   let entries = archive.getDocumentEntries()
   entries.forEach(entry => {
     const id = entry.id
@@ -144,7 +157,7 @@ function _updateTransclusionsInArchive(archive, targetId, params) {
       case 'article':
       case 'sheet': {
         let editorSession = archive.getEditorSession(id)
-        _updateTransclusionsInDocument(documentType, editorSession, targetId, params)
+        _updateTransclusionsInDocument(documentType, editorSession, targetId, action, params)
         break
       }
       default:
@@ -153,34 +166,41 @@ function _updateTransclusionsInArchive(archive, targetId, params) {
   })
 }
 
-function _updateTransclusionsInDocument(documentType, editorSession, targetId, params) {
+function _updateTransclusionsInDocument(documentType, editorSession, targetId, action, params) {
   let doc = editorSession.getDocument()
   let cells = _getCellsWithTransclusions(doc, targetId)
   let updates = new Map()
   for (var i = 0; i < cells.length; i++) {
     const cell = cells[i]
     let source = getSource(cell)
-    let newSource = transformCellRangeExpressions(source, params)
+    let newSource
+    if (action === 'renameDocument') {
+      newSource = renameTransclusions(source, params.oldName, params.newName)
+    } else {
+      newSource = transformCellRangeExpressions(source, params)
+    }
     if (newSource !== source) {
       updates.set(cell.id, newSource)
     }
   }
   if (updates.size > 0) {
+    // TODO: it is a bit cumbersome, that article cells have a different layout
+    // We should think about using a simplified model internally, and generate
+    let affected = new Set()
     editorSession.transaction(tx => {
       updates.forEach((newSource, id) => {
         let node = tx.get(id)
         if (documentType === 'article') {
           node = node.find('source-code')
         }
+        affected.add(node.id)
         node.setText(newSource)
       })
     }, { history: false })
-    // ATTENTION: we trying to manipulate the Undo/Redo-History
-    // so the user does not corrupt cells via undo/redo
-    // TODO: if we had finer, more accurate ops for updating cells
-    // the implicit is similar to a change coming in as during real-time collab
-    // and this could be solved using 'rebase'
-    _eliminateOpsFromHistory(editorSession._history, updates)
+    // ATTENTION: removing all changes from undo/redo history
+    // that would conflict with the automatic update
+    // TODO: instead of removing we could try to 'rebase' such changes
+    _eliminateOpsFromHistory(editorSession._history, affected)
   }
 }
 
@@ -190,17 +210,21 @@ function _eliminateOpsFromHistory(history, ids) {
 }
 
 function _eliminateOpsFromChanges(changes, ids) {
-  for (let i = 0; i < changes.length; i++) {
+  for (let i = changes.length-1; i >= 0; i--) {
     let change = changes[i]
-    for (let j = change.ops.length - 1; j >= 0; j--) {
+    // remove all ops that change the cell
+    for (let j = change.ops.length-1; j >= 0; j--) {
       let op = change.ops[j]
       if (ids.has(op.path[0])) {
         change.ops.splice(j, 1)
       }
     }
+    // remove a change if it is NOP now
+    if (change.ops.length === 0) {
+      changes.splice(i, 1)
+    }
   }
 }
-
 
 function _getCellsWithTransclusions(doc, targetDocId) { // eslint-disable-line
   // TODO: for now we do filter cells

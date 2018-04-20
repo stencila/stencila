@@ -203,6 +203,19 @@ export function transformCellRangeExpressions(source, params) {
   return source
 }
 
+export function renameTransclusions(source, oldName, newName) {
+  const symbols = getCellExpressions(source)
+  for (let i = symbols.length-1; i >= 0; i--) {
+    const symbol = symbols[i]
+    if (symbol.scope === oldName) {
+      // TODO: symbol properties could be named more intuitively
+      let subs = ["'",newName,"'",'!',symbol.name].join('')
+      source = source.substring(0, symbol.startPos) + subs + source.substring(symbol.endPos)
+    }
+  }
+  return source
+}
+
 function _transformCellRangeExpression(expr, { dim, pos, count }) {
   const mode = count > 0 ? 'insert' : 'remove'
   count = Math.abs(count)

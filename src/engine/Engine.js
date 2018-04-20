@@ -262,6 +262,12 @@ export default class Engine extends EventEmitter {
     doc._registerCells()
   }
 
+  _setResourceName(id, newName) {
+    let doc = this._docs[id]
+    if (!doc) throw new Error('Unknown resource: '+id)
+    doc.name = newName
+  }
+
   /*
     Registers a cell.
 
