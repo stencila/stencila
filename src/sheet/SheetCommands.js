@@ -1,9 +1,8 @@
 import { Command } from 'substance'
 import { getRange } from './sheetHelpers'
-import { transformCellRangeExpressions } from '../shared/cellHelpers'
+import { insertRows, deleteRows, insertCols, deleteCols, setCellTypes, setColumnTypes } from './sheetManipulations'
 
 class RowsCommand extends Command {
-
   getCommandState(params) {
     const sel = params.selection
     if (sel && sel.isCustomSelection() && sel.customType === 'sheet') {
@@ -23,11 +22,9 @@ class RowsCommand extends Command {
       disabled: true
     }
   }
-
 }
 
 class ColsCommand extends Command {
-
   getCommandState(params) {
     const sel = params.selection
     if (sel && sel.isCustomSelection() && sel.customType === 'sheet') {
@@ -47,7 +44,6 @@ class ColsCommand extends Command {
       disabled: true
     }
   }
-
 }
 
 class ColumnMetaCommand extends Command {
@@ -78,97 +74,67 @@ class ColumnMetaCommand extends Command {
 
 }
 
-function insertRows({editorSession, commandState}, mode) {
-  const pos = mode === 'above' ?
-    commandState.startRow :
-    commandState.endRow + 1
-  const count = commandState.nrows
-  editorSession.transaction((tx) => {
-    tx.getDocument().createRowsAt(pos, count)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      // TODO: rename 'idx' to 'pos'
-      transformCellExpressions(cell, { dim: 'row', idx: pos, count })
-    })
-  }, { action: 'insertRows', pos, count })
-}
-
-function insertCols({editorSession, commandState}, mode) {
-  //const sel = selection.data
-  const pos = mode === 'left' ?
-    commandState.startCol :
-    commandState.endCol + 1
-  const count = commandState.ncolumns
-  editorSession.transaction((tx) => {
-    tx.getDocument().createColumnsAt(pos, count)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
-    })
-  }, { action: 'insertCols', pos, count })
-}
-
-function deleteRows({editorSession, commandState}) {
-  const start = commandState.startRow
-  const end = commandState.endRow
-  const pos = start
-  const count = end - start + 1
-  editorSession.transaction((tx) => {
-    tx.getDocument().deleteRows(start, end)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
-    })
-  }, { action: 'deleteRows', pos, count })
-}
-
-function deleteColumns({editorSession, commandState}) {
-  const start = commandState.startCol
-  const end = commandState.endCol
-  const pos = start
-  const count = end - start + 1
-  editorSession.transaction((tx) => {
-    tx.getDocument().deleteColumns(start, end)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
-    })
-  }, { action: 'deleteCols', pos, count })
-}
-
 export class InsertRowsAbove extends RowsCommand {
   execute(params) {
-    insertRows(params, 'above')
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const pos = commandState.startRow
+    const count = commandState.nrows
+    insertRows(editorSession, pos, count)
   }
 }
 
 export class InsertRowsBelow extends RowsCommand {
   execute(params) {
-    insertRows(params, 'below')
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const pos = commandState.endRow + 1
+    const count = commandState.nrows
+    insertRows(editorSession, pos, count)
   }
 }
 
 export class DeleteRows extends RowsCommand {
   execute(params) {
-    deleteRows(params)
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const start = commandState.startRow
+    const end = commandState.endRow
+    const pos = start
+    const count = end - start + 1
+    deleteRows(editorSession, pos, count)
   }
 }
 
 export class InsertColumnsLeft extends ColsCommand {
   execute(params) {
-    insertCols(params, 'left')
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const pos = commandState.startCol
+    const count = commandState.ncolumns
+    insertCols(editorSession, pos, count)
   }
 }
 
 export class InsertColumnsRight extends ColsCommand {
   execute(params) {
-    insertCols(params, 'right')
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const pos = commandState.endCol + 1
+    const count = commandState.ncolumns
+    insertCols(editorSession, pos, count)
   }
 }
 
 export class DeleteColumns extends ColsCommand {
   execute(params) {
-    deleteColumns(params)
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const start = commandState.startCol
+    const end = commandState.endCol
+    const pos = start
+    const count = end - start + 1
+    deleteCols(editorSession, pos, count)
   }
 }
 
@@ -259,19 +225,11 @@ export class SetTypeCommand extends Command {
     let { newType, disabled } = commandState
     const selectionType = selection.data.type
     if (!disabled) {
+      const range = getRange(editorSession)
       if(selectionType === 'range' || selectionType === 'rows') {
-        const range = getRange(editorSession)
-        editorSession.transaction((tx) => {
-          tx.getDocument().setTypeForRange(range.startRow, range.startCol, range.endRow, range.endCol, newType)
-        })
+        setCellTypes(editorSession, range.startRow, range.startCol, range.endRow, range.endCol, newType)
       } else if (selectionType === 'columns') {
-        const range = getRange(editorSession)
-        editorSession.transaction((tx) => {
-          for (let colIdx = range.startCol; colIdx <= range.endCol; colIdx++) {
-            let cell = tx.getDocument().getColumnMeta(colIdx)
-            cell.attr({type: newType})
-          }
-        })
+        setColumnTypes(editorSession, range.startCol, range.endCol, newType)
       }
     }
   }
@@ -305,13 +263,5 @@ export class SelectAllCommand extends Command {
       data: selData,
       surfaceId: sel.surfaceId
     })
-  }
-}
-
-function transformCellExpressions(cell, params) {
-  let source = cell.textContent
-  let newSource = transformCellRangeExpressions(source, params)
-  if(source !== newSource) {
-    cell.textContent = newSource
   }
 }

@@ -122,37 +122,6 @@ export default class SheetDocument extends XMLDocument {
     return vals
   }
 
-  setValues(startRow, startCol, vals) {
-    for (let i = 0; i < vals.length; i++) {
-      let row = vals[i]
-      for (let j = 0; j < row.length; j++) {
-        let val = row[j]
-        let cell = this.getCell(startRow+i, startCol+j)
-        if (cell) {
-          cell.textContent = val
-        }
-      }
-    }
-  }
-
-  setTypeForRange(startRow, startCol, endRow, endCol, type) {
-    for (let rowIdx = startRow; rowIdx <= endRow; rowIdx++) {
-      for (let colIdx = startCol; colIdx <= endCol; colIdx++) {
-        let cell = this.getCell(rowIdx, colIdx)
-        cell.attr({type: type})
-      }
-    }
-  }
-
-  clearRange(startRow, startCol, endRow, endCol) {
-    for (let rowIdx = startRow; rowIdx <= endRow; rowIdx++) {
-      for (let colIdx = startCol; colIdx <= endCol; colIdx++) {
-        let cell = this.getCell(rowIdx, colIdx)
-        cell.textContent = ''
-      }
-    }
-  }
-
   getColumnCount() {
     const nrows = this.getRowCount()
     if (nrows > 0) {
@@ -177,72 +146,6 @@ export default class SheetDocument extends XMLDocument {
   getRowHeight(rowIdx) { // eslint-disable-line
     // TODO: retrieve from model
     return 30
-  }
-
-  createRowsAt(rowIdx, n) {
-    const M = this.getColumnCount()
-    let data = this._getData()
-    let rowAfter = data.getChildAt(rowIdx)
-    for (let i = 0; i < n; i++) {
-      let row = this.createElement('row')
-      for (let j = 0; j < M; j++) {
-        let cell = this.createElement('cell')
-        // TODO: maybe insert default value?
-        row.append(cell)
-      }
-      data.insertBefore(row, rowAfter)
-    }
-  }
-
-  deleteRows(startRow, endRow) {
-    let data = this._getData()
-    for (let rowIdx = endRow; rowIdx >= startRow; rowIdx--) {
-      let row = data.getChildAt(rowIdx)
-      // TODO: add a helper to delete recursively
-      row._childNodes.forEach((id) => {
-        this.delete(id)
-      })
-      data.removeChild(row)
-    }
-  }
-
-  createColumnsAt(colIdx, n) {
-    // TODO: we need to add columns' meta, too
-    // for each existing row insert new cells
-    let data = this._getData()
-    let it = data.getChildNodeIterator()
-    let columns = this._getColumns()
-    let colAfter = columns.getChildAt(colIdx)
-    for (let j = 0; j < n; j++) {
-      let col = this.createElement('col')
-      col.attr('type', 'any')
-      columns.insertBefore(col, colAfter)
-    }
-    while(it.hasNext()) {
-      let row = it.next()
-      let cellAfter = row.getChildAt(colIdx)
-      for (let j = 0; j < n; j++) {
-        let cell = this.createElement('cell')
-        row.insertBefore(cell, cellAfter)
-      }
-    }
-  }
-
-  deleteColumns(startCol, endCol) {
-    let data = this._getData()
-    let N = this.getRowCount()
-    let columns = this._getColumns()
-    for (let colIdx = endCol; colIdx >= startCol; colIdx--) {
-      columns.removeAt(colIdx)
-    }
-    for (let rowIdx = N-1; rowIdx >= 0; rowIdx--) {
-      let row = data.getChildAt(rowIdx)
-      for (let colIdx = endCol; colIdx >= startCol; colIdx--) {
-        const cellId = row.getChildAt(colIdx).id
-        row.removeAt(colIdx)
-        this.delete(cellId)
-      }
-    }
   }
 
   ensureRowAvailable() {
