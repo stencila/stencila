@@ -89,7 +89,7 @@
       <code id="cell-2" specific-use="cell">
         <named-content>
           <alternatives>
-            <code specific-use="source" language="mini"><![CDATA[data = sheet1!A1:C9]]></code>
+            <code specific-use="source" language="mini"><![CDATA[data = 'Ice Cream Sales'!A1:C9]]></code>
             <code specific-use="output" language="json"><![CDATA[{"type":"table","data":{"type":"table","data":{"temp":[18,20,24,23,26,25,20,17,18],"sales":[50,126,118,126,280,102,93,32,103],"sunny":["no","yes","yes","yes","yes","no","no","no","yes"]},"columns":3,"rows":9}}]]></code>
           </alternatives>
         </named-content>

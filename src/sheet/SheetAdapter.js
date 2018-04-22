@@ -1,4 +1,5 @@
 import { DocumentAdapter, mapCellState } from '../shared/DocumentAdapter'
+import { getSource, getLang } from '../shared/cellHelpers'
 
 /*
   Connects Engine and Sheet.
@@ -71,8 +72,6 @@ export default class SheetAdapter extends DocumentAdapter {
         const ops = change.ops
         for (let i = 0; i < ops.length; i++) {
           const op = ops[i]
-          // TODO: detect insert/remove row/col
-          // TODO: detect change of column types
           switch (op.type) {
             case 'set':
             case 'update': {
@@ -93,8 +92,8 @@ export default class SheetAdapter extends DocumentAdapter {
           updated.forEach(id => {
             const cell = this.doc.get(id)
             const cellData = {
-              source: _getSource(cell),
-              lang: _getLang(cell)
+              source: getSource(cell),
+              lang: getLang(cell)
             }
             model.updateCell(id, cellData)
           })
@@ -116,24 +115,16 @@ export default class SheetAdapter extends DocumentAdapter {
     return node.type === 'cell'
   }
 
-  static connect(engine, editorSession, name) {
-    return new SheetAdapter(engine, editorSession, name)
+  static connect(engine, editorSession, id, name) {
+    return new SheetAdapter(engine, editorSession, id, name)
   }
-}
-
-function _getSource(node) {
-  return node.textContent
-}
-
-function _getLang(node) {
-  return node.getAttribute('language')
 }
 
 function _getCellData(cell) {
   return {
     id: cell.id,
-    lang: _getLang(cell),
-    source: _getSource(cell)
+    lang: getLang(cell),
+    source: getSource(cell)
   }
 }
 

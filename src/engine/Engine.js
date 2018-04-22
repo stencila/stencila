@@ -1,6 +1,6 @@
 import { uuid, isString, EventEmitter, flatten } from 'substance'
 import CellGraph from './CellGraph'
-import { ContextError, RuntimeError, SyntaxError } from './CellErrors'
+import { ContextError, RuntimeError, SyntaxError, UnresolvedInputError } from './CellErrors'
 import { UNKNOWN, ANALYSED, READY } from './CellStates'
 import Cell from './Cell'
 import CellSymbol from './CellSymbol'
@@ -262,6 +262,12 @@ export default class Engine extends EventEmitter {
     doc._registerCells()
   }
 
+  _setResourceName(id, newName) {
+    let doc = this._docs[id]
+    if (!doc) throw new Error('Unknown resource: '+id)
+    doc.name = newName
+  }
+
   /*
     Registers a cell.
 
@@ -321,7 +327,14 @@ export default class Engine extends EventEmitter {
         if (cell.status === READY) {
           if (cell instanceof RangeCell) {
             let value = this._getValueForRange(cell)
-            graph.setValue(cell.id, value)
+            // TODO: as RangeCells are not visible for the user
+            // this error does not help much
+            // Instead, the original expression should have an unresolved input error
+            if (!value) {
+              graph.addError(cell.id, new UnresolvedInputError())
+            } else {
+              graph.setValue(cell.id, value)
+            }
           } else {
             this._nextActions.set(cell.id, {
               type: 'evaluate',
@@ -537,6 +550,9 @@ export default class Engine extends EventEmitter {
     const { startRow, endRow, startCol, endCol } = rangeCell
     // TODO: rangeCell.docId is not accurate; it seems that this is the rather 'name'
     let sheet = this._lookupDocument(rangeCell.docId)
+
+    if (!sheet) return undefined
+
     let matrix = sheet.getCells()
     let val
     // range is a single cell

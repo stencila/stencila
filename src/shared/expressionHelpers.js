@@ -86,8 +86,39 @@ export function transpile(code, map = {}) {
 export function parseSymbol(str) {
   let m = REF_RE.exec(str)
   if (!m) throw new Error('Unrecognised symbol format.')
+  return _createSymbol(m)
+}
+
+/*
+  Replaces all characters that are invalid in a variable identifier.
+
+  Note: replacing characters one-by-one retains the original length or the string
+  which is desired as this does avoid source-mapping. E.g. when a runtime error
+  occurs, the error location can be applied to the original source code without
+  any transformation.
+*/
+export function toIdentifier(str, c = '_') {
+  return str.replace(new RegExp(INVALID_ID_CHARACTERS,'g'), c)
+}
+
+
+export function getCellExpressions(source) {
+  let re = new RegExp(REF, 'g')
+  let m
+  let result = []
+  while ((m = re.exec(source))) {
+    let symbol = _createSymbol(m)
+    if (symbol.type !== 'var') {
+      result.push(symbol)
+    }
+  }
+  return result
+}
+
+function _createSymbol(m) {
+  const text = m[0]
   const startPos = m.index
-  const endPos = m[0].length + startPos
+  const endPos = text.length + startPos
   const mangledStr = toIdentifier(m[0])
   const scope = m[1] || m[2]
   const anchorCell = m[3]
@@ -109,36 +140,4 @@ export function parseSymbol(str) {
     throw new Error('Invalid symbol expression')
   }
   return { type, scope, name, mangledStr, startPos, endPos }
-}
-
-/*
-  Replaces all characters that are invalid in a variable identifier.
-
-  Note: replacing characters one-by-one retains the original length or the string
-  which is desired as this does avoid source-mapping. E.g. when a runtime error
-  occurs, the error location can be applied to the original source code without
-  any transformation.
-*/
-export function toIdentifier(str, c = '_') {
-  return str.replace(new RegExp(INVALID_ID_CHARACTERS,'g'), c)
-}
-
-
-export function getCellExpressions(source) {
-  let re = new RegExp(REF, 'g')
-  let m
-  let result = []
-  while ((m = re.exec(source))) {
-    // NOTE: the array indexes used here correspond to the position of the capturing group
-    // make sure to update these if you change the structure of the regular expression
-    const text = m[0]
-    const startPos = m.index
-    const endPos = text.length + startPos
-    const varName = m[5]
-
-    if(!varName) {
-      result.push({text, startPos, endPos})
-    }
-  }
-  return result
 }

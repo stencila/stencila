@@ -460,6 +460,11 @@ export default class CellGraph {
     let followSet = new Set()
     ids.forEach(id => {
       const cell = this._cells[id]
+      // FIXME: in case of RangeCells it can happen that the range
+      // cell is not yet registered, but the graph is updated already
+      // TODO: we should remove this guard and fix the problem properly
+      if (!cell) return
+
       if (cell.output && id === this._resolve(cell.output)) {
         let followers = this._ins[cell.output]
         if (followers) {

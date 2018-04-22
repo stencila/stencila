@@ -80,7 +80,6 @@ const RNG_SEARCH_DIRS = ['src/sheet', 'src/function']
 b.task('clean', () => {
   b.rm(DIST)
   b.rm('tmp')
-  b.rm('coverage')
 })
 
 // This is used to generate the files in ./vendor/
@@ -146,6 +145,7 @@ b.task('test', ['clean', 'test:backend'], () => {
 .describe('Runs the tests and generates a coverage report.')
 
 b.task('cover', ['test:backend', 'build:instrumented-tests'], () => {
+  b.rm('coverage')
   fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js', { await: true })
 })
 

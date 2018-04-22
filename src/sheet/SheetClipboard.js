@@ -2,6 +2,7 @@ import {
   DefaultDOMElement, platform
 } from 'substance'
 import { getSelection, getRange } from './sheetHelpers'
+import { setValues, clearValues } from './sheetManipulations'
 
 export default class SheetClipboard {
 
@@ -65,24 +66,8 @@ export default class SheetClipboard {
   _pasteHtml(html, plainText) {
     let vals = this._htmlToVals(html)
     if (vals && vals.length > 0) {
-      let n = vals.length
-      let m = vals[0].length
       let range = this._getRange()
-      this.editorSession.transaction((tx) => {
-        let sheet = tx.getDocument()
-        sheet.setValues(range.startRow, range.startCol, vals)
-        tx.setSelection({
-          type: 'custom',
-          customType: 'sheet',
-          data: {
-            type: 'range',
-            anchorRow: range.startRow,
-            anchorCol: range.startCol,
-            focusRow: range.startRow+n-1,
-            focusCol: range.startCol+m-1
-          }
-        })
-      })
+      setValues(this.editorSession, range.startRow, range.startCol, vals)
     } else {
       this._pastePlainText(plainText)
     }
@@ -132,10 +117,7 @@ export default class SheetClipboard {
   _cut() {
     const range = this._getRange()
     if (!range) return
-    this.editorSession.transaction((tx) => {
-      let sheet = tx.getDocument()
-      sheet.clearRange(range.startRow, range.startCol, range.endRow, range.endCol)
-    })
+    clearValues(this.editorSession, range.startRow, range.startCol, range.endRow, range.endCol)
   }
 
   _valsToHTML(vals) {
