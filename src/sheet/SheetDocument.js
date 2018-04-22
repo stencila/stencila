@@ -30,7 +30,7 @@ export default class SheetDocument extends XMLDocument {
     return this.getRootNode().find('name').text()
   }
 
-  // EXPERIMENTAL: introducing
+  // EXPERIMENTAL
   invert(change) {
     let inverted = change.invert()
     let info = inverted.info || {}
