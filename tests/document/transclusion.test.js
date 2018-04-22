@@ -1,9 +1,8 @@
 import test from 'tape'
-import StencilaArchive from '../../src/StencilaArchive'
-import { _initStencilaArchive } from '../../src/stencilaAppHelpers'
 import { insertRows, deleteRows, insertCols, deleteCols } from '../../src/sheet/sheetManipulations'
 import { getSource } from '../../src/shared/cellHelpers'
 import createRawArchive from '../util/createRawArchive'
+import loadRawArchive from '../util/loadRawArchive'
 
 /*
   Transclusions need to be updated whenever the referenced sheet changes
@@ -102,14 +101,6 @@ function _setup() {
   ])
   let archive = loadRawArchive(rawArchive, context)
   return { archive }
-}
-
-function loadRawArchive(rawArchive, context) {
-  let archive = new StencilaArchive({}, {}, context)
-  archive._sessions = archive._ingest(rawArchive)
-  archive._upstreamArchive = rawArchive
-  _initStencilaArchive(archive, context)
-  return archive
 }
 
 // TODO: it should be easier stub out the engine
