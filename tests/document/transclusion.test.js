@@ -3,6 +3,7 @@ import { insertRows, deleteRows, insertCols, deleteCols } from '../../src/sheet/
 import { getSource } from '../../src/shared/cellHelpers'
 import createRawArchive from '../util/createRawArchive'
 import loadRawArchive from '../util/loadRawArchive'
+import StubEngine from '../util/StubEngine'
 
 /*
   Transclusions need to be updated whenever the referenced sheet changes
@@ -101,30 +102,4 @@ function _setup() {
   ])
   let archive = loadRawArchive(rawArchive, context)
   return { archive }
-}
-
-// TODO: it should be easier stub out the engine
-// ATM  the adapters heaviy use the engine's internal API to update
-// the engine's internal model of these documents.
-class StubEngine {
-  run() {}
-  addDocument() {
-    return new StubEngineArticleModel()
-  }
-  addSheet() {
-    return new StubEngineSheetModel()
-  }
-  _setResourceName() {}
-  on() {}
-}
-class StubEngineArticleModel {
-  setAutorun() {}
-  updateCell() {}
-}
-class StubEngineSheetModel {
-  insertRows() {}
-  deleteRows() {}
-  insertCols() {}
-  deleteCols() {}
-  updateCell() {}
 }
