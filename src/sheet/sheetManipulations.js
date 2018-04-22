@@ -32,7 +32,7 @@ export function deleteRows(editorSession, pos, count) {
 
 export function deleteCols(editorSession, pos, count) {
   editorSession.transaction((tx) => {
-    _deleteCols(tx.getDocument(), pos, pos+count)
+    _deleteCols(tx.getDocument(), pos, pos+count-1)
     const cells = tx.findAll('cell')
     cells.forEach(cell => {
       transformCellExpressions(cell, { dim: 'col', idx: pos, count })

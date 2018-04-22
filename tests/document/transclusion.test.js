@@ -1,7 +1,7 @@
 import test from 'tape'
 import StencilaArchive from '../../src/StencilaArchive'
 import { _initStencilaArchive } from '../../src/stencilaAppHelpers'
-import { insertRows } from '../../src/sheet/sheetManipulations'
+import { insertRows, deleteRows, insertCols, deleteCols } from '../../src/sheet/sheetManipulations'
 import { getSource } from '../../src/shared/cellHelpers'
 import createRawArchive from '../util/createRawArchive'
 
@@ -27,7 +27,40 @@ test('Transclusions: inserting a row', t => {
   let article = articleSession.getDocument()
   insertRows(sheetSession, 1, 1)
   let cell1 = article.get('cell1')
-  t.equal(getSource(cell1), "'My Sheet'!A1:A4", "transclusion should have been updated")
+  t.equal(getSource(cell1), "'My Sheet'!A1:C4", "transclusion should have been updated")
+  t.end()
+})
+
+test('Transclusions: deleting a row', t => {
+  let { archive } = _setup()
+  let sheetSession = archive.getEditorSession('sheet')
+  let articleSession = archive.getEditorSession('article')
+  let article = articleSession.getDocument()
+  deleteRows(sheetSession, 2, 1)
+  let cell1 = article.get('cell1')
+  t.equal(getSource(cell1), "'My Sheet'!A1:C2", "transclusion should have been updated")
+  t.end()
+})
+
+test('Transclusions: inserting a column', t => {
+  let { archive } = _setup()
+  let sheetSession = archive.getEditorSession('sheet')
+  let articleSession = archive.getEditorSession('article')
+  let article = articleSession.getDocument()
+  insertCols(sheetSession, 1, 1)
+  let cell1 = article.get('cell1')
+  t.equal(getSource(cell1), "'My Sheet'!A1:D3", "transclusion should have been updated")
+  t.end()
+})
+
+test('Transclusions: deleting a column', t => {
+  let { archive } = _setup()
+  let sheetSession = archive.getEditorSession('sheet')
+  let articleSession = archive.getEditorSession('article')
+  let article = articleSession.getDocument()
+  deleteCols(sheetSession, 1, 1)
+  let cell1 = article.get('cell1')
+  t.equal(getSource(cell1), "'My Sheet'!A1:B3", "transclusion should have been updated")
   t.end()
 })
 
@@ -41,7 +74,7 @@ function _setup() {
       type: 'article',
       name: 'My Article',
       body: [
-        "<cell id='cell1' language='mini'>'My Sheet'!A1:A3</cell>"
+        "<cell id='cell1' language='mini'>'My Sheet'!A1:C3</cell>"
       ]
     },
     {
@@ -49,10 +82,12 @@ function _setup() {
       path: 'sheet.xml',
       type: 'sheet',
       name: 'My Sheet',
+      columns: [{ name: 'x' }, { name: 'y' }, { name: 'z' }],
       cells: [
-        ['1', '2'],
-        ['3', '4'],
-        ['5', '6']
+        ['1', '2', '3'],
+        ['4', '5', '6'],
+        ['7', '8', '9'],
+        ['10', '11', '12']
       ]
     }
   ])

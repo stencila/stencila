@@ -54,5 +54,11 @@ export default function createSheetXML(spec) {
       data.append(row)
     })
   }
+  if (!spec.columns) {
+    let columns = doc.find('columns')
+    for (let i = 0; i < ncols; i++) {
+      columns.append($$('col').attr('type', 'any'))
+    }
+  }
   return doc.serialize()
 }
