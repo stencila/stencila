@@ -6,7 +6,6 @@ import { getSource } from '../../src/shared/cellHelpers'
 import createRawArchive from '../util/createRawArchive'
 
 /*
-
   Transclusions need to be updated whenever the referenced sheet changes
   structurally, i.e. rows or columns are added or removed, or the referenced
   resource is renamed.
@@ -64,6 +63,16 @@ test('Transclusions: deleting a column', t => {
   t.end()
 })
 
+test('Transclusions: rename sheet', t => {
+  let { archive } = _setup()
+  let articleSession = archive.getEditorSession('article')
+  let article = articleSession.getDocument()
+  archive.renameDocument('sheet', 'Foo')
+  let cell1 = article.get('cell1')
+  t.equal(getSource(cell1), "'Foo'!A1:C3", "transclusion should have been updated")
+  t.end()
+})
+
 function _setup() {
   let engine = new StubEngine()
   let context = { engine }
@@ -114,6 +123,7 @@ class StubEngine {
   addSheet() {
     return new StubEngineSheetModel()
   }
+  _setResourceName() {}
   on() {}
 }
 class StubEngineArticleModel {
