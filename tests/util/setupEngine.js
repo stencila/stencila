@@ -35,5 +35,7 @@ export default function setupEngine() {
   miniContext = new MiniContext(host)
   let engine = new Engine({ host })
   let graph = engine._graph
+  // don't let the engine be run forever in tests
+  engine.run = () => {}
   return { host, engine, graph }
 }
