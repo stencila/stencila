@@ -19,10 +19,17 @@ export function getCellValue(cell) {
   if (cell.state) {
     return cell.state.value
   } else {
-    let sheet = cell.getDocument()
-    let type = sheet.getCellType(cell)
+    let type = getCellType(cell)
     return valueFromText(type, cell.text())
   }
+}
+
+export function getCellType(cell) {
+  let sheet = cell.getDocument()
+  let row = cell.parentNode
+  let colIdx = row._childNodes.indexOf(cell.id)
+  let columnMeta = sheet.getColumnMeta(colIdx)
+  return cell.attr('type') || columnMeta.attr('type') || 'any'
 }
 
 export function valueFromText(preferredType, text) {
@@ -144,26 +151,27 @@ export function getIndexesFromRange(start, end) {
   return { startRow, startCol, endRow, endCol }
 }
 
-export function getRangeFromMatrix(cells, startRow, startCol, endRow, endCol) {
-  if (startRow === endRow && startCol === endCol) {
-    return cells[startCol][endCol]
-  }
-  if (startRow === endRow) {
-    return cells[startRow].slice(startCol, endCol+1)
-  }
-  if (startCol === endCol) {
-    let res = []
-    for (let i = startRow; i <= endRow; i++) {
-      res.push(cells[i][startCol])
+export function getRangeFromMatrix(cells, startRow, startCol, endRow, endCol, force2D) {
+  if (!force2D) {
+    if (startRow === endRow && startCol === endCol) {
+      return cells[startCol][endCol]
     }
-    return res
-  } else {
-    let res = []
-    for (var i = startRow; i < endRow+1; i++) {
-      res.push(cells[i].slice(startCol, endCol+1))
+    if (startRow === endRow) {
+      return cells[startRow].slice(startCol, endCol+1)
     }
-    return res
+    if (startCol === endCol) {
+      let res = []
+      for (let i = startRow; i <= endRow; i++) {
+        res.push(cells[i][startCol])
+      }
+      return res
+    }
   }
+  let res = []
+  for (var i = startRow; i < endRow+1; i++) {
+    res.push(cells[i].slice(startCol, endCol+1))
+  }
+  return res
 }
 
 // This is useful for writing tests, to use queries such as 'A1:A10'

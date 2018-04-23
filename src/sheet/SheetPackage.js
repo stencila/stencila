@@ -12,7 +12,6 @@ import {
 
 import SheetDocumentImporter from './SheetDocumentImporter'
 import ColumnSettingsDialog from './ColumnSettingsDialog'
-import SheetIssuesComponent from './SheetIssuesComponent'
 
 import NullValueComponent from '../shared/NullValueComponent'
 import BooleanValueComponent from '../shared/BooleanValueComponent'
@@ -270,8 +269,6 @@ export default {
     config.addIcon('integer-cell-type', {'fontawesome': 'fa-hashtag' })
     config.addIcon('boolean-cell-type', {'fontawesome': 'fa-check-square-o' })
 
-    config.addComponent('sheet-issues', SheetIssuesComponent)
-    config.addLabel('sheet-issues', 'Issues')
     config.addLabel('function-reference',' Function Reference')
 
     config.addLabel('title:error', {
