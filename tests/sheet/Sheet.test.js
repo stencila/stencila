@@ -16,6 +16,9 @@ import { queryValues, play } from '../util/engineTestHelpers'
 
   > TODO:
     - insert/delete rows/cols (effect on engine)
+    - SheetClipboard
+    - SheetCommands
+    - sheetManipulations
 */
 
 test('Sheet (model): inserting rows should increase row count', (t) => {
@@ -74,6 +77,23 @@ test('Sheet (engine): update a cell', (t) => {
   setCell(sheetSession, 0, 1, '55')
   play(engine).then(() => {
     t.deepEqual(queryValues(engine, 'sheet!A1:C1'), [1, 55, 3], 'sheet value should have been updated')
+  })
+})
+
+test('Sheet (engine): insert a row', (t) => {
+  t.plan(2)
+  let { engine, sheetSession } = _setupWithEngine(simple())
+  setCell(sheetSession, 3, 0, '=sum(A1:A3)')
+  play(engine).then(() => {
+    t.equal(queryValues(engine, 'sheet!A4'), 12, 'sheet value should be correct')
+  })
+  .then(() => {
+    insertRows(sheetSession, 1, 1)
+    setCell(sheetSession, 1, 0, '3')
+  })
+  .then(() => play(engine))
+  .then(() => {
+    t.equal(queryValues(engine, 'sheet!A5'), 15, 'sheet value should have been updated')
   })
 })
 
