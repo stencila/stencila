@@ -168,10 +168,6 @@ export default class Engine extends EventEmitter {
     return this._docs.hasOwnProperty(id)
   }
 
-  getResource(id) {
-    return this._docs[id]
-  }
-
   needsUpdate() {
     return this._nextActions.size > 0 || this._graph.needsUpdate()
   }
