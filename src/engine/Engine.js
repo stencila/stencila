@@ -1008,7 +1008,9 @@ class RangeCell {
 
   _initialize() {
     const docId = this.docId
-    const { startRow, startCol, endRow, endCol } = getIndexesFromRange(symbol.anchor, symbol.focus)
+    const symbol = this.symbol
+    const [start, end] = symbol.name.split(':')
+    const { startRow, startCol, endRow, endCol } = getIndexesFromRange(start, end)
 
     this.startRow = startRow
     this.endRow = endRow
