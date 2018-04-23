@@ -34,17 +34,16 @@ export function getStates(cells) {
 }
 
 export function queryValues(engine, expr) {
-  let graph = engine.graph
   let symbol = parseSymbol(expr)
   if (!symbol.scope) throw new Error('query must use fully qualified identifiers')
+  let docId = engine._lookupDocumentId(symbol.scope)
+  if (!docId) throw new Error('Unknown resource:', symbol.scope)
   switch (symbol.type) {
     case 'var':
     case 'cell': {
-      return graph.getValue(expr)
+      return getValue(_resolveCell(engine, docId, symbol.name))
     }
     case 'range': {
-      let docId = engine._lookupDocumentId(symbol.scope)
-      if (!docId) throw new Error('Unknown resource:', symbol.scope)
       let sheet = engine._docs[docId]
       const { startRow, startCol, endRow, endCol } = getIndexesFromRange(symbol.anchor, symbol.focus)
       let cells = getRangeFromMatrix(sheet.getCells(), startRow, startCol, endRow, endCol)
@@ -52,6 +51,14 @@ export function queryValues(engine, expr) {
     }
     default:
       //
+  }
+}
+
+function _resolveCell(engine, docId, name) {
+  const graph = engine._graph
+  let cellId = graph._out[docId+'!'+name]
+  if (cellId) {
+    return graph.getCell(cellId)
   }
 }
 
