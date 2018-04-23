@@ -1,8 +1,11 @@
 import test from 'tape'
-import { insertRows, deleteRows } from '../../src/sheet/sheetManipulations'
+import { insertRows, deleteRows, setCell } from '../../src/sheet/sheetManipulations'
 import createRawArchive from '../util/createRawArchive'
 import loadRawArchive from '../util/loadRawArchive'
 import StubEngine from '../util/StubEngine'
+import setupEngine from '../util/setupEngine'
+import { queryValues, play } from '../util/engineTestHelpers'
+
 
 /*
   This test is using an archive with a sheet attached to the Engine
@@ -36,6 +39,24 @@ test('Sheet (model): deleting rows should decrease row count', (t) => {
   t.end()
 })
 
+test('Sheet (engine): registration', (t) => {
+  t.plan(2)
+  let { engine } = _setupWithEngine(simple())
+  t.ok(engine.hasResource( 'sheet'), 'sheet should have been registered')
+  play(engine).then(() => {
+    t.deepEqual(queryValues(engine, 'sheet!A1:C1'), [1, 2, 3], 'sheet values should be set')
+  })
+})
+
+test('Sheet (engine): update a cell', (t) => {
+  t.plan(1)
+  let { engine, sheetSession } = _setupWithEngine(simple())
+  setCell(sheetSession, 0, 1, '55')
+  play(engine).then(() => {
+    t.deepEqual(queryValues(engine, 'sheet!A1:C1'), [1, 55, 3], 'sheet value should have been updated')
+  })
+})
+
 function simple() {
   return {
     id: 'sheet',
@@ -53,12 +74,20 @@ function simple() {
 }
 
 function _setupModel(sheetData) {
-  let context = {
-    engine: new StubEngine()
-  }
+  let engine = new StubEngine()
+  return _setup(sheetData, engine)
+}
+
+function _setupWithEngine(sheetData) {
+  let { engine } = setupEngine()
+  return _setup(sheetData, engine)
+}
+
+function _setup(sheetData, engine) {
+  let context = { engine }
   let rawArchive = createRawArchive([ sheetData ])
   let archive = loadRawArchive(rawArchive, context)
   let sheetSession = archive.getEditorSession('sheet')
   let sheet = sheetSession.getDocument()
-  return { archive, sheetSession, sheet }
+  return { archive, sheetSession, sheet, engine }
 }
