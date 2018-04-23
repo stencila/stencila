@@ -3,7 +3,6 @@ import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
 import ProjectBar from './ProjectBar'
 import ContextPane from './ContextPane'
-import { _connectDocumentToEngine } from '../stencilaAppHelpers'
 
 export default class Project extends Component {
 
@@ -146,7 +145,6 @@ export default class Project extends Component {
     }
     let archive = this._getDocumentArchive()
     let newDocumentId = archive.addDocument(type, name, xml)
-    _connectDocumentToEngine(archive, newDocumentId, this.context)
     this._openDocument(newDocumentId)
   }
 

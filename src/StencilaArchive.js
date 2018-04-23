@@ -76,6 +76,20 @@ export default class StencilaArchive extends TextureArchive {
     return doc.documentType
   }
 
+  // added `info.action = 'addDocument'`
+  // TODO: this should go into substance.PersistedDocumentArchive
+  _addDocumentRecord(documentId, type, name, path) {
+    this._sessions.manifest.transaction(tx => {
+      let documents = tx.find('documents')
+      let docEntry = tx.createElement('document', { id: documentId }).attr({
+        name: name,
+        path: path,
+        type: type
+      })
+      documents.appendChild(docEntry)
+    }, { action: 'addDocument' })
+  }
+
   // added `info.action = 'renameDocument'`
   // TODO: this should go into substance.PersistedDocumentArchive
   renameDocument(documentId, name) {

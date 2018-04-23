@@ -47,20 +47,20 @@ export function _initStencilaArchive(archive, context) {
   const ENGINE_REFRESH_INTERVAL = 10 // ms
   engine.run(ENGINE_REFRESH_INTERVAL)
   // when a document is renamed, transclusions must be updated
-  _listenForDocumentRename(archive, engine)
+  _listenForDocumentRecordUpdates(archive, engine)
   // documents and sheets must be registered with the engine
   // and hooks for structural sheet updates must be established
   // to update transclusions.
   let entries = archive.getDocumentEntries()
   forEach(entries, entry => {
-    _connectDocumentToEngine(archive, entry.id, context)
+    _connectDocumentToEngine(engine, archive, entry.id)
   })
   return Promise.resolve(archive)
 }
 
 // Connects documents with the Cell Engine
 // and registers hooks to update transclusions.
-export function _connectDocumentToEngine(archive, documentId, { engine }) {
+export function _connectDocumentToEngine(engine, archive, documentId) {
   let manifest = archive.getEditorSession('manifest').getDocument()
   let docEntry = manifest.get(documentId)
   let editorSession = archive.getEditorSession(documentId)
@@ -86,7 +86,7 @@ export function _connectDocumentToEngine(archive, documentId, { engine }) {
   }
 }
 
-function _listenForDocumentRename(archive, engine) {
+function _listenForDocumentRecordUpdates(archive, engine) {
   let editorSession = archive.getEditorSession('manifest')
   editorSession.on('update', _onManifestChange.bind(null, archive, engine), null, { resource: 'document' })
 }
@@ -112,6 +112,12 @@ function _onManifestChange(archive, engine, change) {
         engine._setResourceName(docId, newName)
         _updateTransclusionsInArchive(archive, docId, action, { oldName, newName })
       }
+      break
+    }
+    case 'addDocument': {
+      let op = change.ops[0]
+      let docId = op.path[0]
+      _connectDocumentToEngine(engine, archive, docId)
       break
     }
     default:
