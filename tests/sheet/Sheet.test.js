@@ -1,5 +1,5 @@
 import test from 'tape'
-import { insertRows, deleteRows, setCell } from '../../src/sheet/sheetManipulations'
+import { insertRows, deleteRows, insertCols, deleteCols, setCell } from '../../src/sheet/sheetManipulations'
 import createRawArchive from '../util/createRawArchive'
 import createSheetXML from '../util/createSheetXML'
 import loadRawArchive from '../util/loadRawArchive'
@@ -14,18 +14,10 @@ import { queryValues, play } from '../util/engineTestHelpers'
 
   All tests are done on a model level, i.e. the UI is not tested.
 
-  # TODO
-
-  Model manipulations
-  - inserting rows/cols (effect on model only)
-  - deleting rows/cols (effect on model only)
-  - changing a value
-  - clearing a range
-  Engine adapter
-  - inserting rows/cols (effect on engine)
-  - deleting rows/cols (effect on model only)
-
+  > TODO:
+    - insert/delete rows/cols (effect on engine)
 */
+
 test('Sheet (model): inserting rows should increase row count', (t) => {
   let { sheetSession, sheet } = _setupModel(simple())
   insertRows(sheetSession, 1, 2)
@@ -37,6 +29,20 @@ test('Sheet (model): deleting rows should decrease row count', (t) => {
   let { sheetSession, sheet } = _setupModel(simple())
   deleteRows(sheetSession, 1, 2)
   t.deepEqual(sheet.getRowCount(), 2, 'row count should have been updated')
+  t.end()
+})
+
+test('Sheet (model): inserting columns should increase column count', (t) => {
+  let { sheetSession, sheet } = _setupModel(simple())
+  insertCols(sheetSession, 1, 2)
+  t.deepEqual(sheet.getColumnCount(), 5, 'row count should have been updated')
+  t.end()
+})
+
+test('Sheet (model): deleting columns should decrease column count', (t) => {
+  let { sheetSession, sheet } = _setupModel(simple())
+  deleteCols(sheetSession, 1, 2)
+  t.deepEqual(sheet.getColumnCount(), 1, 'row count should have been updated')
   t.end()
 })
 
