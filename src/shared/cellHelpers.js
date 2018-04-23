@@ -2,7 +2,7 @@ import { isNumber, isString } from 'substance'
 import { TextureDocument } from 'substance-texture'
 import { type } from '../value'
 import { parseSymbol, getCellExpressions } from './expressionHelpers'
-
+import transformRange from '../engine/transformRange'
 
 export function getCellState(cell) {
   // FIXME: we should make sure that cellState is
@@ -235,46 +235,16 @@ export function renameTransclusions(source, oldName, newName) {
 }
 
 function _transformCellRangeExpression(expr, { dim, pos, count }) {
-  const mode = count > 0 ? 'insert' : 'remove'
-  count = Math.abs(count)
-  if(!isNumber(pos) || !isNumber(count) || (dim !== 'col' && dim !== 'row')) {
-    throw new Error('Illegal arguments')
-  }
+  if(!isNumber(pos) || !isNumber(count) || (dim !== 'col' && dim !== 'row')) throw new Error('Illegal arguments')
   let range = _getCellRange(expr, dim)
-  const isCellReference = range.start === range.end
-  // If operation applied to col/rows after given range we shoudn't modify expression
-  if(range.end < pos) {
+  let t = transformRange(range.start, range.end, pos, count)
+  if (t === null) {
+    return BROKEN_REF
+  } else if (t === false) {
     return expr
-  }
-  if(mode === 'insert') {
-    if(pos <= range.start) {
-      range.start += count
-    }
-    if(pos <= range.end && !isCellReference) {
-      range.end += count
-    }
   } else {
-    // If it is removing of cell reference or cell range is inside removed range we should return error
-    if(isCellReference && range.start === pos && mode === 'remove' || range.start > pos && range.end < pos + count && mode === 'remove') {
-      return BROKEN_REF
-    }
-    const x1 = pos
-    const x2 = pos + count
-    const start = range.start
-    const end = range.end
-    if (x2 <= start) {
-      range.start -= count
-      range.end -= count
-    } else {
-      if (pos <= start) {
-        range.start = start - Math.min(count, start - x1)
-      }
-      if (pos <= end) {
-        range.end = end - Math.min(count, end - x1 + 1)
-      }
-    }
+    return _modifyCellRangeLabel(expr, t, dim)
   }
-  return _modifyCellRangeLabel(expr, range, dim)
 }
 
 function _getCellRange(expr, dim) {
