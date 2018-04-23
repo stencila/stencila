@@ -40,6 +40,27 @@ export function deleteCols(editorSession, pos, count) {
   }, { action: 'deleteCols', pos, count })
 }
 
+export function setCell(editorSession, row, col, val) {
+  editorSession.transaction(tx => {
+    let sheet = tx.getDocument()
+    let cell = sheet.getCell(row, col)
+    if (cell) {
+      cell.textContent = val
+      tx.setSelection({
+        type: 'custom',
+        customType: 'sheet',
+        data: {
+          type: 'range',
+          anchorRow: row,
+          anchorCol: col,
+          focusRow: row,
+          focusCol: col
+        }
+      })
+    }
+  }, { action: 'setCell' })
+}
+
 export function setValues(editorSession, startRow, startCol, vals) {
   let n = vals.length
   let m = vals[0].length

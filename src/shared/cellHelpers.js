@@ -136,37 +136,47 @@ export function getFrameSize(layout) {
   return sizes
 }
 
+export function getIndexesFromRange(start, end) {
+  let [startRow, startCol] = getRowCol(start)
+  let [endRow, endCol] = getRowCol(end)
+  if (startRow > endRow) ([startRow, endRow] = [endRow, startRow])
+  if (startCol > endCol) ([startCol, endCol] = [endCol, startCol])
+  return { startRow, startCol, endRow, endCol }
+}
+
+export function getRangeFromMatrix(cells, startRow, startCol, endRow, endCol) {
+  if (startRow === endRow && startCol === endCol) {
+    return cells[startCol][endCol]
+  }
+  if (startRow === endRow) {
+    return cells[startRow].slice(startCol, endCol+1)
+  }
+  if (startCol === endCol) {
+    let res = []
+    for (let i = startRow; i <= endRow; i++) {
+      res.push(cells[i][startCol])
+    }
+    return res
+  } else {
+    let res = []
+    for (var i = startRow; i < endRow+1; i++) {
+      res.push(cells[i].slice(startCol, endCol+1))
+    }
+    return res
+  }
+}
+
 // This is useful for writing tests, to use queries such as 'A1:A10'
 export function queryCells(cells, query) {
-  let { type, name } = parseSymbol(query)
-  switch (type) {
+  let symbol = parseSymbol(query)
+  switch (symbol.type) {
     case 'cell': {
-      const [row, col] = getRowCol(name)
+      const [row, col] = getRowCol(symbol.name)
       return cells[row][col]
     }
     case 'range': {
-      let [anchor, focus] = name.split(':')
-      const [startRow, startCol] = getRowCol(anchor)
-      const [endRow, endCol] = getRowCol(focus)
-      if (startRow === endRow && startCol === endCol) {
-        return cells[startCol][endCol]
-      }
-      if (startRow === endRow) {
-        return cells[startRow].slice(startCol, endCol+1)
-      }
-      if (startCol === endCol) {
-        let res = []
-        for (let i = startRow; i <= endRow; i++) {
-          res.push(cells[i][startCol])
-        }
-        return res
-      } else {
-        let res = []
-        for (var i = startRow; i < endRow+1; i++) {
-          res.push(cells[i].slice(startCol, endCol+1))
-        }
-        return res
-      }
+      const { startRow, startCol, endRow, endCol } = getIndexesFromRange(symbol.anchor, symbol.focus)
+      return getRangeFromMatrix(cells, startRow, startCol, endRow, endCol)
     }
     default:
       throw new Error('Unsupported query')

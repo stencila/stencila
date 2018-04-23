@@ -48,7 +48,7 @@ export default function createSheetXML(spec) {
         }
         if (id) cell.attr('id', id)
         if (type) cell.attr('type', type)
-        cell.append(doc.createCDATASection(source))
+        cell.append(source)
         row.append(cell)
       })
       data.append(row)

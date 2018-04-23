@@ -5,7 +5,7 @@ import { UNKNOWN, ANALYSED, READY } from './CellStates'
 import Cell from './Cell'
 import CellSymbol from './CellSymbol'
 import { parseSymbol } from '../shared/expressionHelpers'
-import { getRowCol, valueFromText, getCellLabel, getColumnLabel, qualifiedId as _qualifiedId, queryCells } from '../shared/cellHelpers'
+import { valueFromText, getCellLabel, getColumnLabel, qualifiedId as _qualifiedId, queryCells, getIndexesFromRange } from '../shared/cellHelpers'
 import { gather } from '../value'
 
 /*
@@ -162,6 +162,14 @@ export default class Engine extends EventEmitter {
     let sheet = new Sheet(this, data)
     this._registerResource(sheet)
     return sheet
+  }
+
+  hasResource(id) {
+    return this._docs.hasOwnProperty(id)
+  }
+
+  getResource(id) {
+    return this._docs[id]
   }
 
   needsUpdate() {
@@ -1000,12 +1008,7 @@ class RangeCell {
 
   _initialize() {
     const docId = this.docId
-    const name = this.symbol.name
-    let [start, end] = name.split(':')
-    let [startRow, startCol] = getRowCol(start)
-    let [endRow, endCol] = getRowCol(end)
-    if (startRow > endRow) ([startRow, endRow] = [endRow, startRow])
-    if (startCol > endCol) ([startCol, endCol] = [endCol, startCol])
+    const { startRow, startCol, endRow, endCol } = getIndexesFromRange(symbol.anchor, symbol.focus)
 
     this.startRow = startRow
     this.endRow = endRow

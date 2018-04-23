@@ -121,17 +121,17 @@ function _createSymbol(m) {
   const endPos = text.length + startPos
   const mangledStr = toIdentifier(m[0])
   const scope = m[1] || m[2]
-  const anchorCell = m[3]
-  const focusCell = m[4]
+  const anchor = m[3]
+  const focus = m[4]
   const varName = m[5]
   let type, name
-  if (anchorCell) {
-    if (focusCell && focusCell !== anchorCell) {
+  if (anchor) {
+    if (focus && focus !== anchor) {
       type = 'range'
-      name = anchorCell + ':' + focusCell
+      name = anchor + ':' + focus
     } else {
       type = 'cell'
-      name = anchorCell
+      name = anchor
     }
   } else if (varName) {
     type = 'var'
@@ -139,5 +139,5 @@ function _createSymbol(m) {
   } else {
     throw new Error('Invalid symbol expression')
   }
-  return { type, scope, name, mangledStr, startPos, endPos }
+  return { type, scope, name, mangledStr, startPos, endPos, anchor, focus }
 }
