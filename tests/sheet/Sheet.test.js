@@ -1,6 +1,7 @@
 import test from 'tape'
 import { insertRows, deleteRows, setCell } from '../../src/sheet/sheetManipulations'
 import createRawArchive from '../util/createRawArchive'
+import createSheetXML from '../util/createSheetXML'
 import loadRawArchive from '../util/loadRawArchive'
 import StubEngine from '../util/StubEngine'
 import setupEngine from '../util/setupEngine'
@@ -42,10 +43,23 @@ test('Sheet (model): deleting rows should decrease row count', (t) => {
 test('Sheet (engine): registration', (t) => {
   t.plan(2)
   let { engine } = _setupWithEngine(simple())
-  t.ok(engine.hasResource( 'sheet'), 'sheet should have been registered')
+  t.ok(engine.hasResource('sheet'), 'sheet should have been registered')
   play(engine).then(() => {
     t.deepEqual(queryValues(engine, 'sheet!A1:C1'), [1, 2, 3], 'sheet values should be set')
   })
+})
+
+test('Sheet (engine): registration of a new sheet', (t) => {
+  let { archive, engine } = _setupWithEngine(simple())
+  let sheetXml = createSheetXML({
+    cells: [
+      ['1', '2'],
+      ['3', '4'],
+    ]
+  })
+  let sheetId = archive.addDocument('sheet', 'Sheet 2', sheetXml)
+  t.ok(engine.hasResource(sheetId), 'new sheet should have been registered')
+  t.end()
 })
 
 test('Sheet (engine): update a cell', (t) => {
