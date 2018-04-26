@@ -657,8 +657,8 @@ test('Engine: delete cols', t => {
   })
 })
 
-test('Engine: insert and delete a row', t => {
-  t.plan(5)
+test('Engine: insert a row', t => {
+  t.plan(3)
   let { engine } = _setup()
   let sheet = engine.addSheet({
     id: 'sheet1',
@@ -684,21 +684,13 @@ test('Engine: insert and delete a row', t => {
   .then(() => {
     t.deepEqual(getValues(cells), [18,23], 'cells should have correct values')
   })
-  .then(() => {
-    sheet.deleteRows(2, 1)
-    t.deepEqual(getSources(cells), ['=sum(A1:A4)','=sum(B1:B4)'], 'sources should have been updated')
-  })
-  .then(() => play(engine))
-  .then(() => {
-    t.deepEqual(getValues(cells), [15,19], 'cells should have correct values')
-  })
 })
 
-test('Engine: update cell references on structural changes', t => {
-  t.plan(2)
+test('Engine: delete a row', t => {
+  t.plan(3)
   let { engine } = _setup()
   let sheet = engine.addSheet({
-    id: 'sheet',
+    id: 'sheet1',
     lang: 'mini',
     cells: [
       ['1', '2'],
@@ -708,16 +700,18 @@ test('Engine: update cell references on structural changes', t => {
       ['=sum(A1:A4)', '=sum(B1:B4)'],
     ]
   })
+  let cells = sheet.cells[4]
   play(engine)
   .then(() => {
-    t.deepEqual(getValues(sheet.queryCells('A5:B5')), [16, 20], 'sum should be computed correctly')
+    t.deepEqual(getValues(cells), [16,20], 'cells should have correct values')
   })
   .then(() => {
-    sheet.insertRows(1, [['2', '2']])
+    sheet.deleteRows(2, 1)
+    t.deepEqual(getSources(cells), ['=sum(A1:A3)','=sum(B1:B3)'], 'sources should have been updated')
   })
   .then(() => play(engine))
   .then(() => {
-    t.deepEqual(getValues(sheet.queryCells('A6:B6')), [18, 22], 'sheet should have correct values')
+    t.deepEqual(getValues(cells), [11,14], 'cells should have correct values')
   })
 })
 
