@@ -1,12 +1,13 @@
-import { uuid, isString, EventEmitter, flatten } from 'substance'
-import CellGraph from './CellGraph'
-import { ContextError, RuntimeError, SyntaxError, UnresolvedInputError } from './CellErrors'
+import { isString, EventEmitter, flatten } from 'substance'
+import { ContextError, RuntimeError, SyntaxError } from './CellErrors'
 import { UNKNOWN, ANALYSED, READY } from './CellStates'
-import Cell from './Cell'
 import CellSymbol from './CellSymbol'
 import { parseSymbol } from '../shared/expressionHelpers'
-import { valueFromText, getCellLabel, getColumnLabel, qualifiedId as _qualifiedId, queryCells, getIndexesFromRange } from '../shared/cellHelpers'
 import { gather } from '../value'
+import { valueFromText, getColumnLabel, qualifiedId as _qualifiedId } from '../shared/cellHelpers'
+import EngineCellGraph from './EngineCellGraph'
+import Sheet from './Sheet'
+import Document from './Document'
 
 /*
   WIP
@@ -56,16 +57,10 @@ import { gather } from '../value'
 
   Sheet Ranges:
 
-  Sheet Ranges such as `sheet1!A1:B10` are treated as independent symbols produced by so called RangeCells.
-  RangeCells act as a proxy cell for the underlying cells.
-  E.g. `sheet1!A1:B10` is produced by a RangeCell with dependencies `['A1', ..., 'B10']`.
-  In contrast to a regular cell, a RangeCell does not need an extra evaluation step. Instead its value
-  can be derived synchronously, as soon as all dependencies are ready.
-
-  One challenge is that such cells should be pruned automatically, when not used anymore.
-  E.g., when the source of a cell is changed from `sheet1!A1:B10` to `sheet1!A1:B11`,
-  the former hidden cell should be removed if there is no other cell left that depends on it.
-
+  TODO: the former approach using special internal cells as proxy to
+  cell ranges turned out to be cumbersome and error prone.
+  Now I want to approach this differently, by adding a special means to lookup
+  cell symbols and to propagate cell states for these.
 
   Open Questions:
 
@@ -113,7 +108,7 @@ export default class Engine extends EventEmitter {
     this._host = options.host
 
     this._docs = {}
-    this._graph = new CellGraph()
+    this._graph = new EngineCellGraph(this)
 
     // for every (actionable) cell there is information what to do next
     // There are several steps that need to be done, to complete a cell:
@@ -197,31 +192,7 @@ export default class Engine extends EventEmitter {
         }
       })
       actions.register.forEach(a => {
-        a.inputs.forEach(symbol => {
-          if (symbol.type === 'range') {
-            let rangeCell = graph.getCell(symbol)
-            if (!rangeCell) {
-              // console.log('registering RangeCell for', symbol.id)
-              rangeCell = new RangeCell(symbol)
-              graph.addCell(rangeCell)
-            }
-            rangeCell.refs++
-          }
-        })
         let cell = graph.getCell(a.id)
-        // Note: we do a ref-couting for RangeCells and remove it
-        // when it is not referenced somewhere else
-        cell.inputs.forEach(symbol => {
-          if (symbol.type === 'range') {
-            let rangeCell = graph.getCell(symbol)
-            rangeCell.refs--
-            if (rangeCell.refs === 0) {
-              // console.log('removing RangeCell for', rangeCell.symbol.id)
-              graph.removeCell(rangeCell.id)
-            }
-          }
-        })
-
         if (cell.isSheetCell()) {
           graph.setInputs(cell.id, a.inputs)
         } else {
@@ -293,7 +264,10 @@ export default class Engine extends EventEmitter {
   */
   _unregisterCell(cellOrId) { // eslint-disable-line
     let id = isString(cellOrId) ? cellOrId : cellOrId.id
-    this._graph.removeCell(id)
+    let cell = this._graph.getCell(id)
+    if (cell) {
+      this._graph.removeCell(id)
+    }
   }
 
   _updateCell(id, cellData) {
@@ -329,22 +303,10 @@ export default class Engine extends EventEmitter {
         // TODO: this requires another cycle to propagate the result of the RangeCell,
         // which would not be necessary in theory
         if (cell.status === READY) {
-          if (cell instanceof RangeCell) {
-            let value = this._getValueForRange(cell)
-            // TODO: as RangeCells are not visible for the user
-            // this error does not help much
-            // Instead, the original expression should have an unresolved input error
-            if (!value) {
-              graph.addError(cell.id, new UnresolvedInputError())
-            } else {
-              graph.setValue(cell.id, value)
-            }
-          } else {
-            this._nextActions.set(cell.id, {
-              type: 'evaluate',
-              id: cell.id
-            })
-          }
+          this._nextActions.set(cell.id, {
+            type: 'evaluate',
+            id: cell.id
+          })
         }
         if (!cell.hidden) {
           updatedCells.push(cell)
@@ -415,6 +377,8 @@ export default class Engine extends EventEmitter {
         this._nextActions.set(id, {
           type: 'register',
           id,
+          // Note: these symbols are in plain-text analysed by the context
+          // based on the transpiled source
           inputs,
           output
         })
@@ -473,27 +437,27 @@ export default class Engine extends EventEmitter {
   }
 
   _compile(res, cell) {
-    const scopeId = cell.docId
     const symbolMapping = cell.symbolMapping
     let inputs = new Set()
+    // Note: the inputs here are given as mangledStr
     res.inputs.forEach(str => {
-      // TODO: we already have transpiled the symbol, can we reuse it here?
+      // ... so we are mapping back to the original source
       str = symbolMapping[str] || str
-      const { type, scope, name, mangledStr } = parseSymbol(str)
+      // TODO: this parsing has already be done by 'transpile'
+      const { type, scope, name, mangledStr, startPos, endPos } = parseSymbol(str)
       // if there is a scope given explicily try to lookup the doc
-      let _scopeId = scopeId
+      let docId = cell.docId
       if (scope) {
         // Note: a failed lookup will eventually lead to a broken dependency
         // thus, we rely on the CellGraph to figure this out
-        _scopeId = this._lookupDocumentId(scope) || scope
+        docId = this._lookupDocumentId(scope) || scope
       }
-      let qualifiedId = _qualifiedId(_scopeId, name)
-      const symbol = new CellSymbol(type, qualifiedId, _scopeId, name, mangledStr)
+      const symbol = new CellSymbol(type, docId, name, str, mangledStr, startPos, endPos, cell)
       inputs.add(symbol)
     })
     // turn the output into a qualified id
     let output
-    if (res.output) output = _qualifiedId(scopeId, res.output)
+    if (res.output) output = _qualifiedId(cell.docId, res.output)
     return { inputs, output }
   }
 
@@ -514,11 +478,30 @@ export default class Engine extends EventEmitter {
   _getInputValues(inputs) {
     const graph = this._graph
     let result = {}
-    inputs.forEach(symbol => {
+    inputs.forEach(s => {
+      let val
+      switch(s.type) {
+        case 'cell': {
+          let sheet = this._docs[s.scope]
+          if (sheet) {
+            let cell = sheet.cells[s.startRow][s.startCol]
+            val = cell.value
+          }
+          break
+        }
+        case 'range': {
+          let sheet = this._docs[s.scope]
+          if (sheet) {
+            val = _getValueForRange(sheet, s.startRow, s.startCol, s.endRow, s.endCol)
+          }
+          break
+        }
+        default:
+          val = graph.getValue(s)
+      }
       // Note: the transpiled source code is used for evaluation
       // thus we expose values via transpiled/mangled names here
-      let val = graph.getValue(symbol)
-      result[symbol.mangledStr] = val
+      result[s.mangledStr] = val
     })
     return result
   }
@@ -539,85 +522,6 @@ export default class Engine extends EventEmitter {
   _lookupDocument(name) {
     let docId = this._lookupDocumentId(name)
     return this._docs[docId]
-  }
-
-  /*
-    Gathers the value for a cell range
-    - `A1:A1`: value
-    - `A1:A10`: array
-    - `A1:E1`: array
-    - `A1:B10`: table
-
-    TODO: we should try to avoid using specific coercion here
-  */
-  _getValueForRange(rangeCell) {
-    const { startRow, endRow, startCol, endCol } = rangeCell
-    // TODO: rangeCell.docId is not accurate; it seems that this is the rather 'name'
-    let sheet = this._lookupDocument(rangeCell.docId)
-
-    if (!sheet) return undefined
-
-    let matrix = sheet.getCells()
-    let val
-    // range is a single cell
-    // NOTE: with the current implementation of parseSymbol this should not happen
-    /* istanbul ignore if */
-    if (startRow === endRow && startCol === endCol) {
-      val = getCellValue(matrix[startRow][startCol])
-    }
-    // range is 1D
-    else if (startRow === endRow) {
-      let cells = matrix[startRow].slice(startCol, endCol+1)
-      val = this._getArrayValueForCells(cells)
-    }
-    else if (startCol === endCol) {
-      let cells = []
-      for (let i = startRow; i <= endRow; i++) {
-        cells.push(matrix[i][startCol])
-      }
-      val = this._getArrayValueForCells(cells)
-    }
-    // range is 2D (-> creating a table)
-    else {
-      let data = {}
-      for (let j = startCol; j <= endCol; j++) {
-        let name = sheet.getColumnName(j) || getColumnLabel(j)
-        let cells = []
-        for (let i = startRow; i <= endRow; i++) {
-          cells.push(matrix[i][j])
-        }
-        // TODO: why is it necessary to extract the primitive value here, instead of just using getCellValue()?
-        data[name] = cells.map(c => {
-          let val = getCellValue(c)
-          if (val) {
-            return val.data
-          } else {
-            return undefined
-          }
-        })
-      }
-      val = {
-        // Note: first 'type' is for packing
-        // and second type for diambiguation against other complex types
-        type: 'table',
-        data: {
-          type: 'table',
-          data,
-          columns: endCol-startCol+1,
-          rows: endRow-startRow+1
-        }
-      }
-    }
-    return val
-  }
-
-  _getArrayValueForCells(cells) {
-    // TODO: we should try to decouple this implementation from
-    // the rest of the application.
-    // this is related to the Stencila's type system
-    // Either, the engine is strongly coupled to the type system
-    // or we need to introduce an abstraction.
-    return gather('array', cells.map(c => getCellValue(c)))
   }
 
   _canRunCell(cell) {
@@ -666,365 +570,80 @@ export default class Engine extends EventEmitter {
   }
 }
 
-/*
-  Engine's internal model of a Document.
-*/
-class Document {
-
-  constructor(engine, data) {
-    this.engine = engine
-    this.data = data
-    if (!data.id) throw new Error("'id' is required")
-    this.id = data.id
-    this.name = data.name
-    this.lang = data.lang || 'mini'
-    if (data.hasOwnProperty('autorun')) {
-      this.autorun = data.autorun
-    } else {
-      // TODO: using manual execution as a default for now
-      this.autorun = true
-    }
-    this.cells = data.cells.map(cellData => this._createCell(cellData))
-    // registration hook used for propagating initial cell state to the application
-    if (data.onCellRegister) this.onCellRegister = data.onCellRegister
-  }
-
-  get type() { return 'document' }
-
-  getCells() {
-    return this.cells
-  }
-
-  setAutorun(val) {
-    this.autorun = val
-  }
-
-  insertCellAt(pos, cellData) {
-    let cell = this._createCell(cellData)
-    this._registerCell(cell)
-    this.cells.splice(pos, 0, cell)
-    return cell
-  }
-
-  removeCell(id) {
-    const qualifiedId = _qualifiedId(this.id, id)
-    const cells = this.cells
-    let pos = cells.findIndex(cell => cell.id === qualifiedId)
-    if (pos >= 0) {
-      let cell = cells[pos]
-      this.cells.splice(pos,1)
-      this.engine._unregisterCell(cell)
-    } else {
-      console.error('Unknown cell', id)
-    }
-  }
-
-  updateCell(id, cellData) {
-    let qualifiedId = _qualifiedId(this.id, id)
-    if (isString(cellData)) {
-      cellData = { source: cellData }
-    }
-    this.engine._updateCell(qualifiedId, cellData)
-  }
-
-  onCellRegister(cell) { // eslint-disable-line
-  }
-
-  _createCell(cellData) {
-    if (isString(cellData)) {
-      let source = cellData
-      cellData = {
-        id: uuid(),
-        docId: this.id,
-        source,
-        lang: this.lang
-      }
-    }
-    return new Cell(this, cellData)
-  }
-
-  _registerCell(cell) {
-    const engine = this.engine
-    engine._registerCell(cell)
-    this.onCellRegister(cell)
-  }
-
-  _registerCells(block) {
-    if (!block) block = this.cells
-    block.forEach(cell => this._registerCell(cell))
-  }
-}
-
-/*
-  Engine's internal model of a Spreadsheet.
-*/
-class Sheet {
-
-  constructor(engine, data) {
-    this.engine = engine
-    const docId = data.id
-    if (!docId) throw new Error("'id' is required")
-    this.id = docId
-    this.name = data.name
-    // default language
-    const defaultLang = data.lang || 'mini'
-    this.lang = defaultLang
-    if (data.hasOwnProperty('autorun')) {
-      this.autorun = data.autorun
-    } else {
-      // TODO: using auto/ cells automatically by default
-      this.autorun = true
-    }
-    this.autorun = true
-    // TODO: we can revise this as we move on
-    // for now, data.cells must be present being a sequence of rows of cells.
-    // data.columns is optional, but if present every data row have corresponding dimensions
-    if (!data.cells) throw new Error("'cells' is mandatory")
-    let ncols
-    if (data.columns) {
-      this.columns = data.columns
-    } else {
-      ncols = data.cells[0].length
-      let columns = []
-      for (let i = 0; i < ncols; i++) {
-        columns.push({ type: 'auto' })
-      }
-      this.columns = columns
-    }
-    ncols = this.columns.length
-    this.cells = data.cells.map((rowData) => {
-      if (rowData.length !== ncols) throw new Error('Invalid data')
-      return rowData.map(cellData => this._createCell(cellData))
-    })
-    this._initializeOutputs()
-
-    if (data.onCellRegister) this.onCellRegister = data.onCellRegister
-  }
-
-  get type() { return 'sheet' }
-
-  setAutorun(val) {
-    this.autorun = val
-  }
-
-  getColumnName(colIdx) {
-    let columnMeta = this.columns[colIdx]
-    if (columnMeta && columnMeta.name) {
-      return columnMeta.name
-    } else {
-      return getColumnLabel(colIdx)
-    }
-  }
-
-  getCells() {
-    return this.cells
-  }
-
-  queryCells(range) {
-    return queryCells(this.cells, range)
-  }
-
-  updateCell(id, cellData) {
-    let qualifiedId = _qualifiedId(this.id, id)
-    if (isString(cellData)) {
-      cellData = { source: cellData }
-    }
-    this.engine._updateCell(qualifiedId, cellData)
-  }
-
-  insertRows(pos, dataBlock) {
-    // TODO: what if all columns and all rows had been removed
-    let ncols = this.columns.length
-    let block = dataBlock.map((rowData) => {
-      if (rowData.length !== ncols) throw new Error('Invalid data')
-      return rowData.map(cellData => this._createCell(cellData))
-    })
-    this.cells.splice(pos, 0, ...block)
-    this._registerCells(block)
-    this._updateCellOutputs(pos, 0)
-  }
-
-  deleteRows(pos, count) {
-    let block = this.cells.slice(pos, pos+count)
-    this.cells.splice(pos, count)
-    this._unregisterCells(block)
-    this._updateCellOutputs(pos, 0)
-  }
-
-  insertCols(pos, dataBlock) {
-    const N = this.cells.length
-    if (dataBlock.length !== N) throw new Error('Invalid dimensions')
-    if (dataBlock.length === 0) return
-    let m = dataBlock[0].length
-    let block = dataBlock.map((rowData) => {
-      if (rowData.length !== m) throw new Error('Invalid data')
-      return rowData.map(cellData => this._createCell(cellData))
-    })
-    let cols = []
-    for (let i = 0; i < m; i++) {
-      cols.push({ type: 'auto' })
-    }
-    this.columns.splice(pos, 0, ...cols)
-    for (let i = 0; i < N; i++) {
-      let row = this.cells[i]
-      row.splice(pos, 0, ...block[i])
-    }
-    this._registerCells(block)
-    this._updateCellOutputs(0, pos)
-  }
-
-  deleteCols(pos, count) {
-    const N = this.cells.length
-    let block = []
-    this.columns.splice(pos, count)
-    for (var i = 0; i < N; i++) {
-      let row = this.cells[i]
-      block.push(row.slice(pos, pos+count))
-      row.splice(pos, count)
-    }
-    this._unregisterCells(block)
-    this._updateCellOutputs(0, pos)
-  }
-
-  onCellRegister(cell) { // eslint-disable-line
-  }
-
-  // This must be called after structural changes to update
-  // the output symbol a cell which is derived from its position in the sheet
-  // i.e. `cells[0][0]` in `sheet1` is associated to symbol `sheet1!A1`
-  _updateCellOutputs(startRow, startCol) {
-    const graph = this.engine._graph
-    const cells = this.cells
-    const N = cells.length
-    const M = this.columns.length
-    for (let i = startRow; i < N; i++) {
-      for (let j = startCol; j < M; j++) {
-        let cell = cells[i][j]
-        if (cell.output) {
-          graph._deregisterOutput(cell.id, cell.output)
-        }
-      }
-    }
-    for (let i = startRow; i < N; i++) {
-      for (let j = startCol; j < M; j++) {
-        let cell = cells[i][j]
-        cell.output = this._getCellSymbol(i, j)
-        graph._registerOutput(cell.id, null, cell.output)
-      }
-    }
-  }
-
-  _initializeOutputs() {
-    const cells = this.cells
-    const N = cells.length
-    const M = this.columns.length
-    for (let i = 0; i < N; i++) {
-      for (let j = 0; j < M; j++) {
-        let cell = cells[i][j]
-        let output = this._getCellSymbol(i, j)
-        cell.output = output
-      }
-    }
-  }
-
-  _getCellSymbol(rowIdx, colIdx) {
-    return `${this.id}!${getCellLabel(rowIdx, colIdx)}`
-  }
-
-  _createCell(cellData) {
-    // simple format: just the expression
-    if (isString(cellData)) {
-      let source = cellData
-      cellData = {
-        id: uuid(),
-        docId: this.id,
-        source,
-      }
-    }
-    let cell = new Cell(this, cellData)
-    return cell
-  }
-
-  _registerCell(cell) {
-    const engine = this.engine
-    engine._registerCell(cell)
-    this.onCellRegister(cell)
-  }
-
-  _unregisterCell(cell) {
-    const engine = this.engine
-    engine._unregisterCell(cell)
-  }
-
-  _registerCells(block) {
-    if (!block) block = this.cells
-    block.forEach(row => row.forEach(cell => this._registerCell(cell)))
-  }
-
-  _unregisterCells(block) {
-    if (!block) block = this.cells
-    block.forEach(row => row.forEach(cell => this._unregisterCell(cell)))
-  }
-}
-
-/*
-  An internal cell that is used to represent range expressions such as `A1:B10`.
-  This cell is used as proxy with a canonical expansion to primitive cells.
-  I.e. `A1:B10` is proxied to `['A1',...,'B10']
-*/
-class RangeCell {
-
-  constructor(symbol) {
-    this.symbol = symbol
-    this.id = symbol.id
-    this.docId = symbol.scope
-    this.inputs = new Set()
-    this.output = symbol.id
-
-    // managed by CellGraph
-    this.status = ANALYSED
-    this.value = undefined
-
-    this.refs = 0
-
-    this._initialize()
-  }
-
-  get hidden() { return true }
-
-  hasError() { return false }
-
-  hasErrors() { return false }
-
-  clearErrors() {}
-
-  addErrors() {}
-
-  getValue() { return this.value }
-
-  _initialize() {
-    const docId = this.docId
-    const symbol = this.symbol
-    const [start, end] = symbol.name.split(':')
-    const { startRow, startCol, endRow, endCol } = getIndexesFromRange(start, end)
-
-    this.startRow = startRow
-    this.endRow = endRow
-    this.startCol = startCol
-    this.endCol = endCol
-
-    for (let i = startRow; i <= endRow; i++) {
-      for (let j = startCol; j <= endCol; j++) {
-        let cellName = getCellLabel(i, j)
-        let id = _qualifiedId(docId, cellName)
-        // Note: it should be fine to use a string here, because we do not need
-        // to do any deeper reflection, and just use it as a key
-        this.inputs.add(id)
-      }
-    }
-  }
-}
-
 function getCellValue(cell) {
   return cell ? cell.value : undefined
+}
+
+function _getArrayValueForCells(cells) {
+  // TODO: we should try to decouple this implementation from
+  // the rest of the application.
+  // this is related to the Stencila's type system
+  // Either, the engine is strongly coupled to the type system
+  // or we need to introduce an abstraction.
+  return gather('array', cells.map(c => getCellValue(c)))
+}
+
+
+/*
+  Gathers the value for a cell range
+  - `A1:A1`: value
+  - `A1:A10`: array
+  - `A1:E1`: array
+  - `A1:B10`: table
+
+  TODO: we should try to avoid using specific coercion here
+*/
+function _getValueForRange(sheet, startRow, startCol, endRow, endCol) {
+  let matrix = sheet.getCells()
+  let val
+  // range is a single cell
+  // NOTE: with the current implementation of parseSymbol this should not happen
+  /* istanbul ignore if */
+  if (startRow === endRow && startCol === endCol) {
+    val = getCellValue(matrix[startRow][startCol])
+  }
+  // range is 1D
+  else if (startRow === endRow) {
+    let cells = matrix[startRow].slice(startCol, endCol+1)
+    val = _getArrayValueForCells(cells)
+  }
+  else if (startCol === endCol) {
+    let cells = []
+    for (let i = startRow; i <= endRow; i++) {
+      cells.push(matrix[i][startCol])
+    }
+    val = _getArrayValueForCells(cells)
+  }
+  // range is 2D (-> creating a table)
+  else {
+    let data = {}
+    for (let j = startCol; j <= endCol; j++) {
+      let name = sheet.getColumnName(j) || getColumnLabel(j)
+      let cells = []
+      for (let i = startRow; i <= endRow; i++) {
+        cells.push(matrix[i][j])
+      }
+      // TODO: why is it necessary to extract the primitive value here, instead of just using getCellValue()?
+      data[name] = cells.map(c => {
+        let val = getCellValue(c)
+        if (val) {
+          return val.data
+        } else {
+          return undefined
+        }
+      })
+    }
+    val = {
+      // Note: first 'type' is for packing
+      // and second type for diambiguation against other complex types
+      type: 'table',
+      data: {
+        type: 'table',
+        data,
+        columns: endCol-startCol+1,
+        rows: endRow-startRow+1
+      }
+    }
+  }
+  return val
 }
