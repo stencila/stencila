@@ -31,8 +31,6 @@ export default class Cell {
       this.unqualifiedId = id
     }
 
-    this._isSheetCell = (this.doc && this.doc.type === 'sheet')
-
     this.lang = lang
 
     // the source code is transpiled to an object with
@@ -135,7 +133,7 @@ export default class Cell {
   }
 
   isSheetCell() {
-    return this._isSheetCell
+    return false
   }
 
   toString() {
@@ -161,7 +159,7 @@ export default class Cell {
     let transpiled
     let symbolMapping = {}
     let isConstant = false
-    if (this._isSheetCell) {
+    if (this.isSheetCell()) {
       let m = isExpression(source)
       if (m) {
         let L = m[0].length
