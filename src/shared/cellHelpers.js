@@ -145,31 +145,42 @@ export function getFrameSize(layout) {
 
 export function getIndexesFromRange(start, end) {
   let [startRow, startCol] = getRowCol(start)
-  let [endRow, endCol] = getRowCol(end)
-  if (startRow > endRow) ([startRow, endRow] = [endRow, startRow])
-  if (startCol > endCol) ([startCol, endCol] = [endCol, startCol])
+  let endRow, endCol
+  if (end) {
+    ([endRow, endCol] = getRowCol(end))
+    if (startRow > endRow) ([startRow, endRow] = [endRow, startRow])
+    if (startCol > endCol) ([startCol, endCol] = [endCol, startCol])
+  } else {
+    ([endRow, endCol] = [startRow, startCol])
+  }
   return { startRow, startCol, endRow, endCol }
 }
 
 export function getRangeFromMatrix(cells, startRow, startCol, endRow, endCol, force2D) {
   if (!force2D) {
     if (startRow === endRow && startCol === endCol) {
-      return cells[startCol][endCol]
+      let row = cells[startCol]
+      if (row) return row[endCol]
+      else return undefined
     }
     if (startRow === endRow) {
-      return cells[startRow].slice(startCol, endCol+1)
+      let row = cells[startRow]
+      if (row) return row.slice(startCol, endCol+1)
+      else return []
     }
     if (startCol === endCol) {
       let res = []
       for (let i = startRow; i <= endRow; i++) {
-        res.push(cells[i][startCol])
+        let row = cells[i]
+        if (row) res.push(row[startCol])
       }
       return res
     }
   }
   let res = []
   for (var i = startRow; i < endRow+1; i++) {
-    res.push(cells[i].slice(startCol, endCol+1))
+    let row = cells[i]
+    if (row) res.push(row.slice(startCol, endCol+1))
   }
   return res
 }
