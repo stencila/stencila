@@ -2,7 +2,6 @@ import { isString, EventEmitter, flatten } from 'substance'
 import { ContextError, RuntimeError, SyntaxError } from './CellErrors'
 import { UNKNOWN, ANALYSED, READY } from './CellStates'
 import CellSymbol from './CellSymbol'
-import { parseSymbol } from '../shared/expressionHelpers'
 import { gather } from '../value'
 import { valueFromText, getColumnLabel, qualifiedId as _qualifiedId } from '../shared/cellHelpers'
 import EngineCellGraph from './EngineCellGraph'
@@ -438,26 +437,26 @@ export default class Engine extends EventEmitter {
 
   _compile(res, cell) {
     const symbolMapping = cell.symbolMapping
+    const docId = cell.docId
     let inputs = new Set()
     // Note: the inputs here are given as mangledStr
+    // typically we have detected these already during transpilation
+    // Let's wait for it to happen where this is not the case
     res.inputs.forEach(str => {
-      // ... so we are mapping back to the original source
-      str = symbolMapping[str] || str
-      // TODO: this parsing has already be done by 'transpile'
-      const { type, scope, name, mangledStr, startPos, endPos } = parseSymbol(str)
+      // Note: during transpilation we identify some more symbols
+      // which are actually not real variables
+      // e.g. for `sum(A1:B10)` would detect 'sum' as a potential variable
+      // due to the lack of language reflection at this point.
+      let s = symbolMapping[str]
+      if (!s) throw new Error('FIXME: a symbol has been returned by analyseCode which has not been tracked before')
       // if there is a scope given explicily try to lookup the doc
-      let docId = cell.docId
-      if (scope) {
-        // Note: a failed lookup will eventually lead to a broken dependency
-        // thus, we rely on the CellGraph to figure this out
-        docId = this._lookupDocumentId(scope) || scope
-      }
-      const symbol = new CellSymbol(type, docId, name, str, mangledStr, startPos, endPos, cell)
-      inputs.add(symbol)
+      // otherwise it is a local reference, i.e. within the same document as the cell
+      let targetDocId = s.scope ? this._lookupDocumentId(s.scope) : docId
+      inputs.add(new CellSymbol(s, targetDocId, cell))
     })
     // turn the output into a qualified id
     let output
-    if (res.output) output = _qualifiedId(cell.docId, res.output)
+    if (res.output) output = _qualifiedId(docId, res.output)
     return { inputs, output }
   }
 
@@ -482,7 +481,7 @@ export default class Engine extends EventEmitter {
       let val
       switch(s.type) {
         case 'cell': {
-          let sheet = this._docs[s.scope]
+          let sheet = this._docs[s.docId]
           if (sheet) {
             let cell = sheet.cells[s.startRow][s.startCol]
             val = cell.value
@@ -490,7 +489,7 @@ export default class Engine extends EventEmitter {
           break
         }
         case 'range': {
-          let sheet = this._docs[s.scope]
+          let sheet = this._docs[s.docId]
           if (sheet) {
             val = _getValueForRange(sheet, s.startRow, s.startCol, s.endRow, s.endCol)
           }

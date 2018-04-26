@@ -19,6 +19,20 @@ export function getValues(cells) {
   })
 }
 
+export function getSource(cell) {
+  return cell.source
+}
+
+export function getSources(cells) {
+  return cells.map(rowOrCell => {
+    if (isArray(rowOrCell)) {
+      return rowOrCell.map(getValue)
+    } else {
+      return getSource(rowOrCell)
+    }
+  })
+}
+
 export function getErrors(cells) {
   return cells.map(cell => {
     return cell.errors.map(err => {

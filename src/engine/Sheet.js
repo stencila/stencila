@@ -1,5 +1,6 @@
 import { uuid, isString } from 'substance'
 import { getCellLabel, getColumnLabel, qualifiedId as _qualifiedId, queryCells } from '../shared/cellHelpers'
+import { toIdentifier } from '../shared/expressionHelpers'
 import SheetCell from './SheetCell'
 import transformRange from './transformRange'
 
@@ -81,29 +82,13 @@ export default class Sheet {
   insertRows(pos, dataBlock) {
     // TODO: what if all columns and all rows had been removed
     const count = dataBlock.length
+    if (count === 0) return
     const ncols = this.columns.length
     let block = dataBlock.map((rowData) => {
       if (rowData.length !== ncols) throw new Error('Invalid data')
       return rowData.map(cellData => this._createCell(cellData))
     })
-    // transform all existing symbols and track affected cells
-    let cells = this.cells
-    let spans = []
-    let affected = new Set()
-    let visited = new Set()
-    for (let i = pos; i < cells.length; i++) {
-      let row = cells[i]
-      for (let j = 0; j < row.length; j++) {
-        let cell = row[j]
-        if (cell.deps.size > 0) {
-          let _spans = _transformDeps(cell, 0, pos, count, affected, visited)
-          if (_spans.length > 0) {
-            if (!spans[j]) spans[j] = []
-            spans[j] = spans[j].concat(_spans)
-          }
-        }
-      }
-    }
+    let spans = _transformCells(this.engine, this.cells, 0, pos, count)
     // add the spanning symbols to the deps of the new cells
     for (let i = 0; i < block.length; i++) {
       let row = block[i]
@@ -115,39 +100,50 @@ export default class Sheet {
     // update sheet structure
     this.cells.splice(pos, 0, ...block)
     this._registerCells(block)
-    // TODO
-    // reset state of affected cells
-    // this.engine._graph.resetCells(affected)
   }
 
   deleteRows(pos, count) {
+    if (count === 0) return
     let block = this.cells.slice(pos, pos+count)
+    _transformCells(this.engine, this.cells, 0, pos, -count)
     this.cells.splice(pos, count)
     this._unregisterCells(block)
   }
 
   insertCols(pos, dataBlock) {
-    const N = this.cells.length
-    if (dataBlock.length !== N) throw new Error('Invalid dimensions')
-    if (dataBlock.length === 0) return
-    let m = dataBlock[0].length
+    const nrows = this.cells.length
+    if (dataBlock.length !== nrows) throw new Error('Invalid dimensions')
+    let count = dataBlock[0].length
+    if (count === 0) return
+    // transform cells
+    let spans = _transformCells(this.engine, this.cells, 1, pos, count)
     let block = dataBlock.map((rowData) => {
-      if (rowData.length !== m) throw new Error('Invalid data')
+      if (rowData.length !== count) throw new Error('Invalid data')
       return rowData.map(cellData => this._createCell(cellData))
     })
     let cols = []
-    for (let i = 0; i < m; i++) {
+    for (let i = 0; i < count; i++) {
       cols.push({ type: 'auto' })
     }
     this.columns.splice(pos, 0, ...cols)
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < nrows; i++) {
       let row = this.cells[i]
       row.splice(pos, 0, ...block[i])
+    }
+    // add the spanning symbols to the deps of the new cells
+    for (let i = 0; i < block.length; i++) {
+      let row = block[i]
+      for (let j = 0; j < row.length; j++) {
+        let cell = row[j]
+        if (spans[i]) cell.deps = new Set(spans[j])
+      }
     }
     this._registerCells(block)
   }
 
   deleteCols(pos, count) {
+    if (count === 0) return
+    _transformCells(this.engine, this.cells, 1, pos, -count)
     const N = this.cells.length
     let block = []
     this.columns.splice(pos, count)
@@ -224,7 +220,52 @@ export default class Sheet {
   }
 }
 
-function _transformDeps(cell, dim, pos, count, affected, visited) {
+function _transformCells(engine, cells, dim, pos, count) {
+  if (count === 0) return []
+  // track updates for symbols and affected cells
+  let startRow = 0
+  let startCol = 0
+  if (count > 0) {
+    if (dim === 0) {
+      startRow = pos
+    } else {
+      startCol = pos
+    }
+  } else {
+    if (dim === 0) {
+      startRow = pos-count
+    } else {
+      startCol = pos-count
+    }
+  }
+  let spans = []
+  let affected = new Set()
+  let visited = new Set()
+  for (let i = startRow; i < cells.length; i++) {
+    let row = cells[i]
+    for (let j = startCol; j < row.length; j++) {
+      let cell = row[j]
+      if (cell.deps.size > 0) {
+        let _spans = _recordTransformations(cell, dim, pos, count, affected, visited)
+        if (_spans.length > 0) {
+          if (!spans[j]) spans[j] = []
+          spans[j] = spans[j].concat(_spans)
+        }
+      }
+    }
+  }
+  // update the source for all cells
+  affected.forEach(_transformCell)
+  // reset state of affected cells
+  // TODO: let this be done by CellGraph, also making sure the cell state is reset properly
+  affected.forEach(cell => {
+    engine._graph._structureChanged.add(cell.id)
+  })
+  return spans
+}
+
+
+function _recordTransformations(cell, dim, pos, count, affectedCells, visited) {
   let spans = []
   cell.deps.forEach(s => {
     if (visited.has(s)) return
@@ -239,41 +280,69 @@ function _transformDeps(cell, dim, pos, count, affected, visited) {
     }
     let res = transformRange(start, end, pos, count)
     if (!res) return
-    affected.add(s.cell)
-    if (res.start === start) {
+    affectedCells.add(s.cell)
+    if (count > 0 && res.start === start) {
       spans.push(s)
     }
-    _transformSymbol(s, dim, res.start, res.end)
+    if (dim === 0) {
+      s._update = {
+        startRow: res.start,
+        endRow: res.end
+      }
+    } else {
+      s._update = {
+        startCol: res.start,
+        endCol: res.end
+      }
+    }
   })
   return spans
 }
 
-function _transformSymbol(s, dim, newStart, newEnd) {
-  let origStr = s.origStr
-  // transform the symbol
-  // and change the source
-  if (dim === 0) {
-    s.startRow = newStart
-    s.endRow = newEnd
-  } else {
-    s.startCol = newStart
-    s.endCol = newEnd
+function _transformCell(cell) {
+  let symbols = Array.from(cell.inputs).sort((a, b) => a.startPos - b.startPos)
+  let source = cell._source
+  let offset = 0
+  for (let i = 0; i < symbols.length; i++) {
+    let s = symbols[i]
+    let update = s._update
+    if (!update) continue
+    delete s._update
+    // 1. update the symbol
+    Object.assign(s, update)
+    // name
+    let oldName = s.name
+    let newName = getCellLabel(s.startRow, s.startCol)
+    if (s.type === 'range') {
+      newName += ':' + getCellLabel(s.endRow, s.endCol)
+    }
+    // origStr
+    let oldOrigStr = s.origStr
+    let newOrigStr = oldOrigStr.replace(oldName, newName)
+    // mangledStr
+    let oldMangledName = toIdentifier(oldName)
+    let newMangledName = toIdentifier(newName)
+    let oldMangledStr = s.mangledStr
+    let newMangledStr = oldMangledStr.replace(oldMangledName, newMangledName)
+    // start- and endPos
+    let newStartPos = s.startPos + offset
+    let newEndPos = newStartPos + newOrigStr.length
+    // 2. replace the symbol in the source and the transpiled source
+    let newSource = source.original.slice(0, s.startPos) + newOrigStr + source.original.slice(s.endPos)
+    let newTranspiled = source.transpiled.slice(0, s.startPos) + newMangledStr + source.transpiled.slice(s.endPos)
+    // finally write the updated values
+    s.name = newName
+    s.id = _qualifiedId(s.docId, newName)
+    s.origStr = newOrigStr
+    s.mangledStr = newMangledStr
+    s.startPos = newStartPos
+    s.endPos = newEndPos
+    source.original = newSource
+    source.transpiled = newTranspiled
+    source.symbolMapping[newMangledStr] = s
+    delete source.symbolMapping[oldMangledStr]
+    // update the offset if the source is getting longer because of this change
+    // this has an effect on all subsequent symbols
+    offset += newOrigStr.length - oldOrigStr.length
   }
-  let newName = getCellLabel(s.startRow, s.startCol)
-  if (s.type === 'range') {
-    newName += ':' + getCellLabel(s.endRow, s.endCol)
-  }
-  s.name = newName
-  debugger
-
-  // what to replace?
-  // cell:
-  //  original,
-  //  transpiled,
-  //  symbolMapping,
-  // symbol:
-  //  name
-  //  origStr
-  //  mangledStr
-
 }

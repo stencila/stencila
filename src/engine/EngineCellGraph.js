@@ -9,8 +9,8 @@ export default class EngineCellGraph extends CellGraph {
     this._engine = engine
   }
 
-  _getDoc(docId) {
-    return this._engine._docs[docId]
+  _getDoc(s) {
+    return this._engine._docs[s.docId]
   }
 
   _setInputs(cell, newInputs) {
@@ -18,7 +18,7 @@ export default class EngineCellGraph extends CellGraph {
     super._setInputs(cell, newInputs)
     oldInputs.forEach(s => {
       if (s.type !== 'var') {
-        let sheet = this._getDoc(s.scope)
+        let sheet = this._getDoc(s)
         if (sheet) {
           sheet._removeDep(s)
         }
@@ -26,7 +26,7 @@ export default class EngineCellGraph extends CellGraph {
     })
     newInputs.forEach(s => {
       if (s.type !== 'var') {
-        let sheet = this._getDoc(s.scope)
+        let sheet = this._getDoc(s)
         if (sheet) {
           sheet._addDep(s)
         }
@@ -37,7 +37,7 @@ export default class EngineCellGraph extends CellGraph {
   _resolve(s) {
     switch(s.type) {
       case 'cell': {
-        let sheet = this._getDoc(s.scope)
+        let sheet = this._getDoc(s)
         if (sheet) {
           let row = sheet.cells[s.startRow]
           if (row) {
@@ -48,7 +48,7 @@ export default class EngineCellGraph extends CellGraph {
         break
       }
       case 'range': {
-        let sheet = this._getDoc(s.scope)
+        let sheet = this._getDoc(s)
         if (sheet) {
           let cells = getRangeFromMatrix(sheet.cells, s.startRow, s.startRow, s.endRow, s.endCol)
           return flatten(cells).map(c => c.id)

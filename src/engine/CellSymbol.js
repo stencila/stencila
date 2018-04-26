@@ -13,20 +13,17 @@ import { getIndexesFromRange, qualifiedId } from '../shared/cellHelpers'
 export default class CellSymbol {
 
   /*
-   * @param {string} type 'var'|'cell'|'range'
-   * @param {string} docId id of the target document
-   * @param {string} name name of the variable, cell, or range, e.g. 'x', 'A1', or 'A1:B10'
-   * @param {string} origStr the full original symbol, as occurred in the original source
-   * @param {string} mangledStr a mangled version of origStr
-   * @param {number} startPos first character in the cell's source
-   * @param {number} endPos last character in the cell's source
+   * @param {Symbol} s the parsed symbol
+   * @param {string} docId id of the target document where the symbol can be resolved
+   * @param {Cell} cell the owner cell which has this symbol as an input dependency
    */
-  constructor(type, docId, name, origStr, mangledStr, startPos, endPos, cell) {
+  constructor({ type, scope, name, text, mangledStr, startPos, endPos}, targetDocId, cell) {
     this.type = type
-    this.scope = docId
+    this.scope = scope
     this.name = name
-    this.id = qualifiedId(docId, name)
-    this.origStr = origStr
+    this.docId = targetDocId
+    this.id = qualifiedId(targetDocId, name)
+    this.origStr = text
     this.mangledStr = mangledStr
     this.startPos = startPos
     this.endPos = endPos

@@ -165,7 +165,8 @@ export default class Cell {
         let L = m[0].length
         let prefix = new Array(L)
         prefix.fill(' ')
-        transpiled = prefix + transpile(source.slice(L), symbolMapping)
+        source = prefix + source.slice(L)
+        transpiled = transpile(source, symbolMapping)
       } else {
         isConstant = true
       }

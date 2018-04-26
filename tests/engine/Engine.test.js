@@ -2,7 +2,7 @@ import test from 'tape'
 import { UNKNOWN } from '../../src/engine/CellStates'
 import { RuntimeError } from '../../src/engine/CellErrors'
 import _setup from '../util/setupEngine'
-import { getValue, getValues, getStates, getErrors, cycle, play } from '../util/engineTestHelpers'
+import { getValue, getValues, getSources, getStates, getErrors, cycle, play } from '../util/engineTestHelpers'
 
 test('Engine: simple sheet', t=> {
   t.plan(1)
@@ -658,7 +658,7 @@ test('Engine: delete cols', t => {
 })
 
 test('Engine: insert and delete a row', t => {
-  t.plan(1)
+  t.plan(5)
   let { engine } = _setup()
   let sheet = engine.addSheet({
     id: 'sheet1',
@@ -668,20 +668,29 @@ test('Engine: insert and delete a row', t => {
       ['3', '4'],
       ['5', '6'],
       ['7', '8'],
-      ['9', '=sum(A1:B4)'],
+      ['=sum(A1:A4)', '=sum(B1:B4)'],
     ]
   })
+  let cells = sheet.cells[4]
   play(engine)
   .then(() => {
-    sheet.insertRows(1, [['0', '0']])
+    t.deepEqual(getValues(cells), [16,20], 'cells should have correct values')
+  })
+  .then(() => {
+    sheet.insertRows(1, [['2', '3']])
+    t.deepEqual(getSources(cells), ['=sum(A1:A5)','=sum(B1:B5)'], 'sources should have been updated')
   })
   .then(() => play(engine))
+  .then(() => {
+    t.deepEqual(getValues(cells), [18,23], 'cells should have correct values')
+  })
   .then(() => {
     sheet.deleteRows(2, 1)
+    t.deepEqual(getSources(cells), ['=sum(A1:A4)','=sum(B1:B4)'], 'sources should have been updated')
   })
   .then(() => play(engine))
   .then(() => {
-    t.deepEqual(getValues(sheet.getCells()), [[1,2],[0,0],[5, 6],[7,8],[9,29]], 'sheet should have correct values')
+    t.deepEqual(getValues(cells), [15,19], 'cells should have correct values')
   })
 })
 
