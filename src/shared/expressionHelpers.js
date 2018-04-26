@@ -139,5 +139,5 @@ function _createSymbol(m) {
   } else {
     throw new Error('Invalid symbol expression')
   }
-  return { type, scope, name, mangledStr, startPos, endPos, anchor, focus }
+  return { type, text, scope, name, mangledStr, startPos, endPos, anchor, focus }
 }
