@@ -2,7 +2,7 @@ import test from 'tape'
 import { UNKNOWN } from '../../src/engine/CellStates'
 import { RuntimeError } from '../../src/engine/CellErrors'
 import _setup from '../util/setupEngine'
-import { getValue, getValues, getStates, getErrors, cycle, play } from '../util/engineTestHelpers'
+import { getValue, getValues, getSources, getStates, getErrors, cycle, play } from '../util/engineTestHelpers'
 
 test('Engine: simple sheet', t=> {
   t.plan(1)
@@ -134,30 +134,23 @@ test('Engine: range expression', t=> {
     ]
   })
   let [ [,,cell1], [,,cell2], [cell3,,cell4] ] = sheet.getCells()
+  let cells = [cell1, cell2, cell3, cell4]
   cycle(engine)
   .then(() => {
-    _checkActions(t, engine, [cell1, cell2, cell3, cell4], ['register', 'register','register', 'register'])
-    return cycle(engine)
+    _checkActions(t, engine, cells, ['register', 'register','register', 'register'])
   })
-  // an extra cycle because a RangeCell is a proxy to the referenced cells
-  // and to propagate he gathered values
+  .then(() => cycle(engine))
   .then(() => {
-    return cycle(engine)
+    _checkActions(t, engine, cells, ['evaluate', 'evaluate','evaluate', 'evaluate'])
   })
-  // and another cycle to get the mini cells evaluated
+  .then(() => cycle(engine))
   .then(() => {
-    // Note: that 'B2:B2' is treated as a cell reference, and thus it does not need to be evaluated
-    _checkActions(t, engine, [cell1, cell2, cell3, cell4], ['evaluate', 'update','evaluate', 'evaluate'])
-    return cycle(engine)
+    _checkActions(t, engine, cells, ['update', 'update', 'update','update'])
   })
-  // and another one to update the values
-  .then(() => {
-    _checkActions(t, engine, [cell1, cell2, cell3, cell4], ['update', undefined, 'update','update'])
-    return cycle(engine)
-  })
+  .then(() => cycle(engine))
   .then(() => {
     t.deepEqual(
-      getValues([cell1, cell2, cell3, cell4]),
+      getValues(cells),
       [[1,2], 4, [1,3], {"type":"table","data":{"A":[1,3],"B":[2,4]},"columns":2,"rows":2}],
       'values should have been computed'
     )
@@ -343,8 +336,8 @@ test('Engine (Sheet): cell expressions', t => {
 test('Engine: changing a range expression', t=> {
   // Note: internally we instantiate a proxy cell
   // which should be pruned automatically if it is not needed anymore
-  t.plan(4)
-  let { engine, graph } = _setup()
+  t.plan(2)
+  let { engine } = _setup()
   let sheet = engine.addSheet({
     id: 'sheet1',
     lang: 'mini',
@@ -353,7 +346,6 @@ test('Engine: changing a range expression', t=> {
   let [,,,[cell4]] = sheet.getCells()
   play(engine)
   .then(() => {
-    t.ok(graph.hasCell('sheet1!A1:A2'), 'a range cell should be registered')
     t.deepEqual(getValue(cell4), [1,2], 'range expression should be evaluated')
   })
   .then(() => {
@@ -361,7 +353,6 @@ test('Engine: changing a range expression', t=> {
   })
   .then(() => play(engine))
   .then(() => {
-    t.notOk(graph.hasCell('sheet1!A1:A2'), 'the former range cell should have been pruned')
     t.deepEqual(getValue(cell4), [1,2,3], 'range expression should be updated')
   })
 })
@@ -666,8 +657,8 @@ test('Engine: delete cols', t => {
   })
 })
 
-test('Engine: insert and delete a row', t => {
-  t.plan(1)
+test('Engine: insert a row', t => {
+  t.plan(3)
   let { engine } = _setup()
   let sheet = engine.addSheet({
     id: 'sheet1',
@@ -677,20 +668,50 @@ test('Engine: insert and delete a row', t => {
       ['3', '4'],
       ['5', '6'],
       ['7', '8'],
-      ['9', '=sum(A1:B4)'],
+      ['=sum(A1:A4)', '=sum(B1:B4)'],
     ]
   })
+  let cells = sheet.cells[4]
   play(engine)
   .then(() => {
-    sheet.insertRows(1, [['0', '0']])
+    t.deepEqual(getValues(cells), [16,20], 'cells should have correct values')
+  })
+  .then(() => {
+    sheet.insertRows(1, [['2', '3']])
+    t.deepEqual(getSources(cells), ['=sum(A1:A5)','=sum(B1:B5)'], 'sources should have been updated')
   })
   .then(() => play(engine))
+  .then(() => {
+    t.deepEqual(getValues(cells), [18,23], 'cells should have correct values')
+  })
+})
+
+test('Engine: delete a row', t => {
+  t.plan(3)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4'],
+      ['5', '6'],
+      ['7', '8'],
+      ['=sum(A1:A4)', '=sum(B1:B4)'],
+    ]
+  })
+  let cells = sheet.cells[4]
+  play(engine)
+  .then(() => {
+    t.deepEqual(getValues(cells), [16,20], 'cells should have correct values')
+  })
   .then(() => {
     sheet.deleteRows(2, 1)
+    t.deepEqual(getSources(cells), ['=sum(A1:A3)','=sum(B1:B3)'], 'sources should have been updated')
   })
   .then(() => play(engine))
   .then(() => {
-    t.deepEqual(getValues(sheet.getCells()), [[1,2],[0,0],[5, 6],[7,8],[9,29]], 'sheet should have correct values')
+    t.deepEqual(getValues(cells), [11,14], 'cells should have correct values')
   })
 })
 

@@ -1,7 +1,7 @@
 import { isArray } from 'substance'
 import { toString as cellStatusToString } from '../../src/engine/CellStates'
 import { parseSymbol } from '../../src/shared/expressionHelpers'
-import { getIndexesFromRange, getRangeFromMatrix } from '../../src/shared/cellHelpers'
+import { getIndexesFromRange, getRangeFromMatrix, getRowCol } from '../../src/shared/cellHelpers'
 
 export function getValue(cell) {
   if (cell.value) {
@@ -15,6 +15,20 @@ export function getValues(cells) {
       return rowOrCell.map(getValue)
     } else {
       return getValue(rowOrCell)
+    }
+  })
+}
+
+export function getSource(cell) {
+  return cell.source
+}
+
+export function getSources(cells) {
+  return cells.map(rowOrCell => {
+    if (isArray(rowOrCell)) {
+      return rowOrCell.map(getValue)
+    } else {
+      return getSource(rowOrCell)
     }
   })
 }
@@ -39,9 +53,13 @@ export function queryValues(engine, expr) {
   let docId = engine._lookupDocumentId(symbol.scope)
   if (!docId) throw new Error('Unknown resource:', symbol.scope)
   switch (symbol.type) {
-    case 'var':
+    case 'var': {
+      return engine._graph.getValue(expr)
+    }
     case 'cell': {
-      return getValue(_resolveCell(engine, docId, symbol.name))
+      let sheet = engine._docs[docId]
+      let [row, col] = getRowCol(symbol.name)
+      return getValue(sheet.cells[row][col])
     }
     case 'range': {
       let sheet = engine._docs[docId]
@@ -51,14 +69,6 @@ export function queryValues(engine, expr) {
     }
     default:
       //
-  }
-}
-
-function _resolveCell(engine, docId, name) {
-  const graph = engine._graph
-  let cellId = graph._out[docId+'!'+name]
-  if (cellId) {
-    return graph.getCell(cellId)
   }
 }
 

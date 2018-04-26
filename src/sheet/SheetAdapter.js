@@ -64,41 +64,41 @@ export default class SheetAdapter extends DocumentAdapter {
         model.deleteCols(pos, count)
         break
       }
-      default:
-        //
-    }
-    // Note: only detecting updates on operation level
-    // structural changes (insert/remove row/column) are special type of changes
-    // TODO: deal with updates to columns (name, types)
-    let updated
-    const ops = change.ops
-    for (let i = 0; i < ops.length; i++) {
-      const op = ops[i]
-      switch (op.type) {
-        case 'set':
-        case 'update': {
-          let node = doc.get(op.path[0])
-          // null if node is deleted within the same change
-          if (!node) continue
-          if (this._isCell(node)) {
-            if (!updated) updated = new Set()
-            updated.add(node.id)
+      default: {
+        // Note: only detecting updates on operation level
+        // structural changes (insert/remove row/column) are special type of changes
+        // TODO: deal with updates to columns (name, types)
+        let updated
+        const ops = change.ops
+        for (let i = 0; i < ops.length; i++) {
+          const op = ops[i]
+          switch (op.type) {
+            case 'set':
+            case 'update': {
+              let node = doc.get(op.path[0])
+              // null if node is deleted within the same change
+              if (!node) continue
+              if (this._isCell(node)) {
+                if (!updated) updated = new Set()
+                updated.add(node.id)
+              }
+              break
+            }
+            default:
+              //
           }
-          break
         }
-        default:
-          //
+        if (updated) {
+          updated.forEach(id => {
+            const cell = this.doc.get(id)
+            const cellData = {
+              source: getSource(cell),
+              lang: getLang(cell)
+            }
+            model.updateCell(id, cellData)
+          })
+        }
       }
-    }
-    if (updated) {
-      updated.forEach(id => {
-        const cell = this.doc.get(id)
-        const cellData = {
-          source: getSource(cell),
-          lang: getLang(cell)
-        }
-        model.updateCell(id, cellData)
-      })
     }
   }
 

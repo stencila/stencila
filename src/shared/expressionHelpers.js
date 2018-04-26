@@ -53,24 +53,20 @@ const REF_RE = new RegExp(REF)
   @result
 */
 export function transpile(code, map = {}) {
+  if (!code) return code
   let re = new RegExp(REF, 'g')
+  let symbols = []
   let m
   while ((m = re.exec(code))) {
-    // NOTE: the array indexes used here correspond to the position of the capturing group
-    // make sure to update these if you change the structure of the regular expression
-    const symbol = m[0]
-    // if this is given, the reference is a transclusion
-    const docName = m[1] || m[2]
-    const focusCell = m[4]
-    const varName = m[5]
-    // skip variables or single cells referenced within the same doc
-    if (!docName) {
-      if (varName || !focusCell) continue
-    }
-    const transpiledSymbol = toIdentifier(symbol)
-    map[transpiledSymbol] = symbol
-    // TODO: this could be optimized by storing parts and concatenate at the end
-    code = code.substring(0, m.index) + transpiledSymbol + code.substring(m.index+transpiledSymbol.length)
+    symbols.push(_createSymbol(m))
+  }
+  // Note: we are transpiling without changing the length of the original source
+  // i.e. `'My Sheet'!A1:B10` is transpiled into `_My_Sheet__A1_B10`
+  // thus the symbol locations won't get invalid by this step
+  for (let i = 0; i < symbols.length; i++) {
+    const s = symbols[i]
+    code = code.substring(0, s.startPos) + s.mangledStr + code.slice(s.endPos)
+    map[s.mangledStr] = s
   }
   return code
 }
@@ -139,5 +135,5 @@ function _createSymbol(m) {
   } else {
     throw new Error('Invalid symbol expression')
   }
-  return { type, scope, name, mangledStr, startPos, endPos, anchor, focus }
+  return { type, text, scope, name, mangledStr, startPos, endPos, anchor, focus }
 }

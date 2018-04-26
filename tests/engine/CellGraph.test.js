@@ -13,14 +13,14 @@ test('CellGraph: single cell with no deps', t => {
   let g = new CellGraph()
   let cell = new Cell(null, { id: 'cell1', status: ANALYSED })
   g.addCell(cell)
-  
+
   g.update()
   t.equal(cell.status, READY, 'cell should be ready')
-  
+
   g.setValue('cell1', 1)
   g.update()
   t.equal(cell.status, OK, 'cell should be OK after value is set')
-  
+
   t.end()
 })
 
@@ -588,12 +588,10 @@ test('CellGraph: TEMPLATE', t => {
 })
 */
 
-function _checkStates(t, cells, states) {
-  for (let i = 0; i < cells.length; i++) {
-    const cell = cells[i]
-    const status = states[i]
-    t.equal(cell.status, status, `${cell.id} should be ${toString(status)}`)
-  }
+function _checkStates(t, cells, expected) {
+  expected = expected.map(toString)
+  let actual = cells.map(cell => toString(cell.status))
+  t.deepEqual(actual, expected, 'cell states should be correct')
 }
 
 function _checkUpdates(t, updates, expected) {
