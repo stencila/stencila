@@ -337,7 +337,7 @@ test('Engine: changing a range expression', t=> {
   // Note: internally we instantiate a proxy cell
   // which should be pruned automatically if it is not needed anymore
   t.plan(2)
-  let { engine, graph } = _setup()
+  let { engine } = _setup()
   let sheet = engine.addSheet({
     id: 'sheet1',
     lang: 'mini',
