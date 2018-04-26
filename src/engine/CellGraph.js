@@ -295,7 +295,6 @@ export default class CellGraph {
       this._updateStates(stateChanged, updated)
     }
 
-
     this._stateChanged.clear()
     this._structureChanged.clear()
     this._valueUpdated.clear()
@@ -333,27 +332,34 @@ export default class CellGraph {
     let inputs = Array.from(cell.inputs)
     trace = new Set(trace)
     trace.add(id)
-    let inputLevels = inputs.map(s => {
-      let inputId = this._resolve(s)
-      if (!inputId) return 0
-      if (trace.has(inputId)) {
+
+    const _recursive = (id) => {
+      if (trace.has(id)) {
         this._handleCycle(trace, updated)
         return Infinity
       }
-      // do not recurse if the level has been computed already
-      if (levels.hasOwnProperty(inputId)) {
-        return levels[inputId]
+      if (levels.hasOwnProperty(id)) {
+        return levels[id]
       } else {
-        return this._computeDependencyLevel(inputId, levels, updated, trace)
+        return this._computeDependencyLevel(id, levels, updated, trace)
+      }
+    }
+
+    let inputLevels = []
+    inputs.forEach(s => {
+      let res = this._resolve(s)
+      if (!res) return 0
+      if (isString(res)) {
+        inputLevels.push(_recursive(res))
+      } else {
+        res.forEach(id => {
+          inputLevels.push(_recursive(id))
+        })
       }
     })
     // EXPERIMENTAL: considering an explicitly set predecessor to preserve natural order where appropriate
     if (cell.prev) {
-      if (levels.hasOwnProperty(cell.prev)) {
-        inputLevels.push(levels[cell.prev])
-      } else {
-        inputLevels.push(this._computeDependencyLevel(cell.prev, levels, updated, trace))
-      }
+      inputLevels.push(_recursive(cell.prev))
     }
     let level = inputLevels.length > 0 ? Math.max(...inputLevels) + 1 : 0
     levels[id] = level
@@ -373,14 +379,29 @@ export default class CellGraph {
       const level = cell.level
       if (!cells[level]) cells[level] = []
       cells[level].push(cell)
-      // process dependencies
-      // ensuring that this cell is actually providing the output
-      if (cell.output && id === this._resolve(cell.output)) {
-        let deps = Array.from(this._ins[cell.output] || [])
-        q = q.concat(deps.filter(id => !visited[id]))
+      let affected = this._getAffected(cell)
+      q = q.concat(affected.filter(id => !visited[id]))
+    }
+    // Note: remove bins for levels that are not affected
+    return flatten(cells.filter(Boolean))
+  }
+
+  _getAffected(cell) {
+    let affected = []
+    if (this._cellProvidesOutput(cell)) {
+      affected = Array.from(this._ins[cell.output] || [])
+    }
+    if (cell.hasSideEffects && cell.next) {
+      // find next cell with side effects
+      for (let nextId = cell.next; nextId; nextId = cell.next) {
+        let nextCell = this._cells[nextId]
+        if (nextCell && nextCell.hasSideEffects) {
+          affected.push(nextId)
+          break
+        }
       }
     }
-    return flatten(cells.filter(Boolean))
+    return affected
   }
 
   _updateStates(ids, updated) {
@@ -413,16 +434,22 @@ export default class CellGraph {
       cell.status = READY
       return
     }
-    let inputStates = inputs.map(s => {
-      let _cell = this._cells[this._resolve(s)]
-      if (_cell) {
+    let inputStates = []
+    inputs.forEach(s => {
+      let res = this._resolve(s)
+      if (!res) return
+      if (isString(res)) {
+        let _cell = this._cells[res]
         // NOTE: for development we kept the less performant but more readable
         // representation as symbols, instead of ints
-        return toInteger(_cell.status)
+        inputStates.push(toInteger(_cell.status))
       } else {
-        return undefined
+        res.forEach(id => {
+          let _cell = this._cells[id]
+          inputStates.push(toInteger(_cell.status))
+        })
       }
-    }).filter(Boolean)
+    })
     if (cell.hasSideEffects && cell.prev) {
       let _cell = this._cells[cell.prev]
       if (_cell) {
@@ -447,62 +474,47 @@ export default class CellGraph {
   }
 
   _resolve(symbol) {
-    let out = this._out[symbol]
-    if (out) {
-      // Note: `out` is an array if multiple cells produce the same variable
-      if (isString(out)) return out
-      else return out[0]
-    }
+    return this._out[symbol]
   }
 
-  // set of cell ids that depend on the given
+  _cellProvidesOutput(cell) {
+    return (cell.output && cell.id === this._out[cell.output])
+  }
+
+  // set of cell ids that depend on the given ones
   _getFollowSet(ids) {
     let followSet = new Set()
     ids.forEach(id => {
       const cell = this._cells[id]
-      // FIXME: in case of RangeCells it can happen that the range
-      // cell is not yet registered, but the graph is updated already
-      // TODO: we should remove this guard and fix the problem properly
-      if (!cell) return
-
-      if (cell.output && id === this._resolve(cell.output)) {
-        let followers = this._ins[cell.output]
-        if (followers) {
-          followers.forEach(id => followSet.add(id))
-        }
-      }
-      // EXPERIMENTAL: trying to trigger an update when a cell with side-effects is updated
-      if (cell.hasSideEffects && cell.next) {
-        // find next cell with side effects
-        for (let nextId = cell.next; nextId; nextId = cell.next) {
-          let nextCell = this._cells[nextId]
-          if (nextCell && nextCell.hasSideEffects) {
-            followSet.add(nextId)
-            break
-          }
-        }
-      }
+      this._getAffected(cell).forEach(id => followSet.add(id))
     })
     return followSet
   }
 
-  // get a set of all ids a cell is depending on
-  _getPredecessorSet(id, res) {
-    if (!res) res = new Set()
+  // get a set of all ids a cell is depending on (recursively)
+  _getPredecessorSet(id, set) {
+    if (!set) set = new Set()
+    const _recursive = (id) => {
+      if (!set.has(id)) {
+        set.add(id)
+        this._getPredecessorSet(id, set)
+      }
+    }
+
     let cell = this.getCell(id)
     cell.inputs.forEach(s => {
-      let id = this._resolve(s)
-      if (!res.has(id)) {
-        if (id && isString(id)) res.add(id)
-        this._getPredecessorSet(id, res)
+      let res = this._resolve(s)
+      if (!res) return
+      if (isString(res)) {
+        _recursive(res)
+      } else {
+        res.forEach(_recursive)
       }
     })
     if (cell.hasSideEffects && cell.prev) {
-      if (!res.has(id)) {
-        this._getPredecessorSet(cell.prev, res)
-      }
+      _recursive(cell.prev)
     }
-    return res
+    return set
   }
 
   _handleCycle(trace, updated) {
