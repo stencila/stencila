@@ -53,6 +53,7 @@ const REF_RE = new RegExp(REF)
   @result
 */
 export function transpile(code, map = {}) {
+  if (!code) return code
   let re = new RegExp(REF, 'g')
   let symbols = []
   let m
