@@ -285,7 +285,7 @@ export default class Engine extends EventEmitter {
     let cellsByDocId = {}
     cells.forEach(cell => {
       let _cells = cellsByDocId[cell.docId]
-      if (!_cells)  _cells = cellsByDocId[cell.docId] = []
+      if (!_cells) _cells = cellsByDocId[cell.docId] = []
       _cells.push(cell)
     })
     this.emit('update', type, cellsByDocId)
