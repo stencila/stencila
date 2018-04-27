@@ -3,41 +3,46 @@ import { transformCellRangeExpressions } from '../shared/cellHelpers'
 export function insertRows(editorSession, pos, count) {
   editorSession.transaction((tx) => {
     _createRowsAt(tx.getDocument(), pos, count)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      // TODO: rename 'idx' to 'pos'
-      transformCellExpressions(cell, { dim: 'row', idx: pos, count })
-    })
   }, { action: 'insertRows', pos, count })
 }
 
 export function insertCols(editorSession, pos, count) {
   editorSession.transaction((tx) => {
     _createColumnsAt(tx.getDocument(), pos, count)
-    tx.findAll('cell').forEach(cell => {
-      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
-    })
   }, { action: 'insertCols', pos, count })
 }
 
 export function deleteRows(editorSession, pos, count) {
   editorSession.transaction((tx) => {
     _deleteRows(tx.getDocument(), pos, pos+count-1)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
-    })
   }, { action: 'deleteRows', pos, count })
 }
 
 export function deleteCols(editorSession, pos, count) {
   editorSession.transaction((tx) => {
     _deleteCols(tx.getDocument(), pos, pos+count-1)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, { dim: 'col', idx: pos, count })
-    })
   }, { action: 'deleteCols', pos, count })
+}
+
+export function setCell(editorSession, row, col, val) {
+  editorSession.transaction(tx => {
+    let sheet = tx.getDocument()
+    let cell = sheet.getCell(row, col)
+    if (cell) {
+      cell.textContent = val
+      tx.setSelection({
+        type: 'custom',
+        customType: 'sheet',
+        data: {
+          type: 'range',
+          anchorRow: row,
+          anchorCol: col,
+          focusRow: row,
+          focusCol: col
+        }
+      })
+    }
+  }, { action: 'setCell' })
 }
 
 export function setValues(editorSession, startRow, startCol, vals) {

@@ -549,12 +549,6 @@ export default class SheetEditor extends AbstractEditor {
     return this.getDocument().getCell(sel.anchorRow, sel.anchorCol)
   }
 
-  _getSheetState() {
-    const editorSession = this.props.editorSession
-    const sheet = editorSession.getDocument()
-    return sheet.getState()
-  }
-
   _selectAll() {
     this._executeCommand('sheet:select-all')
   }

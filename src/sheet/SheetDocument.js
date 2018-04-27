@@ -1,6 +1,5 @@
 import { XMLDocument, uuid } from 'substance'
 import SheetSchema from './SheetSchema'
-import { getCellLabel } from './sheetHelpers'
 
 export default class SheetDocument extends XMLDocument {
 
@@ -26,11 +25,7 @@ export default class SheetDocument extends XMLDocument {
     return this.get('sheet')
   }
 
-  getName() {
-    return this.getRootNode().find('name').text()
-  }
-
-  // EXPERIMENTAL: introducing
+  // EXPERIMENTAL
   invert(change) {
     let inverted = change.invert()
     let info = inverted.info || {}
@@ -86,42 +81,6 @@ export default class SheetDocument extends XMLDocument {
     return this._matrix
   }
 
-  getCellLabel(cellId) {
-    let cell = this.get(cellId)
-    let row = cell.parentNode
-    let colIdx = row._childNodes.indexOf(cell.id)
-    let rowIdx = row.parentNode._childNodes.indexOf(row.id)
-    let cellLabel = getCellLabel(rowIdx, colIdx)
-    return cellLabel
-  }
-
-  getCellType(cell) {
-    // TODO: it might be necessary to optimize this
-    let row = cell.parentNode
-    // TODO: this does not work with merged cells
-    let colIdx = row._childNodes.indexOf(cell.id)
-    let columnMeta = this.getColumnMeta(colIdx)
-    return cell.attr('type') || columnMeta.attr('type') || 'any'
-  }
-
-  getColumnIndex(col) {
-    let columns = this._getColumns()
-    return columns._childNodes.indexOf(col.id)
-  }
-
-  getValues(startRow, startCol, endRow, endCol) {
-    let vals = []
-    for (let rowIdx = startRow; rowIdx <= endRow; rowIdx++) {
-      let rowVals = []
-      for (let colIdx = startCol; colIdx <= endCol; colIdx++) {
-        let cell = this.getCell(rowIdx, colIdx)
-        rowVals.push(cell.textContent)
-      }
-      vals.push(rowVals)
-    }
-    return vals
-  }
-
   getColumnCount() {
     const nrows = this.getRowCount()
     if (nrows > 0) {
@@ -136,32 +95,6 @@ export default class SheetDocument extends XMLDocument {
   getRowCount() {
     const data = this._getData()
     return data.getChildCount()
-  }
-
-  getColumnWidth(colIdx) { // eslint-disable-line
-    // TODO: retrieve from model
-    return 100
-  }
-
-  getRowHeight(rowIdx) { // eslint-disable-line
-    // TODO: retrieve from model
-    return 30
-  }
-
-  ensureRowAvailable() {
-    // TODO: the UI is actually not ready yet to support a delayed rendering
-    // of rows.
-    return Promise.resolve(true)
-  }
-
-  getState() {
-    let sheet = this.getRootNode()
-    if (sheet) {
-      if (!sheet.state) {
-        sheet.state = this.getInitialState()
-      }
-      return sheet.state
-    }
   }
 
   _apply(change) {

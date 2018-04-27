@@ -1,9 +1,10 @@
 import test from 'tape'
-import StencilaArchive from '../../src/StencilaArchive'
-import { _initStencilaArchive } from '../../src/stencilaAppHelpers'
 import { insertRows, deleteRows, insertCols, deleteCols } from '../../src/sheet/sheetManipulations'
 import { getSource } from '../../src/shared/cellHelpers'
 import createRawArchive from '../util/createRawArchive'
+import loadRawArchive from '../util/loadRawArchive'
+import setupEngine from '../util/setupEngine'
+import { play } from '../util/engineTestHelpers'
 
 /*
   Transclusions need to be updated whenever the referenced sheet changes
@@ -20,61 +21,86 @@ import createRawArchive from '../util/createRawArchive'
   We do not test the evaluation of transclusions here, which is done in `Engine.test.js`
 */
 test('Transclusions: inserting a row', t => {
-  let { archive } = _setup()
+  t.plan(1)
+  let { archive, engine } = _setup()
   let sheetSession = archive.getEditorSession('sheet')
   let articleSession = archive.getEditorSession('article')
   let article = articleSession.getDocument()
-  insertRows(sheetSession, 1, 1)
-  let cell1 = article.get('cell1')
-  t.equal(getSource(cell1), "'My Sheet'!A1:C4", "transclusion should have been updated")
-  t.end()
+  play(engine)
+  .then(() => {
+    insertRows(sheetSession, 1, 1)
+  })
+  .then(() => {
+    let cell1 = article.get('cell1')
+    t.equal(getSource(cell1), "'My Sheet'!A1:C4", "transclusion should have been updated")
+  })
 })
 
 test('Transclusions: deleting a row', t => {
-  let { archive } = _setup()
+  t.plan(1)
+  let { archive, engine } = _setup()
   let sheetSession = archive.getEditorSession('sheet')
   let articleSession = archive.getEditorSession('article')
   let article = articleSession.getDocument()
-  deleteRows(sheetSession, 2, 1)
-  let cell1 = article.get('cell1')
-  t.equal(getSource(cell1), "'My Sheet'!A1:C2", "transclusion should have been updated")
-  t.end()
+  play(engine)
+  .then(() => {
+    deleteRows(sheetSession, 2, 1)
+  })
+  .then(() => {
+    let cell1 = article.get('cell1')
+    t.equal(getSource(cell1), "'My Sheet'!A1:C2", "transclusion should have been updated")
+  })
 })
 
 test('Transclusions: inserting a column', t => {
-  let { archive } = _setup()
+  t.plan(1)
+  let { archive, engine } = _setup()
   let sheetSession = archive.getEditorSession('sheet')
   let articleSession = archive.getEditorSession('article')
   let article = articleSession.getDocument()
-  insertCols(sheetSession, 1, 1)
-  let cell1 = article.get('cell1')
-  t.equal(getSource(cell1), "'My Sheet'!A1:D3", "transclusion should have been updated")
-  t.end()
+  play(engine)
+  .then(() => {
+    insertCols(sheetSession, 1, 1)
+  })
+  .then(() => {
+    let cell1 = article.get('cell1')
+    t.equal(getSource(cell1), "'My Sheet'!A1:D3", "transclusion should have been updated")
+  })
 })
 
 test('Transclusions: deleting a column', t => {
-  let { archive } = _setup()
+  t.plan(1)
+  let { archive, engine } = _setup()
   let sheetSession = archive.getEditorSession('sheet')
   let articleSession = archive.getEditorSession('article')
   let article = articleSession.getDocument()
-  deleteCols(sheetSession, 1, 1)
-  let cell1 = article.get('cell1')
-  t.equal(getSource(cell1), "'My Sheet'!A1:B3", "transclusion should have been updated")
-  t.end()
+  play(engine)
+  .then(() => {
+    deleteCols(sheetSession, 1, 1)
+  })
+  .then(() => {
+    let cell1 = article.get('cell1')
+    t.equal(getSource(cell1), "'My Sheet'!A1:B3", "transclusion should have been updated")
+  })
 })
 
 test('Transclusions: rename sheet', t => {
-  let { archive } = _setup()
+  t.plan(1)
+  let { archive, engine } = _setup()
   let articleSession = archive.getEditorSession('article')
   let article = articleSession.getDocument()
-  archive.renameDocument('sheet', 'Foo')
-  let cell1 = article.get('cell1')
-  t.equal(getSource(cell1), "'Foo'!A1:C3", "transclusion should have been updated")
-  t.end()
+  play(engine)
+  .then(() => {
+    archive.renameDocument('sheet', 'Foo')
+  })
+  .then(() => {
+    let cell1 = article.get('cell1')
+    t.equal(getSource(cell1), "'Foo'!A1:C3", "transclusion should have been updated")
+  })
 })
 
 function _setup() {
-  let engine = new StubEngine()
+  let { engine } = setupEngine()
   let context = { engine }
   let rawArchive = createRawArchive([
     {
@@ -101,39 +127,5 @@ function _setup() {
     }
   ])
   let archive = loadRawArchive(rawArchive, context)
-  return { archive }
-}
-
-function loadRawArchive(rawArchive, context) {
-  let archive = new StencilaArchive({}, {}, context)
-  archive._sessions = archive._ingest(rawArchive)
-  archive._upstreamArchive = rawArchive
-  _initStencilaArchive(archive, context)
-  return archive
-}
-
-// TODO: it should be easier stub out the engine
-// ATM  the adapters heaviy use the engine's internal API to update
-// the engine's internal model of these documents.
-class StubEngine {
-  run() {}
-  addDocument() {
-    return new StubEngineArticleModel()
-  }
-  addSheet() {
-    return new StubEngineSheetModel()
-  }
-  _setResourceName() {}
-  on() {}
-}
-class StubEngineArticleModel {
-  setAutorun() {}
-  updateCell() {}
-}
-class StubEngineSheetModel {
-  insertRows() {}
-  deleteRows() {}
-  insertCols() {}
-  deleteCols() {}
-  updateCell() {}
+  return { archive, engine }
 }

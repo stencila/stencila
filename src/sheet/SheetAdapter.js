@@ -102,7 +102,6 @@ export default class SheetAdapter extends DocumentAdapter {
     }
   }
 
-
   _getCellNodes() {
     return this.doc.getCellMatrix()
   }

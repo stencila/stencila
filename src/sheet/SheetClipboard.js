@@ -3,6 +3,7 @@ import {
 } from 'substance'
 import { getSelection, getRange } from './sheetHelpers'
 import { setValues, clearValues } from './sheetManipulations'
+import { getRangeFromMatrix } from '../shared/cellHelpers'
 
 export default class SheetClipboard {
 
@@ -108,7 +109,12 @@ export default class SheetClipboard {
     const sheet = this.editorSession.getDocument()
     const range = this._getRange()
     if (!range) return null
-    let vals = sheet.getValues(range.startRow, range.startCol, range.endRow, range.endCol)
+    let rows = getRangeFromMatrix(sheet.getCellMatrix(), range.startRow, range.startCol, range.endRow, range.endCol, true)
+    let vals = rows.map(row => {
+      return row.map(cell => {
+        return cell.textContent
+      })
+    })
     let text = this._valsToPlainText(vals)
     let html = this._valsToHTML(vals)
     return { text, html }
