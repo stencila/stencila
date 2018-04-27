@@ -3,39 +3,24 @@ import { transformCellRangeExpressions } from '../shared/cellHelpers'
 export function insertRows(editorSession, pos, count) {
   editorSession.transaction((tx) => {
     _createRowsAt(tx.getDocument(), pos, count)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, { dim: 'row', pos, count })
-    })
   }, { action: 'insertRows', pos, count })
 }
 
 export function insertCols(editorSession, pos, count) {
   editorSession.transaction((tx) => {
     _createColumnsAt(tx.getDocument(), pos, count)
-    tx.findAll('cell').forEach(cell => {
-      transformCellExpressions(cell, { dim: 'col', pos, count })
-    })
   }, { action: 'insertCols', pos, count })
 }
 
 export function deleteRows(editorSession, pos, count) {
   editorSession.transaction((tx) => {
     _deleteRows(tx.getDocument(), pos, pos+count-1)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, { dim: 'col', pos, count })
-    })
   }, { action: 'deleteRows', pos, count })
 }
 
 export function deleteCols(editorSession, pos, count) {
   editorSession.transaction((tx) => {
     _deleteCols(tx.getDocument(), pos, pos+count-1)
-    const cells = tx.findAll('cell')
-    cells.forEach(cell => {
-      transformCellExpressions(cell, { dim: 'col', pos, count })
-    })
   }, { action: 'deleteCols', pos, count })
 }
 
