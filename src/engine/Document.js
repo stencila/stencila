@@ -65,6 +65,7 @@ export default class Document {
   }
 
   rename(newName) {
+    if (newName === this.name) return
     let graph = this.engine._graph
     let cells = this.cells
     let affectedCells = new Set()
@@ -81,6 +82,7 @@ export default class Document {
       }
     }
     affectedCells.forEach(cell => transformCell(cell, 'rename'))
+    this.name = newName
     this._sendUpdate(affectedCells)
   }
 

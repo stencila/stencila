@@ -164,6 +164,7 @@ export default class Sheet {
   }
 
   rename(newName) {
+    if (newName === this.name) return
     let cells = this.cells
     let affectedCells = new Set()
     for (let i = 0; i < cells.length; i++) {
@@ -177,6 +178,7 @@ export default class Sheet {
       }
     }
     affectedCells.forEach(cell => transformCell(cell, 'rename'))
+    this.name = newName
     this._sendUpdate(affectedCells)
   }
 

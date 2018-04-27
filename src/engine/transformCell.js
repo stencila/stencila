@@ -19,7 +19,8 @@ export default function transformCell(cell, mode) {
 
     let newName = oldName
     let newScope = oldScope
-    let newOrigStr, newMangledStr
+    let newOrigStr = oldOrigStr
+    let newMangledStr = oldMangledStr
 
     if (mode === 'rows') {
       s.startRow = update.start
@@ -34,8 +35,10 @@ export default function transformCell(cell, mode) {
       newOrigStr = oldOrigStr.replace(oldName, newName)
       newMangledStr = oldMangledStr.replace(toIdentifier(oldName), toIdentifier(newName))
     } else { // if (mode === 'rename') {
-      newOrigStr = oldOrigStr.replace(oldScope, update.scope)
-      newMangledStr = oldMangledStr.replace(toIdentifier(oldScope), toIdentifier(update.scope))
+      if (oldScope) {
+        newOrigStr = oldOrigStr.replace(oldScope, update.scope)
+        newMangledStr = oldMangledStr.replace(toIdentifier(oldScope), toIdentifier(update.scope))
+      }
     }
     // start- and endPos
     let newStartPos = s.startPos + offset
