@@ -715,6 +715,32 @@ test('Engine: delete a row', t => {
   })
 })
 
+test('Engine: delete last row of a cell range', t => {
+  t.plan(2)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4'],
+      ['5', '6'],
+      ['7', '8'],
+      ['=sum(A1:A4)', '=sum(B1:B4)'],
+    ]
+  })
+  let cells = sheet.cells[4]
+  play(engine)
+  .then(() => {
+    sheet.deleteRows(3, 1)
+    t.deepEqual(getSources(cells), ['=sum(A1:A3)','=sum(B1:B3)'], 'sources should have been updated')
+  })
+  .then(() => play(engine))
+  .then(() => {
+    t.deepEqual(getValues(cells), [9,12], 'cells should have correct values')
+  })
+})
+
 function _checkActions(t, engine, cells, expected) {
   let nextActions = engine.getNextActions()
   let actual = []
