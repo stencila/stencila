@@ -235,7 +235,7 @@ export default class Sheet {
 }
 
 function _transformCells(engine, cells, dim, pos, count, affected) {
-  if (count === 0) return []
+  if (count === 0) return
   // track updates for symbols and affected cells
   let startRow = 0
   let startCol = 0
@@ -244,23 +244,19 @@ function _transformCells(engine, cells, dim, pos, count, affected) {
   } else {
     startCol = pos
   }
-  let spans = []
   let visited = new Set()
   for (let i = startRow; i < cells.length; i++) {
     let row = cells[i]
     for (let j = startCol; j < row.length; j++) {
       let cell = row[j]
       if (cell.deps.size > 0) {
-        let _spans = _recordTransformations(cell, dim, pos, count, affected, visited)
-        if (_spans.length > 0) {
-          if (!spans[j]) spans[j] = []
-          spans[j] = spans[j].concat(_spans)
-        }
+        _recordTransformations(cell, dim, pos, count, affected, visited)
       }
     }
   }
+  let spans = _computeSpans(cells, dim, pos)
   // update the source for all cells
-  affected.forEach(_transformCell)
+  affected.forEach(cell => _transformCell(cell, dim))
   // reset state of affected cells
   // TODO: let this be done by CellGraph, also making sure the cell state is reset properly
   affected.forEach(cell => {
@@ -271,7 +267,6 @@ function _transformCells(engine, cells, dim, pos, count, affected) {
 
 
 function _recordTransformations(cell, dim, pos, count, affectedCells, visited) {
-  let spans = []
   cell.deps.forEach(s => {
     if (visited.has(s)) return
     visited.add(s)
@@ -286,25 +281,11 @@ function _recordTransformations(cell, dim, pos, count, affectedCells, visited) {
     let res = transformRange(start, end, pos, count)
     if (!res) return
     affectedCells.add(s.cell)
-    if (count > 0 && res.start === start) {
-      spans.push(s)
-    }
-    if (dim === 0) {
-      s._update = {
-        startRow: res.start,
-        endRow: res.end
-      }
-    } else {
-      s._update = {
-        startCol: res.start,
-        endCol: res.end
-      }
-    }
+    s._update = res
   })
-  return spans
 }
 
-function _transformCell(cell) {
+function _transformCell(cell, dim) {
   let symbols = Array.from(cell.inputs).sort((a, b) => a.startPos - b.startPos)
   let source = cell._source
   let offset = 0
@@ -314,7 +295,13 @@ function _transformCell(cell) {
     if (!update) continue
     delete s._update
     // 1. update the symbol
-    Object.assign(s, update)
+    if (dim === 0) {
+      s.startRow = update.start
+      s.endRow = update.end
+    } else {
+      s.startCol = update.start
+      s.endCol = update.end
+    }
     // name
     let oldName = s.name
     let newName = getCellLabel(s.startRow, s.startCol)
@@ -350,4 +337,24 @@ function _transformCell(cell) {
     // this has an effect on all subsequent symbols
     offset += newOrigStr.length - oldOrigStr.length
   }
+}
+
+// some symbols are spanning the insert position, and thus need to
+// be added to the deps of inserted cells
+function _computeSpans(cells, dim, pos) {
+  let spans = []
+  if (pos > 0) {
+    let N = dim === 0 ? cells[0].length : cells.length
+    for (let i = 0; i < N; i++) {
+      let cell = dim === 0 ? cells[pos][i] : cells[i][pos]
+      cell.deps.forEach(s => {
+        let update = s._update
+        if (update && update.start <= pos) {
+          if (!spans[i]) spans[i] = []
+          spans[i].push(s)
+        }
+      })
+    }
+  }
+  return spans
 }
