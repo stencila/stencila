@@ -686,6 +686,32 @@ test('Engine: insert a row', t => {
   })
 })
 
+test('Engine: insert multiple rows', t => {
+  t.plan(2)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4'],
+      ['5', '6'],
+      ['7', '8'],
+      ['=sum(A1:A4)', '=sum(B1:B4)'],
+    ]
+  })
+  let cells = sheet.cells[4]
+  play(engine)
+  .then(() => {
+    sheet.insertRows(1, [['2', '3'],['4', '5']])
+    t.deepEqual(getSources(cells), ['=sum(A1:A6)','=sum(B1:B6)'], 'sources should have been updated')
+  })
+  .then(() => play(engine))
+  .then(() => {
+    t.deepEqual(getValues(cells), [22,28], 'cells should have correct values')
+  })
+})
+
 test('Engine: delete a row', t => {
   t.plan(3)
   let { engine } = _setup()
@@ -762,11 +788,38 @@ test('Engine: insert a column', t => {
   })
   .then(() => {
     sheet.insertCols(1, [['2'], ['3'], ['4'], ['5'], ['=sum(B1:B4)']])
-    t.deepEqual(getSources(sheet.queryCells('A5:C5')), ['=sum(A1:A4)','=sum(B1:B4)', '=sum(A1:C4)'], 'sources should have been updated')
   })
   .then(() => play(engine))
   .then(() => {
-    t.deepEqual(getValues(sheet.queryCells('A5:C5')), [16,14,50], 'cells should have correct values')
+    let cells = sheet.queryCells('A5:C5')
+    t.deepEqual(getSources(cells), ['=sum(A1:A4)','=sum(B1:B4)', '=sum(A1:C4)'], 'sources should have been updated')
+    t.deepEqual(getValues(cells), [16,14,50], 'cells should have correct values')
+  })
+})
+
+test('Engine: insert multiple columns', t => {
+  t.plan(2)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4'],
+      ['5', '6'],
+      ['7', '8'],
+      ['=sum(A1:A4)', '=sum(A1:B4)'],
+    ]
+  })
+  play(engine)
+  .then(() => {
+    sheet.insertCols(1, [['2', '3'],['4', '5'],['6', '7'],['8', '9'],['=sum(B1:B4)','=sum(C1:C4)']])
+  })
+  .then(() => play(engine))
+  .then(() => {
+    let cells = sheet.queryCells('A5:D5')
+    t.deepEqual(getSources(cells), ['=sum(A1:A4)','=sum(B1:B4)', '=sum(C1:C4)', '=sum(A1:D4)'], 'sources should have been updated')
+    t.deepEqual(getValues(cells), [16,20,24,80], 'cells should have correct values')
   })
 })
 
