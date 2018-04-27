@@ -88,7 +88,8 @@ export default class Sheet {
       if (rowData.length !== ncols) throw new Error('Invalid data')
       return rowData.map(cellData => this._createCell(cellData))
     })
-    let spans = _transformCells(this.engine, this.cells, 0, pos, count)
+    let affectedCells = new Set()
+    let spans = _transformCells(this.engine, this.cells, 0, pos, count, affectedCells)
     // add the spanning symbols to the deps of the new cells
     for (let i = 0; i < block.length; i++) {
       let row = block[i]
@@ -100,14 +101,17 @@ export default class Sheet {
     // update sheet structure
     this.cells.splice(pos, 0, ...block)
     this._registerCells(block)
+    this._sendUpdate(affectedCells)
   }
 
   deleteRows(pos, count) {
     if (count === 0) return
+    let affectedCells = new Set()
     let block = this.cells.slice(pos, pos+count)
-    _transformCells(this.engine, this.cells, 0, pos, -count)
+    _transformCells(this.engine, this.cells, 0, pos, -count, affectedCells)
     this.cells.splice(pos, count)
     this._unregisterCells(block)
+    this._sendUpdate(affectedCells)
   }
 
   insertCols(pos, dataBlock) {
@@ -115,8 +119,9 @@ export default class Sheet {
     if (dataBlock.length !== nrows) throw new Error('Invalid dimensions')
     let count = dataBlock[0].length
     if (count === 0) return
+    let affectedCells = new Set()
     // transform cells
-    let spans = _transformCells(this.engine, this.cells, 1, pos, count)
+    let spans = _transformCells(this.engine, this.cells, 1, pos, count, affectedCells)
     let block = dataBlock.map((rowData) => {
       if (rowData.length !== count) throw new Error('Invalid data')
       return rowData.map(cellData => this._createCell(cellData))
@@ -139,11 +144,13 @@ export default class Sheet {
       }
     }
     this._registerCells(block)
+    this._sendUpdate(affectedCells)
   }
 
   deleteCols(pos, count) {
     if (count === 0) return
-    _transformCells(this.engine, this.cells, 1, pos, -count)
+    let affectedCells = new Set()
+    _transformCells(this.engine, this.cells, 1, pos, -count, affectedCells)
     const N = this.cells.length
     let block = []
     this.columns.splice(pos, count)
@@ -153,6 +160,7 @@ export default class Sheet {
       row.splice(pos, count)
     }
     this._unregisterCells(block)
+    this._sendUpdate(affectedCells)
   }
 
   onCellRegister(cell) { // eslint-disable-line
@@ -218,9 +226,15 @@ export default class Sheet {
       }
     }
   }
+
+  _sendUpdate(cells) {
+    if (cells.size > 0) {
+      this.engine._sendUpdate('source', cells)
+    }
+  }
 }
 
-function _transformCells(engine, cells, dim, pos, count) {
+function _transformCells(engine, cells, dim, pos, count, affected) {
   if (count === 0) return []
   // track updates for symbols and affected cells
   let startRow = 0
@@ -239,7 +253,6 @@ function _transformCells(engine, cells, dim, pos, count) {
     }
   }
   let spans = []
-  let affected = new Set()
   let visited = new Set()
   for (let i = startRow; i < cells.length; i++) {
     let row = cells[i]

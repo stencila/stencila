@@ -1,5 +1,5 @@
 import { uuid, DocumentChange } from 'substance'
-import { qualifiedId } from './cellHelpers'
+import { qualifiedId, setSource } from './cellHelpers'
 
 /*
   Base-Class for adapters between document and engine.
@@ -32,13 +32,15 @@ export class DocumentAdapter {
 
     @param {Set<Cell>} updates updated cells.
   */
-  _onEngineUpdate(updates) {
+  _onEngineUpdate(type, cellsByDocId) {
     // Note: for now we are sharing the cell states with the engine
     // thus, we can just notify the session about the changed cells
     const docId = this.doc.id
     const editorSession = this.editorSession
-    let nodeIds = updates.filter(cell => cell.docId === docId).map(cell => cell.unqualifiedId)
-    if (nodeIds.length > 0) {
+    let cells = cellsByDocId[docId]
+    if (!cells || cells.length === 0) return
+    if (type === 'state') {
+      let nodeIds = cells.map(cell => cell.unqualifiedId)
       // TODO: there should be a built in means to trigger a reflow
       // after updates of node states
       editorSession._setDirty('document')
@@ -52,10 +54,23 @@ export class DocumentAdapter {
       editorSession._change = change
       editorSession._info = {}
       editorSession.startFlow()
+    } else if (type === 'source') {
+      editorSession.postpone(() => {
+        // TODO: we are probably messing up the undo history
+        // to fix this, we need to to some 'rebasing' of changes in the history
+        // as if this change was one of a collaborator.
+        editorSession.transaction(tx => {
+          cells.forEach(cell => {
+            let cellNode = tx.get(cell.unqualifiedId)
+            if (cellNode) {
+              setSource(cellNode, cell.source)
+            }
+          })
+        }, { history: false })
+      })
     }
   }
 }
-
 
 export function getQualifiedId(node) {
   if (!node._qualifiedId) {

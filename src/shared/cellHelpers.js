@@ -55,6 +55,11 @@ export function getSource(cellNode) {
   return _getSourceElement(cellNode).textContent
 }
 
+export function setSource(cellNode, newSource) {
+  let el = _getSourceElement(cellNode)
+  el.text(newSource)
+}
+
 export function getLang(cellNode) {
   return _getSourceElement(cellNode).getAttribute('language')
 }
