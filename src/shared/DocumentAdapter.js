@@ -55,7 +55,8 @@ export class DocumentAdapter {
       editorSession._info = {}
       editorSession.startFlow()
     } else if (type === 'source') {
-      editorSession.postpone(() => {
+      // TODO: this should be easier after our EditorSession / AppState refactor in Substance
+      const _update = () => {
         // TODO: we are probably messing up the undo history
         // to fix this, we need to to some 'rebasing' of changes in the history
         // as if this change was one of a collaborator.
@@ -67,7 +68,12 @@ export class DocumentAdapter {
             }
           })
         }, { history: false })
-      })
+      }
+      if (editorSession._flowing) {
+        editorSession.postpone(_update)
+      } else {
+        _update()
+      }
     }
   }
 }
