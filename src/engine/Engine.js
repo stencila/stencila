@@ -162,6 +162,10 @@ export default class Engine extends EventEmitter {
     return this._docs.hasOwnProperty(id)
   }
 
+  getResource(id) {
+    return this._docs[id]
+  }
+
   needsUpdate() {
     return this._nextActions.size > 0 || this._graph.needsUpdate()
   }
@@ -234,12 +238,6 @@ export default class Engine extends EventEmitter {
     if (this._docs.hasOwnProperty(id)) throw new Error(`document with id ${id} already exists`)
     this._docs[id] = doc
     doc._registerCells()
-  }
-
-  _setResourceName(id, newName) {
-    let doc = this._docs[id]
-    if (!doc) throw new Error('Unknown resource: '+id)
-    doc.name = newName
   }
 
   /*

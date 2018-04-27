@@ -103,7 +103,8 @@ function _onManifestChange(archive, engine, change) {
         // TODO: it would be nice, if this could be done by the respective
         // document/sheet adapter. However, ATM renaming is done on manifest only,
         // so there is no document level notion of the name.
-        engine._setResourceName(docId, newName)
+        let resource = engine.getResource(docId)
+        resource.rename(newName)
       }
       break
     }

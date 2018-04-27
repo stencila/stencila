@@ -1,8 +1,8 @@
 import { uuid, isString } from 'substance'
 import { getCellLabel, getColumnLabel, qualifiedId as _qualifiedId, queryCells } from '../shared/cellHelpers'
-import { toIdentifier } from '../shared/expressionHelpers'
 import SheetCell from './SheetCell'
 import transformRange from './transformRange'
+import transformCell from './transformCell'
 
 /*
   Engine's internal model of a Spreadsheet.
@@ -163,6 +163,23 @@ export default class Sheet {
     this._sendUpdate(affectedCells)
   }
 
+  rename(newName) {
+    let cells = this.cells
+    let affectedCells = new Set()
+    for (let i = 0; i < cells.length; i++) {
+      let row = cells[i]
+      for (let j = 0; j < row.length; j++) {
+        let cell = row[j]
+        cell.deps.forEach(s => {
+          s._update = { scope: newName }
+          affectedCells.add(s.cell)
+        })
+      }
+    }
+    affectedCells.forEach(cell => transformCell(cell, 'rename'))
+    this._sendUpdate(affectedCells)
+  }
+
   onCellRegister(cell) { // eslint-disable-line
   }
 
@@ -256,7 +273,8 @@ function _transformCells(engine, cells, dim, pos, count, affected) {
   }
   let spans = _computeSpans(cells, dim, pos)
   // update the source for all cells
-  affected.forEach(cell => _transformCell(cell, dim))
+  let mode = dim === 0 ? 'rows' : 'cols'
+  affected.forEach(cell => transformCell(cell, mode))
   // reset state of affected cells
   // TODO: let this be done by CellGraph, also making sure the cell state is reset properly
   affected.forEach(cell => {
@@ -283,60 +301,6 @@ function _recordTransformations(cell, dim, pos, count, affectedCells, visited) {
     affectedCells.add(s.cell)
     s._update = res
   })
-}
-
-function _transformCell(cell, dim) {
-  let symbols = Array.from(cell.inputs).sort((a, b) => a.startPos - b.startPos)
-  let source = cell._source
-  let offset = 0
-  for (let i = 0; i < symbols.length; i++) {
-    let s = symbols[i]
-    let update = s._update
-    if (!update) continue
-    delete s._update
-    // 1. update the symbol
-    if (dim === 0) {
-      s.startRow = update.start
-      s.endRow = update.end
-    } else {
-      s.startCol = update.start
-      s.endCol = update.end
-    }
-    // name
-    let oldName = s.name
-    let newName = getCellLabel(s.startRow, s.startCol)
-    if (s.type === 'range') {
-      newName += ':' + getCellLabel(s.endRow, s.endCol)
-    }
-    // origStr
-    let oldOrigStr = s.origStr
-    let newOrigStr = oldOrigStr.replace(oldName, newName)
-    // mangledStr
-    let oldMangledName = toIdentifier(oldName)
-    let newMangledName = toIdentifier(newName)
-    let oldMangledStr = s.mangledStr
-    let newMangledStr = oldMangledStr.replace(oldMangledName, newMangledName)
-    // start- and endPos
-    let newStartPos = s.startPos + offset
-    let newEndPos = newStartPos + newOrigStr.length
-    // 2. replace the symbol in the source and the transpiled source
-    let newSource = source.original.slice(0, s.startPos) + newOrigStr + source.original.slice(s.endPos)
-    let newTranspiled = source.transpiled.slice(0, s.startPos) + newMangledStr + source.transpiled.slice(s.endPos)
-    // finally write the updated values
-    s.name = newName
-    s.id = _qualifiedId(s.docId, newName)
-    s.origStr = newOrigStr
-    s.mangledStr = newMangledStr
-    s.startPos = newStartPos
-    s.endPos = newEndPos
-    source.original = newSource
-    source.transpiled = newTranspiled
-    source.symbolMapping[newMangledStr] = s
-    delete source.symbolMapping[oldMangledStr]
-    // update the offset if the source is getting longer because of this change
-    // this has an effect on all subsequent symbols
-    offset += newOrigStr.length - oldOrigStr.length
-  }
 }
 
 // some symbols are spanning the insert position, and thus need to

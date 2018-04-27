@@ -1,6 +1,7 @@
 import { uuid, isString } from 'substance'
 import { qualifiedId as _qualifiedId } from '../shared/cellHelpers'
 import Cell from './Cell'
+import transformCell from './transformCell'
 
 /*
   Engine's internal model of a Document.
@@ -61,6 +62,26 @@ export default class Document {
       cellData = { source: cellData }
     }
     this.engine._updateCell(qualifiedId, cellData)
+  }
+
+  rename(newName) {
+    let graph = this.engine._graph
+    let cells = this.cells
+    let affectedCells = new Set()
+    for (let i = 0; i < cells.length; i++) {
+      let cell = cells[i]
+      if (graph._cellProvidesOutput(cell)) {
+        let deps = graph._ins(cell.output)
+        if (deps) {
+          deps.forEach(s => {
+            s._update = { scope: newName }
+            affectedCells.add(s.cell)
+          })
+        }
+      }
+    }
+    affectedCells.forEach(cell => transformCell(cell, 'rename'))
+    this._sendUpdate(affectedCells)
   }
 
   onCellRegister(cell) { // eslint-disable-line
