@@ -239,18 +239,10 @@ function _transformCells(engine, cells, dim, pos, count, affected) {
   // track updates for symbols and affected cells
   let startRow = 0
   let startCol = 0
-  if (count > 0) {
-    if (dim === 0) {
-      startRow = pos
-    } else {
-      startCol = pos
-    }
+  if (dim === 0) {
+    startRow = pos
   } else {
-    if (dim === 0) {
-      startRow = pos-count
-    } else {
-      startCol = pos-count
-    }
+    startCol = pos
   }
   let spans = []
   let visited = new Set()
