@@ -87,7 +87,6 @@ test('Transclusions: deleting a column', t => {
 test('Transclusions: rename sheet', t => {
   t.plan(1)
   let { archive, engine } = _setup()
-  let sheetSession = archive.getEditorSession('sheet')
   let articleSession = archive.getEditorSession('article')
   let article = articleSession.getDocument()
   play(engine)
