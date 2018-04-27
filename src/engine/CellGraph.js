@@ -52,7 +52,9 @@ export default class CellGraph {
     const cell = this._cells[id]
     if (!cell) throw new Error('Internal error: cell does not exist.')
     cell.inputs.forEach(s => {
-      this._ins[s].delete(id)
+      if (this._ins[s]) {
+        this._ins[s].delete(id)
+      }
     })
     this._deregisterOutput(id, cell.output)
     delete this._cells[id]
@@ -185,9 +187,9 @@ export default class CellGraph {
       })
     }
     toRemove.forEach(s => {
-      // TODO: should this be made robust
-      // actually it should not happen that the symbol is not registered yet
-      this._ins[s].delete(id)
+      if (this._ins[s]) {
+        this._ins[s].delete(id)
+      }
     })
     toAdd.forEach(s => {
       let ins = this._ins[s]

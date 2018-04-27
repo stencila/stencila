@@ -9,7 +9,6 @@ export default class StubEngine {
   addSheet() {
     return new StubEngineSheetModel()
   }
-  _setResourceName() {}
   on() {}
 }
 

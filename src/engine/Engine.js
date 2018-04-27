@@ -162,6 +162,10 @@ export default class Engine extends EventEmitter {
     return this._docs.hasOwnProperty(id)
   }
 
+  getResource(id) {
+    return this._docs[id]
+  }
+
   needsUpdate() {
     return this._nextActions.size > 0 || this._graph.needsUpdate()
   }
@@ -236,12 +240,6 @@ export default class Engine extends EventEmitter {
     doc._registerCells()
   }
 
-  _setResourceName(id, newName) {
-    let doc = this._docs[id]
-    if (!doc) throw new Error('Unknown resource: '+id)
-    doc.name = newName
-  }
-
   /*
     Registers a cell.
 
@@ -281,19 +279,20 @@ export default class Engine extends EventEmitter {
     })
   }
 
-  _sendUpdate(updatedCells) {
-    // TODO: this should send a batch update over to the app
-    // and for testing this method should be 'spied'
-    // updatedCells.forEach(cell => {
-    //   console.log(`Updated cell ${cell.id}: ${cell._getStatusString()}`)
-    // })
-    this.emit('update', updatedCells)
+  _sendUpdate(type, cells) {
+    let cellsByDocId = {}
+    cells.forEach(cell => {
+      let _cells = cellsByDocId[cell.docId]
+      if (!_cells) _cells = cellsByDocId[cell.docId] = []
+      _cells.push(cell)
+    })
+    this.emit('update', type, cellsByDocId)
   }
 
   _updateGraph() {
     const graph = this._graph
     let updatedIds = graph.update()
-    let updatedCells = []
+    let cells = new Set()
     updatedIds.forEach(id => {
       let cell = graph.getCell(id)
       if (cell) {
@@ -307,13 +306,11 @@ export default class Engine extends EventEmitter {
             id: cell.id
           })
         }
-        if (!cell.hidden) {
-          updatedCells.push(cell)
-        }
+        cells.add(cell)
       }
     })
-    if (updatedCells.length > 0) {
-      this._sendUpdate(updatedCells)
+    if (cells.size > 0) {
+      this._sendUpdate('state', cells)
     }
   }
 

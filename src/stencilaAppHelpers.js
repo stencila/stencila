@@ -4,7 +4,6 @@ import Project from './project/Project'
 import setupStencilaContext from './util/setupStencilaContext'
 import SheetAdapter from './sheet/SheetAdapter'
 import ArticleAdapter from './article/ArticleAdapter'
-import { getSource, transformCellRangeExpressions, renameTransclusions } from './shared/cellHelpers'
 
 export function _renderStencilaApp($$, app) {
   let el = $$('div').addClass('sc-app')
@@ -75,7 +74,6 @@ export function _connectDocumentToEngine(engine, archive, documentId) {
     }
     case 'sheet': {
       Adapter = SheetAdapter
-      _listenForStructuralSheetUpdates(archive, editorSession)
       break
     }
     default:
@@ -89,10 +87,6 @@ export function _connectDocumentToEngine(engine, archive, documentId) {
 function _listenForDocumentRecordUpdates(archive, engine) {
   let editorSession = archive.getEditorSession('manifest')
   editorSession.on('update', _onManifestChange.bind(null, archive, engine), null, { resource: 'document' })
-}
-
-function _listenForStructuralSheetUpdates(archive, editorSession) {
-  editorSession.on('update', _onSheetChange.bind(null, archive, editorSession.getDocument()), null, { resource: 'document' })
 }
 
 function _onManifestChange(archive, engine, change) {
@@ -109,8 +103,8 @@ function _onManifestChange(archive, engine, change) {
         // TODO: it would be nice, if this could be done by the respective
         // document/sheet adapter. However, ATM renaming is done on manifest only,
         // so there is no document level notion of the name.
-        engine._setResourceName(docId, newName)
-        _updateTransclusionsInArchive(archive, docId, action, { oldName, newName })
+        let resource = engine.getResource(docId)
+        resource.rename(newName)
       }
       break
     }
@@ -123,117 +117,4 @@ function _onManifestChange(archive, engine, change) {
     default:
       //
   }
-}
-
-function _onSheetChange(archive, doc, change) {
-  let action = change.info.action
-  switch(action) {
-    case 'insertRows': {
-      const { pos, count } = change.info
-      _updateTransclusionsInArchive(archive, doc.id, action, { dim: 'row', pos, count })
-      break
-    }
-    case 'deleteRows': {
-      const { pos, count } = change.info
-      _updateTransclusionsInArchive(archive, doc.id, action, { dim: 'row', pos, count: -count })
-      break
-    }
-    case 'insertCols': {
-      const { pos, count } = change.info
-      _updateTransclusionsInArchive(archive, doc.id, action, { dim: 'col', pos, count })
-      break
-    }
-    case 'deleteCols': {
-      const { pos, count } = change.info
-      _updateTransclusionsInArchive(archive, doc.id, action, { dim: 'col', pos, count: -count })
-      break
-    }
-    default:
-      //
-  }
-}
-
-function _updateTransclusionsInArchive(archive, targetId, action, params) {
-  let entries = archive.getDocumentEntries()
-  entries.forEach(entry => {
-    const id = entry.id
-    if (id === targetId) return
-    let documentType = archive.getDocumentType(id)
-    switch (documentType) {
-      case 'article':
-      case 'sheet': {
-        let editorSession = archive.getEditorSession(id)
-        _updateTransclusionsInDocument(documentType, editorSession, targetId, action, params)
-        break
-      }
-      default:
-        //
-    }
-  })
-}
-
-function _updateTransclusionsInDocument(documentType, editorSession, targetId, action, params) {
-  let doc = editorSession.getDocument()
-  let cells = _getCellsWithTransclusions(doc, targetId)
-  let updates = new Map()
-  for (var i = 0; i < cells.length; i++) {
-    const cell = cells[i]
-    let source = getSource(cell)
-    let newSource
-    if (action === 'renameDocument') {
-      newSource = renameTransclusions(source, params.oldName, params.newName)
-    } else {
-      newSource = transformCellRangeExpressions(source, params)
-    }
-    if (newSource !== source) {
-      updates.set(cell.id, newSource)
-    }
-  }
-  if (updates.size > 0) {
-    // TODO: it is a bit cumbersome, that article cells have a different layout
-    // We should think about using a simplified model internally, and generate
-    let affected = new Set()
-    editorSession.transaction(tx => {
-      updates.forEach((newSource, id) => {
-        let node = tx.get(id)
-        if (documentType === 'article') {
-          node = node.find('source-code')
-        }
-        affected.add(node.id)
-        node.setText(newSource)
-      })
-    }, { history: false })
-    // ATTENTION: removing all changes from undo/redo history
-    // that would conflict with the automatic update
-    // TODO: instead of removing we could try to 'rebase' such changes
-    _eliminateOpsFromHistory(editorSession._history, affected)
-  }
-}
-
-function _eliminateOpsFromHistory(history, ids) {
-  _eliminateOpsFromChanges(history.doneChanges, ids)
-  _eliminateOpsFromChanges(history.undoneChanges, ids)
-}
-
-function _eliminateOpsFromChanges(changes, ids) {
-  for (let i = changes.length-1; i >= 0; i--) {
-    let change = changes[i]
-    // remove all ops that change the cell
-    for (let j = change.ops.length-1; j >= 0; j--) {
-      let op = change.ops[j]
-      if (ids.has(op.path[0])) {
-        change.ops.splice(j, 1)
-      }
-    }
-    // remove a change if it is NOP now
-    if (change.ops.length === 0) {
-      changes.splice(i, 1)
-    }
-  }
-}
-
-function _getCellsWithTransclusions(doc, targetDocId) { // eslint-disable-line
-  // TODO: for now we do filter cells
-  // we would need some kind of indexing
-  return doc.findAll('cell')
 }
