@@ -140,7 +140,7 @@ export default class Sheet {
       let row = block[i]
       for (let j = 0; j < row.length; j++) {
         let cell = row[j]
-        if (spans[i]) cell.deps = new Set(spans[j])
+        if (spans[i]) cell.deps = new Set(spans[i])
       }
     }
     this._registerCells(block)
