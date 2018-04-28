@@ -138,7 +138,7 @@ export default class SheetClipboard {
 
   _valsToPlainText(vals) {
     return vals.map((rowVals) => {
-      return rowVals.join(' ')
+      return rowVals.join('\t')
     }).join('\n')
   }
 
