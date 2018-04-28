@@ -1,8 +1,6 @@
 import test from 'tape'
 import { insertRows, deleteRows, insertCols, deleteCols, setCell } from '../../src/sheet/sheetManipulations'
-import createRawArchive from '../util/createRawArchive'
 import createSheetXML from '../util/createSheetXML'
-import loadRawArchive from '../util/loadRawArchive'
 import StubEngine from '../util/StubEngine'
 import setupEngine from '../util/setupEngine'
 import { queryValues, play } from '../util/engineTestHelpers'
