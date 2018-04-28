@@ -1,7 +1,7 @@
 import test from 'tape'
 import { DefaultDOMElement as DOM, flatten } from 'substance'
 import SheetClipboard from '../../src/sheet/SheetClipboard'
-import { queryCells, getRangeFromMatrix } from '../../src/shared/cellHelpers'
+import { queryCells } from '../../src/shared/cellHelpers'
 import StubEngine from '../util/StubEngine'
 import setupSheetSession from '../util/setupSheetSession'
 import { setSheetSelection, getSources, checkSelection } from '../util/sheetTestHelpers'
