@@ -70,6 +70,21 @@ test('SheetClipboard: paste html', (t) => {
   t.end()
 })
 
+test('SheetClipboard: paste plain text', (t) => {
+  let { sheetSession, sheetClipboard, sheet } = _setup(simple())
+  setSheetSelection(sheetSession, 'B2:C3')
+  let text = 'FOO'
+  let evt = new ClipboardEvent()
+  evt.clipboardData.setData('text/plain', text)
+  sheetClipboard.onPaste(evt)
+  let cells = queryCells(sheet.getCellMatrix(), 'B2:C3')
+  t.deepEqual(getSources(cells), [['FOO', '6'], ['8', '9']], 'only a single cell should have been changed')
+  let sel = sheetSession.getSelection()
+  checkSelection(t, sel, 'B2')
+  t.end()
+})
+
+
 function simple() {
   return {
     id: 'sheet',
