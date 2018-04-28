@@ -2,7 +2,7 @@ import { NodeComponent } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
 import { isExpression, getError, getValue } from '../shared/cellHelpers'
 
-export default class SheetCell extends NodeComponent {
+export default class SheetCellComponent extends NodeComponent {
 
   didMount() {
     super.didMount()
