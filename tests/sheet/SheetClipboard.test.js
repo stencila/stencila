@@ -4,7 +4,7 @@ import SheetClipboard from '../../src/sheet/SheetClipboard'
 import { queryCells, getRangeFromMatrix } from '../../src/shared/cellHelpers'
 import StubEngine from '../util/StubEngine'
 import setupSheetSession from '../util/setupSheetSession'
-import { setSheetSelection, getSources } from '../util/sheetTestHelpers'
+import { setSheetSelection, getSources, checkSelection } from '../util/sheetTestHelpers'
 
 test('SheetClipboard: copy', (t) => {
   let fixture = simple()
@@ -51,11 +51,24 @@ test('SheetClipboard: cut', (t) => {
     '.. with correct cell contents'
   )
   // Note: these are real cells
-  let cells = getRangeFromMatrix(sheet.getCellMatrix(), 0, 0, 1, 1)
+  let cells = queryCells(sheet.getCellMatrix(), 'A1:B2')
   t.deepEqual(getSources(cells), [['', ''], ['', '']], 'cells should be empty')
   t.end()
 })
 
+test('SheetClipboard: paste html', (t) => {
+  let { sheetSession, sheetClipboard, sheet } = _setup(simple())
+  setSheetSelection(sheetSession, 'B2:B2')
+  let htmlStr = '<html><body><table><tr><td>1</td><td>2</td></tr><tr><td>3</td><td>4</td></tr></table></body></html>'
+  let evt = new ClipboardEvent()
+  evt.clipboardData.setData('text/html', htmlStr)
+  sheetClipboard.onPaste(evt)
+  let cells = queryCells(sheet.getCellMatrix(), 'B2:C3')
+  t.deepEqual(getSources(cells), [['1', '2'], ['3', '4']], 'table should have been pasted')
+  let sel = sheetSession.getSelection()
+  checkSelection(t, sel, 'B2:C3')
+  t.end()
+})
 
 function simple() {
   return {
@@ -83,15 +96,12 @@ class ClipboardEventData {
   constructor() {
     this.data = {}
   }
-
   getData(format) {
     return this.data[format]
   }
-
   setData(format, data) {
     this.data[format] = data
   }
-
   get types() {
     return Object.keys(this.data)
   }
