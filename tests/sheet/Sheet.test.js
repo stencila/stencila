@@ -6,7 +6,7 @@ import loadRawArchive from '../util/loadRawArchive'
 import StubEngine from '../util/StubEngine'
 import setupEngine from '../util/setupEngine'
 import { queryValues, play } from '../util/engineTestHelpers'
-
+import setupSheetSession from '../util/setupSheetSession'
 
 /*
   This test is using an archive with a sheet attached to the Engine
@@ -115,19 +115,10 @@ function simple() {
 
 function _setupModel(sheetData) {
   let engine = new StubEngine()
-  return _setup(sheetData, engine)
+  return setupSheetSession(sheetData, engine)
 }
 
 function _setupWithEngine(sheetData) {
   let { engine } = setupEngine()
-  return _setup(sheetData, engine)
-}
-
-function _setup(sheetData, engine) {
-  let context = { engine }
-  let rawArchive = createRawArchive([ sheetData ])
-  let archive = loadRawArchive(rawArchive, context)
-  let sheetSession = archive.getEditorSession('sheet')
-  let sheet = sheetSession.getDocument()
-  return { archive, sheetSession, sheet, engine }
+  return setupSheetSession(sheetData, engine)
 }
