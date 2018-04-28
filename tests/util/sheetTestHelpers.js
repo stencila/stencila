@@ -1,4 +1,5 @@
-import { getRowCol } from '../../src/shared/cellHelpers'
+import { isArray } from 'substance'
+import { getRowCol, getSource } from '../../src/shared/cellHelpers'
 
 export function setSheetSelection(sheetSession, expr) {
   let [start, end] = expr.split(':')
@@ -17,5 +18,15 @@ export function setSheetSelection(sheetSession, expr) {
     type: 'custom',
     customType: 'sheet',
     data: selData
+  })
+}
+
+export function getSources(cells) {
+  return cells.map(rowOrCell => {
+    if (isArray(rowOrCell)) {
+      return rowOrCell.map(getSource)
+    } else {
+      return getSource(rowOrCell)
+    }
   })
 }

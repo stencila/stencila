@@ -26,7 +26,7 @@ export function getSource(cell) {
 export function getSources(cells) {
   return cells.map(rowOrCell => {
     if (isArray(rowOrCell)) {
-      return rowOrCell.map(getValue)
+      return rowOrCell.map(getSource)
     } else {
       return getSource(rowOrCell)
     }
