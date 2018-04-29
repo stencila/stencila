@@ -97,20 +97,6 @@ export function toIdentifier(str, c = '_') {
   return str.replace(new RegExp(INVALID_ID_CHARACTERS,'g'), c)
 }
 
-
-export function getCellExpressions(source) {
-  let re = new RegExp(REF, 'g')
-  let m
-  let result = []
-  while ((m = re.exec(source))) {
-    let symbol = _createSymbol(m)
-    if (symbol.type !== 'var') {
-      result.push(symbol)
-    }
-  }
-  return result
-}
-
 function _createSymbol(m) {
   const text = m[0]
   const startPos = m.index
