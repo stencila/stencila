@@ -72,6 +72,7 @@ export function applyCellTransformations(cell) {
         break
       }
       case 'broken': {
+        s.type = 'var'
         s.startRow = s.startCol = s.endRow = s.endCol = null
         newName = BROKEN_REF
         newOrigStr = BROKEN_REF
