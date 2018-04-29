@@ -138,12 +138,14 @@ export default {
     config.addCommand('set-js', SetLanguageCommand, { language: 'js', commandGroup: 'cell-languages' })
     config.addCommand('set-py', SetLanguageCommand, { language: 'py', commandGroup: 'cell-languages' })
     config.addCommand('set-r', SetLanguageCommand, { language: 'r', commandGroup: 'cell-languages' })
+    config.addCommand('set-sql', SetLanguageCommand, { language: 'sql', commandGroup: 'cell-languages' })
 
     config.addLabel('cell-languages', 'Choose Language')
     config.addLabel('set-mini', 'Mini')
     config.addLabel('set-js', 'Javascript')
     config.addLabel('set-py', 'Python')
     config.addLabel('set-r', 'R')
+    config.addLabel('set-sql', 'SQL')
 
     // TODO: Bring back typed cells
     // // Cell Types
