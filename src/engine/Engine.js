@@ -1,6 +1,6 @@
 import { isString, EventEmitter, flatten } from 'substance'
 import { ContextError, RuntimeError, SyntaxError } from './CellErrors'
-import { UNKNOWN, ANALYSED, READY } from './CellStates'
+import { UNKNOWN, ANALYSED, READY, toInteger as statusToInt } from './CellStates'
 import CellSymbol from './CellSymbol'
 import { gather } from '../value'
 import { valueFromText, getColumnLabel, qualifiedId as _qualifiedId } from '../shared/cellHelpers'
@@ -530,16 +530,20 @@ export default class Engine extends EventEmitter {
   _allowRunningCellAndPredecessors(id) {
     const graph = this._graph
     let predecessors = graph._getPredecessorSet(id)
-    this._allowRunningCell(id)
+    this._allowRunningCell(id, true)
     predecessors.forEach(_id => {
       this._allowRunningCell(_id)
     })
   }
 
-  _allowRunningCell(id) {
+  _allowRunningCell(id, reset) {
     const graph = this._graph
     let cell = graph.getCell(id)
     cell.autorun = true
+    if (reset && statusToInt(cell.status) > statusToInt(ANALYSED)) {
+      cell.status = ANALYSED
+      graph._structureChanged.add(id)
+    }
     let action = this._nextActions.get(id)
     if (action) {
       delete action.suspended
