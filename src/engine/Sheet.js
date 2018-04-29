@@ -1,5 +1,5 @@
 import { uuid, isString } from 'substance'
-import { getCellLabel, getColumnLabel, qualifiedId as _qualifiedId, queryCells } from '../shared/cellHelpers'
+import { getCellLabel, getColumnLabel, qualifiedId as _qualifiedId } from '../shared/cellHelpers'
 import { recordTransformations, applyCellTransformations } from './engineHelpers'
 import SheetCell from './SheetCell'
 
@@ -64,10 +64,6 @@ export default class Sheet {
 
   getCells() {
     return this.cells
-  }
-
-  queryCells(range) {
-    return queryCells(this.cells, range)
   }
 
   updateCell(id, cellData) {

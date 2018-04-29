@@ -1,5 +1,6 @@
 import { isArray } from 'substance'
-import { getRowCol, getSource } from '../../src/shared/cellHelpers'
+import { getRowCol, getSource, getIndexesFromRange, getRangeFromMatrix } from '../../src/shared/cellHelpers'
+import { parseSymbol } from '../../src/shared/expressionHelpers'
 
 export function setSheetSelection(sheetSession, expr) {
   let { anchorRow, anchorCol, focusRow, focusCol } = _getCoordinatesFromExpr(expr)
@@ -40,4 +41,21 @@ export function getSources(cells) {
       return getSource(rowOrCell)
     }
   })
+}
+
+// This is useful for writing tests, to use queries such as 'A1:A10'
+export function queryCells(cells, query) {
+  let symbol = parseSymbol(query)
+  switch (symbol.type) {
+    case 'cell': {
+      const [row, col] = getRowCol(symbol.name)
+      return cells[row][col]
+    }
+    case 'range': {
+      const { startRow, startCol, endRow, endCol } = getIndexesFromRange(symbol.anchor, symbol.focus)
+      return getRangeFromMatrix(cells, startRow, startCol, endRow, endCol)
+    }
+    default:
+      throw new Error('Unsupported query')
+  }
 }

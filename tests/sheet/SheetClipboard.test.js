@@ -1,10 +1,9 @@
 import test from 'tape'
 import { DefaultDOMElement as DOM, flatten } from 'substance'
 import SheetClipboard from '../../src/sheet/SheetClipboard'
-import { queryCells } from '../../src/shared/cellHelpers'
 import StubEngine from '../util/StubEngine'
 import setupSheetSession from '../util/setupSheetSession'
-import { setSheetSelection, getSources, checkSelection } from '../util/sheetTestHelpers'
+import { setSheetSelection, getSources, checkSelection, queryCells } from '../util/sheetTestHelpers'
 
 test('SheetClipboard: copy', (t) => {
   let fixture = simple()

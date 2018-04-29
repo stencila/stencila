@@ -1,7 +1,6 @@
 import { isNumber, isString } from 'substance'
 import { TextureDocument } from 'substance-texture'
 import { type } from '../value'
-import { parseSymbol } from './expressionHelpers'
 
 export function getCellState(cell) {
   // FIXME: we should make sure that cellState is
@@ -187,23 +186,6 @@ export function getRangeFromMatrix(cells, startRow, startCol, endRow, endCol, fo
     if (row) res.push(row.slice(startCol, endCol+1))
   }
   return res
-}
-
-// This is useful for writing tests, to use queries such as 'A1:A10'
-export function queryCells(cells, query) {
-  let symbol = parseSymbol(query)
-  switch (symbol.type) {
-    case 'cell': {
-      const [row, col] = getRowCol(symbol.name)
-      return cells[row][col]
-    }
-    case 'range': {
-      const { startRow, startCol, endRow, endCol } = getIndexesFromRange(symbol.anchor, symbol.focus)
-      return getRangeFromMatrix(cells, startRow, startCol, endRow, endCol)
-    }
-    default:
-      throw new Error('Unsupported query')
-  }
 }
 
 export function qualifiedId(doc, cell) {
