@@ -66,24 +66,30 @@ export default class Document {
 
   rename(newName) {
     if (newName === this.name) return
+    const docId = this.id
     let graph = this.engine._graph
     let cells = this.cells
     let affectedCells = new Set()
     for (let i = 0; i < cells.length; i++) {
       let cell = cells[i]
       if (graph._cellProvidesOutput(cell)) {
-        let deps = graph._ins(cell.output)
-        if (deps) {
-          deps.forEach(s => {
-            s._update = { type: 'rename', scope: newName }
-            affectedCells.add(s.cell)
+        let ids = graph._ins[cell.output]
+        if (ids) {
+          ids.forEach(cellId => {
+            let cell = graph.getCell(cellId)
+            cell.inputs.forEach(s => {
+              if (s.docId === docId) {
+                s._update = { type: 'rename', scope: newName }
+              }
+            })
+            affectedCells.add(cell)
           })
         }
       }
     }
     affectedCells.forEach(applyCellTransformations)
     this.name = newName
-    this._sendUpdate(affectedCells)
+    this._sendSourceUpdate(affectedCells)
   }
 
   onCellRegister(cell) { // eslint-disable-line
@@ -111,5 +117,11 @@ export default class Document {
   _registerCells(block) {
     if (!block) block = this.cells
     block.forEach(cell => this._registerCell(cell))
+  }
+
+  _sendSourceUpdate(cells) {
+    if (cells.size > 0) {
+      this.engine._sendUpdate('source', cells)
+    }
   }
 }
