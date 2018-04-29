@@ -1,6 +1,6 @@
 import test from 'tape'
 import { insertRows, deleteRows, insertCols, deleteCols } from '../../src/sheet/sheetManipulations'
-import { getValue, getSource } from '../../src/shared/cellHelpers'
+import { getSource } from '../../src/shared/cellHelpers'
 import createRawArchive from '../util/createRawArchive'
 import loadRawArchive from '../util/loadRawArchive'
 import setupEngine from '../util/setupEngine'
