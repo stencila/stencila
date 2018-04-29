@@ -1,7 +1,7 @@
 import { uuid, isString } from 'substance'
 import { qualifiedId as _qualifiedId } from '../shared/cellHelpers'
 import Cell from './Cell'
-import transformCell from './transformCell'
+import { applyCellTransformations } from './engineHelpers'
 
 /*
   Engine's internal model of a Document.
@@ -75,13 +75,13 @@ export default class Document {
         let deps = graph._ins(cell.output)
         if (deps) {
           deps.forEach(s => {
-            s._update = { scope: newName }
+            s._update = { type: 'rename', scope: newName }
             affectedCells.add(s.cell)
           })
         }
       }
     }
-    affectedCells.forEach(cell => transformCell(cell, 'rename'))
+    affectedCells.forEach(applyCellTransformations)
     this.name = newName
     this._sendUpdate(affectedCells)
   }

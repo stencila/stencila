@@ -1,8 +1,7 @@
 import { uuid, isString } from 'substance'
 import { getCellLabel, getColumnLabel, qualifiedId as _qualifiedId, queryCells } from '../shared/cellHelpers'
+import { recordTransformations, applyCellTransformations } from './engineHelpers'
 import SheetCell from './SheetCell'
-import transformRange from './transformRange'
-import transformCell from './transformCell'
 
 /*
   Engine's internal model of a Spreadsheet.
@@ -89,7 +88,7 @@ export default class Sheet {
       return rowData.map(cellData => this._createCell(cellData))
     })
     let affectedCells = new Set()
-    let spans = _transformCells(this.engine, this.cells, 0, pos, count, affectedCells)
+    let spans = transformCells(this.engine, this.cells, 0, pos, count, affectedCells)
     // add the spanning symbols to the deps of the new cells
     for (let i = 0; i < block.length; i++) {
       let row = block[i]
@@ -108,7 +107,7 @@ export default class Sheet {
     if (count === 0) return
     let affectedCells = new Set()
     let block = this.cells.slice(pos, pos+count)
-    _transformCells(this.engine, this.cells, 0, pos, -count, affectedCells)
+    transformCells(this.engine, this.cells, 0, pos, -count, affectedCells)
     this.cells.splice(pos, count)
     this._unregisterCells(block)
     this._sendUpdate(affectedCells)
@@ -121,7 +120,7 @@ export default class Sheet {
     if (count === 0) return
     let affectedCells = new Set()
     // transform cells
-    let spans = _transformCells(this.engine, this.cells, 1, pos, count, affectedCells)
+    let spans = transformCells(this.engine, this.cells, 1, pos, count, affectedCells)
     let block = dataBlock.map((rowData) => {
       if (rowData.length !== count) throw new Error('Invalid data')
       return rowData.map(cellData => this._createCell(cellData))
@@ -150,7 +149,7 @@ export default class Sheet {
   deleteCols(pos, count) {
     if (count === 0) return
     let affectedCells = new Set()
-    _transformCells(this.engine, this.cells, 1, pos, -count, affectedCells)
+    transformCells(this.engine, this.cells, 1, pos, -count, affectedCells)
     const N = this.cells.length
     let block = []
     this.columns.splice(pos, count)
@@ -172,12 +171,12 @@ export default class Sheet {
       for (let j = 0; j < row.length; j++) {
         let cell = row[j]
         cell.deps.forEach(s => {
-          s._update = { scope: newName }
+          s._update = { type: 'rename', scope: newName }
           affectedCells.add(s.cell)
         })
       }
     }
-    affectedCells.forEach(cell => transformCell(cell, 'rename'))
+    affectedCells.forEach(applyCellTransformations)
     this.name = newName
     this._sendUpdate(affectedCells)
   }
@@ -253,7 +252,7 @@ export default class Sheet {
   }
 }
 
-function _transformCells(engine, cells, dim, pos, count, affected) {
+function transformCells(engine, cells, dim, pos, count, affected) {
   if (count === 0) return
   // track updates for symbols and affected cells
   let startRow = 0
@@ -269,40 +268,21 @@ function _transformCells(engine, cells, dim, pos, count, affected) {
     for (let j = startCol; j < row.length; j++) {
       let cell = row[j]
       if (cell.deps.size > 0) {
-        _recordTransformations(cell, dim, pos, count, affected, visited)
+        recordTransformations(cell, dim, pos, count, affected, visited)
       }
     }
   }
   let spans = _computeSpans(cells, dim, pos)
-  // update the source for all cells
-  let mode = dim === 0 ? 'rows' : 'cols'
-  affected.forEach(cell => transformCell(cell, mode))
+  // update the source for all affected cells
+  affected.forEach(applyCellTransformations)
   // reset state of affected cells
   // TODO: let this be done by CellGraph, also making sure the cell state is reset properly
-  affected.forEach(cell => {
-    engine._graph._structureChanged.add(cell.id)
-  })
+  if (engine) {
+    affected.forEach(cell => {
+      engine._graph._structureChanged.add(cell.id)
+    })
+  }
   return spans
-}
-
-
-function _recordTransformations(cell, dim, pos, count, affectedCells, visited) {
-  cell.deps.forEach(s => {
-    if (visited.has(s)) return
-    visited.add(s)
-    let start, end
-    if (dim === 0) {
-      start = s.startRow
-      end = s.endRow
-    } else {
-      start = s.startCol
-      end = s.endCol
-    }
-    let res = transformRange(start, end, pos, count)
-    if (!res) return
-    affectedCells.add(s.cell)
-    s._update = res
-  })
 }
 
 // some symbols are spanning the insert position, and thus need to
