@@ -3,7 +3,7 @@ import {
 } from 'substance'
 import SheetColumnHeader from './SheetColumnHeader'
 import SheetRowHeader from './SheetRowHeader'
-import SheetCell from './SheetCell'
+import SheetCellComponent from './SheetCellComponent'
 import getBoundingRect from '../util/getBoundingRect'
 
 /*
@@ -384,7 +384,7 @@ class TableRow extends Component {
       const cell = sheet.getCell(rowIdx, j)
       let td = $$('td').ref(String(j))
         .append(
-          $$(SheetCell, { node: cell }).ref(cell.id)
+          $$(SheetCellComponent, { node: cell }).ref(cell.id)
         ).attr({
           'data-row': rowIdx,
           'data-col': j,

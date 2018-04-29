@@ -108,10 +108,6 @@ export default class Cell {
     return this.lang || (this.doc ? this.doc.lang : 'mini')
   }
 
-  updateSource(source) {
-    this._source = this._transpile(source)
-  }
-
   get source() {
     return this._source.original
   }

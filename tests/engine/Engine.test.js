@@ -1,8 +1,10 @@
 import test from 'tape'
 import { UNKNOWN } from '../../src/engine/CellStates'
 import { RuntimeError } from '../../src/engine/CellErrors'
+import { BROKEN_REF } from '../../src/engine/engineHelpers'
 import _setup from '../util/setupEngine'
 import { getValue, getValues, getSources, getStates, getErrors, cycle, play } from '../util/engineTestHelpers'
+import { queryCells } from '../util/sheetTestHelpers'
 
 test('Engine: simple sheet', t=> {
   t.plan(1)
@@ -18,7 +20,7 @@ test('Engine: simple sheet', t=> {
   })
   play(engine)
   .then(() => {
-    t.deepEqual(getValues(sheet.queryCells('B1:B2')), [2,4], 'values should have been computed')
+    t.deepEqual(getValues(queryCells(sheet.cells, 'B1:B2')), [2,4], 'values should have been computed')
   })
 })
 
@@ -587,7 +589,7 @@ test('Engine: insert rows', t => {
   })
   .then(() => play(engine))
   .then(() => {
-    t.deepEqual(getValues(sheet.queryCells('A2:B3')), [[5, 6],[7, 8]], 'cells should have been inserted')
+    t.deepEqual(getValues(queryCells(sheet.cells, 'A2:B3')), [[5, 6],[7, 8]], 'cells should have been inserted')
   })
 })
 
@@ -631,7 +633,7 @@ test('Engine: insert cols', t => {
   })
   .then(() => play(engine))
   .then(() => {
-    t.deepEqual(getValues(sheet.queryCells('A1:C2')), [[1, 5, 2],[3, 6, 4]], 'cells should have been inserted')
+    t.deepEqual(getValues(queryCells(sheet.cells, 'A1:C2')), [[1, 5, 2],[3, 6, 4]], 'cells should have been inserted')
   })
 })
 
@@ -767,6 +769,31 @@ test('Engine: delete last row of a cell range', t => {
   })
 })
 
+test('Engine: delete rows covering an entire cell range', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4'],
+      ['5', '6'],
+      ['7', '8'],
+      ['=sum(A2:A3)', '=B2+B3'],
+    ]
+  })
+  let cells = sheet.cells[4]
+  play(engine)
+  .then(() => {
+    sheet.deleteRows(1, 2)
+  })
+  .then(() => play(engine))
+  .then(() => {
+    t.deepEqual(getSources(cells), [`=sum(${BROKEN_REF})`,`=${BROKEN_REF}+${BROKEN_REF}`], 'sources should have been updated')
+  })
+})
+
 test('Engine: insert a column', t => {
   t.plan(3)
   let { engine } = _setup()
@@ -791,7 +818,7 @@ test('Engine: insert a column', t => {
   })
   .then(() => play(engine))
   .then(() => {
-    let cells = sheet.queryCells('A5:C5')
+    let cells = queryCells(sheet.cells, 'A5:C5')
     t.deepEqual(getSources(cells), ['=sum(A1:A4)','=sum(B1:B4)', '=sum(A1:C4)'], 'sources should have been updated')
     t.deepEqual(getValues(cells), [16,14,50], 'cells should have correct values')
   })
@@ -817,7 +844,7 @@ test('Engine: insert multiple columns', t => {
   })
   .then(() => play(engine))
   .then(() => {
-    let cells = sheet.queryCells('A5:D5')
+    let cells = queryCells(sheet.cells, 'A5:D5')
     t.deepEqual(getSources(cells), ['=sum(A1:A4)','=sum(B1:B4)', '=sum(C1:C4)', '=sum(A1:D4)'], 'sources should have been updated')
     t.deepEqual(getValues(cells), [16,20,24,80], 'cells should have correct values')
   })
@@ -840,11 +867,33 @@ test('Engine: delete a column', t => {
   play(engine)
   .then(() => {
     sheet.deleteCols(1, 1)
-    t.deepEqual(getSources(sheet.queryCells('A5:B5')), ['=sum(A1:A4)','=sum(A1:B4)'], 'sources should have been updated')
+    t.deepEqual(getSources(queryCells(sheet.cells, 'A5:B5')), ['=sum(A1:A4)','=sum(A1:B4)'], 'sources should have been updated')
   })
   .then(() => play(engine))
   .then(() => {
-    t.deepEqual(getValues(sheet.queryCells('A5:B5')), [19,46], 'cells should have correct values')
+    t.deepEqual(getValues(queryCells(sheet.cells, 'A5:B5')), [19,46], 'cells should have correct values')
+  })
+})
+
+test('Engine: delete columns covering an entire cell range', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2', '3', '4'],
+      ['5', '6', '7', '8'],
+      ['=sum(A1:A2)', '=B2+B3', '=C2+C3', '=A3+B3+C3'],
+    ]
+  })
+  play(engine)
+  .then(() => {
+    sheet.deleteCols(1, 2)
+  })
+  .then(() => play(engine))
+  .then(() => {
+    t.deepEqual(getSources(queryCells(sheet.cells, 'A3:B3')), [`=sum(A1:A2)`,`=A3+${BROKEN_REF}+${BROKEN_REF}`], 'sources should have been updated')
   })
 })
 
@@ -865,11 +914,11 @@ test('Engine: delete last column of a cell range', t => {
   play(engine)
   .then(() => {
     sheet.deleteCols(1, 1)
-    t.deepEqual(getSources(sheet.queryCells('A5:B5')), ['=sum(A1:A4)','=sum(A1:A4)'], 'sources should have been updated')
+    t.deepEqual(getSources(queryCells(sheet.cells, 'A5:B5')), ['=sum(A1:A4)','=sum(A1:A4)'], 'sources should have been updated')
   })
   .then(() => play(engine))
   .then(() => {
-    t.deepEqual(getValues(sheet.queryCells('A5:B5')), [19,19], 'cells should have correct values')
+    t.deepEqual(getValues(queryCells(sheet.cells, 'A5:B5')), [19,19], 'cells should have correct values')
   })
 })
 
