@@ -96,7 +96,7 @@ export default class Sheet {
     // update sheet structure
     this.cells.splice(pos, 0, ...block)
     this._registerCells(block)
-    this._sendUpdate(affectedCells)
+    this._sendSourceUpdate(affectedCells)
   }
 
   deleteRows(pos, count) {
@@ -106,7 +106,7 @@ export default class Sheet {
     transformCells(this.engine, this.cells, 0, pos, -count, affectedCells)
     this.cells.splice(pos, count)
     this._unregisterCells(block)
-    this._sendUpdate(affectedCells)
+    this._sendSourceUpdate(affectedCells)
   }
 
   insertCols(pos, dataBlock) {
@@ -139,7 +139,7 @@ export default class Sheet {
       }
     }
     this._registerCells(block)
-    this._sendUpdate(affectedCells)
+    this._sendSourceUpdate(affectedCells)
   }
 
   deleteCols(pos, count) {
@@ -155,7 +155,7 @@ export default class Sheet {
       row.splice(pos, count)
     }
     this._unregisterCells(block)
-    this._sendUpdate(affectedCells)
+    this._sendSourceUpdate(affectedCells)
   }
 
   rename(newName) {
@@ -174,7 +174,7 @@ export default class Sheet {
     }
     affectedCells.forEach(applyCellTransformations)
     this.name = newName
-    this._sendUpdate(affectedCells)
+    this._sendSourceUpdate(affectedCells)
   }
 
   onCellRegister(cell) { // eslint-disable-line
@@ -241,7 +241,7 @@ export default class Sheet {
     }
   }
 
-  _sendUpdate(cells) {
+  _sendSourceUpdate(cells) {
     if (cells.size > 0) {
       this.engine._sendUpdate('source', cells)
     }
