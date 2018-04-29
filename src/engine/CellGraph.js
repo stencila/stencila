@@ -64,6 +64,10 @@ export default class CellGraph {
     if (cell.next) {
       this._setPrev(cell.next, cell.prev)
     }
+    // remove the cell from all registered updates
+    this._stateChanged.delete(cell.id)
+    this._structureChanged.delete(cell.id)
+    this._valueUpdated.delete(cell.id)
   }
 
   getValue(symbol) {

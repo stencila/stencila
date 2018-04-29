@@ -1,8 +1,7 @@
 import { isNumber, isString } from 'substance'
 import { TextureDocument } from 'substance-texture'
 import { type } from '../value'
-import { parseSymbol, getCellExpressions } from './expressionHelpers'
-import transformRange from '../engine/transformRange'
+import { parseSymbol } from './expressionHelpers'
 
 export function getCellState(cell) {
   // FIXME: we should make sure that cellState is
@@ -217,104 +216,3 @@ export function qualifiedId(doc, cell) {
   }
 }
 
-export const BROKEN_REF = '#REF!'
-
-export function transformCellRangeExpressions(source, params) {
-  const symbols = getCellExpressions(source)
-  for (let i = symbols.length-1; i >= 0; i--) {
-    const symbol = symbols[i]
-    const transformed = _transformCellRangeExpression(symbol.name, params)
-    if(transformed !== symbol.name) {
-      let subs
-      if (symbol.scope) {
-        subs = ["'",symbol.scope,"'",'!',transformed].join('')
-      } else {
-        subs = transformed
-      }
-      source = source.substring(0, symbol.startPos) + subs + source.substring(symbol.endPos)
-    }
-  }
-  return source
-}
-
-export function renameTransclusions(source, oldName, newName) {
-  const symbols = getCellExpressions(source)
-  for (let i = symbols.length-1; i >= 0; i--) {
-    const symbol = symbols[i]
-    if (symbol.scope === oldName) {
-      // TODO: symbol properties could be named more intuitively
-      let subs = ["'",newName,"'",'!',symbol.name].join('')
-      source = source.substring(0, symbol.startPos) + subs + source.substring(symbol.endPos)
-    }
-  }
-  return source
-}
-
-function _transformCellRangeExpression(expr, { dim, pos, count }) {
-  if(!isNumber(pos) || !isNumber(count) || (dim !== 'col' && dim !== 'row')) throw new Error('Illegal arguments')
-  let range = _getCellRange(expr, dim)
-  let t = transformRange(range.start, range.end, pos, count)
-  if (t === null) {
-    return BROKEN_REF
-  } else if (t === false) {
-    return expr
-  } else {
-    return _modifyCellRangeLabel(expr, t, dim)
-  }
-}
-
-function _getCellRange(expr, dim) {
-  if(!expr || !dim) {
-    throw new Error('Illegal arguments.')
-  }
-  const parts = expr.split(':')
-  let range = {
-    start: 0,
-    end: 0
-  }
-  if(dim === 'col') {
-    if(parts.length === 2) {
-      range.start = getRowCol(parts[0])[1]
-      range.end = getRowCol(parts[1])[1]
-    } else {
-      range.start = range.end = getRowCol(parts[0])[1]
-    }
-  } else if (dim === 'row') {
-    if(parts.length === 2) {
-      range.start = getRowCol(parts[0])[0]
-      range.end = getRowCol(parts[1])[0]
-    } else {
-      range.start = range.end = getRowCol(parts[0])[0]
-    }
-  } else {
-    throw new Error('Illegal dimension: ' + dim)
-  }
-  return range
-}
-
-function _modifyCellRangeLabel(expr, range, dim) {
-  if(!expr || !range || !dim) {
-    throw new Error('Illegal arguments.')
-  }
-  const parts = expr.split(':')
-  let startRow = getRowCol(parts[0])[0]
-  let startCol = getRowCol(parts[0])[1]
-  if(parts.length === 1) {
-    if(dim === 'col') {
-      startCol = range.start
-    } else if (dim === 'row') {
-      startRow = range.start
-    }
-    return getCellLabel(startRow, startCol)
-  }
-  let endRow = getRowCol(parts[1])[0]
-  let endCol = getRowCol(parts[1])[1]
-  if(dim === 'col') {
-    startCol = range.start
-    endCol = range.end
-  } else if (dim === 'row') {
-    startRow = range.start
-    endRow = range.end
-  }
-  return getCellLabel(startRow, startCol)+':'+getCellLabel(endRow, endCol)
-}
