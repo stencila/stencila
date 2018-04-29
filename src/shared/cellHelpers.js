@@ -1,7 +1,7 @@
 import { isNumber, isString } from 'substance'
 import { TextureDocument } from 'substance-texture'
 import { type } from '../value'
-import { parseSymbol, getCellExpressions } from './expressionHelpers'
+import { parseSymbol } from './expressionHelpers'
 
 export function getCellState(cell) {
   // FIXME: we should make sure that cellState is

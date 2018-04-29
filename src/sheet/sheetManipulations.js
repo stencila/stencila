@@ -1,5 +1,3 @@
-import { transformCellRangeExpressions } from '../shared/cellHelpers'
-
 export function insertRows(editorSession, pos, count) {
   editorSession.transaction((tx) => {
     _createRowsAt(tx.getDocument(), pos, count)
@@ -82,14 +80,6 @@ export function setCellTypes(editorSession, startRow, startCol, endRow, endCol, 
   editorSession.transaction(tx => {
     _setCellTypesForRange(tx.getDocument(), startRow, startCol, endRow, endCol, type)
   }, { action: 'setCellTypes' })
-}
-
-export function transformCellExpressions(cell, params) {
-  let source = cell.textContent
-  let newSource = transformCellRangeExpressions(source, params)
-  if(source !== newSource) {
-    cell.textContent = newSource
-  }
 }
 
 function _setValues(sheet, startRow, startCol, vals) {
