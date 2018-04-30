@@ -46,6 +46,7 @@ export function setCell(editorSession, row, col, val) {
 export function setValues(editorSession, startRow, startCol, vals) {
   let n = vals.length
   let m = vals[0].length
+  ensureSize(editorSession, startRow+n, startCol+m)
   editorSession.transaction(tx => {
     let sheet = tx.getDocument()
     _setValues(sheet, startRow, startCol, vals)
@@ -80,6 +81,17 @@ export function setCellTypes(editorSession, startRow, startCol, endRow, endCol, 
   editorSession.transaction(tx => {
     _setCellTypesForRange(tx.getDocument(), startRow, startCol, endRow, endCol, type)
   }, { action: 'setCellTypes' })
+}
+
+export function ensureSize(editorSession, nrows, ncols) {
+  let sheet = editorSession.getDocument()
+  let [_nrows, _ncols] = sheet.getDimensions()
+  if (_ncols < ncols) {
+    insertCols(editorSession, _ncols, ncols-_ncols)
+  }
+  if (_nrows < nrows) {
+    insertRows(editorSession, _nrows, nrows-_nrows)
+  }
 }
 
 function _setValues(sheet, startRow, startCol, vals) {
