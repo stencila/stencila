@@ -1,5 +1,5 @@
-import { prettyPrintXML } from 'substance'
-import { JATSExporter, TextureArchive } from 'substance-texture'
+import { prettyPrintXML, DefaultDOMElement } from 'substance'
+import { JATSExporter, TextureArchive, PubMetaLoader } from 'substance-texture'
 import ArticleLoader from './article/ArticleLoader'
 import SheetLoader from './sheet/SheetLoader'
 
@@ -126,4 +126,21 @@ export default class StencilaArchive extends TextureArchive {
     }, { action: 'renameDocument' })
   }
 
+}
+
+/*
+  Create an explicit entry for pub-meta.json, which does not
+  exist in the serialisation format
+*/
+function _importManifest(manifestXML) {
+  let dom = DefaultDOMElement.parseXML(manifestXML)
+  let documents = dom.find('documents')
+  documents.append(
+    dom.createElement('document').attr({
+      id: 'pub-meta',
+      type: 'pub-meta',
+      path: 'pub-meta.json'
+    })
+  )
+  return dom.serialize()
 }
