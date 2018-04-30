@@ -58,7 +58,7 @@ test('SheetClipboard: cut', (t) => {
 test('SheetClipboard: paste html', (t) => {
   let { sheetSession, sheetClipboard, sheet } = _setup(simple())
   setSheetSelection(sheetSession, 'B2:B2')
-  let htmlStr = '<html><body><table><tr><td>1</td><td>2</td></tr><tr><td>3</td><td>4</td></tr></table></body></html>'
+  let htmlStr = _createHtml([['1', '2'],['3', '4']])
   let evt = new ClipboardEvent()
   evt.clipboardData.setData('text/html', htmlStr)
   sheetClipboard.onPaste(evt)
@@ -83,6 +83,20 @@ test('SheetClipboard: paste plain text', (t) => {
   t.end()
 })
 
+test('SheetClipboard: paste a table that is larger than the sheet', (t) => {
+  let { sheetSession, sheetClipboard, sheet } = _setup(small())
+  setSheetSelection(sheetSession, 'B2')
+  let htmlStr = _createHtml([['A', 'B', 'C'], ['D', 'E', 'F'], ['G', 'H', 'I']])
+  let evt = new ClipboardEvent()
+  evt.clipboardData.setData('text/html', htmlStr)
+  sheetClipboard.onPaste(evt)
+  let cells = sheet.getCellMatrix()
+  t.deepEqual(getSources(cells), [['1', '2', '', ''], ['3', 'A', 'B', 'C'], ['', 'D', 'E', 'F'], ['', 'G', 'H', 'I']], 'sheet should have been extended and values pasted')
+  let sel = sheetSession.getSelection()
+  checkSelection(t, sel, 'B2:D4')
+  t.end()
+})
+
 
 function simple() {
   return {
@@ -100,10 +114,45 @@ function simple() {
   }
 }
 
+function small() {
+  return {
+    id: 'sheet',
+    path: 'sheet.xml',
+    type: 'sheet',
+    name: 'My Sheet',
+    columns: [{ name: 'x' }, { name: 'y' }],
+    cells: [
+      ['1', '2'],
+      ['3', '4'],
+    ]
+  }
+}
+
 function _setup(sheetData) {
   let { sheetSession, sheet } = setupSheetSession(sheetData, new StubEngine())
   let sheetClipboard = new SheetClipboard(sheetSession)
   return { sheetSession, sheet, sheetClipboard }
+}
+
+function _createHtml(cells) {
+  let frags = []
+  frags.push('<html>')
+  frags.push('<body>')
+  frags.push('<table>')
+  for (let i = 0; i < cells.length; i++) {
+    let row = cells[i]
+    frags.push('<tr>')
+    for (let j = 0; j < row.length; j++) {
+      frags.push('<td>')
+      frags.push(row[j])
+      frags.push('</td>')
+    }
+    frags.push('</tr>')
+  }
+  frags.push('</table>')
+  frags.push('</body>')
+  frags.push('</html>')
+  return frags.join('')
 }
 
 class ClipboardEventData {
