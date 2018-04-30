@@ -1,7 +1,8 @@
 .sc-node-menu {
   position: absolute;
   left: -77px;
-  background: var(--dark-bg-color);
+  background: #fff;
+  box-shadow: 0 0 0 0.75pt #d1d1d1, 0 0 3pt 0.75pt #aaa;
   border-radius: 3px;
   padding: 2px 5px;
   z-index: 5;

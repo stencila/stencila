@@ -196,7 +196,7 @@ export default {
     config.addLabel('hide-all-code', 'Hide All Code')
 
     config.addLabel('settings', 'Settings')
-    config.addLabel('auto-run', '${autoOrManual} Run Cells')
+    config.addLabel('auto-run', '${autoOrManual} Execution')
 
     // View Commands
     config.addCommand('hide-all-code', ToggleAllCodeCommand, {
