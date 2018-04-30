@@ -1,5 +1,5 @@
 import test from 'tape'
-import { insertRows, deleteRows, insertCols, deleteCols, setCell } from '../../src/sheet/sheetManipulations'
+import { insertRows, deleteRows, insertCols, deleteCols, setCell, ensureSize } from '../../src/sheet/sheetManipulations'
 import createSheetXML from '../util/createSheetXML'
 import StubEngine from '../util/StubEngine'
 import setupEngine from '../util/setupEngine'
@@ -19,31 +19,38 @@ import setupSheetSession from '../util/setupSheetSession'
     - sheetManipulations
 */
 
-test('Sheet (model): inserting rows should increase row count', (t) => {
+test('Sheet: inserting rows should increase row count', (t) => {
   let { sheetSession, sheet } = _setupModel(simple())
   insertRows(sheetSession, 1, 2)
   t.deepEqual(sheet.getRowCount(), 6, 'row count should have been updated')
   t.end()
 })
 
-test('Sheet (model): deleting rows should decrease row count', (t) => {
+test('Sheet: deleting rows should decrease row count', (t) => {
   let { sheetSession, sheet } = _setupModel(simple())
   deleteRows(sheetSession, 1, 2)
   t.deepEqual(sheet.getRowCount(), 2, 'row count should have been updated')
   t.end()
 })
 
-test('Sheet (model): inserting columns should increase column count', (t) => {
+test('Sheet: inserting columns should increase column count', (t) => {
   let { sheetSession, sheet } = _setupModel(simple())
   insertCols(sheetSession, 1, 2)
   t.deepEqual(sheet.getColumnCount(), 5, 'row count should have been updated')
   t.end()
 })
 
-test('Sheet (model): deleting columns should decrease column count', (t) => {
+test('Sheet: deleting columns should decrease column count', (t) => {
   let { sheetSession, sheet } = _setupModel(simple())
   deleteCols(sheetSession, 1, 2)
-  t.deepEqual(sheet.getColumnCount(), 1, 'row count should have been updated')
+  t.deepEqual(sheet.getColumnCount(), 1, 'column count should have been updated')
+  t.end()
+})
+
+test('Sheet: ensure size', (t) => {
+  let { sheetSession, sheet } = _setupModel(simple())
+  ensureSize(sheetSession, 10, 5)
+  t.deepEqual(sheet.getDimensions(), [10,5], 'sheet dimensions should have been updated')
   t.end()
 })
 
