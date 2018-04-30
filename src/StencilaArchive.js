@@ -10,6 +10,33 @@ export default class StencilaArchive extends TextureArchive {
     this._context = context
   }
 
+  // FIXME: Texture #499
+  // copied this code from TextureArchive applying a quick-fix
+  _ingest(rawArchive) {
+    let sessions = {}
+    let manifestXML = _importManifest(rawArchive.resources['manifest.xml'].data)
+    let manifestSession = this._loadManifest({ data: manifestXML })
+    sessions['manifest'] = manifestSession
+    let entries = manifestSession.getDocument().getDocumentEntries()
+
+    // Setup empty pubMetaSession for holding the entity database
+    let pubMetaSession = PubMetaLoader.load()
+    sessions['pub-meta'] = pubMetaSession
+
+    entries.forEach(entry => {
+      let record = rawArchive.resources[entry.path]
+      if (!record) return
+      // Load any document except pub-meta (which we prepared manually)
+      if (entry.type !== 'pub-meta') {
+        // Passing down 'sessions' so that we can add to the pub-meta session
+        let session = this._loadDocument(entry.type, record, sessions)
+        sessions[entry.id] = session
+      }
+    })
+    return sessions
+  }
+
+
   _loadDocument(type, record, sessions) {
     let context = this._context
     let editorSession
