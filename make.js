@@ -3,7 +3,6 @@ const b = require('substance-bundler')
 const fork = require('substance-bundler/extensions/fork')
 const install = require('substance-bundler/extensions/install')
 const path = require('path')
-const isInstalled = require('substance-bundler/util/isInstalled')
 const fs = require('fs')
 const merge = require('lodash.merge')
 const vfs = require('substance-bundler/extensions/vfs')
@@ -177,7 +176,8 @@ function copyAssets() {
   b.copy('./node_modules/substance/dist/substance.js*', DIST+'lib/')
   b.copy('./node_modules/substance-texture/dist/texture.js*', DIST+'lib/')
   b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', DIST+'lib/')
-  b.copy('./node_modules/stencila-libcore/build/stencila-libcore.*', DIST+'lib/')
+  b.copy('./node_modules/stencila-libcore/builds/stencila-envcore.*', DIST+'lib/')
+  b.copy('./node_modules/stencila-libcore/builds/stencila-libcore.*', DIST+'lib/')
   b.copy('./node_modules/rdc-js/dist/rdc.js*', DIST+'lib/')
 }
 

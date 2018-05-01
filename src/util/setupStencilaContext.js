@@ -3,10 +3,6 @@ import getQueryStringParam from '../util/getQueryStringParam'
 import Engine from '../engine/Engine'
 
 export default function setupStencilaContext() {
-  // Get configuration options from environment variables and query parameters
-  const libs = {
-    //core: window.STENCILA_LIBCORE
-  }
   // Stencila Host (for requesting external execution contexts etc)
   let hosts = []
   // Use the origin as a remote Stencila Host?
@@ -24,7 +20,7 @@ export default function setupStencilaContext() {
   const discover = parseFloat(getQueryStringParam('discover') || window.STENCILA_DISCOVER || '-1')
   // Instantiate and initialise the host
   const engine = new Engine()
-  const host = new Host({libs, hosts, discover, engine })
+  const host = new Host({ hosts, discover, engine })
   engine.setHost(host)
   const functionManager = host._functionManager
 

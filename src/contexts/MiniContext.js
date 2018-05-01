@@ -1,5 +1,4 @@
 import { parse } from 'stencila-mini'
-import libcore from 'stencila-libcore'
 import { getCellLabel } from '../shared/cellHelpers'
 import { gather } from '../value'
 
@@ -205,7 +204,7 @@ class ExprContext {
     switch (type) {
       case 'number': {
         return {
-          type: libcore.type(value),
+          type: 'number',
           data: value
         }
       }

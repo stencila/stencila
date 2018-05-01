@@ -4,6 +4,7 @@ import { generate } from 'astring/src/astring'
 import { isFunction } from 'substance'
 
 import Context from './Context'
+
 import libcore from 'stencila-libcore'
 
 /**
@@ -211,8 +212,12 @@ export default class JsContext extends Context {
     })
   }
 
-  importLibrary(libraryName, functions) {
-    this._libs[libraryName] = functions
+  libraries() {
+    return Promise.resolve(this._libs)
+  }
+
+  importLibrary(library) {
+    this._libs[library.name] = library
   }
 
   /**
@@ -240,17 +245,18 @@ export default class JsContext extends Context {
     const lib = this._libs[libName]
     if (!lib) throw new Error('No library registered with name: ' + libName)
 
-    const func = lib[functionName]
+    let func = lib.funcs[functionName]
     if (!func) throw new Error('No function with name: ' + functionName)
 
-    if (!isFunction(func)) throw new Error(`Registered function with name ${functionName} is invalid!`)
+    let funcBody = func.body
+    if (!isFunction(funcBody)) throw new Error(`Registered function with name ${functionName} is invalid!`)
 
     let values = args.map(arg => this._unpackValue(arg))
 
     let messages = []
     let value
     try {
-      value = func(...values)
+      value = funcBody(...values)
     } catch (error) {
       messages.push(this._packError(error))
     }
@@ -273,7 +279,9 @@ export default class JsContext extends Context {
    */
   _packValue (value) {
     if (value === undefined) return null
-    let type = libcore.type(value)
+    let type
+    if (Number.isInteger(value)) type = 'integer'
+    else type = value.type || typeof value
     return {
       type: type,
       data: value

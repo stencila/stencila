@@ -26,14 +26,14 @@ export default class FunctionManager {
   /*
     Import a function
   */
-  importFunction(context, libraryName, func) {
+  importFunction(context, library, func) {
     const record = this.functionMap[func.name]
-    if (record && record.library !== libraryName) {
+    if (record && record.library !== library.name) {
       throw new Error(`Function "${func.name}" is already defined in library "${record.library}"`)
     }
-    this.functionMap[func.name] = { context, library: libraryName }
-    if (!this.functions[libraryName]) this.functions[libraryName] = {}
-    this.functions[libraryName][func.name] = func
+    this.functionMap[func.name] = { context, library: library.name }
+    if (!this.functions[library.name]) this.functions[library.name] = {}
+    this.functions[library.name][func.name] = func
   }
 
   /*
@@ -41,7 +41,7 @@ export default class FunctionManager {
   */
   importLibrary(context, library) {
     for (let func of Object.values(library.funcs)) {
-      this.importFunction(context, library.name, func)
+      this.importFunction(context, library, func)
     }
   }
 
@@ -50,10 +50,10 @@ export default class FunctionManager {
    * 
    * @param  {object} libraries An object of libraries like `{name:xml}`
    */
-  importLibraries(libraries) {
-    Object.keys(libraries).forEach((name) => {
-      this.importLibrary(name, libraries[name])
-    })
+  importLibraries(context, libraries) {
+    for (let library of Object.values(libraries)) {
+      this.importLibrary(context, library)
+    }
   }
 
   getContextLibrary(functionName) {

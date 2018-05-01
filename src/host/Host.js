@@ -94,7 +94,7 @@ export default class Host extends EventEmitter {
      *
      * @type {FunctionManager}
      */
-    this._functionManager = new FunctionManager(options.libs)
+    this._functionManager = new FunctionManager()
 
   }
 
@@ -183,7 +183,11 @@ export default class Host extends EventEmitter {
   initialize () {
     const options = this._options
 
-    let promises = [Promise.resolve()]
+    let promises = [
+      // Always create a Javascript execution context for
+      // execution of core functions
+      this.createContext('js')
+    ]
 
     // Seed with specified hosts
     let hosts = options.hosts
@@ -401,9 +405,7 @@ export default class Host extends EventEmitter {
             const context = result.instance
             if (typeof context.libraries === 'function') {
               context.libraries().then((libraries) => {
-                for (let name of Object.keys(libraries)) {
-                  this._functionManager.importLibrary(name, libraries[name])
-                }
+                this._functionManager.importLibraries(context, libraries)
               }).catch((error) => {
                 console.log(error) // eslint-disable-line
               })
