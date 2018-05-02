@@ -97,6 +97,16 @@ export default class SheetDocument extends XMLDocument {
     return data.getChildCount()
   }
 
+  getDimensions() {
+    let matrix = this.getCellMatrix()
+    let nrows = matrix.length
+    let ncols = 0
+    if (nrows > 0) {
+      ncols = matrix[0].length
+    }
+    return [nrows, ncols]
+  }
+
   _apply(change) {
     super._apply(change)
     // update the matrix on structural changes

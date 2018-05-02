@@ -593,6 +593,27 @@ test('Engine: insert rows', t => {
   })
 })
 
+test('Engine: append rows', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4']
+    ]
+  })
+  play(engine)
+  .then(() => {
+    sheet.insertRows(2, [['5', '6'], ['7', '8'], ['9', '10']])
+  })
+  .then(() => play(engine))
+  .then(() => {
+    t.deepEqual(getValues(queryCells(sheet.cells, 'A3:B5')), [[5, 6],[7, 8], [9, 10]], 'cells should have been inserted')
+  })
+})
+
 test('Engine: delete rows', t => {
   t.plan(1)
   let { engine } = _setup()
@@ -634,6 +655,27 @@ test('Engine: insert cols', t => {
   .then(() => play(engine))
   .then(() => {
     t.deepEqual(getValues(queryCells(sheet.cells, 'A1:C2')), [[1, 5, 2],[3, 6, 4]], 'cells should have been inserted')
+  })
+})
+
+test('Engine: append cols', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['1', '2'],
+      ['3', '4']
+    ]
+  })
+  play(engine)
+  .then(() => {
+    sheet.insertCols(2, [['5', '6', '7'], ['8', '9', '10']])
+  })
+  .then(() => play(engine))
+  .then(() => {
+    t.deepEqual(getValues(queryCells(sheet.cells, 'C1:E2')), [[5, 6, 7],[8, 9, 10]], 'cells should have been inserted')
   })
 })
 

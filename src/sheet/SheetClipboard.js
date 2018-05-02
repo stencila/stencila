@@ -67,8 +67,8 @@ export default class SheetClipboard {
   _pasteHtml(html, plainText) {
     let vals = this._htmlToVals(html)
     if (vals && vals.length > 0) {
-      let range = this._getRange()
-      setValues(this.editorSession, range.startRow, range.startCol, vals)
+      let { startRow, startCol } = this._getRange()
+      setValues(this.editorSession, startRow, startCol, vals)
     } else {
       this._pastePlainText(plainText)
     }

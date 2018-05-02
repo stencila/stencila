@@ -90,7 +90,7 @@ export default class Sheet {
       let row = block[i]
       for (let j = 0; j < row.length; j++) {
         let cell = row[j]
-        if (spans[j]) cell.deps = new Set(spans[j])
+        if (spans && spans[j]) cell.deps = new Set(spans[j])
       }
     }
     // update sheet structure
@@ -135,7 +135,7 @@ export default class Sheet {
       let row = block[i]
       for (let j = 0; j < row.length; j++) {
         let cell = row[j]
-        if (spans[i]) cell.deps = new Set(spans[i])
+        if (spans && spans[i]) cell.deps = new Set(spans[i])
       }
     }
     this._registerCells(block)
@@ -284,18 +284,25 @@ function transformCells(engine, cells, dim, pos, count, affected) {
 // some symbols are spanning the insert position, and thus need to
 // be added to the deps of inserted cells
 function _computeSpans(cells, dim, pos) {
-  let spans = []
+  let spans
   if (pos > 0) {
-    let N = dim === 0 ? cells[0].length : cells.length
-    for (let i = 0; i < N; i++) {
+    if (cells.length === 0 || cells[0].length === 0) return
+    let size = [cells.length, cells[0].length]
+    if (pos >= size[dim]) return
+    // check cells along the other dimension
+    let L = dim === 0 ? size[1] : size[0]
+    for (let i = 0; i < L; i++) {
       let cell = dim === 0 ? cells[pos][i] : cells[i][pos]
-      cell.deps.forEach(s => {
+      let deps = Array.from(cell.deps)
+      for (let j = 0; j < deps.length; j++) {
+        let s = deps[j]
         let update = s._update
         if (update && update.start <= pos) {
+          if (!spans) spans = []
           if (!spans[i]) spans[i] = []
           spans[i].push(s)
         }
-      })
+      }
     }
   }
   return spans
