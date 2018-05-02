@@ -1,7 +1,7 @@
 import { Command } from 'substance'
 import { InsertNodeCommand } from 'substance-texture'
 import { qualifiedId } from '../shared/cellHelpers'
-import { setCellLanguage, insertCell } from './ArticleManipulations'
+import { setCellLanguage, insertCell, insertReproFig } from './ArticleManipulations'
 
 export class SetLanguageCommand extends Command {
 
