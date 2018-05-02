@@ -11,16 +11,9 @@ import { queryCells } from '../util/sheetTestHelpers'
   Transclusions need to be updated whenever the referenced sheet changes
   structurally, i.e. rows or columns are added or removed, or the referenced
   resource is renamed.
-
   To test this behavior, an archive is created and manipulations as done by the
-  UI are triggered. Only the following is subject to this this:
-
-  - transclusions are updated when sheet structure is changed
-  - transclusions are updated a resource is renamed
-  - engine is updated when a resource is renamed (registered alias by name)
-
-  We do not test the evaluation of transclusions here, which is done in `Engine.test.js`
 */
+
 test('Transclusions: inserting a row', t => {
   t.plan(1)
   let { archive, engine } = _setup(sample1())
