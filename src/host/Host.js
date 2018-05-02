@@ -88,7 +88,6 @@ export default class Host extends EventEmitter {
      */
     this._engine = options.engine || new Engine({ host: this })
 
-
     /**
      * Manages functions imported from libraries
      *
@@ -222,9 +221,10 @@ export default class Host extends EventEmitter {
         }
       }
     }).then(() => {
-      // Instantiate the engine after connecting to any peer hosts so that they are connected to before the engine attempts
+      // Run the engine after connecting to any peer hosts so that they are connected 
+      // (and have registered functions) before the engine attempts
       // to create contexts for external languages like R, SQL etc
-      this._engine = new Engine(this)
+      this._engine.run(10) // Refresh interval of 10ms
     })
   }
 
@@ -404,13 +404,15 @@ export default class Host extends EventEmitter {
             // optimistically i.e. will not fail if the context does not implement `libraries`
             const context = result.instance
             if (typeof context.libraries === 'function') {
-              context.libraries().then((libraries) => {
+              return context.libraries().then((libraries) => {
                 this._functionManager.importLibraries(context, libraries)
+                return context
               }).catch((error) => {
                 console.log(error) // eslint-disable-line
               })
+            } else {
+              return context
             }
-            return context
           }
         })
         this._contexts[language] = promise

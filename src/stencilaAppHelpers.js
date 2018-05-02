@@ -41,10 +41,7 @@ export function _initStencilaContext(context) {
 }
 
 export function _initStencilaArchive(archive, context) {
-  // start the engine
-  const engine = context.engine
-  const ENGINE_REFRESH_INTERVAL = 10 // ms
-  engine.run(ENGINE_REFRESH_INTERVAL)
+  const engine = context.host.engine
   // when a document is renamed, transclusions must be updated
   _listenForDocumentRecordUpdates(archive, engine)
   // documents and sheets must be registered with the engine
