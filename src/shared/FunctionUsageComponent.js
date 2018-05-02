@@ -19,16 +19,18 @@ export default class FunctionUsageComponent extends Component {
 
     // Parameter descriptions
     let paramsEl = $$('table').addClass('se-parameters')
-    params.forEach((param, i) => {
-      let paramEl = $$('tr').addClass('se-param').append(
-        $$('td').addClass('se-param-name').append(param.name),
-        $$('td').addClass('se-param-descr').append(param.description)
-      )
-      if (i === this.props.paramIndex) {
-        paramEl.addClass('sm-active')
-      }
-      paramsEl.append(paramEl)
-    })
+    if (params) {
+      params.forEach((param, i) => {
+        let paramEl = $$('tr').addClass('se-param').append(
+          $$('td').addClass('se-param-name').append(param.name),
+          $$('td').addClass('se-param-descr').append(param.description)
+        )
+        if (i === this.props.paramIndex) {
+          paramEl.addClass('sm-active')
+        }
+        paramsEl.append(paramEl)
+      })
+    }
 
     let documentationLink = $$('div').addClass('se-read-more').append(
       this.context.iconProvider.renderIcon($$, 'function-helper')
@@ -58,16 +60,19 @@ class FunctionSignature extends Component {
     const params = Object.values(spec.methods)[0].params
 
     let paramsEl = $$('span').addClass('se-signature-params')
-    params.forEach((param, i) => {
-      let paramEl = $$('span').addClass('se-signature-param').append(param.name)
-      if (i === this.props.paramIndex) {
-        paramEl.addClass('sm-active')
-      }
-      paramsEl.append(paramEl);
-      if (i < params.length - 1) {
-        paramsEl.append(',')
-      }
-    })
+    if (params) {
+      params.forEach((param, i) => {
+        let paramEl = $$('span').addClass('se-signature-param').append(param.name)
+        if (i === this.props.paramIndex) {
+          paramEl.addClass('sm-active')
+        }
+        paramsEl.append(paramEl);
+        if (i < params.length - 1) {
+          paramsEl.append(',')
+        }
+      })
+    }
+
     return $$('div').addClass('se-signature').append(
       $$('span').addClass('se-name').append(spec.name),
       '(',

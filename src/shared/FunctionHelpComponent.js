@@ -53,15 +53,19 @@ export default class FunctionHelpComponent extends Component {
         syntaxEl
       )
 
-      params.forEach(param => {
-        el.append(
-          $$('div').addClass('se-param').append(
-            $$('span').addClass('se-name').append(param.name),
-            ' - ',
-            $$('span').addClass('se-description').append(param.description)
+      if (params) {
+        params.forEach(param => {
+          el.append(
+            $$('div').addClass('se-param').append(
+              $$('span').addClass('se-name').append(param.name),
+              ' - ',
+              $$('span').addClass('se-description').append(param.description)
+            )
           )
-        )
-      })
+        })
+      }
+
+      // Examples
 
       if(method.examples && method.examples.length > 0) {
         el.append(
