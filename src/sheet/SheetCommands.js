@@ -1,6 +1,6 @@
 import { Command } from 'substance'
 import { getRange } from './sheetHelpers'
-import { insertRows, deleteRows, insertCols, deleteCols, setCellTypes, setColumnTypes } from './sheetManipulations'
+import { insertRows, deleteRows, insertCols, deleteCols, setCellTypes, setColumnTypes } from './SheetManipulations'
 
 class RowsCommand extends Command {
   getCommandState(params) {

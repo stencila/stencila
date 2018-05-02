@@ -36,7 +36,7 @@ export function valueFromText(preferredType, text) {
   return { type: type_, data }
 }
 
-function _getSourceElement(cellNode) {
+export function _getSourceElement(cellNode) {
   if (cellNode.getDocument() instanceof TextureDocument) {
     // ATTENTION: this caching would be problematic if the cell element
     // was changed structurally, e.g. the <source-code> element replaced.

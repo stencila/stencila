@@ -4,7 +4,6 @@ import {
 
 import ReproFigComponent from './ReproFigComponent'
 import ReproFigPreview from './ReproFigPreview'
-import InsertReproFigCommand from './InsertReproFigCommand'
 import CellComponent from './CellComponent'
 import CodeHighlightComponent from '../shared/CodeHighlightComponent'
 
@@ -22,13 +21,12 @@ import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
 import {
   SetLanguageCommand, ToggleAllCodeCommand,
-  HideCellCodeCommand, InsertCellCommand,
+  HideCellCodeCommand, InsertCellCommand, InsertReproFigCommand,
   ForceCellOutputCommand, RunCellCommand
 } from './ArticleEditorCommands'
 
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
 import FunctionUsageTool from '../shared/FunctionUsageTool'
-
 import AutoRunCommand from '../shared/AutoRunCommand'
 import RunAllCommand from '../shared/RunAllCommand'
 
@@ -168,7 +166,7 @@ export default {
       Cell Actions
     */
 
-    config.addCommand('run-cell-code', RunCellCommand, { commandGroup: 'cell-actions' })
+    config.addCommand(RunCellCommand.name, RunCellCommand, { commandGroup: 'cell-actions' })
     config.addCommand('hide-cell-code', HideCellCodeCommand, { commandGroup: 'cell-actions' })
     config.addCommand('force-cell-output', ForceCellOutputCommand, { commandGroup: 'cell-actions' })
     config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-actions' })

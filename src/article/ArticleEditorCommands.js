@@ -1,6 +1,7 @@
 import { Command } from 'substance'
 import { InsertNodeCommand } from 'substance-texture'
-import { getCellState, qualifiedId } from '../shared/cellHelpers'
+import { qualifiedId } from '../shared/cellHelpers'
+import { setCellLanguage, insertCell, insertReproFig } from './ArticleManipulations'
 
 export class SetLanguageCommand extends Command {
 
@@ -25,21 +26,15 @@ export class SetLanguageCommand extends Command {
   execute({ editorSession, commandState }) {
     let { cellId, newLanguage, disabled } = commandState
     if (!disabled) {
-      editorSession.transaction((tx) => {
-        let cell = tx.get(cellId)
-        let sourceCode = cell.find('source-code')
-        sourceCode.attr({ language: newLanguage })
-      })
+      setCellLanguage(editorSession, cellId, newLanguage)
     }
   }
 }
 
 export class ToggleAllCodeCommand extends Command {
 
-  /*
-    Always enabled
-  */
   getCommandState() {
+    // Note: this is always enabled
     return {
       disabled: false,
       active: false
@@ -69,9 +64,6 @@ export class ToggleAllCodeCommand extends Command {
 
 export class HideCellCodeCommand extends Command {
 
-  /*
-    Always enabled
-  */
   getCommandState({ selection, editorSession }) {
     let doc = editorSession.getDocument()
     if (selection.isNodeSelection()) {
@@ -120,12 +112,11 @@ export class ForceCellOutputCommand extends Command {
     return { disabled: true }
   }
 
-  /*
-    Returns all cell components found in the document
-  */
   _getCellComponent(editorSession, cellId) {
     let editor = editorSession.getEditor()
-    return editor.find(`.sc-cell[data-id=${cellId}]`)
+    if (editor) {
+      return editor.find(`.sc-cell[data-id=${cellId}]`)
+    }
   }
 
   execute({ commandState, editorSession }) {
@@ -138,87 +129,48 @@ export class ForceCellOutputCommand extends Command {
   }
 }
 
-// TODO: what is this for?
-export class CodeErrorsCommand extends Command {
-  getCommandState({ selection, editorSession }) {
-    let doc = editorSession.getDocument()
-    // console.log('selection', selection)
-    if (selection.isPropertySelection()) {
-      let nodeId = selection.getNodeId()
-      let node = doc.get(nodeId)
-      if (node.type === 'source-code') {
-        let cellNode = node.parentNode
-        let cellState = getCellState(cellNode)
-        if (cellState.hasErrors()) {
-          return {
-            disabled: false,
-            messages: cellState.errors
-          }
-        }
-      }
-    }
-    return {
-      disabled: true
-    }
-  }
-  execute(params) { } // eslint-disable-line
-}
-
-
 export class InsertCellCommand extends InsertNodeCommand {
 
-  createNode(tx) {
-    let cell = tx.createElement('cell')
-    cell.append(
-      tx.createElement('source-code').attr('language', 'mini'),
-      tx.createElement('output').attr('language', 'json')
-    )
-    return cell
+  execute({ editorSession, commandState }) {
+    const { disabled } = commandState
+    if (!disabled) {
+      insertCell(editorSession)
+    }
   }
+}
 
-  execute(params, context) {
-    var state = params.commandState
-    if (state.disabled) return
-    let editorSession = this._getEditorSession(params, context)
-    editorSession.transaction((tx) => {
-      let node = this.createNode(tx, params, context)
-      tx.insertBlockNode(node)
-      let code = node.find('source-code')
-      let sel = tx.selection
-      tx.setSelection({
-        type: 'property',
-        path: code.getPath(),
-        startOffset: 0,
-        surfaceId: sel.surfaceId,
-        containerId: sel.containerId
-      })
-    })
+export class InsertReproFigCommand extends InsertNodeCommand {
+
+  execute({ commandState, editorSession}) {
+    const { disabled } = commandState
+    if (!disabled) {
+      insertReproFig(editorSession)
+    }
   }
 
 }
 
 export class RunCellCommand extends Command {
 
-  /*
-    Always enabled
-  */
   getCommandState({ editorSession, selection }) {
     const doc = editorSession.getDocument()
-    if (selection.isPropertySelection()) {
+    if (selection.isPropertySelection() || selection.isNodeSelection()) {
       let nodeId = selection.getNodeId()
       let node = doc.get(nodeId)
       if (node.type === 'source-code') {
-        let cellNode = node.parentNode
+        node = node.parentNode
+      }
+      if (node.type === 'cell') {
         return {
           disabled: false,
           active: false,
           docId: doc.id,
-          cellId: cellNode.id
+          cellId: node.id
         }
       }
     }
     return {
-      disabled: false,
+      disabled: true
     }
   }
 
@@ -227,5 +179,9 @@ export class RunCellCommand extends Command {
     const engine = context.engine
     const id = qualifiedId(docId, cellId)
     engine._allowRunningCellAndPredecessors(id)
+  }
+
+  static get name() {
+    return 'run-cell-code'
   }
 }

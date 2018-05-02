@@ -1,5 +1,5 @@
 import test from 'tape'
-import { insertRows, deleteRows, insertCols, deleteCols, setCell, ensureSize } from '../../src/sheet/sheetManipulations'
+import { insertRows, deleteRows, insertCols, deleteCols, setCell, ensureSize } from '../../src/sheet/SheetManipulations'
 import createSheetXML from '../util/createSheetXML'
 import StubEngine from '../util/StubEngine'
 import setupEngine from '../util/setupEngine'

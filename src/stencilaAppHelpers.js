@@ -43,17 +43,19 @@ export function _initStencilaContext(context) {
 export function _initStencilaArchive(archive, context) {
   // start the engine
   const engine = context.engine
-  const ENGINE_REFRESH_INTERVAL = 10 // ms
-  engine.run(ENGINE_REFRESH_INTERVAL)
-  // when a document is renamed, transclusions must be updated
-  _listenForDocumentRecordUpdates(archive, engine)
-  // documents and sheets must be registered with the engine
-  // and hooks for structural sheet updates must be established
-  // to update transclusions.
-  let entries = archive.getDocumentEntries()
-  forEach(entries, entry => {
-    _connectDocumentToEngine(engine, archive, entry.id)
-  })
+  if (engine) {
+    const ENGINE_REFRESH_INTERVAL = 10 // ms
+    engine.run(ENGINE_REFRESH_INTERVAL)
+    // when a document is renamed, transclusions must be updated
+    _listenForDocumentRecordUpdates(archive, engine)
+    // documents and sheets must be registered with the engine
+    // and hooks for structural sheet updates must be established
+    // to update transclusions.
+    let entries = archive.getDocumentEntries()
+    forEach(entries, entry => {
+      _connectDocumentToEngine(engine, archive, entry.id)
+    })
+  }
   return Promise.resolve(archive)
 }
 

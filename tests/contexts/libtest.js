@@ -67,6 +67,29 @@ function multiply(value, other) {
   return value * other
 }
 
+const randXML = `
+<function>
+  <name>rand</name>
+  <params>
+  </params>
+  <implems>
+    <implem language="js" />
+  </implems>
+</function>
+`
+
+let RAND_COUNT = 1
+
+function rand() {
+  // very pseudo random
+  return RAND_COUNT++
+}
+
+// used in tests to reset the pseudo random generator
+export function _reset_rand() {
+  RAND_COUNT = 1
+}
+
 const no_paramsXML = `
 <function>
   <name>no_params</name>
@@ -123,6 +146,7 @@ export const libtestXML = `
 ${addXML}
 ${sumXML}
 ${multiplyXML}
+${randXML}
 ${no_paramsXML}
 ${one_paramXML}
 ${one_param_with_defaultXML}
@@ -133,7 +157,8 @@ export const libtest = {
   add,
   sum,
   multiply,
+  rand,
   no_params,
   one_param,
-  one_param_with_default
+  one_param_with_default,
 }

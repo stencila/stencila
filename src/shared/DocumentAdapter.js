@@ -67,7 +67,7 @@ export class DocumentAdapter {
               setSource(cellNode, cell.source)
             }
           })
-        }, { history: false })
+        }, { action: 'setCellSource', history: false })
       }
       if (editorSession._flowing) {
         editorSession.postpone(_update)
