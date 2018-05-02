@@ -22,7 +22,7 @@ const BROWSER_EXTERNALS = {
   'rdc-js': 'window.rdc',
   'substance-texture': 'window.texture',
   'stencila-mini': 'window.stencilaMini',
-  'stencila-libcore': 'window.stencilaLibCore',
+  'stencila-libcore': 'window.stencilaLibcore',
   'katex': 'window.katex',
   'plotly.js': 'window.Plotly'
 }
