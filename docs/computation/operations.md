@@ -36,7 +36,7 @@ For example here is a function, which has no parameters and returns the value of
 ```mini
 {
   type: 'function',
-  body: 3.14159265359
+  body: {type: 'number', data: 3.14159265359}
 }
 ```
 
@@ -58,7 +58,13 @@ is equivalent to executing a `call` of function `multiply` like this,
 execute {
   type: 'call',
   func: {type: 'get', name: 'multiply'},
-  args: [ 3, 4 ]
+  args: [{
+    type: 'integer',
+    data: 3
+  }, {
+    type: 'integer',
+    data: 4 
+  }]
 }
 ```
 
