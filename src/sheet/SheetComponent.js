@@ -10,6 +10,7 @@ import SheetScrollbar from './SheetScrollbar'
 import SheetContextMenu from './SheetContextMenu'
 import SheetClipboard from './SheetClipboard'
 import { getRange } from './sheetHelpers'
+import { clearValues } from './sheetManipulations'
 
 export default class SheetComponent extends CustomSurface {
 
@@ -538,10 +539,8 @@ export default class SheetComponent extends CustomSurface {
 
   _clearSelection() {
     const editorSession = this.context.editorSession
-    let range = getRange(editorSession)
-    editorSession.transaction((tx) => {
-      tx.getDocument().clearRange(range.startRow, range.startCol, range.endRow, range.endCol)
-    })
+    let { startRow, startCol, endRow, endCol } = getRange(editorSession)
+    clearValues(editorSession, startRow, startCol, endRow, endCol)
   }
 
   _showDialog(dialogId, params) {
