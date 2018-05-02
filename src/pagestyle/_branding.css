@@ -77,3 +77,10 @@
 .sc-ref-preview.sm-selected {
   color: #444;
 }
+
+/* HACK: override */
+.sc-editor .se-toolbar-wrapper {
+  padding: 2px;
+  padding-bottom: 2px;
+  padding-left: 270px;
+}
