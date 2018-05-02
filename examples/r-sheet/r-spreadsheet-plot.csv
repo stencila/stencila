@@ -1,0 +1,20 @@
+record_id,month,day,year,plot_id,species_id,sex,hindfoot_length,weight,genus,species,taxa,plot_type
+1,7,16,1977,2,NL,M,32,,Neotoma,albigula,Rodent,Control
+72,8,19,1977,2,NL,M,31,,Neotoma,albigula,Rodent,Control
+224,9,13,1977,2,NL,,,,Neotoma,albigula,Rodent,Control
+266,10,16,1977,2,NL,,,,Neotoma,albigula,Rodent,Control
+349,11,12,1977,2,NL,,,,Neotoma,albigula,Rodent,Control
+363,11,12,1977,2,NL,,,,Neotoma,albigula,Rodent,Control
+435,12,10,1977,2,NL,,,,Neotoma,albigula,Rodent,Control
+506,1,8,1978,2,NL,,,,Neotoma,albigula,Rodent,Control
+588,2,18,1978,2,NL,M,,218,Neotoma,albigula,Rodent,Control
+661,3,11,1978,2,NL,,,,Neotoma,albigula,Rodent,Control
+748,4,8,1978,2,NL,,,,Neotoma,albigula,Rodent,Control
+845,5,6,1978,2,NL,M,32,204,Neotoma,albigula,Rodent,Control
+990,6,9,1978,2,NL,M,,200,Neotoma,albigula,Rodent,Control
+1164,8,5,1978,2,NL,M,34,199,Neotoma,albigula,Rodent,Control
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+r= library(ggplot2),,,,,,,,,,,,
+"r= ggplot(data = (A2:M15), aes(x = weight, y = hindfoot_length)) + geom_point(alpha = 0.1)",,,,,,,,,,,,
