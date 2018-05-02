@@ -3,7 +3,6 @@ const b = require('substance-bundler')
 const fork = require('substance-bundler/extensions/fork')
 const install = require('substance-bundler/extensions/install')
 const path = require('path')
-const isInstalled = require('substance-bundler/util/isInstalled')
 const fs = require('fs')
 const merge = require('lodash.merge')
 const vfs = require('substance-bundler/extensions/vfs')
@@ -134,26 +133,22 @@ b.task('examples', ['stencila'], () => {
 })
 .describe('Build the examples.')
 
-b.task('test:backend', ['stencila:deps'], () => {
-  buildTestBackend()
-})
-
-b.task('test', ['clean', 'test:backend'], () => {
+b.task('test', ['clean', 'stencila:deps'], () => {
   buildNodeJSTests()
   fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js', { verbose: true, await: true })
 })
 .describe('Runs the tests and generates a coverage report.')
 
-b.task('cover', ['test:backend', 'build:instrumented-tests'], () => {
+b.task('cover', ['stencila:deps', 'build:instrumented-tests'], () => {
   b.rm('coverage')
   fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js', { await: true })
 })
 
-b.task('test:browser', ['test:backend'], () => {
+b.task('test:browser', ['stencila:deps'], () => {
   buildBrowserTests()
 })
 
-b.task('test:one', ['test:backend'], () => {
+b.task('test:one', ['stencila:deps'], () => {
   let test = b.argv.f
   if (!test) {
     console.error("Usage: node make test:one -f <testfile>")
@@ -247,26 +242,6 @@ function buildEnv() {
         }
       }
       b.writeFileSync(DIST+'env.js', variables.join('\n'), 'utf8')
-    }
-  })
-}
-
-// reads all fixtures from /tests/ and writes them into a script
-function buildTestBackend() {
-  b.custom('Creating test backend...', {
-    src: ['./tests/document/fixtures/**/*'],
-    dest: './tmp/test-vfs.js',
-    execute(files) {
-      const rootDir = b.rootDir
-      const vfs = {}
-      files.forEach((f) => {
-        if (b.isDirectory(f)) return
-        let content = fs.readFileSync(f).toString()
-        let relPath = path.relative(rootDir, f).replace(/\\/g, '/')
-        vfs[relPath] = content
-      })
-      const data = ['export default ', JSON.stringify(vfs, null, 2)].join('')
-      b.writeFileSync('tmp/test-vfs.js', data)
     }
   })
 }
