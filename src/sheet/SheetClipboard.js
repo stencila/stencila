@@ -2,7 +2,7 @@ import {
   DefaultDOMElement, platform
 } from 'substance'
 import { getSelection, getRange } from './sheetHelpers'
-import { setValues, clearValues } from './sheetManipulations'
+import { setValues, clearValues } from './SheetManipulations'
 import { getRangeFromMatrix } from '../shared/cellHelpers'
 
 export default class SheetClipboard {

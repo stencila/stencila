@@ -1,5 +1,5 @@
 import test from 'tape'
-import { insertRows, deleteRows, insertCols, deleteCols } from '../../src/sheet/sheetManipulations'
+import { insertRows, deleteRows, insertCols, deleteCols } from '../../src/sheet/SheetManipulations'
 import { getSource } from '../../src/shared/cellHelpers'
 import createRawArchive from '../util/createRawArchive'
 import loadRawArchive from '../util/loadRawArchive'

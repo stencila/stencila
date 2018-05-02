@@ -10,7 +10,7 @@ import SheetScrollbar from './SheetScrollbar'
 import SheetContextMenu from './SheetContextMenu'
 import SheetClipboard from './SheetClipboard'
 import { getRange } from './sheetHelpers'
-import { clearValues } from './sheetManipulations'
+import { clearValues } from './SheetManipulations'
 
 export default class SheetComponent extends CustomSurface {
 
