@@ -33,7 +33,8 @@ export default function setupEngine() {
     functionManager
   }
   miniContext = new MiniContext(host)
-  let engine = new Engine({ host })
+  host.engine = new Engine({ host })
+  let engine = host.engine
   let graph = engine._graph
   // don't let the engine be run forever in tests
   engine.run = () => {}
