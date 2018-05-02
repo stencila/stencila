@@ -1,13 +1,13 @@
 import { Component } from 'substance'
 
 // TODO: Replace fake tutorials with real documents
-const tutorials = [
+/*const tutorials = [
   {title: 'Five-Minute introduction', link: '/tutorials.html?archive=1'},
   {title: 'Introduction to Stencila Articles', link: '/tutorials.html?archive=2'},
   {title: 'Introduction to Stencila Sheets', link: '/tutorials.html?archive=3'},
   {title: 'Polyglot Programming', link: '/tutorials.html?archive=4'},
   {title: 'Big Data', link: '/tutorials.html?archive=5'}
-]
+]*/
 
 
 /*
