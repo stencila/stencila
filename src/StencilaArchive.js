@@ -10,6 +10,31 @@ export default class StencilaArchive extends TextureArchive {
     this._context = context
   }
 
+  load(archiveId) {
+    return super.load(archiveId)
+      .then(() => {
+        let manifestSession = this._sessions['manifest']
+        let entries = manifestSession.getDocument().getDocumentEntries()
+        // TODO: this should also be done in DAR in general
+        let names = new Set()
+        entries.forEach(entry => {
+          let name = entry.name
+          // fixup the name as long there are collisions
+          while (name && names.has(name)) {
+            name = name + '(duplicate)'
+          }
+          if (entry.name !== name) {
+            manifestSession.transaction(tx => {
+              let docEntry = tx.get(entry.id)
+              docEntry.attr({name})
+            }, { action: 'renameDocument' })
+          }
+          names.add(entry.name)
+        })
+        return this
+      })
+  }
+
   // FIXME: Texture #499
   // copied this code from TextureArchive applying a quick-fix
   _ingest(rawArchive) {
@@ -33,6 +58,7 @@ export default class StencilaArchive extends TextureArchive {
         sessions[entry.id] = session
       }
     })
+
     return sessions
   }
 
