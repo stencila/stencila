@@ -47,6 +47,15 @@ test('Project: add a new Article', t => {
   t.equal(entry.name, 'Article2', '.. with name "Article2"')
   t.end()
 })
+
+test('Project: rename resources with duplicate names on ingestion', t => {
+  let { manifest } = _setup(duplicate())
+  let entry1 = manifest.getDocumentEntry('sheet1')
+  let entry2 = manifest.getDocumentEntry('sheet2')
+  t.ok(entry1.name !== entry2.name, 'the name collision should have been resolved')
+  t.end()
+})
+
 function sample() {
   return [
     {
@@ -61,6 +70,25 @@ function sample() {
       path: 'sheet.xml',
       type: 'sheet',
       name: 'My Sheet',
+      cells: []
+    }
+  ]
+}
+
+function duplicate() {
+  return [
+    {
+      id: 'sheet1',
+      path: 'sheet1.xml',
+      type: 'sheet',
+      name: 'Sheet1',
+      cells: []
+    },
+    {
+      id: 'sheet2',
+      path: 'sheet2.xml',
+      type: 'sheet',
+      name: 'Sheet1',
       cells: []
     }
   ]
