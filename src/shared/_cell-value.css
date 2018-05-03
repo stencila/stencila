@@ -1,3 +1,10 @@
+.sc-object-value {
+  font-family: monospace;
+  font-size: 0.8em;
+  line-height: 1.2em;
+  padding: 1em;
+}
+
 /*
 Customisation of Plotly including tool bar
 `.sc-plotly-value.js-plotly-plot` selector is necessary to override
