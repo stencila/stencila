@@ -5,7 +5,6 @@ export function addNewDocument(archive, type) {
   let entries = archive.getDocumentEntries()
   let name
   let xml
-  // TODO: this should go into a file called ArchiveManipulations
   if (type === 'sheet') {
     let existingNames = new Set()
     entries.forEach(e => {

@@ -101,10 +101,6 @@ export default class ProjectTab extends Component {
   }
 
   _openDocument() {
-    // FIXME: this gets called to often
-    // E.g., 1. add one sheet, 2. focus the tab, 3. add another sheet
-    // 4. delete the new second one, 5. delete the first one
-    // -> strangely this method get's still called, as if there was a click on the elemen
     if (!this.isMounted()) return
 
     if (!this.props.active) {
@@ -153,7 +149,7 @@ export default class ProjectTab extends Component {
       this.extendState({ edit:true, error: err })
       // HACK: the problem is that the input gets blurred
       // in a strange way when clicking the alert dialog button
-      // it helps to wait a bit with re-activating this
+      // it helps to wait a bit with re-activating the onBlur listener
       setTimeout(() => {
         this._skipBlur = false
       }, 100)
