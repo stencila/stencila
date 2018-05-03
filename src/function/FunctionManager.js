@@ -26,14 +26,14 @@ export default class FunctionManager {
   /*
     Import a function
   */
-  importFunction(context, library, func) {
+  importFunction(context, func, libraryName = 'local') {
     const record = this.functionMap[func.name]
-    if (record && record.library !== library.name) {
+    if (record && record.library !== libraryName) {
       throw new Error(`Function "${func.name}" is already defined in library "${record.library}"`)
     }
-    this.functionMap[func.name] = { context, library: library.name }
-    if (!this.functions[library.name]) this.functions[library.name] = {}
-    this.functions[library.name][func.name] = func
+    this.functionMap[func.name] = { context, library: libraryName }
+    if (!this.functions[libraryName]) this.functions[libraryName] = {}
+    this.functions[libraryName][func.name] = func
   }
 
   /*
@@ -41,7 +41,7 @@ export default class FunctionManager {
   */
   importLibrary(context, library) {
     for (let func of Object.values(library.funcs)) {
-      this.importFunction(context, library, func)
+      this.importFunction(context, func, library.name)
     }
   }
 

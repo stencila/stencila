@@ -31,21 +31,17 @@ export default class ContextHttpClient extends Context {
    */
   _analyseCode (code, exprOnly = false) {
     let pre = {
-      type: this._parseType(code),
+      type: 'cell',
       source: {
         type: 'text',
         data: code
       },
-      expr: exprOnly,
-      inputs: [],
-      output: {},
-      messages: []
+      expr: exprOnly
     }
     return this._host._put(this._peer, '/' + this._name + '!compile', pre).then(post => {
       return {
         inputs: post.inputs && post.inputs.map(input => input.name),
-        output: (post.output && post.output.name) || null,
-        value: post.output && post.output.value,
+        output: post.outputs && post.outputs[0] && post.outputs[0].name,
         messages: post.messages
       }      
     })
@@ -57,34 +53,33 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   _executeCode (code, inputs, exprOnly = false) {
-    const type = this._parseType(code)
     let pre = {
-      type,
+      type: 'cell',
       source: {
         type: 'text',
         data: code
-      }
-    }
-    if (type === 'cell') {
-      pre.expr = exprOnly
-      pre.inputs = Object.entries(inputs).map(([name, value]) => {
+      },
+      expr: exprOnly,
+      inputs: Object.entries(inputs).map(([name, value]) => {
         return {name, value}
       })
     }
     return this._host._put(this._peer, '/' + this._name + '!execute', pre).then(post => {
-      if (post.type === 'library') {
-        if (!post.status) this._host._functionManager.importLibrary(this, post)
-        return post
-      } else if (post.type === 'func') {
-        if (!post.status) this._host._functionManager.importFunction(this, 'local', post)
-        return post
-      } else {
-        return {
-          inputs: post.inputs && post.inputs.map(input => input.name),
-          output: (post.output && post.output.name) || null,
-          value: post.output && post.output.value,
-          messages: post.messages
+      let output = post.outputs && post.outputs[0] && post.outputs[0].name
+      let value = post.outputs && post.outputs[0] && post.outputs[0].value
+      if (value) {
+        if (value.type === 'library') {
+          this._host._functionManager.importLibrary(this, value)
+        } else if (value.type === 'function') {
+          this._host._functionManager.importFunction(this, value)
+          value = { type: 'object', data: value }
         }
+      }
+      return {
+        inputs: post.inputs && post.inputs.map(input => input.name),
+        output: output,
+        value: value,
+        messages: post.messages
       }
     })
   }
@@ -92,18 +87,9 @@ export default class ContextHttpClient extends Context {
   callFunction (library, name, args, namedArgs) {
     let call = {
       type: 'call',
-      func: {type: 'get', name: name, from: {type: 'get', name: library}},
+      func: {type: 'get', name: name},
       args, namedArgs
     }
-    return this._host._put(this._peer, '/' + this._name + '!execute', call)
-  }
-
-  _parseType(code) {
-    const match = code.match(/^(\/\/|#|--)\s*!\s*(\w+)\s*/)
-    if (match) {
-      return match[2]
-    } else {
-      return 'cell'
-    }
+    return this._host._put(this._peer, '/' + this._name + '!evaluate', call)
   }
 }
