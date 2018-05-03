@@ -59,6 +59,15 @@
   right: 0px;
 }
 
+.sc-cell .se-language {
+  position: absolute;
+  top: 0px;
+  right: 20px;
+  font-size: 10px;
+  color: #888;
+  font-family: var(--mono-font-family);
+}
+
 /* HACK: overriding button styles */
 .sc-cell .se-ellipsis > button {
   border-radius: 0;
