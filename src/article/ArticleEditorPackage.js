@@ -20,9 +20,9 @@ import ImageValueComponent from '../shared/ImageValueComponent'
 import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
 import {
-  SetLanguageCommand, ToggleAllCodeCommand,
-  HideCellCodeCommand, InsertCellCommand, InsertReproFigCommand,
+  SetLanguageCommand, InsertCellCommand, InsertReproFigCommand,
   ForceCellOutputCommand, RunCellCommand
+  // ToggleAllCodeCommand, HideCellCodeCommand,
 } from './ArticleEditorCommands'
 
 import FunctionUsageCommand from '../shared/FunctionUsageCommand'
@@ -167,7 +167,7 @@ export default {
     */
 
     config.addCommand(RunCellCommand.name, RunCellCommand, { commandGroup: 'cell-actions' })
-    config.addCommand('hide-cell-code', HideCellCodeCommand, { commandGroup: 'cell-actions' })
+    // config.addCommand('hide-cell-code', HideCellCodeCommand, { commandGroup: 'cell-actions' })
     config.addCommand('force-cell-output', ForceCellOutputCommand, { commandGroup: 'cell-actions' })
     config.addCommand('set-mini', SetLanguageCommand, { language: 'mini', commandGroup: 'cell-actions' })
     config.addCommand('set-js', SetLanguageCommand, { language: 'js', commandGroup: 'cell-actions' })
@@ -199,14 +199,14 @@ export default {
     config.addLabel('auto-run', '${autoOrManual} Execution')
 
     // View Commands
-    config.addCommand('hide-all-code', ToggleAllCodeCommand, {
-      hideCode: true,
-      commandGroup: 'view'
-    })
-    config.addCommand('show-all-code', ToggleAllCodeCommand, {
-      hideCode: false,
-      commandGroup: 'view'
-    })
+    // config.addCommand('hide-all-code', ToggleAllCodeCommand, {
+    //   hideCode: true,
+    //   commandGroup: 'view'
+    // })
+    // config.addCommand('show-all-code', ToggleAllCodeCommand, {
+    //   hideCode: false,
+    //   commandGroup: 'view'
+    // })
 
     config.addKeyboardShortcut('CommandOrControl+Alt+L', { command: 'show-all-code' })
     config.addKeyboardShortcut('CommandOrControl+Alt+O', { command: 'hide-all-code' })
