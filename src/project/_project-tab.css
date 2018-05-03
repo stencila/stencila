@@ -37,6 +37,10 @@
   font-weight: 600;
 }
 
+.sc-project-tab > .se-input.sm-error {
+  outline: 1px solid red;
+}
+
 .sc-project-tab > .se-toggle-menu {
   padding-left: 8px;
 }
