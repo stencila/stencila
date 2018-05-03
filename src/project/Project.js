@@ -1,6 +1,8 @@
 import { Component, DefaultDOMElement, platform } from 'substance'
 import { EditorPackage as TextureEditorPackage } from 'substance-texture'
+import { EMPTY_ARTICLE_XML } from '../article/articleHelpers'
 import SheetEditor from '../sheet/SheetEditor'
+import { generateEmptySheetXML } from '../sheet/sheetHelpers'
 import ProjectBar from './ProjectBar'
 import ContextPane from './ContextPane'
 
@@ -52,6 +54,7 @@ export default class Project extends Component {
   getChildContext() {
     let pubMetaDbSession = this._getPubMetaDbSession()
     return {
+      documentArchive: this.props.documentArchive,
       pubMetaDbSession: pubMetaDbSession,
       urlResolver: this.props.documentArchive
     }
@@ -130,20 +133,31 @@ export default class Project extends Component {
     return el
   }
 
-  /*
-    FIXME: Don't rely on vfs to be present for blank documents
-  */
   _addDocument(type) {
+    let archive = this._getDocumentArchive()
+    let entries = archive.getDocumentEntries()
     let name
     let xml
+    // FIXME: Don't rely on vfs to be present for blank documents
     if (type === 'sheet') {
-      name = 'Untitled Sheet'
-      xml = window.vfs.readFileSync('blank/sheet.xml')
+      let existingNames = new Set()
+      entries.forEach(e => {
+        if (e.type === 'sheet') {
+          existingNames.add(e.name)
+        }
+      })
+      name = `Sheet${existingNames.size+1}`
+      xml = generateEmptySheetXML(100, 26)
     } else if (type === 'article') {
-      name = 'Untitled Article'
-      xml = window.vfs.readFileSync('blank/article.xml')
+      let existingNames = new Set()
+      entries.forEach(e => {
+        if (e.type === 'article') {
+          existingNames.add(e.name)
+        }
+      })
+      name = `Article${existingNames.size+1}`
+      xml = EMPTY_ARTICLE_XML
     }
-    let archive = this._getDocumentArchive()
     let newDocumentId = archive.addDocument(type, name, xml)
     this._openDocument(newDocumentId)
   }
