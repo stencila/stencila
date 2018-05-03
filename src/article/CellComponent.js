@@ -5,6 +5,15 @@ import { getCellState, getError } from '../shared/cellHelpers'
 import { toString as stateToString, BROKEN, FAILED, OK, READY } from '../engine/CellStates'
 import NodeMenu from './NodeMenu'
 
+const LANG_LABELS = {
+  'mini': 'Mini',
+  'js': 'JS',
+  'node': 'Node',
+  'sql': 'SQL',
+  'py': 'Py',
+  'r': 'R',
+}
+
 export default
 class CellComponent extends NodeComponent {
 
@@ -59,6 +68,11 @@ class CellComponent extends NodeComponent {
       el.append(cellEditorContainer)
       el.append(
         this._renderEllipsis($$)
+      )
+      el.append(
+        $$('div').addClass('se-language').append(
+          LANG_LABELS[source.attributes.language]
+        )
       )
     } else {
       // TODO: Create proper visual style
