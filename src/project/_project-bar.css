@@ -6,6 +6,14 @@
 
 .sc-project-bar > .se-context-toggles {
   float: right;
-  margin-top: 3px;
+  margin-top: 0px;
   margin-right: 10px;
+}
+
+.sc-project-bar > .se-context-toggles .sc-project-tab i {
+  margin-top: 3px;
+}
+
+.sc-project-bar > .se-context-toggles .sc-project-tab {
+  width: 30px;
 }

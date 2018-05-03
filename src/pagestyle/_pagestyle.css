@@ -39,7 +39,3 @@ a:focus {
 button:focus {
   outline: 1px solid var(--focus-outline-color);
 }
-
-/* Selection color */
-::-moz-selection { background: var(--stencila-green-transparent); }
-::selection { background: var(--stencila-green-transparent); }

@@ -1,6 +1,6 @@
 .sc-function-usage {
   font-size: 12px;
-  color: #fff;
+  color: #666;
   text-align: left;
 }
 
@@ -20,7 +20,7 @@
 .sc-function-usage .se-documentation {
   display: flex;
   align-items: baseline;
-  padding: 2px 5px;
+  padding: 0 5px;
 }
 
 .sc-function-usage .se-documentation .se-read-more {
@@ -35,7 +35,7 @@
 }
 
 .sc-function-usage .se-documentation .se-signature {
-  font-size: 13px;
+  font-size: 12px;
   font-family: Monaco;
 }
 

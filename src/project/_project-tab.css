@@ -2,10 +2,12 @@
   position: relative;
   display: flex;
   float: left;
+  height: 30px;
   font-size: 13px;
   font-weight: 600;
   padding: 5px 8px;
-  margin-left: 5px;
+  margin-left: 8px;
+  margin-right: 5px;
   margin-top: 5px;
   user-select: none;
   cursor: pointer;
@@ -21,9 +23,9 @@
 }
 
 .sc-project-tab.sm-active {
-  background: #ececec;
-  border-radius: 3px;
-  color: #111;
+  color: #0071F2;
+  background: #F7F7F9;
+  border-radius: 13px;
 }
 
 .sc-project-tab.sc-add-project-tab {
@@ -67,4 +69,9 @@
 .sc-project-tab > .se-menu > li {
   list-style: none;
   padding: 2px 10px;
+}
+
+/* HACK: */
+.sc-button.sm-style-big {
+  background: #0071F2;
 }
