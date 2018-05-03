@@ -69,7 +69,6 @@ export default class ProjectTab extends Component {
         break
       }
       case 'Enter': {
-        console.log('validating on ENTER')
         this._validateAndConfirm(e)
         break
       }
@@ -84,12 +83,10 @@ export default class ProjectTab extends Component {
 
   _onBlur(e) {
     if (this._skipBlur) {
-      console.log('skipping blur')
       return
     }
     // only update if we are still editing
     if (this.state.edit) {
-      console.log('validating on blur')
       this._validateAndConfirm(e)
     }
   }
@@ -152,7 +149,7 @@ export default class ProjectTab extends Component {
       e.stopPropagation()
       e.preventDefault()
       this._skipBlur = true
-      window.alert(err)
+      window.alert(err) // eslint-disable-line no-alert
       this.extendState({ edit:true, error: err })
       // HACK: the problem is that the input gets blurred
       // in a strange way when clicking the alert dialog button
