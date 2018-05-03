@@ -36,7 +36,7 @@ export default class FunctionUsageCommand extends Command {
 
     let candidate
     nodes.forEach((node) => {
-      if (node.type === 'function' && node.start <= cursorPos && node.end >= cursorPos) {
+      if (node.type === 'function' && node.start <= cursorPos && node.start + node.name.length >= cursorPos) {
         let offset = cursorPos - node.start
         if (!candidate || offset < candidate.offset ) {
           // Param index
