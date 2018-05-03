@@ -82,7 +82,7 @@ export default class ProjectTab extends Component {
   }
 
   _onBlur(e) {
-    if (this._skipBlur) {
+    if (this._skipBlur || !this.isMounted()) {
       return
     }
     // only update if we are still editing
@@ -149,7 +149,7 @@ export default class ProjectTab extends Component {
       e.stopPropagation()
       e.preventDefault()
       this._skipBlur = true
-      window.alert(err) // eslint-disable-line no-alert
+      this._alert(err)
       this.extendState({ edit:true, error: err })
       // HACK: the problem is that the input gets blurred
       // in a strange way when clicking the alert dialog button
@@ -179,6 +179,12 @@ export default class ProjectTab extends Component {
       if (entry.name === newName) {
         return "Another document with this name exists."
       }
+    }
+  }
+
+  _alert(msg) {
+    if (window.alert) {
+      window.alert(msg) // eslint-disable-line no-alert
     }
   }
 
