@@ -133,7 +133,8 @@ export default class Project extends Component {
   }
 
   _addDocument(type) {
-    let newDocumentId = addNewDocument(type)
+    let archive = this._getDocumentArchive()
+    let newDocumentId = addNewDocument(archive, type)
     this._openDocument(newDocumentId)
   }
 
