@@ -368,20 +368,19 @@ export default class Engine extends EventEmitter {
         graph.addErrors(id, res.messages.map(err => {
           return new SyntaxError(err.message)
         }))
-      } else {
-        // console.log('analysed cell', cell, res)
-        // transform the extracted symbols into fully-qualified symbols
-        // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
-        let { inputs, output } = this._compile(res, cell)
-        this._nextActions.set(id, {
-          type: 'register',
-          id,
-          // Note: these symbols are in plain-text analysed by the context
-          // based on the transpiled source
-          inputs,
-          output
-        })
       }
+      // console.log('analysed cell', cell, res)
+      // transform the extracted symbols into fully-qualified symbols
+      // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
+      let { inputs, output } = this._compile(res, cell)
+      this._nextActions.set(id, {
+        type: 'register',
+        id,
+        // Note: these symbols are in plain-text analysed by the context
+        // based on the transpiled source
+        inputs,
+        output
+      })
     })
   }
 
