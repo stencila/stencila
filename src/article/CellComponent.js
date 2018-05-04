@@ -1,7 +1,7 @@
 import { NodeComponent, FontAwesomeIcon } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
-import { getCellState, getError } from '../shared/cellHelpers'
+import { getCellState, getError, getErrorMessage } from '../shared/cellHelpers'
 import { toString as stateToString, BROKEN, FAILED, OK, READY } from '../engine/CellStates'
 import NodeMenu from './NodeMenu'
 
@@ -92,7 +92,7 @@ class CellComponent extends NodeComponent {
       if(status === FAILED || status === BROKEN) {
         el.append(
           $$('div').addClass('se-error').append(
-            getError(cell).message
+            getErrorMessage(getError(cell))
           ).ref('error').setStyle('visibility', 'hidden')
         )
       } else if (status === OK) {
