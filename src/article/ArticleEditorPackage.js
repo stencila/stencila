@@ -53,7 +53,7 @@ export default {
     config.addComponent('repro-fig-preview', ReproFigPreview)
 
     config.addCommand('insert-repro-fig', InsertReproFigCommand, {
-      commandGroup: 'insert-repro-figure',
+      commandGroup: 'insert',
       nodeType: 'repro-fig'
     })
     config.addIcon('insert-repro-fig', { 'fontawesome': 'fa-area-chart' })
@@ -61,7 +61,7 @@ export default {
 
     config.addCommand('insert-cell', InsertCellCommand, {
       nodeType: 'disp-quote',
-      commandGroup: 'insert-cell-element'
+      commandGroup: 'insert'
     })
     config.addLabel('insert-cell', 'Cell')
     config.addKeyboardShortcut('CommandOrControl+Enter', { command: 'insert-cell' })
@@ -120,7 +120,7 @@ export default {
         type: 'tool-group',
         showDisabled: true,
         style: 'minimal',
-        commandGroups: ['insert-figure', 'insert-repro-figure', 'insert-table', 'insert-cell-element']
+        commandGroups: ['insert']
       },
       {
         name: 'cell-execution',
