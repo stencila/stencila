@@ -129,6 +129,17 @@ export function getError(cell) {
   }
 }
 
+export function getErrorMessage(error) {
+  switch(error.name) {
+    case 'unresolved':
+      return 'Unresolved inputs: ' + error.details.unresolved.map(s => {
+        return s.origStr || s.name
+      }).join(', ')
+    default:
+      return error.message
+  }
+}
+
 export function getValue(cell) {
   let cellState = getCellState(cell)
   if (cellState) {
