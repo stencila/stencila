@@ -318,7 +318,10 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     const id = action.id
     const cell = graph.getCell(id)
-    cell.errors = []
+    // clear all errors which are not managed by the CellGraph
+    cell.clearErrors(e => {
+      return e.type !== 'graph'
+    })
     // in case of constants, casting the string into a value,
     // updating the cell graph and returning without further evaluation
     if (cell.isConstant()) {
@@ -386,8 +389,9 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     const id = action.id
     const cell = graph.getCell(id)
-    // TODO: is it really ok to wipe all the errors?
-    cell.errors = []
+    cell.clearErrors(e => {
+      return e.type !== 'graph'
+    })
     // console.log('evaluating cell', cell.toString())
     const lang = cell.getLang()
     let transpiledSource = cell.transpiledSource
