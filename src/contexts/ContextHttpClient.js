@@ -69,9 +69,9 @@ export default class ContextHttpClient extends Context {
       let value = post.outputs && post.outputs[0] && post.outputs[0].value
       if (value) {
         if (value.type === 'library') {
-          this._host._functionManager.importLibrary(this, value)
+          this._host._functionManager.importLibrary(this, value.data)
         } else if (value.type === 'function') {
-          this._host._functionManager.importFunction(this, value)
+          this._host._functionManager.importFunction(this, value.data)
         }
       }
       return {
