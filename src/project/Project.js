@@ -3,6 +3,7 @@ import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
 import ProjectBar from './ProjectBar'
 import ContextPane from './ContextPane'
+import { addNewDocument } from './ProjectManipulations'
 
 export default class Project extends Component {
 
@@ -52,6 +53,7 @@ export default class Project extends Component {
   getChildContext() {
     let pubMetaDbSession = this._getPubMetaDbSession()
     return {
+      documentArchive: this.props.documentArchive,
       pubMetaDbSession: pubMetaDbSession,
       urlResolver: this.props.documentArchive
     }
@@ -130,21 +132,9 @@ export default class Project extends Component {
     return el
   }
 
-  /*
-    FIXME: Don't rely on vfs to be present for blank documents
-  */
   _addDocument(type) {
-    let name
-    let xml
-    if (type === 'sheet') {
-      name = 'Untitled Sheet'
-      xml = window.vfs.readFileSync('blank/sheet.xml')
-    } else if (type === 'article') {
-      name = 'Untitled Article'
-      xml = window.vfs.readFileSync('blank/article.xml')
-    }
     let archive = this._getDocumentArchive()
-    let newDocumentId = archive.addDocument(type, name, xml)
+    let newDocumentId = addNewDocument(archive, type)
     this._openDocument(newDocumentId)
   }
 

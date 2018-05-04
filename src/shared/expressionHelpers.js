@@ -31,7 +31,7 @@ const ID = "([_A-Za-z][_A-Za-z0-9]*)"
 const NAME = "[']([^']+)[']"
 const CELL_ID = "([A-Z]+[1-9][0-9]*)"
 // These characters will be replaced. Add more if needed.
-const INVALID_ID_CHARACTERS = "[':!$@\\s]"
+const INVALID_ID_CHARACTERS = "[^A-Za-z0-9]"
 
 /*
   A reference can point to a variable, a cell, or a range inside the same document

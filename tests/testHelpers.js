@@ -1,7 +1,4 @@
-import { isFunction, DefaultDOMElement, EditorSession } from 'substance'
-import { Host } from '../index.es'
-import TestBackend from './backend/TestBackend'
-
+import { isFunction, DefaultDOMElement } from 'substance'
 
 export function spy(self, name) {
   var f
@@ -52,24 +49,4 @@ export function getSandbox(t) {
   // otherwise we create our own DOM
   let htmlDoc = DefaultDOMElement.parseHTML('<html><body></body></html>')
   return htmlDoc.find('body')
-}
-
-export function setupEditorSession(documentId) {
-  let configurator = new DocumentConfigurator() // eslint-disable-line
-  let docHTML
-  if (!documentId) {
-    docHTML = ''
-  } else {
-    let backend = new TestBackend()
-    const entry = backend._getEntry(documentId)
-    docHTML = entry.content
-  }
-  let doc = documentConversion.importHTML(docHTML) // eslint-disable-line
-  let editorSession = new EditorSession(doc, {
-    configurator: configurator,
-    context: {
-      host: new Host({ discover: false })
-    }
-  })
-  return {editorSession, doc}
 }

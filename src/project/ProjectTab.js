@@ -5,6 +5,7 @@ export default class ProjectTab extends Component {
   getInitialState() {
     return {
       edit: false,
+      error: false,
       menu: false
     }
   }
@@ -21,13 +22,15 @@ export default class ProjectTab extends Component {
     el.append(docTypeEl)
 
     if (this.state.edit) {
-      // Render input for document name editing
-      el.addClass('sm-edit sm-active').append(
-        $$('input').addClass('se-input').attr({value: entry.name})
+      let input = $$('input').addClass('se-input').attr({value: entry.name})
           .ref('documentName')
-          .on('blur', this._updateDocumentName)
+          .on('blur', this._onBlur)
           .on('keydown', this._onKeyDown)
-      )
+          .on('input', this._onInput)
+      if (this.state.error) {
+        input.addClass('sm-error')
+      }
+      el.addClass('sm-edit sm-active').append(input)
     } else {
       el.append(' '+(entry.name || entry.id))
         .on('click', this._openDocument)
@@ -58,38 +61,51 @@ export default class ProjectTab extends Component {
   }
 
   _onKeyDown(e) {
-    if (e.key === 'Enter' || e.key === 'Escape') {
-      if (e.key === 'Escape') {
-        this._resetDocumentName()
+    let handled = false
+    switch (e.key) {
+      case 'Escape': {
+        this._cancelEdit()
+        handled = true
+        break
       }
-      // ATTENTION: It is important to trigger a blur event here, to ensure
-      // that there is only one event source for updating the document name.
-      this.refs.documentName.el.blur()
+      case 'Enter': {
+        this._validateAndConfirm(e)
+        break
+      }
+      default:
+        //
+    }
+    if (handled) {
+      e.stopPropagation()
+      e.preventDefault()
     }
   }
 
-  /*
-    Reset document name to original value
-  */
-  _resetDocumentName() {
-    this.refs.documentName.val(this.props.entry.name)
+  _onBlur(e) {
+    if (this._skipBlur || !this.isMounted()) {
+      return
+    }
+    // only update if we are still editing
+    if (this.state.edit) {
+      this._validateAndConfirm(e)
+    }
+  }
+
+  _onInput() {
+    let err = this._validateNewName()
+    if (err) {
+      this.extendState({ error: err })
+    } else if (this.state.error) {
+      this.extendState({ error: false })
+    }
   }
 
   _openDocument() {
+    if (!this.isMounted()) return
+
     if (!this.props.active) {
       this.send('openDocument', this.props.entry.id)
     }
-  }
-
-  _editDocumentName() {
-    this.extendState({ edit: true })
-    this.refs.documentName.el.focus()
-  }
-
-  _updateDocumentName() {
-    const name = this.refs.documentName.val()
-    this.extendState({ edit: false })
-    this.send('updateDocumentName', this.props.entry.id, name)
   }
 
   _removeDocument() {
@@ -100,6 +116,72 @@ export default class ProjectTab extends Component {
     e.preventDefault()
     e.stopPropagation()
     this.extendState({ menu: !this.state.menu })
+  }
+
+  _editDocumentName() {
+    this.extendState({ edit: true, error: false })
+    this._grabFocus()
+  }
+
+  _grabFocus() {
+    let inputEl = this.refs.documentName.getNativeElement()
+    inputEl.focus()
+    if (inputEl.setSelectionRange) {
+      let lastPos = this.refs.documentName.val().length
+      inputEl.setSelectionRange(lastPos, lastPos)
+    }
+  }
+
+  _cancelEdit() {
+    this.refs.documentName.val(this.props.entry.name)
+    this.extendState({ edit: false, error: false })
+  }
+
+  _validateAndConfirm(e) {
+    const oldName = this.props.entry.name
+    const newName = this.refs.documentName.val()
+    let err = this._validateNewName()
+    if (err) {
+      e.stopPropagation()
+      e.preventDefault()
+      this._skipBlur = true
+      this._alert(err)
+      this.extendState({ edit:true, error: err })
+      // HACK: the problem is that the input gets blurred
+      // in a strange way when clicking the alert dialog button
+      // it helps to wait a bit with re-activating the onBlur listener
+      setTimeout(() => {
+        this._skipBlur = false
+      }, 100)
+    } else {
+      this.extendState({ edit: false })
+      if (oldName !== newName) {
+        this.send('updateDocumentName', this.props.entry.id, newName)
+      }
+    }
+  }
+
+  _validateNewName() {
+    let newName = this.refs.documentName.val()
+    newName = newName.trim()
+    if (!/^[^']+$/.exec(newName)) {
+      return "Name contains invalid characters!"
+    }
+    const archive = this.context.documentArchive
+    let entries = archive.getDocumentEntries()
+    for (let i = 0; i < entries.length; i++) {
+      let entry = entries[i]
+      if (entry.id === this.props.entry.id) continue
+      if (entry.name === newName) {
+        return "Another document with this name exists."
+      }
+    }
+  }
+
+  _alert(msg) {
+    if (window.alert) {
+      window.alert(msg) // eslint-disable-line no-alert
+    }
   }
 
 }
