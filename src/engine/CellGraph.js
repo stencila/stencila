@@ -180,7 +180,6 @@ export default class CellGraph {
   _registerInputs(id, oldInputs, newInputs) {
     let toAdd = new Set(newInputs)
     let toRemove = new Set()
-
     if (oldInputs) {
       oldInputs.forEach(s => {
         if (newInputs.has(s)) {
@@ -314,8 +313,7 @@ export default class CellGraph {
     let inputs = Array.from(cell.inputs)
     let unresolved = inputs.filter(s => !this._resolve(s))
     if (unresolved.length > 0) {
-      // TODO: maybe only clear UnresolvedInputErrors
-      cell.clearErrors('graph')
+      cell.clearErrors(e => e instanceof UnresolvedInputError)
       cell.addErrors([new UnresolvedInputError(MSG_UNRESOLVED_INPUT, { unresolved })])
       cell.status = BROKEN
     }
