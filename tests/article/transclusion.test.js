@@ -173,8 +173,8 @@ function sample2() {
 }
 
 function _setup(archiveData) {
-  let { engine } = setupEngine()
-  let context = { engine }
+  let { host, engine } = setupEngine()
+  let context = { host }
   let rawArchive = createRawArchive(archiveData)
   let archive = loadRawArchive(rawArchive, context)
   return { archive, engine }

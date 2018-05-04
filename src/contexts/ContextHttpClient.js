@@ -18,27 +18,31 @@ export default class ContextHttpClient extends Context {
   }
 
   /**
+   * Get a list of libraries
+   */
+  libraries () {
+    return this._host._put(this._peer, '/' + this._name + '!libraries')
+  }
+
+  /**
    * Analyse code
    *
    * @override
    */
   _analyseCode (code, exprOnly = false) {
-    let before = {
-      type: exprOnly ? 'expr' : 'block',
+    let pre = {
+      type: 'cell',
       source: {
         type: 'text',
         data: code
       },
-      inputs: [],
-      output: {},
-      messages: []
+      expr: exprOnly
     }
-    return this._host._put(this._peer, '/' + this._name + '!compile', before).then(after => {
+    return this._host._put(this._peer, '/' + this._name + '!compile', pre).then(post => {
       return {
-        inputs: after.inputs.map(input => input.name),
-        output: after.output.name || null,
-        value: after.output.value,
-        messages: after.messages
+        inputs: post.inputs && post.inputs.map(input => input.name),
+        output: post.outputs && post.outputs[0] && post.outputs[0].name,
+        messages: post.messages
       }      
     })
   }
@@ -49,25 +53,42 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   _executeCode (code, inputs, exprOnly = false) {
-    let before = {
-      type: exprOnly ? 'expr' : 'block',
+    let pre = {
+      type: 'cell',
       source: {
         type: 'text',
         data: code
       },
+      expr: exprOnly,
       inputs: Object.entries(inputs).map(([name, value]) => {
         return {name, value}
-      }),
-      output: {},
-      messages: []
+      })
     }
-    return this._host._put(this._peer, '/' + this._name + '!execute', before).then(after => {
+    return this._host._put(this._peer, '/' + this._name + '!execute', pre).then(post => {
+      let output = post.outputs && post.outputs[0] && post.outputs[0].name
+      let value = post.outputs && post.outputs[0] && post.outputs[0].value
+      if (value) {
+        if (value.type === 'library') {
+          this._host._functionManager.importLibrary(this, value)
+        } else if (value.type === 'function') {
+          this._host._functionManager.importFunction(this, value)
+        }
+      }
       return {
-        inputs: after.inputs.map(input => input.name),
-        output: after.output.name || null,
-        value: after.output.value,
-        messages: after.messages
+        inputs: post.inputs && post.inputs.map(input => input.name),
+        output: output,
+        value: value,
+        messages: post.messages
       }
     })
+  }
+
+  callFunction (library, name, args, namedArgs) {
+    let call = {
+      type: 'call',
+      func: {type: 'get', name: name},
+      args, namedArgs
+    }
+    return this._host._put(this._peer, '/' + this._name + '!evaluate', call)
   }
 }

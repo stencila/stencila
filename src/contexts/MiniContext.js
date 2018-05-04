@@ -1,5 +1,4 @@
 import { parse } from 'stencila-mini'
-import libcore from 'stencila-libcore'
 import { getCellLabel } from '../shared/cellHelpers'
 import { gather } from '../value'
 
@@ -42,34 +41,21 @@ export default class MiniContext {
       return _error(`Could not find function "${functionName}"`)
     }
 
-    // Ensure there is an implementation
-    let implems = funcDoc.getImplementations()
-    if (implems.length === 0) {
-      return _error(`Could not find implementation for function "${functionName}"`)
-    }
-
-    // TODO: Determine the best implementation language to use based on
-    // where arguments reside etc
-    let language = implems[0]
-
     // Get a context for the implementation language
-    return this._host.createContext(language)
-    .then((context) => {
-      // Call the function implementation in the context, capturing any
-      // messages or returning the value
-      let libraryName = this._functionManager.getLibraryName(functionName)
-      let argValues = funcCall.args.map(arg => arg.getValue())
-      let namedArgValues = {}
-      for (let name of Object.keys(funcCall.namedArgs)) {
-        namedArgValues[name] = funcCall.namedArgs[name].getValue()
+    let {context, library} = this._functionManager.getContextLibrary(functionName)
+    // Call the function implementation in the context, capturing any
+    // messages or returning the value
+    let args = funcCall.args.map(arg => arg.getValue())
+    let namedArgs = {}
+    for (let namedArg of funcCall.namedArgs) {
+      namedArgs[namedArg.name] = namedArg.getValue()
+    }
+    return context.callFunction(library, functionName, args, namedArgs).then((res) => {
+      if (res.messages && res.messages.length > 0) {
+        funcCall.addErrors(res.messages)
+        return undefined
       }
-      return context.callFunction(libraryName, functionName, argValues, namedArgValues).then((res) => {
-        if (res.messages && res.messages.length > 0) {
-          funcCall.addErrors(res.messages)
-          return undefined
-        }
-        return res.value
-      })
+      return res.value
     })
 
     function _error(msg) {
@@ -218,7 +204,7 @@ class ExprContext {
     switch (type) {
       case 'number': {
         return {
-          type: libcore.type(value),
+          type: 'number',
           data: value
         }
       }

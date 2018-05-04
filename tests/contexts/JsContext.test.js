@@ -318,8 +318,12 @@ test('JsContext.callFunction', t => {
   })
 
   c._libs['foo'] = {
-    bar: function () {
-      throw new Error('nope')
+    funcs: {
+      bar: {
+        body: function () {
+          throw new Error('nope')
+        }
+      }
     }
   }
   c.callFunction('foo', 'bar').then(result => {

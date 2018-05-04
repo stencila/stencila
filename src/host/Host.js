@@ -88,13 +88,12 @@ export default class Host extends EventEmitter {
      */
     this._engine = options.engine || new Engine({ host: this })
 
-
     /**
      * Manages functions imported from libraries
      *
      * @type {FunctionManager}
      */
-    this._functionManager = new FunctionManager(options.libs)
+    this._functionManager = new FunctionManager()
 
   }
 
@@ -183,7 +182,11 @@ export default class Host extends EventEmitter {
   initialize () {
     const options = this._options
 
-    let promises = [Promise.resolve()]
+    let promises = [
+      // Always create a Javascript execution context for
+      // execution of core functions
+      this.createContext('js')
+    ]
 
     // Seed with specified hosts
     let hosts = options.hosts
@@ -218,9 +221,10 @@ export default class Host extends EventEmitter {
         }
       }
     }).then(() => {
-      // Instantiate the engine after connecting to any peer hosts so that they are connected to before the engine attempts
+      // Run the engine after connecting to any peer hosts so that they are connected 
+      // (and have registered functions) before the engine attempts
       // to create contexts for external languages like R, SQL etc
-      this._engine = new Engine(this)
+      this._engine.run(10) // Refresh interval of 10ms
     })
   }
 
@@ -397,18 +401,18 @@ export default class Host extends EventEmitter {
           } else {
             // Get a list of fuctions from the context so that `FunctionManager` can
             // dispatch a `call` operation to the context if necessary. Implemented
-            // optimistically i.e. will not fail if the context does not implement `getLibraries`
+            // optimistically i.e. will not fail if the context does not implement `libraries`
             const context = result.instance
-            if (typeof context.getLibraries === 'function') {
-              context.getLibraries().then((libraries) => {
-                for (let name of Object.keys(libraries)) {
-                  this._functionManager.importLibrary(name, libraries[name])
-                }
+            if (typeof context.libraries === 'function') {
+              return context.libraries().then((libraries) => {
+                this._functionManager.importLibraries(context, libraries)
+                return context
               }).catch((error) => {
                 console.log(error) // eslint-disable-line
               })
+            } else {
+              return context
             }
-            return context
           }
         })
         this._contexts[language] = promise

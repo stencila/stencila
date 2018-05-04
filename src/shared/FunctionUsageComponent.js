@@ -5,6 +5,10 @@ export default class FunctionUsageComponent extends Component {
   render($$) {
     let el = $$('div').addClass('sc-function-usage')
     let spec = this.props.spec
+
+    // TODO: Currently only using the first method, allow for 
+    // multiple methods (ie. overloads with different parameter types)
+    const params = Object.values(spec.methods)[0].params
     let paramIndex = this.props.paramIndex
 
     // Function signature
@@ -15,16 +19,18 @@ export default class FunctionUsageComponent extends Component {
 
     // Parameter descriptions
     let paramsEl = $$('table').addClass('se-parameters')
-    spec.params.forEach((param, i) => {
-      let paramEl = $$('tr').addClass('se-param').append(
-        $$('td').addClass('se-param-name').append(param.name),
-        $$('td').addClass('se-param-descr').append(param.description)
-      )
-      if (i === this.props.paramIndex) {
-        paramEl.addClass('sm-active')
-      }
-      paramsEl.append(paramEl)
-    })
+    if (params) {
+      params.forEach((param, i) => {
+        let paramEl = $$('tr').addClass('se-param').append(
+          $$('td').addClass('se-param-name').append(param.name),
+          $$('td').addClass('se-param-descr').append(param.description)
+        )
+        if (i === this.props.paramIndex) {
+          paramEl.addClass('sm-active')
+        }
+        paramsEl.append(paramEl)
+      })
+    }
 
     let documentationLink = $$('div').addClass('se-read-more').append(
       this.context.iconProvider.renderIcon($$, 'function-helper')
@@ -51,17 +57,22 @@ export default class FunctionUsageComponent extends Component {
 class FunctionSignature extends Component {
   render($$) {
     let spec = this.props.spec
+    const params = Object.values(spec.methods)[0].params
+
     let paramsEl = $$('span').addClass('se-signature-params')
-    spec.params.forEach((param, i) => {
-      let paramEl = $$('span').addClass('se-signature-param').append(param.name)
-      if (i === this.props.paramIndex) {
-        paramEl.addClass('sm-active')
-      }
-      paramsEl.append(paramEl);
-      if (i < spec.params.length - 1) {
-        paramsEl.append(',')
-      }
-    })
+    if (params) {
+      params.forEach((param, i) => {
+        let paramEl = $$('span').addClass('se-signature-param').append(param.name)
+        if (i === this.props.paramIndex) {
+          paramEl.addClass('sm-active')
+        }
+        paramsEl.append(paramEl);
+        if (i < params.length - 1) {
+          paramsEl.append(',')
+        }
+      })
+    }
+
     return $$('div').addClass('se-signature').append(
       $$('span').addClass('se-name').append(spec.name),
       '(',

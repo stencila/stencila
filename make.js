@@ -22,7 +22,7 @@ const BROWSER_EXTERNALS = {
   'rdc-js': 'window.rdc',
   'substance-texture': 'window.texture',
   'stencila-mini': 'window.stencilaMini',
-  'stencila-libcore': 'window.stencilaLibCore',
+  'stencila-libcore': 'window.stencilaLibcore',
   'katex': 'window.katex',
   'plotly.js': 'window.Plotly'
 }
@@ -172,7 +172,8 @@ function copyAssets() {
   b.copy('./node_modules/substance/dist/substance.js*', DIST+'lib/')
   b.copy('./node_modules/substance-texture/dist/texture.js*', DIST+'lib/')
   b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', DIST+'lib/')
-  b.copy('./node_modules/stencila-libcore/build/stencila-libcore.*', DIST+'lib/')
+  b.copy('./node_modules/stencila-libcore/builds/stencila-envcore.*', DIST+'lib/')
+  b.copy('./node_modules/stencila-libcore/builds/stencila-libcore.*', DIST+'lib/')
   b.copy('./node_modules/rdc-js/dist/rdc.js*', DIST+'lib/')
 }
 

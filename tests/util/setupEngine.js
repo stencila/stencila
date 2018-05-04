@@ -2,16 +2,16 @@ import Engine from '../../src/engine/Engine'
 import JsContext from '../../src/contexts/JsContext'
 import MiniContext from '../../src/contexts/MiniContext'
 import FunctionManager from '../../src/function/FunctionManager'
-import { libtestXML, libtest } from '../contexts/libtest'
+import { libtest } from '../contexts/libtest'
 
 export default function setupEngine() {
   // A JsContext with the test function library
   let jsContext = new JsContext()
   let miniContext
-  jsContext.importLibrary('test', libtest)
+  jsContext.importLibrary(libtest)
   // Function manager for getting function specs
   let functionManager = new FunctionManager()
-  functionManager.importLibrary('test', libtestXML)
+  functionManager.importLibrary(jsContext, libtest)
   // A mock Host that provides the JsContext when requested
   let host = {
     _disable(val) {
@@ -33,7 +33,8 @@ export default function setupEngine() {
     functionManager
   }
   miniContext = new MiniContext(host)
-  let engine = new Engine({ host })
+  host.engine = new Engine({ host })
+  let engine = host.engine
   let graph = engine._graph
   // don't let the engine be run forever in tests
   engine.run = () => {}
