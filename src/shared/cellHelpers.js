@@ -131,10 +131,24 @@ export function getError(cell) {
 
 export function getErrorMessage(error) {
   switch(error.name) {
-    case 'unresolved':
+    case 'unresolved': {
       return 'Unresolved inputs: ' + error.details.unresolved.map(s => {
         return s.origStr || s.name
       }).join(', ')
+    }
+    case 'cyclic': {
+      let frags = []
+      let trace = error.details.trace
+      let symbols = error.details.symbols
+      trace.forEach(id => {
+        let s = symbols[id]
+        if (s) {
+          frags.push(s.origStr || s)
+        }
+      })
+      frags.push(frags[0])
+      return 'Cyclic Dependency: ' + frags.join(' -> ')
+    }
     default:
       return error.message
   }

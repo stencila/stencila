@@ -333,7 +333,7 @@ export default class CellGraph {
     }
   }
 
-  _computeDependencyLevel(id, levels, updated, trace = new Set()) {
+  _computeDependencyLevel(id, levels, updated, trace = new Set(), traceSymbols = {}) {
     let cell = this._cells[id]
     let inputs = Array.from(cell.inputs)
     trace = new Set(trace)
@@ -341,13 +341,13 @@ export default class CellGraph {
 
     const _recursive = (id) => {
       if (trace.has(id)) {
-        this._handleCycle(trace, updated)
+        this._handleCycle(trace, traceSymbols, updated)
         return Infinity
       }
       if (levels.hasOwnProperty(id)) {
         return levels[id]
       } else {
-        return this._computeDependencyLevel(id, levels, updated, trace)
+        return this._computeDependencyLevel(id, levels, updated, trace, traceSymbols)
       }
     }
 
@@ -355,6 +355,7 @@ export default class CellGraph {
     inputs.forEach(s => {
       let res = this._resolve(s)
       if (!res) return 0
+      traceSymbols[id] = s
       if (isString(res)) {
         inputLevels.push(_recursive(res))
       } else {
@@ -365,6 +366,7 @@ export default class CellGraph {
     })
     // EXPERIMENTAL: considering an explicitly set predecessor to preserve natural order where appropriate
     if (cell.prev) {
+      traceSymbols[id] = cell.id
       inputLevels.push(_recursive(cell.prev))
     }
     let level = inputLevels.length > 0 ? Math.max(...inputLevels) + 1 : 0
@@ -523,8 +525,8 @@ export default class CellGraph {
     return set
   }
 
-  _handleCycle(trace, updated) {
-    let error = new CyclicDependencyError('Cyclic dependency', { trace })
+  _handleCycle(trace, traceSymbols, updated) {
+    let error = new CyclicDependencyError('Cyclic dependency', { trace, symbols: traceSymbols })
     trace.forEach(id => {
       let cell = this._cells[id]
       cell.status = BROKEN
@@ -537,7 +539,7 @@ export default class CellGraph {
   _clearCyclicDependencyError(cell) {
     let err = cell.errors.find(err => err instanceof CyclicDependencyError)
     if (err) {
-      const trace = err.trace
+      const trace = err.details.trace
       trace.forEach(id => {
         let cell = this._cells[id]
         cell.clearErrors(err => (err instanceof CyclicDependencyError))
