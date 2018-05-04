@@ -1,4 +1,4 @@
-import { NodeComponent, FontAwesomeIcon } from 'substance'
+import { NodeComponent } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
 import { getCellState, getError } from '../shared/cellHelpers'
@@ -73,17 +73,6 @@ class CellComponent extends NodeComponent {
         $$('div').addClass('se-language').append(
           LANG_LABELS[source.attributes.language]
         )
-      )
-    } else {
-      // TODO: Create proper visual style
-      el.append(
-        $$('button').append(
-          this._renderStatus($$),
-          $$(FontAwesomeIcon, { icon: 'fa-code' })
-        )
-          .addClass('se-show-code')
-          .attr('title', 'Show Code')
-          .on('click', this._showCode)
       )
     }
 
