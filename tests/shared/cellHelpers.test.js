@@ -1,7 +1,7 @@
 import test from 'tape'
 import {
   getCellState, isExpression, getCellValue, getCellType, valueFromText,
-  getSource, setSource
+  getSource, setSource, getError, getErrorMessage
 } from '../../src/shared/cellHelpers'
 import createRawArchive from '../util/createRawArchive'
 import loadRawArchive from '../util/loadRawArchive'
@@ -76,6 +76,41 @@ test('cellHelpers: setSource', t => {
   t.equal(getSource(cell), '10', 'source of cell should have been updated correctly')
   t.end()
 })
+
+test('cellHelpers: getErrorMessage', t => {
+  // TODO: do we want cell types only in sheets?
+  t.plan(6)
+  let { archive, engine } = _setup([
+    {
+      id: 'article',
+      path: 'article.xml',
+      type: 'article',
+      name: 'My Article',
+      body: [
+        "<cell id='cell1' language='mini' type='number'>u + v</cell>",
+        "<cell id='cell2' language='mini'>x = y</cell>",
+        "<cell id='cell3' language='mini'>y = x</cell>",
+      ]
+    }
+  ])
+  let article = archive.getEditorSession('article').getDocument()
+  let cell1 = article.get('cell1')
+  let cell2 = article.get('cell2')
+  let cell3 = article.get('cell3')
+  play(engine)
+  .then(() => {
+    _errorShouldContain(t, getErrorMessage(getError(cell1)), 'u', 'v')
+    _errorShouldContain(t, getErrorMessage(getError(cell2)), 'x', 'y')
+    _errorShouldContain(t, getErrorMessage(getError(cell3)), 'x', 'y')
+  })
+})
+
+function _errorShouldContain(t, err, ...symbols) {
+  for (let i = 0; i < symbols.length; i++) {
+    let s = symbols[i]
+    t.ok(err.indexOf(s)>=0, `error should contain ${s}`)
+  }
+}
 
 function sample() {
   return [
