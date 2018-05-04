@@ -36,7 +36,11 @@ export default class FunctionUsageCommand extends Command {
 
     let candidate
     nodes.forEach((node) => {
-      if (node.type === 'function' && node.start <= cursorPos && node.end >= cursorPos) {
+      // At the moment we don't want to show function helper for a function arguments
+      // as we find it obtrusive, however this implementation contains function arguments
+      // highlighting.
+      // Currently we just restrict matching with a function name and the first bracket.
+      if (node.type === 'function' && node.start <= cursorPos && node.start + node.name.length + 1 >= cursorPos) {
         let offset = cursorPos - node.start
         if (!candidate || offset < candidate.offset ) {
           // Param index
