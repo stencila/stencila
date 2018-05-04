@@ -1,6 +1,6 @@
 import { NodeComponent } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
-import { isExpression, getError, getValue } from '../shared/cellHelpers'
+import { isExpression, getError, getValue, getErrorMessage } from '../shared/cellHelpers'
 
 export default class SheetCellComponent extends NodeComponent {
 
@@ -26,7 +26,7 @@ export default class SheetCellComponent extends NodeComponent {
     if (error) {
       el.append(
         $$('div').addClass('se-error').append(
-          getError(cell).message
+          getErrorMessage(getError(cell))
         )
       )
       el.addClass('sm-issue sm-error')

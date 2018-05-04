@@ -1,7 +1,7 @@
 import { parse } from 'acorn'
 import { simple, base } from 'acorn/dist/walk'
 import { generate } from 'astring/src/astring'
-import { isFunction } from 'substance'
+import { isFunction, isNil } from 'substance'
 
 import Context from './Context'
 
@@ -278,7 +278,7 @@ export default class JsContext extends Context {
    * Pack a value for passing to `Engine` or another `Context`
    */
   _packValue (value) {
-    if (value === undefined) return null
+    if (isNil(value)) return null
     let type
     if (Number.isInteger(value)) type = 'integer'
     else type = value.type || typeof value

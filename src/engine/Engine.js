@@ -318,13 +318,16 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     const id = action.id
     const cell = graph.getCell(id)
-    cell.errors = []
+    // clear all errors which are not managed by the CellGraph
+    cell.clearErrors(e => {
+      return e.type !== 'graph'
+    })
     // in case of constants, casting the string into a value,
     // updating the cell graph and returning without further evaluation
     if (cell.isConstant()) {
       // TODO: use the preferred type from the sheet
       let preferredType = 'any'
-      let value = valueFromText(preferredType, cell.source)
+      let value = valueFromText(cell.source, preferredType)
       graph.setValue(id, value)
       return
     }
@@ -365,20 +368,19 @@ export default class Engine extends EventEmitter {
         graph.addErrors(id, res.messages.map(err => {
           return new SyntaxError(err.message)
         }))
-      } else {
-        // console.log('analysed cell', cell, res)
-        // transform the extracted symbols into fully-qualified symbols
-        // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
-        let { inputs, output } = this._compile(res, cell)
-        this._nextActions.set(id, {
-          type: 'register',
-          id,
-          // Note: these symbols are in plain-text analysed by the context
-          // based on the transpiled source
-          inputs,
-          output
-        })
       }
+      // console.log('analysed cell', cell, res)
+      // transform the extracted symbols into fully-qualified symbols
+      // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
+      let { inputs, output } = this._compile(res, cell)
+      this._nextActions.set(id, {
+        type: 'register',
+        id,
+        // Note: these symbols are in plain-text analysed by the context
+        // based on the transpiled source
+        inputs,
+        output
+      })
     })
   }
 
@@ -386,8 +388,9 @@ export default class Engine extends EventEmitter {
     const graph = this._graph
     const id = action.id
     const cell = graph.getCell(id)
-    // TODO: is it really ok to wipe all the errors?
-    cell.errors = []
+    cell.clearErrors(e => {
+      return e.type !== 'graph'
+    })
     // console.log('evaluating cell', cell.toString())
     const lang = cell.getLang()
     let transpiledSource = cell.transpiledSource
