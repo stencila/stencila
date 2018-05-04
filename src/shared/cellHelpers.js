@@ -17,20 +17,27 @@ export function getCellValue(cell) {
   if (cell.state) {
     return cell.state.value
   } else {
-    let type = getCellType(cell)
-    return valueFromText(type, cell.text())
+    let preferredType = getCellType(cell)
+    return valueFromText(cell.text(), preferredType)
   }
 }
 
 export function getCellType(cell) {
-  let sheet = cell.getDocument()
-  let row = cell.parentNode
-  let colIdx = row._childNodes.indexOf(cell.id)
-  let columnMeta = sheet.getColumnMeta(colIdx)
-  return cell.attr('type') || columnMeta.attr('type') || 'any'
+  let type = cell.attr('type')
+  if (!type) {
+    let doc = cell.getDocument()
+    let docType = doc.documentType
+    if (docType === 'sheet') {
+      let row = cell.parentNode
+      let colIdx = row._childNodes.indexOf(cell.id)
+      let columnMeta = doc.getColumnMeta(colIdx)
+      type = columnMeta.attr('type')
+    }
+  }
+  return type || 'any'
 }
 
-export function valueFromText(preferredType, text) {
+export function valueFromText(text, preferredType = 'any') {
   const data = _parseText(preferredType, text)
   const type_ = type(data)
   return { type: type_, data }

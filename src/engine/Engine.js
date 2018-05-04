@@ -327,7 +327,7 @@ export default class Engine extends EventEmitter {
     if (cell.isConstant()) {
       // TODO: use the preferred type from the sheet
       let preferredType = 'any'
-      let value = valueFromText(preferredType, cell.source)
+      let value = valueFromText(cell.source, preferredType)
       graph.setValue(id, value)
       return
     }
