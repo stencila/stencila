@@ -989,6 +989,32 @@ test('Engine: resolving a cycle', t => {
   })
 })
 
+test('Engine: resolving a cycle when cell gets invalid', t => {
+  t.plan(2)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    cells: [
+      { id: 'cell1', source: 'x = y' },
+      { id: 'cell2', source: 'y = x' }
+    ]
+  })
+  let cells = doc.getCells()
+  play(engine)
+  .then(() => {
+    t.deepEqual(getErrors(cells), [['cyclic'], ['cyclic']], 'Both cells should have a cyclic dependency error.')
+  })
+  .then(() => {
+    doc.updateCell('cell2', { source: 'y = '})
+  })
+  .then(() => play(engine))
+  .then(() => {
+    t.deepEqual(getErrors(cells), [[], ['syntax']], 'Cyclic dependency error should be resolved.')
+  })
+})
+
+
 function _checkActions(t, engine, cells, expected) {
   let nextActions = engine.getNextActions()
   let actual = []
