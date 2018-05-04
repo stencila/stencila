@@ -218,7 +218,7 @@ class CellComponent extends NodeComponent {
           if(errEl) {
             errEl.setStyle('visibility', 'visible')
           }
-        }, 500)
+        }, 1000)
       } else if (status === OK) {
         this.oldValue = cellState.value
         clearTimeout(this.delayError) // eslint-disable-line no-undef
