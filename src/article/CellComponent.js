@@ -31,6 +31,13 @@ class CellComponent extends NodeComponent {
     this.context.editorSession.onRender('document', this._onNodeChange, this, { path: [this.props.node.id]})
   }
 
+  shouldRerender(newProps) {
+    if(newProps.focused !== this.props.focused) {
+      return false
+    }
+    return true
+  }
+
   getInitialState() {
     return {
       hideCode: false,
