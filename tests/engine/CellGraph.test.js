@@ -347,6 +347,25 @@ test('CellGraph: cycle', t => {
   t.end()
 })
 
+test('CellGraph: resolving a cycle', t => {
+  let g = new CellGraph()
+  let cells = [
+    new Cell(null, { id: 'cell1', inputs: ['y'], output: 'x', status: ANALYSED }),
+    new Cell(null, { id: 'cell2', inputs: ['x'], output: 'y', status: ANALYSED }),
+  ]
+  cells.forEach(c => g.addCell(c))
+
+  let updates = g.update()
+  _checkStates(t, cells, [BROKEN, BROKEN])
+
+  g.setInputs('cell2', [])
+  updates = g.update()
+  _checkUpdates(t, updates, ['cell1', 'cell2'])
+  _checkStates(t, cells, [WAITING, READY])
+
+  t.end()
+})
+
 /*
   Two cells exposing the same variable is considered a conflict.
   All involved cells are marked as broken.
