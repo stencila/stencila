@@ -57,7 +57,7 @@
     "istanbul": "^0.4.5",
     "lodash.merge": "4.6.0",
     "prismjs": "1.9.0",
-    "substance-bundler": "^0.20.10",
+    "substance-bundler": "^0.23.2",
     "substance-test": "^0.9.3",
     "tape": "^4.6.3"
   },
