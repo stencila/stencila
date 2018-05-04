@@ -72,7 +72,6 @@ export default class ContextHttpClient extends Context {
           this._host._functionManager.importLibrary(this, value)
         } else if (value.type === 'function') {
           this._host._functionManager.importFunction(this, value)
-          value = { type: 'object', data: value }
         }
       }
       return {
