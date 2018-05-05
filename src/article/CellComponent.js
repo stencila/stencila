@@ -95,7 +95,7 @@ class CellComponent extends NodeComponent {
           getErrorMessage(getError(cell))
         ).ref('error')
         if (this._hideError) {
-          errEl.setStyle('visibility', 'hidden')
+          errEl.setStyle('display', 'none')
         }
         el.append(errEl)
       } else if (status === OK) {
@@ -213,7 +213,7 @@ class CellComponent extends NodeComponent {
         this.delayError = setTimeout(() => {
           const errEl = this.refs.error
           if(errEl) {
-            errEl.setStyle('visibility', 'visible')
+            errEl.setStyle('display', 'block')
           }
           this._hideError = false
         }, 500)
