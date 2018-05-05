@@ -205,9 +205,6 @@ class CellComponent extends NodeComponent {
             oldCellState.status !== status ||
             !isEqual(oldCellState.errors.map(e => e.message), cellState.errors.map(e => e.message))
           )
-          if (showError) {
-            console.log('SHOW ERROR', oldCellState.status, status, oldCellState.errors.join(','), cellState.errors.join(','))
-          }
         }
       }
       clearTimeout(this.delayError)
