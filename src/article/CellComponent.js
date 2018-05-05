@@ -263,14 +263,16 @@ class ValueDisplay extends Component {
         el.append(
           $$(ValueComponent, this._cachedValue).ref('cachedValue').css('visibility', 'hidden')
         )
-      } else if (this._cachedError) {
+      }
+      // alternatively if there is a cached error, use that to reserve the space
+      else if (this._cachedError) {
         el.append(
           $$('div').addClass('se-error').append(
             getErrorMessage(this._cachedError)
           ).ref('cachedValue').css('visibility', 'hidden')
         )
       }
-      // ... and the error is not shown at first, but didUpdate() will show it after some delay
+      // the error is not shown at first, but didUpdate() will show it after some delay
       // this way the error is a bit delayed, potentially becoming superseded by a new update in the meantime
       el.append(
         $$('div').addClass('se-error').append(
