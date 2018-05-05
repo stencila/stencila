@@ -220,8 +220,13 @@ class ValueDisplay extends Component {
   }
 
   willReceiveProps(newProps) {
-    if (newProps.status === OK) {
+    let newStatus = newProps.status
+    if (newStatus === OK) {
       this._cachedValue = newProps.value
+      // this._cachedError = null
+    } else if (newStatus === BROKEN || newStatus === FAILED) {
+      this._cachedError = newProps.errors[0]
+      // this._cachedValue = null
     }
   }
 
@@ -258,6 +263,12 @@ class ValueDisplay extends Component {
         el.append(
           $$(ValueComponent, this._cachedValue).ref('cachedValue').css('visibility', 'hidden')
         )
+      } else if (this._cachedError) {
+        el.append(
+          $$('div').addClass('se-error').append(
+            getErrorMessage(this._cachedError)
+          ).ref('cachedValue').css('visibility', 'hidden')
+        )
       }
       // ... and the error is not shown at first, but didUpdate() will show it after some delay
       // this way the error is a bit delayed, potentially becoming superseded by a new update in the meantime
@@ -271,7 +282,9 @@ class ValueDisplay extends Component {
         el.append(
           $$(ValueComponent, value).ref('value')
         )
-      } else if (this._cachedValue) {
+      }
+      // to have a less jumpy experience, we show the last valid value grey'd out
+      else if (this._cachedValue) {
         el.append(
           $$(ValueComponent, this._cachedValue).ref('value').addClass('sm-pending')
         )
