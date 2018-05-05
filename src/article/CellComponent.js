@@ -1,4 +1,4 @@
-import { Component, NodeComponent, FontAwesomeIcon } from 'substance'
+import { Component, NodeComponent, FontAwesomeIcon, isEqual } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
 import { getCellState, getErrorMessage } from '../shared/cellHelpers'
@@ -210,6 +210,14 @@ class CellComponent extends NodeComponent {
 
 class ValueDisplay extends Component {
 
+  shouldRerender(newProps) {
+    return (
+      (newProps.status !== this.props.status) ||
+      (newProps.value !== this.props.value) ||
+      (!isEqual(newProps.errors, this.props.errors))
+    )
+  }
+
   willReceiveProps(newProps) {
     if (newProps.status === OK) {
       this._cachedValue = newProps.value
@@ -264,7 +272,7 @@ class ValueDisplay extends Component {
         )
       } else if (this._cachedValue) {
         el.append(
-          $$(ValueComponent, this._cachedValue).ref('cachedValue').addClass('sm-pending')
+          $$(ValueComponent, this._cachedValue).ref('value').addClass('sm-pending')
         )
       }
     }
