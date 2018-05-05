@@ -1,8 +1,9 @@
-import { NodeComponent, FontAwesomeIcon } from 'substance'
+/* globals clearTimeout */
+import { NodeComponent, FontAwesomeIcon, isEqual } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
 import { getCellState, getError, getErrorMessage } from '../shared/cellHelpers'
-import { toString as stateToString, BROKEN, FAILED, OK, READY } from '../engine/CellStates'
+import { toString as stateToString, BROKEN, FAILED, OK } from '../engine/CellStates'
 import NodeMenu from './NodeMenu'
 
 const LANG_LABELS = {
@@ -29,13 +30,6 @@ class CellComponent extends NodeComponent {
 
   didMount() {
     this.context.editorSession.onRender('document', this._onNodeChange, this, { path: [this.props.node.id]})
-  }
-
-  shouldRerender(newProps) {
-    if(newProps.focused !== this.props.focused) {
-      return false
-    }
-    return true
   }
 
   getInitialState() {
@@ -97,30 +91,23 @@ class CellComponent extends NodeComponent {
     if (cellState) {
       const status = cellState.status
       if(status === FAILED || status === BROKEN) {
-        el.append(
-          $$('div').addClass('se-error').append(
-            getErrorMessage(getError(cell))
-          ).ref('error').setStyle('visibility', 'hidden')
-        )
+        let errEl = $$('div').addClass('se-error').append(
+          getErrorMessage(getError(cell))
+        ).ref('error')
+        if (this._hideError) {
+          errEl.setStyle('visibility', 'hidden')
+        }
+        el.append(errEl)
       } else if (status === OK) {
         if (this._showOutput()) {
           el.append(
             $$(ValueComponent, cellState.value).ref('value')
           )
         }
-      } else if (this.oldValue) {
-        el.addClass('sm-pending')
-        if(this.oldValue.error) {
-          el.append(
-            $$('div').addClass('se-error').append(
-              this.oldValue.error
-            ).ref('error').setStyle('visibility', 'hidden')
-          )
-        } else if (this._showOutput()) {
-          el.append(
-            $$(ValueComponent, this.oldValue).ref('value')
-          )
-        }
+      } else if (this.oldValue && this._showOutput()) {
+        el.append(
+          $$(ValueComponent, this.oldValue).ref('value')
+        ).addClass('sm-pending')
       }
     }
     return el
@@ -206,24 +193,41 @@ class CellComponent extends NodeComponent {
   _onNodeChange() {
     const cell = this.props.node
     const cellState = getCellState(cell)
-    if(cellState) {
+    const oldCellState = this._oldCellState
+    if (cellState) {
+      // 1. does the cell have an error?
+      // 2. did the status or the errors change?
+      let showError = true
       const status = cellState.status
       if(status === BROKEN || status === FAILED) {
-        this.oldValue = {
-          error: getError(cell).message
+        if (oldCellState) {
+          showError = (
+            oldCellState.status !== status ||
+            !isEqual(oldCellState.errors.map(e => e.message), cellState.errors.map(e => e.message))
+          )
+          if (showError) {
+            console.log('SHOW ERROR', oldCellState.status, status, oldCellState.errors.join(','), cellState.errors.join(','))
+          }
         }
-        clearTimeout(this.delayError) // eslint-disable-line no-undef
+      }
+      clearTimeout(this.delayError)
+      if (showError) {
+        this._hideError = true
         this.delayError = setTimeout(() => {
           const errEl = this.refs.error
           if(errEl) {
             errEl.setStyle('visibility', 'visible')
           }
+          this._hideError = false
         }, 500)
-      } else if (status === OK) {
+      }
+      this._oldCellState = {
+        status,
+        errors: cellState.errors.slice()
+      }
+      // keep the last valid value to be able to reduce flickering in most of the cases
+      if (status === OK) {
         this.oldValue = cellState.value
-        clearTimeout(this.delayError) // eslint-disable-line no-undef
-      } else if (status === READY) {
-        clearTimeout(this.delayError) // eslint-disable-line no-undef
       }
     }
     this.rerender()
