@@ -212,6 +212,7 @@ class ValueDisplay extends Component {
 
   shouldRerender(newProps) {
     return (
+      (newProps.showOutput !== this.props.showOutput) ||
       (newProps.status !== this.props.status) ||
       (newProps.value !== this.props.value) ||
       (!isEqual(newProps.errors, this.props.errors))
