@@ -328,6 +328,14 @@ export default class Engine extends EventEmitter {
       // TODO: use the preferred type from the sheet
       let preferredType = 'any'
       let value = valueFromText(cell.source, preferredType)
+      // constants can't have inputs, so deregister them
+      if (cell.inputs && cell.inputs.size > 0) {
+        graph.setInputs(id, new Set())
+      }
+      // constants can't have errors at this stage (later on maybe validation errors)
+      if (cell.errors.length > 0) {
+        graph.clearErrors(id)
+      }
       graph.setValue(id, value)
       return
     }
