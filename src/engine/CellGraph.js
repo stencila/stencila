@@ -162,7 +162,14 @@ export default class CellGraph {
 
   clearErrors(id, type) {
     let cell = this._cells[id]
-    cell.clearErrors(type)
+    if (type === 'graph' || !type) {
+      this._clearCyclicDependencyError(cell)
+    }
+    if (type) {
+      cell.clearErrors(type)
+    } else {
+      cell.errors = []
+    }
     this._stateChanged.add(id)
   }
 

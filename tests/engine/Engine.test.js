@@ -1014,6 +1014,31 @@ test('Engine: resolving a cycle when cell gets invalid', t => {
   })
 })
 
+test('Engine: clear old errors when a cell is changed into a constant', t => {
+  t.plan(2)
+  let { engine } = _setup()
+  let sheet = engine.addSheet({
+    id: 'sheet1',
+    lang: 'mini',
+    cells: [
+      ['= A2', '2'],
+      ['= A1', '4']
+    ]
+  })
+  let cells = queryCells(sheet.cells, 'A1:A2')
+  play(engine)
+  .then(() => {
+    t.deepEqual(getErrors(cells), [['cyclic'], ['cyclic']], 'cells should have a cyclic dependency error')
+  })
+  .then(() => {
+    sheet.updateCell(cells[1].unqualifiedId, '3')
+  })
+  .then(() => play(engine))
+  .then(() => {
+    t.deepEqual(getErrors(cells), [[], []], 'errors should have been cleared')
+  })
+})
+
 
 function _checkActions(t, engine, cells, expected) {
   let nextActions = engine.getNextActions()
