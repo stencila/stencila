@@ -1,4 +1,5 @@
 import Prism from '../../tmp/prism.js'
+import { extractSymbols } from './expressionHelpers'
 
 const CELL = /\b([a-z0-9_]+[!])?([A-Z]{1,3}[1-9][0-9]*)(?:[:]([A-Z]{1,3}[1-9][0-9]*))?\b/
 const DEF = /(^|\n)[a-zA-Z_$][a-zA-Z_$0-9]*(?=\s*[=])/
@@ -102,6 +103,7 @@ function tokenize(code, lang) {
 // pseudo-parsing to collect information about functions
 export default function analyzeCode(code, lang = 'mini') {
   let tokens = tokenize(code, lang)
+  let symbols = extractSymbols(code)
   let nodes = []
   let calls = []
 
@@ -176,5 +178,5 @@ export default function analyzeCode(code, lang = 'mini') {
   // also push incomplete function calls
   _push(code.length)
 
-  return { tokens, nodes }
+  return { tokens, symbols, nodes }
 }

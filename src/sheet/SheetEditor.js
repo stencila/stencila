@@ -27,7 +27,7 @@ export default class SheetEditor extends AbstractEditor {
       DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
     }
     editorSession.onUpdate('selection', this._onSelectionChange, this)
-    this._formulaEditorContext.editorSession.onUpdate('selection', this._onCellEditorSelectionChange, this)
+    this._formulaEditorContext.editorSession.onRender('selection', this._onCellEditorSelectionChange, this)
   }
 
   didMount() {
@@ -345,9 +345,9 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
-  _setReferenceSelection(reference) {
-    const from = reference.split(':')[0]
-    const to = reference.split(':')[1]
+  _setReferenceSelection(referenceSymbol) {
+    const from = referenceSymbol.anchor
+    const to = referenceSymbol.focus
     const [startRow, startCol] = getRowCol(from)
     const [endRow, endCol] = to ? getRowCol(to) : [startRow, startCol]
     const sheetComp = this.getSheetComponent()
@@ -374,16 +374,22 @@ export default class SheetEditor extends AbstractEditor {
       const cursorOffset = formulaSelection.start.offset
       const cell = formulaEditorSession.getDocument().get('cell')
       const cellState = getCellState(cell)
-      const tokens = cellState.tokens
-      const activeToken = tokens.find(token => {
-        return token.type === 'cell' && cursorOffset >= token.start && cursorOffset <= token.end
+      const symbols = cellState.symbols || []
+      const activeSymbol = symbols.find(s => {
+        return cursorOffset >= s.startPos && cursorOffset <= s.endPos
       })
-      if(activeToken) {
-        const cellReference = activeToken.text
-        this._setReferenceSelection(cellReference)
+      if(activeSymbol) {
+        // show a reference selection if the current symbol is pointing
+        // to a cell or range within the same sheet
+        if ((activeSymbol.type === 'cell' || activeSymbol.type === 'range') && !activeSymbol.scope) {
+          this._setReferenceSelection(activeSymbol)
+        } else {
+          this._hideCellRanges()
+        }
       } else {
         const sheetComp = this.getSheetComponent()
         sheetComp._hideSelection()
+        this._hideCellRanges()
       }
     }
   }

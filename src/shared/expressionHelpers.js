@@ -54,12 +54,7 @@ const REF_RE = new RegExp(REF)
 */
 export function transpile(code, map = {}) {
   if (!code) return code
-  let re = new RegExp(REF, 'g')
-  let symbols = []
-  let m
-  while ((m = re.exec(code))) {
-    symbols.push(_createSymbol(m))
-  }
+  let symbols = extractSymbols(code)
   // Note: we are transpiling without changing the length of the original source
   // i.e. `'My Sheet'!A1:B10` is transpiled into `_My_Sheet__A1_B10`
   // thus the symbol locations won't get invalid by this step
@@ -69,6 +64,17 @@ export function transpile(code, map = {}) {
     map[s.mangledStr] = s
   }
   return code
+}
+
+export function extractSymbols(code) {
+  if (!code) return []
+  let re = new RegExp(REF, 'g')
+  let symbols = []
+  let m
+  while ((m = re.exec(code))) {
+    symbols.push(_createSymbol(m))
+  }
+  return symbols
 }
 
 /*
