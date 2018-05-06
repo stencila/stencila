@@ -98,7 +98,7 @@
   display: block;
 }
 
-.sc-cell.sm-pending .sc-cell-value {
+.sc-cell .sc-cell-value.sm-pending {
   opacity: 0.3;
 }
 
@@ -109,8 +109,4 @@
   font-size: 12px;
   opacity: 1;
   transition: opacity 0.3s ease-in-out;
-}
-
-.sc-cell.sm-pending .se-error {
-  opacity: 0.3;
 }

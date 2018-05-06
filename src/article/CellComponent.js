@@ -1,8 +1,8 @@
-import { NodeComponent, FontAwesomeIcon } from 'substance'
+import { Component, NodeComponent, FontAwesomeIcon, isEqual } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
-import { getCellState, getError, getErrorMessage } from '../shared/cellHelpers'
-import { toString as stateToString, BROKEN, FAILED, OK, READY } from '../engine/CellStates'
+import { getCellState, getErrorMessage } from '../shared/cellHelpers'
+import { toString as stateToString, OK, BROKEN, FAILED } from '../engine/CellStates'
 import NodeMenu from './NodeMenu'
 
 const LANG_LABELS = {
@@ -13,6 +13,8 @@ const LANG_LABELS = {
   'py': 'Py',
   'r': 'R',
 }
+
+const SHOW_ERROR_DELAY = 500
 
 export default
 class CellComponent extends NodeComponent {
@@ -25,17 +27,6 @@ class CellComponent extends NodeComponent {
       'execute': this._onExecute,
       'break': this._onBreak
     })
-  }
-
-  didMount() {
-    this.context.editorSession.onRender('document', this._onNodeChange, this, { path: [this.props.node.id]})
-  }
-
-  shouldRerender(newProps) {
-    if(newProps.focused !== this.props.focused) {
-      return false
-    }
-    return true
   }
 
   getInitialState() {
@@ -88,40 +79,20 @@ class CellComponent extends NodeComponent {
           this._renderStatus($$),
           $$(FontAwesomeIcon, { icon: 'fa-code' })
         )
-          .addClass('se-show-code')
-          .attr('title', 'Show Code')
-          .on('click', this._showCode)
+        .addClass('se-show-code')
+        .attr('title', 'Show Code')
+        .on('click', this._showCode)
       )
     }
 
     if (cellState) {
-      const status = cellState.status
-      if(status === FAILED || status === BROKEN) {
-        el.append(
-          $$('div').addClass('se-error').append(
-            getErrorMessage(getError(cell))
-          ).ref('error').setStyle('visibility', 'hidden')
-        )
-      } else if (status === OK) {
-        if (this._showOutput()) {
-          el.append(
-            $$(ValueComponent, cellState.value).ref('value')
-          )
-        }
-      } else if (this.oldValue) {
-        el.addClass('sm-pending')
-        if(this.oldValue.error) {
-          el.append(
-            $$('div').addClass('se-error').append(
-              this.oldValue.error
-            ).ref('error').setStyle('visibility', 'hidden')
-          )
-        } else if (this._showOutput()) {
-          el.append(
-            $$(ValueComponent, this.oldValue).ref('value')
-          )
-        }
-      }
+      let valueDisplay = $$(ValueDisplay, {
+        status: cellState.status,
+        value: cellState.value,
+        errors: cellState.errors,
+        showOutput: this._showOutput(),
+      }).ref('valueDisplay')
+      el.append(valueDisplay)
     }
     return el
   }
@@ -203,32 +174,6 @@ class CellComponent extends NodeComponent {
     })
   }
 
-  _onNodeChange() {
-    const cell = this.props.node
-    const cellState = getCellState(cell)
-    if(cellState) {
-      const status = cellState.status
-      if(status === BROKEN || status === FAILED) {
-        this.oldValue = {
-          error: getError(cell).message
-        }
-        clearTimeout(this.delayError) // eslint-disable-line no-undef
-        this.delayError = setTimeout(() => {
-          const errEl = this.refs.error
-          if(errEl) {
-            errEl.setStyle('visibility', 'visible')
-          }
-        }, 500)
-      } else if (status === OK) {
-        this.oldValue = cellState.value
-        clearTimeout(this.delayError) // eslint-disable-line no-undef
-      } else if (status === READY) {
-        clearTimeout(this.delayError) // eslint-disable-line no-undef
-      }
-    }
-    this.rerender()
-  }
-
   _onExecute() {
     this.context.cellEngine.recompute(this.props.node.id)
   }
@@ -261,6 +206,94 @@ class CellComponent extends NodeComponent {
     }
   }
 
+}
+
+class ValueDisplay extends Component {
+
+  shouldRerender(newProps) {
+    return (
+      (newProps.showOutput !== this.props.showOutput) ||
+      (newProps.status !== this.props.status) ||
+      (newProps.value !== this.props.value) ||
+      (!isEqual(newProps.errors, this.props.errors))
+    )
+  }
+
+  willReceiveProps(newProps) {
+    let newStatus = newProps.status
+    if (newStatus === OK) {
+      this._cachedValue = newProps.value
+      // this._cachedError = null
+    } else if (newStatus === BROKEN || newStatus === FAILED) {
+      this._cachedError = newProps.errors[0]
+      // this._cachedValue = null
+    }
+  }
+
+  didUpdate() {
+    const errors = this.props.errors
+    if (errors && errors.length > 0) {
+      let token = this._token
+      setTimeout(() => {
+        // if this is still the same update
+        if (token === this._token) {
+          if (this.refs.cachedValue) {
+            this.refs.cachedValue.css('display', 'none')
+          }
+          if (this.refs.error) {
+            this.refs.error.css('display', 'block')
+          }
+        }
+      }, SHOW_ERROR_DELAY)
+    }
+  }
+
+  render($$) {
+    const status = this.props.status
+    const value = this.props.value
+    const showOutput = this.props.showOutput
+    const errors = this.props.errors
+    let el = $$('div')
+    // whenever there are errors we will renew the token
+    // so that an already triggered updater can be canceled
+    this._token = Math.random()
+    if(status === BROKEN || status === FAILED) {
+      // rendering the last value as hidden to achieve a bit more resilient spacing
+      if (this._cachedValue && showOutput) {
+        el.append(
+          $$(ValueComponent, this._cachedValue).ref('cachedValue').css('visibility', 'hidden')
+        )
+      }
+      // alternatively if there is a cached error, use that to reserve the space
+      else if (this._cachedError) {
+        el.append(
+          $$('div').addClass('se-error').append(
+            getErrorMessage(this._cachedError)
+          ).ref('cachedValue').css('visibility', 'hidden')
+        )
+      }
+      // the error is not shown at first, but didUpdate() will show it after some delay
+      // this way the error is a bit delayed, potentially becoming superseded by a new update in the meantime
+      el.append(
+        $$('div').addClass('se-error').append(
+          getErrorMessage(errors[0])
+        ).ref('error').css('display', 'none')
+      )
+    } else if (showOutput) {
+      if (value && status === OK) {
+        el.append(
+          $$(ValueComponent, value).ref('value')
+        )
+      }
+      // to have a less jumpy experience, we show the last valid value grey'd out
+      else if (this._cachedValue) {
+        el.append(
+          $$(ValueComponent, this._cachedValue).ref('value').addClass('sm-pending')
+        )
+      }
+    }
+    return el
+  }
 }
 
 CellComponent.noBlocker = true
