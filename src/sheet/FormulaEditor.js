@@ -21,9 +21,7 @@ export default class FormulaEditor extends Component {
         multiline: false,
         mode: 'cell',
         language: this.props.language
-      }).ref('cellEditor')
-        .on('enter', this._onCodeEditorEnter)
-        .on('escape', this._onCodeEditorEscape),
+      }).ref('cellEditor'),
       $$(Overlay, {
         toolPanel: configurator.getToolPanel('prompt'),
         theme: 'dark'
@@ -37,14 +35,6 @@ export default class FormulaEditor extends Component {
 
   getChildContext() {
     return this.props.context
-  }
-
-  _onCodeEditorEnter() {
-    this.send('updateCell')
-  }
-
-  _onCodeEditorEscape() {
-    this.send('cancelCellEditing')
   }
 
 }
