@@ -35,8 +35,6 @@ export default class SheetEditor extends AbstractEditor {
     this._postRender()
 
     this.handleActions({
-      'updateCell': this._updateCell,
-      'cancelCellEditing': this._cancelCellEditing,
       'editCell': this._editCell,
       'requestSelectionChange': this._requestSelectionChange,
       'selectAll': this._selectAll,
@@ -159,7 +157,9 @@ export default class SheetEditor extends AbstractEditor {
       $$(FormulaBar, {
         node: this._formulaEditorContext.node,
         context: this._formulaEditorContext
-      }).ref('formulaBar'),
+      }).ref('formulaBar')
+        .on('enter', this._onFormulaBarEnter)
+        .on('escape', this._cancelCellEditing),
       $$(Toolbar, {
         toolPanel: configurator.getToolPanel('toolbar')
       }).ref('toolbar')
@@ -194,6 +194,9 @@ export default class SheetEditor extends AbstractEditor {
               position: 'absolute',
               display: 'none'
             })
+            .on('enter', this._onFormulaEditorEnter)
+            .on('escape', this._cancelCellEditing)
+            .on('tab', this._onFormulaEditorTab),
         ],
         unclickableOverlays: [
           // a component that we use to highlight cell ranges
@@ -523,13 +526,23 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
-  _updateCell() {
+  _updateCell(dir) {
     let editorSession = this.getEditorSession()
     let cell = this._getAnchorCell()
     let oldValue = cell.getText()
     let newValue = this._formulaEditorContext.node.getText()
 
-    let newSel = this.refs.sheet.shiftSelection(1, 0, false)
+    // this controls in which direction the selection is moved
+    // either to the next row, or to the next column
+    let dr = 0
+    let dc = 0
+    if (dir === 'row') {
+      dr = 1
+    } else if (dir === 'col') {
+      dc = 1
+    }
+
+    let newSel = this.refs.sheet.shiftSelection(dr, dc, false)
     // skip if there is no change
     if (oldValue !== newValue) {
       // collapsing the selection to the anchor cell
@@ -563,5 +576,17 @@ export default class SheetEditor extends AbstractEditor {
     // TODO: soon we will pull out CommandManager from EditorSession
     let commandManager = this.commandManager
     commandManager.executeCommand(commandName, params)
+  }
+
+  _onFormulaBarEnter() {
+    this._updateCell()
+  }
+
+  _onFormulaEditorEnter() {
+    this._updateCell('row')
+  }
+
+  _onFormulaEditorTab() {
+    this._updateCell('col')
   }
 }
