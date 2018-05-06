@@ -27,7 +27,7 @@ export default class SheetEditor extends AbstractEditor {
       DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
     }
     editorSession.onUpdate('selection', this._onSelectionChange, this)
-    this._formulaEditorContext.editorSession.onUpdate('selection', this._onCellEditorSelectionChange, this)
+    this._formulaEditorContext.editorSession.onRender('selection', this._onCellEditorSelectionChange, this)
   }
 
   didMount() {
