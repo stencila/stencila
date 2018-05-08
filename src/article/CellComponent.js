@@ -1,4 +1,4 @@
-import { Component, NodeComponent, FontAwesomeIcon, isEqual } from 'substance'
+import { Component, NodeComponent, isEqual } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
 import { getCellState, getErrorMessage } from '../shared/cellHelpers'
@@ -76,8 +76,7 @@ class CellComponent extends NodeComponent {
       // TODO: Create proper visual style
       el.append(
         $$('button').append(
-          this._renderStatus($$),
-          $$(FontAwesomeIcon, { icon: 'fa-code' })
+          this._renderStatus($$)
         )
         .addClass('se-show-code')
         .attr('title', 'Show Code')

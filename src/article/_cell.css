@@ -6,14 +6,10 @@
   width: 30px;
   height: 30px;
   margin: 0 auto;
-  background: #ddd;
+  background: #fff;
   border-radius: 0;
   text-align: center;
   position: relative;
-}
-
-.sc-cell .se-show-code:hover {
-  background: #ccc;
 }
 
 .sc-cell {
@@ -26,6 +22,20 @@
   top: 0px;
   bottom: 0px;
   width: 2px;
+}
+
+.sc-cell .se-show-code .se-status {
+  position: relative;
+  left: 7px;
+  width: 16px;
+
+  height: 16px;
+  background: blue;
+  border-radius: 8px;
+}
+
+.sc-cell .se-show-code:hover .se-status {
+  opacity: 0.7;
 }
 
 .sc-cell .se-status.sm-ok {
@@ -61,7 +71,7 @@
 
 .sc-cell .se-language {
   position: absolute;
-  top: 0px;
+  top: 1px;
   right: 20px;
   font-size: 10px;
   color: #888;
