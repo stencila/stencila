@@ -156,6 +156,9 @@ export function getErrorMessage(error) {
       frags.push(frags[0])
       return 'Cyclic Dependency: ' + frags.join(' -> ')
     }
+    case 'syntax': {
+      return 'Syntax Error'
+    }
     default:
       return error.message
   }
