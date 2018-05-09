@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "DarArticle 0.1.0" "http://darformat.org/DarArticle-0.1.0.dtd">
+<article id="article" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <front id="front-1">
+    <article-meta id="article-meta-1">
+      <title-group id="title-group-1">
+        <article-title id="article-title-1">Introduction to Stencila</article-title>
+      </title-group>
+      <history id="history-1" />
+      <abstract id="abstract-1">
+        <p id="p-1" />
+      </abstract>
+      <trans-abstract id="trans-abstract-1" xml:lang="de">
+        <p id="p-2">Deutsche Übersetzung</p>
+      </trans-abstract>
+    </article-meta>
+  </front>
+  <body id="body-1">
+    <p id="p-86ff3742af1e2b296a7620558eb60de2">Welcome to Stencila! This article gives you a quick overview of Stencila's features.</p>
+    <p id="p-8ae48665f933248ad95e3e1cd22897af">With Stencila you can author reproducible scientific publications<italic id="italic-273f9deb61dc59b5376d271da7d36f28"/>. It features<bold id="bold-d91ebdfe6c5719085378c1ee8668975b"/> a word processor and spreadsheet editor, designed for research.</p>
+    <sec id="heading-c94e6bef7dab9e6f91ba1c306087e01a">
+      <title>Code Cells</title>
+      <p id="heading-3f9573db15a90203548e6982522771d8" level="1">In Stencila you can insert code cells<bold id="bold-a96dfd7707ea15672e9af0d4f50e7893"/>, which produce computed output.</p>
+      <code id="cell-1" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[6 * 7]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"integer","data":42}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+      <p id="p-99b4098d66400da21099a03269ae8703">Cells can be assigned to a variable for later reuse.</p>
+      <code id="cell-e749ef7b8811d37c4ea83d15763fd38f" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[numbers = [ 23, 223, 145, 55 ]]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"array[number]","data":[23,223,145,55]}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+      <p id="p-5">Stencila provides a <ext-link id="ext-link-f4bb7c8121fc1ea53edec5cf3310fbcd" xlink:href="https://github.com/stencila/libcore"/> that can be used out of the box.</p>
+      <code id="cell-022fb7854cd0736f13df0cdb75085b6e" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[sum(numbers) + pow(10, 2)]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"integer","data":546}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+    </sec>
+    <sec id="heading-b9905ef373b633f5d6d11cbc33a5e06f">
+      <title>Data</title>
+      <p id="heading-08a0484f97c11f98d2e65709baf9c11e">In Stencila datasets are part of the publication, not external assets. Use the tabs in the status bar to switch to the spreadsheet editor to see the data behind this publication. We can reference data from a spreadsheet and assign it to variable.</p>
+      <code id="cell-40caa02ef72fbc6610a39d55963c1f66" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[sales = 'Ice Cream Sales'!A1:C10]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"table","data":{"type":"table","data":{"temp":[18,20,24,23,26,25,20,17,18,15],"sales":[50,126,118,126,280,102,93,32,103,246],"sunny":["no","yes","yes","yes","yes","no","no","no","yes","yes"]},"columns":3,"rows":10}}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+      <p id="p-58f44a3d0b4597fe94f68531c6793767">Now we are able to do some analysis.</p>
+      <code id="cell-37b5d925f9f2cef4d4f3dbd10bfe2a0c" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[filter(sales, 'temp < 20')]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"table","data":{"type":"table","data":{"temp":[18,17,18,15],"sales":[50,32,103,246],"sunny":["no","no","yes","yes"]},"columns":3,"rows":4}}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+    </sec>
+    <sec id="heading-187ac52e76cd310454143c3fecf90f8d">
+      <title>Plotting</title>
+      <p id="heading-fc050aa363caf3518d875822716ebea9" level="1">Stencila supports</p>
+      <code id="cell-a7678e8fc47de64b37cb92acbe1f0a14" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[plotly([
+  { x: sales.temp, y: sales.sales, mode: 'markers', name: 'sunny'}
+], {
+  xaxis: { title: 'Temperature' },
+  yaxis: { title: 'Ice Cream Sales' }
+})]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"plotly","data":{"type":"plotly","traces":[{"x":[18,20,24,23,26,25,20,17,18,15],"y":[50,126,118,126,280,102,93,32,103,246],"mode":"markers","name":"sunny","uid":"65a258"}],"layout":{"xaxis":{"title":"Temperature","linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false,"type":"linear","range":[14.214285714285714,26.785714285714285],"autorange":true},"yaxis":{"title":"Ice Cream Sales","linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false,"type":"linear","range":[14.41620626151013,297.5837937384899],"autorange":true},"margin":{"l":50,"r":50,"t":40,"b":50},"width":"400","height":"400"}}}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+    </sec>
+    <sec id="heading-2">
+      <title>Transclusions</title>
+      <code id="cell-3d6146b07d32c7320699550906fe5ec1" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[countries = 'Countries'!A1:B191]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"table","data":{"type":"table","data":{"location":["Belarus","Moldova","Lithuania","Russia","Romania","Ukraine","Andorra","Hungary","Czech Republic","Slovakia","Portugal","Serbia","Grenada","Poland","Latvia","Finland","South Korea","France","Australia","Croatia","Ireland","Luxembourg","Germany","Slovenia","United Kingdom","Denmark","Bulgaria","Spain","Belgium","South Africa","New Zealand","Gabon","Namibia","Switzerland","Saint Lucia","Austria","Estonia","Greece","Kazakhstan","Canada","Nigeria","Netherlands","Uganda","Rwanda","Chile","Argentina","Burundi","United States","Cyprus","Sweden","Venezuela","Paraguay","Brazil","Sierra Leone","Montenegro","Belize","Cameroon","Botswana","Saint Kitts and Nevis","Guyana","Peru","Panama","Niue","Palau","Norway","Tanzania","Georgia","Uruguay","Angola","Laos","Japan","Mexico","Ecuador","Dominica","Iceland","Thailand","Bosnia and Herzegovina","Sao Tome and Principe","Malta","Albania","Bahamas","Dominican Republic","Mongolia","Cape Verde","Barbados","Burkina Faso","Italy","Trinidad and Tobago","China","Macedonia","Saint Vincent and the Grenadines","Equatorial Guinea","Suriname","Vietnam","Lesotho","Haiti","Cook Islands","Colombia","Ivory Coast","Bolivia","Swaziland","Zimbabwe","Seychelles","Cambodia","Puerto Rico","Netherlands Antilles","Philippines","Costa Rica","Armenia","Cuba","Nicaragua","Jamaica","Ghana","Liberia","Uzbekistan","Chad","United Arab Emirates","Kyrgyzstan","India","Turkmenistan","Kenya","Ethiopia","Honduras","Guinea-Bissau","Zambia","Republic of the Congo","Guatemala","Central African Republic","North Korea","Sri Lanka","Mauritius","Samoa","Democratic Republic of the Congo","Nauru","Gambia","Federated States of Micronesia","El Salvador","Fiji","Papua New Guinea","Kiribati","Tajikistan","Israel","Sudan","Malawi","Lebanon","Azerbaijan","Mozambique","Togo","Nepal","Brunei","Benin","Singapore","Turkey","Madagascar","Solomon Islands","Tonga","Tunisia","Tuvalu","Qatar","Vanuatu","Djibouti","Malaysia","Syria","Maldives","Mali","Eritrea","Algeria","Iran","Oman","Brunei","Morocco","Jordan","Bhutan","Guinea","Burma","Afghanistan","Senegal","Indonesia","Timor-Leste","Iraq","Somalia","Egypt","Niger","Yemen","Comoros","Saudi Arabia","Bangladesh","Kuwait","Libya","Mauritania","Pakistan"],"alcohol":[17.5,16.8,15.4,15.1,14.4,13.9,13.8,13.3,13,13,12.9,12.6,12.5,12.5,12.3,12.3,12.3,12.2,12.2,12.2,11.9,11.9,11.8,11.6,11.6,11.4,11.4,11.2,11,11,10.9,10.9,10.8,10.7,10.4,10.3,10.3,10.3,10.3,10.2,10.1,9.9,9.8,9.8,9.6,9.3,9.3,9.2,9.2,9.2,8.9,8.8,8.7,8.7,8.7,8.5,8.4,8.4,8.2,8.1,8.1,8,8,7.9,7.7,7.7,7.7,7.6,7.5,7.3,7.2,7.2,7.2,7.1,7.1,7.1,7.1,7.1,7,7,6.9,6.9,6.9,6.9,6.8,6.8,6.7,6.7,6.7,6.7,6.6,6.6,6.6,6.6,6.5,6.4,6.4,6.2,6,5.9,5.7,5.7,5.6,5.5,5.4,5.4,5.4,5.4,5.3,5.2,5,4.9,4.8,4.7,4.6,4.4,4.3,4.3,4.3,4.3,4.3,4.2,4,4,4,3.9,3.8,3.8,3.7,3.7,3.6,3.6,3.6,3.5,3.4,3.3,3.2,3,3,3,2.8,2.8,2.7,2.5,2.4,2.3,2.3,2.3,2.2,2.1,2.1,2,2,1.8,1.7,1.6,1.5,1.5,1.5,1.4,1.3,1.3,1.2,1.2,1.1,1.1,1,1,0.9,0.9,0.9,0.7,0.7,0.7,0.7,0.7,0.6,0.6,0.6,0.5,0.5,0.4,0.3,0.3,0.2,0.2,0.2,0.1,0.1,0.1,0.1]},"columns":2,"rows":191}}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+      <p id="p-8">The variable data is a table and is now a part of of the document scope - the set of variables the document knows about. Let's filter the table to only show data for days when the temperature is less than 20 degrees.</p>
+      <code id="cell-ecbec5e3aba615d95ec697e149e91fbc" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[plotly([{
+  type: 'choropleth',
+  locationmode: 'country names',
+  locations: countries.location,
+  z: countries.alcohol,
+  text: countries.location,
+  autocolorscale: true
+}], {
+  width: 700,
+  title: 'Pure alcohol consumption among adults (age 15+) in 2010',
+  geo: {
+      projection: {
+          type: 'robinson'
+      }
+  }
+})]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"plotly","data":{"type":"plotly","traces":[{"type":"choropleth","locationmode":"country names","locations":["Belarus","Moldova","Lithuania","Russia","Romania","Ukraine","Andorra","Hungary","Czech Republic","Slovakia","Portugal","Serbia","Grenada","Poland","Latvia","Finland","South Korea","France","Australia","Croatia","Ireland","Luxembourg","Germany","Slovenia","United Kingdom","Denmark","Bulgaria","Spain","Belgium","South Africa","New Zealand","Gabon","Namibia","Switzerland","Saint Lucia","Austria","Estonia","Greece","Kazakhstan","Canada","Nigeria","Netherlands","Uganda","Rwanda","Chile","Argentina","Burundi","United States","Cyprus","Sweden","Venezuela","Paraguay","Brazil","Sierra Leone","Montenegro","Belize","Cameroon","Botswana","Saint Kitts and Nevis","Guyana","Peru","Panama","Niue","Palau","Norway","Tanzania","Georgia","Uruguay","Angola","Laos","Japan","Mexico","Ecuador","Dominica","Iceland","Thailand","Bosnia and Herzegovina","Sao Tome and Principe","Malta","Albania","Bahamas","Dominican Republic","Mongolia","Cape Verde","Barbados","Burkina Faso","Italy","Trinidad and Tobago","China","Macedonia","Saint Vincent and the Grenadines","Equatorial Guinea","Suriname","Vietnam","Lesotho","Haiti","Cook Islands","Colombia","Ivory Coast","Bolivia","Swaziland","Zimbabwe","Seychelles","Cambodia","Puerto Rico","Netherlands Antilles","Philippines","Costa Rica","Armenia","Cuba","Nicaragua","Jamaica","Ghana","Liberia","Uzbekistan","Chad","United Arab Emirates","Kyrgyzstan","India","Turkmenistan","Kenya","Ethiopia","Honduras","Guinea-Bissau","Zambia","Republic of the Congo","Guatemala","Central African Republic","North Korea","Sri Lanka","Mauritius","Samoa","Democratic Republic of the Congo","Nauru","Gambia","Federated States of Micronesia","El Salvador","Fiji","Papua New Guinea","Kiribati","Tajikistan","Israel","Sudan","Malawi","Lebanon","Azerbaijan","Mozambique","Togo","Nepal","Brunei","Benin","Singapore","Turkey","Madagascar","Solomon Islands","Tonga","Tunisia","Tuvalu","Qatar","Vanuatu","Djibouti","Malaysia","Syria","Maldives","Mali","Eritrea","Algeria","Iran","Oman","Brunei","Morocco","Jordan","Bhutan","Guinea","Burma","Afghanistan","Senegal","Indonesia","Timor-Leste","Iraq","Somalia","Egypt","Niger","Yemen","Comoros","Saudi Arabia","Bangladesh","Kuwait","Libya","Mauritania","Pakistan"],"z":[17.5,16.8,15.4,15.1,14.4,13.9,13.8,13.3,13,13,12.9,12.6,12.5,12.5,12.3,12.3,12.3,12.2,12.2,12.2,11.9,11.9,11.8,11.6,11.6,11.4,11.4,11.2,11,11,10.9,10.9,10.8,10.7,10.4,10.3,10.3,10.3,10.3,10.2,10.1,9.9,9.8,9.8,9.6,9.3,9.3,9.2,9.2,9.2,8.9,8.8,8.7,8.7,8.7,8.5,8.4,8.4,8.2,8.1,8.1,8,8,7.9,7.7,7.7,7.7,7.6,7.5,7.3,7.2,7.2,7.2,7.1,7.1,7.1,7.1,7.1,7,7,6.9,6.9,6.9,6.9,6.8,6.8,6.7,6.7,6.7,6.7,6.6,6.6,6.6,6.6,6.5,6.4,6.4,6.2,6,5.9,5.7,5.7,5.6,5.5,5.4,5.4,5.4,5.4,5.3,5.2,5,4.9,4.8,4.7,4.6,4.4,4.3,4.3,4.3,4.3,4.3,4.2,4,4,4,3.9,3.8,3.8,3.7,3.7,3.6,3.6,3.6,3.5,3.4,3.3,3.2,3,3,3,2.8,2.8,2.7,2.5,2.4,2.3,2.3,2.3,2.2,2.1,2.1,2,2,1.8,1.7,1.6,1.5,1.5,1.5,1.4,1.3,1.3,1.2,1.2,1.1,1.1,1,1,0.9,0.9,0.9,0.7,0.7,0.7,0.7,0.7,0.6,0.6,0.6,0.5,0.5,0.4,0.3,0.3,0.2,0.2,0.2,0.1,0.1,0.1,0.1],"text":["Belarus","Moldova","Lithuania","Russia","Romania","Ukraine","Andorra","Hungary","Czech Republic","Slovakia","Portugal","Serbia","Grenada","Poland","Latvia","Finland","South Korea","France","Australia","Croatia","Ireland","Luxembourg","Germany","Slovenia","United Kingdom","Denmark","Bulgaria","Spain","Belgium","South Africa","New Zealand","Gabon","Namibia","Switzerland","Saint Lucia","Austria","Estonia","Greece","Kazakhstan","Canada","Nigeria","Netherlands","Uganda","Rwanda","Chile","Argentina","Burundi","United States","Cyprus","Sweden","Venezuela","Paraguay","Brazil","Sierra Leone","Montenegro","Belize","Cameroon","Botswana","Saint Kitts and Nevis","Guyana","Peru","Panama","Niue","Palau","Norway","Tanzania","Georgia","Uruguay","Angola","Laos","Japan","Mexico","Ecuador","Dominica","Iceland","Thailand","Bosnia and Herzegovina","Sao Tome and Principe","Malta","Albania","Bahamas","Dominican Republic","Mongolia","Cape Verde","Barbados","Burkina Faso","Italy","Trinidad and Tobago","China","Macedonia","Saint Vincent and the Grenadines","Equatorial Guinea","Suriname","Vietnam","Lesotho","Haiti","Cook Islands","Colombia","Ivory Coast","Bolivia","Swaziland","Zimbabwe","Seychelles","Cambodia","Puerto Rico","Netherlands Antilles","Philippines","Costa Rica","Armenia","Cuba","Nicaragua","Jamaica","Ghana","Liberia","Uzbekistan","Chad","United Arab Emirates","Kyrgyzstan","India","Turkmenistan","Kenya","Ethiopia","Honduras","Guinea-Bissau","Zambia","Republic of the Congo","Guatemala","Central African Republic","North Korea","Sri Lanka","Mauritius","Samoa","Democratic Republic of the Congo","Nauru","Gambia","Federated States of Micronesia","El Salvador","Fiji","Papua New Guinea","Kiribati","Tajikistan","Israel","Sudan","Malawi","Lebanon","Azerbaijan","Mozambique","Togo","Nepal","Brunei","Benin","Singapore","Turkey","Madagascar","Solomon Islands","Tonga","Tunisia","Tuvalu","Qatar","Vanuatu","Djibouti","Malaysia","Syria","Maldives","Mali","Eritrea","Algeria","Iran","Oman","Brunei","Morocco","Jordan","Bhutan","Guinea","Burma","Afghanistan","Senegal","Indonesia","Timor-Leste","Iraq","Somalia","Egypt","Niger","Yemen","Comoros","Saudi Arabia","Bangladesh","Kuwait","Libya","Mauritania","Pakistan"],"autocolorscale":true,"uid":"d7995d","zmin":0.1,"zmax":17.5,"zauto":true,"colorscale":[[0,"rgb(220,220,220)"],[0.2,"rgb(245,195,157)"],[0.4,"rgb(245,160,105)"],[1,"rgb(178,10,28)"]]}],"layout":{"width":700,"title":"Pure alcohol consumption among adults (age 15+) in 2010","geo":{"projection":{"type":"robinson"}},"xaxis":{"linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false},"yaxis":{"linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false},"margin":{"l":50,"r":50,"t":40,"b":50}}}}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+    </sec>
+  </body>
+  <back id="back-1">
+    <ref-list id="ref-list-1" />
+  </back>
+</article>
