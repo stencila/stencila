@@ -1,4 +1,3 @@
-import { HttpStorageClient, VfsStorageClient, InMemoryDarBuffer } from 'substance'
 import { WebAppChrome } from 'substance-texture'
 import StencilaArchive from './StencilaArchive'
 
