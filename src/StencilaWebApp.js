@@ -26,6 +26,10 @@ export default class StencilaWebApp extends WebAppChrome {
     return StencilaArchive
   }
 
+  _getDefaultDataFolder() {
+    return './examples/'
+  }
+
   _initArchive(archive, context) {
     return _initStencilaArchive(archive, context)
   }
