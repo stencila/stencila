@@ -1,4 +1,3 @@
-import { HttpStorageClient, VfsStorageClient, InMemoryDarBuffer } from 'substance'
 import { WebAppChrome } from 'substance-texture'
 import StencilaArchive from './StencilaArchive'
 
@@ -23,16 +22,8 @@ export default class StencilaWebApp extends WebAppChrome {
     return _initStencilaContext(context)
   }
 
-  _loadArchive(archiveId, context) {
-    let storage
-    if (this.props.storageType==='vfs') {
-      storage = new VfsStorageClient(window.vfs, './examples/')
-    } else {
-      storage = new HttpStorageClient(this.props.storageUrl)
-    }
-    let buffer = new InMemoryDarBuffer()
-    let archive = new StencilaArchive(storage, buffer, context)
-    return archive.load(archiveId)
+  _getArchiveClass() {
+    return StencilaArchive
   }
 
   _initArchive(archive, context) {

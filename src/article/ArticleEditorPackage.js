@@ -109,6 +109,13 @@ export default {
         commandGroups: ['text-types']
       },
       {
+        name: 'list',
+        type: 'tool-group',
+        showDisabled: false,
+        style: 'minimal',
+        commandGroups: ['list']
+      },
+      {
         name: 'annotations',
         type: 'tool-group',
         showDisabled: true,
