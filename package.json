@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.28.0-preview.9",
+  "version": "0.28.0",
   "description": "Stencila is the office suite for reproducible research.",
   "main": "build/stencila.cjs.js",
   "jsnext:main": "index.es.js",
@@ -45,8 +45,8 @@
     "plotly.js": "^1.31.1",
     "stencila-libcore": "^0.2.13",
     "stencila-mini": "^0.14.1",
-    "substance": "1.0.0-preview.52",
-    "substance-texture": "1.0.0-preview.1.10",
+    "substance": "1.0.0-preview.53",
+    "substance-texture": "1.0.0-preview.1.11",
     "timeago.js": "3.0.0",
     "xmlhttprequest": "^1.8.0"
   },
@@ -60,8 +60,5 @@
     "substance-bundler": "0.23.3",
     "substance-test": "^0.9.3",
     "tape": "^4.6.3"
-  },
-  "publishConfig": {
-    "tag": "next"
   }
 }
