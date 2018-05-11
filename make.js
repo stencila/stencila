@@ -67,6 +67,33 @@ if (argv.d) {
     rootDir: archiveDir,
     apiUrl: '/archives'
   })
+  b.server.get('/dashboard', (req, res) => {
+    darServer.listArchives(archiveDir)
+    .then((records) => {
+      // turn the records into a dashboard
+      let links = records.map(r => {
+        return `<li><a href="example.html?archive=${r.id}"><b>${r.name}</b></a></li>`
+      })
+      let html = `<!DOCTYPE html>
+        <html lang=en>
+          <head>
+            <meta charset=utf-8>
+            <title>stencila/stencila Examples</title>
+          </head>
+          <body>
+            <ul>
+              ${links.join('\n')}
+            </ul>
+          </body>
+        </html>`
+      res.status(200).send(html)
+    })
+    .catch((err) => {
+      console.error(err)
+      res.status(500).send()
+    })
+  })
+
 }
 
 b.serve({ static: true, route: '/', folder: DIST })
