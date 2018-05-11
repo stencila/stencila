@@ -385,13 +385,21 @@ export default class Host extends EventEmitter {
         'mini': 'MiniContext',
         'node': 'NodeContext',
         'py': 'PythonContext',
+        'pyjp': 'JupyterContext',
         'r': 'RContext',
         'sql': 'SqliteContext'
       }[language]
+
+      const options = {
+        'pyjp': {
+          language: 'python'
+        }
+      }[language] || {}
+
       if (!type) {
         return Promise.reject(new Error(`Unable to create an execution context for language ${language}`))
       } else {
-        const promise = this.create(type).then((result) => {
+        const promise = this.create(type, options).then((result) => {
           if (result instanceof Error) {
             // Unable to create so set the cached context promise to null
             // so a retry is performed next time this method is called

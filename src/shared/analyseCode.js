@@ -48,7 +48,7 @@ Prism.languages.insertBefore('python', 'punctuation', {
   'key': { pattern: KEY, greedy: true },
   'id': { pattern: ID, greedy: true }
 })
-languages['python'] = languages['py'] = Prism.languages.python
+languages['python'] = languages['py'] = languages['pyjp'] = Prism.languages.python
 
 Prism.languages.insertBefore('javascript', 'punctuation', {
   'function': /[a-z0-9_]+(?=\()/i,
