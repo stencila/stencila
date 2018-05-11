@@ -441,7 +441,7 @@ export default class Host extends EventEmitter {
 
   _put(host, path, data) {
     const token = this._token(host)
-    return this._request('PUT', host + path, data, token)
+    return this._request('PUT', host + path, data || {}, token)
   }
 
   _delete(host, path) {
