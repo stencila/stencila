@@ -257,7 +257,8 @@
 
 .sc-sheet .se-context-menu {
   position: absolute;
-  background: var(--dark-bg-color);
+  background: #fff;
+  box-shadow: 0 0 0 0.75pt #d1d1d1, 0 0 3pt 0.75pt #aaa;
   border-radius: 3px;
   padding: 2px 5px;
 }
