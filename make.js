@@ -23,6 +23,7 @@ const BROWSER_EXTERNALS = {
   'substance-texture': 'window.texture',
   'stencila-mini': 'window.stencilaMini',
   'stencila-libcore': 'window.stencilaLibcore',
+  'stencila-js': 'window.StencilaJs',
   'katex': 'window.katex',
   'plotly.js': 'window.Plotly'
 }
@@ -36,7 +37,7 @@ const BROWSER_TEST_EXTERNALS = Object.assign({}, BROWSER_EXTERNALS, {
 })
 
 const NODEJS_EXTERNALS = [
-  'substance', 'substance-texture', 'stencila-mini', 'stencila-libcore', 'katex', 'plotly.js', 'rdc-js'
+  'substance', 'substance-texture', 'stencila-mini', 'stencila-libcore', 'stencila-js', 'katex', 'plotly.js', 'rdc-js'
 ]
 
 const DIST = './dist/'
