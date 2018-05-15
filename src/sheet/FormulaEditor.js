@@ -37,6 +37,10 @@ export default class FormulaEditor extends Component {
     return this.props.context
   }
 
+  getSurfaceId() {
+    return this.refs.cellEditor.getSurfaceId()
+  }
+
 }
 
 class BodyScrollPaneForSheetComponent extends BodyScrollPane {

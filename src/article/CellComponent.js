@@ -165,10 +165,11 @@ class CellComponent extends NodeComponent {
   }
 
   _toggleMenu() {
+    const containerEditor = this._getParentSurface()
     this.context.editorSession.setSelection({
       type: 'node',
-      containerId: 'body-content-1',
-      surfaceId: 'bodyEditor',
+      containerId: containerEditor.getContainerId(),
+      surfaceId: containerEditor.getSurfaceId(),
       nodeId: this.props.node.id,
     })
   }
@@ -194,15 +195,19 @@ class CellComponent extends NodeComponent {
   _afterNode() {
     // TODO: not too happy about how difficult it is to set the selection
     const node = this.props.node
-    const isolatedNode = this.context.isolatedNodeComponent
-    const parentSurface = isolatedNode.getParentSurface()
+    const containerEditor = this._getParentSurface()
     return {
       type: 'node',
       nodeId: node.id,
       mode: 'after',
-      containerId: parentSurface.getContainerId(),
-      surfaceId: parentSurface.id
+      containerId: containerEditor.getContainerId(),
+      surfaceId: containerEditor.getSurfaceId()
     }
+  }
+
+  _getParentSurface() {
+    const isolatedNode = this.context.isolatedNodeComponent
+    return isolatedNode.getParentSurface()
   }
 
 }

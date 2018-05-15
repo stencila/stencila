@@ -438,7 +438,7 @@ export default class SheetComponent extends CustomSurface {
       type: 'custom',
       customType: 'sheet',
       data: data,
-      surfaceId: this.getId()
+      surfaceId: this.getSurfaceId()
     }
   }
 

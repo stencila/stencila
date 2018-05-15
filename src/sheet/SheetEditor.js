@@ -231,6 +231,7 @@ export default class SheetEditor extends AbstractEditor {
 
   setSelectionOnCell(cellId) {
     const sheet = this.getDocument()
+    const sheetComp = this.refs.sheet
     let cell = sheet.get(cellId)
     let row = cell.parentNode
     let colIdx = row._childNodes.indexOf(cell.id)
@@ -242,12 +243,11 @@ export default class SheetEditor extends AbstractEditor {
       anchorCol: colIdx,
       focusCol: colIdx
     }
-
     this.props.editorSession.setSelection({
       type: 'custom',
       customType: 'sheet',
       data: selData,
-      surfaceId: this.refs.sheet.getId()
+      surfaceId: sheetComp.getSurfaceId()
     })
   }
 
@@ -462,6 +462,7 @@ export default class SheetEditor extends AbstractEditor {
     Request inline editor
   */
   _editCell(initialValue) {
+    const formulaEditor = this.refs.formulaEditor
     const formulaEditorSession = this._formulaEditorContext.editorSession
     const formulaNode = this._formulaEditorContext.node
     if (initialValue) {
@@ -474,7 +475,7 @@ export default class SheetEditor extends AbstractEditor {
       type: 'property',
       path,
       startOffset,
-      surfaceId: 'formula-editor'
+      surfaceId: formulaEditor.getSurfaceId()
     })
   }
 
