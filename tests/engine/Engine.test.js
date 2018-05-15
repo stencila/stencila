@@ -488,6 +488,45 @@ test('Engine: manual execution', t => {
   })
 })
 
+test('Engine: manual execution of a single cell (#688)', t => {
+  t.plan(4)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    autorun: false,
+    cells: [
+      'x = 2'
+    ]
+  })
+  let cells = doc.getCells()
+  let cell = cells[0]
+  play(engine)
+  .then(() => {
+    t.deepEqual(getStates(cells), ['ready'], 'cell state should be correct')
+  })
+  .then(() => {
+    engine._allowRunningCell(cell.id)
+  })
+  .then(() => play(engine))
+  .then(() => {
+    t.deepEqual(getStates(cells), ['ok'], 'cell state should be correct')
+    t.equal(getValue(cell), 2, 'the value should have been computed correctly')
+  })
+  .then(() => {
+    doc.updateCell(cell.unqualifiedId, { source: 'x = 3'})
+  })
+  .then(() => play(engine))
+  .then(() => {
+    engine._allowRunningCell(cell.id)
+  })
+  .then(() => play(engine))
+  .then(() => {
+    t.equal(getValue(cell), 3, 'the value should have been computed correctly')
+  })
+})
+
+
 test('Engine: manually run cell and predecessors', t => {
   t.plan(1)
   let { engine } = _setup()

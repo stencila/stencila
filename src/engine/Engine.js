@@ -117,6 +117,7 @@ export default class Engine extends EventEmitter {
     // - validation (engine)
     // - graph update
     this._nextActions = new Map()
+    this._currentActions = new Map()
   }
 
   setHost(host) {
@@ -215,7 +216,7 @@ export default class Engine extends EventEmitter {
           } else {
             // otherwise keep this as a next action
             a.suspended = true
-            this._nextActions.set(a.id, a)
+            this._setAction(a.id, a)
             return false
           }
         } else {
@@ -272,7 +273,7 @@ export default class Engine extends EventEmitter {
     let cell = graph.getCell(id)
     Object.assign(cell, cellData)
     cell.status = UNKNOWN
-    this._nextActions.set(id, {
+    this._setAction(id, {
       id,
       type: 'analyse',
       cellData
@@ -301,7 +302,7 @@ export default class Engine extends EventEmitter {
         // TODO: this requires another cycle to propagate the result of the RangeCell,
         // which would not be necessary in theory
         if (cell.status === READY) {
-          this._nextActions.set(cell.id, {
+          this._setAction(cell.id, {
             type: 'evaluate',
             id: cell.id
           })
@@ -341,13 +342,15 @@ export default class Engine extends EventEmitter {
     }
     // TODO: we need to reset the cell status. Should we let CellGraph do this?
     cell.status = UNKNOWN
+    // leave a mark that we are currently running this action
+    this._currentActions.set(id, action)
     // otherwise the cell source is assumed to be dynamic source code
     const transpiledSource = cell.transpiledSource
     const lang = cell.getLang()
     return this._getContext(lang)
     .then(res => {
       // stop if this was aboreted or there is already a new action for this id
-      if (this._nextActions.has(id)) {
+      if (this._isSuperseded(id, action)) {
         // console.log('action has been superseded')
         return
       }
@@ -362,12 +365,13 @@ export default class Engine extends EventEmitter {
       }
     })
     .then(res => {
-      // stop if this was aboreted or there is already a new action for this id
-      if (!res) return
-      if (this._nextActions.has(id)) {
+      if (this._isSuperseded(id, action)) {
         // console.log('action has been superseded')
         return
       }
+      this._currentActions.delete(id)
+      // stop if this was aboreted or there is already a new action for this id
+      if (!res) return
       // Note: treating all errors coming from analyseCode() as SyntaxErrors
       // TODO: we might want to be more specific here
       if (res.messages && res.messages.length > 0) {
@@ -392,7 +396,7 @@ export default class Engine extends EventEmitter {
         cell.status = ANALYSED
         graph.addErrors(id, [new SyntaxError('Invalid syntax')])
       }
-      this._nextActions.set(id, {
+      this._setAction(id, {
         type: 'register',
         id,
         // Note: these symbols are in plain-text analysed by the context
@@ -411,13 +415,15 @@ export default class Engine extends EventEmitter {
       return e.type !== 'graph'
     })
     // console.log('evaluating cell', cell.toString())
+    this._currentActions.set(id, action)
+
     const lang = cell.getLang()
     let transpiledSource = cell.transpiledSource
     // EXPERIMENTAL: remove 'autorun'
     delete cell.autorun
     return this._getContext(lang)
     .then(res => {
-      if (this._nextActions.has(id)) {
+      if (this._isSuperseded(id, action)) {
         // console.log('action has been superseded')
         return
       }
@@ -439,18 +445,20 @@ export default class Engine extends EventEmitter {
       }
     })
     .then(res => {
-      // stop if this was aboreted or there is already a new action for this id
-      if (!res) return
-      if (this._nextActions.has(id)) {
+      if (this._isSuperseded(id, action)) {
         // console.log('action has been superseded')
         return
       }
-      this._nextActions.set(id, {
-        type: 'update',
-        id,
-        errors: res.messages,
-        value: res.value
-      })
+      this._currentActions.delete(id)
+      // stop if this was aboreted or there is already a new action for this id
+      if (res) {
+        this._setAction(id, {
+          type: 'update',
+          id,
+          errors: res.messages,
+          value: res.value
+        })
+      }
     })
   }
 
@@ -590,6 +598,21 @@ export default class Engine extends EventEmitter {
       this._allowRunningCell(id)
     })
   }
+
+  _setAction(id, action) {
+    let currentAction = this._currentActions.get(id)
+    if (!currentAction || currentAction.type !== action.type) {
+      // console.log('Scheduling action', id, action)
+      this._nextActions.set(id, action)
+      // supersede the current action
+      this._currentActions.delete(id)
+    }
+  }
+
+  _isSuperseded(id, action) {
+    return (this._currentActions.get(id) !== action)
+  }
+
 }
 
 function getCellValue(cell) {
