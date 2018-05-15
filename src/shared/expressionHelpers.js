@@ -61,7 +61,8 @@ export function transpile(code, map = {}) {
   for (let i = 0; i < symbols.length; i++) {
     const s = symbols[i]
     code = code.substring(0, s.startPos) + s.mangledStr + code.slice(s.endPos)
-    map[s.mangledStr] = s
+    let transpiledName = s.mangledStr
+    map[transpiledName] = s
   }
   return code
 }
@@ -107,7 +108,7 @@ function _createSymbol(m) {
   const text = m[0]
   const startPos = m.index
   const endPos = text.length + startPos
-  const mangledStr = toIdentifier(m[0])
+  const mangledStr = toIdentifier(text)
   const scope = m[1] || m[2]
   const anchor = m[3]
   const focus = m[4]
