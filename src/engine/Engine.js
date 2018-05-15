@@ -380,7 +380,18 @@ export default class Engine extends EventEmitter {
       // console.log('analysed cell', cell, res)
       // transform the extracted symbols into fully-qualified symbols
       // e.g. in `x` in `sheet1` is compiled into `sheet1.x`
-      let { inputs, output } = this._compile(res, cell)
+      // Note: to make the app more robust we are doing this in
+      //   a try catch block, and create a rather unspecifc SyntaxError.
+      //   This can happen when the transpiled code is not producing
+      //   a syntax error but not producing expected input symbols.
+      let inputs = new Set()
+      let output = null
+      try {
+        ( { inputs, output } = this._compile(res, cell) )
+      } catch (error) {
+        cell.status = ANALYSED
+        graph.addErrors(id, [new SyntaxError('Invalid syntax')])
+      }
       this._nextActions.set(id, {
         type: 'register',
         id,
