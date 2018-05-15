@@ -50,6 +50,10 @@ export default class CodeEditor extends Component {
     return el
   }
 
+  getSurfaceId() {
+    return this.refs.contentEditor.getId()
+  }
+
   _onCodeUpdate() {
     let code = this._getCode()
     let shouldAnalyse = true
