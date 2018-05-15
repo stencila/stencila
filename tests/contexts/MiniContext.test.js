@@ -1,12 +1,12 @@
 import test from 'tape'
 import MiniContext from '../../src/contexts/MiniContext'
-import JsContext from '../../src/contexts/JsContext'
+import JavascriptContextClient from '../../src/contexts/JavascriptContextClient'
 import FunctionManager from '../../src/function/FunctionManager'
 import { libtest } from './libtest'
 
 function setupContextWithFunctions() {
   // A JsContext with the test function library
-  let jsContext = new JsContext()
+  let jsContext = new JavascriptContextClient()
   jsContext.importLibrary(libtest)
   // Function manager for getting function specs
   let functionManager = new FunctionManager()
@@ -59,7 +59,8 @@ test('MiniContext: no_params()', t => {
   let c = setupContextWithFunctions()
   c.executeCode('no_params()').then((res) => {
     let val = res.value
-    t.equal(val.type, 'integer', 'type should be correct')
+    // TODO: this type was more specific before (i.e. integer)
+    t.equal(val.type, 'number', 'type should be correct')
     t.equal(val.data, 5, 'result should be correct')
     t.end()
   })
@@ -69,7 +70,8 @@ test('MiniContext: no_params() + 1', t => {
   let c = setupContextWithFunctions()
   c.executeCode('no_params() + 1').then((res) => {
     let val = res.value
-    t.equal(val.type, 'integer', 'type should be correct')
+    // TODO: this type was more specific before (i.e. integer)
+    t.equal(val.type, 'number', 'type should be correct')
     t.equal(val.data, 6, 'result should be correct')
     t.end()
   })

@@ -1,12 +1,12 @@
 import Engine from '../../src/engine/Engine'
-import JsContext from '../../src/contexts/JsContext'
+import JavascriptContextClient from '../../src/contexts/JavascriptContextClient'
 import MiniContext from '../../src/contexts/MiniContext'
 import FunctionManager from '../../src/function/FunctionManager'
 import { libtest } from '../contexts/libtest'
 
 export default function setupEngine() {
   // A JsContext with the test function library
-  let jsContext = new JsContext()
+  let jsContext = new JavascriptContextClient()
   let miniContext
   jsContext.importLibrary(libtest)
   // Function manager for getting function specs

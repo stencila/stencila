@@ -3,13 +3,13 @@ import { KJUR } from 'jsrsasign'
 
 import FunctionManager from '../function/FunctionManager'
 import Engine from '../engine/Engine'
-import JsContext from '../contexts/JsContext'
+import JavascriptContextClient from '../contexts/JavascriptContextClient'
 import MiniContext from '../contexts/MiniContext'
 import ContextHttpClient from '../contexts/ContextHttpClient'
 
 /**
  * Each Stencila process has a single instance of the `Host` class which
- * orchestrates instances of executions contexts, including those in 
+ * orchestrates instances of executions contexts, including those in
  * in other processses.
  */
 export default class Host extends EventEmitter {
@@ -34,7 +34,7 @@ export default class Host extends EventEmitter {
     /**
      * Stencila hosts known to this host.
      * A `Map` of `url` to `key`
-     * 
+     *
      * @type {Map}
      */
     this._hosts = new Map()
@@ -42,7 +42,7 @@ export default class Host extends EventEmitter {
     /**
      * Execution environments provided by other hosts.
      * A `Map` of `url` to `[environ]`
-     * 
+     *
      * @type {Map}
      */
     this._environs = new Map()
@@ -111,7 +111,7 @@ export default class Host extends EventEmitter {
    */
   get types() {
     return {
-      JsContext: { name: 'JsContext' },
+      JavascriptContext: { name: 'JavascriptContext' },
       MiniContext: { name: 'MiniContext' }
     }
   }
@@ -221,7 +221,7 @@ export default class Host extends EventEmitter {
         }
       }
     }).then(() => {
-      // Run the engine after connecting to any peer hosts so that they are connected 
+      // Run the engine after connecting to any peer hosts so that they are connected
       // (and have registered functions) before the engine attempts
       // to create contexts for external languages like R, SQL etc
       this._engine.run(10) // Refresh interval of 10ms
@@ -352,8 +352,8 @@ export default class Host extends EventEmitter {
 
     // Fallback to providing an in-browser instances of resources where available
     let instance
-    if (type === 'JsContext') {
-      instance = new JsContext()
+    if (type === 'JavascriptContext') {
+      instance = new JavascriptContextClient()
     } else if (type === 'MiniContext') {
       // MiniContext requires a pointer to this host so that
       // it can obtain other contexts for executing functions
@@ -381,7 +381,7 @@ export default class Host extends EventEmitter {
     if (context) return context
     else {
       const type = {
-        'js': 'JsContext',
+        'js': 'JavascriptContext',
         'mini': 'MiniContext',
         'node': 'NodeContext',
         'py': 'PythonContext',
