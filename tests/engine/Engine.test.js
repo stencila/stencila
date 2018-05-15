@@ -1039,6 +1039,22 @@ test('Engine: clear old errors when a cell is changed into a constant', t => {
   })
 })
 
+test('Engine: invalid transclusion syntax should lead to a syntax error (#693)', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    cells: [
+      "a'Sheet 1'!A1:B3",
+    ]
+  })
+  let cells = doc.getCells()
+  play(engine)
+  .then(() => {
+    t.deepEqual(getErrors(cells), [['syntax']], 'There should be a syntax error.')
+  })
+})
 
 function _checkActions(t, engine, cells, expected) {
   let nextActions = engine.getNextActions()
