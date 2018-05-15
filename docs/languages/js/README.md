@@ -1,6 +1,6 @@
 # Javascript
 
-Cells and functions can be written using Javascript. An execution context for Javascript, `JsContext` is implemented in the [`stencila/stencila`](https://github.com/stencila/stencila) repository so it's already availble to all Stencila documents without the need for external hosts.
+Cells and functions can be written using Javascript. An execution context for Javascript, `JavascriptContext` is implemented in the [`stencila/js`](https://github.com/stencila/js) repository so it's already availble to all Stencila documents without the need for external hosts.
 
 ## Data interchange
 
@@ -24,7 +24,7 @@ square.pars = ['value']
 ```
 
 
-When a parameter is repeatable, prefix the argument name with an ellipsis e.g. 
+When a parameter is repeatable, prefix the argument name with an ellipsis e.g.
 
 ```js
 function sum(...value) {
