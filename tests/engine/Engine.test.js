@@ -1095,6 +1095,23 @@ test('Engine: invalid transclusion syntax should lead to a syntax error (#693)',
   })
 })
 
+test('Engine: mini expression with invalid characters should result in syntax error (#676)', t => {
+  t.plan(1)
+  let { engine } = _setup()
+  let doc = engine.addDocument({
+    id: 'doc1',
+    lang: 'mini',
+    cells: [
+      "1+7äää",
+    ]
+  })
+  let cells = doc.getCells()
+  play(engine)
+  .then(() => {
+    t.deepEqual(getErrors(cells), [['syntax']], 'There should be a syntax error.')
+  })
+})
+
 function _checkActions(t, engine, cells, expected) {
   let nextActions = engine.getNextActions()
   let actual = []
