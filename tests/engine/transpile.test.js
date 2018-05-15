@@ -95,3 +95,14 @@ test('transpile: crazy document name', t => {
   t.equal(transpiled.length, source.length, 'transpiled source should have the same length')
   t.end()
 })
+
+test('transpile: invalid transclusion syntax (#693)', t => {
+  // here we need to be careful with just replacing unwanted
+  // characters by '_'. The first one should be replaced by ' ', instead.
+  let source = "a'Sheet 1'!A1:B3"
+  let map = {}
+  let transpiled = transpile(source, map)
+  t.equal(transpiled, 'a Sheet_1__A1_B3', 'source should have been transpiled correctly')
+  t.equal(transpiled.length, source.length, 'transpiled source should have the same length')
+  t.end()
+})
