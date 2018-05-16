@@ -6,6 +6,7 @@ import Engine from '../engine/Engine'
 import JavascriptContextClient from '../contexts/JavascriptContextClient'
 import MiniContext from '../contexts/MiniContext'
 import ContextHttpClient from '../contexts/ContextHttpClient'
+import libcore from 'stencila-libcore'
 
 /**
  * Each Stencila process has a single instance of the `Host` class which
@@ -353,7 +354,8 @@ export default class Host extends EventEmitter {
     // Fallback to providing an in-browser instances of resources where available
     let instance
     if (type === 'JavascriptContext') {
-      instance = new JavascriptContextClient()
+      instance = new JavascriptContextClient(this)
+      instance.importLibrary(libcore)
     } else if (type === 'MiniContext') {
       // MiniContext requires a pointer to this host so that
       // it can obtain other contexts for executing functions
