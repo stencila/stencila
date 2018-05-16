@@ -40,14 +40,14 @@ export default class FunctionManager {
     Import a function library
   */
   importLibrary(context, library) {
-    for (let func of Object.values(library.funcs)) {
+    for (let func of Object.values(library)) {
       this.importFunction(context, func, library.name)
     }
   }
 
   /**
    * Import a set of libraries
-   * 
+   *
    * @param  {object} libraries An object of libraries like `{name:xml}`
    */
   importLibraries(context, libraries) {

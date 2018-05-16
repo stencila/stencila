@@ -12,12 +12,12 @@ export default class JavascriptContextClient extends ContextClient {
   // TODO: not sure if this should be API
   importLibrary(lib) {
     // TODO: take a look how libcore looks like
-    this._jsContext._libraries[lib.name] = lib
+    this._jsContext._libraries[lib.name] = lib.funcs
     return this
   }
 
   _libraries() {
-    return Promise.resolve(this._jsContext.libraries())
+    return this._jsContext.libraries()
   }
 
   _compile(cell) {
