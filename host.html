@@ -5,6 +5,7 @@
   <script src="/js/redoc.standalone.js"> </script>
   <script>
     Redoc.init('/specs/host.redoc-yaml', {
+      expandResponses: "200",
       // See available theme options at 
       // https://github.com/Rebilly/ReDoc/blob/master/src/theme.ts
       theme: {
@@ -14,8 +15,13 @@
         },
         headingsFont: {
           family: 'Lato'
+        },
+        rightPanel: {
+          backgroundColor: '#fff',
         }
-      }
+      },
+      // Since we provide links to source OpenAPI yaml...
+      hideDownloadButton: true
     }, document.getElementById('redoc-container'))
   </script>
 {% endblock %}
@@ -23,7 +29,35 @@
 {% block styles %}
   {{ super() }}
   <style type="text/css">
+    /* Operation meethod and path bar */
+    div.sc-caSCKo {
+      background: #e1e1e1;
+      border-radius: 0;
+      color: black;
+    }
+    /* Request and response samples headers */
+    div.sc-EHOje h3 {
+      color: #444;
+    }
+    /* Request and response sample block */
+    div.sc-hSdWYo {
+      margin-bottom: 1em;
+    }
+    /* Language and response tabs */
+    div.sc-hSdWYo > ul.react-tabs__tab-list {
+      background: #444;
+    }
+    /* Request sample code */
+    div.sc-jWBwVP {
+      padding: 0 !important;
+    }
+    /* Request and resonse samples > Header with 'Copy' etc */
+    div.sc-cvbbAY {
+      font-size: 0.75em;
+    }
+    /* Request sample code > Source code */
     pre.sc-kafWEX {
+      padding: 1em;
       background: #171e22;
       color: #fafbfc;
     }
