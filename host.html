@@ -2,7 +2,7 @@
 
 {% block main %}
   <div id="redoc-container"></div>
-  <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"> </script>
+  <script src="/js/redoc.standalone.js"> </script>
   <script>
     Redoc.init('/specs/host.redoc-yaml', {
       // See available theme options at 
@@ -18,4 +18,14 @@
       }
     }, document.getElementById('redoc-container'))
   </script>
+{% endblock %}
+
+{% block styles %}
+  {{ super() }}
+  <style type="text/css">
+    pre.sc-kafWEX {
+      background: #171e22;
+      color: #fafbfc;
+    }
+  </style>
 {% endblock %}
