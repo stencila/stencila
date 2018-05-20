@@ -1,0 +1,4 @@
+import requests
+
+r = requests.{{method}}('{{url}}')
+r.json()

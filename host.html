@@ -1,0 +1,21 @@
+{% extends "_base.html" %}
+
+{% block main %}
+  <div id="redoc-container"></div>
+  <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"> </script>
+  <script>
+    Redoc.init('/specs/host.redoc-yaml', {
+      // See available theme options at 
+      // https://github.com/Rebilly/ReDoc/blob/master/src/theme.ts
+      theme: {
+        baseFont: {
+          size: '1em',
+          family: 'Lato'
+        },
+        headingsFont: {
+          family: 'Lato'
+        }
+      }
+    }, document.getElementById('redoc-container'))
+  </script>
+{% endblock %}

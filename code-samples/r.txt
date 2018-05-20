@@ -1,0 +1,4 @@
+library(httr)
+
+r <- {{method}}("{{url}}")
+content(r, "parsed")

@@ -1,0 +1,5 @@
+let r = await fetch({
+  url: '{{url}}',
+  method: '{{method|upper}}'
+})
+r.json()

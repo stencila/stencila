@@ -1,4 +1,0 @@
-library(httr)
-
-r &lt;- {{=data.methodUpper}}("{{=data.url}}")
-content(r, "parsed")
