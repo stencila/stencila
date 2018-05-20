@@ -1,0 +1,42 @@
+Cell:
+  type: object
+  properties:
+    type:
+      description: The type of node, always `"Cell"`
+      type: string
+      const: Cell
+    source:
+      description: The source code and language
+      type: object
+      properties:
+        lang:
+          description: The programming language the source code is written in
+          type: string
+          enum:
+            - r
+            - js
+            - py
+            - sql
+        code:
+          description: The source code of the cell
+          type: string
+    inputs:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+          value:
+            type: object
+    outputs:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+          value:
+            type: object
+  required:
+    - type

@@ -1,0 +1,31 @@
+Environ:
+  type: object
+  properties:
+    id:
+      type: string
+    name:
+      type: string
+    version:
+      type: string
+  required:
+    - name
+
+Host:
+  type: object
+  properties:
+    id:
+      type: string
+  required:
+    - id
+
+Function:
+  type: object
+
+Get:
+  type: object
+
+Set:
+  type: object
+
+Call:
+  type: object

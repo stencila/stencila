@@ -1,0 +1,189 @@
+openapi: 3.0
+
+info:
+  title: Stencila Host API
+  version: 0.1.0
+  description: |
+    API for Stencila Hosts. For more info on Stencila go to [http://stenci.la](http://stenci.la)
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+
+  - url: https://demo.stenci.la/v0
+    description: The production API server
+
+  - url: https://{domain}:{port}/{basePath}
+    description: The production API server
+    variables:
+      domain:
+        description: Your doman
+        example: stencila.example.edu
+        default: demo.stenci.la
+      port:
+        default: 443
+      basePath:
+        enum:
+          - v0
+        default: v0
+
+paths:
+
+  /:
+
+    get:
+      tags: [host]
+      summary: Get host
+      description: A host manifest
+      responses:
+        '200':
+          description: List of environments
+          content:
+            'application/json':
+              schema:
+                $ref: "schemas.yaml#/Host"
+
+
+  /environs:
+
+    get:
+      tags: [environs]
+      summary: Get environs
+      description: Returns a list of environments available
+      responses:
+        200:
+          description: List of environments
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: "schemas.yaml#/Environ"
+              examples:
+                localOnly:
+                  summary: Local only
+                  value:
+                    - id: local
+                      name: local
+                      version: null
+                multiple:
+                  summary: Multiple
+                  value:
+                    - id: stencila-core@1.1
+                      name: stencila-core
+                      version: 1.1
+                    - id: my-custom-env@0.5
+                      name: my-custom-env
+                      version: 0.5
+
+    post:
+      tags: [environs]
+      summary: Start an environment
+
+
+  /hosts:
+
+    get:
+      tags: [hosts]
+      summary: Get list of
+
+    put:
+      tags: [hosts]
+      summary: Create a host
+
+
+  /types:
+
+    get:
+      tags: [types]
+      summary: Get list of types
+
+
+  /instances:
+
+    get:
+      tags: [instances]
+      summary: List instances
+
+    post:
+      tags: [instances]
+      summary: Create an instance
+
+
+  /instances/{id}:
+
+    parameters:
+      - name: id
+        description: Instance identifier
+        in: path
+        required: true
+        schema:
+            type: string
+
+    get:
+      tags: [instances]
+      summary: Get an instance
+
+    delete:
+      tags: [instances]
+      summary: Destroy an instance
+
+
+  /instances/{id}/compile:
+
+    put:
+      tags: [contexts]
+      summary: Compile a cell
+      parameters:
+        - $ref: '#/components/parameters/InstanceId'
+      requestBody:
+        description: Optional description in *Markdown*
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'cell.yaml#/Cell'
+            example:
+              type: Cell
+              source:
+                lang: r
+                code: y <- 6 * x
+
+      responses:
+        200:
+          description: List of environments
+          content:
+            'application/json':
+              schema:
+                $ref: 'cell.yaml#/Cell'
+              example:
+                type: Cell
+                source:
+                  lang: r
+                  code: y <- 6 * x
+                inputs:
+                  - name: x
+                outputs:
+                  - name: y
+
+
+
+  /instances/{id}/execute:
+
+    put:
+      tags: [contexts]
+      summary: Execute a cell 
+
+
+components:
+
+  parameters:
+
+    InstanceId:
+        name: id
+        description: Instance identifier
+        in: path
+        required: true
+        schema:
+            type: string
