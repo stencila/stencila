@@ -1,1 +1,1 @@
-curl -X {{method|upper}} {{url}}
+curl -X {{method|upper}} '{{url}}'
