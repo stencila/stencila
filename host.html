@@ -26,6 +26,11 @@
   </script>
 {% endblock %}
 
+{% block footer %}
+  {% set source = "src/specs/host.yaml" %}
+  {% include "_footer.html" %}
+{% endblock %}
+
 {% block styles %}
   {{ super() }}
   <style type="text/css">
