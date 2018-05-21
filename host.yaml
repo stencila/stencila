@@ -136,14 +136,14 @@ paths:
       tags: [contexts]
       summary: Compile a cell
       parameters:
-        - $ref: '#/components/parameters/InstanceId'
+        - $ref: "#/components/parameters/InstanceId"
       requestBody:
         description: Optional description in *Markdown*
         required: true
         content:
           application/json:
             schema:
-              $ref: 'cell.yaml#/Cell'
+              $ref: cell.yaml
             example:
               type: Cell
               source:
@@ -154,9 +154,9 @@ paths:
         200:
           description: List of environments
           content:
-            'application/json':
+            application/json:
               schema:
-                $ref: 'cell.yaml#/Cell'
+                $ref: cell.yaml
               example:
                 type: Cell
                 source:
