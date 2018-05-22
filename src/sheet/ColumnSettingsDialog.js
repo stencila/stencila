@@ -1,4 +1,4 @@
-import { Component, getRelativeBoundingRect, stop, isEqual } from 'substance'
+import { Component, getRelativeBoundingRect, domHelpers, isEqual } from 'substance'
 
 export default class ColumnSettingsDialog extends Component {
 
@@ -14,7 +14,7 @@ export default class ColumnSettingsDialog extends Component {
       .append(this._renderBody($$))
       .append(this._renderFoot($$))
       .addClass('sm-hidden')
-      .on('mousedown', stop)
+      .on('mousedown', domHelpers.stop)
       .on('keydown', this._onKeyDown)
     return el
   }
