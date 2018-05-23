@@ -180,6 +180,7 @@ export default {
     config.addCommand('set-js', SetLanguageCommand, { language: 'js', commandGroup: 'cell-actions' })
     config.addCommand('set-node', SetLanguageCommand, { language: 'node', commandGroup: 'cell-actions' })
     config.addCommand('set-py', SetLanguageCommand, { language: 'py', commandGroup: 'cell-actions' })
+    config.addCommand('set-pyjp', SetLanguageCommand, { language: 'pyjp', commandGroup: 'cell-actions' })
     config.addCommand('set-r', SetLanguageCommand, { language: 'r', commandGroup: 'cell-actions' })
     config.addCommand('set-sql', SetLanguageCommand, { language: 'sql', commandGroup: 'cell-actions' })
 
@@ -191,6 +192,7 @@ export default {
     config.addLabel('set-js', 'Javascript')
     config.addLabel('set-node', 'Node.js')
     config.addLabel('set-py', 'Python')
+    config.addLabel('set-pyjp', 'Python Jupyter')
     config.addLabel('set-r', 'R')
     config.addLabel('set-sql', 'SQL')
 

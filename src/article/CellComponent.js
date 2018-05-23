@@ -11,6 +11,7 @@ const LANG_LABELS = {
   'node': 'Node',
   'sql': 'SQL',
   'py': 'Py',
+  'pyjp': 'PyJp',
   'r': 'R',
 }
 

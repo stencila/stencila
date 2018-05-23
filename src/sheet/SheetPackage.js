@@ -136,14 +136,18 @@ export default {
     // Cell Languages
     config.addCommand('set-mini', SetLanguageCommand, { language: undefined, commandGroup: 'cell-languages' })
     config.addCommand('set-js', SetLanguageCommand, { language: 'js', commandGroup: 'cell-languages' })
+    config.addCommand('set-node', SetLanguageCommand, { language: 'node', commandGroup: 'cell-languages' })
     config.addCommand('set-py', SetLanguageCommand, { language: 'py', commandGroup: 'cell-languages' })
+    config.addCommand('set-pyjp', SetLanguageCommand, { language: 'pyjp', commandGroup: 'cell-languages' })
     config.addCommand('set-r', SetLanguageCommand, { language: 'r', commandGroup: 'cell-languages' })
     config.addCommand('set-sql', SetLanguageCommand, { language: 'sql', commandGroup: 'cell-languages' })
 
     config.addLabel('cell-languages', 'Choose Language')
     config.addLabel('set-mini', 'Mini')
     config.addLabel('set-js', 'Javascript')
+    config.addLabel('set-node', 'Node.js')
     config.addLabel('set-py', 'Python')
+    config.addLabel('set-pyjp', 'Python Jupyter')
     config.addLabel('set-r', 'R')
     config.addLabel('set-sql', 'SQL')
 
