@@ -74,9 +74,13 @@ Prism.languages.insertBefore('sql', 'punctuation', {
 })
 languages['sql'] = Prism.languages.sql
 
-
-function tokenize(code, lang) {
-  let prismTokens = Prism.tokenize(code, languages[lang])
+function tokenize (code, lang) {
+  let grammar = languages[lang]
+  if (!grammar) {
+    console.error(`No tokenizer registered for language ${lang}`)
+    return []
+  }
+  let prismTokens = Prism.tokenize(code, grammar)
   let tokens = []
   let pos = 0
   for (let i = 0; i < prismTokens.length; i++) {
