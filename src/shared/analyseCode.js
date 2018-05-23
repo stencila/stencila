@@ -96,7 +96,8 @@ function tokenize (code, lang) {
         tokens.push({
           type: t.type,
           text: t.content,
-          start, end
+          start,
+          end
         })
     }
     pos = end
@@ -105,13 +106,13 @@ function tokenize (code, lang) {
 }
 
 // pseudo-parsing to collect information about functions
-export default function analyzeCode(code, lang = 'mini') {
+export default function analyseCode (code, lang = 'mini') {
   let tokens = tokenize(code, lang)
   let symbols = extractSymbols(code)
   let nodes = []
   let calls = []
 
-  function _push(end) {
+  function _push (end) {
     let currentCall = calls[0]
     if (currentCall) {
       // tidy up
