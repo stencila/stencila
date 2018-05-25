@@ -1,1 +1,2 @@
-curl -X {{method|upper}} '{{url}}'
+curl -X {{method|upper}} '{{url}}' \
+     -H "Authorization: Bearer {jwt}"

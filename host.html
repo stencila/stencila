@@ -5,7 +5,6 @@
   <script src="/js/redoc.standalone.js"> </script>
   <script>
     Redoc.init('/specs/host.redoc-yaml', {
-      expandResponses: "200",
       // See available theme options at 
       // https://github.com/Rebilly/ReDoc/blob/master/src/theme.ts
       theme: {
@@ -34,7 +33,35 @@
 {% block styles %}
   {{ super() }}
   <style type="text/css">
-    /* Operation meethod and path bar */
+    /* Most of these styles override the base Materia/Bulma styling */
+    /* Ensure paragraph spacing */
+    .redoc-markdown p {
+      margin: 1em 0;
+    }
+    /* Delete buttons */
+    span.operation-type.delete {
+      max-width: inherit;
+      max-height: inherit;
+      min-width: inherit;
+      min-height: inherit;
+    }
+    span.operation-type.delete:before,
+    span.operation-type.delete:after {
+      display: none;
+    }
+    span.http-verb.delete {
+      border-radius: 0;
+      display: inline;
+      vertical-align: inherit;
+    }
+    span.http-verb.delete:before,
+    span.http-verb.delete:after {
+      display: none;
+    }
+    td.sc-fBuWsC {
+      vertical-align: inherit;
+    }
+    /* Operation method and path bar */
     div.sc-caSCKo {
       background: #e1e1e1;
       border-radius: 0;

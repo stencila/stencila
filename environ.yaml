@@ -1,0 +1,16 @@
+title: Environ
+type: object
+properties:
+  id:
+    type: string
+  name:
+    type: string
+  version:
+    type: string
+required:
+  - name
+example:
+  - id: local
+    name: local
+    version: null
+

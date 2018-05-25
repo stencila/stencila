@@ -2,23 +2,40 @@ openapi: 3.0
 
 info:
   title: Stencila Host API
-  version: 0.1.0
-  description: |
-    API for Stencila Hosts. For more info on Stencila go to [http://stenci.la](http://stenci.la)
+  version: 1.0.0-draft
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
+  description: |
+    # Introduction
+
+    For more info on Stencila go to [http://stenci.la](http://stenci.la)
+
+    This is the [OpenAPI Specification](https://github.com/OAI/OpenAPI-Specification) for Stencila Hosts.
+    This specification is downloadable as a YAML file from [our website](https://stenci.la/specs/host.yaml) or
+    from [Github](https://github.com/stencila/website/tree/master/src/specs/host.yaml). All contributions are welcome. 
+    Send us a pull request, or click this [link](https://github.com/stencila/website/edit/master/src/specs/host.yaml]) to edit this
+    file directly. 
+
+    # Versioning
+
+
+    # Security
+
+    Blah blah
+
+    <!-- ReDoc-Inject: <security-definitions> -->
 
 servers:
 
-  - url: https://demo.stenci.la/v0
-    description: The production API server
+  - url: http://localhost:2000/v0
+    description: A Stencila Host runnig locally, on your machine
 
   - url: https://{domain}:{port}/{basePath}
-    description: The production API server
+    description: A self hosted
     variables:
       domain:
-        description: Your doman
+        description: Your domain
         example: stencila.example.edu
         default: demo.stenci.la
       port:
@@ -30,36 +47,105 @@ servers:
 
 paths:
 
-  /:
+  /manifest:
 
     get:
-      tags: [host]
-      summary: Get host
-      description: A host manifest
-      responses:
-        '200':
-          description: List of environments
-          content:
-            'application/json':
-              schema:
-                $ref: "schemas.yaml#/Host"
+      tags: [manifest]
+      summary: Get manifest
+      description: |
+        The host's manifest describes the host and capabilities.
+        For example, the manifest includes the name and version of teh package that it is implemented in.
+        It also lists the `types` of services (e.g. `RContext`, `SqliteContext`) and `instances` (e.g. `rContext1`, `sqliteContext4`) of those services.
+        
+        Most of the properties of the manifest are also available as separate endpoints. For example, the `types` property of the manifest
+        is identical to the response from `GET /types`.
 
+        Manifests are exchanged by `Hosts` when performing a connection handshake. This enables
+        each host to store the capabilities of it's peers and know which peer to request services from on behalf of clients. 
+
+        The manifest is also stored as a JSON file when a package is `register()`ed enabling it to be autolaunched by clients.
+        To do this, the manifest includes a `spawn` property which can be executed to spawn a new instance of the host.
+      responses:
+        200:
+          description: A manifest object
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stencila:
+                    description: Identifies that this is a Stencila Host and provides the implementing package name and version number.
+                    type: object
+                    properties:
+                      package:
+                        description: The Stencila package that this `Host` is implemented in e.g. `node`, `r`.
+                        type: string
+                        example: "r"
+                      version:
+                        description: The package version.
+                        type: string
+                        example: "0.29.1"
+                  id:
+                    description: A unique identifier for this host, usually in the format `{package}-host-{uuid}`.
+                    type: string
+                    example: "r-host-ce4ea592-277d-441f-b584-2c645acbbd41"
+                  spawn:
+                    description: The command that can be used to run a host of this type.
+                    type: array
+                    items: string
+                    example: ["/usr/bin/Rscript", "-e", "stencila:::spawn()"]
+                  environs:
+                    type: array
+                    items:
+                      $ref: environ.yaml
+                  services:
+                    type: array
+                    items:
+                      $ref: service.yaml
+                    example:
+                      - name: 'RContext'
+                  machine:
+                    type: object
+                    properties:
+                      mac:
+                        type: string
+                      ip:
+                        type: string
+                  process:
+                    description: A description of the system process this machine is running on
+                    type: object
+                    properties:
+                      pid:
+                        description:
+                        type: string
+                      name:
+                        description:
+                        type: string
+                      version:
+                        description:
+                        type: string
+                      platform:
+                        description:
+                        type: string
+                      arch:
+                        description:
+                        type: string
 
   /environs:
 
     get:
       tags: [environs]
-      summary: Get environs
+      summary: List environments
       description: Returns a list of environments available
       responses:
         200:
           description: List of environments
           content:
-            'application/json':
+            application/json:
               schema:
                 type: array
                 items:
-                  $ref: "schemas.yaml#/Environ"
+                  $ref: environ.yaml
               examples:
                 localOnly:
                   summary: Local only
@@ -79,25 +165,18 @@ paths:
 
     post:
       tags: [environs]
-      summary: Start an environment
+      summary: Startup an environment
 
 
-  /hosts:
-
-    get:
-      tags: [hosts]
-      summary: Get list of
-
-    put:
-      tags: [hosts]
-      summary: Create a host
-
-
-  /types:
+  /services:
 
     get:
-      tags: [types]
-      summary: Get list of types
+      tags: [services]
+      summary: List services
+      description: |
+        Currently the only services supported are execution `Contexts`.
+        However, in the future it is likely that other types of services (e.g. for executing pure functions, for file storage) will be provided
+        by some hosts.
 
 
   /instances:
@@ -105,40 +184,40 @@ paths:
     get:
       tags: [instances]
       summary: List instances
+      security:
+          - jwt: []
+
+  /instances/{service}:
+
+    parameters:
+      - $ref: "#/components/parameters/ServiceId"
 
     post:
       tags: [instances]
-      summary: Create an instance
-
+      summary: Create a instance
+      security:
+        - jwt: []
 
   /instances/{id}:
 
     parameters:
-      - name: id
-        description: Instance identifier
-        in: path
-        required: true
-        schema:
-            type: string
-
-    get:
-      tags: [instances]
-      summary: Get an instance
+      - $ref: "#/components/parameters/InstanceId"
 
     delete:
       tags: [instances]
-      summary: Destroy an instance
-
+      summary: Destroy a instance
+      security:
+        - jwt: []
 
   /instances/{id}/compile:
+
+    parameters:
+      - $ref: "#/components/parameters/InstanceId"
 
     put:
       tags: [contexts]
       summary: Compile a cell
-      parameters:
-        - $ref: "#/components/parameters/InstanceId"
       requestBody:
-        description: Optional description in *Markdown*
         required: true
         content:
           application/json:
@@ -149,10 +228,11 @@ paths:
               source:
                 lang: r
                 code: y <- 6 * x
-
+      security:
+        - jwt: []
       responses:
         200:
-          description: List of environments
+          description: The compiled cell
           content:
             application/json:
               schema:
@@ -166,24 +246,158 @@ paths:
                   - name: x
                 outputs:
                   - name: y
+        401:
+          $ref: "#/components/responses/UnauthorisedError"
 
 
 
   /instances/{id}/execute:
 
+    parameters:
+      - $ref: "#/components/parameters/InstanceId"
+
     put:
       tags: [contexts]
-      summary: Execute a cell 
+      summary: Execute a cell
+      description: |
+        The request body is a cell that has an array of `inputs`, each having a `value`.
+        The response body is the cell with `outputs` augmented with a `value` for the first item.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: cell.yaml
+                - type: object
+                  required:
+                    - inputs
+            example:
+              type: Cell
+              source:
+                lang: r
+                code: y <- 6 * x
+            inputs:
+              - name: x
+                value:
+                  type: Number
+                  data: 7
+      security:
+        - jwt: []
+      responses:
+        200:
+          description: The executed cell
+          content:
+            application/json:
+              schema:
+                $ref: cell.yaml
+              example:
+                type: Cell
+                source:
+                  lang: r
+                  code: y <- 6 * x
+                inputs:
+                  - name: x
+                    value:
+                      type: Number
+                      data: 7
+                outputs:
+                  - name: y
+                    value:
+                      type: Number
+                      data: 42
+        401:
+          $ref: "#/components/responses/UnauthorisedError"
+
+
+  /instances/{id}/evaluate:
+
+    parameters:
+      - $ref: "#/components/parameters/InstanceId"
+
+    put:
+      tags: [contexts]
+      summary: Evaluate a node
+      description: |
+        A document...
+
+
+  /instances/{id}/list:
+
+    parameters:
+      - $ref: "#/components/parameters/InstanceId"
+
+    put: 
+      tags: [contexts]
+      summary: List variables
+      description: |
+        Use this operation to get a list variable that reside in an execution `Context`
+      security:
+        - jwt: []
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example: ["x", "y", "z"]
+        401:
+          $ref: "#/components/responses/UnauthorisedError"
+
+  /instances/{id}/fetch:
+
+    parameters:
+      - $ref: "#/components/parameters/InstanceId"
+
+    put:
+      tags: [contexts]
+      summary: Fetch a variable
+      description: |
+        Use this operation to fetch all, or part, of a value from an execution `Context`. 
+        
+        Note that `PUT /instances/{id}/fetch` with request body `{"name": "x"}` is similar to, but differs 
+        from, `PUT /instances/{id}/evaluate` with request body `{"type": "Get", "name": "x"}`.
+        Fetch will _always_ return a full serialisation of the value, where as `evaluate` may return a
+        partial serialisation and a `location` pointer.
+      security:
+        - jwt: []
+      responses:
+        401:
+          $ref: "#/components/responses/UnauthorisedError"
 
 
 components:
 
   parameters:
 
+    ServiceId:
+      name: service
+      description: Service identifier
+      in: path
+      required: true
+      schema:
+          type: string
+
     InstanceId:
-        name: id
-        description: Instance identifier
-        in: path
-        required: true
-        schema:
-            type: string
+      name: instance
+      description: Instance identifier
+      in: path
+      required: true
+      schema:
+          type: string
+
+  responses:
+
+    UnauthorisedError:
+      description: Missing or invalid authentication credentials
+
+  securitySchemes:
+
+    jwt:
+      description: |
+        Security scheme using [JSON Web Token (JWT)](https://tools.ietf.org/html/rfc7519)
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

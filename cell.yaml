@@ -5,22 +5,30 @@ properties:
     description: The type of node, always `"Cell"`
     type: string
     const: Cell
-  source:
-    description: The source code and language
-    type: object
-    properties:
-      lang:
-        description: The programming language the source code is written in
-        type: string
-        enum:
-          - r
-          - js
-          - py
-          - sql
-      code:
-        description: The source code of the cell
-        type: string
+  lang:
+    description: The programming language the source code is written in
+    type: string
+    enum:
+      - r
+      - js
+      - mini
+      - node
+      - py
+      - pyjp
+      - sql
+  code:
+    description: The source code of the cell
+    type: string
+  expr:
+    description: Should the cell's source code only contain simple expressions?
+    type: boolean
+    default: false
+  global:
+    description: Should this cell be executed in the global scope of the exection `Context`?
+    type: boolean
+    default: false
   inputs:
+    description: An array of cell inputs.
     type: array
     items:
       type: object
@@ -30,13 +38,22 @@ properties:
         value:
           type: object
   outputs:
+    description: An array of cell outputs. Currently it is assumed that all cells only have a single output.
     type: array
     items:
       type: object
       properties:
         name:
+          description: The name of the output
           type: string
         value:
+          description: The value of the output
           type: object
+  options:
+    description: |
+      Options for compiling and executing this cell. The number, names and values of options
+      is flexible and will depend upon hte capabilities of the language and execution context
+    type: object
 required:
   - type
+  - source
