@@ -22,12 +22,14 @@ properties:
   expr:
     description: |
       Should the cell's source code only contain simple expressions?
+    $comment: |
       Cells in Sheets usually have `{"expr": true}`.
     type: boolean
     default: false
   global:
     description: |
-      Should this cell be executed in the global scope of the exection `Context`?
+      Should this cell be executed in the global scope of the execution `Context`?
+    $comment: |
       Cells imported from Jupyter Notebooks or RMarkdown have `{"global": true}`
       to match the execution model of those platforms.
     type: boolean
@@ -35,7 +37,7 @@ properties:
   inputs:
     description: |
       An array of cell inputs.
-
+    $comment: |
       This is an `array`, rather than an `object` to be consistent with the structure
       of cell `outputs` and to allow for unnamed inputs in the future.
     type: array
@@ -49,7 +51,7 @@ properties:
   outputs:
     description: |
       An array of cell outputs. Outputs can be named, or unnamed.
-
+    $comment: |
       Currently it is assumed that there is a single output. However, this is an 
       `array` to allow for multiple outputs in the future.
     type: array
@@ -68,7 +70,7 @@ properties:
     description: |
       User options for compiling and executing this cell. The number, names and values of options
       is flexible and will depend upon the capabilities of the language and the execution context.
-
+    $comment: |
       An example usage is to store RMarkdown code chunk [options](https://yihui.name/knitr/options/). 
       These are used to specify things like figure sizes. For example, the RMarkdown chunk with options
       `{r fig.height=10, fig.width=5}` gets converted into a cell with `"options": {"fig.height": "10", "fig.width": "5"}`.
