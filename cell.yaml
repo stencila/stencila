@@ -20,15 +20,24 @@ properties:
     description: The source code of the cell
     type: string
   expr:
-    description: Should the cell's source code only contain simple expressions?
+    description: |
+      Should the cell's source code only contain simple expressions?
+      Cells in Sheets usually have `{"expr": true}`.
     type: boolean
     default: false
   global:
-    description: Should this cell be executed in the global scope of the exection `Context`?
+    description: |
+      Should this cell be executed in the global scope of the exection `Context`?
+      Cells imported from Jupyter Notebooks or RMarkdown have `{"global": true}`
+      to match the execution model of those platforms.
     type: boolean
     default: false
   inputs:
-    description: An array of cell inputs.
+    description: |
+      An array of cell inputs.
+
+      This is an `array`, rather than an `object` to be consistent with the structure
+      of cell `outputs` and to allow for unnamed inputs in the future.
     type: array
     items:
       type: object
@@ -38,7 +47,11 @@ properties:
         value:
           type: object
   outputs:
-    description: An array of cell outputs. Currently it is assumed that all cells only have a single output.
+    description: |
+      An array of cell outputs. Outputs can be named, or unnamed.
+
+      Currently it is assumed that there is a single output. However, this is an 
+      `array` to allow for multiple outputs in the future.
     type: array
     items:
       type: object
@@ -49,11 +62,17 @@ properties:
         value:
           description: The value of the output
           type: object
+      required:
+        - value
   options:
     description: |
-      Options for compiling and executing this cell. The number, names and values of options
-      is flexible and will depend upon hte capabilities of the language and execution context
+      User options for compiling and executing this cell. The number, names and values of options
+      is flexible and will depend upon the capabilities of the language and the execution context.
+
+      An example usage is to store RMarkdown code chunk [options](https://yihui.name/knitr/options/). 
+      These are used to specify things like figure sizes. For example, the RMarkdown chunk with options
+      `{r fig.height=10, fig.width=5}` gets converted into a cell with `"options": {"fig.height": "10", "fig.width": "5"}`.
     type: object
 required:
   - type
-  - source
+  - code
