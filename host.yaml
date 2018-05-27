@@ -19,17 +19,16 @@ info:
 
     # Versioning
 
-
     # Security
 
-    Blah blah
+
 
     <!-- ReDoc-Inject: <security-definitions> -->
 
 servers:
 
-  - url: http://localhost:2000/v0
-    description: A Stencila Host runnig locally, on your machine
+  - url: http://localhost:2000/v1
+    description: A Stencila Host runnimg locally, on your machine
 
   - url: https://{domain}:{port}/{basePath}
     description: A self hosted
@@ -42,8 +41,8 @@ servers:
         default: 443
       basePath:
         enum:
-          - v0
-        default: v0
+          - v1
+        default: v1
 
 paths:
 
@@ -103,7 +102,10 @@ paths:
                     items:
                       $ref: service.yaml
                     example:
-                      - name: 'RContext'
+                      - name: RContext
+                        client: HttpContextClient
+                      - name: SqliteContext
+                        client: HttpContextClient
                   machine:
                     type: object
                     properties:
@@ -116,7 +118,11 @@ paths:
                     type: object
                     properties:
                       pid:
-                        description:
+                        description: The process identifier.
+                        $comment: |
+                          This is used by a host to determine if a peer host is still running.
+                          In some cases a host crashes leaving behind a "run" file in `/tmp`, so the `pid`
+                          provides a way to check that the host is still running.
                         type: string
                       name:
                         description:
