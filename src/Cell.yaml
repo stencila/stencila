@@ -29,6 +29,9 @@ properties:
   global:
     description: |
       Should this cell be executed in the global scope of the execution `Context`?
+      Global cells can be useful at the start of a document to import required packages (e.g. `import pandas`) in Python, 
+      rather than having to do that in each cell. Defaults to `false` but can be set with a comment flag e.g. `# @global`
+      in the cell's code.
     $comment: |
       Cells imported from Jupyter Notebooks or RMarkdown have `{"global": true}`
       to match the execution model of those platforms.
