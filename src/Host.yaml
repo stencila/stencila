@@ -231,9 +231,8 @@ paths:
               $ref: Cell.yaml
             example:
               type: Cell
-              source:
-                lang: r
-                code: y <- 6 * x
+              lang: r
+              code: y <- 6 * x
       security:
         - jwt: []
       responses:
@@ -245,9 +244,8 @@ paths:
                 $ref: Cell.yaml
               example:
                 type: Cell
-                source:
-                  lang: r
-                  code: y <- 6 * x
+                lang: r
+                code: y <- 6 * x
                 inputs:
                   - name: x
                 outputs:
@@ -280,14 +278,13 @@ paths:
                     - inputs
             example:
               type: Cell
-              source:
-                lang: r
-                code: y <- 6 * x
-            inputs:
-              - name: x
-                value:
-                  type: Number
-                  data: 7
+              lang: r
+              code: y <- 6 * x
+              inputs:
+                - name: x
+                  value:
+                    type: Number
+                    data: 7
       security:
         - jwt: []
       responses:
@@ -299,9 +296,8 @@ paths:
                 $ref: Cell.yaml
               example:
                 type: Cell
-                source:
-                  lang: r
-                  code: y <- 6 * x
+                lang: r
+                code: y <- 6 * x
                 inputs:
                   - name: x
                     value:
