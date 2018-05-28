@@ -1,97 +1,66 @@
-{% extends "_base.html" %}
-
-{% block main %}
-  <div id="redoc-container"></div>
-  <script src="/js/redoc.standalone.js"> </script>
-  <script>
-    Redoc.init('/specs/host.redoc-yaml', {
-      // See available theme options at 
-      // https://github.com/Rebilly/ReDoc/blob/master/src/theme.ts
-      theme: {
-        baseFont: {
-          size: '1em',
-          family: 'Lato'
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stencila Host API</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div id="redoc-container"></div>
+    <style type="text/css">
+      /* Operation method and path bar */
+      div.sc-caSCKo {
+        background: #e1e1e1;
+        border-radius: 0;
+        color: black;
+      }
+      /* Request and response samples headers */
+      div.sc-EHOje h3 {
+        color: #444;
+      }
+      /* Request and response sample block */
+      div.sc-hSdWYo {
+        margin-bottom: 1em;
+      }
+      /* Language and response tabs */
+      div.sc-hSdWYo > ul.react-tabs__tab-list {
+        background: #444;
+      }
+      /* Request sample code */
+      div.sc-jWBwVP {
+        padding: 0 !important;
+      }
+      /* Request and resonse samples > Header with 'Copy' etc */
+      div.sc-cvbbAY {
+        font-size: 0.75em;
+      }
+      /* Request sample code > Source code */
+      pre.sc-kafWEX {
+        padding: 1em;
+        background: #171e22;
+        color: #fafbfc;
+      }
+    </style>
+    <script src="/redoc.standalone.js"> </script>
+    <script>
+      Redoc.init('/Host.redoc-yaml', {
+        // See available theme options at 
+        // https://github.com/Rebilly/ReDoc/blob/master/src/theme.ts
+        theme: {
+          baseFont: {
+            size: '1em',
+            family: 'Nunito, sans'
+          },
+          headingsFont: {
+            family: 'Nunito, sans'
+          },
+          rightPanel: {
+            backgroundColor: '#fff',
+          }
         },
-        headingsFont: {
-          family: 'Lato'
-        },
-        rightPanel: {
-          backgroundColor: '#fff',
-        }
-      },
-      // Since we provide links to source OpenAPI yaml...
-      hideDownloadButton: true
-    }, document.getElementById('redoc-container'))
-  </script>
-{% endblock %}
-
-{% block footer %}
-  {% set source = "src/specs/host.yaml" %}
-  {% include "_footer.html" %}
-{% endblock %}
-
-{% block styles %}
-  {{ super() }}
-  <style type="text/css">
-    /* Most of these styles override the base Materia/Bulma styling */
-    /* Ensure paragraph spacing */
-    .redoc-markdown p {
-      margin: 1em 0;
-    }
-    /* Delete buttons */
-    span.operation-type.delete {
-      max-width: inherit;
-      max-height: inherit;
-      min-width: inherit;
-      min-height: inherit;
-    }
-    span.operation-type.delete:before,
-    span.operation-type.delete:after {
-      display: none;
-    }
-    span.http-verb.delete {
-      border-radius: 0;
-      display: inline;
-      vertical-align: inherit;
-    }
-    span.http-verb.delete:before,
-    span.http-verb.delete:after {
-      display: none;
-    }
-    td.sc-fBuWsC {
-      vertical-align: inherit;
-    }
-    /* Operation method and path bar */
-    div.sc-caSCKo {
-      background: #e1e1e1;
-      border-radius: 0;
-      color: black;
-    }
-    /* Request and response samples headers */
-    div.sc-EHOje h3 {
-      color: #444;
-    }
-    /* Request and response sample block */
-    div.sc-hSdWYo {
-      margin-bottom: 1em;
-    }
-    /* Language and response tabs */
-    div.sc-hSdWYo > ul.react-tabs__tab-list {
-      background: #444;
-    }
-    /* Request sample code */
-    div.sc-jWBwVP {
-      padding: 0 !important;
-    }
-    /* Request and resonse samples > Header with 'Copy' etc */
-    div.sc-cvbbAY {
-      font-size: 0.75em;
-    }
-    /* Request sample code > Source code */
-    pre.sc-kafWEX {
-      padding: 1em;
-      background: #171e22;
-      color: #fafbfc;
-    }
-  </style>
-{% endblock %}
+        // Since we provide links to source OpenAPI yaml...
+        hideDownloadButton: true
+      }, document.getElementById('redoc-container'))
+    </script>
+  </body>
+</html>

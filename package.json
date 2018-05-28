@@ -1,0 +1,32 @@
+{
+  "name": "stencila-specs",
+  "version": "1.0.0",
+  "description": "Stencila API and other specifications",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp build",
+    "start": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stencila/specs.git"
+  },
+  "author": "Stencila contributors",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/stencila/specs/issues"
+  },
+  "homepage": "https://stenci.la",
+  "dependencies": {},
+  "devDependencies": {
+    "del": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-connect": "^5.5.0",
+    "gulp-plumber": "^1.2.0",
+    "js-yaml": "^3.11.0",
+    "nunjucks": "^3.1.3",
+    "redoc": "^2.0.0-alpha.20",
+    "replace-ext": "^1.0.0",
+    "through2": "^2.0.3"
+  }
+}
