@@ -1,8 +1,0 @@
-Get:
-  type: object
-
-Set:
-  type: object
-
-Call:
-  type: object

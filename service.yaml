@@ -1,7 +1,0 @@
-title: Service
-type: object
-properties:
-  name:
-    type: string
-example:
-  name: PythonContext

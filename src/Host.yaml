@@ -151,7 +151,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: environ.yaml
+                  $ref: "#/components/schemas/Environ"
               examples:
                 localOnly:
                   summary: Local only
@@ -228,7 +228,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: cell.yaml
+              $ref: Cell.yaml
             example:
               type: Cell
               source:
@@ -242,7 +242,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: cell.yaml
+                $ref: Cell.yaml
               example:
                 type: Cell
                 source:
@@ -274,7 +274,7 @@ paths:
           application/json:
             schema:
               allOf:
-                - $ref: cell.yaml
+                - $ref: Cell.yaml
                 - type: object
                   required:
                     - inputs
@@ -296,7 +296,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: cell.yaml
+                $ref: Cell.yaml
               example:
                 type: Cell
                 source:
@@ -375,6 +375,34 @@ paths:
 
 
 components:
+
+  schemas:
+
+    Environ:
+      title: Environ
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+      required:
+        - name
+      example:
+        - id: local
+          name: local
+          version: null
+
+    Service:
+      title: Service
+      type: object
+      properties:
+        name:
+          type: string
+      example:
+        name: PythonContext
 
   parameters:
 
