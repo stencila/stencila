@@ -24,6 +24,7 @@ properties:
       Should the cell's source code only contain simple expressions?
     $comment: |
       Cells in Sheets usually have `{"expr": true}`.
+      This should maybe be renamed as `isExpr` to make is clear it is a boolean.
     type: boolean
     default: false
   global:
@@ -35,6 +36,7 @@ properties:
     $comment: |
       Cells imported from Jupyter Notebooks or RMarkdown have `{"global": true}`
       to match the execution model of those platforms.
+      This should maybe be renamed as `isGlobal` to make is clear it is a boolean.
     type: boolean
     default: false
   inputs:
@@ -69,15 +71,6 @@ properties:
           type: object
       required:
         - value
-  options:
-    description: |
-      User options for compiling and executing this cell. The number, names and values of options
-      is flexible and will depend upon the capabilities of the language and the execution context.
-    $comment: |
-      An example usage is to store RMarkdown code chunk [options](https://yihui.name/knitr/options/). 
-      These are used to specify things like figure sizes. For example, the RMarkdown chunk with options
-      `{r fig.height=10, fig.width=5}` gets converted into a cell with `"options": {"fig.height": "10", "fig.width": "5"}`.
-    type: object
   messages:
     description: |
       Messages created during compilation or execution of the cell.
