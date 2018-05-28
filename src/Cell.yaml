@@ -75,6 +75,45 @@ properties:
       These are used to specify things like figure sizes. For example, the RMarkdown chunk with options
       `{r fig.height=10, fig.width=5}` gets converted into a cell with `"options": {"fig.height": "10", "fig.width": "5"}`.
     type: object
+  messages:
+    description: |
+      Messages created during compilation or execution of the cell.
+    type: array
+    items:
+      type: object
+      properties:
+        type:
+          description: The message type
+          type: string
+          enum:
+            - warning
+            - error
+            - syntax-error
+            - runtime-error
+        sender:
+          description: The message sender
+          type: string
+          examples:
+            - RContext
+            - Engine
+        message:
+          description: The message string
+          type: string
+        line:
+          description: |
+            The line number of the cell's source code that the error occurred on 
+          type: number
+        column:
+          description: |
+            The column of the cell's source code that the error occurred on 
+          type: number
+        trace:
+          description: |
+            A stack trace
+          type: string
+        required:
+          - type
+          - message
 required:
   - type
   - code
