@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.28.1-preview.3",
+  "version": "0.28.1",
   "description": "Stencila is the office suite for reproducible research.",
   "main": "build/stencila.cjs.js",
   "jsnext:main": "index.es.js",
