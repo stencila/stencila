@@ -51,10 +51,13 @@ export default class Project extends Component {
   }
 
   getChildContext() {
-    let pubMetaDbSession = this._getPubMetaDbSession()
+    // ATTENTION: we should be careful with adding things here.
+    // If something is missing, we likely should fix it somewhere else.
+    // Add only project related things here.
+    // One example for what better not to add: 'pubMetaDbSession'.
+    // This is passed to Texture as prop which in turn exposes it via childContext.
     return {
       documentArchive: this.props.documentArchive,
-      pubMetaDbSession: pubMetaDbSession,
       urlResolver: this.props.documentArchive
     }
   }
