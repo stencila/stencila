@@ -8,7 +8,7 @@ Stencila function libraries make it easy for users to expand their analysis with
 
 Stencila function libraries are collections of functions for data manipulation, analysis and plotting. These collections are grouped per research discipline and programming language. For example, an "R Metagenomics Stencila Library" will contain functions written in R developed and used within the metagenomics research community.
 
-Stencila uses its own simple *glue-like* language [Mini](https://github.com/stencila/mini) which enables the communication between functions written in different programming lanaguages. On its own Mini cannot perform sophisticated calculations but that is not its main purpose. Mini is used for wrapping functions in other languages making them interoperable. Behnid the scenes Stencila uses Mini to call the relevant language context in order to execute the wrapped function.
+Stencila uses its own simple *glue-like* language [Mini](languages/mini/README.md) which enables the communication between functions written in different programming lanaguages. On its own Mini cannot perform sophisticated calculations but that is not its main purpose. Mini is used for wrapping functions in other languages making them interoperable. Behnid the scenes Stencila uses Mini to call the relevant language context in order to execute the wrapped function.
 
 ### Why are Stencila function libraries useful?
 
@@ -37,29 +37,42 @@ Domain-specific libraries are collections of functions developed and used within
 
 Domain-specific libraries are particularily useful for making various tools for data analysis fully interoperable. Researchers who tend to do most of their work in spreadsheets are then able to extend their data analysis by a whole new array of functions in R, Python or other languages.
 
-## Adding new functions
+## Add new functions :sparkles:
 
-Adding functions to Stencila function libraries is fairly straightforward. We provided templates for different languages (see below) which should help contributors wrap their functions in Mini and write documentation. As mentioned, Mini is intentionally simple to minimise the effort of adding new functions to the libraries.
+Adding functions to Stencila function libraries is fairly straightforward. We provided a [template](https://github.com/stencila/libtemplate) which should help contributors wrap their functions in Mini and write docstrings. As mentioned, Mini is intentionally simple to minimise the effort of adding new functions to the libraries.
 
-In order to add your function to the selected library, please use the template provided for the relevant programming lanague:
+We recommend that each library is located in its own separate directory, structured as in this [template](https://github.com/stencila/libtemplate).
+ You can either decide to download the template and create the library locally, or you can upload it to GitHub or
+ BitBucket (in any case, we recommend keeping it under version control!).
 
-* **R functions** [template](languages/r/README.md)
-
-* **Python functions** [template](languages/python/README.md)
-
-* **Javascript functions** [template](languages/js/README.md)
-
-## Creating new libraries
-We recommend that each library is located in its own separate directory, structured as in this [template](link). Preferably, it should be a public repository.
 The structure of the new library repository should be simple:
 
 ```
-func/
-    functionA.R
-    functionB.js
-    functionB.py
+docs/
+funcs/
+    func1.R
+    func1.js
+    func1.py
     ....
-    tests/
+tests/test_func1.R
 README.md
 LICENSE
 ```
+
+Your functions should be implemented in the `funcs` directory. There should be just one function per file (i.e. do not implement two functions in the same file).
+Follow the templates for each language for writing the documentation strings. When you register a function, the documentation strings will be automatically converted
+into documentation files which will be placed in the `docs` folder.
+
+### Register :sparkles:
+
+Once you finished implementing and testing your function, you need to register it to make it available from within Stencila. In order to do
+that select `Register function` from the  menu and point to the main directory (for example, `libgenomics`) where the the file with the function is located. Stencila will automatically
+ create the documentation from the docstring. You can then use the function within Stencila.
+
+ If you want to make the function available for someone else using Stencila on a different machine, select `Create function package`, then point
+ to the man directory with function file. Once the function package is created, select where you want to save it. You can then share the package (which
+ essentially is a `zip` file). If the main directory with the function exists as a GitHub or BitBucket repository (see [these guidelines](https://github.com/stencila/libtemplate)),
+ then you can simply point users to the repository (which needs to be public).
+
+ To register the function from the package, use the `Register function` option from the menu, as described above. If you are registering from a GitHub or BitBucket repository,
+ just copy and paste the link to it.

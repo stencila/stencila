@@ -1,18 +1,18 @@
 - Welcome
   - [About](README.md)
   - Getting started
-    - [Installation](installation.md)
-    - [Quick start]
-    - [Tutorials]
-    - [FAQ]
+    - [Installation](getting-started/installation.md)
+    - [Quick start](getting-started/quick-start.md)
+    - [Tutorials](getting-started/tutorials.md)
+    - [FAQ](getting-started/faq.md)
 - Documents
   - Notebooks
   - Articles
   - Sheets
 - Contributing
   - [Guidelines](CONTRIBUTING.md)
-  - [Architecture]()
-- [Computation](computation/README.md)
+  - [Architecture](architecture/README.md)
+- Computation
   - [Data](computation/data.md)
   - [Operations](computation/operations.md)
   - [Contexts](computation/contexts.md)
@@ -24,4 +24,4 @@
   - [Python](languages/py/README.md)
   - [R](languages/r/README.md)
   - [SQL](languages/sql/README.md)
-- Environments
+- Images
