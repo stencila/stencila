@@ -10,10 +10,10 @@ const yaml = require('js-yaml')
 
 /**
  * Augment an OpenAPI 3.0 YAML specification with non-standard
- * vendor exntensions (e.g. `x-code-samples` enabled by redoc)
+ * vendor extensions (e.g. `x-code-samples` enabled by redoc)
  */
 function openapi2redoc () {
-  // List of languages and thh templates to use to generate code samples 
+  // List of languages and the templates to use to generate code samples 
   // for each of them
   const langs = ['Curl', 'Javascript', 'Python', 'R']
   const templates = {}
@@ -44,14 +44,25 @@ function openapi2redoc () {
 
     const yml = yaml.dump(api)
     file.contents = Buffer.from(yml)
-    file.path = replaceExt(file.path, '.redoc-yaml')
+    file.path = replaceExt(file.path, '.redoc.yaml')
     callback(null, file)
   })
 }
 
-gulp.task('clean', function () {
-  return del('./build')
-})
+/**
+ * Convert a YAML file to a JSON file e.g. so that is can be referenced
+ * from other JSON Schema documents
+ */
+function yaml2json () {
+  return through.obj(function(file, encoding, callback) {
+    const yml = file.contents.toString()
+    const doc = yaml.safeLoad(yml, {json: true})
+    const json = JSON.stringify(doc, null, '  ')
+    file.contents = Buffer.from(json)
+    file.path = replaceExt(file.path, '.json')
+    callback(null, file)
+  })
+}
 
 gulp.task('site', function () {
   gulp.src([
@@ -75,6 +86,8 @@ gulp.task('src/yaml', function () {
   gulp.src(['./src/*.yaml'])
     .pipe(plumber())
     .pipe(gulp.dest('./build/'))
+    .pipe(yaml2json())
+    .pipe(gulp.dest('./build/'))
     .pipe(connect.reload())
 })
 
@@ -97,6 +110,10 @@ gulp.task('watch', function () {
   gulp.watch(['./site/**/*'], ['site'])
   gulp.watch(['./src/Host.yaml'], ['src/openapi'])
   gulp.watch(['./src/*.yaml'], ['src/yaml'])
+})
+
+gulp.task('clean', function () {
+  return del('./build')
 })
 
 gulp.task('default', ['build', 'connect', 'watch'])
