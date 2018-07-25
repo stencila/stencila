@@ -3,8 +3,8 @@
 }
 
 .sc-cell .se-show-code {
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   margin: 0 auto;
   background: #fff;
   border-radius: 0;
@@ -24,14 +24,24 @@
   width: 2px;
 }
 
+.sc-cell .se-status i {
+  display: none;
+}
+
+.sc-cell .se-show-code .se-status i {
+  display: inline;
+  font-size: 14px;
+  position: relative;
+  top: -2px;
+  color: rgba(0,0,0,0.4);
+}
+
 .sc-cell .se-show-code .se-status {
   position: relative;
   left: 7px;
-  width: 16px;
-
-  height: 16px;
-  background: blue;
-  border-radius: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
 }
 
 .sc-cell .se-show-code:hover .se-status {
@@ -71,8 +81,8 @@
 
 .sc-cell .se-language {
   position: absolute;
-  top: 1px;
-  right: 20px;
+  top: 34px;
+  right: 9px;
   font-size: 10px;
   color: #888;
   font-family: var(--mono-font-family);

@@ -34,6 +34,7 @@ export default class CodeEditor extends Component {
       // TextPropertyEditor props
       name: this.props.name,
       path,
+      disabled: this.props.disabled,
       multiLine: this.props.multiline,
       // Surface props
       commands,
