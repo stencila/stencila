@@ -32,7 +32,8 @@ class CellComponent extends NodeComponent {
   getInitialState() {
     return {
       hideCode: true,
-      forceOutput: true
+      forceOutput: true,
+      hideCodeToggle: true
     }
   }
 
@@ -53,14 +54,16 @@ class CellComponent extends NodeComponent {
     let el = $$('div').addClass('sc-cell')
     el.attr('data-id', cell.id)
 
-    el.append(
-      $$('button').append(
-        this._renderStatus($$)
+    if (!this.state.hideCodeToggle) {
+      el.append(
+        $$('button').append(
+          this._renderStatus($$)
+        )
+        .addClass('se-show-code')
+        .attr('title', 'Show Code')
+        .on('click', this._toggleCode)
       )
-      .addClass('se-show-code')
-      .attr('title', 'Show Code')
-      .on('click', this._toggleCode)
-    )
+    }
 
     if (!this.state.hideCode) {
       let source = cell.find('source-code')

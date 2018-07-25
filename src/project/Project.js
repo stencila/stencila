@@ -11,6 +11,10 @@ export default class Project extends Component {
 
     // Store the viewports, so we can restore scroll positions
     this._viewports = {}
+
+    this.appState = {
+      reproduce: false
+    }
   }
 
   didMount() {
@@ -22,13 +26,16 @@ export default class Project extends Component {
       'closeContext': this._closeContext,
       'openHelp': this._openHelp,
       'toggleHelp': this._toggleHelp,
-      'toggleHosts': this._toggleHosts
+      'toggleHosts': this._toggleHosts,
+      'toggleReproduce': this._toggleReproduce
     })
 
     if (platform.inBrowser) {
       this.documentEl = DefaultDOMElement.wrapNativeElement(document)
       this.documentEl.on('keydown', this.onKeyDown, this)
     }
+
+
   }
 
   willUpdateState() {
@@ -57,7 +64,8 @@ export default class Project extends Component {
     // This is passed to Texture as prop which in turn exposes it via childContext.
     return {
       documentArchive: this.props.documentArchive,
-      urlResolver: this.props.documentArchive
+      urlResolver: this.props.documentArchive,
+      appState: this.appState
     }
   }
 
@@ -213,6 +221,19 @@ export default class Project extends Component {
     this.refs.projectBar.extendProps({
       contextId: this._contextId
     })
+  }
+
+  _toggleReproduce() {
+    this.appState.reproduce = !this.appState.reproduce
+    
+    // Update all cell nodes in the document
+    let cellComps = this.findAll('.sc-cell')
+    cellComps.forEach((cellComponent) => {
+      cellComponent.extendState({
+        hideCodeToggle: !this.appState.reproduce
+      })
+    })
+    
   }
 
   /*
