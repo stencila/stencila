@@ -1,7 +1,6 @@
 import { Component, DefaultDOMElement, platform } from 'substance'
 import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
-import ProjectBar from './ProjectBar'
 import ContextPane from './ContextPane'
 import { addNewDocument } from './ProjectManipulations'
 
@@ -71,12 +70,12 @@ export default class Project extends Component {
           contextId: this._contextId,
           contextProps: this._contextProps
         }).ref('contextPane')
-      ),
-      $$(ProjectBar, {
-        contextId: this._contextId,
-        documentId: this.state.documentId,
-        archive: this.props.documentArchive
-      }).ref('projectBar')
+      )
+      // $$(ProjectBar, {
+      //   contextId: this._contextId,
+      //   documentId: this.state.documentId,
+      //   archive: this.props.documentArchive
+      // }).ref('projectBar')
     )
     return el
   }
@@ -120,7 +119,8 @@ export default class Project extends Component {
         $$(TextureEditorPackage.Editor, {
           viewport,
           editorSession,
-          pubMetaDbSession: this._getPubMetaDbSession()
+          pubMetaDbSession: this._getPubMetaDbSession(),
+          disabled: true
         }).ref('editor')
           .addClass('sc-article-editor')
       )

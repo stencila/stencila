@@ -1,9 +1,8 @@
-import { Component, NodeComponent, isEqual } from 'substance'
+import { Component, NodeComponent, isEqual, FontAwesomeIcon } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
 import { getCellState, getErrorMessage } from '../shared/cellHelpers'
 import { toString as stateToString, OK, BROKEN, FAILED } from '../engine/CellStates'
-import NodeMenu from './NodeMenu'
 
 const LANG_LABELS = {
   'mini': 'Mini',
@@ -32,15 +31,20 @@ class CellComponent extends NodeComponent {
 
   getInitialState() {
     return {
-      hideCode: false,
-      forceOutput: false
+      hideCode: true,
+      forceOutput: true
     }
   }
 
   _renderStatus($$) {
     const cellState = getCellState(this.props.node)
     let statusName = cellState ? stateToString(cellState.status) : 'unknown'
-    return $$('div').addClass(`se-status sm-${statusName}`)
+    let el = $$('div').addClass(`se-status sm-${statusName}`)
+    let icon = this.state.hideCode ? 'fa-angle-down' : 'fa-angle-up'
+    el.append(
+      $$(FontAwesomeIcon, {icon: icon })
+    )
+    return el
   }
 
   render($$) {
@@ -48,6 +52,15 @@ class CellComponent extends NodeComponent {
     const cellState = getCellState(cell)
     let el = $$('div').addClass('sc-cell')
     el.attr('data-id', cell.id)
+
+    el.append(
+      $$('button').append(
+        this._renderStatus($$)
+      )
+      .addClass('se-show-code')
+      .attr('title', 'Show Code')
+      .on('click', this._toggleCode)
+    )
 
     if (!this.state.hideCode) {
       let source = cell.find('source-code')
@@ -65,25 +78,17 @@ class CellComponent extends NodeComponent {
         )
       )
       el.append(cellEditorContainer)
-      el.append(
-        this._renderEllipsis($$)
-      )
+      // el.append(
+      //   this._renderEllipsis($$)
+      // )
       el.append(
         $$('div').addClass('se-language').append(
           LANG_LABELS[source.attributes.language]
         )
       )
-    } else {
-      // TODO: Create proper visual style
-      el.append(
-        $$('button').append(
-          this._renderStatus($$)
-        )
-        .addClass('se-show-code')
-        .attr('title', 'Show Code')
-        .on('click', this._showCode)
-      )
     }
+
+
 
     if (cellState) {
       let valueDisplay = $$(ValueDisplay, {
@@ -100,27 +105,18 @@ class CellComponent extends NodeComponent {
   /*
     Move this into an overlay, shown depending on app state
   */
-  _renderEllipsis($$) {
-    let Button = this.getComponent('button')
-    let el = $$('div').addClass('se-ellipsis')
-    let configurator = this.context.editorSession.getConfigurator()
-    let button = $$(Button, {
-      icon: 'ellipsis',
-      active: false,
-      theme: 'light'
-    }).on('click', this._toggleMenu)
-    el.append(button)
+  // _renderEllipsis($$) {
+  //   let Button = this.getComponent('button')
+  //   let el = $$('div').addClass('se-ellipsis')
+  //   let button = $$(Button, {
+  //     icon: 'close',
+  //     active: false,
+  //     theme: 'light'
+  //   }).on('click', this._hideCode)
+  //   el.append(button)
 
-    let sel = this.context.editorSession.getSelection()
-    if (sel.isNodeSelection() && sel.getNodeId() === this.props.node.id) {
-      el.append(
-        $$(NodeMenu, {
-          toolPanel: configurator.getToolPanel('node-menu')
-        }).ref('menu')
-      )
-    }
-    return el
-  }
+  //   return el
+  // }
 
   getExpression() {
     return this.refs.expressionEditor.getContent()
@@ -146,18 +142,18 @@ class CellComponent extends NodeComponent {
     return result
   }
 
-  _showCode() {
+  _toggleCode() {
     this.extendState({
-      hideCode: false
+      hideCode: !this.state.hideCode
     })
-  }
+  } 
 
   /*
     Generally output is shown when cell is not a definition, however it can be
     enforced
   */
   _showOutput() {
-    return !this._isDefinition() || this.state.forceOutput
+    return (!this._isDefinition() || !this.state.hideCode)
   }
 
   _isDefinition() {

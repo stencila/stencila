@@ -25,3 +25,30 @@
 
 /* Branding overrides */
 @import './_branding.css';
+
+
+/* READER HACKS */
+
+.sc-editor > .se-main-section > .se-toolbar-wrapper {
+  display: none !important;
+}
+
+.se-ref-list-options {
+  display: none !important;
+}
+
+.se-ref-actions {
+  display: none !important;
+}
+
+.sc-authors-list button {
+  display: none !important;
+}
+
+.sc-editor .sc-container-editor .sc-isolated-node.sm-focused {
+  outline: 1px solid transparent;
+}
+
+.sc-isolated-node.sm-default-style.sm-selected {
+  outline: 1px solid transparent;
+}
