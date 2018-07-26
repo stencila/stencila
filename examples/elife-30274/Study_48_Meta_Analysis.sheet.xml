@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sheet PUBLIC "DarSheet 0.1.0" "http://darformat.org/DarSheet-0.1.0.dtd">
+<sheet>
+  <meta>
+    <columns>
+      <col/>
+      <col/>
+      <col/>
+      <col/>
+      <col/>
+      <col/>
+      <col/>
+    </columns>
+  </meta>
+  <data>
+    <row>
+      <cell>protocol</cell>
+      <cell>study</cell>
+      <cell>comparison</cell>
+      <cell>estimate</cell>
+      <cell>CI.lower</cell>
+      <cell>CI.upper</cell>
+      <cell>N</cell>
+    </row>
+    <row>
+      <cell>Protocol2</cell>
+      <cell>RP:CB Lot 1</cell>
+      <cell>Total RNA 0hr vs. 24hr</cell>
+      <cell>0.833372262652619</cell>
+      <cell>-0.905304816445354</cell>
+      <cell>2.48388447645551</cell>
+      <cell>6</cell>
+    </row>
+    <row>
+      <cell>Protocol2</cell>
+      <cell>RP:CB Lot 2</cell>
+      <cell>Total RNA 0hr vs. 24hr</cell>
+      <cell>4.10625570603297</cell>
+      <cell>0.903774161031693</cell>
+      <cell>7.23054876702142</cell>
+      <cell>6</cell>
+    </row>
+    <row>
+      <cell>Protocol2</cell>
+      <cell>Lin et al., 2012</cell>
+      <cell>Total RNA 0hr vs. 24hr</cell>
+      <cell>4.19269403175496</cell>
+      <cell>0.942432822594983</cell>
+      <cell>7.36775637578524</cell>
+      <cell>6</cell>
+    </row>
+    <row>
+      <cell>Protocol2</cell>
+      <cell>Meta-Analysis</cell>
+      <cell>Total RNA 0hr vs. 24hr</cell>
+      <cell>2.52100343934618</cell>
+      <cell>0.0487739991755767</cell>
+      <cell>0.0135583555523273</cell>
+      <cell>3</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Lin et al., 2012</cell>
+      <cell>Active 0hr vs. 1hr</cell>
+      <cell>0.544803092883016</cell>
+      <cell>0.492600523516338</cell>
+      <cell>0.59309905435981</cell>
+      <cell>755</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 1</cell>
+      <cell>Active 0hr vs. 1hr</cell>
+      <cell>0.394978174183889</cell>
+      <cell>0.330926415995141</cell>
+      <cell>0.455407160371344</cell>
+      <cell>708</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 2</cell>
+      <cell>Active 0hr vs. 1hr</cell>
+      <cell>0.311887324061467</cell>
+      <cell>0.244342770366165</cell>
+      <cell>0.376419971539937</cell>
+      <cell>719</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Meta-Analysis</cell>
+      <cell>Active 0hr vs. 1hr</cell>
+      <cell>0.422394865481268</cell>
+      <cell>0.276748983172334</cell>
+      <cell>0.549069903513869</cell>
+      <cell>3</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Lin et al., 2012</cell>
+      <cell>Active 0hr vs. 24hr</cell>
+      <cell>0.598532862751614</cell>
+      <cell>0.550699957124031</cell>
+      <cell>0.642447596833123</cell>
+      <cell>755</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 1</cell>
+      <cell>Active 0hr vs. 24hr</cell>
+      <cell>0.263681562879549</cell>
+      <cell>0.193763416000384</cell>
+      <cell>0.330934640452297</cell>
+      <cell>708</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 2</cell>
+      <cell>Active 0hr vs. 24hr</cell>
+      <cell>0.336803616781429</cell>
+      <cell>0.270344522584737</cell>
+      <cell>0.400068146326366</cell>
+      <cell>719</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Meta-Analysis</cell>
+      <cell>Active 0hr vs. 24hr</cell>
+      <cell>0.411380216067244</cell>
+      <cell>0.182324374841834</cell>
+      <cell>0.598082847650777</cell>
+      <cell>3</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Lin et al., 2012</cell>
+      <cell>Active 1hr vs. 24hr</cell>
+      <cell>0.512267279808032</cell>
+      <cell>0.457643445403327</cell>
+      <cell>0.563038826282248</cell>
+      <cell>755</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 1</cell>
+      <cell>Active 1hr vs. 24hr</cell>
+      <cell>0.126014783346227</cell>
+      <cell>0.0528225130570288</cell>
+      <cell>0.197860360732346</cell>
+      <cell>708</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 2</cell>
+      <cell>Active 1hr vs. 24hr</cell>
+      <cell>0.264876132660924</cell>
+      <cell>0.195546674147968</cell>
+      <cell>0.331571225895324</cell>
+      <cell>719</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Meta-Analysis</cell>
+      <cell>Active 1hr vs. 24hr</cell>
+      <cell>0.310785330786397</cell>
+      <cell>0.0680065881942219</cell>
+      <cell>0.518815196723399</cell>
+      <cell>3</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Lin et al., 2012</cell>
+      <cell>Silent 0hr vs. 1hr</cell>
+      <cell>-0.0853297827042363</cell>
+      <cell>-0.201789319320477</cell>
+      <cell>0.0335089902999364</cell>
+      <cell>274</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 1</cell>
+      <cell>Silent 0hr vs. 1hr</cell>
+      <cell>0.370210638512167</cell>
+      <cell>0.297771779075088</cell>
+      <cell>0.438410609125486</cell>
+      <cell>580</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 2</cell>
+      <cell>Silent 0hr vs. 1hr</cell>
+      <cell>0.20844081267309</cell>
+      <cell>0.128657801031554</cell>
+      <cell>0.285542923962977</cell>
+      <cell>572</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Meta-Analysis</cell>
+      <cell>Silent 0hr vs. 1hr</cell>
+      <cell>0.172737405722111</cell>
+      <cell>-0.0941343938784844</cell>
+      <cell>0.416448576649838</cell>
+      <cell>3</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Lin et al., 2012</cell>
+      <cell>Silent 0hr vs. 24hr</cell>
+      <cell>0.135289902493702</cell>
+      <cell>0.017500303789283</cell>
+      <cell>0.249375626228982</cell>
+      <cell>276</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 1</cell>
+      <cell>Silent 0hr vs. 24hr</cell>
+      <cell>0.244738291931021</cell>
+      <cell>0.166576097152029</cell>
+      <cell>0.319843975770665</cell>
+      <cell>579</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 2</cell>
+      <cell>Silent 0hr vs. 24hr</cell>
+      <cell>0.241144497792438</cell>
+      <cell>0.162372958920408</cell>
+      <cell>0.316861883184971</cell>
+      <cell>572</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Meta-Analysis</cell>
+      <cell>Silent 0hr vs. 24hr</cell>
+      <cell>0.222223975496075</cell>
+      <cell>0.171214931520817</cell>
+      <cell>0.272044861492964</cell>
+      <cell>3</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Lin et al., 2012</cell>
+      <cell>Silent 1hr vs. 24hr</cell>
+      <cell>0.267239865737106</cell>
+      <cell>0.144469649398785</cell>
+      <cell>0.381907133794828</cell>
+      <cell>236</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 1</cell>
+      <cell>Silent 1hr vs. 24hr</cell>
+      <cell>0.0201218377830468</cell>
+      <cell>-0.0613925089779307</cell>
+      <cell>0.10136954859561</cell>
+      <cell>580</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>RP:CB Lot 2</cell>
+      <cell>Silent 1hr vs. 24hr</cell>
+      <cell>0.131050736084838</cell>
+      <cell>0.04967402261982</cell>
+      <cell>0.210698950503949</cell>
+      <cell>573</cell>
+    </row>
+    <row>
+      <cell>protocol 3/4</cell>
+      <cell>Meta-Analysis</cell>
+      <cell>Silent 1hr vs. 24hr</cell>
+      <cell>0.134103800386765</cell>
+      <cell>-0.00405220926362162</cell>
+      <cell>0.267236310759097</cell>
+      <cell>3</cell>
+    </row>
+  </data>
+</sheet>
