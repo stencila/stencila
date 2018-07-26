@@ -1,6 +1,7 @@
 import { EditorSession } from 'substance'
 import { TextureConfigurator, JATSImporter } from 'substance-texture'
 import ArticleEditorPackage from './ArticleEditorPackage'
+import loadPersistedCellStates from './loadPersistedCellStates'
 
 export default {
   load(xml, context) {
@@ -21,6 +22,9 @@ export default {
     let importer = configurator.createImporter('texture-article')
     let doc = importer.importDocument(jats.dom)
     let editorSession = new EditorSession(doc, { configurator, context })
+    // EXPERIMENTAL: taking persisted cell outputs to initialize cell state
+    loadPersistedCellStates(doc)
+
     return editorSession
   }
 }
