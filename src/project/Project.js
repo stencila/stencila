@@ -3,6 +3,7 @@ import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
 import ContextPane from './ContextPane'
 import { addNewDocument } from './ProjectManipulations'
+import { _initStencilaArchive } from '../stencilaAppHelpers'
 
 export default class Project extends Component {
 
@@ -13,7 +14,8 @@ export default class Project extends Component {
     this._viewports = {}
 
     this.appState = {
-      reproduce: false
+      reproduce: false,
+      engineRunning: false
     }
   }
 
@@ -223,17 +225,45 @@ export default class Project extends Component {
     })
   }
 
-  _toggleReproduce() {
-    this.appState.reproduce = !this.appState.reproduce
-    
+  _toggleReproduce () {
+    // TODO: we should update the state after the engine has been
+    // started successfully
+    let reproduce = !this.appState.reproduce
+    this.appState.reproduce = reproduce
+    if (reproduce && !this.appState.engineRunning) {
+      this._launchExecutionEngine().then(running => {
+        if (!running) {
+          this._toggleReproduce()
+        }
+      })
+    }
+    this._updateCellComponents()
+  }
+
+  _launchExecutionEngine () {
+    return new Promise((resolve, reject) => {
+      resolve(window.confirm('Start the Engine?'))
+    }).then(yesPlease => {
+      if (yesPlease) {
+        const archive = this.props.documentArchive
+        return _initStencilaArchive(archive, this.context).then(() => {
+          this.appState.engineRunning = true
+          return true
+        })
+      }
+      return false
+    })
+  }
+
+  _updateCellComponents () {
     // Update all cell nodes in the document
     let cellComps = this.findAll('.sc-cell')
     cellComps.forEach((cellComponent) => {
       cellComponent.extendState({
-        hideCodeToggle: !this.appState.reproduce
+        hideCodeToggle: !this.appState.reproduce,
+        hideCode: true
       })
     })
-    
   }
 
   /*
