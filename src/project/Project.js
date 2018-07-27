@@ -3,7 +3,7 @@ import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
 import ContextPane from './ContextPane'
 import { addNewDocument } from './ProjectManipulations'
-import { _initStencilaArchive } from '../stencilaAppHelpers'
+import _initStencilaArchive from '../shared/_initStencilaArchive'
 
 export default class Project extends Component {
 

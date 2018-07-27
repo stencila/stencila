@@ -14,18 +14,20 @@ export default function loadPersistedCellStates (doc) {
         value = JSON.parse(json)
       }
     }
-    cell.state = new PseudoCellState(doc, cell, value)
+    let outputName = cell.attr('output-name')
+    cell.state = new PseudoCellState(doc, cell, value, outputName)
   })
 }
 
 class PseudoCellState extends CellState {
-  constructor (doc, cell, value) {
+  constructor (doc, cell, value, outputName) {
     super(doc, {
       id: cell.id,
       lang: getLang(cell),
       source: getSource(cell),
       value,
-      status: !isNil(value) ? OK : UNKNOWN
+      status: !isNil(value) ? OK : UNKNOWN,
+      output: outputName
     })
   }
 }
