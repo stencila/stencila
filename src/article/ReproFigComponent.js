@@ -20,7 +20,7 @@ export default class ReproFigComponent extends NodeComponent {
     if (content) {
       contentEl = $$(this.getComponent(figType), {
         node: content,
-        disabled: this.props.disabled
+        disabled: true // HACK: in reader we always want to disable
       })
       el.append(contentEl.ref('content'))
     }
@@ -28,7 +28,7 @@ export default class ReproFigComponent extends NodeComponent {
     const title = node.findChild('title')
     let titleEl = $$(this.getComponent('text-property-editor'), {
       path: title.getPath(),
-      disabled: this.props.disabled,
+      disabled: true, // HACK: in reader we always want to disable
       placeholder: 'Enter Title'
     }).addClass('se-title').ref('title')
     el.append(titleEl)
@@ -38,7 +38,7 @@ export default class ReproFigComponent extends NodeComponent {
     if (caption) {
       captionEl = $$(this.getComponent('caption'), {
         node: caption,
-        disabled: this.props.disabled
+        disabled: true // HACK: in reader we always want to disable
       })
     }
     el.append(captionEl.ref('caption'))
