@@ -30,15 +30,15 @@
     </article-meta>
   </front>
   <body id="body-1">
-    <p id="p-86b98706e8e87e58c0f7999549f95a98">Last year eLife started a project with <ext-link id="ext-link-d0ba384ffcfa31baf9644deff61da122" xlink:href="http://substance.io">Substance</ext-link> and <ext-link id="ext-link-3c8ddc7a42573450e3bec6abf8202c30" xlink:href="http://stenci.la">Stencila</ext-link> to develop the technology required to support the Reproducible Manuscript through authoring, sharing and publication. Today we want to share with you a functional prototype implementing that vision.</p>
-    <p id="p-0bfacde325c4587acb2ddf47ae68c879">The article you are reading right now was written in Stencila, an open source office suite for reproducible research. It allows <ext-link id="ext-link-a9ce4e38342694416ce8237c5fa7c059" xlink:href="https://elifesciences.org/labs/c496b8bb/stencila-an-office-suite-for-reproducible-research">authoring of interactive, data-driven publications</ext-link> in visual interfaces.</p>
+    <p id="p-86b98706e8e87e58c0f7999549f95a98">Last year in September <ext-link id="ext-link-5fe4429b9f70090965751505b4a95bff" xlink:href="https://elifesciences.org">eLife</ext-link>, <ext-link id="ext-link-d0ba384ffcfa31baf9644deff61da122" xlink:href="http://substance.io">Substance</ext-link> and <ext-link id="ext-link-3c8ddc7a42573450e3bec6abf8202c30" xlink:href="http://stenci.la">Stencila</ext-link> started the <ext-link id="ext-link-4e63851b77f70ab1c1c8d5ce0f8a2f9e" xlink:href="https://elifesciences.org/labs/7dbeb390/reproducible-document-stack-supporting-the-next-generation-research-article">Reproducible Document Stack Project</ext-link> with the goal to develop the technology required to support the Reproducible Manuscript through authoring and publication. Today we want to share with you a functional prototype implementing that vision.</p>
+    <p id="p-0bfacde325c4587acb2ddf47ae68c879">The article you are reading right now was written in Stencila, an open source office suite designed for reproducible research. It allows <ext-link id="ext-link-a9ce4e38342694416ce8237c5fa7c059" xlink:href="https://elifesciences.org/labs/c496b8bb/stencila-an-office-suite-for-reproducible-research">authoring of interactive, data-driven publications</ext-link> in visual interfaces.</p>
     <sec id="heading-d59bc255242c0ea263162a3e6dadebbf">
       <title>Document Archive (Dar)</title>
-      <p id="p-39e1297085042143a2f79b3f9d9f9994">Publications are represented as self-contained archives of documents and assets, building on open standards, such as JATS XML, which have been widely adopted within the publishing industry. Together with experts from open science communities we defined extensions to add source code, data and methods to the journal-ready manuscript.</p>
+      <p id="p-39e1297085042143a2f79b3f9d9f9994">A publication is represented as a <ext-link id="ext-link-f41830de376dba4ae6bc7e394d4db8c7" xlink:href="https://github.com/substance/dar">self-contained archive of documents and assets</ext-link>, building on open standards, such as JATS XML, which have been widely adopted within the publishing industry. Together with experts from open science communities we defined extensions to add source code, data and methods to a journal-ready manuscript.</p>
     </sec>
     <sec id="heading-85e699550b204443ddd3716e6fcf6b5d">
-      <title>Source Data</title>
-      <code id="cell-40caa02ef72fbc6610a39d55963c1f66" specific-use="cell">
+      <title>Living Documents</title>
+      <code id="cell-40caa02ef72fbc6610a39d55963c1f66" specific-use="cell" output-name="doc1!sales">
         <named-content>
           <alternatives>
             <code specific-use="source" language="mini"><![CDATA[sales = 'Ice Cream Sales'!A1:C10]]></code>
@@ -46,7 +46,8 @@
           </alternatives>
         </named-content>
       </code>
-      <p id="heading-08a0484f97c11f98d2e65709baf9c11e">Datasets are an intergral part of the publication and used to power interactive plots. The following image is produced based on data in a spreadsheet that is included in the publication. Note, that you can reveal the source code of the image by clicking on "Reproduce".</p>
+      <p id="p-b773df7707e98ec8439e6e2904bcbf16">In order to allow scientists transition to fully reproducible publications, we are taking the approach of building on the traditional manuscript and bringing it to life by including data and methods to generate reproducible elements such as interactive plots.</p>
+      <p id="p-977ab9c02d835b3e56217fc1ed06cd0d">The following image is produced based on data in a spreadsheet that is included in the publication. Note, that you can inspect the source code of the article by clicking on "Reproduce".</p>
       <code id="cell-a7678e8fc47de64b37cb92acbe1f0a14" specific-use="cell">
         <named-content>
           <alternatives>
@@ -56,11 +57,11 @@
   xaxis: { title: 'Temperature' },
   yaxis: { title: 'Ice Cream Sales' }
 })]]></code>
-            <code specific-use="output" language="json"><![CDATA[{"type":"plotly","data":{"type":"plotly","traces":[{"x":[18,20,24,23,26,25,20,17,18,15],"y":[50,126,118,126,280,102,93,32,103,246],"mode":"markers","name":"sunny","uid":"315146"}],"layout":{"xaxis":{"title":"Temperature","linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false,"type":"linear","range":[14.214285714285714,26.785714285714285],"autorange":true},"yaxis":{"title":"Ice Cream Sales","linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false,"type":"linear","range":[14.41620626151013,297.5837937384899],"autorange":true},"margin":{"l":50,"r":50,"t":40,"b":50},"width":"400","height":"400"}}}]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"plotly","data":{"type":"plotly","traces":[{"x":[18,20,24,23,26,25,20,17,18,15],"y":[50,126,118,126,280,102,93,32,103,246],"mode":"markers","name":"sunny","uid":"be9c62"}],"layout":{"xaxis":{"title":"Temperature","linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false,"type":"linear","range":[14.214285714285714,26.785714285714285],"autorange":true},"yaxis":{"title":"Ice Cream Sales","linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false,"type":"linear","range":[14.41620626151013,297.5837937384899],"autorange":true},"margin":{"l":50,"r":50,"t":40,"b":50},"width":"400","height":"400"}}}]]></code>
           </alternatives>
         </named-content>
       </code>
-      <code id="cell-e5158a370279ca48660e2abc1a50d6d6" specific-use="cell">
+      <code id="cell-e5158a370279ca48660e2abc1a50d6d6" specific-use="cell" output-name="doc1!surface_raw_data">
         <named-content>
           <alternatives>
             <code specific-use="source" language="mini"><![CDATA[surface_raw_data = 'Mt Bruno'!A1:X25]]></code>
@@ -68,11 +69,8 @@
           </alternatives>
         </named-content>
       </code>
-    </sec>
-    <sec id="heading-87809f7b7740d82ef06082d4eb132f93">
-      <title>Code evaluation in the browser and beyond</title>
-      <p id="heading-2499a5e81581ba4bacc36c9af5768c50" level="1">The following image uses Mt Bruno Elevation data, included as a spreadsheet and renders it using Plotly, .</p>
-      <code id="cell-b3f4c7167007f837c075aa06676cb7f5" specific-use="cell">
+      <p id="heading-2499a5e81581ba4bacc36c9af5768c50" level="1">The following image uses Mt Bruno Elevation data, which is included as a spreadsheet and is rendered using <ext-link id="ext-link-97d41ec1652487858fcaa44e68c5e2c5" xlink:href="https://plot.ly/">Plotly</ext-link>, a browser-based visualization toolkit.</p>
+      <code id="cell-b3f4c7167007f837c075aa06676cb7f5" specific-use="cell" output-name="doc1!surface_data">
         <named-content>
           <alternatives>
             <code specific-use="source" language="js"><![CDATA[var z_data = []
@@ -90,22 +88,22 @@ var surface_data = {
   type: 'surface',
   z: z_data
 }]]></code>
-            <code specific-use="output" language="json"><![CDATA[{"type":"surface","data":{"type":"surface","z":[[27.71966,48.55022,65.21374,95.27666,116.9964,133.9056,152.3412,151.934,160.1139,179.5327,147.6184,170.3943,121.8194,52.58537,33.08871,38.40972,44.24843,69.5786,4.019351,3.050024,3.039719,2.996142,2.967954,1.999594],[30.4267,33.47752,44.80953,62.47495,77.43523,104.2153,102.7393,137.0004,186.0706,219.3173,181.7615,120.9154,143.1835,82.40501,48.47132,74.71461,60.0909,7.073525,6.089851,6.53745,6.666096,7.306965,5.73684,3.625628],[16.66549,30.1086,39.96952,44.12225,59.57512,77.56929,106.8925,166.5539,175.2381,185.2815,154.5056,83.0433,62.61732,62.33167,60.55916,55.92124,15.17284,8.248324,36.68087,61.93413,20.26867,68.58819,46.49812,0.2360095],[8.815617,18.3516,8.658275,27.5859,48.62691,60.18013,91.3286,145.7109,116.0653,106.2662,68.69447,53.10596,37.92797,47.95942,47.42691,69.20731,44.95468,29.17197,17.91674,16.25515,14.65559,17.26048,31.22245,46.71704],[6.628881,10.41339,24.81939,26.08952,30.1605,52.30802,64.71007,76.30823,84.63686,99.4324,62.52132,46.81647,55.76606,82.4099,140.2647,81.26501,56.45756,30.42164,17.28782,8.302431,2.981626,2.698536,5.886086,5.268358],[21.83975,6.63927,18.97085,32.89204,43.15014,62.86014,104.6657,130.2294,114.8494,106.9873,61.89647,55.55682,86.80986,89.27802,122.4221,123.9698,109.0952,98.41956,77.61374,32.49031,14.67344,7.370775,0.03711011,0.6423392],[53.34303,26.79797,6.63927,10.88787,17.2044,56.18116,79.70141,90.8453,98.27675,80.87243,74.7931,75.54661,73.4373,74.11694,68.1749,46.24076,39.93857,31.21653,36.88335,40.02525,117.4297,12.70328,1.729771,0],[25.66785,63.05717,22.1414,17.074,41.74483,60.27227,81.42432,114.444,102.3234,101.7878,111.031,119.2309,114.0777,110.5296,59.19355,42.47175,14.63598,6.944074,6.944075,27.74936,0,0,0.09449376,0.07732264],[12.827,69.20554,46.76293,13.96517,33.88744,61.82613,84.74799,121.122,145.2741,153.1797,204.786,227.9242,236.3038,228.3655,79.34425,25.93483,6.944074,6.944074,6.944075,7.553681,0,0,0,0],[0,68.66396,59.0435,33.35762,47.45282,57.8355,78.91689,107.8275,168.0053,130.9597,212.5541,165.8122,210.2429,181.1713,189.7617,137.3378,84.65395,8.677168,6.956576,8.468093,0,0,0,0],[0,95.17499,80.03818,59.89862,39.58476,50.28058,63.81641,80.61302,66.37824,198.7651,244.3467,294.2474,264.3517,176.4082,60.21857,77.41475,53.16981,56.16393,6.949235,7.531059,3.780177,0,0,0],[0,134.9879,130.3696,96.86325,75.70494,58.86466,57.20374,55.18837,78.128,108.5582,154.3774,319.1686,372.8826,275.4655,130.2632,54.93822,25.49719,8.047439,8.084393,5.115252,5.678269,0,0,0],[0,48.08919,142.5558,140.3777,154.7261,87.9361,58.11092,52.83869,67.14822,83.66798,118.9242,150.0681,272.9709,341.1366,238.664,190.2,116.8943,91.48672,14.0157,42.29277,5.115252,0,0,0],[0,54.1941,146.3839,99.48143,96.19411,102.9473,76.14089,57.7844,47.0402,64.36799,84.23767,162.7181,121.3275,213.1646,328.482,285.4489,283.8319,212.815,164.549,92.29631,7.244015,1.167,0,0],[0,6.919659,195.1709,132.5253,135.2341,89.85069,89.45549,60.29967,50.33806,39.17583,59.06854,74.52159,84.93402,187.1219,123.9673,103.7027,128.986,165.1283,249.7054,95.39966,10.00284,2.39255,0,0],[0,21.73871,123.1339,176.7414,158.2698,137.235,105.3089,86.63255,53.11591,29.03865,30.40539,39.04902,49.23405,63.27853,111.4215,101.1956,40.00962,59.84565,74.51253,17.06316,2.435141,2.287471,-0.0003636982,0],[0,0,62.04672,136.3122,201.7952,168.1343,95.2046,58.90624,46.94091,49.27053,37.10416,17.97011,30.93697,33.39257,44.03077,55.64542,78.22423,14.42782,9.954997,7.768213,13.0254,21.73166,2.156372,0.5317867],[0,0,79.62993,139.6978,173.167,192.8718,196.3499,144.6611,106.5424,57.16653,41.16107,32.12764,13.8566,10.91772,12.07177,22.38254,24.72105,6.803666,4.200841,16.46857,15.70744,33.96221,7.575688,-0.04880907],[0,0,33.2664,57.53643,167.2241,196.4833,194.7966,182.1884,119.6961,73.02113,48.36549,33.74652,26.2379,16.3578,6.811293,6.63927,6.639271,8.468093,6.194273,3.591233,3.81486,8.600739,5.21889,0],[0,0,29.77937,54.97282,144.7995,207.4904,165.3432,171.4047,174.9216,100.2733,61.46441,50.19171,26.08209,17.18218,8.468093,6.63927,6.334467,6.334467,5.666687,4.272203,0,0,0,0],[0,0,31.409,132.7418,185.5796,121.8299,185.3841,160.6566,116.1478,118.1078,141.7946,65.56351,48.84066,23.13864,18.12932,10.28531,6.029663,6.044627,5.694764,3.739085,3.896037,0,0,0],[0,0,19.58994,42.30355,96.26777,187.1207,179.6626,221.3898,154.2617,142.1604,148.5737,67.17937,40.69044,39.74512,26.10166,14.48469,8.65873,3.896037,3.571392,3.896037,3.896037,3.896037,1.077756,0],[0.001229679,3.008948,5.909858,33.50574,104.3341,152.2165,198.1988,191.841,228.7349,168.1041,144.2759,110.7436,57.65214,42.63504,27.91891,15.41052,8.056102,3.90283,3.879774,3.936718,3.968634,0.1236256,3.985531,-0.1835741],[0,5.626141,7.676256,63.16226,45.99762,79.56688,227.311,203.9287,172.5618,177.1462,140.4554,123.9905,110.346,65.12319,34.31887,24.5278,9.561069,3.334991,5.590495,5.487353,5.909499,5.868994,5.833817,3.568177],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]],"uid":"0df73f","cmin":-0.1835741,"cmax":372.8826,"cauto":true}}]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"surface","data":{"type":"surface","z":[[27.71966,48.55022,65.21374,95.27666,116.9964,133.9056,152.3412,151.934,160.1139,179.5327,147.6184,170.3943,121.8194,52.58537,33.08871,38.40972,44.24843,69.5786,4.019351,3.050024,3.039719,2.996142,2.967954,1.999594],[30.4267,33.47752,44.80953,62.47495,77.43523,104.2153,102.7393,137.0004,186.0706,219.3173,181.7615,120.9154,143.1835,82.40501,48.47132,74.71461,60.0909,7.073525,6.089851,6.53745,6.666096,7.306965,5.73684,3.625628],[16.66549,30.1086,39.96952,44.12225,59.57512,77.56929,106.8925,166.5539,175.2381,185.2815,154.5056,83.0433,62.61732,62.33167,60.55916,55.92124,15.17284,8.248324,36.68087,61.93413,20.26867,68.58819,46.49812,0.2360095],[8.815617,18.3516,8.658275,27.5859,48.62691,60.18013,91.3286,145.7109,116.0653,106.2662,68.69447,53.10596,37.92797,47.95942,47.42691,69.20731,44.95468,29.17197,17.91674,16.25515,14.65559,17.26048,31.22245,46.71704],[6.628881,10.41339,24.81939,26.08952,30.1605,52.30802,64.71007,76.30823,84.63686,99.4324,62.52132,46.81647,55.76606,82.4099,140.2647,81.26501,56.45756,30.42164,17.28782,8.302431,2.981626,2.698536,5.886086,5.268358],[21.83975,6.63927,18.97085,32.89204,43.15014,62.86014,104.6657,130.2294,114.8494,106.9873,61.89647,55.55682,86.80986,89.27802,122.4221,123.9698,109.0952,98.41956,77.61374,32.49031,14.67344,7.370775,0.03711011,0.6423392],[53.34303,26.79797,6.63927,10.88787,17.2044,56.18116,79.70141,90.8453,98.27675,80.87243,74.7931,75.54661,73.4373,74.11694,68.1749,46.24076,39.93857,31.21653,36.88335,40.02525,117.4297,12.70328,1.729771,0],[25.66785,63.05717,22.1414,17.074,41.74483,60.27227,81.42432,114.444,102.3234,101.7878,111.031,119.2309,114.0777,110.5296,59.19355,42.47175,14.63598,6.944074,6.944075,27.74936,0,0,0.09449376,0.07732264],[12.827,69.20554,46.76293,13.96517,33.88744,61.82613,84.74799,121.122,145.2741,153.1797,204.786,227.9242,236.3038,228.3655,79.34425,25.93483,6.944074,6.944074,6.944075,7.553681,0,0,0,0],[0,68.66396,59.0435,33.35762,47.45282,57.8355,78.91689,107.8275,168.0053,130.9597,212.5541,165.8122,210.2429,181.1713,189.7617,137.3378,84.65395,8.677168,6.956576,8.468093,0,0,0,0],[0,95.17499,80.03818,59.89862,39.58476,50.28058,63.81641,80.61302,66.37824,198.7651,244.3467,294.2474,264.3517,176.4082,60.21857,77.41475,53.16981,56.16393,6.949235,7.531059,3.780177,0,0,0],[0,134.9879,130.3696,96.86325,75.70494,58.86466,57.20374,55.18837,78.128,108.5582,154.3774,319.1686,372.8826,275.4655,130.2632,54.93822,25.49719,8.047439,8.084393,5.115252,5.678269,0,0,0],[0,48.08919,142.5558,140.3777,154.7261,87.9361,58.11092,52.83869,67.14822,83.66798,118.9242,150.0681,272.9709,341.1366,238.664,190.2,116.8943,91.48672,14.0157,42.29277,5.115252,0,0,0],[0,54.1941,146.3839,99.48143,96.19411,102.9473,76.14089,57.7844,47.0402,64.36799,84.23767,162.7181,121.3275,213.1646,328.482,285.4489,283.8319,212.815,164.549,92.29631,7.244015,1.167,0,0],[0,6.919659,195.1709,132.5253,135.2341,89.85069,89.45549,60.29967,50.33806,39.17583,59.06854,74.52159,84.93402,187.1219,123.9673,103.7027,128.986,165.1283,249.7054,95.39966,10.00284,2.39255,0,0],[0,21.73871,123.1339,176.7414,158.2698,137.235,105.3089,86.63255,53.11591,29.03865,30.40539,39.04902,49.23405,63.27853,111.4215,101.1956,40.00962,59.84565,74.51253,17.06316,2.435141,2.287471,-0.0003636982,0],[0,0,62.04672,136.3122,201.7952,168.1343,95.2046,58.90624,46.94091,49.27053,37.10416,17.97011,30.93697,33.39257,44.03077,55.64542,78.22423,14.42782,9.954997,7.768213,13.0254,21.73166,2.156372,0.5317867],[0,0,79.62993,139.6978,173.167,192.8718,196.3499,144.6611,106.5424,57.16653,41.16107,32.12764,13.8566,10.91772,12.07177,22.38254,24.72105,6.803666,4.200841,16.46857,15.70744,33.96221,7.575688,-0.04880907],[0,0,33.2664,57.53643,167.2241,196.4833,194.7966,182.1884,119.6961,73.02113,48.36549,33.74652,26.2379,16.3578,6.811293,6.63927,6.639271,8.468093,6.194273,3.591233,3.81486,8.600739,5.21889,0],[0,0,29.77937,54.97282,144.7995,207.4904,165.3432,171.4047,174.9216,100.2733,61.46441,50.19171,26.08209,17.18218,8.468093,6.63927,6.334467,6.334467,5.666687,4.272203,0,0,0,0],[0,0,31.409,132.7418,185.5796,121.8299,185.3841,160.6566,116.1478,118.1078,141.7946,65.56351,48.84066,23.13864,18.12932,10.28531,6.029663,6.044627,5.694764,3.739085,3.896037,0,0,0],[0,0,19.58994,42.30355,96.26777,187.1207,179.6626,221.3898,154.2617,142.1604,148.5737,67.17937,40.69044,39.74512,26.10166,14.48469,8.65873,3.896037,3.571392,3.896037,3.896037,3.896037,1.077756,0],[0.001229679,3.008948,5.909858,33.50574,104.3341,152.2165,198.1988,191.841,228.7349,168.1041,144.2759,110.7436,57.65214,42.63504,27.91891,15.41052,8.056102,3.90283,3.879774,3.936718,3.968634,0.1236256,3.985531,-0.1835741],[0,5.626141,7.676256,63.16226,45.99762,79.56688,227.311,203.9287,172.5618,177.1462,140.4554,123.9905,110.346,65.12319,34.31887,24.5278,9.561069,3.334991,5.590495,5.487353,5.909499,5.868994,5.833817,3.568177],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]],"uid":"c0f50a","cmin":-0.1835741,"cmax":372.8826,"cauto":true}}]]></code>
           </alternatives>
         </named-content>
       </code>
-      <p id="p-5bb4b0711547535ca0784953b0cfd2ce">Now we can pass the data to Plotly to render an interactive 3D-Chart.</p>
+      <p id="p-5bb4b0711547535ca0784953b0cfd2ce">Note that the graphic is interactive and you can rotate and zoom using the mouse.</p>
       <code id="cell-6923c72d599ae1c61d104ddb78da1d9b" specific-use="cell">
         <named-content>
           <alternatives>
             <code specific-use="source" language="mini"><![CDATA[plotly([surface_data], {
   title: 'Mt Bruno Elevation'
 })]]></code>
-            <code specific-use="output" language="json"><![CDATA[{"type":"plotly","data":{"type":"plotly","traces":[{"type":"surface","z":[[27.71966,48.55022,65.21374,95.27666,116.9964,133.9056,152.3412,151.934,160.1139,179.5327,147.6184,170.3943,121.8194,52.58537,33.08871,38.40972,44.24843,69.5786,4.019351,3.050024,3.039719,2.996142,2.967954,1.999594],[30.4267,33.47752,44.80953,62.47495,77.43523,104.2153,102.7393,137.0004,186.0706,219.3173,181.7615,120.9154,143.1835,82.40501,48.47132,74.71461,60.0909,7.073525,6.089851,6.53745,6.666096,7.306965,5.73684,3.625628],[16.66549,30.1086,39.96952,44.12225,59.57512,77.56929,106.8925,166.5539,175.2381,185.2815,154.5056,83.0433,62.61732,62.33167,60.55916,55.92124,15.17284,8.248324,36.68087,61.93413,20.26867,68.58819,46.49812,0.2360095],[8.815617,18.3516,8.658275,27.5859,48.62691,60.18013,91.3286,145.7109,116.0653,106.2662,68.69447,53.10596,37.92797,47.95942,47.42691,69.20731,44.95468,29.17197,17.91674,16.25515,14.65559,17.26048,31.22245,46.71704],[6.628881,10.41339,24.81939,26.08952,30.1605,52.30802,64.71007,76.30823,84.63686,99.4324,62.52132,46.81647,55.76606,82.4099,140.2647,81.26501,56.45756,30.42164,17.28782,8.302431,2.981626,2.698536,5.886086,5.268358],[21.83975,6.63927,18.97085,32.89204,43.15014,62.86014,104.6657,130.2294,114.8494,106.9873,61.89647,55.55682,86.80986,89.27802,122.4221,123.9698,109.0952,98.41956,77.61374,32.49031,14.67344,7.370775,0.03711011,0.6423392],[53.34303,26.79797,6.63927,10.88787,17.2044,56.18116,79.70141,90.8453,98.27675,80.87243,74.7931,75.54661,73.4373,74.11694,68.1749,46.24076,39.93857,31.21653,36.88335,40.02525,117.4297,12.70328,1.729771,0],[25.66785,63.05717,22.1414,17.074,41.74483,60.27227,81.42432,114.444,102.3234,101.7878,111.031,119.2309,114.0777,110.5296,59.19355,42.47175,14.63598,6.944074,6.944075,27.74936,0,0,0.09449376,0.07732264],[12.827,69.20554,46.76293,13.96517,33.88744,61.82613,84.74799,121.122,145.2741,153.1797,204.786,227.9242,236.3038,228.3655,79.34425,25.93483,6.944074,6.944074,6.944075,7.553681,0,0,0,0],[0,68.66396,59.0435,33.35762,47.45282,57.8355,78.91689,107.8275,168.0053,130.9597,212.5541,165.8122,210.2429,181.1713,189.7617,137.3378,84.65395,8.677168,6.956576,8.468093,0,0,0,0],[0,95.17499,80.03818,59.89862,39.58476,50.28058,63.81641,80.61302,66.37824,198.7651,244.3467,294.2474,264.3517,176.4082,60.21857,77.41475,53.16981,56.16393,6.949235,7.531059,3.780177,0,0,0],[0,134.9879,130.3696,96.86325,75.70494,58.86466,57.20374,55.18837,78.128,108.5582,154.3774,319.1686,372.8826,275.4655,130.2632,54.93822,25.49719,8.047439,8.084393,5.115252,5.678269,0,0,0],[0,48.08919,142.5558,140.3777,154.7261,87.9361,58.11092,52.83869,67.14822,83.66798,118.9242,150.0681,272.9709,341.1366,238.664,190.2,116.8943,91.48672,14.0157,42.29277,5.115252,0,0,0],[0,54.1941,146.3839,99.48143,96.19411,102.9473,76.14089,57.7844,47.0402,64.36799,84.23767,162.7181,121.3275,213.1646,328.482,285.4489,283.8319,212.815,164.549,92.29631,7.244015,1.167,0,0],[0,6.919659,195.1709,132.5253,135.2341,89.85069,89.45549,60.29967,50.33806,39.17583,59.06854,74.52159,84.93402,187.1219,123.9673,103.7027,128.986,165.1283,249.7054,95.39966,10.00284,2.39255,0,0],[0,21.73871,123.1339,176.7414,158.2698,137.235,105.3089,86.63255,53.11591,29.03865,30.40539,39.04902,49.23405,63.27853,111.4215,101.1956,40.00962,59.84565,74.51253,17.06316,2.435141,2.287471,-0.0003636982,0],[0,0,62.04672,136.3122,201.7952,168.1343,95.2046,58.90624,46.94091,49.27053,37.10416,17.97011,30.93697,33.39257,44.03077,55.64542,78.22423,14.42782,9.954997,7.768213,13.0254,21.73166,2.156372,0.5317867],[0,0,79.62993,139.6978,173.167,192.8718,196.3499,144.6611,106.5424,57.16653,41.16107,32.12764,13.8566,10.91772,12.07177,22.38254,24.72105,6.803666,4.200841,16.46857,15.70744,33.96221,7.575688,-0.04880907],[0,0,33.2664,57.53643,167.2241,196.4833,194.7966,182.1884,119.6961,73.02113,48.36549,33.74652,26.2379,16.3578,6.811293,6.63927,6.639271,8.468093,6.194273,3.591233,3.81486,8.600739,5.21889,0],[0,0,29.77937,54.97282,144.7995,207.4904,165.3432,171.4047,174.9216,100.2733,61.46441,50.19171,26.08209,17.18218,8.468093,6.63927,6.334467,6.334467,5.666687,4.272203,0,0,0,0],[0,0,31.409,132.7418,185.5796,121.8299,185.3841,160.6566,116.1478,118.1078,141.7946,65.56351,48.84066,23.13864,18.12932,10.28531,6.029663,6.044627,5.694764,3.739085,3.896037,0,0,0],[0,0,19.58994,42.30355,96.26777,187.1207,179.6626,221.3898,154.2617,142.1604,148.5737,67.17937,40.69044,39.74512,26.10166,14.48469,8.65873,3.896037,3.571392,3.896037,3.896037,3.896037,1.077756,0],[0.001229679,3.008948,5.909858,33.50574,104.3341,152.2165,198.1988,191.841,228.7349,168.1041,144.2759,110.7436,57.65214,42.63504,27.91891,15.41052,8.056102,3.90283,3.879774,3.936718,3.968634,0.1236256,3.985531,-0.1835741],[0,5.626141,7.676256,63.16226,45.99762,79.56688,227.311,203.9287,172.5618,177.1462,140.4554,123.9905,110.346,65.12319,34.31887,24.5278,9.561069,3.334991,5.590495,5.487353,5.909499,5.868994,5.833817,3.568177],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]],"uid":"0df73f","cmin":-0.1835741,"cmax":372.8826,"cauto":true}],"layout":{"title":"Mt Bruno Elevation","xaxis":{"linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false},"yaxis":{"linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false},"margin":{"l":50,"r":50,"t":40,"b":50},"width":"400","height":"400","scene":{"aspectratio":{"x":1,"y":1,"z":1},"aspectmode":"auto","camera":{"up":{"x":0,"y":0,"z":1},"center":{"x":0,"y":0,"z":0},"eye":{"x":0.0600260610757135,"y":0.07219285812754932,"z":0.034424747306411034}}}}}}]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"plotly","data":{"type":"plotly","traces":[{"type":"surface","z":[[27.71966,48.55022,65.21374,95.27666,116.9964,133.9056,152.3412,151.934,160.1139,179.5327,147.6184,170.3943,121.8194,52.58537,33.08871,38.40972,44.24843,69.5786,4.019351,3.050024,3.039719,2.996142,2.967954,1.999594],[30.4267,33.47752,44.80953,62.47495,77.43523,104.2153,102.7393,137.0004,186.0706,219.3173,181.7615,120.9154,143.1835,82.40501,48.47132,74.71461,60.0909,7.073525,6.089851,6.53745,6.666096,7.306965,5.73684,3.625628],[16.66549,30.1086,39.96952,44.12225,59.57512,77.56929,106.8925,166.5539,175.2381,185.2815,154.5056,83.0433,62.61732,62.33167,60.55916,55.92124,15.17284,8.248324,36.68087,61.93413,20.26867,68.58819,46.49812,0.2360095],[8.815617,18.3516,8.658275,27.5859,48.62691,60.18013,91.3286,145.7109,116.0653,106.2662,68.69447,53.10596,37.92797,47.95942,47.42691,69.20731,44.95468,29.17197,17.91674,16.25515,14.65559,17.26048,31.22245,46.71704],[6.628881,10.41339,24.81939,26.08952,30.1605,52.30802,64.71007,76.30823,84.63686,99.4324,62.52132,46.81647,55.76606,82.4099,140.2647,81.26501,56.45756,30.42164,17.28782,8.302431,2.981626,2.698536,5.886086,5.268358],[21.83975,6.63927,18.97085,32.89204,43.15014,62.86014,104.6657,130.2294,114.8494,106.9873,61.89647,55.55682,86.80986,89.27802,122.4221,123.9698,109.0952,98.41956,77.61374,32.49031,14.67344,7.370775,0.03711011,0.6423392],[53.34303,26.79797,6.63927,10.88787,17.2044,56.18116,79.70141,90.8453,98.27675,80.87243,74.7931,75.54661,73.4373,74.11694,68.1749,46.24076,39.93857,31.21653,36.88335,40.02525,117.4297,12.70328,1.729771,0],[25.66785,63.05717,22.1414,17.074,41.74483,60.27227,81.42432,114.444,102.3234,101.7878,111.031,119.2309,114.0777,110.5296,59.19355,42.47175,14.63598,6.944074,6.944075,27.74936,0,0,0.09449376,0.07732264],[12.827,69.20554,46.76293,13.96517,33.88744,61.82613,84.74799,121.122,145.2741,153.1797,204.786,227.9242,236.3038,228.3655,79.34425,25.93483,6.944074,6.944074,6.944075,7.553681,0,0,0,0],[0,68.66396,59.0435,33.35762,47.45282,57.8355,78.91689,107.8275,168.0053,130.9597,212.5541,165.8122,210.2429,181.1713,189.7617,137.3378,84.65395,8.677168,6.956576,8.468093,0,0,0,0],[0,95.17499,80.03818,59.89862,39.58476,50.28058,63.81641,80.61302,66.37824,198.7651,244.3467,294.2474,264.3517,176.4082,60.21857,77.41475,53.16981,56.16393,6.949235,7.531059,3.780177,0,0,0],[0,134.9879,130.3696,96.86325,75.70494,58.86466,57.20374,55.18837,78.128,108.5582,154.3774,319.1686,372.8826,275.4655,130.2632,54.93822,25.49719,8.047439,8.084393,5.115252,5.678269,0,0,0],[0,48.08919,142.5558,140.3777,154.7261,87.9361,58.11092,52.83869,67.14822,83.66798,118.9242,150.0681,272.9709,341.1366,238.664,190.2,116.8943,91.48672,14.0157,42.29277,5.115252,0,0,0],[0,54.1941,146.3839,99.48143,96.19411,102.9473,76.14089,57.7844,47.0402,64.36799,84.23767,162.7181,121.3275,213.1646,328.482,285.4489,283.8319,212.815,164.549,92.29631,7.244015,1.167,0,0],[0,6.919659,195.1709,132.5253,135.2341,89.85069,89.45549,60.29967,50.33806,39.17583,59.06854,74.52159,84.93402,187.1219,123.9673,103.7027,128.986,165.1283,249.7054,95.39966,10.00284,2.39255,0,0],[0,21.73871,123.1339,176.7414,158.2698,137.235,105.3089,86.63255,53.11591,29.03865,30.40539,39.04902,49.23405,63.27853,111.4215,101.1956,40.00962,59.84565,74.51253,17.06316,2.435141,2.287471,-0.0003636982,0],[0,0,62.04672,136.3122,201.7952,168.1343,95.2046,58.90624,46.94091,49.27053,37.10416,17.97011,30.93697,33.39257,44.03077,55.64542,78.22423,14.42782,9.954997,7.768213,13.0254,21.73166,2.156372,0.5317867],[0,0,79.62993,139.6978,173.167,192.8718,196.3499,144.6611,106.5424,57.16653,41.16107,32.12764,13.8566,10.91772,12.07177,22.38254,24.72105,6.803666,4.200841,16.46857,15.70744,33.96221,7.575688,-0.04880907],[0,0,33.2664,57.53643,167.2241,196.4833,194.7966,182.1884,119.6961,73.02113,48.36549,33.74652,26.2379,16.3578,6.811293,6.63927,6.639271,8.468093,6.194273,3.591233,3.81486,8.600739,5.21889,0],[0,0,29.77937,54.97282,144.7995,207.4904,165.3432,171.4047,174.9216,100.2733,61.46441,50.19171,26.08209,17.18218,8.468093,6.63927,6.334467,6.334467,5.666687,4.272203,0,0,0,0],[0,0,31.409,132.7418,185.5796,121.8299,185.3841,160.6566,116.1478,118.1078,141.7946,65.56351,48.84066,23.13864,18.12932,10.28531,6.029663,6.044627,5.694764,3.739085,3.896037,0,0,0],[0,0,19.58994,42.30355,96.26777,187.1207,179.6626,221.3898,154.2617,142.1604,148.5737,67.17937,40.69044,39.74512,26.10166,14.48469,8.65873,3.896037,3.571392,3.896037,3.896037,3.896037,1.077756,0],[0.001229679,3.008948,5.909858,33.50574,104.3341,152.2165,198.1988,191.841,228.7349,168.1041,144.2759,110.7436,57.65214,42.63504,27.91891,15.41052,8.056102,3.90283,3.879774,3.936718,3.968634,0.1236256,3.985531,-0.1835741],[0,5.626141,7.676256,63.16226,45.99762,79.56688,227.311,203.9287,172.5618,177.1462,140.4554,123.9905,110.346,65.12319,34.31887,24.5278,9.561069,3.334991,5.590495,5.487353,5.909499,5.868994,5.833817,3.568177],[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]],"uid":"c0f50a","cmin":-0.1835741,"cmax":372.8826,"cauto":true}],"layout":{"title":"Mt Bruno Elevation","xaxis":{"linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false},"yaxis":{"linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false},"margin":{"l":50,"r":50,"t":40,"b":50},"width":"400","height":"400","scene":{"aspectratio":{"x":1,"y":1,"z":1},"aspectmode":"auto"}}}}]]></code>
           </alternatives>
         </named-content>
       </code>
-      <code id="cell-3d6146b07d32c7320699550906fe5ec1" specific-use="cell">
+      <code id="cell-3d6146b07d32c7320699550906fe5ec1" specific-use="cell" output-name="doc1!countries">
         <named-content>
           <alternatives>
             <code specific-use="source" language="mini"><![CDATA[countries = 'Countries'!A1:B191]]></code>
@@ -113,7 +111,7 @@ var surface_data = {
           </alternatives>
         </named-content>
       </code>
-      <p id="p-8">Below is the code for a Chorpleth Map, powered by data from a spreadsheet.</p>
+      <p id="p-12da8c826ddc789246ae6803560ea28c">The following Choropleth Map shows visualises alcohol consumption in different countries. Again the graphic is computed using data included in the publication.</p>
       <code id="cell-ecbec5e3aba615d95ec697e149e91fbc" specific-use="cell">
         <named-content>
           <alternatives>
@@ -125,533 +123,35 @@ var surface_data = {
   title: 'Pure alcohol consumption among adults (age 15+) in 2010',
   geo: { projection: { type: 'robinson' } }
 })]]></code>
-            <code specific-use="output" language="json"><![CDATA[{"type":"plotly","data":{"type":"plotly","traces":[{"type":"choropleth","locationmode":"country names","locations":["Belarus","Moldova","Lithuania","Russia","Romania","Ukraine","Andorra","Hungary","Czech Republic","Slovakia","Portugal","Serbia","Grenada","Poland","Latvia","Finland","South Korea","France","Australia","Croatia","Ireland","Luxembourg","Germany","Slovenia","United Kingdom","Denmark","Bulgaria","Spain","Belgium","South Africa","New Zealand","Gabon","Namibia","Switzerland","Saint Lucia","Austria","Estonia","Greece","Kazakhstan","Canada","Nigeria","Netherlands","Uganda","Rwanda","Chile","Argentina","Burundi","United States","Cyprus","Sweden","Venezuela","Paraguay","Brazil","Sierra Leone","Montenegro","Belize","Cameroon","Botswana","Saint Kitts and Nevis","Guyana","Peru","Panama","Niue","Palau","Norway","Tanzania","Georgia","Uruguay","Angola","Laos","Japan","Mexico","Ecuador","Dominica","Iceland","Thailand","Bosnia and Herzegovina","Sao Tome and Principe","Malta","Albania","Bahamas","Dominican Republic","Mongolia","Cape Verde","Barbados","Burkina Faso","Italy","Trinidad and Tobago","China","Macedonia","Saint Vincent and the Grenadines","Equatorial Guinea","Suriname","Vietnam","Lesotho","Haiti","Cook Islands","Colombia","Ivory Coast","Bolivia","Swaziland","Zimbabwe","Seychelles","Cambodia","Puerto Rico","Netherlands Antilles","Philippines","Costa Rica","Armenia","Cuba","Nicaragua","Jamaica","Ghana","Liberia","Uzbekistan","Chad","United Arab Emirates","Kyrgyzstan","India","Turkmenistan","Kenya","Ethiopia","Honduras","Guinea-Bissau","Zambia","Republic of the Congo","Guatemala","Central African Republic","North Korea","Sri Lanka","Mauritius","Samoa","Democratic Republic of the Congo","Nauru","Gambia","Federated States of Micronesia","El Salvador","Fiji","Papua New Guinea","Kiribati","Tajikistan","Israel","Sudan","Malawi","Lebanon","Azerbaijan","Mozambique","Togo","Nepal","Brunei","Benin","Singapore","Turkey","Madagascar","Solomon Islands","Tonga","Tunisia","Tuvalu","Qatar","Vanuatu","Djibouti","Malaysia","Syria","Maldives","Mali","Eritrea","Algeria","Iran","Oman","Brunei","Morocco","Jordan","Bhutan","Guinea","Burma","Afghanistan","Senegal","Indonesia","Timor-Leste","Iraq","Somalia","Egypt","Niger","Yemen","Comoros","Saudi Arabia","Bangladesh","Kuwait","Libya","Mauritania","Pakistan"],"z":[17.5,16.8,15.4,15.1,14.4,13.9,13.8,13.3,13,13,12.9,12.6,12.5,12.5,12.3,12.3,12.3,12.2,12.2,12.2,11.9,11.9,11.8,11.6,11.6,11.4,11.4,11.2,11,11,10.9,10.9,10.8,10.7,10.4,10.3,10.3,10.3,10.3,10.2,10.1,9.9,9.8,9.8,9.6,9.3,9.3,9.2,9.2,9.2,8.9,8.8,8.7,8.7,8.7,8.5,8.4,8.4,8.2,8.1,8.1,8,8,7.9,7.7,7.7,7.7,7.6,7.5,7.3,7.2,7.2,7.2,7.1,7.1,7.1,7.1,7.1,7,7,6.9,6.9,6.9,6.9,6.8,6.8,6.7,6.7,6.7,6.7,6.6,6.6,6.6,6.6,6.5,6.4,6.4,6.2,6,5.9,5.7,5.7,5.6,5.5,5.4,5.4,5.4,5.4,5.3,5.2,5,4.9,4.8,4.7,4.6,4.4,4.3,4.3,4.3,4.3,4.3,4.2,4,4,4,3.9,3.8,3.8,3.7,3.7,3.6,3.6,3.6,3.5,3.4,3.3,3.2,3,3,3,2.8,2.8,2.7,2.5,2.4,2.3,2.3,2.3,2.2,2.1,2.1,2,2,1.8,1.7,1.6,1.5,1.5,1.5,1.4,1.3,1.3,1.2,1.2,1.1,1.1,1,1,0.9,0.9,0.9,0.7,0.7,0.7,0.7,0.7,0.6,0.6,0.6,0.5,0.5,0.4,0.3,0.3,0.2,0.2,0.2,0.1,0.1,0.1,0.1],"text":["Belarus","Moldova","Lithuania","Russia","Romania","Ukraine","Andorra","Hungary","Czech Republic","Slovakia","Portugal","Serbia","Grenada","Poland","Latvia","Finland","South Korea","France","Australia","Croatia","Ireland","Luxembourg","Germany","Slovenia","United Kingdom","Denmark","Bulgaria","Spain","Belgium","South Africa","New Zealand","Gabon","Namibia","Switzerland","Saint Lucia","Austria","Estonia","Greece","Kazakhstan","Canada","Nigeria","Netherlands","Uganda","Rwanda","Chile","Argentina","Burundi","United States","Cyprus","Sweden","Venezuela","Paraguay","Brazil","Sierra Leone","Montenegro","Belize","Cameroon","Botswana","Saint Kitts and Nevis","Guyana","Peru","Panama","Niue","Palau","Norway","Tanzania","Georgia","Uruguay","Angola","Laos","Japan","Mexico","Ecuador","Dominica","Iceland","Thailand","Bosnia and Herzegovina","Sao Tome and Principe","Malta","Albania","Bahamas","Dominican Republic","Mongolia","Cape Verde","Barbados","Burkina Faso","Italy","Trinidad and Tobago","China","Macedonia","Saint Vincent and the Grenadines","Equatorial Guinea","Suriname","Vietnam","Lesotho","Haiti","Cook Islands","Colombia","Ivory Coast","Bolivia","Swaziland","Zimbabwe","Seychelles","Cambodia","Puerto Rico","Netherlands Antilles","Philippines","Costa Rica","Armenia","Cuba","Nicaragua","Jamaica","Ghana","Liberia","Uzbekistan","Chad","United Arab Emirates","Kyrgyzstan","India","Turkmenistan","Kenya","Ethiopia","Honduras","Guinea-Bissau","Zambia","Republic of the Congo","Guatemala","Central African Republic","North Korea","Sri Lanka","Mauritius","Samoa","Democratic Republic of the Congo","Nauru","Gambia","Federated States of Micronesia","El Salvador","Fiji","Papua New Guinea","Kiribati","Tajikistan","Israel","Sudan","Malawi","Lebanon","Azerbaijan","Mozambique","Togo","Nepal","Brunei","Benin","Singapore","Turkey","Madagascar","Solomon Islands","Tonga","Tunisia","Tuvalu","Qatar","Vanuatu","Djibouti","Malaysia","Syria","Maldives","Mali","Eritrea","Algeria","Iran","Oman","Brunei","Morocco","Jordan","Bhutan","Guinea","Burma","Afghanistan","Senegal","Indonesia","Timor-Leste","Iraq","Somalia","Egypt","Niger","Yemen","Comoros","Saudi Arabia","Bangladesh","Kuwait","Libya","Mauritania","Pakistan"],"autocolorscale":true,"uid":"b8aab0","zmin":0.1,"zmax":17.5,"zauto":true,"colorscale":[[0,"rgb(220,220,220)"],[0.2,"rgb(245,195,157)"],[0.4,"rgb(245,160,105)"],[1,"rgb(178,10,28)"]]}],"layout":{"width":700,"title":"Pure alcohol consumption among adults (age 15+) in 2010","geo":{"projection":{"type":"robinson","rotation":{"lon":-80.52109636254137},"scale":0.47237352049860326},"center":{"lon":-80.52109636254137,"lat":60.89669298668484}},"xaxis":{"linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false},"yaxis":{"linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false},"margin":{"l":50,"r":50,"t":40,"b":50}}}}]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"plotly","data":{"type":"plotly","traces":[{"type":"choropleth","locationmode":"country names","locations":["Belarus","Moldova","Lithuania","Russia","Romania","Ukraine","Andorra","Hungary","Czech Republic","Slovakia","Portugal","Serbia","Grenada","Poland","Latvia","Finland","South Korea","France","Australia","Croatia","Ireland","Luxembourg","Germany","Slovenia","United Kingdom","Denmark","Bulgaria","Spain","Belgium","South Africa","New Zealand","Gabon","Namibia","Switzerland","Saint Lucia","Austria","Estonia","Greece","Kazakhstan","Canada","Nigeria","Netherlands","Uganda","Rwanda","Chile","Argentina","Burundi","United States","Cyprus","Sweden","Venezuela","Paraguay","Brazil","Sierra Leone","Montenegro","Belize","Cameroon","Botswana","Saint Kitts and Nevis","Guyana","Peru","Panama","Niue","Palau","Norway","Tanzania","Georgia","Uruguay","Angola","Laos","Japan","Mexico","Ecuador","Dominica","Iceland","Thailand","Bosnia and Herzegovina","Sao Tome and Principe","Malta","Albania","Bahamas","Dominican Republic","Mongolia","Cape Verde","Barbados","Burkina Faso","Italy","Trinidad and Tobago","China","Macedonia","Saint Vincent and the Grenadines","Equatorial Guinea","Suriname","Vietnam","Lesotho","Haiti","Cook Islands","Colombia","Ivory Coast","Bolivia","Swaziland","Zimbabwe","Seychelles","Cambodia","Puerto Rico","Netherlands Antilles","Philippines","Costa Rica","Armenia","Cuba","Nicaragua","Jamaica","Ghana","Liberia","Uzbekistan","Chad","United Arab Emirates","Kyrgyzstan","India","Turkmenistan","Kenya","Ethiopia","Honduras","Guinea-Bissau","Zambia","Republic of the Congo","Guatemala","Central African Republic","North Korea","Sri Lanka","Mauritius","Samoa","Democratic Republic of the Congo","Nauru","Gambia","Federated States of Micronesia","El Salvador","Fiji","Papua New Guinea","Kiribati","Tajikistan","Israel","Sudan","Malawi","Lebanon","Azerbaijan","Mozambique","Togo","Nepal","Brunei","Benin","Singapore","Turkey","Madagascar","Solomon Islands","Tonga","Tunisia","Tuvalu","Qatar","Vanuatu","Djibouti","Malaysia","Syria","Maldives","Mali","Eritrea","Algeria","Iran","Oman","Brunei","Morocco","Jordan","Bhutan","Guinea","Burma","Afghanistan","Senegal","Indonesia","Timor-Leste","Iraq","Somalia","Egypt","Niger","Yemen","Comoros","Saudi Arabia","Bangladesh","Kuwait","Libya","Mauritania","Pakistan"],"z":[17.5,16.8,15.4,15.1,14.4,13.9,13.8,13.3,13,13,12.9,12.6,12.5,12.5,12.3,12.3,12.3,12.2,12.2,12.2,11.9,11.9,11.8,11.6,11.6,11.4,11.4,11.2,11,11,10.9,10.9,10.8,10.7,10.4,10.3,10.3,10.3,10.3,10.2,10.1,9.9,9.8,9.8,9.6,9.3,9.3,9.2,9.2,9.2,8.9,8.8,8.7,8.7,8.7,8.5,8.4,8.4,8.2,8.1,8.1,8,8,7.9,7.7,7.7,7.7,7.6,7.5,7.3,7.2,7.2,7.2,7.1,7.1,7.1,7.1,7.1,7,7,6.9,6.9,6.9,6.9,6.8,6.8,6.7,6.7,6.7,6.7,6.6,6.6,6.6,6.6,6.5,6.4,6.4,6.2,6,5.9,5.7,5.7,5.6,5.5,5.4,5.4,5.4,5.4,5.3,5.2,5,4.9,4.8,4.7,4.6,4.4,4.3,4.3,4.3,4.3,4.3,4.2,4,4,4,3.9,3.8,3.8,3.7,3.7,3.6,3.6,3.6,3.5,3.4,3.3,3.2,3,3,3,2.8,2.8,2.7,2.5,2.4,2.3,2.3,2.3,2.2,2.1,2.1,2,2,1.8,1.7,1.6,1.5,1.5,1.5,1.4,1.3,1.3,1.2,1.2,1.1,1.1,1,1,0.9,0.9,0.9,0.7,0.7,0.7,0.7,0.7,0.6,0.6,0.6,0.5,0.5,0.4,0.3,0.3,0.2,0.2,0.2,0.1,0.1,0.1,0.1],"text":["Belarus","Moldova","Lithuania","Russia","Romania","Ukraine","Andorra","Hungary","Czech Republic","Slovakia","Portugal","Serbia","Grenada","Poland","Latvia","Finland","South Korea","France","Australia","Croatia","Ireland","Luxembourg","Germany","Slovenia","United Kingdom","Denmark","Bulgaria","Spain","Belgium","South Africa","New Zealand","Gabon","Namibia","Switzerland","Saint Lucia","Austria","Estonia","Greece","Kazakhstan","Canada","Nigeria","Netherlands","Uganda","Rwanda","Chile","Argentina","Burundi","United States","Cyprus","Sweden","Venezuela","Paraguay","Brazil","Sierra Leone","Montenegro","Belize","Cameroon","Botswana","Saint Kitts and Nevis","Guyana","Peru","Panama","Niue","Palau","Norway","Tanzania","Georgia","Uruguay","Angola","Laos","Japan","Mexico","Ecuador","Dominica","Iceland","Thailand","Bosnia and Herzegovina","Sao Tome and Principe","Malta","Albania","Bahamas","Dominican Republic","Mongolia","Cape Verde","Barbados","Burkina Faso","Italy","Trinidad and Tobago","China","Macedonia","Saint Vincent and the Grenadines","Equatorial Guinea","Suriname","Vietnam","Lesotho","Haiti","Cook Islands","Colombia","Ivory Coast","Bolivia","Swaziland","Zimbabwe","Seychelles","Cambodia","Puerto Rico","Netherlands Antilles","Philippines","Costa Rica","Armenia","Cuba","Nicaragua","Jamaica","Ghana","Liberia","Uzbekistan","Chad","United Arab Emirates","Kyrgyzstan","India","Turkmenistan","Kenya","Ethiopia","Honduras","Guinea-Bissau","Zambia","Republic of the Congo","Guatemala","Central African Republic","North Korea","Sri Lanka","Mauritius","Samoa","Democratic Republic of the Congo","Nauru","Gambia","Federated States of Micronesia","El Salvador","Fiji","Papua New Guinea","Kiribati","Tajikistan","Israel","Sudan","Malawi","Lebanon","Azerbaijan","Mozambique","Togo","Nepal","Brunei","Benin","Singapore","Turkey","Madagascar","Solomon Islands","Tonga","Tunisia","Tuvalu","Qatar","Vanuatu","Djibouti","Malaysia","Syria","Maldives","Mali","Eritrea","Algeria","Iran","Oman","Brunei","Morocco","Jordan","Bhutan","Guinea","Burma","Afghanistan","Senegal","Indonesia","Timor-Leste","Iraq","Somalia","Egypt","Niger","Yemen","Comoros","Saudi Arabia","Bangladesh","Kuwait","Libya","Mauritania","Pakistan"],"autocolorscale":true,"uid":"5d6339","zmin":0.1,"zmax":17.5,"zauto":true,"colorscale":[[0,"rgb(220,220,220)"],[0.2,"rgb(245,195,157)"],[0.4,"rgb(245,160,105)"],[1,"rgb(178,10,28)"]]}],"layout":{"width":700,"title":"Pure alcohol consumption among adults (age 15+) in 2010","geo":{"projection":{"type":"robinson"}},"xaxis":{"linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false},"yaxis":{"linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false},"margin":{"l":50,"r":50,"t":40,"b":50}}}}]]></code>
           </alternatives>
         </named-content>
       </code>
     </sec>
     <sec id="heading-ca40962ca259448f2daeca5d6c67fa47">
-      <title>Reactive code evaluation in different languages</title>
-      <p id="heading-85ad274552aff511f062e4772896d511" level="1">Code evaluates live as you type. Because the execution engine analyses the dependencies between cells, it can perform a minimal update, making computation fast and responsive. This mechanism works with all available languages (e.g. R, Python, Javascript, SQL). You can even mix languages within a document. The figure below has been generated using R<xref id="xref-944a5e7600dcacc4a471effebe2159f8" ref-type="bibr" rid="ref-12fdba3a00229db2517efeb32c0e766a">[1]</xref>.<ext-link id="ext-link-1" xlink:href="https://facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdoi.org%2F10.7554%2FeLife.30274"/></p>
+      <title>Support for R, Python and other languages</title>
+      <p id="p-e350a017eaa6758d1ab62d3d4359baad">The Reproducible Document Stack is designed to work with different programming languages. Users can either rely on an existing function library provided by Stencila, or add custom code in a number of available languages (e.g. R, Python, Javascript, SQL). The following figure has been generated R (see <xref id="xref-944a5e7600dcacc4a471effebe2159f8" ref-type="bibr" rid="ref-12fdba3a00229db2517efeb32c0e766a">[1]</xref> for the original figure).<ext-link id="ext-link-1" xlink:href="https://facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdoi.org%2F10.7554%2FeLife.30274"/></p>
       <fig id="repro-fig-6c589d329d417ccc04b40dc87f1aa35f" fig-type="repro-fig">
         <object-id id="object-id-2bf0a17daf7da04833d7493b84afc1bf" pub-id-type="doi">repro-fig-6c589d329d417ccc04b40dc87f1aa35f</object-id>
         <label>Figure 1</label>
         <caption id="caption-babc7e5a4f7b5f7c727603bca745f1c1">
           <title id="title-eec6aa22cb900ef1502a99bc7927ddde">Digital gene expression analysis</title>
+          <p id="p-4f022f1e4725e3a0306e390ad8f7d2b4">TODO Nokome: Connect R context and</p>
           <p id="p-b87115d4c33831854251eca5457ee911">P493-6 cells grown in the presence of tetracycline (Tet) for 72 hr for repression of the conditional p<italic id="italic-1">myc</italic>-tet construct, were switched into Tet-free growth medium to induce c-Myc expression. Cells were cultured in two separate lots of serum. Transcripts/cell estimates from NanoString nCounter gene expression assays (1369 genes assay) for active (left) and silent (right) genes at 0, 1, and 24 hr after release from Tet. Active genes expressed greater than one transcript/cell. Silent genes expressed less than 0.5 transcript/cell. Box and whisker plots with median represented as the line through the box and whiskers representing values within 1.5 IQR of the first and third quartile. Cells grown in serum lot one: active genes = 708, silent genes = 580. Cells grown in serum lot two: active genes = 719, silent genes = 573.</p>
         </caption>
         <alternatives>
-          <code specific-use="source" language="r"><![CDATA[#Replication Study 48
-#Study_48_Protocol_3/4
-#R Version 3.4.1
-
-#Required Packages
-library(httr) #version 1.2.1
-library(rjson) #version 0.2.15
-library(ggplot2) #version 2.2.1
-library(plyr) #version 1.8.4
-library(Rmisc) #version 1.5
-library(cowplot) #version 0.7.0
-#source("~/credentials.R") #for private use during generation
-
-#Downloads R script "download.OSF.file.R"
-GET("https://osf.io/hkpjb/?action=download", write_disk("download.OSF.file.R", overwrite = TRUE))
-source("download.OSF.file.R")
-#calls the download.OSF.file
-
-#Downloads data file 'Study_48_Protocols3&4_Combined_Means.csv' from https://osf.io/wmnuf/
-download.OSF.file(GUID="wmnuf",Access_Token=RPCB_private_access,file_name="Study_48_Protocols3&4_Combined_Means.csv")
-
-#reads csv file with all combined means for each lot 
-comb.means <- read.csv("Study_48_Protocols3&4_Combined_Means.csv", header=T, sep=",")
-
-comb.means <- comb.means[which(comb.means$Status!="NA"),] #removes NA status genes
-comb.means$lstat <- interaction(comb.means$Time, comb.means$Status) #creates interaction variable between lot and status called 'lstat'
-comb.means$Time <- as.character(comb.means$Time) #creates a column for Time
-
-active <- comb.means[which(comb.means$Status=="Active"),] #subsets all data on Active gene status
-silent <- comb.means[which(comb.means$Status=="Silent"),] #subsets all data on Silent gene status
-
-#create summary data for graph lot 1
-active.sum1 <- summarySE(active[which(active$Lot=="C1"),], measurevar="final.mean", groupvars="Time")
-silent.sum1 <- summarySE(silent[which(silent$Lot=="C1"),], measurevar="final.mean", groupvars="Time")
-
-#create summary data for graph lot 2
-active.sum2 <- summarySE(active[which(active$Lot=="C2"),], measurevar="final.mean", groupvars="Time")
-silent.sum2 <- summarySE(silent[which(silent$Lot=="C2"),], measurevar="final.mean", groupvars="Time")
-
-########## Plots Active Genes/ Lot 1 LOG SCALE ##########
-#########################################################
-
-log_activeplot1 <- ggplot(active[which(active$Lot=="C1"),], aes(x=Time, y = final.mean)) +
-  stat_boxplot(geom ='errorbar', width=0.5) +
-  geom_boxplot(aes(fill=Time), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red"))+
-  ylab("Transcripts/Cell") +
-  ggtitle("Active genes")+
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("0hr", "1hr", "24hr")) +
-  scale_y_continuous(expand = c(.01,.01),
-                     trans = "log2",
-                     limits = c(2^-10,2^11),
-                     breaks = c( 2^-9,2^-5,2^-1,2^3,2^7,2^11),
-                     labels = c(bquote("2"^"-9"),bquote("2"^"-5"),
-                                bquote("2"^"-1"),bquote("2"^"3"),
-                                bquote("2"^"7"),bquote("2"^"11"))) +
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5), hjust = 0),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15,margin = margin(r=10, unit="pt")))
-
-
-########## Plots Active Genes/ Lot 1 LINEAR SCALE ##########
-############################################################
-
-linear_activeplot1 <- ggplot(active[which(active$Lot=="C1" & active$final.mean<=100),], aes(x=Time, y = final.mean)) +
-  stat_boxplot(geom ='errorbar', width=0.5 ) +
-  geom_boxplot(aes(fill=Time), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red"))+
-  ggtitle("Active genes")+
-  ylab("Transcripts/Cell") +
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("0hr", "1hr", "24hr")) +
-  scale_y_continuous(expand = c(0,0),
-                     limits = c(-5, 105),
-                     breaks = c(0,20,40,60,80,100)) +
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5), hjust = 0),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15,margin = margin(r=10, unit="pt")))
-
-
-########## Plots Active Genes/ Lot 2 LOG SCALE ##########
-#########################################################
-
-log_activeplot2 <- ggplot(active[which(active$Lot=="C2"),], aes(x=Time, y = final.mean)) +
-  stat_boxplot(geom ='errorbar', width=0.5 ) +
-  geom_boxplot(aes(fill=Time), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red"))+
-  ylab("Transcripts/Cell") +
-  ggtitle("Active genes")+
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("0hr", "1hr", "24hr")) +
-  scale_y_continuous(expand = c(.01,.01),
-                     trans = "log2",
-                     limits = c(2^-10,2^11),
-                     breaks = c( 2^-9,2^-5,2^-1,2^3,2^7,2^11),
-                     labels = c(bquote("2"^"-9"),bquote("2"^"-5"),
-                                bquote("2"^"-1"),bquote("2"^"3"),
-                                bquote("2"^"7"),bquote("2"^"11"))) +
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5), hjust = 0),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15,margin = margin(r=10, unit="pt")))
-
-
-########## Plots Active Genes/ Lot 2 LINEAR SCALE ##########
-############################################################
-
-linear_activeplot2 <- ggplot(active[which(active$Lot=="C2" & active$final.mean<=100),], aes(x=Time, y = final.mean)) +
-  stat_boxplot(geom ='errorbar', width=0.5 ) +
-  geom_boxplot(aes(fill=Time), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red"))+
-  ggtitle("Active genes")+
-  ylab("Transcripts/Cell") +
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("0hr", "1hr", "24hr")) +
-  scale_y_continuous(expand = c(0,0),
-                     limits = c(-5, 105),
-                     breaks = c(0,20,40,60,80,100)) +
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5), hjust = 0),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15,margin = margin(r=10, unit="pt")))
-
-
-########## Plots Silent Genes/ Lot 1 LOG SCALE ##########
-#########################################################
-
-log_silentplot1 <- ggplot(silent[which(silent$Lot=="C1"),], aes(x=Time, y = final.mean)) +
-  stat_boxplot(geom ='errorbar', width=0.5 ) +
-  geom_boxplot(aes(fill=Time), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red"))+
-  ylab("Transcripts/Cell") +
-  ggtitle("Silent genes")+
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("0hr", "1hr", "24hr")) +
-  scale_y_continuous(expand = c(.01,.01),
-                     trans = "log2",
-                     limits = c(2^-10,2^11),
-                     breaks = c( 2^-9,2^-5,2^-1,2^3,2^7,2^11),
-                     labels = c(bquote("2"^"-9"),bquote("2"^"-5"),
-                                bquote("2"^"-1"),bquote("2"^"3"),
-                                bquote("2"^"7"),bquote("2"^"11"))) +
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5), hjust = 0),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15,margin = margin(r=10, unit="pt")))
-
-
-########## Plots Silent Genes/ Lot 1 LINEAR SCALE ##########
-############################################################
-
-linear_silentplot1 <- ggplot(silent[which(silent$Lot=="C1" & silent$final.mean<=100),], aes(x=Time, y = final.mean)) +
-  stat_boxplot(geom ='errorbar', width=0.5 ) +
-  geom_boxplot(aes(fill=Time), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red"))+
-  ggtitle("Silent genes")+
-  ylab("Transcripts/Cell") +
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("0hr", "1hr", "24hr")) +
-  scale_y_continuous(expand = c(0,0),
-                     limits = c(-5, 105),
-                     breaks = c(0,20,40,60,80,100)) +
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5), hjust = 0),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15,margin = margin(r=10, unit="pt")))
-
-
-########## Plots Silent Genes/ Lot 2 LOG SCALE ##########
-#########################################################
-
-#plots active cohort 1
-log_silentplot2 <- ggplot(silent[which(silent$Lot=="C2"),], aes(x=Time, y = final.mean)) +
-  stat_boxplot(geom ='errorbar', width=0.5 ) +
-  geom_boxplot(aes(fill=Time), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red"))+
-  ylab("Transcripts/Cell") +
-  ggtitle("Silent genes")+
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("0hr", "1hr", "24hr")) +
-  scale_y_continuous(expand = c(.01,.01),
-                     trans = "log2",
-                     limits = c(2^-10,2^11),
-                     breaks = c( 2^-9,2^-5,2^-1,2^3,2^7,2^11),
-                     labels = c(bquote("2"^"-9"),bquote("2"^"-5"),
-                                bquote("2"^"-1"),bquote("2"^"3"),
-                                bquote("2"^"7"),bquote("2"^"11"))) +
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5), hjust = 0),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15,margin = margin(r=10, unit="pt")))
-
-
-########## Plots Silent Genes/ Lot 2 LINEAR SCALE ##########
-############################################################
-
-linear_silentplot2 <- ggplot(silent[which(silent$Lot=="C2" & silent$final.mean<=100),], aes(x=Time, y = final.mean)) +
-  stat_boxplot(geom ='errorbar', width=0.5 ) +
-  geom_boxplot(aes(fill=Time), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red")) +
-  ggtitle("Silent genes")+
-  ylab("Transcripts/Cell") +
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("0hr", "1hr", "24hr")) +
-  scale_y_continuous(expand = c(0,0),
-                     limits = c(-5, 105),
-                     breaks = c(0,20,40,60,80,100)) +
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1.88),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5), hjust = 0),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15,margin = margin(r=10, unit="pt")))
-
-###########################################################################################
-###########################################################################################
-
-#plots all comparisons for Lot 1 silent
-lot1_silent <- subset(comb.means, comb.means$Lot=="C1" & comb.means$Status=="Silent")
-time0 <- subset(lot1_silent, lot1_silent$Time=="0HR")
-time1 <- subset(lot1_silent, lot1_silent$Time=="1HR")
-time24 <- subset(lot1_silent, lot1_silent$Time=="24HR")
-ratio <- c(((log2(time1$final.mean))-(log2(time0$final.mean))),
-           ((log2(time24$final.mean))-(log2(time0$final.mean))),
-           ((log2(time24$final.mean))-(log2(time1$final.mean))))
-lot1_silentdat <- as.data.frame(cbind(as.character(lot1_silent[,1]),as.numeric(as.character(ratio))))
-lot1_silentdat$V1 <- as.factor(lot1_silentdat$V1)
-lot1_silentdat$V3 <- c(rep("diff1",nrow(lot1_silent)/3),rep("diff2",nrow(lot1_silent)/3),rep("diff3",nrow(lot1_silent)/3))
-lot1_silentdat$V3 <- as.factor(lot1_silentdat$V3)
-lot1_silentdat$V2 <- as.numeric(as.character(lot1_silentdat$V2))
-colnames(lot1_silentdat) <- c("Gene","ratio","comparison")
-
-plot_lot1_silent <- ggplot(lot1_silentdat, aes(x=comparison, y = ratio)) +
-  stat_boxplot(geom ='errorbar', width=0.5) +
-  geom_boxplot(aes(fill=comparison), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red"))+
-  ylab("log2 (ratio)") +
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("1 hr vs. \n 0 hr", "24 hr vs. \n 0 hr", "24hr vs. \n 1 hr")) +
-  scale_y_continuous(expand = c(0,0),
-                     limits = c(-4.5,6.5),
-                     breaks = c(-4, -2, 0, 2, 4, 6),
-                     labels = c("-4","-2","0","2","4","6")) +
-  geom_hline(yintercept = 0) +
-  ggtitle("Silent genes")+
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15,margin = margin(r=10, unit="pt")))
-plot_lot1_silent 
-
-####################################################
-####################################################
-
-#plots all comparisons for Lot 2 silent
-lot2_silent <- subset(comb.means, comb.means$Lot=="C2" & comb.means$Status=="Silent")
-time0 <- subset(lot2_silent, lot2_silent$Time=="0HR")
-time1 <- subset(lot2_silent, lot2_silent$Time=="1HR")
-time24 <- subset(lot2_silent, lot2_silent$Time=="24HR")
-ratio <- c(((log2(time1$final.mean))-(log2(time0$final.mean))),
-           ((log2(time24$final.mean))-(log2(time0$final.mean))),
-           ((log2(time24$final.mean))-(log2(time1$final.mean))))
-lot2_silentdat <- as.data.frame(cbind(as.character(lot2_silent[,1]),as.numeric(as.character(ratio))))
-lot2_silentdat$V1 <- as.factor(lot2_silentdat$V1)
-lot2_silentdat$V3 <- c(rep("diff1",nrow(lot2_silent)/3),rep("diff2",nrow(lot2_silent)/3),rep("diff3",nrow(lot2_silent)/3))
-lot2_silentdat$V3 <- as.factor(lot2_silentdat$V3)
-lot2_silentdat$V2 <- as.numeric(as.character(lot2_silentdat$V2))
-colnames(lot2_silentdat) <- c("Gene","ratio","comparison")
-
-plot_lot2_silent <- ggplot(lot2_silentdat, aes(x=comparison, y = ratio)) +
-  stat_boxplot(geom ='errorbar', width=0.5) +
-  geom_boxplot(aes(fill=comparison), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red"))+
-  ylab("log2 (ratio)") +
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("1 hr vs. \n 0 hr", "24 hr vs. \n 0 hr", "24hr vs. \n 1 hr")) +
-  scale_y_continuous(expand = c(0,0),
-                     limits = c(-4.5,6.5),
-                     breaks = c(-4, -2, 0, 2, 4, 6),
-                     labels = c("-4","-2","0","2","4","6")) +
-  geom_hline(yintercept = 0) +
-  ggtitle("Silent genes")+
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15,margin = margin(r=10, unit="pt")))
-plot_lot2_silent 
-
-####################################################
-####################################################
-
-#plots all comparisons for Lot 1 active
-lot1_active <- subset(comb.means, comb.means$Lot=="C1" & comb.means$Status=="Active")
-time0 <- subset(lot1_active, lot1_active$Time=="0HR")
-time1 <- subset(lot1_active, lot1_active$Time=="1HR")
-time24 <- subset(lot1_active, lot1_active$Time=="24HR")
-ratio <- c(((log2(time1$final.mean))-(log2(time0$final.mean))),
-           ((log2(time24$final.mean))-(log2(time0$final.mean))),
-           ((log2(time24$final.mean))-(log2(time1$final.mean))))
-lot1_activedat <- as.data.frame(cbind(as.character(lot1_active[,1]),as.numeric(as.character(ratio))))
-lot1_activedat$V1 <- as.factor(lot1_activedat$V1)
-lot1_activedat$V3 <- c(rep("diff1",nrow(lot1_active)/3),rep("diff2",nrow(lot1_active)/3),rep("diff3",nrow(lot1_active)/3))
-lot1_activedat$V3 <- as.factor(lot1_activedat$V3)
-lot1_activedat$V2 <- as.numeric(as.character(lot1_activedat$V2))
-colnames(lot1_activedat) <- c("Gene","ratio","comparison")
-
-plot_lot1_active <- ggplot(lot1_activedat, aes(x=comparison, y = ratio)) +
-  stat_boxplot(geom ='errorbar', width=0.5) +
-  geom_boxplot(aes(fill=comparison), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red"))+
-  ylab("log2 (ratio)") +
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("1 hr vs. \n 0 hr", "24 hr vs. \n 0 hr", "24hr vs. \n 1 hr")) +
-  scale_y_continuous(expand = c(0,0),
-                     limits = c(-4.5,6.5),
-                     breaks = c(-4, -2, 0, 2, 4, 6),
-                     labels = c("-4","-2","0","2","4","6")) +
-  geom_hline(yintercept = 0) +
-  ggtitle("Active genes")+
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15,margin = margin(r=10, unit="pt")))
-plot_lot1_active 
-
-####################################################
-####################################################
-
-#plots all comparisons for Lot 2 active
-lot2_active <- subset(comb.means, comb.means$Lot=="C2" & comb.means$Status=="Active")
-time0 <- subset(lot2_active, lot2_active$Time=="0HR")
-time1 <- subset(lot2_active, lot2_active$Time=="1HR")
-time24 <- subset(lot2_active, lot2_active$Time=="24HR")
-ratio <- c(((log2(time1$final.mean))-(log2(time0$final.mean))),
-           ((log2(time24$final.mean))-(log2(time0$final.mean))),
-           ((log2(time24$final.mean))-(log2(time1$final.mean))))
-lot2_activedat <- as.data.frame(cbind(as.character(lot2_active[,1]),as.numeric(as.character(ratio))))
-lot2_activedat$V1 <- as.factor(lot2_activedat$V1)
-lot2_activedat$V3 <- c(rep("diff1",nrow(lot2_active)/3),rep("diff2",nrow(lot2_active)/3),rep("diff3",nrow(lot2_active)/3))
-lot2_activedat$V3 <- as.factor(lot2_activedat$V3)
-lot2_activedat$V2 <- as.numeric(as.character(lot2_activedat$V2))
-colnames(lot2_activedat) <- c("Gene","ratio","comparison")
-
-plot_lot2_active <- ggplot(lot2_activedat, aes(x=comparison, y = ratio)) +
-  stat_boxplot(geom ='errorbar', width=0.5) +
-  geom_boxplot(aes(fill=comparison), outlier.shape = 16, outlier.size = 1.5, outlier.colour = "black", colour = "black") +
-  scale_fill_manual(values=c("red", "red", "red"))+
-  ylab("log2 (ratio)") +
-  xlab(element_blank()) +
-  scale_x_discrete(labels=c("1 hr vs. \n 0 hr", "24 hr vs. \n 0 hr", "24hr vs. \n 1 hr")) +
-  scale_y_continuous(expand = c(0,0),
-                     limits = c(-4.5,6.5),
-                     breaks = c(-4, -2, 0, 2, 4, 6),
-                     labels = c("-4","-2","0","2","4","6")) +
-  geom_hline(yintercept = 0) +
-  ggtitle("Active genes")+
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks.length = unit(0.2, "cm"),
-        plot.title = element_text(color = "black", size = 15, hjust = .5),
-        plot.margin = unit(c(1,1,1,1),"cm"),
-        panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(colour = "black", size=1.8),
-        axis.title = element_text(colour = "black", size = 15),
-        axis.text.x = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),
-        axis.text.y = element_text(colour="black",size=15, margin=margin(.5,.5,.5,.5)),  
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(colour="black",size=15, margin = margin(r=10, unit="pt")))
-plot_lot2_active 
-
-###########################################################################################
-###########################################################################################
-
-#combines lot 1 linear scale plots
-linear_lot1 <- plot_grid(linear_activeplot1, linear_silentplot1, ncol = 2, align = "h")
-#combines lot 2 linear scale plots
-linear_lot2 <- plot_grid(linear_activeplot2, linear_silentplot2, ncol = 2, align = "h")
-
-#combines lot 1 log scale plots
-log_lot1 <- plot_grid(log_activeplot1, log_silentplot1, ncol = 2, align = "h", labels = c("A","B"))
-#combines lot 2 log scale plots
-log_lot2 <- plot_grid(log_activeplot2, log_silentplot2, ncol = 2, align = "h", labels = c("E","F"))
-
-#combines lot 1 ratio plots
-ratio_lot1 <- plot_grid(plot_lot1_active, plot_lot1_silent, ncol = 2, align = "h", labels = c("C","D"))
-#combines lot 2 ratio plots
-ratio_lot2 <- plot_grid(plot_lot2_active, plot_lot2_silent, ncol = 2, align = "h", labels = c("G","H")) 
-
-#combines Linear Scale Plots
-Linear <- plot_grid(linear_lot1,linear_lot2, nrow = 2, align = "h", labels = c("Lot 1","Lot 2"), label_size = 20)
-title <- ggdraw() + draw_label("Figure 2", size=20)
-figure_2 <- plot_grid(title,Linear,ncol = 1,rel_heights = c(0.1,1))
-figure_2
-# saves file 'Study_48_Figure_2.pdf' locally
-ggsave(file = "Study_48_Figure _2.pdf", width = 8, height = 12)
-
-#combines Ratio Plots
-Ratio_Log <- plot_grid(log_lot1,  ratio_lot1, log_lot2, ratio_lot2, ncol = 1, align = "h")
-title <- ggdraw() + draw_label("Figure 2 - figure supplement 1", size=20)
-figure_2_s1 <- plot_grid(title,Ratio_Log,ncol = 1,rel_heights = c(0.1,1))
-figure_2_s1
-# saves file 'Study_48_Figure_2_figure_supplement_1.pdf' locally
-ggsave(file = "Study_48_Figure_2_figure_supplement_1.pdf", width = 10, height = 18)]]></code>
+          <code specific-use="source" language="r"><![CDATA[s <- min(1000, 500)
+x <- runif(s)
+y <- x + runif(s)
+z <- y + rnorm(s)
+plot(x, y, cex=z*2, col=rainbow(length(z), alpha=0.5)[rank(x+z)], pch=16)]]></code>
           <code specific-use="output" language="json"><![CDATA[]]></code>
         </alternatives>
       </fig>
     </sec>
     <sec id="heading-e7949e3e535414b99afc0c20a7f264bb">
       <title>Interoperability with existing tools and workflows</title>
-      <p id="heading-29342a9f5d14ab0142453efdc18c2f6f" level="1">The Reproducible Document Stack is developed not to replace existing tools, but to complement them. We are working with the communities of existing open source tools to improve interoperability. We aim to support file formats commonly used by researchers for reproducibility such as Jupyter Notebooks, RMarkdown and more.</p>
+      <p id="heading-29342a9f5d14ab0142453efdc18c2f6f" level="1">The Reproducible Document Stack is developed to complement existing tools, not to replace them. We are working with the communities of established open source tools to improve interoperability. We aim to support file formats commonly used by researchers for reproducibility such as Jupyter Notebooks, RMarkdown and more.</p>
     </sec>
   </body>
   <back id="back-1">
