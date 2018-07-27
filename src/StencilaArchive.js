@@ -1,6 +1,7 @@
 import { prettyPrintXML } from 'substance'
-import { JATSExporter, TextureArchive } from 'substance-texture'
+import { TextureArchive } from 'substance-texture'
 import ArticleLoader from './article/ArticleLoader'
+import ArticleExporter from './article/ArticleExporter'
 import SheetLoader from './sheet/SheetLoader'
 
 export default class StencilaArchive extends TextureArchive {
@@ -66,19 +67,7 @@ export default class StencilaArchive extends TextureArchive {
   _exportDocument(type, session, sessions) {
     switch (type) {
       case 'article': {
-        // FIXME: hard-coded, and thus bad
-        // TODO: export only those resources which have been changed
-        // Also we need to
-        let jatsExporter = new JATSExporter()
-        let pubMetaDb = sessions['pub-meta'].getDocument()
-        let doc = session.getDocument()
-        let dom = doc.toXML()
-        let res = jatsExporter.export(dom, { pubMetaDb, doc })
-        console.info('saving jats', res.dom.getNativeElement())
-        // TODO: bring back pretty printing (currently messes up CDATA content)
-        let xmlStr = prettyPrintXML(res.dom)
-        //let xmlStr = res.dom.serialize()
-        return xmlStr
+        return ArticleExporter.export(session, { sessions })
       }
       case 'sheet': {
         let dom = session.getDocument().toXML()
