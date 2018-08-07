@@ -37,7 +37,8 @@ export default class Project extends Component {
       this.documentEl.on('keydown', this.onKeyDown, this)
     }
 
-
+    // HACK: we enable reproduce mode by default
+    this._toggleReproduce()
   }
 
   willUpdateState() {
@@ -241,8 +242,9 @@ export default class Project extends Component {
   }
 
   _launchExecutionEngine () {
-    return new Promise((resolve, reject) => {
-      resolve(window.confirm('Start the Engine?'))
+    return new Promise((resolve) => {
+      // resolve(window.confirm('Start the Engine?'))
+      resolve(true)
     }).then(yesPlease => {
       if (yesPlease) {
         const archive = this.props.documentArchive

@@ -1,6 +1,6 @@
 import {Component} from 'substance'
 
-const MAX_ROWS = 10
+const MAX_ROWS = 10000
 
 export default
 class TableValueComponent extends Component {

@@ -52,3 +52,7 @@
 .sc-isolated-node.sm-default-style.sm-selected {
   outline: 1px solid transparent;
 }
+
+.sc-isolated-node-blocker {
+  display: none !important;
+}
