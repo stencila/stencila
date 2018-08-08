@@ -5,14 +5,15 @@ import { getCellState, getErrorMessage } from '../shared/cellHelpers'
 import { toString as stateToString, OK, BROKEN, FAILED } from '../engine/CellStates'
 
 const LANG_LABELS = {
-  'mini': 'Mini',
-  'js': 'JS',
-  'node': 'Node',
+  'mini': 'Formula',
+  'js': 'Javascript',
+  'node': 'Node.js',
   'sql': 'SQL',
-  'py': 'Py',
+  'py': 'Python',
   'pyjp': 'PyJp',
-  'r': 'R',
+  'r': 'R Script',
 }
+
 
 const SHOW_ERROR_DELAY = 500
 
@@ -41,10 +42,46 @@ class CellComponent extends NodeComponent {
     const cellState = getCellState(this.props.node)
     let statusName = cellState ? stateToString(cellState.status) : 'unknown'
     let el = $$('div').addClass(`se-status sm-${statusName}`)
-    let icon = this.state.hideCode ? 'fa-angle-down' : 'fa-angle-up'
+    let icon = this.state.hideCode ? 'fa-angle-right' : 'fa-angle-down'
     el.append(
       $$(FontAwesomeIcon, {icon: icon })
     )
+    return el
+  }
+
+  _renderStatusDescription($$) {
+    const cellState = getCellState(this.props.node)
+    let statusName = cellState ? stateToString(cellState.status) : 'unknown'
+    let statusDescr = statusName
+    if (statusName === 'ok') {
+      statusDescr = 'ready'
+    }
+    let el = $$('div').addClass(`se-status-description sm-${statusName}`).append(
+      'status: ',
+      $$('span').addClass('se-status-name').append(
+        statusDescr
+      )
+    )
+    return el
+  }
+
+  _renderToggleLabel($$) {
+    const cellState = getCellState(this.props.node)
+    const lang = cellState.lang
+    let showOrHide = this.state.hideCode ? 'Show' : 'Hide'
+    let label = `${showOrHide} ${LANG_LABELS[lang]}`
+
+    if(cellState.value && cellState.value.type) {
+      label += ` for: ${_capitalizeFirstLetter(cellState.value.type)}`
+      if (cellState.output) {
+        let output = cellState.output
+        output = output.split('!')[1]
+        label += `, ${output}`
+      }
+    }
+
+    
+    let el = $$('div').addClass('se-toggle-label').append(label)
     return el
   }
 
@@ -57,7 +94,9 @@ class CellComponent extends NodeComponent {
     if (!this.state.hideCodeToggle) {
       el.append(
         $$('button').append(
-          this._renderStatus($$)
+          this._renderStatus($$),
+          this._renderToggleLabel($$),
+          this._renderStatusDescription($$)
         )
         .addClass('se-show-code')
         .attr('title', 'Show Code')
@@ -84,11 +123,11 @@ class CellComponent extends NodeComponent {
       // el.append(
       //   this._renderEllipsis($$)
       // )
-      el.append(
-        $$('div').addClass('se-language').append(
-          LANG_LABELS[source.attributes.language]
-        )
-      )
+      // el.append(
+      //   $$('div').addClass('se-language').append(
+      //     LANG_LABELS[source.attributes.language]
+      //   )
+      // )
     }
 
 
@@ -298,6 +337,12 @@ class ValueDisplay extends Component {
     }
     return el
   }
+}
+
+
+
+function _capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 CellComponent.noBlocker = true
