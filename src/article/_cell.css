@@ -41,8 +41,8 @@
   top: 10px;
   text-align: right;
   width: 200px;
-  font-size: 11px;
-  color: #777;
+  font-size: 13px;
+  color: #999;
 }
 
 .sc-cell .se-show-code .se-toggle-label {
@@ -50,8 +50,8 @@
   top: 10px;
   left: 40px;
   /* width: 200px; */
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 13px;
+  color: #999;
   text-align: left;
 }
 
