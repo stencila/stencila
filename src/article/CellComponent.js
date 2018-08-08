@@ -68,8 +68,8 @@ class CellComponent extends NodeComponent {
   _renderToggleLabel($$) {
     const cellState = getCellState(this.props.node)
     const lang = cellState.lang
-    let showOrHide = this.state.hideCode ? 'Show' : 'Hide'
-    let label = `${showOrHide} ${LANG_LABELS[lang]}`
+    
+    let label = `${LANG_LABELS[lang]}`
 
     if(cellState.value && cellState.value.type) {
       label += ` for: ${_capitalizeFirstLetter(cellState.value.type)}`
