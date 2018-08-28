@@ -12,6 +12,7 @@ export { default as MemoryBuffer } from './src/backend/MemoryBuffer'
 export { default as StencilaArchive } from './src/StencilaArchive'
 export { default as StencilaWebApp } from './src/StencilaWebApp'
 export { default as StencilaDesktopApp } from './src/StencilaDesktopApp'
+export { default as TextureReader } from './src/TextureReader'
 
 export { default as JsContext } from './src/contexts/JsContext'
 
