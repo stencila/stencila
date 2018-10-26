@@ -1,22 +1,35 @@
+# Use Node.js 8
 language: node_js
+node_js:
+  - 8
 
-node_js: 8
+# Require apt packages
+before_install:
+  - sudo apt-get install libsecret-1-dev
 
-cache:
-  directories:
-    # Cache node_modules for faster setup
-    - node_modules
-
+# Do linting, coverage, and build docs (to upload to Github pages)
 script:
-  # Build the site
-  - npm run build
+  - make lint
+  - make cover
+  - make docs
+
+# Upload test coverage to codecov
+# See https://docs.codecov.io/v5.0.0/docs/about-the-codecov-bash-uploader
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 deploy:
-  # Deploy to Github Pages
+  # Deploy a new version of NPM package and create a Github release
+  - provider: script
+    skip_cleanup: true
+    script:
+      - npm run semantic-release
+
+  # Deploy documentation to Github Pages
   # See https://docs.travis-ci.com/user/deployment/pages/
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN
-  local-dir: build
-  on:
-    branch: master
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    local-dir: docs
+    on:
+      branch: master

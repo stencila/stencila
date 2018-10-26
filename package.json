@@ -7,10 +7,12 @@
     "lint": "tslint --project tsconfig.json --fix --format stylish ./src/**/*.ts",
     "test": "jest",
     "cover": "jest --collectCoverage",
-    "build:dist": "tsc",
-    "build:api": "gulp build",
-    "build:docs": "typedoc --readme README.md --out ./docs ./src",
-    "start": "gulp"
+    "start": "gulp",
+    "build": "tsc",
+    "api": "gulp build",
+    "docs": "typedoc --readme README.md --out ./docs ./src",
+    "prepublishOnly": "npm run build",
+    "semantic-release": "semantic-release"
   },
   "repository": {
     "type": "git",
@@ -26,6 +28,11 @@
     "reflect-metadata": "^0.1.12"
   },
   "devDependencies": {
+    "@semantic-release/commit-analyzer": "^6.1.0",
+    "@semantic-release/git": "^7.0.5",
+    "@semantic-release/github": "^5.2.0",
+    "@semantic-release/npm": "^5.0.5",
+    "@semantic-release/release-notes-generator": "^7.1.1",
     "@types/jest": "^23.3.7",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
@@ -44,5 +51,14 @@
     "tslint-config-standard": "^8.0.1",
     "typedoc": "^0.13.0",
     "typescript": "^3.1.3"
+  },
+  "release": {
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
+      "@semantic-release/git",
+      "@semantic-release/github"
+    ]
   }
 }
