@@ -1,32 +1,48 @@
 {
-  "name": "stencila-specs",
-  "version": "1.0.0",
-  "description": "Stencila API and other specifications",
+  "name": "@stencila/schema",
+  "version": "0.1.0",
+  "description": "Stencila type schema and other specifications",
   "main": "index.js",
   "scripts": {
-    "build": "gulp build",
+    "lint": "tslint --project tsconfig.json --fix --format stylish ./src/**/*.ts",
+    "test": "jest",
+    "cover": "jest --collectCoverage",
+    "build:dist": "tsc",
+    "build:api": "gulp build",
+    "build:docs": "typedoc --readme README.md --out ./docs ./src",
     "start": "gulp"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stencila/specs.git"
+    "url": "git+https://github.com/stencila/schema.git"
   },
-  "author": "Stencila contributors",
+  "author": "Stencila schema contributors https://github.com/stencila/schema/contributors",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/stencila/specs/issues"
+    "url": "https://github.com/stencila/schema/issues"
   },
-  "homepage": "https://stenci.la",
-  "dependencies": {},
+  "homepage": "https://stencila.github.io/schema",
+  "dependencies": {
+    "reflect-metadata": "^0.1.12"
+  },
   "devDependencies": {
+    "@types/jest": "^23.3.7",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-connect": "^5.5.0",
     "gulp-plumber": "^1.2.0",
+    "jest": "^23.6.0",
     "js-yaml": "^3.11.0",
     "nunjucks": "^3.1.3",
     "redoc": "^2.0.0-alpha.20",
     "replace-ext": "^1.0.0",
-    "through2": "^2.0.3"
+    "semantic-release": "^15.10.5",
+    "semantic-release-cli": "^4.0.9",
+    "through2": "^2.0.3",
+    "ts-jest": "^23.10.4",
+    "tslint": "^5.11.0",
+    "tslint-config-standard": "^8.0.1",
+    "typedoc": "^0.13.0",
+    "typescript": "^3.1.3"
   }
 }
