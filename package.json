@@ -2,7 +2,7 @@
   "name": "@stencila/schema",
   "version": "0.1.0",
   "description": "Stencila type schema and other specifications",
-  "main": "index.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "lint": "tslint --project tsconfig.json --fix --format stylish ./src/**/*.ts",
