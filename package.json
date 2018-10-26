@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Stencila type schema and other specifications",
   "main": "index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "lint": "tslint --project tsconfig.json --fix --format stylish ./src/**/*.ts",
     "test": "jest",
@@ -16,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stencila/schema.git"
+    "url": "https://github.com/stencila/schema.git"
   },
   "author": "Stencila schema contributors https://github.com/stencila/schema/contributors",
   "license": "Apache-2.0",
