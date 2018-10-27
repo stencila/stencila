@@ -11,7 +11,7 @@
     "start": "gulp",
     "build": "tsc",
     "api": "gulp build",
-    "docs": "typedoc --readme README.md --out ./docs ./src",
+    "docs": "typedoc --mode file --readme README.md --out ./docs ./src",
     "prepublishOnly": "npm run build",
     "semantic-release": "semantic-release"
   },
