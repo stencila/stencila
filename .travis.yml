@@ -18,6 +18,11 @@ script:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
+# Prevent Github Pages from using Jekyll
+# which causes docs files starting with undescores to be ignored
+before_deploy:
+  - touch docs/.nojekyll
+
 deploy:
   # Deploy a new version of NPM package and create a Github release
   - provider: script
