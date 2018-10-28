@@ -52,7 +52,7 @@ export default class Thing {
       let id = Reflect.getMetadata('property:id', this, key)
       let [context, term] = id.split(':')
       if (Array.isArray(value)) {
-        jsonld[term] = value.map(item => (item instanceof Thing) ? item.toJSONLD(false) : value)
+        jsonld[term] = value.map(item => (item instanceof Thing) ? item.toJSONLD(false) : item)
       } else if (value instanceof Thing) {
         jsonld[term] = value.toJSONLD(false)
       } else {
