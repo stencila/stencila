@@ -11,7 +11,7 @@ before_install:
 script:
   - make lint
   - make cover
-  - make docs
+  - make build
 
 # Upload test coverage to codecov
 # See https://docs.codecov.io/v5.0.0/docs/about-the-codecov-bash-uploader
@@ -35,6 +35,6 @@ deploy:
   - provider: pages
     skip-cleanup: true
     github-token: $GITHUB_TOKEN
-    local-dir: docs
+    local-dir: build
     on:
       branch: master

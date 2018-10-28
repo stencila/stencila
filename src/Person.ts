@@ -1,12 +1,17 @@
 import { Text } from './dataTypes'
+import { type, property } from './decorators'
 import Thing from './Thing'
 
+@type('schema:Person')
 export default class Person extends Thing {
 
+  @property('schema:email', 'list')
   emails: Array<Text> = []
 
+  @property('schema:familyName', 'list')
   familyNames: Array<Text> = []
 
+  @property('schema:givenName', 'list')
   givenNames: Array<Text> = []
 
   /**

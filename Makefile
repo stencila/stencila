@@ -1,4 +1,4 @@
-all: setup lint test build docs
+all: setup lint test build
 
 setup:
 	npm install
@@ -21,10 +21,6 @@ run:
 build:
 	npm run build
 .PHONY: build
-
-docs:
-	npm run docs
-.PHONY: docs
 
 clean:
 	npm run clean

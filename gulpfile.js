@@ -1,12 +1,96 @@
+const connect = require('gulp-connect')
 const del = require('del')
 const fs = require('fs')
 const gulp = require('gulp')
-const connect = require('gulp-connect')
 const nunjucks = require('nunjucks')
 const plumber = require('gulp-plumber')
 const replaceExt = require('replace-ext')
 const through = require('through2')
+const typedoc = require('typedoc')
 const yaml = require('js-yaml')
+
+/**
+ * Convert TypeScript to TypeDoc HTML and JSON
+ * output
+ */
+function ts2typedoc () {
+  // Run TypeDoc...
+  const app = new typedoc.Application({
+      // TypeScript options (should be same as in `tsconfig.json`)
+      module: 'commonjs',
+      target: 'es2017',
+      experimentalDecorators: true,
+      // TypeDoc options (see https://typedoc.org/api/)
+      name: 'Stencila Schema',
+      mode: 'file',
+      readme: 'README.md'
+  })
+  const project = app.convert(app.expandInputFiles(['./src']))
+  // Write out HTML
+  app.generateDocs(project, './build')
+  // Return project object for further processing
+  return project
+}
+
+/**
+ * Convert TypeDoc JSON to JSON-LD context
+ * 
+ * Examples of other context definitions:
+ * 
+ *   http https://schema.org/docs/jsonldcontext.json | less
+ *   http https://schema.org/Thing.jsonld
+ *   http https://raw.githubusercontent.com/codemeta/codemeta/2.0/codemeta.jsonld
+ *   http https://science.ai Accept:application/ld+json
+ */
+function typedoc2context (docs) {
+  const context = {
+    // Contexts referrred to
+    schema: 'https://schema.org/',
+    rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
+    codemeta: 'https://doi.org/10.5063/schema/codemeta-2.0',
+    stencila: 'https://stencila.github.io/schema/context.jsonld',
+
+    // Alias type and id
+    // See "Addressing the “@” issue" at https://datalanguage.com/news/publishing-json-ld-for-developers
+    // for why
+    // This is done in the https://schema.org/ context, so if we are extending schema.org
+    // is this necessary?
+    type: '@type',
+    id: '@id',
+  }
+
+  // Iterate over classes
+  for (let clas of docs.children.filter(clas => clas.kindString === 'Class')) {
+    // Only include registered types (i.e. having the `@type` decorator)
+    let type = clas.decorators && clas.decorators.filter(dec => dec.name === 'type')[0]
+    if (type) {
+      let id = type.arguments.id.replace(/\'|\"/g, '')
+      let [cxt, name] = id.split(':')
+      if (cxt !== 'stencila') {
+        // Type defined in another context
+        context[clas.name] = {
+          '@id': id
+        }
+      } else {
+        // No `@id` tag so define a new class
+        const type = {
+          '@id': clas.name, 
+          '@type': 'rdfs:Class', 
+          'rdfs:label': clas.name
+        }
+        let comment = clas.comment && clas.comment.shortText
+        if (comment) {
+          type['rdfs:comment'] = comment
+        }
+        context[clas.name] = type
+      }
+    }
+  }
+  
+  // Write to file
+  const json = JSON.stringify({'@context': context}, null, '  ')
+  fs.writeFileSync('./build/context.jsonld', json)  
+}
 
 /**
  * Augment an OpenAPI 3.0 YAML specification with non-standard
@@ -74,6 +158,11 @@ gulp.task('site', function () {
     .pipe(connect.reload())
 })
 
+gulp.task('src/ts', function () {
+  const docs = ts2typedoc()
+  typedoc2context(docs)
+})
+
 gulp.task('src/openapi', function () {
   gulp.src(['./src/Host.yaml'])
     .pipe(plumber())
@@ -94,6 +183,7 @@ gulp.task('src/yaml', function () {
 gulp.task('build', ['clean'], function () {
   gulp.start([
     'site',
+    'src/ts',
     'src/openapi',
     'src/yaml'
   ])

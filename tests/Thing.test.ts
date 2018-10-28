@@ -1,10 +1,48 @@
 import Thing from '../src/Thing'
 
-describe('Thing', () => {
-  const node = new Thing()
+test('constructor', () => {
+  const thing1 = new Thing()
+  expect(thing1.name).toEqual('')
 
-  test('type', () => {
-    expect(node.type).toEqual('Thing')
+  const thing2 = new Thing({
+    name: 'thing2',
+    description: 'The second thing'
+  })
+  expect(thing2.name).toEqual('thing2')
+  expect(thing2.description).toEqual('The second thing')
+
+  const thing3 = new Thing({
+    name: 'thing3',
+    foo: 'bar'
+  })
+  expect(thing3.name).toEqual('thing3')
+  // @ts-ignore
+  expect(thing3.foo).toEqual(undefined)
+})
+
+test('type', () => {
+  const thing = new Thing()
+  expect(thing.type).toEqual('Thing')
+})
+
+test('toJSONLD', () => {
+  const thing1 = new Thing()
+  expect(thing1.toJSONLD()).toEqual({
+    '@context': 'https://stencila.github.io/schema/context.jsonld',
+    'type': 'Thing'
   })
 
+  const thing2 = new Thing({
+    name: 'thing2',
+    description: 'The second thing',
+    identifiers: ['thing2', 'thing_two'],
+    urls: []
+  })
+  expect(thing2.toJSONLD()).toEqual({
+    '@context': 'https://stencila.github.io/schema/context.jsonld',
+    'type': 'Thing',
+    'name': 'thing2',
+    'description': 'The second thing',
+    'identifier': ['thing2', 'thing_two']
+  })
 })

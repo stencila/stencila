@@ -1,10 +1,8 @@
+import { type, property } from './decorators'
 import CreativeWork from './CreativeWork'
 import SoftwarePackage from './SoftwarePackage'
 
-/**
- * A software application.
- * https://schema.org/SoftwareApplication
- */
+@type('schema:SoftwareApplication')
 export default class SoftwareApplication extends CreativeWork {
 
   /**
@@ -12,6 +10,7 @@ export default class SoftwareApplication extends CreativeWork {
    * property allows for `Text` or `URL` values. Here, we allow
    * values of software packages or applications.
    */
+  @property('schema:softwareRequirements')
   softwareRequirements: Array<SoftwarePackage | SoftwareApplication> = []
 
 }

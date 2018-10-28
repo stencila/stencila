@@ -1,3 +1,4 @@
+import { type, property } from './decorators'
 import { Date, Number, Text, URL } from './dataTypes'
 import ComputerLanguage from './ComputerLanguage'
 import CreativeWork from './CreativeWork'
@@ -5,21 +6,23 @@ import Organization from './Organization'
 import Person from './Person'
 import SoftwareApplication from './SoftwareApplication'
 
-/**
- * Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
- * https://schema.org/SoftwareSourceCode
- */
+@type('schema:SoftwareSourceCode')
 export default class SoftwareSourceCode extends CreativeWork {
+  @property('schema:codeRepository')
   codeRepository: URL = ''
 
+  @property('schema:codeSampleType')
   codeSampleType: Text = ''
 
-  // codemeta:SoftwareSourceCode.maintainer
+  @property('codemeta:maintainer', 'list')
   maintainers: Array<Organization | Person> = []
 
+  @property('schema:programmingLanguage', 'list')
   programmingLanguages: Array<ComputerLanguage> = []
 
+  @property('schema:runtimePlatform')
   runtimePlatform: Text = ''
 
+  @property('schema:targetProduct', 'list')
   targetProducts: Array<SoftwareApplication> = []
 }

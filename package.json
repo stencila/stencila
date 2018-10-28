@@ -9,11 +9,10 @@
     "test": "jest",
     "cover": "jest --collectCoverage",
     "start": "gulp",
-    "build": "tsc",
-    "api": "gulp build",
-    "docs": "typedoc --mode file --readme README.md --out ./docs ./src",
+    "build": "tsc && gulp build",
     "prepublishOnly": "npm run build",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "clean": "gulp clean"
   },
   "repository": {
     "type": "git",
