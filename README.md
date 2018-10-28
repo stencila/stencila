@@ -30,4 +30,5 @@ This API is implemented (to varying degress) in the following packages:
 - [stencila/py](https://github.com/stencila/py)
 - [stencila/r](https://github.com/stencila/r)
 - [stencila/js](https://github.com/stencila/js)
+- [stencila/node](https://github.com/stencila/node)
 - [stencila/cloud](https://github.com/stencila/cloud)
