@@ -30,4 +30,7 @@ export default class CreativeWork extends Thing {
 
   @property('schema:version')
   version: Number | Text = ''
+
+  @property('schema:keywords')
+  keywords: Text = ''
 }
