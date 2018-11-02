@@ -1,6 +1,9 @@
 import { type, property } from './decorators'
 import CreativeWork from './CreativeWork'
 import SoftwarePackage from './SoftwarePackage'
+import ComputerLanguage from './ComputerLanguage'
+import OperatingSystem from './OperatingSystem'
+import { Text } from './dataTypes'
 
 @type('schema:SoftwareApplication')
 export default class SoftwareApplication extends CreativeWork {
@@ -20,5 +23,14 @@ export default class SoftwareApplication extends CreativeWork {
   applicationSubCategories: Array<Text | URL> = []
 
   @property('schema:operatingSystem', 'list')
-  operatingSystems: Array<Text> = []
+  operatingSystems: Array<OperatingSystem> = []
+
+  @property('schema:programmingLanguage', 'list')
+  programmingLanguages: Array<ComputerLanguage> = []
+
+  @property('schema:runtimePlatform')
+  runtimePlatform: Text = ''
+
+  @property('schema:codeRepository')
+  codeRepository: Text | URL = ''
 }
