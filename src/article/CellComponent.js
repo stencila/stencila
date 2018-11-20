@@ -51,17 +51,25 @@ class CellComponent extends NodeComponent {
 
   _renderStatusDescription($$) {
     const cellState = getCellState(this.props.node)
+    // console.log('cellstate', cellState.status)
     let statusName = cellState ? stateToString(cellState.status) : 'unknown'
     let statusDescr = statusName
-    if (statusName === 'ok') {
-      statusDescr = 'ready'
-    }
+    // if (statusName === 'ok') {
+    //   statusDescr = 'ready'
+    // }
+    // if (statusName === 'ready') {
+    //   statusDescr = 'pending'
+    // }
+
     let el = $$('div').addClass(`se-status-description sm-${statusName}`).append(
       'status: ',
       $$('span').addClass('se-status-name').append(
         statusDescr
       )
     )
+    if (statusDescr === 'ready') {
+      el.append(' (run code with ⇧⏎)')
+    }
     return el
   }
 
@@ -331,7 +339,9 @@ class ValueDisplay extends Component {
       // to have a less jumpy experience, we show the last valid value grey'd out
       else if (this._cachedValue) {
         el.append(
-          $$(ValueComponent, this._cachedValue).ref('value').addClass('sm-pending')
+          $$(ValueComponent, this._cachedValue).ref('value')
+          // HACK: Disable pending computation ...
+          // .addClass('sm-pending')
         )
       }
     }

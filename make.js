@@ -204,6 +204,7 @@ function buildStencilaNodeJS() {
 
 function buildApp() {
   b.copy('./app/*.html', DIST, { root: './app/'})
+  b.copy('./app/*.css', DIST, { root: './app/'})
   // copy('./node_modules/substance/packages/** /*.css', 'dist/styles/', { root: './node_modules/substance/'})
   // copy('./node_modules/substance/packages/** /*.css', 'dist/styles/', { root: './node_modules/substance/'})
 
@@ -222,6 +223,7 @@ function buildExamples() {
   //    fork(b, 'node_modules/.bin/stencila-convert', 'import', './examples/rmarkdown', { verbose: true })
   //  }
   //})
+  console.log('BUILDING EXAMPLES...')
   b.copy('./examples', DIST+'examples')
   vfs(b, {
     src: ['./examples/**/*'],

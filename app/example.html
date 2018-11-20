@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <title>Texture Reader</title>
+    <link rel="stylesheet" type="text/css" href="./reset.css">
     <link rel="stylesheet" type="text/css" href="./stencila.css">
     <script type="text/javascript" src="./katex/katex.min.js"></script>
     <script type="text/javascript" src="./lib/plotly.min.js"></script>
@@ -21,14 +22,15 @@
         left: 0px;
         right: 0px;
         bottom: 0px;
-        top: 0px;
+        top: 80px;
+        border-top: 1px solid #ddd;
       }
     </style>
     <script>
-      window.STENCILA_HOSTS="http://hub.stenci.la/projects/3ea93204bf5957e7489c0720536fcf4adcfb72a33c6cc391d05ba14467fca3e7/host/v0"
+      window.STENCILA_HOSTS="https://bindilla.stenci.la/https://github.com/stencila/examples/elife-30274-binder/v0"
       window.addEventListener('load', () => {
         TextureReader.mount({
-          archiveId: 'rds-user-testing',
+          archiveId: 'introduction-rds',
           // TODO: Activate once a dar server is running for the journal
           // storageUrl: 'https://dar-archives.elifesciences.org',
           // darDownloadUrl: 'https://downloads.elifesciences.org/e24351.zip
