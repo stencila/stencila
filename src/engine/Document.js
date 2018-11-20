@@ -19,7 +19,7 @@ export default class Document {
       this.autorun = data.autorun
     } else {
       // TODO: using manual execution as a default for now
-      this.autorun = true
+      this.autorun = false
     }
     this.cells = data.cells.map(cellData => this._createCell(cellData))
     // registration hook used for propagating initial cell state to the application
