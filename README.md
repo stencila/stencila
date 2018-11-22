@@ -1,13 +1,15 @@
 # Stencila schemas and other specifications
 
-> ⚠ This repo contains pre-1.0 schemas and API specs which are draft and likely to change ⚠
-
-[![Build status](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
+![Status](https://img.shields.io/badge/status-draft-orange.svg)
+[![Build](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
 [![Code coverage](https://codecov.io/gh/stencila/schema/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/schema)
 [![Greenkeeper badge](https://badges.greenkeeper.io/stencila/schema.svg)](https://greenkeeper.io/)
 [![NPM](http://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema)
+[![License](https://img.shields.io/badge/License-Apache%202.0-3262eb.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/)
+[![Community](https://img.shields.io/badge/join-community-green.svg)](https://community.stenci.la)
 [![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
+
 
 ## TypeScript classes
 
