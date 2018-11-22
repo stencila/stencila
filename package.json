@@ -1,6 +1,6 @@
 {
   "name": "@stencila/schema",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Stencila type schema and other specifications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -45,7 +45,7 @@
     "replace-ext": "^1.0.0",
     "semantic-release": "^15.10.5",
     "semantic-release-cli": "^4.0.9",
-    "through2": "^2.0.3",
+    "through2": "^3.0.0",
     "ts-jest": "^23.10.4",
     "tslint": "^5.11.0",
     "tslint-config-standard": "^8.0.1",
