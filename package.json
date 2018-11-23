@@ -1,6 +1,6 @@
 {
   "name": "@stencila/schema",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Stencila type schema and other specifications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
