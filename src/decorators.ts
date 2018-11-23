@@ -7,9 +7,9 @@
 import 'reflect-metadata'
 
 /**
- * Define a type
+ * Define a type.
  *
- * @param id The @id of the type e.g. `schema:Thing` for https://schema.org/Thing
+ * @param id The `@id` of the type e.g. `schema:Thing` for https://schema.org/Thing
  */
 export function type (id: string): ClassDecorator {
   return function (target: Object) {
@@ -18,14 +18,15 @@ export function type (id: string): ClassDecorator {
 }
 
 /**
- * Define a property
+ * Define a property.
  *
- * See https://www.w3.org/2018/jsonld-cg-reports/json-ld/#syntax-tokens-and-keywords
- *
- * @param id The @id of the property e.g. `schema:name` for https://schema.org/name
- * @param container The @container type for the property e.g. set, list
+ * @param id        The `@id` of the property e.g. `schema:name` for https://schema.org/name
+ * @param container The `@container` type for the property. Must be `list` or `set` (default).
+ *                  A `list` is a ordered collection. A `set` is an unordered collection.
+ *                  See the [JSON-LD docs](https://w3c.github.io/json-ld-syntax/#sets-and-lists)
+ *                  for more info.
  */
-export function property (id: string, container?: string): PropertyDecorator {
+export function property (id: string, container: string = 'set'): PropertyDecorator {
   return function (target: Object, propertyKey: string | symbol) {
     Reflect.defineMetadata('property:id', id, target, propertyKey)
     if (container) Reflect.defineMetadata('property:container', container, target, propertyKey)
