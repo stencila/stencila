@@ -1,3 +1,4 @@
+import { Text } from './dataTypes'
 import { type, property } from './decorators'
 import OperatingSystem from './OperatingSystem'
 import SoftwareApplication from './SoftwareApplication'
@@ -39,6 +40,9 @@ export default class SoftwarePackage extends SoftwareSourceCode {
 
   /**
    * Operating systems supported (Windows 7, OSX 10.6, Android 1.6).
+   *
+   * `schema:operatingSystem` expects type `Text`, whereas here we
+   * expect `OperatingSystem`
    *
    * @see {@link https://schema.org/operatingSystem}
    */
