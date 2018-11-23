@@ -4,7 +4,7 @@ import Thing from './Thing'
 
 /**
  * A person (alive, dead, undead, or fictional).
- * 
+ *
  * @see {@link https://schema.org/Person}
  */
 @type('schema:Person')
@@ -12,7 +12,7 @@ export default class Person extends Thing {
 
   /**
    * A person (alive, dead, undead, or fictional).
-   * 
+   *
    * @see {@link https://schema.org/email}
    */
   @property('schema:email')
@@ -21,7 +21,7 @@ export default class Person extends Thing {
   /**
    * Family name. In the U.S., the last name of an Person.
    * This can be used along with givenName instead of the name property.
-   * 
+   *
    * @see {@link https://schema.org/familyName}
    */
   @property('schema:familyName')
@@ -30,7 +30,7 @@ export default class Person extends Thing {
   /**
    * Given name. In the U.S., the first name of a Person.
    * This can be used along with familyName instead of the name property.
-   * 
+   *
    * @see {@link https://schema.org/givenName}
    */
   @property('schema:givenName')

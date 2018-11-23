@@ -1,4 +1,5 @@
 import { type, property } from './decorators'
+import OperatingSystem from './OperatingSystem'
 import SoftwareApplication from './SoftwareApplication'
 import SoftwareSourceCode from './SoftwareSourceCode'
 

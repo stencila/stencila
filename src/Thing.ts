@@ -5,11 +5,11 @@ import { type, property } from './decorators'
 
 /**
  * The most generic type of item.
- * 
+ *
  * This is base class for all other classes in this schema.
  * As well as definining the properties of a `schema:Thing` it
  * implements methods such as `toJSONLD` for marshalling to JSON-LD.
- * 
+ *
  * @see {@link https://schema.org/Thing}
  */
 @type('schema:Thing')
@@ -74,17 +74,17 @@ export default class Thing {
 
   /**
    * A description of the item.
-   * 
+   *
    * @see {@link https://schema.org/description}
    */
   @property('schema:description')
   description: Text = ''
 
   /**
-   * The identifier property represents any kind of identifier for any kind of Thing, 
+   * The identifier property represents any kind of identifier for any kind of Thing,
    * such as ISBNs, GTIN codes, UUIDs etc. Schema.org provides dedicated properties
    * for representing many of these, either as textual strings or as URL (URI) links.
-   * 
+   *
    * @see {@link https://schema.org/identifier}
    */
   @property('schema:identifier')
@@ -92,7 +92,7 @@ export default class Thing {
 
   /**
    * The name of the item.
-   * 
+   *
    * @see {@link https://schema.org/name}
    */
   @property('schema:name')
@@ -100,7 +100,7 @@ export default class Thing {
 
   /**
    * URL of the item.
-   * 
+   *
    * @see {@link https://schema.org/url}
    */
   @property('schema:url')
