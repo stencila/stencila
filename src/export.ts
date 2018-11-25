@@ -21,8 +21,9 @@ export default function export_ (thing: Thing, format: string= 'application/ld+j
  * @param thing The thing to be exported
  */
 export function exportJsonLd (thing: Thing): string {
-  const obj = exportObject(thing)
-  obj['@context'] = 'https://stencila.github.io/schema/context.jsonld'
+  const obj = Object.assign({
+    '@context': 'https://stencila.github.io/schema/context.jsonld'
+  }, exportObject(thing))
   return JSON.stringify(obj)
 }
 
