@@ -1,7 +1,7 @@
-/**
+/*
  * The basic data types such as Integers, Strings, etc. https://schema.org/DataType
  *
- * Currently we just use type alias for these basic types
+ * Currently we just use type alias for these basic types.
  */
 
 export type Boolean = boolean
