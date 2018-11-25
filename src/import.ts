@@ -1,4 +1,4 @@
-import Thing from './Thing'
+import Thing from './types/Thing'
 import * as types from './types'
 
 /**

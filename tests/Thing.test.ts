@@ -1,4 +1,4 @@
-import Thing from '../src/Thing'
+import Thing from '../src/types/Thing'
 
 test('constructor', () => {
   const thing1 = new Thing()

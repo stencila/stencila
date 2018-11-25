@@ -1,6 +1,6 @@
 import {default as import_, importJsonLd} from '../src/import'
-import Thing from '../src/Thing'
-import Person from '../src/Person'
+import Thing from '../src/types/Thing'
+import Person from '../src/types/Person'
 
 test('import:Thing', () => {
   const thing = new Thing()

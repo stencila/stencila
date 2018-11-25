@@ -1,4 +1,4 @@
-import Person from '../src/Person'
+import Person from '../src/types/Person'
 
 describe('Person', () => {
 

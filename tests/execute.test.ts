@@ -1,5 +1,5 @@
 import execute from '../src/execute'
-import Thing from '../src/Thing'
+import Thing from '../src/types/Thing'
 
 test('execute:Thing', () => {
   const thing = new Thing()

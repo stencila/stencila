@@ -1,4 +1,4 @@
-import OperatingSystem from '../src/OperatingSystem'
+import OperatingSystem from '../src/types/OperatingSystem'
 
 test('type', () => {
   const operatingSystem = new OperatingSystem()

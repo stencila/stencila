@@ -1,4 +1,4 @@
-import Organization from '../src/Organization'
+import Organization from '../src/types/Organization'
 
 describe('Organization', () => {
   const node = new Organization()

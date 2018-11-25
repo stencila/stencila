@@ -25,7 +25,7 @@ function ts2typedoc () {
       mode: 'file',
       readme: 'README.md'
   })
-  const project = app.convert(app.expandInputFiles(['./src']))
+  const project = app.convert(app.expandInputFiles(['./src/types/']))
   // Write out HTML
   app.generateDocs(project, './build')
   // Return project object for further processing

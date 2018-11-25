@@ -1,5 +1,5 @@
 import compile from '../src/compile'
-import Thing from '../src/Thing'
+import Thing from '../src/types/Thing'
 
 test('compile:Thing', () => {
   const thing = new Thing()

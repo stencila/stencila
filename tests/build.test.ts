@@ -1,5 +1,5 @@
 import build from '../src/build'
-import Thing from '../src/Thing'
+import Thing from '../src/types/Thing'
 
 test('build:Thing', () => {
   const thing = new Thing()

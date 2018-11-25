@@ -1,3 +1,15 @@
+export {
+  Boolean,
+  Date,
+  DateTime,
+  Float,
+  Integer,
+  Number,
+  Text,
+  Time,
+  URL
+} from './dataTypes'
+
 export { default as ComputerLanguage } from './ComputerLanguage'
 export { default as CreativeWork } from './CreativeWork'
 export { default as Intangible } from './Intangible'

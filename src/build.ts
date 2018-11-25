@@ -1,5 +1,5 @@
 import compile from './compile'
-import Thing from './Thing'
+import Thing from './types/Thing'
 
 /**
  * Build a `Thing`.

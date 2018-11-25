@@ -1,4 +1,4 @@
-import ComputerLanguage from '../src/ComputerLanguage'
+import ComputerLanguage from '../src/types/ComputerLanguage'
 
 describe('ComputerLanguage', () => {
   const node = new ComputerLanguage()

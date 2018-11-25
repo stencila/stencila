@@ -5,7 +5,7 @@ import convert from './convert'
 import execute from './execute'
 import import_ from './import'
 import manifest from './manifest'
-import Thing from './Thing'
+import Thing from './types/Thing'
 
 /**
  * A JSON-RPC 2.0 request

@@ -1,19 +1,13 @@
 export {
   Boolean,
+  ComputerLanguage,
+  CreativeWork,
   Date,
   DateTime,
   Float,
+  Intangible,
   Integer,
   Number,
-  Text,
-  Time,
-  URL
-} from './dataTypes'
-
-export {
-  ComputerLanguage,
-  CreativeWork,
-  Intangible,
   OperatingSystem,
   Organization,
   Person,
@@ -22,7 +16,10 @@ export {
   SoftwarePackage,
   SoftwareSession,
   SoftwareSourceCode,
-  Thing
+  Text,
+  Thing,
+  Time,
+  URL
 } from './types'
 
 export { default as import_ } from './import'

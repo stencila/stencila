@@ -1,4 +1,4 @@
-import SoftwarePackage from '../src/SoftwarePackage'
+import SoftwarePackage from '../src/types/SoftwarePackage'
 
 test('type', () => {
   const pkg = new SoftwarePackage()

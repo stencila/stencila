@@ -1,4 +1,4 @@
-import Intangible from '../src/Intangible'
+import Intangible from '../src/types/Intangible'
 
 describe('Intangible', () => {
   const node = new Intangible()

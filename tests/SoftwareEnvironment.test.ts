@@ -1,4 +1,4 @@
-import SoftwareEnvironment from '../src/SoftwareEnvironment'
+import SoftwareEnvironment from '../src/types/SoftwareEnvironment'
 
 describe('SoftwareEnvironment', () => {
   const node = new SoftwareEnvironment()

@@ -1,5 +1,5 @@
 import build from './build'
-import Thing from './Thing'
+import Thing from './types/Thing'
 
 /**
  * Execute a thing

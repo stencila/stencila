@@ -1,6 +1,6 @@
 import {default as export_, exportJsonLd} from '../src/export'
-import SoftwarePackage from '../src/SoftwarePackage'
-import Thing from '../src/Thing'
+import SoftwarePackage from '../src/types/SoftwarePackage'
+import Thing from '../src/types/Thing'
 
 test('export:Thing', () => {
   const thing = new Thing()

@@ -1,5 +1,5 @@
 import import_ from './import'
-import Thing from './Thing'
+import Thing from './types/Thing'
 
 /**
  * Export a `Thing`.
