@@ -5,7 +5,7 @@ import Thing from '../src/Thing'
 test('export:Thing', () => {
   const thing = new Thing()
   expect(export_(thing)).toEqual(exportJsonLd(thing))
-  expect(export_(thing, 'application/ld+json')).toEqual(exportJsonLd(thing))
+  expect(export_(exportJsonLd(thing), 'application/ld+json')).toEqual(exportJsonLd(thing))
   expect(() => export_(thing, 'foo/bar')).toThrow(/^Unhandled export format: foo\/bar/)
 })
 

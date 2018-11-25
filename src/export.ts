@@ -1,3 +1,4 @@
+import import_ from './import'
 import Thing from './Thing'
 
 /**
@@ -6,10 +7,12 @@ import Thing from './Thing'
  * @param thing The thing to be exported
  * @param format The format, as a MIME type, to export to e.g. `text/html`
  */
-export default function export_ (thing: Thing, format: string= 'application/ld+json'): string {
+export default function export_ (thing: string | object | Thing, format: string= 'application/ld+json'): string {
+  if (!(thing instanceof Thing)) thing = import_(thing)
+
   switch (format) {
     case 'application/ld+json':
-      return exportJsonLd(thing)
+      return exportJsonLd(thing as Thing)
     default:
       throw Error(`Unhandled export format: ${format}`)
   }
