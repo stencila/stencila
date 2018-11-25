@@ -1,10 +1,4 @@
-import { default as export_, exportObject } from './export'
-import build from './build'
-import compile from './compile'
-import convert from './convert'
-import execute from './execute'
-import import_ from './import'
-import manifest from './manifest'
+import Processor from './Processor'
 import Thing from './types/Thing'
 
 /**
@@ -122,7 +116,7 @@ class ResponseError {
  * @param json A JSON-PRC request
  * @returns A JSON-RPC response
  */
-export default function handle (json: string): string {
+export default function handle (processor: Processor, json: string): string {
   let request: Request
   const response = new Response()
 
@@ -151,41 +145,41 @@ export default function handle (json: string): string {
     let result
     switch (request.method) {
       case 'manifest':
-        result = manifest()
+        result = processor.manifest()
         break
       case 'import':
-        result = import_(
+        result = processor.import(
           param(request, 0, 'thing'),
           param(request, 1, 'format', false)
         )
         break
       case 'export':
-        result = export_(
+        result = processor.export(
           param(request, 0, 'thing'),
           param(request, 1, 'format', false)
         )
         break
       case 'convert':
-        result = convert(
+        result = processor.convert(
           param(request, 0, 'thing'),
           param(request, 1, 'from', false),
           param(request, 2, 'to', false)
         )
         break
       case 'compile':
-        result = compile(
+        result = processor.compile(
           param(request, 0, 'thing'),
           param(request, 1, 'format', false)
         )
         break
       case 'build':
-        result = build(
+        result = processor.build(
           param(request, 0, 'thing'),
           param(request, 1, 'format', false)
         )
         break
       case 'execute':
-        result = execute(
+        result = processor.execute(
           param(request, 0, 'thing'),
           param(request, 1, 'format', false)
         )
@@ -196,7 +190,7 @@ export default function handle (json: string): string {
 
     // Most functions return a Thing tht needs to be exported to an Object
     // to include in the response JSON
-    response.result = (result instanceof Thing) ? exportObject(result) : result
+    response.result = (result instanceof Thing) ? processor.exportObject(result) : result
   } catch (exc) {
     response.error = (exc instanceof ResponseError) ? exc : new ResponseError(-32603, `Internal error: ${exc.message}`)
   }

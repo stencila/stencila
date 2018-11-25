@@ -1,9 +1,11 @@
 import handle from '../src/handle'
-import manifest from '../src/manifest';
+import Processor from '../src/Processor';
+
+const processor = new Processor()
 
 // @ts-ignore
 function check(request, response){
-  expect(JSON.parse(handle(JSON.stringify(request)))).toEqual(response)
+  expect(JSON.parse(handle(processor, JSON.stringify(request)))).toEqual(response)
 }
 
 test('handle', () => {
@@ -29,7 +31,7 @@ test('handle', () => {
 
   check(
     {jsonrpc: '2.0', id: 1, method: "manifest"}, 
-    {jsonrpc: '2.0', id: 1, result: manifest()}
+    {jsonrpc: '2.0', id: 1, result: processor.manifest()}
   )
 
   check(

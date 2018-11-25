@@ -1,4 +1,4 @@
-import SoftwareSourceCode from '../src/types/SoftwareSourceCode'
+import SoftwareSourceCode from '../../src/types/SoftwareSourceCode'
 
 describe('SoftwareSourceCode', () => {
   const node = new SoftwareSourceCode()

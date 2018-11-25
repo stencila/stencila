@@ -1,4 +1,4 @@
-import SoftwareSession from '../src/types/SoftwareSession'
+import SoftwareSession from '../../src/types/SoftwareSession'
 
 describe('SoftwareSession', () => {
   const node = new SoftwareSession()

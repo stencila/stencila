@@ -1,4 +1,4 @@
-import CreativeWork from '../src/types/CreativeWork'
+import CreativeWork from '../../src/types/CreativeWork'
 
 describe('CreativeWork', () => {
   const node = new CreativeWork()

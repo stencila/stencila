@@ -1,4 +1,4 @@
-import SoftwareApplication from '../src/types/SoftwareApplication'
+import SoftwareApplication from '../../src/types/SoftwareApplication'
 
 describe('SoftwareApplication', () => {
   const node = new SoftwareApplication()
