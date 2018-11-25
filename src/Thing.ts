@@ -47,32 +47,6 @@ export default class Thing {
   }
 
   /**
-   * Marshall this instance to a JSON-LD object
-   */
-  toJSONLD (standalone: boolean = true) {
-    const jsonld: {[key: string]: any} = {}
-    if (standalone) jsonld['@context'] = 'https://stencila.github.io/schema/context.jsonld'
-    jsonld['type'] = this.type
-
-    for (let [key, value] of Object.entries(this)) {
-      if (typeof value === 'string' && value.length === 0) continue
-      if (Array.isArray(value) && value.length === 0) continue
-
-      let id = Reflect.getMetadata('property:id', this, key)
-      let [context, term] = id.split(':')
-      if (Array.isArray(value)) {
-        jsonld[term] = value.map(item => (item instanceof Thing) ? item.toJSONLD(false) : item)
-      } else if (value instanceof Thing) {
-        jsonld[term] = value.toJSONLD(false)
-      } else {
-        jsonld[term] = value
-      }
-    }
-
-    return jsonld
-  }
-
-  /**
    * A description of the item.
    *
    * @see {@link https://schema.org/description}

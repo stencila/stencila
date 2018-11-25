@@ -24,25 +24,3 @@ test('type', () => {
   const thing = new Thing()
   expect(thing.type).toEqual('Thing')
 })
-
-test('toJSONLD', () => {
-  const thing1 = new Thing()
-  expect(thing1.toJSONLD()).toEqual({
-    '@context': 'https://stencila.github.io/schema/context.jsonld',
-    'type': 'Thing'
-  })
-
-  const thing2 = new Thing({
-    name: 'thing2',
-    description: 'The second thing',
-    identifiers: ['thing2', 'thing_two'],
-    urls: []
-  })
-  expect(thing2.toJSONLD()).toEqual({
-    '@context': 'https://stencila.github.io/schema/context.jsonld',
-    'type': 'Thing',
-    'name': 'thing2',
-    'description': 'The second thing',
-    'identifier': ['thing2', 'thing_two']
-  })
-})
