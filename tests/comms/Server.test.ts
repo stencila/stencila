@@ -1,11 +1,10 @@
-import handle from '../src/handle'
-import Processor from '../src/Processor';
+import Server from '../../src/comms/Server'
 
-const processor = new Processor()
+const server = new Server()
 
 // @ts-ignore
 function check(request, response){
-  expect(JSON.parse(handle(processor, JSON.stringify(request)))).toEqual(response)
+  expect(JSON.parse(server.handle(JSON.stringify(request)))).toEqual(response)
 }
 
 test('handle', () => {
@@ -31,7 +30,7 @@ test('handle', () => {
 
   check(
     {jsonrpc: '2.0', id: 1, method: "manifest"}, 
-    {jsonrpc: '2.0', id: 1, result: processor.manifest()}
+    {jsonrpc: '2.0', id: 1, result: server.processor.manifest()}
   )
 
   check(
