@@ -82,7 +82,7 @@ export default abstract class Client {
     for (let index in args) {
       const arg = args[index]
       if (typeof arg === 'object' && arg.type) {
-        args[index] = Object.assign({}, arg, {type: arg.type})
+        args[index] = Object.assign({}, arg, { type: arg.type })
       }
     }
     const request = new JsonRpcRequest(method, args)
