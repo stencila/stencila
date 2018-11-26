@@ -1,9 +1,9 @@
 import Server from '../../src/comms/Server'
 
+// @ts-ignore Ignore that this is an abstract class
 const server = new Server()
 
-// @ts-ignore
-function check(request, response){
+function check(request: null | object, response: object){
   expect(JSON.parse(server.handle(JSON.stringify(request)))).toEqual(response)
 }
 
