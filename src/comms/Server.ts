@@ -121,7 +121,7 @@ export default abstract class Server {
     }
 
     if (this.logging !== undefined) {
-      if (this.logging == 0 || (response.error && response.error.code <= this.logging)) {
+      if (this.logging === 0 || (response.error && response.error.code <= this.logging)) {
         const entry = this.log(request, response)
         process.stderr.write(JSON.stringify(entry) + '\n')
       }
