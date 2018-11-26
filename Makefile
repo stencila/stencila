@@ -22,5 +22,8 @@ build:
 	npm run build
 .PHONY: build
 
+docs:
+	npm run docs
+
 clean:
 	npm run clean

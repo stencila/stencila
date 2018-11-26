@@ -10,8 +10,7 @@ const typedoc = require('typedoc')
 const yaml = require('js-yaml')
 
 /**
- * Convert TypeScript to TypeDoc HTML and JSON
- * output
+ * Convert TypeScript to TypeDoc JSON
  */
 function ts2typedoc () {
   // Run TypeDoc...
@@ -26,8 +25,6 @@ function ts2typedoc () {
       readme: 'README.md'
   })
   const project = app.convert(app.expandInputFiles(['./src/types/']))
-  // Write out HTML
-  app.generateDocs(project, './build')
   // Return project object for further processing
   return project
 }
@@ -89,6 +86,7 @@ function typedoc2context (docs) {
   
   // Write to file
   const json = JSON.stringify({'@context': context}, null, '  ')
+  if (!fs.existsSync('./build')) fs.mkdirSync('./build')
   fs.writeFileSync('./build/context.jsonld', json)  
 }
 
