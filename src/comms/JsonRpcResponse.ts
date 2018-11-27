@@ -12,6 +12,13 @@ export default class JsonRpcResponse {
   jsonrpc: string = '2.0'
 
   /**
+   * This member is REQUIRED.
+   * It MUST be the same as the value of the id member in the Request Object.
+   * If there was an error in detecting the id in the Request object (e.g. Parse error/Invalid Request), it MUST be Null.
+   */
+  id: number
+
+  /**
    * This member is REQUIRED on success.
    * This member MUST NOT exist if there was an error invoking the method.
    * The value of this member is determined by the method invoked on the Server.
@@ -25,16 +32,9 @@ export default class JsonRpcResponse {
    */
   error?: JsonRpcError
 
-  /**
-   * This member is REQUIRED.
-   * It MUST be the same as the value of the id member in the Request Object.
-   * If there was an error in detecting the id in the Request object (e.g. Parse error/Invalid Request), it MUST be Null.
-   */
-  id: string | number | null = null
-
-  constructor (result?: any, error?: JsonRpcError, id: string | number | null = null) {
+  constructor (id: number, result?: any, error?: JsonRpcError) {
+    this.id = id
     this.result = result
     this.error = error
-    this.id = id
   }
 }

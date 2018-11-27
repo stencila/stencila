@@ -39,11 +39,11 @@ export default abstract class Server {
    * Handle a JSON-RPC 2,0 request
    *
    * @param json A JSON-PRC request
-   * @returns A JSON-RPC response
+   * @param stringify Should the response be stringified?
+   * @returns A JSON-RPC response as an object or string (default)
    */
-  handle (json: string): string {
-    let request: JsonRpcRequest = new JsonRpcRequest()
-    const response = new JsonRpcResponse()
+  recieve (request: string | JsonRpcRequest, stringify: boolean = true): string | JsonRpcResponse {
+    const response = new JsonRpcResponse(-1)
 
     // Extract a parameter by name from Object or by index from Array
     // tslint:disable-next-line:completed-docs
@@ -55,15 +55,17 @@ export default abstract class Server {
     }
 
     try {
-      // Parse JSON into an request
-      try {
-        request = JSON.parse(json)
-      } catch (err) {
-        throw new JsonRpcError(-32700, 'Parse error: ' + err.message)
+      if (typeof request === 'string') {
+        // Parse JSON into an request
+        try {
+          request = JSON.parse(request) as JsonRpcRequest
+        } catch (err) {
+          throw new JsonRpcError(-32700, 'Parse error: ' + err.message)
+        }
       }
 
-      // Response must always have an id
-      response.id = request.id || null
+      // Response id is same as the request id
+      response.id = request.id
 
       if (!request.method) throw new JsonRpcError(-32600, 'Invalid request: missing "method" property')
 
@@ -122,12 +124,12 @@ export default abstract class Server {
 
     if (this.logging !== undefined) {
       if (this.logging === 0 || (response.error && response.error.code <= this.logging)) {
-        const entry = this.log(request, response)
+        const entry = this.log(request as JsonRpcRequest, response)
         process.stderr.write(JSON.stringify(entry) + '\n')
       }
     }
 
-    return JSON.stringify(response)
+    return stringify ? JSON.stringify(response) : response
   }
 
   /**

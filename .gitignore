@@ -3,3 +3,5 @@
 /dist
 /docs
 /node_modules
+/.rpt2_cache
+/tests/comms/webWorker*.js

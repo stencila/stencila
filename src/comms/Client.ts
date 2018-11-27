@@ -1,4 +1,3 @@
-import JsonRpcError from './JsonRpcError'
 import JsonRpcRequest from './JsonRpcRequest'
 import JsonRpcResponse from './JsonRpcResponse'
 import Processor, { ProcessorManifest } from '../Processor'
@@ -103,7 +102,7 @@ export default abstract class Client {
       }
     })
     // Now, we're ready to send the request
-    this.send(JSON.stringify(request))
+    this.send(request)
     return promise
   }
 
@@ -115,7 +114,7 @@ export default abstract class Client {
    *
    * @param request The JSON-RPC request as a string
    */
-  abstract send (request: string): void
+  abstract send (request: JsonRpcRequest): void
 
   /**
    * Receive a request from the server.
@@ -125,13 +124,13 @@ export default abstract class Client {
    *
    * @param response The JSON-RPC response as a string
    */
-  recieve (response: string) {
-    const responseObj = JSON.parse(response)
-    if (!responseObj.id) throw new Error(`Response is missing id: ${response}`)
-    const resolve = this.requests[responseObj.id]
-    if (!resolve) throw new Error(`No request found for response with id: ${responseObj.id}`)
-    resolve(responseObj)
+  recieve (response: string | JsonRpcResponse) {
+    if (typeof response === 'string') response = JSON.parse(response) as JsonRpcResponse
+    if (!response.id) throw new Error(`Response is missing id: ${response}`)
+    const resolve = this.requests[response.id]
+    if (!resolve) throw new Error(`No request found for response with id: ${response.id}`)
+    resolve(response)
     // Clean up by deleting the request entry
-    delete this.requests[responseObj.id]
+    delete this.requests[response.id]
   }
 }

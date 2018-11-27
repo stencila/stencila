@@ -12,7 +12,7 @@ const Person = require('../../src/types/Person').default
 let server
 
 beforeEach(() => {
-  server = childProcess.spawn('npx', ['ts-node', 'tests/comms/stdioServe.ts'], {
+  server = childProcess.spawn('npx', ['ts-node', 'tests/comms/stdioServer.ts'], {
     cwd: path.join(__dirname, '..', '..')
   })
 })

@@ -25,8 +25,8 @@ test('log:none', () => {
   server.stdio!.on('close', () => {
     expect(stdout.mock.calls.length).toEqual(3)
     expect(stdout.mock.calls).toEqual([
-      ['{"jsonrpc":"2.0","id":null,"error":{"code":-32700,"message":"Parse error: Unexpected token o in JSON at position 1"}}\n'],
-      ['{"jsonrpc":"2.0","id":null,"error":{"code":-32600,"message":"Invalid request: missing \\"method\\" property"}}\n'],
+      ['{"jsonrpc":"2.0","id":-1,"error":{"code":-32700,"message":"Parse error: Unexpected token o in JSON at position 1"}}\n'],
+      ['{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid request: missing \\"method\\" property"}}\n'],
       ['{"jsonrpc":"2.0","id":1,"result":{"type":"Thing","name":"Joe"}}\n']
     ])
     expect(stderr.mock.calls).toEqual([])

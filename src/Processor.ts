@@ -1,7 +1,13 @@
 import Thing from './types/Thing'
 import * as types from './types'
 
-const pkg = require('../package')
+// The was `const pkg = require('../package')` but since that
+// doesn't work in the browser this is a temporrary workaround
+const pkg = {
+  name: '@stencila/schema',
+  version: '0.0.0',
+  homepage: 'https://stencila.github.io/schema/'
+}
 
 /**
  * A manifest describing the capabilites of a processor.

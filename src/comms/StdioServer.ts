@@ -21,7 +21,7 @@ export default class StdioServer extends Server {
       output: process.stdout,
       prompt: ''
     }).on('line', request => {
-      process.stdout.write(this.handle(request) + '\n')
+      process.stdout.write(this.recieve(request) + '\n')
     })
   }
 

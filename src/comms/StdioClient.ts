@@ -1,6 +1,7 @@
 import * as readline from 'readline'
 
 import Client from './Client'
+import JsonRpcRequest from './JsonRpcRequest'
 
 /**
  * A `Client` using standard input/output
@@ -41,7 +42,7 @@ export default class StdioClient extends Client {
 
   // Overrides of `Client` methods
 
-  send (request: string) {
-    this.output.write(request + '\n')
+  send (request: JsonRpcRequest) {
+    this.output.write(JSON.stringify(request) + '\n')
   }
 }

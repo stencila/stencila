@@ -4,18 +4,18 @@ import Server from '../../src/comms/Server'
 const server = new Server()
 
 function check(request: null | object, response: object){
-  expect(JSON.parse(server.handle(JSON.stringify(request)))).toEqual(response)
+  expect(JSON.parse(server.recieve(JSON.stringify(request)))).toEqual(response)
 }
 
 test('handle', () => {
   check(
     null, 
-    {jsonrpc: '2.0', id: null, error: {code: -32603, message: "Internal error: Cannot read property 'id' of null"}}
+    {jsonrpc: '2.0', id: -1, error: {code: -32603, message: "Internal error: Cannot read property 'id' of null"}}
   )
 
   check(
-    {jsonrpc: '2.0'}, 
-    {jsonrpc: '2.0', id: null, error: {code: -32600, message: 'Invalid request: missing "method" property'}}
+    {jsonrpc: '2.0', id: 1}, 
+    {jsonrpc: '2.0', id: 1, error: {code: -32600, message: 'Invalid request: missing "method" property'}}
   )
 
   check(
