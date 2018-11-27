@@ -131,5 +131,7 @@ export default abstract class Client {
     const resolve = this.requests[responseObj.id]
     if (!resolve) throw new Error(`No request found for response with id: ${responseObj.id}`)
     resolve(responseObj)
+    // Clean up by deleting the request entry
+    delete this.requests[responseObj.id]
   }
 }

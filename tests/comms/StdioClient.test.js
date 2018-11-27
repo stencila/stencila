@@ -47,4 +47,7 @@ test('StdioClient', async () => {
       expect(error.message).toEqual("Internal error: Unhandled import format: bar/baz")
     }
   }
+
+  // There should be no more requests waiting for a response
+  expect(Object.keys(client.requests).length).toEqual(0)
 })
