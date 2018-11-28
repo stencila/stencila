@@ -121,7 +121,7 @@ export default abstract class Server {
 
     if (this.logging !== undefined) {
       if (this.logging === 0 || (response.error && response.error.code <= this.logging)) {
-        this.log({request, response})
+        this.log({ request, response })
       }
     }
 
@@ -130,10 +130,10 @@ export default abstract class Server {
 
   /**
    * Create a log entry
-   * 
+   *
    * Standard error is used since that is the standard stream that should be used
    * for "writing diagnostic output" according to the [POSIX standard](https://www.unix.com/man-page/POSIX/3posix/stderr/)
-   * 
+   *
    * @param entry The log entry. A timestamp is always added to this entry.
    */
   log (entry = {}) {
@@ -158,7 +158,7 @@ export default abstract class Server {
    * Run the server with graceful shutdown on `SIGINT` or `SIGTERM`
    */
   run () {
-    if(typeof process !== 'undefined') {
+    if (typeof process !== 'undefined') {
       process.on('SIGINT', () => this.stop())
       process.on('SIGTERM', () => this.stop())
     }

@@ -3,9 +3,9 @@ import getPort from 'get-port'
 import http from 'http'
 
 import Server from './Server'
-import Processor from '../Processor';
-import JsonRpcRequest from './JsonRpcRequest';
-import JsonRpcResponse from './JsonRpcResponse';
+import Processor from '../Processor'
+import JsonRpcRequest from './JsonRpcRequest'
+import JsonRpcResponse from './JsonRpcResponse'
 
 /**
  * A `Server` using HTTP for communication.
@@ -19,14 +19,14 @@ export default class HttpServer extends Server {
 
   /**
    * The address to listen on.
-   * 
+   *
    * Usually 127.0.0.1 or 0.0.0.0.
    */
   address: string
 
   /**
    * The Express application
-   * 
+   *
    * Used by derived classes to add routes.
    */
   app: express.Application
@@ -43,10 +43,10 @@ export default class HttpServer extends Server {
     this.address = address
 
     const app = express()
-    
+
     app.disable('x-powered-by')
     app.use(express.json())
-    
+
     // JSON-RPC over HTTP
     // There is no wrapping/unwrapping of the request/response or
     // special handling of errors
@@ -54,7 +54,7 @@ export default class HttpServer extends Server {
       res.setHeader('Content-Type', 'application/json')
       res.send(this.recieve(req.body))
     })
-    
+
     // JSON-RPC wrapped in HTTP
     // Unrap the HTTP request into a JSON RPC request and
     // wrap the response as HTTP
@@ -64,7 +64,7 @@ export default class HttpServer extends Server {
         const response = this.recieve(request, false) as JsonRpcResponse
         // For export and convert methods the content type may be some other format
         res.setHeader('Content-Type', 'application/json')
-        if (response.error !== undefined) res.status((response.error.code < -32603) ? 400 : 500).send({error: response.error})
+        if (response.error !== undefined) res.status((response.error.code < -32603) ? 400 : 500).send({ error: response.error })
         else res.send(response.result)
       }
     }
@@ -74,7 +74,7 @@ export default class HttpServer extends Server {
     app.post('/compile', wrap('compile'))
     app.post('/build', wrap('build'))
     app.post('/execute', wrap('execute'))
-    
+
     // TODO: work out how to set this folder, if at all
     app.use('/', express.static('./tests/comms'))
 
@@ -84,9 +84,9 @@ export default class HttpServer extends Server {
   // Methods overriden from `Server`
 
   async start () {
-    this.port = await getPort({port: this.port})
+    this.port = await getPort({ port: this.port })
     this.server = this.app.listen(this.port, this.address, () => {
-      this.log({started: `http://${this.address}:${this.port}`})
+      this.log({ started: `http://${this.address}:${this.port}` })
     })
   }
 
@@ -94,7 +94,7 @@ export default class HttpServer extends Server {
     if (this.server) {
       this.server.close()
       this.server = undefined
-      this.log({stopped: true})
+      this.log({ stopped: true })
     }
   }
 }

@@ -20,13 +20,13 @@ export default class HttpClient extends Client {
 
   send (request: JsonRpcRequest) {
     fetch(this.server, {
-      method: "POST",
-      mode: "cors", // no-cors, cors, *same-origin
-      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: "same-origin", // include, *same-origin, omit
+      method: 'POST',
+      mode: 'cors', // no-cors, cors, *same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
       headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        "Accept": "application/json; charset=utf-8"
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': 'application/json; charset=utf-8'
       },
       body: JSON.stringify(request)
     })
