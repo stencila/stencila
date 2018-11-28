@@ -18,14 +18,4 @@ export default class WebWorkerServer extends Server {
   stop () {
     self.onmessage = null
   }
-
-  /**
-   * Run the server.
-   *
-   * Override the base implementation to avoid
-   * the use of `process` in the browser.
-   */
-  run () {
-    this.start()
-  }
 }

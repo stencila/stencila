@@ -122,7 +122,7 @@ export default abstract class Server {
       response.error = (exc instanceof JsonRpcError) ? exc : new JsonRpcError(-32603, `Internal error: ${exc.message}`)
     }
 
-    if (this.logging !== undefined) {
+    if (typeof process !== 'undefined' && this.logging !== undefined) {
       if (this.logging === 0 || (response.error && response.error.code <= this.logging)) {
         const entry = this.log(request as JsonRpcRequest, response)
         process.stderr.write(JSON.stringify(entry) + '\n')
@@ -154,8 +154,10 @@ export default abstract class Server {
    * Run the server with graceful shutdown on `SIGINT` or `SIGTERM`
    */
   run () {
-    process.on('SIGINT', () => this.stop())
-    process.on('SIGTERM', () => this.stop())
+    if(typeof process !== 'undefined') {
+      process.on('SIGINT', () => this.stop())
+      process.on('SIGTERM', () => this.stop())
+    }
     this.start()
   }
 }
