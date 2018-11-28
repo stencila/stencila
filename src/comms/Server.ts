@@ -7,9 +7,6 @@ import Thing from '../types/Thing'
 /**
  * A base server class that dispatches JSON-RPC requests
  * from a `Client` to a processor.
- *
- * Standard error is used since that is the standard stream that should be used
- * for "writing diagnostic output" according to the [POSIX standard](https://www.unix.com/man-page/POSIX/3posix/stderr/)
  */
 export default abstract class Server {
 
@@ -122,10 +119,9 @@ export default abstract class Server {
       response.error = (exc instanceof JsonRpcError) ? exc : new JsonRpcError(-32603, `Internal error: ${exc.message}`)
     }
 
-    if (typeof process !== 'undefined' && this.logging !== undefined) {
+    if (this.logging !== undefined) {
       if (this.logging === 0 || (response.error && response.error.code <= this.logging)) {
-        const entry = this.log(request as JsonRpcRequest, response)
-        process.stderr.write(JSON.stringify(entry) + '\n')
+        this.log({request, response})
       }
     }
 
@@ -134,10 +130,18 @@ export default abstract class Server {
 
   /**
    * Create a log entry
+   * 
+   * Standard error is used since that is the standard stream that should be used
+   * for "writing diagnostic output" according to the [POSIX standard](https://www.unix.com/man-page/POSIX/3posix/stderr/)
+   * 
+   * @param entry The log entry. A timestamp is always added to this entry.
    */
-  log (request: JsonRpcRequest, response: JsonRpcResponse) {
-    const timestamp = new Date().valueOf()
-    return { timestamp, request, response }
+  log (entry = {}) {
+    if (typeof process !== 'undefined') {
+      const timestamp = new Date().valueOf()
+      entry =  Object.assign({ timestamp }, entry)
+      process.stderr.write(JSON.stringify(entry) + '\n')
+    }
   }
 
   /**
