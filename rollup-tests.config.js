@@ -21,9 +21,9 @@ export default [{
   },
   plugins
 },{
-  input: 'tests/comms/webWorkerClient.ts',
+  input: 'tests/comms/browserTests.ts',
   output: {
-    file: 'tests/comms/webWorkerClient.js',
+    file: 'tests/comms/browserTests.js',
     format: 'cjs'
   },
   plugins

@@ -5,3 +5,4 @@
 /node_modules
 /.rpt2_cache
 /tests/comms/webWorker*.js
+/tests/comms/browserTests*.js

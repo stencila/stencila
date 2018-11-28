@@ -27,6 +27,9 @@
   },
   "homepage": "https://stencila.github.io/schema",
   "dependencies": {
+    "express": "^4.16.4",
+    "express-jwt": "^5.3.1",
+    "get-port": "^4.0.0",
     "reflect-metadata": "^0.1.12"
   },
   "devDependencies": {
@@ -35,6 +38,8 @@
     "@semantic-release/github": "^5.2.0",
     "@semantic-release/npm": "^5.0.5",
     "@semantic-release/release-notes-generator": "^7.1.1",
+    "@types/express": "^4.16.0",
+    "@types/get-port": "^4.0.0",
     "@types/jest": "^23.3.7",
     "del": "^3.0.0",
     "gulp": "^3.9.1",

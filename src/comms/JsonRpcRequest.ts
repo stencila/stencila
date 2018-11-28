@@ -40,7 +40,7 @@ export default class JsonRpcRequest {
    */
   static counter: number = 0
 
-  constructor (method?: string, params?: any[]) {
+  constructor (method?: string, params?: {[key: string]: any} | any[]) {
     JsonRpcRequest.counter += 1
     this.id = JsonRpcRequest.counter
     this.method = method
