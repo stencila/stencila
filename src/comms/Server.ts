@@ -137,9 +137,9 @@ export default abstract class Server {
    * @param entry The log entry. A timestamp is always added to this entry.
    */
   log (entry = {}) {
-    if (typeof process !== 'undefined') {
+    if (typeof process !== 'undefined') { // tslint:disable-line:strict-type-predicates
       const timestamp = new Date().valueOf()
-      entry =  Object.assign({ timestamp }, entry)
+      entry = Object.assign({ timestamp }, entry)
       process.stderr.write(JSON.stringify(entry) + '\n')
     }
   }
@@ -158,7 +158,7 @@ export default abstract class Server {
    * Run the server with graceful shutdown on `SIGINT` or `SIGTERM`
    */
   run () {
-    if (typeof process !== 'undefined') {
+    if (typeof process !== 'undefined') { // tslint:disable-line:strict-type-predicates
       process.on('SIGINT', () => this.stop())
       process.on('SIGTERM', () => this.stop())
     }

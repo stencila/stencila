@@ -84,7 +84,7 @@ export default class HttpServer extends Server {
   // Methods overriden from `Server`
 
   async start () {
-    this.port = await getPort({ port: this.port })
+    this.port = await getPort({ port: this.port }) // tslint:disable-line:await-promise
     this.server = this.app.listen(this.port, this.address, () => {
       this.log({ started: `http://${this.address}:${this.port}` })
     })

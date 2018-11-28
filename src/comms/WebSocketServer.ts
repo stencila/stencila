@@ -9,7 +9,7 @@ export default class WebSocketServer extends HttpServer {
 
   constructor () {
     super()
-    
+
     expressWs(this.app)
 
     // @ts-ignore

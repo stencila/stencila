@@ -6,7 +6,6 @@ import JsonRpcRequest from './JsonRpcRequest'
  */
 export default class WebSocketClient extends Client {
 
-
   /**
    * The URL of the `WebSocketServer` server
    */

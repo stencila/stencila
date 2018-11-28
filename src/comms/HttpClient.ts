@@ -19,7 +19,7 @@ export default class HttpClient extends Client {
   // Overrides of `Client` methods
 
   send (request: JsonRpcRequest) {
-    fetch(this.server, {
+    return fetch(this.server, {
       method: 'POST',
       mode: 'cors', // no-cors, cors, *same-origin
       cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
