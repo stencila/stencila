@@ -1,29 +1,20 @@
-// This does some pretty funky things with types so use JS instead of TS
+import {Readable, Writable, PassThrough} from 'stream'
 
-const childProcess = require('child_process')
-const path = require('path')
+import StdioClient from '../../src/comms/StdioClient'
+import Processor from '../../src/Processor'
+import Person from '../../src/types/Person'
+import StdioServer from '../../src/comms/StdioServer';
 
-const StdioClient = require('../../src/comms/StdioClient').default
-const Processor = require('../../src/Processor').default
-const Person = require('../../src/types/Person').default
+test('Stdio', async () => {
+  const serverStdin = new PassThrough()
+  const serverStdout = new PassThrough()
 
-// Setup and teardown to ensure server is terminated even if test fails
+  const server = new StdioServer(undefined, undefined, serverStdin, serverStdout)
+  server.start()
 
-let server
+  const client = new StdioClient(serverStdout, serverStdin)
 
-beforeEach(() => {
-  server = childProcess.spawn('npx', ['ts-node', 'tests/comms/stdioServer.ts'], {
-    cwd: path.join(__dirname, '..', '..')
-  })
-})
-
-afterEach(() => {
-  server.kill('SIGTERM')
-})
-
-test('StdioClient', async () => {
   const processor = new Processor()
-  const client = new StdioClient(server.stdin, server.stdout)
 
   expect(await client.manifest()).toEqual(processor.manifest())
 
@@ -32,16 +23,20 @@ test('StdioClient', async () => {
   const thing = new Person(object)
     
   let args
-  
   args = [string, 'application/ld+json']
-  expect(await client.import(...args)).toEqual(processor.import(...args))
+  //@ts-ignore
+  expect(await client.execute(...args)).toEqual(processor.execute(...args))
 
   for (let method of ['import', 'compile', 'build', 'execute']) {
+    //@ts-ignore
     expect(await client[method](string)).toEqual(thing)
+    //@ts-ignore
     expect(await client[method](object)).toEqual(thing)
+    //@ts-ignore
     expect(await client[method](thing)).toEqual(thing)
     
     try {
+      //@ts-ignore
       await client[method]('foo', 'bar/baz')
     } catch (error) {
       expect(error.message).toEqual("Internal error: Unhandled import format: bar/baz")
@@ -49,5 +44,8 @@ test('StdioClient', async () => {
   }
 
   // There should be no more requests waiting for a response
+  // @ts-ignore
   expect(Object.keys(client.requests).length).toEqual(0)
+
+  server.stop()
 })

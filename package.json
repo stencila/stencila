@@ -33,6 +33,7 @@
     "express-ws": "^4.0.0",
     "get-port": "^4.0.0",
     "isomorphic-ws": "^4.0.1",
+    "killable": "^1.0.1",
     "reflect-metadata": "^0.1.12"
   },
   "devDependencies": {

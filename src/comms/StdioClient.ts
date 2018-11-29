@@ -1,3 +1,4 @@
+import { Readable, Writable } from 'stream'
 import * as readline from 'readline'
 
 import Client from './Client'
@@ -10,14 +11,19 @@ import JsonRpcRequest from './JsonRpcRequest'
 export default class StdioClient extends Client {
 
   /**
-   * A stdin/stdout `readline` interface
+   * The stream that responses are recieved on
    */
-  stdio: readline.ReadLine
+  input: Readable
 
   /**
    * The stream that requests are sent on
    */
-  output: NodeJS.WritableStream
+  output: Writable
+
+  /**
+   * A `readline` interface
+   */
+  io: readline.ReadLine
 
   /**
    * Constructor
@@ -25,15 +31,15 @@ export default class StdioClient extends Client {
    * @param stdin The standard input of the `StdioServer`
    * @param stdout The standard output of the `StdioServer`
    */
-  constructor (stdin: NodeJS.WritableStream, stdout: NodeJS.ReadableStream) {
+  constructor (input: Readable = process.stdin, output: Writable = process.stdout) {
     super()
 
-    // Note that the stdout of the server is the input
-    // and the stdin of the server is the output!
-    this.output = stdin
-    this.stdio = readline.createInterface({
-      input: stdout,
-      output: stdin,
+    this.input = input
+    this.output = output
+
+    this.io = readline.createInterface({
+      input: this.input,
+      output: this.output,
       prompt: ''
     }).on('line', response => {
       this.recieve(response)

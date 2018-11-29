@@ -1,14 +1,15 @@
 import expressWs from 'express-ws'
 
 import HttpServer from './HttpServer'
+import Processor from '../Processor'
 
 /**
  * A `Server` using WebSockets for communication.
  */
 export default class WebSocketServer extends HttpServer {
 
-  constructor () {
-    super()
+  constructor (processor?: Processor, logging?: number, port?: number, address?: string) {
+    super(processor, logging, port, address)
 
     expressWs(this.app)
 
