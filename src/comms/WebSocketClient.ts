@@ -30,7 +30,12 @@ export default class WebSocketClient extends Client {
 
   // Overrides of `Client` methods
 
-  send (request: JsonRpcRequest) {
+  async send (request: JsonRpcRequest) {
+    if (this.socket.readyState !== WebSocket.OPEN) {
+      await new Promise(resolve => {
+        this.socket.onopen = () => resolve()
+      })
+    }
     this.socket.send(JSON.stringify(request))
   }
 }

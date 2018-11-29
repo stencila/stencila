@@ -7,8 +7,7 @@ test('WebSockets', async () => {
   await server.start()
 
   const client = new WebSocketClient(`ws://${server.address}:${server.port}`)
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  
+
   const string = '{"type": "Person", "givenNames": ["John", "Paul"], "familyNames": ["Smith"]}'
   const object = JSON.parse(string)
   const thing = new Person(object)
@@ -23,5 +22,6 @@ test('WebSockets', async () => {
     expect(error.message).toEqual("Internal error: Unhandled import format: bar/baz")
   }
 
+  client.socket.close()
   await server.stop()
 })
