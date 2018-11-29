@@ -1,6 +1,8 @@
 import express from 'express'
 import getPort from 'get-port'
 import http from 'http'
+// @ts-ignore
+import killable from 'killable'
 
 import Server from './Server'
 import Processor from '../Processor'
@@ -86,18 +88,23 @@ export default class HttpServer extends Server {
   async start () {
     this.port = await getPort({ port: this.port }) // tslint:disable-line:await-promise
     return new Promise((resolve, reject) => {
-      this.server = this.app.listen(this.port, this.address, () => {
+      this.server = killable(this.app.listen(this.port, this.address, () => {
         this.log({ started: `http://${this.address}:${this.port}` })
         resolve()
-      })
+      }))
     })
   }
 
   async stop () {
     if (this.server) {
-      this.server.close()
-      this.server = undefined
-      this.log({ stopped: true })
+      return new Promise((resolve, reject) => {
+        // @ts-ignore
+        this.server.kill(() => {
+          this.server = undefined
+          this.log({ stopped: true })
+          resolve()
+        })
+      })
     }
   }
 }
