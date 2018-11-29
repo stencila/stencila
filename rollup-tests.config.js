@@ -1,8 +1,8 @@
 import typescript from 'rollup-plugin-typescript2'
+import commonjs from 'rollup-plugin-commonjs'
 import resolve from 'rollup-plugin-node-resolve'
 
 const plugins = [
-  resolve(),
   typescript({
     tsconfigOverride: {
       compilerOptions: {
@@ -10,7 +10,16 @@ const plugins = [
       }
     },
     useTsconfigDeclarationDir: true
-  })
+  }),
+  resolve({
+    // From https://github.com/rollup/rollup-plugin-node-resolve:
+    //  some package.json files have a `browser` field which
+    //  specifies alternative files to load for people bundling
+    //  for the browser. If that's you, use this option, otherwise
+    //  pkg.browser will be ignored
+    browser: true // Default: false
+  }),
+  commonjs()
 ]
 
 export default [{
