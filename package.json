@@ -27,10 +27,12 @@
   },
   "homepage": "https://stencila.github.io/schema",
   "dependencies": {
+    "cross-fetch": "^2.2.3",
     "express": "^4.16.4",
     "express-jwt": "^5.3.1",
     "express-ws": "^4.0.0",
     "get-port": "^4.0.0",
+    "isomorphic-ws": "^4.0.1",
     "reflect-metadata": "^0.1.12"
   },
   "devDependencies": {

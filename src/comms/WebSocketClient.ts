@@ -1,3 +1,5 @@
+import WebSocket from 'isomorphic-ws'
+
 import Client from './Client'
 import JsonRpcRequest from './JsonRpcRequest'
 
@@ -20,6 +22,7 @@ export default class WebSocketClient extends Client {
     super()
     this.server = server
     this.socket = new WebSocket(server)
+    // @ts-ignore
     this.socket.addEventListener('message', (event: MessageEvent) => {
       this.recieve(event.data)
     })

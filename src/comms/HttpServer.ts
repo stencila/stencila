@@ -85,12 +85,15 @@ export default class HttpServer extends Server {
 
   async start () {
     this.port = await getPort({ port: this.port }) // tslint:disable-line:await-promise
-    this.server = this.app.listen(this.port, this.address, () => {
-      this.log({ started: `http://${this.address}:${this.port}` })
+    return new Promise((resolve, reject) => {
+      this.server = this.app.listen(this.port, this.address, () => {
+        this.log({ started: `http://${this.address}:${this.port}` })
+        resolve()
+      })
     })
   }
 
-  stop () {
+  async stop () {
     if (this.server) {
       this.server.close()
       this.server = undefined

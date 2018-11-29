@@ -1,3 +1,5 @@
+import fetch from 'cross-fetch'
+
 import Client from './Client'
 import JsonRpcRequest from './JsonRpcRequest'
 
@@ -18,7 +20,7 @@ export default class HttpClient extends Client {
 
   // Overrides of `Client` methods
 
-  send (request: JsonRpcRequest) {
+  async send (request: JsonRpcRequest) {
     return fetch(this.server, {
       method: 'POST',
       mode: 'cors', // no-cors, cors, *same-origin
