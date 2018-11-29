@@ -13,7 +13,7 @@ export default class WebWorkerClient extends Client {
 
   /**
    * Constructor
-   * 
+   *
    * @param server A URL to a Javascript file or a `Worker` instance
    */
   constructor (server: string | Worker) {
