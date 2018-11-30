@@ -38,10 +38,21 @@ export default class HttpClient extends Client {
 
   // Additional methods for getting and posting to server
 
-  async get (path: string, data?: {}) {
+  /**
+   * Make a GET request to the server
+   *
+   * @param path Path to request
+   */
+  async get (path: string) {
     return fetch(this.server + '/' + path)
   }
 
+  /**
+   * Make a POST request to the server
+   *
+   * @param path  Path to request
+   * @param data Data to POST in the request body
+   */
   async post (path: string, data?: {}) {
     return fetch(this.server + '/' + path, {
       method: 'POST',
