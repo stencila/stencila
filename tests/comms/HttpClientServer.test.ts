@@ -12,12 +12,28 @@ test('HTTP', async () => {
   const object = JSON.parse(string)
   const thing = new Person(object)
   
-  expect(await client.import(string)).toEqual(thing)
-  expect(await client.import(object)).toEqual(thing)
-  expect(await client.import(thing)).toEqual(thing)
+  // JSON-RPC over HTPP
+
+  expect(await client.execute(string)).toEqual(thing)
+  expect(await client.execute(object)).toEqual(thing)
+  expect(await client.execute(thing)).toEqual(thing)
   
   try {
-    await client.import('foo', 'bar/baz')
+    await client.execute('foo', 'bar/baz')
+  } catch (error) {
+    expect(error.message).toEqual("Internal error: Unhandled import format: bar/baz")
+  }
+
+  // JSON-RPC wrapped in HTTP
+
+  // This is currently not working! The whole `Thing` serialisation/deserialisation
+  // flow needs refactoring
+  //expect(await client.post('execute', {thing: string})).toEqual(thing)
+  //expect(await client.post('execute', {thing: object})).toEqual(thing)
+  //expect(await client.post('execute', {thing: thing})).toEqual(thing)
+
+  try {
+    await client.post('execute', {thing: string, format: 'bar/baz'})
   } catch (error) {
     expect(error.message).toEqual("Internal error: Unhandled import format: bar/baz")
   }

@@ -35,4 +35,23 @@ export default class HttpClient extends Client {
     .then(response => response.json())
     .then(response => this.recieve(response))
   }
+
+  // Additional methods for getting and posting to server
+
+  async get (path: string, data?: {}) {
+    return fetch(this.server + '/' + path)
+  }
+
+  async post (path: string, data?: {}) {
+    return fetch(this.server + '/' + path, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': 'application/json; charset=utf-8'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+  }
 }
