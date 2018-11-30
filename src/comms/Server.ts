@@ -116,7 +116,7 @@ export default abstract class Server {
       // to include in the response JSON
       response.result = (result instanceof Thing) ? this.processor.exportObject(result) : result
     } catch (exc) {
-      response.error = (exc instanceof JsonRpcError) ? exc : new JsonRpcError(-32603, `Internal error: ${exc.message}`)
+      response.error = (exc instanceof JsonRpcError) ? exc : new JsonRpcError(-32603, `Internal error: ${exc.message}`, { trace: exc.stack })
     }
 
     if (this.logging !== undefined) {

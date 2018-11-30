@@ -3,8 +3,11 @@ import Server from '../../src/comms/Server'
 // @ts-ignore Ignore that this is an abstract class
 const server = new Server()
 
-function check(request: null | object, response: object){
-  expect(JSON.parse(server.recieve(JSON.stringify(request)))).toEqual(response)
+function check(request: null | object, expected: object){
+  const response = JSON.parse(server.recieve(JSON.stringify(request)))
+  // Remove any error response details e.g. traceback
+  if (response.error && response.error.data) delete response.error.data
+  expect(response).toEqual(expected)
 }
 
 test('handle', () => {
