@@ -9,5 +9,6 @@
 /dist
 /docs
 /node_modules
+/stencilaschema.egg-info
 /tests/comms/browserTests*.js
 /tests/comms/webWorker*.js
