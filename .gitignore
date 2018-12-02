@@ -1,8 +1,13 @@
+*.pyc
+/.coverage
+/.mypy_cache
+/.rpt2_cache
+/.tox
 /build
 /coverage
+/coverage.xml
 /dist
 /docs
 /node_modules
-/.rpt2_cache
-/tests/comms/webWorker*.js
 /tests/comms/browserTests*.js
+/tests/comms/webWorker*.js
