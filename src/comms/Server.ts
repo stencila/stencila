@@ -159,8 +159,9 @@ export default abstract class Server {
    */
   run () {
     if (typeof process !== 'undefined') { // tslint:disable-line:strict-type-predicates
-      process.on('SIGINT', () => this.stop())
-      process.on('SIGTERM', () => this.stop())
+      const stop = () => this.stop()
+      process.on('SIGINT', stop)
+      process.on('SIGTERM', stop)
     }
     this.start()
   }
