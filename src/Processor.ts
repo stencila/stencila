@@ -169,14 +169,12 @@ export default class Processor {
       if (typeof value === 'string' && value.length === 0) continue
       if (Array.isArray(value) && value.length === 0) continue
 
-      let id = Reflect.getMetadata('property:id', thing, key)
-      let [context, term] = id.split(':')
       if (Array.isArray(value)) {
-        obj[term] = value.map(item => (item instanceof Thing) ? this.exportObject(item) : item)
+        obj[key] = value.map(item => (item instanceof Thing) ? this.exportObject(item) : item)
       } else if (value instanceof Thing) {
-        obj[term] = this.exportObject(value)
+        obj[key] = this.exportObject(value)
       } else {
-        obj[term] = value
+        obj[key] = value
       }
     }
 

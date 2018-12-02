@@ -54,7 +54,7 @@ test('exportJsonLd:Thing', () => {
     'type': 'Thing',
     'name': 'thing2',
     'description': 'The second thing',
-    'identifier': ['thing2', 'thing_two']
+    'identifiers': ['thing2', 'thing_two']
   })
 })
 

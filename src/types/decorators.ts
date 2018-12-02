@@ -28,6 +28,7 @@ export function type (id: string): ClassDecorator {
  */
 export function property (id: string, container: string = 'set'): PropertyDecorator {
   return function (target: Object, propertyKey: string | symbol) {
+    Reflect.defineMetadata('property:name', propertyKey, target, propertyKey)
     Reflect.defineMetadata('property:id', id, target, propertyKey)
     if (container) Reflect.defineMetadata('property:container', container, target, propertyKey)
   }

@@ -14,13 +14,12 @@ import { type, property } from './decorators'
  */
 @type('schema:Thing')
 export default class Thing {
+
   /**
    * The JSON-LD [type specifier](https://w3c.github.io/json-ld-syntax/#specifying-the-type) corresponding to
    * the `@type` keyword.
    */
-  get type (): string {
-    return this.constructor.name
-  }
+  type: string
 
   /**
    * The JSON-LD [node identifier](https://w3c.github.io/json-ld-syntax/#node-identifiers) corresponding to
@@ -38,8 +37,9 @@ export default class Thing {
    * @param initializer An object with initial property values
    */
   constructor (initializer = {}) {
+    this.type = this.constructor.name
     for (let [key, value] of Object.entries(initializer)) {
-      if (Reflect.hasMetadata('property:id', this, key)) {
+      if (Reflect.hasMetadata('property:name', this, key)) {
         // @ts-ignore
         this[key] = value
       }
