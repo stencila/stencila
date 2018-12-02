@@ -53,7 +53,7 @@ class UploadCommand(Command):
         self.status('Pushing git tags…')
         os.system('git tag v{0}'.format(VERSION))
         os.system('git push --tags')
-        
+
         sys.exit()
 
 setup(
@@ -66,8 +66,8 @@ setup(
     author_email='nokome@stenci.la',
     python_requires='>=3.6.0',
     url='https://github.com/stencila/schema',
-    packages=['stencilaschema', 'stencilaschema.comms'],
-    package_dir = {'stencilaschema': 'src'},
+    packages=['stencilaschema', 'stencilaschema.types', 'stencilaschema.comms'],
+    package_dir={'stencilaschema': 'src'},
     install_requires=[],
     extras_require={},
     include_package_data=True,
