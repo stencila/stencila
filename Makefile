@@ -25,7 +25,7 @@ lint-ts:
 	npm run lint
 
 lint-py:
-	pylint src
+	pylint src || pylint-exit $$?
 	mypy src
 
 
