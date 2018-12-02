@@ -3,11 +3,10 @@ sudo: required
 matrix:
   include:
 
-    #Typescript
+    # Typescript latest LTS
+
     - language: node_js
-      node_js:
-        - 8
-        - 10
+      node_js: 10
 
       # Require apt packages
       before_install:
@@ -44,15 +43,23 @@ matrix:
           on:
             branch: master
 
-    # Python
+    # Typescript previous LTS
+
+    - language: node_js
+      node_js: 8
+
+      # Just do testing
+      script:
+        - make test-ts
+
+    # Python latest
+
     - language: python
-      python:
-        - "3.6"
-        - "3.7-dev"
+      python: "3.7-dev"
 
       # Install stuff needed for linting and testing
       install:
-        - pip3 install pylint tox-travis
+        - pip3 install pylint mypy tox-travis
       
       # Do linting and coverage
       script:
@@ -62,3 +69,16 @@ matrix:
       # Upload test coverage to codecov
       after_success:
         - bash <(curl -s https://codecov.io/bash) -cF py
+
+    # Python previous
+
+    - language: python
+      python: 3.6
+
+      # Install stuff needed for testing
+      install:
+        - pip3 install tox-travis
+      
+      # Just do testing
+      script:
+        - make test-py
