@@ -1,9 +1,9 @@
-import {Readable, Writable, PassThrough} from 'stream'
+import {PassThrough} from 'stream'
 
-import StdioClient from '../../src/comms/StdioClient'
-import Processor from '../../src/Processor'
 import Person from '../../src/types/Person'
-import StdioServer from '../../src/comms/StdioServer';
+import Processor from '../../src/Processor'
+import StdioClient from '../../src/comms/StdioClient'
+import StdioServer from '../../src/comms/StdioServer'
 
 test('Stdio', async () => {
   const serverStdin = new PassThrough()

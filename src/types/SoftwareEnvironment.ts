@@ -1,4 +1,4 @@
-import { type, property } from './decorators'
+import { type } from './decorators'
 import SoftwareApplication from './SoftwareApplication'
 
 /**

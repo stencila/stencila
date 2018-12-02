@@ -1,8 +1,7 @@
 import { type, property } from './decorators'
-import { Date, Number, Text, URL } from './dataTypes'
+import { Text, URL } from './dataTypes'
 import ComputerLanguage from './ComputerLanguage'
 import CreativeWork from './CreativeWork'
-import Organization from './Organization'
 import Person from './Person'
 import SoftwareApplication from './SoftwareApplication'
 

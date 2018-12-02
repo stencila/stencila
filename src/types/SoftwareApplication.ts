@@ -1,7 +1,6 @@
 import { type, property } from './decorators'
 import CreativeWork from './CreativeWork'
 import SoftwarePackage from './SoftwarePackage'
-import ComputerLanguage from './ComputerLanguage'
 import OperatingSystem from './OperatingSystem'
 import { Text } from './dataTypes'
 
