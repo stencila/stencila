@@ -24,8 +24,12 @@ lint: lint-ts lint-py
 lint-ts:
 	npm run lint
 
-lint-py:
+lint-py: lint-py-code lint-py-types
+
+lint-py-code:
 	pylint --exit-zero src
+
+lint-py-types:
 	mypy src
 
 
