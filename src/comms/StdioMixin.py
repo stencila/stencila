@@ -11,6 +11,11 @@ class StdioMixin:
     async def open(self) -> None:
         loop = asyncio.get_event_loop()
         
+        # The following somewhat convoluted code is necessary for asynchronously reading/writing stdin/stdout pipes
+        # See 
+        #   https://gist.github.com/nathan-hoad/8966377
+        #   https://kevinmccarthy.org/2016/07/25/streaming-subprocess-stdin-and-stdout-with-asyncio-in-python/
+        
         if self.reader is None:
             self.reader = asyncio.StreamReader()
             reader_protocol = asyncio.StreamReaderProtocol(self.reader)
