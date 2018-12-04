@@ -101,14 +101,14 @@ Messages are sent between `Processors` using [JSON-RPC] 2.0, a stateless, light-
 
 For example, a request to `execute` a R code cell is made to a `Processor` using a JSON-RPC request object like this:
 
-```json
+```json5
 {
     "jsonrpc": "2.0",
-    # A string or number to identify this request
+    // A string or number to identify this request
     "id": 28758975,
-    # The name of the method to call
+    // The name of the method to call
     "method": "execute",
-    # The parameter values to call the method with
+    // The parameter values to call the method with
     "params": {
         "thing": {
             "type": "SoftwareSourceCell",
@@ -121,12 +121,12 @@ For example, a request to `execute` a R code cell is made to a `Processor` using
 
 The processor responds with a JSON-RPC response object with a `result` property:
 
-```json
+```json5
 {
     "jsonrpc": "2.0",
-    # The same id as in the request (to allow matching responses with requests)
+    // The same id as in the request (to allow matching responses with requests)
     "id": 28758975,
-    # The result of the method call
+    // The result of the method call
     "result": {
         "type": "SoftwareSourceCell",
         "programmingLanguage": "R",
@@ -142,16 +142,16 @@ The processor responds with a JSON-RPC response object with a `result` property:
 
 If there is an error executing the cell there will be no `result`, but an `error` property instead:
 
-```json
+```json5
 {
     "jsonrpc": "2.0",
     "id": 28758975,
     "error": {
-        # A number indication the type of error
+        // A number indication the type of error
         "code": 1,
-        # A short description of the error
+        // A short description of the error
         "message": "The variable 'x' does not exist.",
-        # Additional data about the error
+        // Additional data about the error
         "data": {
             "trace": ...
         }
@@ -175,7 +175,7 @@ If there is an error executing the cell there will be no `result`, but an `error
 
 Compression can dramatically reduce the size of JSON and thus provide faster communication between the client and the server.
 
-```json
+```json5
 "messages": [{
     "contentType": "application/json",
     "contentEncoding": "gzip"
@@ -184,7 +184,7 @@ Compression can dramatically reduce the size of JSON and thus provide faster com
 
 We are also considering using [Apache Avro] given that 
 
-```json
+```json5
 "messages": [{
     "contentType": "application/avro+binary"
 }]
@@ -210,18 +210,20 @@ The following table summarises the serialization format/s used by each protocol 
 |**Serialization**   |None           |JSON[1]         |JSON[2]         |JSON[2]
 |**Client**
 |Browser JS          |🗸              |🗸               |🗸              |-
-|Node.js             |❌[3]           |🗸               |🗸              |🗸
-|Python              |-              |❌               |❌              |❌
-|R                   |-              |❌               |❌              |❌
+|Node.js             |x[3]           |🗸               |🗸              |🗸
+|Python              |-              |x               |x              |x
+|R                   |-              |x               |x              |x
 |**Server**
 |Browser JS          |🗸              |-               |-              |-
-|Node.js             |❌[3]           |🗸               |🗸              |🗸
-|Python              |-              |❌               |❌              |❌[4]
-|R                   |-              |❌               |❌              |❌[4]
+|Node.js             |x[3]           |🗸               |🗸              |🗸
+|Python              |-              |x               |x              |x[4]
+|R                   |-              |x               |x              |x[4]
 
 **Notes**
 
-0. 🗸 means that an implementation is available, ❌ means that an implementation is possible, but not available, '-' means that implementation is not-applicable / possible
+> 🔧 Some of the following notes are stale / superseded
+
+0. 🗸 means that an implementation is available, x means that an implementation is possible, but not available, - means that implementation is not-applicable / possible
 
 1. It is proposed that the HTTP protocol support several serialization formats, by using content negotiation headers `Accept` and `Content-Type`, including Avro-JSON, and zipped JSON and Avro-JSON.
 
@@ -240,15 +242,15 @@ The `handshake` method of a `Processor` can be called by a `Client` to establish
 
 The simplest handshake, and the one implied if the `Client` does not make a handshake requests, establishes plain JSON-RPC communication:
 
-```json
+```json5
 {
     "jsonrpc": "2.0",
     "id": 1,
     "method": "hello",
     "params": {
-        # The client tells the server the handshake version...
+        // The client tells the server the handshake version...
         "version": "1.0",
-        # The client tells the server it can only handle JSON messages...
+        // The client tells the server it can only handle JSON messages...
         "formats": [
             {
                 "contentType": "application/json"
@@ -260,21 +262,21 @@ The simplest handshake, and the one implied if the `Client` does not make a hand
 
 The server would then respond with,
 
-```json
+```json5
 {
     "jsonrpc": "2.0",
     "id": 1,
     "result": {
-        # The server confirms the handshake version...
+        // The server confirms the handshake version...
         "version": "1.0"
-        # The server tells the client which message format to use...
+        // The server tells the client which message format to use...
         "messages": {
             "contentType": "application/json"
         },
-        # The server tells the client that is provides these methods...
+        // The server tells the client that is provides these methods...
         "methods": {
             "execute": [
-                # JSON schema
+                // JSON schema
             ]
         }
     }
