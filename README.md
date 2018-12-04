@@ -9,9 +9,7 @@
 [![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
 
 > :sparkles:
-> 
 > This is a **work in progress**. But comments, suggestions, and pull requests are very much appreciated
-> 
 > :sparkles:
 
 <!-- Automatically generated TOC. Don't edit, `make docs` instead>
@@ -81,17 +79,135 @@ A type representing a call of a `SoftwareFunction`.
 
 ## Processors
 
-A draft [OpenAPI specification](https://github.com/OAI/OpenAPI-Specification) for `Hosts` is defined in [`src/Host.yaml`](src/Host.yaml) and is available as more reader-friendly, browserable HTML [here](https://stencila.github.io/schema/host.html).
+> 🕒 `Processors` combine and supersede, `Hosts` and execution `Contexts` in `v0`. By combining these two classes we aim to reduce the complexity of the API which used to involve requesting a host to create a context, and then requesting that context to execute a code cell.
+> A draft [OpenAPI specification](https://github.com/OAI/OpenAPI-Specification) for `Hosts` is defined in [`src/Host.yaml`](src/Host.yaml) and is available as more reader-friendly, browserable HTML [here](https://stencila.github.io/schema/host.html).
+>
+> That API is implemented (to varying degress) in the following packages:
+> 
+> - [stencila/py](https://github.com/stencila/py)
+> - [stencila/r](https://github.com/stencila/r)
+> - [stencila/js](https://github.com/stencila/js)
+> - [stencila/node](https://github.com/stencila/node)
+> - [stencila/cloud](https://github.com/stencila/cloud)
 
-This API is implemented (to varying degress) in the following packages:
+The following provides an overview of the methods. For further details, please refer to the canonical documentation [here](https://stencila.github.io/schema/classes/processor.html).
 
-- [stencila/py](https://github.com/stencila/py)
-- [stencila/r](https://github.com/stencila/r)
-- [stencila/js](https://github.com/stencila/js)
-- [stencila/node](https://github.com/stencila/node)
-- [stencila/cloud](https://github.com/stencila/cloud)
+### `import`
 
-The draft implementation of the `Processor` class within this document seeks to 
+> 🔧 TODO
+
+> Note that in Python, because `import` is a keyword, this method is named `import_` in the code, but still referred to using `"method":"import"` in JSON-RPC requests (see below).
+
+### `export`
+
+> 🔧 TODO
+
+### `compile`
+
+> 🔧 TODO
+
+### `build`
+
+> 🔧 TODO
+
+### `execute`
+
+Several classes of processor (e.g. `SQLProcessor`) store values resulting from execution in a cache and return those values to the caller as a "pointer". A pointer simply says, "This value is large, so to save time and bandwidth, instead of sending it to you now, here is an identifier you can use to get it from me later". 
+
+For example, consider executing a call to function that returns a very large data frame:
+
+```json5
+execute({
+    // This is a call to function...
+    "type": "Call",
+    "function": {
+        "type": "Function",
+        "id": "http://example.org/functions#a-function-that-returns-a-huge-dataframe"
+    }
+})
+```
+
+This would return the `Call` instance with the `result` property added:
+
+```json5
+{
+    ...
+    "result": {
+        "value": {
+            "type": "DataFrame",
+            "id": "#9e4d8a263bdddaf0340344096de600023bc592a1d1988281c6cd9041c5e1d8d9"
+        } 
+    }
+}
+```
+
+The unique `id` for the result value allows the processor that made the call, to fetch all, or part of, the data frame at a later time (see the `get` method below). Or to pass that pointer on to another peer processor. When a processor receives an `id` starting with a hash `#`, it prepends the URL of the originating peer processor. For example, the above `id` could be transformed to `https://10.1.20.0/#9e4d8a26...`. This allow this pointer to be passed to other
+
+
+As another example, imagine this call to a `PostgresProcessor`:
+
+```json5
+execute({
+    // This is a Structured Query Language (SQL) code cell...
+    "type": "Cell",
+    "programmingLanguage": "SQL",
+    // This is the id of the database context that this cell is to be executed in...
+    "context": "http://...",
+    // This is the SQL code to be executed in that database context...
+    "text": "SELECT * FROM huge_table"
+})
+```
+
+Because this query is for all the data in `huge_table`, the result of this call would include two pointers, one for `huge_table` and one for the result:
+
+```json5
+{
+    // The existing properties of the cell plus...
+    // A list of inputs variable that the cell requires...
+    "inputs": [{
+        "type": "Variable",
+        "name": "huge_table",
+        "value": {
+            "type": "DataFrame",
+            "id": "#huge_table"
+        }
+    }],
+    // A list of output values
+    "outputs": [{
+        "type": "DataFrame",
+        "id": "#temp_7"
+    }]
+}
+```
+
+### `get`
+
+The `get` method is used to fetch all, or part of, a stored value.
+
+### `hello` and `goodbye`
+
+The `hello` method is called by a peer processor when it established a connection to the current processor. It is used to exchange a a manifest of each processors capabilities. This is used to `goodbye` method is called by a peer processor when it closes it's connection to the current peer. 
+
+These methods may also be intercepted by server to upgrade the communication protocols used. See the section on communications below.
+
+
+### Implementations
+
+This repository contains base `Processor` classes for several languages:
+
+- Typescript: [`src/Processor.ts`](src/Processor.ts)
+- Python: [`src/Processor.py`](src/Processor.py)
+- R: 🦄 [`src/Processor.R`](src/Processor.R)
+
+These base classes do very little but provide a template for implementing derived processor classes. The processors that are implemented or planned are available in other repositories:
+
+- 🦄 `FormatsProcessor` in combine format converters in [`stencila/convert`](https://github.com/stencila/convert) 
+- 🦄 `DockerProcessor` in [`stencila/dockter`](https://github.com/stencila/dockter) to combine and replace `DockerParser`, `DockerGenerator` etc 
+- 🦄 `JavascriptProcessor`in [`stencila/js`](https://github.com/stencila/js) to replace `JavascriptContext`
+- 🦄 `JupyterProcessor` in `stencila/jupyter-node` to replace `JupyterContext` in `stencila/node`
+- 🦄 `PythonProcessor` in [`stencila/py`](https://github.com/stencila/py) to replace `PythonContext`
+- 🦄 `RProcessor` in [`stencila/r`](https://github.com/stencila/r) to replace `RContext`
+- 🦄 `SqliteProcessor` in `stencila/sql-node` to replace `SqliteContext` in `stencila/node`
 
 ## Communications
 
@@ -159,7 +275,7 @@ If there is an error executing the cell there will be no `result`, but an `error
 }
 ```
 
-### Serialization formats
+### Message formats
 
 
 [`Content-Type`](https://tools.ietf.org/html/rfc2616#section-14.17)
@@ -193,52 +309,11 @@ We are also considering using [Apache Avro] given that
 There other formats that could be used, such as [MessagePack](https://msgpack.org/), but there may [no, or little, gain in compression over JSON+gzip](https://www.peterbe.com/plog/msgpack-vs-json-with-gzip). Furthermore, functions for parsing and generating JSON are often highly optimized. So there may be no serialization/deserialization speed gains from using these altenative formats.
 
 
-### Transport protocols
+### Handshake methods
 
-Messages can be sent between `Processors` using one of four transport protocols: [`WebWorkers`](#webworkers), [`HTTP`](#http), [`WebSockets`](#websockets), or [`StdIO`](#stdio). Each transprort protocol has its advantages and environments it can work within. By allowing for different transport protocols allows develops to take advantage of these. For example, the `StandardIO` protocol is very lightweight in that is uses standard POSIX input and output pipes available in many environments instead of requiring heavier protocols such as Websockets to be implemented for all languages.
+For most method calls, a `Server` will simply call the corresponding `Processor` method and return the result to the `Client`. There are two special handshake methods where the server may do additional handling: `hello` and `goodbye`. Neither of these handshake calls is required but doing so allows the communication protocols between the client and server to be upgraded from the default plain JSON-RPC.
 
-![](transports.png)
-
-Implementations of these protocols for several languages are available in the [`src/comms`](src/comms) folder. The naming conventions and often implementations are often very similar across languages e.g. [`StdioServer.ts`](src/comms/StdioServer.ts) and [`StdioServer.py`](src/comms/StdioServer.py)
-
-#### Summary
-
-The following table summarises the serialization format/s used by each protocol and the implementation status of clients and servers for alternative environments.
-
-|                    |WebWorkers     |HTTP            |WebSockets      |StdIO 
-|--------------------|---------------|----------------|----------------|---------------
-|**Serialization**   |None           |JSON[1]         |JSON[2]         |JSON[2]
-|**Client**
-|Browser JS          |🗸              |🗸               |🗸              |-
-|Node.js             |x[3]           |🗸               |🗸              |🗸
-|Python              |-              |x               |x              |x
-|R                   |-              |x               |x              |x
-|**Server**
-|Browser JS          |🗸              |-               |-              |-
-|Node.js             |x[3]           |🗸               |🗸              |🗸
-|Python              |-              |x               |x              |x[4]
-|R                   |-              |x               |x              |x[4]
-
-**Notes**
-
-> 🔧 Some of the following notes are stale / superseded
-
-0. 🗸 means that an implementation is available, x means that an implementation is possible, but not available, - means that implementation is not-applicable / possible
-
-1. It is proposed that the HTTP protocol support several serialization formats, by using content negotiation headers `Accept` and `Content-Type`, including Avro-JSON, and zipped JSON and Avro-JSON.
-
-2. Currently the WebSocket and Stdio protocol uses JSON. It is proposed that they both use Avro-Binary instead to optimize performance.
-
-3. There is a, currently experimental, [`worker_threads`](https://nodejs.org/api/worker_threads.html) module for Node.js which may allow implementation of `WebWorker` like functionality.
-
-4. A `StdioServer` for R and Python is currently the highest priority for these languages as it will allow `Processors` to be implemented for executing code cells and function calls in these languages.
-
-
-### Handshake
-
-The `handshake` method of a `Processor` can be called by a `Client` to establish the protocols to be used for communication. The `Server` may intercept these calls to keep a record for each client so it know how to handle subsequent requests from the client. The handshake method takes an object with the following keys. HTPP headers - effectively proivind an envelope for all subsequent requests.
-
-#### Examples
+The `hello` method establish the protocols to be used for communication between the `Client` and the `Server`. The `Server` may intercept these calls to keep a record for each client so it know how to handle subsequent requests from the client.
 
 The simplest handshake, and the one implied if the `Client` does not make a handshake requests, establishes plain JSON-RPC communication:
 
@@ -282,6 +357,49 @@ The server would then respond with,
     }
 }
 ```
+
+
+
+### Transport protocols
+
+Messages can be sent between `Processors` using one of four transport protocols: [`WebWorkers`](#webworkers), [`HTTP`](#http), [`WebSockets`](#websockets), or [`StdIO`](#stdio). Each transprort protocol has its advantages and environments it can work within. By allowing for different transport protocols allows develops to take advantage of these. For example, the `StandardIO` protocol is very lightweight in that is uses standard POSIX input and output pipes available in many environments instead of requiring heavier protocols such as Websockets to be implemented for all languages.
+
+![](transports.png)
+
+Implementations of these protocols for several languages are available in the [`src/comms`](src/comms) folder. The naming conventions and often implementations are often very similar across languages e.g. [`StdioServer.ts`](src/comms/StdioServer.ts) and [`StdioServer.py`](src/comms/StdioServer.py)
+
+#### Summary
+
+The following table summarises the serialization format/s used by each protocol and the implementation status of clients and servers for alternative environments.
+
+|                    |WebWorkers     |HTTP            |WebSockets      |StdIO 
+|--------------------|---------------|----------------|----------------|---------------
+|**Serialization**   |None           |JSON[1]         |JSON[2]         |JSON[2]
+|**Client**
+|Browser JS          |🗸              |🗸               |🗸              |-
+|Node.js             |x[3]           |🗸               |🗸              |🗸
+|Python              |-              |x               |x              |x
+|R                   |-              |x               |x              |x
+|**Server**
+|Browser JS          |🗸              |-               |-              |-
+|Node.js             |x[3]           |🗸               |🗸              |🗸
+|Python              |-              |x               |x              |x[4]
+|R                   |-              |x               |x              |x[4]
+
+**Notes**
+
+> 🔧 Some of the following notes are stale / superseded
+
+0. 🗸 means that an implementation is available, x means that an implementation is possible, but not available, - means that implementation is not-applicable / possible
+
+1. It is proposed that the HTTP protocol support several serialization formats, by using content negotiation headers `Accept` and `Content-Type`, including Avro-JSON, and zipped JSON and Avro-JSON.
+
+2. Currently the WebSocket and Stdio protocol uses JSON. It is proposed that they both use Avro-Binary instead to optimize performance.
+
+3. There is a, currently experimental, [`worker_threads`](https://nodejs.org/api/worker_threads.html) module for Node.js which may allow implementation of `WebWorker` like functionality.
+
+4. A `StdioServer` for R and Python is currently the highest priority for these languages as it will allow `Processors` to be implemented for executing code cells and function calls in these languages.
+
 
 
 [Apache Avro]:(https://avro.apache.org)
