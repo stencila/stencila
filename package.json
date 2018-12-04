@@ -13,7 +13,7 @@
     "build": "tsc && gulp build && npm run docs",
     "prepublishOnly": "npm run build",
     "semantic-release": "semantic-release",
-    "docs": "typedoc --readme README.md --mode file --disableOutputCheck --out ./build ./src",
+    "docs": "markdown-toc -i --maxdepth=4 README.md && typedoc --readme README.md --mode file --disableOutputCheck --out ./build ./src",
     "clean": "gulp clean"
   },
   "repository": {
@@ -52,6 +52,7 @@
     "gulp-plumber": "^1.2.0",
     "jest": "^23.6.0",
     "js-yaml": "^3.11.0",
+    "markdown-toc": "^1.2.0",
     "nunjucks": "^3.1.3",
     "redoc": "^2.0.0-alpha.20",
     "replace-ext": "^1.0.0",
