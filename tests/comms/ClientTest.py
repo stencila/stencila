@@ -13,4 +13,5 @@ async def test_recieve():
 
     future = await client.send(Request(method="compile", id=1))
     client.recieve(Response(id=1, result={"type": "Thing"}))
-    assert await future == {"type": "Thing"}
+    response = await future
+    assert response.result == {"type": "Thing"}

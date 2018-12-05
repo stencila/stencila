@@ -1,10 +1,12 @@
 from typing import cast, Any, Dict, List, Optional, Union
 from asyncio import Future
 import json
+import sys
 
 from .jsonRpc import Request, Response
+from .Logger import Logger
 
-class Client:
+class Client(Logger):
 
     futures: Dict[int, Future] = {}
 
@@ -15,6 +17,7 @@ class Client:
         Opens the connection to the server and makes
         a `hello` handshake request.
         """
+        self.log(starting=True)
         await self.open()
         await self.hello()
 
@@ -27,6 +30,7 @@ class Client:
         """
         await self.goodbye()
         await self.close()
+        self.log(stopped=True)
 
     async def hello(self, version: str = "1.0", name: Optional[str] = None,
                     messages: List[Dict[str, Any]]=[{"contentType": "application/json"}]) -> None:
@@ -41,7 +45,10 @@ class Client:
     async def call(self, method: str, **kwargs):
         request = Request(method=method)
         future = await self.send(request)
-        return future
+        await future
+        response = future.result()
+        self.log(request=request, response=response)
+        return response.result
 
     async def send(self, request: Request) -> Future:
         """
@@ -70,7 +77,7 @@ class Client:
         future = self.futures.get(response.id)
         if not future:
             raise RuntimeError(f'No request found for response with id: {response.id}')
-        future.set_result(response.result)
+        future.set_result(response)
         del self.futures[response.id]
 
     async def open(self) -> None:
@@ -103,8 +110,7 @@ class Client:
         return Response(**json.loads(message))
 
     async def read(self, message: str) -> None:
-        # Recieve the response
-        print(self.__class__.__name__, 'read', message)
+        # Recieve a response message
         self.recieve(self.decode(message))
 
     async def write(self, message: str) -> None:

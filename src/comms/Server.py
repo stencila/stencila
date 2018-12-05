@@ -3,18 +3,19 @@ Module that defines the `Server` class
 """
 
 import json
+import sys
 
 from ..Processor import Processor
 from .jsonRpc import Request, Response
+from .Logger import Logger
 
-class Server:
+class Server(Logger):
     """
     Base class for all servers.
     """
-
-    def __init__(self, processor: Processor = Processor(), logging=0):
+    
+    def __init__(self, processor: Processor = Processor()):
         self.processor = processor
-        self.logging = logging
 
     async def start(self) -> None:
         """
@@ -22,7 +23,11 @@ class Server:
 
         Starts listening for requests.
         """
+        self.log(starting=True)
         await self.open()
+
+    async def open(self) -> None:
+        raise NotImplementedError()
 
     async def stop(self) -> None:
         """
@@ -31,25 +36,19 @@ class Server:
         Stops listening for requests.
         """
         await self.close()
-
-    async def recieve(self, request: Request):
-        response = Response(id=request.id, result="foo")
-        await self.write(self.encode(response))
-
-    async def open(self) -> None:
-        raise NotImplementedError()
+        self.log(stopped=True)
 
     async def close(self) -> None:
         raise NotImplementedError()
+
+    async def receive(self, message: str):
+        request = self.decode(message)
+        response = Response(id=request.id, result="foo")
+        self.log(request=request, response=response)
+        return self.encode(response)
 
     def encode(self, response: Response) -> str:
         return json.dumps(response.__dict__)
 
     def decode(self, message: str) -> Request:
         return Request(**json.loads(message))
-
-    async def read(self, message: str) -> None:
-        await self.recieve(self.decode(message))
-
-    async def write(self, message: str) -> None:
-        raise NotImplementedError()

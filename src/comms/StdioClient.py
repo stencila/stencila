@@ -1,27 +1,42 @@
+from typing import Optional
 import asyncio
-import sys
 
+from .AsyncioConnection import AsyncioConnection
 from .Client import Client
 from .StdioMixin import StdioMixin
 
-class StdioClient(StdioMixin, Client):
+class StdioClient(Client, StdioMixin):
 
-    def __init__(self, input=sys.stdin, output=sys.stdout):
-        StdioMixin.__init__(self, input, output)
+    subprocess: Optional[asyncio.subprocess.Process]
+    
+    def __init__(self, command: str):
         Client.__init__(self)
+        StdioMixin.__init__(self)
 
-        self.subprocess = None
+        self.command = command
 
-    async def spawn(self, cmd):
+    async def open(self) -> None:
+        # Start subprocess
         self.subprocess = await asyncio.create_subprocess_exec(
-            *cmd,
+            *self.command,
             stdin=asyncio.subprocess.PIPE, 
             stdout=asyncio.subprocess.PIPE
         )
-        self.reader = self.subprocess.stdout
-        self.writer = self.subprocess.stdin
+        # Create an async connection to the subprocess
+        reader = self.subprocess.stdout
+        writer = self.subprocess.stdin
+        assert reader and writer
+        self.connection = AsyncioConnection(reader, writer)
+        self.connection.listen(self.read)
+        # Wait on the subprocess
+        asyncio.ensure_future(self.subprocess.wait())
 
-        await self.start()
+    async def write(self, message: str) -> None:
+        assert self.connection
+        await self.connection.write(message)
 
-    async def kill(self):
-        self.subprocess.kill()
+    async def close(self) -> None:
+        if self.connection:
+            await self.connection.close()
+        if self.subprocess:
+            self.subprocess.kill()
