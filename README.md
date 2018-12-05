@@ -34,3 +34,19 @@ This API is implemented (to varying degress) in the following packages:
 - [stencila/js](https://github.com/stencila/js)
 - [stencila/node](https://github.com/stencila/node)
 - [stencila/cloud](https://github.com/stencila/cloud)
+
+### Testing
+
+#### Python
+
+You can run inidividual Python tests by passing additional `pytest` arguments via `tox`:
+
+```bash
+tox -- tests/comms/StdioClientServerTest.py
+```
+
+You can also run tests for only one test environmment e.g. Python 3.7 using the `-e` option:
+
+```bash
+tox -e py37 -- tests/comms/StdioClientServerTest.py
+```
