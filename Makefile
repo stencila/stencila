@@ -55,6 +55,14 @@ cover-py:
 	tox -e cover
 
 
+# Run integration tests
+
+integ: integ-py
+
+integ-py:
+	tox -e integ --  tests/integ/StdioClient.py	
+
+
 # Run any development servers
 
 run:
