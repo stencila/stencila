@@ -65,7 +65,7 @@ class Client(Logger):
         return future
         
 
-    def recieve(self, response: Response) -> None:
+    def receive(self, response: Response) -> None:
         """
         Receive a request from the server.
         
@@ -74,6 +74,7 @@ class Client(Logger):
         
         :param: response The JSON-RPC response as a string or Response instance
         """
+        assert response.id
         future = self.futures.get(response.id)
         if not future:
             raise RuntimeError(f'No request found for response with id: {response.id}')
@@ -107,11 +108,13 @@ class Client(Logger):
         # Convert the message into a response
         # Currently this only deals with JSON messages but in the furture
         # should handle other message formats
-        return Response(**json.loads(message))
+        response = Response()
+        response.__dict__.update(json.loads(message))
+        return response
 
     async def read(self, message: str) -> None:
         # Recieve a response message
-        self.recieve(self.decode(message))
+        self.receive(self.decode(message))
 
     async def write(self, message: str) -> None:
         raise NotImplementedError()
