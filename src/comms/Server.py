@@ -51,4 +51,6 @@ class Server(Logger):
         return json.dumps(response.__dict__)
 
     def decode(self, message: str) -> Request:
-        return Request(**json.loads(message))
+        request = Request()
+        request.__dict__.update(json.loads(message))
+        return request
