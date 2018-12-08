@@ -18,7 +18,7 @@ class Processor:
     methods in derived classes.
     """
 
-    def import_(self, thing: Union[str, dict, Thing],
+    async def import_(self, thing: Union[str, dict, Thing],
                 format: str = 'application/json', type: Optional[str] = None) -> Thing:
         """
         Import a `Thing`.
@@ -35,7 +35,7 @@ class Processor:
             raise RuntimeError(f'Unhandled import format: {format}')
         raise RuntimeError(f'Unhandled import type: {thing}')
 
-    def export(self, thing: Thing,
+    async def export(self, thing: Thing,
                format: str = 'application/json', type: Optional[str] = None) -> str:
         """
         Export a `Thing`.
@@ -45,23 +45,23 @@ class Processor:
         raise RuntimeError(f'Unhandled export format: {format}')
 
 
-    def compile(self, thing: Union[str, dict, Thing],
+    async def compile(self, thing: Union[str, dict, Thing],
                 format: str = 'application/json', type: Optional[str] = None) -> Thing:
         """
         Compile a `Thing`.
         """
-        return self.import_(thing, format, type)
+        return await self.import_(thing, format, type)
 
-    def build(self, thing: Union[str, dict, Thing],
+    async def build(self, thing: Union[str, dict, Thing],
               format: str = 'application/json', type: Optional[str] = None) -> Thing:
         """
         Build a `Thing`.
         """
-        return self.compile(thing, format, type)
+        return await self.compile(thing, format, type)
 
-    def execute(self, thing: Union[str, dict, Thing],
+    async def execute(self, thing: Union[str, dict, Thing],
                 format: str = 'application/json', type: Optional[str] = None) -> Thing:
         """
         Execute a `Thing`.
         """
-        return self.build(thing, format, type)
+        return await self.build(thing, format, type)

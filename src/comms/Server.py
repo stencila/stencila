@@ -73,7 +73,7 @@ class Server(Logger):
             result = None
             if self.processor:
                 if request.method == 'execute':
-                    result = self.processor.execute(request.params['thing'])
+                    result = await self.processor.execute(request.params['thing'])
                     result = result.__dict__
 
             response = Response(id=request.id, result=result)

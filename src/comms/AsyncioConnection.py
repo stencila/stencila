@@ -1,9 +1,9 @@
-from typing import Optional, Any
+from typing import Optional
 import asyncio
 
 class AsyncioConnection:
 
-    task: Optional[asyncio.Future[Any]]
+    task: Optional[asyncio.Future]
 
     def __init__(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         self.reader = reader
