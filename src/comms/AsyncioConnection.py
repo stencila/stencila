@@ -14,9 +14,9 @@ class AsyncioConnection:
     async def from_files(input, output):
         # Create async reader and writer on stdin and stdout
         # See https://gist.github.com/nathan-hoad/8966377
-        
+
         loop = asyncio.get_event_loop()
-        
+
         reader = asyncio.StreamReader()
         reader_protocol = asyncio.StreamReaderProtocol(reader)
         await loop.connect_read_pipe(lambda: reader_protocol, input)

@@ -5,7 +5,6 @@ Module that defines the `Server` class
 import asyncio
 import json
 import signal
-import sys
 
 from ..Processor import Processor
 from .jsonRpc import Request, Response
@@ -15,10 +14,9 @@ class Server(Logger):
     """
     Base class for all servers.
     """
-    
+
     processor: Processor
 
-    
     def __init__(self, processor: Processor):
         self.processor = processor
 
@@ -48,37 +46,36 @@ class Server(Logger):
 
     def run(self) -> None:
         loop = asyncio.get_event_loop()
-        
+
         async def run():
             await self.start()
-            
-            def stop ():
+
+            def stop():
                 self.running = False
                 asyncio.ensure_future(self.stop())
                 loop.remove_signal_handler(signal.SIGINT)
                 loop.remove_signal_handler(signal.SIGTERM)
             loop.add_signal_handler(signal.SIGINT, stop)
             loop.add_signal_handler(signal.SIGTERM, stop)
-            
+
             self.running = True
             while self.running:
                 await asyncio.sleep(1)
 
         loop.run_until_complete(run())
         loop.close()
-        
 
     async def receive(self, message: str):
         response = Response()
         try:
             request = self.decode(message)
-            
+
             result = None
             if self.processor:
                 if request.method == 'execute':
                     result = self.processor.execute(request.params['thing'])
                     result = result.__dict__
-                
+
             response = Response(id=request.id, result=result)
             self.log(request=request, response=response)
         except Exception as exc:

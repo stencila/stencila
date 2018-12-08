@@ -1,4 +1,3 @@
-import asyncio
 import sys
 
 from .AsyncioConnection import AsyncioConnection

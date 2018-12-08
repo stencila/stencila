@@ -1,5 +1,4 @@
 from typing import Optional, Union
-import asyncio
 import fcntl
 import os
 import signal
@@ -36,7 +35,7 @@ class CloneClientServer:
     @property
     def is_client(self) -> bool:
         return self.child_pid != 0
-    
+
     async def start(self) -> None:
         # Create two pipes for bi-directional communication
         client_read_fd, client_write_fd = os.pipe()
@@ -67,7 +66,7 @@ class CloneClientServer:
             os.close(client_read_fd)
 
             connection = await AsyncioConnection.from_files(read_file, write_file)
-            self.worker = CloneServer(self.processor, connection)            
+            self.worker = CloneServer(self.processor, connection)
 
         assert self.worker
         await self.worker.start()

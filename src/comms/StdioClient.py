@@ -8,7 +8,7 @@ from .StdioMixin import StdioMixin
 class StdioClient(StdioMixin, Client):
 
     subprocess: Optional[asyncio.subprocess.Process]
-    
+
     def __init__(self, command: str):
         StdioMixin.__init__(self)
         Client.__init__(self)
@@ -19,7 +19,7 @@ class StdioClient(StdioMixin, Client):
         # Start subprocess
         self.subprocess = await asyncio.create_subprocess_exec(
             *self.command,
-            stdin=asyncio.subprocess.PIPE, 
+            stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE
         )
         # Create an async connection to the subprocess

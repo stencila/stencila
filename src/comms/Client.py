@@ -1,7 +1,6 @@
-from typing import cast, Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 from asyncio import Future
 import json
-import sys
 
 from .jsonRpc import Request, Response
 from .Logger import Logger
@@ -33,7 +32,7 @@ class Client(Logger):
         self.log(stopped=True)
 
     async def hello(self, version: str = "1.0", name: Optional[str] = None,
-                    messages: List[Dict[str, Any]]=[{"contentType": "application/json"}]) -> None:
+                    messages: List[Dict[str, Any]] = [{"contentType": "application/json"}]) -> None:
         await self.call("hello", version=version, name=name, messages=messages)
 
     async def goodbye(self) -> None:
@@ -53,25 +52,24 @@ class Client(Logger):
     async def send(self, request: Request) -> Future:
         """
         Send a request to the server.
-        
+
         This method must be overriden by derived client classes to
         send the request over the transport protocol used by that class.
-        
+
         :param: request The JSON-RPC request to send
         """
         future: Future = Future()
         self.futures[request.id] = future
         await self.write(self.encode(request))
         return future
-        
 
     def receive(self, response: Response) -> None:
         """
         Receive a request from the server.
-        
+
         Uses the `id` of the response to match it to the corresponding
         request and resolve it's promise.
-        
+
         :param: response The JSON-RPC response as a string or Response instance
         """
         if not response.id:

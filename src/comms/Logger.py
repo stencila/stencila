@@ -5,7 +5,7 @@ import time
 class LogEncoder(json.JSONEncoder):
 
     def default(self, o):
-        return o.__dict__  
+        return o.__dict__
 
 class Logger:
 
