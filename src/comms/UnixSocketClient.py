@@ -5,13 +5,13 @@ from .AsyncioConnection import AsyncioConnection
 from .Client import Client
 from .UnixSocketMixin import UnixSocketMixin
 
-class UnixSocketClient(Client, UnixSocketMixin):
+class UnixSocketClient(UnixSocketMixin, Client):
 
     connection: Optional[AsyncioConnection]
 
     def __init__(self, path):
-        Client.__init__(self)
         UnixSocketMixin.__init__(self, path)
+        Client.__init__(self)
 
         self.connection = None
 

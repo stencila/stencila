@@ -60,7 +60,7 @@ cover-py:
 integ: integ-py
 
 integ-py:
-	tox -e integ --  tests/integ/StdioClient.py	
+	tox -e integ --  tests/integ
 
 
 # Run any development servers

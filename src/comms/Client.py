@@ -43,7 +43,7 @@ class Client(Logger):
         return await self.call("execute", thing=thing)
 
     async def call(self, method: str, **kwargs):
-        request = Request(method=method)
+        request = Request(method=method, params=kwargs)
         future = await self.send(request)
         await future
         response = future.result()
@@ -59,9 +59,9 @@ class Client(Logger):
         
         :param: request The JSON-RPC request to send
         """
-        await self.write(self.encode(request))
         future: Future = Future()
         self.futures[request.id] = future
+        await self.write(self.encode(request))
         return future
         
 
@@ -74,7 +74,8 @@ class Client(Logger):
         
         :param: response The JSON-RPC response as a string or Response instance
         """
-        assert response.id
+        if not response.id:
+            raise RuntimeError(f'Response does not have an id: {response.__dict__}')
         future = self.futures.get(response.id)
         if not future:
             raise RuntimeError(f'No request found for response with id: {response.id}')

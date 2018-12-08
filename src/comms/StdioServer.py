@@ -8,24 +8,20 @@ from .StdioMixin import StdioMixin
 class StdioServer(Server, StdioMixin):
 
     async def open(self) -> None:
-        # Create async reader and writer on stdin and stdout
-        # See https://gist.github.com/nathan-hoad/8966377
-        
-        loop = asyncio.get_event_loop()
-        
-        reader = asyncio.StreamReader()
-        reader_protocol = asyncio.StreamReaderProtocol(reader)
-        await loop.connect_read_pipe(lambda: reader_protocol, sys.stdout)
+        """
+        Create an async connection on stdin / stdout
+        """
 
-        writer_transport, writer_protocol = await loop.connect_write_pipe(asyncio.streams.FlowControlMixin, sys.stdout)
-        writer = asyncio.streams.StreamWriter(writer_transport, writer_protocol, reader, loop)
-
-        # Create a connection using reader and writer and listen on it
-        self.connection = AsyncioConnection(reader, writer)
+        self.connection = await AsyncioConnection.from_files(sys.stdin, sys.stdout)
         async def callback(message):
             await self.connection.write(await self.receive(message))
+        assert self.connection
         self.connection.listen(callback)
 
     async def close(self) -> None:
+        """
+        Close any connection
+        """
+
         if self.connection:
             await self.connection.close()

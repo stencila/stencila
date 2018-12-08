@@ -1,23 +1,31 @@
 from typing import List
 import asyncio
-import sys
 
+from ..Processor import Processor
 from .AsyncioConnection import AsyncioConnection
 from .Server import Server
 from .UnixSocketMixin import UnixSocketMixin
 
-class UnixSocketServer(Server, UnixSocketMixin):
+class UnixSocketServer(UnixSocketMixin, Server):
+    """
+    A Server communicating over UNIX domain sockets
+    """
 
+    """
+    List of client connections
+    """
     connections: List[AsyncioConnection]
 
-    def __init__(self, path):
-        Server.__init__(self)
+    def __init__(self, processor: Processor, path: str):
         UnixSocketMixin.__init__(self, path)
-
+        Server.__init__(self, processor)
         self.connections = []
 
     async def open(self) -> None:
-        # Callback for each message that is read
+        """
+        Start the UNIX socket server and create an
+        async connections when a client connects.
+        """
         def on_client_connected(reader, writer):
             self.log(connection=True)
             connection = AsyncioConnection(reader, writer)
@@ -28,5 +36,8 @@ class UnixSocketServer(Server, UnixSocketMixin):
         await asyncio.start_unix_server(on_client_connected, self.path)
 
     async def close(self) -> None:
+        """
+        Close all the client connections
+        """
         for connection in self.connections:
             await connection.close()

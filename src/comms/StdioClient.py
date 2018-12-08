@@ -5,13 +5,13 @@ from .AsyncioConnection import AsyncioConnection
 from .Client import Client
 from .StdioMixin import StdioMixin
 
-class StdioClient(Client, StdioMixin):
+class StdioClient(StdioMixin, Client):
 
     subprocess: Optional[asyncio.subprocess.Process]
     
     def __init__(self, command: str):
-        Client.__init__(self)
         StdioMixin.__init__(self)
+        Client.__init__(self)
 
         self.command = command
 
