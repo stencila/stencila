@@ -27,7 +27,7 @@
   },
   "homepage": "https://stencila.github.io/schema",
   "dependencies": {
-    "cross-fetch": "^2.2.3",
+    "cross-fetch": "^3.0.0",
     "express": "^4.16.4",
     "express-jwt": "^5.3.1",
     "express-ws": "^4.0.0",
