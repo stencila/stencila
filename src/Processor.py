@@ -3,7 +3,7 @@ Module that defines the `Processor` class.
 """
 
 import json
-from typing import Union, Optional
+from typing import Any, Dict, Union, List, Optional
 
 from .types.Thing import Thing
 from .types.utils import cast, hydrate, dehydrate
@@ -17,6 +17,12 @@ class Processor:
     `Thing`. They merely serve as an example of how to implement these
     methods in derived classes.
     """
+    
+    async def hello(self, version: str) -> object:
+        return {}
+    
+    async def goodbye(self) -> None:
+        pass
 
     async def import_(self, thing: Union[str, dict, Thing],
                 format: str = 'application/json', type: Optional[str] = None) -> Thing:

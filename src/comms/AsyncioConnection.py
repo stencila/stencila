@@ -35,8 +35,7 @@ class AsyncioConnection:
                 while True:
                     line = await self.reader.readline()
                     if line:
-                        message = line.decode('utf8')
-                        await callback(message)
+                        await callback(line)
                     else:
                         break
             except asyncio.CancelledError:
@@ -52,13 +51,11 @@ class AsyncioConnection:
                 assert self.task.cancelled()
                 self.task = None
 
-    async def write(self, message: str) -> None:
+    async def write(self, message: bytes) -> None:
         """
         Write a message to the connection.
         """
-        line = message + '\n'
-        bites = line.encode('utf8')
-        self.writer.write(bites)
+        self.writer.write(message + b'\n')
         await self.writer.drain()
 
     async def close(self) -> None:

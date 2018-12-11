@@ -85,7 +85,7 @@ class CloneMixin:
     def __init__(self, connection):
         self.connection = connection
 
-    async def write(self, message: str) -> None:
+    async def write(self, message: bytes) -> None:
         assert self.connection
         await self.connection.write(message)
 

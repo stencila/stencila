@@ -31,7 +31,7 @@ class StdioClient(StdioMixin, Client):
         # Wait on the subprocess
         asyncio.ensure_future(self.subprocess.wait())
 
-    async def write(self, message: str) -> None:
+    async def write(self, message: bytes) -> None:
         assert self.connection
         await self.connection.write(message)
 

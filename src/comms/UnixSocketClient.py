@@ -20,7 +20,7 @@ class UnixSocketClient(UnixSocketMixin, Client):
         self.connection = AsyncioConnection(reader, writer)
         self.connection.listen(self.read)
 
-    async def write(self, message: str) -> None:
+    async def write(self, message: bytes) -> None:
         assert self.connection
         await self.connection.write(message)
 
