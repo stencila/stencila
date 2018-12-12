@@ -2,8 +2,8 @@ import pytest
 
 from stencilaschema.comms.Client import Client
 from stencilaschema.comms.Server import Server
-from stencilaschema.comms.JsonEncoder import JSON_ENCODING
-from stencilaschema.comms.JsonGzipEncoder import JSON_GZIP_ENCODING
+from stencilaschema.comms.JsonEncoder import JsonEncoder
+from stencilaschema.comms.JsonGzipEncoder import JsonGzipEncoder
 
 from helpers.TestProcessor import TestProcessor
 
@@ -12,21 +12,17 @@ from helpers.TestProcessor import TestProcessor
 
 class MemoryClient(Client):
 
-    def __init__(self, server, encodings = None):
+    def __init__(self, server, encoders = None):
+        Client.__init__(self, encoders)
         self.server = server
-        self.encodings = encodings
 
     async def open(self) -> None:
         # Required to be implemented
         pass
 
-    async def hello(self) -> None:
-        # Override the base method to provide encodings
-        await Client.hello(self, encodings=self.encodings)
-
     async def write(self, message: str) -> None:
         # Simulate writing a request to server and reading the reponse
-        await self.read(await self.server.receive(message, self.encoding))
+        await self.read(await self.server.receive(message, self.encoder.name()))
 
     async def close(self) -> None:
         # Required to be implemented
@@ -46,6 +42,9 @@ class MemoryServer(Server):
         # Required to be implemened
         pass
 
+thing1 = {'type': 'Thing', 'name': 'thing1'}
+thing2 = {'type': 'Thing', 'name': 'thing2'}
+thing3 = {'type': 'Thing', 'name': 'thing3'}
 
 @pytest.mark.asyncio
 async def test_memory():
@@ -60,10 +59,6 @@ async def test_memory():
     await client2.start()
     client3 = MemoryClient(server)
     await client3.start()
-    
-    thing1 = {'type': 'Thing', 'name': 'thing1'}
-    thing2 = {'type': 'Thing', 'name': 'thing2'}
-    thing3 = {'type': 'Thing', 'name': 'thing3'}
 
     assert await client1.execute(thing1) == thing1
     assert await client2.execute(thing2) == thing2
@@ -82,24 +77,29 @@ async def test_encodings():
     await server.start()
 
     client1 = MemoryClient(server)
+    assert client1.encoder.name() == 'json'
     await client1.start()
-    assert client1.encoding == JSON_ENCODING
+    assert client1.encoder.name() == 'json'
+    assert await client1.execute(thing1) == thing1
     
     
-    client2 = MemoryClient(server, [
-        JSON_ENCODING,
-        JSON_GZIP_ENCODING
+    client2 = MemoryClient(server, encoders=[
+        JsonEncoder(),
+        JsonGzipEncoder()
     ])
+    assert client2.encoder.name() == 'json'
     await client2.start()
-    assert client2.encoding == JSON_ENCODING
+    assert client2.encoder.name() == 'json'
+    assert await client2.execute(thing1) == thing1
     
-    client3 = MemoryClient(server, [
-        {}, # Dummy encoding spec
-        JSON_GZIP_ENCODING,
-        JSON_ENCODING
+    client3 = MemoryClient(server, encoders=[
+        JsonGzipEncoder(),
+        JsonEncoder()
     ])
+    assert client3.encoder.name() == 'json'
     await client3.start()
-    assert client3.encoding == JSON_GZIP_ENCODING
+    assert client3.encoder.name() == 'json+gzip'
+    assert await client3.execute(thing1) == thing1
 
     await client1.stop()
     await client2.stop()

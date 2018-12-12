@@ -1,4 +1,4 @@
-from typing import Any, ClassVar, Dict, List, Optional, Type, Union
+from typing import Any, ClassVar, Dict, List, Optional, Type, TypeVar, Union
 
 class Request:
 
@@ -99,3 +99,5 @@ class Error(RuntimeError):
     @staticmethod
     def application_error(message: str, data: Optional[Any] = None) -> 'Error':
         return Error(-32700, 'Error in application: ' + message, data)
+
+RequestOrResponse = TypeVar('RequestOrResponse', Request, Response)

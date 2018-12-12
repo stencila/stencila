@@ -1,22 +1,21 @@
-from typing import Type
-
+from typing import TypeVar, Type
 import json
 
-JSON_ENCODING = {
-    'contentType': 'application/json'
-}
+from .Encoder import Encoder
+from .jsonRpc import Request, Response, RequestOrResponse
 
-class JsonEncoder:
+class JsonEncoder(Encoder):
 
-    @staticmethod
-    def decode(message: bytes, cls: Type):
-        request = cls()
+    def name(self) -> str:
+        return 'json'
+
+    def decode(self, message: bytes, cls: Type[RequestOrResponse]) -> RequestOrResponse:
+        instance = cls()
         dic = json.loads(message)
-        request.__dict__.update(dic)
-        return request
+        instance.__dict__.update(dic)
+        return instance
 
-    @staticmethod
-    def encode(obj) -> bytes:
+    def encode(self, obj: RequestOrResponse) -> bytes:
         return json.dumps(obj, cls=JSONEncoderExtension).encode('utf8')
 
 
@@ -27,4 +26,3 @@ class JSONEncoderExtension(json.JSONEncoder):
 
     def default(self, obj):
         return obj.__dict__
-

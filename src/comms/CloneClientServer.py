@@ -6,11 +6,15 @@ import signal
 from ..Processor import Processor
 from .AsyncioConnection import AsyncioConnection
 from .Client import Client
+from .JsonEncoder import JsonEncoder
 from .Server import Server
 
 class CloneClientServer:
     """
     A combined client server for forked processes.
+
+    Currently restricted to JsonEncoders for both client and server to mimimize
+    processing time, since connection thoughput is less of an issue.
     """
 
     """
@@ -95,6 +99,10 @@ class CloneMixin:
 
 class CloneClient(CloneMixin, Client):
 
+    def __init__(self, connection):
+        CloneMixin.__init__(self, connection)
+        Client.__init__(self, encoders=[JsonEncoder()])
+
     async def open(self) -> None:
         self.connection.listen(self.read)
 
@@ -103,9 +111,16 @@ class CloneServer(CloneMixin, Server):
 
     def __init__(self, processor, connection):
         CloneMixin.__init__(self, connection)
-        Server.__init__(self, processor)
+        Server.__init__(self, processor, encoders=[JsonEncoder()])
+
+        self.encoding = 'json'
 
     async def open(self) -> None:
         async def callback(message):
-            await self.connection.write(await self.receive(message))
+            await self.connection.write(await self.receive(message, self.encoding))
         self.connection.listen(callback)
+
+    async def handle_hello(self, request):
+        result = await Server.handle_hello(self, request)
+        self.encoding = result['encoding']
+        return result

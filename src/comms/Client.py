@@ -1,17 +1,31 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 from asyncio import Future
 import json
 
 from .jsonRpc import Request, Response
-from .JsonEncoder import JSON_ENCODING, JsonEncoder
-from .JsonGzipEncoder import JSON_GZIP_ENCODING, JsonGzipEncoder
+from .Encoder import Encoder
+from .JsonEncoder import JsonEncoder
 from .Logger import Logger
 
 class Client(Logger):
 
-    encoding: Dict = JSON_ENCODING
+    encoders: List[Encoder]
+
+    encoder: Encoder
 
     futures: Dict[int, Future] = {}
+
+    def __init__(self, encoders: Optional[List[Encoder]] = None):
+        if encoders is None:
+            encoders = [JsonEncoder()]
+        else:
+            assert len(encoders) > 0
+        self.encoders = encoders
+
+        # The encoder used for the first, `hello` request
+        # is always a JSON encoder, but may be replaced after that
+        # request based on the response from the server
+        self.encoder = JsonEncoder()
 
     async def start(self) -> None:
         """
@@ -35,11 +49,18 @@ class Client(Logger):
         await self.close()
         self.log(stopped=True)
 
-    async def hello(self, version: str = "1.0", encodings: List[Dict] = [JSON_ENCODING, JSON_GZIP_ENCODING]) -> None:
-        result = await self.call("hello", version=version, encodings=encodings)
+    async def hello(self) -> None:
+        result = await self.call(
+            "hello",
+            version="1.0",
+            encodings=[encoder.name() for encoder in self.encoders]
+        )
+        # Get the encoding to use from the result
         encoding = result.get('encoding')
         if encoding:
-            self.encoding = encoding
+            encoders = [encoder for encoder in self.encoders if encoder.name() == encoding]
+            assert len(encoders) == 1
+            self.encoder = encoders[0]
 
     async def goodbye(self) -> None:
         await self.call("goodbye")
@@ -107,18 +128,10 @@ class Client(Logger):
         raise NotImplementedError()
 
     def decode(self, message: bytes) -> Response:
-        if self.encoding == JSON_ENCODING:
-            return JsonEncoder.decode(message, Response)
-        elif self.encoding == JSON_GZIP_ENCODING:
-            return JsonGzipEncoder.decode(message, Response)
-        raise RuntimeError(f'Unhandled encoding: {self.encoding}')
+        return self.encoder.decode(message, Response)
 
     def encode(self, request: Request) -> bytes:
-        if self.encoding == JSON_ENCODING:
-            return JsonEncoder.encode(request)
-        elif self.encoding == JSON_GZIP_ENCODING:
-            return JsonGzipEncoder.encode(request)
-        raise RuntimeError(f'Unhandled encoding: {self.encoding}')
+        return self.encoder.encode(request)
 
     async def read(self, message: bytes) -> None:
         # Recieve a response message
