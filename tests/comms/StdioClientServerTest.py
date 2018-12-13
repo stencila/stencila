@@ -12,8 +12,8 @@ from helpers.TestProcessor import TestProcessor
 
 def test_client():
     client = StdioClient([])
-    assert client.url == 'pipe://stdio'
+    assert client.url == None
 
 def test_server():
     server = StdioServer(TestProcessor())
-    assert server.url == 'pipe://stdio'
+    assert server.url == None

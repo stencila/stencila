@@ -9,13 +9,17 @@ from .Logger import Logger
 
 class Client(Logger):
 
+    _url: Optional[str]
+
     encoders: List[Encoder]
 
     encoder: Encoder
 
     futures: Dict[int, Future] = {}
 
-    def __init__(self, encoders: Optional[List[Encoder]] = None):
+    def __init__(self, url: str = None, encoders: Optional[List[Encoder]] = None):
+        self._url = url
+        
         if encoders is None:
             encoders = [JsonEncoder()]
         else:
@@ -26,6 +30,18 @@ class Client(Logger):
         # is always a JSON encoder, but may be replaced after that
         # request based on the response from the server
         self.encoder = JsonEncoder()
+
+    @staticmethod
+    def connectable(url: str) -> bool:
+        return False
+
+    @staticmethod
+    async def discover() -> List['Client']:
+        return []
+
+    @property
+    def url(self):
+        return self._url
 
     async def start(self) -> None:
         """

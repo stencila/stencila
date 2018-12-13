@@ -10,13 +10,19 @@ from stencilaschema.comms.UnixSocketServer import UnixSocketServer
 from helpers.TestProcessor import TestProcessor
 
 @pytest.mark.asyncio
-async def test_unix_socket():
-    # Create test processor and a temporary file for the socket
+async def test_server():
     processor = TestProcessor()
-    path = os.path.join(tempfile.mkdtemp(), 'socket')
+    server = UnixSocketServer(processor)
+    await server.start()
 
-    # Start the server and several clients listening to that file
-    server = UnixSocketServer(processor, path)
+    #assert len(list_tempfiles('unix-')) == 1
+
+    await server.stop()
+
+@pytest.mark.asyncio
+async def test_client_server():
+    processor = TestProcessor()
+    server = UnixSocketServer(processor)
     await server.start()
     client1 = UnixSocketClient(server.url)
     await client1.start()
@@ -25,7 +31,7 @@ async def test_unix_socket():
     client3 = UnixSocketClient(server.url)
     await client3.start()
 
-    assert server.url == f'unix://{path}'
+    assert server.url[:7] == 'unix://'
     assert client1.url == server.url
     assert client2.url == server.url
     assert client3.url == server.url

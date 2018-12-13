@@ -38,14 +38,18 @@ class Server(Logger):
             assert encoders
         self.encoders = encoders
 
+    @property
+    def url(self):
+        return None
+
     async def start(self) -> None:
         """
         Start this server.
 
         Starts listening for requests.
         """
-        self.log(starting=True)
         await self.open()
+        self.log(started=True, url=self.url)
 
     async def open(self) -> None:
         raise NotImplementedError()

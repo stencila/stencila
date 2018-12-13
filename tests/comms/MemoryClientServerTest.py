@@ -13,7 +13,7 @@ from helpers.TestProcessor import TestProcessor
 class MemoryClient(Client):
 
     def __init__(self, server, encoders = None):
-        Client.__init__(self, encoders)
+        Client.__init__(self, url='memory://', encoders=encoders)
         self.server = server
 
     async def open(self) -> None:

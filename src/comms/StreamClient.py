@@ -6,9 +6,9 @@ from .StreamMixin import StreamMixin
 
 class StreamClient(StreamMixin, Client):
 
-    def __init__(self, connection: Optional[StreamConnection] = None, encoders=None, ):
+    def __init__(self, connection: Optional[StreamConnection] = None, url: str = None, encoders=None, ):
         StreamMixin.__init__(self, connection)
-        Client.__init__(self, encoders)
+        Client.__init__(self, url=url, encoders=encoders)
 
     async def open(self) -> None:
         assert self.connection
