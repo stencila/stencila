@@ -1,15 +1,15 @@
 import asyncio
 import pytest
 
-from stencilaschema.comms.CloneClientServer import CloneClientServer
+from stencilaschema.comms.ForkClientServer import ForkClientServer
 
 from helpers.TestProcessor import TestProcessor
 
 @pytest.mark.asyncio
-async def test_clone():
+async def test_fork():
 
     processor = TestProcessor()
-    clerver = CloneClientServer(processor)
+    clerver = ForkClientServer(processor)
     await clerver.start()
 
     if clerver.is_client:

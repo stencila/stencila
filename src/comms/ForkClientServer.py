@@ -10,7 +10,7 @@ from .jsonRpc import Request
 from .StreamClient import StreamClient
 from .StreamServer import StreamServer
 
-class CloneClientServer:
+class ForkClientServer:
     """
     A combined client server for forked processes.
 
