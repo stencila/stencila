@@ -1,29 +1,20 @@
 from typing import Optional
 import asyncio
 
-from .AsyncioConnection import AsyncioConnection
-from .Client import Client
-from .UnixSocketMixin import UnixSocketMixin
+from .StreamConnection import StreamConnection
+from .StreamClient import StreamClient
 
-class UnixSocketClient(UnixSocketMixin, Client):
+class UnixSocketClient(StreamClient):
 
-    connection: Optional[AsyncioConnection]
+    def __init__(self, path: str):
+        StreamClient.__init__(self)
+        self.path = path
 
-    def __init__(self, path):
-        UnixSocketMixin.__init__(self, path)
-        Client.__init__(self)
-
-        self.connection = None
+    @property
+    def url(self):
+        return f'unix://{self.path}'
 
     async def open(self) -> None:
         reader, writer = await asyncio.open_unix_connection(self.path)
-        self.connection = AsyncioConnection(reader, writer)
-        self.connection.listen(self.read)
-
-    async def write(self, message: bytes) -> None:
-        assert self.connection
-        await self.connection.write(message)
-
-    async def close(self) -> None:
-        if self.connection:
-            await self.connection.close()
+        self.connection = StreamConnection(reader, writer)
+        await StreamClient.open(self)

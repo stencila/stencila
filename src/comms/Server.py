@@ -12,7 +12,6 @@ from ..Processor import Processor
 from .jsonRpc import Request, Response, Error
 from .Encoder import Encoder
 from .JsonEncoder import JsonEncoder
-from .JsonGzipEncoder import JsonGzipEncoder
 from .Logger import Logger
 
 class Server(Logger):
@@ -35,7 +34,7 @@ class Server(Logger):
         self.processor = processor
         
         if encoders is None:
-            encoders = [JsonEncoder(), JsonGzipEncoder()]
+            encoders = [JsonEncoder()]
         else:
             assert len(encoders) > 0
         self.encoders = encoders
@@ -85,7 +84,7 @@ class Server(Logger):
         loop.run_until_complete(run())
         loop.close()
 
-    async def receive(self, message: bytes, encoding: Optional[str] = 'json') -> bytes:
+    async def receive(self, message: bytes, encoding: str, connection: Any = None) -> bytes:
         assert self.processor
         
         response = Response()
@@ -103,9 +102,9 @@ class Server(Logger):
             try:
                 result: Any = None
                 if request.method == 'hello':
-                    result = await self.handle_hello(request)
+                    result = await self.hello(request, connection)
                 elif request.method == 'goodbye':
-                    result = await self.handle_goodbye(request)
+                    result = await self.goodbye(request, connection)
                 elif request.method == 'import':
                     result = await self.processor.import_(
                         request.param(0, 'thing'),
@@ -146,16 +145,30 @@ class Server(Logger):
 
         return self.encode(response, encoding)
 
-    def supports(self, encoding: str) -> bool:
-        """
-        Does this server support the given encoding?
-        """
-        for encoder in self.encoders:
-            if encoder.name() == encoding:
-                return True
-        return False
+    async def hello(self, request: Request, connection: Any = None) -> Dict:
+        # Intercept the call to hello to get the declared list of encodings
+        version = request.param(0, 'version')
+        result = await self.processor.hello(version)
 
-    def decode(self, message: bytes, encoding: Optional[str] = 'json') -> Request:
+        # If possible upgrade to the client's preferred encoding
+        encoding_new = None
+        encodings = request.param(1, 'encodings', False)
+        if encodings:
+            for encoding in encodings:
+                encoders = [encoder for encoder in self.encoders if encoder.name() == encoding]
+                if len(encoders) > 0:
+                    encoding_new = encoding
+                    break
+            if encoding_new is None:
+                raise RuntimeError(f'Unable to support any of the client encodings')
+        result['encoding'] = encoding_new
+
+        return result
+
+    async def goodbye(self, request: Request, connection: Any = None) -> Dict:
+        return await self.processor.goodbye()
+
+    def decode(self, message: bytes, encoding: str) -> Request:
         """
         Decode a request message
 
@@ -172,7 +185,7 @@ class Server(Logger):
                 return encoder.decode(message, Request)
         raise RuntimeError(f'Unhandled encoding: {encoding}')
 
-    def encode(self, response: Response, encoding: Optional[str] = 'json') -> bytes:
+    def encode(self, response: Response, encoding: str) -> bytes:
         """
         Encode a response message
         """
@@ -180,28 +193,3 @@ class Server(Logger):
             if encoder.name() == encoding:
                 return encoder.encode(response)
         raise RuntimeError(f'Unhandled encoding: {encoding}')
-
-    async def handle_hello(self, request):
-        # Intercept the call to hello to get the declared list of encodings
-        version = request.param(0, 'version')
-        result = await self.processor.hello(version)
-
-        # If possible support the client's preferred encoding
-        # but if not then fall back to this server's default
-        encodings = request.param(1, 'encodings', False)
-        if encodings:
-            encoding_to_use = None
-            for encoding in encodings:
-                if self.supports(encoding):
-                    encoding_to_use = encoding
-                    break
-            if encoding_to_use is None:
-                raise RuntimeError(f'Unable to support any of the client encodings')
-        else:
-            encoding_to_use = 'json'
-        result['encoding'] = encoding_to_use
-
-        return result
-
-    async def handle_goodbye(self, request):
-        return await self.processor.goodbye()

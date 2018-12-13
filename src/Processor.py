@@ -18,10 +18,10 @@ class Processor:
     methods in derived classes.
     """
     
-    async def hello(self, version: str) -> object:
+    async def hello(self, version: str) -> Dict:
         return {}
     
-    async def goodbye(self) -> None:
+    async def goodbye(self) -> Dict:
         pass
 
     async def import_(self, thing: Union[str, dict, Thing],

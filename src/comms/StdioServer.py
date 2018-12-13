@@ -1,26 +1,13 @@
 import sys
 
-from .AsyncioConnection import AsyncioConnection
-from .Server import Server
-from .StdioMixin import StdioMixin
+from .StreamConnection import StreamConnection
+from .StreamServer import StreamServer
 
-class StdioServer(Server, StdioMixin):
+class StdioServer(StreamServer):
 
     async def open(self) -> None:
         """
-        Create an async connection on stdin / stdout
+        Create an async connection on stdin / stdout.
         """
-
-        self.connection = await AsyncioConnection.from_files(sys.stdin, sys.stdout)
-        async def callback(message):
-            await self.connection.write(await self.receive(message))
-        assert self.connection
-        self.connection.listen(callback)
-
-    async def close(self) -> None:
-        """
-        Close any connection
-        """
-
-        if self.connection:
-            await self.connection.close()
+        self.connection = await StreamConnection.from_files(sys.stdin, sys.stdout)
+        await StreamServer.open(self)

@@ -1,7 +1,7 @@
 from typing import Optional
 import asyncio
 
-class AsyncioConnection:
+class StreamConnection:
 
     task: Optional[asyncio.Future]
 
@@ -24,7 +24,7 @@ class AsyncioConnection:
         writer_transport, writer_protocol = await loop.connect_write_pipe(asyncio.streams.FlowControlMixin, output)
         writer = asyncio.streams.StreamWriter(writer_transport, writer_protocol, reader, loop)
 
-        return AsyncioConnection(reader, writer)
+        return StreamConnection(reader, writer)
 
     def listen(self, callback) -> None:
         """

@@ -1,13 +1,14 @@
-from typing import Optional, Union
+from typing import Any, Optional, Union
 import fcntl
 import os
 import signal
 
 from ..Processor import Processor
-from .AsyncioConnection import AsyncioConnection
-from .Client import Client
+from .StreamConnection import StreamConnection
 from .JsonEncoder import JsonEncoder
-from .Server import Server
+from .jsonRpc import Request
+from .StreamClient import StreamClient
+from .StreamServer import StreamServer
 
 class CloneClientServer:
     """
@@ -29,9 +30,9 @@ class CloneClientServer:
     child_pid: Optional[int]
 
     """
-    Either a `Client` or `Server` instance
+    Either a `StreamClient` or `StreamServer` instance
     """
-    worker: Union[Client, Server]
+    worker: Union[StreamClient, StreamServer]
 
     def __init__(self, processor):
         self.processor = processor
@@ -60,8 +61,8 @@ class CloneClientServer:
             os.close(client_write_fd)
             os.close(server_read_fd)
 
-            connection = await AsyncioConnection.from_files(read_file, write_file)
-            self.worker = CloneClient(connection)
+            connection = await StreamConnection.from_files(read_file, write_file)
+            self.worker = StreamClient(connection)
         else:
             # I am the child server process
             read_file = os.fdopen(nonblocking(server_read_fd), 'r')
@@ -69,58 +70,17 @@ class CloneClientServer:
             os.close(server_write_fd)
             os.close(client_read_fd)
 
-            connection = await AsyncioConnection.from_files(read_file, write_file)
-            self.worker = CloneServer(self.processor, connection)
+            connection = await StreamConnection.from_files(read_file, write_file)
+            self.worker = StreamServer(self.processor, connection)
 
         assert self.worker
         await self.worker.start()
 
     async def execute(self, thing) -> None:
-        assert isinstance(self.worker, Client)
+        assert isinstance(self.worker, StreamClient)
         return await self.worker.execute(thing)
 
     async def stop(self) -> None:
         if self.child_pid:
             await self.worker.stop()
             os.kill(self.child_pid, signal.SIGKILL)
-
-class CloneMixin:
-
-    def __init__(self, connection):
-        self.connection = connection
-
-    async def write(self, message: bytes) -> None:
-        assert self.connection
-        await self.connection.write(message)
-
-    async def close(self) -> None:
-        if self.connection:
-            await self.connection.close()
-
-class CloneClient(CloneMixin, Client):
-
-    def __init__(self, connection):
-        CloneMixin.__init__(self, connection)
-        Client.__init__(self, encoders=[JsonEncoder()])
-
-    async def open(self) -> None:
-        self.connection.listen(self.read)
-
-
-class CloneServer(CloneMixin, Server):
-
-    def __init__(self, processor, connection):
-        CloneMixin.__init__(self, connection)
-        Server.__init__(self, processor, encoders=[JsonEncoder()])
-
-        self.encoding = 'json'
-
-    async def open(self) -> None:
-        async def callback(message):
-            await self.connection.write(await self.receive(message, self.encoding))
-        self.connection.listen(callback)
-
-    async def handle_hello(self, request):
-        result = await Server.handle_hello(self, request)
-        self.encoding = result['encoding']
-        return result

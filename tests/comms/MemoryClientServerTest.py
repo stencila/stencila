@@ -31,8 +31,9 @@ class MemoryClient(Client):
 class MemoryServer(Server):
 
     def __init__(self, processor):
-        Server.__init__(self, processor)
-        self.connections = []
+        Server.__init__(self, processor, 
+                        # Testing of alternative encoders
+                        encoders=[JsonEncoder(), JsonGzipEncoder()])
 
     async def open(self) -> None:
         # Required to be implemented
@@ -81,7 +82,6 @@ async def test_encodings():
     await client1.start()
     assert client1.encoder.name() == 'json'
     assert await client1.execute(thing1) == thing1
-    
     
     client2 = MemoryClient(server, encoders=[
         JsonEncoder(),
