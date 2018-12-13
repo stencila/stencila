@@ -1,0 +1,4 @@
+{
+    "autoDocstring.docstringFormat": "sphinx",
+    "python.pythonPath": "/usr/bin/python3"
+}
