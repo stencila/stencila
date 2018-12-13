@@ -18,11 +18,11 @@ async def test_unix_socket():
     # Start the server and several clients listening to that file
     server = UnixSocketServer(processor, path)
     await server.start()
-    client1 = UnixSocketClient(path)
+    client1 = UnixSocketClient(server.url)
     await client1.start()
-    client2 = UnixSocketClient(path)
+    client2 = UnixSocketClient(server.url)
     await client2.start()
-    client3 = UnixSocketClient(path)
+    client3 = UnixSocketClient(server.url)
     await client3.start()
 
     assert server.url == f'unix://{path}'
