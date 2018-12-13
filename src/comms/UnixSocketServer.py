@@ -1,8 +1,6 @@
-from typing import List
 import asyncio
 
 from ..Processor import Processor
-from .StreamConnection import StreamConnection
 from .StreamMultiServer import StreamMultiServer
 
 class UnixSocketServer(StreamMultiServer):

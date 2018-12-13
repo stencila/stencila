@@ -2,7 +2,7 @@ from typing import Type
 import base64
 
 from .JsonGzipEncoder import JsonGzipEncoder
-from .jsonRpc import Request, Response, RequestOrResponse
+from .jsonRpc import RequestOrResponse
 
 class JsonGzipBase64Encoder(JsonGzipEncoder):
     """

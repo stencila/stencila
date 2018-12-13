@@ -1,4 +1,4 @@
-from typing import TypeVar, Type
+from typing import Type
 import json
 
 from .Encoder import Encoder

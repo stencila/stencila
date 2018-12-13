@@ -22,8 +22,11 @@ class StreamMultiServer(Server):
 
     def __init__(self, processor: Processor, encoders=None):
         Server.__init__(self, processor=processor, encoders=encoders)
-        
+
         self.connections = []
+
+    async def open(self) -> None:
+        raise NotImplementedError()
 
     def on_client_connected(self, reader, writer):
         self.log(connection=True)
@@ -36,7 +39,7 @@ class StreamMultiServer(Server):
 
     async def hello(self, request: Request, connection: Any = None) -> Any:
         """
-        Override the base ``hello`` method to intercept a 
+        Override the base ``hello`` method to intercept a
         message to change the encoding used.
 
         :param request: The incoming client request

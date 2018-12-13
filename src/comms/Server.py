@@ -2,9 +2,8 @@
 Module that defines the `Server` class
 """
 
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List
 import asyncio
-import json
 import signal
 import traceback
 
@@ -30,13 +29,13 @@ class Server(Logger):
     encoding/decoding messages.
     """
 
-    def __init__(self, processor: Processor, encoders: Optional[List[Encoder]] = None):
+    def __init__(self, processor: Processor, encoders: List[Encoder] = None):
         self.processor = processor
         
         if encoders is None:
             encoders = [JsonEncoder()]
         else:
-            assert len(encoders) > 0
+            assert encoders
         self.encoders = encoders
 
     async def start(self) -> None:

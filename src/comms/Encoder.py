@@ -1,6 +1,6 @@
-from typing import TypeVar, Type, Union
+from typing import Type
 
-from .jsonRpc import Request, Response, RequestOrResponse
+from .jsonRpc import RequestOrResponse
 
 class Encoder:
 
