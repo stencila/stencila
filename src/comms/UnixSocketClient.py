@@ -3,7 +3,7 @@ import asyncio
 import os
 import re
 
-from .stencilaFiles import get_tempdir, list_tempfiles
+from .stencilaFiles import create_tempdir
 from .StreamConnection import StreamConnection
 from .StreamClient import StreamClient
 
@@ -17,7 +17,7 @@ class UnixSocketClient(StreamClient):
         if match:
             self._path = match.group(1)
         else:
-            raise RuntimeError(f'Invalid URL for UNIX: {url}')
+            raise RuntimeError(f'Invalid URL for UNIX domain socket: {url}')
 
     @staticmethod
     def connectable(url: str) -> bool:
@@ -26,8 +26,8 @@ class UnixSocketClient(StreamClient):
     @staticmethod
     async def discover() -> List['Client']:
         clients = []
-        tempdir = get_tempdir()
-        for filename in list_tempfiles():
+        tempdir = create_tempdir()
+        for filename in os.listdir(tempdir):
             if filename.startswith('unix-'):
                 client = UnixSocketClient('unix://' + os.path.join(tempdir, filename))
                 try:

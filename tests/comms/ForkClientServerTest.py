@@ -3,7 +3,7 @@ import pytest
 
 from stencilaschema.comms.ForkClientServer import ForkClientServer
 
-from helpers.TestProcessor import TestProcessor
+from helpers.processors import TestProcessor
 
 @pytest.mark.asyncio
 async def test_fork():

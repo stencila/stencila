@@ -7,7 +7,7 @@ import pytest
 from stencilaschema.comms.UnixSocketClient import UnixSocketClient
 from stencilaschema.comms.UnixSocketServer import UnixSocketServer
 
-from helpers.TestProcessor import TestProcessor
+from helpers.processors import TestProcessor
 
 @pytest.mark.asyncio
 async def test_server():

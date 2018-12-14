@@ -5,7 +5,7 @@ from stencilaschema.comms.JsonGzipBase64Encoder import JsonGzipBase64Encoder
 from stencilaschema.comms.TcpClient import TcpClient
 from stencilaschema.comms.TcpServer import TcpServer
 
-from helpers.TestProcessor import TestProcessor
+from helpers.processors import TestProcessor
 
 @pytest.mark.asyncio
 async def test_client_server():

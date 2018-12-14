@@ -5,7 +5,7 @@ from stencilaschema.comms.Server import Server
 from stencilaschema.comms.JsonEncoder import JsonEncoder
 from stencilaschema.comms.JsonGzipEncoder import JsonGzipEncoder
 
-from helpers.TestProcessor import TestProcessor
+from helpers.processors import TestProcessor
 
 # Tests of in-memory client-server communication.
 # Useful for testing methods in Client and Server base classes.

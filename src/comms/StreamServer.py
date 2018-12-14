@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Dict
 
 from .StreamConnection import StreamConnection
 from .jsonRpc import Request
@@ -12,7 +12,7 @@ class StreamServer(StreamMixin, Server):
     The encoding used for the connection.
     """
 
-    def __init__(self, processor, connection: Optional[StreamConnection] = None):
+    def __init__(self, processor, connection: StreamConnection = None):
         Server.__init__(self, processor)
         StreamMixin.__init__(self, connection)
 
@@ -24,7 +24,7 @@ class StreamServer(StreamMixin, Server):
             await self.connection.write(await self.receive(message, self.encoding))
         self.connection.listen(callback)
 
-    async def hello(self, request: Request, connection: Any = None) -> Any:
+    async def hello(self, request: Request, connection: Any = None) -> Dict:
         """
         Override the base ``hello`` method to intercept a 
         message to change the encoding used.

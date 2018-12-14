@@ -1,9 +1,11 @@
+from typing import Any, Dict
 import sys
 
+from .jsonRpc import Request
 from .StreamConnection import StreamConnection
 from .StreamServer import StreamServer
 
-class StdioServer(StreamServer):
+class SpawnServer(StreamServer):
 
     async def open(self) -> None:
         """

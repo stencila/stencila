@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-# An integration tests for StdioClient / StdioServer
+# An integration tests for SpawnClient / SpawnServer
 
 import asyncio
 import os
 
-from stencilaschema.comms.StdioClient import StdioClient
+from stencilaschema.comms.SpawnClient import SpawnClient
 
-client = StdioClient(['python3', os.path.join(os.path.dirname(__file__), 'StdioServer.py')])
+client = SpawnClient(['python3', os.path.join(os.path.dirname(__file__), 'SpawnServer.py')])
 
 async def test():
     await client.start()

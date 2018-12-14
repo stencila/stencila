@@ -3,7 +3,7 @@ import pytest
 from stencilaschema.comms.StdioClient import StdioClient
 from stencilaschema.comms.StdioServer import StdioServer
 
-from helpers.TestProcessor import TestProcessor
+from helpers.processors import TestProcessor
 
 # It is difficult to test StdIO client/servers under pytest
 # because if captures stdin and stdout. Even turning it of

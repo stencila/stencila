@@ -72,13 +72,14 @@ class Server(Logger):
         async def run():
             await self.start()
 
-            def stop():
+            def stop(sig: str):
+                self.log(signal=sig)
                 self.running = False
                 asyncio.ensure_future(self.stop())
                 loop.remove_signal_handler(signal.SIGINT)
                 loop.remove_signal_handler(signal.SIGTERM)
-            loop.add_signal_handler(signal.SIGINT, stop)
-            loop.add_signal_handler(signal.SIGTERM, stop)
+            loop.add_signal_handler(signal.SIGINT, lambda: stop('SIGINT'))
+            loop.add_signal_handler(signal.SIGTERM, lambda: stop('SIGTERM'))
 
             self.running = True
             while self.running:

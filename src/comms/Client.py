@@ -43,29 +43,31 @@ class Client(Logger):
     def url(self):
         return self._url
 
-    async def start(self) -> None:
+    async def start(self) -> Dict:
         """
         Start this client.
 
         Opens the connection to the server and makes
         a `hello` handshake request.
         """
-        self.log(starting=True)
         await self.open()
-        await self.hello()
+        result = await self.hello()
+        self.log(started=True)
+        return result
 
-    async def stop(self) -> None:
+    async def stop(self) -> Dict:
         """
         Stop this client.
 
         Make a `goodbye` request and closes the connection to
         the server.
         """
-        await self.goodbye()
+        result = await self.goodbye()
         await self.close()
         self.log(stopped=True)
+        return result
 
-    async def hello(self) -> None:
+    async def hello(self) -> Dict:
         result = await self.call(
             "hello",
             version="1.0",
@@ -77,8 +79,9 @@ class Client(Logger):
             encoders = [encoder for encoder in self.encoders if encoder.name() == encoding]
             assert len(encoders) == 1
             self.encoder = encoders[0]
+        return result
 
-    async def goodbye(self) -> None:
+    async def goodbye(self) -> Dict:
         await self.call("goodbye")
 
     async def execute(self, thing):

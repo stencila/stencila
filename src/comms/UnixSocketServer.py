@@ -6,7 +6,7 @@ import string
 import tempfile
 
 from ..Processor import Processor
-from .stencilaFiles import get_tempfile, delete_tempfile
+from .stencilaFiles import create_tempfile, delete_tempfile
 from .StreamMultiServer import StreamMultiServer
 
 class UnixSocketServer(StreamMultiServer):
@@ -30,7 +30,7 @@ class UnixSocketServer(StreamMultiServer):
         Start the UNIX socket server and create an
         async connections when a client connects.
         """
-        self._path = get_tempfile(self._id)
+        self._path = create_tempfile(self._id)
         await asyncio.start_unix_server(self.on_client_connected, self._path)
         # Change the permissions on the file so that no other user can read/write it
         # This needs to be done after the server starts
@@ -38,4 +38,4 @@ class UnixSocketServer(StreamMultiServer):
 
     async def close(self) -> None:
         await StreamMultiServer.close(self)
-        delete_tempfile(self._id)
+        delete_tempfile(self._path)
