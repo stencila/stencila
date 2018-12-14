@@ -39,8 +39,8 @@ class Server(Logger):
         self.encoders = encoders
 
     @property
-    def url(self):
-        return None
+    def url(self) -> str:
+        return ''
 
     async def start(self) -> None:
         """

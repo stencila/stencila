@@ -16,4 +16,4 @@ def test_client():
 
 def test_server():
     server = StdioServer(TestProcessor())
-    assert server.url == None
+    assert server.url == ''

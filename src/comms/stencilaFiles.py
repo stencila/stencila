@@ -46,7 +46,7 @@ def create_tempdir() -> str:
 def create_tempfile(name: str, content: str = None) -> str:
     path = os.path.join(create_tempdir(), name)
 
-    if content:
+    if content is not None:
         # Write content to a secure file only readable by current user
         # Based on https://stackoverflow.com/a/15015748/4625911
 
@@ -63,10 +63,9 @@ def create_tempfile(name: str, content: str = None) -> str:
         finally:
             os.umask(umask_original)
 
-        if content:
-            # Open file fd and write to file
-            with os.fdopen(fd, 'w') as file:
-                file.write(content)
+        # Open file fd and write to file
+        with os.fdopen(fd, 'w') as file:
+            file.write(content)
 
     return path
 

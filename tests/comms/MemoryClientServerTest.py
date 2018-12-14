@@ -35,6 +35,10 @@ class MemoryServer(Server):
                         # Testing of alternative encoders
                         encoders=[JsonEncoder(), JsonGzipEncoder()])
 
+    @property
+    def url(self) -> str:
+        return 'memory://'
+
     async def open(self) -> None:
         # Required to be implemented
         pass
