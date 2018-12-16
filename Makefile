@@ -54,13 +54,20 @@ cover-ts:
 cover-py:
 	tox -e cover
 
+# Run benchmarks
+
+bench: bench-py
+
+bench-py:
+	tox -e bench -- tests/bench
+
 
 # Run integration tests
 
 integ: integ-py
 
 integ-py:
-	tox -e integ --  tests/integ
+	tox -e integ -- tests/integ
 
 
 # Run any development servers

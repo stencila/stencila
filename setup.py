@@ -68,7 +68,7 @@ setup(
     url='https://github.com/stencila/schema',
     packages=['stencilaschema', 'stencilaschema.types', 'stencilaschema.comms'],
     package_dir={'stencilaschema': 'src'},
-    install_requires=[],
+    install_requires=['cbor'],
     extras_require={},
     include_package_data=True,
     license='Apache-2.0',

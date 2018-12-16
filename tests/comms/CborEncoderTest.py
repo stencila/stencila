@@ -1,9 +1,9 @@
 
 from stencilaschema.comms.jsonRpc import Request, Response
-from stencilaschema.comms.JsonGzipBase64Encoder import JsonGzipBase64Encoder
+from stencilaschema.comms.CborEncoder import CborEncoder
 
 def test():
-    encoder = JsonGzipBase64Encoder()
+    encoder = CborEncoder()
 
     request1 = Request(id=1, method='foo', params=['bar'])
     request2 = encoder.decode(encoder.encode(request1), Request)
