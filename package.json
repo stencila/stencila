@@ -1,6 +1,6 @@
 {
   "name": "@stencila/schema",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Stencila type schema and other specifications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,7 +13,7 @@
     "build": "tsc && gulp build && npm run docs",
     "prepublishOnly": "npm run build",
     "semantic-release": "semantic-release",
-    "docs": "typedoc --readme README.md --mode file --disableOutputCheck --out ./build ./src",
+    "docs": "markdown-toc -i --maxdepth=4 README.md && typedoc --readme README.md --mode file --disableOutputCheck --out ./build ./src",
     "clean": "gulp clean"
   },
   "repository": {
@@ -27,7 +27,7 @@
   },
   "homepage": "https://stencila.github.io/schema",
   "dependencies": {
-    "cross-fetch": "^2.2.3",
+    "cross-fetch": "^3.0.0",
     "express": "^4.16.4",
     "express-jwt": "^5.3.1",
     "express-ws": "^4.0.0",
@@ -52,12 +52,13 @@
     "gulp-plumber": "^1.2.0",
     "jest": "^23.6.0",
     "js-yaml": "^3.11.0",
+    "markdown-toc": "^1.2.0",
     "nunjucks": "^3.1.3",
     "redoc": "^2.0.0-alpha.20",
     "replace-ext": "^1.0.0",
     "rollup": "^0.67.3",
     "rollup-plugin-commonjs": "^9.2.0",
-    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-typescript2": "^0.18.0",
     "semantic-release": "^15.10.5",
     "semantic-release-cli": "^4.0.9",
