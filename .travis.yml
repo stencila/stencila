@@ -1,40 +1,84 @@
-# Use Node.js 8
-language: node_js
-node_js:
-  - 8
+dist: trusty
+sudo: required
+matrix:
+  include:
 
-# Require apt packages
-before_install:
-  - sudo apt-get install libsecret-1-dev
+    # Typescript latest LTS
 
-# Do linting, coverage, and build docs (to upload to Github pages)
-script:
-  - make lint
-  - make cover
-  - make build
+    - language: node_js
+      node_js: 10
 
-# Upload test coverage to codecov
-# See https://docs.codecov.io/v5.0.0/docs/about-the-codecov-bash-uploader
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+      # Require apt packages
+      before_install:
+        - sudo apt-get install libsecret-1-dev
 
-# Prevent Github Pages from using Jekyll
-# (which causes Typedoc generated files starting with undescores to be ignored)
-before_deploy:
-  - touch build/.nojekyll
+      # Do linting, coverage, and build docs (to upload to Github pages)
+      script:
+        - make lint-ts
+        - make cover-ts
+        - make build-ts
 
-deploy:
-  # Deploy a new version of NPM package and create a Github release
-  - provider: script
-    skip_cleanup: true
-    script:
-      - npm run semantic-release
+      # Upload test coverage to codecov
+      after_success:
+        - bash <(curl -s https://codecov.io/bash) -cF ts
 
-  # Deploy documentation to Github Pages
-  # See https://docs.travis-ci.com/user/deployment/pages/
-  - provider: pages
-    skip-cleanup: true
-    github-token: $GITHUB_TOKEN
-    local-dir: build
-    on:
-      branch: master
+      # Prevent Github Pages from using Jekyll
+      # (which causes Typedoc generated files starting with undescores to be ignored)
+      before_deploy:
+        - touch build/.nojekyll
+
+      deploy:
+        # Deploy a new version of NPM package and create a Github release
+        - provider: script
+          skip_cleanup: true
+          script:
+            - npm run semantic-release
+
+        # Deploy documentation to Github Pages
+        # See https://docs.travis-ci.com/user/deployment/pages/
+        - provider: pages
+          skip-cleanup: true
+          github-token: $GITHUB_TOKEN
+          local-dir: build
+          on:
+            branch: master
+
+    # Typescript previous LTS
+
+    - language: node_js
+      node_js: 8
+
+      # Just do testing
+      script:
+        - make test-ts
+
+    # Python latest
+
+    - language: python
+      python: "3.7-dev"
+
+      # Install stuff needed for linting and testing
+      install:
+        - pip3 install pylint mypy tox-travis
+      
+      # Do linting and coverage
+      script:
+        - make lint-py
+        - make cover-py
+
+      # Upload test coverage to codecov
+      after_success:
+        - bash <(curl -s https://codecov.io/bash) -cF py
+
+    # Python previous
+
+    - language: python
+      python: 3.6
+
+      # Install stuff needed for testing
+      install:
+        - pip3 install tox-travis
+      
+      # Just do testing
+      script:
+        - make test-py

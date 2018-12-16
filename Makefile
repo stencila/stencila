@@ -1,29 +1,110 @@
-all: setup lint test build
+all: setup lint test cover build docs
 
-setup:
+# Setup the local development environment
+
+setup: setup-ts setup-py
+
+setup-ts:
 	npm install
+
+setup-py:
+	pip3 install --user --upgrade -r requirements-dev.txt
+
+
+# Add Git hooks
 
 hooks:
 	cp pre-commit.sh .git/hooks/pre-commit
 
-lint:
+
+# Lint code
+
+lint: lint-ts lint-py
+	
+lint-ts:
 	npm run lint
 
-test:
+lint-py: lint-py-code lint-py-types
+
+lint-py-code:
+	pylint --exit-zero src
+
+lint-py-types:
+	mypy src
+
+
+# Run tests
+
+test: test-ts test-py
+
+test-ts:
 	npm test
 
-cover:
+test-py:
+	tox
+
+
+# Run tests with coverage
+
+cover: cover-ts cover-py
+	
+cover-ts:
 	npm run cover
+
+cover-py:
+	tox -e cover
+
+# Run benchmarks
+
+bench: bench-py
+
+bench-py:
+	tox -e bench -- tests/bench
+
+
+# Run integration tests
+
+integ: integ-py
+
+integ-py:
+	tox -e integ -- tests/integ
+
+
+# Run any development servers
 
 run:
 	npm start
 
-build:
-	npm run build
+
+# Build packages
+
+build: build-ts
 .PHONY: build
 
-docs:
+build-ts:
+	npm run build
+
+build-py:
+	echo "To do!"
+
+
+# Generate documentation
+
+docs: docs-ts docs-py
+
+docs-ts:
 	npm run docs
 
-clean:
+docs-py:
+	echo "To do!"
+
+
+# Clean up local development environment
+
+clean: clean-ts clean-py
+
+clean-ts:
 	npm run clean
+
+clean-py:
+	echo "To do!"

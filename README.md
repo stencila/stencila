@@ -401,6 +401,21 @@ The following table summarises the serialization format/s used by each protocol 
 4. A `StdioServer` for R and Python is currently the highest priority for these languages as it will allow `Processors` to be implemented for executing code cells and function calls in these languages.
 
 
+### Testing
+
+#### Python
+
+You can run inidividual Python tests by passing additional `pytest` arguments via `tox`:
+
+```bash
+tox -- tests/comms/StdioClientServerTest.py
+```
+
+You can also run tests for only one test environmment e.g. Python 3.7 using the `-e` option:
+
+```bash
+tox -e py37 -- tests/comms/StdioClientServerTest.py
+```
 
 [Apache Avro]:(https://avro.apache.org)
 [BioSchemas]:(https://bioschemas.org)
@@ -410,3 +425,4 @@ The following table summarises the serialization format/s used by each protocol 
 [JSON-Schema]:(https://json-schema.org)
 [OpenSchemas]:(https://openschemas.github.io)
 [Schema.org]:(https://schema.org)
+
