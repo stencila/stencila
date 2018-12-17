@@ -11,6 +11,7 @@ setup-py:
 	pip3 install --user --upgrade -r requirements-dev.txt
 
 setup-r:
+	Rscript -e "install.packages('devtools')"
 	Rscript -e "devtools::install_github(c('jimhester/lintr', 'klutometis/roxygen', 'r-lib/covr', 'r-lib/testthat'))"
 
 
