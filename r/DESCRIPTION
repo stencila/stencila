@@ -1,0 +1,25 @@
+Package: stencilaschema
+Type: Package
+Title: Stencila schemas, protocols and other specs
+Description: Schemas, protocols and other specifications used in Stencila.
+Authors@R: c(person("Nokome", "Bentley", email = "nokome@stenci.la", role = c("aut", "cre")))
+URL: https://github.com/stencila/schema#readme
+BugReports: https://github.com/stencila/schema/issues
+License: Apache-2.0
+Version: 0.0.1
+Imports:
+    jsonlite,
+    R6
+Suggests:
+    bench,
+    covr,
+    devtools,
+    lintr,
+    roxygen2,
+    testthat
+RoxygenNote: 6.1.0.9000
+Collate: 
+    'Encoder.R'
+    'JsonEncoder.R'
+    'JsonGzipEncoder.R'
+    'jsonRpc.R'

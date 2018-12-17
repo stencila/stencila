@@ -4,6 +4,7 @@
 /.mypy_cache
 /.rpt2_cache
 /.tox
+/.vscode/.ropeproject
 /build
 /coverage
 /coverage.xml
