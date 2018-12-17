@@ -1,1 +1,1 @@
-linters: with_defaults(object_name_linter(c("snake_case", "UpperCamelCase")))
+linters: with_defaults(object_usage_linter=NULL, object_name_linter(c("snake_case", "UpperCamelCase")))
