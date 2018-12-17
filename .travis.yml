@@ -94,6 +94,11 @@ matrix:
       script:
         - make lint-r
         - make cover-r
+        - make build-r
+
+      # Upload test coverage to codecov
+      after_success:
+        - bash <(curl -s https://codecov.io/bash) -cF r
 
     # R previous
     - language: r

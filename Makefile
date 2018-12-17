@@ -97,6 +97,9 @@ build-ts:
 build-py:
 	echo "To do!"
 
+build-r:
+	cd r && R CMD build . && R CMD check *.tar.gz
+
 
 # Generate documentation
 
