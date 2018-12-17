@@ -23,11 +23,11 @@ class Processor:
     methods in derived classes.
     """
 
-    clients: Dict[str, Client]
-    servers: Dict[str, Server]
+    clients: Dict[str, 'Client']
+    servers: Dict[str, 'Server']
 
 
-    def __init__(self, client_types: List[Type[Client]] = None, server_types: List[Type[Server]] = None):
+    def __init__(self, client_types: List[Type['Client']] = None, server_types: List[Type['Server']] = None):
         self.client_types = client_types
         self.server_types = server_types
 
