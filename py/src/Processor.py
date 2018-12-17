@@ -3,10 +3,14 @@ Module that defines the `Processor` class.
 """
 
 import json
-from typing import Any, Dict, Union, List, Optional, Type
+from typing import Dict, Union, List, Optional, Type, TYPE_CHECKING
 
 from .types.Thing import Thing
 from .types.utils import cast, hydrate, dehydrate
+
+if TYPE_CHECKING:
+    from .comms.Client import Client
+    from .comms.Server import Server
 
 
 class Processor:
@@ -18,8 +22,12 @@ class Processor:
     `Thing`. They merely serve as an example of how to implement these
     methods in derived classes.
     """
-    
-    def __init__(self, client_types: List[Type['Client']] = None, server_types: List[Type['Server']] = None):
+
+    clients: Dict[str, Client]
+    servers: Dict[str, Server]
+
+
+    def __init__(self, client_types: List[Type[Client]] = None, server_types: List[Type[Server]] = None):
         self.client_types = client_types
         self.server_types = server_types
 

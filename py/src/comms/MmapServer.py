@@ -25,7 +25,7 @@ class MmapServer(MmapMixin, Server):
         self._id = 'mmap-py-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=32))
         self._path = create_tempfile(self._id)
         file = open(self._path, 'w+b')
-        file.truncate(1e6)
+        file.truncate(int(1e6)) # TODO: this should be max size that can be respresented by an unsigned 4 byte integer
         file.close()
 
         await MmapMixin.open(self)

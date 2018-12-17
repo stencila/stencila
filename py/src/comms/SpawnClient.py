@@ -4,6 +4,7 @@ import json
 import os
 import re
 
+from .Client import Client
 from .stencilaFiles import get_homedir
 from .StreamConnection import StreamConnection
 from .StreamClient import StreamClient
@@ -14,7 +15,7 @@ class SpawnClient(StreamClient):
 
     _command: str
 
-    _hello: str
+    _hello: Optional[Dict]
     """
     The result from calling hello() on the server.
 
@@ -39,20 +40,21 @@ class SpawnClient(StreamClient):
         return url[:8] == 'spawn://'
 
     @staticmethod
-    async def discover() -> List['Client']:
+    async def discover() -> List[Client]:
         """
         Discover ``SpawnServer`` types registered on this machine.
 
         :return: List of ``SpawnClient`` instances
         """
-        clients = []
+        clients: List[Client] = []
         homedir = get_homedir()
         if os.path.exists(homedir):
             for filename in os.listdir(homedir):
                 try:
-                    manifest = json.load(os.path.join(homedir, filename))
-                    command = manifest['command']
-                    hello = manifest['hello']
+                    with open(os.path.join(homedir, filename)) as file:
+                        manifest = json.load(file)
+                        command = manifest['command']
+                        hello = manifest['hello']
                 except Exception as exc:
                     print(exc) # self.log(level='warning', message=str(exc))
                 else:

@@ -14,6 +14,8 @@ LISTEN_SLEEP = 1e-5
 
 class MmapMixin:
 
+    BYTE_WRITE: bytes = b'1'
+
     def __init__(self):
         self._path = None
         self._mmap = None

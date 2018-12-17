@@ -82,7 +82,7 @@ class Client(Logger):
         return result
 
     async def goodbye(self) -> Dict:
-        await self.call("goodbye")
+        return await self.call("goodbye")
 
     async def execute(self, thing):
         return await self.call("execute", thing=thing)

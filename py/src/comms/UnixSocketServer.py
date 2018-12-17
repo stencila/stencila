@@ -38,4 +38,5 @@ class UnixSocketServer(StreamMultiServer):
 
     async def close(self) -> None:
         await StreamMultiServer.close(self)
-        delete_tempfile(self._path)
+        if self._path:
+            delete_tempfile(self._path)

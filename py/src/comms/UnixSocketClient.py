@@ -3,6 +3,7 @@ import asyncio
 import os
 import re
 
+from .Client import Client
 from .stencilaFiles import create_tempdir
 from .StreamConnection import StreamConnection
 from .StreamClient import StreamClient
@@ -24,8 +25,8 @@ class UnixSocketClient(StreamClient):
         return url[:7] == 'unix://'
 
     @staticmethod
-    async def discover() -> List['Client']:
-        clients = []
+    async def discover() -> List[Client]:
+        clients: List[Client] = []
         tempdir = create_tempdir()
         for filename in os.listdir(tempdir):
             if filename.startswith('unix-'):

@@ -2,6 +2,7 @@ from typing import List
 import asyncio
 import re
 
+from .Client import Client
 from .StreamConnection import StreamConnection
 from .StreamClient import StreamClient
 
@@ -23,7 +24,7 @@ class TcpClient(StreamClient):
         return url[:6] == 'tcp://'
 
     @staticmethod
-    async def discover() -> List['Client']:
+    async def discover() -> List[Client]:
         """
         Discover `TcpServers`.
 
@@ -36,7 +37,7 @@ class TcpClient(StreamClient):
         :return: List of ``TcpClients``
         """
 
-        clients = []
+        clients: List[Client] = []
         for port in range(2000, 2010):
             client = TcpClient(f'tcp://127.0.0.1:{port}')
             try:

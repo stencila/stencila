@@ -28,8 +28,8 @@ class MmapClient(MmapMixin, Client):
         return url[:7] == 'mmap://'
 
     @staticmethod
-    async def discover() -> List['Client']:
-        clients = []
+    async def discover() -> List[Client]:
+        clients: List[Client] = []
         tempdir = create_tempdir()
         for filename in os.listdir(tempdir):
             if filename.startswith('mmap-'):

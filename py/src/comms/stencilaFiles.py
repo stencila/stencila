@@ -15,13 +15,13 @@ def get_homedir() -> str:
 
     osn = platform.system().lower()
     if osn == 'darwin':
-        return os.path.join(os.getenv("HOME"), 'Library', 'Application Support', 'Stencila')
+        return os.path.join(os.getenv("HOME", ""), 'Library', 'Application Support', 'Stencila')
     elif osn == 'linux':
-        return os.path.join(os.getenv("HOME"), '.stencila')
+        return os.path.join(os.getenv("HOME", ""), '.stencila')
     elif osn == 'windows':
-        return os.path.join(os.getenv("APPDATA"), 'Stencila')
+        return os.path.join(os.getenv("APPDATA", ""), 'Stencila')
     else:
-        return os.path.join(os.getenv("HOME"), 'stencila')
+        return os.path.join(os.getenv("HOME", ""), 'stencila')
 
 def get_tempdir() -> str:
     """
