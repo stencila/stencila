@@ -83,12 +83,8 @@ matrix:
     - language: r
       r: release
 
-      # Packages to install from github using devtools
-      r_github_packages:
-        - jimhester/lintr
-        - klutometis/roxygen2
-        - r-lib/covr
-        - r-lib/testthat
+      install:
+        - make setup-r
 
       # Do linting and coverage
       script:
@@ -104,10 +100,8 @@ matrix:
     - language: r
       r: oldrel
     
-      # Packages to install from github using devtools
-      # Just testing
-      r_github_packages:
-        - r-lib/testthat
+      install:
+        - make setup-r
 
       # Just do testing
       script:
