@@ -4,7 +4,6 @@ matrix:
   include:
 
     # Typescript latest LTS
-
     - language: node_js
       node_js: 10
 
@@ -44,7 +43,6 @@ matrix:
             branch: master
 
     # Typescript previous LTS
-
     - language: node_js
       node_js: 8
 
@@ -53,7 +51,6 @@ matrix:
         - make test-ts
 
     # Python latest
-
     - language: python
       python: "3.7-dev"
 
@@ -71,7 +68,6 @@ matrix:
         - bash <(curl -s https://codecov.io/bash) -cF py
 
     # Python previous
-
     - language: python
       python: 3.6
 
@@ -82,3 +78,32 @@ matrix:
       # Just do testing
       script:
         - make test-py
+
+    # R latest
+    - language: r
+      r: release
+
+      # Packages to install from github using devtools
+      r_github_packages:
+        - jimhester/lintr
+        - klutometis/roxygen2
+        - r-lib/covr
+        - r-lib/testthat
+
+      # Do linting and coverage
+      script:
+        - make lint-r
+        - make cover-r
+
+    # R previous
+    - language: r
+      r: oldrel
+    
+      # Packages to install from github using devtools
+      # Just testing
+      r_github_packages:
+        - r-lib/testthat
+
+      # Just do testing
+      script:
+        - make test-r

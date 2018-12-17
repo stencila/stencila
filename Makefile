@@ -19,7 +19,7 @@ hooks:
 
 # Lint code
 
-lint: lint-ts lint-py
+lint: lint-ts lint-py lint-r
 	
 lint-ts:
 	npm run lint
@@ -32,6 +32,8 @@ lint-py-code:
 lint-py-types:
 	mypy src
 
+lint-r:
+	cd r && Rscript -e 'lintr::lint_package()'
 
 # Run tests
 
@@ -43,6 +45,8 @@ test-ts:
 test-py:
 	tox
 
+test-r:
+	cd r && Rscript -e 'devtools::test()'
 
 # Run tests with coverage
 
@@ -54,12 +58,18 @@ cover-ts:
 cover-py:
 	tox -e cover
 
+cover-r:
+	cd r && Rscript -e 'covr::package_coverage()'
+
 # Run benchmarks
 
 bench: bench-py
 
 bench-py:
 	tox -e bench -- tests/bench
+
+bench-r: install-r
+	cd r/tests/bench && Rscript encoders.R
 
 
 # Run integration tests
@@ -98,6 +108,13 @@ docs-ts:
 docs-py:
 	echo "To do!"
 
+docs-r:
+	cd r && Rscript -e 'devtools::document()'
+
+# Install a package
+
+install-r: docs-r # Documentation generation required for NAMESPACE amongst other things
+	cd r && Rscript -e 'devtools::install()'
 
 # Clean up local development environment
 
