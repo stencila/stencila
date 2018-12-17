@@ -1,7 +1,7 @@
 from stencilaschema.Processor import Processor
 
 
-class TestProcessor(Processor):
+class CellProcessor(Processor):
 
     async def execute(self, thing, format='application/json', type=None):
         thing = await Processor.execute(self, thing, format, type)

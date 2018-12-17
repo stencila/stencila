@@ -1,0 +1,6 @@
+*.pyc
+/.coverage
+/.mypy_cache
+/.tox
+/coverage.xml
+/stencilaschema.egg-info

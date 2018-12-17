@@ -5,7 +5,7 @@ from stencilaschema.comms.Server import Server
 from stencilaschema.comms.JsonEncoder import JsonEncoder
 from stencilaschema.comms.JsonGzipEncoder import JsonGzipEncoder
 
-from helpers.processors import TestProcessor
+from helpers.processors import CellProcessor
 
 # Tests of in-memory client-server communication.
 # Useful for testing methods in Client and Server base classes.
@@ -54,7 +54,7 @@ thing3 = {'type': 'Thing', 'name': 'thing3'}
 @pytest.mark.asyncio
 async def test_memory():
     # Start the server and several clients listening it
-    processor = TestProcessor()
+    processor = CellProcessor()
     server = MemoryServer(processor)
     await server.start()
 
@@ -77,7 +77,7 @@ async def test_memory():
 
 @pytest.mark.asyncio
 async def test_encodings():
-    processor = TestProcessor()
+    processor = CellProcessor()
     server = MemoryServer(processor)
     await server.start()
 

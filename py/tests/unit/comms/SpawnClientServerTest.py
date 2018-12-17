@@ -5,6 +5,7 @@ from stencilaschema.comms.SpawnClient import SpawnClient
 
 from helpers.processors import PersonProcessor
 
+@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_client_server():
 

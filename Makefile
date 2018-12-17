@@ -31,10 +31,10 @@ lint-ts:
 lint-py: lint-py-code lint-py-types
 
 lint-py-code:
-	pylint --exit-zero src
+	cd py && pylint --exit-zero src
 
 lint-py-types:
-	mypy src
+	cd py && mypy src
 
 lint-r:
 	cd r && Rscript -e 'lintr::lint_package()'
@@ -47,7 +47,7 @@ test-ts:
 	npm test
 
 test-py:
-	tox
+	cd py && tox
 
 test-r:
 	cd r && Rscript -e 'devtools::test()'
@@ -60,7 +60,7 @@ cover-ts:
 	npm run cover
 
 cover-py:
-	tox -e cover
+	cd py && tox -e cover
 
 cover-r:
 	cd r && Rscript -e 'covr::package_coverage()'
@@ -70,7 +70,7 @@ cover-r:
 bench: bench-py
 
 bench-py:
-	tox -e bench -- tests/bench
+	cd py && tox -e bench -- tests/bench
 
 bench-r: install-r
 	cd r/tests/bench && Rscript encoders.R
@@ -81,7 +81,7 @@ bench-r: install-r
 integ: integ-py
 
 integ-py:
-	tox -e integ -- tests/integ
+	cd py && tox -e integ -- tests/integ
 
 
 # Run any development servers
@@ -99,7 +99,7 @@ build-ts:
 	npm run build
 
 build-py:
-	echo "To do!"
+	cd py && echo "To do!"
 
 build-r:
 	cd r && R CMD build . && R CMD check *.tar.gz
@@ -113,7 +113,7 @@ docs-ts:
 	npm run docs
 
 docs-py:
-	echo "To do!"
+	cd py && echo "To do!"
 
 docs-r:
 	cd r && Rscript -e 'devtools::document()'
@@ -131,4 +131,4 @@ clean-ts:
 	npm run clean
 
 clean-py:
-	echo "To do!"
+	cd py && echo "To do!"

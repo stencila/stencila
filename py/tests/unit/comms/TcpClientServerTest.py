@@ -1,25 +1,24 @@
 import pytest
 
 from stencilaschema.comms.JsonEncoder import JsonEncoder
-from stencilaschema.comms.JsonGzipBase64Encoder import JsonGzipBase64Encoder
 from stencilaschema.comms.TcpClient import TcpClient
 from stencilaschema.comms.TcpServer import TcpServer
 
-from helpers.processors import TestProcessor
+from helpers.processors import CellProcessor
 
 @pytest.mark.asyncio
 async def test_client_server():
     # Create test processor
-    processor = TestProcessor()
+    processor = CellProcessor()
 
     # Start the server and several clients
-    server = TcpServer(processor, encoders=[JsonEncoder(), JsonGzipBase64Encoder()])
+    server = TcpServer(processor)
     await server.start()
     client1 = TcpClient(server.url)
     await client1.start()
-    client2 = TcpClient(server.url, encoders=[JsonGzipBase64Encoder(), JsonEncoder()])
+    client2 = TcpClient(server.url)
     await client2.start()
-    client3 = TcpClient(server.url, encoders=[JsonGzipBase64Encoder()])
+    client3 = TcpClient(server.url)
     await client3.start()
 
     thing1 = {'type': 'Thing', 'name': 'thing1'}
