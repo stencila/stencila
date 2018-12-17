@@ -94,7 +94,7 @@ matrix:
 
       # Upload test coverage to codecov
       after_success:
-        - bash <(curl -s https://codecov.io/bash) -cF r
+        - Rscript -e "covr::codecov()"
 
     # R previous
     - language: r
