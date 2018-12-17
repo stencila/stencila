@@ -12,7 +12,7 @@ setup-py:
 
 setup-r:
 	Rscript -e "install.packages('devtools')"
-	Rscript -e "devtools::install_github(c('jimhester/lintr', 'klutometis/roxygen', 'r-lib/covr', 'r-lib/testthat'))"
+	Rscript -e "devtools::install_github(c('jimhester/lintr', 'klutometis/roxygen', 'r-lib/bench', 'r-lib/covr', 'r-lib/testthat'))"
 
 
 # Add Git hooks
