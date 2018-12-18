@@ -1,17 +1,15 @@
 Encoder <- R6::R6Class("Encoder",
   public = list(
-    # nocov start
     name  = function() {
-      stop("Not implemented")
+      stop("Not implemented") # nocov
     },
 
     decode  = function() {
-      stop("Not implemented")
+      stop("Not implemented") # nocov
     },
 
     encode  = function() {
-      stop("Not implemented")
+      stop("Not implemented") # nocov
     }
-    # nocov end
   )
 )
