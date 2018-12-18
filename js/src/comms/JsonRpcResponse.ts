@@ -32,7 +32,7 @@ export default class JsonRpcResponse {
    */
   error?: JsonRpcError
 
-  constructor (id: number, result?: any, error?: JsonRpcError) {
+  constructor (id: number = -1, result?: any, error?: JsonRpcError) {
     this.id = id
     this.result = result
     this.error = error
