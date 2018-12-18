@@ -1,11 +1,11 @@
 responses <- list(
-    cell = Response$new(
+    cell = JsonRpcResponse$new(
         id = 1,
         result = list(
             type = "Cell"
         )
     ),
-    error = Response$new(
+    error = JsonRpcResponse$new(
         id = 1,
         error = list(
             message = "An error happened"

@@ -22,4 +22,6 @@ Collate:
     'Encoder.R'
     'JsonEncoder.R'
     'JsonGzipEncoder.R'
-    'jsonRpc.R'
+    'JsonRpcError.R'
+    'JsonRpcRequest.R'
+    'JsonRpcResponse.R'

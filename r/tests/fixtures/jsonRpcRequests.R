@@ -2,7 +2,7 @@
 requests <- list(
 
   # Import a 100k Markdown document
-  import_text = Request$new(
+  import_text = JsonRpcRequest$new(
     id = 1,
     method = "import",
     params = list(
@@ -12,7 +12,7 @@ requests <- list(
   ),
 
   # Execute a simple code cell
-  execute_cell_simple = Request$new(
+  execute_cell_simple = JsonRpcRequest$new(
     id = 2,
     method = "execute",
     params = list(
@@ -37,7 +37,7 @@ requests <- list(
   ),
 
   # Execute a call with a data table arg
-  execute_call = Request$new(
+  execute_call = JsonRpcRequest$new(
     id = 3,
     method = "execute",
     params = list(

@@ -2,5 +2,6 @@
 
 export(JsonEncoder)
 export(JsonGzipEncoder)
-export(Request)
-export(Response)
+export(JsonRpcError)
+export(JsonRpcRequest)
+export(JsonRpcResponse)

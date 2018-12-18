@@ -128,7 +128,7 @@ install: install-py install-r
 install-py:
 	cd py && pip install --user .
 
-install-r:
+install-r: docs-r
 	cd r && Rscript -e 'devtools::install()'
 
 # Clean up local development environment
