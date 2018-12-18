@@ -7,11 +7,11 @@ import pytest
 from stencilaschema.comms.UnixSocketClient import UnixSocketClient
 from stencilaschema.comms.UnixSocketServer import UnixSocketServer
 
-from helpers.processors import TestProcessor
+from helpers.processors import CellProcessor
 
 @pytest.mark.asyncio
 async def test_server():
-    processor = TestProcessor()
+    processor = CellProcessor()
     server = UnixSocketServer(processor)
     await server.start()
 
@@ -21,7 +21,7 @@ async def test_server():
 
 @pytest.mark.asyncio
 async def test_client_server():
-    processor = TestProcessor()
+    processor = CellProcessor()
     server = UnixSocketServer(processor)
     await server.start()
     client1 = UnixSocketClient(server.url)
