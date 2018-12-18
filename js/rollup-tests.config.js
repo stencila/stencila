@@ -22,17 +22,17 @@ const plugins = [
   commonjs()
 ]
 
-export default [{
-  input: 'tests/comms/webWorkerServer.ts',
+export default [/*{
+  input: 'tests/unit/index.ts',
   output: {
-    file: 'tests/comms/webWorkerServer.js',
+    file: 'tests/unit/index.js',
     format: 'cjs'
   },
   plugins
-},{
-  input: 'tests/comms/browserTests.ts',
+},*/{
+  input: 'tests/bench/browser.ts',
   output: {
-    file: 'tests/comms/browserTests.js',
+    file: 'tests/bench/browser.js',
     format: 'cjs'
   },
   plugins

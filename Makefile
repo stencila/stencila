@@ -67,7 +67,10 @@ cover-r:
 
 # Run benchmarks
 
-bench: bench-py bench-r
+bench: bench-js bench-py bench-r
+
+bench-js:
+	cd js && npm run bench
 
 bench-py:
 	cd py && tox -e bench -- tests/bench
