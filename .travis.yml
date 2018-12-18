@@ -34,7 +34,7 @@ matrix:
         - provider: script
           skip_cleanup: true
           script:
-            - npm run semantic-release
+            - cd js && npm run semantic-release
 
         # Deploy documentation to Github Pages
         # See https://docs.travis-ci.com/user/deployment/pages/
