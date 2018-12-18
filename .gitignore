@@ -1,16 +1,1 @@
-*.pyc
-/.benchmarks
-/.coverage
-/.mypy_cache
-/.rpt2_cache
-/.tox
 /.vscode/.ropeproject
-/build
-/coverage
-/coverage.xml
-/dist
-/docs
-/node_modules
-/stencilaschema.egg-info
-/tests/comms/browserTests*.js
-/tests/comms/webWorker*.js

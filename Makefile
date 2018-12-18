@@ -2,10 +2,10 @@ all: setup lint test cover build docs
 
 # Setup the local development environment
 
-setup: setup-ts setup-py
+setup: setup-js setup-py setup-r
 
-setup-ts:
-	npm install
+setup-js:
+	cd js && npm install
 
 setup-py:
 	pip3 install --user --upgrade -r requirements-dev.txt
@@ -23,10 +23,10 @@ hooks:
 
 # Lint code
 
-lint: lint-ts lint-py lint-r
+lint: lint-js lint-py lint-r
 	
-lint-ts:
-	npm run lint
+lint-js:
+	cd js && npm run lint
 
 lint-py: lint-py-code lint-py-types
 
@@ -41,10 +41,10 @@ lint-r:
 
 # Run tests
 
-test: test-ts test-py
+test: test-js test-py test-r
 
-test-ts:
-	npm test
+test-js:
+	cd js && npm test
 
 test-py:
 	cd py && tox
@@ -54,10 +54,10 @@ test-r:
 
 # Run tests with coverage
 
-cover: cover-ts cover-py
+cover: cover-js cover-py cover-r
 	
-cover-ts:
-	npm run cover
+cover-js:
+	cd js && npm run cover
 
 cover-py:
 	cd py && tox -e cover
@@ -67,7 +67,7 @@ cover-r:
 
 # Run benchmarks
 
-bench: bench-py
+bench: bench-py bench-r
 
 bench-py:
 	cd py && tox -e bench -- tests/bench
@@ -87,16 +87,16 @@ integ-py:
 # Run any development servers
 
 run:
-	npm start
+	cd js && npm start
 
 
 # Build packages
 
-build: build-ts
+build: build-js
 .PHONY: build
 
-build-ts:
-	npm run build
+build-js:
+	cd js && npm run build
 
 build-py:
 	cd py && echo "To do!"
@@ -107,10 +107,10 @@ build-r:
 
 # Generate documentation
 
-docs: docs-ts docs-py
+docs: docs-js docs-py docs-r
 
-docs-ts:
-	npm run docs
+docs-js:
+	cd js && npm run docs
 
 docs-py:
 	cd py && echo "To do!"
@@ -125,10 +125,10 @@ install-r: docs-r # Documentation generation required for NAMESPACE amongst othe
 
 # Clean up local development environment
 
-clean: clean-ts clean-py
+clean: clean-js clean-py
 
-clean-ts:
-	npm run clean
+clean-js:
+	cd js && npm run clean
 
 clean-py:
 	cd py && echo "To do!"

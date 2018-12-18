@@ -3,7 +3,7 @@ sudo: required
 matrix:
   include:
 
-    # Typescript latest LTS
+    # Node.js latest LTS
     - language: node_js
       node_js: 10
 
@@ -13,9 +13,9 @@ matrix:
 
       # Do linting, coverage, and build docs (to upload to Github pages)
       script:
-        - make lint-ts
-        - make cover-ts
-        - make build-ts
+        - make lint-js
+        - make cover-js
+        - make build-js
 
       # Upload test coverage to codecov
       after_success:
@@ -24,7 +24,7 @@ matrix:
       # Prevent Github Pages from using Jekyll
       # (which causes Typedoc generated files starting with undescores to be ignored)
       before_deploy:
-        - touch build/.nojekyll
+        - touch js/build/.nojekyll
 
       deploy:
         # Deploy a new version of NPM package and create a Github release
@@ -38,17 +38,17 @@ matrix:
         - provider: pages
           skip-cleanup: true
           github-token: $GITHUB_TOKEN
-          local-dir: build
+          local-dir: js/build
           on:
             branch: master
 
-    # Typescript previous LTS
+    # Node.js previous LTS
     - language: node_js
       node_js: 8
 
       # Just do testing
       script:
-        - make test-ts
+        - make test-js
 
     # Python latest
     - language: python

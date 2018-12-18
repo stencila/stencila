@@ -1,0 +1,82 @@
+{
+  "name": "@stencila/schema",
+  "version": "0.5.0",
+  "description": "Stencila type schema and other specifications",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "lint": "tslint --project tsconfig.json --fix --format stylish ./src/**/*.ts",
+    "test": "jest",
+    "test:comms": "rollup -c rollup-tests.config.js",
+    "cover": "jest --collectCoverage",
+    "start": "gulp",
+    "build": "tsc && gulp build && npm run docs",
+    "prepublishOnly": "npm run build",
+    "semantic-release": "semantic-release",
+    "docs": "markdown-toc -i --maxdepth=4 ../README.md && typedoc --readme ../README.md --mode file --disableOutputCheck --out ./build ./src",
+    "clean": "gulp clean"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stencila/schema.git"
+  },
+  "author": "Stencila schema contributors https://github.com/stencila/schema/contributors",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/stencila/schema/issues"
+  },
+  "homepage": "https://stencila.github.io/schema",
+  "dependencies": {
+    "cross-fetch": "^3.0.0",
+    "express": "^4.16.4",
+    "express-jwt": "^5.3.1",
+    "express-ws": "^4.0.0",
+    "get-port": "^4.0.0",
+    "isomorphic-ws": "^4.0.1",
+    "killable": "^1.0.1",
+    "reflect-metadata": "^0.1.12"
+  },
+  "devDependencies": {
+    "@semantic-release/commit-analyzer": "^6.1.0",
+    "@semantic-release/git": "^7.0.5",
+    "@semantic-release/github": "^5.2.0",
+    "@semantic-release/npm": "^5.0.5",
+    "@semantic-release/release-notes-generator": "^7.1.1",
+    "@types/express": "^4.16.0",
+    "@types/express-ws": "^3.0.0",
+    "@types/get-port": "^4.0.0",
+    "@types/jest": "^23.3.7",
+    "del": "^3.0.0",
+    "gulp": "^4.0.0",
+    "gulp-connect": "^5.7.0",
+    "gulp-plumber": "^1.2.0",
+    "jest": "^23.6.0",
+    "js-yaml": "^3.11.0",
+    "markdown-toc": "^1.2.0",
+    "nunjucks": "^3.1.3",
+    "redoc": "^2.0.0-alpha.20",
+    "replace-ext": "^1.0.0",
+    "rollup": "^0.67.3",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup-plugin-typescript2": "^0.18.0",
+    "semantic-release": "^15.10.5",
+    "semantic-release-cli": "^4.1.0",
+    "through2": "^3.0.0",
+    "ts-jest": "^23.10.5",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "tslint-config-standard": "^8.0.1",
+    "typedoc": "^0.13.0",
+    "typescript": "^3.1.3"
+  },
+  "release": {
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
+      "@semantic-release/git",
+      "@semantic-release/github"
+    ]
+  }
+}
