@@ -2,5 +2,6 @@
 /.coverage
 /.mypy_cache
 /.tox
+/build
 /coverage.xml
 /stencilaschema.egg-info

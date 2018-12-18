@@ -102,7 +102,7 @@ build-js:
 	cd js && npm run build
 
 build-py:
-	cd py && echo "To do!"
+	cd py && python3 setup.py build
 
 build-r:
 	cd r && R CMD build . && R CMD check *.tar.gz
@@ -121,9 +121,14 @@ docs-py:
 docs-r:
 	cd r && Rscript -e 'devtools::document()'
 
-# Install a package
+# Install packages
 
-install-r: docs-r # Documentation generation required for NAMESPACE amongst other things
+install: install-py install-r
+
+install-py:
+	cd py && pip install --user .
+
+install-r:
 	cd r && Rscript -e 'devtools::install()'
 
 # Clean up local development environment
