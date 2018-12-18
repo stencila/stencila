@@ -11,6 +11,9 @@ matrix:
       before_install:
         - sudo apt-get install libsecret-1-dev
 
+      install:
+        - make setup-js
+
       # Do linting, coverage, and build docs (to upload to Github pages)
       script:
         - make lint-js
@@ -45,6 +48,9 @@ matrix:
     # Node.js previous LTS
     - language: node_js
       node_js: 8
+
+      install:
+        - make setup-js
 
       # Just do testing
       script:
