@@ -1,4 +1,5 @@
 *.pyc
+/.benchmarks
 /.coverage
 /.mypy_cache
 /.tox
