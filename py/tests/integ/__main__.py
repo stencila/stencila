@@ -1,3 +1,0 @@
-# Run tests
-
-import StdioClient
