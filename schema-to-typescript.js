@@ -14,7 +14,7 @@ const options = {
 }
 
 fs.mkdirp('ts')
-const src = 'schema/index.json'
+const src = 'schema/index.schema.json'
 const dest = 'ts/index.ts'
 console.log(`Generating "${dest}" from "${src}"`)
 jstt.compileFromFile(src, options).then(ts => fs.writeFileSync(dest, ts))
