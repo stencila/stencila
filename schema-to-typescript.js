@@ -16,8 +16,7 @@ const options = {
 fs.mkdirp('ts')
 for (let filename of fs.readdirSync('schema')) {
   const src = path.join('schema', filename)
-  const dest = path.join('schema', filename)
-  console.log(`Generating "${dest}" from "${filename}"`)
-  const schema = fs.readJsonSync(src)
-  jstt.compileFromFile(schema, options).then(ts => fs.writeFileSync(dest, ts))
+  const dest = path.join('ts', filename.replace('.schema.json', '.ts'))
+  console.log(`Generating "${dest}" from "${src}"`)
+  jstt.compileFromFile(src, options).then(ts => fs.writeFileSync(dest, ts))
 }
