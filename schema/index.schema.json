@@ -1,0 +1,10 @@
+{
+    "$id": "https://stencila.github.com/schema/01-draft/schema.json",
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "title": "Stencila schema",
+    "description": "Root schema that collects sub-schemas into a single schema.",
+    "anyOf": [
+        { "$ref": "Environment.schema.json" },
+        { "$ref": "Package.schema.json" }
+    ]
+}
