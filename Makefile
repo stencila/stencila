@@ -4,6 +4,10 @@ all: setup build docs
 setup:
 	npm install
 
+# Add Git hook to test before a commit
+hooks:
+	cp pre-commit.sh .git/hooks/pre-commit
+
 # Check schema is valid
 test:
 	npm test

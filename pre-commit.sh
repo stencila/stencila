@@ -1,2 +1,2 @@
 #!/bin/sh
-make lint test
+make test
