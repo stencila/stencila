@@ -1,0 +1,22 @@
+{
+    "$id": "https://stencila.github.com/schema/01-draft/Package.schema.json",
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "title": "Package",
+    "description": "A computational package.",
+    "@id": "stencila:Package",
+    "type": "object",
+    "properties": {
+        "type": { 
+            "description": "The type of document",
+            "const": "Package"
+        },        
+        "name": { 
+            "description": "The name of the environment.",
+            "@id": "schema:name",
+            "allOf": [{ "$ref": "name.schema.json" }]
+        }
+    },
+    "required": ["name"],
+    "additionalProperties": false,
+    "definitions": {}
+}

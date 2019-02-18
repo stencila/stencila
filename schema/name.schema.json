@@ -1,0 +1,9 @@
+{
+    "$id": "https://stencila.github.com/schema/01-draft/name.schema.json",
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "title": "name",
+    "description": "Name of an instance (should resolve to content that can be loaded as the expected type).",
+    "type": "string",
+    "pattern": "^[a-z][a-z0-9-]*$",
+    "$comment": "A string starting with a lowercase letter and only including lowercase letters, digits and hyphens."
+}

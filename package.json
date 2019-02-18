@@ -1,0 +1,29 @@
+{
+  "name": "@stencila/schema",
+  "version": "0.7.0",
+  "description": "Stencila schema and other specifications",
+  "scripts": {
+    "test": "node validate-schema.js",
+    "build": "npm run build:jsonld && npm run build:ts",
+    "build:jsonld": "node schema-to-jsonld.js",
+    "build:ts": "node schema-to-typescript.js",
+    "clean": "rimraf jsonld ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stencila/schema.git"
+  },
+  "author": "Stencila schema contributors https://github.com/stencila/schema/contributors",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/stencila/schema/issues"
+  },
+  "homepage": "https://stencila.github.io/schema",
+  "dependencies": {},
+  "devDependencies": {
+    "ajv": "^6.9.1",
+    "fs-extra": "^7.0.1",
+    "json-schema-to-typescript": "^6.1.1",
+    "rimraf": "^2.6.3"
+  }
+}

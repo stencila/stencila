@@ -1,4 +1,6 @@
 {
-    "autoDocstring.docstringFormat": "sphinx",
-    "python.pythonPath": "/usr/bin/python3"
+    "yaml.schemas": {
+        "./schema/Environment.schema.json": "*.environ.yaml",
+        "./schema/Session.schema.json": "*.session.yaml"
+    }
 }
