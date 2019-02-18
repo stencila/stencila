@@ -1,8 +1,0 @@
-/.rpt2_cache
-/build
-/coverage
-/dist
-/docs
-/node_modules
-/tests/comms/browserTests*.js
-/tests/comms/webWorker*.js
