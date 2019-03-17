@@ -1,0 +1,26 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema#CreativeWork
+title: CreativeWork
+description: The most generic kind of creative work, including books, movies, photographs, software programs, etc. https://schema.org/CreativeWork
+'@id': schema:CreativeWork
+properties:
+  type:
+    description: The type of node.
+    type: string
+    default: CreativeWork
+  authors:
+    '@id': schema:author
+    description: The authors of this content. 
+    type: array
+    items:
+      anyOf: 
+        - $ref: Person.schema.yaml
+        - $ref: Organization.schema.yaml
+  citations:
+    '@id': schema:citation
+    description: Citations or references to another creative work, such as another publication, web page, scholarly article, etc.
+    type: array
+    items:
+      anyOf:
+        - type: string
+        - $ref: CreativeWork.schema.yaml

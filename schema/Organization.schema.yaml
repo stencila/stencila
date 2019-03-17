@@ -1,0 +1,11 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema#Organization
+title: Organization
+'@id': schema:Organization
+description: An organization such as a school, NGO, corporation, club, etc. https://schema.org/Organization.
+allOf:
+  - $ref: Thing.schema.yaml
+  - properties:
+      address:
+        '@id': schema:address
+        type: string

@@ -1,0 +1,15 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema#Text
+title: Text
+description: Some text
+type: object
+properties:
+  type:
+    description: The type of node.
+    type: string
+    const: Text
+  value:
+    '@id': schema:value
+additionalProperties: false
+required:
+  - type

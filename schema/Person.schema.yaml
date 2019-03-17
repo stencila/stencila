@@ -1,0 +1,24 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema#Person
+title: Person
+'@id': schema:Person
+description: A person (alive, dead, undead, or fictional). https://schema.org/Person.
+allOf:
+  - $ref: Thing.schema.yaml
+  - properties:
+      emails:
+        '@id': schema:email
+        type: array
+        items:
+          type: string
+          format: email
+      familyNames:
+        '@id': schema:familyName
+        type: array
+        items:
+          type: string
+      givenNames:
+        '@id': schema:givenName
+        type: array
+        items:
+          type: string

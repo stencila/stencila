@@ -1,0 +1,19 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema#Table
+title: Table
+description: |
+  A table within an executable document.
+type: object
+properties:
+  type:
+    description: The type of node.
+    type: string
+    const: Table
+  value:
+    '@id': https://stencila.github.com/schema#cells
+    description: |
+      An array of cells in the table.
+    type: array
+    items:
+      $ref: TableCell.schema.yaml
+additionalProperties: false

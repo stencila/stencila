@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema#TableCell
+title: TableCell
+description: |
+  A cell within a `Table`.
+type: object
+properties:
+  type:
+    description: The type of node.
+    type: string
+    const: TableCell
+  name:
+    '@id': schema:name
+    description: |
+      The name of the cell. Cell's have an implicit name derived from their position in the table 
+      e.g. `C4` for the cell in the third column and fourth row. However this name can be overridden
+      with an explicit name, e.g. `rate`.
+    allOf:
+      - $ref: name.schema.yaml
+  position:
+    '@id': schema:position
+    description: |
+      The position of the cell in the table described using a zero indexed `[col, row]` integer pair. 
+      When missing, this should be inferred from the cell's name when the 
+      cell matches the `^[A-Z]+[1-9][0-9]*$` pattern e.g. `C4` = `[2, 3]`
+    type: array
+    items:
+      - type: integer
+        minimum: 0
+    minItems: 2
+    maxItems: 2
+  colspan:
+    '@id': stencila:colspan
+    description: |
+      How many columns the cell extends.
+    $comment: Based on the HTML `colspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
+    type: integer
+    minimum: 0
+    maximum: 1000
+    default: 1
+  rowspan:
+    '@id': stencila:rowspan
+    description: |
+      How many columns the cell extends.
+    $comment: Based on the HTML `rowspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
+    type: integer
+    minimum: 0
+    maximum: 65534
+    default: 1
+  value:
+    '@id': schema:value
+    description: |
+      Contents of the table cell.
+    $comment: Currently there are no vaildations on TableCell values. See TableCell.md for more discussion.s
+additionalProperties: false
