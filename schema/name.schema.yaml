@@ -1,0 +1,7 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema#name
+title: name
+description: Name of a value.
+type: string
+pattern: ^[a-zA-Z][a-zA-Z0-9]*$
+$comment: A string starting with a letter and only including letters and digits.
