@@ -10,6 +10,12 @@ allOf:
         description: The type of node.
         type: string
         const: Document
+      environment:
+        '@id': stencila:environment
+        description: |
+          The computational environment in which the document should be executed.
+        allOf:
+          - $ref: Environment.schema.yaml
       value:
         '@id': 'stencila:value'
         description: The primary value of the document.

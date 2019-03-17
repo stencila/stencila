@@ -9,10 +9,13 @@
 const path = require('path')
 
 const fs = require('fs-extra')
+const glob = require('glob')
+const yaml = require('js-yaml')
 
 const context = {
   // Contexts referred to
   schema: 'https://schema.org/',
+  bioschemas: 'http://bioschemas.org',
   codemeta: 'https://doi.org/10.5063/schema/codemeta-2.0',
   stencila: 'https://stencila.github.io/schema/01-draft',
 
@@ -23,8 +26,8 @@ const context = {
   id: '@id'
 }
 
-for (let filename of fs.readdirSync('schema')) {
-  const schema = fs.readJsonSync(path.join('schema', filename))
+for (let filename of glob.sync(path.join('schema', '*.schema.yaml'))) {
+  const schema = yaml.safeLoad(fs.readFileSync(filename))
   
   // Create a schema.org [`Class`](https://meta.schema.org/Class) for those
   // classes that are created by this schema, otherwise link to source.
@@ -73,4 +76,4 @@ for (let filename of fs.readdirSync('schema')) {
 const jsonld = {
   '@context': context
 }
-fs.writeJsonSync('schema.jsonld', jsonld, { spaces: 2 })
+fs.writeJsonSync(path.join('dist', 'schema.jsonld'), jsonld, { spaces: 2 })

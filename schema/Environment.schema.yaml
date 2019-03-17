@@ -31,7 +31,7 @@ properties:
         Source of environment definition. For example, a URL to a Dockerfile, a path to Singularity recipe file,
         or a path to a filesystem folder.,
     allOf:
-      - $ref: Source.schema.json
+      - type: string
 required:
   - type
   - name

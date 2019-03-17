@@ -2,7 +2,13 @@ const path = require('path')
 
 const fs = require('fs-extra')
 const jstt = require('json-schema-to-typescript')
- 
+
+// Generate Typescript type definitions
+
+const src = 'dist/Document.schema.json'
+const dest = 'dist/index.d.ts'
+console.log(`Generating "${dest}" from "${src}"`)
+
 const options = {
   bannerComment: `/* tslint:disable */
 /**
@@ -12,9 +18,6 @@ const options = {
  * to regenerate this file.
  */`
 }
-
-fs.mkdirp('ts')
-const src = 'schema/index.schema.json'
-const dest = 'ts/index.ts'
-console.log(`Generating "${dest}" from "${src}"`)
+fs.mkdirp('dist')
 jstt.compileFromFile(src, options).then(ts => fs.writeFileSync(dest, ts))
+
