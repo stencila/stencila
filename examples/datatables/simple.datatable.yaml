@@ -1,0 +1,13 @@
+type: Datatable
+columns:
+  - type: DatatableColumn
+    name: A
+    schema:
+      type: number
+    values:
+      - 1
+      - 2
+      - 3
+  - type: DatatableColumn
+    name: B
+    

@@ -1,0 +1,35 @@
+type: Datatable
+columns:
+  
+  - type: Foo
+    # Value is not accepted. Valid values: "DatatableColumn".
+  
+  - type: DatatableColumn
+    # Missing property "name".
+  
+  - type: DatatableColumn
+    name: 42
+    # Incorrect type. Expected "string"."
+  
+  - type: DatatableColumn
+    name: 'an invalid $ # name !'
+    # String does not match the pattern of "^[a-zA-Z][a-zA-Z0-9]*$".
+  
+  - type: DatatableColumn
+    name: A
+    meta: string
+    # Incorrect type. Expected "object".
+  
+  - type: DatatableColumn
+    name: B
+    values: 42
+    # Incorrect type. Expected "array".
+
+  - type: DatatableColumn
+    name: C
+    schema:
+      type: foo
+      # This is not getting detected in Gulpfile.js `test` (?)
+
+foo: bar
+# Property foo is not allowed.

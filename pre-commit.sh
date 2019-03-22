@@ -1,2 +1,2 @@
 #!/bin/sh
-make test
+npm run build
