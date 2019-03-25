@@ -22,6 +22,6 @@ allOf:
         type: array
         items:
           $ref: Sheet.schema.yaml
-additionalItems: false
+additionalProperties: false
 required:
   - type
