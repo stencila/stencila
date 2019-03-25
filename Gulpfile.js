@@ -181,7 +181,8 @@ function test () {
     .pipe(through2.obj((file, enc, cb) => {
       (async function () {
         const example = yaml.safeLoad(file.contents)
-        
+        if (!example) throw new Error(`Example seems to be empty: ${file.path}`)
+
         const type = example.type
         if (!type) throw new Error(`Example does not have a "type" property: ${file.path}`)
         let {schema, validator} = schemas[type] || {schema: undefined, validator: undefined}
