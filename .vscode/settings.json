@@ -1,6 +1,9 @@
 {
     "yaml.schemas": {
-        "./schema/Environment.schema.json": "*.environ.yaml",
-        "./schema/Session.schema.json": "*.session.yaml"
+        "https://json-schema.org/draft-07/schema": "*.schema.yaml",
+        "./dist/Document.schema.json": "*.document.yaml",
+        "./dist/Datatable.schema.json": "*.datatable.yaml",
+        "./dist/Environment.schema.json": "*.environ.yaml",
+        "./dist/Session.schema.json": "*.session.yaml",
     }
 }
