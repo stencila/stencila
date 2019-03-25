@@ -1,0 +1,5 @@
+type: ImageObject
+contentUrl:  example.com/image.png
+# String is not a URI: URI with a scheme is expected.
+caption: 42
+# Incorrect type. Expected "string".

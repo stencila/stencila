@@ -1,0 +1,6 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema#URL
+title: URL
+'@id': schema:URL
+type: string
+format: uri

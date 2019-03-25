@@ -1,0 +1,14 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema#ImageObject
+title: ImageObject
+'@id': schema:ImageObject
+description: |
+  An image file. https://schema.org/ImageObject
+allOf:
+  - $ref: MediaObject.schema.yaml
+  - properties:
+      caption:
+        '@id': schema:caption
+        description: |
+          The caption for this object.
+        type: string

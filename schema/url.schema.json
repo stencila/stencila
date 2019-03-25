@@ -1,9 +1,0 @@
-{
-    "$id": "https://stencila.github.com/schema/01-draft/name.schema.json",
-    "$schema": "https://json-schema.org/draft-07/schema",
-    "title": "URL",
-    "description": "URL of instance (should resolve to content that can be loaded as the expected type).",
-    "type": "string",
-    "format": "iri",
-    "$comment": "An Internationalized Resource Identifier (IRI; are URIs that use Unicode and thus are not limited to ASCII characters)."
-}
