@@ -23,21 +23,34 @@ allOf:
         items:
           type: string
       affiliations: 
+<<<<<<< HEAD
         '@id': schema:affiliation
+=======
+        '@id': schema:Organization
+>>>>>>> yaml: inital work on person and associated schemas
         type:  array
         items:
           $ref: Organization.schema.yaml  
       brand:
+<<<<<<< HEAD
          '@id': schema:brand
+=======
+         '@id': schema:Brand
+>>>>>>> yaml: inital work on person and associated schemas
          type: array
          items:
             $ref: Brand.schema.yaml
       contactPoint:
+<<<<<<< HEAD
           '@id': schema:contactPoint
+=======
+          '@id': schema:ContactPoint
+>>>>>>> yaml: inital work on person and associated schemas
           type: object
           items:
             $ref: ContactPoint.schema.yaml 
       funders:
+<<<<<<< HEAD
           '@id': schema:funder
           type: array
           items:
@@ -67,3 +80,9 @@ allOf:
 
       
           
+=======
+          anyOf:
+             - '@id': schema:Organization
+             - '@id': schema:Person
+          
+>>>>>>> yaml: inital work on person and associated schemas
