@@ -1,5 +1,5 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema#
+$id: https://stencila.github.com/schema/index.schema.json
 anyOf:
   - $ref: CreativeWork.schema.yaml
   - $ref: Datatable.schema.yaml

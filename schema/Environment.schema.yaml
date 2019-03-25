@@ -1,5 +1,5 @@
 $schema: https://json-schema.org/draft-07/schema
-$id: https://stencila.github.com/schema#Environment
+$id: https://stencila.github.com/schema/Environment.schema.json
 title: Environment
 description: A computational environment.
 properties:

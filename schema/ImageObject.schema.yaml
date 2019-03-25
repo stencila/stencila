@@ -1,5 +1,5 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema#ImageObject
+$id: https://stencila.github.com/schema/ImageObject.schema.json
 title: ImageObject
 '@id': schema:ImageObject
 description: |

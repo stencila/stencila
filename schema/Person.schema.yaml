@@ -1,5 +1,5 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema#Person
+$id: https://stencila.github.com/schema/Person.schema.json
 title: Person
 '@id': schema:Person
 description: A person (alive, dead, undead, or fictional). https://schema.org/Person.

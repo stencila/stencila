@@ -173,9 +173,13 @@ async function check () {
 function test () {
   const ajv = new Ajv({
     jsonPointers: true,
-    allErrors: true
+    allErrors: true,
+    loadSchema: uri => {
+      const match = uri.match(/https:\/\/stencila.github.com\/schema\/(.+)$/)
+      if (!match) throw new Error(`Not able to get schema from URI "${uri}"`)
+      return fs.readJSON(path.join('dist', match[1]))
+    }
   })
-  const schemas = {}
 
   return src('examples/**/*.{yaml,json}')
     .pipe(through2.obj((file, enc, cb) => {
@@ -185,28 +189,10 @@ function test () {
 
         const type = example.type
         if (!type) throw new Error(`Example does not have a "type" property: ${file.path}`)
-        let {schema, validator} = schemas[type] || {schema: undefined, validator: undefined}
-        if (!schema) {
-          schema = await fs.readJSON(`dist/${type}.schema.json`)
-          // It is necessary to bundle the schema to resolve the `$refs`
-          // refParser needs to be in the dist directory to properly resolve `$refs`
-          // that are local files in that directory
-          process.chdir('dist')
-          schema = await refParser.bundle(schema)
-          process.chdir('..')
-
-          // Ajv complains with "Error: id "http://json-schema.org/draft-07/schema" resolves to more than one schema"
-          // when it encounters the JSON Schema that we embed into our schema (regardless of whether its a local copy
-          // or remote URL). By deleting the `$id` we workaround this issue
-          function walk (node) {
-            if (typeof node !== 'object') return
-            if (node.$id === 'http://json-schema.org/draft-07/schema#') delete node.$id
-            for (let [key, child] of Object.entries(node)) walk(child)
-          }
-          walk(schema)
-
-          validator = ajv.compile(schema)
-          schemas[type] = {schema, validator}
+        let validator = ajv.getSchema(`https://stencila.github.com/schema/${type}.schema.json`)
+        if (!validator) {
+          let schema = await fs.readJSON(path.join('dist', type + '.schema.json'))
+          validator = await ajv.compileAsync(schema)
         }
 
         const valid = validator(example)
@@ -226,7 +212,7 @@ function test () {
             const json = JSON.stringify(yaml.safeLoad(contents))
             const textDoc = jls.TextDocument.create('foo://bar/file.json', 'json', 0, json)
             const jsonDoc = jls.getLanguageService({}).parseJSONDocument(textDoc)
-            const errors = jsonDoc.validate(textDoc, schema)
+            const errors = jsonDoc.validate(textDoc, validator.schema)
             
             for (let error of errors) {
               if (!contents.includes(error.message)){
@@ -236,7 +222,7 @@ function test () {
           }
         } else {
           if (!valid) {
-            const message = betterAjvErrors(schema, example, validator.errors, {
+            const message = betterAjvErrors(validator.schema, example, validator.errors, {
               format: 'cli',
               indent: 2
             })
