@@ -4,6 +4,7 @@ title: ContactPoint
 '@id': schema:ContactPoint
 description: A contact point—for example, a Customer Complaints department. https://schema.org/ContactPoint.
 allOf:
+  - $ref: Thing.schema.yaml
   - properties:
       availableLanguages:
         '@id': schema:availableLanguage
