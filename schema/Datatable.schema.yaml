@@ -4,17 +4,12 @@ title: Datatable
 '@id': stencila:Datatable
 description: A table of data.
 type: object
-properties:
-  type:
-    description: The type of node; always "Datatable".
-    type: string
-    const: Datatable
-  columns:
-    description: TODO
-    type: array
-    items:
-      $ref: DatatableColumn.schema.yaml
+allOf:
+  - $ref: CreativeWork.schema.yaml
+  - properties:
+      columns:
+        description: TODO
+        type: array
+        items:
+          $ref: DatatableColumn.schema.yaml
 value: columns
-additionalProperties: false
-required:
-  - type

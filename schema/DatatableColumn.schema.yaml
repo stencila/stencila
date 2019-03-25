@@ -2,28 +2,24 @@ $schema: http://json-schema.org/draft-07/schema#
 $id: https://stencila.github.com/schema#Datatable
 title: DatatableColumn
 '@id': stencila:DatatableColumn
-properties:
-  type:
-    description: The type of node.
-    type: string
-    enum: [DatatableColumn]
-  name:
-    description: Name of the column.
-    allOf:
-      - $ref: name.schema.yaml
-  meta:
-    description: Metadata for the column.
-    type: object
-  schema:
-    description: The schema to use to validate data in the column.
-    type: object
-    allOf:
-      - $ref: json-schema-draft-07.schema.json
-  values:
-    description: The values of the column.
-    type: array
+allOf:
+  - $ref: Thing.schema.yaml
+  - properties:
+      name:
+        description: Name of the column.
+        allOf:
+          - $ref: name.schema.yaml
+      meta:
+        description: Metadata for the column.
+        type: object
+      schema:
+        description: The schema to use to validate data in the column.
+        type: object
+        allOf:
+          - $ref: json-schema-draft-07.schema.json
+      values:
+        description: The values of the column.
+        type: array
 value: values
-additionalProperties: false
 required:
-  - type
   - name

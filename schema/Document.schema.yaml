@@ -6,10 +6,6 @@ description: |
 allOf:
   - $ref: CreativeWork.schema.yaml
   - properties:
-      type:
-        description: The type of node.
-        type: string
-        enum: [Document]
       environment:
         '@id': stencila:environment
         description: |
@@ -20,6 +16,3 @@ allOf:
         '@id': stencila:body
         description: The body of the document.
         type: array
-additionalProperties: false
-required:
-  - type

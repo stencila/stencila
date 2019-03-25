@@ -4,10 +4,6 @@ title: CreativeWork
 description: The most generic kind of creative work, including books, movies, photographs, software programs, etc. https://schema.org/CreativeWork
 '@id': schema:CreativeWork
 properties:
-  type:
-    description: The type of node.
-    type: string
-    default: CreativeWork
   authors:
     '@id': schema:author
     description: The authors of this content. 

@@ -5,6 +5,9 @@ title: Thing
 description: The most generic type of item https://schema.org/Thing.
 type: object
 properties:
+  type:
+    description: The type of node.
+    type: string
   description:
     '@id': schema:description
     description: A description of the item.
@@ -14,3 +17,5 @@ properties:
     description: The name of the item.
     allOf:
       - $ref: name.schema.yaml
+required:
+  - type
