@@ -22,3 +22,23 @@ allOf:
         type: array
         items:
           type: string
+      affiliations: 
+        '@id': schema:Organization
+        type:  array
+        items:
+          $ref: Organization.schema.yaml  
+      brand:
+         '@id': schema:Brand
+         type: array
+         items:
+            $ref: Brand.schema.yaml
+      contactPoint:
+          '@id': schema:ContactPoint
+          type: object
+          items:
+            $ref: ContactPoint.schema.yaml 
+      funders:
+          anyOf:
+             - '@id': schema:Organization
+             - '@id': schema:Person
+          
