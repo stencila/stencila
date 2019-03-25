@@ -24,4 +24,3 @@ allOf:
          type: array
          items:
             $ref: Product.schema.yaml
-
