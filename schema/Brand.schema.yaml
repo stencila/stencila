@@ -7,10 +7,11 @@ allOf:
   - $ref: Thing.schema.yaml
   - properties:
       logo:
+        '@id': schema:logo
         type: array
         items:
-          type: 
-             - $ref: url.schema.yaml
+          anyOf:
+             - $ref: URL.schema.yaml
              - $ref: ImageObject.schema.yaml             
       review:
         '@id': schema:review

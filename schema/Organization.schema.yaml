@@ -11,15 +11,18 @@ allOf:
         type: string
       brand:
         '@id': schema:brand
-        type:
+        type: object
+        items:
            $ref: Brand.schema.yaml
       contactPoint:
          '@id': schema:contactPoint
-         type:
+         type: object
+         items:
             $ref: ContactPoint.schema.yaml
       department:
          '@id': schema:department
-         type:
+         type: object
+         items:
             $ref: Organization.schema.yaml
       email:
          type: string
@@ -28,8 +31,9 @@ allOf:
           '@id': schema:funder
           type: array
           items:
-             - $ref: Organization.schema.yaml
-             - $ref: Person.schema.yaml
+             anyOf:
+                - $ref: Organization.schema.yaml
+                - $ref: Person.schema.yaml
       legalName:
           '@id': schema:legalName
           type: string
@@ -37,8 +41,8 @@ allOf:
         '@id': schema:logo
         type: array
         items:
-          type: 
-             - $ref: url.schema.yaml
+          anyOf: 
+             - $ref: URL.schema.yaml
              - $ref: ImageObject.schema.yaml             
       owns:
          '@id': schema:owns

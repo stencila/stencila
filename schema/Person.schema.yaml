@@ -41,8 +41,9 @@ allOf:
           '@id': schema:funder
           type: array
           items:
-             - $ref: Organization.schema.yaml
-             - $ref: Person.schema.yaml
+             anyOf:
+                - $ref: Organization.schema.yaml
+                - $ref: Person.schema.yaml
       honorificPrefix:
            '@id': schema:honorificPrefix
            type: string
