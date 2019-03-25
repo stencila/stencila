@@ -23,49 +23,21 @@ allOf:
         items:
           type: string
       affiliations: 
-<<<<<<< HEAD
-<<<<<<< HEAD
         '@id': schema:affiliation
-=======
-        '@id': schema:Organization
->>>>>>> yaml: inital work on person and associated schemas
-=======
-        '@id': schema:affiliation
->>>>>>> yaml: finished person and stubs for related schemas
         type:  array
         items:
           $ref: Organization.schema.yaml  
       brand:
-<<<<<<< HEAD
-<<<<<<< HEAD
          '@id': schema:brand
-=======
-         '@id': schema:Brand
->>>>>>> yaml: inital work on person and associated schemas
-=======
-         '@id': schema:brand
->>>>>>> yaml: finished person and stubs for related schemas
          type: array
          items:
             $ref: Brand.schema.yaml
       contactPoint:
-<<<<<<< HEAD
-<<<<<<< HEAD
           '@id': schema:contactPoint
-=======
-          '@id': schema:ContactPoint
->>>>>>> yaml: inital work on person and associated schemas
-=======
-          '@id': schema:contactPoint
->>>>>>> yaml: finished person and stubs for related schemas
           type: object
           items:
             $ref: ContactPoint.schema.yaml 
       funders:
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> yaml: finished person and stubs for related schemas
           '@id': schema:funder
           type: array
           items:
@@ -90,19 +62,6 @@ allOf:
           '@id': schema:Product
           type: array
           items: 
-             - $ref: Product.schema.yaml
-      
-      
-
-      
-<<<<<<< HEAD
-          
-=======
-          anyOf:
-             - '@id': schema:Organization
-             - '@id': schema:Person
-          
->>>>>>> yaml: inital work on person and associated schemas
-=======
-          
->>>>>>> yaml: finished person and stubs for related schemas
+            anyOf:
+               - '@id': schema:Organization
+               - '@id': schema:Person

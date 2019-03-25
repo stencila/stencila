@@ -7,18 +7,13 @@ allOf:
   - $ref: Thing.schema.yaml
   - properties:
       logo:
-        '@id': schema:logo
         type: array
         items:
-          anyOf:
+          anyOf: 
              - $ref: URL.schema.yaml
              - $ref: ImageObject.schema.yaml             
       review:
         '@id': schema:review
         type: string
 
-<<<<<<< HEAD
       
-=======
-      
->>>>>>> yaml: Brand and ContactPoint

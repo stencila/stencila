@@ -24,8 +24,4 @@ allOf:
          type: array
          items:
             $ref: Product.schema.yaml
-<<<<<<< HEAD
-            
-=======
-            
->>>>>>> yaml: Brand and ContactPoint
+
