@@ -16,4 +16,8 @@ allOf:
         '@id': schema:review
         type: string
 
+<<<<<<< HEAD
       
+=======
+      
+>>>>>>> yaml: Brand and ContactPoint
