@@ -9,19 +9,17 @@ allOf:
       type:
         description: The type of node.
         type: string
-        const: Document
+        enum: [Document]
       environment:
         '@id': stencila:environment
         description: |
           The computational environment in which the document should be executed.
         allOf:
           - $ref: Environment.schema.yaml
-      value:
-        '@id': 'stencila:value'
-        description: The primary value of the document.
+      body:
+        '@id': stencila:body
+        description: The body of the document.
         type: array
-        items:
-          $ref: Sheet.schema.yaml
 additionalProperties: false
 required:
   - type
