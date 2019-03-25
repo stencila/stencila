@@ -1,5 +1,5 @@
 $schema: https://json-schema.org/draft-07/schema,
-$id: https://stencila.github.com/schema/01-draft/Package.schema.json
+$id: https://stencila.github.com/schema/Package.schema.json
 title: Package
 description: A computational package.
 '@id': stencila:Package

@@ -1,5 +1,5 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema#Brand
+$id: https://stencila.github.com/schema/Brand.schema.json
 title: Brand
 '@id': schema:Brand
 description: A brand is a name used by an organization or business person for labeling a product, product group, or similar. https://schema.org/Brand.

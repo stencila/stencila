@@ -1,5 +1,5 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema#ContactPoint
+$id: https://stencila.github.com/schema/ContactPoint.schema.json
 title: ContactPoint
 '@id': schema:ContactPoint
 description: A contact point—for example, a Customer Complaints department. https://schema.org/ContactPoint.
