@@ -1,0 +1,11 @@
+type: Person
+honorificPrefix: 42
+# Incorrect type. Expected "string"
+givenNames: Peter
+# Incorrect type. Expected "array".
+familyNames:
+  - 42
+  # Incorrect type. Expected "string".
+emails:
+  - pete_at_example_com
+  # String is not an e-mail address.
