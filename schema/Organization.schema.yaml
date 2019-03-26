@@ -1,5 +1,5 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema#Organization
+$id: https://stencila.github.com/schema/Organization.schema.json
 title: Organization
 '@id': schema:Organization
 description: An organization such as a school, NGO, corporation, club, etc. https://schema.org/Organization.
@@ -9,3 +9,45 @@ allOf:
       address:
         '@id': schema:address
         type: string
+      brand:
+        '@id': schema:brand
+        type: object
+        items:
+           $ref: Brand.schema.yaml
+      contactPoint:
+         '@id': schema:contactPoint
+         type: object
+         items:
+            $ref: ContactPoint.schema.yaml
+      department:
+         '@id': schema:department
+         type: object
+         items:
+            $ref: Organization.schema.yaml
+      email:
+         type: string
+         format: email
+      funders:
+          '@id': schema:funder
+          type: array
+          items:
+             anyOf:
+                - $ref: Organization.schema.yaml
+                - $ref: Person.schema.yaml
+      legalName:
+          '@id': schema:legalName
+          type: string
+      logo:
+        '@id': schema:logo
+        type: array
+        items:
+          anyOf: 
+             - $ref: URL.schema.yaml
+             - $ref: ImageObject.schema.yaml             
+      owns:
+         '@id': schema:owns
+         type: array
+         items:
+              $ref: Product.schema.yaml
+            
+         

@@ -1,5 +1,5 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema#CreativeWork
+$id: https://stencila.github.com/schema/CreativeWork.schema.json
 title: CreativeWork
 description: The most generic kind of creative work, including books, movies, photographs, software programs, etc. https://schema.org/CreativeWork
 '@id': schema:CreativeWork

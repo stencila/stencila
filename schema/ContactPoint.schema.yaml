@@ -1,0 +1,27 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/ContactPoint.schema.json
+title: ContactPoint
+'@id': schema:ContactPoint
+description: A contact point—for example, a Customer Complaints department. https://schema.org/ContactPoint.
+allOf:
+  - $ref: Thing.schema.yaml
+  - properties:
+      availableLanguages:
+        '@id': schema:availableLanguage
+        type: array
+        items:
+          type: string
+      emails:
+        '@id': schema:email
+        type: array
+        items:
+          type: string
+          format: email
+      telephone:
+         '@id': schema:telephone
+         type: string
+      productsSupported:
+         '@id': schema:productsSupported
+         type: array
+         items:
+            $ref: Product.schema.yaml

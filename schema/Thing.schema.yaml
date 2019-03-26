@@ -1,5 +1,5 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema#Thing
+$id: https://stencila.github.com/schema/Thing.schema.json
 title: Thing
 '@id': schema:Thing
 description: The most generic type of item https://schema.org/Thing.
