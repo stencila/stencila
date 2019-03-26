@@ -61,9 +61,23 @@ In HTML5 metadata about the author can be included in two ways.
 ### Crossref
 
 `Person` is analogous to the Crossref Contributors (`<crossref:contributors>`) child element 
-[`<person_name>`](https://data.crossref.org/reports/help/schema_doc/4.4.0/relations_xsd.html#http___www.crossref.org_relations.xsd_person_name) which describes a person who contributed to authoring or editing an entity. 
+[`<person_name>`](https://data.crossref.org/reports/help/schema_doc/4.4.0/relations_xsd.html#http___www.crossref.org_relations.xsd_person_name) which describes a person who contributed to authoring or editing an entity. `<contributors:person-name>` has a number of child elements:
+
+| Stencila Schema | `<contributors:person-name>` |
+|-----------------|------------------------------|
+| givenNames      | given_name                   |
+| familyNames     | surname                      |
+| honorificSuffix | suffix                       |
+| affiliation     | affiliation                  |
 
 
-### Citation Style Language
 
-`Person` is analogous to the Citation Style Language schema property [`<author>`](https://raw.githubusercontent.com/citation-style-language/schema/master/csl-data.json)
+### Citation Style Language (CSL)
+
+`Person` is analogous to the JSON schema for CSL input data property [`<author>`](https://raw.githubusercontent.com/citation-style-language/schema/master/csl-data.json) which describes a person who contributed to authoring an entity. `<author>` has a number of child elements:
+
+| Stencila Schema | `<author>` |
+|-----------------|------------|
+| familyNames     | family     |
+| givenNames      | given      |
+| honorificSuffix | suffix     |
