@@ -1,0 +1,3 @@
+type: Text
+value: 42
+# Incorrect type. Expected "string".

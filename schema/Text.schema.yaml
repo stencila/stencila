@@ -2,15 +2,11 @@ $schema: http://json-schema.org/draft-07/schema#
 $id: https://stencila.github.com/schema/Text.schema.json
 title: Text
 '@id': stencila:Text
-description: Some text
-type: object
-properties:
-  type:
-    description: The type of node.
-    type: string
-    const: Text
-  value:
-    '@id': schema:value
-additionalProperties: false
-required:
-  - type
+description: Just text.
+allOf:
+  - $ref: Node.schema.yaml
+  - properties:
+      value:
+        '@id': schema:value
+        description: The text value
+        type: string
