@@ -74,14 +74,17 @@ function jsonld() {
                 '@id': cid
               }
             }
+          } else {
+            console.error(`Warning: @id is not defined at the top level in ${file.path}`)
           }
 
           // Create a [`Property`](https://meta.schema.org/Property)
           // TODO: Implement schema:rangeIncludes property - requires the
           // resolving `$refs`. See https://github.com/epoberezkin/ajv/issues/125#issuecomment-408960384
           // for an approach to that.
-          if (schema.properties) {
-            for (let [name, property] of Object.entries(schema.properties)) {
+          const typeProperties = schema.properties || (schema.allOf && schema.allOf[1] && schema.allOf[1].properties)
+          if (typeProperties) {
+            for (let [name, property] of Object.entries(typeProperties)) {
               const pid = property['@id']
               if (!pid) continue
               if (pid.startsWith('stencila:')) {
@@ -94,6 +97,9 @@ function jsonld() {
                     'schema:domainIncludes': [{ '@id': cid }]
                   }
                 } else {
+                  if (properties[name]['@id'] !== pid) {
+                    throw new Error(`Property "${name}" has more than one @id "${properties[name]['@id']}" and "${pid}"`)
+                  }
                   properties[name]['schema:domainIncludes'].push({ '@id': cid })
                 }
               } else {

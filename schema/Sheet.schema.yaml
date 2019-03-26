@@ -1,6 +1,7 @@
 $schema: http://json-schema.org/draft-07/schema#
 $id: https://stencila.github.com/schema/Sheet.schema.json
 title: Sheet
+'@id': stencila:Sheet
 description: |
   A sheet within an executable document.
 allOf:

@@ -1,6 +1,7 @@
 $schema: http://json-schema.org/draft-07/schema#
 $id: https://stencila.github.com/schema/Document.schema.json
 title: Document
+'@id': stencila:Document
 description: |
   An executable document.
 allOf:

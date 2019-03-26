@@ -1,6 +1,7 @@
 $schema: http://json-schema.org/draft-07/schema#
 $id: https://stencila.github.com/schema/TableCell.schema.json
 title: TableCell
+'@id': stencila:TableCell
 description: |
   A cell within a `Table`.
 type: object
