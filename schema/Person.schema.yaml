@@ -6,22 +6,6 @@ description: A person (alive, dead, undead, or fictional). https://schema.org/Pe
 allOf:
   - $ref: Thing.schema.yaml
   - properties:
-      emails:
-        '@id': schema:email
-        type: array
-        items:
-          type: string
-          format: email
-      familyNames:
-        '@id': schema:familyName
-        type: array
-        items:
-          type: string
-      givenNames:
-        '@id': schema:givenName
-        type: array
-        items:
-          type: string
       affiliations:
         '@id': schema:affiliation
         type: array
@@ -37,6 +21,17 @@ allOf:
         type: object
         items:
           $ref: ContactPoint.schema.yaml
+      emails:
+        '@id': schema:email
+        type: array
+        items:
+          type: string
+          format: email
+      familyNames:
+        '@id': schema:familyName
+        type: array
+        items:
+          type: string
       funders:
         '@id': schema:funder
         type: array
@@ -44,6 +39,11 @@ allOf:
           anyOf:
             - $ref: Organization.schema.yaml
             - $ref: Person.schema.yaml
+      givenNames:
+        '@id': schema:givenName
+        type: array
+        items:
+          type: string
       honorificPrefix:
         '@id': schema:honorificPrefix
         type: string
@@ -58,10 +58,3 @@ allOf:
         type: array
         items:
           - $ref: Organization.schema.yaml
-      owns:
-        '@id': schema:Product
-        type: array
-        items:
-          anyOf:
-            - '@id': schema:Organization
-            - '@id': schema:Person
