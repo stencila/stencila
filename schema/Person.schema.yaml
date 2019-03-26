@@ -22,46 +22,46 @@ allOf:
         type: array
         items:
           type: string
-      affiliations: 
+      affiliations:
         '@id': schema:affiliation
-        type:  array
+        type: array
         items:
-          $ref: Organization.schema.yaml  
+          $ref: Organization.schema.yaml
       brand:
-         '@id': schema:brand
-         type: array
-         items:
-            $ref: Brand.schema.yaml
+        '@id': schema:brand
+        type: array
+        items:
+          $ref: Brand.schema.yaml
       contactPoint:
-          '@id': schema:contactPoint
-          type: object
-          items:
-            $ref: ContactPoint.schema.yaml 
+        '@id': schema:contactPoint
+        type: object
+        items:
+          $ref: ContactPoint.schema.yaml
       funders:
-          '@id': schema:funder
-          type: array
-          items:
-             anyOf:
-                - $ref: Organization.schema.yaml
-                - $ref: Person.schema.yaml
+        '@id': schema:funder
+        type: array
+        items:
+          anyOf:
+            - $ref: Organization.schema.yaml
+            - $ref: Person.schema.yaml
       honorificPrefix:
-           '@id': schema:honorificPrefix
-           type: string
+        '@id': schema:honorificPrefix
+        type: string
       honorificSuffix:
-           '@id': schema:honorificSuffix
-           type: string
+        '@id': schema:honorificSuffix
+        type: string
       jobTitle:
-           '@id': schema:jobTitle
-           type: string
+        '@id': schema:jobTitle
+        type: string
       memberOf:
-           '@id': schema:memberOf
-           type: array
-           items:
-              - $ref: Organization.schema.yaml
-      owns: 
-          '@id': schema:Product
-          type: array
-          items: 
-            anyOf:
-               - '@id': schema:Organization
-               - '@id': schema:Person
+        '@id': schema:memberOf
+        type: array
+        items:
+          - $ref: Organization.schema.yaml
+      owns:
+        '@id': schema:Product
+        type: array
+        items:
+          anyOf:
+            - '@id': schema:Organization
+            - '@id': schema:Person

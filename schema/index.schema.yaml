@@ -4,15 +4,15 @@ anyOf:
   - $ref: CreativeWork.schema.yaml
   - $ref: Datatable.schema.yaml
   - $ref: DatatableColumn.schema.yaml
-  - $ref: Document.schema.yaml 
-  - $ref: Environment.schema.yaml 
-  - $ref: Include.schema.yaml 
-  - $ref: Organization.schema.yaml 
-  - $ref: Package.schema.yaml 
-  - $ref: Person.schema.yaml 
-  - $ref: Session.schema.yaml 
-  - $ref: Sheet.schema.yaml 
-  - $ref: Table.schema.yaml 
-  - $ref: TableCell.schema.yaml 
-  - $ref: Text.schema.yaml 
+  - $ref: Document.schema.yaml
+  - $ref: Environment.schema.yaml
+  - $ref: Include.schema.yaml
+  - $ref: Organization.schema.yaml
+  - $ref: Package.schema.yaml
+  - $ref: Person.schema.yaml
+  - $ref: Session.schema.yaml
+  - $ref: Sheet.schema.yaml
+  - $ref: Table.schema.yaml
+  - $ref: TableCell.schema.yaml
+  - $ref: Text.schema.yaml
   - $ref: Thing.schema.yaml

@@ -28,8 +28,8 @@ properties:
   source:
     '@id': stencila:source
     description: |
-        Source of environment definition. For example, a URL to a Dockerfile, a path to Singularity recipe file,
-        or a path to a filesystem folder.,
+      Source of environment definition. For example, a URL to a Dockerfile, a path to Singularity recipe file,
+      or a path to a filesystem folder.,
     allOf:
       - type: string
 required:

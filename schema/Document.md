@@ -11,9 +11,10 @@
 `Document` is analagous, and structurally similar to, the JATS [`<article>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/article.html) element:
 
 > A journal article `<article>` may be divided into three parts:
->   1. the `<front>` (the metadata or header information for the article, such as the title and the published date);
->   2. the `<body>` (textual and graphical content of the article); and
->   3. any `<back>` (ancillary information such as a glossary, reference list, or appendix).
+>
+> 1. the `<front>` (the metadata or header information for the article, such as the title and the published date);
+> 2. the `<body>` (textual and graphical content of the article); and
+> 3. any `<back>` (ancillary information such as a glossary, reference list, or appendix).
 
 In JATS the `<body>` element is the "Main textual portion of the document that conveys the narrative content."
 
@@ -25,7 +26,7 @@ In JATS the `<body>` element is the "Main textual portion of the document that c
 
 ### OpenDocument
 
-`Document` is analagous to the OpenDocument `<office:document>` element is the root element in a single* OpenDocument XML document:
+`Document` is analagous to the OpenDocument `<office:document>` element is the root element in a single\* OpenDocument XML document:
 
 > The [`<office:document>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1414998_253892949) element is the root element of a document in OpenDocument format which is represented as a single XML document. It contains the entire document.
 
@@ -39,4 +40,4 @@ A `<office:document>` has child elements,
 
 Other properties of `Document` are analagous to those in [`<office:meta>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415014_253892949).
 
-*: In a multi-XML document OpenDocument properties are group together e.g. content in `<office:document-content>` and styles in `<office:document-styles>`.
+\*: In a multi-XML document OpenDocument properties are group together e.g. content in `<office:document-content>` and styles in `<office:document-styles>`.

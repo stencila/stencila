@@ -9,11 +9,9 @@ allOf:
       logo:
         type: array
         items:
-          anyOf: 
-             - $ref: URL.schema.yaml
-             - $ref: ImageObject.schema.yaml             
+          anyOf:
+            - $ref: URL.schema.yaml
+            - $ref: ImageObject.schema.yaml
       review:
         '@id': schema:review
         type: string
-
-      

@@ -6,10 +6,10 @@ description: The most generic kind of creative work, including books, movies, ph
 properties:
   authors:
     '@id': schema:author
-    description: The authors of this content. 
+    description: The authors of this content.
     type: array
     items:
-      anyOf: 
+      anyOf:
         - $ref: Person.schema.yaml
         - $ref: Organization.schema.yaml
   citations:

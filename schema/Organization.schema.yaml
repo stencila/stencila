@@ -13,41 +13,39 @@ allOf:
         '@id': schema:brand
         type: object
         items:
-           $ref: Brand.schema.yaml
+          $ref: Brand.schema.yaml
       contactPoint:
-         '@id': schema:contactPoint
-         type: object
-         items:
-            $ref: ContactPoint.schema.yaml
+        '@id': schema:contactPoint
+        type: object
+        items:
+          $ref: ContactPoint.schema.yaml
       department:
-         '@id': schema:department
-         type: object
-         items:
-            $ref: Organization.schema.yaml
+        '@id': schema:department
+        type: object
+        items:
+          $ref: Organization.schema.yaml
       email:
-         type: string
-         format: email
+        type: string
+        format: email
       funders:
-          '@id': schema:funder
-          type: array
-          items:
-             anyOf:
-                - $ref: Organization.schema.yaml
-                - $ref: Person.schema.yaml
+        '@id': schema:funder
+        type: array
+        items:
+          anyOf:
+            - $ref: Organization.schema.yaml
+            - $ref: Person.schema.yaml
       legalName:
-          '@id': schema:legalName
-          type: string
+        '@id': schema:legalName
+        type: string
       logo:
         '@id': schema:logo
         type: array
         items:
-          anyOf: 
-             - $ref: URL.schema.yaml
-             - $ref: ImageObject.schema.yaml             
+          anyOf:
+            - $ref: URL.schema.yaml
+            - $ref: ImageObject.schema.yaml
       owns:
-         '@id': schema:owns
-         type: array
-         items:
-              $ref: Product.schema.yaml
-            
-         
+        '@id': schema:owns
+        type: array
+        items:
+          $ref: Product.schema.yaml
