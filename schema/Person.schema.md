@@ -8,35 +8,47 @@
 
 ### JATS
 
-`Person` is analagous, and structurally similar to, the JATS [`<author>`](https://jats4r.org/authors-and-affiliations) element:
+`Person` is analagous, and structurally similar to, the JATS
+[`<contrib>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/contrib.html) element:
 
-> A journal author `<author>` may be divided into three parts:
->   1. the `<front>` (the metadata or header information for the article, such as the title and the published date);
->   2. the `<body>` (textual and graphical content of the article); and
->   3. any `<back>` (ancillary information such as a glossary, reference list, or appendix).
+> A journal author `<contrib>` links to a number of JATS elements which
+> are also properties of `Person` in Stencila schema. These JATS elements are:
 
-In JATS the `<body>` element is the "Main textual portion of the document that conveys the narrative content."
+| Stencila Schema | JATS |
+|-----------------|------|
+| familyNames     | surname       |
+| givenNames      | given-names     |
+| emails          | email     |
+| affiliations    | aff    |
+| brand           | custom-meta     |
+| contactPoint    | corresp     |
+| funders         | funding-source     |
+| honorificPrefix | prefix     |
+| honorificSuffix | suffix, degrees     |
+| jobTitle        | custom-meta     |
+| memberOf        | custom-meta     |
+| owns            | product     |
 
-### mdast
-
-`Document.body` is analagous to the mdast [`Root`](https://github.com/syntax-tree/mdast#root) node type which "represents a document":
-
-> Root can be used as the root of a tree, never as a child. Its content model is not limited to top-level content, but can contain any content with the restriction that all content must be of the same category.
+**Note** JATS includes `<custom-meta>` element 
+*This element can be used as an escape-hatch to record additional metadata that a publisher or archive wishes to preserve (so that the intellectual work to capture that content will not be lost) even though there is no direct expression for the metadata in the Tag Set.*
 
 ### OpenDocument
 
-`Document` is analagous to the OpenDocument `<office:document>` element is the root element in a single* OpenDocument XML document:
+http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415310_253892949
 
-> The [`<office:document>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1414998_253892949) element is the root element of a document in OpenDocument format which is represented as a single XML document. It contains the entire document.
+### HTML5 
+In HTML5 metadata about the author can be included in two ways. 
 
-A `<office:document>` has child elements,
+1. If there is a link to the detailed information about the author (eg. their homepage), `rel="author"` with `link` or `a` [should be used](https://html.spec.whatwg.org/multipage/links.html#link-type-author).
+Example:
 
-- meta-data related `<office:meta>`, `<office:settings>`
-- styles etc `<office:scripts>`, `<office:font-face-decls>`, `<office:styles>`, `<office:automatic-styles>`, `<office:master-styles>`
-- content `<office:body>`
+```
+<a href="http://johnsplace.com" rel="author">John</a>
+```
 
-`Document.body` is analagous to `<office:body>` which can have child elements like `<office:drawing>`, `<office:presentation>`, `<office:spreadsheet>`, `<office:text>`. The primary difference is that `Document.body` can only contain named `Sheet`s (which themselves contain text or spreadsheet type documents).
+2. If there is no link to the information about the author, `class="author"` attribute should be used with `area`, `span` and so on.
+Example:
 
-Other properties of `Document` are analagous to those in [`<office:meta>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415014_253892949).
-
-*: In a multi-XML document OpenDocument properties are group together e.g. content in `<office:document-content>` and styles in `<office:document-styles>`.
+```
+<span class="author">John</span>
+```
