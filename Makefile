@@ -3,8 +3,8 @@ all: setup check test build docs
 setup:
 	npm install
 
-hooks:
-	cp pre-commit.sh .git/hooks/pre-commit
+lint:
+	npm run lint
 
 check:
 	npm run check
