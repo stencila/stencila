@@ -15,7 +15,7 @@
 > are also properties of `Person` in Stencila schema. These JATS elements are:
 
 | Stencila Schema | JATS            |
-| --------------- | --------------- |
+|-----------------|-----------------|
 | familyNames     | surname         |
 | givenNames      | given-names     |
 | emails          | email           |
@@ -27,14 +27,18 @@
 | honorificSuffix | suffix, degrees |
 | jobTitle        | custom-meta     |
 | memberOf        | custom-meta     |
-| owns            | product         |
 
 **Note** JATS includes `<custom-meta>` element
 _This element can be used as an escape-hatch to record additional metadata that a publisher or archive wishes to preserve (so that the intellectual work to capture that content will not be lost) even though there is no direct expression for the metadata in the Tag Set._
 
 ### OpenDocument
 
-http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415310_253892949
+`Person` is analagous to the OpenDocument Author Fields element which is the elements in a single* OpenDocument XML document:
+
+> The [Author Fields](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415310_253892949) elements are: 
+> - The <text:author-name> element represents the full name of the author of a document.
+> - The <text:author-initials> element represents the initials of the author of a document.
+
 
 ### HTML5
 
@@ -53,3 +57,13 @@ In HTML5 metadata about the author can be included in two ways.
 ```
 <span class="author">John</span>
 ```
+
+### Crossref
+
+`Person` is analogous to the Crossref Contributors (`<crossref:contributors>`) child element 
+[`<person_name>`](https://data.crossref.org/reports/help/schema_doc/4.4.0/relations_xsd.html#http___www.crossref.org_relations.xsd_person_name) which describes a person who contributed to authoring or editing an entity. 
+
+
+### Citation Style Language
+
+`Person` is analogous to the Citation Style Language schema property [`<author>`](https://raw.githubusercontent.com/citation-style-language/schema/master/csl-data.json)
