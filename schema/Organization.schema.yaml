@@ -37,15 +37,3 @@ allOf:
       legalName:
         '@id': schema:legalName
         type: string
-      logo:
-        '@id': schema:logo
-        type: array
-        items:
-          anyOf:
-            - $ref: URL.schema.yaml
-            - $ref: ImageObject.schema.yaml
-      owns:
-        '@id': schema:owns
-        type: array
-        items:
-          $ref: Product.schema.yaml
