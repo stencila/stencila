@@ -1,0 +1,52 @@
+type: Organization
+address:
+    - "12 Random Road, Random Town, Aotearoa"
+brand:
+    logo: 
+     - https://stenci.la/img/icons/stencil-machine.svg
+    review: 
+     - "Awful. Broke my computer and research."
+contactPoint:
+    availableLanguages:
+       - "English"
+       - "French"
+    emails:
+       - "english@email.com"
+       - "french@email.com"
+    telephone:
+       - "00649775673"
+     productSupported:
+        - brand
+        - logo
+        - productID
+
+      department:
+        '@id': schema:department
+        type: object
+        items:
+          $ref: Organization.schema.yaml
+      email:
+        type: string
+        format: email
+      funders:
+        '@id': schema:funder
+        type: array
+        items:
+          anyOf:
+            - $ref: Organization.schema.yaml
+            - $ref: Person.schema.yaml
+      legalName:
+        '@id': schema:legalName
+        type: string
+      logo:
+        '@id': schema:logo
+        type: array
+        items:
+          anyOf:
+            - $ref: URL.schema.yaml
+            - $ref: ImageObject.schema.yaml
+      owns:
+        '@id': schema:owns
+        type: array
+        items:
+          $ref: Product.schema.yaml
