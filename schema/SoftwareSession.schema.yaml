@@ -1,0 +1,27 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/SoftwareSession.schema.json
+title: SoftwareSession
+'@id': stencila:SoftwareSession
+description: |
+  Represents a runtime session with the resources and image that is required by software to execute.
+allOf:
+  - $ref: Thing.schema.yaml
+  - properties:
+      volumeMounts:
+        '@id': stencila:volumeMount
+        description: Volumes to mount in the session.
+        type: array
+        items:
+          - $ref: Mount.schema.yaml
+      cpuResource:
+        '@id': stencila:cpuResource
+        $ref: ResourceParameters.schema.yaml
+      memoryResource:
+        '@id': stencila:memoryResource
+        $ref: ResourceParameters.schema.yaml
+      environment:
+        '@id': stencila:environment
+        description: Definition of the environment to execute this session in.
+        $ref: Environment.schema.yaml
+required:
+  - environment

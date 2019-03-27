@@ -1,0 +1,8 @@
+type: SoftwareSourceCode
+maintainers:
+# invalid, should be People or Organizations not just strings
+  - Joe Smith
+  - Jane Doe
+
+# invalid, should be a URL
+codeRepository: my-repo.git

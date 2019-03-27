@@ -1,0 +1,29 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/Mount.schema.json
+'@id': stencila:Mount
+title: Mount
+description: |
+  Describes a volume mount from a host to container.
+allOf:
+  - $ref: Thing.schema.yaml
+  - properties:
+      mountSource:
+        '@id': stencila:mountSource
+        description: The mount source directory on the host.
+        type: string
+      mountDestination:
+        '@id': stencila:mountDestination
+        description: The mount location inside the container.
+        type: string
+      mountOptions:
+        '@id': stencila:mountOptions
+        type: array
+        description: A list of options to use when applying the mount.
+        items: 
+          - type: string
+      mountType:
+        '@id': stencila:mountType
+        type: string
+        description: The type of mount.
+required:
+  - mountDestination
