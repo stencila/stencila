@@ -1,7 +1,5 @@
 type: Heading
 depth: 1
-children:
+content:
   - type: Text
     value: "Metamorphosis"
-  - type: asfa
-  # TODO: Why is this not erroring out?

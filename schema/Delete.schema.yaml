@@ -1,0 +1,18 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/Delete.schema.json
+title: Delete
+'@id': stencila:Delete
+description: Deleted textual content.
+properties:
+  type:
+    enum: [Delete]
+  content:
+    '@id': 'stencila:content'
+    description: |
+      The content that is marked for deletion. Often indicated using a strike through style.
+    allOf:
+      - $ref: inlineContent.schema.yaml
+additionalProperties: false
+required:
+  - type
+  - content
