@@ -12,11 +12,6 @@ allOf:
       type: object
       items:
         $ref: Brand.schema.yaml
-  - logo:
-       '@id': schema:logo
-       type: object
-       items:
-          $ref: ImageObject.schema.yaml
   - productID:
       '@id': schema:productID
       type: string
