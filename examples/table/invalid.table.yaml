@@ -1,0 +1,6 @@
+type: Table
+cells:
+  - true
+  - []
+  - type: Paragraph
+

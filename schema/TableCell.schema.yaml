@@ -4,6 +4,7 @@ title: TableCell
 '@id': stencila:TableCell
 description: |
   A cell within a `Table`.
+type: object
 properties:
   type:
     enum: [TableCell]
@@ -49,8 +50,9 @@ properties:
     '@id': schema:content
     description: |
       Contents of the table cell.
-    allOf:
-      - $ref: inlineContent.schema.yaml
+    type: array
+    items:
+      $ref: inlineContent.schema.yaml
 additionalProperties: false
 required:
   - type
