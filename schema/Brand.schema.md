@@ -1,4 +1,4 @@
-# `Organization`
+# `Brand`
 
 ## Extends
 

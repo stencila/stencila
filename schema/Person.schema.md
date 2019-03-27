@@ -11,8 +11,8 @@
 `Person` is analagous, and structurally similar to, the JATS
 [`<contrib>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/contrib.html) element:
 
-> A journal author `<contrib>` links to a number of JATS elements which
-> are also properties of `Person` in Stencila schema. These JATS elements are:
+A journal author `<contrib>` links to a number of JATS elements which
+are also properties of `Person` in Stencila Schema. These JATS elements are:
 
 | Stencila Schema | JATS            |
 |-----------------|-----------------|
