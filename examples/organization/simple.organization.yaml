@@ -16,7 +16,8 @@ contactPoint:
     telephone:
        - "00649775673"
     productSupported:
-      - brand:
+      - type: 
+      brand
            - logo: 
               - https://stenci.la/img/icons/stencil-machine.svg
            - review: 
@@ -29,6 +30,14 @@ department:
 email:
    - organization@organization.com
 funders:
-   - simple.person.yaml
+   - type: Person
+     givenNames:
+         - John
+         - Tom
+     familyNames:
+         - Smith
+     emails:
+         - john.smith@example.com
+     honorificPrefix: Dr
 legalName:
    - "University of Life"

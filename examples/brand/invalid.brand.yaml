@@ -4,4 +4,4 @@ logo:
 # Incorrect type. Expected URI
 review: 
   - https://stenci.la/review.html
-# Incorrect type. Expected a string
+# Incorrect type. Expected "string".
