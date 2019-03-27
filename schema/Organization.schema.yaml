@@ -19,11 +19,11 @@ allOf:
         type: object
         items:
           $ref: ContactPoint.schema.yaml
-      department:
+      departments:
         '@id': schema:department
-        type: object
+        type: array
         items:
-          $ref: Organization.schema.yaml
+          - $ref: Organization.schema.yaml
       email:
         type: string
         format: email

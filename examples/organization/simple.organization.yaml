@@ -1,6 +1,6 @@
 type: Organization
 address:
-    - "12 Random Road, Random Town, Aotearoa"
+    "12 Random Road, Random Town, Aotearoa"
 brand:
     logo: 
      - https://stenci.la/img/icons/stencil-machine.svg
@@ -14,21 +14,12 @@ contactPoint:
        - "english@email.com"
        - "french@email.com"
     telephone:
-       - "00649775673"
-    productSupported:
-      - type: 
-      brand
-           - logo: 
-              - https://stenci.la/img/icons/stencil-machine.svg
-           - review: 
-              - "Awful. Broke my computer and research."
-      - productID:
-              - "45754gjd"
-department:
-   - organization: 
+       - "+649775673"
+departments:
+   - type: organization 
       - department.organization.yaml
 email:
-   - organization@organization.com
+   organization@organization.com
 funders:
    - type: Person
      givenNames:
@@ -40,4 +31,4 @@ funders:
          - john.smith@example.com
      honorificPrefix: Dr
 legalName:
-   - "University of Life"
+  "University of Life"

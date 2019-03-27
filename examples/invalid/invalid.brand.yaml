@@ -1,7 +1,7 @@
 type: Brand
 logo:
-  - /home/yogi/img/photo.jpg
+  /home/yogi/img/photo.jpg
 # Incorrect type. Expected URI
 review: 
-  - https://stenci.la/review.html
+  https://stenci.la/review.html
 # Incorrect type. Expected "string".

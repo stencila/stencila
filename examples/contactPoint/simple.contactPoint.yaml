@@ -6,12 +6,4 @@ emails:
    - "english@email.com"
    - "french@email.com"
 telephone:
-  - "00649775673"
-productSupported:
-  - brand:
-      - logo: 
-          - https://stenci.la/img/icons/stencil-machine.svg
-      - review: 
-          - "Awful. Broke my computer and research."
-      - productID:
-          - "45754gjd"
+   "+649775673"
