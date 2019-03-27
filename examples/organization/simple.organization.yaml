@@ -23,17 +23,12 @@ contactPoint:
               - "Awful. Broke my computer and research."
       - productID:
               - "45754gjd"
-    department:
-        - organization: 
-            - department.organization.yaml
-    email:
-        - organization@organization.com
-    funders:
-        '@id': schema:funder
-        type: array
-        items:
-          anyOf:
-            - $ref: Organization.schema.yaml
-            - $ref: Person.schema.yaml
-    legalName:
-        - "University of Life"
+department:
+   - organization: 
+      - department.organization.yaml
+email:
+   - organization@organization.com
+funders:
+   - simple.person.yaml
+legalName:
+   - "University of Life"

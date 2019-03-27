@@ -1,0 +1,18 @@
+type: contactPoint
+availableLanguages: 675
+# Incorrect type. Expected array of strings. 
+emails:
+   - 22
+   - _email
+#Incorrect type. Expected email type (format).
+telephone:
+  - 897364
+#Incorrect type. Expected string matching a pattern  \+\d*[0-9]
+productSupported:
+  - brand:
+      - logo: 
+          - https://stenci.la/img/icons/stencil-machine.svg
+      - review: 
+          - "Awful. Broke my computer and research."
+      - productID:
+          - "45754gjd"
