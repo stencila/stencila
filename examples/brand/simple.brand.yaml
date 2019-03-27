@@ -1,9 +1,5 @@
-type: Organization
-address: 
-   - "12, Random Road, 1025 Random Town, Aotearoa"
-brand:
-   - logo:
-        - https://stenci.la/img/icons/stencil-machine.svg
-   - review: 
-        - "Awful. Broke my computer and research."
-
+type: Brand
+logo: 
+  - https://stenci.la/img/icons/stencil-machine.svg
+review: 
+  - "Awful. Broke my computer and research."
