@@ -7,3 +7,16 @@ description: |
   a haircut; or an episode of a TV show streamed online. https://schema.org/Product
 allOf:
   - $ref: Thing.schema.yaml
+  - brand:
+      '@id': schema:brand
+      type: object
+      items:
+        $ref: Brand.schema.yaml
+  - logo:
+       '@id': schema:logo
+       type: object
+       items:
+          $ref: ImageObject.schema.yaml
+  - productID:
+      '@id': schema:productID
+      type: string
