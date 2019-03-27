@@ -1,0 +1,26 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/CodeChunk.schema.json
+title: CodeChunk
+'@id': stencila:CodeChunk
+description: |
+  A chunk of code that can be embedded inside a document.
+allOf:
+  - $ref: SoftwareSourceCode.schema.yaml
+  - properties:
+      executionOutputs:
+        '@id': stencila:executionOutputs
+        description: Execution, display, or stream outputs.
+        oneOf:
+          - $ref: ExecuteResult.schema.yaml
+          - $ref: DisplayData.schema.yaml
+          - $ref: StreamOuput.schema.yaml
+          - $ref: ErrorOutput.schema.yaml
+      codeChunkMetadata:
+        '@id': stencila:codeChunkMetadata
+        description: Metadata regarding display and execution of the CodeChunk.
+        $ref: CodeChunkMetadata.schema.yaml
+      sourceCode:
+        '@id': stencila:sourceCode
+        description: |
+          The actual source code this code chunk contains.
+        type: string
