@@ -1,0 +1,4 @@
+oneOf:
+  - $ref: Text.schema.yaml
+  # TODO: Add other textual nodes
+  # https://github.com/syntax-tree/mdast#phrasingcontent
