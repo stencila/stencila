@@ -11,8 +11,8 @@
 `Person` is analagous, and structurally similar to, the JATS
 [`<contrib>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/contrib.html) element:
 
-> A journal author `<contrib>` links to a number of JATS elements which
-> are also properties of `Person` in Stencila schema. These JATS elements are:
+A journal author `<contrib>` links to a number of JATS elements which
+are also properties of `Person` in Stencila Schema. These JATS elements are:
 
 | Stencila Schema | JATS            |
 |-----------------|-----------------|
@@ -33,9 +33,9 @@ _This element can be used as an escape-hatch to record additional metadata that 
 
 ### OpenDocument
 
-`Person` is analagous to the OpenDocument Author Fields element which is the elements in a single* OpenDocument XML document:
+`Person` is analagous to the OpenDocument `Author Fields` element which is the elements in a single* OpenDocument XML document:
 
-> The [Author Fields](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415310_253892949) elements are: 
+> The [`Author Fields`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415310_253892949) elements are: 
 > - The <text:author-name> element represents the full name of the author of a document.
 > - The <text:author-initials> element represents the initials of the author of a document.
 

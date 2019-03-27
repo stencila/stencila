@@ -20,8 +20,3 @@ allOf:
       telephone:
         '@id': schema:telephone
         type: string
-      productsSupported:
-        '@id': schema:productsSupported
-        type: array
-        items:
-          $ref: Product.schema.yaml
