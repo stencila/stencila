@@ -20,3 +20,4 @@ allOf:
       telephone:
         '@id': schema:telephone
         type: string
+        pattern: '\+\d*[0-9]'
