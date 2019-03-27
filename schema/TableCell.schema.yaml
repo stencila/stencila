@@ -4,12 +4,9 @@ title: TableCell
 '@id': stencila:TableCell
 description: |
   A cell within a `Table`.
-type: object
 properties:
   type:
-    description: The type of node.
-    type: string
-    const: TableCell
+    enum: [TableCell]
   name:
     '@id': schema:name
     description: |
@@ -48,9 +45,13 @@ properties:
     minimum: 0
     maximum: 65534
     default: 1
-  value:
-    '@id': schema:value
+  content:
+    '@id': schema:content
     description: |
       Contents of the table cell.
-    $comment: Currently there are no vaildations on TableCell values. See TableCell.md for more discussion.s
+    allOf:
+      - $ref: inlineContent.schema.yaml
 additionalProperties: false
+required:
+  - type
+  - content

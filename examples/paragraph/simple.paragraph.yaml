@@ -1,14 +1,10 @@
 type: Paragraph
 content:
-  - type: Text
-    value: Some text with some
+  - Some text with some
   - type: Emphasis
     content:
-      - type: Text
-        value: emphasised words
-  - type: Text
-    value: ' and '
+      - emphasised words
+  - ' and '
   - type: Strong
     content: 
-      - type: Text
-        value: some strongly emphasised words
+      - some strongly emphasised words

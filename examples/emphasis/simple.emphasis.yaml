@@ -1,4 +1,4 @@
 type: Emphasis
 content:
-  - type: Text
-    value: This is some text
+  - Some emphasied text
+

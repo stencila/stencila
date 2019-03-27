@@ -1,0 +1,6 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/Expression.schema.json
+title: Expression
+description: An expression.
+allOf:
+  - $ref: SoftwareSourceCode.schema.yaml

@@ -9,8 +9,9 @@ properties:
   content:
     '@id': 'stencila:content'
     description: The content that is emphasised.
-    allOf:
-      - $ref: inlineContent.schema.yaml
+    type: array
+    items:
+      $ref: inlineContent.schema.yaml
 additionalProperties: false
 required:
   - type
