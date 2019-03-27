@@ -11,8 +11,11 @@ telephone:
 productSupported:
   - brand:
       - logo: 
-          - https://stenci.la/img/icons/stencil-machine.svg
+          - example.com/logo
+#Incorrect type. Expected an URI.
       - review: 
-          - "Awful. Broke my computer and research."
+          - 22
+#Incorrect type. Expected a string.
       - productID:
-          - "45754gjd"
+          - _456
+#Incorrect type. Expected a string.
