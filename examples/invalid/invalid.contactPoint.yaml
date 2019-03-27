@@ -1,10 +1,10 @@
-type: contactPoint
+type: ContactPoint
 availableLanguages: 675
-# Incorrect type. Expected an array of string. 
+# Incorrect type. Expected "array". 
 emails:
    - 22
    - _email
-#Incorrect type. Expected email type (format).
+# Incorrect type. Expected "string".
 telephone:
    897364
-#Incorrect type. Expected string matching a pattern  \+\d*[0-9]
+# Incorrect type. "Expected string".

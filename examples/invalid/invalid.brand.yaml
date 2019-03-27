@@ -1,7 +1,7 @@
 type: Brand
 logo:
   /home/yogi/img/photo.jpg
-# Incorrect type. Expected URI
+  # Incorrect type. Expected a URI.
 review: 
   https://stenci.la/review.html
-# Incorrect type. Expected "string".
+  # Incorrect type. Expected "string".

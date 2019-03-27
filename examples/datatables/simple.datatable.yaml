@@ -1,4 +1,4 @@
-type: Datatable
+type: Datatatable
 columns:
   - type: DatatableColumn
     name: A
