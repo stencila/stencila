@@ -15,38 +15,25 @@ contactPoint:
        - "french@email.com"
     telephone:
        - "00649775673"
-     productSupported:
-        - brand
-        - logo
-        - productID
-
-      department:
-        '@id': schema:department
-        type: object
-        items:
-          $ref: Organization.schema.yaml
-      email:
-        type: string
-        format: email
-      funders:
+    productSupported:
+      - brand:
+           - logo: 
+              - https://stenci.la/img/icons/stencil-machine.svg
+           - review: 
+              - "Awful. Broke my computer and research."
+      - productID:
+              - "45754gjd"
+    department:
+        - organization: 
+            - department.organization.yaml
+    email:
+        - organization@organization.com
+    funders:
         '@id': schema:funder
         type: array
         items:
           anyOf:
             - $ref: Organization.schema.yaml
             - $ref: Person.schema.yaml
-      legalName:
-        '@id': schema:legalName
-        type: string
-      logo:
-        '@id': schema:logo
-        type: array
-        items:
-          anyOf:
-            - $ref: URL.schema.yaml
-            - $ref: ImageObject.schema.yaml
-      owns:
-        '@id': schema:owns
-        type: array
-        items:
-          $ref: Product.schema.yaml
+    legalName:
+        - "University of Life"
