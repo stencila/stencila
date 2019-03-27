@@ -2,7 +2,7 @@
 
 ## Extends
 
-`ContactPoint` extends `Thing`.
+`Organization` extends `Thing`.
 
 ## Related
 
