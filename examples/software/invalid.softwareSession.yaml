@@ -1,0 +1,8 @@
+type: SoftwareSession
+# Missing property "environment".
+cpuResource:
+  type: ResourceParameters
+  # Invalid, requested must be > 0
+  requested: -1
+  # Invalid, limit but be > 0
+  limit: -2

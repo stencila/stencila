@@ -1,13 +1,9 @@
-$schema: https://json-schema.org/draft-07/schema
+$schema: http://json-schema.org/draft-07/schema#
 $id: https://stencila.github.com/schema/Environment.schema.json
 title: Environment
 '@id': stencila:Environment
 description: A computational environment.
 properties:
-  type:
-    description: The type of document
-    type: string
-    const: Environment
   extends:
     '@id': stencila:extends
     description: Other environments that this environment extends by adding or removing packages.,
@@ -26,13 +22,12 @@ properties:
     type: array
     items:
       $ref: Package.schema.yaml
-  source:
-    '@id': stencila:source
+  environmentSource:
+    '@id': stencila:environmentSource
     description: |
       Source of environment definition. For example, a URL to a Dockerfile, a path to Singularity recipe file,
       or a path to a filesystem folder.,
     allOf:
       - type: string
 required:
-  - type
   - name

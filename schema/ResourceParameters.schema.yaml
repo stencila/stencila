@@ -1,0 +1,17 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/ResourceParameters.schema.json
+title: ResourceParameters
+'@id': stencila:ResourceParameters
+description: |
+  Describes limits or requested amounts for a particular resource (e.g. memory or CPU). 
+properties:
+  resourceLimit:
+    '@id': stencila:resourceLimit
+    description: The maximum amount of the resource that can be used.
+    type: number
+    minimum: 0
+  resourceRequested:
+    '@id': stencila:resourceRequested
+    description: The amount of the resource that has been requested (and possibly reserved).
+    type: number
+    minimum: 0

@@ -1,5 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 $id: https://stencila.github.com/schema/index.schema.json
+'@id': stencila:index
 anyOf:
   - $ref: CreativeWork.schema.yaml
   - $ref: Datatable.schema.yaml
@@ -7,10 +8,13 @@ anyOf:
   - $ref: Document.schema.yaml
   - $ref: Environment.schema.yaml
   - $ref: Include.schema.yaml
+  - $ref: Mount.schema.yaml
   - $ref: Organization.schema.yaml
   - $ref: Package.schema.yaml
   - $ref: Person.schema.yaml
-  - $ref: Session.schema.yaml
+  - $ref: ResourceParameters.schema.yaml
+  - $ref: SoftwareSession.schema.yaml
+  - $ref: SoftwareSourceCode.schema.yaml
   - $ref: Sheet.schema.yaml
   - $ref: Table.schema.yaml
   - $ref: TableCell.schema.yaml

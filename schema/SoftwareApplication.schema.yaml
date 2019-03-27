@@ -1,0 +1,20 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/SoftwareApplication.schema.json
+title: SoftwareApplication
+description: |
+  A software application.
+'@id': stencila:SoftwareApplication
+allOf:
+  - $ref: CreativeWork.schema.yaml
+  - properties:
+      softwareRequirements:
+        '@id': schema:softwareRequirements
+        description: |
+          Component dependency requirements for application. This includes runtime environments and shared libraries that are not included in the application distribution package, but required to run the application (Examples: DirectX, Java or .NET runtime).
+        type: array
+        items:
+          - $ref: SoftwareApplication.schema.yaml
+      softwareVersion:
+        '@id': schema:softwareVersion
+        description: Version of the software instance.
+        type: string
