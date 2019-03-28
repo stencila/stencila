@@ -1,0 +1,25 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/List.schema.json
+title: List
+'@id': schema:ItemList
+description: |
+  A list of items.
+properties:
+  type:
+    enum: [List]
+  order:
+    '@id': 'schema:itemListOrder'
+    description: Type of ordering.
+    enum:
+      - ascending
+      - descending
+      - unordered
+  items:
+    '@id': 'schema:itemListElement'
+    type: array
+    items:
+      $ref: ListItem.schema.yaml
+additionalProperties: false
+required:
+  - type
+  - items

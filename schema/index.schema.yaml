@@ -23,6 +23,5 @@ anyOf:
   - $ref: SoftwareSourceCode.schema.yaml
   - $ref: Table.schema.yaml
   - $ref: TableCell.schema.yaml
-  - $ref: Text.schema.yaml
   - $ref: Thing.schema.yaml
   - $ref: URL.schema.yaml

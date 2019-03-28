@@ -1,0 +1,18 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/Emphasis.schema.json
+title: Emphasis
+'@id': stencila:Emphasis
+description: Emphasised textual content.
+properties:
+  type:
+    enum: [Emphasis]
+  content:
+    '@id': 'stencila:content'
+    description: The content that is emphasised.
+    type: array
+    items:
+      $ref: inlineContent.schema.yaml
+additionalProperties: false
+required:
+  - type
+  - content

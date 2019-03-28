@@ -1,0 +1,5 @@
+type: Paragraph
+content:
+  - type: Paragraph
+    content:
+      - This paragraph should not be here

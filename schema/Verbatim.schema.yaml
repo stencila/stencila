@@ -1,0 +1,16 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/Verbatim.schema.json
+title: Verbatim
+'@id': stencila:Verbatim
+description: Verbatim textual content.
+properties:
+  type:
+    enum: [Verbatim]
+  value:
+    '@id': schema:value
+    description: The text value.
+    type: string
+additionalProperties: false
+required:
+  - type
+  - value

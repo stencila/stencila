@@ -28,7 +28,6 @@ properties:
     oneOf:
       - $ref: Datatable.schema.yaml
       - $ref: Table.schema.yaml
-      - $ref: Text.schema.yaml
 additionalProperties: false
 required:
   - type

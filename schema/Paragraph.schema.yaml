@@ -1,0 +1,16 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/Paragraph.schema.json
+title: Paragraph
+"@id": stencila:Paragraph
+description: Paragraph
+type: object
+properties:
+  type:
+    enum: [Paragraph]
+  content:
+    type: array
+    items:
+      $ref: inlineContent.schema.yaml
+additionalProperties: false
+required:
+  - type

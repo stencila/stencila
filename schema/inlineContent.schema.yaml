@@ -1,0 +1,12 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/inlineContent.schema.json
+description: Inline content.
+anyOf:
+  - type: boolean
+  - type: integer
+  - type: number
+  - type: string
+  - $ref: Emphasis.schema.yaml
+  - $ref: Strong.schema.yaml
+  - $ref: Delete.schema.yaml
+  - $ref: Verbatim.schema.yaml
