@@ -3,8 +3,9 @@ availableLanguages: 675
 # Incorrect type. Expected "array". 
 emails:
    - 22
+   # Incorrect type. Expected "string".
    - _email
-# Incorrect type. Expected "string".
+   # String is not an e-mail address.
 telephone:
    897364
-# Incorrect type. "Expected string".
+# Incorrect type. "Expected string" matching pattern '\+\d*[0-9]'.

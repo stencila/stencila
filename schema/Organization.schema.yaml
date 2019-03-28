@@ -37,3 +37,4 @@ allOf:
       legalName:
         '@id': schema:legalName
         type: string
+        pattern: '/^[\p{L}*-]+$/u'

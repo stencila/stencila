@@ -1,34 +1,28 @@
 type: Organization
 address:
     - "12 Random Road, Random Town, Aotearoa"
+# Incorrect type. Expected "string".
 brand:
     logo: 
      - https://stenci.la/img/icons/stencil-machine.svg
     review: 
-     - "Awful. Broke my computer and research."
+       4567
 contactPoint:
     availableLanguages:
-       - "English"
-       - "French"
-    emails:
-       - "english@email.com"
-       - "french@email.com"
+       "English"
+    email:
+       "english AT email DOT com"
     telephone:
-       - "00649775673"
-    productSupported:
-      - brand:
-           - logo: 
-              - https://stenci.la/img/icons/stencil-machine.svg
-           - review: 
-              - "Awful. Broke my computer and research."
-      - productID:
-              - "45754gjd"
-department:
-   - organization: 
-      - department.organization.yaml
+       (00)64-9775673
+departments:
+   Computer Science
+# Incorrect type. Expected "array".
 email:
-   - organization@organization.com
+   mailto:organization@organization.com
+# String is not an e-mail address.   
 funders:
    - simple.person.yaml
+# Incorrect type. Expected "object". 
 legalName:
-   - "University of Life"
+   _o6794-7485
+# Incorrect type. Expected "string" matching pattern '/^[\p{L}*-]+$/u'.
