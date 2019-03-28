@@ -3,9 +3,12 @@ $id: https://stencila.github.com/schema/Brand.schema.json
 title: Brand
 '@id': schema:Brand
 description: A brand is a name used by an organization or business person for labeling a product, product group, or similar. https://schema.org/Brand.
+type: object
 allOf:
   - $ref: Thing.schema.yaml
   - properties:
+      type:
+        enum: [Brand]
       logo:
         description: |
            A logo of of the brand. It can be either a URL of the image or image itself.

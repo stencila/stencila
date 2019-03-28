@@ -7,15 +7,16 @@ description: |
   a haircut; or an episode of a TV show streamed online. https://schema.org/Product
 allOf:
   - $ref: Thing.schema.yaml
-  - brand:
-      '@id': schema:brand
-      description: |
-         Brand that the product is labelled with.
-      type: object
-      items:
-        $ref: Brand.schema.yaml
-  - productID:
-      '@id': schema:productID
-      description:  |
-         Product identification code.
-      type: string
+  - properties:
+      brand:
+        '@id': schema:brand
+        description: |
+          Brand that the product is labelled with.
+        type: object
+        allOf:
+          - $ref: Brand.schema.yaml
+      productID:
+        '@id': schema:productID
+        description:  |
+          Product identification code.
+        type: string

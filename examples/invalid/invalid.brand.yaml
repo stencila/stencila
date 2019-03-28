@@ -1,6 +1,6 @@
 type: Brand
 logo:
-  /home/yogi/img/photo.jpg
+  42
   # Incorrect type. Expected a URI.
 review: 
   https://stenci.la/review.html

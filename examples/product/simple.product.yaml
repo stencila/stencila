@@ -1,5 +1,6 @@
 type: Product
 brand:
+  type: Brand
   logo: 
      https://stenci.la/img/icons/stencil-machine.svg
   review: 
