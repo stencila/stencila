@@ -5,7 +5,7 @@ givenNames: Peter
 # Incorrect type. Expected "array".
 familyNames:
   - 42
-  # Incorrect type. Expected "string".
+# Incorrect type. Expected "string".
 emails:
   - pete_at_example_com
-  # String is not an e-mail address.
+# String is not an e-mail address.

@@ -1,9 +1,3 @@
-# `Organization`
-
-## Extends
-
-`Organization` extends `Thing`.
-
 ## Related
 
 ### JATS

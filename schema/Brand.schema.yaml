@@ -7,11 +7,13 @@ allOf:
   - $ref: Thing.schema.yaml
   - properties:
       logo:
-        type: array
-        items:
-          anyOf:
-            - $ref: URL.schema.yaml
-            - $ref: ImageObject.schema.yaml
+        description: |
+           A logo of of the brand. It can be either a URL of the image or image itself.
+        anyOf:
+          - $ref: URL.schema.yaml
+          - $ref: ImageObject.schema.yaml
       review:
         '@id': schema:review
+        description: |
+           Short review of the brand and/or the products it represents.
         type: string

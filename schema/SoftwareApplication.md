@@ -1,10 +1,4 @@
-# `SoftwareApplication`
-
-## Extends
-
-`SoftwareApplication` extends `CreativeWork`.
-
-## About
+## Description
 
 `SoftwareApplication` represents a software application that can be located by name and version. It may be fetched in binary format or some package manager (npm, pip, etc) could fetch and compile the source code.
 

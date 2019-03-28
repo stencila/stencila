@@ -1,9 +1,3 @@
-# `Person`
-
-## Extends
-
-`Person` extends `Thing`.
-
 ## Related
 
 ### JATS

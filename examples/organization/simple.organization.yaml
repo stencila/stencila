@@ -1,0 +1,34 @@
+type: Organization
+address:
+    "12 Random Road, Random Town, Aotearoa"
+brand:
+    logo: 
+     - https://stenci.la/img/icons/stencil-machine.svg
+    review: 
+     - "Awful. Broke my computer and research."
+contactPoint:
+    availableLanguages:
+       - "English"
+       - "French"
+    emails:
+       - "english@email.com"
+       - "french@email.com"
+    telephone:
+       - "+649775673"
+departments:
+   - type: organization 
+      - department.organization.yaml
+email:
+   organization@organization.com
+funders:
+   - type: Person
+     givenNames:
+         - John
+         - Tom
+     familyNames:
+         - Smith
+     emails:
+         - john.smith@example.com
+     honorificPrefix: Dr
+legalName:
+  University of Life

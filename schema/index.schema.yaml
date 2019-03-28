@@ -2,21 +2,27 @@ $schema: http://json-schema.org/draft-07/schema#
 $id: https://stencila.github.com/schema/index.schema.json
 '@id': stencila:index
 anyOf:
+  - $ref: Brand.schema.yaml
+  - $ref: ContactPoint.schema.yaml
   - $ref: CreativeWork.schema.yaml
   - $ref: Datatable.schema.yaml
   - $ref: DatatableColumn.schema.yaml
   - $ref: Document.schema.yaml
   - $ref: Environment.schema.yaml
+  - $ref: ImageObject.schema.yaml
   - $ref: Include.schema.yaml
   - $ref: Mount.schema.yaml
+  - $ref: name.schema.yaml
   - $ref: Organization.schema.yaml
   - $ref: Package.schema.yaml
   - $ref: Person.schema.yaml
   - $ref: ResourceParameters.schema.yaml
+  - $ref: Sheet.schema.yaml
+  - $ref: SoftwareApplication.schema.yaml
   - $ref: SoftwareSession.schema.yaml
   - $ref: SoftwareSourceCode.schema.yaml
-  - $ref: Sheet.schema.yaml
   - $ref: Table.schema.yaml
   - $ref: TableCell.schema.yaml
   - $ref: Text.schema.yaml
   - $ref: Thing.schema.yaml
+  - $ref: URL.schema.yaml
