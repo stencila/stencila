@@ -7,18 +7,24 @@ description: |
 allOf:
   - $ref: SoftwareSourceCode.schema.yaml
   - properties:
-      executionOutputs:
-        '@id': stencila:executionOutputs
-        description: Execution, display, or stream outputs.
-        oneOf:
-          - $ref: ExecuteResult.schema.yaml
-          - $ref: DisplayData.schema.yaml
-          - $ref: StreamOuput.schema.yaml
-          - $ref: ErrorOutput.schema.yaml
       codeChunkMetadata:
         '@id': stencila:codeChunkMetadata
         description: Metadata regarding display and execution of the CodeChunk.
         $ref: CodeChunkMetadata.schema.yaml
+      executionCount:
+        '@id': stencila:executionCount
+        description: The prompt number of the chunk. Null if the CodeChunk has not been executed.
+        type:
+          - 'integer'
+          - 'null'
+      executionOutputs:
+        '@id': stencila:executionOutputs
+        description: Execution, display, or stream outputs.
+        oneOf:
+          - $ref: ExecutionResultOutput.schema.yaml
+          - $ref: DisplayDataOutput.schema.yaml
+          - $ref: StreamOutput.schema.yaml
+          - $ref: ErrorOutput.schema.yaml
       sourceCode:
         '@id': stencila:sourceCode
         description: |

@@ -4,11 +4,15 @@ $id: https://stencila.github.com/schema/index.schema.json
 anyOf:
   - $ref: Brand.schema.yaml
   - $ref: ContactPoint.schema.yaml
+  - $ref: CodeChunk.schema.yaml
+  - $ref: CodeChunkMetadata.schema.yaml
   - $ref: CreativeWork.schema.yaml
   - $ref: Datatable.schema.yaml
   - $ref: DatatableColumn.schema.yaml
   - $ref: Document.schema.yaml
   - $ref: Environment.schema.yaml
+  - $ref: ErrorOutput.schema.yaml
+  - $ref: ExecutionResultOutput.schema.yaml
   - $ref: ImageObject.schema.yaml
   - $ref: Include.schema.yaml
   - $ref: Mount.schema.yaml
@@ -20,7 +24,9 @@ anyOf:
   - $ref: SoftwareApplication.schema.yaml
   - $ref: SoftwareSession.schema.yaml
   - $ref: SoftwareSourceCode.schema.yaml
+  - $ref: StreamOutput.schema.yaml
   - $ref: Table.schema.yaml
   - $ref: TableCell.schema.yaml
   - $ref: Thing.schema.yaml
+  - $ref: UnknownOutput.schema.yaml
   - $ref: URL.schema.yaml

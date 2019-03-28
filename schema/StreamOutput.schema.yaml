@@ -1,20 +1,22 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/StreamOuput.schema.json
-title: StreamOuput
-'@id': stencila:StreamOuput
+$id: https://stencila.github.com/schema/StreamOutput.schema.json
+title: StreamOutput
+'@id': stencila:StreamOutput
 description: |
   The output of a stream (stdout, stderr) as the result of code execution.
-properties:
-  outputType:
-      '@id': stencila:outputType
-      description: Type of output.
-      type: string
-      const: streamOutput
-  streamName:
-    '@id': stencila:streamName
-    description: The name of the stream that this output has been captured from (e.g. stdout, stderr).
-    type: string
-  outputText:
-      '@id': stencila:outputText
-      description: The stream text that has been ouput from an execution.
-      type: string
+allOf:
+  - $ref: CodeChunkOutputBase.schema.yaml
+  - properties:
+      outputType:
+        '@id': stencila:outputType
+        description: Type of output.
+        type: string
+        const: streamOutput
+      streamName:
+        '@id': stencila:streamName
+        description: The name of the stream that this output has been captured from (e.g. stdout, stderr).
+        type: string
+      outputText:
+        '@id': stencila:outputText
+        description: The stream text that has been output from an execution.
+        type: string

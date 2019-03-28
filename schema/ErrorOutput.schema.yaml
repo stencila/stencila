@@ -4,20 +4,23 @@ title: ErrorOutput
 '@id': stencila:ErrorOutput
 description: |
   The output of an execution if there was an error while executing.
-properties:
-  outputType:
-      '@id': stencila:outputType
-      description: Type of output.
-      type: string
-      const: errorOuput
-  errorName:
-    '@id': stencila:errorName
-    description: The name of the error or exception that occured.
-    type: string
-  errorMessage:
-    '@id': stencila:errorValue
-    description: The message associated with the error or exception. 
-  traceback:
-      '@id': stencila:traceback
-      description: The error traceback.
-      type: string
+allOf:
+  - $ref: CodeChunkOutputBase.schema.yaml
+  - properties:
+      outputType:
+        '@id': stencila:outputType
+        description: Type of output.
+        type: string
+        const: errorOuput
+      errorName:
+        '@id': stencila:errorName
+        description: The name of the error or exception that occured.
+        type: string
+      errorMessage:
+        '@id': stencila:errorValue
+        description: The message associated with the error or exception.
+        type: string
+      traceback:
+        '@id': stencila:traceback
+        description: The error traceback.
+        type: string
