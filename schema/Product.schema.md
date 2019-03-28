@@ -1,9 +1,3 @@
-# `Product`
-
-## Extends
-
-`Product` extends `Thing`.
-
 ## Related
 
 ### JATS

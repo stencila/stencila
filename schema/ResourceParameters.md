@@ -1,6 +1,4 @@
-# `ResourceParameters`
-
-## About
+## Description
 
 `ResourceParameters` is a generic class for representing any kind of resource that has the concept of a requested or reserved amount and a limit. For example, reserving an amount of memory but not going over the limit. Both `resourceRequested` and `resourceLimit` are optional and can be omitted as appropriate for a particular use case.
 

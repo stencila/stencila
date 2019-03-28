@@ -1,9 +1,3 @@
-# `SoftwareSession`
-
-## Extends
-
-`SoftwareSession` extends `Thing`.
-
 ## Related
 
 ### Open Containers Initiative

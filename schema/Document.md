@@ -1,9 +1,3 @@
-# `Document`
-
-## Extends
-
-`Document` extends `CreativeWork`.
-
 ## Related
 
 ### JATS

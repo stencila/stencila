@@ -1,9 +1,3 @@
-# `Brand`
-
-## Extends
-
-`Brand` extends `Thing`.
-
 ## Related
 
 ### JATS
