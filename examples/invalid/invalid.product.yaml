@@ -1,0 +1,10 @@
+type: Product
+brand:
+  logo: 
+    tty
+ # Incorrect type. Expected URI.
+  review: 
+    44
+ # Incorrect type. Expected "string".
+productID:
+    https://stenci.la/img/icons/stencil-machine.svg
