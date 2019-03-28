@@ -8,19 +8,27 @@ allOf:
   - properties:
       address:
         '@id': schema:address
+        description: |
+           Postal address for the organization.
         type: string
       brand:
         '@id': schema:brand
+        description:  |
+           Brand with the organization is connected with.
         type: object
         items:
           $ref: Brand.schema.yaml
       contactPoint:
         '@id': schema:contactPoint
+        description:  |
+           Correspondence/Contact point for the organization.
         type: object
         items:
           $ref: ContactPoint.schema.yaml
       departments:
         '@id': schema:department
+        description:  |
+           Departments within the organization. For example, Department of Computer Science, Research & Development etc.
         type: array
         items:
           - $ref: Organization.schema.yaml
@@ -29,6 +37,8 @@ allOf:
         format: email
       funders:
         '@id': schema:funder
+        description:  |
+           Organization(s) or person(s) funding the organization.
         type: array
         items:
           anyOf:
@@ -36,5 +46,7 @@ allOf:
             - $ref: Person.schema.yaml
       legalName:
         '@id': schema:legalName
+        description:  |
+           Legal name for the Organization. Should only include letters and spaces.
         type: string
-        pattern: '/^[\p{L}*-]+$/u'
+        pattern: '[a-zA-Z]'

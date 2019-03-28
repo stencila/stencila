@@ -11,7 +11,7 @@ contactPoint:
     availableLanguages:
        "English"
     email:
-       "english AT email DOT com"
+       "english@email.com"
     telephone:
        (00)64-9775673
 departments:
@@ -22,7 +22,7 @@ email:
 # String is not an e-mail address.   
 funders:
    - simple.person.yaml
-# Incorrect type. Expected "object". 
+# Incorrect type. Expected "object".  
 legalName:
    _o6794-7485
-# Incorrect type. Expected "string" matching pattern '/^[\p{L}*-]+$/u'.
+#String does not match the pattern of '[a-zA-Z]'.
