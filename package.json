@@ -11,6 +11,8 @@
     "build:jsonschema": "gulp jsonschema",
     "build:jsonld": "gulp jsonld",
     "build:typescript": "gulp typescript",
+    "release": "semantic-release",
+    "docs": "npm run docs:build",
     "docs:develop": "gatsby develop",
     "docs:build": "gatsby build",
     "watch": "gulp watch",
@@ -57,6 +59,7 @@
     "json-schema-to-typescript": "^6.1.1",
     "lint-staged": "^8.1.5",
     "prettier": "1.16.4",
+    "semantic-release": "^15.13.3",
     "through2": "^3.0.1",
     "typescript": "^3.3.4000",
     "vscode-json-languageservice": "^3.2.0"
