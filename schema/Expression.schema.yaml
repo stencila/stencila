@@ -4,3 +4,6 @@ title: Expression
 description: An expression.
 allOf:
   - $ref: SoftwareSourceCode.schema.yaml
+  - properties:
+      type:
+        enum: [Expression]
