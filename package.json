@@ -14,7 +14,7 @@
     "release": "semantic-release",
     "docs": "npm run docs:build",
     "docs:develop": "gatsby develop",
-    "docs:build": "gatsby build",
+    "docs:build": "gatsby build --prefix-paths",
     "watch": "gulp watch",
     "clean": "gulp clean"
   },

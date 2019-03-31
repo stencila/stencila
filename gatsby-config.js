@@ -1,4 +1,5 @@
 module.exports = {
+  pathPrefix: '/schema',
   siteMetadata: {
     title: `Stencila Schema`
   },
