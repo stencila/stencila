@@ -15,13 +15,13 @@ properties:
     description: The packages that this environment adds to the base environments listed under `extends` (if any).,
     type: array
     items:
-      $ref: Package.schema.yaml
+      $ref: SoftwareSourceCode.schema.yaml
   removes:
     '@id': stencila:removes
     description: The packages that this environment removes from the base environments listed under `extends` (if any).,
     type: array
     items:
-      $ref: Package.schema.yaml
+      $ref: SoftwareSourceCode.schema.yaml
   environmentSource:
     '@id': stencila:environmentSource
     description: |

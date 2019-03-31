@@ -14,7 +14,6 @@ anyOf:
   - $ref: Mount.schema.yaml
   - $ref: name.schema.yaml
   - $ref: Organization.schema.yaml
-  - $ref: Package.schema.yaml
   - $ref: Person.schema.yaml
   - $ref: ResourceParameters.schema.yaml
   - $ref: Sheet.schema.yaml
