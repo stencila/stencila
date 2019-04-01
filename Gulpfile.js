@@ -139,7 +139,7 @@ function jsonld() {
           ...[...Object.entries(properties)].sort()
         ])
           jsonld[key] = value
-        fs.writeJSONSync(path.join('dist', 'schema.jsonld'), jsonld, {
+        fs.writeJSONSync(path.join('dist', 'stencila.jsonld'), jsonld, {
           spaces: 2
         })
       })
