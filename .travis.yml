@@ -6,7 +6,7 @@ script:
   - npm run docs
 
 before_deploy:
-  # Move build into `public` for deplyment of JSON Schema and JSON LD to Github pages
+  # Move build into `public` for deployment of JSON Schema and JSON LD to Github pages
   - cp dist/* public
 
 deploy:

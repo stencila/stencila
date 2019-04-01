@@ -15,7 +15,7 @@ const yaml = require('js-yaml')
  * Generate `dist/*.schema.json` files from `schema/*.schema.{yaml,json}` files
  */
 function jsonschema() {
-  return src('schema/*.schema.{yaml,json}')
+  return src('schema/**/*.schema.{yaml,json}')
     .pipe(
       through2.obj((file, enc, cb) => {
         // Load YAML...
@@ -37,7 +37,10 @@ function jsonschema() {
         cb(null, file)
       })
     )
-    .pipe(rename({ extname: '.json' }))
+    .pipe(rename({
+      dirname: '',
+      extname: '.json'
+    }))
     .pipe(dest('dist/'))
 }
 
@@ -297,5 +300,5 @@ exports.build = series(
   parallel(jsonld, typescript)
 )
 exports.watch = () =>
-  watch(['schema/*', 'examples'], { ignoreInitial: false }, exports.build)
+  watch(['schema', 'examples'], { ignoreInitial: false }, exports.build)
 exports.clean = clean
