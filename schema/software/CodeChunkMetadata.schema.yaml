@@ -1,0 +1,20 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/CodeChunkMetadata.schema.json
+title: CodeChunkMetadata
+'@id': stencila:CodeChunkMetadata
+description: |
+  Metadata describing the operation and display of a `CodeChunk`
+properties:
+  collapsed:
+    '@id': stencila:collapsed
+    type: boolean
+    description: Is the Codechunk collapsed?
+  outputsHidden:
+    '@id': stencila:outputsHidden
+    type: boolean
+    description: Should the output of the CodeChunk be hidden.
+  sourceHidden:
+    '@id': stencila:sourceHidden
+    type: boolean
+    description: Should the source code of the CodeChunk be hidden.
+additionalProperties: true
