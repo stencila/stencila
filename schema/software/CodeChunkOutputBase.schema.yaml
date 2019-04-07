@@ -1,0 +1,13 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/CodeChunkOutputBase.schema.json
+title: CodeChunkOutputBase
+'@id': stencila:CodeChunkOutputBase
+description: |
+  An "abstract" base for all output types (DisplayDataOutput, ExecutionResultOutput, ErrorOutput, StreamOutput)
+properties:
+  executionCount:
+    '@id': stencila:executionCount
+    description: The prompt number of a result. Null if the CodeChunk has not been executed.
+    type:
+      - 'integer'
+      - 'null'

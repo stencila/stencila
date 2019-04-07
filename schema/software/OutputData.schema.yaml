@@ -1,0 +1,8 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/OutputData.schema.json
+title: OutputData
+'@id': stencila:OutputData
+description: |
+  The data that has been output from code execution. Property keys should be mimetypes,
+  and their values the data in that format.
+additionalProperties: true
