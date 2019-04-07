@@ -11,8 +11,8 @@ Example:
 <institution-wrap>
   <institution-id>Moo-U-41</institution-id>
   <institution content-type="edu">
-  University of Frostbite Falls, Dept of Campus Security, 
-  Dept of Moose and Squirrel Security, 
+  University of Frostbite Falls, Dept of Campus Security,
+  Dept of Moose and Squirrel Security,
   Office of the Acting Dean</institution>
 </institution-wrap>
 ```
@@ -20,18 +20,15 @@ Example:
 ### OpenDocument
 
 `Organization` is analogous to the Open Document [`<text:organizations>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1419060_253892949)
- and [`<text:institutions>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1418948_253892949) attributes.
-
+and [`<text:institutions>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1418948_253892949) attributes.
 
 ### Crossref
 
 `Organization` is analogous to the Crossref Organization element [`<crossref:organization>`](https://data.crossref.org/reports/help/schema_doc/4.4.0/relations_xsd.html#http___www.crossref.org_relations.xsd_organization) which is the name of an organization (as opposed to a person) that contributed to authoring an entity. If multiple organizations authored an entity, each one should be captured in a unique organization element.
 
-
 ### Citation Style Language (CSL)
 
 At the moment there does not seem to be a schema element in CSL that `Organization` is analogous to. If you are able to add more information about this, please [edit this file](https://github.com/stencila/schema/edit/master/schema/Organization.schema.yaml).
-
 
 ### HTML5
 

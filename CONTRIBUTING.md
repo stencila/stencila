@@ -1,14 +1,10 @@
-
-
 For each type, there are two files:
 
 - `<type>.schema.yaml` is the JSON Schema, written in YAML, for the type.
 
 - `<type>.md` is a description of design considerations for the schema and includes sections on analagous types in other schemas
 
-
 The Open Document Format for Office Applications (OpenDocument) http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html
-
 
 ### Authoring a type schema
 
@@ -56,8 +52,7 @@ JSON Schema allows for a limited form of inheritance using the `allOf` keyword. 
 ```yaml
 allOf:
   - $ref: Thing.schema.yaml
-  - properties:
-      ...
+  - properties: ...
 ```
 
 #### The property `@id`
@@ -65,9 +60,8 @@ allOf:
 Just as for types, properties of types can be linked to the other contexts using a `@id`. For example,
 
 ```yaml
-  - properties:
-      address:
-        '@id': schema:address
-        type: string
+- properties:
+    address:
+      '@id': schema:address
+      type: string
 ```
-

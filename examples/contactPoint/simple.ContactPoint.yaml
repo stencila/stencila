@@ -1,9 +1,8 @@
 type: ContactPoint
 availableLanguages:
-   - "English"
-   - "French"
+  - 'English'
+  - 'French'
 emails:
-   - "english@email.com"
-   - "french@email.com"
-telephone:
-   "+649775673"
+  - 'english@email.com'
+  - 'french@email.com'
+telephone: '+649775673'

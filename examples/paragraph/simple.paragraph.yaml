@@ -6,5 +6,5 @@ content:
       - emphasised words
   - ' and '
   - type: Strong
-    content: 
+    content:
       - some strongly emphasised words

@@ -15,7 +15,7 @@ const yaml = require('js-yaml')
  * Generate `dist/*.schema.json` files from `schema/*.schema.{yaml,json}` files
  */
 function jsonschema() {
-  return src('schema/*.schema.{yaml,json}')
+  return src('schema/**/*.schema.{yaml,json}')
     .pipe(
       through2.obj((file, enc, cb) => {
         // Load YAML...
@@ -37,7 +37,12 @@ function jsonschema() {
         cb(null, file)
       })
     )
-    .pipe(rename({ extname: '.json' }))
+    .pipe(
+      rename({
+        dirname: '',
+        extname: '.json'
+      })
+    )
     .pipe(dest('dist/'))
 }
 
@@ -75,14 +80,18 @@ function jsonld() {
               }
             }
           } else {
-            console.error(`Warning: @id is not defined at the top level in ${file.path}`)
+            console.error(
+              `Warning: @id is not defined at the top level in ${file.path}`
+            )
           }
 
           // Create a [`Property`](https://meta.schema.org/Property)
           // TODO: Implement schema:rangeIncludes property - requires the
           // resolving `$refs`. See https://github.com/epoberezkin/ajv/issues/125#issuecomment-408960384
           // for an approach to that.
-          const typeProperties = schema.properties || (schema.allOf && schema.allOf[1] && schema.allOf[1].properties)
+          const typeProperties =
+            schema.properties ||
+            (schema.allOf && schema.allOf[1] && schema.allOf[1].properties)
           if (typeProperties) {
             for (let [name, property] of Object.entries(typeProperties)) {
               const pid = property['@id']
@@ -98,7 +107,11 @@ function jsonld() {
                   }
                 } else {
                   if (properties[name]['@id'] !== pid) {
-                    throw new Error(`Property "${name}" has more than one @id "${properties[name]['@id']}" and "${pid}"`)
+                    throw new Error(
+                      `Property "${name}" has more than one @id "${
+                        properties[name]['@id']
+                      }" and "${pid}"`
+                    )
                   }
                   properties[name]['schema:domainIncludes'].push({ '@id': cid })
                 }
@@ -297,5 +310,5 @@ exports.build = series(
   parallel(jsonld, typescript)
 )
 exports.watch = () =>
-  watch(['schema/*', 'examples'], { ignoreInitial: false }, exports.build)
+  watch(['schema', 'examples'], { ignoreInitial: false }, exports.build)
 exports.clean = clean

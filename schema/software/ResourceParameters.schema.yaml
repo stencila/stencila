@@ -3,7 +3,7 @@ $id: https://stencila.github.com/schema/ResourceParameters.schema.json
 title: ResourceParameters
 '@id': stencila:ResourceParameters
 description: |
-  Describes limits or requested amounts for a particular resource (e.g. memory or CPU). 
+  Describes limits or requested amounts for a particular resource (e.g. memory or CPU).
 properties:
   resourceLimit:
     '@id': stencila:resourceLimit

@@ -17,6 +17,6 @@ allOf:
           - $ref: Brand.schema.yaml
       productID:
         '@id': schema:productID
-        description:  |
+        description: |
           Product identification code.
         type: string

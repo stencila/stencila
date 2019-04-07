@@ -1,10 +1,8 @@
 type: Product
 brand:
   type: Brand
-  logo: 
-    tty
-# Incorrect type. Expected URI.
-  review: 
-    44
- # Incorrect type. Expected "string".
+  logo: tty
+  # Incorrect type. Expected URI.
+  review: 44
+  # Incorrect type. Expected "string".
 productID: {}

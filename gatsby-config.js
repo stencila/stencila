@@ -48,4 +48,4 @@ module.exports = {
     // site!
     `gatsby-plugin-offline`
   ]
-};
+}

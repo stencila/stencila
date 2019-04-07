@@ -1,5 +1,5 @@
 type: SoftwareApplication
 softwareRequirements:
-# Invalid - Just a list of strings
-- Some Package
-- Some Other Package
+  # Invalid - Just a list of strings
+  - Some Package
+  - Some Other Package
