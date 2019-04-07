@@ -34,7 +34,6 @@ exports.createPages = ({ graphql, actions }) => {
               node {
                 title
                 id
-                value
                 description
                 fields {
                   slug
