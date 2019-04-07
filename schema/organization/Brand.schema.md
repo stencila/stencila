@@ -11,4 +11,3 @@ Example:
 <meta-value>Stats'n'Maths</meta-value>
 </custom-meta>
 ```
-

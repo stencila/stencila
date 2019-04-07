@@ -13,12 +13,11 @@
 A journal author `<corresp>` links to a number of JATS elements which
 are also properties of `ContactPoint` in Stencila schema. These JATS elements are:
 
-
-| Stencila Schema    | JATS               |
-|--------------------|--------------------|
-| availableLanguages | @xml:langLanguage* |
-| emails             | email              |
-| telephone          | phone              |
+| Stencila Schema    | JATS                |
+| ------------------ | ------------------- |
+| availableLanguages | @xml:langLanguage\* |
+| emails             | email               |
+| telephone          | phone               |
 
 \* `@xml:langLanguage` is an attribute describing the language of the intellectual content of the element (for which this is an attribute).
 

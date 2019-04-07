@@ -9,14 +9,14 @@ allOf:
       availableLanguages:
         '@id': schema:availableLanguage
         description: |
-           Languages (human not programming) in which it is possible to communicate with the organization/department etc.
+          Languages (human not programming) in which it is possible to communicate with the organization/department etc.
         type: array
         items:
           type: string
       emails:
         '@id': schema:email
         description: |
-           Email address for correspondence. It must be provided in a valid email format (eg. info@example.com ).
+          Email address for correspondence. It must be provided in a valid email format (eg. info@example.com ).
         type: array
         items:
           type: string
@@ -24,6 +24,6 @@ allOf:
       telephone:
         '@id': schema:telephone
         description: |
-           Phone contact number. It must be entered in a format +123456789 (starting with '+', no spaces or dashes.)
-        type: string  
+          Phone contact number. It must be entered in a format +123456789 (starting with '+', no spaces or dashes.)
+        type: string
         pattern: '\+\d*[0-9]'

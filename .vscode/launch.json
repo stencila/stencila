@@ -11,7 +11,7 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "windows": {
-        "program": "${workspaceFolder}/js/node_modules/jest/bin/jest",
+        "program": "${workspaceFolder}/js/node_modules/jest/bin/jest"
       }
     },
     {
@@ -24,7 +24,7 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "windows": {
-        "program": "${workspaceFolder}/js/node_modules/jest/bin/jest",
+        "program": "${workspaceFolder}/js/node_modules/jest/bin/jest"
       }
     },
     {
@@ -35,10 +35,8 @@
       "stopOnEntry": false,
       "args": ["build"],
       "cwd": "${workspaceRoot}",
-      "runtimeArgs": [
-        "--nolazy"
-      ],
-      "console": "internalConsole",
+      "runtimeArgs": ["--nolazy"],
+      "console": "internalConsole"
     }
   ]
 }

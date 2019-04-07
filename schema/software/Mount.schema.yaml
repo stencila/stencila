@@ -19,7 +19,7 @@ allOf:
         '@id': stencila:mountOptions
         type: array
         description: A list of options to use when applying the mount.
-        items: 
+        items:
           - type: string
       mountType:
         '@id': stencila:mountType
