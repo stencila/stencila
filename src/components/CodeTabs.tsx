@@ -5,7 +5,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 interface Props {
-  title: string
+  relativePath: string
   data: {
     edges: {
       node: {
@@ -15,9 +15,9 @@ interface Props {
   }
 }
 
-export const CodeTabs = ({ title, data }: Props) => {
+export const CodeTabs = ({ relativePath, data }: Props) => {
   const files: Array<string> = [
-    `${title}.schema.yaml`,
+    relativePath,
     ...data.edges.map(({ node }) => node.relativePath)
   ]
 
