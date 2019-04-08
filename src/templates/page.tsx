@@ -32,7 +32,7 @@ const Documentation = (props: DocumentationPageProps) => {
         <code>{schema.$id}</code>
       </Title>
 
-      <p>{properties.description}</p>
+      <p>{schema.description}</p>
 
       <hr />
 
