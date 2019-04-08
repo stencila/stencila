@@ -4,12 +4,20 @@ module.exports = {
     title: `Stencila Schema`
   },
   plugins: [
-    `gatsby-mdx`,
+    // Plugin form MDX and Markdown transfromation
+    {
+      resolve: `gatsby-mdx`,
+      options: {
+        extensions: [`.mdx`, `.md`]
+      }
+    },
+
     `gatsby-transformer-yaml`,
+
     {
       resolve: `gatsby-source-filesystem`,
       options: {
-        name: `data`,
+        name: `schemas`,
         path: `${__dirname}/schema`
       }
     },
@@ -20,9 +28,6 @@ module.exports = {
         path: `${__dirname}/examples`
       }
     },
-
-    // Parse JSON files
-    // `gatsby-transformer-json`,
 
     // Add typescript stack into webpack
     `gatsby-plugin-typescript`,
