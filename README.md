@@ -372,31 +372,30 @@ The following table summarises the serialization format/s used by each protocol 
 |                   | WebWorkers | HTTP    | WebSockets | StdIO   |
 | ----------------- | ---------- | ------- | ---------- | ------- |
 | **Serialization** | None       | JSON[1] | JSON[2]    | JSON[2] |
-
-|**Client**
-|Browser JS |🗸 |🗸 |🗸 |-
-|Node.js |x[3] |🗸 |🗸 |🗸
-|Python |- |x |x |x
-|R |- |x |x |x
-|**Server**
-|Browser JS |🗸 |- |- |-
-|Node.js |x[3] |🗸 |🗸 |🗸
-|Python |- |x |x |x[4]
-|R |- |x |x |x[4]
+| **Client**        |            |         |            |         |
+| Browser JS        | 🗸          | 🗸       | 🗸          | -       |
+| Node.js           | x[3]       | 🗸       | 🗸          | 🗸       |
+| Python            | -          | x       | x          | x       |
+| R                 | -          | x       | x          | x       |
+| **Server**        |            |         |            |         |
+| Browser JS        | 🗸          | -       | -          | -       |
+| Node.js           | x[3]       | 🗸       | 🗸          | 🗸       |
+| Python            | -          | x       | x          | x[4]    |
+| R                 | -          | x       | x          | x[4]    |
 
 **Notes**
 
 > 🔧 Some of the following notes are stale / superseded
 
-0. 🗸 means that an implementation is available, x means that an implementation is possible, but not available, - means that implementation is not-applicable / possible
+1. 🗸 means that an implementation is available, x means that an implementation is possible, but not available, - means that implementation is not-applicable / possible
 
-1. It is proposed that the HTTP protocol support several serialization formats, by using content negotiation headers `Accept` and `Content-Type`, including Avro-JSON, and zipped JSON and Avro-JSON.
+2. It is proposed that the HTTP protocol support several serialization formats, by using content negotiation headers `Accept` and `Content-Type`, including Avro-JSON, and zipped JSON and Avro-JSON.
 
-1. Currently the WebSocket and Stdio protocol uses JSON. It is proposed that they both use Avro-Binary instead to optimize performance.
+3. Currently the WebSocket and Stdio protocol uses JSON. It is proposed that they both use Avro-Binary instead to optimize performance.
 
-1. There is a, currently experimental, [`worker_threads`](https://nodejs.org/api/worker_threads.html) module for Node.js which may allow implementation of `WebWorker` like functionality.
+4. There is a, currently experimental, [`worker_threads`](https://nodejs.org/api/worker_threads.html) module for Node.js which may allow implementation of `WebWorker` like functionality.
 
-1. A `StdioServer` for R and Python is currently the highest priority for these languages as it will allow `Processors` to be implemented for executing code cells and function calls in these languages.
+5. A `StdioServer` for R and Python is currently the highest priority for these languages as it will allow `Processors` to be implemented for executing code cells and function calls in these languages.
 
 ### Testing
 

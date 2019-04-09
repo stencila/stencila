@@ -4,12 +4,33 @@ module.exports = {
     title: `Stencila Schema`
   },
   plugins: [
-    `gatsby-mdx`,
+    // Plugin form MDX and Markdown transformation
+    {
+      resolve: `gatsby-mdx`,
+      options: {
+        extensions: [`.mdx`, `.md`],
+        remarkPlugins: [require('remark-emoji')],
+        gatsbyRemarkPlugins: [
+          {
+            resolve: `gatsby-remark-images`,
+            options: {}
+          },
+          {
+            resolve: `gatsby-remark-autolink-headers`,
+            options: {
+              icon: false
+            }
+          }
+        ]
+      }
+    },
+
     `gatsby-transformer-yaml`,
+
     {
       resolve: `gatsby-source-filesystem`,
       options: {
-        name: `data`,
+        name: `schemas`,
         path: `${__dirname}/schema`
       }
     },
@@ -20,9 +41,20 @@ module.exports = {
         path: `${__dirname}/examples`
       }
     },
-
-    // Parse JSON files
-    // `gatsby-transformer-json`,
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `data`,
+        path: `${__dirname}/README.md`
+      }
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `data`,
+        path: `${__dirname}/transports.png`
+      }
+    },
 
     // Add typescript stack into webpack
     `gatsby-plugin-typescript`,
