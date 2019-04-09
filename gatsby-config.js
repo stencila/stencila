@@ -4,11 +4,24 @@ module.exports = {
     title: `Stencila Schema`
   },
   plugins: [
-    // Plugin form MDX and Markdown transfromation
+    // Plugin form MDX and Markdown transformation
     {
       resolve: `gatsby-mdx`,
       options: {
-        extensions: [`.mdx`, `.md`]
+        extensions: [`.mdx`, `.md`],
+        remarkPlugins: [require('remark-emoji')],
+        gatsbyRemarkPlugins: [
+          {
+            resolve: `gatsby-remark-images`,
+            options: {}
+          },
+          {
+            resolve: `gatsby-remark-autolink-headers`,
+            options: {
+              icon: false
+            }
+          }
+        ]
       }
     },
 
@@ -26,6 +39,20 @@ module.exports = {
       options: {
         name: `examples`,
         path: `${__dirname}/examples`
+      }
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `data`,
+        path: `${__dirname}/README.md`
+      }
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `data`,
+        path: `${__dirname}/transports.png`
       }
     },
 
