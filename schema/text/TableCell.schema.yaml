@@ -28,6 +28,7 @@ properties:
         minimum: 0
     minItems: 2
     maxItems: 2
+    tsType: '[number, number]'
   colspan:
     '@id': stencila:colspan
     description: |
@@ -56,4 +57,5 @@ properties:
 additionalProperties: false
 required:
   - type
+  - position
   - content

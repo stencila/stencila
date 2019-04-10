@@ -1,7 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://json-schema.org/draft-07/schema#",
-  "title": "Core schema meta-schema",
+  "$id": "http://json-schema.org/draft-07-copy/schema#",
+  "title": "JSONSchema",
+  "$comment": "This the JSON Schema draft-07 from the above URL. Only the $id and title has been modified to avoid clashes and for more consistent naming of generated Typescript type definitions and documentation pages. It is also useful to have this here for off-line validation / development.",
   "definitions": {
     "schemaArray": {
       "type": "array",

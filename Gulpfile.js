@@ -170,8 +170,7 @@ async function typescript() {
 /**
  * This file was automatically generated.
  * Do not modify it by hand. Instead, modify the source \`.schema.yaml\` file
- * in the \`schema\` directory and run \`npm run build\`
- * to regenerate this file.
+ * in the \`schema\` directory and run \`npm run build\` to regenerate this file.
  */`
   }
   const ts = await jstt.compileFromFile(src, options)

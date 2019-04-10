@@ -1,0 +1,15 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://stencila.github.com/schema/Node.schema.json
+'@id': stencila:Node
+title: Node
+description: |
+  Describes a valid value for any node in the tree.
+anyOf:
+  - type: 'null'
+  - type: boolean
+  - type: number
+  - type: integer
+  - type: string
+  - type: array
+  - type: object
+  - $ref: Thing.schema.yaml

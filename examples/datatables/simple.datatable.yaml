@@ -3,10 +3,16 @@ columns:
   - type: DatatableColumn
     name: A
     schema:
-      type: number
+      type: DatatableColumnSchema
+      items:
+        type: number
     values:
       - 1
       - 2
       - 3
   - type: DatatableColumn
     name: B
+    values:
+      - 4
+      - 5
+      - 6
