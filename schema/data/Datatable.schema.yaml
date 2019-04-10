@@ -7,9 +7,14 @@ type: object
 allOf:
   - $ref: CreativeWork.schema.yaml
   - properties:
+      type:
+        type: string
+        enum: [Datatable]
       columns:
         description: TODO
         type: array
         items:
           $ref: DatatableColumn.schema.yaml
-value: columns
+required:
+  - type
+  - columns

@@ -2,6 +2,7 @@ $schema: http://json-schema.org/draft-07/schema#
 $id: https://stencila.github.com/schema/inlineContent.schema.json
 description: Inline content.
 anyOf:
+  - type: 'null'
   - type: boolean
   - type: integer
   - type: number
@@ -10,3 +11,4 @@ anyOf:
   - $ref: Strong.schema.yaml
   - $ref: Delete.schema.yaml
   - $ref: Verbatim.schema.yaml
+  - $ref: Expression.schema.yaml

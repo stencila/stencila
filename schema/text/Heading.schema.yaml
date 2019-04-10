@@ -15,8 +15,9 @@ properties:
     maximum: 6
   content:
     description: Content of the heading.
-    allOf:
-      - $ref: inlineContent.schema.yaml
+    type: array
+    items:
+      $ref: inlineContent.schema.yaml
 required:
   - type
   - depth

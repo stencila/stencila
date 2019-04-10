@@ -2,10 +2,13 @@ $schema: http://json-schema.org/draft-07/schema#
 $id: https://stencila.github.com/schema/index.schema.json
 '@id': stencila:index
 anyOf:
+  - $ref: Article.schema.yaml
   - $ref: Brand.schema.yaml
+  - $ref: Blockquote.schema.yaml
   - $ref: ContactPoint.schema.yaml
   - $ref: CodeChunk.schema.yaml
   - $ref: CodeChunkMetadata.schema.yaml
+  - $ref: Collection.schema.yaml
   - $ref: CreativeWork.schema.yaml
   - $ref: Datatable.schema.yaml
   - $ref: DatatableColumn.schema.yaml
@@ -13,11 +16,14 @@ anyOf:
   - $ref: Environment.schema.yaml
   - $ref: ErrorOutput.schema.yaml
   - $ref: ExecutionResultOutput.schema.yaml
+  - $ref: Expression.schema.yaml
   - $ref: ImageObject.schema.yaml
   - $ref: Include.schema.yaml
   - $ref: Mount.schema.yaml
   - $ref: name.schema.yaml
+  - $ref: Node.schema.yaml
   - $ref: Organization.schema.yaml
+  - $ref: Paragraph.schema.yaml
   - $ref: Person.schema.yaml
   - $ref: ResourceParameters.schema.yaml
   - $ref: Sheet.schema.yaml

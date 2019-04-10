@@ -8,6 +8,7 @@ allOf:
   - $ref: CreativeWork.schema.yaml
   - properties:
       type:
+        type: string
         enum: [Table]
       rows:
         '@id': stencila:rows

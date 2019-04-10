@@ -22,3 +22,11 @@ allOf:
           anyOf:
             - type: string
             - $ref: CreativeWork.schema.yaml
+      licenses:
+        '@id': schema:license
+        description: License documents that applies to this content, typically indicated by URL.
+        type: array
+        items:
+          anyOf:
+            - $ref: URL.schema.yaml
+            - $ref: CreativeWork.schema.yaml

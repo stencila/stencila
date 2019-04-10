@@ -9,10 +9,9 @@ properties:
     enum: [Blockquote]
   content:
     '@id': 'stencila:content'
-    description: |
-      The content that is marked for deletion. Often indicated using a strike through style.
-    allOf:
-      - $ref: blockContent.schema.yaml
+    type: array
+    items:
+      $ref: blockContent.schema.yaml
 additionalProperties: false
 required:
   - type

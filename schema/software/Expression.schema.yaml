@@ -7,3 +7,5 @@ allOf:
   - properties:
       type:
         enum: [Expression]
+required:
+  - type
