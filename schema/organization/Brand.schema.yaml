@@ -11,8 +11,10 @@ properties:
     anyOf:
       - $ref: URL.schema.yaml
       - $ref: ImageObject.schema.yaml
-  review:
+  reviews:
     '@id': schema:review
     description: |
-      Short review of the brand and/or the products it represents.
-    type: string
+      Short reviews of the brand and/or the products it represents.
+    type: array
+    items:
+      type: string

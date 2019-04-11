@@ -1,7 +1,6 @@
 type: Brand
-logo:
-  42
+logo: 42
   # Incorrect type. Expected a URI.
-review:
-  https://stenci.la/review.html
-  # Incorrect type. Expected "string".
+reviews:
+  - []
+    # Incorrect type. Expected "string".
