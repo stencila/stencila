@@ -2,17 +2,19 @@ type: Organization
 address:
   - '12 Random Road, Random Town, Aotearoa'
 # Incorrect type. Expected "string".
-brand:
-  logo:
-    - https://stenci.la/img/icons/stencil-machine.svg
-  review: 4567
-contactPoint:
-  availableLanguages: 'English'
-  email: 'english@email.com'
-  telephone: (00)64-9775673
+brands:
+  - logo:
+      - https://stenci.la/img/icons/stencil-machine.svg
+    review: 4567
+contactPoints:
+  - type: ContactPoint
+    availableLanguages: 'English'
+    email: 'english@email.com'
+    telephone: (00)64-9775673
 departments: Computer Science
 # Incorrect type. Expected "array".
-email: mailto:organization@organization.com
+emails:
+  - mailto:organization@organization.com
 # String is not an e-mail address.
 funders:
   - simple.person.yaml

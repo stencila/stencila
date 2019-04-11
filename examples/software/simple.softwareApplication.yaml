@@ -2,7 +2,7 @@ type: SoftwareApplication
 softwareRequirements:
   - type: SoftwareApplication
     name: SomePackage
-    version: 1.2.3
+    softwareVersion: 1.2.3
   - type: SoftwareApplication
     name: SomeOtherPackage
-    version: 3.2.1
+    softwareVersion: 3.2.1

@@ -1,18 +1,15 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/ExecutionResultOutput.schema.json
 title: ExecutionResultOutput
 '@id': stencila:ExecutionResultOutput
+$extends: CodeChunkOutputBase.schema.yaml
 description: |
   The result (return value) of executing some code.
-allOf:
-  - $ref: CodeChunkOutputBase.schema.yaml
-  - properties:
-      outputData:
-        '@id': stencila:outputData
-        description: The data that has been ouput from an execution.
-        $ref: OutputData.schema.yaml
-      outputType:
-        '@id': stencila:outputType
-        description: Type of output.
-        type: string
-        const: executionResult
+properties:
+  outputData:
+    '@id': stencila:outputData
+    description: The data that has been ouput from an execution.
+    $ref: OutputData.schema.yaml
+  outputType:
+    '@id': stencila:outputType
+    description: Type of output.
+    type: string
+    const: executionResult

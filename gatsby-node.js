@@ -9,22 +9,24 @@ exports.createPages = ({ graphql, actions }) => {
   const { createPage } = actions
 
   return new Promise((resolve, reject) => {
-    graphql(`{
-      allFile(
-        filter: {
-          internal: {mediaType: {eq: "text/yaml"}},
-          sourceInstanceName: {eq: "schemas"}
-        }
-      ){
-        edges {
-          node {
-            id
-            name
-            relativePath
+    graphql(`
+      {
+        allFile(
+          filter: {
+            internal: { mediaType: { eq: "text/yaml" } }
+            sourceInstanceName: { eq: "schemas" }
+          }
+        ) {
+          edges {
+            node {
+              id
+              name
+              relativePath
+            }
           }
         }
       }
-    }`).then(result => {
+    `).then(result => {
       if (result.errors) {
         return reject(result.errors)
       }

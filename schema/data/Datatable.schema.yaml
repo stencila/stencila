@@ -1,20 +1,12 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Datatable.schema.json
 title: Datatable
+$extends: ../CreativeWork.schema.yaml
 '@id': stencila:Datatable
 description: A table of data.
-type: object
-allOf:
-  - $ref: CreativeWork.schema.yaml
-  - properties:
-      type:
-        type: string
-        enum: [Datatable]
-      columns:
-        description: TODO
-        type: array
-        items:
-          $ref: DatatableColumn.schema.yaml
+properties:
+  columns:
+    description: TODO
+    type: array
+    items:
+      $ref: DatatableColumn.schema.yaml
 required:
-  - type
   - columns

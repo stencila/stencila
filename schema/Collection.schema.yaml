@@ -1,18 +1,11 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Collection.schema.json
 title: Collection
 '@id': schema:Collection
-allOf:
-  - $ref: CreativeWork.schema.yaml
-  - properties:
-      type:
-        type: string
-        enum: [Collection]
-      parts:
-        '@id': schema:hasParts
-        type: array
-        items:
-          $ref: CreativeWork.schema.yaml
+$extends: CreativeWork.schema.yaml
+properties:
+  parts:
+    '@id': schema:hasParts
+    type: array
+    items:
+      $ref: CreativeWork.schema.yaml
 required:
-  - type
   - parts

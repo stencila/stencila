@@ -1,15 +1,14 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/MediaObject.schema.json
 title: MediaObject
 '@id': schema:MediaObject
+$extends: CreativeWork.schema.yaml
+role: base
+status: unstable
 description: |
   A media object, such as an image, video, or audio object embedded in a web page or a
   downloadable dataset. https://schema.org/MediaObject
-allOf:
-  - $ref: CreativeWork.schema.yaml
-  - properties:
-      contentUrl:
-        '@id': schema:contentUrl
-        description: Actual bytes of the media object, for example the image file or video file.
-        anyOf:
-          - $ref: URL.schema.yaml
+properties:
+  contentUrl:
+    '@id': schema:contentUrl
+    description: Actual bytes of the media object, for example the image file or video file.
+    anyOf:
+      - $ref: URL.schema.yaml

@@ -1,10 +1,9 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Include.schema.json
 title: Include
 '@id': stencila:Include
 description: |
   A directive to include content from an external source (e.g. file, URL) or content.
 type: object
+status: experimental
 properties:
   type:
     description: The type of node.
@@ -28,9 +27,6 @@ properties:
     oneOf:
       - $ref: Datatable.schema.yaml
       - $ref: Table.schema.yaml
-additionalProperties: false
-required:
-  - type
 # Either needs to have `source` specified (from which `content` and `mimetype` are derived)
 # or have `content` and `mimetype` specified.
 anyOf:

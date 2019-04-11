@@ -65,3 +65,20 @@ Just as for types, properties of types can be linked to the other contexts using
       '@id': schema:address
       type: string
 ```
+
+#### The `role` keyword
+
+It is RECOMMENDED to add a `role` property to the schema:
+
+- `base`: base types, not usually instantiated but required for other types e.g `Thing`
+- `primary`: types that are usually the root of a trre generated from a file e.g. `Article`, `Datatable`, `Collection`
+- `secondary`: types usually only referred to by primary types e.g. `Organization` is used for the `publisher` property on a `Article`
+- `tertiary`: types usually only referred to by secondary types e.g. `ContactPoint` is used for the `contactPoints` property on an `Organisation`
+
+#### The `status` keyword
+
+It is RECOMMENDED to add a `status` property to indicate the development status for a type schema e.g.
+
+- `experimental`: new types (i.e. not defined on schema.org or elsewhere) that are still under development
+- `unstable`: types that are defined elsewhere (e.g. https://schema.org/SoftwareApplication) but for which the schema is still being developed
+- `stable`: types for which the schema definition can be considered stable

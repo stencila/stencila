@@ -2,5 +2,6 @@ type: Product
 brand:
   type: Brand
   logo: https://stenci.la/img/icons/stencil-machine.svg
-  review: 'Awful. Broke my computer and research.'
+  reviews:
+    - 'Awful. Broke my computer and research.'
 productID: 675ef78

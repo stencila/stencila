@@ -1,14 +1,8 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Heading.scham.json
 title: Heading
 '@id': stencila:Heading
+$extends: ../Thing.schema.yaml
 description: Heading
-type: object
 properties:
-  type:
-    description: The type of node; always "Heading".
-    type: string
-    enum: [Heading]
   depth:
     type: number
     minimum: 1
@@ -19,7 +13,5 @@ properties:
     items:
       $ref: inlineContent.schema.yaml
 required:
-  - type
   - depth
   - content
-additionalProperties: false

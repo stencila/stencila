@@ -1,11 +1,7 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Expression.schema.json
 title: Expression
+$extends: SoftwareSourceCode.schema.yaml
+role: secondary
+status: Experimental
 description: An expression.
-allOf:
-  - $ref: SoftwareSourceCode.schema.yaml
-  - properties:
-      type:
-        enum: [Expression]
-required:
-  - type
+properties:
+  value: {}
