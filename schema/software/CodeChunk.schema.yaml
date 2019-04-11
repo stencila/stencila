@@ -1,32 +1,29 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/CodeChunk.schema.json
 title: CodeChunk
 '@id': stencila:CodeChunk
+$extends: SoftwareSourceCode.schema.yaml
 description: |
   A chunk of code that can be embedded inside a document.
-allOf:
-  - $ref: SoftwareSourceCode.schema.yaml
-  - properties:
-      codeChunkMetadata:
-        '@id': stencila:codeChunkMetadata
-        description: Metadata regarding display and execution of the CodeChunk.
-        $ref: CodeChunkMetadata.schema.yaml
-      executionCount:
-        '@id': stencila:executionCount
-        description: The prompt number of the chunk. Null if the CodeChunk has not been executed.
-        type:
-          - 'integer'
-          - 'null'
-      executionOutputs:
-        '@id': stencila:executionOutputs
-        description: Execution, display, or stream outputs.
-        oneOf:
-          - $ref: ExecutionResultOutput.schema.yaml
-          - $ref: DisplayDataOutput.schema.yaml
-          - $ref: StreamOutput.schema.yaml
-          - $ref: ErrorOutput.schema.yaml
-      sourceCode:
-        '@id': stencila:sourceCode
-        description: |
-          The actual source code this code chunk contains.
-        type: string
+properties:
+  codeChunkMetadata:
+    '@id': stencila:codeChunkMetadata
+    description: Metadata regarding display and execution of the CodeChunk.
+    $ref: CodeChunkMetadata.schema.yaml
+  executionCount:
+    '@id': stencila:executionCount
+    description: The prompt number of the chunk. Null if the CodeChunk has not been executed.
+    type:
+      - 'integer'
+      - 'null'
+  executionOutputs:
+    '@id': stencila:executionOutputs
+    description: Execution, display, or stream outputs.
+    oneOf:
+      - $ref: ExecutionResultOutput.schema.yaml
+      - $ref: DisplayDataOutput.schema.yaml
+      - $ref: StreamOutput.schema.yaml
+      - $ref: ErrorOutput.schema.yaml
+  sourceCode:
+    '@id': stencila:sourceCode
+    description: |
+      The actual source code this code chunk contains.
+    type: string

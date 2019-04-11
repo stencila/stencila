@@ -1,22 +1,18 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Brand.schema.json
 title: Brand
+$extends: ../Thing.schema.yaml
 '@id': schema:Brand
-description: A brand is a name used by an organization or business person for labeling a product, product group, or similar. https://schema.org/Brand.
-type: object
-allOf:
-  - $ref: Thing.schema.yaml
-  - properties:
-      type:
-        enum: [Brand]
-      logo:
-        description: |
-          A logo of of the brand. It can be either a URL of the image or image itself.
-        anyOf:
-          - $ref: URL.schema.yaml
-          - $ref: ImageObject.schema.yaml
-      review:
-        '@id': schema:review
-        description: |
-          Short review of the brand and/or the products it represents.
-        type: string
+description: |
+  A brand is a name used by an organization or business person for labeling a product, 
+  product group, or similar. https://schema.org/Brand.
+properties:
+  logo:
+    description: |
+      A logo of of the brand. It can be either a URL of the image or image itself.
+    anyOf:
+      - $ref: URL.schema.yaml
+      - $ref: ImageObject.schema.yaml
+  review:
+    '@id': schema:review
+    description: |
+      Short review of the brand and/or the products it represents.
+    type: string

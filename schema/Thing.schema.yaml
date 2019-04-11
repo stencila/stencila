@@ -1,10 +1,16 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Thing.schema.json
 title: Thing
 '@id': schema:Thing
+role: base
+status: unstable
 description: The most generic type of item https://schema.org/Thing.
 type: object
 properties:
+  type:
+    # Note: this is a special property analagous to JSON-LD's `@type` keyword
+    # and so should not have a `@id` since it is not a property.
+    description: The name of the type
+    type: string
+    enum: [Thing]
   alternateNames:
     '@id': schema:alternateName
     description: Alternate names (aliases) for the item.

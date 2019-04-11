@@ -1,29 +1,26 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/ContactPoint.schema.json
 title: ContactPoint
 '@id': schema:contactPoint
+$extends: ../Thing.schema.yaml
 description: A contact point—for example, a R&D department. https://schema.org/ContactPoint.
-allOf:
-  - $ref: Thing.schema.yaml
-  - properties:
-      availableLanguages:
-        '@id': schema:availableLanguage
-        description: |
-          Languages (human not programming) in which it is possible to communicate with the organization/department etc.
-        type: array
-        items:
-          type: string
-      emails:
-        '@id': schema:email
-        description: |
-          Email address for correspondence. It must be provided in a valid email format (eg. info@example.com ).
-        type: array
-        items:
-          type: string
-          format: email
-      telephone:
-        '@id': schema:telephone
-        description: |
-          Phone contact number. It must be entered in a format +123456789 (starting with '+', no spaces or dashes.)
-        type: string
-        pattern: '\+\d*[0-9]'
+properties:
+  availableLanguages:
+    '@id': schema:availableLanguage
+    description: |
+      Languages (human not programming) in which it is possible to communicate with the organization/department etc.
+    type: array
+    items:
+      type: string
+  emails:
+    '@id': schema:email
+    description: |
+      Email address for correspondence. It must be provided in a valid email format (eg. info@example.com ).
+    type: array
+    items:
+      type: string
+      format: email
+  telephone:
+    '@id': schema:telephone
+    description: |
+      Phone contact number. It must be entered in a format +123456789 (starting with '+', no spaces or dashes.)
+    type: string
+    pattern: '\+\d*[0-9]'

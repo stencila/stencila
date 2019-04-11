@@ -1,12 +1,14 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Article.schema.json
 title: Article
 '@id': schema:Article
-allOf:
-  - $ref: CreativeWork.schema.yaml
-  - properties:
-      content:
-        '@id': stencila:content
-        type: array
-        items:
-          $ref: Node.schema.yaml
+$extends: CreativeWork.schema.yaml
+properties:
+  content:
+    '@id': stencila:content
+    description: The main content of the article. Equivalent to https://schema.org/articleBody.
+    type: array
+    items:
+      $ref: Node.schema.yaml
+required:
+  # See Google's list of required properties at
+  # https://developers.google.com/search/docs/data-types/article#article_types
+  - authors

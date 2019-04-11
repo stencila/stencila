@@ -15,8 +15,7 @@ contactPoint:
   telephone:
     - '+649775673'
 departments:
-  - type: organization
-      - department.organization.yaml
+  - type: Organization
 email: organization@organization.com
 funders:
   - type: Person

@@ -1,23 +1,14 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Sheet.schema.json
 title: Sheet
 '@id': stencila:Sheet
+$extends: Thing.schema.yaml
+status: experimental
 description: |
   A sheet within an executable document.
-allOf:
-  - $ref: Thing.schema.yaml
-  - properties:
-      type:
-        description: The type of node.
-        type: string
-        const: Sheet
-      value:
-        '@id': schema:value
-        description: The content of the sheet e.g. some text or a table.
-        oneOf:
-          - $ref: Include.schema.yaml
-          - $ref: Datatable.schema.yaml
-          - $ref: Table.schema.yaml
-additionalProperties: false
-required:
-  - type
+properties:
+  value:
+    '@id': schema:value
+    description: The content of the sheet e.g. some text or a table.
+    oneOf:
+      - $ref: Include.schema.yaml
+      - $ref: data/Datatable.schema.yaml
+      - $ref: text/Table.schema.yaml

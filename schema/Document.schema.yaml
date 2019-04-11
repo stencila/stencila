@@ -1,19 +1,17 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Document.schema.json
 title: Document
 '@id': stencila:Document
+$extends: CreativeWork.schema.yaml
+status: experimental
 description: |
   An executable document.
-allOf:
-  - $ref: CreativeWork.schema.yaml
-  - properties:
-      environment:
-        '@id': stencila:environment
-        description: |
-          The computational environment in which the document should be executed.
-        allOf:
-          - $ref: Environment.schema.yaml
-      body:
-        '@id': stencila:body
-        description: The body of the document.
-        type: array
+properties:
+  environment:
+    '@id': stencila:environment
+    description: |
+      The computational environment in which the document should be executed.
+    allOf:
+      - $ref: Environment.schema.yaml
+  body:
+    '@id': stencila:body
+    description: The body of the document.
+    type: array

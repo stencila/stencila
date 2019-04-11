@@ -1,60 +1,59 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Person.schema.json
 title: Person
 '@id': schema:Person
+$extends: ../Thing.schema.yaml
+role: secondary
+status: unstable
 description: A person (alive, dead, undead, or fictional). https://schema.org/Person.
-allOf:
-  - $ref: Thing.schema.yaml
-  - properties:
-      affiliations:
-        '@id': schema:affiliation
-        type: array
-        items:
-          $ref: Organization.schema.yaml
-      brand:
-        '@id': schema:brand
-        type: array
-        items:
-          $ref: Brand.schema.yaml
-      contactPoint:
-        '@id': schema:contactPoint
-        type: object
-        items:
-          $ref: ContactPoint.schema.yaml
-      emails:
-        '@id': schema:email
-        type: array
-        items:
-          type: string
-          format: email
-      familyNames:
-        '@id': schema:familyName
-        type: array
-        items:
-          type: string
-      funders:
-        '@id': schema:funder
-        type: array
-        items:
-          anyOf:
-            - $ref: Organization.schema.yaml
-            - $ref: Person.schema.yaml
-      givenNames:
-        '@id': schema:givenName
-        type: array
-        items:
-          type: string
-      honorificPrefix:
-        '@id': schema:honorificPrefix
-        type: string
-      honorificSuffix:
-        '@id': schema:honorificSuffix
-        type: string
-      jobTitle:
-        '@id': schema:jobTitle
-        type: string
-      memberOf:
-        '@id': schema:memberOf
-        type: array
-        items:
-          - $ref: Organization.schema.yaml
+properties:
+  affiliations:
+    '@id': schema:affiliation
+    type: array
+    items:
+      $ref: Organization.schema.yaml
+  brand:
+    '@id': schema:brand
+    type: array
+    items:
+      $ref: Brand.schema.yaml
+  contactPoint:
+    '@id': schema:contactPoint
+    type: object
+    items:
+      $ref: ContactPoint.schema.yaml
+  emails:
+    '@id': schema:email
+    type: array
+    items:
+      type: string
+      format: email
+  familyNames:
+    '@id': schema:familyName
+    type: array
+    items:
+      type: string
+  funders:
+    '@id': schema:funder
+    type: array
+    items:
+      anyOf:
+        - $ref: Organization.schema.yaml
+        - $ref: Person.schema.yaml
+  givenNames:
+    '@id': schema:givenName
+    type: array
+    items:
+      type: string
+  honorificPrefix:
+    '@id': schema:honorificPrefix
+    type: string
+  honorificSuffix:
+    '@id': schema:honorificSuffix
+    type: string
+  jobTitle:
+    '@id': schema:jobTitle
+    type: string
+  memberOf:
+    '@id': schema:memberOf
+    type: array
+    items:
+      - $ref: Organization.schema.yaml

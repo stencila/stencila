@@ -1,31 +1,23 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Table.schema.json
 title: Table
 '@id': schema:Table
+$extends: ../CreativeWork.schema.yaml
 description: |
   A table within an executable document.
-allOf:
-  - $ref: CreativeWork.schema.yaml
-  - properties:
-      type:
-        type: string
-        enum: [Table]
-      rows:
-        '@id': stencila:rows
-        description: |
-          Rows of cells in the table.
-        type: array
-        items:
-          $ref: TableRow.schema.yaml
-      cells:
-        '@id': stencila:cells
-        description: |
-          An array of cells in the table.
-        type: array
-        items:
-          $ref: TableCell.schema.yaml
-required:
-  - type
+properties:
+  rows:
+    '@id': stencila:rows
+    description: |
+      Rows of cells in the table.
+    type: array
+    items:
+      $ref: TableRow.schema.yaml
+  cells:
+    '@id': stencila:cells
+    description: |
+      An array of cells in the table.
+    type: array
+    items:
+      $ref: TableCell.schema.yaml
 anyOf:
   - required:
       - rows

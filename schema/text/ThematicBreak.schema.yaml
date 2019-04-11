@@ -1,12 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/ThematicBreak.schema.json
 title: ThematicBreak
 '@id': stencila:ThematicBreak
 description: |
   A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
-properties:
-  type:
-    enum: [ThematicBreak]
-additionalProperties: false
 required:
   - type
