@@ -1,6 +1,8 @@
 title: ResourceParameters
 '@id': stencila:ResourceParameters
 $extends: ../Thing.schema.yaml
+role: secondary
+status: experimental
 description: |
   Describes limits or requested amounts for a particular resource (e.g. memory or CPU).
 properties:

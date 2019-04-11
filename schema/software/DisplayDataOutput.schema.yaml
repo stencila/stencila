@@ -1,6 +1,8 @@
 title: DisplayDataOutput
 '@id': stencila:DisplayDataOutput
 $extends: CodeChunkOutputBase.schema.yaml
+role: tertiary
+status: experimental
 description: |
   Data displayed as the result of code execution.
 properties:

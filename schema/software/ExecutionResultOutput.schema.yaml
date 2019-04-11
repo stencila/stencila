@@ -1,6 +1,8 @@
 title: ExecutionResultOutput
 '@id': stencila:ExecutionResultOutput
 $extends: CodeChunkOutputBase.schema.yaml
+role: tertiary
+status: experimental
 description: |
   The result (return value) of executing some code.
 properties:

@@ -1,6 +1,8 @@
 title: CodeChunk
 '@id': stencila:CodeChunk
 $extends: SoftwareSourceCode.schema.yaml
+role: secondary
+status: unstable
 description: |
   A chunk of code that can be embedded inside a document.
 properties:

@@ -1,6 +1,8 @@
 title: Strong
 '@id': stencila:Strong
 $extends: ../Thing.schema.yaml
+role: secondary
+status: experimental
 description: Strongly emphasised textual content.
 properties:
   content:

@@ -1,11 +1,9 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/DatatableColumnSchema.schema.json
 title: DatatableColumnSchema
 '@id': stencila:DatatableColumnSchema
+$extends: ../Thing.schema.yaml
+role: tertiary
+status: experimental
 properties:
-  type:
-    type: string
-    enum: [DatatableColumnSchema]
   items:
     type: object
     allOf:
@@ -13,5 +11,3 @@ properties:
   uniqueItems:
     type: boolean
     default: false
-required:
-  - type

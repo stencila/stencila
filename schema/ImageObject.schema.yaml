@@ -1,8 +1,8 @@
 title: ImageObject
 '@id': schema:ImageObject
 $extends: MediaObject.schema.yaml
+role: base
 status: unstable
-role: supporting
 description: |
   An image file. https://schema.org/ImageObject
 properties:

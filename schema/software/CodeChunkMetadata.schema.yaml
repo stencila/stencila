@@ -1,6 +1,8 @@
 title: CodeChunkMetadata
 '@id': stencila:CodeChunkMetadata
 $extends: ../Thing.schema.yaml
+role: tertiary
+status: unstable
 description: |
   Metadata describing the operation and display of a `CodeChunk`
 properties:

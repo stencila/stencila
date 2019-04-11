@@ -1,6 +1,8 @@
 title: SoftwareSession
 '@id': stencila:SoftwareSession
 $extends: ../Thing.schema.yaml
+role: primary
+status: experimental
 description: |
   Represents a runtime session with the resources and image that is required by software to execute.
 properties:

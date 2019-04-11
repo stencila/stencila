@@ -1,6 +1,8 @@
 title: Delete
 '@id': stencila:Delete
 $extends: ../Thing.schema.yaml
+role: secondary
+status: experimental
 description: Deleted textual content.
 properties:
   content:

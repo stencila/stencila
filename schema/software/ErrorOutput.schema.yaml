@@ -1,6 +1,8 @@
 title: ErrorOutput
 '@id': stencila:ErrorOutput
 $extends: CodeChunkOutputBase.schema.yaml
+role: tertiary
+status: experimental
 description: |
   The output of an execution if there was an error while executing.
 properties:

@@ -1,6 +1,8 @@
 title: Collection
 '@id': schema:Collection
 $extends: CreativeWork.schema.yaml
+role: secondary
+status: experimental
 properties:
   parts:
     '@id': schema:hasParts

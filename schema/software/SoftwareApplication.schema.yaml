@@ -1,6 +1,8 @@
 title: SoftwareApplication
 '@id': schema:SoftwareApplication
 $extends: ../CreativeWork.schema.yaml
+role: primary
+status: unstable
 description: |
   A software application.
 properties:

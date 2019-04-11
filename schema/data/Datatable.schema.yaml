@@ -1,6 +1,8 @@
 title: Datatable
-$extends: ../CreativeWork.schema.yaml
 '@id': stencila:Datatable
+$extends: ../CreativeWork.schema.yaml
+role: primary
+status: experimental
 description: A table of data.
 properties:
   columns:

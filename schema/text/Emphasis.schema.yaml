@@ -1,6 +1,8 @@
 title: Emphasis
 '@id': stencila:Emphasis
 $extends: ../Thing.schema.yaml
+role: secondary
+status: experimental
 description: Emphasised textual content.
 properties:
   content:

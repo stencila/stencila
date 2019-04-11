@@ -1,7 +1,8 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/UnknownOutput.schema.json
 title: UnknownOutput
 '@id': stencila:UnknownOutput
+$extends: ../Thing.schema.yaml
+role: tertiary
+status: experimental
 description: |
   The output of code execution in a format that is unknown.
 properties:

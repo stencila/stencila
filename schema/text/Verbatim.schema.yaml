@@ -1,6 +1,8 @@
 title: Verbatim
 '@id': stencila:Verbatim
 $extends: ../Thing.schema.yaml
+role: secondary
+status: experimental
 description: Verbatim textual content.
 properties:
   value:

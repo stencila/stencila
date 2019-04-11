@@ -1,6 +1,8 @@
 title: Article
 '@id': schema:Article
 $extends: CreativeWork.schema.yaml
+role: secondary
+status: experimental
 properties:
   content:
     '@id': stencila:content

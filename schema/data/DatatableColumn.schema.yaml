@@ -1,6 +1,8 @@
 title: DatatableColumn
 '@id': stencila:DatatableColumn
 $extends: ../Thing.schema.yaml
+role: secondary
+status: experimental
 properties:
   name:
     description: Name of the column.
@@ -17,7 +19,6 @@ properties:
   values:
     description: The values of the column.
     type: array
-value: values
 required:
   - name
   - values

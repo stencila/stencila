@@ -1,6 +1,8 @@
 title: Table
 '@id': schema:Table
 $extends: ../CreativeWork.schema.yaml
+role: primary
+status: experimental
 description: |
   A table within an executable document.
 properties:

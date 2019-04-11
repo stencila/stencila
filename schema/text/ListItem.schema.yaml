@@ -2,6 +2,8 @@ $schema: http://json-schema.org/draft-07/schema#
 $id: https://stencila.github.com/schema/ListItem.schema.json
 title: ListItem
 '@id': schema:ListItem
+role: secondary
+status: unstable
 description: |
   A list item, e.g. a step in a checklist or how-to description.
 properties:

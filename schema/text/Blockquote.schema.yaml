@@ -1,6 +1,8 @@
 title: Blockquote
 '@id': stencila:Blockquote
 $extends: ../Thing.schema.yaml
+role: secondary
+status: experimental
 description: |
   A section quoted from somewhere else.
 properties:

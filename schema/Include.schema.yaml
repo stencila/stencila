@@ -2,7 +2,7 @@ title: Include
 '@id': stencila:Include
 description: |
   A directive to include content from an external source (e.g. file, URL) or content.
-type: object
+role: secondary
 status: experimental
 properties:
   type:

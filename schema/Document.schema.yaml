@@ -1,6 +1,7 @@
 title: Document
 '@id': stencila:Document
 $extends: CreativeWork.schema.yaml
+role: primary
 status: experimental
 description: |
   An executable document.

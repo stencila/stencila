@@ -1,6 +1,8 @@
 title: Heading
 '@id': stencila:Heading
 $extends: ../Thing.schema.yaml
+role: secondary
+status: experimental
 description: Heading
 properties:
   depth:

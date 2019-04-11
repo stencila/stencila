@@ -1,6 +1,8 @@
 title: List
 '@id': schema:ItemList
 $extends: ../Thing.schema.yaml
+role: secondary
+status: unstable
 description: |
   A list of items.
 properties:

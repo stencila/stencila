@@ -1,6 +1,8 @@
 title: Mount
 '@id': stencila:Mount
 $extends: ../Thing.schema.yaml
+role: tertiary
+status: experimental
 description: |
   Describes a volume mount from a host to container.
 properties:

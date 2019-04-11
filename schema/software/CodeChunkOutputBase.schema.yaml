@@ -1,6 +1,8 @@
 title: CodeChunkOutputBase
 '@id': stencila:CodeChunkOutputBase
 $extends: ../Thing.schema.yaml
+role: tertiary
+status: experimental
 description: |
   An "abstract" base for all output types (DisplayDataOutput, ExecutionResultOutput, ErrorOutput, StreamOutput)
 properties:

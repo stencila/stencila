@@ -1,6 +1,7 @@
 title: Sheet
 '@id': stencila:Sheet
 $extends: Thing.schema.yaml
+role: seondary
 status: experimental
 description: |
   A sheet within an executable document.
