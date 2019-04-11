@@ -27,7 +27,10 @@ const Documentation = (props: DocumentationPageProps) => {
 
   return (
     <Column className="is-clipped">
-      <Title>{schema.title}<Tag color="info">{file.relativeDirectory}</Tag></Title>
+      <Title>
+        {schema.title}
+        <Tag color="info">{file.relativeDirectory}</Tag>
+      </Title>
       <Title subtitle={true} as="h2">
         <code>{schema.$id}</code>
       </Title>
@@ -51,7 +54,10 @@ const Documentation = (props: DocumentationPageProps) => {
         </Column>
 
         <Column size={6} paddingless={true}>
-          <CodeTabs relativePath={file.relativePath} data={props.data.examples} />
+          <CodeTabs
+            relativePath={file.relativePath}
+            data={props.data.examples}
+          />
         </Column>
       </Column.Group>
     </Column>
@@ -66,7 +72,7 @@ export const pageQuery = graphql`
       filter: {
         relativePath: { eq: $relativePath }
         sourceInstanceName: { eq: "schemas" }
-        internal: {mediaType: {eq: "text/yaml"}}
+        internal: { mediaType: { eq: "text/yaml" } }
       }
     ) {
       edges {
@@ -88,9 +94,7 @@ export const pageQuery = graphql`
         }
       }
     }
-    notes: mdx(
-      fileAbsolutePath: { regex: $fileRegex }
-    ) {
+    notes: mdx(fileAbsolutePath: { regex: $fileRegex }) {
       code {
         body
       }

@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "lint": "prettier --write **/*.{ts,tsx,js,jsx,json,css,md,mdx,yaml}",
+    "lint": "prettier --write **/**/*.{ts,tsx,js,jsx,json,css,md,mdx,yaml}",
     "test": "gulp test",
     "build": "gulp build",
     "build:jsonschema": "gulp jsonschema",
