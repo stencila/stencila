@@ -3,7 +3,13 @@ node_js: "10"
 
 script:
   - npm run build
+  - npm run test
   - npm run docs
+
+after_success:
+  # Upload test coverage to codecov
+  # See https://docs.codecov.io/v5.0.0/docs/about-the-codecov-bash-uploader
+  - bash <(curl -s https://codecov.io/bash)
 
 before_deploy:
   # Move build into `public` for deployment of JSON Schema and JSON LD to Github pages
