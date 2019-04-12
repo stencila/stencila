@@ -26,12 +26,20 @@ module.exports = {
     },
 
     `gatsby-transformer-yaml`,
+    `gatsby-transformer-json`,
 
     {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `schemas`,
-        path: `${__dirname}/schema`
+        path: `${__dirname}/dist`
+      }
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `schemas`,
+        path: `${__dirname}/dist`
       }
     },
     {

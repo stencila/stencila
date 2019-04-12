@@ -11,17 +11,15 @@ exports.createPages = ({ graphql, actions }) => {
   return new Promise((resolve, reject) => {
     graphql(`
       {
-        allFile(
-          filter: {
-            internal: { mediaType: { eq: "text/yaml" } }
-            sourceInstanceName: { eq: "schemas" }
-          }
-        ) {
+        allFile(filter: { sourceInstanceName: { eq: "schemas" } }) {
           edges {
             node {
               id
               name
               relativePath
+              childDistJson {
+                title
+              }
             }
           }
         }
@@ -33,9 +31,12 @@ exports.createPages = ({ graphql, actions }) => {
 
       const schemas = result.data.allFile.edges.map(edge => edge.node)
       schemas.forEach(schema => {
-        const title = schema.name.split('.')[0]
+        const title = schema.childDistJson
+          ? schema.childDistJson.title
+          : schema.name.split('.')[0]
+
         createPage({
-          path: title,
+          path: `/${title}`,
           component: slash(path.resolve('src/templates/page.tsx')),
           context: {
             fileRegex: `/${title}\./i`,

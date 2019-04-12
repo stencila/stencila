@@ -23,7 +23,7 @@ export const CodeTabs = ({ relativePath, data }: Props) => {
 
   const schemas = files.map(file => {
     try {
-      return require('../../schema/' + file)
+      return require('../../dist/' + file)
     } catch {
       try {
         return require('../../examples/' + file)
@@ -42,7 +42,10 @@ export const CodeTabs = ({ relativePath, data }: Props) => {
             active={schemaIndex === index}
             onClick={() => changeSchema(index)}
           >
-            {file.split('/').reverse()[0]}
+            {file
+              .split('/')
+              .reverse()[0]
+              .replace('yaml', 'json')}
           </Tab>
         ))}
       </Tab.Group>

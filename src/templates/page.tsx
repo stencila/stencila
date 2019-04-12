@@ -20,7 +20,7 @@ const Documentation = (props: DocumentationPageProps) => {
     return <div>done</div>
   }
 
-  const schema = require(`../../schema/${file.relativePath}`)
+  const schema = require(`../../dist/${file.relativePath}`)
   const allOf = schema.allOf ? schema.allOf[1].properties : {}
   const anyOf = schema.anyOf ? schema.anyOf[1].properties : {}
   const properties = { ...schema.properties, ...allOf, ...anyOf }
@@ -29,8 +29,11 @@ const Documentation = (props: DocumentationPageProps) => {
     <Column className="is-clipped">
       <Title>
         {schema.title}
-        <Tag color="info">{file.relativeDirectory}</Tag>
+        {file.childDistJson.category && file.childDistJson !== '.' && (
+          <Tag color="info">{file.childDistJson.category}</Tag>
+        )}
       </Title>
+
       <Title subtitle={true} as="h2">
         <code>{schema.$id}</code>
       </Title>
@@ -72,13 +75,17 @@ export const pageQuery = graphql`
       filter: {
         relativePath: { eq: $relativePath }
         sourceInstanceName: { eq: "schemas" }
-        internal: { mediaType: { eq: "text/yaml" } }
       }
     ) {
       edges {
         node {
           relativePath
           relativeDirectory
+          childDistJson {
+            title
+            role
+            category
+          }
         }
       }
     }
