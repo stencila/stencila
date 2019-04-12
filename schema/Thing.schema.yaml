@@ -6,9 +6,11 @@ description: The most generic type of item https://schema.org/Thing.
 type: object
 properties:
   type:
-    # Note: this is a special property analagous to JSON-LD's `@type` keyword
+    # This is a special property analagous to JSON-LD's `@type` keyword
     # and so should not have a `@id` since it is not a property.
-    description: The name of the type
+    # It is extended with the titles of all descendant types during
+    # the generation of schema.json files.
+    description: The name of the type and all descendant types.
     type: string
     enum: [Thing]
   alternateNames:
@@ -25,5 +27,10 @@ properties:
     '@id': schema:name
     description: The name of the item.
     type: string
+  url:
+    '@id': schema:url
+    description: The URL of the item.
+    allOf:
+      - $ref: URL.schema.yaml
 required:
   - type

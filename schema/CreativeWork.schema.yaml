@@ -29,3 +29,7 @@ properties:
       anyOf:
         - $ref: URL.schema.yaml
         - $ref: CreativeWork.schema.yaml
+  text:
+    '@id': schema:text
+    description: The textual content of this CreativeWork.
+    type: string

@@ -2,7 +2,10 @@ title: Expression
 '@id': Expression
 $extends: SoftwareSourceCode.schema.yaml
 role: secondary
-status: Experimental
+status: experimental
 description: An expression.
 properties:
-  value: {}
+  value:
+    '@id': stencila:value
+    allOf:
+      - $ref: ../Node.schema.yaml
