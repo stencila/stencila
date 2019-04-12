@@ -4,7 +4,9 @@ node_js: "10"
 script:
   - npm run build
   - npm run test
-  - npm run docs
+  # Temporarily disable due to failiures associated with
+  # soon to be superceded use of YAML
+  # - npm run docs
 
 after_success:
   # Upload test coverage to codecov
