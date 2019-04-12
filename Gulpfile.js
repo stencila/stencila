@@ -39,10 +39,12 @@ function processSchema(schemas, schema) {
     if (!schema.$schema)
       schema.$schema = `http://json-schema.org/draft-07/schema#`
     if (!schema.$id)
-      schema.$id = `https://stencila.github.com/schema/${schema.title}`
+      schema.$id = `https://stencila.github.com/schema/${
+        schema.title
+      }.schema.json`
 
     // Don't modify any other schema
-    if (!schema.$id.includes('stencila')) return 
+    if (!schema.$id.includes('stencila')) return
 
     schema.category = path.dirname(schema.source)
     schema.children = []
@@ -59,11 +61,11 @@ function processSchema(schemas, schema) {
     }
 
     if (schema.$extends) {
-      // Get the base schema and ensure that it 
+      // Get the base schema and ensure that it
       // has been processed (to collect properties)
       let base = parent(schema)
       processSchema(schemas, base)
-    
+
       // Do extension of properties from base
       if (base.properties)
         schema.properties = { ...base.properties, ...(schema.properties || {}) }
@@ -81,7 +83,10 @@ function processSchema(schemas, schema) {
 
       function parent(schema) {
         if (!schema.$extends) return null
-        const parentPath = path.join(path.dirname(schema.source), schema.$extends)
+        const parentPath = path.join(
+          path.dirname(schema.source),
+          schema.$extends
+        )
         const parent = schemas.get(parentPath)
         if (!parent)
           throw new Error(`Schema in "$extends" not found for: "${parentPath}"`)
@@ -105,7 +110,9 @@ function processSchema(schemas, schema) {
 
     schema.$processed = true
   } catch (error) {
-    throw new Error(`Error when processing "${schema.source}": "${error.stack}"`)
+    throw new Error(
+      `Error when processing "${schema.source}": "${error.stack}"`
+    )
   }
 }
 
@@ -123,30 +130,39 @@ async function jsonschema() {
       filePaths.map(async filePath => {
         let source = path.relative('schema', filePath)
         let schema = yaml.safeLoad(await fs.readFile(filePath))
-        return [source, {...schema, source}]
+        return [source, { ...schema, source }]
       })
     )
   )
 
   // Process each of the schemas
   for (let schema of schemas.values()) processSchema(schemas, schema)
-  
+
   // Do final processing and write schema objects to `dist/*.schema.json` files
   await fs.ensureDir('dist')
   for (let schema of schemas.values()) {
     // Generate the destination path from the source and then
-    // rewrite source so that it can be use for a "Edit this schema" link in docs. 
+    // rewrite source so that it can be use for a "Edit this schema" link in docs.
     const destPath = path.join(
       'dist',
       path.basename(schema.source).replace('.yaml', '.json')
     )
-    schema.source = `https://github.com/stencila/schema/blob/master/schema/${schema.source}`
+    schema.source = `https://github.com/stencila/schema/blob/master/schema/${
+      schema.source
+    }`
 
     // Create a final `properties.type.enum` (all `Thing`s should have this) based on `$descendants`
-    if (schema.$id.includes('stencila') && schema.properties && schema.properties.type) {
+    if (
+      schema.$id.includes('stencila') &&
+      schema.properties &&
+      schema.properties.type
+    ) {
       if (schema.descendants) {
-        schema.properties.type.enum = [schema.title, ...schema.descendants.sort()]
-      } else  {
+        schema.properties.type.enum = [
+          schema.title,
+          ...schema.descendants.sort()
+        ]
+      } else {
         schema.properties.type.enum = [schema.title]
       }
     }
@@ -273,28 +289,29 @@ function jsonld() {
 }
 
 /**
- * Generate `dist/index.d.ts` from `schema/index.schema.json`
+ * Generate `types.d.ts` from `schema/types.schema.json`
  */
-async function typescript() {
-  const src = 'dist/index.schema.json'
-  const dest = 'dist/index.d.ts'
+async function ts() {
+  const src = 'dist/types.schema.json'
+  const dest = 'types.ts'
   const options = {
     bannerComment: `/* tslint:disable */
 /**
  * This file was automatically generated.
  * Do not modify it by hand. Instead, modify the source \`.schema.yaml\` file
  * in the \`schema\` directory and run \`npm run build\` to regenerate this file.
- */`
+ */
+ `
   }
   const ts = await jstt.compileFromFile(src, options)
   fs.writeFileSync(dest, ts)
 }
 
 /**
- * Check the generated JSON Schemas in `dist/*.schema.json` are valid.
+ * Check the generated JSON Schemas in `dist/types.schema.json` are valid.
  */
 async function check() {
-  const schema = await fs.readJSON('dist/index.schema.json')
+  const schema = await fs.readJSON('dist/types.schema.json')
   const metaSchema = require('ajv/lib/refs/json-schema-draft-07.json')
   const ajv = new Ajv({ jsonPointers: true })
   const validate = ajv.compile(metaSchema)
@@ -413,13 +430,13 @@ function clean() {
 exports.jsonschema = jsonschema
 exports.check = series(jsonschema, check)
 exports.jsonld = series(jsonschema, jsonld)
-exports.typescript = series(jsonschema, typescript)
+exports.ts = series(jsonschema, ts)
 exports.test = series(jsonschema, test)
 exports.build = series(
   clean,
   jsonschema,
   parallel(check, test),
-  parallel(jsonld, typescript)
+  parallel(jsonld, ts)
 )
 exports.watch = () =>
   watch(['schema', 'examples'], { ignoreInitial: false }, exports.build)

@@ -29,5 +29,8 @@
     "./dist/Table.json": "*.table.yaml",
     "./dist/TableCell.json": "*.tableCell.yaml",
     "./dist/Text.json": "*.url.yaml"
-  }
+  },
+  "cSpell.words": [
+    "stencila"
+  ]
 }

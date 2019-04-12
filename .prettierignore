@@ -1,4 +1,8 @@
 .cache
+coverage
 dist
 node_modules
 public
+
+### Generated files ###
+types.ts
