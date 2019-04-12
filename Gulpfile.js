@@ -1,124 +1,162 @@
-const { src, dest, parallel, series, watch } = require('gulp')
+const { src, parallel, series, watch } = require('gulp')
 const Ajv = require('ajv')
 const betterAjvErrors = require('better-ajv-errors')
 const del = require('del')
 const fs = require('fs-extra')
+const globby = require('globby')
 const jls = require('vscode-json-languageservice')
 const jstt = require('json-schema-to-typescript')
 const path = require('path')
 const refParser = require('json-schema-ref-parser')
-const rename = require('gulp-rename')
 const through2 = require('through2')
 const yaml = require('js-yaml')
 
 /**
- * Generate a `dist/*.schema.json` files from a `schema/*.schema.{yaml,json}` file
+ * Process a schema object.
  *
  * This function processes hand written YAML or JSON schema definitions with the aim
- * of making schema authoring less tedious and error prone. Including:
+ * of making schema authoring less tedious and error prone. Including the following modifications:
  *
  * - `$schema`: set to `http://json-schema.org/draft-07/schema#` if not specified
  * - `$id`: set to `https://stencila.github.com/schema/${schema.title}.schema.json` if not specified
  * - `properties.*.from`: set to `schema.title`
  * - `properties.type.enum[0]`: set to `schema.title`
  * - `additionalProperties`: set to `false` if not specified
- * - `category`: the category (subdirectory) the schema belongs to
+ * - `category`: set to the category (subdirectory) the schema belongs to
+ * - `children`: a list of child schemas
+ * - `descendants`: a list of all descendant schemas
+ * - `source`: the location of the source file for the schema definition
  *
  * If the schema defines the `$extends` keyword then in addition:
  *
- * - `extends`: the title of the base
- * - `properties`: merged from bases and current schema
- * - `required`: merged from bases and current schema
+ * - `parent`: set to the title of the parent schema (we don't use `extends` because that affects Typescript generation)
+ * - `properties`: are merged from ancestors and the current schema
+ * - `required`: are merged from ancestors and the current schema
  */
-function processSchema(filePath) {
-  const schema = yaml.safeLoad(fs.readFileSync(filePath))
+function processSchema(schemas, schema) {
+  if (schema.$processed) return
+  try {
+    if (!schema.$schema)
+      schema.$schema = `http://json-schema.org/draft-07/schema#`
+    if (!schema.$id)
+      schema.$id = `https://stencila.github.com/schema/${schema.title}`
 
-  // Do not touch schemas that do not have a title
-  if (!schema.title) return schema
+    // Don't modify any other schema
+    if (!schema.$id.includes('stencila')) return 
 
-  if (!schema.$schema)
-    schema.$schema = `http://json-schema.org/draft-07/schema#`
-  if (!schema.$id)
-    schema.$id = `https://stencila.github.com/schema/${schema.title}`
-  schema.category = path.relative(
-    path.join(__dirname, 'schema'),
-    path.dirname(filePath)
-  )
+    schema.category = path.dirname(schema.source)
+    schema.children = []
+    schema.descendants = []
 
-  if (schema.properties) {
-    for (let index in schema.properties) {
-      schema.properties[index].from = schema.title
+    if (schema.properties) {
+      schema.type = 'object'
+      for (let index in schema.properties) {
+        schema.properties[index].from = schema.title
+      }
+      if (schema.additionalProperties === undefined) {
+        schema.additionalProperties = false
+      }
     }
+
+    if (schema.$extends) {
+      // Get the base schema and ensure that it 
+      // has been processed (to collect properties)
+      let base = parent(schema)
+      processSchema(schemas, base)
+    
+      // Do extension of properties from base
+      if (base.properties)
+        schema.properties = { ...base.properties, ...(schema.properties || {}) }
+      if (base.required)
+        schema.required = [...base.required, ...(schema.required || [])]
+
+      // For all ancestors add this schema to the descendants list
+      schema.parent = base.title
+      base.children.push(schema.title)
+      let ancestor = base
+      while (ancestor) {
+        ancestor.descendants.push(schema.title)
+        ancestor = parent(ancestor)
+      }
+
+      function parent(schema) {
+        if (!schema.$extends) return null
+        const parentPath = path.join(path.dirname(schema.source), schema.$extends)
+        const parent = schemas.get(parentPath)
+        if (!parent)
+          throw new Error(`Schema in "$extends" not found for: "${parentPath}"`)
+        return parent
+      }
+    }
+
+    if (path.extname(schema.source) === '.yaml') {
+      // Replace any `$ref`s to YAML with a ref to the JSON generated in this function
+      walk(schema)
+
+      function walk(node) {
+        if (typeof node !== 'object') return
+        for (let [key, child] of Object.entries(node)) {
+          if (key === '$ref' && typeof child === 'string')
+            node[key] = path.basename(child).replace('.yaml', '.json')
+          walk(child)
+        }
+      }
+    }
+
+    schema.$processed = true
+  } catch (error) {
+    throw new Error(`Error when processing "${schema.source}": "${error.stack}"`)
   }
-
-  const $extends = schema.$extends
-  if ($extends) {
-    const basePath = path.join(path.dirname(filePath), $extends)
-    if (!fs.existsSync(basePath)) {
-      throw new Error(
-        `When processing "$extends" file not found: "${basePath}"`
-      )
-    }
-    const base = processSchema(basePath)
-    schema.properties = { ...base.properties, ...(schema.properties || {}) }
-    schema.required = [...base.required, ...(schema.required || [])]
-    schema.$extends = base.title
-  }
-
-  if (schema.properties) {
-    schema.type = 'object'
-    if (schema.properties.type && Array.isArray(schema.properties.type.enum)) {
-      schema.properties.type.enum[0] = schema.title
-    }
-    if (schema.additionalProperties === undefined) {
-      schema.additionalProperties = false
-    }
-  }
-
-  return schema
 }
 
 /**
  * Generate `dist/*.schema.json` files from `schema/*.schema.{yaml,json}` files
+ *
+ * This function does not use Gulp file streams because it needs to load all the schemas
+ * into memory at once. It does
  */
-function jsonschema() {
-  return src('schema/**/*.schema.{yaml,json}')
-    .pipe(
-      through2.obj((file, enc, cb) => {
-        let schema
-        try {
-          schema = processSchema(file.path)
-        } catch (error) {
-          throw new Error(
-            `Error when processing "${file.path}": "${error.stack}"`
-          )
-        }
-
-        // Replace any `$ref`s to YAML with a ref to the JSON generated
-        // in this function
-        function walk(node) {
-          if (typeof node !== 'object') return
-          for (let [key, child] of Object.entries(node)) {
-            if (key === '$ref' && typeof child === 'string')
-              node[key] = path.basename(child).replace('.yaml', '.json')
-            walk(child)
-          }
-        }
-        if (file.extname === '.yaml') walk(schema)
-
-        // Convert to JSON
-        file.contents = Buffer.from(JSON.stringify(schema, null, '  '))
-
-        cb(null, file)
+async function jsonschema() {
+  // Aysnchronously read all the schema definition files into a map of objects
+  const filePaths = await globby('schema/**/*.schema.{yaml,json}')
+  const schemas = new Map(
+    await Promise.all(
+      filePaths.map(async filePath => {
+        let source = path.relative('schema', filePath)
+        let schema = yaml.safeLoad(await fs.readFile(filePath))
+        return [source, {...schema, source}]
       })
     )
-    .pipe(
-      rename({
-        dirname: '',
-        extname: '.json'
-      })
+  )
+
+  // Process each of the schemas
+  for (let schema of schemas.values()) processSchema(schemas, schema)
+  
+  // Do final processing and write schema objects to `dist/*.schema.json` files
+  await fs.ensureDir('dist')
+  for (let schema of schemas.values()) {
+    // Generate the destination path from the source and then
+    // rewrite source so that it can be use for a "Edit this schema" link in docs. 
+    const destPath = path.join(
+      'dist',
+      path.basename(schema.source).replace('.yaml', '.json')
     )
-    .pipe(dest('dist/'))
+    schema.source = `https://github.com/stencila/schema/blob/master/schema/${schema.source}`
+
+    // Create a final `properties.type.enum` (all `Thing`s should have this) based on `$descendants`
+    if (schema.$id.includes('stencila') && schema.properties && schema.properties.type) {
+      if (schema.descendants) {
+        schema.properties.type.enum = [schema.title, ...schema.descendants.sort()]
+      } else  {
+        schema.properties.type.enum = [schema.title]
+      }
+    }
+
+    // Remove unnecessary processing keywords
+    delete schema.$extends
+    delete schema.$processed
+
+    await fs.writeJSON(destPath, schema, { spaces: 2 })
+  }
 }
 
 /**
