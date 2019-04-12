@@ -20,8 +20,5 @@ properties:
     type: array
     items:
       $ref: TableCell.schema.yaml
-anyOf:
-  - required:
-      - rows
-  - required:
-      - cells
+required:
+  - cells
