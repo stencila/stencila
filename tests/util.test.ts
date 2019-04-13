@@ -53,6 +53,13 @@ describe('create', () => {
       foo: 'invalid'
     })
   })
+
+  it('will mutate initial value to conform to schema', () => {
+    expect(create('Thing', { name: 42, foo: 'invalid' }, 'mutate')).toEqual({
+      type: 'Thing',
+      name: '42',
+    })
+  })
 })
 
 test('type', () => {
@@ -60,6 +67,7 @@ test('type', () => {
   expect(type(null)).toBe('null')
   expect(type(true)).toBe('boolean')
   expect(type(0)).toBe('number')
+  expect(type(NaN)).toBe('number')
   expect(type('0')).toBe('string')
   expect(type([])).toBe('array')
   expect(type({})).toBe('object')
@@ -290,5 +298,10 @@ describe('mutate', () => {
         'Person'
       )
     ).toThrow('url: format should match format "uri"')
+  })
+
+  it('throws an error if invalid type', () => {
+    // @ts-ignore
+    expect(() => mutate({}, 'Foo')).toThrow(/^No schema for type "Foo".$/)
   })
 })
