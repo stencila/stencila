@@ -117,13 +117,13 @@ function processSchema(schemas, schema) {
 }
 
 /**
- * Generate `dist/*.schema.json` files from `schema/*.schema.{yaml,json}` files
+ * Generate `dist/*.schema.json` files from `schema/*.schema.{yaml,json}` files.
  *
  * This function does not use Gulp file streams because it needs to load all the schemas
  * into memory at once. It does
  */
 async function jsonschema() {
-  // Aysnchronously read all the schema definition files into a map of objects
+  // Asynchronously read all the schema definition files into a map of objects
   const filePaths = await globby('schema/**/*.schema.{yaml,json}')
   const schemas = new Map(
     await Promise.all(
@@ -173,6 +173,30 @@ async function jsonschema() {
 
     await fs.writeJSON(destPath, schema, { spaces: 2 })
   }
+
+  // Output `types.schema.json`
+  // This 'meta' schema provides a list of type schemas as:
+  //  - an entry point for the generation of Typescript type definitions
+  //  - a lookup for all types for use in `util.ts` functions
+  const properties = {}
+  const required = []
+  for (const schema of schemas.values()) {
+    if (
+      !(schema.title && schema.$id && schema.$id.startsWith('https://stencila'))
+    )
+      continue
+    properties[schema.title] = {
+      allOf: [{ $ref: `${schema.title}.schema.json` }]
+    }
+    required.push(schema.title)
+  }
+  const types = {
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    title: 'Types',
+    properties,
+    required
+  }
+  await fs.writeJSON('dist/types.schema.json', types, { spaces: 2 })
 }
 
 /**
