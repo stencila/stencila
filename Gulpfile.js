@@ -165,6 +165,7 @@ async function jsonschema() {
       } else {
         schema.properties.type.enum = [schema.title]
       }
+      schema.properties.type.default = schema.title
     }
 
     // Remove unnecessary processing keywords
