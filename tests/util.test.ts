@@ -1,4 +1,13 @@
-import { assert, create, is, cast, type, valid, validate } from '../util'
+import {
+  assert,
+  create,
+  is,
+  cast,
+  type,
+  valid,
+  validate,
+  mutate
+} from '../util'
 
 describe('create', () => {
   it('works with different types', () => {
@@ -39,7 +48,7 @@ describe('create', () => {
   })
 
   it('does not throw when wrong initial values and no validation', () => {
-    expect(create('Thing', { foo: 'invalid' }, false)).toEqual({
+    expect(create('Thing', { foo: 'invalid' }, 'none')).toEqual({
       type: 'Thing',
       foo: 'invalid'
     })
@@ -148,8 +157,12 @@ describe('validate', () => {
   })
 
   it('throws for missing properties', () => {
-    expect(() => validate({}, 'Thing')).toThrow(/^ should have required property 'type'$/)
-    expect(() => validate({type: 'Article'}, 'Article')).toThrow(/^ should have required property 'authors'$/)
+    expect(() => validate({}, 'Thing')).toThrow(
+      /^ should have required property 'type'$/
+    )
+    expect(() => validate({ type: 'Article' }, 'Article')).toThrow(
+      /^ should have required property 'authors'$/
+    )
   })
 
   it('throws on type with no schema', () => {
@@ -162,6 +175,120 @@ describe('validate', () => {
 describe('valid', () => {
   it('works', () => {
     expect(valid(null, 'Thing')).toBe(false)
-    expect(valid({type: 'Thing'}, 'Thing')).toBe(true)
+    expect(valid({ type: 'Thing' }, 'Thing')).toBe(true)
+  })
+})
+
+describe('mutate', () => {
+  it('will add type property', () => {
+    expect(mutate({}, 'Person')).toEqual({
+      type: 'Person'
+    })
+    expect(
+      mutate(
+        {
+          type: 'Foo',
+          name: 'John'
+        },
+        'Person'
+      )
+    ).toEqual({
+      type: 'Person',
+      name: 'John'
+    })
+  })
+
+  it('will coerce types', () => {
+    expect(
+      mutate(
+        {
+          name: 42
+        },
+        'Person'
+      )
+    ).toEqual({
+      type: 'Person',
+      name: '42'
+    })
+    expect(
+      mutate(
+        {
+          name: null
+        },
+        'Person'
+      )
+    ).toEqual({
+      type: 'Person',
+      name: ''
+    })
+  })
+
+  it('will coerce arrays to scalars', () => {
+    expect(
+      mutate(
+        {
+          type: 'Person',
+          name: [42]
+        },
+        'Person'
+      )
+    ).toEqual({
+      type: 'Person',
+      name: '42'
+    })
+  })
+
+  it('will coerce scalars to arrays', () => {
+    expect(
+      mutate(
+        {
+          type: 'Person',
+          givenNames: 'Jane'
+        },
+        'Person'
+      )
+    ).toEqual({
+      type: 'Person',
+      givenNames: ['Jane']
+    })
+  })
+
+  it('will add default values for missing properties', () => {
+    expect(mutate({}, 'Thing')).toEqual({
+      type: 'Thing'
+    })
+  })
+
+  it('will remove additional properties', () => {
+    expect(
+      mutate(
+        {
+          favoriteColor: 'red'
+        },
+        'Person'
+      )
+    ).toEqual({
+      type: 'Person'
+    })
+  })
+
+  it('throws an error if unable to coerce data, or data is otherwise invalid', () => {
+    expect(() =>
+      mutate(
+        {
+          name: {}
+        },
+        'Person'
+      )
+    ).toThrow('name: type should be string')
+
+    expect(() =>
+      mutate(
+        {
+          url: 'foo'
+        },
+        'Person'
+      )
+    ).toThrow('url: format should match format "uri"')
   })
 })

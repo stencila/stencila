@@ -12,16 +12,17 @@ import * as stencila from './types'
  * Create a node of a type
  * @param type The name of the type
  * @param initial Initial values for properties
- * @param validation Should validation be done?
+ * @param validation What validation should done?
  */
 export function create<Key extends keyof stencila.Types>(
   type: Key,
   initial: { [key: string]: any } = {},
-  validation: boolean = true
+  validation: 'none' | 'validate' | 'mutate' = 'validate'
 ): stencila.Types[Key] {
-  const node = { type, ...initial }
-  if (validation) validate(node, type)
-  return node as stencila.Types[Key]
+  let node = { type, ...initial }
+  if (validation === 'validate') return validate(node, type)
+  else if (validation === 'mutate') return mutate(node, type)
+  else return node
 }
 
 /**
@@ -85,13 +86,14 @@ export function cast<Key extends keyof stencila.Types>(
   return casted as stencila.Types[Key]
 }
 
-// Singleton JSON Schema validation engine which caches
-// validator functions for each schema. We load all schemas
-// into the validation engine at start up.
+// Load all schemas for use by Ajv
+const schemas = globby
+  .sync(path.join(__dirname, 'dist', '*.schema.json'))
+  .map(file => fs.readJSONSync(file))
+
+// Cached JSON Schema validation functions
 const validators = new Ajv({
-  schemas: globby
-    .sync(path.join(__dirname, 'dist', '*.schema.json'))
-    .map(file => fs.readJSONSync(file)),
+  schemas,
   jsonPointers: true
 })
 
@@ -100,7 +102,10 @@ const validators = new Ajv({
  * @param node The node to validate
  * @param type The type to validate against
  */
-export function validate(node: any, type: string): boolean {
+export function validate<Key extends keyof stencila.Types>(
+  node: any,
+  type: Key
+): stencila.Types[Key] {
   const validator = validators.getSchema(
     `https://stencila.github.com/schema/${type}.schema.json`
   )
@@ -111,7 +116,7 @@ export function validate(node: any, type: string): boolean {
     }) as unknown) as betterAjvErrors.IOutputError[]
     throw new Error(errors.map(error => `${error.error}`).join(';'))
   }
-  return true
+  return node
 }
 
 /**
@@ -119,10 +124,52 @@ export function validate(node: any, type: string): boolean {
  * @param node The node to check
  * @param type The type to check against
  */
-export function valid(node: any, type: string): boolean {
+export function valid<Key extends keyof stencila.Types>(
+  node: any,
+  type: Key
+): boolean {
   try {
-    return validate(node, type)
+    validate(node, type)
+    return true
   } catch (error) {
     return false
   }
+}
+
+// Cached JSON Schema validation/mutation functions
+// These use Ajv options that mutate nodes so we
+// keep them separate from pure non-mutating validators.
+const mutators = new Ajv({
+  schemas,
+  jsonPointers: true,
+  // Add values from `default` keyword when property is missing
+  useDefaults: true,
+  // Remove any additional properties
+  removeAdditional: true,
+  // Coerce type of data to match type keyword and coerce scalar
+  // data to an array with one element and vice versa, as needed.
+  coerceTypes: 'array'
+})
+
+/**
+ * Mutate a node so it conforms to a type's schema
+ * @param node The node to mutate
+ * @param type The type to conform to
+ */
+export function mutate<Key extends keyof stencila.Types>(
+  node: any,
+  type: Key
+): stencila.Types[Key] {
+  const mutator = mutators.getSchema(
+    `https://stencila.github.com/schema/${type}.schema.json`
+  )
+  if (!mutator) throw new Error(`No schema for type "${type}".`)
+  const mutated = { ...node, type }
+  if (!mutator(mutated)) {
+    const errors = (betterAjvErrors(mutator.schema, node, mutator.errors, {
+      format: 'js'
+    }) as unknown) as betterAjvErrors.IOutputError[]
+    throw new Error(errors.map(error => `${error.error}`).join(';'))
+  }
+  return mutated
 }
