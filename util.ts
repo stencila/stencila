@@ -79,12 +79,13 @@ export function assert(node: any, types: string | string[]): boolean {
  * @param type The type to cast to
  */
 export function cast<Key extends keyof stencila.Types>(
-  node: { [key: string]: any },
+  node: any,
   type: Key
 ): stencila.Types[Key] {
-  const casted = { ...node, type }
-  validate(casted, type)
-  return casted as stencila.Types[Key]
+  return produce(node, casted => {
+    casted.type = type
+    validate(casted, type)
+  }) 
 }
 
 // Load all schemas for use by Ajv
