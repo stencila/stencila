@@ -57,7 +57,7 @@ describe('create', () => {
   it('will mutate initial value to conform to schema', () => {
     expect(create('Thing', { name: 42, foo: 'invalid' }, 'mutate')).toEqual({
       type: 'Thing',
-      name: '42',
+      name: '42'
     })
   })
 })
@@ -303,5 +303,25 @@ describe('mutate', () => {
   it('throws an error if invalid type', () => {
     // @ts-ignore
     expect(() => mutate({}, 'Foo')).toThrow(/^No schema for type "Foo".$/)
+  })
+
+  it('has no side effects', () => {
+    const inp: any = {
+      name: 42,
+      authors: [{ type: 'Person', givenNames: 'Jane' }]
+    }
+    const out = mutate(inp, 'Article')
+
+    // The original object should be unchanged
+    expect(inp.type).toBeUndefined()
+    expect(inp.name).toEqual(42)
+    const inpPerson = inp.authors[0]
+    expect(inpPerson.givenNames).toEqual('Jane')
+
+    // The new object has the changes made
+    expect(out.type).toEqual('Article')
+    expect(out.name).toEqual('42')
+    const outPerson = cast(out.authors[0], 'Person')
+    expect(outPerson.givenNames).toEqual(['Jane'])
   })
 })

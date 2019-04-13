@@ -5,6 +5,7 @@ import Ajv from 'ajv'
 import betterAjvErrors from 'better-ajv-errors'
 import fs from 'fs-extra'
 import globby from 'globby'
+import produce from 'immer'
 import path from 'path'
 import * as stencila from './types'
 
@@ -164,12 +165,14 @@ export function mutate<Key extends keyof stencila.Types>(
     `https://stencila.github.com/schema/${type}.schema.json`
   )
   if (!mutator) throw new Error(`No schema for type "${type}".`)
-  const mutated = { ...node, type }
-  if (!mutator(mutated)) {
-    const errors = (betterAjvErrors(mutator.schema, node, mutator.errors, {
-      format: 'js'
-    }) as unknown) as betterAjvErrors.IOutputError[]
-    throw new Error(errors.map(error => `${error.error}`).join(';'))
-  }
-  return mutated
+
+  return produce(node, mutated => {
+    mutated.type = type
+    if (!mutator(mutated)) {
+      const errors = (betterAjvErrors(mutator.schema, node, mutator.errors, {
+        format: 'js'
+      }) as unknown) as betterAjvErrors.IOutputError[]
+      throw new Error(errors.map(error => `${error.error}`).join(';'))
+    }
+  })
 }

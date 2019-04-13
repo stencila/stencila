@@ -5,33 +5,33 @@
       "type": "node",
       "request": "launch",
       "name": "Jest All",
-      "program": "${workspaceFolder}/js/node_modules/.bin/jest",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
       "args": ["--runInBand"],
-      "cwd": "${workspaceFolder}/js",
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "windows": {
-        "program": "${workspaceFolder}/js/node_modules/jest/bin/jest"
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
       }
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Jest Current File",
-      "program": "${workspaceFolder}/js/node_modules/.bin/jest",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
       "args": ["${relativeFile}"],
-      "cwd": "${workspaceFolder}/js",
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "windows": {
-        "program": "${workspaceFolder}/js/node_modules/jest/bin/jest"
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
       }
     },
     {
       "type": "node",
       "request": "launch",
       "name": "Gulp build",
-      "program": "${workspaceRoot}/js/node_modules/gulp/bin/gulp.js",
+      "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
       "stopOnEntry": false,
       "args": ["build"],
       "cwd": "${workspaceRoot}",
