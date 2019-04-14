@@ -36,6 +36,8 @@
     "fs-extra": "^7.0.1",
     "globby": "^9.2.0",
     "immer": "^2.1.5",
+    "parse-author": "^2.0.0",
+    "parse-full-name": "^1.2.3",
     "prismjs": "^1.16.0",
     "rbx": "^2.1.0",
     "react": "^16.8.6",
