@@ -85,7 +85,7 @@ export function cast<Key extends keyof stencila.Types>(
   return produce(node, casted => {
     casted.type = type
     validate(casted, type)
-  }) 
+  })
 }
 
 // Load all schemas for use by Ajv
@@ -153,6 +153,9 @@ const mutators = new Ajv({
   coerceTypes: 'array'
 })
 
+// Read in aliases for use in mutate function
+const aliases = fs.readJSONSync(path.join(__dirname, 'dist', 'aliases.json'))
+
 /**
  * Mutate a node so it conforms to a type's schema
  * @param node The node to mutate
@@ -169,6 +172,10 @@ export function mutate<Key extends keyof stencila.Types>(
 
   return produce(node, mutated => {
     mutated.type = type
+
+    // Rename property aliases
+    rename(mutated)
+
     if (!mutator(mutated)) {
       const errors = (betterAjvErrors(mutator.schema, node, mutator.errors, {
         format: 'js'
@@ -176,4 +183,18 @@ export function mutate<Key extends keyof stencila.Types>(
       throw new Error(errors.map(error => `${error.error}`).join(';'))
     }
   })
+  // Replace aliases with canonical names
+  function rename(node: any) {
+    if (!node || typeof node !== 'object') return
+    for (let [key, child] of Object.entries(node)) {
+      if (!Array.isArray(node)) {
+        const name = aliases[key]
+        if (name) {
+          node[name] = child
+          delete node[key]
+        }
+      }
+      rename(child)
+    }
+  }
 }

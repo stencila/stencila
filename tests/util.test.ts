@@ -281,44 +281,56 @@ describe('mutate', () => {
   })
 
   it('will correct nested nodes including adding type', () => {
-    const article = mutate({
-      authors: [{
-        givenNames: 'Joe'
-      }, {
-        givenNames: ['Jane', 'Jill'],
-        familyNames: 'Jones'
-      }]
-    }, 'Article')
-    
+    const article = mutate(
+      {
+        authors: [
+          {
+            givenNames: 'Joe'
+          },
+          {
+            givenNames: ['Jane', 'Jill'],
+            familyNames: 'Jones'
+          }
+        ]
+      },
+      'Article'
+    )
+
     expect(article.authors[0].type).toEqual('Person')
     expect(cast(article.authors[0], 'Person').givenNames).toEqual(['Joe'])
     expect(article.authors[1].type).toEqual('Person')
     expect(cast(article.authors[1], 'Person').familyNames).toEqual(['Jones'])
-  })  
+  })
 
   it('currently has a bug with arrays using anyOf', () => {
-    const article = mutate({
-      authors: [{
-        givenNames: ['Joe']
-      }, {
-        // Even though we explicitly state that this is an
-        // `Organization`, `legalName` gets dropped because
-        // Ajv sees it as an additional property for `Person`
-        // This is a bug in Ajv.
-        type: 'Organization',
-        name: 'Example Uni',
-        legalName: 'Example University Inc.'
-      }]
-    }, 'Article')
-    
+    const article = mutate(
+      {
+        authors: [
+          {
+            givenNames: ['Joe']
+          },
+          {
+            // Even though we explicitly state that this is an
+            // `Organization`, `legalName` gets dropped because
+            // Ajv sees it as an additional property for `Person`
+            // This is a bug in Ajv.
+            type: 'Organization',
+            name: 'Example Uni',
+            legalName: 'Example University Inc.'
+          }
+        ]
+      },
+      'Article'
+    )
+
     expect(article.authors[0].type).toEqual('Person')
-    
+
     expect(article.authors[1].type).toEqual('Organization')
     expect(article.authors[1].name).toEqual('Example Uni')
     // @ts-ignore
     expect(article.authors[1].legalName).toBeUndefined()
     expect(cast(article.authors[1], 'Organization').legalName).toBeUndefined()
-  })  
+  })
 
   it('throws an error if unable to coerce data, or data is otherwise invalid', () => {
     expect(() =>

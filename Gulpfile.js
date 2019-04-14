@@ -33,7 +33,7 @@ const yaml = require('js-yaml')
  * - `properties`: are merged from ancestors and the current schema
  * - `required`: are merged from ancestors and the current schema
  */
-function processSchema(schemas, schema) {
+function processSchema(schemas, aliases, schema) {
   if (schema.$processed) return
   try {
     if (!schema.$schema)
@@ -52,8 +52,19 @@ function processSchema(schemas, schema) {
 
     if (schema.properties) {
       schema.type = 'object'
-      for (let index in schema.properties) {
-        schema.properties[index].from = schema.title
+      for (const [name, property] of Object.entries(schema.properties)) {
+        schema.properties[name].from = schema.title
+        // Registered declared aliases
+        if (property.aliases) {
+          for (const alias of property.aliases) aliases[alias] = name
+        }
+        // Add and register aliases for array properties
+        if (property.type === 'array' && name.endsWith('s')) {
+          const alias = name.slice(0, -1)
+          if (!property.aliases) property.aliases = []
+          if (!property.aliases.includes(alias)) property.aliases.push(alias)
+          aliases[alias] = name
+        }
       }
       if (schema.additionalProperties === undefined) {
         schema.additionalProperties = false
@@ -64,7 +75,7 @@ function processSchema(schemas, schema) {
       // Get the base schema and ensure that it
       // has been processed (to collect properties)
       let base = parent(schema)
-      processSchema(schemas, base)
+      processSchema(schemas, aliases, base)
 
       // Do extension of properties from base
       if (base.properties)
@@ -135,8 +146,9 @@ async function jsonschema() {
     )
   )
 
-  // Process each of the schemas
-  for (let schema of schemas.values()) processSchema(schemas, schema)
+  // Process each of the schemas collecting aliases along the way
+  const aliases = {}
+  for (let schema of schemas.values()) processSchema(schemas, aliases, schema)
 
   // Do final processing and write schema objects to `dist/*.schema.json` files
   await fs.ensureDir('dist')
@@ -174,6 +186,9 @@ async function jsonschema() {
 
     await fs.writeJSON(destPath, schema, { spaces: 2 })
   }
+
+  // Output `aliases.json`
+  await fs.writeJSON(path.join('dist', 'aliases.json'), aliases, { spaces: 2 })
 
   // Output `types.schema.json`
   // This 'meta' schema provides a list of type schemas as:

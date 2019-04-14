@@ -28,6 +28,11 @@ properties:
       format: email
   familyNames:
     '@id': schema:familyName
+    aliases:
+      - surname
+      - surnames
+      - lastName
+      - lastNames
     type: array
     items:
       type: string
@@ -43,6 +48,9 @@ properties:
     type: array
     items:
       type: string
+    aliases:
+      - firstName
+      - firstNames
   honorificPrefix:
     '@id': schema:honorificPrefix
     type: string
