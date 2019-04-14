@@ -7,7 +7,9 @@ import fs from 'fs-extra'
 import globby from 'globby'
 import produce from 'immer'
 import path from 'path'
+
 import * as stencila from './types'
+import * as person from './schema/organization/Person'
 
 /**
  * Create a node of a type
@@ -153,6 +155,80 @@ const mutators = new Ajv({
   coerceTypes: 'array'
 })
 
+/**
+ * A list of parsers that can be applied using the `parser` keyword
+ */
+const parsers: { [key: string]: (data: string) => any } = {
+  csv,
+  ssv,
+  person: person.parse
+}
+
+/**
+ * Parse comma separated string data into an array of strings
+ */
+function csv(data: string): Array<string> {
+  return data.split(',')
+}
+
+/**
+ * Parse space separated string data into an array of strings
+ */
+function ssv(data: string): Array<string> {
+  return data.split(/ +/)
+}
+
+/**
+ * Custom validation function that handles the `parser`
+ * keyword.
+ */
+const parserValidate: Ajv.SchemaValidateFunction = (
+  parser: string,
+  data: string,
+  parentSchema?: object,
+  dataPath?: string,
+  parentData?: object | Array<any>,
+  parentDataProperty?: string | number,
+  rootData?: object | Array<any>
+): boolean => {
+  function raise(msg: string) {
+    parserValidate.errors = [
+      {
+        keyword: 'parser',
+        dataPath: '' + dataPath,
+        schemaPath: '',
+        params: {
+          keyword: 'parser'
+        },
+        message: msg,
+        data: data
+      }
+    ]
+    return false
+  }
+  const parse = parsers[parser]
+  if (!parse) return raise(`no such parser: "${parser}"`)
+
+  let parsed: any
+  try {
+    parsed = parse(data)
+  } catch (error) {
+    const parseError = error.message.split('\n')[0]
+    return raise(`error when parsing using "${parser}": ${parseError}`)
+  }
+
+  if (parentData !== undefined && parentDataProperty !== undefined) {
+    ;(parentData as any)[parentDataProperty] = parsed
+  }
+  return true
+}
+
+mutators.addKeyword('parser', {
+  type: 'string',
+  modifying: true,
+  validate: parserValidate
+})
+
 // Read in aliases for use in mutate function
 const aliases = fs.readJSONSync(path.join(__dirname, 'built', 'aliases.json'))
 
@@ -171,11 +247,10 @@ export function mutate<Key extends keyof stencila.Types>(
   if (!mutator) throw new Error(`No schema for type "${type}".`)
 
   return produce(node, mutated => {
-    mutated.type = type
-
+    if (typeof mutated === 'object') mutated.type = type
     // Rename property aliases
     rename(mutated)
-
+    // Mutate and validate
     if (!mutator(mutated)) {
       const errors = (betterAjvErrors(mutator.schema, node, mutator.errors, {
         format: 'js'
