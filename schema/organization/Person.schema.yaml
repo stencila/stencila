@@ -4,6 +4,7 @@ $extends: ../Thing.schema.yaml
 role: secondary
 status: unstable
 description: A person (alive, dead, undead, or fictional). https://schema.org/Person.
+parser: person
 properties:
   affiliations:
     '@id': schema:affiliation
@@ -28,9 +29,17 @@ properties:
       format: email
   familyNames:
     '@id': schema:familyName
-    type: array
-    items:
-      type: string
+    aliases:
+      - familyName
+      - surname
+      - surnames
+      - lastName
+      - lastNames
+    anyOf:
+      - parser: ssv
+      - type: array
+        items:
+          type: string
   funders:
     '@id': schema:funder
     type: array
@@ -40,9 +49,15 @@ properties:
         - $ref: Person.schema.yaml
   givenNames:
     '@id': schema:givenName
-    type: array
-    items:
-      type: string
+    aliases:
+      - givenName
+      - firstName
+      - firstNames
+    anyOf:
+      - parser: ssv
+      - type: array
+        items:
+          type: string
   honorificPrefix:
     '@id': schema:honorificPrefix
     type: string
