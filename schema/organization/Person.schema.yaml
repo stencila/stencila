@@ -2,20 +2,20 @@ title: Person
 '@id': schema:Person
 $extends: ../Thing.schema.yaml
 role: secondary
-status: unstable
+status: stable
 description: A person (alive, dead, undead, or fictional). https://schema.org/Person.
 parser: person
 properties:
+  address:
+    '@id': schema:address
+    description: Postal address for the person.
+    type: string
   affiliations:
     '@id': schema:affiliation
+    description: Organizations that the person is affiliated with.
     type: array
     items:
       $ref: Organization.schema.yaml
-  brand:
-    '@id': schema:brand
-    type: array
-    items:
-      $ref: Brand.schema.yaml
   contactPoint:
     '@id': schema:contactPoint
     type: object
@@ -23,6 +23,7 @@ properties:
       $ref: ContactPoint.schema.yaml
   emails:
     '@id': schema:email
+    description: Email addresses for the person.
     type: array
     items:
       type: string
@@ -35,13 +36,19 @@ properties:
       - surnames
       - lastName
       - lastNames
-    anyOf:
+    description: |
+      Family name. In the U.S., the last name of an Person. 
+      This can be used along with givenName instead of the name property.
+    allOf:
       - parser: ssv
       - type: array
         items:
           type: string
   funders:
     '@id': schema:funder
+    description: |
+      A person or organization that supports (sponsors) something through
+      some kind of financial contribution.
     type: array
     items:
       anyOf:
@@ -50,25 +57,45 @@ properties:
   givenNames:
     '@id': schema:givenName
     aliases:
-      - givenName
       - firstName
       - firstNames
-    anyOf:
+      # It is necessary to specify this alias because of use of allOf
+      - givenName
+    description: |
+      Given name. In the U.S., the first name of a Person.
+      This can be used along with familyName instead of the name property.
+    allOf:
       - parser: ssv
       - type: array
         items:
           type: string
   honorificPrefix:
     '@id': schema:honorificPrefix
+    aliases:
+      - prefix
+    description: An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
     type: string
   honorificSuffix:
     '@id': schema:honorificSuffix
+    aliases:
+      - suffix
+    description: An honorific suffix after a person's name such as MD/PhD/MSCSW.
     type: string
   jobTitle:
     '@id': schema:jobTitle
+    description: The job title of the person (for example, Financial Manager).
     type: string
   memberOf:
     '@id': schema:memberOf
+    description: An organization (or program membership) to which this person belongs.
     type: array
     items:
       - $ref: Organization.schema.yaml
+  telephoneNumbers:
+    '@id': schema:telephone
+    aliases:
+      - telephone
+    description: Telephone numbers for the person.
+    type: array
+    items:
+      type: string
