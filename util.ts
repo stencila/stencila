@@ -90,7 +90,7 @@ export function cast<Key extends keyof stencila.Types>(
 
 // Load all schemas for use by Ajv
 const schemas = globby
-  .sync(path.join(__dirname, 'dist', '*.schema.json'))
+  .sync(path.join(__dirname, 'built', '*.schema.json'))
   .map(file => fs.readJSONSync(file))
 
 // Cached JSON Schema validation functions
@@ -154,7 +154,7 @@ const mutators = new Ajv({
 })
 
 // Read in aliases for use in mutate function
-const aliases = fs.readJSONSync(path.join(__dirname, 'dist', 'aliases.json'))
+const aliases = fs.readJSONSync(path.join(__dirname, 'built', 'aliases.json'))
 
 /**
  * Mutate a node so it conforms to a type's schema

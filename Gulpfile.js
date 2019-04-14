@@ -128,7 +128,7 @@ function processSchema(schemas, aliases, schema) {
 }
 
 /**
- * Generate `dist/*.schema.json` files from `schema/*.schema.{yaml,json}` files.
+ * Generate `built/*.schema.json` files from `schema/*.schema.{yaml,json}` files.
  *
  * This function does not use Gulp file streams because it needs to load all the schemas
  * into memory at once. It does
@@ -150,13 +150,13 @@ async function jsonschema() {
   const aliases = {}
   for (let schema of schemas.values()) processSchema(schemas, aliases, schema)
 
-  // Do final processing and write schema objects to `dist/*.schema.json` files
-  await fs.ensureDir('dist')
+  // Do final processing and write schema objects to file
+  await fs.ensureDir('built')
   for (let schema of schemas.values()) {
     // Generate the destination path from the source and then
     // rewrite source so that it can be use for a "Edit this schema" link in docs.
     const destPath = path.join(
-      'dist',
+      'built',
       path.basename(schema.source).replace('.yaml', '.json')
     )
     schema.source = `https://github.com/stencila/schema/blob/master/schema/${
@@ -188,7 +188,7 @@ async function jsonschema() {
   }
 
   // Output `aliases.json`
-  await fs.writeJSON(path.join('dist', 'aliases.json'), aliases, { spaces: 2 })
+  await fs.writeJSON(path.join('built', 'aliases.json'), aliases, { spaces: 2 })
 
   // Output `types.schema.json`
   // This 'meta' schema provides a list of type schemas as:
@@ -212,11 +212,19 @@ async function jsonschema() {
     properties,
     required
   }
-  await fs.writeJSON('dist/types.schema.json', types, { spaces: 2 })
+  await fs.writeJSON('built/types.schema.json', types, { spaces: 2 })
+
+  // Copy the built files into `dist` for publishing package
+  await fs.ensureDir('dist')
+  await Promise.all(
+    (await globby('built/**/*')).map(
+      async file => await fs.copy(file, path.join('dist', file))
+    )
+  )
 }
 
 /**
- * Generate a JSON-LD `@context` from the `dist/*.schema.json` files
+ * Generate a JSON-LD `@context` from the `built/*.schema.json` files
  *
  * Generates a `@context` similar to https://github.com/codemeta/codemeta/blob/master/codemeta.jsonld
  * but with any extension class or properties defined using `Class` or `Property` (see using https://meta.schema.org/).
@@ -227,7 +235,7 @@ function jsonld() {
 
   // Process each JSON file
   return (
-    src('dist/*.schema.json')
+    src('built/*.schema.json')
       .pipe(
         through2.obj((file, enc, cb) => {
           const schema = JSON.parse(file.contents)
@@ -321,6 +329,8 @@ function jsonld() {
           ...[...Object.entries(properties)].sort()
         ])
           jsonld[key] = value
+
+        fs.ensureDirSync('dist')
         fs.writeJSONSync(path.join('dist', 'stencila.jsonld'), jsonld, {
           spaces: 2
         })
@@ -329,10 +339,10 @@ function jsonld() {
 }
 
 /**
- * Generate `types.d.ts` from `schema/types.schema.json`
+ * Generate `types.ts` from `built/types.schema.json`
  */
 async function ts() {
-  const src = 'dist/types.schema.json'
+  const src = 'built/types.schema.json'
   const dest = 'types.ts'
   const options = {
     bannerComment: `/* tslint:disable */
@@ -348,10 +358,10 @@ async function ts() {
 }
 
 /**
- * Check the generated JSON Schemas in `dist/types.schema.json` are valid.
+ * Check the generated JSON Schemas in `built/types.schema.json` are valid.
  */
 async function check() {
-  const schema = await fs.readJSON('dist/types.schema.json')
+  const schema = await fs.readJSON('built/types.schema.json')
   const metaSchema = require('ajv/lib/refs/json-schema-draft-07.json')
   const ajv = new Ajv({ jsonPointers: true })
   const validate = ajv.compile(metaSchema)
@@ -375,7 +385,7 @@ function test() {
     loadSchema: uri => {
       const match = uri.match(/https:\/\/stencila.github.com\/schema\/(.+)$/)
       if (!match) throw new Error(`Not able to get schema from URI "${uri}"`)
-      return fs.readJSON(path.join('dist', match[1]))
+      return fs.readJSON(path.join('built', match[1]))
     }
   })
 
@@ -395,7 +405,7 @@ function test() {
         )
         if (!validator) {
           let schema = await fs.readJSON(
-            path.join('dist', type + '.schema.json')
+            path.join('built', type + '.schema.json')
           )
           validator = await ajv.compileAsync(schema)
         }
@@ -464,7 +474,7 @@ function test() {
  * Clean up!
  */
 function clean() {
-  return del('dist')
+  return del('dist', 'built', 'types.ts')
 }
 
 exports.jsonschema = jsonschema
