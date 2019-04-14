@@ -16,16 +16,11 @@ Dr Curie can be represented in canonical Stencila JSON by:
 
 ```json
 {
-	"type": "Person",
-	"honorificPrefix": "Dr",
-	"givenNames": [
-		"Marie",
-		"Skłodowska"
-	],
-	"familyNames": [
-		"Curie"
-	],
-	"honorificSuffix": "PhD"
+  "type": "Person",
+  "honorificPrefix": "Dr",
+  "givenNames": ["Marie", "Skłodowska"],
+  "familyNames": ["Curie"],
+  "honorificSuffix": "PhD"
 }
 ```
 
@@ -43,7 +38,6 @@ authors:
 ---
 
 Le présent travail a pour but d'exposer les recherches que je poursuis depuis plus de 4 ans sur les substances radioactives. J'ai commencé ces recherches par une étude du rayonnement uranique cjui a été découvert par M. Becquerel. Les résultats auxquels ...
-
 ```
 
 We can shorten this further by specifying Dr Curie's details as a string:
@@ -75,7 +69,7 @@ authors:
   - Schweidler, E.
 ```
 
-## Related 
+## Related
 
 ### JATS
 
@@ -122,15 +116,15 @@ In HTML5 metadata about the author can be included in two ways.
 
 The following table summarizes how properties of `Person` relate to other schema.
 
-| `Person`            | Crossref `<person-name>` | CSL `author` | JATS `<contrib>` |
-| ------------------- | ------------------------ | -------------| ---------------- |
-| affiliation         | affiliation              |              | aff              |
-| contactPoints       |                          |              | corresp          |
-| emails              |                          |              | email            |
-| familyNames         | surname                  | family       | surname          |
-| funders             |                          |              | funding-source   |
-| givenNames          | given_name               | given        | given-names      |
-| honorificPrefix     |                          |              | prefix           |
-| honorificSuffix     | suffix                   | suffix       | suffix, degrees  |
-| jobTitle            |                          |              | custom-meta      |
-| memberOf            |                          |              | custom-meta      |
+| `Person`        | Crossref `<person-name>` | CSL `author` | JATS `<contrib>` |
+| --------------- | ------------------------ | ------------ | ---------------- |
+| affiliation     | affiliation              |              | aff              |
+| contactPoints   |                          |              | corresp          |
+| emails          |                          |              | email            |
+| familyNames     | surname                  | family       | surname          |
+| funders         |                          |              | funding-source   |
+| givenNames      | given_name               | given        | given-names      |
+| honorificPrefix |                          |              | prefix           |
+| honorificSuffix | suffix                   | suffix       | suffix, degrees  |
+| jobTitle        |                          |              | custom-meta      |
+| memberOf        |                          |              | custom-meta      |
