@@ -14,8 +14,9 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 before_deploy:
-  # Move build into `public` for deployment of JSON Schema and JSON LD to Github pages
-  - cp dist/* public
+  # Copy built files into `public` for deployment of JSON Schema and JSON LD to Github pages
+  - mkdir -p public
+  - cp built/* public
 
 deploy:
   # Deploy a new version of NPM package and create a Github release

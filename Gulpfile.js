@@ -224,7 +224,7 @@ async function jsonschema() {
 }
 
 /**
- * Generate a JSON-LD `@context` from the `built/*.schema.json` files
+ * Generate `built/stencila.jsonld` from the `built/*.schema.json` files
  *
  * Generates a `@context` similar to https://github.com/codemeta/codemeta/blob/master/codemeta.jsonld
  * but with any extension class or properties defined using `Class` or `Property` (see using https://meta.schema.org/).
@@ -330,8 +330,8 @@ function jsonld() {
         ])
           jsonld[key] = value
 
-        fs.ensureDirSync('dist')
-        fs.writeJSONSync(path.join('dist', 'stencila.jsonld'), jsonld, {
+        fs.ensureDirSync('built')
+        fs.writeJSONSync(path.join('built', 'stencila.jsonld'), jsonld, {
           spaces: 2
         })
       })
@@ -474,7 +474,7 @@ function test() {
  * Clean up!
  */
 function clean() {
-  return del('dist', 'built', 'types.ts')
+  return del(['dist', 'built', 'types.ts'])
 }
 
 exports.jsonschema = jsonschema
