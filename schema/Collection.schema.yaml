@@ -8,6 +8,9 @@ properties:
     '@id': schema:hasParts
     type: array
     items:
-      $ref: CreativeWork.schema.yaml
+      anyOf:
+        - $ref: Article.schema.yaml
+        - $ref: Datatable.schema.yaml
+        - $ref: Table.schema.yaml
 required:
   - parts

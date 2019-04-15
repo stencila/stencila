@@ -4,10 +4,6 @@ $extends: ../Thing.schema.yaml
 role: secondary
 status: experimental
 properties:
-  name:
-    description: Name of the column.
-    allOf:
-      - $ref: name.schema.yaml
   meta:
     description: Metadata for the column.
     type: object
