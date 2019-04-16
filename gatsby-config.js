@@ -26,20 +26,27 @@ module.exports = {
     },
 
     `gatsby-transformer-yaml`,
-    `gatsby-transformer-json`,
+    {
+      resolve: `gatsby-transformer-json`,
+      options: {
+        typeName: `Json`
+      }
+    },
 
     {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `schemas`,
-        path: `${__dirname}/dist`
+        path: `${__dirname}/dist/built`,
+        ignore: ['**/types.schema.json', '**/*.jsonld', 'stencila.jsonld']
       }
     },
     {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `schemas`,
-        path: `${__dirname}/dist`
+        path: `${__dirname}/schema`,
+        ignore: ['**/*.json', '**/*.jsonld', '**/*.yaml', '**/*.ts']
       }
     },
     {

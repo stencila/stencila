@@ -5,7 +5,6 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 interface Props {
-  relativePath: string
   data: {
     edges: {
       node: {
@@ -15,28 +14,36 @@ interface Props {
   }
 }
 
-export const CodeTabs = ({ relativePath, data }: Props) => {
-  const files: Array<string> = [
-    relativePath,
+export const CodeTabs = ({ data }: Props) => {
+  const [fetchedData, setData] = useState([])
+  const [schemaIndex, changeSchema] = useState(0)
+
+  const filePaths: Array<string> = [
     ...data.edges.map(({ node }) => node.relativePath)
   ]
 
-  const schemas = files.map(file => {
-    try {
-      return require('../../dist/' + file)
-    } catch {
+  const getFileContents = async (files: Array<string>) => {
+    const fileContents = await files.map(file => {
       try {
-        return require('../../examples/' + file)
-      } catch {}
-    }
-  })
+        return require(`../../dist/built/${file}`)
+      } catch {
+        try {
+          return require(`../../examples/${file}`)
+        } catch {}
+      }
+    })
 
-  const [schemaIndex, changeSchema] = useState(0)
+    setData(fileContents)
+  }
+
+  React.useEffect(() => {
+    getFileContents(filePaths)
+  }, [data.edges])
 
   return (
     <div>
       <Tab.Group>
-        {files.map((file, index) => (
+        {filePaths.map((file, index) => (
           <Tab
             key={file}
             active={schemaIndex === index}
@@ -55,7 +62,7 @@ export const CodeTabs = ({ relativePath, data }: Props) => {
         language="json"
         style={atomDark}
       >
-        {JSON.stringify(schemas[schemaIndex], null, 2)}
+        {JSON.stringify(fetchedData[schemaIndex], null, 2)}
       </SyntaxHighlighter>
     </div>
   )

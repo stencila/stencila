@@ -4,7 +4,7 @@ import * as React from 'react'
 
 export const SidebarMenu = () => {
   const data = useStaticQuery(sidebarQuery)
-  const schemas = data.allDistJson.edges.map(({ node }) => {
+  const schemas = data.allJson.edges.map(({ node }) => {
     return {
       ...node,
       title: node.title || '',
@@ -33,7 +33,7 @@ export const SidebarMenu = () => {
 
 const sidebarQuery = graphql`
   query SidebarQuery {
-    allDistJson(filter: { title: { ne: null } }, sort: { fields: [title] }) {
+    allJson(filter: { title: { ne: null } }, sort: { fields: [title] }) {
       edges {
         node {
           id
