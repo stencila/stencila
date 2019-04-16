@@ -10,6 +10,6 @@ properties:
     '@id': 'stencila:content'
     type: array
     items:
-      $ref: blockContent.schema.yaml
+      $ref: BlockContent.schema.yaml
 required:
   - content

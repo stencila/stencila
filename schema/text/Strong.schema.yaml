@@ -10,6 +10,6 @@ properties:
     description: The content that is strongly emphasised.
     type: array
     items:
-      $ref: inlineContent.schema.yaml
+      $ref: InlineContent.schema.yaml
 required:
   - content

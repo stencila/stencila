@@ -11,6 +11,6 @@ properties:
       The content that is marked for deletion. Often indicated using a strike through style.
     type: array
     items:
-      $ref: inlineContent.schema.yaml
+      $ref: InlineContent.schema.yaml
 required:
   - content
