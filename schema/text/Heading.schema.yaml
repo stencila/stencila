@@ -13,7 +13,7 @@ properties:
     description: Content of the heading.
     type: array
     items:
-      $ref: inlineContent.schema.yaml
+      $ref: InlineContent.schema.yaml
 required:
   - depth
   - content

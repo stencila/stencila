@@ -8,6 +8,6 @@ properties:
   content:
     type: array
     items:
-      $ref: inlineContent.schema.yaml
+      $ref: InlineContent.schema.yaml
 required:
   - content
