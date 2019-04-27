@@ -16,11 +16,6 @@ properties:
     type: array
     items:
       $ref: Organization.schema.yaml
-  contactPoint:
-    '@id': schema:contactPoint
-    type: object
-    items:
-      $ref: ContactPoint.schema.yaml
   emails:
     '@id': schema:email
     description: Email addresses for the person.
