@@ -120,16 +120,16 @@ The ISA metadata framework includes a [`person_schema.json`](https://isa-specs.r
 
 The following table summarizes how properties of `Person` relate to other schema.
 
-| `Person`        | Crossref `<person-name>` | CSL `author` | ISA person schema      | JATS `<contrib>` |
-| --------------- | ------------------------ | ------------ | ---------------------- | ---------------- |
-| address         |                          |              | address                | address          |
-| affiliation     | affiliation              |              | affiliation            | aff              |
-| emails          |                          |              | email                  | email            |
-| familyNames     | surname                  | family       | lastName               | surname          |
-| funders         |                          |              |                        | funding-source   |
-| givenNames      | given_name               | given        | firstName, midInitials | given-names      |
-| honorificPrefix |                          |              |                        | prefix           |
-| honorificSuffix | suffix                   | suffix       |                        | suffix, degrees  |
-| jobTitle        |                          |              |                        | custom-meta      |
-| memberOf        |                          |              |                        | custom-meta      |
-| telephoneNumbers|                          |              | phone, fax             |                  |  
+| `Person`         | Crossref `<person-name>` | CSL `author` | ISA person schema      | JATS `<contrib>` |
+| ---------------- | ------------------------ | ------------ | ---------------------- | ---------------- |
+| address          |                          |              | address                | address          |
+| affiliation      | affiliation              |              | affiliation            | aff              |
+| emails           |                          |              | email                  | email            |
+| familyNames      | surname                  | family       | lastName               | surname          |
+| funders          |                          |              |                        | funding-source   |
+| givenNames       | given_name               | given        | firstName, midInitials | given-names      |
+| honorificPrefix  |                          |              |                        | prefix           |
+| honorificSuffix  | suffix                   | suffix       |                        | suffix, degrees  |
+| jobTitle         |                          |              |                        | custom-meta      |
+| memberOf         |                          |              |                        | custom-meta      |
+| telephoneNumbers |                          |              | phone, fax             |                  |

@@ -1,15 +1,22 @@
 title: Article
 '@id': schema:Article
 $extends: CreativeWork.schema.yaml
-role: secondary
-status: experimental
+role: primary
+status: unstable
 properties:
-  content:
-    '@id': stencila:content
-    description: The main content of the article. Equivalent to https://schema.org/articleBody.
+  articleBody:
+    '@id': schema:articleBody
+    description: The main content of the article.
     type: array
     items:
       $ref: Node.schema.yaml
+  environment:
+    '@id': stencila:environment
+    description: |
+      The computational environment in which the document should be executed.
+    allOf:
+      - $ref: software/Environment.schema.yaml
+
 required:
   # See Google's list of required properties at
   # https://developers.google.com/search/docs/data-types/article#article_types

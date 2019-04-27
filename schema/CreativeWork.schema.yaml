@@ -27,7 +27,8 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: URL.schema.yaml
+        - type: string
+          format: uri
         - $ref: CreativeWork.schema.yaml
   text:
     '@id': schema:text

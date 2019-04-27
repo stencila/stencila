@@ -13,8 +13,7 @@ properties:
       The name of the cell. Cell's have an implicit name derived from their position in the table
       e.g. `C4` for the cell in the third column and fourth row. However this name can be overridden
       with an explicit name, e.g. `rate`.
-    allOf:
-      - $ref: name.schema.yaml
+    type: string
   position:
     '@id': schema:position
     description: |

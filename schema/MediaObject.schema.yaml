@@ -10,5 +10,5 @@ properties:
   contentUrl:
     '@id': schema:contentUrl
     description: Actual bytes of the media object, for example the image file or video file.
-    allOf:
-      - $ref: URL.schema.yaml
+    type: string
+    format: uri

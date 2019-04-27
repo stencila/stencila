@@ -10,8 +10,8 @@ properties:
     '@id': schema:codeRepository
     description: |
       Link to the repository where the un-compiled, human readable code and related code is located (SVN, github, CodePlex)
-    allOf:
-      - $ref: URL.schema.yaml
+    type: string
+    format: uri
   codeSampleType:
     '@id': schema:codeSampleType
     description: |
