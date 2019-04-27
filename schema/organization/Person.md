@@ -1,6 +1,6 @@
 # Person
 
-The `Person` type allows you to provide details about a person such as their given and family names, any honourifix prefix or suffix, and contact details such as an email address. This type of often used to describe the `authors` of an [`Article`](/Article), or other [`CreativeWork`](/CreativeWork).
+The `Person` type allows you to provide details about a person such as their given and family names, any honorific prefix or suffix, and contact details such as an email address. This type of often used to describe the `authors` of an [`Article`](/Article), or other [`CreativeWork`](/CreativeWork).
 
 ## Examples
 
@@ -24,7 +24,7 @@ Dr Curie can be represented in canonical Stencila JSON by:
 }
 ```
 
-YAML provides a more readable format for providing details about a person in places like Markdown front-matter. In the following example, we take advantage of [property aliases](/docs/property-aliases) to use the shorter `prefix` and `suffix` property names, and the US convention of `fistNames` and `lastName` (instead of `givenNames` and `familyNames`). We also use [property parsing](/docs/property-parsing) to be be able to write `fistNames` as a space separated values.
+YAML provides a more readable format for providing details about a person in places like Markdown front-matter. In the following example, we take advantage of [property aliases](/docs/property-aliases) to use the shorter `prefix` and `suffix` property names, and the US convention of `firstNames` and `lastName` (instead of `givenNames` and `familyNames`). We also use [property parsing](/docs/property-parsing) to be be able to write `firstNames` as a space separated values.
 
 ```markdown
 ---
@@ -50,7 +50,7 @@ authors:
   - Dr Marie Skłodowska Curie PhD
 ```
 
-If there had been email and web pages in the 1900s then we could also add those for her and her collegues:
+If there had been email and web pages in the 1900s then we could also add those for her and her colleagues:
 
 ```yaml
 type: Article
@@ -112,19 +112,24 @@ In HTML5 metadata about the author can be included in two ways.
 
 `Person` is analogous to the CSL JSON Schema for [`author`](https://github.com/citation-style-language/schema/blob/f01ba9c5ec2055e381a38598919a379255c496c5/csl-data.json#L72) items which describe a person who contributed to authoring an entity.
 
+### ISA framework
+
+The ISA metadata framework includes a [`person_schema.json`](https://isa-specs.readthedocs.io/en/latest/isajson.html#person-schema-json) which is similar to `Person`.
+
 ### Summary
 
 The following table summarizes how properties of `Person` relate to other schema.
 
-| `Person`        | Crossref `<person-name>` | CSL `author` | JATS `<contrib>` |
-| --------------- | ------------------------ | ------------ | ---------------- |
-| affiliation     | affiliation              |              | aff              |
-| contactPoints   |                          |              | corresp          |
-| emails          |                          |              | email            |
-| familyNames     | surname                  | family       | surname          |
-| funders         |                          |              | funding-source   |
-| givenNames      | given_name               | given        | given-names      |
-| honorificPrefix |                          |              | prefix           |
-| honorificSuffix | suffix                   | suffix       | suffix, degrees  |
-| jobTitle        |                          |              | custom-meta      |
-| memberOf        |                          |              | custom-meta      |
+| `Person`        | Crossref `<person-name>` | CSL `author` | ISA person schema      | JATS `<contrib>` |
+| --------------- | ------------------------ | ------------ | ---------------------- | ---------------- |
+| address         |                          |              | address                | address          |
+| affiliation     | affiliation              |              | affiliation            | aff              |
+| emails          |                          |              | email                  | email            |
+| familyNames     | surname                  | family       | lastName               | surname          |
+| funders         |                          |              |                        | funding-source   |
+| givenNames      | given_name               | given        | firstName, midInitials | given-names      |
+| honorificPrefix |                          |              |                        | prefix           |
+| honorificSuffix | suffix                   | suffix       |                        | suffix, degrees  |
+| jobTitle        |                          |              |                        | custom-meta      |
+| memberOf        |                          |              |                        | custom-meta      |
+| telephoneNumbers|                          |              | phone, fax             |                  |  
