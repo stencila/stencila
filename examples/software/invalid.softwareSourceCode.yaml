@@ -4,5 +4,5 @@ maintainers:
   - Joe Smith
   - Jane Doe
 
-# invalid, should be a URL
+# String is not a URI: URI with a scheme is expected.
 codeRepository: my-repo.git
