@@ -1,4 +1,0 @@
-title: URL
-'@id': schema:URL
-type: string
-format: uri

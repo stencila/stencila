@@ -11,7 +11,8 @@ properties:
     description: |
       A logo of of the brand. It can be either a URL of the image or image itself.
     anyOf:
-      - $ref: URL.schema.yaml
+      - type: string
+        format: uri
       - $ref: ImageObject.schema.yaml
   reviews:
     '@id': schema:review
