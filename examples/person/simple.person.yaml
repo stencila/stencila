@@ -1,9 +1,0 @@
-type: Person
-givenNames:
-  - John
-  - Tom
-familyNames:
-  - Smith
-emails:
-  - john.smith@example.com
-honorificPrefix: Dr
