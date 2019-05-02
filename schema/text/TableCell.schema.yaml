@@ -1,12 +1,11 @@
 title: TableCell
 '@id': stencila:TableCell
+$extends: ../Thing.schema.yaml
 role: secondary
 status: experimental
 description: |
   A cell within a `Table`.
 properties:
-  type:
-    enum: [TableCell]
   name:
     '@id': schema:name
     description: |
@@ -53,5 +52,4 @@ properties:
     items:
       $ref: InlineContent.schema.yaml
 required:
-  - position
   - content

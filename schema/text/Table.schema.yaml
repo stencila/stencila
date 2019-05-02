@@ -2,9 +2,8 @@ title: Table
 '@id': schema:Table
 $extends: ../CreativeWork.schema.yaml
 role: primary
-status: experimental
-description: |
-  A table within an executable document.
+status: unstable
+description: A table.
 properties:
   rows:
     '@id': stencila:rows
@@ -21,4 +20,4 @@ properties:
     items:
       $ref: TableCell.schema.yaml
 required:
-  - cells
+  - rows
