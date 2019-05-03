@@ -9,5 +9,6 @@ anyOf:
   - $ref: Emphasis.schema.yaml
   - $ref: Strong.schema.yaml
   - $ref: Delete.schema.yaml
+  - $ref: Quote.schema.yaml
   - $ref: Verbatim.schema.yaml
   - $ref: Expression.schema.yaml

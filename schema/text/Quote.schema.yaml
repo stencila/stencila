@@ -1,0 +1,21 @@
+# Analagous to the <q> element in HTML
+# https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q
+title: Quote
+'@id': stencila:Quote
+$extends: ../Thing.schema.yaml
+role: secondary
+status: stable
+description: A short inline quote.
+properties:
+  citation:
+    '@id': schema:citation
+    description: The source of the quote
+    type: string
+    format: uri
+  content:
+    '@id': 'stencila:content'
+    type: array
+    items:
+      $ref: InlineContent.schema.yaml
+required:
+  - content

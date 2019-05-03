@@ -1,11 +1,16 @@
-title: Blockquote
-'@id': stencila:Blockquote
+title: QuoteBlock
+'@id': stencila:QuoteBlock
 $extends: ../Thing.schema.yaml
 role: secondary
-status: experimental
+status: stable
 description: |
   A section quoted from somewhere else.
 properties:
+  citation:
+    '@id': schema:citation
+    description: The source of the quote
+    type: string
+    format: uri
   content:
     '@id': 'stencila:content'
     type: array

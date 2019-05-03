@@ -1,9 +1,9 @@
 title: BlockContent
 description: Block content.
 anyOf:
-  - $ref: Blockquote.schema.yaml
   - $ref: Heading.schema.yaml
   - $ref: List.schema.yaml
   - $ref: Paragraph.schema.yaml
+  - $ref: QuoteBlock.schema.yaml
   - $ref: Table.schema.yaml
   - $ref: ThematicBreak.schema.yaml
