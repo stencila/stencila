@@ -3,27 +3,47 @@ title: CreativeWork
 $extends: Thing.schema.yaml
 role: base
 status: unstable
-description: The most generic kind of creative work, including books, movies, photographs, software programs, etc. https://schema.org/CreativeWork
+description: |
+  The most generic kind of creative work, including books, movies, photographs, 
+  software programs, etc. https://schema.org/CreativeWork
 properties:
   authors:
     '@id': schema:author
-    description: The authors of this content.
+    description: The authors of this this creative work.
     type: array
     items:
       anyOf:
         - $ref: Person.schema.yaml
         - $ref: Organization.schema.yaml
+  title:
+    # The name "title" is more appropriate to our context than schema.org's "headline".
+    # We provide the latter as an alias.
+    '@id': schema:headline
+    aliases:
+      - headline
+    type: string
   citations:
     '@id': schema:citation
-    description: Citations or references to another creative work, such as another publication, web page, scholarly article, etc.
+    description: |
+      Citations or references to other creative works, such as another publication, 
+      web page, scholarly article, etc.
     type: array
     items:
       anyOf:
         - type: string
         - $ref: CreativeWork.schema.yaml
+  content:
+    # We have added "content" because the existing schema.org property "text" implies
+    # only unstructued text content.
+    '@id': stencila:content
+    description: The structured content of this creative work c.f. property `text`.
+    type: array
+    items:
+      $ref: Node.schema.yaml
   licenses:
     '@id': schema:license
-    description: License documents that applies to this content, typically indicated by URL.
+    description: |
+      License documents that applies to this content, typically indicated by URL.
     type: array
     items:
       anyOf:
@@ -32,5 +52,5 @@ properties:
         - $ref: CreativeWork.schema.yaml
   text:
     '@id': schema:text
-    description: The textual content of this CreativeWork.
+    description: The textual content of this creative work.
     type: string
