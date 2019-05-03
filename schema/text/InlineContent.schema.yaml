@@ -1,5 +1,4 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/InlineContent.schema.json
+title: InlineContent
 description: Inline content.
 anyOf:
   - type: 'null'

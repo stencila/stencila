@@ -3,7 +3,7 @@ title: TableRow
 $extends: ../Thing.schema.yaml
 role: secondary
 status: experimental
-description:  A row within a Table.
+description: A row within a Table.
 properties:
   cells:
     '@id': stencila:cells
