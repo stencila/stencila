@@ -1,8 +1,7 @@
 import { Tab } from 'rbx'
 import * as React from 'react'
 import { useState } from 'react'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { Pre } from './Pre'
 
 interface Props {
   data: {
@@ -57,13 +56,7 @@ export const CodeTabs = ({ data }: Props) => {
         ))}
       </Tab.Group>
 
-      <SyntaxHighlighter
-        className="is-marginless"
-        language="json"
-        style={atomDark}
-      >
-        {JSON.stringify(fetchedData[schemaIndex], null, 2)}
-      </SyntaxHighlighter>
+      <Pre>{JSON.stringify(fetchedData[schemaIndex], null, 2)}</Pre>
     </div>
   )
 }

@@ -92,14 +92,14 @@ In HTML5 metadata about the author can be included in two ways.
 1. If there is a link to the detailed information about the author (eg. their homepage), `rel="author"` with `link` or `a` [should be used](https://html.spec.whatwg.org/multipage/links.html#link-type-author).
    Example:
 
-```
+```html
 <a href="http://johnsplace.com" rel="author">John</a>
 ```
 
 2. If there is no link to the information about the author, `class="author"` attribute should be used with `area`, `span` and so on.
    Example:
 
-```
+```html
 <span class="author">John</span>
 ```
 

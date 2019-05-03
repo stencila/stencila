@@ -1,9 +1,11 @@
+import { MDXProvider } from '@mdx-js/react'
 import { graphql } from 'gatsby'
 import { MDXRenderer } from 'gatsby-mdx'
 import { Block, Column, Content, Tag, Title } from 'rbx'
 import * as React from 'react'
 import { CodeTabs } from '../components/CodeTabs'
 import { LayoutProps, withLayout } from '../components/Layout'
+import { Pre } from '../components/Pre'
 import { SchemaTable } from '../components/SchemaTable'
 
 interface DocumentationPageProps extends LayoutProps {
@@ -12,6 +14,10 @@ interface DocumentationPageProps extends LayoutProps {
     examples: any
     notes: any
   }
+}
+
+const tagRenderers = {
+  pre: Pre
 }
 
 const Documentation = (props: DocumentationPageProps) => {
@@ -51,7 +57,9 @@ const Documentation = (props: DocumentationPageProps) => {
             <>
               <Block>
                 <Content>
-                  <MDXRenderer>{props.data.notes.code.body}</MDXRenderer>
+                  <MDXProvider components={tagRenderers}>
+                    <MDXRenderer>{props.data.notes.code.body}</MDXRenderer>
+                  </MDXProvider>
                 </Content>
               </Block>
 
