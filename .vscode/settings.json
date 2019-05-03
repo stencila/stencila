@@ -30,7 +30,5 @@
     "./dist/TableCell.json": "*.tableCell.yaml",
     "./dist/Text.json": "*.url.yaml"
   },
-  "cSpell.words": [
-    "stencila"
-  ]
+  "cSpell.words": ["stencila"]
 }

@@ -52,11 +52,11 @@ function processSchema(schemas, aliases, schema) {
 
     if (schema.properties) {
       schema.type = 'object'
-      
+
       let typesAliases = {}
       for (const [name, property] of Object.entries(schema.properties)) {
         schema.properties[name].from = schema.title
-        
+
         // Registered declared aliases
         if (property.aliases) {
           for (const alias of property.aliases) typesAliases[alias] = name
