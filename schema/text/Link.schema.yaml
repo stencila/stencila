@@ -1,0 +1,25 @@
+title: Link
+'@id': stencila:Link
+$extends: ../Thing.schema.yaml
+role: secondary
+status: unstable
+description: A link.
+properties:
+  content:
+    '@id': stencila:content
+    type: array
+    items:
+      $ref: InlineContent.schema.yaml
+  target:
+    '@id': stencila:target
+    type: string
+    format: uri
+  relation:
+    '@id': schema:linkRelationship
+    description:
+     The relation between the target and the current thing.
+     # See https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types
+    type: string
+required:
+  - content
+  - target
