@@ -11,4 +11,5 @@ anyOf:
   - $ref: Delete.schema.yaml
   - $ref: Quote.schema.yaml
   - $ref: Verbatim.schema.yaml
+  - $ref: Link.schema.yaml
   - $ref: Expression.schema.yaml
