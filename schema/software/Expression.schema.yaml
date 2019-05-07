@@ -6,6 +6,6 @@ status: experimental
 description: An expression.
 properties:
   value:
-    '@id': stencila:value
+    '@id': schema:value
     allOf:
       - $ref: ../Node.schema.yaml

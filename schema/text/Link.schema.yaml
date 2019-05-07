@@ -17,8 +17,8 @@ properties:
   relation:
     '@id': schema:linkRelationship
     description:
-     The relation between the target and the current thing.
-     # See https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types
+      The relation between the target and the current thing.
+      # See https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types
     type: string
 required:
   - content
