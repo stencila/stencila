@@ -1,0 +1,11 @@
+type: Article
+title: Recherches sur les substances radioactives
+authors:
+  - type: Person
+    honorificPrefix: Dr
+    givenNames:
+      - Marie
+      - Skłodowska
+    familyNames:
+      - Curie
+    honorificSuffix: PhD
