@@ -261,9 +261,12 @@ export function mutate<Key extends keyof stencila.Types>(
   // Replace aliases with canonical names
   function rename(node: any) {
     if (!node || typeof node !== 'object') return
+    if (!(node.type && aliases[node.type])) return
+
+    let propertyAliases = aliases[node.type]
     for (let [key, child] of Object.entries(node)) {
       if (!Array.isArray(node)) {
-        const name = aliases[key]
+        const name = propertyAliases[key]
         if (name) {
           node[name] = child
           delete node[key]

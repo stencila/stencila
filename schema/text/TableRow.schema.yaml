@@ -1,16 +1,15 @@
 title: TableRow
 '@id': stencila:TableRow
+$extends: ../Thing.schema.yaml
 role: secondary
 status: experimental
-description: |
-  A row within a `Table`.
+description: A row within a Table.
 properties:
   cells:
     '@id': stencila:cells
-    description: |
-      An array of cells in the table.
+    description: An array of cells in the row.
     type: array
     items:
       $ref: TableCell.schema.yaml
 required:
-  - value
+  - cells

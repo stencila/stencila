@@ -1,5 +1,4 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/InlineContent.schema.json
+title: InlineContent
 description: Inline content.
 anyOf:
   - type: 'null'
@@ -10,5 +9,8 @@ anyOf:
   - $ref: Emphasis.schema.yaml
   - $ref: Strong.schema.yaml
   - $ref: Delete.schema.yaml
-  - $ref: Verbatim.schema.yaml
+  - $ref: Quote.schema.yaml
+  - $ref: Code.schema.yaml
+  - $ref: Link.schema.yaml
+  - $ref: ImageObject.schema.yaml
   - $ref: Expression.schema.yaml

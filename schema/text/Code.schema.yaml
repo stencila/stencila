@@ -1,0 +1,17 @@
+title: Code
+'@id': stencila:Code
+$extends: ../Thing.schema.yaml
+role: secondary
+status: stable
+description: Inline code.
+properties:
+  language:
+    '@id': schema:programmingLanguage
+    description: The programming langauge of the code.
+    type: string
+  value:
+    '@id': schema:value
+    description: The text value.
+    type: string
+required:
+  - value

@@ -1,4 +1,5 @@
 type: Table
+rows: []
 cells:
   - type: TableCell
     position: [0, 0]

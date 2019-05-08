@@ -22,7 +22,7 @@ title: Organization
 
 #### The `@id` keyword
 
-This is a custom keyword used when generating the JSON-LD `@context`. 
+This is a custom keyword used when generating the JSON-LD `@context`.
 
 You MUST declare the `@id` keyword for each type using the format `<context>:<type>`. For example, `schema:Person`. Note that because this property name begins with the special character `@`, that it needs to be surrounded by quotes e.g.
 
@@ -53,7 +53,7 @@ Just as for types, properties of types can be linked to the other contexts using
 
 #### The `$extends` keyword
 
-This is a custom keyword which allows your type schema to inherit the `properties` and `required` keywords of a parent type schema. It should be a _relative_ file path e.g. 
+This is a custom keyword which allows your type schema to inherit the `properties` and `required` keywords of a parent type schema. It should be a _relative_ file path e.g.
 
 ```yaml
 $extends: ../Thing.schema.yaml
@@ -79,7 +79,6 @@ A RECOMMENDED custom keyword to indicate the development status of a type schema
 #### The `description` keyword
 
 It is RECOMMENDED to add a description for all type schemas and properties. Descriptions can be Markdown formatted.
-
 
 #### The `aliases` keyword
 
@@ -112,7 +111,7 @@ You can specify a parser for both types and properties. To specify a parser for 
 
 ```yaml
 title: Person
-...
+---
 parser: person
 ```
 

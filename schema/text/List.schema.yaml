@@ -6,8 +6,12 @@ status: unstable
 description: |
   A list of items.
 properties:
-  type:
-    enum: [List]
+  items:
+    '@id': 'schema:itemListElement'
+    description: The items in the list
+    type: array
+    items:
+      $ref: Node.schema.yaml
   order:
     '@id': 'schema:itemListOrder'
     description: Type of ordering.
@@ -15,10 +19,6 @@ properties:
       - ascending
       - descending
       - unordered
-  items:
-    '@id': 'schema:itemListElement'
-    type: array
-    items:
-      $ref: ListItem.schema.yaml
+    default: unordered
 required:
   - items

@@ -52,20 +52,28 @@ function processSchema(schemas, aliases, schema) {
 
     if (schema.properties) {
       schema.type = 'object'
+
+      let typesAliases = {}
       for (const [name, property] of Object.entries(schema.properties)) {
         schema.properties[name].from = schema.title
+
         // Registered declared aliases
         if (property.aliases) {
-          for (const alias of property.aliases) aliases[alias] = name
+          for (const alias of property.aliases) typesAliases[alias] = name
         }
         // Add and register aliases for array properties
         if (property.type === 'array' && name.endsWith('s')) {
           const alias = name.slice(0, -1)
           if (!property.aliases) property.aliases = []
           if (!property.aliases.includes(alias)) property.aliases.push(alias)
-          aliases[alias] = name
+          typesAliases[alias] = name
         }
       }
+      if (Object.keys(typesAliases).length) {
+        aliases[schema.title] = typesAliases
+        schema.aliases = true
+      }
+
       if (schema.additionalProperties === undefined) {
         schema.additionalProperties = false
       }

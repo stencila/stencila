@@ -4,12 +4,6 @@ $extends: CreativeWork.schema.yaml
 role: primary
 status: unstable
 properties:
-  articleBody:
-    '@id': schema:articleBody
-    description: The main content of the article.
-    type: array
-    items:
-      $ref: Node.schema.yaml
   environment:
     '@id': stencila:environment
     description: |
