@@ -1,0 +1,11 @@
+type: TableRow
+cells:
+  - type: TableCell
+    content:
+      - 1
+  - type: TableCell
+    content:
+      - 2
+  - type: TableCell
+    content:
+      - 3
