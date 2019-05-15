@@ -2,8 +2,5 @@ type: TableCell
 name: myCustomLabel
 content:
   - 1
-position:
-  - 1
-  - 2
 colspan: 2
 rowspan: 1

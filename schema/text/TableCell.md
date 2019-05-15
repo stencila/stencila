@@ -24,7 +24,6 @@ This is the most basic form of `TableCell` you can have, only requiring the `con
   "colspan": 2,
   "content": [1],
   "name": "myCustomLabel",
-  "position": [1, 2],
   "rowspan": 1
 }
 ```

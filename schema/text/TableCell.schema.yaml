@@ -13,19 +13,6 @@ properties:
       e.g. `C4` for the cell in the third column and fourth row. However this name can be overridden
       with an explicit name, e.g. `rate`.
     type: string
-  position:
-    '@id': schema:position
-    description: |
-      The position of the cell in the table described using a zero indexed `[col, row]` integer pair.
-      When missing, this should be inferred from the cell's name when the
-      cell matches the `^[A-Z]+[1-9][0-9]*$` pattern e.g. `C4` = `[2, 3]`
-    type: array
-    items:
-      - type: integer
-        minimum: 0
-    minItems: 2
-    maxItems: 2
-    tsType: '[number, number]'
   colspan:
     '@id': stencila:colspan
     description: |

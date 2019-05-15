@@ -31,12 +31,10 @@ The `Table` type can contain `rows`, which in turn contain `cells`.
       "cells": [
         {
           "type": "TableCell",
-          "position": [0, 0],
           "content": [1]
         },
         {
           "type": "TableCell",
-          "position": [0, 1],
           "content": [2]
         }
       ]
@@ -46,12 +44,10 @@ The `Table` type can contain `rows`, which in turn contain `cells`.
       "cells": [
         {
           "type": "TableCell",
-          "position": [1, 0],
           "content": [1]
         },
         {
           "type": "TableCell",
-          "position": [1, 1],
           "content": [2]
         }
       ]
