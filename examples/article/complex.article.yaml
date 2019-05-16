@@ -39,6 +39,4 @@ content:
           story.
   - type: Heading
     depth: 3
-    content:
-      - type: '#text'
-        value: Getting started with our reproducible article
+    content: Getting started with our reproducible article

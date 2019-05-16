@@ -45,6 +45,6 @@ data. The `content` field however, is still required.
 
 ### OpenDocument
 
-`Table` is analagous to the OpenDocument
+`TableRow` is analagous to the OpenDocument
 [`<table:table-row>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415588_253892949)
 element.
