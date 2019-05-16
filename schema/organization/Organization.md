@@ -18,6 +18,7 @@ The University of Otago can be represented in canonical Stencila JSON by:
 {
   "type": "Organization",
   "address": "362 Leith Street, Dunedin 9054, New Zealand",
+  "brands": "Otago",
   "contactPoints": {
     "availableLanguages": ["English", "Māori"],
     "emails": ["office@otago.ac.nz"],
@@ -39,6 +40,7 @@ authors:
     suffix: PhD
     affiliations: University of Otago
       - address: 362 Leith Street, Dunedin 9054, New Zealand
+        brands: Otago
         contactPoints: 
            - languages: English, Māori
              emails: office@otago.ac.nz
@@ -75,6 +77,8 @@ Example:
   <institution-id>Moo-U-41</institution-id>
   <institution content-type="edu">
   The University of Otago</institution>
+  <institution content-type="brand">
+  Otago</institution>
   <institution content-type="dept">
   Department of Computer Science </institution>
   <institution content-type="contact-language">
