@@ -23,6 +23,6 @@ properties:
   telephone:
     '@id': schema:telephone
     description: |
-      Phone contact number. It must be entered in a format +123456789 (starting with '+', no spaces or dashes.)
+      "Phone contact number. Accepted formats: +44 123455, (02)12345, 006645667."
     type: string
-    pattern: '\+\d*[0-9]'
+    pattern: '^[+#*\(\)\[\]]*([0-9][ ext+-pw#*\(\)\[\]]*){6,45}$'

@@ -10,13 +10,6 @@ properties:
     description: |
       Postal address for the organization.
     type: string
-  brands:
-    '@id': schema:brand
-    description: |
-      Brands that the organization is connected with.
-    type: array
-    items:
-      $ref: Brand.schema.yaml
   contactPoints:
     '@id': schema:contactPoint
     description: |
@@ -30,12 +23,7 @@ properties:
       Departments within the organization. For example, Department of Computer Science, Research & Development etc.
     type: array
     items:
-      - $ref: Organization.schema.yaml
-  emails:
-    type: array
-    items:
-      type: string
-      format: email
+      $ref: Organization.schema.yaml
   funders:
     '@id': schema:funder
     description: |
