@@ -8,35 +8,35 @@ authors:
 content:
   - type: Paragraph
     content:
-      - type: '#text'
-        value: >-
-          In September 2017 eLife announced the start of the Reproducible
-          Document Stack (RDS) project, a collaboration between Substance,
-          Stencila and eLife to support the development of an open-source
-          technology stack aimed at enabling researchers to publish reproducible
-          manuscripts through online journals. Reproducible manuscripts enrich
-          the traditional narrative of a research article with code, data and
-          interactive figures that can be executed in the browser, downloaded
-          and explored, giving readers a direct insight into the methods,
-          algorithms and key data behind the published research.
+      - >-
+        In September 2017 eLife announced the start of the Reproducible Document
+        Stack (RDS) project, a collaboration between Substance, Stencila and
+        eLife to support the development of an open-source technology stack
+        aimed at enabling researchers to publish reproducible manuscripts
+        through online journals. Reproducible manuscripts enrich the traditional
+        narrative of a research article with code, data and interactive figures
+        that can be executed in the browser, downloaded and explored, giving
+        readers a direct insight into the methods, algorithms and key data
+        behind the published research.
   - type: Paragraph
     content:
-      - type: '#text'
-        value: 'Today eLife, in collaboration with '
-      - type: a
-      - type: '#text'
-        value: ', '
-      - type: a
-      - type: '#text'
-        value: ' and Tim Errington, Director of Research ar the Center for Open Science, US, published its '
-      - type: a
-      - type: '#text'
-        value: >-
-          , based on one of Errington’s papers in the Reproducibility Project:
-          Cancer Biology. This reproducible version of the article showcases
-          some of what’s possible with the new RDS tools, and we invite
-          researchers to explore the newly available opportunities to tell their
-          story.
-  - type: Heading
-    depth: 3
-    content: Getting started with our reproducible article
+      - 'Today eLife, in collaboration with '
+      - type: Link
+        target: 'http://substance.io/'
+        content:
+          - Substance
+      - ', '
+      - type: Link
+        target: 'https://stenci.la/'
+        content:
+          - Stencila
+      - ' and Tim Errington, Director of Research ar the Center for Open Science, US, published its '
+      - type: Link
+        target: 'https://elifesci.org/reproducible-example'
+        content:
+          - first reproducible article
+      - >-
+        , based on one of Errington’s papers in the Reproducibility Project:
+        Cancer Biology. This reproducible version of the article showcases some
+        of what’s possible with the new RDS tools, and we invite researchers to
+        explore the newly available opportunities to tell their story.
