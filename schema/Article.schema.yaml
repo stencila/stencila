@@ -15,3 +15,4 @@ required:
   # See Google's list of required properties at
   # https://developers.google.com/search/docs/data-types/article#article_types
   - authors
+  - title

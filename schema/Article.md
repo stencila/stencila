@@ -1,3 +1,77 @@
+# Article
+
+An `Article` type allows you to provide details about a document containing amongst other properties, the content as written prose, executable snippets of code, as well as images.
+
+## Examples
+
+These examples, based on [Marie Curie](https://en.wikipedia.org/wiki/Marie_Curie), illustrate alternative ways for specifying an `Article`.
+
+### Simple
+
+In its most basic form, an `Article` requires a `title` and a list of `authors`.
+
+```json
+{
+  "type": "Article",
+  "title": "Recherches sur les substances radioactives",
+  "authors": [
+    {
+      "type": "Person",
+      "honorificPrefix": "Dr",
+      "givenNames": ["Marie", "Skłodowska"],
+      "familyNames": ["Curie"],
+      "honorificSuffix": "PhD"
+    }
+  ]
+}
+```
+
+### A more complete example
+
+In addition to the properties demonstrated above, `content` is usually a key property to most articles.
+The `content` property contains a list of [`Node`s](/schema/Node), meaning it can be contain any other valid node type.
+
+```json
+{
+  "type": "Article",
+  "title": "Introducing eLife’s first computationally reproducible article",
+  "url": "https://elifesciences.org/labs/ad58f08d/introducing-elife-s-first-computationally-reproducible-article",
+  "authors": ["Giuliano Maciocci", "Michael Aufreiter", "Nokome Bentley"],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "In September 2017 eLife announced the start of the Reproducible Document Stack (RDS) project, a collaboration between Substance, Stencila and eLife to support the development of an open-source technology stack aimed at enabling researchers to publish reproducible manuscripts through online journals. Reproducible manuscripts enrich the traditional narrative of a research article with code, data and interactive figures that can be executed in the browser, downloaded and explored, giving readers a direct insight into the methods, algorithms and key data behind the published research."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Today eLife, in collaboration with ",
+        {
+          "type": "Link",
+          "target": "http://substance.io/",
+          "content": ["Substance"]
+        },
+        ", ",
+        {
+          "type": "Link",
+          "target": "https://stenci.la/",
+          "content": ["Stencila"]
+        },
+        " and Tim Errington, Director of Research ar the Center for Open Science, US, published its ",
+        {
+          "type": "Link",
+          "target": "https://elifesci.org/reproducible-example",
+          "content": ["first reproducible article"]
+        },
+        ", based on one of Errington’s papers in the Reproducibility Project: Cancer Biology. This reproducible version of the article showcases some of what’s possible with the new RDS tools, and we invite researchers to explore the newly available opportunities to tell their story."
+      ]
+    }
+  ]
+}
+```
+
 ## Related
 
 ### JATS

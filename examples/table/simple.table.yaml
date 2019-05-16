@@ -1,14 +1,10 @@
 type: Table
-rows: []
-cells:
-  - type: TableCell
-    position: [0, 0]
-    content:
-      - 1
-  - type: TableCell
-    position: [1, 0]
-    content:
-      - Some text
-      - type: Emphasis
+rows:
+  - type: TableRow
+    cells:
+      - type: TableCell
         content:
-          - emphasised
+          - 1
+      - type: TableCell
+        content:
+          - 2

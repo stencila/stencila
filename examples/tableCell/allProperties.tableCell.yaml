@@ -1,0 +1,6 @@
+type: TableCell
+name: myCustomLabel
+content:
+  - 1
+colspan: 2
+rowspan: 1

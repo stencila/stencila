@@ -12,12 +12,5 @@ properties:
     type: array
     items:
       $ref: TableRow.schema.yaml
-  cells:
-    '@id': stencila:cells
-    description: |
-      An array of cells in the table.
-    type: array
-    items:
-      $ref: TableCell.schema.yaml
 required:
   - rows
