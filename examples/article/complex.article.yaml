@@ -2,9 +2,21 @@ type: Article
 title: Introducing eLife’s first computationally reproducible article
 url: https://elifesciences.org/labs/ad58f08d/introducing-elife-s-first-computationally-reproducible-article
 authors:
-  - Giuliano Maciocci
-  - Michael Aufreiter
-  - Nokome Bentley
+  - type: Person
+    givenNames:
+      - Giuliano
+    familyNames:
+      - Maciocci
+  - type: Person
+    givenNames:
+      - Michael
+    familyNames:
+      - Aufreiter
+  - type: Person
+    givenNames:
+      - Nokome
+    familyNames:
+      - Bentley
 content:
   - type: Paragraph
     content:
