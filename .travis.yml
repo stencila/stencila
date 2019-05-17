@@ -4,14 +4,7 @@ node_js: "10"
 script:
   - npm run build
   - npm run test
-  # Temporarily disable due to failiures associated with
-  # soon to be superceded use of YAML
-  # - npm run docs
-
-after_success:
-  # Upload test coverage to codecov
-  # See https://docs.codecov.io/v5.0.0/docs/about-the-codecov-bash-uploader
-  - bash <(curl -s https://codecov.io/bash)
+  - npm run docs
 
 before_deploy:
   # Copy built files into `public` for deployment of JSON Schema and JSON LD to Github pages
@@ -22,7 +15,7 @@ deploy:
   # Deploy a new version of NPM package and create a Github release
   - provider: script
     skip_cleanup: true
-    script: npm run release
+    script: npx semantic-release
 
   # Deploy documentation to Github Pages
   # See https://docs.travis-ci.com/user/deployment/pages/
