@@ -1,8 +1,8 @@
-title: Expression
-'@id': Expression
+title: CodeExpr
+'@id': stencila:CodeExpr
 $extends: SoftwareSourceCode.schema.yaml
 role: secondary
-status: experimental
+status: unstable
 description: An expression.
 properties:
   value:
