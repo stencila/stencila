@@ -10,17 +10,17 @@ properties:
   brand:
     description: |
       Brand that the product is labelled with.
-    $ref: Brand.schema.yaml 
-  name: 
+    $ref: Brand.schema.yaml
+  name:
     description: |
-       Full name of the product.  
+      Full name of the product.
   logo:
     description: |
       A logo of of the product. It can be either a URL of the image or image itself.
     anyOf:
       - type: string
         format: uri
-      - $ref: ImageObject.schema.yaml  
+      - $ref: ImageObject.schema.yaml
   productID:
     '@id': schema:productID
     description: |

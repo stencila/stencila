@@ -8,11 +8,14 @@ The example below are based on a model of [astrolabe](https://en.wikipedia.org/w
 
 ```json
 {
-    "type": "Product",
-    "brand": "Astro",
-    "name": "Astrolabe",
-    "logo": "http//www.product-astrolabe.com/logo.png",
-    "productID" : "AA55"
+  "type": "Product",
+  "brand": {
+    "type": "Brand",
+    "name": "Astro"
+  },
+  "name": "Astrolabe",
+  "logo": "http//www.product-astrolabe.com/logo.png",
+  "productID": "AA55"
 }
 ```
 
@@ -24,4 +27,4 @@ The example below are based on a model of [astrolabe](https://en.wikipedia.org/w
 
 ## Google Structured Data
 
-`Product` is compliant with the guidelines for structural data provided by [Google](https://developers.google.com/search/docs/data-types/product#product). In both cases, Stencila JASON and Google Structural Data, the properties of the elements are derived from [Schema.org Product](https://schema.org/Product).
+To meet Google's guidelines for [`Product`](https://developers.google.com/search/docs/data-types/product#product) instances are required to have `image` and `name` properties.

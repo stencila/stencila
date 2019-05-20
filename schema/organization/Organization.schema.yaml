@@ -10,13 +10,13 @@ properties:
     description: |
       Postal address for the organization.
     type: string
-  brands:	
-    '@id': schema:brand	
-    description: |	
-      Brands that the organization is connected with.	
-    type: array	
-    items:	
-      $ref: Brand.schema.yaml  
+  brands:
+    '@id': schema:brand
+    description: |
+      Brands that the organization is connected with.
+    type: array
+    items:
+      $ref: Brand.schema.yaml
   contactPoints:
     '@id': schema:contactPoint
     description: |

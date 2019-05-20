@@ -4,8 +4,7 @@ The `ContactPoint` type allows you to provide details about an contact informati
 
 ## Examples
 
-The examples below are based on the University of Otago and show how contact points for this organization can be specified. [The University of Otago](https://www.otago.ac.nz/) is the oldest university in Aotearoa New Zealand. 
-
+The examples below are based on the University of Otago and show how contact points for this organization can be specified. [The University of Otago](https://www.otago.ac.nz/) is the oldest university in Aotearoa New Zealand.
 
 ```json
 {
@@ -13,7 +12,7 @@ The examples below are based on the University of Otago and show how contact poi
   "availableLanguages": ["English", "Māori"],
   "emails": ["office@otago.ac.nz"],
   "telephone": "00641234567"
-  }
+}
 ```
 
 ## Related

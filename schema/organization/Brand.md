@@ -7,9 +7,12 @@ The `Brand` type allows you to provide details about a brand such as its logo an
 ```json
 {
   "type": "Brand",
+  "name": "XYZ",
   "logo": {
-    "type": "ImageObject", "caption" : "Logo of Brand YXZ"
-    },
-  "reviews": "Rather average product. Not sure if would use again"
+    "type": "ImageObject",
+    "url": "https://example.com/xyz.png",
+    "caption": "Logo of Brand YXZ"
+  },
+  "reviews": ["Rather average product. Not sure if would use again"]
 }
 ```
