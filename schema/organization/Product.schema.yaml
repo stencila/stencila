@@ -10,7 +10,10 @@ properties:
   brand:
     description: |
       Brand that the product is labelled with.
-    type: string
+    $ref: Brand.schema.yaml 
+  name: 
+    description: |
+       Full name of the product.  
   logo:
     description: |
       A logo of of the product. It can be either a URL of the image or image itself.
