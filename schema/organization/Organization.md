@@ -26,10 +26,11 @@ The University of Otago can be represented in canonical Stencila JSON by:
   ],
   "contactPoints": [
     {
-    "availableLanguages": ["English", "Māori"],
-    "emails": ["office@otago.ac.nz"],
-    "telephone": "00641234567"
-  }],
+      "availableLanguages": ["English", "Māori"],
+      "emails": ["office@otago.ac.nz"],
+      "telephone": "00641234567"
+    }
+  ],
   "departments": [
     { "type": "Organization", "legalName": "Commerce" },
     { "type": "Organization", "legalName": "Health_Sciences" },
