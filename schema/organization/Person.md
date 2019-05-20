@@ -18,8 +18,8 @@ Dr Curie can be represented in canonical Stencila JSON by:
 {
   "type": "Person",
   "honorificPrefix": "Dr",
-  "givenNames": ["Marie", "Skłodowska"],
-  "familyNames": ["Curie"],
+  "givenNames": ["Marie"],
+  "familyNames": ["Skłodowska", "Curie"],
   "honorificSuffix": "PhD"
 }
 ```
