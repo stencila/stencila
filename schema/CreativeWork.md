@@ -12,3 +12,12 @@ For example usage see:
 - [`Media Object`](/schema/MediaObject)
 - [`Software Application`](/schema/SoftwareApplication)
 - [`Table`](/schema/Table)
+
+
+```json
+{
+"type": "CreativeWork",
+"authors":[
+    {"type": "Person",   "givenNames": ["Marie"], "familyNames": ["Curie"]}] 
+}
+```

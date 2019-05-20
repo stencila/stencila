@@ -2,7 +2,7 @@ title: CreativeWork
 '@id': schema:CreativeWork
 $extends: Thing.schema.yaml
 role: base
-status: unstable
+status: stable
 description: |
   The most generic kind of creative work, including books, movies, photographs, 
   software programs, etc. https://schema.org/CreativeWork
@@ -40,6 +40,31 @@ properties:
     type: array
     items:
       $ref: Node.schema.yaml
+  datePublished:
+    '@id': schema:date
+    description: |
+      Publication / issue date.
+    $ref: Date.schema.yaml 
+  editors:
+    description: |
+      Persons who edited the CreativeWork.
+    type: array
+    items:
+       anyOf:
+        - $ref: Person.schema.yaml
+        - $ref: Organization.schema.yaml     
+  funders:
+    description: |
+      Person or organisation that funded the CreativeWork.     
+    type: array
+    items:
+       anyOf:
+        - $ref: Person.schema.yaml
+        - $ref: Organization.schema.yaml  
+  isPartOf:
+    description: |
+      An item or other CreativeWork that this CreativeWork work is a part of.
+    $ref: CreativeWork.schema.yaml                    
   licenses:
     '@id': schema:license
     description: |
@@ -49,8 +74,16 @@ properties:
       anyOf:
         - type: string
           format: uri
-        - $ref: CreativeWork.schema.yaml
+        - $ref: CreativeWork.schema.yaml  
+  publisher:
+    description: |
+      A publisher of the CreativeWork. 
   text:
     '@id': schema:text
     description: The textual content of this creative work.
     type: string
+  version: 
+    anyOf:
+      - type: string
+      - type: number
+      
