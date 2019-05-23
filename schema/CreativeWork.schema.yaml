@@ -78,6 +78,10 @@ properties:
   publisher:
     description: |
       A publisher of the CreativeWork. 
+    type:
+      anyOf:
+        - type: string
+        - $ref: Organization.schema.yaml  
   text:
     '@id': schema:text
     description: The textual content of this creative work.
