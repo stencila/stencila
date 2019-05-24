@@ -36,25 +36,34 @@ properties:
   dateCreated:
     '@id': schema:dateCreated
     description: Date/time of creation.
-    allOf:
+    anyOf:
+      - type: string
+        format: date
       - type: string
         format: date-time
   dateModified:
     '@id': schema:dateModified
     description: Date/time of most recent modification.
-    allOf:
+    anyOf:
+      - type: string
+        format: date
       - type: string
         format: date-time
   datePublished:
     '@id': schema:datePublished
     aliases:
       # This assumes that a user specifying `date` means the date published
-      # and not the date modified or created
+      # and not the date modified or created.
       - date
     description: Date of first publication.
-    allOf:
+    anyOf:
+      # Although schema.org says expected values are `Date`, for
+      # consistency with `dateCreated` and `dateModified` we allow
+      # for `DateTime` as well.
       - type: string
         format: date
+      - type: string
+        format: date-time
   editors:
     description: |
       Persons who edited the CreativeWork.
