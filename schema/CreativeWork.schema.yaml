@@ -15,13 +15,6 @@ properties:
       anyOf:
         - $ref: Person.schema.yaml
         - $ref: Organization.schema.yaml
-  title:
-    # The name "title" is more appropriate to our context than schema.org's "headline".
-    # We provide the latter as an alias.
-    '@id': schema:headline
-    aliases:
-      - headline
-    type: string
   citations:
     '@id': schema:citation
     description: |
@@ -40,31 +33,47 @@ properties:
     type: array
     items:
       $ref: Node.schema.yaml
+  dateCreated:
+    '@id': schema:dateCreated
+    description: Date/time of creation.
+    allOf:
+      - type: string
+        format: date-time
+  dateModified:
+    '@id': schema:dateModified
+    description: Date/time of most recent modification.
+    allOf:
+      - type: string
+        format: date-time
   datePublished:
-    '@id': schema:date
-    description: |
-      Publication / issue date.
-    $ref: Date.schema.yaml 
+    '@id': schema:datePublished
+    aliases:
+      # This assumes that a user specifying `date` means the date published
+      # and not the date modified or created
+      - date
+    description: Date of first publication.
+    allOf:
+      - type: string
+        format: date
   editors:
     description: |
       Persons who edited the CreativeWork.
     type: array
-    items:
-       anyOf:
-        - $ref: Person.schema.yaml
-        - $ref: Organization.schema.yaml     
+    allOf:
+      - $ref: Person.schema.yaml
   funders:
     description: |
-      Person or organisation that funded the CreativeWork.     
+      Person or organisation that funded the CreativeWork.
     type: array
     items:
-       anyOf:
+      anyOf:
         - $ref: Person.schema.yaml
-        - $ref: Organization.schema.yaml  
+        - $ref: Organization.schema.yaml
   isPartOf:
     description: |
       An item or other CreativeWork that this CreativeWork work is a part of.
-    $ref: CreativeWork.schema.yaml                    
+    allOf:
+      - $ref: CreativeWork.schema.yaml
   licenses:
     '@id': schema:license
     description: |
@@ -74,20 +83,25 @@ properties:
       anyOf:
         - type: string
           format: uri
-        - $ref: CreativeWork.schema.yaml  
+        - $ref: CreativeWork.schema.yaml
   publisher:
     description: |
-      A publisher of the CreativeWork. 
-    type:
-      anyOf:
-        - type: string
-        - $ref: Organization.schema.yaml  
+      A publisher of the CreativeWork.
+    anyOf:
+      - $ref: Person.schema.yaml
+      - $ref: Organization.schema.yaml
   text:
     '@id': schema:text
     description: The textual content of this creative work.
     type: string
-  version: 
+  title:
+    # The name "title" is more appropriate to our context than schema.org's "headline".
+    # We provide the latter as an alias.
+    '@id': schema:headline
+    aliases:
+      - headline
+    type: string
+  version:
     anyOf:
       - type: string
       - type: number
-      
