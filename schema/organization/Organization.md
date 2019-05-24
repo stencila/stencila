@@ -44,6 +44,21 @@ The University of Otago can be represented in canonical Stencila JSON by:
 }
 ```
 
+The schema allows for an `Organization` to have a `parentOrganization`. For example, `parentOrganization` to a department is a university.
+
+```json
+{
+"type": "Organization",
+"address": "Sciences Building, Dunedin, New Zealand",
+"legalName": "Department of Natural Sciences",
+"parentOrganization": {
+  "type": "Organization", "legalName": "The University of Otago" 
+}
+}
+```
+
+
+
 ## Related
 
 ### JATS
