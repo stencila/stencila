@@ -48,16 +48,15 @@ The schema allows for an `Organization` to have a `parentOrganization`. For exam
 
 ```json
 {
-"type": "Organization",
-"address": "Sciences Building, Dunedin, New Zealand",
-"legalName": "Department of Natural Sciences",
-"parentOrganization": {
-  "type": "Organization", "legalName": "The University of Otago" 
-}
+  "type": "Organization",
+  "address": "Sciences Building, Dunedin, New Zealand",
+  "legalName": "Department of Natural Sciences",
+  "parentOrganization": {
+    "type": "Organization",
+    "legalName": "The University of Otago"
+  }
 }
 ```
-
-
 
 ## Related
 
