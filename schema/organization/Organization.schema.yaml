@@ -30,12 +30,7 @@ properties:
       Departments within the organization. For example, Department of Computer Science, Research & Development etc.
     type: array
     items:
-      - $ref: Organization.schema.yaml
-  emails:
-    type: array
-    items:
-      type: string
-      format: email
+      $ref: Organization.schema.yaml
   funders:
     '@id': schema:funder
     description: |
@@ -51,3 +46,9 @@ properties:
       Legal name for the Organization. Should only include letters and spaces.
     type: string
     pattern: '[a-zA-Z]'
+  parentOrganization:
+    '@id': schema:parentOrganization
+    description: |
+      Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
+    allOf:
+      - $ref: Organization.schema.yaml

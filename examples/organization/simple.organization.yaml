@@ -16,8 +16,6 @@ contactPoints:
     telephone: '+649775673'
 departments:
   - type: Organization
-emails:
-  - organization@organization.com
 funders:
   - type: Person
     givenNames:

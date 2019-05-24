@@ -15,7 +15,7 @@ departments: Computer Science
 # Incorrect type. Expected "array".
 emails:
   - mailto:organization@organization.com
-# String is not an e-mail address.
+# Property emails is not allowed.
 funders:
   - simple.person.yaml
 # Incorrect type. Expected "object".

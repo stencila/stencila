@@ -1,8 +1,19 @@
-# `ContactPoint`
+# ContactPoint
 
-## Extends
+The `ContactPoint` type allows you to provide details about an contact information such as languages (human) available for communication, emails and telephone numbers. This type of often used to describe the `ContactPoints` of an [`Organization`](/Organization).
 
-`ContactPoint` extends `Thing`.
+## Examples
+
+The examples below are based on the University of Otago and show how contact points for this organization can be specified. [The University of Otago](https://www.otago.ac.nz/) is the oldest university in Aotearoa New Zealand.
+
+```json
+{
+  "type": "ContactPoint",
+  "availableLanguages": ["English", "Māori"],
+  "emails": ["office@otago.ac.nz"],
+  "telephone": "00641234567"
+}
+```
 
 ## Related
 
