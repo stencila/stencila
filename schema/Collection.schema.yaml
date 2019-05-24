@@ -2,10 +2,14 @@ title: Collection
 '@id': schema:Collection
 $extends: CreativeWork.schema.yaml
 role: secondary
-status: experimental
-properties:
+status: unstable
+description: |
+    A created collection of Creative Works or other artefacts.
+properties:    
   parts:
     '@id': schema:hasParts
+    description: |
+      Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     type: array
     items:
       anyOf:
