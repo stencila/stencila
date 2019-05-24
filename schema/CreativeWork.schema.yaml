@@ -27,7 +27,7 @@ properties:
         - $ref: CreativeWork.schema.yaml
   content:
     # We have added "content" because the existing schema.org property "text" implies
-    # only unstructued text content.
+    # only unstructured text content.
     '@id': stencila:content
     description: The structured content of this creative work c.f. property `text`.
     type: array
@@ -80,7 +80,7 @@ properties:
         - $ref: Organization.schema.yaml
   isPartOf:
     description: |
-      An item or other CreativeWork that this CreativeWork work is a part of.
+      An item or other CreativeWork that this CreativeWork is a part of.
     allOf:
       - $ref: CreativeWork.schema.yaml
   licenses:
