@@ -65,12 +65,14 @@ properties:
       - type: string
         format: date-time
   editors:
+    '@id': schema:editor
     description: |
       Persons who edited the CreativeWork.
     type: array
     allOf:
       - $ref: Person.schema.yaml
   funders:
+    '@id': schema:funder
     description: |
       Person or organisation that funded the CreativeWork.
     type: array
@@ -79,6 +81,7 @@ properties:
         - $ref: Person.schema.yaml
         - $ref: Organization.schema.yaml
   isPartOf:
+    '@id': schema:isPartOf
     description: |
       An item or other CreativeWork that this CreativeWork is a part of.
     allOf:
@@ -94,6 +97,7 @@ properties:
           format: uri
         - $ref: CreativeWork.schema.yaml
   publisher:
+    '@id': schema:publisher
     description: |
       A publisher of the CreativeWork.
     anyOf:
@@ -111,6 +115,7 @@ properties:
       - headline
     type: string
   version:
+    '@id': schema:version
     anyOf:
       - type: string
       - type: number
