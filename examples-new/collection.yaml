@@ -1,0 +1,26 @@
+# An empty collection
+type: Collection
+parts: []
+
+---
+# A simple collection with just one article
+type: Collection
+parts:
+  - type: Article
+    title: Article one
+    authors:
+      - type: Person
+
+---
+# A collection with editors etc
+type: Collection
+editors:
+  - type: Person
+    name: John Johnston
+  - type: Person
+    name: Janes Jones
+parts:
+  - type: Article
+    title: Article one
+    authors:
+      - type: Person
