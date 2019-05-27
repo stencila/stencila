@@ -2,19 +2,14 @@ title: Collection
 '@id': schema:Collection
 $extends: CreativeWork.schema.yaml
 role: secondary
-status: unstable
+status: stable
 description: |
-    A created collection of Creative Works or other artefacts.
-properties:    
-  parts:
-    '@id': schema:hasParts
-    description: |
-      Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    type: array
-    items:
-      anyOf:
-        - $ref: Article.schema.yaml
-        - $ref: Datatable.schema.yaml
-        - $ref: Table.schema.yaml
+  A created collection of CreativeWorks or other artefacts.
+# The [schema.org defintion](https://schema.org/Collection) adds
+# `collectionSize` but has not been added here because that feels
+# redudant e.g. a developer could use `collection.parts.length` instead
 required:
+  # Note that `parts` is defined in `CreativeWork` but made
+  # a requirement here. A creative work need not be required to have
+  # parts, but a collection should.
   - parts
