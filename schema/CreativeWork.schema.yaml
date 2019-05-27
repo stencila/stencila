@@ -2,7 +2,7 @@ title: CreativeWork
 '@id': schema:CreativeWork
 $extends: Thing.schema.yaml
 role: base
-status: unstable
+status: stable
 description: |
   The most generic kind of creative work, including books, movies, photographs, 
   software programs, etc. https://schema.org/CreativeWork
@@ -15,13 +15,6 @@ properties:
       anyOf:
         - $ref: Person.schema.yaml
         - $ref: Organization.schema.yaml
-  title:
-    # The name "title" is more appropriate to our context than schema.org's "headline".
-    # We provide the latter as an alias.
-    '@id': schema:headline
-    aliases:
-      - headline
-    type: string
   citations:
     '@id': schema:citation
     description: |
@@ -34,12 +27,65 @@ properties:
         - $ref: CreativeWork.schema.yaml
   content:
     # We have added "content" because the existing schema.org property "text" implies
-    # only unstructued text content.
+    # only unstructured text content.
     '@id': stencila:content
     description: The structured content of this creative work c.f. property `text`.
     type: array
     items:
       $ref: Node.schema.yaml
+  dateCreated:
+    '@id': schema:dateCreated
+    description: Date/time of creation.
+    anyOf:
+      - type: string
+        format: date
+      - type: string
+        format: date-time
+  dateModified:
+    '@id': schema:dateModified
+    description: Date/time of most recent modification.
+    anyOf:
+      - type: string
+        format: date
+      - type: string
+        format: date-time
+  datePublished:
+    '@id': schema:datePublished
+    aliases:
+      # This assumes that a user specifying `date` means the date published
+      # and not the date modified or created.
+      - date
+    description: Date of first publication.
+    anyOf:
+      # Although schema.org says expected values are `Date`, for
+      # consistency with `dateCreated` and `dateModified` we allow
+      # for `DateTime` as well.
+      - type: string
+        format: date
+      - type: string
+        format: date-time
+  editors:
+    '@id': schema:editor
+    description: |
+      Persons who edited the CreativeWork.
+    type: array
+    allOf:
+      - $ref: Person.schema.yaml
+  funders:
+    '@id': schema:funder
+    description: |
+      Person or organisation that funded the CreativeWork.
+    type: array
+    items:
+      anyOf:
+        - $ref: Person.schema.yaml
+        - $ref: Organization.schema.yaml
+  isPartOf:
+    '@id': schema:isPartOf
+    description: |
+      An item or other CreativeWork that this CreativeWork is a part of.
+    allOf:
+      - $ref: CreativeWork.schema.yaml
   licenses:
     '@id': schema:license
     description: |
@@ -50,7 +96,26 @@ properties:
         - type: string
           format: uri
         - $ref: CreativeWork.schema.yaml
+  publisher:
+    '@id': schema:publisher
+    description: |
+      A publisher of the CreativeWork.
+    anyOf:
+      - $ref: Person.schema.yaml
+      - $ref: Organization.schema.yaml
   text:
     '@id': schema:text
     description: The textual content of this creative work.
     type: string
+  title:
+    # The name "title" is more appropriate to our context than schema.org's "headline".
+    # We provide the latter as an alias.
+    '@id': schema:headline
+    aliases:
+      - headline
+    type: string
+  version:
+    '@id': schema:version
+    anyOf:
+      - type: string
+      - type: number
