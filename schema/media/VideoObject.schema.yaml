@@ -13,11 +13,9 @@ properties:
     type: string
   thumbnail:
     '@id': schema:thumbnail
-    description: 
-      Thumbnail image.
-    type: 
+    description: Thumbnail image.
+    type:
       $ref: ImageObject.schema.yaml
   transcript:
     '@id': schema:transcript
     type: string
-     

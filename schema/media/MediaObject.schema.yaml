@@ -14,18 +14,18 @@ properties:
     '@id': schema:text
     description: |
       File size in mega/kilo bytes.
-    type: string 
+    type: string
   contentUrl:
     '@id': schema:contentUrl
     description: |
-       Actual bytes of the media object, for example the image file or video file.
+      Actual bytes of the media object, for example the image file or video file.
     type: string
     format: uri
   encodingFormat:
     '@id': schema:encodingFormat
     description: |
       Media type in a MIME format.
-    type: 
+    type:
       anyOf:
         - type: string
         - type: url
