@@ -13,7 +13,6 @@ For example usage see:
 - [`Software Application`](/schema/SoftwareApplication)
 - [`Table`](/schema/Table)
 
-
 ```json
 {
 "type": "CreativeWork",
@@ -27,7 +26,7 @@ For example usage see:
 "datePublished": "	2019-05-20",
 "editors":[
     {"type": "Person",   "givenNames": ["John"], "familyNames": ["Smith"]}
-    ], 
+    ],
 "funders": [
     {"type": "Person",   "givenNames": ["Joanna"], "familyNames": ["Smith"]}
     ],

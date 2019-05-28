@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "lint": "prettier --write **/**/*.{ts,tsx,js,jsx,json,css,md,mdx,yaml}",
+    "lint": "prettier --write './**/*.{ts,tsx,js,jsx,json,css,md,mdx,yaml}'",
     "test": "gulp test",
     "build": "npm run build:schema && npm run build:docs",
     "build:docs": "npm run build:schema && gatsby build --prefix-paths",
@@ -85,7 +85,7 @@
     }
   },
   "lint-staged": {
-    "**/**/*.{ts,tsx,js,jsx,json,css,md,mdx,yaml}": [
+    "./**/*.{ts,tsx,js,jsx,json,css,md,mdx,yaml}": [
       "prettier --write",
       "git add"
     ]

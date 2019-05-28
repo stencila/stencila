@@ -5,6 +5,7 @@
     "./built/Brand.schema.json": "*.brand.yaml",
     "./built/ContactPoint.schema.json": "*.contactPoint.yaml",
     "./built/CreativeWork.schema.json": "*.creativeWork.yaml",
+    "./built/Collection.schema.json": "collection.*.yaml",
     "./built/Datatable.schema.json": "*.datatable.yaml",
     "./built/DatatableColumn.json": "*.datatableColumn.yaml",
     "./built/Document.schema.json": "*.document.yaml",

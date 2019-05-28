@@ -69,8 +69,8 @@ properties:
     description: |
       Persons who edited the CreativeWork.
     type: array
-    allOf:
-      - $ref: Person.schema.yaml
+    items:
+      $ref: Person.schema.yaml
   funders:
     '@id': schema:funder
     description: |
@@ -96,6 +96,18 @@ properties:
         - type: string
           format: uri
         - $ref: CreativeWork.schema.yaml
+  parts:
+    # The name "parts" seems more intuitive for users and developers than schema.orgs's "hasParts".
+    # We provide the latter as an alias.
+    '@id': schema:hasParts
+    aliases:
+      - hasParts
+    description: |
+      Elements of the collection which can be a variety of different elements, 
+      such as Articles, Datatables, Tables and more.
+    type: array
+    items:
+      $ref: CreativeWork.schema.yaml
   publisher:
     '@id': schema:publisher
     description: |
