@@ -27,7 +27,7 @@
     "url": "https://github.com/stencila/stencila/issues"
   },
   "dependencies": {
-    "@stencila/encoda": "^0.38.0",
+    "@stencila/encoda": "^0.38.1",
     "yargs": "^13.2.4"
   },
   "devDependencies": {
