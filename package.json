@@ -28,6 +28,8 @@
   },
   "dependencies": {
     "@stencila/encoda": "^0.38.1",
+    "winston": "^3.2.1",
+    "winston-cfg": "^1.0.12",
     "yargs": "^13.2.4"
   },
   "devDependencies": {
