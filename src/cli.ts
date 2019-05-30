@@ -7,16 +7,16 @@ yargs
   .scriptName('stencila')
 
   .command(
-    'convert [in] [out]',
+    'convert [input] [output]',
     'Convert between file formats',
-    (yargs: yargs.Argv): void => {
-      yargs
-        .positional('in', {
+    (args: yargs.Argv<{}>): yargs.Argv<any> => {
+      return args
+        .positional('input', {
           describe: 'The input file path. Defaults to standard input.',
           type: 'string',
           default: '-'
         })
-        .positional('out', {
+        .positional('output', {
           describe: 'The output file path. Defaults to standard output.',
           type: 'string',
           default: '-'
@@ -30,18 +30,10 @@ yargs
           type: 'string'
         })
     },
-    async (argv: yargs.Argv): Promise<void> => {
-      const inp = argv.in
-      const out = argv.out
-      const from = argv.from
-      const to = argv.to
-      await encoda.convert(inp, out, { from, to })
-
-      // Trigger a clean up
-      //   "The 'beforeExit' event is not emitted for conditions causing
-      //   explicit termination, such as calling process.exit() or uncaught
-      //   exceptions."
-      process.emit('beforeExit', 0)
+    async (argv: any): Promise<void> => {
+      const {input, output, ...options} = argv
+      await encoda.convert(input, output, options)
+      cleanup()
     }
   )
 
@@ -62,3 +54,12 @@ yargs
   .describe('version', 'Show version')
 
   .parse()
+
+
+  function cleanup() {
+    // Trigger a clean up
+    //   "The 'beforeExit' event is not emitted for conditions causing
+    //   explicit termination, such as calling process.exit() or uncaught
+    //   exceptions."
+    process.emit('beforeExit', 0)
+  }
