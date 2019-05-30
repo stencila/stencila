@@ -3,13 +3,12 @@
 }
 
 .sc-cell .se-show-code {
-  width: 30px;
-  height: 30px;
-  margin: 0 auto;
+  width: 34px;
+  height: 34px;
   background: #fff;
   border-radius: 0;
   text-align: center;
-  position: relative;
+  /* position: relative; */
 }
 
 .sc-cell {
@@ -24,22 +23,58 @@
   width: 2px;
 }
 
+.sc-cell .se-status i {
+  display: none;
+}
+
+.sc-cell .se-show-code .se-status i {
+  display: inline;
+  font-size: 14px;
+  position: relative;
+  top: -2px;
+  color: white;
+}
+
+.sc-cell .se-status-description {
+  position: absolute;
+  right: 0px;
+  top: 10px;
+  text-align: right;
+  width: 200px;
+  font-size: 13px;
+  color: #999;
+}
+
+.sc-cell .se-show-code .se-toggle-label {
+  position: absolute;
+  top: 10px;
+  left: 40px;
+  /* width: 200px; */
+  font-size: 13px;
+  color: #999;
+  text-align: left;
+}
+
 .sc-cell .se-show-code .se-status {
   position: relative;
   left: 7px;
-  width: 16px;
-
-  height: 16px;
-  background: blue;
-  border-radius: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
 }
 
 .sc-cell .se-show-code:hover .se-status {
   opacity: 0.7;
 }
 
-.sc-cell .se-status.sm-ok {
-  background: #00DD00;
+
+.sc-cell .se-show-code > .se-status {
+  background: #0788D1;
+  color: white;
+}
+
+/* .sc-cell .se-status.sm-ok {
+  background: rgb(0, 221, 0);
 }
 
 .sc-cell .se-status.sm-error,
@@ -56,7 +91,30 @@
 
 .sc-cell .se-status.sm-pending {
   background: #575757;
+} */
+
+
+
+.sc-cell .se-status-description.sm-ok .se-status-name {
+  color: #08b508
 }
+
+.sc-cell .se-status-description.sm-error .se-status-name,
+.sc-cell .se-status-description.sm-broken .se-status-name,
+.sc-cell .se-status-description.sm-failed .se-status-name {
+  color: #FF0300;
+}
+
+.sc-cell .se-status-description.sm-blocked .se-status-name,
+.sc-cell .se-status-description.sm-ready .se-status-name,
+.sc-cell .se-status-description.sm-waiting .se-status-name {
+  color: #FFAA00;
+}
+
+.sc-cell .se-status-description.sm-pending .se-status-name {
+  color: #575757;
+}
+
 
 .sc-cell .se-cell-editor-container {
   position: relative;
@@ -71,8 +129,8 @@
 
 .sc-cell .se-language {
   position: absolute;
-  top: 1px;
-  right: 20px;
+  top: 34px;
+  right: 9px;
   font-size: 10px;
   color: #888;
   font-family: var(--mono-font-family);

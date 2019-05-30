@@ -1,9 +1,9 @@
 import { Component, DefaultDOMElement, platform } from 'substance'
 import { EditorPackage as TextureEditorPackage } from 'substance-texture'
 import SheetEditor from '../sheet/SheetEditor'
-import ProjectBar from './ProjectBar'
 import ContextPane from './ContextPane'
 import { addNewDocument } from './ProjectManipulations'
+import _initStencilaArchive from '../shared/_initStencilaArchive'
 
 export default class Project extends Component {
 
@@ -12,6 +12,11 @@ export default class Project extends Component {
 
     // Store the viewports, so we can restore scroll positions
     this._viewports = {}
+
+    this.appState = {
+      reproduce: false,
+      engineRunning: false
+    }
   }
 
   didMount() {
@@ -23,13 +28,17 @@ export default class Project extends Component {
       'closeContext': this._closeContext,
       'openHelp': this._openHelp,
       'toggleHelp': this._toggleHelp,
-      'toggleHosts': this._toggleHosts
+      'toggleHosts': this._toggleHosts,
+      'toggleReproduce': this._toggleReproduce
     })
 
     if (platform.inBrowser) {
       this.documentEl = DefaultDOMElement.wrapNativeElement(document)
       this.documentEl.on('keydown', this.onKeyDown, this)
     }
+
+    // HACK: we enable reproduce mode by default
+    this._toggleReproduce()
   }
 
   willUpdateState() {
@@ -58,7 +67,8 @@ export default class Project extends Component {
     // This is passed to Texture as prop which in turn exposes it via childContext.
     return {
       documentArchive: this.props.documentArchive,
-      urlResolver: this.props.documentArchive
+      urlResolver: this.props.documentArchive,
+      appState: this.appState
     }
   }
 
@@ -71,12 +81,12 @@ export default class Project extends Component {
           contextId: this._contextId,
           contextProps: this._contextProps
         }).ref('contextPane')
-      ),
-      $$(ProjectBar, {
-        contextId: this._contextId,
-        documentId: this.state.documentId,
-        archive: this.props.documentArchive
-      }).ref('projectBar')
+      )
+      // $$(ProjectBar, {
+      //   contextId: this._contextId,
+      //   documentId: this.state.documentId,
+      //   archive: this.props.documentArchive
+      // }).ref('projectBar')
     )
     return el
   }
@@ -120,7 +130,8 @@ export default class Project extends Component {
         $$(TextureEditorPackage.Editor, {
           viewport,
           editorSession,
-          pubMetaDbSession: this._getPubMetaDbSession()
+          pubMetaDbSession: this._getPubMetaDbSession(),
+          disabled: true
         }).ref('editor')
           .addClass('sc-article-editor')
       )
@@ -212,6 +223,48 @@ export default class Project extends Component {
     })
     this.refs.projectBar.extendProps({
       contextId: this._contextId
+    })
+  }
+
+  _toggleReproduce () {
+    // TODO: we should update the state after the engine has been
+    // started successfully
+    let reproduce = !this.appState.reproduce
+    this.appState.reproduce = reproduce
+    if (reproduce && !this.appState.engineRunning) {
+      this._launchExecutionEngine().then(running => {
+        if (!running) {
+          this._toggleReproduce()
+        }
+      })
+    }
+    this._updateCellComponents()
+  }
+
+  _launchExecutionEngine () {
+    return new Promise((resolve) => {
+      // resolve(window.confirm('Start the Engine?'))
+      resolve(true)
+    }).then(yesPlease => {
+      if (yesPlease) {
+        const archive = this.props.documentArchive
+        return _initStencilaArchive(archive, this.context).then(() => {
+          this.appState.engineRunning = true
+          return true
+        })
+      }
+      return false
+    })
+  }
+
+  _updateCellComponents () {
+    // Update all cell nodes in the document
+    let cellComps = this.findAll('.sc-cell')
+    cellComps.forEach((cellComponent) => {
+      cellComponent.extendState({
+        hideCodeToggle: !this.appState.reproduce,
+        hideCode: true
+      })
     })
   }
 

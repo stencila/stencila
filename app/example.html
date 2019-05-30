@@ -2,7 +2,8 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Stencila Project</title>
+    <title>Texture Reader</title>
+    <link rel="stylesheet" type="text/css" href="./reset.css">
     <link rel="stylesheet" type="text/css" href="./stencila.css">
     <script type="text/javascript" src="./katex/katex.min.js"></script>
     <script type="text/javascript" src="./lib/plotly.min.js"></script>
@@ -12,9 +13,37 @@
     <script type="text/javascript" src="./lib/stencila-envcore.min.js"></script>
     <script type="text/javascript" src="./lib/stencila-libcore.min.js"></script>
     <script type="text/javascript" src="./stencila.js"></script>
+    <!-- vfs.js can be removed as soon as storage urls are used -->
     <script type="text/javascript" src="./vfs.js"></script>
-    <script type="text/javascript" src="./env.js"></script>
-    <script type="text/javascript" src="./app.js"></script>
+    <style>
+      .sc-texture-reader {
+        /* Adjust to fit on top of a journal page */
+        position: absolute;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        top: 80px;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+    <script>
+      window.STENCILA_HOSTS="https://bindilla.stenci.la/https://github.com/stencila/examples/elife-30274-binder/v0"
+      window.addEventListener('load', () => {
+        TextureReader.mount({
+          archiveId: 'introduction-rds',
+          // TODO: Activate once a dar server is running for the journal
+          // storageUrl: 'https://dar-archives.elifesciences.org',
+          // darDownloadUrl: 'https://downloads.elifesciences.org/e24351.zip
+        }, window.document.getElementById('repro_overlay'))
+      })
+    </script>
   </head>
-  <body></body>
+  <body>
+    <!-- oringal article page markup including navigation, footer etc.
+      journal menu, original article HTML etc. 
+    -->
+    <div id="repro_overlay">
+      <!-- element into which TextureReader is injected -->
+    </div>
+  </body>
 </html>

@@ -1,19 +1,19 @@
-import { Component, NodeComponent, isEqual } from 'substance'
+import { Component, NodeComponent, isEqual, FontAwesomeIcon } from 'substance'
 import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
 import { getCellState, getErrorMessage } from '../shared/cellHelpers'
 import { toString as stateToString, OK, BROKEN, FAILED } from '../engine/CellStates'
-import NodeMenu from './NodeMenu'
 
 const LANG_LABELS = {
-  'mini': 'Mini',
-  'js': 'JS',
-  'node': 'Node',
+  'mini': 'Formula',
+  'js': 'Javascript',
+  'node': 'Node.js',
   'sql': 'SQL',
-  'py': 'Py',
+  'py': 'Python',
   'pyjp': 'PyJp',
-  'r': 'R',
+  'r': 'R Script',
 }
+
 
 const SHOW_ERROR_DELAY = 500
 
@@ -32,15 +32,65 @@ class CellComponent extends NodeComponent {
 
   getInitialState() {
     return {
-      hideCode: false,
-      forceOutput: false
+      hideCode: true,
+      forceOutput: true,
+      hideCodeToggle: true
     }
   }
 
   _renderStatus($$) {
     const cellState = getCellState(this.props.node)
     let statusName = cellState ? stateToString(cellState.status) : 'unknown'
-    return $$('div').addClass(`se-status sm-${statusName}`)
+    let el = $$('div').addClass(`se-status sm-${statusName}`)
+    let icon = this.state.hideCode ? 'fa-angle-right' : 'fa-angle-down'
+    el.append(
+      $$(FontAwesomeIcon, {icon: icon })
+    )
+    return el
+  }
+
+  _renderStatusDescription($$) {
+    const cellState = getCellState(this.props.node)
+    // console.log('cellstate', cellState.status)
+    let statusName = cellState ? stateToString(cellState.status) : 'unknown'
+    let statusDescr = statusName
+    // if (statusName === 'ok') {
+    //   statusDescr = 'ready'
+    // }
+    // if (statusName === 'ready') {
+    //   statusDescr = 'pending'
+    // }
+
+    let el = $$('div').addClass(`se-status-description sm-${statusName}`).append(
+      'status: ',
+      $$('span').addClass('se-status-name').append(
+        statusDescr
+      )
+    )
+    if (statusDescr === 'ready') {
+      el.append(' (run code with ⇧⏎)')
+    }
+    return el
+  }
+
+  _renderToggleLabel($$) {
+    const cellState = getCellState(this.props.node)
+    const lang = cellState.lang
+    
+    let label = `${LANG_LABELS[lang]}`
+
+    if(cellState.value && cellState.value.type) {
+      label += ` for: ${_capitalizeFirstLetter(cellState.value.type)}`
+      if (cellState.output) {
+        let output = cellState.output
+        output = output.split('!')[1]
+        label += `, ${output}`
+      }
+    }
+
+    
+    let el = $$('div').addClass('se-toggle-label').append(label)
+    return el
   }
 
   render($$) {
@@ -48,6 +98,19 @@ class CellComponent extends NodeComponent {
     const cellState = getCellState(cell)
     let el = $$('div').addClass('sc-cell')
     el.attr('data-id', cell.id)
+
+    if (!this.state.hideCodeToggle) {
+      el.append(
+        $$('button').append(
+          this._renderStatus($$),
+          this._renderToggleLabel($$),
+          this._renderStatusDescription($$)
+        )
+        .addClass('se-show-code')
+        .attr('title', 'Show Code')
+        .on('click', this._toggleCode)
+      )
+    }
 
     if (!this.state.hideCode) {
       let source = cell.find('source-code')
@@ -65,25 +128,17 @@ class CellComponent extends NodeComponent {
         )
       )
       el.append(cellEditorContainer)
-      el.append(
-        this._renderEllipsis($$)
-      )
-      el.append(
-        $$('div').addClass('se-language').append(
-          LANG_LABELS[source.attributes.language]
-        )
-      )
-    } else {
-      // TODO: Create proper visual style
-      el.append(
-        $$('button').append(
-          this._renderStatus($$)
-        )
-        .addClass('se-show-code')
-        .attr('title', 'Show Code')
-        .on('click', this._showCode)
-      )
+      // el.append(
+      //   this._renderEllipsis($$)
+      // )
+      // el.append(
+      //   $$('div').addClass('se-language').append(
+      //     LANG_LABELS[source.attributes.language]
+      //   )
+      // )
     }
+
+
 
     if (cellState) {
       let valueDisplay = $$(ValueDisplay, {
@@ -100,27 +155,18 @@ class CellComponent extends NodeComponent {
   /*
     Move this into an overlay, shown depending on app state
   */
-  _renderEllipsis($$) {
-    let Button = this.getComponent('button')
-    let el = $$('div').addClass('se-ellipsis')
-    let configurator = this.context.editorSession.getConfigurator()
-    let button = $$(Button, {
-      icon: 'ellipsis',
-      active: false,
-      theme: 'light'
-    }).on('click', this._toggleMenu)
-    el.append(button)
+  // _renderEllipsis($$) {
+  //   let Button = this.getComponent('button')
+  //   let el = $$('div').addClass('se-ellipsis')
+  //   let button = $$(Button, {
+  //     icon: 'close',
+  //     active: false,
+  //     theme: 'light'
+  //   }).on('click', this._hideCode)
+  //   el.append(button)
 
-    let sel = this.context.editorSession.getSelection()
-    if (sel.isNodeSelection() && sel.getNodeId() === this.props.node.id) {
-      el.append(
-        $$(NodeMenu, {
-          toolPanel: configurator.getToolPanel('node-menu')
-        }).ref('menu')
-      )
-    }
-    return el
-  }
+  //   return el
+  // }
 
   getExpression() {
     return this.refs.expressionEditor.getContent()
@@ -146,18 +192,18 @@ class CellComponent extends NodeComponent {
     return result
   }
 
-  _showCode() {
+  _toggleCode() {
     this.extendState({
-      hideCode: false
+      hideCode: !this.state.hideCode
     })
-  }
+  } 
 
   /*
     Generally output is shown when cell is not a definition, however it can be
     enforced
   */
   _showOutput() {
-    return !this._isDefinition() || this.state.forceOutput
+    return (!this._isDefinition() || !this.state.hideCode)
   }
 
   _isDefinition() {
@@ -293,12 +339,20 @@ class ValueDisplay extends Component {
       // to have a less jumpy experience, we show the last valid value grey'd out
       else if (this._cachedValue) {
         el.append(
-          $$(ValueComponent, this._cachedValue).ref('value').addClass('sm-pending')
+          $$(ValueComponent, this._cachedValue).ref('value')
+          // HACK: Disable pending computation ...
+          // .addClass('sm-pending')
         )
       }
     }
     return el
   }
+}
+
+
+
+function _capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 CellComponent.noBlocker = true

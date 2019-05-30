@@ -56,6 +56,8 @@ plotly defaults
 /* Table Value */
 .sc-table-value {
   margin-top: 0px;
+  overflow: auto;
+  max-height: 600px;
 }
 
 .sc-table-value table {
