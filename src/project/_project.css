@@ -8,44 +8,21 @@
   flex: 1 1 0;
 }
 
-.sc-project .sc-project-bar {
-  background: #F3F3F3;
-  border-top: 1px solid #e1e4e8;
-  flex: 0 0 35px;
-  overflow: auto;
+.sc-project .se-main-pane {
+  display: flex;
+  flex-direction: row;
 }
 
-.sc-project-tabs {
-  overflow: hidden;
-  padding-left: 10px;
-  display: block;
-  float: left;
-}
-
-.sc-project-tabs > button,
-.sc-project-bar > button {
-  font-size: 13px;
-  font-weight: 600;
-  display: block;
-  float: left;
-  padding: 5px 8px;
-  margin-left: 5px;
-  margin-top: 5px;
-}
-
-.sc-project-tabs > button.sm-active,
-.sc-project-bar > button.sm-active {
-  border-top: 1px solid #e1e4e8;
-  border-right: 1px solid #e1e4e8;
-  border-left: 1px solid #e1e4e8;
-  background: white;
-}
-
-.sc-project-bar > .se-hosts-toggle {
-  float: right;
-  margin-right: 10px;
+.sc-project > .sc-project-bar {
+  background: #fff;
+  border-top: 1px solid #ddd;
+  flex: 0 0 40px;
 }
 
 .sc-project .se-main-pane .se-editor-pane {
-  height: 100%;
+  flex: 1 1 0;
+}
+
+.sc-project .se-main-pane .sc-context-pane {
+  flex: 0 0 300px;
 }

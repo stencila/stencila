@@ -1,3 +1,10 @@
+.sc-object-value {
+  font-family: monospace;
+  font-size: 0.8em;
+  line-height: 1.2em;
+  padding: 1em;
+}
+
 /*
 Customisation of Plotly including tool bar
 `.sc-plotly-value.js-plotly-plot` selector is necessary to override
@@ -5,7 +12,7 @@ plotly defaults
 */
 
 .sc-plotly-value.js-plotly-plot .plotly div {
-  margin: 0 auto;
+  margin: 10px auto;
 }
 
 .sc-plotly-value.js-plotly-plot .plotly .modebar {
@@ -49,6 +56,8 @@ plotly defaults
 /* Table Value */
 .sc-table-value {
   margin-top: 0px;
+  overflow: auto;
+  max-height: 600px;
 }
 
 .sc-table-value table {
@@ -57,7 +66,7 @@ plotly defaults
   text-align: center;
   display: table;
   table-layout: fixed;
-  min-width: 100px;
+  min-width: 80px;
 }
 
 .sc-table-value table thead {

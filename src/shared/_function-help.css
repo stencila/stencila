@@ -3,8 +3,40 @@
   padding: 20px;
 }
 
+.sc-function-help .se-title {
+  color: #767676;
+}
+
+.sc-function-help .se-subtitle {
+  margin: 10px 0px 15px;
+  font-weight: 500;
+  font-size: 13px;
+  color: #4d4d4d;
+}
+
+.sc-function-help a {
+  font-size: 14px;
+  color: #2b8aff;
+  text-decoration: none;
+}
+
+.sc-function-help .se-function-index {
+  padding: 15px 0;
+}
+
+.sc-function-help .se-functions {
+  margin-top: 40px;
+}
+
+.sc-function-help .se-functions-list .se-item a {
+  float: left;
+  margin-right: 15px;
+  font-size: 14px;
+  color: #2b8aff;
+  text-decoration: none;
+}
+
 .sc-function-help > .se-name {
-  color: #34913c;
   font-family: monospace;
   font-size: 18px;
 }
@@ -19,9 +51,8 @@
   margin: 15px 0 5px;
 }
 
-.sc-function-help > .se-example,
+.sc-function-help > .se-example-usage,
 .sc-function-help > .se-syntax {
-  color: #34913c;
   font-family: monospace;
   font-size: 12px;
   margin-bottom: 5px;
@@ -35,6 +66,5 @@
 }
 
 .sc-function-help > .se-param > .se-name {
-  color: #34913c;
   font-family: monospace;
 }

@@ -1,3 +1,52 @@
+# 2018-02-27 Dev call
+
+Tasks for next release in March/April:
+
+- Engine Refactor (Oliver)
+  - Paused cells
+  - Cell errors delay #534
+
+- Sheet Improvements (Daniel, Michael, in progress)
+  - Address all bugs except for those blocked by deficiencies of sheet rendering engine (we need to evaluate Handsontable before continuing there)
+  - Daniel: Remove overflowing graphs in Sheets (they cause ux issues and can’t be solved based on the current rendering strategy)
+  - Daniel: Remove Source Mode and Preview Mode
+  - Daniel: Remove typed cells (it should go away from the interface until we enable issues features)
+
+- Finalise Dar Sheet Spec and update schema (Michael)
+  - Article Improvements (Michael, Daniel)
+  - Remove all publisher specific stuff
+  - Make empty documents good looking (but keeping all functionality, add references etc.)
+
+- Stabilize Dar storage and improve error handling (Michael, close to done)
+
+- Stencila Desktop (Michael, close to ready)
+  - How can we bundle the execution engine with the Desktop (remove manual docker setup steps)
+
+- Static Site generator (Michael)
+  - Create a static page from a Dar
+  - Reduced one column view (ready for mobile)
+  - Prominent “Reproduce” Button brings up full Stencila editor (without save functionality) connected to Backend (R sessions etc.)
+  - “Download” Button to download a zip file of the Dar (then you can extract it and edit with Stencila Desktop)
+
+- Stencila Website (Nokome)
+  - Nice landing page describing the features
+  - Kiosk page with introductory examples
+  -  Documentation
+
+- Stencila Hub (Nokome)
+  - Ability to upload a dar folder (or provide a Github repo)
+  - beta.stenci.la/michael/my-document will show a static view first with ability to click on “Reproduce” to bring up the Stencila editor
+
+- Stencila App Icon (Nokome)
+
+- Stencila Language Packages for R, Python & Node:
+  - Normalise / finalise Context APIs
+  - Release to package archives (ie. CRAN, PyPI, NPM)
+  - Registration of functions
+
+- Function libraries: libcore, libtemplate
+
+
 # 2018-02-06 Dev call
 
 Priorities on stencila/stencila repo:

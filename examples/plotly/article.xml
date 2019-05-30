@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "TextureArticle 0.1.0" "http://substance.io/TextureArticle-1.0.0.dtd">
+<article id="article" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <front id="front-1">
+    <article-meta id="article-meta-1">
+      <title-group id="title-group-1">
+        <article-title id="article-title-1">Stencila: Plotting with Plotly.js</article-title>
+      </title-group>
+      <history id="history-1" />
+      <abstract id="abstract-1">
+        <p id="p-1" />
+      </abstract>
+    </article-meta>
+  </front>
+  <body id="body-1">
+    <code id="cell-f09069fa945b20fbc8d564831d514bbf" specific-use="cell">
+      <named-content>
+        <alternatives>
+          <code specific-use="source" language="mini"><![CDATA[data = sheet!A1:C10]]></code>
+          <code specific-use="output" language="json"><![CDATA[{"type":"table","data":{"type":"table","data":{"temp":[18,20,24,23,26,25,20,17,18,28],"sales":[50,126,118,126,280,102,93,32,103,246],"sunny":["no","yes","yes","yes","yes","no","no","no","yes","yes"]},"columns":3,"rows":10}}]]></code>
+        </alternatives>
+      </named-content>
+    </code>
+    <code id="cell-900b507ec15c8838fae3d1496ee31fc4" specific-use="cell">
+      <named-content>
+        <alternatives>
+          <code specific-use="source" language="mini"><![CDATA[sunny = filter(data, 'sunny == "yes"')]]></code>
+          <code specific-use="output" language="json"><![CDATA[{"type":"table","data":{"type":"table","data":{"temp":[20,24,23,26,18,28],"sales":[126,118,126,280,103,246],"sunny":["yes","yes","yes","yes","yes","yes"]},"columns":3,"rows":6}}]]></code>
+        </alternatives>
+      </named-content>
+    </code>
+    <code id="cell-41a4a458c5ec897701de9784c817803b" specific-use="cell">
+      <named-content>
+        <alternatives>
+          <code specific-use="source" language="mini"><![CDATA[not_sunny = filter(data, 'sunny == "no"')]]></code>
+          <code specific-use="output" language="json"><![CDATA[{"type":"table","data":{"type":"table","data":{"temp":[18,25,20,17],"sales":[50,102,93,32],"sunny":["no","no","no","no"]},"columns":3,"rows":4}}]]></code>
+        </alternatives>
+      </named-content>
+    </code>
+    <code id="cell-04af6659748286f7fdb6d14d403eaa07" specific-use="cell">
+      <named-content>
+        <alternatives>
+          <code specific-use="source" language="mini"><![CDATA[plotly([
+  { x: sunny.temp, y: sunny.sales, mode: 'markers', name: 'sunny'},
+  { x: not_sunny.temp, y: not_sunny.sales, mode: 'markers', name: 'not sunny'}
+])]]></code>
+          <code specific-use="output" language="json"><![CDATA[{"type":"plotly","data":{"type":"plotly","traces":[{"x":[20,24,23,26,18,28],"y":[126,118,126,280,103,246],"mode":"markers","name":"sunny","uid":"6861aa"},{"x":[18,25,20,17],"y":[50,102,93,32],"mode":"markers","name":"not sunny","uid":"ec0d0c"}],"layout":{"width":"400","height":"400","xaxis":{"type":"linear","range":[15.983870967741936,29.016129032258064],"autorange":true},"yaxis":{"type":"linear","range":[12.797900262467191,299.2020997375328],"autorange":true}}}}]]></code>
+        </alternatives>
+      </named-content>
+    </code>
+  </body>
+  <back id="back-1">
+    <ref-list id="ref-list-1" />
+  </back>
+</article>

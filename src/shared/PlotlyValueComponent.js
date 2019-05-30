@@ -50,4 +50,3 @@ export default class PlotlyValueComponent extends Component {
     }
   }
 }
-

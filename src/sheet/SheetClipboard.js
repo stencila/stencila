@@ -2,6 +2,8 @@ import {
   DefaultDOMElement, platform
 } from 'substance'
 import { getSelection, getRange } from './sheetHelpers'
+import { setValues, clearValues } from './SheetManipulations'
+import { getRangeFromMatrix } from '../shared/cellHelpers'
 
 export default class SheetClipboard {
 
@@ -65,24 +67,8 @@ export default class SheetClipboard {
   _pasteHtml(html, plainText) {
     let vals = this._htmlToVals(html)
     if (vals && vals.length > 0) {
-      let n = vals.length
-      let m = vals[0].length
-      let range = this._getRange()
-      this.editorSession.transaction((tx) => {
-        let sheet = tx.getDocument()
-        sheet.setValues(range.startRow, range.startCol, vals)
-        tx.setSelection({
-          type: 'custom',
-          customType: 'sheet',
-          data: {
-            type: 'range',
-            anchorRow: range.startRow,
-            anchorCol: range.startCol,
-            focusRow: range.startRow+n-1,
-            focusCol: range.startCol+m-1
-          }
-        })
-      })
+      let { startRow, startCol } = this._getRange()
+      setValues(this.editorSession, startRow, startCol, vals)
     } else {
       this._pastePlainText(plainText)
     }
@@ -123,7 +109,12 @@ export default class SheetClipboard {
     const sheet = this.editorSession.getDocument()
     const range = this._getRange()
     if (!range) return null
-    let vals = sheet.getValues(range.startRow, range.startCol, range.endRow, range.endCol)
+    let rows = getRangeFromMatrix(sheet.getCellMatrix(), range.startRow, range.startCol, range.endRow, range.endCol, true)
+    let vals = rows.map(row => {
+      return row.map(cell => {
+        return cell.textContent
+      })
+    })
     let text = this._valsToPlainText(vals)
     let html = this._valsToHTML(vals)
     return { text, html }
@@ -132,10 +123,7 @@ export default class SheetClipboard {
   _cut() {
     const range = this._getRange()
     if (!range) return
-    this.editorSession.transaction((tx) => {
-      let sheet = tx.getDocument()
-      sheet.clearRange(range.startRow, range.startCol, range.endRow, range.endCol)
-    })
+    clearValues(this.editorSession, range.startRow, range.startCol, range.endRow, range.endCol)
   }
 
   _valsToHTML(vals) {
@@ -150,7 +138,7 @@ export default class SheetClipboard {
 
   _valsToPlainText(vals) {
     return vals.map((rowVals) => {
-      return rowVals.join(' ')
+      return rowVals.join('\t')
     }).join('\n')
   }
 

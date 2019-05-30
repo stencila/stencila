@@ -1,0 +1,19 @@
+.sc-project-bar > .se-project-tabs {
+  padding-left: 10px;
+  display: block;
+  float: left;
+}
+
+.sc-project-bar > .se-context-toggles {
+  float: right;
+  margin-top: 0px;
+  margin-right: 10px;
+}
+
+.sc-project-bar > .se-context-toggles .sc-project-tab i {
+  margin-top: 3px;
+}
+
+.sc-project-bar > .se-context-toggles .sc-project-tab {
+  width: 30px;
+}

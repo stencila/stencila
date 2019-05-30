@@ -14,20 +14,86 @@ import CellRangesOverlay from './CellRangesOverlay'
 
 export default class SheetEditor extends AbstractEditor {
 
-  constructor(...args) {
-    super(...args)
+  _initialize(props) {
+    super._initialize(props)
+
     // a context for FormulaBar and FormulaEditor
     this._formulaEditorContext = this._createFormulaEditorContext()
     // true when the cursor is either in the FormularBar or the FormulaEditor
     this._isEditing = false
+
+    const editorSession = props.editorSession
+    if (platform.inBrowser) {
+      DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
+    }
+    editorSession.onUpdate('selection', this._onSelectionChange, this)
+    this._formulaEditorContext.editorSession.onRender('selection', this._onCellEditorSelectionChange, this)
+  }
+
+  didMount() {
+    super.didMount()
+    this._postRender()
+
     this.handleActions({
-      'updateCell': this._updateCell,
-      'cancelCellEditing': this._cancelCellEditing,
       'editCell': this._editCell,
       'requestSelectionChange': this._requestSelectionChange,
       'selectAll': this._selectAll,
       'executeCommand': this._executeCommand
     })
+
+    this._updateViewport()
+  }
+
+
+  _updateViewport() {
+    let viewport = this.props.viewport
+    if (viewport) {
+      this.refs.sheet._viewport.update(viewport)
+    }
+  }
+
+  getViewport() {
+    return this.refs.sheet._viewport.toJSON()
+  }
+
+  /*
+    An extra render cycle, once we know the sheet's dimensions
+  */
+  _postRender() {
+    this._postrendering = true
+    this.rerender()
+    this._postrendering = false
+    this._selectFirstCell()
+  }
+
+  /*
+    Like in didMount we need to call _postRender when the component has been
+    updated (e.g. new props). But we need to guard it, as the explicit in
+    rerender also triggers a didUpdate call.
+  */
+  didUpdate() {
+    if (!this._postrendering) {
+      this._postRender()
+      this._updateViewport()
+    }
+  }
+
+  _selectFirstCell() {
+    const editorSession = this.props.editorSession
+    let sel = editorSession.getSelection().toJSON()
+
+    if (!sel) {
+      // Set the selection into the first cell
+      // Doing this delayed to be in a new flow
+      setTimeout(() => {
+        editorSession.setSelection(
+          this.getSheetComponent().selectFirstCell()
+        )
+      }, 0)
+    } else {
+      this.refs.sheet.rerenderDOMSelection()
+    }
+
   }
 
   getChildContext() {
@@ -45,42 +111,15 @@ export default class SheetEditor extends AbstractEditor {
   }
 
   getInitialState() {
-    let sheetState = this._getSheetState()
     return {
       showContext: false,
       contextId: null,
-      cellId: null,
-      displayMode: sheetState.displayMode
+      cellId: null
     }
   }
 
-  didMount() {
-    super.didMount()
-
-    const editorSession = this.props.editorSession
-    if (platform.inBrowser) {
-      DefaultDOMElement.wrap(window).on('resize', this._onResize, this)
-    }
-    editorSession.onUpdate('selection', this._onSelectionChange, this)
-    editorSession.onUpdate('document', this._onSheetStateChange, this, {
-      path: ['sheet.state']
-    })
-
-    this._formulaEditorContext.editorSession.onUpdate('selection', this._onCellEditorSelectionChange, this)
-
-    this.rerender()
-
-    // set the selection into the first cell
-    // Doing this delayed to be in a new flow
-    setTimeout(() => {
-      editorSession.setSelection(
-        this.getSheetComponent().selectFirstCell()
-      )
-    }, 0)
-  }
-
-  dispose() {
-    super.dispose()
+  _dispose() {
+    super._dispose()
     const editorSession = this.props.editorSession
     if (platform.inBrowser) {
       DefaultDOMElement.wrap(window).off(this)
@@ -91,7 +130,6 @@ export default class SheetEditor extends AbstractEditor {
 
   render($$) {
     let el = $$('div').addClass('sc-sheet-editor')
-    el.addClass('sm-display-mode-'+this.state.displayMode)
     el.on('keydown', super.onKeyDown)
     el.append(
       $$('div').addClass('se-main-section').append(
@@ -119,7 +157,9 @@ export default class SheetEditor extends AbstractEditor {
       $$(FormulaBar, {
         node: this._formulaEditorContext.node,
         context: this._formulaEditorContext
-      }).ref('formulaBar'),
+      }).ref('formulaBar')
+        .on('enter', this._onFormulaBarEnter)
+        .on('escape', this._cancelCellEditing),
       $$(Toolbar, {
         toolPanel: configurator.getToolPanel('toolbar')
       }).ref('toolbar')
@@ -137,12 +177,14 @@ export default class SheetEditor extends AbstractEditor {
 
   _renderSheet($$) {
     const sheet = this.getDocument()
+    const viewport = this.props.viewport
     const formulaEditorContext = this._formulaEditorContext
     // only rendering the sheet when mounted
     // so that we have real width and height
     if (this.isMounted()) {
       const SheetComponent = this.getComponent('sheet')
       return $$(SheetComponent, {
+        viewport,
         sheet,
         overlays: [
           $$(FormulaEditor, {
@@ -152,6 +194,9 @@ export default class SheetEditor extends AbstractEditor {
               position: 'absolute',
               display: 'none'
             })
+            .on('enter', this._onFormulaEditorEnter)
+            .on('escape', this._cancelCellEditing)
+            .on('tab', this._onFormulaEditorTab),
         ],
         unclickableOverlays: [
           // a component that we use to highlight cell ranges
@@ -159,11 +204,6 @@ export default class SheetEditor extends AbstractEditor {
           $$(CellRangesOverlay).ref('cellRanges')
         ],
       }).ref('sheet')
-        // LEGACY
-        // TODO: the displayMode is app specific
-        // so it should be set on the sc-sheet-editor
-        // and the CSS should be reflect this
-        .addClass('sm-mode-'+this.state.displayMode)
     } else {
       return $$('div')
     }
@@ -191,6 +231,7 @@ export default class SheetEditor extends AbstractEditor {
 
   setSelectionOnCell(cellId) {
     const sheet = this.getDocument()
+    const sheetComp = this.refs.sheet
     let cell = sheet.get(cellId)
     let row = cell.parentNode
     let colIdx = row._childNodes.indexOf(cell.id)
@@ -202,12 +243,11 @@ export default class SheetEditor extends AbstractEditor {
       anchorCol: colIdx,
       focusCol: colIdx
     }
-
     this.props.editorSession.setSelection({
       type: 'custom',
       customType: 'sheet',
       data: selData,
-      surfaceId: this.refs.sheet.getId()
+      surfaceId: sheetComp.getSurfaceId()
     })
   }
 
@@ -297,6 +337,7 @@ export default class SheetEditor extends AbstractEditor {
 
     let formulaEditorSession = this._formulaEditorContext.editorSession
     let cell = this._getAnchorCell()
+
     if (cell) {
       this._setFormula(cell.textContent)
     }
@@ -307,9 +348,9 @@ export default class SheetEditor extends AbstractEditor {
     }
   }
 
-  _setReferenceSelection(reference) {
-    const from = reference.split(':')[0]
-    const to = reference.split(':')[1]
+  _setReferenceSelection(referenceSymbol) {
+    const from = referenceSymbol.anchor
+    const to = referenceSymbol.focus
     const [startRow, startCol] = getRowCol(from)
     const [endRow, endCol] = to ? getRowCol(to) : [startRow, startCol]
     const sheetComp = this.getSheetComponent()
@@ -336,28 +377,23 @@ export default class SheetEditor extends AbstractEditor {
       const cursorOffset = formulaSelection.start.offset
       const cell = formulaEditorSession.getDocument().get('cell')
       const cellState = getCellState(cell)
-      const tokens = cellState.tokens
-      const activeToken = tokens.find(token => {
-        return token.type === 'cell' && cursorOffset >= token.start && cursorOffset <= token.end
+      const symbols = cellState.symbols || []
+      const activeSymbol = symbols.find(s => {
+        return cursorOffset >= s.startPos && cursorOffset <= s.endPos
       })
-      if(activeToken) {
-        const cellReference = activeToken.text
-        this._setReferenceSelection(cellReference)
+      if(activeSymbol) {
+        // show a reference selection if the current symbol is pointing
+        // to a cell or range within the same sheet
+        if ((activeSymbol.type === 'cell' || activeSymbol.type === 'range') && !activeSymbol.scope) {
+          this._setReferenceSelection(activeSymbol)
+        } else {
+          this._hideCellRanges()
+        }
       } else {
         const sheetComp = this.getSheetComponent()
         sheetComp._hideSelection()
+        this._hideCellRanges()
       }
-    }
-  }
-
-  _onSheetStateChange() {
-    const sheet = this.props.editorSession.getDocument()
-    const sheetState = sheet.getState()
-    if (this.state.displayMode !== sheetState.displayMode) {
-      this.getSheetComponent().forceUpdate()
-      this.extendState({
-        displayMode: sheetState.displayMode
-      })
     }
   }
 
@@ -426,6 +462,7 @@ export default class SheetEditor extends AbstractEditor {
     Request inline editor
   */
   _editCell(initialValue) {
+    const formulaEditor = this.refs.formulaEditor
     const formulaEditorSession = this._formulaEditorContext.editorSession
     const formulaNode = this._formulaEditorContext.node
     if (initialValue) {
@@ -438,7 +475,7 @@ export default class SheetEditor extends AbstractEditor {
       type: 'property',
       path,
       startOffset,
-      surfaceId: 'formula-editor'
+      surfaceId: formulaEditor.getSurfaceId()
     })
   }
 
@@ -451,7 +488,6 @@ export default class SheetEditor extends AbstractEditor {
     const activeToken = tokens.find(token => {
       return token.type === 'cell' && selection.startOffset >= token.start && selection.startOffset <= token.end
     })
-
     formulaEditorSession.transaction(tx => {
       if(activeToken) {
         selection.startOffset = activeToken.start
@@ -474,26 +510,40 @@ export default class SheetEditor extends AbstractEditor {
     const cell = formulaEditorSession.getDocument().get('cell')
     const _isExpression = isExpression(cell.content)
     if (this._isEditing && _isExpression) {
-      const selData = newSelection.data
-      const fromCell = getCellLabel(selData.anchorRow, selData.anchorCol)
-      const toCell = getCellLabel(selData.focusRow, selData.focusCol)
-      const sheetComp = this.getSheetComponent()
-      this._replaceEditorToken(fromCell, toCell)
-      let rect = sheetComp.getRectangleForRange(selData)
-      this.refs.cellRanges.setProps({ ranges: [rect] })
+      const selection = formulaEditorSession.getSelection().toJSON()
+      const _insideExpression = selection.startOffset > 0
+      if(_insideExpression) {
+        const selData = newSelection.data
+        const fromCell = getCellLabel(selData.anchorRow, selData.anchorCol)
+        const toCell = getCellLabel(selData.focusRow, selData.focusCol)
+        const sheetComp = this.getSheetComponent()
+        this._replaceEditorToken(fromCell, toCell)
+        let rect = sheetComp.getRectangleForRange(selData)
+        this.refs.cellRanges.setProps({ ranges: [rect] })
+      }
     } else {
       const editorSession = this.getEditorSession()
       editorSession.setSelection(newSelection)
     }
   }
 
-  _updateCell() {
+  _updateCell(dir) {
     let editorSession = this.getEditorSession()
     let cell = this._getAnchorCell()
     let oldValue = cell.getText()
     let newValue = this._formulaEditorContext.node.getText()
 
-    let newSel = this.refs.sheet.shiftSelection(1, 0, false)
+    // this controls in which direction the selection is moved
+    // either to the next row, or to the next column
+    let dr = 0
+    let dc = 0
+    if (dir === 'row') {
+      dr = 1
+    } else if (dir === 'col') {
+      dc = 1
+    }
+
+    let newSel = this.refs.sheet.shiftSelection(dr, dc, false)
     // skip if there is no change
     if (oldValue !== newValue) {
       // collapsing the selection to the anchor cell
@@ -519,12 +569,6 @@ export default class SheetEditor extends AbstractEditor {
     return this.getDocument().getCell(sel.anchorRow, sel.anchorCol)
   }
 
-  _getSheetState() {
-    const editorSession = this.props.editorSession
-    const sheet = editorSession.getDocument()
-    return sheet.getState()
-  }
-
   _selectAll() {
     this._executeCommand('sheet:select-all')
   }
@@ -533,5 +577,17 @@ export default class SheetEditor extends AbstractEditor {
     // TODO: soon we will pull out CommandManager from EditorSession
     let commandManager = this.commandManager
     commandManager.executeCommand(commandName, params)
+  }
+
+  _onFormulaBarEnter() {
+    this._updateCell()
+  }
+
+  _onFormulaEditorEnter() {
+    this._updateCell('row')
+  }
+
+  _onFormulaEditorTab() {
+    this._updateCell('col')
   }
 }

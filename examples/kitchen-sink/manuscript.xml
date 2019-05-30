@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Archiving and Interchange DTD v1.1d3 20150301//EN"  "JATS-archivearticle1.dtd">
-
 <article xmlns:xlink="http://www.w3.org/1999/xlink">
   <front>
     <article-meta>
@@ -92,7 +91,7 @@
       <title>Functions</title>
       <p>Here's a cell that reads some fictitous ice cream sales data from a CSV (comma separated values) string using the csv function.</p>
       <code specific-use="cell"><named-content><alternatives>
-        <code specific-use="source" language="mini"><![CDATA[data = sheet1!A1:C9]]></code>
+        <code specific-use="source" language="mini"><![CDATA[data = 'Ice Cream Sales'!A1:C9]]></code>
         <code specific-use="output" language="json"><![CDATA[{}]]></code>
       </alternatives></named-content></code>
       <p>The variable data is a table and is now a part of of the document scope - the set of variables the document knows about. Let's filter the table to only show data for days when the temperature is less than 20 degrees.</p>

@@ -1,4 +1,3 @@
-import {PUT} from '../util/requests'
 import Context from './Context'
 
 /**
@@ -11,27 +10,18 @@ import Context from './Context'
  */
 export default class ContextHttpClient extends Context {
 
-  constructor(url) {
+  constructor(host, url, name) {
     super()
-    this.url = url
+    this._host = host
+    this._peer = url
+    this._name = name
   }
 
   /**
-   * Get the list of supported programming languages
-   *
-   * @override
+   * Get a list of libraries
    */
-  supportedLanguages () {
-    return PUT(this.url + '!supportedLanguages')
-  }
-
-  /**
-   * Get a list of function libraries
-   *
-   * @override
-   */
-  getLibraries () {
-    return PUT(this.url + '!getLibraries')
+  libraries () {
+    return this._host._put(this._peer, '/' + this._name + '!libraries')
   }
 
   /**
@@ -40,7 +30,21 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   _analyseCode (code, exprOnly = false) {
-    return PUT(this.url + '!analyseCode', {code: code, exprOnly: exprOnly})
+    let pre = {
+      type: 'cell',
+      source: {
+        type: 'text',
+        data: code
+      },
+      expr: exprOnly
+    }
+    return this._host._put(this._peer, '/' + this._name + '!compile', pre).then(post => {
+      return {
+        inputs: post.inputs && post.inputs.map(input => input.name),
+        output: post.outputs && post.outputs[0] && post.outputs[0].name,
+        messages: post.messages
+      }      
+    })
   }
 
   /**
@@ -49,25 +53,42 @@ export default class ContextHttpClient extends Context {
    * @override
    */
   _executeCode (code, inputs, exprOnly = false) {
-    return PUT(this.url + '!executeCode', {code: code, inputs: inputs, exprOnly: exprOnly})
+    let pre = {
+      type: 'cell',
+      source: {
+        type: 'text',
+        data: code
+      },
+      expr: exprOnly,
+      inputs: Object.entries(inputs).map(([name, value]) => {
+        return {name, value}
+      })
+    }
+    return this._host._put(this._peer, '/' + this._name + '!execute', pre).then(post => {
+      let output = post.outputs && post.outputs[0] && post.outputs[0].name
+      let value = post.outputs && post.outputs[0] && post.outputs[0].value
+      if (value) {
+        if (value.type === 'library') {
+          this._host._functionManager.importLibrary(this, value.data)
+        } else if (value.type === 'function') {
+          this._host._functionManager.importFunction(this, value.data)
+        }
+      }
+      return {
+        inputs: post.inputs && post.inputs.map(input => input.name),
+        output: output,
+        value: value,
+        messages: post.messages
+      }
+    })
   }
 
-
-  /**
-   * Does the context provide a function?
-   *
-   * @override
-   */
-  hasFunction (name) {
-    return PUT(this.url + '!hasFunction', {name: name})
-  }
-
-  /**
-   * Call a function
-   *
-   * @override
-   */
   callFunction (library, name, args, namedArgs) {
-    return PUT(this.url + '!callFunction', {library: library, name: name, args: args, namedArgs: namedArgs})
+    let call = {
+      type: 'call',
+      func: {type: 'get', name: name},
+      args, namedArgs
+    }
+    return this._host._put(this._peer, '/' + this._name + '!evaluate', call)
   }
 }

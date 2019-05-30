@@ -3,9 +3,7 @@ import {
 } from 'substance'
 
 import analyseCode from './analyseCode'
-import { getSyntaxTokens } from '../engine/expressionHelpers'
-// TODO: eventually this should be coupled with cells
-import { getCellState } from './cellHelpers'
+import { getSyntaxTokens } from '../shared/expressionHelpers'
 
 export default class CodeEditor extends Component {
 
@@ -36,6 +34,7 @@ export default class CodeEditor extends Component {
       // TextPropertyEditor props
       name: this.props.name,
       path,
+      disabled: this.props.disabled,
       multiLine: this.props.multiline,
       // Surface props
       commands,
@@ -52,6 +51,10 @@ export default class CodeEditor extends Component {
     return el
   }
 
+  getSurfaceId() {
+    return this.refs.contentEditor.getId()
+  }
+
   _onCodeUpdate() {
     let code = this._getCode()
     let shouldAnalyse = true
@@ -61,15 +64,19 @@ export default class CodeEditor extends Component {
     if (this.props.mode === 'cell') {
       shouldAnalyse = Boolean(/^\s*=/.exec(code))
     }
+    // tokens for syntax-highlighting
     let tokens = []
+    // symbols such as 'var', 'cell', or 'range'
+    let symbols = []
+    // detected complex nodes, such as function calls
     let nodes = []
     if (shouldAnalyse) {
-      ({tokens, nodes} = analyseCode(code, this.props.language))
+      ({tokens, symbols, nodes} = analyseCode(code, this.props.language))
     }
     this._setMarkers(tokens)
     // TODO: rethink - if there was a State API how would we do this?
     // want to share code analysis e.g. with Commands
-    this._extendState({ tokens, nodes })
+    this._extendState({ tokens, symbols, nodes })
   }
 
   _getCode() {
@@ -96,7 +103,9 @@ export default class CodeEditor extends Component {
     const path = this.props.path
     const nodeId = path[0]
     const node = this.context.editorSession.getDocument().get(nodeId)
-    if (!node.state) node.state = getCellState(node)
+    if (!node.state) {
+      node.state = {}
+    }
     return node.state
   }
 

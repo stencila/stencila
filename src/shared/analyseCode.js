@@ -1,4 +1,5 @@
 import Prism from '../../tmp/prism.js'
+import { extractSymbols } from './expressionHelpers'
 
 const CELL = /\b([a-z0-9_]+[!])?([A-Z]{1,3}[1-9][0-9]*)(?:[:]([A-Z]{1,3}[1-9][0-9]*))?\b/
 const DEF = /(^|\n)[a-zA-Z_$][a-zA-Z_$0-9]*(?=\s*[=])/
@@ -47,8 +48,7 @@ Prism.languages.insertBefore('python', 'punctuation', {
   'key': { pattern: KEY, greedy: true },
   'id': { pattern: ID, greedy: true }
 })
-languages['python'] = languages['py'] = Prism.languages.python
-
+languages['python'] = languages['py'] = languages['pyjp'] = Prism.languages.python
 
 Prism.languages.insertBefore('javascript', 'punctuation', {
   'function': /[a-z0-9_]+(?=\()/i,
@@ -60,7 +60,7 @@ Prism.languages.insertBefore('javascript', 'punctuation', {
   'key': { pattern: KEY, greedy: true },
   'id': { pattern: ID, greedy: true }
 })
-languages['js'] = languages['javascript'] = Prism.languages.javascript
+languages['js'] = languages['node'] = languages['javascript'] = Prism.languages.javascript
 
 Prism.languages.insertBefore('sql', 'punctuation', {
   'function': /[a-z0-9_]+(?=\()/i,
@@ -74,9 +74,13 @@ Prism.languages.insertBefore('sql', 'punctuation', {
 })
 languages['sql'] = Prism.languages.sql
 
-
-function tokenize(code, lang) {
-  let prismTokens = Prism.tokenize(code, languages[lang])
+function tokenize (code, lang) {
+  let grammar = languages[lang]
+  if (!grammar) {
+    console.error(`No tokenizer registered for language ${lang}`)
+    return []
+  }
+  let prismTokens = Prism.tokenize(code, grammar)
   let tokens = []
   let pos = 0
   for (let i = 0; i < prismTokens.length; i++) {
@@ -92,7 +96,8 @@ function tokenize(code, lang) {
         tokens.push({
           type: t.type,
           text: t.content,
-          start, end
+          start,
+          end
         })
     }
     pos = end
@@ -101,12 +106,13 @@ function tokenize(code, lang) {
 }
 
 // pseudo-parsing to collect information about functions
-export default function analyzeCode(code, lang = 'mini') {
+export default function analyseCode (code, lang = 'mini') {
   let tokens = tokenize(code, lang)
+  let symbols = extractSymbols(code)
   let nodes = []
   let calls = []
 
-  function _push(end) {
+  function _push (end) {
     let currentCall = calls[0]
     if (currentCall) {
       // tidy up
@@ -177,5 +183,5 @@ export default function analyzeCode(code, lang = 'mini') {
   // also push incomplete function calls
   _push(code.length)
 
-  return { tokens, nodes }
+  return { tokens, symbols, nodes }
 }

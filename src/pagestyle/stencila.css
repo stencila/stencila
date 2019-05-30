@@ -8,15 +8,156 @@
 @import './_native-imports.css';
 @import './_substance-core.css';
 @import './_variables.css';
-@import './_reset.css';
+/* @import './_reset.css'; */
 @import './_overrides.css';
 
 @import './_style-transforms';
-@import './_pagestyle.css';
+/* @import './_pagestyle.css'; */
 @import '../sheet/_sheet.css';
 @import '../shared/_index.css';
 @import '../article/_index.css';
 @import '../project/_index.css';
+@import '../host/_index.css';
+
 
 /* Texture styles */
 @import '../../node_modules/substance-texture/texture.css';
+
+/* Branding overrides */
+@import './_branding.css';
+
+
+/* READER HACKS */
+
+.sc-editor > .se-main-section > .se-toolbar-wrapper {
+  display: none !important;
+}
+
+.se-ref-list-options {
+  display: none !important;
+}
+
+.se-ref-actions {
+  display: none !important;
+}
+
+.sc-authors-list button {
+  display: none !important;
+}
+
+.sc-editor .sc-container-editor .sc-isolated-node.sm-focused {
+  outline: 1px solid transparent;
+}
+
+.sc-isolated-node.sm-default-style.sm-selected {
+  outline: 1px solid transparent;
+}
+
+.sc-isolated-node-blocker {
+  display: none !important;
+}
+
+.sc-app {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+}
+
+
+/* Loading SPINNER */
+
+.sc-loading {
+  font-family: "Avenir Next", Lato, Helvetica;
+}
+.sc-loading .se-spinner {
+  display: block;
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin: 50px auto;
+}
+
+.sc-loading .se-message {
+  text-align: center;
+}
+
+.sc-loading .se-spinner div {
+  animation: sc-loading 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  transform-origin: 32px 32px;
+}
+.sc-loading .se-spinner div:after {
+  content: " ";
+  display: block;
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #000;
+  margin: -3px 0 0 -3px;
+}
+.sc-loading .se-spinner div:nth-child(1) {
+  animation-delay: -0.036s;
+}
+.sc-loading .se-spinner div:nth-child(1):after {
+  top: 50px;
+  left: 50px;
+}
+.sc-loading .se-spinner div:nth-child(2) {
+  animation-delay: -0.072s;
+}
+.sc-loading .se-spinner div:nth-child(2):after {
+  top: 54px;
+  left: 45px;
+}
+.sc-loading .se-spinner div:nth-child(3) {
+  animation-delay: -0.108s;
+}
+.sc-loading .se-spinner div:nth-child(3):after {
+  top: 57px;
+  left: 39px;
+}
+.sc-loading .se-spinner div:nth-child(4) {
+  animation-delay: -0.144s;
+}
+.sc-loading .se-spinner div:nth-child(4):after {
+  top: 58px;
+  left: 32px;
+}
+.sc-loading .se-spinner div:nth-child(5) {
+  animation-delay: -0.18s;
+}
+.sc-loading .se-spinner div:nth-child(5):after {
+  top: 57px;
+  left: 25px;
+}
+.sc-loading .se-spinner div:nth-child(6) {
+  animation-delay: -0.216s;
+}
+.sc-loading .se-spinner div:nth-child(6):after {
+  top: 54px;
+  left: 19px;
+}
+.sc-loading .se-spinner div:nth-child(7) {
+  animation-delay: -0.252s;
+}
+.sc-loading .se-spinner div:nth-child(7):after {
+  top: 50px;
+  left: 14px;
+}
+.sc-loading .se-spinner div:nth-child(8) {
+  animation-delay: -0.288s;
+}
+.sc-loading .se-spinner div:nth-child(8):after {
+  top: 45px;
+  left: 10px;
+}
+@keyframes sc-loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

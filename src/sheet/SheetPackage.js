@@ -7,13 +7,11 @@ import {
   InsertRowsAbove, InsertRowsBelow, DeleteRows,
   InsertColumnsLeft, InsertColumnsRight, DeleteColumns,
   OpenColumnSettings, SetLanguageCommand,
-  SetTypeCommand, ChangeDisplayModeCommand,
   SelectAllCommand
 } from './SheetCommands'
 
 import SheetDocumentImporter from './SheetDocumentImporter'
 import ColumnSettingsDialog from './ColumnSettingsDialog'
-import SheetIssuesComponent from './SheetIssuesComponent'
 
 import NullValueComponent from '../shared/NullValueComponent'
 import BooleanValueComponent from '../shared/BooleanValueComponent'
@@ -29,8 +27,6 @@ import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
 import CodeHighlightComponent from '../shared/CodeHighlightComponent'
 
-import IssueManager from './IssueManager'
-
 export default {
   name: 'Sheet',
 
@@ -43,8 +39,6 @@ export default {
     config.addEditorOption({key: 'forcePlainTextPaste', value: true})
 
     config.import(BasePackage)
-
-    config.addManager('issue-manager', IssueManager)
 
     config.addToolPanel('toolbar', [
       {
@@ -88,13 +82,6 @@ export default {
         showDisabled: true,
         style: 'minimal',
         commandGroups: ['undo-redo']
-      },
-      {
-        name: 'view-mode',
-        type: 'tool-dropdown',
-        style: 'descriptive',
-        showDisabled: true,
-        commandGroups: ['sheet-view-mode']
       }
     ])
 
@@ -129,13 +116,14 @@ export default {
     ])
 
     config.addToolPanel('cell-context-menu', [
-      {
-        name: 'cell-types',
-        type: 'tool-group',
-        style: 'descriptive',
-        showDisabled: true,
-        commandGroups: ['cell-types']
-      },
+      // TODO: Bring back typed cells
+      // {
+      //   name: 'cell-types',
+      //   type: 'tool-group',
+      //   style: 'descriptive',
+      //   showDisabled: true,
+      //   commandGroups: ['cell-types']
+      // },
       {
         name: 'cell-languages',
         type: 'tool-group',
@@ -148,38 +136,44 @@ export default {
     // Cell Languages
     config.addCommand('set-mini', SetLanguageCommand, { language: undefined, commandGroup: 'cell-languages' })
     config.addCommand('set-js', SetLanguageCommand, { language: 'js', commandGroup: 'cell-languages' })
+    config.addCommand('set-node', SetLanguageCommand, { language: 'node', commandGroup: 'cell-languages' })
     config.addCommand('set-py', SetLanguageCommand, { language: 'py', commandGroup: 'cell-languages' })
+    config.addCommand('set-pyjp', SetLanguageCommand, { language: 'pyjp', commandGroup: 'cell-languages' })
     config.addCommand('set-r', SetLanguageCommand, { language: 'r', commandGroup: 'cell-languages' })
+    config.addCommand('set-sql', SetLanguageCommand, { language: 'sql', commandGroup: 'cell-languages' })
 
     config.addLabel('cell-languages', 'Choose Language')
     config.addLabel('set-mini', 'Mini')
     config.addLabel('set-js', 'Javascript')
+    config.addLabel('set-node', 'Node.js')
     config.addLabel('set-py', 'Python')
+    config.addLabel('set-pyjp', 'Python Jupyter')
     config.addLabel('set-r', 'R')
+    config.addLabel('set-sql', 'SQL')
 
-    // Cell Types
-    config.addCommand('set-inherit', SetTypeCommand, { type: undefined, commandGroup: 'cell-types' })
-    config.addCommand('set-any', SetTypeCommand, { type: 'any', commandGroup: 'cell-types' })
-    config.addCommand('set-string', SetTypeCommand, { type: 'string', commandGroup: 'cell-types' })
-    config.addCommand('set-number', SetTypeCommand, { type: 'number', commandGroup: 'cell-types' })
-    config.addCommand('set-integer', SetTypeCommand, { type: 'integer', commandGroup: 'cell-types' })
-    config.addCommand('set-boolean', SetTypeCommand, { type: 'boolean', commandGroup: 'cell-types' })
-
-    config.addLabel('cell-types', 'Choose Cell Type')
-    config.addLabel('set-inherit', 'Inherited (${columnType})')
-    config.addLabel('set-any', 'Any')
-    config.addLabel('set-string', 'String')
-    config.addLabel('set-number', 'Number')
-    config.addLabel('set-integer', 'Integer')
-    config.addLabel('set-boolean', 'Boolean')
-
-    // Labels for types
-    config.addLabel('any', 'Any')
-    config.addLabel('string', 'String')
-    config.addLabel('number', 'Number')
-    config.addLabel('integer', 'Integer')
-    config.addLabel('boolean', 'Boolean')
-
+    // TODO: Bring back typed cells
+    // // Cell Types
+    // config.addCommand('set-inherit', SetTypeCommand, { type: undefined, commandGroup: 'cell-types' })
+    // config.addCommand('set-any', SetTypeCommand, { type: 'any', commandGroup: 'cell-types' })
+    // config.addCommand('set-string', SetTypeCommand, { type: 'string', commandGroup: 'cell-types' })
+    // config.addCommand('set-number', SetTypeCommand, { type: 'number', commandGroup: 'cell-types' })
+    // config.addCommand('set-integer', SetTypeCommand, { type: 'integer', commandGroup: 'cell-types' })
+    // config.addCommand('set-boolean', SetTypeCommand, { type: 'boolean', commandGroup: 'cell-types' })
+    //
+    // config.addLabel('cell-types', 'Choose Cell Type')
+    // config.addLabel('set-inherit', 'Inherited (${columnType})')
+    // config.addLabel('set-any', 'Any')
+    // config.addLabel('set-string', 'String')
+    // config.addLabel('set-number', 'Number')
+    // config.addLabel('set-integer', 'Integer')
+    // config.addLabel('set-boolean', 'Boolean')
+    //
+    // // Labels for types
+    // config.addLabel('any', 'Any')
+    // config.addLabel('string', 'String')
+    // config.addLabel('number', 'Number')
+    // config.addLabel('integer', 'Integer')
+    // config.addLabel('boolean', 'Boolean')
 
     // Cell values
     config.addComponent('value:null', NullValueComponent)
@@ -195,16 +189,6 @@ export default {
     config.addComponent('value:plotly', PlotlyValueComponent)
 
     config.addComponent('code-highlight', CodeHighlightComponent)
-
-    // Sheet modes
-    config.addCommand('normal-mode', ChangeDisplayModeCommand, { displayMode: 'normal', commandGroup: 'sheet-view-mode' })
-    config.addCommand('minimum-mode', ChangeDisplayModeCommand, { displayMode: 'minimum', commandGroup: 'sheet-view-mode' })
-    config.addCommand('maximum-mode', ChangeDisplayModeCommand, { displayMode: 'maximum', commandGroup: 'sheet-view-mode' })
-
-    config.addLabel('view-mode', 'View Mode')
-    config.addLabel('normal-mode', 'Normal')
-    config.addLabel('minimum-mode', 'Presentation')
-    config.addLabel('maximum-mode', 'Source')
 
     config.addComponent('sheet', SheetComponent)
 
@@ -291,8 +275,6 @@ export default {
     config.addIcon('integer-cell-type', {'fontawesome': 'fa-hashtag' })
     config.addIcon('boolean-cell-type', {'fontawesome': 'fa-check-square-o' })
 
-    config.addComponent('sheet-issues', SheetIssuesComponent)
-    config.addLabel('sheet-issues', 'Issues')
     config.addLabel('function-reference',' Function Reference')
 
     config.addLabel('title:error', {

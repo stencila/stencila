@@ -1,4 +1,4 @@
-import { Component, getRelativeBoundingRect, stop, isEqual } from 'substance'
+import { Component, getRelativeBoundingRect, domHelpers, isEqual } from 'substance'
 
 export default class ColumnSettingsDialog extends Component {
 
@@ -14,7 +14,7 @@ export default class ColumnSettingsDialog extends Component {
       .append(this._renderBody($$))
       .append(this._renderFoot($$))
       .addClass('sm-hidden')
-      .on('mousedown', stop)
+      .on('mousedown', domHelpers.stop)
       .on('keydown', this._onKeyDown)
     return el
   }
@@ -28,7 +28,7 @@ export default class ColumnSettingsDialog extends Component {
 
   _renderBody($$) {
     const node = this._getNode()
-    const type = node.attr('type')
+    // const type = node.attr('type')
     let body = $$('div').addClass('se-body')
     body.append($$('div').addClass('se-item').append(
       $$('div').addClass('se-label').text(this.getLabel('name')),
@@ -38,23 +38,25 @@ export default class ColumnSettingsDialog extends Component {
         .val(node.attr('name'))
     ))
 
-    let typeSelect = $$('select').ref('type')
-      .addClass('se-input sm-type')
-      .val(node.attr('type'))
-    // TODO: get types from schema
-    ;['any', 'number', 'integer', 'string', 'boolean'].forEach((t) => {
-      let option = $$('option')
-        .attr('value', t)
-        .text(this.getLabel(t))
-      if (t === type) {
-        option.attr('selected', true)
-      }
-      typeSelect.append(option)
-    })
-    body.append($$('div').addClass('se-item').append(
-      $$('div').addClass('se-label').text(this.getLabel('type')),
-      typeSelect
-    ))
+    // TODO: Bring back typed cells
+    // let typeSelect = $$('select').ref('type')
+    //   .addClass('se-input sm-type')
+    //   .val(node.attr('type'))
+    // // TODO: get types from schema
+    // ;['any', 'number', 'integer', 'string', 'boolean'].forEach((t) => {
+    //   let option = $$('option')
+    //     .attr('value', t)
+    //     .text(this.getLabel(t))
+    //   if (t === type) {
+    //     option.attr('selected', true)
+    //   }
+    //   typeSelect.append(option)
+    // })
+    // body.append($$('div').addClass('se-item').append(
+    //   $$('div').addClass('se-label').text(this.getLabel('type')),
+    //   typeSelect
+    // ))
+
     return body
   }
 
@@ -122,11 +124,11 @@ export default class ColumnSettingsDialog extends Component {
     const node = this._getNode()
     let oldAttr = {
       name: node.attr('name'),
-      type: node.attr('type')
+      // type: node.attr('type')
     }
     let newAttr = {
       name: this.refs.name.val(),
-      type: this.refs.type.val()
+      // type: this.refs.type.val()
     }
     if (!isEqual(oldAttr, newAttr)) {
       let editorSession = this._getEditorSession()

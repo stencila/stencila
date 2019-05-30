@@ -1,7 +1,5 @@
 import { Component } from 'substance'
-
 import FunctionHelpComponent from './FunctionHelpComponent'
-
 
 export default class HelpComponent extends Component {
 
@@ -24,4 +22,7 @@ export default class HelpComponent extends Component {
     return el
   }
 
+  _closeContext() {
+    this.send('toggleHelp')
+  }
 }

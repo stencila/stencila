@@ -1,20 +1,20 @@
 import {Component} from 'substance'
 
-const MAX_ROWS = 10
+const MAX_ROWS = 10000
 
 export default
 class TableValueComponent extends Component {
   render($$) {
     const table = this.props.value.data
     const data = table.data
-    const rows = table.rows
-    const cols = table.columns
+    const columnNames = Object.keys(data)
+    const cols = table.columns || columnNames.length
+    const rows = table.rows || (cols > 0 && data[columnNames[0]] && data[columnNames[0]].length)
 
     let el = $$('div').addClass('sc-table-value')
 
     let tableEl = $$('table').addClass('sc-table-value')
-    
-    const columnNames = Object.keys(data)
+
     const thead = $$('thead')
     columnNames.forEach((name)=>{
       thead.append(
@@ -33,6 +33,15 @@ class TableValueComponent extends Component {
           )
         })
         tbody.append(tr)
+      }
+      if (this.props.pointer) {
+        let tr = $$('tr')
+        columnNames.forEach(()=>{
+          tr.append(
+            $$('td').text('...')
+          )
+        })
+        tbody.append(tr)  
       }
       tableEl.append(tbody)
     }

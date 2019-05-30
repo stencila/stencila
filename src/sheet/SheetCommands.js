@@ -1,8 +1,8 @@
-import { Command, DocumentChange } from 'substance'
+import { Command } from 'substance'
 import { getRange } from './sheetHelpers'
+import { insertRows, deleteRows, insertCols, deleteCols, setCellTypes, setColumnTypes } from './SheetManipulations'
 
 class RowsCommand extends Command {
-
   getCommandState(params) {
     const sel = params.selection
     if (sel && sel.isCustomSelection() && sel.customType === 'sheet') {
@@ -22,11 +22,9 @@ class RowsCommand extends Command {
       disabled: true
     }
   }
-
 }
 
 class ColsCommand extends Command {
-
   getCommandState(params) {
     const sel = params.selection
     if (sel && sel.isCustomSelection() && sel.customType === 'sheet') {
@@ -46,7 +44,6 @@ class ColsCommand extends Command {
       disabled: true
     }
   }
-
 }
 
 class ColumnMetaCommand extends Command {
@@ -77,72 +74,67 @@ class ColumnMetaCommand extends Command {
 
 }
 
-function insertRows({editorSession, commandState}, mode) {
-  const refRow = mode === 'above' ?
-    commandState.startRow :
-    commandState.endRow + 1
-  const nrows = commandState.nrows
-  editorSession.transaction((tx) => {
-    tx.getDocument().createRowsAt(refRow, nrows)
-  })
-}
-
-function insertCols({editorSession, commandState}, mode) {
-  //const sel = selection.data
-  const refCol = mode === 'left' ?
-    commandState.startCol :
-    commandState.endCol + 1
-  const ncols = commandState.ncolumns
-  editorSession.transaction((tx) => {
-    tx.getDocument().createColumnsAt(refCol, ncols)
-  })
-}
-
-function deleteRows({editorSession, commandState}) {
-  editorSession.transaction((tx) => {
-    tx.getDocument().deleteRows(commandState.startRow, commandState.endRow)
-  })
-}
-
-function deleteColumns({editorSession, commandState}) {
-  editorSession.transaction((tx) => {
-    tx.getDocument().deleteColumns(commandState.startCol, commandState.endCol)
-  })
-}
-
 export class InsertRowsAbove extends RowsCommand {
   execute(params) {
-    insertRows(params, 'above')
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const pos = commandState.startRow
+    const count = commandState.nrows
+    insertRows(editorSession, pos, count)
   }
 }
 
 export class InsertRowsBelow extends RowsCommand {
   execute(params) {
-    insertRows(params, 'below')
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const pos = commandState.endRow + 1
+    const count = commandState.nrows
+    insertRows(editorSession, pos, count)
   }
 }
 
 export class DeleteRows extends RowsCommand {
   execute(params) {
-    deleteRows(params)
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const start = commandState.startRow
+    const end = commandState.endRow
+    const pos = start
+    const count = end - start + 1
+    deleteRows(editorSession, pos, count)
   }
 }
 
 export class InsertColumnsLeft extends ColsCommand {
   execute(params) {
-    insertCols(params, 'left')
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const pos = commandState.startCol
+    const count = commandState.ncolumns
+    insertCols(editorSession, pos, count)
   }
 }
 
 export class InsertColumnsRight extends ColsCommand {
   execute(params) {
-    insertCols(params, 'right')
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const pos = commandState.endCol + 1
+    const count = commandState.ncolumns
+    insertCols(editorSession, pos, count)
   }
 }
 
 export class DeleteColumns extends ColsCommand {
   execute(params) {
-    deleteColumns(params)
+    const editorSession = params.editorSession
+    const commandState = params.commandState
+    const start = commandState.startCol
+    const end = commandState.endCol
+    const pos = start
+    const count = end - start + 1
+    deleteCols(editorSession, pos, count)
   }
 }
 
@@ -204,7 +196,7 @@ export class SetTypeCommand extends Command {
     const selectionType = selection.data.type
     if(selectionType === 'columns') {
       let columnMeta = doc.getColumnMeta(anchorCol)
-      let columnType = columnMeta.attr('type')
+      let columnType = columnMeta.attr('type') || 'Auto'
       state = {
         cellId: columnMeta.id,
         newType: this.config.type,
@@ -216,7 +208,7 @@ export class SetTypeCommand extends Command {
       if (selectionType === 'rows') anchorCol = 0
       let anchorCell = doc.getCell(anchorRow, anchorCol)
       let columnMeta = doc.getColumnForCell(anchorCell.id)
-      let columnType = columnMeta.attr('type')
+      let columnType = columnMeta.attr('type') || 'Auto'
       let cellType = anchorCell.attr('type')
       state = {
         cellId: anchorCell.id,
@@ -233,57 +225,13 @@ export class SetTypeCommand extends Command {
     let { newType, disabled } = commandState
     const selectionType = selection.data.type
     if (!disabled) {
+      const range = getRange(editorSession)
       if(selectionType === 'range' || selectionType === 'rows') {
-        const range = getRange(editorSession)
-        editorSession.transaction((tx) => {
-          tx.getDocument().setTypeForRange(range.startRow, range.startCol, range.endRow, range.endCol, newType)
-        })
+        setCellTypes(editorSession, range.startRow, range.startCol, range.endRow, range.endCol, newType)
       } else if (selectionType === 'columns') {
-        const range = getRange(editorSession)
-        editorSession.transaction((tx) => {
-          for (let colIdx = range.startCol; colIdx <= range.endCol; colIdx++) {
-            let cell = tx.getDocument().getColumnMeta(colIdx)
-            cell.attr({type: newType})
-          }
-        })
+        setColumnTypes(editorSession, range.startCol, range.endCol, newType)
       }
     }
-  }
-}
-
-export class ChangeDisplayModeCommand extends Command {
-  getCommandState(params) {
-    const sheet = params.editorSession.getDocument()
-    const state = sheet.getState()
-    if (state) {
-      // TODO: we should get default value from outside
-      const displayMode = state.displayMode
-      return {
-        disabled: false,
-        newMode: this.config.displayMode,
-        active: this.config.displayMode === displayMode
-      }
-    } else {
-      return {
-        disabled: true
-      }
-    }
-  }
-
-  execute(params) {
-    const editorSession = params.editorSession
-    const sheet = editorSession.getDocument()
-    // TODO need a better API for this
-    let sheetState = sheet.getState()
-    sheetState.displayMode = this.config.displayMode
-    editorSession._setDirty('document')
-    editorSession._setDirty('commandStates')
-    let change = new DocumentChange([], {}, {})
-    change._extractInformation()
-    change.updated['sheet.state'] = true
-    editorSession._change = change
-    editorSession._info = {}
-    editorSession.performFlow()
   }
 }
 

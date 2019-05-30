@@ -14,6 +14,8 @@
 .sc-sheet-editor .se-tool-pane {
   display: flex;
   z-index: 3;
+  padding: 4px;
+  height: 40px;
 }
 
 .sc-sheet-editor .se-tool-pane .sc-formula-bar {
@@ -154,6 +156,7 @@
 }
 
 .sc-sheet td {
+  overflow: hidden;
   white-space: pre-wrap;
   overflow-wrap: break-word;
   border: 1px solid var(--sheet-cell-bordercolor);
@@ -254,7 +257,8 @@
 
 .sc-sheet .se-context-menu {
   position: absolute;
-  background: var(--dark-bg-color);
+  background: #fff;
+  box-shadow: 0 0 0 0.75pt #d1d1d1, 0 0 3pt 0.75pt #aaa;
   border-radius: 3px;
   padding: 2px 5px;
 }
@@ -263,31 +267,8 @@
   background: #ccc;
 }
 
-/* Sheet View Modes */
-
-.sc-sheet.sm-mode-minimum .sc-table-view td {
-  border: none;
-}
-
-.sc-sheet.sm-mode-minimum .sc-table-view .sc-column-header,
-.sc-sheet.sm-mode-minimum .sc-table-view .se-corner {
-  padding: 0px;
-  visibility: hidden;
-  background: none;
-}
-
-.sc-sheet.sm-mode-minimum .sc-table-view .se-column-title {
-  height: 0px;
-  border: none;
-}
-
-.sc-sheet.sm-mode-minimum .se-selection-overlay > .se-selection-columns,
 .sc-sheet .se-selection-overlay > .se-selection-rows {
   background: none;
-}
-
-.sc-sheet.sm-mode-minimum .sc-table-view .sc-test-value {
-  visibility: hidden;
 }
 
 .sc-sheet-cell .se-function-cell .sc-cell-value.sm-response-value {
@@ -308,35 +289,4 @@
   color: #FF0300;
   text-align: center;
   font-size: 12px;
-}
-
-.sc-sheet-cell .sc-cell-overflow {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  background: #fff;
-  z-index: 10;
-  -webkit-box-shadow: 4px 2px 10px 6px #ccc;
-  -moz-box-shadow: 4px 2px 10px 6px #ccc;
-  box-shadow: 4px 2px 10px 6px #ccc;
-}
-
-.sc-sheet-editor .se-context-pane {
-  flex: 0 2 300px;
-  overflow: auto;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-  background: #F3F3F3;
-  border-left: 1px solid #e1e4e8;
-}
-
-/* HACK: this is a rather hacky solution */
-.sc-sheet-editor .se-context-pane > .se-context-pane-content {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  overflow: auto;
 }

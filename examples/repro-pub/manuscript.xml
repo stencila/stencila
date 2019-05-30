@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "TextureArticle 0.1.0" "http://substance.io/TextureArticle-1.0.0.dtd">
+<article id="article" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <front id="front-1">
+    <article-meta id="article-meta-1">
+      <title-group id="title-group-1">
+        <article-title id="article-title-1">Create reproducible publications with Stencila</article-title>
+      </title-group>
+      <contrib-group id="contrib-group-2" content-type="author">
+        <contrib id="contrib-1" contrib-type="person">
+          <name>
+            <surname>Bentley</surname>
+            <given-names>Nokome</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1" />
+        </contrib>
+        <contrib id="contrib-2" contrib-type="person">
+          <name>
+            <surname>Buchtala</surname>
+            <given-names>Oliver</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1" />
+          <xref ref-type="aff" rid="aff2" />
+        </contrib>
+        <contrib id="contrib-3" contrib-type="person">
+          <name>
+            <surname>Aufreiter</surname>
+            <given-names>Michael</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1" />
+          <xref ref-type="aff" rid="aff2" />
+        </contrib>
+        <contrib id="contrib-4" contrib-type="person">
+          <name>
+            <surname>Maciocci</surname>
+            <given-names>Giuliano</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff3" />
+        </contrib>
+        <contrib id="contrib-5" contrib-type="person">
+          <name>
+            <surname>Penfold</surname>
+            <given-names>Naomi</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff3" />
+        </contrib>
+      </contrib-group>
+      <aff id="aff1">
+        <institution content-type="orgname">Stencila Ltd.</institution>
+        <city>Kaikoura</city>
+        <country>New Zealand</country>
+      </aff>
+      <aff id="aff2">
+        <institution content-type="orgname">Substance Software GmbH</institution>
+        <city>Linz</city>
+        <country>Austria</country>
+      </aff>
+      <aff id="aff3">
+        <institution content-type="orgname">eLife</institution>
+        <city>Cambridge</city>
+        <country>UK</country>
+      </aff>
+      <history id="history-1" />
+      <abstract id="abstract-1">
+        <p id="p-1">A reproducible publication is one where any code used by the original researcher to compute an output (a graph, equation, table or statistical result) is embedded within the narrative describing the work <xref id="xref-1" ref-type="bibr" rid="ref-af9f346afcc40500c7b5e1f2e6cb60ac ref-bbb7969fe58decf52fb37c8ba255492d">[1,2]</xref>. </p>
+      </abstract>
+      <trans-abstract id="trans-abstract-1" xml:lang="de">
+        <p id="p-2">Deutsche Übersetzung</p>
+      </trans-abstract>
+    </article-meta>
+  </front>
+  <body id="body-1">
+    <sec id="heading-1">
+      <title>Cells</title>
+      <p id="p-3">Cells are the excutable (dynamic) bits of a document. They produce a result as you type. Try to modify the following cell.</p>
+      <code id="cell-1" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[6 * 7]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"integer","data":42}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+      <p id="p-5">Cells use a very simple expression language called Mini to allow you to perform common data analysis and visualisation tasks within the document.</p>
+    </sec>
+    <sec id="heading-2">
+      <title>Transclusions</title>
+      <p id="p-7">Here's a cell that reads some fictitous ice cream sales data from a tabular sheet. Click the tab in the status bar to see the raw data.</p>
+      <code id="cell-2" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[data = 'Ice Cream Sales'!A1:C9]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"table","data":{"type":"table","data":{"temp":[18,20,24,23,26,25,20,17,18],"sales":[50,126,118,126,280,102,93,32,103],"sunny":["no","yes","yes","yes","yes","no","no","no","yes"]},"columns":3,"rows":9}}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+      <p id="p-8">The variable data is a table and is now a part of of the document scope - the set of variables the document knows about. Let's filter the table to only show data for days when the temperature is less than 20 degrees.</p>
+      <code id="cell-3" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[filtered_data = filter(data, 'temp < 23')]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"table","data":{"type":"table","data":{"temp":[18,20,20,17,18],"sales":[50,126,93,32,103],"sunny":["no","yes","no","no","yes"]},"columns":3,"rows":5}}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+      <p id="p-9">Notice that because we didn't assign the result of filter to a value the output gets displayed. You can change this behaviour by setting the cell's output visibility to Hide.</p>
+      <p id="p-10">Cells can also be used to plot your data. The plot function is a generic function that allows you to visualize data using various visual encodings.</p>
+      <code id="cell-4" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[plotly([
+  { x: filtered_data.temp, y: filtered_data.sales, mode: 'markers', name: 'sunny'}
+], {
+  xaxis: { title: 'Temperature' },
+  yaxis: { title: 'Ice Cream Sales' }
+})]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"plotly","data":{"type":"plotly","traces":[{"x":[18,20,20,17,18],"y":[50,126,93,32,103],"mode":"markers","name":"sunny","uid":"1e9a99"}],"layout":{"xaxis":{"title":"Temperature","linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false,"type":"linear","range":[16.785714285714285,20.214285714285715],"autorange":true},"yaxis":{"title":"Ice Cream Sales","linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false,"type":"linear","range":[25.335174953959484,132.6648250460405],"autorange":true},"margin":{"l":50,"r":50,"t":40,"b":50},"width":"400","height":"400"}}}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+    </sec>
+    <sec id="heading-527bd9686138ddaa8df55089835d495d">
+      <title>Repoducible Figures</title>
+      <p id="heading-bb952dfa83f3987afff370718a9884c1" level="1">Stencila Articles support full-fledged figures (<xref id="xref-73419d9d801053a57a179e61c83c92bd" ref-type="fig" rid="repro-fig-ed3a9070cc3d84e57853b20b68779a0d">Figure 1</xref>) with title and caption, just like a traditional scientific manuscripts dooes <xref id="xref-020e5cb9988a4d35397b59eade72d1fe" ref-type="bibr" rid="ref-af9f346afcc40500c7b5e1f2e6cb60ac">[1]</xref>.</p>
+      <code id="cell-9e6197099a71df4d9e52b6ffe03436c2" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[sunny = filter(data, 'sunny == "yes"')]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"table","data":{"type":"table","data":{"temp":[20,24,23,26,18],"sales":[126,118,126,280,103],"sunny":["yes","yes","yes","yes","yes"]},"columns":3,"rows":5}}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+      <code id="cell-5409fcff0e072bcf18f7a24f99b26d63" specific-use="cell">
+        <named-content>
+          <alternatives>
+            <code specific-use="source" language="mini"><![CDATA[not_sunny = filter(data, 'sunny == "no"')]]></code>
+            <code specific-use="output" language="json"><![CDATA[{"type":"table","data":{"type":"table","data":{"temp":[18,25,20,17],"sales":[50,102,93,32],"sunny":["no","no","no","no"]},"columns":3,"rows":4}}]]></code>
+          </alternatives>
+        </named-content>
+      </code>
+      <fig id="repro-fig-ed3a9070cc3d84e57853b20b68779a0d" fig-type="repro-fig">
+        <object-id id="object-id-2aa8fce63c57521084297bbb98713115" pub-id-type="doi">repro-fig-ed3a9070cc3d84e57853b20b68779a0d</object-id>
+        <label>Figure 1</label>
+        <caption id="caption-546fdd6a87d8a4c9229ed7ab2becde51">
+          <title id="title-861e36a7c7963b972e62b1107d223080">Ice Cream Sales</title>
+          <p id="p-4">Scatterplot shows temperature vs ice cream sales, group by wheter it was a sunny day or not.</p>
+        </caption>
+        <alternatives>
+          <code specific-use="source" language="mini"><![CDATA[plotly([
+  { x: not_sunny.temp, y: not_sunny.sales, mode: 'markers', name: 'Not sunny'},
+  { x: sunny.temp, y: sunny.sales, mode: 'markers', name: 'Sunny'}
+], {
+  xaxis: { title: 'Temperature' },
+  yaxis: { title: 'Ice Cream Sales' }
+})]]></code>
+          <code specific-use="output" language="json"><![CDATA[{"type":"plotly","data":{"type":"plotly","traces":[{"x":[18,25,20,17],"y":[50,102,93,32],"mode":"markers","name":"Not sunny","uid":"75e7c5"},{"x":[20,24,23,26,18],"y":[126,118,126,280,103],"mode":"markers","name":"Sunny","uid":"07e927"}],"layout":{"xaxis":{"title":"Temperature","linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false,"type":"linear","range":[16.104774535809018,26.895225464190982],"autorange":true},"yaxis":{"title":"Ice Cream Sales","linecolor":"black","linewidth":1,"mirror":true,"ticks":"outside","showspikes":false,"type":"linear","range":[14.41620626151013,297.5837937384899],"autorange":true},"margin":{"l":50,"r":50,"t":40,"b":50},"width":"400","height":"400"}}}]]></code>
+        </alternatives>
+      </fig>
+    </sec>
+  </body>
+  <back id="back-1">
+    <ref-list id="ref-list-1">
+      <ref id="ref-af9f346afcc40500c7b5e1f2e6cb60ac">
+        <element-citation publication-type="webpage">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Penfold</surname>
+              <given-names>Naomi</given-names>
+            </name>
+          </person-group>
+          <source>Reproducible Document Stack – supporting the next-generation research article</source>
+          <uri>https://elifesciences.org/labs/7dbeb390/reproducible-document-stack-supporting-the-next-generation-research-article</uri>
+        </element-citation>
+      </ref>
+      <ref id="ref-bbb7969fe58decf52fb37c8ba255492d">
+        <element-citation publication-type="webpage">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Maciocci</surname>
+              <given-names>Giuliano</given-names>
+            </name>
+          </person-group>
+          <source>Designing Progressive Enhancement Into The Academic Manuscript</source>
+          <uri>https://elifesciences.org/labs/e5737fd5/designing-progressive-enhancement-into-the-academic-manuscript</uri>
+        </element-citation>
+      </ref>
+    </ref-list>
+  </back>
+</article>

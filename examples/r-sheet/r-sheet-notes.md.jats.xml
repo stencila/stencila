@@ -7,6 +7,9 @@
         <article-title>Notes on the
           <monospace>r-sheet</monospace> example</article-title>
       </title-group>
+      <abstract>
+        <p>This example illustrates the use of R code within a Stencila Sheet.</p>
+      </abstract>
     </article-meta>
   </front>
 

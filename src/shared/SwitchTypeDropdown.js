@@ -21,9 +21,11 @@ export default class SwitchTypeDropdown extends ToolDropdown {
         // HACK: trying to get a label when cursor is inside of external source editor
         else if (sel.isCustomSelection() && sel.surfaceId) {
           const surface = editorSession.getSurface(sel.surfaceId)
-          const isolatedNodeComp = surface.context.isolatedNodeComponent
-          if (isolatedNodeComp) {
-            return _nodeLabel(isolatedNodeComp.props.node)
+          if (surface) {
+            const isolatedNodeComp = surface.context.isolatedNodeComponent
+            if (isolatedNodeComp) {
+              return _nodeLabel(isolatedNodeComp.props.node)
+            }
           }
         } else if (sel.isNodeSelection()) {
           let nodeId = sel.getNodeId()

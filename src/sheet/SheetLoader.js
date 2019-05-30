@@ -3,14 +3,15 @@ import SheetPackage from './SheetPackage'
 import SheetSchema from './SheetSchema'
 
 export default {
-  load(xml) {
+  load(xml, context) {
     let configurator = new Configurator()
     configurator.import(SheetPackage)
     let importer = configurator.createImporter(SheetSchema.getName())
 
     let doc = importer.importDocument(xml)
     let editorSession = new EditorSession(doc, {
-      configurator
+      configurator,
+      context
     })
     return editorSession
   }

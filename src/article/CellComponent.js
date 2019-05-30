@@ -1,9 +1,21 @@
-import { NodeComponent, FontAwesomeIcon } from 'substance'
-import CellValueComponent from '../shared/CellValueComponent'
+import { Component, NodeComponent, isEqual, FontAwesomeIcon } from 'substance'
+import ValueComponent from '../shared/ValueComponent'
 import CodeEditor from '../shared/CodeEditor'
-import { PENDING, INPUT_ERROR, INPUT_READY, RUNNING, ERROR, OK } from '../engine/CellState'
-import { getCellState, getError } from '../shared/cellHelpers'
-import NodeMenu from './NodeMenu'
+import { getCellState, getErrorMessage } from '../shared/cellHelpers'
+import { toString as stateToString, OK, BROKEN, FAILED } from '../engine/CellStates'
+
+const LANG_LABELS = {
+  'mini': 'Formula',
+  'js': 'Javascript',
+  'node': 'Node.js',
+  'sql': 'SQL',
+  'py': 'Python',
+  'pyjp': 'PyJp',
+  'r': 'R Script',
+}
+
+
+const SHOW_ERROR_DELAY = 500
 
 export default
 class CellComponent extends NodeComponent {
@@ -20,34 +32,65 @@ class CellComponent extends NodeComponent {
 
   getInitialState() {
     return {
-      hideCode: false,
-      forceOutput: false
+      hideCode: true,
+      forceOutput: true,
+      hideCodeToggle: true
     }
   }
 
   _renderStatus($$) {
     const cellState = getCellState(this.props.node)
-    let statusName
-    switch(cellState.status) {
-      case PENDING:
-      case INPUT_ERROR:
-      case INPUT_READY:
-        statusName = 'pending'
-        break
-      case RUNNING:
-        statusName = 'running'
-        break
-      case ERROR:
-        statusName = 'error'
-        break
-      case OK:
-        statusName = 'ok'
-        break
-      default:
-        statusName = 'pending'
-        break
+    let statusName = cellState ? stateToString(cellState.status) : 'unknown'
+    let el = $$('div').addClass(`se-status sm-${statusName}`)
+    let icon = this.state.hideCode ? 'fa-angle-right' : 'fa-angle-down'
+    el.append(
+      $$(FontAwesomeIcon, {icon: icon })
+    )
+    return el
+  }
+
+  _renderStatusDescription($$) {
+    const cellState = getCellState(this.props.node)
+    // console.log('cellstate', cellState.status)
+    let statusName = cellState ? stateToString(cellState.status) : 'unknown'
+    let statusDescr = statusName
+    // if (statusName === 'ok') {
+    //   statusDescr = 'ready'
+    // }
+    // if (statusName === 'ready') {
+    //   statusDescr = 'pending'
+    // }
+
+    let el = $$('div').addClass(`se-status-description sm-${statusName}`).append(
+      'status: ',
+      $$('span').addClass('se-status-name').append(
+        statusDescr
+      )
+    )
+    if (statusDescr === 'ready') {
+      el.append(' (run code with ⇧⏎)')
     }
-    return $$('div').addClass(`se-status sm-${statusName}`)
+    return el
+  }
+
+  _renderToggleLabel($$) {
+    const cellState = getCellState(this.props.node)
+    const lang = cellState.lang
+    
+    let label = `${LANG_LABELS[lang]}`
+
+    if(cellState.value && cellState.value.type) {
+      label += ` for: ${_capitalizeFirstLetter(cellState.value.type)}`
+      if (cellState.output) {
+        let output = cellState.output
+        output = output.split('!')[1]
+        label += `, ${output}`
+      }
+    }
+
+    
+    let el = $$('div').addClass('se-toggle-label').append(label)
+    return el
   }
 
   render($$) {
@@ -56,8 +99,17 @@ class CellComponent extends NodeComponent {
     let el = $$('div').addClass('sc-cell')
     el.attr('data-id', cell.id)
 
-    if (!cellState) {
-      return el
+    if (!this.state.hideCodeToggle) {
+      el.append(
+        $$('button').append(
+          this._renderStatus($$),
+          this._renderToggleLabel($$),
+          this._renderStatusDescription($$)
+        )
+        .addClass('se-show-code')
+        .attr('title', 'Show Code')
+        .on('click', this._toggleCode)
+      )
     }
 
     if (!this.state.hideCode) {
@@ -76,33 +128,26 @@ class CellComponent extends NodeComponent {
         )
       )
       el.append(cellEditorContainer)
-      el.append(
-        this._renderEllipsis($$)
-      )
-    } else {
-      // TODO: Create proper visual style
-      el.append(
-        $$('button').append(
-          this._renderStatus($$),
-          $$(FontAwesomeIcon, { icon: 'fa-code' })
-        )
-          .addClass('se-show-code')
-          .attr('title', 'Show Code')
-          .on('click', this._showCode)
-      )
+      // el.append(
+      //   this._renderEllipsis($$)
+      // )
+      // el.append(
+      //   $$('div').addClass('se-language').append(
+      //     LANG_LABELS[source.attributes.language]
+      //   )
+      // )
     }
 
-    if (this._showOutput() && cellState.status !== ERROR) {
-      el.append(
-        $$(CellValueComponent, {cell}).ref('value')
-      )
-    }
-    if (cellState.status === ERROR) {
-      el.append(
-        $$('div').addClass('se-error').append(
-          getError(cell).message
-        )
-      )
+
+
+    if (cellState) {
+      let valueDisplay = $$(ValueDisplay, {
+        status: cellState.status,
+        value: cellState.value,
+        errors: cellState.errors,
+        showOutput: this._showOutput(),
+      }).ref('valueDisplay')
+      el.append(valueDisplay)
     }
     return el
   }
@@ -110,27 +155,18 @@ class CellComponent extends NodeComponent {
   /*
     Move this into an overlay, shown depending on app state
   */
-  _renderEllipsis($$) {
-    let Button = this.getComponent('button')
-    let el = $$('div').addClass('se-ellipsis')
-    let configurator = this.context.editorSession.getConfigurator()
-    let button = $$(Button, {
-      icon: 'ellipsis',
-      active: false,
-      theme: 'light'
-    }).on('click', this._toggleMenu)
-    el.append(button)
+  // _renderEllipsis($$) {
+  //   let Button = this.getComponent('button')
+  //   let el = $$('div').addClass('se-ellipsis')
+  //   let button = $$(Button, {
+  //     icon: 'close',
+  //     active: false,
+  //     theme: 'light'
+  //   }).on('click', this._hideCode)
+  //   el.append(button)
 
-    let sel = this.context.editorSession.getSelection()
-    if (sel.isNodeSelection() && sel.getNodeId() === this.props.node.id) {
-      el.append(
-        $$(NodeMenu, {
-          toolPanel: configurator.getToolPanel('node-menu')
-        }).ref('menu')
-      )
-    }
-    return el
-  }
+  //   return el
+  // }
 
   getExpression() {
     return this.refs.expressionEditor.getContent()
@@ -156,18 +192,18 @@ class CellComponent extends NodeComponent {
     return result
   }
 
-  _showCode() {
+  _toggleCode() {
     this.extendState({
-      hideCode: false
+      hideCode: !this.state.hideCode
     })
-  }
+  } 
 
   /*
     Generally output is shown when cell is not a definition, however it can be
     enforced
   */
   _showOutput() {
-    return !this._isDefinition() || this.state.forceOutput
+    return (!this._isDefinition() || !this.state.hideCode)
   }
 
   _isDefinition() {
@@ -176,10 +212,11 @@ class CellComponent extends NodeComponent {
   }
 
   _toggleMenu() {
+    const containerEditor = this._getParentSurface()
     this.context.editorSession.setSelection({
       type: 'node',
-      containerId: 'body-content-1',
-      surfaceId: 'bodyEditor',
+      containerId: containerEditor.getContainerId(),
+      surfaceId: containerEditor.getSurfaceId(),
       nodeId: this.props.node.id,
     })
   }
@@ -203,20 +240,119 @@ class CellComponent extends NodeComponent {
   }
 
   _afterNode() {
-    // TODO: not too happy about how difficult it is
-    // to set the selection
+    // TODO: not too happy about how difficult it is to set the selection
     const node = this.props.node
-    const isolatedNode = this.context.isolatedNodeComponent
-    const parentSurface = isolatedNode.getParentSurface()
+    const containerEditor = this._getParentSurface()
     return {
       type: 'node',
       nodeId: node.id,
       mode: 'after',
-      containerId: parentSurface.getContainerId(),
-      surfaceId: parentSurface.id
+      containerId: containerEditor.getContainerId(),
+      surfaceId: containerEditor.getSurfaceId()
     }
   }
 
+  _getParentSurface() {
+    const isolatedNode = this.context.isolatedNodeComponent
+    return isolatedNode.getParentSurface()
+  }
+
+}
+
+class ValueDisplay extends Component {
+
+  shouldRerender(newProps) {
+    return (
+      (newProps.showOutput !== this.props.showOutput) ||
+      (newProps.status !== this.props.status) ||
+      (newProps.value !== this.props.value) ||
+      (!isEqual(newProps.errors, this.props.errors))
+    )
+  }
+
+  willReceiveProps(newProps) {
+    let newStatus = newProps.status
+    if (newStatus === OK) {
+      this._cachedValue = newProps.value
+      // this._cachedError = null
+    } else if (newStatus === BROKEN || newStatus === FAILED) {
+      this._cachedError = newProps.errors[0]
+      // this._cachedValue = null
+    }
+  }
+
+  didUpdate() {
+    const errors = this.props.errors
+    if (errors && errors.length > 0) {
+      let token = this._token
+      setTimeout(() => {
+        // if this is still the same update
+        if (token === this._token) {
+          if (this.refs.cachedValue) {
+            this.refs.cachedValue.css('display', 'none')
+          }
+          if (this.refs.error) {
+            this.refs.error.css('display', 'block')
+          }
+        }
+      }, SHOW_ERROR_DELAY)
+    }
+  }
+
+  render($$) {
+    const status = this.props.status
+    const value = this.props.value
+    const showOutput = this.props.showOutput
+    const errors = this.props.errors
+    let el = $$('div')
+    // whenever there are errors we will renew the token
+    // so that an already triggered updater can be canceled
+    this._token = Math.random()
+    if(status === BROKEN || status === FAILED) {
+      // rendering the last value as hidden to achieve a bit more resilient spacing
+      if (this._cachedValue && showOutput) {
+        el.append(
+          $$(ValueComponent, this._cachedValue).ref('cachedValue').css('visibility', 'hidden')
+        )
+      }
+      // alternatively if there is a cached error, use that to reserve the space
+      else if (this._cachedError) {
+        el.append(
+          $$('div').addClass('se-error').append(
+            getErrorMessage(this._cachedError)
+          ).ref('cachedValue').css('visibility', 'hidden')
+        )
+      }
+      // the error is not shown at first, but didUpdate() will show it after some delay
+      // this way the error is a bit delayed, potentially becoming superseded by a new update in the meantime
+      el.append(
+        $$('div').addClass('se-error').append(
+          getErrorMessage(errors[0])
+        ).ref('error').css('display', 'none')
+      )
+    } else if (showOutput) {
+      if (value && status === OK) {
+        el.append(
+          $$(ValueComponent, value).ref('value')
+        )
+      }
+      // to have a less jumpy experience, we show the last valid value grey'd out
+      else if (this._cachedValue) {
+        el.append(
+          $$(ValueComponent, this._cachedValue).ref('value')
+          // HACK: Disable pending computation ...
+          // .addClass('sm-pending')
+        )
+      }
+    }
+    return el
+  }
+}
+
+
+
+function _capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 CellComponent.noBlocker = true

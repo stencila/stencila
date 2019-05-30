@@ -1,3 +1,5 @@
+/* eslint-disable no-multi-spaces */
+/* eslint-disable indent */
 export default function uuid(a) {
   return a           // if the placeholder was passed, return
     ? (              // a random number from 0 to 15

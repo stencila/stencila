@@ -3,7 +3,7 @@ import {
 } from 'substance'
 import SheetColumnHeader from './SheetColumnHeader'
 import SheetRowHeader from './SheetRowHeader'
-import SheetCell from './SheetCell'
+import SheetCellComponent from './SheetCellComponent'
 import getBoundingRect from '../util/getBoundingRect'
 
 /*
@@ -20,8 +20,8 @@ export default class SheetView extends Component {
   }
 
   didMount() {
-    this._updateViewport()
     this.props.viewport.on('scroll', this._onScroll, this)
+    this._updateViewport()
   }
 
   didUpdate() {
@@ -367,53 +367,34 @@ class TableBody extends Component {
 
 class TableRow extends Component {
 
-  getInitialState() {
-    return 'loading'
-  }
-
-  didMount() {
-    this._loadDataAndShow()
-  }
-
   render($$) {
     let sheet = this.props.sheet
     let rowIdx = this.props.rowIdx
     let viewport = this.props.viewport
-    let height = sheet.getRowHeight(rowIdx)
+    let height = 30
     let el = $$('tr')
-    switch (this.state) {
-      case 'hidden':
-      case 'loading': {
-        el.addClass('sm-'+this.state)
-        break
-      }
-      case 'visible': {
-        let M = sheet.getColumnCount()
-        el.append(
-          $$(SheetRowHeader, { rowIdx: rowIdx })
-          // within a row, the header is referenced as '-1'
-          .ref(String(-1))
-        )
-        for (let j = 0; j < M; j++) {
-          const cell = sheet.getCell(rowIdx, j)
-          let td = $$('td').ref(String(j))
-            .append(
-              $$(SheetCell, { node: cell }).ref(cell.id)
-            ).attr({
-              'data-row': rowIdx,
-              'data-col': j,
-              'data-cell-id': cell.id
-            })
-          if (j < viewport.startCol || j > viewport.endCol) {
-            td.addClass('sm-hidden')
-          }
 
-          el.append(td)
-        }
-        break
+    let M = sheet.getColumnCount()
+    el.append(
+      $$(SheetRowHeader, { rowIdx: rowIdx })
+      // within a row, the header is referenced as '-1'
+      .ref(String(-1))
+    )
+    for (let j = 0; j < M; j++) {
+      const cell = sheet.getCell(rowIdx, j)
+      let td = $$('td').ref(String(j))
+        .append(
+          $$(SheetCellComponent, { node: cell }).ref(cell.id)
+        ).attr({
+          'data-row': rowIdx,
+          'data-col': j,
+          'data-cell-id': cell.id
+        })
+      if (j < viewport.startCol || j > viewport.endCol) {
+        td.addClass('sm-hidden')
       }
-      default:
-        throw new Error('Illegal state')
+
+      el.append(td)
     }
     el.attr('data-row', rowIdx)
     el.css({
@@ -428,16 +409,5 @@ class TableRow extends Component {
 
   getCellComponent(colIdx) {
     return this.refs[colIdx]
-  }
-
-  _loadDataAndShow() {
-    const sheet = this.props.sheet
-    const rowIdx = this.props.rowIdx
-    this.setState('loading')
-    sheet.ensureRowAvailable(rowIdx).then(() => {
-      if (this.state !== 'hidden') {
-        this.setState('visible')
-      }
-    })
   }
 }

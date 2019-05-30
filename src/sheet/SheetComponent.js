@@ -10,12 +10,12 @@ import SheetScrollbar from './SheetScrollbar'
 import SheetContextMenu from './SheetContextMenu'
 import SheetClipboard from './SheetClipboard'
 import { getRange } from './sheetHelpers'
+import { clearValues } from './SheetManipulations'
 
 export default class SheetComponent extends CustomSurface {
 
   constructor(...args) {
     super(...args)
-
     this._nav = throttle(this._nav.bind(this), 50, { leading: true })
   }
 
@@ -197,8 +197,13 @@ export default class SheetComponent extends CustomSurface {
     return colMenu
   }
 
+  /*
+    NOTE: sheet.UUID is set in SheetDocument's constructor and is also used
+          by SheetEngineAdapter
+  */
   _getCustomResourceId() {
-    return this._getSheet().getName()
+    let sheet = this._getSheet()
+    return sheet.UUID
   }
 
   _getBoundingRect(rowIdx, colIdx) {
@@ -433,7 +438,7 @@ export default class SheetComponent extends CustomSurface {
       type: 'custom',
       customType: 'sheet',
       data: data,
-      surfaceId: this.getId()
+      surfaceId: this.getSurfaceId()
     }
   }
 
@@ -534,10 +539,8 @@ export default class SheetComponent extends CustomSurface {
 
   _clearSelection() {
     const editorSession = this.context.editorSession
-    let range = getRange(editorSession)
-    editorSession.transaction((tx) => {
-      tx.getDocument().clearRange(range.startRow, range.startCol, range.endRow, range.endCol)
-    })
+    let { startRow, startCol, endRow, endCol } = getRange(editorSession)
+    clearValues(editorSession, startRow, startCol, endRow, endCol)
   }
 
   _showDialog(dialogId, params) {
@@ -725,8 +728,8 @@ export default class SheetComponent extends CustomSurface {
           let rowIdx = sheetView.getRowIndexForClientY(e.clientY)
           let colIdx = sheetView.getColumnIndexForClientX(e.clientX)
           if (rowIdx !== sel.focusRow || colIdx !== sel.focusCol) {
-            sel.focusRow = rowIdx
-            sel.focusCol = colIdx
+            sel.focusRow = rowIdx > 0 ? rowIdx : 0
+            sel.focusCol = colIdx > 0 ? colIdx : 0
             this._requestSelectionChange()
           }
           break
@@ -789,10 +792,11 @@ export default class SheetComponent extends CustomSurface {
   /*
     Type into cell (replacing the existing content)
   */
-  _onInput(e) {
-    if (e.inputType === 'insertText') {
-      this.send('editCell', e.data)
-    }
+  _onInput() {
+    const value = this.refs.keytrap.val()
+    this.send('editCell', value)
+    // Clear keytrap after sending an action
+    this.refs.keytrap.val('')
   }
 
   _onKeyDown(e) {

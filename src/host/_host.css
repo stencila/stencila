@@ -1,66 +1,63 @@
 .sc-hosts {
-
+  display: flex;
+  height: calc(100vh - 35px);
+  flex-direction: column;
+  font-family: var(--sans-font-family);
 }
 
-.sc-hosts .se-host-list {
-  overflow: hidden;
-  margin-bottom: 4em;
-}
-
-.sc-hosts .se-host-item {
-  border-top: 1px solid #eee;
-  margin-bottom: 1em;
-}
-
-.sc-hosts .se-host-item .se-header {
-  background: #F5F5F5;
-  padding: 0.5em;
-}
-
-.sc-hosts .se-host-item .se-name {
-}
-
-.sc-hosts .se-host-item .se-details {
-  color: #999;
+.sc-hosts .se-label {
+  color: #555;
+  font-weight: bold;
   font-size: 0.8em;
 }
 
-.sc-hosts .se-host-item .se-types {
+.sc-hosts .se-message {
+  background: white;
+  border: 1px solid #DDD;
+  border-left: 3px solid red;
   padding: 0.5em;
+  font-size: 0.9em;
+  line-height: 1.1em;
+  color: #555;
 }
 
-.sc-hosts .se-host-item .se-type {
-  margin-left: 0.5em;
-}
-
-.sc-hosts .se-host-item .se-type::before {
-  content: " ";
-  position: absolute;
-  left: 0.5em;
-  margin: 0.6em 0;
-  width: 0.3em;
-  height: 0.3em;
-  border-radius: 50%;
-}
-
-.sc-hosts .se-host-item .se-type.sm-instantiated {
-  font-weight: bold;
-}
-
-.sc-hosts .se-host-item .se-type.sm-instantiated::before {
-  background-color: #ABFF00;
-}
-
-.sc-hosts .se-options {
-  position: fixed;
-  bottom: 35px;
-  border-top: 1px solid #eee;
-  background: #fafbfc;
+.sc-hosts .se-environ,
+.sc-hosts .se-hosts,
+.sc-hosts .se-peers {
   padding: 1em;
-  height: 5em;
-  width: 100%;
 }
 
-.sc-hosts .se-options .se-input {
-  margin-left: 10px;
+.sc-hosts .se-environ-select {
+  width: 100%;
+  background: white;
+  padding: 0.5em;
+  border: 1px solid #DDD;
+  font-family: var(--mono-font-family);
+  font-size: 0.9em;
+}
+
+.sc-hosts .se-host-item,
+.sc-hosts .se-peer-item {
+  background: white;
+  border: 1px solid #DDD;
+  font-family: var(--mono-font-family);
+  font-size: 0.9em;
+  padding: 0.5em;
+  margin: 0.2em 0;
+}
+
+.sc-hosts .se-host-item .se-host-environ,
+.sc-hosts .se-peer-item .se-peer-context {
+  display: inline-block;
+  line-height: 100%;
+  margin-right: 3px;
+  background: #EEE;
+  padding: 5px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.sc-hosts .se-host-item.sm-selected,
+.sc-hosts .se-peer-item {
+  border-left: 3px solid var(--stencila-green);
 }

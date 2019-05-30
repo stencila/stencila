@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE manifest PUBLIC "RDC-Manifest 1.0" "//Manifest-1.0.dtd">
+<dar id="dar-1">
+  <documents id="documents-1">
+    <document id="doc1" name="Article" type="article" path="manuscript.xml" />
+  </documents>
+  <assets id="assets-1">
+    <asset id="figure-3" type="image/png" path="figure-3.png" />
+    <asset id="d15a27c83efbf0b8a858dd6b0a67200d" path="d15a27c83efbf0b8a858dd6b0a67200d.jpg" type="image/jpeg" />
+  </assets>
+</dar>

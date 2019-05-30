@@ -45,6 +45,18 @@ export default class SheetViewport extends EventEmitter {
   }
 
   // scrolling in a virtual grid of squares
+  update(viewport) {
+    let { startRow, startCol } = viewport
+    let dr = startRow - this.startRow
+    let dc = startCol - this.startCol
+    this.startRow = startRow
+    this.startCol = startCol
+    this.x = startCol * this.D
+    this.y = startRow * this.D
+    this.emit('scroll', dr, dc)
+  }
+
+  // scrolling in a virtual grid of squares
   scroll(dx, dy) {
     const N = this.N
     const M = this.M
@@ -111,6 +123,13 @@ export default class SheetViewport extends EventEmitter {
 
   get M() {
     return this._sheet.getColumnCount()
+  }
+
+  toJSON() {
+    return {
+      startRow: this.startRow,
+      startCol: this.startCol
+    }
   }
 
 }

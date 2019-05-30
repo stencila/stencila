@@ -1,83 +1,144 @@
-const addXML = `
-<function>
-  <name>add</name>
-  <params>
-    <param name="value" type="number" />
-    <param name="other" type="number" />
-  </params>
-  <implems>
-    <implem language="js" />
-  </implems>
-</function>
-`
+import { forEach, isArray } from 'substance'
 
-function add(value, other) {
-  return value + other
+const add = {
+  type: 'function',
+  name: 'add',
+  methods: {
+    default: {
+      params : [
+        { name: 'value', type: 'number' },
+        { name: 'other', type: 'number' }
+      ]
+    }
+  },
+  body: function (value, other) {
+    return value + other
+  }
 }
 
-const no_paramsXML = `
-<function>
-  <name>no_params</name>
-  <implems>
-    <implem language="js" />
-  </implems>
-</function>
-`
-
-function no_params() {
-  return 5
+const multiply = {
+  type: 'function',
+  name: 'multiply',
+  methods: {
+    default: {
+      params : [
+        { name: 'value', type: 'number' },
+        { name: 'other', type: 'number' }
+      ]
+    }
+  },
+  body: function (value, other) {
+    return value * other
+  }
 }
 
-
-const one_paramXML = `
-<function>
-  <name>one_param</name>
-  <params>
-    <param name="param1" type="number" />
-  </params>
-  <implems>
-    <implem language="js" />
-  </implems>
-</function>
-`
-
-function one_param(param1) {
-  return param1 * 1.1
+function sum (...vals) {
+  return vals.reduce((a,b) => {
+    if (b.type === 'table') {
+      forEach(b.data, (vals) => {
+        a += sum(vals)
+      })
+      return a
+    } else if (isArray(b)) {
+      return sum(...b)
+    } else if (isArray(b.data)) {
+      return sum(...b.data)
+    } else {
+      return a+b
+    }
+  }, 0)
 }
 
-
-const one_param_with_defaultXML = `
-<function>
-  <name>one_param_with_default</name>
-  <params>
-    <param name="param1" type="string">
-      <default type="string">Hello!</default>
-    </param>
-  </params>
-  <implems>
-    <implem language="js" />
-  </implems>
-</function>
-`
-
-function one_param_with_default(param1='Hello!') {
-  return param1
+const sum_ = {
+  type: 'function',
+  name: 'sum',
+  methods: {
+    default: {
+      params : [
+        { name: "a", type: "number" },
+        { name: "b", type: "number" },
+        { name: "c", type: "number" },
+        { name: "d", type: "number" },
+        { name: "e", type: "number" },
+      ]
+    }
+  },
+  body: sum
 }
 
+let RAND_COUNT = 1
+const rand = {
+  type: 'function',
+  name: 'rand',
+  methods: {
+    default: {}
+  },
+  body: function () {
+    // very pseudo random
+    return RAND_COUNT++
+  }
+}
 
-export const libtestXML = `
-<!DOCTYPE function PUBLIC "StencilaFunctionLibrary 1.0" "StencilaFunctionLibrary.dtd">
-<library name="test">
-${addXML}
-${no_paramsXML}
-${one_paramXML}
-${one_param_with_defaultXML}
-</library>
-`
+// used in tests to reset the pseudo random generator
+export function _reset_rand() {
+  RAND_COUNT = 1
+}
+
+const no_params = {
+  type: 'function',
+  name: 'no_params',
+  methods: {
+    default: {}
+  },
+  body: function () {
+    return 5
+  }
+}
+
+const one_param = {
+  type: 'function',
+  name: 'one_param',
+  methods: {
+    default: {
+      params: [
+        { name: "param1", type: "number" }
+      ]
+    }
+  },
+  body: function (param1) {
+    return param1 * 1.1
+  }
+}
+
+const one_param_with_default = {
+  type: 'function',
+  name: 'one_param_with_default',
+  methods: {
+    default: {
+      params: [
+        { 
+          name: "param1",
+          type: "string",
+          default: { type: "string", value: "Hello!" }
+        }
+      ]
+    }
+  },
+  body: function (param1='Hello!') {
+    return param1
+  }
+}
 
 export const libtest = {
-  add,
-  no_params,
-  one_param,
-  one_param_with_default
+  type: 'library',
+  name: 'test',
+  funcs: {
+    add,
+    sum: sum_,
+    multiply,
+    rand,
+    no_params,
+    one_param,
+    one_param_with_default
+  }
 }

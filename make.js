@@ -3,27 +3,9 @@ const b = require('substance-bundler')
 const fork = require('substance-bundler/extensions/fork')
 const install = require('substance-bundler/extensions/install')
 const path = require('path')
-const isInstalled = require('substance-bundler/util/isInstalled')
 const fs = require('fs')
 const merge = require('lodash.merge')
-// used to bundle example files for demo
 const vfs = require('substance-bundler/extensions/vfs')
-
-/*
-  Guide: this is a bundler make file.
-  It is similar to gulp in that you define tasks which
-  you can connect by adding dependencies.
-
-  This file has the following structure:
-  - Constants:
-    Put shared settings and literals here to avoid code duplication
-  - Functions:
-    All task implementations
-  - Tasks:
-    Task definitions
-
-  Run `node make --help` to print usage information.
-*/
 
 // Constants
 // ---------
@@ -40,7 +22,7 @@ const BROWSER_EXTERNALS = {
   'rdc-js': 'window.rdc',
   'substance-texture': 'window.texture',
   'stencila-mini': 'window.stencilaMini',
-  'stencila-libcore': 'window.stencilaLibCore',
+  'stencila-libcore': 'window.stencilaLibcore',
   'katex': 'window.katex',
   'plotly.js': 'window.Plotly'
 }
@@ -63,7 +45,124 @@ const NODEJS_IGNORE = ['plotly.js']
 
 const NODEJS_TEST_EXTERNALS = NODEJS_EXTERNALS.concat(['tape', 'stream'])
 
-// Functions
+//  Server configuraion
+//  -------------------
+
+const port = 4000
+b.setServerPort(port)
+
+b.yargs.option('d', {
+  type: 'string',
+  alias: 'rootDir',
+  describe: 'Root directory of served archives'
+})
+let argv = b.yargs.argv
+if (argv.d) {
+  const darServer = require('dar-server')
+  const rootDir = argv.d
+  const archiveDir = path.resolve(path.join(__dirname, rootDir))
+  darServer.serve(b.server, {
+    port,
+    serverUrl: 'http://localhost:'+port,
+    rootDir: archiveDir,
+    apiUrl: '/archives'
+  })
+}
+
+b.serve({ static: true, route: '/', folder: DIST })
+
+const RNG_SEARCH_DIRS = ['src/sheet', 'src/function']
+
+// Tasks
+// -----
+
+b.task('clean', () => {
+  b.rm(DIST)
+  b.rm('tmp')
+})
+
+// This is used to generate the files in ./vendor/
+b.task('vendor', buildVendor)
+.describe('Creates pre-bundled files in vendor/.')
+
+b.task('assets', () => {
+  copyAssets()
+})
+.describe('Copies assets into dist folder.')
+
+b.task('css', () => {
+  buildCss()
+})
+.describe('Creates a single CSS bundle.')
+
+b.task('schema', () => {
+  _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng')
+  _compileSchema('FunctionSchema', './src/function/FunctionSchema.rng')
+})
+
+b.task('schema:debug', () => {
+  _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng', { debug: true})
+  _compileSchema('FunctionSchema', './src/function/FunctionSchema.rng', { debug: true})
+})
+
+b.task('prism', bundlePrism)
+
+b.task('build:app', buildApp)
+
+b.task('build:examples', buildExamples)
+
+b.task('build:env', buildEnv)
+
+b.task('build:stencila:browser', buildStencilaBrowser)
+
+b.task('build:stencila:nodejs', buildStencilaNodeJS)
+
+b.task('build:instrumented-tests', buildInstrumentedTests)
+
+b.task('build', ['build:app', 'build:examples', 'build:env', 'build:stencila:browser', 'build:stencila:nodejs'])
+
+b.task('stencila:deps', ['schema', 'prism'])
+
+b.task('stencila', ['clean', 'assets', 'css', 'stencila:deps', 'build'])
+.describe('Build the stencila library.')
+
+b.task('examples', ['stencila'], () => {
+  // TODO: Make all examples use the single stencila.js build, so we don't
+  // need individual builds
+  buildExamples()
+})
+.describe('Build the examples.')
+
+b.task('test', ['clean', 'stencila:deps'], () => {
+  buildNodeJSTests()
+  fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js', { verbose: true, await: true })
+})
+.describe('Runs the tests and generates a coverage report.')
+
+b.task('cover', ['stencila:deps', 'build:instrumented-tests'], () => {
+  b.rm('coverage')
+  fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js', { await: true })
+})
+
+b.task('test:browser', ['stencila:deps'], () => {
+  buildBrowserTests()
+})
+
+b.task('test:one', ['stencila:deps'], () => {
+  let test = b.argv.f
+  if (!test) {
+    console.error("Usage: node make test:one -f <testfile>")
+    process.exit(-1)
+  }
+  let builtTestFile = buildSingleTest(test)
+  fork(b, 'node_modules/substance-test/bin/test', builtTestFile, { verbose: true, await: true })
+})
+.describe('Runs the tests and generates a coverage report.')
+
+b.task('default', ['stencila'])
+.describe('[stencila].')
+
+// Helpers
 // ---------
 
 function copyAssets() {
@@ -73,7 +172,8 @@ function copyAssets() {
   b.copy('./node_modules/substance/dist/substance.js*', DIST+'lib/')
   b.copy('./node_modules/substance-texture/dist/texture.js*', DIST+'lib/')
   b.copy('./node_modules/stencila-mini/dist/stencila-mini.js*', DIST+'lib/')
-  b.copy('./node_modules/stencila-libcore/build/stencila-libcore.*', DIST+'lib/')
+  b.copy('./node_modules/stencila-libcore/builds/stencila-envcore.*', DIST+'lib/')
+  b.copy('./node_modules/stencila-libcore/builds/stencila-libcore.*', DIST+'lib/')
   b.copy('./node_modules/rdc-js/dist/rdc.js*', DIST+'lib/')
 }
 
@@ -104,6 +204,7 @@ function buildStencilaNodeJS() {
 
 function buildApp() {
   b.copy('./app/*.html', DIST, { root: './app/'})
+  b.copy('./app/*.css', DIST, { root: './app/'})
   // copy('./node_modules/substance/packages/** /*.css', 'dist/styles/', { root: './node_modules/substance/'})
   // copy('./node_modules/substance/packages/** /*.css', 'dist/styles/', { root: './node_modules/substance/'})
 
@@ -122,6 +223,7 @@ function buildExamples() {
   //    fork(b, 'node_modules/.bin/stencila-convert', 'import', './examples/rmarkdown', { verbose: true })
   //  }
   //})
+  console.log('BUILDING EXAMPLES...')
   b.copy('./examples', DIST+'examples')
   vfs(b, {
     src: ['./examples/**/*'],
@@ -147,26 +249,6 @@ function buildEnv() {
   })
 }
 
-// reads all fixtures from /tests/ and writes them into a script
-function buildTestBackend() {
-  b.custom('Creating test backend...', {
-    src: ['./tests/documents/**/*', './tests/function/fixtures/*'],
-    dest: './tmp/test-vfs.js',
-    execute(files) {
-      const rootDir = b.rootDir
-      const vfs = {}
-      files.forEach((f) => {
-        if (b.isDirectory(f)) return
-        let content = fs.readFileSync(f).toString()
-        let relPath = path.relative(rootDir, f).replace(/\\/g, '/')
-        vfs[relPath] = content
-      })
-      const data = ['export default ', JSON.stringify(vfs, null, 2)].join('')
-      b.writeFileSync('tmp/test-vfs.js', data)
-    }
-  })
-}
-
 function buildBrowserTests() {
   b.js('tests/**/*.test.js', COMMON_SETTINGS({
     dest: 'tmp/tests.js',
@@ -186,7 +268,7 @@ function buildNodeJSTests() {
 }
 
 function buildInstrumentedTests() {
-  // TODO: we must include the whole source code to see the real coverage
+  // NOTE: we must include the whole source code to see the real coverage
   // right now we only see the coverage on the files which
   // are actually imported by tests.
   b.js(['index.es.js', 'tests/**/*.test.js'], COMMON_SETTINGS({
@@ -277,8 +359,6 @@ function bundlePrism() {
   })
 }
 
-const RNG_SEARCH_DIRS = ['src/sheet', 'src/function']
-
 function _compileSchema(name, src, options = {} ) {
   const DEST = `tmp/${name}.data.js`
   const ISSUES = `tmp/${name}.issues.txt`
@@ -300,115 +380,3 @@ function _compileSchema(name, src, options = {} ) {
     }
   })
 }
-
-// Tasks
-// -----
-
-b.task('clean', () => {
-  b.rm(DIST)
-  b.rm('tmp')
-  b.rm('coverage')
-})
-
-// This is used to generate the files in ./vendor/
-b.task('vendor', buildVendor)
-.describe('Creates pre-bundled files in vendor/.')
-
-b.task('assets', () => {
-  copyAssets()
-})
-.describe('Copies assets into dist folder.')
-
-b.task('css', () => {
-  buildCss()
-})
-.describe('Creates a single CSS bundle.')
-
-b.task('schema', () => {
-  _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng')
-  _compileSchema('FunctionSchema', './src/function/FunctionSchema.rng')
-})
-
-b.task('schema:debug', () => {
-  _compileSchema('SheetSchema', './src/sheet/SheetSchema.rng', { debug: true})
-  _compileSchema('FunctionSchema', './src/function/FunctionSchema.rng', { debug: true})
-})
-
-b.task('prism', bundlePrism)
-
-b.task('build:app', buildApp)
-
-b.task('build:examples', buildExamples)
-
-b.task('build:env', buildEnv)
-
-b.task('build:stencila:browser', buildStencilaBrowser)
-
-b.task('build:stencila:nodejs', buildStencilaNodeJS)
-
-b.task('build', ['build:app', 'build:examples', 'build:env', 'build:stencila:browser', 'build:stencila:nodejs'])
-
-b.task('stencila:deps', ['schema', 'prism'])
-
-b.task('stencila', ['clean', 'assets', 'css', 'stencila:deps', 'build'])
-.describe('Build the stencila library.')
-
-// add all depe
-b.task('test:backend', ['stencila:deps'], () => {
-  buildTestBackend()
-})
-
-b.task('test', ['clean', 'test:backend'], () => {
-  buildNodeJSTests()
-  fork(b, 'node_modules/substance-test/bin/test', 'tmp/tests.cjs.js', { verbose: true })
-})
-.describe('Runs the tests and generates a coverage report.')
-
-b.task('cover', ['test:backend'], () => {
-  buildInstrumentedTests()
-  fork(b, 'node_modules/substance-test/bin/coverage', 'tmp/tests.cov.js')
-})
-
-b.task('test:browser', ['test:backend'], () => {
-  buildBrowserTests()
-})
-
-b.task('test:one', ['test:backend'], () => {
-  let test = b.argv.f
-  if (!test) {
-    console.error("Usage: node make test:one -f <testfile>")
-    process.exit(-1)
-  }
-  let builtTestFile = buildSingleTest(test)
-  fork(b, 'node_modules/substance-test/bin/test', builtTestFile, { verbose: true })
-})
-.describe('Runs the tests and generates a coverage report.')
-
-b.task('default', ['stencila'])
-.describe('[stencila].')
-
-
-/* Server */
-// TODO: make this configurable
-const port = 4000
-b.setServerPort(port)
-
-b.yargs.option('d', {
-  type: 'string',
-  alias: 'rootDir',
-  describe: 'Root directory of served archives'
-})
-let argv = b.yargs.argv
-if (argv.d) {
-  const darServer = require('dar-server')
-  const rootDir = argv.d
-  const archiveDir = path.resolve(path.join(__dirname, rootDir))
-  darServer.serve(b.server, {
-    port,
-    serverUrl: 'http://localhost:'+port,
-    rootDir: archiveDir,
-    apiUrl: '/archives'
-  })
-}
-
-b.serve({ static: true, route: '/', folder: DIST })
