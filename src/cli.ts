@@ -1,5 +1,5 @@
 import yargs from 'yargs'
-import encoda from '@stencila/encoda'
+import * as encoda from '@stencila/encoda'
 
 const VERSION = require('../package').version
 
