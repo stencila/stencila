@@ -1,7 +1,14 @@
 import yargs from 'yargs'
+import { logger } from './logging'
+
 import { addCliCommands as addEncodaCliCommands } from './encoda'
 
 const VERSION = require('../package').version
+
+//@ts-ignore
+process.on('stencila-log', (level: string, message: string) => {
+  logger.log(level, message)
+})
 
 const yargsDefinition = yargs.scriptName('stencila')
 
