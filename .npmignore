@@ -1,4 +1,5 @@
-/docs
+/bin
 /coverage
-/tmp
-*.sublime-workspace
+/dist
+/docs
+/vendor

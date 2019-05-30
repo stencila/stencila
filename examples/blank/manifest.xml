@@ -1,8 +1,0 @@
-<dar>
-  <documents>
-    <document id="article" name="Untitled Article" type="article" path="article.xml" />
-    <document id="sheet" name="Untitled Sheet" type="sheet" path="sheet.xml" />
-  </documents>
-  <assets>
-  </assets>
-</dar>

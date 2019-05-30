@@ -1,5 +1,0 @@
-/*
-  All native CSS imports must go here, as there are problems
-  when they occur after other CSS rules.
-*/
-@import url('./font-awesome/css/font-awesome.min.css');

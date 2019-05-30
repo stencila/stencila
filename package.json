@@ -1,64 +1,102 @@
 {
   "name": "stencila",
   "version": "0.28.2",
-  "description": "Stencila is the office suite for reproducible research.",
-  "main": "build/stencila.cjs.js",
-  "jsnext:main": "index.es.js",
+  "description": "Living documents for reproducible research.",
+  "main": "dist/index.js",
+  "bin": "./dist/cli.js",
   "scripts": {
-    "prepublish": "node make",
-    "lint": "eslint src tests",
-    "test": "node make test",
-    "test-browser": "node make test:browser -w",
-    "test-one": "node make test:one -f",
-    "build": "node make",
-    "watch": "node make -w",
-    "start": "node make -w -s -d ./examples",
-    "cover": "node make cover",
-    "docs-serve": "docsify serve docs"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/stencila/stencila.git"
+    "lint": "eslint src/*",
+    "build": "npm run build:dist && npm run build:bin",
+    "build:dist": "tsc",
+    "build:bin": "pkg --target=node10 -o=bin/stencila ."
   },
   "keywords": [
     "reproducibility",
     "data",
     "science",
     "documents",
-    "sheets",
-    "contexts"
+    "sheets"
   ],
-  "author": "",
   "license": "Apache-2.0",
+  "homepage": "https://stenci.la",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stencila/stencila.git"
+  },
   "bugs": {
     "url": "https://github.com/stencila/stencila/issues"
   },
-  "homepage": "https://github.com/stencila/stencila#readme",
   "dependencies": {
-    "acorn": "^4.0.11",
-    "astring": "^1.0.5",
-    "font-awesome": "^4.6.3",
-    "jsrsasign": "^8.0.7",
-    "katex": "^0.6.0",
-    "lodash": "^4.17.4",
-    "lodash.throttle": "^4.1.1",
-    "plotly.js": "^1.31.1",
-    "stencila-libcore": "^0.2.13",
-    "stencila-mini": "^0.14.2",
-    "substance": "1.0.0-preview.65",
-    "substance-texture": "1.0.0-preview.2.2",
-    "timeago.js": "3.0.0",
-    "xmlhttprequest": "^1.8.0"
+    "@stencila/encoda": "^0.38.0",
+    "yargs": "^13.2.4"
   },
   "devDependencies": {
-    "dar-server": "0.4.1",
-    "docsify-cli": "^4.2.0",
-    "eslint": "^4.19.0",
-    "istanbul": "^0.4.5",
-    "lodash.merge": "4.6.0",
-    "prismjs": "1.9.0",
-    "substance-bundler": "0.23.3",
-    "substance-test": "^0.9.3",
-    "tape": "^4.6.3"
+    "@semantic-release/commit-analyzer": "^6.1.0",
+    "@semantic-release/git": "^7.0.8",
+    "@semantic-release/npm": "^5.1.7",
+    "@semantic-release/release-notes-generator": "^7.1.4",
+    "@types/jest": "^24.0.13",
+    "@types/yargs": "^13.0.0",
+    "@typescript-eslint/eslint-plugin": "^1.9.0",
+    "@typescript-eslint/parser": "^1.9.0",
+    "dependency-check": "^3.3.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "husky": "^2.3.0",
+    "jest": "^24.8.0",
+    "lint-staged": "^8.1.7",
+    "markdown-toc": "^1.2.0",
+    "pkg": "^4.4.0",
+    "prettier": "^1.17.1",
+    "semantic-release": "^15.13.12",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.2.0",
+    "typescript": "^3.5.1"
+  },
+  "pkg": {
+    "scripts": "./dist/**/*.js",
+    "assets": []
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": false
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,css,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "eslintConfig": {
+      "parser": "@typescript-eslint/parser",
+      "extends":  [
+        "plugin:@typescript-eslint/recommended",
+        "prettier/@typescript-eslint",
+        "plugin:prettier/recommended"
+      ],
+      "parserOptions":  {
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+      }
+  },
+  "release": {
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/npm",
+      [
+        "@semantic-release/git",
+        {
+          "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
+        }
+      ],
+      "@semantic-release/github"
+    ]
   }
 }

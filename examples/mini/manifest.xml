@@ -1,7 +1,0 @@
-<dar>
-  <documents>
-    <document id="mini-article.md" name="mini-article.md" type="article" path="mini-article.md.jats.xml" src="mini-article.md" />
-    <document id="mini-sheet.tsv" name="mini-sheet.tsv" type="sheet" path="mini-sheet.tsv.sheet.xml" src="mini-sheet.tsv" />
-  </documents>
-  <assets/>
-</dar>
