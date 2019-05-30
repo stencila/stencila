@@ -1,3 +1,0 @@
-- <span class="project">Stencila Documentation</span>
-  - [Stencila home](https://stenci.la)
-  - [Github repo](https://github.com/stencila/stencila)

@@ -1,5 +1,0 @@
-/* TODO: disabled buttons should look more disabled */
-.sc-tool-dropdown button[disabled] {
-  color: rgba(255,255,255, 0.2);
-  font-style: italic;
-}

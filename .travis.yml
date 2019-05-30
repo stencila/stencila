@@ -1,66 +1,37 @@
 language: node_js
+node_js: '10'
 
-node_js:
-  - 8
-
-services:
-  - docker
-
-# Dependencies for `canvas` (required by `d3`)
-# See https://github.com/Automattic/node-canvas/blob/master/.travis.yml
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - libcairo2-dev
-      - libjpeg8-dev
-      - libpango1.0-dev
-      - libgif-dev
-      - g++-4.9
-env:
-  - CXX=g++-4.9
-
-cache:
-  directories:
-    - node_modules
-
-before_script:
-  - npm install documentation
+os:
+  - linux
+  - osx
+  - windows
 
 script:
-  - make lint
-  - make test-all
-  - make cover
-  - make build
+  - npm run lint
+  - echo "npm run check"
+  - echo "npm run cover"
+  - echo "npm run build"
+  - echo "npm run bundle:$TRAVIS_OS_NAME"
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
-before_deploy:
-  - |
-    # Get last line of commit message which, for a Github PR merge, is the PR title
-    # Previously used $TRAVIS_COMMIT_MESSAGE here but it appears to be single line
-    COMMIT_LINE=$(git log -1 --pretty=%B | tail -n 1)
-    # Create a commit "slug"
-    COMMIT_SLUG=$(echo $COMMIT_LINE | cut -c 1-100 | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z)
-    # Generate a unique build version
-    BUILD_NAME=$COMMIT_SLUG-$(date --utc --iso-8601)-$(echo $TRAVIS_COMMIT | cut -c 1-7)
-    # Create a versioned folder for the build
-    mkdir -p bucket/stencila
-    mv dist bucket/stencila/$BUILD_NAME
-    # Update the list of builds
-    curl -s http://builds.stenci.la/stencila/builds.txt > bucket/stencila/builds.txt
-    echo $BUILD_NAME >> bucket/stencila/builds.txt
+  # Upload test coverage to codecov.io
+  - echo "bash <(curl -s https://codecov.io/bash)"
 
 deploy:
-  on:
-    all_branches: true
-    condition: "(($TRAVIS_BRANCH == 'master') || ($TRAVIS_BRANCH == 'develop')) && ( $(echo $TRAVIS_COMMIT_MESSAGE | grep -c -E '^Merge pull request') == '1')"
-  skip_cleanup: true
-  local_dir: bucket
-  provider: s3
-  access_key_id: $AWS_ACCESS_KEY_ID
-  secret_access_key: $AWS_SECRET_ACCESS_KEY
-  region: us-west-2
-  bucket: builds.stenci.la
+  # Do a semantic release (only on Linux to avoid duplication)
+  - provider: script
+    skip_cleanup: true
+    script: npx semantic-release
+    on:
+      branch: master
+      condition: $TRAVIS_OS_NAME = linux
+
+  # Deploy build artifacts to Github release
+  # page on *any* tag (including those generated for a semantic release)
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    file_glob: true
+    file: bin/*.tar.gz
+    skip_cleanup: true
+    on:
+      tags: true

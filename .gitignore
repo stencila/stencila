@@ -1,8 +1,6 @@
-/build
-/dist
+/bin
 /coverage
+/dist
 /node_modules
 /npm-debug.log
-/.sandbox
-/*.sublime-workspace
-/tmp
+/vendor
