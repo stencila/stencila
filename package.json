@@ -19,5 +19,11 @@
   "bugs": {
     "url": "https://github.com/stencila/thema/issues"
   },
-  "homepage": "https://github.com/stencila/thema#readme"
+  "homepage": "https://github.com/stencila/thema#readme",
+  "devDependencies": {
+    "@stencila/dev-config": "git+https://github.com/stencila/dev-config.git",
+    "parcel": "^1.12.3",
+    "prettier": "1.17.1"
+  },
+  "prettier": "@stencila/dev-config/prettier-config.json"
 }
