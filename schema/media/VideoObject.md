@@ -1,9 +1,16 @@
-# ImageObject
+# VideoObject
 
-The `Person` type allows you to provide details
+The `VideoObject` type allows you to provide details such as caption and transcript, and the details which are included in [`MediaObject`](/MediaObject) which `VideoObject` extends.
 
 ## Examples
 
 ```json
-{}
+{
+    "type": "VideoObject",
+    "caption": "Example Video File",
+    "contentSize": "45 Mb",
+    "contentUrl"
+    "encodingFormat": "video/mpeg",
+    "transcript": "This is the transcript for the video file..."
+}
 ```

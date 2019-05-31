@@ -9,6 +9,8 @@ description: |
 properties:
   bitrate:
     '@id': schema:bitrate
+    description: |
+      Bitrate in kilobits per second (Kbps), or megabits per second (Mbps).
     type: string
   contentSize:
     '@id': schema:text

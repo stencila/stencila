@@ -1,0 +1,16 @@
+title: AudioObject
+'@id': schema:AudioObject
+$extends: CreativeWork.schema.yaml
+role: base
+status: stable
+description: |
+  A video file. https://schema.org/AudioObject
+properties:
+  caption:
+    '@id': schema:caption
+    description: |
+      The caption for this object.
+    type: string
+  transcript:
+    '@id': schema:transcript
+    type: string
