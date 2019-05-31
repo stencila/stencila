@@ -1,0 +1,23 @@
+{
+  "name": "@stencila/thema",
+  "version": "0.1.0",
+  "description": "Themes for styling Stencila documents",
+  "main": "index.ts",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stencila/thema.git"
+  },
+  "keywords": [
+    "Stencila",
+    "document",
+    "theme",
+    "CSS"
+  ],
+  "author": "Stencila",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/stencila/thema/issues"
+  },
+  "homepage": "https://github.com/stencila/thema#readme"
+}
