@@ -54,7 +54,7 @@ If you want to pause the script to allow viewers of the recorded screencast to t
 z 2
 ```
 
-# Running your script
+### Running your script
 
 To run your script interactively e.g. for a tutorial  use `make run-<name-of-script-without-extension>`. e.g.
 
@@ -70,7 +70,7 @@ To preview your script before recording a screencast, without needing to press e
 make preview-tutorial-convert
 ```
 
-# Recording your script
+### Recording your script
 
 You can create a screencast of your script using use `make record-<name-of-script-without-extension>` e.g.
 
@@ -80,7 +80,7 @@ make record-tutorial-convert
 
 Use `make play-<name-of-script-without-extension>` to play your recorded screencast and `make upload-<name-of-script-without-extension>` to upload it to asciinema.org.
 
-# Creating a Markdown version
+### Creating a Markdown version
 
 You can create a Markdown version of your script (useful for giving to tutorial workshops) using `make md-<name-of-script-without-extension>` e.g.
 
