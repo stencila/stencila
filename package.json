@@ -27,7 +27,7 @@
     "url": "https://github.com/stencila/stencila/issues"
   },
   "dependencies": {
-    "@stencila/encoda": "^0.38.1",
+    "@stencila/encoda": "^0.42.0",
     "@stencila/logga": "^1.0.0",
     "winston": "^3.2.1",
     "winston-cfg": "^1.0.12",
