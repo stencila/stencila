@@ -30,29 +30,27 @@ Headings and paragraph, and most inline elements, are supported. These will be e
 
 Use a code block with `bash` as the language to execute a command e.g.
 
-`````md
+````md
 ```bash
 stencila --help
 ```
-
-`````
+````
 
 If you want to pause the script to after a command, add the `pause` directive with the number of seconds to pause e.g.
 
 ````md
 ```bash pause=2
 stencila --help
-`````
-
+```
 ````
 
 ### Running your demo
 
-To run your demo interactively e.g. for a tutorial  use `make run-<name-of-demo-without-extension>`. e.g.
+To run your demo interactively e.g. for a tutorial use `make run-<name-of-demo-without-extension>`. e.g.
 
 ```bash
 make run-tutorial-convert
-````
+```
 
 This mode of running the demo requires that you press enter when you want the demo to progress.
 
@@ -71,4 +69,3 @@ make record-tutorial-convert
 ```
 
 Use `make play-<name-of-demo-without-extension>` to play your recorded screencast and `make upload-<name-of-demo-without-extension>` to upload it to https://asciinema.org.
-`````
