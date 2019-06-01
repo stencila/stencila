@@ -4,7 +4,10 @@ node_js: '10'
 os:
   - linux
   - osx
-  - windows
+
+  # Windows builds fail on Travis for projects with secrets
+  # See https://travis-ci.community/t/current-known-issues-please-read-this-before-posting-a-new-topic/264/10
+  # - windows
 
 script:
   # - npm run lint
