@@ -1,22 +1,56 @@
 #!/usr/bin/env node
 
-import yargs from 'yargs'
+/**
+ * Command line interface (CLI)
+ *
+ * This modules defines the `stencila` command line
+ * interface to commands.
+ */
 
-import { logger } from './logging'
+import yargs from 'yargs'
+// @ts-ignore
+import Youch from 'youch'
+// @ts-ignore
+import youchTerminal from 'youch-terminal'
 import { addHandler, LogData, LogLevel } from '@stencila/logga'
 
-import { addCliCommands as addEncodaCliCommands } from './encoda'
+import { logger } from './logs'
+import * as convert from './commands/convert'
+import * as process_ from './commands/process'
+import * as serve from './commands/serve'
 
 const VERSION = require('../package').version
 
-// Add handler for logga -> winston
+// Add handler to send log events to winston
 addHandler(function(data: LogData) {
-  logger.log(LogLevel[data.level], data.message, data.stackTrace)
+  if (data.level < 4) {
+    const youch = new Youch(
+      { message: data.message, stack: data.stackTrace },
+      {}
+    )
+    youch.toJSON().then((obj: any) => console.error(youchTerminal(obj)))
+  }
+
+  logger.log(
+    LogLevel[data.level],
+    data.message,
+    // Only record stack traces for errors and worse.
+    data.level < 4 ? data.stackTrace : undefined
+  )
 })
 
 const yargsDefinition = yargs.scriptName('stencila')
 
-addEncodaCliCommands(yargsDefinition, cleanup)
+// Add commands
+convert.cli(yargsDefinition, cleanup)
+process_.cli(yargsDefinition, cleanup)
+serve.cli(yargsDefinition, cleanup)
+
+// Add yargs options and parse the args
+yargsDefinition
+  // Ensure that a command is provided
+  .demandCommand(1, 'Please provide a command.')
+
   // Any command-line argument given that is not demanded, or does not have a corresponding description, will be reported as an error.
   // Unrecognized commands will also be reported as errors.
   .strict()
@@ -35,8 +69,10 @@ addEncodaCliCommands(yargsDefinition, cleanup)
 
   .parse()
 
+// Clean up before process.exit
 function cleanup() {
-  // Trigger a clean up
+  // Emit a beforeExit event. e.g. used by Encoda's Puppeteer interface to
+  // destroy any browser instance. Note that:
   //   "The 'beforeExit' event is not emitted for conditions causing
   //   explicit termination, such as calling process.exit() or uncaught
   //   exceptions."
