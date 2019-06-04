@@ -1,6 +1,6 @@
 title: MediaObject
 '@id': schema:MediaObject
-$extends: CreativeWork.schema.yaml
+$extends: ../CreativeWork.schema.yaml
 role: base
 status: stable
 description: |
@@ -10,29 +10,42 @@ properties:
   bitrate:
     '@id': schema:bitrate
     description: |
-      Bitrate in kilobits per second (Kbps), or megabits per second (Mbps).
-    type: string
+      Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
+    type: number
   contentSize:
-    '@id': schema:text
+    '@id': schema:contentSize
     description: |
-      File size in mega/kilo bytes.
-    type: string
+      File size in megabits (Mbit, Mb).
+    type: number
+  # See https://github.com/schemaorg/schemaorg/issues/462#issuecomment-98243384
+  # for why it is useful to have both `contentUrl` and `embedUrl` in addition to `url`
   contentUrl:
     '@id': schema:contentUrl
     description: |
-      Actual bytes of the media object, for example the image file or video file.
+      URL for the actual bytes of the media object, for example the image file or video file.
     type: string
     format: uri
-  encodingFormat:
-    '@id': schema:encodingFormat
-    description: |
-      Media type in a MIME format.
-    type:
-      anyOf:
-        - type: string
-        - type: url
   embedUrl:
     '@id': schema:embedUrl
     description: |
-      URL which should be used for the <src> element for the <embed> tag when embedding video.
-    type: url
+      URL that can be used to embed the media on a web page via a specific media player.
+    type: string
+    format: uri
+  format:
+    # We use the name "format" for this property because it is shorter, and does not
+    # clash with any other existing schema.org properties.
+    '@id': schema:encodingFormat
+    aliases:
+      - encoding
+      - encodingFormat
+    description: |
+      Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
+    # We are more restrictive than https://schema.org/encodingFormat which
+    # expects either Text or URL for this property. We require a media type e.g. `text/html` or
+    # file extension alias e.g `html`
+    type: string
+    pattern: '^[a-z]+(\/[a-z\+\-]+)?$'
+required:
+  # `contentUrl` is required since it seems to make little sense to have a `MediaObject`
+  # that does not have it
+  - contentUrl

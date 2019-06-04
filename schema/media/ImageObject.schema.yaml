@@ -1,7 +1,7 @@
 title: ImageObject
 '@id': schema:ImageObject
 $extends: MediaObject.schema.yaml
-role: base
+role: secondary
 status: stable
 description: |
   An image file. https://schema.org/ImageObject
@@ -9,10 +9,11 @@ properties:
   caption:
     '@id': schema:caption
     description: |
-      The caption for this object.
+      The caption for this image.
     type: string
   thumbnail:
     '@id': schema:thumbnail
-    description: Thumbnail image.
-    type:
-      $ref: ImageObject.schema.yaml
+    description: |
+      Thumbnail image of this image.
+    allOf:
+      - $ref: ImageObject.schema.yaml

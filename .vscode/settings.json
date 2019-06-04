@@ -2,6 +2,7 @@
   "yaml.schemas": {
     "https://json-schema.org/draft-07/schema": "*.schema.yaml",
     "./built/Article.schema.json": "*.article.yaml",
+    "./built/AudioObject.schema.json": "*audioObject.yaml",
     "./built/Brand.schema.json": "*.brand.yaml",
     "./built/ContactPoint.schema.json": "*.contactPoint.yaml",
     "./built/CreativeWork.schema.json": "*.creativeWork.yaml",
@@ -12,7 +13,7 @@
     "./built/Heading.schema.json": "*.heading.yaml",
     "./built/ImageObject.schema.json": "*.imageObject.yaml",
     "./built/Include.schema.json": "*.include.yaml",
-    "./built/MediaObject.schema.json": "*.mediaObject.yaml",
+    "./built/MediaObject.schema.json": "*mediaObject.yaml",
     "./built/Mount.schema.json": "*.mount.yaml",
     "./built/name.schema.json": "*.name.yaml",
     "./built/Organization.schema.json": "*.organization.yaml",
@@ -29,7 +30,8 @@
     "./built/Table.schema.json": "*.table.yaml",
     "./built/TableCell.schema.json": "*.tableCell.yaml",
     "./built/TableRow.schema.json": "*.tableRow.yaml",
-    "./built/Text.schema.json": "*.url.yaml"
+    "./built/Text.schema.json": "*.url.yaml",
+    "./built/VideoObject.schema.json": "*videoObject.yaml"
   },
   "cSpell.words": ["stencila"]
 }

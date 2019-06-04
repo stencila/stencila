@@ -1,16 +1,18 @@
 title: AudioObject
 '@id': schema:AudioObject
-$extends: CreativeWork.schema.yaml
-role: base
+$extends: MediaObject.schema.yaml
+role: secondary
 status: stable
 description: |
-  A video file. https://schema.org/AudioObject
+  An audio file. https://schema.org/AudioObject
 properties:
   caption:
     '@id': schema:caption
     description: |
-      The caption for this object.
+      The caption for this audio recording.
     type: string
   transcript:
     '@id': schema:transcript
+    description: |
+      The transcript of this audio recording.
     type: string
