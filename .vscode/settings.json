@@ -15,7 +15,6 @@
     "./built/Include.schema.json": "*.include.yaml",
     "./built/MediaObject.schema.json": "*mediaObject.yaml",
     "./built/Mount.schema.json": "*.mount.yaml",
-    "./built/name.schema.json": "*.name.yaml",
     "./built/Organization.schema.json": "*.organization.yaml",
     "./built/Package.schema.json": "*.package.yaml",
     "./built/Paragraph.schema.json": "*.paragraph.yaml",
@@ -30,7 +29,6 @@
     "./built/Table.schema.json": "*.table.yaml",
     "./built/TableCell.schema.json": "*.tableCell.yaml",
     "./built/TableRow.schema.json": "*.tableRow.yaml",
-    "./built/Text.schema.json": "*.url.yaml",
     "./built/VideoObject.schema.json": "*videoObject.yaml"
   },
   "cSpell.words": ["stencila"]
