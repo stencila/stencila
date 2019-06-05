@@ -12,13 +12,13 @@ os:
 script:
   - npm run lint
   - npm run check
-  - echo "npm run cover"
-  - echo "npm run build"
-  - echo "npm run bundle:$TRAVIS_OS_NAME"
+  #- npm run cover
+  - npm run build
+  - npm run bundle:$TRAVIS_OS_NAME
 
 after_success:
   # Upload test coverage to codecov.io
-  - echo "bash <(curl -s https://codecov.io/bash)"
+  - bash <(curl -s https://codecov.io/bash) -F $TRAVIS_OS_NAME
 
 deploy:
   # Do a semantic release (only on Linux to avoid duplication)

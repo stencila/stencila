@@ -12,10 +12,11 @@
     "check": "npm run build:dist && npm run check:deps-used && npm run check:deps-unused",
     "check:deps-used": "dependency-check --missing .",
     "check:deps-unused": "dependency-check --unused --no-dev --ignore-module @stencila/schema .",
-    "build": "npm run build:dist && npm run build:tgz && npm run build:bin",
+    "build": "npm run build:dist && npm run build:tgz && npm run build:bin && npm run build:test",
     "build:dist": "tsc",
     "build:tgz": "./build-tgz.sh",
     "build:bin": "pkg --target=node10 -o=bin/stencila .",
+    "build:test": "./build-test.sh",
     "bundle:linux": "tar -czvf bin/stencila-linux-x64.tar.gz -C bin stencila",
     "bundle:osx": "tar -czvf bin/stencila-macos-x64.tar.gz -C bin stencila"
   },
