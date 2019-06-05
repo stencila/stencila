@@ -11,7 +11,7 @@ os:
 
 script:
   - npm run lint
-  - echo "npm run check"
+  - npm run check
   - echo "npm run cover"
   - echo "npm run build"
   - echo "npm run bundle:$TRAVIS_OS_NAME"
