@@ -6,9 +6,15 @@
   "bin": "./dist/cli.js",
   "scripts": {
     "lint": "eslint src/*",
-    "build": "npm run build:dist && npm run build:bin",
+    "check": "npm run build && npm run check:deps-used && npm run check:deps-unused",
+    "check:deps-used": "dependency-check --missing .",
+    "check:deps-unused": "dependency-check --unused --no-dev --ignore-module @stencila/schema .",
+    "build": "npm run build:dist && npm run build:bin && npm run build:tgz",
     "build:dist": "tsc",
-    "build:bin": "pkg --target=node10 -o=bin/stencila ."
+    "build:tgz": "./build-tgz.sh",
+    "build:bin": "pkg --target=node10 -o=bin/stencila .",
+    "bundle:linux": "tar -czvf bin/stencila-linux-x64.tar.gz -C bin stencila",
+    "bundle:osx": "tar -czvf bin/stencila-macos-x64.tar.gz -C bin stencila"
   },
   "keywords": [
     "reproducibility",
@@ -27,15 +33,16 @@
     "url": "https://github.com/stencila/stencila/issues"
   },
   "dependencies": {
-    "@stencila/encoda": "^0.42.0",
+    "@stencila/encoda": "^0.43.0",
     "@stencila/logga": "^1.0.0",
     "body-parser": "^1.19.0",
     "browser-sync": "^2.26.5",
     "express": "^4.17.1",
     "express-async-handler": "^1.1.4",
     "fs-extra": "^8.0.1",
+    "puppeteer": "^1.17.0",
+    "tar": "^4.4.9",
     "winston": "^3.2.1",
-    "winston-cfg": "^1.0.12",
     "yargs": "^13.2.4",
     "youch": "^2.0.10",
     "youch-terminal": "^1.0.0"
@@ -49,6 +56,8 @@
     "@types/express": "^4.16.1",
     "@types/fs-extra": "^7.0.0",
     "@types/jest": "^24.0.13",
+    "@types/puppeteer": "^1.12.4",
+    "@types/tar": "^4.0.0",
     "@types/yargs": "^13.0.0",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
@@ -70,7 +79,10 @@
   },
   "pkg": {
     "scripts": "./dist/**/*.js",
-    "assets": []
+    "assets": [
+      "./stencila-deps.tgz",
+      "./node_modules/@stencila/schema/dist/**/*.json"
+    ]
   },
   "prettier": {
     "singleQuote": true,

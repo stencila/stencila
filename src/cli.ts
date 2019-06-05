@@ -14,12 +14,16 @@ import Youch from 'youch'
 import youchTerminal from 'youch-terminal'
 import { addHandler, LogData, LogLevel } from '@stencila/logga'
 
-import { logger } from './logs'
+import { setupLogger } from './logs'
 import * as convert from './commands/convert'
 import * as process_ from './commands/process'
 import * as serve from './commands/serve'
+import * as system from './commands/system'
+import { extractDeps } from './boot'
 
 const VERSION = require('../package').version
+
+const winstonLogger = setupLogger()
 
 // Add handler to send log events to winston
 addHandler(function(data: LogData) {
@@ -31,7 +35,7 @@ addHandler(function(data: LogData) {
     youch.toJSON().then((obj: any) => console.error(youchTerminal(obj)))
   }
 
-  logger.log(
+  winstonLogger.log(
     LogLevel[data.level],
     data.message,
     // Only record stack traces for errors and worse.
@@ -39,12 +43,18 @@ addHandler(function(data: LogData) {
   )
 })
 
+/**
+ * Attempt to extract the dependencies, nothing will happen if they have already been extracted
+ */
+extractDeps()
+
 const yargsDefinition = yargs.scriptName('stencila')
 
 // Add commands
 convert.cli(yargsDefinition, cleanup)
 process_.cli(yargsDefinition, cleanup)
 serve.cli(yargsDefinition, cleanup)
+system.cli(yargsDefinition, cleanup)
 
 // Add yargs options and parse the args
 yargsDefinition
