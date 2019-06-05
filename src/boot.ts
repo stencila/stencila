@@ -41,7 +41,8 @@ const home = packaged ? path.dirname(process.execPath) : path.dirname(__dirname)
  */
 export function extractDeps(forceExtract: boolean = false) {
   const shouldExtract =
-    packaged && (forceExtract || fs.existsSync(path.join(home, 'node_modules')))
+    packaged &&
+    (forceExtract || !fs.existsSync(path.join(home, 'node_modules')))
   if (shouldExtract) {
     tar.x({
       sync: true,
