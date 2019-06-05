@@ -1,7 +1,13 @@
+import * as winston from 'winston'
+
 /**
- * Set up a Winston logger using winston-cfg, which by default reads from config/default.json
+ * Set up a Winston logger.
+ *
+ * For now, just log to console, until various bugs are fixed to allow configuration from file.
  */
-
-import { winstonCfg } from 'winston-cfg'
-
-export const logger = winstonCfg()
+export function setupLogger(configPath?: string): winston.Logger {
+  return winston.createLogger({
+    format: winston.format.simple(),
+    transports: [new winston.transports.Console({ level: 'debug' })]
+  })
+}
