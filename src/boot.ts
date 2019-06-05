@@ -16,7 +16,6 @@
  */
 import fs from 'fs-extra'
 import path from 'path'
-import puppeteer from 'puppeteer'
 import tar from 'tar'
 
 import { getLogger } from '@stencila/logga'
