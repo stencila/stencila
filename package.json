@@ -2,10 +2,13 @@
   "name": "stencila",
   "version": "0.28.2",
   "description": "Living documents for reproducible research.",
-  "main": "dist/index.js",
+  "main": "./dist/index.js",
   "bin": "./dist/cli.js",
+  "files": [
+    "/dist"
+  ],
   "scripts": {
-    "lint": "eslint src/*",
+    "lint": "eslint src/**/*",
     "check": "npm run build && npm run check:deps-used && npm run check:deps-unused",
     "check:deps-used": "dependency-check --missing .",
     "check:deps-unused": "dependency-check --unused --no-dev --ignore-module @stencila/schema .",
@@ -106,6 +109,14 @@
       "prettier/@typescript-eslint",
       "plugin:prettier/recommended"
     ],
+    "rules": {
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        {
+          "functions": false
+        }
+      ]
+    },
     "parserOptions": {
       "ecmaVersion": 2018,
       "sourceType": "module"
