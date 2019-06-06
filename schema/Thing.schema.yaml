@@ -14,6 +14,11 @@ properties:
     type: string
     enum: [Thing]
     default: Thing
+  id:
+    # This is a special property analagous to JSON-LD's `@id` keyword
+    # and so should not have a `@id` since it is not a property.
+    description: The identifier for this item.
+    type: string
   alternateNames:
     '@id': schema:alternateName
     description: Alternate names (aliases) for the item.
@@ -24,6 +29,14 @@ properties:
     '@id': schema:description
     description: A description of the item.
     type: string
+  meta:
+    # This property has been added to allow for applications that
+    # use this schema to add ad-hoc properties to things. Ad-hoc
+    # properties that become commonly used may become part of
+    # the schema proper.
+    '@id': stencila:meta
+    description: Metadata associated with this item.
+    type: object
   name:
     '@id': schema:name
     description: The name of the item.
