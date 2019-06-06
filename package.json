@@ -1,12 +1,12 @@
 {
   "name": "@stencila/thema",
   "version": "0.1.0",
-  "description": "Themes for styling Stencila documents",
+  "description": "Semantic themes for use with encoda (https://github.com/stencila/encoda)",
   "files": [
     "dist"
   ],
   "scripts": {
-    "dev": "parcel ./src/demo/**/*.html",
+    "dev": "parcel ./src/demo/index.html --open",
     "build": "parcel build ./src/themes/**/*.css ./src/themes/**/*.ts"
   },
   "repository": {
@@ -28,7 +28,7 @@
   "devDependencies": {
     "@stencila/dev-config": "git+https://github.com/stencila/dev-config.git",
     "parcel-bundler": "^1.12.3",
-    "parcel-plugin-url-loader": "^1.3.1",
+    "parcel-plugin-url-loader": "git+https://github.com/stencila/parcel-plugin-url-loader.git",
     "prettier": "1.17.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
