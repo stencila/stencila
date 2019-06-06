@@ -8,7 +8,7 @@ The `VideoObject` type allows you to provide details such as caption and transcr
 {
     "type": "VideoObject",
     "caption": "Example Video File",
-    "contentSize": "45 Mb",
+    "contentSize": "45",
     "contentUrl": "http://www.example.com/file.mp4",
     "encodingFormat": "video/mpeg",
     "transcript": "This is the transcript for the video file..."
