@@ -1,0 +1,10 @@
+# Format specified as media type
+type: MediaObject
+contentUrl: https://example.org/page.html
+format: text/html
+
+---
+# Format specified as an extension name
+type: MediaObject
+contentUrl: https://example.org/page.html
+format: html

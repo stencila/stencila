@@ -1,0 +1,24 @@
+title: VideoObject
+'@id': schema:VideoObject
+$extends: MediaObject.schema.yaml
+role: secondary
+status: stable
+description: |
+  A video file. https://schema.org/VideoObject
+properties:
+  caption:
+    '@id': schema:caption
+    description: |
+      The caption for this video recording.
+    type: string
+  thumbnail:
+    '@id': schema:thumbnail
+    description: |
+      Thumbnail image of this video recording.
+    allOf:
+      - $ref: ImageObject.schema.yaml
+  transcript:
+    '@id': schema:transcript
+    description: |
+      The transcript of this video recording.
+    type: string
