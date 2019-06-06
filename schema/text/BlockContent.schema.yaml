@@ -1,6 +1,8 @@
 title: BlockContent
 description: Block content.
 anyOf:
+  - $ref: CodeBlock.schema.yaml
+  - $ref: CodeChunk.schema.yaml
   - $ref: Heading.schema.yaml
   - $ref: List.schema.yaml
   - $ref: Paragraph.schema.yaml
