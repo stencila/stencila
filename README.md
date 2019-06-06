@@ -1,17 +1,18 @@
 # Stencila
 
-> :sparkles: This is the `next` branch where we are doing major refactoring towards treating this repo as a top level 'umbrella' package and main entry point for off-line users. We will deprecate `stencila/cli` and `stencila/desktop` and instead build those binaries here.
+Welcome to the main entry point to the Stencila ecosystem. This repo contains the `stencila` binary which is the top level 'umbrella' package to use our various libraries.
+
+> :sparkles: We are are undergoing a major reboot in this repository (and many of our others) to build a single entry point for reproducible documents. We will deprecate `stencila/cli` and `stencila/desktop` and instead build those binaries here. We will also be deprecating binary builds of our other repositories as they are integrated into this one.
 
 [![NPM](http://img.shields.io/npm/v/stencila.svg?style=flat)](https://www.npmjs.com/package/stencila)
 [![Build status](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
 [![Code coverage](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila)
 
-### Development
+# Documentation
 
-```bash
-npm install
-npx ts-node-dev src/cli serve --sync
-```
+> :sparkles: As part of our reboot, documentation is forthcoming. Until then you can check the documentation for the libraries we have integrated so far:
+
+- [Encoda](https://github.com/stencila/encoda)
 
 # Install
 
@@ -61,4 +62,11 @@ Or, if you'd prefer to do things manually, or place stencila elsewhere, download
 ```bash
 tar xvf stencila-linux-x64.tar.gz
 mv -f stencila ~/.local/bin/ # or wherever you like
+```
+
+# Development
+
+```bash
+npm install
+npx ts-node-dev src/cli serve --sync
 ```
