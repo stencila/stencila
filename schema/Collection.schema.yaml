@@ -13,3 +13,4 @@ required:
   # a requirement here. A creative work need not be required to have
   # parts, but a collection should.
   - parts
+additionalProperties: false
