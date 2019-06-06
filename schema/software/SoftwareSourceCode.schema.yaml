@@ -25,13 +25,11 @@ properties:
     items:
       - $ref: Organization.schema.yaml
       - $ref: Person.schema.yaml
-  programmingLanguages:
+  programmingLanguage:
     '@id': schema:programmingLanguage
     description: |
       The computer programming language.
-    type: array
-    items:
-      - type: string
+    type: string
   runtimePlatform:
     '@id': schema:runtimePlatform
     description: |
@@ -42,14 +40,21 @@ properties:
   softwareRequirements:
     '@id': schema:softwareRequirements
     description: |
-      Component dependency requirements for application. This includes runtime environments and shared libraries that are not included in the application distribution package, but required to run the application (Examples: DirectX, Java or .NET runtime).
+      Component dependency requirements for application. 
+      This includes runtime environments and shared libraries that 
+      are not included in the application distribution package, but 
+      required to run the application (Examples include DirectX, Java or .NET runtime).
     type: array
     items:
-      - $ref: SoftwareApplication.schema.yaml
+      anyOf:
+        - $ref: SoftwareSourceCode.schema.yaml
+        - $ref: SoftwareApplication.schema.yaml
+        - type: string
   targetProducts:
     '@id': schema:targetProduct
     description: |
-      Target Operating System / Product to which the code applies. If applies to several versions, just the product name can be used.
+      Target Operating System / Product to which the code applies.
+      If applies to several versions, just the product name can be used.
     type: array
     items:
       - $ref: SoftwareApplication.schema.yaml
