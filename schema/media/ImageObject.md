@@ -8,7 +8,7 @@ The `ImageObject` type allows you to provide details about an image file (in any
 {
   "type": "ImageObject",
   "caption": "Kiwi bird",
-  "contentSize": "1.3 MB",
+  "contentSize": "10.4",
   "contentUrl": "http://www.example.com/kiwiBird.png",
   "encodingFormat": "image/png",
   "thumbnail": {

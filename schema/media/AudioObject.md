@@ -8,7 +8,7 @@ The `AudioObject` type allows you to provide details such as caption and transcr
 {
   "type": "AudioObject",
   "caption": "Example Audio File",
-  "contentSize": "5 Mb",
+  "contentSize": "5",
   "contentUrl": "http://www.example.com/file.mp3",
   "encodingFormat": "audio/mpeg3",
   "transcript": "This is the transcript for the audio file..."
