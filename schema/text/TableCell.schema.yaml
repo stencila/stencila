@@ -32,7 +32,7 @@ properties:
     maximum: 65534
     default: 1
   content:
-    '@id': schema:content
+    '@id': stencila:content
     description: |
       Contents of the table cell.
     type: array

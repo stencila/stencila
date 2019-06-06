@@ -4,28 +4,12 @@ $extends: SoftwareSourceCode.schema.yaml
 role: secondary
 status: unstable
 description: |
-  A chunk of code that can be embedded inside a document.
+  A executable chunk of code.
 properties:
-  codeChunkMetadata:
-    '@id': stencila:codeChunkMetadata
-    description: Metadata regarding display and execution of the CodeChunk.
-    $ref: CodeChunkMetadata.schema.yaml
-  executionCount:
-    '@id': stencila:executionCount
-    description: The prompt number of the chunk. Null if the CodeChunk has not been executed.
-    type:
-      - 'integer'
-      - 'null'
-  executionOutputs:
-    '@id': stencila:executionOutputs
-    description: Execution, display, or stream outputs.
-    oneOf:
-      - $ref: ExecutionResultOutput.schema.yaml
-      - $ref: DisplayDataOutput.schema.yaml
-      - $ref: StreamOutput.schema.yaml
-      - $ref: ErrorOutput.schema.yaml
-  sourceCode:
-    '@id': stencila:sourceCode
+  outputs:
+    '@id': stencila:outputs
     description: |
-      The actual source code this code chunk contains.
-    type: string
+      Outputs from executing the chunk.
+    type: array
+    items:
+      $ref: ../Node.schema.yaml

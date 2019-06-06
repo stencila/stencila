@@ -1,8 +1,0 @@
-title: OutputData
-'@id': stencila:OutputData
-role: tertiary
-status: experimental
-description: |
-  The data that has been output from code execution. Property keys should be mimetypes,
-  and their values the data in that format.
-additionalProperties: true

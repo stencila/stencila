@@ -11,6 +11,6 @@ anyOf:
   - $ref: Delete.schema.yaml
   - $ref: Quote.schema.yaml
   - $ref: Code.schema.yaml
+  - $ref: CodeExpr.schema.yaml
   - $ref: Link.schema.yaml
   - $ref: ImageObject.schema.yaml
-  - $ref: Expression.schema.yaml
