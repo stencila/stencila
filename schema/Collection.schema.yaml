@@ -8,9 +8,9 @@ description: |
 # The [schema.org defintion](https://schema.org/Collection) adds
 # `collectionSize` but has not been added here because that feels
 # redudant e.g. a developer could use `collection.parts.length` instead
+properties: {}
 required:
   # Note that `parts` is defined in `CreativeWork` but made
   # a requirement here. A creative work need not be required to have
   # parts, but a collection should.
   - parts
-additionalProperties: false

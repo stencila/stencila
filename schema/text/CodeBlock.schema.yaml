@@ -4,4 +4,4 @@ $extends: Code.schema.yaml
 role: secondary
 status: stable
 description: A code block.
-additionalProperties: false
+properties: {}
