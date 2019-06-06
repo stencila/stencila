@@ -1,0 +1,14 @@
+@import 'normalize.css';
+@import 'prismjs/plugins/line-highlight/prism-line-highlight.css';
+@import 'prismjs/plugins/line-numbers/prism-line-numbers.css';
+
+html {
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
