@@ -1,0 +1,25 @@
+language: node_js
+node_js: '10'
+
+os:
+  - linux
+
+script:
+  - npm run build
+  - npm run pages
+
+deploy:
+  # Do a semantic release
+  - provider: script
+    skip_cleanup: true
+    script: npx semantic-release
+    on:
+      branch: master
+
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    keep_history: true
+    local-dir: pages
+    on:
+      branch: master
