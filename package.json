@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Semantic themes for use with encoda (https://github.com/stencila/encoda)",
   "files": [
-    "dist"
+    "dist/"
   ],
   "scripts": {
     "dev": "parcel ./src/demo/index.html --open",
