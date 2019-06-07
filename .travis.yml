@@ -20,6 +20,6 @@ deploy:
     skip-cleanup: true
     github-token: $GITHUB_TOKEN
     keep_history: true
-    local-dir: pages
+    local-dir: ./pages
     on:
       branch: master
