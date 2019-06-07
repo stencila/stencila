@@ -1,6 +1,8 @@
-# `thema`
+# Thema
 
 > 🎨 Semantic themes for use with Stencila [`encoda`](https://github.com/stencila/encoda).
+
+[![Build Status](https://travis-ci.org/stencila/thema.svg?branch=master)](https://travis-ci.org/stencila/thema)
 
 - [Quick Start](#quick-start)
 - [Available Themes](#available-themes)
