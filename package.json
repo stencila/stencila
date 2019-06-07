@@ -5,11 +5,11 @@
   "files": [
     "/dist"
   ],
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "dev": "parcel ./src/demo/index.html --open",
     "build": "parcel build ./src/index.js ./src/themes/**/*.css ./src/themes/**/*.ts",
-    "pages": "parcel build ./src/demo/index.html -d pages",
+    "pages": "parcel build ./src/demo/index.html -d pages  --public-url .",
     "semantic-release": "semantic-release"
   },
   "repository": {
