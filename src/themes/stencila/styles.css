@@ -141,9 +141,9 @@ h6 {
 
 article > pre,
 figure {
-  display: inline-block;
   background-color: #fff;
   width: auto;
+  max-width: 90%;
   margin: 1.25rem auto;
   text-align: center;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
@@ -155,6 +155,7 @@ figure {
 
 figure img {
   display: block;
+  margin: 0 auto;
   padding: 1rem;
 }
 
