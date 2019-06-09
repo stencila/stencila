@@ -1,6 +1,6 @@
 # Demos and tutorials
 
-> :wrench: Make a list of demos here with embedded asciinema.org links
+- [Stencila 0.28.2 Demo](https://asciinema.org/a/MGhcJ4OYtxvNU2fJ5M4uhQgfX)
 
 ## Contributing
 
