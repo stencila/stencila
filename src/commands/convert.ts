@@ -100,7 +100,7 @@ export function http(expressApp: express.Application, folder: string) {
       logger.info(`Converting content from ${mediaTypeFrom} to ${mediaTypeTo}`)
 
       const node = await encoda.load(content, mediaTypeFrom)
-      const result = await encoda.dump(node, mediaTypeTo)
+      const result = await encoda.dump(node, { format: mediaTypeTo })
 
       res.set('Content-Type', mediaTypeTo)
       res.send(result)

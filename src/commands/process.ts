@@ -60,7 +60,7 @@ export function http(expressApp: express.Application, folder: string) {
 
       const node = await encoda.read(filePath)
       const processed = await encoda.process(node)
-      const content = await encoda.dump(processed, mediaType)
+      const content = await encoda.dump(processed, { format: mediaType })
 
       res.set('Content-Type', mediaType)
       res.send(content)
@@ -80,7 +80,7 @@ export function http(expressApp: express.Application, folder: string) {
 
       const node = await encoda.load(content, mediaTypeFrom)
       const processed = await encoda.process(node)
-      const result = await encoda.dump(processed, mediaTypeTo)
+      const result = await encoda.dump(processed, { format: mediaTypeTo })
 
       res.set('Content-Type', mediaTypeTo)
       res.send(result)
