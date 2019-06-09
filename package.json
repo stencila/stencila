@@ -35,19 +35,17 @@
     "@semantic-release/npm": "^5.1.7",
     "@semantic-release/release-notes-generator": "^7.1.4",
     "@stencila/dev-config": "git+https://github.com/stencila/dev-config.git",
+    "normalize.css": "^8.0.1",
     "parcel-bundler": "^1.12.3",
     "parcel-plugin-url-loader": "git+https://github.com/stencila/parcel-plugin-url-loader.git",
     "prettier": "1.17.1",
+    "prismjs": "^1.16.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "semantic-release": "^15.13.12",
     "typescript": "^3.5.1"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
-  "dependencies": {
-    "normalize.css": "^8.0.1",
-    "prismjs": "^1.16.0"
-  },
   "release": {
     "plugins": [
       "@semantic-release/commit-analyzer",
