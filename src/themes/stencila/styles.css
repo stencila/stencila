@@ -153,10 +153,18 @@ figure {
   border-radius: 4px;
 }
 
+figure img,
+figure pre {
+  padding: 1rem;
+}
+
 figure img {
   display: block;
   margin: 0 auto;
-  padding: 1rem;
+}
+
+figure pre {
+  text-align: left;
 }
 
 figcaption {
