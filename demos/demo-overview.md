@@ -30,7 +30,7 @@ Let's get started with using Stencila's converters.
 
 ### Additional formats:
 
-- rpng (reproducible pngs), yaml, pandoc, json5, json
+- ipynb (Jupyter Notebook), rpng (reproducible pngs), yaml, pandoc, json5, json
 
 ## Example: Markdown to YAML
 
@@ -111,6 +111,6 @@ automatically update in the browser.
 
 Thanks for watching!
 
-```bash
+```bash hidden
 lsof -ti:3000 | xargs kill
 ```
