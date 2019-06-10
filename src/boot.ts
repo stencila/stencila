@@ -47,6 +47,7 @@ export function extractDeps(forceExtract: boolean = false) {
     tar.x({
       sync: true,
       file: path.join('/', 'snapshot', 'stencila', 'stencila-deps.tgz'),
+      strip: 1,
       C: home
     })
 
