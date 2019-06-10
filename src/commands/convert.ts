@@ -9,6 +9,7 @@ import asyncHandler from 'express-async-handler'
 import { getLogger } from '@stencila/logga'
 
 const logger = getLogger('stencila')
+const DEFAULT_THEME = 'stencila'
 
 /**
  * Add `convert` CLI command to a `yargs` definition.
@@ -25,8 +26,12 @@ export function cli(
     'Convert between file formats',
     cliArgsDefine,
     async (argv: any): Promise<void> => {
-      const { input, output, from, to } = cliArgsDefaults(argv)
-      await encoda.convert(input, output, { from, to })
+      const { input, output, from, to, theme } = cliArgsDefaults(argv)
+      await encoda.convert(input, output, {
+        from,
+        to,
+        options: { codecOptions: { theme } }
+      })
       if (callbackFunction) callbackFunction()
     }
   )
@@ -60,6 +65,11 @@ export function cliArgsDefine(yargsDefinition: yargs.Argv): yargs.Argv<any> {
       describe: 'The format to convert the output to.',
       type: 'string'
     })
+    .option('theme', {
+      describe: `The theme to use for the output format (default: ${DEFAULT_THEME}).`,
+      type: 'string',
+      default: DEFAULT_THEME
+    })
 }
 
 /**
@@ -75,10 +85,10 @@ export function cliArgsDefine(yargsDefinition: yargs.Argv): yargs.Argv<any> {
  * @param argv Array of arguments
  */
 export function cliArgsDefaults(argv: any) {
-  let { input, output, from, to } = argv
+  let { input, output, from, to, theme } = argv
   if ((input === '-' || !/\.([a-z]{2,5})$/.test(input)) && !from) from = 'md'
   if (output === '-' && !to) to = 'yaml'
-  return { input, output, from, to }
+  return { input, output, from, to, theme }
 }
 
 /**
@@ -97,10 +107,14 @@ export function http(expressApp: express.Application, folder: string) {
       const content = req.body || {}
       const mediaTypeFrom = req.get('Content-Type') || 'application/json'
       const mediaTypeTo = req.get('Accept') || 'application/json'
+      const theme = req.params.get('theme') || DEFAULT_THEME
       logger.info(`Converting content from ${mediaTypeFrom} to ${mediaTypeTo}`)
 
       const node = await encoda.load(content, mediaTypeFrom)
-      const result = await encoda.dump(node, { format: mediaTypeTo })
+      const result = await encoda.dump(node, {
+        format: mediaTypeTo,
+        codecOptions: { theme }
+      })
 
       res.set('Content-Type', mediaTypeTo)
       res.send(result)
