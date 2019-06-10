@@ -1,5 +1,6 @@
 .DS_Store
-stencila-deps.tgz
+/stencila-deps
+/stencila-deps.tgz
 /bin
 /coverage
 /dist

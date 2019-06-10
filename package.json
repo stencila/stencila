@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.29.1",
+  "version": "0.30.1",
   "description": "Living documents for reproducible research.",
   "main": "./dist/index.js",
   "bin": "./dist/cli.js",
@@ -37,7 +37,7 @@
     "url": "https://github.com/stencila/stencila/issues"
   },
   "dependencies": {
-    "@stencila/encoda": "^0.46.2",
+    "@stencila/encoda": "^0.47.1",
     "@stencila/logga": "^1.0.0",
     "body-parser": "^1.19.0",
     "browser-sync": "^2.26.7",
