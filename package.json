@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.29.1",
+  "version": "0.30.0",
   "description": "Living documents for reproducible research.",
   "main": "./dist/index.js",
   "bin": "./dist/cli.js",
