@@ -20,7 +20,7 @@ stencila --help
 
 Let's get started with using Stencila's converters.
 
-### You can convert between the following textual formats:
+### You can convert between the following textual formats (in various stages of development):
 
 - docx (Microsoft Word), gdoc (Google Docs), html, jats, latex, md, odt, pdf
 
@@ -30,12 +30,12 @@ Let's get started with using Stencila's converters.
 
 ### Additional formats:
 
-- rpng (reproducible pngs), yaml, pandoc, json5, json
+- ipynb (Jupyter Notebook), rmd, rpng (reproducible pngs), yaml, pandoc, json5, json
 
 ## Example: Markdown to YAML
 
 ```bash pause=2
-stencila convert ./examples/README.md ./examples/output/README-from-md.yml
+stencila convert ./examples/md/README.md ./examples/output/README-from-md.yml
 ```
 
 Let's see what the converted YAML file looks like.
@@ -52,7 +52,7 @@ cat ./examples/output/README-from-md.yml
 Next, let's create a DOCX from the Markdown file.
 
 ```bash pause=2
-stencila convert ./examples/README.md ./examples/output/README-from-md.docx
+stencila convert ./examples/md/README.md ./examples/output/README-from-md.docx
 ```
 
 And open the file:
@@ -97,7 +97,7 @@ as HTML pages.
 Let's open a Markdown file (the original README.md).
 
 ```bash pause=3
-open http://localhost:3001/README.md
+open http://localhost:3001/md/README.md
 ```
 
 Now let's open the updated Markdown file (README-from-docx.md):
@@ -111,6 +111,6 @@ automatically update in the browser.
 
 Thanks for watching!
 
-```bash
+```bash hidden
 lsof -ti:3000 | xargs kill
 ```
