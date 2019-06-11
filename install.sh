@@ -6,6 +6,8 @@ OS=$(uname)
 APPLICATION_NAME=stencila
 REPOSITORY_NAME=stencila
 
+set -e
+
 if [[ "${OS}" == "Linux" || "${OS}" == "Darwin" ]]; then
     case "${OS}" in
         'Linux')
@@ -29,13 +31,17 @@ if [[ "${OS}" == "Linux" || "${OS}" == "Darwin" ]]; then
     esac
     
     echo "Downloading ${APPLICATION_NAME} ${VERSION}"
-    curl -Lo /tmp/${APPLICATION_NAME}.tar.gz https://github.com/stencila/${REPOSITORY_NAME}/releases/download/${VERSION}/${APPLICATION_NAME}-${PLATFORM}.tar.gz
-    tar xvf /tmp/${APPLICATION_NAME}.tar.gz
-    rm -f /tmp/${APPLICATION_NAME}.tar.gz
+    EXTRACT_NAME=${APPLICATION_NAME}-${PLATFORM}-${VERSION}
+    ARCHIVE_NAME=${EXTRACT_NAME}.tar.gz
+    curl -Lo /tmp/${ARCHIVE_NAME} https://github.com/stencila/${REPOSITORY_NAME}/releases/download/${VERSION}/${APPLICATION_NAME}-${PLATFORM}.tar.gz
+    mkdir /tmp/${EXTRACT_NAME}
+    tar xvf /tmp/${ARCHIVE_NAME} -C /tmp/${EXTRACT_NAME}
+    rm -f /tmp/${ARCHIVE_NAME}
     
     echo "Installing ${APPLICATION_NAME} to ${INSTALL_PATH}/${APPLICATION_NAME}-${VERSION}"
     mkdir -p ${INSTALL_PATH}/${APPLICATION_NAME}-${VERSION}
-    mv -f ${APPLICATION_NAME} ${INSTALL_PATH}/${APPLICATION_NAME}-${VERSION}
+    mv -f /tmp/${EXTRACT_NAME}/${APPLICATION_NAME} ${INSTALL_PATH}/${APPLICATION_NAME}-${VERSION}
+    rm -r /tmp/${EXTRACT_NAME}
     # Unpack `node_modules` etc into the ${INSTALL_PATH}/${APPLICATION_NAME}-${VERSION}
     ${INSTALL_PATH}/${APPLICATION_NAME}-${VERSION}/${APPLICATION_NAME} setup
     
