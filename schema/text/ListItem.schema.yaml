@@ -1,0 +1,15 @@
+title: ListItem
+'@id': schema:ListItem
+$extends: ../Thing.schema.yaml
+role: secondary
+status: unstable
+description: A single item in a list.
+properties:
+  content:
+    type: array
+    items:
+      $ref: InlineContent.schema.yaml
+  checked:
+    type: boolean
+required:
+  - content
