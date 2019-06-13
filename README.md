@@ -6,7 +6,7 @@
 [![NPM](http://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema)
 [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/)
 [![Community](https://img.shields.io/badge/join-community-green.svg)](https://community.stenci.la)
-[![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
+[![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila) [![Greenkeeper badge](https://badges.greenkeeper.io/stencila/schema.svg)](https://greenkeeper.io/)
 
 > :sparkles:
 > This is a **work in progress**. But comments, suggestions, and pull requests are very much appreciated
