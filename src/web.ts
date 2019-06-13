@@ -7,6 +7,8 @@ import path from 'path'
 import Youch from 'youch'
 import * as convert from './commands/convert'
 import * as process from './commands/process'
+import * as build from './commands/build'
+import * as execute from './commands/execute'
 
 const logger = getLogger('stencila')
 
@@ -32,7 +34,8 @@ export default function web(
   // Add command endpoints
   convert.http(app, folder)
   process.http(app, folder)
-
+  build.http(app, folder)
+  execute.http(app, folder)
   // Add error handling middleware to handle uncaught errors
   // and send them to the logger and client
   app.use(

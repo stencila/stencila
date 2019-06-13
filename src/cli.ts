@@ -18,6 +18,8 @@ import { setupLogger } from './logs'
 import * as convert from './commands/convert'
 import * as process_ from './commands/process'
 import * as serve from './commands/serve'
+import * as build from './commands/build'
+import * as execute from './commands/execute'
 import * as system from './commands/system'
 import { extractDeps } from './boot'
 
@@ -54,6 +56,8 @@ const yargsDefinition = yargs.scriptName('stencila')
 convert.cli(yargsDefinition, cleanup)
 process_.cli(yargsDefinition, cleanup)
 serve.cli(yargsDefinition, cleanup)
+build.cli(yargsDefinition, cleanup)
+execute.cli(yargsDefinition, cleanup)
 system.cli(yargsDefinition, cleanup)
 
 // Add yargs options and parse the args
