@@ -15,6 +15,7 @@
     "./built/ImageObject.schema.json": "*.imageObject.yaml",
     "./built/Include.schema.json": "*.include.yaml",
     "./built/List.schema.json": "*.list.yaml",
+    "./built/ListItem.schema.json": "*.listItem.yaml",
     "./built/MediaObject.schema.json": "*mediaObject.yaml",
     "./built/Mount.schema.json": "*.mount.yaml",
     "./built/Organization.schema.json": "*.organization.yaml",

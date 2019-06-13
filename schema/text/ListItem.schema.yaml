@@ -8,7 +8,7 @@ properties:
   content:
     type: array
     items:
-      $ref: InlineContent.schema.yaml
+      $ref: BlockContent.schema.yaml
   checked:
     type: boolean
 required:

@@ -1,0 +1,8 @@
+type: ListItem
+content:
+  - Item Two, containing nested children
+  - type: List
+    content:
+      - Nested Item One
+      - Nested Item Two
+      - Nested Item Three
