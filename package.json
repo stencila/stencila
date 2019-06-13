@@ -37,7 +37,7 @@
     "url": "https://github.com/stencila/stencila/issues"
   },
   "dependencies": {
-    "@stencila/encoda": "^0.48.0",
+    "@stencila/encoda": "^0.49.0",
     "@stencila/logga": "^1.0.0",
     "body-parser": "^1.19.0",
     "browser-sync": "^2.26.7",
