@@ -6,7 +6,7 @@ Welcome to the main entry point to the Stencila ecosystem. This repo contains th
 
 [![NPM](http://img.shields.io/npm/v/stencila.svg?style=flat)](https://www.npmjs.com/package/stencila)
 [![Build status](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
-[![Code coverage](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila)
+[![Code coverage](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila) [![Greenkeeper badge](https://badges.greenkeeper.io/stencila/stencila.svg)](https://greenkeeper.io/)
 
 # Documentation
 
