@@ -1,0 +1,12 @@
+type: ListItem
+content:
+  # Nodes in list item `content` must be `BlockContent` nodes
+  - type: Paragraph
+    content:
+      - Item Two, containing nested children
+  - type: List
+    items:
+      # Items in a lis can be any `Node` type
+      - Nested Item One
+      - Nested Item Two
+      - Nested Item Three

@@ -1,0 +1,18 @@
+title: ListItem
+'@id': schema:ListItem
+$extends: ../Thing.schema.yaml
+role: tertiary
+status: stable
+description: A single item in a list.
+properties:
+  content:
+    '@id': stencila:content
+    type: array
+    items:
+      $ref: BlockContent.schema.yaml
+  checked:
+    '@id': stencila:checked
+    type: boolean
+    default: false
+required:
+  - content

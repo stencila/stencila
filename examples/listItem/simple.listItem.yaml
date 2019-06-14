@@ -1,0 +1,12 @@
+type: ListItem
+content:
+  # Nodes in list item `content` must be `BlockContent` nodes
+  - type: Paragraph
+    content:
+      - Item One
+  - type: Paragraph
+    content:
+      - Item Two
+  - type: Paragraph
+    content:
+      - Item Three
