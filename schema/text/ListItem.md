@@ -15,7 +15,7 @@ The `ListItem` schema represents a collection of items, which can be ordered or 
 
 ### Nested Ordered List Inside an Unordered List
 
-A list item can contain any valid [`Node`](/Node), meaning that lists can be nested and contain other block and inline elements.
+A list item can contain any valid [`BlockContent`](/schema/BlockContent), meaning that lists can be nested and/or contain other block elements.
 
 ```json
 {
