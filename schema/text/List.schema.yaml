@@ -11,7 +11,7 @@ properties:
     description: The items in the list
     type: array
     items:
-      $ref: Node.schema.yaml
+      $ref: ListItem.schema.yaml
   order:
     '@id': 'schema:itemListOrder'
     description: Type of ordering.

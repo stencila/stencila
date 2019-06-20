@@ -1,12 +1,22 @@
 type: List
 items:
-  - Item One
+  - type: ListItem
+    content:
+      - Item One
   - type: ListItem
     content:
       - Item Two, containing nested children
       - type: List
-        content:
-          - Nested Item One
-          - Nested Item Two
-          - Nested Item Three
-  - Item Three
+        items:
+          - type: ListItem
+            content:
+              - Nested Item One
+          - type: ListItem
+            content:
+              - Nested Item Two
+          - type: ListItem
+            content:
+              - Nested Item Three
+  - type: ListItem
+    content:
+      - Item Three

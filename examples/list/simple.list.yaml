@@ -1,5 +1,11 @@
 type: List
 items:
-  - Item One
-  - Item Two
-  - Item Three
+  - type: ListItem
+    content:
+      - Item One
+  - type: ListItem
+    content:
+      - Item Two
+  - type: ListItem
+    content:
+      - Item Three

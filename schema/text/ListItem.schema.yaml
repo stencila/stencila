@@ -9,7 +9,7 @@ properties:
     '@id': stencila:content
     type: array
     items:
-      $ref: BlockContent.schema.yaml
+      $ref: Node.schema.yaml
   checked:
     '@id': stencila:checked
     type: boolean

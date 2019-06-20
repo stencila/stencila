@@ -17,7 +17,7 @@ If an `order` field is not defined, the list is assumed to be `unordered`.
 
 ### Nested Ordered List Inside an Unordered List
 
-A [`ListItem`](/schema/ListItem) can contain any valid [`BlockContent`](/schema/BlockContent), meaning that lists can be nested and/or contain other block elements.
+A [`ListItem`](/schema/ListItem) can contain any valid `Node`, meaning that lists can be nested and/or contain other block elements.
 
 ```json
 {

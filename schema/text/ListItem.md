@@ -15,7 +15,7 @@ The `ListItem` schema represents a collection of items, which can be ordered or 
 
 ### Nested Ordered List Inside an Unordered List
 
-A list item can contain any valid [`BlockContent`](/schema/BlockContent), meaning that lists can be nested and/or contain other block elements.
+A list item can contain any valid `Node`, meaning that lists can be nested and/or contain other block elements.
 
 ```json
 {
@@ -54,7 +54,7 @@ completable, omit the `checked` field.
 [`<list-item>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/list-item.html)
 type.
 Note that JATS only permits the `ListItem` to contain either a
-[`Paragraph`](/schema/Paragraph) element, or another [`List`](/schema/List), while the Stencila equivalent is closer to HTML and accepts any valid [Block content](/schema/BlockContent).
+[`Paragraph`](/schema/Paragraph) element, or another [`List`](/schema/List), while the Stencila equivalent is closer to HTML and accepts any valid `Node`.
 
 ### mdast
 
@@ -65,6 +65,7 @@ Note that JATS only permits the `ListItem` to contain either a
 
 `ListItem` is analagous to the OpenDocument
 [`<text:list-item>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415154_253892949)
-element.
-Note that OpenDocument only permits the `ListItem` to contain either a
-[`Paragraph`](/schema/Paragraph) element, or another [`List`](/schema/List), while the Stencila equivalent is closer to HTML and accepts any valid [Block content](/schema/BlockContent).
+element. Note that OpenDocument only permits the `ListItem` to contain either
+a [`Paragraph`](/schema/Paragraph) element, or another
+[`List`](/schema/List), while the Stencila equivalent is closer to HTML and
+accepts any valid `Node`.
