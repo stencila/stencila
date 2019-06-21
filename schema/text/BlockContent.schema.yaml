@@ -5,6 +5,7 @@ anyOf:
   - $ref: CodeChunk.schema.yaml
   - $ref: Heading.schema.yaml
   - $ref: List.schema.yaml
+  - $ref: ListItem.schema.yaml
   - $ref: Paragraph.schema.yaml
   - $ref: QuoteBlock.schema.yaml
   - $ref: Table.schema.yaml
