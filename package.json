@@ -61,7 +61,7 @@
     "gatsby-transformer-json": "^2.1.11",
     "gatsby-transformer-yaml": "^2.1.11",
     "gulp": "^4.0.0",
-    "husky": "^2.4.1",
+    "husky": "^3.0.0",
     "js-yaml": "^3.13.1",
     "json-schema-ref-parser": "^7.0.1",
     "json-schema-to-typescript": "^6.1.3",
