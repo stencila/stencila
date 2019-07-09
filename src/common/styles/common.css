@@ -12,3 +12,9 @@ html {
 *:after {
   box-sizing: inherit;
 }
+
+@media screen and (max-width: 380px) {
+  .figure-table {
+    max-height: 80vh;
+  }
+}
