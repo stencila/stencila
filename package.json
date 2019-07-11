@@ -44,7 +44,7 @@
     "@mdx-js/mdx": "^1.0.5",
     "@mdx-js/react": "^1.0.2",
     "@mdx-js/tag": "^0.20.3",
-    "@types/fs-extra": "^7.0.0",
+    "@types/fs-extra": "^8.0.0",
     "ajv": "^6.10.0",
     "better-ajv-errors": "^0.6.4",
     "del": "^5.0.0",
