@@ -47,7 +47,7 @@
     "@types/fs-extra": "^7.0.0",
     "ajv": "^6.10.0",
     "better-ajv-errors": "^0.6.4",
-    "del": "^4.1.0",
+    "del": "^5.0.0",
     "gatsby": "^2.3.31",
     "gatsby-link": "^2.0.16",
     "gatsby-mdx": "^0.6.2",
