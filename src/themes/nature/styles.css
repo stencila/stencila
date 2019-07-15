@@ -1,0 +1,492 @@
+@import '../../common/styles/common.css';
+@import 'prismjs/themes/prism.css';
+@import '../../common/fonts/lora/lora.css';
+@import '../../common/fonts/sourceSansPro/sourceSansPro.css';
+
+:root {
+  --max-width: 680px;
+  --max-width-media: 980px;
+  --body-font: 'Lora', Palatino, Times, 'Times New Roman', serif;
+  --secondary-font: 'Source Sans Pro', Helvetica, Arial, sans-serif;
+  --heading-color: #eeeeee;
+}
+
+.publication,
+.authors,
+.institutions {
+  font-family: var(--secondary-font);
+  font-size: .875rem;
+}
+
+.author-details h4,
+.author-details h5,
+.author-details h6 {
+  padding-left: 0;
+}
+
+.author-details {
+  padding-left: 50px;
+}
+
+.authors li,
+.author-details li,
+.institutions li {
+  display: inline;
+}
+
+.publication a:link,
+.authors a:link,
+.institutions a:link {
+  font-style: normal;
+
+}
+
+.authors a:link::after,
+.institutions a:link::after {
+  display: none;
+}
+
+.publication,
+.authors,
+.institutions {
+  padding-left: 30px;
+}
+
+body:after {
+  position: absolute;
+  content: '';
+  right: 0;
+  top: 0;
+  width: 100%;
+  background-color: #920B24;
+  height: 39px;
+}
+
+h1 {
+  font-weight: 400;
+}
+
+h2 {
+  position: relative; /* child absolute */
+  /* negative offset = section padding */
+  margin: 0 -30px;
+  /* add back section padding value */
+  padding: 1.25rem 30px .275rem;
+  background: var(--heading-color);
+}
+
+h2:before {
+  content: "";
+  position: absolute;
+  /* fill vertically */
+  top: 0;
+  bottom: 0;
+  width: 9600px;
+  right: 100%;
+  background: var(--heading-color);
+}
+
+@media screen and (max-width: 719px) {
+  h2 {
+    padding: 1.25rem 0 .275rem;
+  }
+
+  h2:before {
+    z-index: -1;
+    right: -30px;
+  }
+}
+
+body {
+  font-family: var(--body-font);
+  font-size: 16px;
+  line-height: 1.65;
+  margin: 1rem;
+}
+
+html,
+body {
+  color: #363636;
+}
+
+article {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: center;
+}
+
+article > * {
+  width: 100%;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ul,
+ol,
+hr,
+a {
+  max-width: var(--max-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+figure,
+table,
+article > pre,
+img {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 125%;
+}
+
+p + h1,
+p + h2,
+p + h3,
+p + h4,
+p + h5,
+p + h6 {
+  margin-top: 2.25rem;
+}
+
+ol + h3,
+ol + h4,
+ol + h5,
+ol + h6,
+ul + h3,
+ul + h4,
+ul + h5,
+ul + h6 {
+  margin-top: 1.75rem;
+}
+
+li > *:first-child {
+  margin-top: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 2rem;
+}
+
+article > pre,
+figure {
+  background-color: #fff;
+  width: auto;
+  /* max-width: max-content; */
+  max-width: calc(var(--max-width) - 50px); /* desktop+ */
+  margin: 1.25rem auto;
+  border: 5px solid #dbdbdb;
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+figure img,
+figure pre {
+  padding: 1rem;
+}
+
+figure img {
+  display: block;
+  margin: 0 auto;
+}
+
+figure pre {
+  text-align: left;
+}
+
+figcaption {
+  font-size: 85%;
+  font-family: var(--secondary-font);
+  width: 100%;
+  padding: 1.5rem 1rem;
+}
+
+figcaption h6 {
+  font-family: var(--body-font);
+  font-size: 1rem;
+}
+
+figcaption p {
+  padding-left: 0
+}
+
+figcaption *:last-child {
+  margin-bottom: 0;
+}
+
+figcaption *:first-child {
+  margin-top: 0;
+}
+
+article > pre {
+  background-color: #fff !important;
+}
+
+pre {
+  font-size: 80% !important;
+}
+
+pre[class*="language-"] {
+  margin: .5em auto;
+}
+
+p {
+  hyphens: auto;
+  margin-bottom: 1.25rem;
+}
+
+a:link,
+a:visited {
+  position: relative;
+  text-decoration: none;
+  color: #006699;
+  font-style: italic;
+}
+
+a:link {
+  transition: color 125ms ease-in-out;
+}
+
+a:link:hover {
+  text-decoration: underline;
+}
+
+h1 + h2,
+h1:first-of-type {
+  padding-top: inherit;
+  margin-top: inherit;
+}
+
+h1:first-of-type {
+  font-weight: normal;
+}
+
+h1 + h2 {
+  text-transform: lowercase;
+  font-variant: small-caps;
+  letter-spacing: 1px;
+  font-size: 1.2rem;
+  color: #7a7a7a;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin: 2.75rem auto 1rem;
+  line-height: 1.25;
+}
+
+h1 {
+  margin-top: 0;
+  font-weight: 900;
+  font-size: 1.953rem;
+}
+
+h2 {
+  font-size: 1.563rem;
+}
+
+h3 {
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+h4 {
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+h5 {
+  font-size: 0.8rem;
+  margin-bottom: 0;
+}
+
+h6,
+small,
+.text_small {
+  font-size: 0.725rem;
+  margin-bottom: 0;
+}
+
+h1 + h1,
+h1 + h2,
+h1 + h3,
+h1 + h4,
+h1 + h5,
+h1 + h6,
+h2 + h1,
+h2 + h2,
+h2 + h4,
+h2 + h5,
+h2 + h6,
+h3 + h1,
+h3 + h2,
+h3 + h3,
+h3 + h4,
+h3 + h5,
+h3 + h6,
+h4 + h1,
+h4 + h2,
+h4 + h3,
+h4 + h4,
+h4 + h5,
+h4 + h6,
+h5 + h1,
+h5 + h2,
+h5 + h3,
+h5 + h4,
+h5 + h5,
+h5 + h6,
+h6 + h1,
+h6 + h2,
+h6 + h3,
+h6 + h4,
+h6 + h5,
+h6 + h6 {
+  margin-top: 0;
+}
+
+h2 + h3 {
+  margin-top: 1rem;
+}
+
+ul,
+ol {
+  padding: 0;
+}
+
+ul ul,
+ol ol,
+ul ol,
+ol ul {
+  padding-left: 1rem;
+}
+
+li * {
+  padding-left: 0;
+}
+
+table {
+  text-align: left;
+  border-collapse: collapse;
+  font-size: 80%;
+  overflow-x: auto;
+}
+
+thead {
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 75%;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #f5f5f5;
+}
+
+th {
+  font-weight: 900;
+  padding: 0.5em 1em;
+  border-right: solid 1px #f1f1f2;
+}
+
+tr:nth-child(even) {
+  background-color: #f5f5f5;
+}
+
+td {
+  border-right: solid 1px #f1f1f2;
+  padding: 0.25em 1em;
+}
+
+blockquote {
+  max-width: calc(var(--max-width) - 50px); /* desktop+ */
+  margin: 1.25rem auto;
+  color: #222222;
+  position: relative;
+  border-left: 5px solid #dadada;
+}
+
+blockquote *:first-child {
+  margin-top: 0;
+}
+
+blockquote *:last-child {
+  margin-bottom: 0;
+}
+
+blockquote * {
+  padding-left: 10px;
+  font-size: .875rem;
+}
+
+@media screen and (max-width: 719px) {
+  ul,
+  ol {
+    padding-left: 1.25rem;
+  }
+
+  /* Allow huge figures (e.g. tables) to be scrollable
+     on mobile in a smaller area (vs. displayed in full
+     width and height). */
+  figure,
+  pre[class*="language-"] {
+    max-width: 100%;
+    overflow-y: auto;
+  }
+}
+
+
+@media screen and (min-width: 720px) {
+  body {
+    margin: 4em 20vw 1em auto;
+  }
+
+  h1:first-of-type {
+    padding-left: 30px;
+  }
+
+  p,
+  h3,
+  h4,
+  h5,
+  ul,
+  ol {
+    padding-left: 50px; /* desktop+ */
+  }
+
+  article > pre,
+  pre[class*="language-"],
+  figure,
+  blockquote {
+    /* margin-left: 50px; */
+    max-width: calc(var(--max-width) - 80px);
+    margin: 1.25rem 0 1.25rem 50px;
+  }
+
+  blockquote {
+    max-width: calc(var(--max-width) - 50px);
+    margin-left: 1.25rem 0 1.25rem;
+
+  }
+  
+  blockquote > p {
+    padding-left: 10px;
+  }
+}
