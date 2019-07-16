@@ -1,16 +1,11 @@
 title: Delete
 '@id': stencila:Delete
-$extends: ../Thing.schema.yaml
+$extends: Mark.schema.yaml
 role: secondary
-status: experimental
-description: Deleted textual content.
-properties:
-  content:
-    '@id': 'stencila:content'
-    description: |
-      The content that is marked for deletion. Often indicated using a strike through style.
-    type: array
-    items:
-      $ref: InlineContent.schema.yaml
-required:
-  - content
+status: stable
+description: |
+  Content that is marked for deletion. Analagous to,
+    - HTML [`<del>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del)
+    - MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete)
+    - Pandoc [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258)
+properties: {}

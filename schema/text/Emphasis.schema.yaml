@@ -1,15 +1,12 @@
 title: Emphasis
 '@id': stencila:Emphasis
-$extends: ../Thing.schema.yaml
+$extends: Mark.schema.yaml
 role: secondary
-status: experimental
-description: Emphasised textual content.
-properties:
-  content:
-    '@id': 'stencila:content'
-    description: The content that is emphasised.
-    type: array
-    items:
-      $ref: InlineContent.schema.yaml
-required:
-  - content
+status: stable
+description: |
+  Emphasised content. Analagous to,
+    - JATS [`<italic>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/italic.html)
+    - HTML [`<em>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em)
+    - MDAST [`Emphasis`](https://github.com/syntax-tree/mdast#emphasis)
+    - Pandoc [`Emph`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L256)
+properties: {}

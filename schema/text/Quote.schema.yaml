@@ -1,21 +1,15 @@
-# Analagous to the <q> element in HTML
-# https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q
 title: Quote
 '@id': stencila:Quote
-$extends: ../Thing.schema.yaml
+$extends: Mark.schema.yaml
 role: secondary
 status: stable
-description: A short inline quote.
+description: |
+  Inline, quoted content. Analagous to,
+    - HTML [`<q>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q)
+    - Pandoc [`Quoted`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L262)
 properties:
   citation:
     '@id': schema:citation
-    description: The source of the quote
+    description: The source of the quote.
     type: string
     format: uri
-  content:
-    '@id': 'stencila:content'
-    type: array
-    items:
-      $ref: InlineContent.schema.yaml
-required:
-  - content

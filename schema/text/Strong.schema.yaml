@@ -1,15 +1,12 @@
 title: Strong
 '@id': stencila:Strong
-$extends: ../Thing.schema.yaml
+$extends: Mark.schema.yaml
 role: secondary
-status: experimental
-description: Strongly emphasised textual content.
-properties:
-  content:
-    '@id': 'stencila:content'
-    description: The content that is strongly emphasised.
-    type: array
-    items:
-      $ref: InlineContent.schema.yaml
-required:
-  - content
+status: stable
+description: |
+  Strongly emphasised content. Analagous to,
+    - JATS [`<bold>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/bold.html)
+    - HTML [`<strong>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong)
+    - MDAST [`Strong`](https://github.com/syntax-tree/mdast#strong)
+    - Pandoc [`Strong`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L257)
+properties: {}
