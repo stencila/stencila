@@ -16,6 +16,7 @@
 .institutions {
   font-family: var(--secondary-font);
   font-size: .875rem;
+  padding-left: 0;
 }
 
 .author-details h4,
@@ -44,12 +45,6 @@
 .authors a:link::after,
 .institutions a:link::after {
   display: none;
-}
-
-.publication,
-.authors,
-.institutions {
-  padding-left: 30px;
 }
 
 body:after {
@@ -101,7 +96,7 @@ body {
   font-family: var(--body-font);
   font-size: 16px;
   line-height: 1.65;
-  margin: 1rem;
+  margin: 4rem 1rem 1rem;
 }
 
 html,
@@ -436,6 +431,57 @@ blockquote * {
   font-size: .875rem;
 }
 
+
+.references {
+  list-style: none;
+  counter-reset: reference-counter;
+  margin: 0;
+  padding: 0;
+}
+
+.references > li {
+  counter-increment: reference-counter;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.references > li::before {
+  content: counter(reference-counter) ". ";
+  font-size: 24px;
+  margin-right: 0.5rem;
+  line-height: 1;
+  display: inline-block;
+  text-align: right;
+  width: 80px;
+}
+
+.references ol,
+.references ul {
+  margin-left: 90px;
+  padding-left: 0;
+}
+
+.references ol {
+  display: inline;
+}
+
+.references li > p:not(:first-child) {
+  padding-left: 0;
+  display: inline;
+}
+
+.references li > p:first-child {
+  padding-left: 0;
+  margin: -2rem 0 0 90px !important;
+}
+
+.references ol > li,
+.references ul > li {
+  display: inline;
+  padding-left: 0 !important;
+}
+
 @media screen and (max-width: 719px) {
   ul,
   ol {
@@ -454,6 +500,12 @@ blockquote * {
 
 
 @media screen and (min-width: 720px) {
+  .publication,
+  .authors,
+  .institutions {
+    padding-left: 30px;
+  }
+
   body {
     margin: 4em 20vw 1em auto;
   }
