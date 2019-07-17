@@ -3,9 +3,5 @@ title: Delete
 $extends: Mark.schema.yaml
 role: secondary
 status: stable
-description: |
-  Content that is marked for deletion. Analagous to,
-    - HTML [`<del>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del)
-    - MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete)
-    - Pandoc [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258)
+description: Content that is marked for deletion
 properties: {}
