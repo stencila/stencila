@@ -4,11 +4,8 @@ description: |
   A directive to include content from an external source (e.g. file, URL) or content.
 role: secondary
 status: experimental
+$extends: Thing.schema.yaml
 properties:
-  type:
-    description: The type of node.
-    type: string
-    const: Include
   source:
     description: The JSON Reference to the included content.
     type: string
