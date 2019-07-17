@@ -1,0 +1,5 @@
+type: Link
+content:
+  - Stencila’s website
+target: https://stenci.la
+relation: external

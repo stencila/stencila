@@ -1,0 +1,10 @@
+type: Paragraph
+content:
+  - Some text with some
+  - type: Emphasis
+    content:
+      - emphasised words
+  - ' and '
+  - type: Strong
+    content:
+      - some strongly emphasised words

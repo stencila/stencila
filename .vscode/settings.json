@@ -1,12 +1,11 @@
 {
   "yaml.schemas": {
-    "https://json-schema.org/draft-07/schema": "*.schema.yaml",
     "./built/Article.schema.json": "*.article.yaml",
     "./built/AudioObject.schema.json": "*audioObject.yaml",
     "./built/Brand.schema.json": "*.brand.yaml",
+    "./built/Collection.schema.json": "collection.*.yaml",
     "./built/ContactPoint.schema.json": "*.contactPoint.yaml",
     "./built/CreativeWork.schema.json": "*.creativeWork.yaml",
-    "./built/Collection.schema.json": "collection.*.yaml",
     "./built/Datatable.schema.json": "*.datatable.yaml",
     "./built/DatatableColumn.json": "*.datatableColumn.yaml",
     "./built/Document.schema.json": "*.document.yaml",
@@ -14,6 +13,7 @@
     "./built/Heading.schema.json": "*.heading.yaml",
     "./built/ImageObject.schema.json": "*.imageObject.yaml",
     "./built/Include.schema.json": "*.include.yaml",
+    "./built/Link.schema.json": "*.link.yaml",
     "./built/List.schema.json": "*.list.yaml",
     "./built/ListItem.schema.json": "*.listItem.yaml",
     "./built/MediaObject.schema.json": "*mediaObject.yaml",
@@ -29,10 +29,15 @@
     "./built/SoftwareApplication.schema.json": "*.softwareApplication.yaml",
     "./built/SoftwareSession.schema.json": "*.softwareSession.yaml",
     "./built/SoftwareSourceCode.json": "*.softwareSourceCode.yaml",
+    "./built/Strong.schema.json": "*.strong.yaml",
     "./built/Table.schema.json": "*.table.yaml",
     "./built/TableCell.schema.json": "*.tableCell.yaml",
     "./built/TableRow.schema.json": "*.tableRow.yaml",
-    "./built/VideoObject.schema.json": "*videoObject.yaml"
+    "./built/ThematicBreak.schema.json": "*.thematicBreak.yaml",
+    "./built/VideoObject.schema.json": "*videoObject.yaml",
+    "./built/Quote.schema.json": "*quote.yaml",
+    "./built/QuoteBlock.schema.json": "*quoteBlock.yaml",
+    "https://json-schema.org/draft-07/schema": "*.schema.yaml"
   },
   "cSpell.words": ["stencila"]
 }
