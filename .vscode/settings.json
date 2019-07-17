@@ -28,6 +28,7 @@
     "./built/SoftwareApplication.schema.json": "*.softwareApplication.yaml",
     "./built/SoftwareSession.schema.json": "*.softwareSession.yaml",
     "./built/SoftwareSourceCode.json": "*.softwareSourceCode.yaml",
+    "./built/Strong.schema.json": "*.strong.yaml",
     "./built/Table.schema.json": "*.table.yaml",
     "./built/TableCell.schema.json": "*.tableCell.yaml",
     "./built/TableRow.schema.json": "*.tableRow.yaml",
