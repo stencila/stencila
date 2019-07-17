@@ -1,0 +1,6 @@
+type: QuoteBlock
+content:
+  - type: Paragraph
+    content:
+      - 'If you wish to make an apple pie from scratch, you must first invent the universe.'
+      - 'by Carl Sagan - Cosmos'

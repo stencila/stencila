@@ -35,6 +35,7 @@
     "./built/ThematicBreak.schema.json": "*.thematicBreak.yaml",
     "./built/VideoObject.schema.json": "*videoObject.yaml",
     "./built/Quote.schema.json": "*quote.yaml",
+    "./built/QuoteBlock.schema.json": "*quoteBlock.yaml",
     "https://json-schema.org/draft-07/schema": "*.schema.yaml"
   },
   "cSpell.words": ["stencila"]
