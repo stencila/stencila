@@ -13,6 +13,7 @@
     "./built/Heading.schema.json": "*.heading.yaml",
     "./built/ImageObject.schema.json": "*.imageObject.yaml",
     "./built/Include.schema.json": "*.include.yaml",
+    "./built/Link.schema.json": "*.link.yaml",
     "./built/List.schema.json": "*.list.yaml",
     "./built/ListItem.schema.json": "*.listItem.yaml",
     "./built/MediaObject.schema.json": "*mediaObject.yaml",
