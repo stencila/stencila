@@ -6,7 +6,3 @@
 
 ### Generated files ###
 types.ts
-
-### Gatsby ###
-.cache
-public

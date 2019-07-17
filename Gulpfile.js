@@ -1,13 +1,11 @@
 const { src, parallel, series, watch } = require('gulp')
 const Ajv = require('ajv')
 const betterAjvErrors = require('better-ajv-errors')
-const del = require('del')
 const fs = require('fs-extra')
 const globby = require('globby')
 const jls = require('vscode-json-languageservice')
 const jstt = require('json-schema-to-typescript')
 const path = require('path')
-const refParser = require('json-schema-ref-parser')
 const through2 = require('through2')
 const yaml = require('js-yaml')
 
@@ -482,7 +480,9 @@ function test() {
  * Clean up!
  */
 function clean() {
-  return del(['dist', 'built', 'types.ts'])
+  return Promise.all([
+    'dist', 'built', 'types.ts'
+  ].map(dir => fs.remove(dir)))
 }
 
 exports.jsonschema = jsonschema
