@@ -4,6 +4,7 @@ const { src, parallel, series, watch } = require('gulp')
 const Ajv = require('ajv')
 const betterAjvErrors = require('better-ajv-errors')
 const encoda = require('@stencila/encoda')
+const encodaProcess = require('@stencila/encoda/dist/process').default
 const fs = require('fs-extra')
 const globby = require('globby')
 const jls = require('vscode-json-languageservice')
@@ -489,7 +490,11 @@ async function docs() {
     const { title } = schema
 
     const mdFile = path.join('schema', `${title}.md`)
-    const md = (await fs.pathExists(mdFile)) ? await encoda.read(mdFile) : null
+    let md
+    if (await fs.pathExists(mdFile)) {
+      md = await encoda.read(mdFile)
+      md = await encodaProcess(md)
+    }
 
     const article = schema2Article(schema, md)
 

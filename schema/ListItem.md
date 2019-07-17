@@ -6,7 +6,7 @@ The `ListItem` schema represents a collection of items, which can be ordered or 
 
 ### Simple
 
-```json
+```json validate
 {
   "type": "ListItem",
   "content": ["List Item Content"]
@@ -17,7 +17,7 @@ The `ListItem` schema represents a collection of items, which can be ordered or 
 
 A list item can contain any valid `Node`, meaning that lists can be nested and/or contain other block elements.
 
-```json
+```json validate
 {
   "type": "ListItem",
   "content": [
@@ -29,7 +29,6 @@ A list item can contain any valid `Node`, meaning that lists can be nested and/o
     }
   ]
 }
-}
 ```
 
 ### Checklist
@@ -38,7 +37,7 @@ If the `checked` field is present, the `ListItem` is considered to be
 completable (either done or not done). To indicate that a `ListItem` is _not_
 completable, omit the `checked` field.
 
-```json
+```json validate
 {
   "type": "ListItem",
   "checked": true,

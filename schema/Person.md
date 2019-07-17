@@ -14,7 +14,7 @@ See https://github.com/stencila/schema/issues/45
 
 Dr Curie can be represented in canonical Stencila JSON by:
 
-```json
+```json validate
 {
   "type": "Person",
   "honorificPrefix": "Dr",
@@ -26,10 +26,9 @@ Dr Curie can be represented in canonical Stencila JSON by:
 
 YAML provides a more readable format for providing details about a person in places like Markdown front-matter. In the following example, we take advantage of [property aliases](/docs/property-aliases) to use the shorter `prefix` and `suffix` property names, and the US convention of `firstNames` and `lastName` (instead of `givenNames` and `familyNames`). We also use [property parsing](/docs/property-parsing) to be be able to write `firstNames` as a space separated values.
 
-```markdown
+```md coerce
 ---
 title: Recherches sur les substances radioactives
-datePublished: 1904
 authors:
   - prefix: Dr
     firstNames: Marie Skłodowska
@@ -42,17 +41,16 @@ Le présent travail a pour but d'exposer les recherches que je poursuis depuis p
 
 We can shorten this further by specifying Dr Curie's details as a string:
 
-```yaml
+```yaml coerce
 type: Article
 title: Recherches sur les substances radioactives
-datePublished: 1904
 authors:
   - Dr Marie Skłodowska Curie PhD
 ```
 
 If there had been email and web pages in the 1900s then we could also add those for her and her colleagues:
 
-```yaml
+```yaml coerce
 type: Article
 title: The Radioactive Constants as of 1930 Report of the International Radium-Standards Commission
 year: 1931

@@ -33,7 +33,7 @@
   "homepage": "https://stencila.github.io/schema",
   "devDependencies": {
     "@stencila/dev-config": "^1.1.2",
-    "@stencila/encoda": "^0.55.1",
+    "@stencila/encoda": "^0.56.0",
     "ajv": "^6.10.2",
     "better-ajv-errors": "^0.6.4",
     "fs-extra": "^8.1.0",
