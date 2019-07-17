@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/strict-boolean-expressions */
+
 const { src, parallel, series, watch } = require('gulp')
 const Ajv = require('ajv')
 const betterAjvErrors = require('better-ajv-errors')
@@ -51,7 +53,7 @@ function processSchema(schemas, aliases, schema) {
     if (schema.properties) {
       schema.type = 'object'
 
-      let typesAliases = {}
+      const typesAliases = {}
       for (const [name, property] of Object.entries(schema.properties)) {
         schema.properties[name].from = schema.title
 
@@ -78,9 +80,21 @@ function processSchema(schemas, aliases, schema) {
     }
 
     if (schema.$extends) {
+      const parent = schema => {
+        if (!schema.$extends) return null
+        const parentPath = path.join(
+          path.dirname(schema.source),
+          schema.$extends
+        )
+        const parent = schemas.get(parentPath)
+        if (!parent)
+          throw new Error(`Schema in "$extends" not found for: "${parentPath}"`)
+        return parent
+      }
+
       // Get the base schema and ensure that it
       // has been processed (to collect properties)
-      let base = parent(schema)
+      const base = parent(schema)
       processSchema(schemas, aliases, base)
 
       // Do extension of properties from base
@@ -97,32 +111,19 @@ function processSchema(schemas, aliases, schema) {
         ancestor.descendants.push(schema.title)
         ancestor = parent(ancestor)
       }
-
-      function parent(schema) {
-        if (!schema.$extends) return null
-        const parentPath = path.join(
-          path.dirname(schema.source),
-          schema.$extends
-        )
-        const parent = schemas.get(parentPath)
-        if (!parent)
-          throw new Error(`Schema in "$extends" not found for: "${parentPath}"`)
-        return parent
-      }
     }
 
     if (path.extname(schema.source) === '.yaml') {
       // Replace any `$ref`s to YAML with a ref to the JSON generated in this function
-      walk(schema)
-
-      function walk(node) {
+      const walk = node => {
         if (typeof node !== 'object') return
-        for (let [key, child] of Object.entries(node)) {
+        for (const [key, child] of Object.entries(node)) {
           if (key === '$ref' && typeof child === 'string')
             node[key] = path.basename(child).replace('.yaml', '.json')
           walk(child)
         }
       }
+      walk(schema)
     }
 
     schema.$processed = true
@@ -145,8 +146,8 @@ async function jsonschema() {
   const schemas = new Map(
     await Promise.all(
       filePaths.map(async filePath => {
-        let source = path.relative('schema', filePath)
-        let schema = yaml.safeLoad(await fs.readFile(filePath))
+        const source = path.relative('schema', filePath)
+        const schema = yaml.safeLoad(await fs.readFile(filePath))
         return [source, { ...schema, source }]
       })
     )
@@ -154,11 +155,11 @@ async function jsonschema() {
 
   // Process each of the schemas collecting aliases along the way
   const aliases = {}
-  for (let schema of schemas.values()) processSchema(schemas, aliases, schema)
+  for (const schema of schemas.values()) processSchema(schemas, aliases, schema)
 
   // Do final processing and write schema objects to file
   await fs.ensureDir('built')
-  for (let schema of schemas.values()) {
+  for (const schema of schemas.values()) {
     // Generate the destination path from the source and then
     // rewrite source so that it can be use for a "Edit this schema" link in docs.
     const destPath = path.join(
@@ -223,8 +224,8 @@ async function jsonschema() {
   // Copy the built files into `dist` for publishing package
   await fs.ensureDir('dist')
   await Promise.all(
-    (await globby('built/**/*')).map(
-      async file => await fs.copy(file, path.join('dist', file))
+    (await globby('built/**/*')).map(async file =>
+      fs.copy(file, path.join('dist', file))
     )
   )
 }
@@ -276,7 +277,7 @@ function jsonld() {
             schema.properties ||
             (schema.allOf && schema.allOf[1] && schema.allOf[1].properties)
           if (typeProperties) {
-            for (let [name, property] of Object.entries(typeProperties)) {
+            for (const [name, property] of Object.entries(typeProperties)) {
               const pid = property['@id']
               if (!pid) continue
               if (pid.startsWith('stencila:')) {
@@ -330,7 +331,7 @@ function jsonld() {
           }
         }
         // Add types and properties alphabetically
-        for (let [key, value] of [
+        for (const [key, value] of [
           ...[...Object.entries(types)].sort(),
           ...[...Object.entries(properties)].sort()
         ])
@@ -351,7 +352,7 @@ async function ts() {
   const src = 'built/types.schema.json'
   const dest = 'types.ts'
   const options = {
-    bannerComment: `/* tslint:disable */
+    bannerComment: `/* eslint-disable */
 /**
  * This file was automatically generated.
  * Do not modify it by hand. Instead, modify the source \`.schema.yaml\` file
@@ -360,7 +361,7 @@ async function ts() {
  `
   }
   const ts = await jstt.compileFromFile(src, options)
-  fs.writeFileSync(dest, ts)
+  return fs.writeFile(dest, ts)
 }
 
 /**
@@ -410,8 +411,8 @@ function test() {
           `https://stencila.github.com/schema/${type}.schema.json`
         )
         if (!validator) {
-          let schema = await fs.readJSON(
-            path.join('built', type + '.schema.json')
+          const schema = await fs.readJSON(
+            path.join('built', `${type}.schema.json`)
           )
           validator = await ajv.compileAsync(schema)
         }
@@ -444,7 +445,7 @@ function test() {
               .parseJSONDocument(textDoc)
             const errors = jsonDoc.validate(textDoc, validator.schema)
 
-            for (let error of errors) {
+            for (const error of errors) {
               if (!contents.includes(error.message)) {
                 throw new Error(
                   `💣  Oh, oh, "${relativePath}" is expected to contain the comment "${
@@ -480,9 +481,7 @@ function test() {
  * Clean up!
  */
 function clean() {
-  return Promise.all([
-    'dist', 'built', 'types.ts'
-  ].map(dir => fs.remove(dir)))
+  return Promise.all(['dist', 'built', 'types.ts'].map(dir => fs.remove(dir)))
 }
 
 exports.jsonschema = jsonschema

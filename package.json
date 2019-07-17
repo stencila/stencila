@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "lint": "prettier --write './**/*.{ts,tsx,js,jsx,json,css,md,mdx,yaml}'",
+    "lint": "prettier --write './**/*.{js,json,md,ts,yaml}' && eslint './**/*.{js,ts}' --fix",
     "test": "gulp test",
     "build": "npm run build:schema",
     "build:jsonschema": "gulp jsonschema",
@@ -22,44 +22,59 @@
     "type": "git",
     "url": "https://github.com/stencila/schema.git"
   },
-  "author": "Stencila schema contributors https://github.com/stencila/schema/contributors",
+  "author": "Contributors https://github.com/stencila/schema/contributors",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/stencila/schema/issues"
   },
   "homepage": "https://stencila.github.io/schema",
   "devDependencies": {
-    "@types/fs-extra": "^8.0.0",
-    "ajv": "^6.10.0",
+    "@stencila/dev-config": "^1.1.2",
+    "ajv": "^6.10.2",
     "better-ajv-errors": "^0.6.4",
-    "fs-extra": "^8.0.1",
-    "globby": "^9.2.0",
-    "gulp": "^4.0.0",
+    "fs-extra": "^8.1.0",
+    "globby": "^10.0.1",
+    "gulp": "^4.0.2",
     "husky": "^3.0.0",
     "js-yaml": "^3.13.1",
-    "json-schema-ref-parser": "^7.0.1",
     "json-schema-to-typescript": "^6.1.3",
-    "lint-staged": "^8.1.5",
     "markdown-toc": "^1.2.0",
-    "prettier": "^1.17.0",
-    "semantic-release": "^15.13.12",
     "through2": "^3.0.1",
-    "typescript": "^3.4.3",
+    "typescript": "^3.5.3",
     "vscode-json-languageservice": "^3.2.0"
   },
-  "prettier": {
-    "singleQuote": true,
-    "semi": false
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "scope-case": [
+        2,
+        "always",
+        "sentence-case"
+      ],
+      "subject-case": [
+        2,
+        "always",
+        "sentence-case"
+      ]
     }
   },
-  "lint-staged": {
-    "./**/*.{ts,tsx,js,jsx,json,css,md,mdx,yaml}": [
-      "prettier --write",
-      "git add"
-    ]
+  "eslintConfig": {
+    "extends": "@stencila/eslint-config"
+  },
+  "eslintIgnore": [
+    "build",
+    "dist"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "prettier": "@stencila/dev-config/prettier-config.json",
+  "release": {
+    "extends": "@stencila/semantic-release-config"
   }
 }
