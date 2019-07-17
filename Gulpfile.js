@@ -572,12 +572,12 @@ exports.jsonld = series(jsonschema, jsonld)
 exports.ts = series(jsonschema, ts)
 exports.test = series(jsonschema, test)
 exports.docs = series(jsonschema, docs)
-exports.build = series(
+exports.all = series(
   clean,
   jsonschema,
   parallel(check, test),
   parallel(jsonld, ts, docs)
 )
 exports.watch = () =>
-  watch(['schema', 'examples'], { ignoreInitial: false }, exports.build)
+  watch(['schema', 'examples'], { ignoreInitial: false }, exports.all)
 exports.clean = clean

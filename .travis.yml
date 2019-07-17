@@ -5,6 +5,7 @@ script:
   - npm run lint
   - npm run test
   - npm run build
+  - npm run docs
 
 deploy:
   # Deploy a new version of NPM package and create a Github release

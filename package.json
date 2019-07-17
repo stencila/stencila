@@ -10,10 +10,9 @@
   "scripts": {
     "lint": "prettier --write './**/*.{js,json,md,ts,yaml}' && eslint './**/*.{js,ts}' --fix",
     "test": "gulp test",
-    "build": "npm run build:schema",
+    "build": "npm run build:ts",
     "build:jsonschema": "gulp jsonschema",
     "build:jsonld": "gulp jsonld",
-    "build:schema": "npm run build:jsonschema && npm run build:jsonld && npm run build:ts",
     "build:ts": "gulp ts && tsc",
     "docs": "npm run docs:readme && npm run docs:build",
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
