@@ -1,6 +1,6 @@
 title: Organization
 '@id': schema:Organization
-$extends: ../Thing.schema.yaml
+$extends: Thing.schema.yaml
 role: secondary
 status: unstable
 description: An organization such as a school, NGO, corporation, club, etc. https://schema.org/Organization.

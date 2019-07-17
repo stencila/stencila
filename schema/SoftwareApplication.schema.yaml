@@ -1,6 +1,6 @@
 title: SoftwareApplication
 '@id': schema:SoftwareApplication
-$extends: ../CreativeWork.schema.yaml
+$extends: CreativeWork.schema.yaml
 role: primary
 status: unstable
 description: |

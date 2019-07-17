@@ -1,6 +1,6 @@
 title: Mark
 '@id': stencila:Mark
-$extends: ../Thing.schema.yaml
+$extends: Thing.schema.yaml
 role: base
 status: stable
 description: |

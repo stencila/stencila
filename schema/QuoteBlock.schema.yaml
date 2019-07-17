@@ -1,6 +1,6 @@
 title: QuoteBlock
 '@id': stencila:QuoteBlock
-$extends: ../Thing.schema.yaml
+$extends: Thing.schema.yaml
 role: secondary
 status: stable
 description: |

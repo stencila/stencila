@@ -1,6 +1,6 @@
 title: Code
 '@id': stencila:Code
-$extends: ../Thing.schema.yaml
+$extends: Thing.schema.yaml
 role: secondary
 status: stable
 description: Inline code.

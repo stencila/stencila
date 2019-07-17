@@ -1,6 +1,6 @@
 title: Environment
 '@id': stencila:Environment
-$extends: ../Thing.schema.yaml
+$extends: Thing.schema.yaml
 role: primary
 status: experimental
 description: A computational environment.

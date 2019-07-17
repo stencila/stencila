@@ -1,6 +1,6 @@
 title: Link
 '@id': stencila:Link
-$extends: ../Thing.schema.yaml
+$extends: Thing.schema.yaml
 role: secondary
 status: unstable
 description: A link.

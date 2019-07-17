@@ -1,6 +1,6 @@
 title: Brand
 '@id': schema:Brand
-$extends: ../Thing.schema.yaml
+$extends: Thing.schema.yaml
 role: tertiary
 status: unstable
 description: |

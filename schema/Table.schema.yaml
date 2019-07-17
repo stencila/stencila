@@ -1,6 +1,6 @@
 title: Table
 '@id': schema:Table
-$extends: ../CreativeWork.schema.yaml
+$extends: CreativeWork.schema.yaml
 role: primary
 status: unstable
 description: A table.

@@ -1,6 +1,6 @@
 title: MediaObject
 '@id': schema:MediaObject
-$extends: ../CreativeWork.schema.yaml
+$extends: CreativeWork.schema.yaml
 role: base
 status: stable
 description: |

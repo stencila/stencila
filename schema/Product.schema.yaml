@@ -1,6 +1,6 @@
 title: Product
 '@id': schema:Product
-$extends: ../Thing.schema.yaml
+$extends: Thing.schema.yaml
 role: tertiary
 status: stable
 description: |

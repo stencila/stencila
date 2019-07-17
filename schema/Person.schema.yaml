@@ -1,6 +1,6 @@
 title: Person
 '@id': schema:Person
-$extends: ../Thing.schema.yaml
+$extends: Thing.schema.yaml
 role: secondary
 status: stable
 description: A person (alive, dead, undead, or fictional). https://schema.org/Person.
