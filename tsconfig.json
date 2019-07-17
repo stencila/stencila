@@ -19,6 +19,5 @@
     /* Avoid `import * as` syntax */
     "esModuleInterop": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["dist/"]
+  "include": ["index.ts"]
 }
