@@ -3,6 +3,7 @@
 const { src, parallel, series, watch } = require('gulp')
 const Ajv = require('ajv')
 const betterAjvErrors = require('better-ajv-errors')
+const encoda = require('@stencila/encoda')
 const fs = require('fs-extra')
 const globby = require('globby')
 const jls = require('vscode-json-languageservice')
@@ -221,10 +222,10 @@ async function jsonschema() {
   }
   await fs.writeJSON('built/types.schema.json', types, { spaces: 2 })
 
-  // Copy the built files into `dist` for publishing package
+  // Copy the built JSON files into `dist` for publishing package
   await fs.ensureDir('dist')
   await Promise.all(
-    (await globby('built/**/*')).map(async file =>
+    (await globby('built/**/*.json')).map(async file =>
       fs.copy(file, path.join('dist', file))
     )
   )
@@ -478,6 +479,82 @@ function test() {
 }
 
 /**
+ * Generate docs for each `.schema.json` file,
+ * using associated `.md` file, if any.
+ */
+async function docs() {
+  const schemas = await globby('built/*.schema.json')
+  const htmls = schemas.map(async jsonFile => {
+    const schema = await fs.readJSON(jsonFile)
+    const { title } = schema
+
+    const mdFile = path.join('schema', `${title}.md`)
+    const md = (await fs.pathExists(mdFile)) ? await encoda.read(mdFile) : null
+
+    const article = schema2Article(schema, md)
+
+    const htmlFile = path.join('built', `${title}.html`)
+    return encoda.write(article, htmlFile)
+  })
+  return Promise.all(htmls)
+}
+
+/**
+ * Create an article from a JSON schema object
+ */
+function schema2Article(schema, extra) {
+  const { title = 'Untitled', properties = {} } = schema
+
+  const propertiesTable = {
+    type: 'Table',
+    rows: Object.entries(properties)
+      // TODO: Maybe sort properties in ascending order of inheritance depth
+      // and then alphabetically, like schema.org
+      .map(([name, prop]) => {
+        const { description = '', type = '', from = '' } = prop
+        return {
+          type: 'TableRow',
+          cells: [
+            {
+              type: 'TableCell',
+              content: [from]
+            },
+            {
+              type: 'TableCell',
+              content: [name]
+            },
+            {
+              type: 'TableCell',
+              content: [description]
+            },
+            {
+              type: 'TableCell',
+              content: [type]
+            }
+          ]
+        }
+      })
+  }
+
+  const article = {
+    type: 'Article',
+    title,
+    authors: [],
+    content: [
+      {
+        type: 'Paragraph',
+        content: [schema.description || '']
+      },
+      propertiesTable,
+      // Append the extended docs from the markdown file
+      ...(extra ? extra.content : [])
+    ]
+  }
+
+  return article
+}
+
+/**
  * Clean up!
  */
 function clean() {
@@ -489,11 +566,12 @@ exports.check = series(jsonschema, check)
 exports.jsonld = series(jsonschema, jsonld)
 exports.ts = series(jsonschema, ts)
 exports.test = series(jsonschema, test)
+exports.docs = series(jsonschema, docs)
 exports.build = series(
   clean,
   jsonschema,
   parallel(check, test),
-  parallel(jsonld, ts)
+  parallel(jsonld, ts, docs)
 )
 exports.watch = () =>
   watch(['schema', 'examples'], { ignoreInitial: false }, exports.build)

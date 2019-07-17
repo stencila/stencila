@@ -5,11 +5,6 @@ script:
   - npm run lint
   - npm run test
   - npm run build
-  - npm run docs
-
-before_deploy:
-  # Copy built files into `public` for deployment of JSON Schema and JSON LD to Github pages
-  - mkdir -p public && cp built/* public
 
 deploy:
   # Deploy a new version of NPM package and create a Github release
@@ -22,6 +17,6 @@ deploy:
   - provider: pages
     skip-cleanup: true
     github-token: $GITHUB_TOKEN
-    local-dir: public
+    local-dir: built
     on:
       branch: master
