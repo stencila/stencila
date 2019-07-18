@@ -23,7 +23,7 @@ Content that is marked for deletion
 
 To illustrate how `Delete` nodes are encoded in alternative formats, we'll use the following example, in context, within a `Paragraph`:
 
-```json import=inpara
+```json import=ex1
 {
   "type": "Paragraph",
   "content": [
@@ -41,30 +41,47 @@ To illustrate how `Delete` nodes are encoded in alternative formats, we'll use t
 
 include: ../docs/type-encodings-intro.md
 :::
-This section
+This section describes common encodings for this node type. These samples are generated from the above examples by [Encoda](https://stencila.github.io/encoda), but you can also author them in each format.
 :::
-
-## HTML
-
-HTML natively supports `Delete` nodes with the [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del) element.
-
-```html export=inpara
-<p>The following is <del>marked for deletion</del>.</p>
-```
 
 ## Markdown
 
 Most Markdown parsers support the use of tildes (`~`) to mark content for deletion. For example, MDAST also has a [`Delete`](https://github.com/syntax-tree/mdast#delete) node type, which renders the above example like this:
 
-```md export=inpara
+```md export=ex1
 The following is ~~marked for deletion~~.
 ```
+
+## HTML
+
+HTML natively supports `Delete` nodes with the [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del) element.
+
+```html export=ex1
+<p>The following is <del>marked for deletion</del>.</p>
+```
+
+## JATS
+
+In JATS, `Delete` nodes are encoded as [`<strike>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/strike.html) elements.
+
+```xml export=ex1 to=jats
+<p>The following is <strike>marked for deletion</strike>.</p>
+
+```
+
+## Microsoft Word
+
+> Currently unable to generate an example encoding in docx because templates are not packaged to the right place in Encoda.
+
+## Open Document Text
+
+`Delete` nodes are supported in Open Document Text files. This [`odt`](delete-ex1.out.odt){export=ex1} file was generated from the above example.
 
 ## Pandoc
 
 The equivalent of `Delete` in Pandoc is the [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258) element. The above example in Pandoc JSON:
 
-```json export=inpara to=pandoc
+```json export=ex1 to=pandoc
 {
   "blocks": [
     {

@@ -21,22 +21,36 @@ async function docs() {
   const schemas = await globby('built/*.schema.json')
 
   await Promise.all(schemas.map(async jsonFile => {
-    const schema = await fs.readJSON(jsonFile)
-    const { title } = schema
+    try {
+      const schema = await fs.readJSON(jsonFile)
+      const { title } = schema
 
-    const article = schema2Article(schema)
-    const schemaMdFile = path.join('built', `${title}.schema.md`)
-    await encoda.write(article, schemaMdFile)
+      const article = schema2Article(schema)
+      const schemaMdFile = path.join('built', `${title}.schema.md`)
+      await encoda.write(article, schemaMdFile)
 
-    const mdFile = path.join('schema', `${title}.md`)
-    if (await fs.pathExists(mdFile)) {
-      const article = await encoda.read(mdFile)
-      const processed = await encodaProcess(article, path.dirname(mdFile))
+      const mdFile = path.join('schema', `${title}.md`)
+      if (await fs.pathExists(mdFile)) {
+        const article = await encoda.read(mdFile)
+        const processed = await encodaProcess(article, path.dirname(mdFile))
 
-      const htmlFile = path.join('built', `${title}.html`)
-      await encoda.write(processed, htmlFile)
+        const htmlFile = path.join('built', `${title}.html`)
+        await encoda.write(processed, htmlFile)
+      }
+    } catch(error) {
+      console.error(error)
     }
   }))
+
+  // Cover over any files generated during processing
+  // so that links in HTML files work
+  const outs = await globby('schema/*.out.*')
+  console.log(outs)
+  await Promise.all(
+    outs.map(async file => {
+      fs.copy(file, path.join('built', path.basename(file)))
+    })
+  )
 }
 
 /**

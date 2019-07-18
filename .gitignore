@@ -5,3 +5,4 @@
 
 ### Generated files ###
 types.ts
+*.out.*
