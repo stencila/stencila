@@ -2,12 +2,16 @@
  * Generate documentation
  */
 
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+
 import * as encoda from '@stencila/encoda'
 import encodaProcess from '@stencila/encoda/dist/process'
 import fs from 'fs-extra'
 import globby from 'globby'
 import path from 'path'
+import * as stencila from 'stencila'
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 docs()
 
 /**
@@ -17,30 +21,32 @@ docs()
  * The generated `built/*.schema.md` file should normally
  * in `include`d into the `schema/*.md` file for the type.
  */
-async function docs() {
+async function docs(): Promise<void> {
   const schemas = await globby('built/*.schema.json')
 
-  await Promise.all(schemas.map(async jsonFile => {
-    try {
-      const schema = await fs.readJSON(jsonFile)
-      const { title } = schema
+  await Promise.all(
+    schemas.map(async jsonFile => {
+      try {
+        const schema = await fs.readJSON(jsonFile)
+        const { title } = schema
 
-      const article = schema2Article(schema)
-      const schemaMdFile = path.join('built', `${title}.schema.md`)
-      await encoda.write(article, schemaMdFile)
+        const article = schema2Article(schema)
+        const schemaMdFile = path.join('built', `${title}.schema.md`)
+        await encoda.write(article, schemaMdFile)
 
-      const mdFile = path.join('schema', `${title}.md`)
-      if (await fs.pathExists(mdFile)) {
-        const article = await encoda.read(mdFile)
-        const processed = await encodaProcess(article, path.dirname(mdFile))
+        const mdFile = path.join('schema', `${title}.md`)
+        if (await fs.pathExists(mdFile)) {
+          const article = await encoda.read(mdFile)
+          const processed = await encodaProcess(article, path.dirname(mdFile))
 
-        const htmlFile = path.join('built', `${title}.html`)
-        await encoda.write(processed, htmlFile)
+          const htmlFile = path.join('built', `${title}.html`)
+          await encoda.write(processed, htmlFile)
+        }
+      } catch (error) {
+        console.error(error)
       }
-    } catch(error) {
-      console.error(error)
-    }
-  }))
+    })
+  )
 
   // Cover over any files generated during processing
   // so that links in HTML files work
@@ -48,7 +54,7 @@ async function docs() {
   console.log(outs)
   await Promise.all(
     outs.map(async file => {
-      fs.copy(file, path.join('built', path.basename(file)))
+      return fs.copy(file, path.join('built', path.basename(file)))
     })
   )
 }
@@ -57,7 +63,7 @@ async function docs() {
  * Create an article from a JSON schema object using
  * properties like `description`, `parent` etc.
  */
-function schema2Article(schema: {[key: string]: any}) {
+function schema2Article(schema: { [key: string]: any }): stencila.Article {
   const { title = 'Untitled', properties = {} } = schema
 
   const propertiesTable = {
@@ -91,7 +97,7 @@ function schema2Article(schema: {[key: string]: any}) {
       })
   }
 
-  const article = {
+  const article: stencila.Article = {
     type: 'Article',
     title,
     authors: [],

@@ -17,6 +17,7 @@ Content that is marked for deletion
 | Thing | url            | The URL of the item.                           | string |
 | Mark  | content        | The content that is marked.                    |        |
 | array |                |                                                |        |
+
 :::
 
 # Examples
@@ -107,12 +108,7 @@ The equivalent of `Delete` in Pandoc is the [`Strikeout`](https://github.com/jgm
       ]
     }
   ],
-  "pandoc-api-version": [
-    1,
-    17,
-    5,
-    4
-  ],
+  "pandoc-api-version": [1, 17, 5, 4],
   "meta": {}
 }
 ```
