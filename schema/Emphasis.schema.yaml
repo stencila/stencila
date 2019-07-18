@@ -4,9 +4,5 @@ $extends: Mark.schema.yaml
 role: secondary
 status: stable
 description: |
-  Emphasised content. Analagous to,
-    - JATS [`<italic>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/italic.html)
-    - HTML [`<em>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em)
-    - MDAST [`Emphasis`](https://github.com/syntax-tree/mdast#emphasis)
-    - Pandoc [`Emph`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L256)
+  Emphasised content.
 properties: {}

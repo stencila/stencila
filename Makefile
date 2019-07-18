@@ -21,6 +21,7 @@ test:
 build:
 	npm run build
 
+.PHONY: docs
 docs:
 	npm run docs
 
