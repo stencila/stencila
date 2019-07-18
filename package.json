@@ -29,38 +29,51 @@
   },
   "homepage": "https://github.com/stencila/thema#readme",
   "devDependencies": {
-    "@semantic-release/commit-analyzer": "^6.1.0",
-    "@semantic-release/git": "^7.0.8",
-    "@semantic-release/github": "^5.2.10",
-    "@semantic-release/npm": "^5.1.7",
-    "@semantic-release/release-notes-generator": "^7.1.4",
-    "@stencila/dev-config": "git+https://github.com/stencila/dev-config.git",
+    "@abide-community/parcel-plugin-clean-out-dir": "^1.0.0",
+    "@stencila/dev-config": "^1.1.2",
+    "autoprefixer": "^9.6.1",
     "normalize.css": "^8.0.1",
     "parcel-bundler": "^1.12.3",
     "parcel-plugin-url-loader": "git+https://github.com/stencila/parcel-plugin-url-loader.git",
-    "prettier": "1.17.1",
+    "postcss-custom-properties": "^9.0.2",
+    "postcss-import": "^12.0.1",
+    "postcss-import-url": "^4.0.0",
+    "postcss-nested": "^4.1.2",
+    "postcss-url": "^8.0.0",
     "prismjs": "^1.16.0",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "semantic-release": "^15.13.12",
-    "typescript": "^3.5.1"
+    "typescript": "^3.5.3"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "release": {
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      "@semantic-release/npm",
-      [
-        "@semantic-release/git",
-        {
-          "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
-        }
-      ],
-      "@semantic-release/github"
-    ]
+    "extends": "@stencila/semantic-release-config"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "scope-case": [
+        2,
+        "always",
+        "sentence-case"
+      ],
+      "subject-case": [
+        2,
+        "always",
+        "sentence-case"
+      ]
+    }
+  },
+  "eslintConfig": {
+    "extends": "@stencila/eslint-config"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   }
 }

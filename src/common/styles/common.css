@@ -14,7 +14,7 @@ html {
 }
 
 @media screen and (max-width: 380px) {
-  .figure-table {
-    max-height: 80vh;
+  figure {
+    max-height: 90vh;
   }
 }

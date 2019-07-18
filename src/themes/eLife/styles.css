@@ -70,28 +70,29 @@ h6 {
   font-family: var(--heading-font);
 }
 
-p + h1,
-p + h2 {
-  margin-top: 2.25rem;
+p {
+  & + h1,
+  & + h2 {
+    margin-top: 2.25rem;
+  }
+
+  & + h3,
+  & + h4,
+  & + h5,
+  & + h6 {
+    margin-top: 3.75rem;
+    position: relative;
+  }
 }
 
-p + h3,
-p + h4,
-p + h5,
-p + h6 {
-  margin-top: 3.75rem;
-  position: relative;
-}
-
-ol + h3,
-ol + h4,
-ol + h5,
-ol + h6,
-ul + h3,
-ul + h4,
-ul + h5,
-ul + h6 {
-  margin-top: 1.75rem;
+ol,
+ul {
+  & + h3,
+  & + h4,
+  & + h5,
+  & + h6 {
+    margin-top: 1.75rem;
+  }
 }
 
 li > *:first-child {
@@ -126,33 +127,30 @@ figcaption {
   font-size: 0.8125rem;
   width: 100%;
   margin-top: 0.75rem;
-}
 
-figcaption p {
-  margin-bottom: 0.75rem;
-}
+  & p {
+    margin-bottom: 0.75rem;
+  }
 
-figcaption *:last-child {
-  margin-bottom: 0;
-}
+  & *:last-child {
+    margin-bottom: 0;
+  }
 
-figcaption *:first-child {
-  margin-top: 0;
-}
+  & *:first-child {
+    margin-top: 0;
+  }
 
-figcaption h1,
-figcaption h2,
-figcaption h3,
-figcaption h4,
-figcaption h5,
-figcaption h6 {
-  margin-top: 0;
-  margin-bottom: 0;
-  line-height: 1.84615;
+  & h1,
+  & h2,
+  & h3,
+  & h4,
+  & h5,
+  & h6 {
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 1.84615;
+  }
 }
-
-/* pre {
-} */
 
 p {
   margin: 0 auto 1.25rem;
@@ -222,55 +220,30 @@ small,
   line-height: 1.84615;
 }
 
-h1 + h1,
-h1 + h2,
-h1 + h3,
-h1 + h4,
-h1 + h5,
-h1 + h6,
-h2 + h1,
-h2 + h2,
-h2 + h3,
-h2 + h4,
-h2 + h5,
-h2 + h6,
-h3 + h1,
-h3 + h2,
-h3 + h3,
-h3 + h4,
-h3 + h5,
-h3 + h6,
-h4 + h1,
-h4 + h2,
-h4 + h3,
-h4 + h4,
-h4 + h5,
-h4 + h6,
-h5 + h1,
-h5 + h2,
-h5 + h3,
-h5 + h4,
-h5 + h5,
-h5 + h6,
-h6 + h1,
-h6 + h2,
-h6 + h3,
-h6 + h4,
-h6 + h5,
-h6 + h6 {
-  margin-top: 0;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  & + h1,
+  & + h2,
+  & + h3,
+  & + h4,
+  & + h5,
+  & + h6 {
+    margin-top: 0;
+  }
 }
 
 ul,
 ol {
   padding: 0;
-}
 
-ul ul,
-ol ol,
-ul ol,
-ol ul {
-  padding-left: 1rem;
+  & ul,
+  & ol {
+    padding-left: 1rem;
+  }
 }
 
 table {
