@@ -9,7 +9,7 @@ import encodaProcess from '@stencila/encoda/dist/process'
 import fs from 'fs-extra'
 import globby from 'globby'
 import path from 'path'
-import * as stencila from 'stencila'
+import * as stencila from '..'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 docs()
@@ -51,7 +51,6 @@ async function docs(): Promise<void> {
   // Cover over any files generated during processing
   // so that links in HTML files work
   const outs = await globby('schema/*.out.*')
-  console.log(outs)
   await Promise.all(
     outs.map(async file => {
       return fs.copy(file, path.join('built', path.basename(file)))
