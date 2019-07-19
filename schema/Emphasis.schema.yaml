@@ -3,6 +3,5 @@ title: Emphasis
 $extends: Mark.schema.yaml
 role: secondary
 status: stable
-description: |
-  Emphasised content.
+description: Emphasised content.
 properties: {}
