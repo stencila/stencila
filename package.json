@@ -16,7 +16,7 @@
     "build:ts": "gulp ts && tsc",
     "docs": "npm run docs:readme && npm run docs:build",
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
-    "docs:build": "ts-node scripts/docs",
+    "docs:build": "ts-node scripts/docs && scripts/docs.sh",
     "watch": "gulp watch",
     "clean": "gulp clean"
   },
@@ -32,7 +32,7 @@
   "homepage": "https://stencila.github.io/schema",
   "devDependencies": {
     "@stencila/dev-config": "^1.1.2",
-    "@stencila/encoda": "^0.58.0",
+    "@stencila/encoda": "^0.59.1",
     "@types/fs-extra": "^8.0.0",
     "ajv": "^6.10.2",
     "better-ajv-errors": "^0.6.4",
