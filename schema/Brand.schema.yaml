@@ -1,10 +1,10 @@
 title: Brand
 '@id': schema:Brand
-$extends: Thing.schema.yaml
+extends: Thing.schema.yaml
 role: tertiary
 status: unstable
 description: |
-  A brand is a name used by an organization or business person for labeling a product, 
+  A brand is a name used by an organization or business person for labeling a product,
   product group, or similar. https://schema.org/Brand.
 properties:
   logo:

@@ -1,6 +1,6 @@
 title: Environment
 '@id': stencila:Environment
-$extends: Thing.schema.yaml
+extends: Thing.schema.yaml
 role: primary
 status: experimental
 description: A computational environment.
@@ -28,7 +28,6 @@ properties:
     description: |
       Source of environment definition. For example, a URL to a Dockerfile, a path to Singularity recipe file,
       or a path to a filesystem folder.,
-    allOf:
-      - type: string
+    type: string
 required:
   - name

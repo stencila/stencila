@@ -1,6 +1,6 @@
 title: Mount
 '@id': stencila:Mount
-$extends: Thing.schema.yaml
+extends: Thing.schema.yaml
 role: tertiary
 status: experimental
 description: |

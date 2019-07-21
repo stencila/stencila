@@ -1,6 +1,6 @@
 title: SoftwareSourceCode
 '@id': schema:SoftwareSourceCode
-$extends: CreativeWork.schema.yaml
+extends: CreativeWork.schema.yaml
 role: primary
 status: unstable
 description: |
@@ -40,9 +40,9 @@ properties:
   softwareRequirements:
     '@id': schema:softwareRequirements
     description: |
-      Component dependency requirements for application. 
-      This includes runtime environments and shared libraries that 
-      are not included in the application distribution package, but 
+      Component dependency requirements for application.
+      This includes runtime environments and shared libraries that
+      are not included in the application distribution package, but
       required to run the application (Examples include DirectX, Java or .NET runtime).
     type: array
     items:

@@ -1,6 +1,6 @@
 title: CodeBlock
 '@id': stencila:CodeBlock
-$extends: Code.schema.yaml
+extends: Code.schema.yaml
 role: secondary
 status: stable
 description: A code block.

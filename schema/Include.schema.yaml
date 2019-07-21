@@ -4,7 +4,7 @@ description: |
   A directive to include content from an external source (e.g. file, URL) or content.
 role: secondary
 status: experimental
-$extends: Thing.schema.yaml
+extends: Thing.schema.yaml
 properties:
   source:
     description: The JSON Reference to the included content.
@@ -24,17 +24,5 @@ properties:
     oneOf:
       - $ref: Datatable.schema.yaml
       - $ref: Table.schema.yaml
-# Either needs to have `source` specified (from which `content` and `mimetype` are derived)
-# or have `content` and `mimetype` specified.
-anyOf:
-  - required:
-      - source
-  - required:
-      - content
-      - mimetype
-dependencies:
-  parsed:
-    - content
-    - mimetype
-  value:
-    - parsed
+required:
+  - source

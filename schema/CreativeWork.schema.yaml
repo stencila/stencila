@@ -1,10 +1,10 @@
 title: CreativeWork
 '@id': schema:CreativeWork
-$extends: Thing.schema.yaml
+extends: Thing.schema.yaml
 role: base
 status: stable
 description: |
-  The most generic kind of creative work, including books, movies, photographs, 
+  The most generic kind of creative work, including books, movies, photographs,
   software programs, etc. https://schema.org/CreativeWork
 properties:
   authors:
@@ -18,7 +18,7 @@ properties:
   citations:
     '@id': schema:citation
     description: |
-      Citations or references to other creative works, such as another publication, 
+      Citations or references to other creative works, such as another publication,
       web page, scholarly article, etc.
     type: array
     items:
@@ -103,7 +103,7 @@ properties:
     aliases:
       - hasParts
     description: |
-      Elements of the collection which can be a variety of different elements, 
+      Elements of the collection which can be a variety of different elements,
       such as Articles, Datatables, Tables and more.
     type: array
     items:

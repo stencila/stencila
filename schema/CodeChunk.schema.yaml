@@ -1,6 +1,6 @@
 title: CodeChunk
 '@id': stencila:CodeChunk
-$extends: SoftwareSourceCode.schema.yaml
+extends: SoftwareSourceCode.schema.yaml
 role: secondary
 status: unstable
 description: |

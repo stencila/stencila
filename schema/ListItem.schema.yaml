@@ -1,6 +1,6 @@
 title: ListItem
 '@id': schema:ListItem
-$extends: Thing.schema.yaml
+extends: Thing.schema.yaml
 role: tertiary
 status: stable
 description: A single item in a list.

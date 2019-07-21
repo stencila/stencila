@@ -1,6 +1,6 @@
 title: Article
 '@id': schema:Article
-$extends: CreativeWork.schema.yaml
+extends: CreativeWork.schema.yaml
 role: primary
 status: unstable
 properties:
@@ -9,7 +9,7 @@ properties:
     description: |
       The computational environment in which the document should be executed.
     allOf:
-      - $ref: software/Environment.schema.yaml
+      - $ref: Environment.schema.yaml
 
 required:
   # See Google's list of required properties at

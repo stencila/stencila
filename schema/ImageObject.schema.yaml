@@ -1,6 +1,6 @@
 title: ImageObject
 '@id': schema:ImageObject
-$extends: MediaObject.schema.yaml
+extends: MediaObject.schema.yaml
 role: secondary
 status: stable
 description: |

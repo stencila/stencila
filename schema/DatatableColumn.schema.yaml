@@ -1,6 +1,6 @@
 title: DatatableColumn
 '@id': stencila:DatatableColumn
-$extends: Thing.schema.yaml
+extends: Thing.schema.yaml
 role: secondary
 status: experimental
 properties:

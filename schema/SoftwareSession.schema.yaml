@@ -1,6 +1,6 @@
 title: SoftwareSession
 '@id': stencila:SoftwareSession
-$extends: Thing.schema.yaml
+extends: Thing.schema.yaml
 role: primary
 status: experimental
 description: |

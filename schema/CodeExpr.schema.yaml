@@ -1,6 +1,6 @@
 title: CodeExpr
 '@id': stencila:CodeExpr
-$extends: SoftwareSourceCode.schema.yaml
+extends: SoftwareSourceCode.schema.yaml
 role: secondary
 status: unstable
 description: An expression.

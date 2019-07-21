@@ -1,6 +1,6 @@
 title: TableCell
 '@id': stencila:TableCell
-$extends: Thing.schema.yaml
+extends: Thing.schema.yaml
 role: secondary
 status: experimental
 description: |

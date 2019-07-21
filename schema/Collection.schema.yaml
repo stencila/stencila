@@ -1,6 +1,6 @@
 title: Collection
 '@id': schema:Collection
-$extends: CreativeWork.schema.yaml
+extends: CreativeWork.schema.yaml
 role: secondary
 status: stable
 description: |

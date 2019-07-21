@@ -1,6 +1,6 @@
 title: Quote
 '@id': stencila:Quote
-$extends: Mark.schema.yaml
+extends: Mark.schema.yaml
 role: secondary
 status: stable
 description: |
