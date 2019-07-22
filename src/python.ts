@@ -5,13 +5,7 @@
 import crypto from 'crypto'
 import path from 'path'
 import fs from 'fs-extra'
-import {
-  read,
-  types,
-  props,
-  Schema,
-  unions
-} from './bindings'
+import { read, types, props, Schema, unions } from './bindings'
 
 /**
  * Run `build()` when this file is run as a Node script
@@ -31,8 +25,12 @@ async function build(): Promise<void> {
   const schemas = await read()
 
   globals = []
-  const classesCode = types(schemas).map(classGenerator).join('')
-  const unionsCode = unions(schemas).map(unionGenerator).join('')
+  const classesCode = types(schemas)
+    .map(classGenerator)
+    .join('')
+  const unionsCode = unions(schemas)
+    .map(unionGenerator)
+    .join('')
   const globalsCode = globals.join('\n')
 
   const code = `
@@ -52,7 +50,7 @@ ${unionsCode}
 /**
  * Generate a `class`.
  */
-function classGenerator (schema: Schema): string {
+function classGenerator(schema: Schema): string {
   const { title, extends: parent, description } = schema
   const { inherited, own, required, optional } = props(schema)
 
@@ -88,7 +86,7 @@ function classGenerator (schema: Schema): string {
   const superCall = `        super().__init__(${superArgs})`
 
   const initSetters = own
-    .map(({ name }) => `        if ${name} != None: self.${name} = ${name}`)
+    .map(({ name }) => `        if ${name} is not None: self.${name} = ${name}`)
     .join('\n')
 
   const init = `    def __init__(${initPars}) -> None:\n${superCall}\n${initSetters}\n\n`
@@ -99,8 +97,8 @@ function classGenerator (schema: Schema): string {
 /**
  * Generate a `Union` type.
  */
-function unionGenerator (schema: Schema): string {
-  const {title, description} = schema
+function unionGenerator(schema: Schema): string {
+  const { title, description } = schema
   let code = `"""\n${description}\n"""\n`
   code += `${title} = ${schemaToType(schema)}\n\n`
   return code
