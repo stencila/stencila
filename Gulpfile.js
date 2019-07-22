@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/strict-boolean-expressions */
 
-const { src, parallel, series, watch } = require('gulp')
+const { src, series, watch } = require('gulp')
 const Ajv = require('ajv')
 const betterAjvErrors = require('better-ajv-errors')
 const fs = require('fs-extra')
@@ -125,24 +125,6 @@ function jsonld() {
 }
 
 /**
- * Check the generated JSON Schemas in `built/types.schema.json` are valid.
- */
-async function check() {
-  const schema = await fs.readJSON('built/types.schema.json')
-  const metaSchema = require('ajv/lib/refs/json-schema-draft-07.json')
-  const ajv = new Ajv({ jsonPointers: true })
-  const validate = ajv.compile(metaSchema)
-  if (!validate(schema)) {
-    const message = betterAjvErrors(metaSchema, schema, validate.errors, {
-      format: 'cli',
-      indent: 2
-    })
-    console.log(message)
-    throw new Error('💣  Oh, oh, the schema is invalid')
-  }
-}
-
-/**
  * Test that the examples are valid
  */
 function test() {
@@ -244,10 +226,9 @@ function clean() {
   return Promise.all(['dist', 'built', 'types.ts'].map(dir => fs.remove(dir)))
 }
 
-exports.check = series(check)
 exports.jsonld = series(jsonld)
 exports.test = series(test)
-exports.all = series(clean, parallel(check, test), jsonld)
+exports.all = series(clean, test, jsonld)
 exports.watch = () =>
   watch(['schema', 'examples'], { ignoreInitial: false }, exports.all)
 exports.clean = clean
