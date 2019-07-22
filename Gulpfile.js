@@ -5,7 +5,6 @@ const Ajv = require('ajv')
 const betterAjvErrors = require('better-ajv-errors')
 const fs = require('fs-extra')
 const jls = require('vscode-json-languageservice')
-const jstt = require('json-schema-to-typescript')
 const path = require('path')
 const through2 = require('through2')
 const yaml = require('js-yaml')
@@ -123,25 +122,6 @@ function jsonld() {
         })
       })
   )
-}
-
-/**
- * Generate `types.ts` from `built/types.schema.json`
- */
-async function ts() {
-  const src = 'built/types.schema.json'
-  const dest = 'types.ts'
-  const options = {
-    bannerComment: `/* eslint-disable */
-/**
- * This file was automatically generated.
- * Do not modify it by hand. Instead, modify the source \`.schema.yaml\` file
- * in the \`schema\` directory and run \`npm run build\` to regenerate this file.
- */
- `
-  }
-  const ts = await jstt.compileFromFile(src, options)
-  return fs.writeFile(dest, ts)
 }
 
 /**
@@ -266,9 +246,8 @@ function clean() {
 
 exports.check = series(check)
 exports.jsonld = series(jsonld)
-exports.ts = series(ts)
 exports.test = series(test)
-exports.all = series(clean, parallel(check, test), parallel(jsonld, ts))
+exports.all = series(clean, parallel(check, test), jsonld)
 exports.watch = () =>
   watch(['schema', 'examples'], { ignoreInitial: false }, exports.all)
 exports.clean = clean

@@ -80,34 +80,6 @@ export async function build(): Promise<void> {
   // Output `aliases.json`
   await fs.writeJSON(path.join('built', 'aliases.json'), aliases, { spaces: 2 })
 
-  // Output `types.schema.json`
-  // This 'meta' schema provides a list of type schemas as:
-  //  - an entry point for the generation of Typescript type definitions
-  //  - a lookup for all types for use in `util.ts` functions
-  const properties: { [key: string]: Schema } = {}
-  const required = []
-  for (const schema of schemas.values()) {
-    if (
-      !(
-        schema.title !== undefined &&
-        schema.$id !== undefined &&
-        schema.$id.startsWith('https://stencila')
-      )
-    )
-      continue
-    properties[schema.title] = {
-      allOf: [{ $ref: `${schema.title}.schema.json` }]
-    }
-    required.push(schema.title)
-  }
-  const types = {
-    $schema: 'http://json-schema.org/draft-07/schema#',
-    title: 'Types',
-    properties,
-    required
-  }
-  await fs.writeJSON('built/types.schema.json', types, { spaces: 2 })
-
   // Copy the built JSON files into `dist` for publishing package
   await fs.ensureDir('dist')
   await Promise.all(
