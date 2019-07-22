@@ -1,6 +1,6 @@
 title: Paragraph
 '@id': stencila:Paragraph
-extends: Thing.schema.yaml
+extends: Thing
 role: secondary
 status: experimental
 description: Paragraph
@@ -8,6 +8,6 @@ properties:
   content:
     type: array
     items:
-      $ref: InlineContent.schema.yaml
+      $ref: InlineContent
 required:
   - content

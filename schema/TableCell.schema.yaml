@@ -1,6 +1,6 @@
 title: TableCell
 '@id': stencila:TableCell
-extends: Thing.schema.yaml
+extends: Thing
 role: secondary
 status: experimental
 description: |
@@ -37,6 +37,6 @@ properties:
       Contents of the table cell.
     type: array
     items:
-      $ref: InlineContent.schema.yaml
+      $ref: InlineContent
 required:
   - content

@@ -1,6 +1,6 @@
 title: ImageObject
 '@id': schema:ImageObject
-extends: MediaObject.schema.yaml
+extends: MediaObject
 role: secondary
 status: stable
 description: |
@@ -16,4 +16,4 @@ properties:
     description: |
       Thumbnail image of this image.
     allOf:
-      - $ref: ImageObject.schema.yaml
+      - $ref: ImageObject

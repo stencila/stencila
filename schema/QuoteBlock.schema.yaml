@@ -1,6 +1,6 @@
 title: QuoteBlock
 '@id': stencila:QuoteBlock
-extends: Thing.schema.yaml
+extends: Thing
 role: secondary
 status: stable
 description: |
@@ -15,6 +15,6 @@ properties:
     '@id': 'stencila:content'
     type: array
     items:
-      $ref: BlockContent.schema.yaml
+      $ref: BlockContent
 required:
   - content

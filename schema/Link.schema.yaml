@@ -1,6 +1,6 @@
 title: Link
 '@id': stencila:Link
-extends: Thing.schema.yaml
+extends: Thing
 role: secondary
 status: unstable
 description: A link.
@@ -9,7 +9,7 @@ properties:
     '@id': stencila:content
     type: array
     items:
-      $ref: InlineContent.schema.yaml
+      $ref: InlineContent
   target:
     '@id': stencila:target
     type: string

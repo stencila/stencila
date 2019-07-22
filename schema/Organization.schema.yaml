@@ -1,6 +1,6 @@
 title: Organization
 '@id': schema:Organization
-extends: Thing.schema.yaml
+extends: Thing
 role: secondary
 status: unstable
 description: An organization such as a school, NGO, corporation, club, etc. https://schema.org/Organization.
@@ -16,21 +16,21 @@ properties:
       Brands that the organization is connected with.
     type: array
     items:
-      $ref: Brand.schema.yaml
+      $ref: Brand
   contactPoints:
     '@id': schema:contactPoint
     description: |
       Correspondence/Contact points for the organization.
     type: array
     items:
-      $ref: ContactPoint.schema.yaml
+      $ref: ContactPoint
   departments:
     '@id': schema:department
     description: |
       Departments within the organization. For example, Department of Computer Science, Research & Development etc.
     type: array
     items:
-      $ref: Organization.schema.yaml
+      $ref: Organization
   funders:
     '@id': schema:funder
     description: |
@@ -38,8 +38,8 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: Organization.schema.yaml
-        - $ref: Person.schema.yaml
+        - $ref: Organization
+        - $ref: Person
   legalName:
     '@id': schema:legalName
     description: |
@@ -51,4 +51,4 @@ properties:
     description: |
       Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
     allOf:
-      - $ref: Organization.schema.yaml
+      - $ref: Organization

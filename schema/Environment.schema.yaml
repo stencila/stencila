@@ -1,6 +1,6 @@
 title: Environment
 '@id': stencila:Environment
-extends: Thing.schema.yaml
+extends: Thing
 role: primary
 status: experimental
 description: A computational environment.
@@ -10,19 +10,19 @@ properties:
     description: Other environments that this environment extends by adding or removing packages.,
     type: array
     items:
-      $ref: Environment.schema.yaml
+      $ref: Environment
   adds:
     '@id': stencila:adds
     description: The packages that this environment adds to the base environments listed under `extends` (if any).,
     type: array
     items:
-      $ref: SoftwareSourceCode.schema.yaml
+      $ref: SoftwareSourceCode
   removes:
     '@id': stencila:removes
     description: The packages that this environment removes from the base environments listed under `extends` (if any).,
     type: array
     items:
-      $ref: SoftwareSourceCode.schema.yaml
+      $ref: SoftwareSourceCode
   environmentSource:
     '@id': stencila:environmentSource
     description: |

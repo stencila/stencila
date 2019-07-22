@@ -1,6 +1,6 @@
 title: Strong
 '@id': stencila:Strong
-extends: Mark.schema.yaml
+extends: Mark
 role: secondary
 status: stable
 description: |

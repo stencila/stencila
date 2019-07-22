@@ -1,6 +1,6 @@
 title: SoftwareApplication
 '@id': schema:SoftwareApplication
-extends: CreativeWork.schema.yaml
+extends: CreativeWork
 role: primary
 status: unstable
 description: |
@@ -12,7 +12,7 @@ properties:
       Component dependency requirements for application. This includes runtime environments and shared libraries that are not included in the application distribution package, but required to run the application (Examples: DirectX, Java or .NET runtime).
     type: array
     items:
-      - $ref: SoftwareApplication.schema.yaml
+      - $ref: SoftwareApplication
   softwareVersion:
     '@id': schema:softwareVersion
     description: Version of the software instance.

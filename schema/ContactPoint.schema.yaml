@@ -1,6 +1,6 @@
 title: ContactPoint
 '@id': schema:contactPoint
-extends: Thing.schema.yaml
+extends: Thing
 role: tertiary
 status: unstable
 description: A contact point—for example, a R&D department. https://schema.org/ContactPoint.

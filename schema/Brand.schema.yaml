@@ -1,6 +1,6 @@
 title: Brand
 '@id': schema:Brand
-extends: Thing.schema.yaml
+extends: Thing
 role: tertiary
 status: unstable
 description: |
@@ -13,7 +13,7 @@ properties:
     anyOf:
       - type: string
         format: uri
-      - $ref: ImageObject.schema.yaml
+      - $ref: ImageObject
   reviews:
     '@id': schema:review
     description: |

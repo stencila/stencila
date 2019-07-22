@@ -1,6 +1,6 @@
 title: DatatableColumn
 '@id': stencila:DatatableColumn
-extends: Thing.schema.yaml
+extends: Thing
 role: secondary
 status: experimental
 properties:
@@ -11,7 +11,7 @@ properties:
     description: The schema to use to validate data in the column.
     type: object
     allOf:
-      - $ref: DatatableColumnSchema.schema.yaml
+      - $ref: DatatableColumnSchema
   values:
     description: The values of the column.
     type: array

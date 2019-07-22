@@ -1,6 +1,6 @@
 title: List
 '@id': schema:ItemList
-extends: Thing.schema.yaml
+extends: Thing
 role: secondary
 status: unstable
 description: |
@@ -11,7 +11,7 @@ properties:
     description: The items in the list
     type: array
     items:
-      $ref: ListItem.schema.yaml
+      $ref: ListItem
   order:
     '@id': 'schema:itemListOrder'
     description: Type of ordering.

@@ -1,6 +1,6 @@
 title: Heading
 '@id': stencila:Heading
-extends: Thing.schema.yaml
+extends: Thing
 role: secondary
 status: experimental
 description: Heading
@@ -13,7 +13,7 @@ properties:
     description: Content of the heading.
     type: array
     items:
-      $ref: InlineContent.schema.yaml
+      $ref: InlineContent
 required:
   - depth
   - content

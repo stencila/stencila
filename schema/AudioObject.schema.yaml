@@ -1,6 +1,6 @@
 title: AudioObject
 '@id': schema:AudioObject
-extends: MediaObject.schema.yaml
+extends: MediaObject
 role: secondary
 status: stable
 description: |

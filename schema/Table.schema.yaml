@@ -1,6 +1,6 @@
 title: Table
 '@id': schema:Table
-extends: CreativeWork.schema.yaml
+extends: CreativeWork
 role: primary
 status: unstable
 description: A table.
@@ -11,6 +11,6 @@ properties:
       Rows of cells in the table.
     type: array
     items:
-      $ref: TableRow.schema.yaml
+      $ref: TableRow
 required:
   - rows

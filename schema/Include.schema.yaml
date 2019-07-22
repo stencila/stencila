@@ -4,7 +4,7 @@ description: |
   A directive to include content from an external source (e.g. file, URL) or content.
 role: secondary
 status: experimental
-extends: Thing.schema.yaml
+extends: Thing
 properties:
   source:
     description: The source of the content.
@@ -19,6 +19,6 @@ properties:
     description: The content to be included.
     type: array
     items:
-      $ref: Node.schema.yaml
+      $ref: Node
 required:
   - source

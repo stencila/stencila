@@ -1,6 +1,6 @@
 title: Emphasis
 '@id': stencila:Emphasis
-extends: Mark.schema.yaml
+extends: Mark
 role: secondary
 status: stable
 description: Emphasised content.

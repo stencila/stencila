@@ -1,6 +1,6 @@
 title: Product
 '@id': schema:Product
-extends: Thing.schema.yaml
+extends: Thing
 role: tertiary
 status: stable
 description: |
@@ -10,14 +10,14 @@ properties:
   brand:
     description: |
       Brand that the product is labelled with.
-    $ref: Brand.schema.yaml
+    $ref: Brand
   logo:
     description: |
       A logo of of the product. It can be either a URL of the image or image itself.
     anyOf:
       - type: string
         format: uri
-      - $ref: ImageObject.schema.yaml
+      - $ref: ImageObject
   productID:
     '@id': schema:productID
     description: |

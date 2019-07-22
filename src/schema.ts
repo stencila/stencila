@@ -7,7 +7,6 @@ import globby from 'globby'
 import yaml from 'js-yaml'
 import path from 'path'
 import Schema from './schema.d'
-import { isConstructorDeclaration } from 'typescript';
 
 const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
 const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'built')
@@ -23,16 +22,16 @@ if (module.parent === null) build()
  */
 export async function build(): Promise<void> {
   // Asynchronously read all the schema definition YAML files into a map of objects
-  const files = await globby('*.schema.yaml', {
-    cwd: SCHEMA_SOURCE_DIR
-  })
+  const files = await globby('*.schema.yaml', {cwd: SCHEMA_SOURCE_DIR})
   const schemas = new Map<string, Schema>(
     await Promise.all(
       files.map(
         async (file: string): Promise<[string, Schema]> => {
-          const filePath = path.join(SCHEMA_SOURCE_DIR, file)
-          const schema = yaml.safeLoad(await fs.readFile(filePath, 'utf-8'))
-          return [file, { ...schema, file }]
+          const schema = yaml.safeLoad(await fs.readFile(path.join(SCHEMA_SOURCE_DIR, file), 'utf-8'))
+          const title = schema.title
+          if (title === undefined)
+            throw new Error(`Schema title is required in source file: ${file}`)
+          return [title, { ...schema, file }]
         }
       )
     )
@@ -44,11 +43,8 @@ export async function build(): Promise<void> {
   // Write to destination
   await fs.ensureDir('built')
   await Promise.all(
-    Array.from(schemas.entries()).map(async ([file, schema]) => {
-      const destPath = path.join(
-        SCHEMA_DEST_DIR,
-        file.replace('.yaml', '.json')
-      )
+    Array.from(schemas.entries()).map(async ([title, schema]) => {
+      const destPath = path.join(SCHEMA_DEST_DIR,title +  '.schema.json')
       await fs.writeJSON(destPath, schema, { spaces: 2 })
     })
   )
@@ -66,7 +62,6 @@ function processSchema(schemas: Map<string, Schema>, schema: Schema): void {
   schema.children = []
   schema.descendants = []
 
-  // We need a `title`!
   if (title === undefined)
     throw new Error(`Schema title is required in source file: ${file}`)
 
@@ -163,8 +158,8 @@ function processSchema(schemas: Map<string, Schema>, schema: Schema): void {
     const walk = (node: Schema): void => {
       if (typeof node !== 'object') return
       for (const [key, child] of Object.entries(node)) {
-        if (key === '$ref' && typeof child === 'string')
-          node[key] = path.basename(child).replace('.yaml', '.json')
+        if (key === '$ref' && typeof child === 'string' && !child.endsWith('.schema.json'))
+          node[key] = child + '.schema.json'
         walk(child)
       }
     }

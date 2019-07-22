@@ -1,6 +1,6 @@
 title: Mark
 '@id': stencila:Mark
-extends: Thing.schema.yaml
+extends: Thing
 role: base
 status: stable
 description: |
@@ -12,6 +12,6 @@ properties:
       The content that is marked.
     type: array
     items:
-      $ref: InlineContent.schema.yaml
+      $ref: InlineContent
 required:
   - content

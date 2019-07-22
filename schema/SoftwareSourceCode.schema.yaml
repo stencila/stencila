@@ -1,6 +1,6 @@
 title: SoftwareSourceCode
 '@id': schema:SoftwareSourceCode
-extends: CreativeWork.schema.yaml
+extends: CreativeWork
 role: primary
 status: unstable
 description: |
@@ -23,8 +23,8 @@ properties:
       The people or organizations who maintain the software.
     type: array
     items:
-      - $ref: Organization.schema.yaml
-      - $ref: Person.schema.yaml
+      - $ref: Organization
+      - $ref: Person
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: |
@@ -47,8 +47,8 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: SoftwareSourceCode.schema.yaml
-        - $ref: SoftwareApplication.schema.yaml
+        - $ref: SoftwareSourceCode
+        - $ref: SoftwareApplication
         - type: string
   targetProducts:
     '@id': schema:targetProduct
@@ -57,4 +57,4 @@ properties:
       If applies to several versions, just the product name can be used.
     type: array
     items:
-      - $ref: SoftwareApplication.schema.yaml
+      - $ref: SoftwareApplication

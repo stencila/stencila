@@ -1,6 +1,6 @@
 title: VideoObject
 '@id': schema:VideoObject
-extends: MediaObject.schema.yaml
+extends: MediaObject
 role: secondary
 status: stable
 description: |
@@ -16,7 +16,7 @@ properties:
     description: |
       Thumbnail image of this video recording.
     allOf:
-      - $ref: ImageObject.schema.yaml
+      - $ref: ImageObject
   transcript:
     '@id': schema:transcript
     description: |

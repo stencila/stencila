@@ -1,6 +1,6 @@
 title: ListItem
 '@id': schema:ListItem
-extends: Thing.schema.yaml
+extends: Thing
 role: tertiary
 status: stable
 description: A single item in a list.
@@ -9,7 +9,7 @@ properties:
     '@id': stencila:content
     type: array
     items:
-      $ref: Node.schema.yaml
+      $ref: Node
   checked:
     '@id': stencila:checked
     type: boolean

@@ -1,6 +1,6 @@
 title: Person
 '@id': schema:Person
-extends: Thing.schema.yaml
+extends: Thing
 role: secondary
 status: stable
 description: A person (alive, dead, undead, or fictional). https://schema.org/Person.
@@ -15,7 +15,7 @@ properties:
     description: Organizations that the person is affiliated with.
     type: array
     items:
-      $ref: Organization.schema.yaml
+      $ref: Organization
   emails:
     '@id': schema:email
     description: Email addresses for the person.
@@ -47,8 +47,8 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: Organization.schema.yaml
-        - $ref: Person.schema.yaml
+        - $ref: Organization
+        - $ref: Person
   givenNames:
     '@id': schema:givenName
     aliases:
@@ -85,7 +85,7 @@ properties:
     description: An organization (or program membership) to which this person belongs.
     type: array
     items:
-      - $ref: Organization.schema.yaml
+      - $ref: Organization
   telephoneNumbers:
     '@id': schema:telephone
     aliases:
