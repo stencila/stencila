@@ -77,4 +77,9 @@ async function build(): Promise<void> {
       fs.copy(path.join('built', file), path.join(dist, file))
     )
   )
+
+  // Create an index.js for require.resolve('@stencila/schema') to work
+  // properly in Encoda
+  // TODO This won't be necessary when using tsc to compile an index.js
+  await fs.writeFile(path.join(dist, 'index.js'), '\n')
 }
