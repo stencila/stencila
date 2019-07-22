@@ -2,14 +2,14 @@
  * Generate Typescript language bindings.
  */
 
-import fs from 'fs-extra';
-import globby from 'globby';
-import * as jstt from 'json-schema-to-typescript';
+import fs from 'fs-extra'
+import globby from 'globby'
+import * as jstt from 'json-schema-to-typescript'
 // @ts-ignore
-import ObjectfromEntries from 'object.fromentries';
-import path from 'path';
-import tempy from 'tempy';
-import * as schema from './schema';
+import ObjectfromEntries from 'object.fromentries'
+import path from 'path'
+import tempy from 'tempy'
+import * as schema from './schema'
 
 /**
  * Run `build()` when this file is run as a Node script
@@ -44,18 +44,19 @@ async function build(): Promise<void> {
   const types = {
     $schema: 'http://json-schema.org/draft-07/schema#',
     title: 'Types',
-    properties: ObjectfromEntries(files
-      .map(file => ([
-          file.replace('.schema.json', ''),
-          {allOf: [{ $ref: file }]}
-        ])
-      )
+    properties: ObjectfromEntries(
+      files.map(file => [
+        file.replace('.schema.json', ''),
+        { allOf: [{ $ref: file }] }
+      ])
     ),
-    required: files
-      .map(file => file.replace('.schema.json', ''))
+    required: files.map(file => file.replace('.schema.json', ''))
   }
   const typesFile = path.join(temp, 'types.schema.json')
   await fs.writeJSON(typesFile, types)
+
+  const dist = path.join(__dirname, '..', 'dist')
+  await fs.ensureDir(dist)
 
   // Generate the Typescript
   const options = {
@@ -68,5 +69,12 @@ async function build(): Promise<void> {
  `
   }
   const ts = await jstt.compileFromFile(typesFile, options)
-  return fs.writeFile(path.join(__dirname, '..', 'dist', 'types.d.ts'), ts)
+  await fs.writeFile(path.join(dist, 'types.d.ts'), ts)
+
+  // Copy the JSON Schema files into `dist` too
+  await Promise.all(
+    files.map(async (file: string) =>
+      fs.copy(path.join('built', file), path.join(dist, file))
+    )
+  )
 }
