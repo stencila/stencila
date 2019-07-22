@@ -3,7 +3,7 @@ title: Link
 $extends: Thing.schema.yaml
 role: secondary
 status: unstable
-description: A link.
+description: A hyperlink to other pages, sections within the same document, resources, or any URL.
 properties:
   content:
     '@id': stencila:content
