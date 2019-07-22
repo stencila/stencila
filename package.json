@@ -10,10 +10,12 @@
   "scripts": {
     "lint": "prettier --write './**/*.{js,json,md,ts,yaml}' && eslint './**/*.{js,ts}' --fix",
     "test": "gulp test",
-    "build": "npm run build:ts",
+    "build": "npm run build:jsonschema && npm run build:ts && npm run build:py",
     "build:jsonschema": "ts-node src/schema.ts",
     "build:jsonld": "gulp jsonld",
     "build:ts": "ts-node src/typescript.ts",
+    "build:py": "ts-node src/python.ts",
+    "build:r": "ts-node src/r.ts",
     "docs": "npm run docs:readme && npm run docs:build",
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
     "docs:build": "ts-node scripts/docs && scripts/docs.sh",
@@ -35,6 +37,7 @@
     "@stencila/encoda": "^0.59.1",
     "@types/fs-extra": "^8.0.0",
     "@types/js-yaml": "^3.12.1",
+    "@types/toposort": "^2.0.1",
     "ajv": "^6.10.2",
     "better-ajv-errors": "^0.6.4",
     "fs-extra": "^8.1.0",
@@ -48,6 +51,7 @@
     "object.fromentries": "^2.0.0",
     "tempy": "^0.3.0",
     "through2": "^3.0.1",
+    "toposort": "^2.0.2",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.3",
     "vscode-json-languageservice": "^3.2.0"
@@ -85,5 +89,6 @@
   "prettier": "@stencila/dev-config/prettier-config.json",
   "release": {
     "extends": "@stencila/semantic-release-config"
-  }
+  },
+  "dependencies": {}
 }
