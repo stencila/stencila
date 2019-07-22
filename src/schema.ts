@@ -38,11 +38,8 @@ export async function build(): Promise<void> {
     )
   )
 
-  // Process each of the schemas collecting aliases along the way
-  const aliases = {}
-  for (const [file, schema] of schemas.entries()) {
-    processSchema(schemas, aliases, schema)
-  }
+  // Process each of the schemas
+  Array.from(schemas.values()).forEach(schema => processSchema(schemas, schema))
 
   // Do final processing and write schema objects to file
   await fs.ensureDir('built')
@@ -77,13 +74,10 @@ export async function build(): Promise<void> {
     await fs.writeJSON(destPath, schema, { spaces: 2 })
   }
 
-  // Output `aliases.json`
-  await fs.writeJSON(path.join('built', 'aliases.json'), aliases, { spaces: 2 })
-
   // Copy the built JSON files into `dist` for publishing package
   await fs.ensureDir('dist')
   await Promise.all(
-    (await globby('built/**/*.json')).map(async (file: string) =>
+    (await globby(path.join('built', '*.schema.json'))).map(async (file: string) =>
       fs.copy(file, path.join('dist', file))
     )
   )
@@ -91,11 +85,10 @@ export async function build(): Promise<void> {
 
 /**
  * Process a schema object to implement inheritance and
- * add derived properties.
+ * add add derived properties.
  */
 function processSchema(
   schemas: Map<string, Schema>,
-  aliases: any,
   schema: Schema
 ): void {
   const { $schema, $id, title, file, source, children } = schema
@@ -140,7 +133,6 @@ function processSchema(
         }
       }
       if (Object.keys(typesAliases).length > 0) {
-        aliases[title] = typesAliases
         schema.propertyAliases = typesAliases
       }
 
@@ -152,7 +144,7 @@ function processSchema(
     const base = parentSchema(schemas, schema)
     if (base !== null) {
       // Ensure that the base schema has been processed (to collect properties)
-      processSchema(schemas, aliases, base)
+      processSchema(schemas, base)
 
       // Do extension of properties from base
       schema.properties = {
