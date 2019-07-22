@@ -2,12 +2,12 @@
  * A module providing functions to be used in languages bindings.
  */
 
-import fs from 'fs-extra';
-import globby from 'globby';
-import path from 'path';
-import toposort from 'toposort';
-import * as schema from './schema';
-import Schema from './schema.d';
+import fs from 'fs-extra'
+import globby from 'globby'
+import path from 'path'
+import toposort from 'toposort'
+import * as schema from './schema'
+import Schema from './schema.d'
 
 export type Schema = Schema
 
@@ -23,9 +23,7 @@ export async function read(
   // Read in the schemas
   const files = await globby(glob)
   return Promise.all(
-    files.map(
-      async (file: string): Promise<Schema> => fs.readJSON(file)
-    )
+    files.map(async (file: string): Promise<Schema> => fs.readJSON(file))
   )
 }
 
@@ -48,12 +46,12 @@ export function types(schemas: Schema[]): Schema[] {
   )
   const ordered = toposort(edges).filter(title => title !== '')
 
-  return ordered
-    .map(title => {
-      const schema = map.get(title)
-      if (schema === undefined) throw new Error(`Holy smokes, "${title}" aint in da map @#!&??!`)
-      return schema
-    })
+  return ordered.map(title => {
+    const schema = map.get(title)
+    if (schema === undefined)
+      throw new Error(`Holy smokes, "${title}" aint in da map @#!&??!`)
+    return schema
+  })
 }
 
 /**

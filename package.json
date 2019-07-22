@@ -82,7 +82,8 @@
   },
   "eslintIgnore": [
     "built",
-    "dist"
+    "dist",
+    "tests"
   ],
   "jest": {
     "preset": "ts-jest",
