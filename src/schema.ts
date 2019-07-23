@@ -107,8 +107,7 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
           propertyAliases[alias] = name
         }
         // Is this an override of a property schema in parent?
-        if (name in parentProperties)
-          property.override = true
+        if (name in parentProperties) property.override = true
       }
 
       if (Object.keys(propertyAliases).length > 0)
@@ -128,7 +127,11 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
 
       // Flag inherited, but newly required properties, as overrides
       for (const [name, property] of Object.entries(schema.properties)) {
-        if (property.from !== title && schema.required !== undefined && schema.required.includes(name))
+        if (
+          property.from !== title &&
+          schema.required !== undefined &&
+          schema.required.includes(name)
+        )
           property.override = true
       }
 
