@@ -34,10 +34,10 @@ async function build(): Promise<void> {
   globals = []
   const classesCode = types(schemas)
     .map(classGenerator)
-    .join('')
+    .join('\n\n')
   const unionsCode = unions(schemas)
     .map(unionGenerator)
-    .join('')
+    .join('\n\n')
   const globalsCode = globals.join('\n')
 
   const code = `from typing import Any, Dict, List as Array, Optional, Union
@@ -139,7 +139,7 @@ export function classGenerator(schema: Schema): string {
     )
     .join('\n')
 
-  const init = `    def __init__(${initPars}) -> None:\n${superCall}\n${initSetters}\n\n`
+  const init = `    def __init__(${initPars}) -> None:\n${superCall}\n${initSetters}`
 
   return clas + (attrs.length > 0 ? attrs + '\n\n' : '') + init + '\n'
 }
@@ -149,8 +149,11 @@ export function classGenerator(schema: Schema): string {
  */
 export function unionGenerator(schema: Schema): string {
   const { title, description } = schema
-  let code = `"""\n${description}\n"""\n`
-  code += `${title} = ${schemaToType(schema)}\n\n`
+  let code = ''
+  if (description !== undefined) {
+    code += `"""\n${formatDocstring(description)}\n"""\n`
+  }
+  code += `${title} = ${schemaToType(schema)}\n`
   return code
 }
 

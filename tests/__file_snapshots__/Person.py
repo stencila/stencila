@@ -43,16 +43,25 @@ class Person(Thing):
             name=name,
             url=url
         )
-        if address is not None: self.address = address
-        if affiliations is not None: self.affiliations = affiliations
-        if emails is not None: self.emails = emails
-        if familyNames is not None: self.familyNames = familyNames
-        if funders is not None: self.funders = funders
-        if givenNames is not None: self.givenNames = givenNames
-        if honorificPrefix is not None: self.honorificPrefix = honorificPrefix
-        if honorificSuffix is not None: self.honorificSuffix = honorificSuffix
-        if jobTitle is not None: self.jobTitle = jobTitle
-        if memberOf is not None: self.memberOf = memberOf
-        if telephoneNumbers is not None: self.telephoneNumbers = telephoneNumbers
-
-
+        if address is not None:
+            self.address = address
+        if affiliations is not None:
+            self.affiliations = affiliations
+        if emails is not None:
+            self.emails = emails
+        if familyNames is not None:
+            self.familyNames = familyNames
+        if funders is not None:
+            self.funders = funders
+        if givenNames is not None:
+            self.givenNames = givenNames
+        if honorificPrefix is not None:
+            self.honorificPrefix = honorificPrefix
+        if honorificSuffix is not None:
+            self.honorificSuffix = honorificSuffix
+        if jobTitle is not None:
+            self.jobTitle = jobTitle
+        if memberOf is not None:
+            self.memberOf = memberOf
+        if telephoneNumbers is not None:
+            self.telephoneNumbers = telephoneNumbers
