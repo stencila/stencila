@@ -8,7 +8,8 @@
   "main": "./dist/index.js",
   "scripts": {
     "dev": "parcel ./src/demo/index.html --open",
-    "build": "parcel build ./src/index.js ./src/themes/**/*.css ./src/themes/**/*.ts",
+    "build": "parcel build ./src/index.js ./src/**/*.css ./src/**/*.ts",
+    "watch": "parcel watch ./src/index.js ./src/**/*.css ./src/**/*.ts",
     "pages": "parcel build ./src/demo/index.html -d pages  --public-url .",
     "semantic-release": "semantic-release"
   },
@@ -30,6 +31,7 @@
   "homepage": "https://github.com/stencila/thema#readme",
   "devDependencies": {
     "@abide-community/parcel-plugin-clean-out-dir": "^1.0.0",
+    "@babel/core": "^7.5.5",
     "@stencila/dev-config": "^1.1.2",
     "autoprefixer": "^9.6.1",
     "normalize.css": "^8.0.1",
@@ -40,7 +42,7 @@
     "postcss-import-url": "^4.0.0",
     "postcss-nested": "^4.1.2",
     "postcss-url": "^8.0.0",
-    "prismjs": "^1.16.0",
+    "prismjs": "^1.17.1",
     "typescript": "^3.5.3"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
