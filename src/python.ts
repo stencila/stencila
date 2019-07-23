@@ -50,7 +50,7 @@ ${unionsCode}
 /**
  * Generate a `class`.
  */
-function classGenerator(schema: Schema): string {
+export function classGenerator(schema: Schema): string {
   const { title, extends: parent, description } = schema
   const { inherited, own, required, optional } = props(schema)
 
@@ -97,7 +97,7 @@ function classGenerator(schema: Schema): string {
 /**
  * Generate a `Union` type.
  */
-function unionGenerator(schema: Schema): string {
+export function unionGenerator(schema: Schema): string {
   const { title, description } = schema
   let code = `"""\n${description}\n"""\n`
   code += `${title} = ${schemaToType(schema)}\n\n`
@@ -170,7 +170,7 @@ function arrayToType(schema: Schema): string {
 /**
  * Convert a schema with the `enum` property to a Python `Enum`.
  */
-function enumToType(enu: (string | number)[]): string {
+export function enumToType(enu: (string | number)[]): string {
   const values = enu
     .map(schema => {
       return JSON.stringify(schema)

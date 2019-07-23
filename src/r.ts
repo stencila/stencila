@@ -4,13 +4,7 @@
 
 import fs from 'fs-extra'
 import path from 'path'
-import {
-  read,
-  types,
-  props,
-  Schema,
-  unions
-} from './bindings'
+import { read, types, props, Schema, unions } from './bindings'
 
 /**
  * Run `build()` when this file is run as a Node script
@@ -24,8 +18,12 @@ if (module.parent === null) build()
 async function build(): Promise<void> {
   const schemas = await read()
 
-  const classesCode = types(schemas).map(classGenerator).join('\n')
-  const unionsCode = unions(schemas).map(unionGenerator).join('\n')
+  const classesCode = types(schemas)
+    .map(classGenerator)
+    .join('\n')
+  const unionsCode = unions(schemas)
+    .map(unionGenerator)
+    .join('\n')
 
   const code = `
 ${classesCode}
@@ -37,17 +35,20 @@ ${unionsCode}
 }
 
 /**
- * Generate a function for a normal type.
+ * Generate a constructor function for a normal type.
  */
-function classGenerator (schema: Schema): string {
-  const { title, extends: parent, description, properties } = schema
+export function classGenerator(schema: Schema): string {
+  const { title = 'Untitled', extends: parent, description = title } = schema
   const { inherited, own, required, optional } = props(schema)
 
-  let code = `${title} <- function (\n`
-  code += [
-    ...required.map(({ name }) => `  ${name}`),
-    ...optional.map(({ name }) => `  ${name}`)
-  ].join(',\n')
+  let code = docComment(description, [
+    ...[...required, ...optional].map(
+      ({ name, schema }) => `@param  ${name} ${schema.description}`
+    ),
+    '@export'
+  ])
+  code += `${title} <- function (\n`
+  code += [...required, ...optional].map(({ name }) => `  ${name}`).join(',\n')
   code += `\n){\n`
 
   if (parent === undefined) {
@@ -76,11 +77,26 @@ function classGenerator (schema: Schema): string {
 /**
  * Generate a `Union` type.
  */
-function unionGenerator (schema: Schema): string {
-  const {title = '', description = title} = schema
-  let code = `#\` ${description.replace('\n', '\n#` ')}\n`
+export function unionGenerator(schema: Schema): string {
+  const { title = '', description = title } = schema
+  let code = docComment(description, ['@export'])
   code += `${title} = ${schemaToType(schema)}\n\n`
   return code
+}
+
+/**
+ * Generate a [roxygen](https://github.com/klutometis/roxygen) style
+ * doc comments
+ */
+function docComment(description: string, tags: string[] = []): string {
+  return (
+    '#` ' +
+    description.trim().replace('\n', '\n#` ') +
+    '\n' +
+    '#`\n' +
+    tags.map(tag => '#` ' + tag.trim().replace('\n', ' ')).join('\n') +
+    '\n'
+  )
 }
 
 /**
@@ -121,7 +137,7 @@ function anyOfToType(anyOf: Schema[]): string {
 }
 
 /**
- * Convert a schema with the `allOf` property to a Python type.
+ * Convert a schema with the `allOf` property to a type.
  */
 function allOfToType(allOf: Schema[]): string {
   if (allOf.length === 1) return schemaToType(allOf[0])
@@ -143,11 +159,11 @@ function arrayToType(schema: Schema): string {
 /**
  * Convert a schema with the `enum` property to an `Enum` type checker.
  */
-function enumToType(enu: (string | number)[]): string {
+export function enumToType(enu: (string | number)[]): string {
   const values = enu
     .map(schema => {
       return JSON.stringify(schema)
     })
     .join(', ')
-  return `"Enum"`
+  return `Enum(${values})`
 }
