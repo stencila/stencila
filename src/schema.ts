@@ -12,15 +12,9 @@ const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
 const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'built')
 
 /**
- * Run `build()` when this file is run as a Node script
- */
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-if (module.parent === null) build()
-
-/**
  * Generate `built/*.schema.json` files from `schema/*.schema.yaml` files.
  */
-export async function build(): Promise<void> {
+export const build = async (): Promise<void> => {
   // Asynchronously read all the schema definition YAML files into a map of objects
   const files = await globby('*.schema.yaml', { cwd: SCHEMA_SOURCE_DIR })
   const schemas = new Map<string, Schema>(
@@ -53,10 +47,16 @@ export async function build(): Promise<void> {
 }
 
 /**
+ * Run `build()` when this file is run as a Node script
+ */
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+if (module.parent === null) build()
+
+/**
  * Process a schema object to implement inheritance and
  * add add derived properties.
  */
-function processSchema(schemas: Map<string, Schema>, schema: Schema): void {
+const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
   const { $schema, $id, title, file, source, children, descendants } = schema
 
   // If it's already got a children and descendants, then it's been processed.
@@ -180,10 +180,10 @@ function processSchema(schemas: Map<string, Schema>, schema: Schema): void {
 /**
  * Get the parent schema, if any, of a schema
  */
-function parentSchema(
+const parentSchema = (
   schemas: Map<string, Schema>,
   schema: Schema
-): Schema | null {
+): Schema | null => {
   if (schema.extends === undefined) return null
 
   const parent = schemas.get(schema.extends)
