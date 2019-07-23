@@ -23,6 +23,9 @@
   "debug.inlineValues": true,
   "debug.node.autoAttach": "on",
   "editor.suggest.localityBonus": true,
+  "files.associations": {
+    "*.css": "postcss"
+  },
   "gitlens.blame.highlight.locations": ["overview", "gutter", "line"],
   "gitlens.blame.toggleMode": "window",
   "gitlens.codeLens.authors.enabled": false,
