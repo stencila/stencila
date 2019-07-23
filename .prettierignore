@@ -2,4 +2,5 @@ built
 dist
 node_modules
 public
+tests/__file_snapshots__
 .mypy_cache

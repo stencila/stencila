@@ -84,7 +84,7 @@ export const typeGenerator = (schema: Schema): string => {
   code += `  options: {\n`
   code += optional
     .map(({ name, schema }) => `    ${name}?: ${schemaToType(schema)}`)
-    .join(',\n')
+    .join('\n')
   code += `\n  } = {}\n`
   code += `): ${title} => ({\n`
   code += required.map(({ name }) => `  ${name},\n`).join('')
@@ -108,7 +108,7 @@ export const unionGenerator = (schema: Schema): string => {
 /**
  * Generate factory function name
  */
-const funcName = (name: string) => {
+const funcName = (name: string): string => {
   const func = `${name.substring(0, 1).toLowerCase() + name.substring(1)}`
   const reserved: { [key: string]: string } = { delete: 'del' }
   if (reserved[func] !== undefined) return reserved[func]

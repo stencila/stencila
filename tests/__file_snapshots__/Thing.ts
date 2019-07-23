@@ -18,11 +18,11 @@ export interface Thing  {
  */
 export const thing = (
   options: {
-    alternateNames?: Array<string>,
-    description?: string,
-    id?: string,
-    meta?: {[key: string]: any},
-    name?: string,
+    alternateNames?: Array<string>
+    description?: string
+    id?: string
+    meta?: {[key: string]: any}
+    name?: string
     url?: string
   } = {}
 ): Thing => ({

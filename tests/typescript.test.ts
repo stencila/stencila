@@ -34,8 +34,10 @@ test('generators', async () => {
 test('build', async () => {
   const file = await build()
   const program = typescript.createProgram([file], {})
-  const diagnostics = typescript.getPreEmitDiagnostics(program).map(diagnostic => {
-    return diagnostic.messageText
-  })
+  const diagnostics = typescript
+    .getPreEmitDiagnostics(program)
+    .map(diagnostic => {
+      return diagnostic.messageText
+    })
   expect(diagnostics).toEqual([])
 })

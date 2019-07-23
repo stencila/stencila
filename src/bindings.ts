@@ -83,7 +83,8 @@ export function props(
   const { title, properties = {}, required = [] } = schema
 
   const props = Object.entries(properties)
-    .filter(([name, h]) => name !== 'type')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .filter(([name, _]) => name !== 'type')
     .map(
       ([name, schema]): Property => {
         const { from } = schema
