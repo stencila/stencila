@@ -10,7 +10,3 @@ article = Article(
     Paragraph(content=list('Hello'))
   )
 )
-
-aarticle = Article(
-  title = 0
-)

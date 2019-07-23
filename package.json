@@ -87,7 +87,15 @@
   ],
   "jest": {
     "preset": "ts-jest",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/matchers.ts"
+    ],
+    "watchPathIgnorePatterns": [
+      "__file_snapshots__",
+      "built",
+      "dist"
+    ]
   },
   "husky": {
     "hooks": {

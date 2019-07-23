@@ -105,7 +105,7 @@ export function props(
   return {
     all: props,
     inherited: props.filter(prop => prop.inherited),
-    own: props.filter(prop => !prop.inherited),
+    own: props.filter(prop => !prop.inherited || !prop.optional),
     required: props.filter(prop => !prop.optional),
     optional: props.filter(prop => prop.optional)
   }
