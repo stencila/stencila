@@ -37,7 +37,7 @@ article {
   flex-wrap: wrap;
   align-content: center;
 
-  & > * {
+  & > *:not(table, figure) {
     width: 100%;
   }
 }
@@ -101,6 +101,11 @@ p {
       transform: translateX(-50%);
     }
   }
+
+  & + ul,
+  & + ol {
+    margin-top: 0;
+  }
 }
 
 ol,
@@ -117,6 +122,10 @@ li > *:first-child {
   margin-top: 0;
 }
 
+li > *:last-child {
+  margin-bottom: 0;
+}
+
 h1,
 h2,
 h3,
@@ -127,12 +136,13 @@ h6 {
 }
 
 article > pre,
+article > pre[class*='language-'],
 figure {
   background-color: #fff;
   width: auto;
-  max-width: max-content;
+  max-width: 100%;
+  min-width: var(--max-width);
   margin: 1.25rem auto;
-  text-align: center;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
   border: 1px solid #dbdbdb;
   overflow-y: hidden;
@@ -148,10 +158,6 @@ figure pre {
 figure img {
   display: block;
   margin: 0 auto;
-}
-
-figure pre {
-  text-align: left;
 }
 
 figcaption {
@@ -306,6 +312,8 @@ table {
   text-align: left;
   border-collapse: collapse;
   font-size: 80%;
+  margin: 1rem auto;
+  min-width: var(--max-width);
   overflow-x: auto;
 }
 
