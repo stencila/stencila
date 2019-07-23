@@ -24,9 +24,17 @@ ${typesCode}
 
 ${unionsCode}
 `
+  const dist = path.join(__dirname, '..', 'dist')
+  await fs.ensureDir(dist)
 
-  const file = path.join(__dirname, '..', 'dist', 'types.ts')
+  const file = path.join(dist, 'types.ts')
   await fs.writeFile(file, code)
+
+  // Create an index.js for require.resolve('@stencila/schema') to work
+  // properly in Encoda
+  // TODO This won't be necessary when using tsc to compile an index.js
+  await fs.writeFile(path.join(dist, 'index.js'), '\n')
+
   return file
 }
 
