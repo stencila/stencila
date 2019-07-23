@@ -6,6 +6,7 @@ import fs from 'fs-extra'
 import globby from 'globby'
 import yaml from 'js-yaml'
 import path from 'path'
+import cloneDeep from 'lodash.clonedeep'
 import Schema from './schema.d'
 
 const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
@@ -77,6 +78,16 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
     schema.source = `https://github.com/stencila/schema/blob/master/schema/${file}`
 
   try {
+    const parent = parentSchema(schemas, schema)
+    let parentProperties: { [key: string]: Schema } = {}
+    let parentRequired: string[] = []
+    if (parent !== null) {
+      // Ensure that the parent schema has been processed (to collect properties)
+      processSchema(schemas, parent)
+      if (parent.properties !== undefined) parentProperties = parent.properties
+      if (parent.required !== undefined) parentRequired = parent.required
+    }
+
     // Process properties
     if (schema.properties !== undefined) {
       schema.type = 'object'
@@ -84,45 +95,50 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
       const propertyAliases: { [key: string]: string } = {}
       for (const [name, property] of Object.entries(schema.properties)) {
         schema.properties[name].from = title
-
         // Registered declared aliases
         if (property.aliases !== undefined) {
           for (const alias of property.aliases) propertyAliases[alias] = name
         }
-        // Add aliases for array properties (if not ye registered)
+        // Add aliases for array properties (if not yet registered)
         if (property.type === 'array' && name.endsWith('s')) {
           const alias = name.slice(0, -1)
           if (property.aliases === undefined) property.aliases = []
           if (!property.aliases.includes(alias)) property.aliases.push(alias)
           propertyAliases[alias] = name
         }
-      }
-      if (Object.keys(propertyAliases).length > 0) {
-        schema.propertyAliases = propertyAliases
+        // Is this an override of a property schema in parent?
+        if (name in parentProperties)
+          property.override = true
       }
 
-      if (schema.additionalProperties === undefined) {
+      if (Object.keys(propertyAliases).length > 0)
+        schema.propertyAliases = propertyAliases
+
+      if (schema.additionalProperties === undefined)
         schema.additionalProperties = false
-      }
     }
 
     // Apply `extends` keyword
-    const parent = parentSchema(schemas, schema)
     if (parent !== null) {
-      // Ensure that the base schema has been processed (to collect properties)
-      processSchema(schemas, parent)
-
-      // Extends properties and requireds
+      // Extend `properties`
       schema.properties = {
-        ...(parent.properties !== undefined ? parent.properties : {}),
+        ...cloneDeep(parentProperties),
         ...(schema.properties !== undefined ? schema.properties : {})
       }
+
+      // Flag inherited, but newly required properties, as overrides
+      for (const [name, property] of Object.entries(schema.properties)) {
+        if (property.from !== title && schema.required !== undefined && schema.required.includes(name))
+          property.override = true
+      }
+
+      // Having done that, now we can extend `required`
       schema.required = [
-        ...(parent.required !== undefined ? parent.required : []),
+        ...parentRequired,
         ...(schema.required !== undefined ? schema.required : [])
       ]
 
-      // Initialise the `type` property
+      // Initialize the `type` property
       if (schema.properties.type !== undefined) {
         schema.properties.type = {
           ...schema.properties.type,

@@ -62,6 +62,7 @@ interface Property {
   name: string
   schema: Schema
   inherited: boolean
+  override: boolean
   optional: boolean
 }
 
@@ -87,10 +88,10 @@ export function props(
     .filter(([name, _]) => name !== 'type')
     .map(
       ([name, schema]): Property => {
-        const { from } = schema
+        const { from, override = false } = schema
         const inherited = from !== title
         const optional = required === undefined || !required.includes(name)
-        return { name, schema, inherited, optional }
+        return { name, schema, inherited, override, optional }
       }
     )
     .sort((a, b) => {
@@ -106,7 +107,7 @@ export function props(
   return {
     all: props,
     inherited: props.filter(prop => prop.inherited),
-    own: props.filter(prop => !prop.inherited || !prop.optional),
+    own: props.filter(prop => !prop.inherited || prop.override),
     required: props.filter(prop => !prop.optional),
     optional: props.filter(prop => prop.optional)
   }

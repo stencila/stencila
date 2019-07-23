@@ -59,6 +59,13 @@ export default interface Schema extends JSONSchema7 {
   from?: string
 
   /**
+   * Is this property schema an override of a property inherited
+   * from an ancestor. Examples of overrides include making an
+   * optional property required, or changing the schema of the property.
+   */
+  override?: boolean
+
+  /**
    * Aliases for this property schema.
    * Only applies when used in a property of another schema.
    */
