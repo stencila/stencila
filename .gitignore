@@ -1,7 +1,12 @@
 /built
 /dist
 /node_modules
+/.coverage
+/coverage.xml
+*.egg-info
 .DS_Store
-/.mypy_cache
+.mypy_cache
+__pycache__
+.tox
 *.out.*
 /types.ts

@@ -1,5 +1,6 @@
 import json
-import .types
+
+from . import types
 from .types import Node, Thing
 
 # TODO: Use Entity instead of Thing
@@ -29,4 +30,4 @@ def fromJSON(json: str) -> Node:
     """Convert JSON to a Node"""
     node = json.loads(json)
     if isinstance(node, dict): return fromDict(node)
-    else return node
+    else: return node

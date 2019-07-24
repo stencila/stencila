@@ -1,24 +1,39 @@
-language: node_js
-node_js: '10'
+matrix:
+  include:
 
-script:
-  - npm run lint
-  - npm run format
-  - npm run build
-  - npm run test
-  - npm run docs
+    - language: node_js
+      node_js: "10"
 
-deploy:
-  # Deploy a new version of NPM package and create a Github release
-  - provider: script
-    skip_cleanup: true
-    script: npx semantic-release
+      script:
+        - npm run lint
+        - npm run build
+        - npm run test
+        - npm run docs
 
-  # Deploy documentation to Github Pages
-  # See https://docs.travis-ci.com/user/deployment/pages/
-  - provider: pages
-    skip-cleanup: true
-    github-token: $GITHUB_TOKEN
-    local-dir: built
-    on:
-      branch: master
+      deploy:
+        # Deploy a new version of NPM package and create a Github release
+        - provider: script
+          skip_cleanup: true
+          script: npx semantic-release
+
+        # Deploy documentation to Github Pages
+        # See https://docs.travis-ci.com/user/deployment/pages/
+        - provider: pages
+          skip-cleanup: true
+          github-token: $GITHUB_TOKEN
+          local-dir: built
+          on:
+            branch: master
+
+    - language: python
+      python: 3.7
+
+      install:
+        - pip3 install pylint mypy tox-travis
+
+      script:
+        - make lint-py
+        - make test-py
+
+      after_success:
+        - bash <(curl -s https://codecov.io/bash) -cF py
