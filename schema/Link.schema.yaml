@@ -14,6 +14,13 @@ properties:
     '@id': stencila:target
     type: string
     format: uri
+  title:
+    '@id': stencila:title
+    description: A title for the link.
+    $comment: |
+      This property is analagous to the HTML `title` global attribute which
+      represents ["advisory information related to the element"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)
+    type: string
   relation:
     '@id': schema:linkRelationship
     description:
