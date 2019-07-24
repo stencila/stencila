@@ -3,7 +3,11 @@
   "version": "0.7.0",
   "description": "Stencila schema and other specifications",
   "files": [
-    "dist"
+    "dist",
+    "util/index.ts",
+    "util/guards.ts",
+    "util/type-map.ts",
+    "util/type-maps.ts"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
