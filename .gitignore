@@ -9,4 +9,8 @@
 __pycache__
 .tox
 *.out.*
+/.Rproj.user
+/man
+/stencilaschema_*.tar.gz
+/stencilaschema.Rcheck
 /types.ts

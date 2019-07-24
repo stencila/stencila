@@ -38,3 +38,17 @@ matrix:
 
       after_success:
         - bash <(curl -s https://codecov.io/bash) -cF py
+
+    - language: r
+      r: release
+
+      install:
+        - make setup
+
+      script:
+        - make lint-r
+        - make test-r
+        - make build-r
+
+      after_success:
+        - Rscript -e "covr::codecov()"

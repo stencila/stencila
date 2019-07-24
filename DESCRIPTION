@@ -1,0 +1,20 @@
+Package: stencilaschema
+Type: Package
+Title: Stencila schema
+Description: Stencila schema.
+Authors@R: c(person("Nokome", "Bentley", email = "nokome@stenci.la", role = c("aut", "cre")))
+URL: https://github.com/stencila/schema#readme
+BugReports: https://github.com/stencila/schema/issues
+License: Apache-2.0
+Version: 0.0.1
+Imports:
+    jsonlite
+Suggests:
+    covr,
+    devtools,
+    lintr,
+    roxygen2,
+    testthat
+RoxygenNote: 6.1.1.9000
+Collate:
+    'util.R'
