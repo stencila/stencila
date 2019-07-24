@@ -1,4 +1,5 @@
 export const themes = {
-  stencila: 'themes/stencila',
-  eLife: 'themes/eLife'
+  eLife: 'themes/eLife',
+  nature: 'themes/nature',
+  stencila: 'themes/stencila'
 }
