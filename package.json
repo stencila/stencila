@@ -4,6 +4,7 @@
   "description": "Stencila schema and other specifications",
   "files": [
     "dist",
+    "types.ts",
     "util/index.ts",
     "util/guards.ts",
     "util/type-map.ts",
