@@ -1,6 +1,6 @@
 title: TableRow
 '@id': stencila:TableRow
-$extends: Thing.schema.yaml
+$extends: Entity.schema.yaml
 role: secondary
 status: experimental
 description: A row within a Table.

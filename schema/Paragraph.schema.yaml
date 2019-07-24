@@ -1,6 +1,6 @@
 title: Paragraph
 '@id': stencila:Paragraph
-$extends: Thing.schema.yaml
+$extends: Entity.schema.yaml
 role: secondary
 status: experimental
 description: Paragraph

@@ -1,6 +1,6 @@
 title: Link
 '@id': stencila:Link
-$extends: Thing.schema.yaml
+$extends: Entity.schema.yaml
 role: secondary
 status: unstable
 description: A hyperlink to other pages, sections within the same document, resources, or any URL.
