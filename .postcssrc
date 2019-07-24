@@ -1,0 +1,13 @@
+{
+  "modules": false,
+  "plugins": {
+    "postcss-import": true,
+    "postcss-import-url": { "modernBrowser": true },
+    "postcss-url": { "url": "rebase" },
+    "postcss-nested": true,
+    "postcss-custom-properties": {
+      "preserve": false
+    },
+    "autoprefixer": true
+  }
+}
