@@ -25,8 +25,9 @@ matrix:
           on:
             branch: master
 
-    - language: python
-      python: 3.7
+    - dist: xenial
+      language: python
+      python: "3.7"
 
       install:
         - pip3 install pylint mypy tox-travis
