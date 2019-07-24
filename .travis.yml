@@ -25,9 +25,8 @@ matrix:
           on:
             branch: master
 
-    - dist: xenial
-      language: python
-      python: "3.7"
+    - language: python
+      python: 3.7
 
       install:
         - pip3 install pylint mypy tox-travis
@@ -38,17 +37,3 @@ matrix:
 
       after_success:
         - bash <(curl -s https://codecov.io/bash) -cF py
-
-    - language: r
-      r: release
-
-      install:
-        - make setup-r
-
-      script:
-        - make lint-r
-        - make test-r
-        - make build-r
-
-      after_success:
-        - Rscript -e "covr::codecov()"

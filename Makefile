@@ -10,7 +10,7 @@
 all: setup lint test build docs
 
 
-setup: setup-ts setup-py setup-r
+setup: setup-ts setup-py
 
 setup-ts:
 	npm install
@@ -18,12 +18,8 @@ setup-ts:
 setup-py:
 	pip3 install --user --upgrade -r requirements-dev.txt
 
-setup-r:
-	Rscript -e "install.packages('devtools')"
-	Rscript -e "devtools::install_github(c('jimhester/lintr', 'klutometis/roxygen', 'r-lib/covr', 'r-lib/testthat'))"
 
-
-lint: lint-ts lint-py lint-r
+lint: lint-ts lint-py
 
 lint-ts:
 	npm run lint
@@ -32,11 +28,8 @@ lint-py:
 	pylint python
 	mypy python
 
-lint-r:
-	Rscript -e 'lintr::lint_package()'
 
-
-test: test-ts test-py test-r
+test: test-ts test-py
 
 test-ts:
 	npm test
@@ -44,25 +37,14 @@ test-ts:
 test-py:
 	tox
 
-test-r:
-	Rscript -e 'devtools::test()'
 
-test-r-cover:
-	Rscript -e 'devtools::document()'
-	Rscript -e 'covr::package_coverage()'
-
-
-build: build-ts build-py build-r
+build: build-ts build-py
 
 build-ts:
 	npm run build
 
 build-py:
 	python3 setup.py sdist bdist_wheel
-
-build-r:
-	R CMD build . && R CMD check *.tar.gz
-
 
 .PHONY: docs
 docs:
@@ -75,13 +57,10 @@ watch:
 	npm run watch
 
 
-clean: clean-ts clean-py clean-r
+clean: clean-ts clean-py
 
 clean-ts:
 	npm run clean
 
 clean-py:
 	rm -rf build .coverage coverage.xml *.egg-info .tox **/__pycache__
-
-clean-r:
-	rm -rf stencilaschema_*.tar.gz stencilaschema.Rcheck
