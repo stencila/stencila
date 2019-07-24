@@ -1,6 +1,8 @@
 import { Node } from '../types'
 import { isEntity } from './guards'
 export * from './guards'
+export * from './type-map'
+export * from './type-maps'
 
 /**
  * Get the type of a node
