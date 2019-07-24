@@ -19,5 +19,14 @@ properties:
     # and so should not have a `@id` since it is not a property.
     description: The identifier for this item.
     type: string
+  meta:
+    # This property has been added to allow for tools that
+    # use this schema to add experimental, ad-hoc properties to
+    # entities.
+    # Ad-hoc properties that become commonly used may become part of
+    # the schema proper.
+    '@id': stencila:meta
+    description: Metadata associated with this item.
+    type: object
 required:
   - type
