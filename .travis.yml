@@ -43,7 +43,7 @@ matrix:
       r: release
 
       install:
-        - make setup
+        - make setup-r
 
       script:
         - make lint-r
