@@ -1,4 +1,5 @@
 from python.types import Article, Person, Paragraph
+from python.util import toJSON
 
 article = Article(
     title='',
@@ -12,3 +13,4 @@ article = Article(
     ]
 )
 
+print(toJSON(article))
