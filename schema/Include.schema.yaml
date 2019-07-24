@@ -4,7 +4,7 @@ description: |
   A directive to include content from an external source (e.g. file, URL) or content.
 role: secondary
 status: experimental
-$extends: Thing.schema.yaml
+$extends: Entity.schema.yaml
 properties:
   source:
     description: The JSON Reference to the included content.

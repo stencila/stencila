@@ -1,6 +1,6 @@
 title: ThematicBreak
 '@id': stencila:ThematicBreak
-$extends: Thing.schema.yaml
+$extends: Entity.schema.yaml
 role: secondary
 status: stable
 description: |
