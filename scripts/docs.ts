@@ -79,17 +79,46 @@ async function docs(): Promise<void> {
 }
 
 /**
+ * Given two strings, sort them alphabetically
+ */
+const sortAlphabetically = (a: string, b: string): number =>
+  a < b ? -1 : a > b ? 1 : 0
+
+const requiredPropsFirst = (requiredProps: string[]) => (
+  a: string,
+  b: string
+): number => {
+  // If both fields being compared are required, sort alphabetically
+  if (requiredProps.includes(a) && requiredProps.includes(b)) {
+    return sortAlphabetically(a, b)
+  }
+
+  // If field `a` is required and `b` is not, `a` should be listed before `b`
+  if (requiredProps.includes(a)) {
+    return -1
+  }
+
+  // If field `b` is required and `a` is not, `b` should be listed before `a`
+  if (requiredProps.includes(b)) {
+    return 1
+  }
+
+  // If neither fields are required, fall back to sorting them alphabetically
+  return sortAlphabetically(a, b)
+}
+
+/**
  * Create an article from a JSON schema object using
  * properties like `description`, `parent` etc.
  */
 function schema2Article(schema: { [key: string]: any }): Article {
   const { title = 'Untitled', properties = {} } = schema
 
-  const requiredFields = schema.required || []
+  const requiredProps = schema.required || []
 
   // Differentiate required properties by bolding them and adding a `(required)` suffix
   const requiredWrapper = (name: string): Strong | string =>
-    requiredFields.includes(name)
+    requiredProps.includes(name)
       ? {
           type: 'Strong',
           content: [name, ' ', { type: 'Emphasis', content: ['(required)'] }]
@@ -99,8 +128,7 @@ function schema2Article(schema: { [key: string]: any }): Article {
   const propertiesTable = {
     type: 'Table',
     rows: Object.entries(properties)
-      // TODO: Maybe sort properties in ascending order of inheritance depth
-      // and then alphabetically, like schema.org
+      .sort(([a], [b]) => requiredPropsFirst(requiredProps)(a, b))
       .map(([name, prop]: [string, any]) => {
         const { description = '', type = '', from = '' } = prop
         return {
@@ -108,17 +136,16 @@ function schema2Article(schema: { [key: string]: any }): Article {
           cells: [
             {
               type: 'TableCell',
-              content: [
-                {
-                  type: 'Link',
-                  target: `./${from}.html`,
-                  content: [from]
-                }
-              ]
+              content: [requiredWrapper(name)]
             },
             {
               type: 'TableCell',
-              content: [requiredWrapper(name)]
+              content: [
+                {
+                  type: 'Code',
+                  value: type
+                }
+              ]
             },
             {
               type: 'TableCell',
@@ -128,8 +155,9 @@ function schema2Article(schema: { [key: string]: any }): Article {
               type: 'TableCell',
               content: [
                 {
-                  type: 'Code',
-                  value: type
+                  type: 'Link',
+                  target: `./${from}.html`,
+                  content: [from]
                 }
               ]
             }
@@ -146,6 +174,11 @@ function schema2Article(schema: { [key: string]: any }): Article {
       {
         type: 'Paragraph',
         content: [schema.description || '']
+      },
+      {
+        type: 'Heading',
+        depth: 2,
+        content: ['Properties']
       },
       propertiesTable
     ]
