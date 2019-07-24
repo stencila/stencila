@@ -8,8 +8,8 @@
   "main": "./dist/index.js",
   "scripts": {
     "dev": "parcel ./src/demo/index.html --open",
-    "build": "parcel build ./src/index.js ./src/**/*.css ./src/**/*.ts",
-    "watch": "parcel watch ./src/index.js ./src/**/*.css ./src/**/*.ts",
+    "build": "parcel build ./src/**/*.css ./src/**/*.ts",
+    "watch": "parcel watch ./src/**/*.css ./src/**/*.ts",
     "pages": "parcel build ./src/demo/index.html -d pages  --public-url .",
     "semantic-release": "semantic-release"
   },
