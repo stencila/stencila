@@ -10,6 +10,7 @@ import fs from 'fs-extra'
 import globby from 'globby'
 import path from 'path'
 import { Article, Strong } from '../types'
+import { isArticle } from '../util/guards'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 docs()
@@ -38,19 +39,29 @@ async function docs(): Promise<void> {
         const mdFile = path.join('schema', `${title}.md`)
         if (await fs.pathExists(mdFile)) {
           const article = await encoda.read(mdFile)
+
+          // Don't output an HTML file if the Markdown document cannot be decoded into an article
+          if (!isArticle(article)) {
+            return
+          }
+
           const processed = await encodaProcess(
             {
-              // TODO: Remove @ts-ignore when type-guard branch is merged to master
-              // @ts-ignore
               ...article,
-              title: `${title} (${schema.status})`,
+              title,
               content: [
                 {
                   type: 'Heading',
                   depth: 2,
-                  content: ['Role: ', schema.role]
+                  content: [
+                    'Status: ',
+                    schema.status,
+                    ', ',
+                    'Role: ',
+                    schema.role
+                  ]
                 },
-                ...article.content
+                ...(article.content || [])
               ]
             },
             path.dirname(mdFile)
