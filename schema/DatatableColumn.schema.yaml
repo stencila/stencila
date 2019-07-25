@@ -1,12 +1,11 @@
 title: DatatableColumn
 '@id': stencila:DatatableColumn
-extends: Entity
+extends: Thing
 role: secondary
 status: experimental
 properties:
   schema:
     description: The schema to use to validate data in the column.
-    type: object
     allOf:
       - $ref: DatatableColumnSchema
   values:
