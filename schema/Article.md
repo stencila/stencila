@@ -7,9 +7,9 @@ An `Article` type allows you to provide details about a document containing amon
 
 include: ../built/Article.schema.md
 :::
-| Thing | type | The name of the type and all descendant types. | string |
+| Entity | type | The name of the type and all descendant types. | string |
 | ------------ | -------------- | ----------------------------------------------------------------------------- | ------ |
-| Thing | id | The identifier for this item. | string |
+| Entity | id | The identifier for this item. | string |
 | Thing | alternateNames | Alternate names (aliases) for the item. | array |
 | Thing | description | A description of the item. | string |
 | Thing | meta | Metadata associated with this item. | object |
@@ -41,6 +41,9 @@ In its most basic form, an `Article` requires a `title` and a list of `authors`.
       "familyNames": ["Curie"],
       "honorificSuffix": "PhD"
     }
+  ],
+  "content": [
+    "Le présent travail a pour but d'exposer les recherches que je poursuis depuis"
   ]
 }
 ```
@@ -92,7 +95,7 @@ In addition to the properties demonstrated above, `content` is usually a key pro
 
 ## JATS
 
-`Article` is analagous, and structurally similar to, the JATS [`<article>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/article.html) element:
+`Article` is analogous, and structurally similar to, the JATS [`<article>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/article.html) element:
 
 > A journal article `<article>` may be divided into three parts:
 >
@@ -102,13 +105,64 @@ In addition to the properties demonstrated above, `content` is usually a key pro
 
 In JATS the `<body>` element is the "Main textual portion of the document that conveys the narrative content."
 
+### JATS Simple Example
+
+```jats
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Archiving and Interchange DTD v1.1 20151215//EN"  "JATS-archivearticle1.dtd">
+<article xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+<front>
+<article-meta>
+<title-group>
+<article-title>Recherches sur les substances radioactives</article-title>
+</title-group>
+<pub-date pub-type="epub">
+<string-date>true</string-date>
+</pub-date>
+</article-meta>
+</front>
+<body>
+<graphic mimetype="image" mime-subtype="png" xlink:href="/private/var/folders/12/6r72hb0d3_q6xpdc47l1yr680000gn/T/ddb2e085c4aa5a553d20317fdd45e2a1.png" xlink:title="string" />
+</body>
+<back><fn-group>
+</fn-group>
+</back>
+</article>
+```
+
+### JATS Complex Example
+
+```jats
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Archiving and Interchange DTD v1.1 20151215//EN"  "JATS-archivearticle1.dtd">
+<article xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+<front>
+<article-meta>
+<title-group>
+<article-title>Introducing eLife’s first computationally reproducible article</article-title>
+</title-group>
+<pub-date pub-type="epub">
+<string-date>true</string-date>
+</pub-date>
+</article-meta>
+</front>
+<body>
+<p>In September 2017 eLife announced the start of the Reproducible Document Stack (RDS) project, a collaboration between Substance, Stencila and eLife to support the development of an open-source technology stack aimed at enabling researchers to publish reproducible manuscripts through online journals. Reproducible manuscripts enrich the traditional narrative of a research article with code, data and interactive figures that can be executed in the browser, downloaded and explored, giving readers a direct insight into the methods, algorithms and key data behind the published research.</p>
+<p>Today eLife, in collaboration with <ext-link ext-link-type="uri" xlink:href="http://substance.io/">Substance</ext-link>, <ext-link ext-link-type="uri" xlink:href="https://stenci.la/">Stencila</ext-link> and Tim Errington, Director of Research ar the Center for Open Science, US, published its <ext-link ext-link-type="uri" xlink:href="https://elifesci.org/reproducible-example">first reproducible article</ext-link>, based on one of Errington’s papers in the Reproducibility Project: Cancer Biology. This reproducible version of the article showcases some of what’s possible with the new RDS tools, and we invite researchers to explore the newly available opportunities to tell their story.</p>
+</body>
+<back><fn-group>
+</fn-group>
+</back>
+</article>
+```
+
 ## mdast
 
-`Article.body` is analagous to the mdast [`Root`](https://github.com/syntax-tree/mdast#root) node type which "represents a document":
+`Article.body` is analogous to the mdast [`Root`](https://github.com/syntax-tree/mdast#root) node type which "represents a document":
 
 > Root can be used as the root of a tree, never as a child. Its content model is not limited to top-level content, but can contain any content with the restriction that all content must be of the same category.
 
-### Simple Example
+### Markdown Simple Example
 
 ```markdown export=simple
 ---
@@ -123,9 +177,11 @@ authors:
       - Curie
     honorificSuffix: PhD
 ---
+
+Le présent travail a pour but d'exposer les recherches que je poursuis depuis
 ```
 
-### Complex Example
+### Markdown Complex Example
 
 ```markdown export=complex
 ---
@@ -157,7 +213,7 @@ Today eLife, in collaboration with [Substance](http://substance.io/), [Stencila]
 
 ## OpenDocument
 
-`Article` is analagous to the OpenDocument `<office:document>` element is the root element in a single**\*** OpenDocument XML document:
+`Article` is analogous to the OpenDocument `<office:document>` element is the root element in a single**\*** OpenDocument XML document:
 
 > The [`<office:document>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1414998_253892949) element is the root element of a document in OpenDocument format which is represented as a single XML document. It contains the entire document.
 
@@ -167,16 +223,16 @@ A `<office:document>` has child elements,
 - styles etc `<office:scripts>`, `<office:font-face-decls>`, `<office:styles>`, `<office:automatic-styles>`, `<office:master-styles>`
 - content `<office:body>`
 
-`Article.body` is analagous to `<office:body>` which can have child elements like `<office:drawing>`, `<office:presentation>`, `<office:spreadsheet>`, `<office:text>`. The primary difference is that `Article.body` can only contain named `Sheet`s (which themselves contain text or spreadsheet type documents).
+`Article.body` is analogous to `<office:body>` which can have child elements like `<office:drawing>`, `<office:presentation>`, `<office:spreadsheet>`, `<office:text>`. The primary difference is that `Article.body` can only contain named `Sheet`s (which themselves contain text or spreadsheet type documents).
 
-Other properties of `Article` are analagous to those in [`<office:meta>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415014_253892949).
+Other properties of `Article` are analogous to those in [`<office:meta>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415014_253892949).
 
 **\***: In a multi-XML document OpenDocument properties are group together e.g. content in `<office:document-content>` and styles in `<office:document-styles>`.
 
-### Simple Example
+### OpenDocument Simple Example
 
 This [`odt`](article-simple-ex1.out.odt) file was generated from the simple example.
 
-### Complex Example
+### OpenDocument Complex Example
 
-This [`odt`](article-complex-ex1.out.odt) file was generated from the simple example.
+This [`odt`](article-complex-ex1.out.odt) file was generated from the complex example.
