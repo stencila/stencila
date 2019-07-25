@@ -37,7 +37,7 @@
   "homepage": "https://stencila.github.io/schema",
   "devDependencies": {
     "@stencila/dev-config": "^1.1.2",
-    "@stencila/encoda": "^0.59.1",
+    "@stencila/encoda": "^0.60.2",
     "@types/fs-extra": "^8.0.0",
     "@types/jest": "^24.0.15",
     "@types/js-yaml": "^3.12.1",
