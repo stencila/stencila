@@ -1,6 +1,16 @@
-import { InlineContent, BlockContent, CreativeWork } from '../types'
+import { BlockContent, CreativeWork, Delete, Emphasis, InlineContent, Quote, Strong, Subscript, Superscript } from '../types';
+import { TypeMap } from './type-map';
 
-import { TypeMap } from './type-map'
+export type MarkTypes = Delete | Emphasis | Quote | Strong | Subscript | Superscript
+
+export const markTypes: TypeMap<MarkTypes> = {
+  Delete: 'Delete',
+  Emphasis: 'Emphasis',
+  Quote: 'Quote',
+  Strong: 'Strong',
+  Subscript: 'Subscript',
+  Superscript: 'Superscript'
+}
 
 export type InlineNodesWithType = Exclude<
   InlineContent,
