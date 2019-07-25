@@ -4,3 +4,4 @@
 .DS_Store
 /.mypy_cache
 *.out.*
+/types.ts
