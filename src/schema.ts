@@ -152,7 +152,7 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
 
       // Add to parent's children
       parent.children =
-        parent.children === undefined ? [title] : [...parent.children, title]
+        parent.children === undefined ? [title] : [...parent.children, title].sort()
 
       // Add to all ancestors' descendants and type enum
       let ancestor: Schema | null = parent
@@ -160,16 +160,14 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
         ancestor.descendants =
           ancestor.descendants === undefined
             ? [title]
-            : [...ancestor.descendants, title]
+            : [...ancestor.descendants, title].sort()
         if (
+          ancestor.title !== undefined &&
           ancestor.properties !== undefined &&
           ancestor.properties.type !== undefined &&
           ancestor.properties.type.enum !== undefined
         ) {
-          ancestor.properties.type.enum = [
-            ...ancestor.properties.type.enum,
-            title
-          ]
+          ancestor.properties.type.enum = [ancestor.title, ...ancestor.descendants]
         }
         ancestor = parentSchema(schemas, ancestor)
       }
