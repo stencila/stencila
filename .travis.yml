@@ -43,12 +43,12 @@ matrix:
       r: release
 
       install:
-        - make setup-r
+        - make -C r setup
 
       script:
-        - make lint-r
-        - make test-r
-        - make build-r
+        - make -C r lint
+        - make -C r test
+        - make -C r build
 
       after_success:
-        - Rscript -e "covr::codecov()"
+        - bash <(curl -s https://codecov.io/bash) -cF r
