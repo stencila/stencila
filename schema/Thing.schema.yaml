@@ -1,9 +1,8 @@
 title: Thing
 '@id': schema:Thing
-$extends: Entity.schema.yaml
+extends: Entity
 status: unstable
 description: The most generic type of item https://schema.org/Thing.
-type: object
 properties:
   alternateNames:
     '@id': schema:alternateName

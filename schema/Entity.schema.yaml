@@ -3,7 +3,6 @@ title: Entity
 role: base
 status: unstable
 description: The most basic item, defining the minimum properties required.
-type: object
 properties:
   type:
     # This is a special property analagous to JSON-LD's `@type` keyword

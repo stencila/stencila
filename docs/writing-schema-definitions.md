@@ -43,12 +43,12 @@ Just as for types, properties of types can be linked to the other contexts using
       type: string
 ```
 
-## The `$extends` keyword
+## The `extends` keyword
 
-This is a custom keyword which allows your type schema to inherit the `properties` and `required` keywords of a parent type schema. It should be a _relative_ file path e.g.
+This is a custom keyword which allows your type schema to inherit the `properties` and `required` keywords of a parent type schema. It should be the name of another type e.g.
 
 ```yaml
-$extends: ../Thing.schema.yaml
+extends: Thing
 ```
 
 ## The `role` keyword
