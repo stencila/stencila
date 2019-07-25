@@ -4,11 +4,7 @@
   "description": "Stencila schema and other specifications",
   "files": [
     "dist",
-    "types.ts",
-    "util/index.ts",
-    "util/guards.ts",
-    "util/type-map.ts",
-    "util/type-maps.ts"
+    "types.ts"
   ],
   "main": "dist/index.js",
   "types": "dist/types.d.ts",
@@ -24,7 +20,8 @@
     "build:r": "ts-node src/r.ts",
     "docs": "npm run docs:readme && npm run docs:build",
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
-    "docs:build": "ts-node scripts/docs && scripts/docs.sh",
+    "docs:build": "npm run build:jsonschema && ts-node scripts/docs",
+    "docs:serve": "npx browser-sync ./built -f ./built --directory --no-ui --reload-debounce 750",
     "watch": "gulp watch",
     "clean": "gulp clean"
   },
@@ -40,7 +37,7 @@
   "homepage": "https://stencila.github.io/schema",
   "devDependencies": {
     "@stencila/dev-config": "^1.1.2",
-    "@stencila/encoda": "^0.59.1",
+    "@stencila/encoda": "^0.60.2",
     "@types/fs-extra": "^8.0.0",
     "@types/jest": "^24.0.15",
     "@types/js-yaml": "^3.12.1",
@@ -48,6 +45,7 @@
     "@types/toposort": "^2.0.1",
     "ajv": "^6.10.2",
     "better-ajv-errors": "^0.6.4",
+    "browser-sync": "^2.26.7",
     "fs-extra": "^8.1.0",
     "globby": "^10.0.1",
     "gulp": "^4.0.2",
