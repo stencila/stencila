@@ -11,5 +11,13 @@ properties:
     type: array
     items:
       $ref: TableCell
+  kind:
+    '@id': stencila:TableRowKind
+    description: |
+      If present, indicates that all cells in this row should be treated as header cells.
+    type: string
+    enum:
+      - header
+      - footer
 required:
   - cells
