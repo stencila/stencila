@@ -11,7 +11,7 @@
     "util/type-maps.ts"
   ],
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/types.d.ts",
   "scripts": {
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
     "lint": "npx eslint './**/*.{js,ts}' --fix --env node --env es6 --env jest",
@@ -19,7 +19,10 @@
     "build": "npm run build:ts",
     "build:jsonschema": "gulp jsonschema",
     "build:jsonld": "gulp jsonld",
-    "build:ts": "gulp ts && tsc",
+    "build:ts": "ts-node src/typescript.ts",
+    "build:py": "ts-node src/python.ts",
+    "build:r": "ts-node src/r.ts",
+    "test": "jest",
     "docs": "npm run docs:readme && npm run docs:build",
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
     "docs:build": "ts-node scripts/docs && scripts/docs.sh",
@@ -41,17 +44,27 @@
     "@stencila/encoda": "^0.59.1",
     "@types/fs-extra": "^8.0.0",
     "@types/jest": "^24.0.15",
+    "@types/jest": "^24.0.15",
+    "@types/js-yaml": "^3.12.1",
+    "@types/lodash.clonedeep": "^4.5.6",
+    "@types/toposort": "^2.0.1",
     "ajv": "^6.10.2",
     "better-ajv-errors": "^0.6.4",
     "fs-extra": "^8.1.0",
     "globby": "^10.0.1",
     "gulp": "^4.0.2",
-    "husky": "^3.0.0",
+    "husky": "^3.0.1",
     "jest": "^24.8.0",
+    "jest-file-snapshot": "^0.3.6",
     "js-yaml": "^3.13.1",
+    "json-schema": "^0.2.3",
     "json-schema-to-typescript": "^6.1.3",
+    "lodash.clonedeep": "^4.5.0",
     "markdown-toc": "^1.2.0",
+    "object.fromentries": "^2.0.0",
+    "tempy": "^0.3.0",
     "through2": "^3.0.1",
+    "toposort": "^2.0.2",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.3",
@@ -90,8 +103,21 @@
   },
   "eslintIgnore": [
     "built",
-    "dist"
+    "dist",
+    "tests"
   ],
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/matchers.ts"
+    ],
+    "watchPathIgnorePatterns": [
+      "__file_snapshots__",
+      "built",
+      "dist"
+    ]
+  },
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged",
@@ -101,5 +127,6 @@
   "prettier": "@stencila/dev-config/prettier-config.json",
   "release": {
     "extends": "@stencila/semantic-release-config"
-  }
+  },
+  "dependencies": {}
 }

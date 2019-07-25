@@ -1,6 +1,10 @@
 title: TableRow
 '@id': stencila:TableRow
+<<<<<<< HEAD
 $extends: Entity.schema.yaml
+=======
+extends: Thing
+>>>>>>> 84-language-bindings
 role: secondary
 status: experimental
 description: A row within a Table.
@@ -10,6 +14,6 @@ properties:
     description: An array of cells in the row.
     type: array
     items:
-      $ref: TableCell.schema.yaml
+      $ref: TableCell
 required:
   - cells

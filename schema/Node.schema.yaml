@@ -12,4 +12,4 @@ anyOf:
   - type: string
   - type: array
   - type: object
-  - $ref: Thing.schema.yaml
+  - $ref: Thing

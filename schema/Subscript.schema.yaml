@@ -1,6 +1,6 @@
 title: Subscript
 '@id': stencila:Subscript
-$extends: Mark.schema.yaml
+extends: Mark
 role: secondary
 status: stable
 description: |

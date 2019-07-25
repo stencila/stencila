@@ -2,7 +2,5 @@
 /dist
 /node_modules
 .DS_Store
-
-### Generated files ###
-types.ts
+/.mypy_cache
 *.out.*

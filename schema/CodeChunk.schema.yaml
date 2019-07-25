@@ -1,6 +1,6 @@
 title: CodeChunk
 '@id': stencila:CodeChunk
-$extends: SoftwareSourceCode.schema.yaml
+extends: SoftwareSourceCode
 role: secondary
 status: unstable
 description: |
@@ -12,4 +12,4 @@ properties:
       Outputs from executing the chunk.
     type: array
     items:
-      $ref: Node.schema.yaml
+      $ref: Node

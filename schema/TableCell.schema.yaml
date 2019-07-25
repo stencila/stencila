@@ -1,6 +1,10 @@
 title: TableCell
 '@id': stencila:TableCell
+<<<<<<< HEAD
 $extends: Entity.schema.yaml
+=======
+extends: Thing
+>>>>>>> 84-language-bindings
 role: secondary
 status: experimental
 description: |
@@ -37,6 +41,6 @@ properties:
       Contents of the table cell.
     type: array
     items:
-      $ref: InlineContent.schema.yaml
+      $ref: InlineContent
 required:
   - content

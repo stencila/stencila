@@ -6,13 +6,13 @@ anyOf:
   - type: integer
   - type: number
   - type: string
-  - $ref: Emphasis.schema.yaml
-  - $ref: Strong.schema.yaml
-  - $ref: Delete.schema.yaml
-  - $ref: Subscript.schema.yaml
-  - $ref: Superscript.schema.yaml
-  - $ref: Quote.schema.yaml
-  - $ref: Code.schema.yaml
-  - $ref: CodeExpr.schema.yaml
-  - $ref: Link.schema.yaml
-  - $ref: ImageObject.schema.yaml
+  - $ref: Emphasis
+  - $ref: Strong
+  - $ref: Delete
+  - $ref: Subscript
+  - $ref: Superscript
+  - $ref: Quote
+  - $ref: Code
+  - $ref: CodeExpr
+  - $ref: Link
+  - $ref: ImageObject

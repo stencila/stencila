@@ -1,6 +1,10 @@
 title: Heading
 '@id': stencila:Heading
+<<<<<<< HEAD
 $extends: Entity.schema.yaml
+=======
+extends: Thing
+>>>>>>> 84-language-bindings
 role: secondary
 status: experimental
 description: Heading
@@ -13,7 +17,7 @@ properties:
     description: Content of the heading.
     type: array
     items:
-      $ref: InlineContent.schema.yaml
+      $ref: InlineContent
 required:
   - depth
   - content

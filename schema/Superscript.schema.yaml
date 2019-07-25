@@ -1,6 +1,6 @@
 title: Superscript
 '@id': stencila:Superscript
-$extends: Mark.schema.yaml
+extends: Mark
 role: secondary
 status: stable
 description: |

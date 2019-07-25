@@ -1,6 +1,6 @@
 title: Datatable
 '@id': stencila:Datatable
-$extends: CreativeWork.schema.yaml
+extends: CreativeWork
 role: primary
 status: experimental
 description: A table of data.
@@ -9,6 +9,6 @@ properties:
     description: TODO
     type: array
     items:
-      $ref: DatatableColumn.schema.yaml
+      $ref: DatatableColumn
 required:
   - columns

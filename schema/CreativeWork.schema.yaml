@@ -1,10 +1,10 @@
 title: CreativeWork
 '@id': schema:CreativeWork
-$extends: Thing.schema.yaml
+extends: Thing
 role: base
 status: stable
 description: |
-  The most generic kind of creative work, including books, movies, photographs, 
+  The most generic kind of creative work, including books, movies, photographs,
   software programs, etc. https://schema.org/CreativeWork
 properties:
   authors:
@@ -13,18 +13,18 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: Person.schema.yaml
-        - $ref: Organization.schema.yaml
+        - $ref: Person
+        - $ref: Organization
   citations:
     '@id': schema:citation
     description: |
-      Citations or references to other creative works, such as another publication, 
+      Citations or references to other creative works, such as another publication,
       web page, scholarly article, etc.
     type: array
     items:
       anyOf:
         - type: string
-        - $ref: CreativeWork.schema.yaml
+        - $ref: CreativeWork
   content:
     # We have added "content" because the existing schema.org property "text" implies
     # only unstructured text content.
@@ -32,7 +32,7 @@ properties:
     description: The structured content of this creative work c.f. property `text`.
     type: array
     items:
-      $ref: Node.schema.yaml
+      $ref: Node
   dateCreated:
     '@id': schema:dateCreated
     description: Date/time of creation.
@@ -70,7 +70,7 @@ properties:
       Persons who edited the CreativeWork.
     type: array
     items:
-      $ref: Person.schema.yaml
+      $ref: Person
   funders:
     '@id': schema:funder
     description: |
@@ -78,14 +78,14 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: Person.schema.yaml
-        - $ref: Organization.schema.yaml
+        - $ref: Person
+        - $ref: Organization
   isPartOf:
     '@id': schema:isPartOf
     description: |
       An item or other CreativeWork that this CreativeWork is a part of.
     allOf:
-      - $ref: CreativeWork.schema.yaml
+      - $ref: CreativeWork
   licenses:
     '@id': schema:license
     description: |
@@ -95,7 +95,7 @@ properties:
       anyOf:
         - type: string
           format: uri
-        - $ref: CreativeWork.schema.yaml
+        - $ref: CreativeWork
   parts:
     # The name "parts" seems more intuitive for users and developers than schema.orgs's "hasParts".
     # We provide the latter as an alias.
@@ -103,18 +103,18 @@ properties:
     aliases:
       - hasParts
     description: |
-      Elements of the collection which can be a variety of different elements, 
+      Elements of the collection which can be a variety of different elements,
       such as Articles, Datatables, Tables and more.
     type: array
     items:
-      $ref: CreativeWork.schema.yaml
+      $ref: CreativeWork
   publisher:
     '@id': schema:publisher
     description: |
       A publisher of the CreativeWork.
     anyOf:
-      - $ref: Person.schema.yaml
-      - $ref: Organization.schema.yaml
+      - $ref: Person
+      - $ref: Organization
   text:
     '@id': schema:text
     description: The textual content of this creative work.

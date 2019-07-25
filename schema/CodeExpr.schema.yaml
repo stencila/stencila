@@ -1,6 +1,6 @@
 title: CodeExpr
 '@id': stencila:CodeExpr
-$extends: SoftwareSourceCode.schema.yaml
+extends: SoftwareSourceCode
 role: secondary
 status: unstable
 description: An expression.
@@ -8,4 +8,4 @@ properties:
   value:
     '@id': schema:value
     allOf:
-      - $ref: Node.schema.yaml
+      - $ref: Node

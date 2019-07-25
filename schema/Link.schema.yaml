@@ -1,6 +1,10 @@
 title: Link
 '@id': stencila:Link
+<<<<<<< HEAD
 $extends: Entity.schema.yaml
+=======
+extends: Thing
+>>>>>>> 84-language-bindings
 role: secondary
 status: unstable
 description: A hyperlink to other pages, sections within the same document, resources, or any URL.
@@ -9,7 +13,7 @@ properties:
     '@id': stencila:content
     type: array
     items:
-      $ref: InlineContent.schema.yaml
+      $ref: InlineContent
   target:
     '@id': stencila:target
     type: string

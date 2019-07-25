@@ -1,6 +1,6 @@
 title: SoftwareSession
 '@id': stencila:SoftwareSession
-$extends: Thing.schema.yaml
+extends: Thing
 role: primary
 status: experimental
 description: |
@@ -11,19 +11,19 @@ properties:
     description: Volumes to mount in the session.
     type: array
     items:
-      - $ref: Mount.schema.yaml
+      - $ref: Mount
   cpuResource:
     '@id': stencila:cpuResource
     allOf:
-      - $ref: ResourceParameters.schema.yaml
+      - $ref: ResourceParameters
   memoryResource:
     '@id': stencila:memoryResource
     allOf:
-      - $ref: ResourceParameters.schema.yaml
+      - $ref: ResourceParameters
   environment:
     '@id': stencila:environment
     description: Definition of the environment to execute this session in.
     allOf:
-      - $ref: Environment.schema.yaml
+      - $ref: Environment
 required:
   - environment

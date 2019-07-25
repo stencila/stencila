@@ -4,37 +4,25 @@ description: |
   A directive to include content from an external source (e.g. file, URL) or content.
 role: secondary
 status: experimental
+<<<<<<< HEAD
 $extends: Entity.schema.yaml
+=======
+extends: Thing
+>>>>>>> 84-language-bindings
 properties:
   source:
-    description: The JSON Reference to the included content.
+    description: The source of the content.
+    type: string
+  mediaType:
+    description: The media type of the source content.
+    type: string
+  hash:
+    description: A SHA256 hash of the source content and media type the last time that the source was decoded.
     type: string
   content:
-    description: The content to be included. This is either obtained from the source (when specified).
-    type: string
-  mimetype:
-    description: The MIME type of the content.
-    type: string
-  parsed:
-    description: A SHA1 hash of the content and mimetype the last time that the content was included.
-    type: string
-  value:
-    description: The tree of nodes imported from the content.
-    type: object
-    oneOf:
-      - $ref: Datatable.schema.yaml
-      - $ref: Table.schema.yaml
-# Either needs to have `source` specified (from which `content` and `mimetype` are derived)
-# or have `content` and `mimetype` specified.
-anyOf:
-  - required:
-      - source
-  - required:
-      - content
-      - mimetype
-dependencies:
-  parsed:
-    - content
-    - mimetype
-  value:
-    - parsed
+    description: The content to be included.
+    type: array
+    items:
+      $ref: Node
+required:
+  - source

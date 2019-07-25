@@ -1,6 +1,10 @@
 title: ThematicBreak
 '@id': stencila:ThematicBreak
+<<<<<<< HEAD
 $extends: Entity.schema.yaml
+=======
+extends: Thing
+>>>>>>> 84-language-bindings
 role: secondary
 status: stable
 description: |

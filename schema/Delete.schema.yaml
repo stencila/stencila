@@ -1,6 +1,6 @@
 title: Delete
 '@id': stencila:Delete
-$extends: Mark.schema.yaml
+extends: Mark
 role: secondary
 status: stable
 description: Content that is marked for deletion

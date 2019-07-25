@@ -1,6 +1,6 @@
 title: SoftwareSourceCode
 '@id': schema:SoftwareSourceCode
-$extends: CreativeWork.schema.yaml
+extends: CreativeWork
 role: primary
 status: unstable
 description: |
@@ -23,8 +23,8 @@ properties:
       The people or organizations who maintain the software.
     type: array
     items:
-      - $ref: Organization.schema.yaml
-      - $ref: Person.schema.yaml
+      - $ref: Organization
+      - $ref: Person
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: |
@@ -40,15 +40,15 @@ properties:
   softwareRequirements:
     '@id': schema:softwareRequirements
     description: |
-      Component dependency requirements for application. 
-      This includes runtime environments and shared libraries that 
-      are not included in the application distribution package, but 
+      Component dependency requirements for application.
+      This includes runtime environments and shared libraries that
+      are not included in the application distribution package, but
       required to run the application (Examples include DirectX, Java or .NET runtime).
     type: array
     items:
       anyOf:
-        - $ref: SoftwareSourceCode.schema.yaml
-        - $ref: SoftwareApplication.schema.yaml
+        - $ref: SoftwareSourceCode
+        - $ref: SoftwareApplication
         - type: string
   targetProducts:
     '@id': schema:targetProduct
@@ -57,4 +57,4 @@ properties:
       If applies to several versions, just the product name can be used.
     type: array
     items:
-      - $ref: SoftwareApplication.schema.yaml
+      - $ref: SoftwareApplication

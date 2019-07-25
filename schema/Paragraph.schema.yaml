@@ -1,6 +1,10 @@
 title: Paragraph
 '@id': stencila:Paragraph
+<<<<<<< HEAD
 $extends: Entity.schema.yaml
+=======
+extends: Thing
+>>>>>>> 84-language-bindings
 role: secondary
 status: experimental
 description: Paragraph
@@ -8,6 +12,6 @@ properties:
   content:
     type: array
     items:
-      $ref: InlineContent.schema.yaml
+      $ref: InlineContent
 required:
   - content

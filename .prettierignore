@@ -2,6 +2,5 @@ built
 dist
 node_modules
 public
-
-### Generated files ###
-types.ts
+tests/__file_snapshots__
+.mypy_cache

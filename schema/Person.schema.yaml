@@ -1,10 +1,10 @@
 title: Person
 '@id': schema:Person
-$extends: Thing.schema.yaml
+extends: Thing
 role: secondary
 status: stable
 description: A person (alive, dead, undead, or fictional). https://schema.org/Person.
-parser: person
+codec: person
 properties:
   address:
     '@id': schema:address
@@ -15,7 +15,7 @@ properties:
     description: Organizations that the person is affiliated with.
     type: array
     items:
-      $ref: Organization.schema.yaml
+      $ref: Organization
   emails:
     '@id': schema:email
     description: Email addresses for the person.
@@ -32,10 +32,10 @@ properties:
       - lastName
       - lastNames
     description: |
-      Family name. In the U.S., the last name of an Person. 
+      Family name. In the U.S., the last name of an Person.
       This can be used along with givenName instead of the name property.
     allOf:
-      - parser: ssv
+      - codec: ssv
       - type: array
         items:
           type: string
@@ -47,8 +47,8 @@ properties:
     type: array
     items:
       anyOf:
-        - $ref: Organization.schema.yaml
-        - $ref: Person.schema.yaml
+        - $ref: Organization
+        - $ref: Person
   givenNames:
     '@id': schema:givenName
     aliases:
@@ -60,7 +60,7 @@ properties:
       Given name. In the U.S., the first name of a Person.
       This can be used along with familyName instead of the name property.
     allOf:
-      - parser: ssv
+      - codec: ssv
       - type: array
         items:
           type: string
@@ -85,7 +85,7 @@ properties:
     description: An organization (or program membership) to which this person belongs.
     type: array
     items:
-      - $ref: Organization.schema.yaml
+      - $ref: Organization
   telephoneNumbers:
     '@id': schema:telephone
     aliases:

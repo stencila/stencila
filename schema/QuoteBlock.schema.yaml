@@ -1,6 +1,10 @@
 title: QuoteBlock
 '@id': stencila:QuoteBlock
+<<<<<<< HEAD
 $extends: Entity.schema.yaml
+=======
+extends: Thing
+>>>>>>> 84-language-bindings
 role: secondary
 status: stable
 description: |
@@ -15,6 +19,6 @@ properties:
     '@id': 'stencila:content'
     type: array
     items:
-      $ref: BlockContent.schema.yaml
+      $ref: BlockContent
 required:
   - content

@@ -1,6 +1,6 @@
 title: ResourceParameters
 '@id': stencila:ResourceParameters
-$extends: Thing.schema.yaml
+extends: Thing
 role: secondary
 status: experimental
 description: |
