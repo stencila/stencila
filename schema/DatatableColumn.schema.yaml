@@ -4,9 +4,6 @@ extends: Entity
 role: secondary
 status: experimental
 properties:
-  meta:
-    description: Metadata for the column.
-    type: object
   schema:
     description: The schema to use to validate data in the column.
     type: object
