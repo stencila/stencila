@@ -1,10 +1,6 @@
 title: Mark
 '@id': stencila:Mark
-<<<<<<< HEAD
-$extends: Entity.schema.yaml
-=======
-extends: Thing
->>>>>>> 84-language-bindings
+extends: Entity
 role: base
 status: stable
 description: |

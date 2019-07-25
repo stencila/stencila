@@ -4,11 +4,7 @@ description: |
   A directive to include content from an external source (e.g. file, URL) or content.
 role: secondary
 status: experimental
-<<<<<<< HEAD
-$extends: Entity.schema.yaml
-=======
-extends: Thing
->>>>>>> 84-language-bindings
+extends: Entity
 properties:
   source:
     description: The source of the content.

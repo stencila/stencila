@@ -1,10 +1,6 @@
 title: QuoteBlock
 '@id': stencila:QuoteBlock
-<<<<<<< HEAD
-$extends: Entity.schema.yaml
-=======
-extends: Thing
->>>>>>> 84-language-bindings
+extends: Entity
 role: secondary
 status: stable
 description: |

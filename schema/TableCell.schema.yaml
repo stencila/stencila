@@ -1,10 +1,6 @@
 title: TableCell
 '@id': stencila:TableCell
-<<<<<<< HEAD
-$extends: Entity.schema.yaml
-=======
-extends: Thing
->>>>>>> 84-language-bindings
+extends: Entity
 role: secondary
 status: experimental
 description: |

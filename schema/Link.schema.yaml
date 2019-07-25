@@ -1,10 +1,6 @@
 title: Link
 '@id': stencila:Link
-<<<<<<< HEAD
-$extends: Entity.schema.yaml
-=======
-extends: Thing
->>>>>>> 84-language-bindings
+extends: Entity
 role: secondary
 status: unstable
 description: A hyperlink to other pages, sections within the same document, resources, or any URL.

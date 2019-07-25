@@ -1,10 +1,6 @@
 title: Heading
 '@id': stencila:Heading
-<<<<<<< HEAD
-$extends: Entity.schema.yaml
-=======
-extends: Thing
->>>>>>> 84-language-bindings
+extends: Entity
 role: secondary
 status: experimental
 description: Heading

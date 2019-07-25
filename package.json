@@ -15,14 +15,13 @@
   "scripts": {
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
     "lint": "npx eslint './**/*.{js,ts}' --fix --env node --env es6 --env jest",
-    "test": "gulp test && npx jest",
+    "test": "jest",
     "build": "npm run build:ts",
     "build:jsonschema": "gulp jsonschema",
     "build:jsonld": "gulp jsonld",
     "build:ts": "ts-node src/typescript.ts",
     "build:py": "ts-node src/python.ts",
     "build:r": "ts-node src/r.ts",
-    "test": "jest",
     "docs": "npm run docs:readme && npm run docs:build",
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
     "docs:build": "ts-node scripts/docs && scripts/docs.sh",
@@ -43,7 +42,6 @@
     "@stencila/dev-config": "^1.1.2",
     "@stencila/encoda": "^0.59.1",
     "@types/fs-extra": "^8.0.0",
-    "@types/jest": "^24.0.15",
     "@types/jest": "^24.0.15",
     "@types/js-yaml": "^3.12.1",
     "@types/lodash.clonedeep": "^4.5.6",
@@ -74,11 +72,19 @@
     "preset": "ts-jest",
     "testEnvironment": "node",
     "testMatch": [
-      "<rootDir>/util/**/__tests__/**/*.[jt]s?(x)",
-      "<rootDir>/util/**/*.test.[jt]s?(x)"
+      "<rootDir>/**/__tests__/**/*.[jt]s?(x)",
+      "<rootDir>/**/*.test.[jt]s?(x)"
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/dist"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/matchers.ts"
+    ],
+    "watchPathIgnorePatterns": [
+      "__file_snapshots__",
+      "built",
+      "dist"
     ]
   },
   "commitlint": {
@@ -106,18 +112,6 @@
     "dist",
     "tests"
   ],
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "<rootDir>/tests/matchers.ts"
-    ],
-    "watchPathIgnorePatterns": [
-      "__file_snapshots__",
-      "built",
-      "dist"
-    ]
-  },
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged",

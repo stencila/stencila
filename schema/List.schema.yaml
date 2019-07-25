@@ -1,10 +1,6 @@
 title: List
 '@id': schema:ItemList
-<<<<<<< HEAD
-$extends: Entity.schema.yaml
-=======
-extends: Thing
->>>>>>> 84-language-bindings
+extends: Entity
 role: secondary
 status: unstable
 description: |
