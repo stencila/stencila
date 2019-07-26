@@ -75,7 +75,7 @@ This section describes common encodings for this node type. These samples are ge
 
 ## Pandoc
 
-`Link` is analagous to the Pandoc [`Link`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L270) type.
+`Link` is analogous to the Pandoc [`Link`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L270) type.
 
 ```pandoc export=ex1
 {

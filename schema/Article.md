@@ -21,11 +21,9 @@ include: ../built/Article.schema.md
 web page, scholarly article, etc. | array | | CreativeWork | content | The structured content of this creative work c.f. property \`text\`. | array | | CreativeWork | dateCreated | Date/time of creation. | | | CreativeWork | dateModified | Date/time of most recent modification. | | | CreativeWork | datePublished | Date of first publication. | | | CreativeWork | editors | Persons who edited the CreativeWork. | array | | CreativeWork | funders | Person or organisation that funded the CreativeWork. | array | | CreativeWork | isPartOf | An item or other CreativeWork that this CreativeWork is a part of. | | | CreativeWork | licenses | License documents that applies to this content, typically indicated by URL. | array | | CreativeWork | parts | Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more. | array | | CreativeWork | publisher | A publisher of the CreativeWork. | | | CreativeWork | text | The textual content of this creative work. | string | | CreativeWork | title | | string | | CreativeWork | version | | | | Article | environment | The computational environment in which the document should be executed. | |
 :::
 
-# Formats
+# Examples
 
-These examples, based on [Marie Curie](https://en.wikipedia.org/wiki/Marie_Curie), illustrate alternative ways for specifying an `Article`.
-
-## JSON (Simple)
+## Simple
 
 In its most basic form, an `Article` requires a `title` and a list of `authors`.
 
@@ -48,7 +46,7 @@ In its most basic form, an `Article` requires a `title` and a list of `authors`.
 }
 ```
 
-## JSON (More Complex)
+## More Complex
 
 In addition to the properties demonstrated above, `content` is usually a key property to most articles. The `content` property contains a list of [`Node`s](/schema/Node), meaning it can be contain any other valid node type.
 
@@ -92,6 +90,15 @@ In addition to the properties demonstrated above, `content` is usually a key pro
   ]
 }
 ```
+
+# Encodings
+
+include: ../docs/type-encodings-intro.md
+:::
+This section describes common encodings for this node type. These samples are generated from the above examples by [Encoda](https://stencila.github.io/encoda), but you can also author them in each format.
+:::
+
+These examples, based on [Marie Curie](https://en.wikipedia.org/wiki/Marie_Curie), illustrate alternative ways for specifying an `Article`.
 
 ## JATS
 

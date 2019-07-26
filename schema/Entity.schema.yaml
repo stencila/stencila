@@ -5,7 +5,7 @@ status: unstable
 description: The most basic item, defining the minimum properties required.
 properties:
   type:
-    # This is a special property analagous to JSON-LD's `@type` keyword
+    # This is a special property analogous to JSON-LD's `@type` keyword
     # and so should not have a `@id` since it is not a property.
     # It is extended with the titles of all descendant types during
     # the generation of schema.json files.
@@ -14,7 +14,7 @@ properties:
     enum: [Entity]
     default: Entity
   id:
-    # This is a special property analagous to JSON-LD's `@id` keyword
+    # This is a special property analogous to JSON-LD's `@id` keyword
     # and so should not have a `@id` since it is not a property.
     description: The identifier for this item.
     type: string

@@ -1,20 +1,46 @@
-# Person
+---
+title: Person
+authors: []
+---
+
+include: ../built/Person.schema.md
+:::
+A person (alive, dead, undead, or fictional). https&#x3A;//schema.org/Person.
+
+| Entity | type           | The name of the type and all descendant types.        | string |
+| ------ | -------------- | ----------------------------------------------------- | ------ |
+| Entity | id             | The identifier for this item.                         | string |
+| Thing  | alternateNames | Alternate names (aliases) for the item.               | array  |
+| Thing  | description    | A description of the item.                            | string |
+| Thing  | meta           | Metadata associated with this item.                   | object |
+| Thing  | name           | The name of the item.                                 | string |
+| Thing  | url            | The URL of the item.                                  | string |
+| Person | address        | Postal address for the person.                        | string |
+| Person | affiliations   | Organizations that the person is affiliated with.     | array  |
+| Person | emails         | Email addresses for the person.                       | array  |
+| Person | familyNames    | Family name. In the U.S., the last name of an Person. |        |
+
+This can be used along with givenName instead of the name property. | | | Person | funders | A person or organization that supports (sponsors) something through some kind of financial contribution. | array | | Person | givenNames | Given name. In the U.S., the first name of a Person. This can be used along with familyName instead of the name property. | | | Person | honorificPrefix | An honorific prefix preceding a person's name such as Dr/Mrs/Mr. | string | | Person | honorificSuffix | An honorific suffix after a person's name such as MD/PhD/MSCSW. | string | | Person | jobTitle | The job title of the person (for example, Financial Manager). | string | | Person | memberOf | An organization (or program membership) to which this person belongs. | array | | Person | telephoneNumbers | Telephone numbers for the person. | array |
+:::
 
 The `Person` type allows you to provide details about a person such as their given and family names, any honorific prefix or suffix, and contact details such as an email address. This type of often used to describe the `authors` of an [`Article`](/Article), or other [`CreativeWork`](/CreativeWork).
 
-## Examples
+# Encodings
+
+include: ../docs/type-encodings-intro.md
+:::
+This section describes common encodings for this node type. These samples are generated from the above examples by [Encoda](https://stencila.github.io/encoda), but you can also author them in each format.
+:::
 
 These examples, based on Marie Curie, illustrate alternative ways for specifying a `Person`. [Marie Curie](https://en.wikipedia.org/wiki/Marie_Curie) was the first woman to win a Nobel Prize, the first person and only woman to win twice, and the only person to win a Nobel Prize in two different sciences.
 
-<!--
-These examples will eventually be wrapped in React components
-to illustrate how the input is converted into Stencila JSON
-See https://github.com/stencila/schema/issues/45
--->
+&lt;!-- These examples will eventually be wrapped in React components to illustrate how the input is converted into Stencila JSON See https&#x3A;//github.com/stencila/schema/issues/45 -->
+
+## JSON
 
 Dr Curie can be represented in canonical Stencila JSON by:
 
-```json validate
+```json validate import=example1
 {
   "type": "Person",
   "honorificPrefix": "Dr",
@@ -23,6 +49,8 @@ Dr Curie can be represented in canonical Stencila JSON by:
   "honorificSuffix": "PhD"
 }
 ```
+
+## YAML
 
 YAML provides a more readable format for providing details about a person in places like Markdown front-matter. In the following example, we take advantage of [property aliases](/docs/property-aliases) to use the shorter `prefix` and `suffix` property names, and the US convention of `firstNames` and `lastName` (instead of `givenNames` and `familyNames`). We also use [property parsing](/docs/property-parsing) to be be able to write `firstNames` as a space separated values.
 
@@ -67,54 +95,53 @@ authors:
   - Schweidler, E.
 ```
 
-## Related
+## JATS
 
-### JATS
+`Person` is analogous, and structurally similar to, the JATS [`<contrib>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/contrib.html) element. JATS includes `<custom-meta>` element, this _"element can be used as an escape-hatch to record additional metadata that a publisher or archive wishes to preserve (so that the intellectual work to capture that content will not be lost) even though there is no direct expression for the metadata in the Tag Set"._
 
-`Person` is analogous, and structurally similar to, the JATS [`<contrib>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/contrib.html) element.
-JATS includes `<custom-meta>` element, this _"element can be used as an escape-hatch to record additional metadata that a publisher or archive wishes to preserve (so that the intellectual work to capture that content will not be lost) even though there is no direct expression for the metadata in the Tag Set"._
+```jats export=example1
 
-### OpenDocument
+
+```
+
+## OpenDocument
 
 `Person` is analogous to the OpenDocument `Author Fields` element which is the elements in a single OpenDocument XML document:
 
 > The [`Author Fields`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415310_253892949) elements are:
 >
-> - The <text:author-name> element represents the full name of the author of a document.
-> - The <text:author-initials> element represents the initials of the author of a document.
+> - The &lt;text:author-name> element represents the full name of the author of a document.
+> - The &lt;text:author-initials> element represents the initials of the author of a document.
 
-### HTML5
+## HTML5
 
 In HTML5 metadata about the author can be included in two ways.
 
-1. If there is a link to the detailed information about the author (eg. their homepage), `rel="author"` with `link` or `a` [should be used](https://html.spec.whatwg.org/multipage/links.html#link-type-author).
-   Example:
+1.  If there is a link to the detailed information about the author (eg. their homepage), `rel="author"` with `link` or `a` [should be used](https://html.spec.whatwg.org/multipage/links.html#link-type-author). Example:
 
 ```html
 <a href="http://johnsplace.com" rel="author">John</a>
 ```
 
-2. If there is no link to the information about the author, `class="author"` attribute should be used with `area`, `span` and so on.
-   Example:
+1.  If there is no link to the information about the author, `class="author"` attribute should be used with `area`, `span` and so on. Example:
 
 ```html
 <span class="author">John</span>
 ```
 
-### Crossref
+## Crossref
 
-`Person` is analogous to the Crossref [`<contributors>`](https://support.crossref.org/hc/en-us/articles/214567746-Authors-and-editors) child element
-[`<person_name>`](https://data.crossref.org/reports/help/schema_doc/4.4.0/relations_xsd.html#http___www.crossref.org_relations.xsd_person_name) which describes a person who contributed to authoring or editing an entity.
+`Person` is analogous to the Crossref [`<contributors>`](https://support.crossref.org/hc/en-us/articles/214567746-Authors-and-editors) child element [`<person_name>`](https://data.crossref.org/reports/help/schema_doc/4.4.0/relations_xsd.html#http___www.crossref.org_relations.xsd_person_name) which describes a person who contributed to authoring or editing an entity.
 
-### Citation Style Language (CSL)
+## Citation Style Language (CSL)
 
 `Person` is analogous to the CSL JSON Schema for [`author`](https://github.com/citation-style-language/schema/blob/f01ba9c5ec2055e381a38598919a379255c496c5/csl-data.json#L72) items which describe a person who contributed to authoring an entity.
 
-### ISA framework
+## ISA framework
 
 The ISA metadata framework includes a [`person_schema.json`](https://isa-specs.readthedocs.io/en/latest/isajson.html#person-schema-json) which is similar to `Person`.
 
-### Summary
+# Summary
 
 The following table summarizes how properties of `Person` relate to other schema.
 
