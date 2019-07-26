@@ -20,9 +20,7 @@ Heading
 
 :::
 
-# Formats
-
-## JSON
+# Examples
 
 To illustrate how `Heading` nodes are represented in alternative formats, we'll use the following example.
 
@@ -35,6 +33,13 @@ To illustrate how `Heading` nodes are represented in alternative formats, we'll 
 ```
 
 For compatibility with HTML, only integer depths in the range 1–6 are supported.
+
+# Encodings
+
+include: ../docs/type-encodings-intro.md
+:::
+This section describes common encodings for this node type. These samples are generated from the above examples by [Encoda](https://stencila.github.io/encoda), but you can also author them in each format.
+:::
 
 ## HTML
 
