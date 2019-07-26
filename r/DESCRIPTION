@@ -1,12 +1,13 @@
-Package: stencilaschema
+Package: stencila
 Type: Package
-Title: Stencila schema
-Description: Stencila schema.
+Title: Stencila
+Description: Stencila.
 Authors@R: c(person("Nokome", "Bentley", email = "nokome@stenci.la", role = c("aut", "cre")))
 URL: https://github.com/stencila/schema#readme
 BugReports: https://github.com/stencila/schema/issues
-License: Apache-2.0
+License: MIT + file LICENSE
 Version: 0.0.1
+Encoding: UTF-8
 Imports:
     jsonlite
 Suggests:
@@ -17,4 +18,8 @@ Suggests:
     testthat
 RoxygenNote: 6.1.1.9000
 Collate:
-    'util.R'
+    'stencila.R'
+    'typing.R'
+    'types.R'
+    'datatable.R'
+    'json.R'

@@ -1,4 +1,5 @@
 /.Rproj.user
 /man
-/stencilaschema_*.tar.gz
-/stencilaschema.Rcheck
+/stencila_*
+/*.Rcheck
+/.Rhistory

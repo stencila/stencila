@@ -10,3 +10,4 @@ __pycache__
 .tox
 *.out.*
 /types.ts
+.Rproj.user
