@@ -13,4 +13,5 @@ matrix:
         - make -C r build
 
       after_success:
+        - make -C r cover
         - bash <(curl -s https://codecov.io/bash) -cF r
