@@ -14,34 +14,48 @@ title: Organization
 
 ## The `@id` keyword
 
-This is a custom keyword used when generating the JSON-LD `@context`.
+This is a custom keyword used to define a term with the vocabulary of the Stencila JSON-LD `@context`.
 
-You MUST declare the `@id` keyword for each type using the format `<context>:<type>`. For example, `schema:Person`. Note that because this property name begins with the special character `@`, that it needs to be surrounded by quotes e.g.
-
-```yaml
-'@id': schema:Organization
-```
-
-Currently, the Stencila context allows you to refer to the following external contexts:
+Where possible we use terms from existing vocabularies. Currently, the Stencila context allows you to refer to the following external vocabularies:
 
 - `schema`: https://schema.org/
 - `bioschemas`: http://bioschemas.org
 - `codemeta`: https://doi.org/10.5063/schema/codemeta-2.0
 
-For example, the type schema to represent a laboratory protocol might use the `@id` of the Bioschemas [`LabProtocol`](http://bioschemas.org/specifications/LabProtocol/).
+
+### Type `@id`s
+
+You MUST declare the `@id` keyword for each type using the format `<context>:<type>`. Note that because this property name begins with the special character `@`, that it needs to be surrounded by quotes e.g.
+
+```yaml
+'@id': schema:Person
+```
+
+Use existing type names from other vocabularies as much as possible. For example, the type schema to represent a laboratory protocol might use the `@id` of the Bioschemas [`LabProtocol`](http://bioschemas.org/specifications/LabProtocol/).
 
 ```yaml
 '@id': bioschemas:LabProtocol
 ```
 
-Just as for types, properties of types can be linked to the other contexts using the `@id` keyword. For example,
+When a type is not represented in another vocabulary, or has a sufficiently different structure to a similar type elsewhere, define the id within the Stencila context i.e. `'@id': stencila:<type>`
+
+### Property `@id`s
+
+You MUST declare the `@id` keyword for each property of a type using the format `<context>:<property>`.
+
+Often, the `@id` will be the same as the property name. However, you should reuse property names from other vocabularies where possible. For example, the `Person` type schema has a property `givenNames` (not the plural) which is an array of strings.
 
 ```yaml
-- properties:
-    address:
-      '@id': schema:address
-      type: string
+givenNames:
+  '@id': schema:givenName
+  type: array
+  items: string
 ```
+
+By declaring the `@id` of that property as `schema:givenName` we are saying "within this vocabulary, when we use the term 'givenNames', we mean the same as http://schema.org/givenName".
+
+Sometimes, a property name is not represented in another vocabulary. In these casese, define the property name as a new term within the Stencila vocabulary i.e. `'@id': stencila:<property>`
+
 
 ## The `extends` keyword
 
