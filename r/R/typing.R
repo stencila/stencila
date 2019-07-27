@@ -10,7 +10,7 @@ format.Any <- function(x) { # nolint
 }
 
 print.Any <- function(x) { # nolint
-  print(format(x))
+  print(format(x)) # nocov
 }
 
 
@@ -28,7 +28,7 @@ format.Array <- function(type) { # nolint
 }
 
 print.Array <- function(x) { # nolint
-  print(format(x))
+  print(format(x)) # nocov
 }
 
 #' Union type
@@ -45,7 +45,7 @@ format.Union <- function(type) { # nolint
 }
 
 print.Union <- function(x) { # nolint
-  print(format(x))
+  print(format(x)) # nocov
 }
 
 
@@ -61,7 +61,7 @@ format.Enum <- function(type) { # nolint
 }
 
 print.Enum <- function(x) { # nolint
-  print(format(x))
+  print(format(x)) # nocov
 }
 
 #' Get the last class for an object
@@ -75,7 +75,7 @@ is_class <- function(value, clas) {
   last_class(value) == clas
 }
 
-#' Is a value conform to the type?
+#' Does a value conform to the type?
 is_type <- function(value, type) {
   type_class <- last_class(type)
   if (type_class == "Any") {

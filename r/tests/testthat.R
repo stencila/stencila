@@ -1,4 +1,4 @@
 library(testthat)
-library(stenschema)
+library(stencila)
 
-test_check("stenschema")
+test_check("stencila")

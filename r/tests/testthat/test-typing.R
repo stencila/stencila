@@ -65,6 +65,20 @@ test_that("Enum", {
   expect_false(is_type(Person(), enum))
 })
 
+test_that("mode_to_type", {
+  expect_equal(mode_to_type("logical"), "boolean")
+  expect_equal(mode_to_type("numeric"), "number")
+  expect_equal(mode_to_type("character"), "string")
+  expect_equal(mode_to_type("list"), "object")
+})
+
+test_that("type_to_mode", {
+  expect_equal(type_to_mode("boolean"), "logical")
+  expect_equal(type_to_mode("number"), "numeric")
+  expect_equal(type_to_mode("string"), "character")
+  expect_equal(type_to_mode("object"), "list")
+})
+
 test_that("assert_type", {
   assert_type(NULL, "NULL")
   assert_type(1, "numeric")
@@ -73,3 +87,66 @@ test_that("assert_type", {
 
   expect_error(assert_type(Person(), "numeric"), "value is type Person, expected type numeric")
 })
+
+test_that("check_property", {
+  expect_equal(
+    check_property(
+      type_name = 'type',
+      property_name = 'property',
+      is_required = FALSE,
+      is_missing = TRUE,
+      type = "character",
+      value = "foo"
+    ),
+    NULL
+  )
+
+  expect_equal(
+    class(check_property(
+      type_name = 'type',
+      property_name = 'property',
+      is_required = FALSE,
+      is_missing = FALSE,
+      type = "character",
+      value = "foo"
+    )),
+    c("scalar", "character")
+  )
+
+  expect_equal(
+    class(check_property(
+      type_name = 'type',
+      property_name = 'property',
+      is_required = FALSE,
+      is_missing = FALSE,
+      type = Array("character"),
+      value = "foo"
+    )),
+    c("character")
+  )
+
+  expect_error(
+    check_property(
+      type_name = 'type',
+      property_name = 'property',
+      # is_required = TRUE,
+      is_missing = TRUE,
+      type = "character",
+      value = "foo"
+    ),
+    "type\\$property is required"
+  )
+
+  expect_error(
+    check_property(
+      type_name = 'type',
+      property_name = 'property',
+      is_required = TRUE,
+      is_missing = FALSE,
+      type = "character",
+      value = 42
+    ),
+    "type\\$property is type numeric, expected type character"
+  )
+})
+

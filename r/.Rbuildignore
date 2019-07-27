@@ -1,13 +1,4 @@
-.editorconfig
-.lintr
-.prettierignore
-.travis.yml
-.vscode
 ^.*\.Rproj$
+^.covrignore$
+^.lintr$
 ^\.Rproj\.user$
-build
-built
-dist
-node_modules
-python
-src
