@@ -12,7 +12,7 @@ properties:
     items:
       $ref: TableCell
   kind:
-    '@id': stencila:TableRowKind
+    '@id': stencila:tableRowKind
     description: |
       If present, indicates that all cells in this row should be treated as header cells.
     type: string

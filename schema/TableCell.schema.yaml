@@ -23,7 +23,7 @@ properties:
     maximum: 1000
     default: 1
   kind:
-    '@id': stencila:TableCellKind
+    '@id': stencila:tableCellKind
     description: |
       Indicates whether the cell is a header (similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)),
       or a default data cell (similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
