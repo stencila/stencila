@@ -13,4 +13,4 @@ matrix:
         - make -C r build
 
       after_success:
-        - Rscript -e 'covr::codecov()'
+        - cd r && Rscript -e 'covr::codecov()'
