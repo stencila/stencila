@@ -11,6 +11,8 @@ __pycache__
 .tox
 py/build
 py/dist
+py/.coverage
+py/coverage.xml
 *.out.*
 /types.ts
 .Rproj.user
