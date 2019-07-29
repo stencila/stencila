@@ -7,17 +7,13 @@ include: ../built/Delete.schema.md
 :::
 Content that is marked for deletion
 
-| Thing | type           | The name of the type and all descendant types. | string |
-| ----- | -------------- | ---------------------------------------------- | ------ |
-| Thing | id             | The identifier for this item.                  | string |
-| Thing | alternateNames | Alternate names (aliases) for the item.        | array  |
-| Thing | description    | A description of the item.                     | string |
-| Thing | meta           | Metadata associated with this item.            | object |
-| Thing | name           | The name of the item.                          | string |
-| Thing | url            | The URL of the item.                           | string |
-| Mark  | content        | The content that is marked.                    |        |
-| array |                |                                                |        |
+## Properties
 
+| **content _(required)_** | `array`  | The content that is marked.                    | [Mark](./Mark.html)     |
+| ------------------------ | -------- | ---------------------------------------------- | ----------------------- |
+| **type _(required)_**    | `string` | The name of the type and all descendant types. | [Entity](./Entity.html) |
+| id                       | `string` | The identifier for this item.                  | [Entity](./Entity.html) |
+| meta                     | `object` | Metadata associated with this item.            | [Entity](./Entity.html) |
 :::
 
 # Examples
@@ -72,7 +68,7 @@ In JATS, `Delete` nodes are encoded as [`<strike>`](https://jats.nlm.nih.gov/arc
 
 ## Microsoft Word
 
-> Currently unable to generate an example encoding in docx because templates are not packaged to the right place in Encoda.
+`Delete` nodes are supported in Microsoft Word files. This [`docx`](delete-ex1.out.docx){export=ex1} file was generated from the above example.
 
 ## Open Document Text
 
@@ -108,7 +104,12 @@ The equivalent of `Delete` in Pandoc is the [`Strikeout`](https://github.com/jgm
       ]
     }
   ],
-  "pandoc-api-version": [1, 17, 5, 4],
+  "pandoc-api-version": [
+    1,
+    17,
+    5,
+    4
+  ],
   "meta": {}
 }
 ```
