@@ -4,12 +4,15 @@ datatable_colnames <- function(dt) sapply(dt$columns, function(column) column$na
 datatable_coltypes <- function(dt) sapply(dt$columns, function(column) column$schema$items$type)
 
 test_that("datatable_from_dataframe: column types", {
-  dt <- datatable_from_dataframe(data.frame(
-    a = 1:2,
-    b = c(TRUE, FALSE),
-    c = c('x', 'y'),
-    d = factor(c('X', 'Y'), levels = c("X", "Y", "Z"))
-  , stringsAsFactors=FALSE))
+  dt <- datatable_from_dataframe(
+    data.frame(
+      a = 1:2,
+      b = c(TRUE, FALSE),
+      c = c("x", "y"),
+      d = factor(c("X", "Y"), levels = c("X", "Y", "Z"))
+    ),
+    stringsAsFactors = FALSE
+  )
 
   expect_equal(length(dt$columns), 4)
   expect_equal(

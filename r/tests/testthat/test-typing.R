@@ -80,8 +80,8 @@ test_that("schema_type_to_mode", {
 })
 
 test_that("is_type", {
-  expect_false(is_type(list(1,2,3), Array("character")))
-  expect_true(is_type(list(1,2,3), Array("numeric")))
+  expect_false(is_type(list(1, 2, 3), Array("character")))
+  expect_true(is_type(list(1, 2, 3), Array("numeric")))
 
   expect_false(is_type(factor(1:10), Array("numeric")))
   expect_true(is_type(factor(1:10), Array("character")))
@@ -99,8 +99,8 @@ test_that("assert_type", {
 test_that("check_property", {
   expect_equal(
     check_property(
-      type_name = 'type',
-      property_name = 'property',
+      type_name = "type",
+      property_name = "property",
       is_required = FALSE,
       is_missing = TRUE,
       type = "character",
@@ -111,8 +111,8 @@ test_that("check_property", {
 
   expect_equal(
     class(check_property(
-      type_name = 'type',
-      property_name = 'property',
+      type_name = "type",
+      property_name = "property",
       is_required = FALSE,
       is_missing = FALSE,
       type = "character",
@@ -123,8 +123,8 @@ test_that("check_property", {
 
   expect_equal(
     class(check_property(
-      type_name = 'type',
-      property_name = 'property',
+      type_name = "type",
+      property_name = "property",
       is_required = FALSE,
       is_missing = FALSE,
       type = Array("character"),
@@ -135,8 +135,8 @@ test_that("check_property", {
 
   expect_error(
     check_property(
-      type_name = 'type',
-      property_name = 'property',
+      type_name = "type",
+      property_name = "property",
       is_required = TRUE,
       is_missing = TRUE,
       type = "character",
@@ -147,8 +147,8 @@ test_that("check_property", {
 
   expect_error(
     check_property(
-      type_name = 'type',
-      property_name = 'property',
+      type_name = "type",
+      property_name = "property",
       is_required = TRUE,
       is_missing = FALSE,
       type = "character",
@@ -157,4 +157,3 @@ test_that("check_property", {
     "type\\$property is type numeric, expected type character"
   )
 })
-

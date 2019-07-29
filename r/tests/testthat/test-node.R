@@ -4,7 +4,7 @@ test_that("node_to_json", {
   expect_equal(node_to_json(as_scalar(TRUE)), "true")
   expect_equal(node_to_json(as_scalar(1)), "1")
   expect_equal(node_to_json(1:5), "[1,2,3,4,5]")
-  expect_equal(node_to_json(list(a=as_scalar(1), b=as_scalar(2))), "{\"a\":1,\"b\":2}")
+  expect_equal(node_to_json(list(a = as_scalar(1), b = as_scalar(2))), "{\"a\":1,\"b\":2}")
 })
 
 
@@ -12,7 +12,7 @@ test_that("node_from_json", {
   expect_equal(node_from_json("true"), TRUE)
   expect_equal(node_from_json("1"), 1)
   expect_equal(node_from_json("[1,2,3,4,5]"), 1:5)
-  expect_equal(node_from_json("{\"a\":1,\"b\":2}"), list(a=1, b=2))
+  expect_equal(node_from_json("{\"a\":1,\"b\":2}"), list(a = 1, b = 2))
 
   # nolint start
   json <- '{

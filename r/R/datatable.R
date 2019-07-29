@@ -79,7 +79,7 @@ datatable_column_to_values <- function(dtc) {
       }
       enum <- items$enum
       if (!is.null(enum)) {
-        values <- factor(values, levels=enum)
+        values <- factor(values, levels = enum)
       }
     }
   }

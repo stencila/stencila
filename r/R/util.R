@@ -20,6 +20,6 @@ map <- function(node, func, ...) {
 #' @param node The node to map over
 #' @param func The function to apply to each node
 #' @param ... Additional arguments to pass through to the function
-transform <- function (node, func, ...) {
+transform <- function(node, func, ...) {
   map(node, function(child) map(child, func, ...))
 }

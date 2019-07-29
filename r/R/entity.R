@@ -10,9 +10,9 @@ print.Entity <- function(entity) {
 }
 
 #' @export
-entity_from_list <- function (list) {
+entity_from_list <- function(list) {
   type <- list$type
-  if(is.null(type)) stop("List must have type property")
+  if (is.null(type)) stop("List must have type property")
 
   # Remove `type` from the object for the call to the
   # constructor function (which does not have `type` as
