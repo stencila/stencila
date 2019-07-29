@@ -1,9 +1,5 @@
-$schema: http://json-schema.org/draft-07/schema#
-$id: https://stencila.github.com/schema/Node.schema.json
-'@id': stencila:Node
 title: Node
-description: |
-  Describes a valid value for any node in the tree.
+description: Union type for all valid nodes.
 anyOf:
   - type: 'null'
   - type: boolean
@@ -12,4 +8,4 @@ anyOf:
   - type: string
   - type: array
   - type: object
-  - $ref: Thing
+  - $ref: Entity

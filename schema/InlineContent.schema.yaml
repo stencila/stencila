@@ -1,18 +1,22 @@
 title: InlineContent
-description: Inline content.
+description: Union type for valid inline content.
+$comment: |
+  Note that this definition currently does not include
+  `array` and `object` nodes (which are included in `Node`).
+  This seems incongruent, and may be changed in the future.
 anyOf:
   - type: 'null'
   - type: boolean
   - type: integer
   - type: number
   - type: string
-  - $ref: Emphasis
-  - $ref: Strong
-  - $ref: Delete
-  - $ref: Subscript
-  - $ref: Superscript
-  - $ref: Quote
   - $ref: Code
   - $ref: CodeExpr
-  - $ref: Link
+  - $ref: Delete
+  - $ref: Emphasis
   - $ref: ImageObject
+  - $ref: Link
+  - $ref: Quote
+  - $ref: Strong
+  - $ref: Subscript
+  - $ref: Superscript
