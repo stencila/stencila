@@ -54,7 +54,10 @@ class UploadCommand(Command):
         os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
 
         self.status('Uploading the package to PyPI via Twine…')
-        os.system('twine upload dist/*')
+
+        repo_arg = '--repository-url https://test.pypi.org/legacy/' if os.environ.get('PYPI_ENV') == 'test' else ''
+
+        os.system('twine upload {} dist/*'.format(repo_arg))
 
         sys.exit()
 

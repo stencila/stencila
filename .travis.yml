@@ -1,16 +1,23 @@
 matrix:
   include:
-
     - dist: xenial
       language: python
-      python: "3.7"
+      python: '3.7'
 
       install:
-        - pip3 install pylint mypy tox-travis
+        - make -C py setup
 
       script:
         - make -C py lint
         - make -C py test
+
+      deploy:
+        provider: pypi
+        user: $PYPI_USERNAME
+        password: $PYPI_PASSWORD
+        server: https://https://test.pypi.org/legacy/
+        on:
+          tags: true
 
       after_success:
         - bash <(curl -s https://codecov.io/bash) -cF py
