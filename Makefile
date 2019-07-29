@@ -9,57 +9,25 @@
 
 all: setup lint test build docs
 
-
-setup: setup-ts setup-py
-
-setup-ts:
+setup:
 	npm install
 
-setup-py:
-	pip3 install --user --upgrade -r py/requirements-dev.txt
-
-
-lint: lint-ts lint-py
-
-lint-ts:
+lint:
 	npm run lint
 
-lint-py:
-	pylint py/stencila/schema
-	mypy py/stencila/schema
-
-
-test: test-ts test-py
-
-test-ts:
+test:
 	npm test
 
-test-py:
-	cd py && tox
-
-
-build: build-ts build-py
-
-build-ts:
+build:
 	npm run build
-
-build-py:
-	cd py && python3 setup.py sdist bdist_wheel
-
 
 .PHONY: docs
 docs:
 	npm run docs
 
-
 watch:
 	npm run watch
 
-
-clean: clean-ts clean-py
-
-clean-ts:
+clean:
 	npm run clean
 
-clean-py:
-	rm -rf py/build py/.coverage py/coverage.xml py/*.egg-info py/.tox **/__pycache__

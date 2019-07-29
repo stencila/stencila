@@ -1,16 +1,16 @@
 matrix:
   include:
 
-    - language: r
-      r: release
+    - dist: xenial
+      language: python
+      python: "3.7"
 
       install:
-        - make -C r setup
+        - pip3 install pylint mypy tox-travis
 
       script:
-        - make -C r lint
-        - make -C r test
-        - make -C r build
+        - make -C py lint
+        - make -C py test
 
       after_success:
-        - cd r && Rscript -e 'covr::codecov()'
+        - bash <(curl -s https://codecov.io/bash) -cF py
