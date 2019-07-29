@@ -1,5 +1,29 @@
 matrix:
   include:
+    - language: node_js
+      node_js: '10'
+
+      script:
+        - npm run lint
+        - npm run build
+        - npm run test
+        - npm run docs
+
+      deploy:
+        # Deploy a new version of NPM package and create a Github release
+        - provider: script
+          skip_cleanup: true
+          script: npx semantic-release
+
+        # Deploy documentation to Github Pages
+        # See https://docs.travis-ci.com/user/deployment/pages/
+        - provider: pages
+          skip-cleanup: true
+          github-token: $GITHUB_TOKEN
+          local-dir: built
+          on:
+            branch: master
+
     - dist: xenial
       language: python
       python: '3.7'

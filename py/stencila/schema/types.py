@@ -4,13 +4,109 @@ from enum import Enum
 Enum0 = Enum("0", ["ascending", "descending", "unordered"])
 
 
-class Thing:
+class Entity:
+    """The most basic item, defining the minimum properties required."""
+
+    id: Optional[str]
+    meta: Optional[Dict[str, Any]]
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+
+        )
+        if id is not None:
+            self.id = id
+        if meta is not None:
+            self.meta = meta
+
+
+class DatatableColumnSchema(Entity):
+    items: Dict[str, Any]
+    uniqueItems: Optional[bool]
+
+    def __init__(
+        self,
+        items: Dict[str, Any],
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        uniqueItems: Optional[bool] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if items is not None:
+            self.items = items
+        if uniqueItems is not None:
+            self.uniqueItems = uniqueItems
+
+
+class Mark(Entity):
+    """
+    A base class for nodes that mark some other inline content (e.g. `string`
+    or other `InlineContent` nodes) in some way (e.g. as being emphasised, or
+    quoted).
+    """
+
+    content: Array["InlineContent"]
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if content is not None:
+            self.content = content
+
+
+class Delete(Mark):
+    """Content that is marked for deletion"""
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            id=id,
+            meta=meta
+        )
+
+
+
+class Emphasis(Mark):
+    """Emphasised content."""
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            id=id,
+            meta=meta
+        )
+
+
+
+class Thing(Entity):
     """The most generic type of item https://schema.org/Thing."""
 
     alternateNames: Optional[Array[str]]
     description: Optional[str]
-    id: Optional[str]
-    meta: Optional[Dict[str, Any]]
     name: Optional[str]
     url: Optional[str]
 
@@ -24,16 +120,13 @@ class Thing:
         url: Optional[str] = None
     ) -> None:
         super().__init__(
-
+            id=id,
+            meta=meta
         )
         if alternateNames is not None:
             self.alternateNames = alternateNames
         if description is not None:
             self.description = description
-        if id is not None:
-            self.id = id
-        if meta is not None:
-            self.meta = meta
         if name is not None:
             self.name = name
         if url is not None:
@@ -806,7 +899,6 @@ class CodeExpr(SoftwareSourceCode):
 class DatatableColumn(Thing):
     name: str
     values: Array[Any]
-    meta: Optional[Dict[str, Any]]
     schema: Optional["DatatableColumnSchema"]
 
     def __init__(
@@ -825,146 +917,15 @@ class DatatableColumn(Thing):
             alternateNames=alternateNames,
             description=description,
             id=id,
+            meta=meta,
             url=url
         )
         if name is not None:
             self.name = name
         if values is not None:
             self.values = values
-        if meta is not None:
-            self.meta = meta
         if schema is not None:
             self.schema = schema
-
-
-class DatatableColumnSchema(Thing):
-    items: Dict[str, Any]
-    uniqueItems: Optional[bool]
-
-    def __init__(
-        self,
-        items: Dict[str, Any],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        uniqueItems: Optional[bool] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-        if items is not None:
-            self.items = items
-        if uniqueItems is not None:
-            self.uniqueItems = uniqueItems
-
-
-class Mark(Thing):
-    """
-    A base class for nodes that mark some other inline content (e.g. `string`
-    or other `InlineContent` nodes) in some way (e.g. as being emphasised, or
-    quoted).
-    """
-
-    content: Array["InlineContent"]
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-        if content is not None:
-            self.content = content
-
-
-class Delete(Mark):
-    """Content that is marked for deletion"""
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            content=content,
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-
-
-
-class Emphasis(Mark):
-    """Emphasised content."""
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            content=content,
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-
-
-
-class Entity:
-    """The most basic item, defining the minimum properties required."""
-
-    id: Optional[str]
-    meta: Optional[Dict[str, Any]]
-
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
-    ) -> None:
-        super().__init__(
-
-        )
-        if id is not None:
-            self.id = id
-        if meta is not None:
-            self.meta = meta
 
 
 class Environment(Thing):
@@ -1009,7 +970,7 @@ class Environment(Thing):
             self.removes = removes
 
 
-class Heading(Thing):
+class Heading(Entity):
     """Heading"""
 
     content: Array["InlineContent"]
@@ -1019,20 +980,12 @@ class Heading(Thing):
         self,
         content: Array["InlineContent"],
         depth: float,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
         if content is not None:
             self.content = content
@@ -1111,7 +1064,7 @@ class ImageObject(MediaObject):
             self.thumbnail = thumbnail
 
 
-class Include(Thing):
+class Include(Entity):
     """
     A directive to include content from an external source (e.g. file, URL) or
     content.
@@ -1125,23 +1078,15 @@ class Include(Thing):
     def __init__(
         self,
         source: str,
-        alternateNames: Optional[Array[str]] = None,
         content: Optional[Array["Node"]] = None,
-        description: Optional[str] = None,
         hash: Optional[str] = None,
         id: Optional[str] = None,
         mediaType: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
         if source is not None:
             self.source = source
@@ -1153,32 +1098,29 @@ class Include(Thing):
             self.mediaType = mediaType
 
 
-class Link(Thing):
-    """A link."""
+class Link(Entity):
+    """
+    A hyperlink to other pages, sections within the same document, resources,
+    or any URL.
+    """
 
     content: Array["InlineContent"]
     target: str
     relation: Optional[str]
+    title: Optional[str]
 
     def __init__(
         self,
         content: Array["InlineContent"],
         target: str,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
         relation: Optional[str] = None,
-        url: Optional[str] = None
+        title: Optional[str] = None
     ) -> None:
         super().__init__(
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
         if content is not None:
             self.content = content
@@ -1186,9 +1128,11 @@ class Link(Thing):
             self.target = target
         if relation is not None:
             self.relation = relation
+        if title is not None:
+            self.title = title
 
 
-class List(Thing):
+class List(Entity):
     """A list of items."""
 
     items: Array["ListItem"]
@@ -1197,21 +1141,13 @@ class List(Thing):
     def __init__(
         self,
         items: Array["ListItem"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        order: Optional["Enum0"] = None,
-        url: Optional[str] = None
+        order: Optional["Enum0"] = None
     ) -> None:
         super().__init__(
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
         if items is not None:
             self.items = items
@@ -1219,7 +1155,7 @@ class List(Thing):
             self.order = order
 
 
-class ListItem(Thing):
+class ListItem(Entity):
     """A single item in a list."""
 
     content: Array["Node"]
@@ -1228,21 +1164,13 @@ class ListItem(Thing):
     def __init__(
         self,
         content: Array["Node"],
-        alternateNames: Optional[Array[str]] = None,
         checked: Optional[bool] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
         if content is not None:
             self.content = content
@@ -1343,7 +1271,7 @@ class Organization(Thing):
             self.parentOrganization = parentOrganization
 
 
-class Paragraph(Thing):
+class Paragraph(Entity):
     """Paragraph"""
 
     content: Array["InlineContent"]
@@ -1351,20 +1279,12 @@ class Paragraph(Thing):
     def __init__(
         self,
         content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
         if content is not None:
             self.content = content
@@ -1492,28 +1412,20 @@ class Quote(Mark):
     def __init__(
         self,
         content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
         citation: Optional[str] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
             content=content,
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
         if citation is not None:
             self.citation = citation
 
 
-class QuoteBlock(Thing):
+class QuoteBlock(Entity):
     """A section quoted from somewhere else."""
 
     content: Array["BlockContent"]
@@ -1522,21 +1434,13 @@ class QuoteBlock(Thing):
     def __init__(
         self,
         content: Array["BlockContent"],
-        alternateNames: Optional[Array[str]] = None,
         citation: Optional[str] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
         if content is not None:
             self.content = content
@@ -1690,21 +1594,13 @@ class Strong(Mark):
     def __init__(
         self,
         content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
             content=content,
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
 
 
@@ -1718,21 +1614,13 @@ class Subscript(Mark):
     def __init__(
         self,
         content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
             content=content,
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
 
 
@@ -1746,21 +1634,13 @@ class Superscript(Mark):
     def __init__(
         self,
         content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
             content=content,
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
 
 
@@ -1822,7 +1702,7 @@ class Table(CreativeWork):
             self.rows = rows
 
 
-class TableCell(Thing):
+class TableCell(Entity):
     """A cell within a `Table`."""
 
     content: Array["InlineContent"]
@@ -1833,21 +1713,15 @@ class TableCell(Thing):
     def __init__(
         self,
         content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
         colspan: Optional[int] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        rowspan: Optional[int] = None,
-        url: Optional[str] = None
+        rowspan: Optional[int] = None
     ) -> None:
         super().__init__(
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            url=url
+            meta=meta
         )
         if content is not None:
             self.content = content
@@ -1859,7 +1733,7 @@ class TableCell(Thing):
             self.rowspan = rowspan
 
 
-class TableRow(Thing):
+class TableRow(Entity):
     """A row within a Table."""
 
     cells: Array["TableCell"]
@@ -1867,26 +1741,18 @@ class TableRow(Thing):
     def __init__(
         self,
         cells: Array["TableCell"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
         if cells is not None:
             self.cells = cells
 
 
-class ThematicBreak(Thing):
+class ThematicBreak(Entity):
     """
     A thematic break, such as a scene change in a story, a transition to
     another topic, or a new document.
@@ -1894,20 +1760,12 @@ class ThematicBreak(Thing):
 
     def __init__(
         self,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
-            alternateNames=alternateNames,
-            description=description,
             id=id,
-            meta=meta,
-            name=name,
-            url=url
+            meta=meta
         )
 
 
