@@ -1,3 +1,4 @@
-twine==1.13.0
-mypy==0.720
-pylint==2.3.1
+twine
+mypy
+pylint
+tox-travis
