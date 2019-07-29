@@ -8,8 +8,9 @@ import * as encoda from '@stencila/encoda'
 import encodaProcess from '@stencila/encoda/dist/process'
 import fs from 'fs-extra'
 import globby from 'globby'
+import { flatten } from 'lodash'
 import path from 'path'
-import { Article, Strong } from '../types'
+import { Article, Code, code, Link, link, Node, Strong } from '../types'
 import { isArticle } from '../util/guards'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -119,6 +120,93 @@ const requiredPropsFirst = (requiredProps: string[]) => (
 }
 
 /**
+ * Separates elements of an array with a provided separators
+ *
+ * @template T
+ * @template S
+ * @param {T[]} arr Array of items to separate
+ * @param {S} separator value to insert between elements of the array
+ * @returns {((T | S)[])}
+ */
+const intersperse = <T, S extends T>(arr: T[], separator: S): (T | S)[] =>
+  arr.reduce((a: T[], v: T): (T | S)[] => [...a, v, separator], []).slice(0, -1)
+
+const linkifyReference = (ref: string): Link => {
+  const value = ref.replace('.schema.json', '')
+  return link([code(value)], `./${value}.html`)
+}
+
+const formattedType = (type: string, format: string): Code =>
+  code(`${type}<${format}>`)
+
+/**
+ * Formats a sub-schema inside with the correct formatting. Primarily used for
+ * encoding allowed types inside an `array` or an `enum`
+ *
+ * @param {string} prefix
+ * @param {Node[]} subTypes
+ * @param {string} suffix
+ * @returns {Node[]} Stencila Node tree
+ */
+const subType = (prefix: string, subTypes: Node[], suffix: string): Node[] => [
+  code(prefix),
+  '​', // These quotes are not empty, they contain a zero-width space character to prevent Markdown decoding errors
+  ...subTypes,
+  '​', // These quotes are not empty, they contain a zero-width space character to prevent Markdown decoding errors
+  code(suffix)
+]
+
+const orSeparator = ' | '
+const andSeparator = ' & '
+
+/**
+ * Parse and convert JSON Schema to a Stencila Node tree representation to be rendered for the documentation website
+ *
+ * @param {JSON Schema object} content
+ * @returns {(Node)[]} Stencila Node tree
+ */
+const encodeContents = (content: any): (Node)[] => {
+  if (typeof content.format === 'string') {
+    return [formattedType(content.type, content.format)]
+  }
+
+  if (content.type === 'array' && content.items) {
+    // Items of an `array` type can either be a single schema object or an array of schemas to validate each item against
+    const items: (Node)[] = Array.isArray(content.items)
+      ? flatten(content.items.map(encodeContents))
+      : encodeContents(content.items)
+
+    return subType('array<', items, '>')
+  }
+
+  if (content.enum) {
+    return subType(
+      'enum<',
+      intersperse<Node, string>(content.enum.map(code), orSeparator),
+      '>'
+    )
+  }
+
+  if (content.anyOf) {
+    return flatten(intersperse(content.anyOf.map(encodeContents), orSeparator))
+  }
+
+  if (content.allOf) {
+    return flatten(intersperse(content.allOf.map(encodeContents), andSeparator))
+  }
+
+  if (content.$ref) {
+    return [linkifyReference(content.$ref)]
+  }
+
+  if (content.codec) {
+    return [code(`codec<${content.codec}>`)]
+  }
+
+  return [code(content.type)]
+}
+
+/**
  * Create an article from a JSON schema object using
  * properties like `description`, `parent` etc.
  */
@@ -151,12 +239,7 @@ function schema2Article(schema: { [key: string]: any }): Article {
             },
             {
               type: 'TableCell',
-              content: [
-                {
-                  type: 'Code',
-                  value: type
-                }
-              ]
+              content: encodeContents(prop)
             },
             {
               type: 'TableCell',
