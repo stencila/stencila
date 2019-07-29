@@ -16,8 +16,5 @@ test:
 build:
 	python3 setup.py sdist bdist_wheel
 
-docs:
-	Rscript -e 'devtools::document()'
-
 clean:
 	rm -rf build .coverage coverage.xml *.egg-info .tox **/__pycache__
