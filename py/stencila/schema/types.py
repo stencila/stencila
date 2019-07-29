@@ -577,138 +577,6 @@ class AudioObject(MediaObject):
             self.transcript = transcript
 
 
-class ImageObject(MediaObject):
-    """An image file. https://schema.org/ImageObject"""
-
-    caption: Optional[str]
-    thumbnail: Optional["ImageObject"]
-
-    def __init__(
-        self,
-        contentUrl: str,
-        alternateNames: Optional[Array[str]] = None,
-        authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        bitrate: Optional[float] = None,
-        caption: Optional[str] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
-        content: Optional[Array["Node"]] = None,
-        contentSize: Optional[float] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
-        description: Optional[str] = None,
-        editors: Optional[Array["Person"]] = None,
-        embedUrl: Optional[str] = None,
-        format: Optional[str] = None,
-        funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
-        publisher: Optional[Union["Person", "Organization"]] = None,
-        text: Optional[str] = None,
-        thumbnail: Optional["ImageObject"] = None,
-        title: Optional[str] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
-    ) -> None:
-        super().__init__(
-            contentUrl=contentUrl,
-            alternateNames=alternateNames,
-            authors=authors,
-            bitrate=bitrate,
-            citations=citations,
-            content=content,
-            contentSize=contentSize,
-            dateCreated=dateCreated,
-            dateModified=dateModified,
-            datePublished=datePublished,
-            description=description,
-            editors=editors,
-            embedUrl=embedUrl,
-            format=format,
-            funders=funders,
-            id=id,
-            isPartOf=isPartOf,
-            licenses=licenses,
-            meta=meta,
-            name=name,
-            parts=parts,
-            publisher=publisher,
-            text=text,
-            title=title,
-            url=url,
-            version=version
-        )
-        if caption is not None:
-            self.caption = caption
-        if thumbnail is not None:
-            self.thumbnail = thumbnail
-
-
-class SoftwareApplication(CreativeWork):
-    """A software application."""
-
-    softwareRequirements: Optional[Array["SoftwareApplication"]]
-    softwareVersion: Optional[str]
-
-    def __init__(
-        self,
-        alternateNames: Optional[Array[str]] = None,
-        authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
-        content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
-        description: Optional[str] = None,
-        editors: Optional[Array["Person"]] = None,
-        funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
-        publisher: Optional[Union["Person", "Organization"]] = None,
-        softwareRequirements: Optional[Array["SoftwareApplication"]] = None,
-        softwareVersion: Optional[str] = None,
-        text: Optional[str] = None,
-        title: Optional[str] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            authors=authors,
-            citations=citations,
-            content=content,
-            dateCreated=dateCreated,
-            dateModified=dateModified,
-            datePublished=datePublished,
-            description=description,
-            editors=editors,
-            funders=funders,
-            id=id,
-            isPartOf=isPartOf,
-            licenses=licenses,
-            meta=meta,
-            name=name,
-            parts=parts,
-            publisher=publisher,
-            text=text,
-            title=title,
-            url=url,
-            version=version
-        )
-        if softwareRequirements is not None:
-            self.softwareRequirements = softwareRequirements
-        if softwareVersion is not None:
-            self.softwareVersion = softwareVersion
-
-
 class SoftwareSourceCode(CreativeWork):
     """
     Computer programming source code. Example: Full (compile ready) solutions,
@@ -935,63 +803,6 @@ class CodeExpr(SoftwareSourceCode):
             self.value = value
 
 
-class Table(CreativeWork):
-    """A table."""
-
-    rows: Array["TableRow"]
-
-    def __init__(
-        self,
-        rows: Array["TableRow"],
-        alternateNames: Optional[Array[str]] = None,
-        authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
-        content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
-        description: Optional[str] = None,
-        editors: Optional[Array["Person"]] = None,
-        funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
-        publisher: Optional[Union["Person", "Organization"]] = None,
-        text: Optional[str] = None,
-        title: Optional[str] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            authors=authors,
-            citations=citations,
-            content=content,
-            dateCreated=dateCreated,
-            dateModified=dateModified,
-            datePublished=datePublished,
-            description=description,
-            editors=editors,
-            funders=funders,
-            id=id,
-            isPartOf=isPartOf,
-            licenses=licenses,
-            meta=meta,
-            name=name,
-            parts=parts,
-            publisher=publisher,
-            text=text,
-            title=title,
-            url=url,
-            version=version
-        )
-        if rows is not None:
-            self.rows = rows
-
-
 class DatatableColumn(Thing):
     name: str
     values: Array[Any]
@@ -1053,6 +864,107 @@ class DatatableColumnSchema(Thing):
             self.items = items
         if uniqueItems is not None:
             self.uniqueItems = uniqueItems
+
+
+class Mark(Thing):
+    """
+    A base class for nodes that mark some other inline content (e.g. `string`
+    or other `InlineContent` nodes) in some way (e.g. as being emphasised, or
+    quoted).
+    """
+
+    content: Array["InlineContent"]
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[str] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            meta=meta,
+            name=name,
+            url=url
+        )
+        if content is not None:
+            self.content = content
+
+
+class Delete(Mark):
+    """Content that is marked for deletion"""
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[str] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            meta=meta,
+            name=name,
+            url=url
+        )
+
+
+
+class Emphasis(Mark):
+    """Emphasised content."""
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[str] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            meta=meta,
+            name=name,
+            url=url
+        )
+
+
+
+class Entity:
+    """The most basic item, defining the minimum properties required."""
+
+    id: Optional[str]
+    meta: Optional[Dict[str, Any]]
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+
+        )
+        if id is not None:
+            self.id = id
+        if meta is not None:
+            self.meta = meta
 
 
 class Environment(Thing):
@@ -1126,6 +1038,77 @@ class Heading(Thing):
             self.content = content
         if depth is not None:
             self.depth = depth
+
+
+class ImageObject(MediaObject):
+    """An image file. https://schema.org/ImageObject"""
+
+    caption: Optional[str]
+    thumbnail: Optional["ImageObject"]
+
+    def __init__(
+        self,
+        contentUrl: str,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        bitrate: Optional[float] = None,
+        caption: Optional[str] = None,
+        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        content: Optional[Array["Node"]] = None,
+        contentSize: Optional[float] = None,
+        dateCreated: Optional[str] = None,
+        dateModified: Optional[str] = None,
+        datePublished: Optional[str] = None,
+        description: Optional[str] = None,
+        editors: Optional[Array["Person"]] = None,
+        embedUrl: Optional[str] = None,
+        format: Optional[str] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        isPartOf: Optional["CreativeWork"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        parts: Optional[Array["CreativeWork"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        text: Optional[str] = None,
+        thumbnail: Optional["ImageObject"] = None,
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            contentUrl=contentUrl,
+            alternateNames=alternateNames,
+            authors=authors,
+            bitrate=bitrate,
+            citations=citations,
+            content=content,
+            contentSize=contentSize,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            description=description,
+            editors=editors,
+            embedUrl=embedUrl,
+            format=format,
+            funders=funders,
+            id=id,
+            isPartOf=isPartOf,
+            licenses=licenses,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if caption is not None:
+            self.caption = caption
+        if thumbnail is not None:
+            self.thumbnail = thumbnail
 
 
 class Include(Thing):
@@ -1265,206 +1248,6 @@ class ListItem(Thing):
             self.content = content
         if checked is not None:
             self.checked = checked
-
-
-class Mark(Thing):
-    """
-    A base class for nodes that mark some other inline content (e.g. `string`
-    or other `InlineContent` nodes) in some way (e.g. as being emphasised, or
-    quoted).
-    """
-
-    content: Array["InlineContent"]
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-        if content is not None:
-            self.content = content
-
-
-class Delete(Mark):
-    """Content that is marked for deletion"""
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            content=content,
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-
-
-
-class Emphasis(Mark):
-    """Emphasised content."""
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            content=content,
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-
-
-
-class Quote(Mark):
-    """
-    Inline, quoted content. Analagous to,   - HTML [`<q>`
-    element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q)
-  -
-    Pandoc
-    [`Quoted`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/De
-    """
-
-    citation: Optional[str]
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        citation: Optional[str] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            content=content,
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-        if citation is not None:
-            self.citation = citation
-
-
-class Strong(Mark):
-    """
-    Strongly emphasised content. Analagous to,   - JATS
-    [`<bold>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/bold.
-    """
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            content=content,
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-
-
-
-class Subscript(Mark):
-    """
-    Subscripted content. Analagous to,   - JATS
-    [`<sub>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/sub.ht
-    """
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            content=content,
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-
-
-
-class Superscript(Mark):
-    """
-    Superscripted content. Analagous to,   - JATS
-    [`<sup>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/sup.ht
-    """
-
-    def __init__(
-        self,
-        content: Array["InlineContent"],
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            content=content,
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-
 
 
 class Mount(Thing):
@@ -1695,6 +1478,41 @@ class Product(Thing):
             self.productID = productID
 
 
+class Quote(Mark):
+    """
+    Inline, quoted content. Analagous to,   - HTML [`<q>`
+    element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q)
+  -
+    Pandoc
+    [`Quoted`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/De
+    """
+
+    citation: Optional[str]
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        alternateNames: Optional[Array[str]] = None,
+        citation: Optional[str] = None,
+        description: Optional[str] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            meta=meta,
+            name=name,
+            url=url
+        )
+        if citation is not None:
+            self.citation = citation
+
+
 class QuoteBlock(Thing):
     """A section quoted from somewhere else."""
 
@@ -1760,6 +1578,67 @@ class ResourceParameters(Thing):
             self.resourceRequested = resourceRequested
 
 
+class SoftwareApplication(CreativeWork):
+    """A software application."""
+
+    softwareRequirements: Optional[Array["SoftwareApplication"]]
+    softwareVersion: Optional[str]
+
+    def __init__(
+        self,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        content: Optional[Array["Node"]] = None,
+        dateCreated: Optional[str] = None,
+        dateModified: Optional[str] = None,
+        datePublished: Optional[str] = None,
+        description: Optional[str] = None,
+        editors: Optional[Array["Person"]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        isPartOf: Optional["CreativeWork"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        parts: Optional[Array["CreativeWork"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        softwareRequirements: Optional[Array["SoftwareApplication"]] = None,
+        softwareVersion: Optional[str] = None,
+        text: Optional[str] = None,
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            authors=authors,
+            citations=citations,
+            content=content,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            description=description,
+            editors=editors,
+            funders=funders,
+            id=id,
+            isPartOf=isPartOf,
+            licenses=licenses,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if softwareRequirements is not None:
+            self.softwareRequirements = softwareRequirements
+        if softwareVersion is not None:
+            self.softwareVersion = softwareVersion
+
+
 class SoftwareSession(Thing):
     """
     Represents a runtime session with the resources and image that is required
@@ -1800,6 +1679,147 @@ class SoftwareSession(Thing):
             self.memoryResource = memoryResource
         if volumeMounts is not None:
             self.volumeMounts = volumeMounts
+
+
+class Strong(Mark):
+    """
+    Strongly emphasised content. Analagous to,   - JATS
+    [`<bold>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/bold.
+    """
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[str] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            meta=meta,
+            name=name,
+            url=url
+        )
+
+
+
+class Subscript(Mark):
+    """
+    Subscripted content. Analagous to,   - JATS
+    [`<sub>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/sub.ht
+    """
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[str] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            meta=meta,
+            name=name,
+            url=url
+        )
+
+
+
+class Superscript(Mark):
+    """
+    Superscripted content. Analagous to,   - JATS
+    [`<sup>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/sup.ht
+    """
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[str] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            meta=meta,
+            name=name,
+            url=url
+        )
+
+
+
+class Table(CreativeWork):
+    """A table."""
+
+    rows: Array["TableRow"]
+
+    def __init__(
+        self,
+        rows: Array["TableRow"],
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        content: Optional[Array["Node"]] = None,
+        dateCreated: Optional[str] = None,
+        dateModified: Optional[str] = None,
+        datePublished: Optional[str] = None,
+        description: Optional[str] = None,
+        editors: Optional[Array["Person"]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        isPartOf: Optional["CreativeWork"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        parts: Optional[Array["CreativeWork"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        text: Optional[str] = None,
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            authors=authors,
+            citations=citations,
+            content=content,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            description=description,
+            editors=editors,
+            funders=funders,
+            id=id,
+            isPartOf=isPartOf,
+            licenses=licenses,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if rows is not None:
+            self.rows = rows
 
 
 class TableCell(Thing):

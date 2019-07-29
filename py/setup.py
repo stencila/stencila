@@ -4,16 +4,22 @@
 import io
 import os
 import sys
+
+import subprocess
 from shutil import rmtree
 
 from setuptools import setup, Command
 
-VERSION = '0.0'
-
 HERE = os.path.abspath(os.path.dirname(__file__))
 
-with io.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as f:
+with io.open(os.path.join(HERE, 'README-python.md'), encoding='utf-8') as f:
     long_description = '\n' + f.read()
+
+
+def get_tag_version() -> str:
+    result = subprocess.run(['git', 'describe', '--tags', '--abbrev=0'], stdout=subprocess.PIPE, encoding='ascii')
+    version = result.stdout
+    return version[1:] if version.startswith('v') else version
 
 
 class UploadCommand(Command):
@@ -50,15 +56,12 @@ class UploadCommand(Command):
         self.status('Uploading the package to PyPI via Twine…')
         os.system('twine upload dist/*')
 
-        self.status('Pushing git tags…')
-        os.system('git tag v{0}'.format(VERSION))
-        os.system('git push --tags')
-
         sys.exit()
+
 
 setup(
     name='stencila-schema',
-    version=VERSION,
+    version=get_tag_version(),
     description='',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -66,7 +69,7 @@ setup(
     author_email='hello@stenci.la',
     python_requires='>=3.6.0',
     url='https://github.com/stencila/schema',
-    package_dir = {'': 'python'},
+    packages=['stencila.schema'],
     install_requires=[],
     extras_require={},
     include_package_data=True,

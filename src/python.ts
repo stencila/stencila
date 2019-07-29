@@ -50,7 +50,10 @@ ${classesCode}
 ${unionsCode}
 `
 
-  await fs.writeFile(path.join(__dirname, '..', 'python', 'types.py'), code)
+  await fs.writeFile(
+    path.join(__dirname, '..', 'py', 'stencila', 'schema', 'types.py'),
+    code
+  )
 }
 
 /**

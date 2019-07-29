@@ -1,5 +1,5 @@
-from python.types import Article, Person, Paragraph
-from python.util import toJSON
+from schema.types import Article, Person, Paragraph
+from schema.util import to_json
 
 article = Article(
     title='',
@@ -13,4 +13,4 @@ article = Article(
     ]
 )
 
-print(toJSON(article))
+print(to_json(article))

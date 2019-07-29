@@ -4,10 +4,13 @@
 /.coverage
 /coverage.xml
 *.egg-info
+.idea
 .DS_Store
 .mypy_cache
 __pycache__
 .tox
+py/build
+py/dist
 *.out.*
 /types.ts
 .Rproj.user

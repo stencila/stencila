@@ -16,7 +16,7 @@ setup-ts:
 	npm install
 
 setup-py:
-	pip3 install --user --upgrade -r requirements-dev.txt
+	pip3 install --user --upgrade -r py/requirements-dev.txt
 
 
 lint: lint-ts lint-py
@@ -25,8 +25,8 @@ lint-ts:
 	npm run lint
 
 lint-py:
-	pylint python
-	mypy python
+	pylint py/stencila/schema
+	mypy py/stencila/schema
 
 
 test: test-ts test-py
@@ -35,7 +35,7 @@ test-ts:
 	npm test
 
 test-py:
-	tox
+	cd py && tox
 
 
 build: build-ts build-py
@@ -44,7 +44,7 @@ build-ts:
 	npm run build
 
 build-py:
-	python3 setup.py sdist bdist_wheel
+	cd py && python3 setup.py sdist bdist_wheel
 
 
 .PHONY: docs
@@ -62,4 +62,4 @@ clean-ts:
 	npm run clean
 
 clean-py:
-	rm -rf build .coverage coverage.xml *.egg-info .tox **/__pycache__
+	rm -rf py/build py/.coverage py/coverage.xml py/*.egg-info py/.tox **/__pycache__
