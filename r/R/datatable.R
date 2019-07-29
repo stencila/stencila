@@ -1,3 +1,5 @@
+# Functions for interoperability between `Datatable` nodes
+# and R `data.frame`s
 
 #' Create a [Datatable()] from a `data.frame`
 #'

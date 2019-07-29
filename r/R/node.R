@@ -1,9 +1,11 @@
-# Functions for encoding/decoding nodes to/from JSON.
-# JSON is the primary format for communicating with other
-# Stencila packages in other languages.
+# Functions for interoperability between Stencila schema nodes and
+# R object and JSON.
 
+#' Convert an R object to a node
+#'
+#' @param obj The object to convert
 node_from_object <- function(obj) {
-  if (is.list(obj) && !is.null(obj$type)) entity_from_list(obj)
+  if (is.list(obj) && !is.null(obj$type) && exists(obj$type)) entity_from_list(obj)
   else obj
 }
 

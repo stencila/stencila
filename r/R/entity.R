@@ -1,4 +1,5 @@
-# Methods for lists of class `Entity`
+# Functions for interoperability between `Entity` nodes and
+# R `lists`
 
 #' Print the entity
 #'
@@ -9,10 +10,17 @@ print.Entity <- function(entity) {
   cat(node_to_json(entity, pretty = TRUE)) # nocov
 }
 
+#' Create an [Entity()] from a `list`
+#'
+#' Calls the constructor function corresponding to
+#' `list$type` if it exists.
+#'
 #' @export
 entity_from_list <- function(list) {
   type <- list$type
-  if (is.null(type)) stop("List must have type property")
+  if (is.null(type) || !exists(type)) {
+    stop("List must have type property that corresponds to a entity constructor functions")
+  }
 
   # Remove `type` from the object for the call to the
   # constructor function (which does not have `type` as

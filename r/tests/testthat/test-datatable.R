@@ -9,9 +9,9 @@ test_that("datatable_from_dataframe: column types", {
       a = 1:2,
       b = c(TRUE, FALSE),
       c = c("x", "y"),
-      d = factor(c("X", "Y"), levels = c("X", "Y", "Z"))
-    ),
-    stringsAsFactors = FALSE
+      d = factor(c("X", "Y"), levels = c("X", "Y", "Z")),
+      stringsAsFactors = FALSE
+    )
   )
 
   expect_equal(length(dt$columns), 4)

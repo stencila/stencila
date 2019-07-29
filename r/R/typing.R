@@ -1,3 +1,7 @@
+# Functions for type definitions and checking
+# This implements functions for runtime checking that are
+# not available natively in R.
+
 #' Any type
 Any <- function() {
   self <- list()
@@ -64,8 +68,9 @@ print.Enum <- function(x) { # nolint
   print(format(x)) # nocov
 }
 
+
 #' Get the last class for an object
-#' The last class is the "highest" in the inheritance tree
+#' The last class is usually the "highest" in the inheritance tree
 last_class <- function(obj) {
   tail(class(obj), n = 1)
 }
@@ -81,6 +86,7 @@ node_type <- function(node) {
   else last_class(node)
 }
 
+#' Is the node an `Entity`?
 is_entity <- function(node) {
   inherits(node, "Entity")
 }
@@ -159,6 +165,7 @@ schema_type_to_mode <- function(mode) {
   )
 }
 
+#' Declare that a node is scalar
 as_scalar <- function(node) {
   # Make other values "scalar" so that they are "unboxed"
   # when serialized to JSON
