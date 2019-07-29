@@ -50,9 +50,9 @@ export function classGenerator(schema: Schema): string {
     `@name ${title}`,
     ...all.map(
       ({ name, schema, optional }) =>
-        `@param ${name} ${schema.description}. ${
-          !optional ? `\\bold{Required}` : ''
-        }.`
+        `@param ${name} ${schema.description} ${
+          !optional ? `\\bold{Required}.` : ''
+        }`
     ),
     `@seealso \\code{\\link{${parent}}}`,
     '@export'
@@ -69,6 +69,8 @@ export function classGenerator(schema: Schema): string {
     code += '\n  )\n'
   }
 
+  code += `  self$type <- as_scalar("${title}")\n`
+
   code += own
     .map(({ name, optional, schema }) => {
       const type = schemaToType(schema)
@@ -78,7 +80,9 @@ export function classGenerator(schema: Schema): string {
     })
     .join('\n')
 
-  code += `\n  class(self) <- c(class(self), "${title}")`
+  // Give the node the class `Entity` to be able to
+  // provide methods like `print.Entity` in R.
+  code += `\n  class(self) <- c(class(self), "Entity")`
   code += `\n  self`
 
   code += `\n}\n\n`

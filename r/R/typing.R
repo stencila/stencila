@@ -75,6 +75,16 @@ is_class <- function(value, clas) {
   last_class(value) == clas
 }
 
+#' Get the type of a node
+node_type <- function(node) {
+  if (inherits(node, "Entity")) node$type
+  else last_class(node)
+}
+
+is_entity <- function(node) {
+  inherits(node, "Entity")
+}
+
 #' Does a value conform to the type?
 is_type <- function(value, type) {
   type_class <- last_class(type)
@@ -84,22 +94,28 @@ is_type <- function(value, type) {
     if (type == "NULL") return(is.null(value))
     type_obj <- get(type)
     if (last_class(type_obj) %in% c("Any", "Array", "Union")) is_type(value, type_obj)
-    else is_class(value, type)
+    else node_type(value) == type
   } else if (type_class == "Array") {
-    if (is.null(value) || inherits(value, "Entity")) return(FALSE)
-    else if (is.list(value)) {
+    if (is.null(value) || is_entity(value)) {
+      FALSE
+    } else if (is.list(value)) {
       for (item in value) {
         if (!is_type(item, type$items)) return(FALSE)
       }
-      return(TRUE)
-    }
-    else if (is.vector(value)) {
+      TRUE
+    } else if (is.vector(value)) {
+      # Create an instance of the mode of the vector
+      # and check that it is correct type
       inst <- get(mode(value))()
-      return(is_type(inst, type$items))
+      is_type(inst, type$items)
+    } else if (is.factor(value)) {
+      # Factors are valid Array("character")
+      is_type(character(), type$items)
+    } else {
+      stop(paste("Unhandled value type", class(value)))
     }
-    stop(paste("Unhandled value type", class(value)))
   } else if (type_class == "Union") {
-    inherits(value, type$types)
+    node_type(value) %in% type$types
   } else if (type_class == "Enum") {
     mode(value) == mode(type$values) && value %in% type$values
   } else {
@@ -112,7 +128,7 @@ assert_type <- function(value, type) {
   if (!is_type(value, type)) {
     stop(
       paste0(
-        "value is type ", last_class(value),
+        "value is type ", node_type(value),
         ", expected type ", format(type)
       ),
       call. = FALSE
@@ -121,14 +137,8 @@ assert_type <- function(value, type) {
   value
 }
 
-#' Get the tpe of a node
-node_type <- function(node) {
-  if (inherits(node, "Entity")) last_class(node)
-  else mode_to_type(mode(node))
-}
-
 #' Convert between R \code{mode} and JSON primitive type name.
-mode_to_type <- function(mode) {
+mode_to_schema_type <- function(mode) {
   switch(
     mode,
     logical = "boolean",
@@ -139,7 +149,7 @@ mode_to_type <- function(mode) {
 }
 
 #' Convert between JSON primitive type name and R \code{mode}.
-type_to_mode <- function(mode) {
+schema_type_to_mode <- function(mode) {
   switch(
     mode,
     boolean = "logical",
@@ -147,6 +157,13 @@ type_to_mode <- function(mode) {
     string = "character",
     object = "list"
   )
+}
+
+as_scalar <- function(node) {
+  # Make other values "scalar" so that they are "unboxed"
+  # when serialized to JSON
+  class(node) <- c("scalar", class(node))
+  node
 }
 
 #' Check that a value is present if required and conforms to the
@@ -167,9 +184,7 @@ check_property <- function(type_name, property_name, is_required, is_missing, ty
       value <- unlist(value)
     }
   } else {
-    # Make other values "scalar" so that they are "unboxed"
-    # when serialized to JSON
-    class(value) <- c("scalar", class(value))
+    value <- as_scalar(value)
   }
 
   if (!is_type(value, type)) {

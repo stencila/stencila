@@ -16,10 +16,13 @@ Suggests:
     lintr,
     roxygen2,
     testthat
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1.9000
 Collate:
     'stencila.R'
+    'util.R'
     'typing.R'
     'types.R'
+    'node.R'
+    'entity.R'
     'datatable.R'
-    'json.R'

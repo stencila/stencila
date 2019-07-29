@@ -1,7 +1,8 @@
 context("types")
 
 test_that("Entity", {
-  expect_equal(class(Entity()), c("list", "Entity"))
+  expect_equal(last_class(Entity()), "Entity")
+  expect_true(inherits(Entity(), "Entity"))
 })
 
 test_that("Person", {

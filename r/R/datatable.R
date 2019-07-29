@@ -1,35 +1,90 @@
 
-#' Create a \code{\link{Datatable}} from a \code{data.frame}
+#' Create a [Datatable()] from a `data.frame`
 #'
-#' @name from_dataframe
+#' @param df The data frame to convert
 #' @aliases as.Datatable.data.frame
 #' @export
-from_dataframe <- function(df){
+datatable_from_dataframe <- function(df){
   Datatable(
     columns = lapply(colnames(df), function(colname) {
-      values <- df[[colname]]
-      DatatableColumn(
-        name = colname,
-        schema = DatatableColumnSchema(
-          items = list(
-            type = node_type(values)
-          )
-        ),
-        values = values
-      )
+      datatable_column_from_object(colname, df[[colname]])
     })
   )
 }
 
-as.Datatable.data.frame <- from_dataframe
+#' @export
+as.Datatable.data.frame <- datatable_from_dataframe
 
-#' Create a \code{data.frame} from a \code{\link{Datatable}}
+#' Create a `data.frame` from a [Datatable()]
 #'
-#' @name to_dataframe
+#' @param dt The `Datatable` to convert
 #' @aliases as.data.frame.Datatable
 #' @export
-to_dataframe <- function(df){
-  # TODO: Implement it!
+datatable_to_dataframe <- function(dt){
+  data.frame(
+    lapply(dt$columns, datatable_column_to_values),
+    stringsAsFactors = FALSE
+  )
 }
 
-as.data.frame.Datatable <- to_dataframe
+#' @export
+as.data.frame.Datatable <- datatable_to_dataframe
+
+#' Create a [DatatableColumn()] from a R object
+#'
+#' Because a `factor`'s levels are always a
+#' character vector, factors are converted into a
+#' columns with `items` of type `string` with
+#' a `enum` containing the levels.
+#'
+#' @param name Name of the column
+#' @param object The object, usually a `vector`, to generate a schema and values from
+datatable_column_from_object <- function(name, object) {
+  if (is.factor(object)) {
+    items <- list(
+      type = as_scalar("string"),
+      enum = levels(object)
+    )
+    values <- as.character.factor(object)
+  } else {
+    items <- list(
+      type = as_scalar(mode_to_schema_type(mode(object)))
+    )
+    values <- object
+  }
+
+  DatatableColumn(
+    name = name,
+    schema = DatatableColumnSchema(
+      items = items
+    ),
+    values = values
+  )
+}
+
+#' Create a R `vector` or `factor` from a [DatatableColumn()]
+#'
+#' @param dtc The [DatatableColumn()] to convert
+datatable_column_to_values <- function(dtc) {
+  name <- dtc$name
+  values <- dtc$values
+
+  schema <- dtc$schema
+  if (!is.null(schema)) {
+    items <- schema$items
+    if (!is.null(items)) {
+      type <- items$type
+      if (!is.null(type)) {
+        mode <- schema_type_to_mode(type)
+      }
+      enum <- items$enum
+      if (!is.null(enum)) {
+        values <- factor(values, levels=enum)
+      }
+    }
+  }
+
+  result <- list()
+  result[[name]] <- values
+  result
+}

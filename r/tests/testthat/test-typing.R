@@ -65,18 +65,26 @@ test_that("Enum", {
   expect_false(is_type(Person(), enum))
 })
 
-test_that("mode_to_type", {
-  expect_equal(mode_to_type("logical"), "boolean")
-  expect_equal(mode_to_type("numeric"), "number")
-  expect_equal(mode_to_type("character"), "string")
-  expect_equal(mode_to_type("list"), "object")
+test_that("mode_to_schema_type", {
+  expect_equal(mode_to_schema_type("logical"), "boolean")
+  expect_equal(mode_to_schema_type("numeric"), "number")
+  expect_equal(mode_to_schema_type("character"), "string")
+  expect_equal(mode_to_schema_type("list"), "object")
 })
 
-test_that("type_to_mode", {
-  expect_equal(type_to_mode("boolean"), "logical")
-  expect_equal(type_to_mode("number"), "numeric")
-  expect_equal(type_to_mode("string"), "character")
-  expect_equal(type_to_mode("object"), "list")
+test_that("schema_type_to_mode", {
+  expect_equal(schema_type_to_mode("boolean"), "logical")
+  expect_equal(schema_type_to_mode("number"), "numeric")
+  expect_equal(schema_type_to_mode("string"), "character")
+  expect_equal(schema_type_to_mode("object"), "list")
+})
+
+test_that("is_type", {
+  expect_false(is_type(list(1,2,3), Array("character")))
+  expect_true(is_type(list(1,2,3), Array("numeric")))
+
+  expect_false(is_type(factor(1:10), Array("numeric")))
+  expect_true(is_type(factor(1:10), Array("character")))
 })
 
 test_that("assert_type", {
@@ -129,7 +137,7 @@ test_that("check_property", {
     check_property(
       type_name = 'type',
       property_name = 'property',
-      # is_required = TRUE,
+      is_required = TRUE,
       is_missing = TRUE,
       type = "character",
       value = "foo"
