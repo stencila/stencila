@@ -20,7 +20,7 @@
     "build:r": "ts-node src/r.ts",
     "docs": "npm run docs:readme && npm run docs:build",
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
-    "docs:build": "npm run build:jsonschema && ts-node scripts/docs",
+    "docs:build": "npm run build:ts && ts-node scripts/docs",
     "docs:serve": "npx browser-sync ./built -f ./built --directory --no-ui --reload-debounce 750",
     "watch": "gulp watch",
     "clean": "gulp clean"
