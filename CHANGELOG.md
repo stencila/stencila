@@ -1,3 +1,20 @@
+# [0.19.0](https://github.com/stencila/schema/compare/v0.18.0...v0.19.0) (2019-07-30)
+
+
+### Bug Fixes
+
+* **R:** Improve code generation ([9a438f3](https://github.com/stencila/schema/commit/9a438f3))
+* **Schema:** Fix missing id and description properties ([5904015](https://github.com/stencila/schema/commit/5904015))
+* **TableCell:** Fix long description ([ffd7ec5](https://github.com/stencila/schema/commit/ffd7ec5))
+
+
+### Features
+
+* **Docs:** Improve property table generation ([8bfdc5d](https://github.com/stencila/schema/commit/8bfdc5d))
+* **R:** Add JSON and data.frame conversion functions ([8d1176b](https://github.com/stencila/schema/commit/8d1176b))
+* **R:** Conversion between Datatable and data.frame ([e34786d](https://github.com/stencila/schema/commit/e34786d))
+* **Table:** Add properties to indicate header cells ([129f722](https://github.com/stencila/schema/commit/129f722))
+
 # [0.18.0](https://github.com/stencila/schema/compare/v0.17.0...v0.18.0) (2019-07-25)
 
 
