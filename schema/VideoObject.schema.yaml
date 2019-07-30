@@ -3,22 +3,18 @@ title: VideoObject
 extends: MediaObject
 role: secondary
 status: stable
-description: |
-  A video file. https://schema.org/VideoObject
+description: A video file.
 properties:
   caption:
     '@id': schema:caption
-    description: |
-      The caption for this video recording.
+    description: The caption for this video recording.
     type: string
   thumbnail:
     '@id': schema:thumbnail
-    description: |
-      Thumbnail image of this video recording.
+    description: Thumbnail image of this video recording.
     allOf:
       - $ref: ImageObject
   transcript:
     '@id': schema:transcript
-    description: |
-      The transcript of this video recording.
+    description: The transcript of this video recording.
     type: string

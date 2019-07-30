@@ -2,7 +2,7 @@ title: Thing
 '@id': schema:Thing
 extends: Entity
 status: unstable
-description: The most generic type of item https://schema.org/Thing.
+description: The most generic type of item.
 properties:
   alternateNames:
     '@id': schema:alternateName

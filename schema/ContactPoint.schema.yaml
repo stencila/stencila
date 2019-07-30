@@ -3,26 +3,25 @@ title: ContactPoint
 extends: Thing
 role: tertiary
 status: unstable
-description: A contact point—for example, a R&D department. https://schema.org/ContactPoint.
+description: A contact point—for example, a R&D department.
 properties:
   availableLanguages:
     '@id': schema:availableLanguage
     description: |
-      Languages (human not programming) in which it is possible to communicate with the organization/department etc.
+      Languages (human not programming) in which it is possible to communicate
+      with the organization/department etc.
     type: array
     items:
       type: string
   emails:
     '@id': schema:email
-    description: |
-      Email address for correspondence. It must be provided in a valid email format (eg. info@example.com ).
+    description: Email address for correspondence.
     type: array
     items:
       type: string
       format: email
   telephone:
     '@id': schema:telephone
-    description: |
-      "Phone contact number. Accepted formats: +44 123455, (02)12345, 006645667."
+    description: "The telephone number of the contact point. Accepted formats: +44 123455, (02)12345, 006645667."
     type: string
     pattern: '^[+#*\(\)\[\]]*([0-9][ ext+-pw#*\(\)\[\]]*){6,45}$'

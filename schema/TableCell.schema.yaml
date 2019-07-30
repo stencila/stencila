@@ -9,7 +9,9 @@ properties:
   name:
     '@id': schema:name
     description: |
-      The name of the cell. Cell's have an implicit name derived from their position in the table
+      The name of the cell.
+    $comment: |
+      Cell's have an implicit name derived from their position in the table
       e.g. `C4` for the cell in the third column and fourth row. However this name can be overridden
       with an explicit name, e.g. `rate`.
     type: string

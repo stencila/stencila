@@ -1,5 +1,6 @@
 /**
- * Generate JSON Schema files.
+ * Check `schema/*.schema.yaml` files and generate `built/*.schema.json`
+ * from them.
  */
 
 import fs from 'fs-extra'
@@ -8,9 +9,18 @@ import yaml from 'js-yaml'
 import path from 'path'
 import cloneDeep from 'lodash.clonedeep'
 import Schema from './schema.d'
+import log from './log'
+import Ajv from 'ajv'
+import betterAjvErrors from 'better-ajv-errors'
 
 const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
 const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'built')
+
+// Create a validation function for JSON Schema for use in `checkSchema`
+const ajv = new Ajv({ jsonPointers: true })
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const metaSchema = require('ajv/lib/refs/json-schema-draft-07.json')
+const validateSchema = ajv.compile(metaSchema)
 
 /**
  * Generate `built/*.schema.json` files from `schema/*.schema.yaml` files.
@@ -33,9 +43,20 @@ export const build = async (): Promise<void> => {
       )
     )
   )
+  const schemata = Array.from(schemas.values())
+
+  // Check each schema is valid
+  const fails = schemata
+    .map(schema => checkSchema(schemas, schema))
+    .reduce((fails, ok) => (!ok ? fails + 1 : fails), 0)
+  if (fails > 0) {
+    log.error(`Errors in ${fails} schemas, please see messages above`)
+    // Exit with code 1 so that this fails on CI or elsewhere
+    process.exit(1)
+  }
 
   // Process each of the schemas
-  Array.from(schemas.values()).forEach(schema => processSchema(schemas, schema))
+  schemata.forEach(schema => processSchema(schemas, schema))
 
   // Write to destination
   await fs.ensureDir('built')
@@ -54,11 +75,90 @@ export const build = async (): Promise<void> => {
 if (module.parent === null) build()
 
 /**
+ * Check that a schema is valid, including that,
+ *
+ * - is valid JSON Schema v7
+ * - all type schemas (those with `properties`) have a `@id` and `description`
+ * - all property schemas (those that define a property) have a `@id` and `description`
+ * - that other schemas that are referred to in `extends` or `$ref` exist
+ *
+ * @param schemas A map of all the schemas
+ * @param schema The schema being checked
+ */
+const checkSchema = (schemas: Map<string, Schema>, schema: Schema): boolean => {
+  let valid = true
+  const { title, extends: extends_, description, properties } = schema
+  log.debug(`Checking type schema "${title}".`)
+
+  const error = (message: string): void => {
+    log.error(message)
+    valid = false
+  }
+
+  // Is a valid schema?
+  if (validateSchema(schema) !== true) {
+    const message = (betterAjvErrors(
+      metaSchema,
+      schema,
+      validateSchema.errors,
+      {
+        format: 'cli',
+        indent: 2
+      }
+    ) as unknown) as string
+    error(`${title} is not a valid JSON Schema:\n${message}`)
+  }
+
+  const maxDescriptionLength = 120
+
+  // All schemas should have a description
+  if (description === undefined) error(`${title} is missing description`)
+  else if (description.length > maxDescriptionLength)
+    error(`${title}.description is too long`)
+
+  // Type schemas have necessary properties and extends is valid
+  if (properties !== undefined) {
+    if (schema['@id'] === undefined) error(`${title} is missing @id`)
+
+    if (extends_ !== undefined) {
+      if (!schemas.has(extends_))
+        error(`${title}.extends refers to unknown type "${extends_}`)
+    }
+
+    // Property schemas have necessary properties
+    for (const [name, property] of Object.entries(properties)) {
+      if (property['@id'] === undefined)
+        error(`${title}.${name} is missing @id`)
+
+      if (property.description === undefined)
+        error(`${title}.${name} is missing description`)
+      else if (property.description.length > maxDescriptionLength)
+        error(`${title}.${name}.description is too long`)
+    }
+  }
+
+  // Check $refs are valid
+  const walk = (node: Schema): void => {
+    if (typeof node !== 'object') return
+    for (const [key, child] of Object.entries(node)) {
+      if (key === '$ref' && typeof child === 'string' && !schemas.has(child)) {
+        error(`${title} has a $ref to unknown type "${child}"`)
+      }
+      walk(child)
+    }
+  }
+  walk(schema)
+
+  return valid
+}
+
+/**
  * Process a schema object to implement inheritance and
  * add add derived properties.
  */
 const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
   const { $schema, $id, title, file, source, children, descendants } = schema
+  log.debug(`Processing type schema "${title}".`)
 
   // If it's already got a children and descendants, then it's been processed.
   if (children !== undefined && descendants !== undefined) return

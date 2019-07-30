@@ -4,12 +4,11 @@ extends: Thing
 role: base
 status: stable
 description: |
-  The most generic kind of creative work, including books, movies, photographs,
-  software programs, etc. https://schema.org/CreativeWork
+  A creative work, including books, movies, photographs, software programs, etc.
 properties:
   authors:
     '@id': schema:author
-    description: The authors of this this creative work.
+    description: The authors of this creative work.
     type: array
     items:
       anyOf:
@@ -123,11 +122,13 @@ properties:
     # The name "title" is more appropriate to our context than schema.org's "headline".
     # We provide the latter as an alias.
     '@id': schema:headline
+    description: The title of the creative work.
     aliases:
       - headline
     type: string
   version:
     '@id': schema:version
+    description: The version of the creative work.
     anyOf:
       - type: string
       - type: number

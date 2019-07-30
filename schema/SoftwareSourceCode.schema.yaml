@@ -9,7 +9,8 @@ properties:
   codeRepository:
     '@id': schema:codeRepository
     description: |
-      Link to the repository where the un-compiled, human readable code and related code is located (SVN, github, CodePlex)
+      Link to the repository where the un-compiled, human readable code and related
+      code is located.
     type: string
     format: uri
   codeSampleType:
@@ -33,17 +34,14 @@ properties:
   runtimePlatform:
     '@id': schema:runtimePlatform
     description: |
-      Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
+      Runtime platform or script interpreter dependencies (Example - Java v1,
+      Python2.3, .Net Framework 3.0).
     type: array
     items:
       - type: string
   softwareRequirements:
     '@id': schema:softwareRequirements
-    description: |
-      Component dependency requirements for application.
-      This includes runtime environments and shared libraries that
-      are not included in the application distribution package, but
-      required to run the application (Examples include DirectX, Java or .NET runtime).
+    description: Dependency requirements for the software.
     type: array
     items:
       anyOf:
@@ -53,8 +51,7 @@ properties:
   targetProducts:
     '@id': schema:targetProduct
     description: |
-      Target Operating System / Product to which the code applies.
-      If applies to several versions, just the product name can be used.
+      Target operating system or product to which the code applies.
     type: array
     items:
       - $ref: SoftwareApplication

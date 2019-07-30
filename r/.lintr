@@ -1,0 +1,2 @@
+linters: with_defaults(line_length_linter(120), object_usage_linter=NULL, object_name_linter(c("snake_case", "UpperCamelCase")))
+exclusions: list("R/types.R")

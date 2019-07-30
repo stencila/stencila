@@ -3,13 +3,11 @@ title: CodeChunk
 extends: SoftwareSourceCode
 role: secondary
 status: unstable
-description: |
-  A executable chunk of code.
+description: A executable chunk of code.
 properties:
   outputs:
     '@id': stencila:outputs
-    description: |
-      Outputs from executing the chunk.
+    description: Outputs from executing the chunk.
     type: array
     items:
       $ref: Node

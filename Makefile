@@ -9,24 +9,57 @@
 
 all: setup lint test build docs
 
-setup:
+
+setup: setup-ts setup-py
+
+setup-ts:
 	npm install
 
-lint:
+setup-py:
+	pip3 install --user --upgrade -r requirements-dev.txt
+
+
+lint: lint-ts lint-py
+
+lint-ts:
 	npm run lint
 
-test:
+lint-py:
+	pylint python
+	mypy python
+
+
+test: test-ts test-py
+
+test-ts:
 	npm test
 
-build:
+test-py:
+	tox
+
+
+build: build-ts build-py
+
+build-ts:
 	npm run build
+
+build-py:
+	python3 setup.py sdist bdist_wheel
+
 
 .PHONY: docs
 docs:
 	npm run docs
 
+
 watch:
 	npm run watch
 
-clean:
+
+clean: clean-ts clean-py
+
+clean-ts:
 	npm run clean
+
+clean-py:
+	rm -rf build .coverage coverage.xml *.egg-info .tox **/__pycache__

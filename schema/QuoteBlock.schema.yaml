@@ -13,6 +13,7 @@ properties:
     format: uri
   content:
     '@id': 'stencila:content'
+    description: The content of the quote.
     type: array
     items:
       $ref: BlockContent
