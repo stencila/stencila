@@ -21,8 +21,7 @@
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
     "docs:build": "npm run build:ts && ts-node ts/docs",
     "docs:serve": "npx browser-sync ./built -f ./built --directory --no-ui --reload-debounce 750",
-    "watch": "gulp watch",
-    "clean": "gulp clean"
+    "clean": "rimraf dist/* built/* ts/types.ts"
   },
   "repository": {
     "type": "git",
@@ -58,6 +57,7 @@
     "lodash.clonedeep": "^4.5.0",
     "markdown-toc": "^1.2.0",
     "object.fromentries": "^2.0.0",
+    "rimraf": "^2.6.3",
     "tempy": "^0.3.0",
     "through2": "^3.0.1",
     "toposort": "^2.0.2",
