@@ -1,5 +1,6 @@
 import {
   BlockContent,
+  Code,
   CreativeWork,
   Delete,
   Emphasis,
@@ -73,4 +74,9 @@ export const creativeWorkTypes: TypeMap<CreativeWork> = {
   SoftwareSourceCode: 'SoftwareSourceCode',
   Table: 'Table',
   VideoObject: 'VideoObject'
+}
+
+export const codeTypes: TypeMap<Code> = {
+  Code: 'Code',
+  CodeBlock: 'CodeBlock'
 }

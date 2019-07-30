@@ -9,6 +9,7 @@ import {
 import { TypeMap, TypeMapGeneric } from './type-map'
 import {
   blockContentTypes,
+  codeTypes,
   creativeWorkTypes,
   inlineContentTypes,
   InlineNodesWithType
@@ -128,6 +129,14 @@ export const isBlockContent = nodeIs(blockContentTypes)
  * @returns {(node is CreativeWork)}
  */
 export const isCreativeWork = nodeIs(creativeWorkTypes)
+
+/**
+ * Type guard to determine whether a node is a `Code`.
+ *
+ * @param {Node} node The node to get the type for
+ * @returns {(node is Code)}
+ */
+export const isCode = nodeIs(codeTypes)
 
 /**
  * Type guard to determine whether a node is an `Article`.
