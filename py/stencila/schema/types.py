@@ -1860,5 +1860,5 @@ InlineContent = Union[None, bool, int, float, str, "Emphasis", "Strong", "Delete
 """
 Describes a valid value for any node in the tree.
 """
-Node = Union[None, bool, float, int, str, Array[Any], Dict[str, Any], "Thing"]
+Node = Union[None, bool, float, int, str, Array[Any], Dict[str, Any], "Entity"]
 
