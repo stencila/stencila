@@ -24,9 +24,9 @@ matrix:
           on:
             branch: master
 
-    - dist: xenial
-      language: python
+    - language: python
       python: '3.7'
+      dist: xenial
 
       install:
         - make -C py setup
@@ -48,14 +48,24 @@ matrix:
 
     - language: r
       r: release
+      dist: xenial
+      sudo: true
 
-      install:
-        - make -C r setup
+      r_binary_packages:
+        - covr
+        - roxygen2
+        - testthat
+
+      r_github_packages:
+        - jimhester/lintr
+
+      before_install:
+        - cd r
 
       script:
-        - make -C r lint
-        - make -C r test
-        - make -C r build
+        - make lint
+        - make test
+        - make build
 
       after_success:
-        - cd r && Rscript -e 'covr::codecov()'
+        - Rscript -e 'covr::codecov()'
