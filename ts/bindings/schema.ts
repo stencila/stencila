@@ -3,18 +3,18 @@
  * from them.
  */
 
+import Ajv from 'ajv'
+import betterAjvErrors from 'better-ajv-errors'
 import fs from 'fs-extra'
 import globby from 'globby'
 import yaml from 'js-yaml'
-import path from 'path'
 import cloneDeep from 'lodash.clonedeep'
+import path from 'path'
+import log from '../log'
 import Schema from './schema.d'
-import log from './log'
-import Ajv from 'ajv'
-import betterAjvErrors from 'better-ajv-errors'
 
-const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
-const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'built')
+const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', '..', 'schema')
+const SCHEMA_DEST_DIR = path.join(__dirname, '..', '..', 'built')
 
 // Create a validation function for JSON Schema for use in `checkSchema`
 const ajv = new Ajv({ jsonPointers: true })

@@ -14,5 +14,5 @@ py/dist
 py/.coverage
 py/coverage.xml
 *.out.*
-/types.ts
+/ts/types.ts
 .Rproj.user

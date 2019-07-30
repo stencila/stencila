@@ -10,10 +10,10 @@ import fs from 'fs-extra'
 import globby from 'globby'
 import { flatten } from 'lodash'
 import path from 'path'
-import { Article, Code, code, Link, link, Node, Strong } from '../types'
-import { isArticle } from '../util/guards'
-// The main reson this is imported is to configure the log handling
-import log from '../src/log'
+// The main reason this is imported is to configure the log handling
+import log from './log'
+import { Article, Code, code, Link, link, Node, Strong } from './types'
+import { isArticle } from './util/guards'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 docs()

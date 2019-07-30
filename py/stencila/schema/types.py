@@ -3,6 +3,10 @@ from enum import Enum
 
 Enum0 = Enum("0", ["ascending", "descending", "unordered"])
 
+Enum1 = Enum("1", ["data", "header"])
+
+Enum2 = Enum("2", ["header", "footer"])
+
 
 class Entity:
     """The most basic item, defining the minimum properties required."""
@@ -25,6 +29,11 @@ class Entity:
 
 
 class DatatableColumnSchema(Entity):
+    """
+    A schema specifying the data values that are valid within a Datatable
+    column.
+    """
+
     items: Dict[str, Any]
     uniqueItems: Optional[bool]
 
@@ -47,9 +56,8 @@ class DatatableColumnSchema(Entity):
 
 class Mark(Entity):
     """
-    A base class for nodes that mark some other inline content (e.g. `string`
-    or other `InlineContent` nodes) in some way (e.g. as being emphasised, or
-    quoted).
+    A base class for nodes that mark some other inline content in some way
+    (e.g. as being emphasised, or quoted).
     """
 
     content: Array["InlineContent"]
@@ -103,7 +111,7 @@ class Emphasis(Mark):
 
 
 class Thing(Entity):
-    """The most generic type of item https://schema.org/Thing."""
+    """The most generic type of item."""
 
     alternateNames: Optional[Array[str]]
     description: Optional[str]
@@ -135,32 +143,35 @@ class Thing(Entity):
 
 class Brand(Thing):
     """
-    A brand is a name used by an organization or business person for labeling a
-    product, product group, or similar. https://schema.org/Brand.
+    A brand used by an organization or person for labeling a product, product
+    group, or similar.
     """
 
+    name: str
     logo: Optional[Union[str, "ImageObject"]]
     reviews: Optional[Array[str]]
 
     def __init__(
         self,
+        name: str,
         alternateNames: Optional[Array[str]] = None,
         description: Optional[str] = None,
         id: Optional[str] = None,
         logo: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
         reviews: Optional[Array[str]] = None,
         url: Optional[str] = None
     ) -> None:
         super().__init__(
+            name=name,
             alternateNames=alternateNames,
             description=description,
             id=id,
             meta=meta,
-            name=name,
             url=url
         )
+        if name is not None:
+            self.name = name
         if logo is not None:
             self.logo = logo
         if reviews is not None:
@@ -226,10 +237,7 @@ class CodeBlock(Code):
 
 
 class ContactPoint(Thing):
-    """
-    A contact point—for example, a R&D department.
-    https://schema.org/ContactPoint.
-    """
+    """A contact point—for example, a R&D department."""
 
     availableLanguages: Optional[Array[str]]
     emails: Optional[Array[str]]
@@ -265,8 +273,8 @@ class ContactPoint(Thing):
 
 class CreativeWork(Thing):
     """
-    The most generic kind of creative work, including books, movies,
-    photographs, software programs, etc. https://schema.org/CreativeWork
+    A creative work, including books, movies, photographs, software programs,
+    etc.
     """
 
     authors: Optional[Array[Union["Person", "Organization"]]]
@@ -350,6 +358,8 @@ class CreativeWork(Thing):
 
 
 class Article(CreativeWork):
+    """An article, including news and scholarly articles."""
+
     authors: Array[Union["Person", "Organization"]]
     title: str
     environment: Optional["Environment"]
@@ -526,7 +536,7 @@ class Datatable(CreativeWork):
 class MediaObject(CreativeWork):
     """
     A media object, such as an image, video, or audio object embedded in a web
-    page or a downloadable dataset. https://schema.org/MediaObject
+    page or a downloadable dataset.
     """
 
     contentUrl: str
@@ -600,7 +610,7 @@ class MediaObject(CreativeWork):
 
 
 class AudioObject(MediaObject):
-    """An audio file. https://schema.org/AudioObject"""
+    """An audio file"""
 
     caption: Optional[str]
     transcript: Optional[str]
@@ -826,7 +836,7 @@ class CodeChunk(SoftwareSourceCode):
 
 
 class CodeExpr(SoftwareSourceCode):
-    """An expression."""
+    """An expression defined in programming language source code."""
 
     value: Optional["Node"]
 
@@ -897,6 +907,8 @@ class CodeExpr(SoftwareSourceCode):
 
 
 class DatatableColumn(Thing):
+    """A column of data within a Datatable."""
+
     name: str
     values: Array[Any]
     schema: Optional["DatatableColumnSchema"]
@@ -933,9 +945,9 @@ class Environment(Thing):
 
     name: str
     adds: Optional[Array["SoftwareSourceCode"]]
-    environmentSource: Optional[str]
     extends: Optional[Array["Environment"]]
     removes: Optional[Array["SoftwareSourceCode"]]
+    source: Optional[str]
 
     def __init__(
         self,
@@ -943,11 +955,11 @@ class Environment(Thing):
         adds: Optional[Array["SoftwareSourceCode"]] = None,
         alternateNames: Optional[Array[str]] = None,
         description: Optional[str] = None,
-        environmentSource: Optional[str] = None,
         extends: Optional[Array["Environment"]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         removes: Optional[Array["SoftwareSourceCode"]] = None,
+        source: Optional[str] = None,
         url: Optional[str] = None
     ) -> None:
         super().__init__(
@@ -962,12 +974,12 @@ class Environment(Thing):
             self.name = name
         if adds is not None:
             self.adds = adds
-        if environmentSource is not None:
-            self.environmentSource = environmentSource
         if extends is not None:
             self.extends = extends
         if removes is not None:
             self.removes = removes
+        if source is not None:
+            self.source = source
 
 
 class Heading(Entity):
@@ -994,7 +1006,7 @@ class Heading(Entity):
 
 
 class ImageObject(MediaObject):
-    """An image file. https://schema.org/ImageObject"""
+    """An image file."""
 
     caption: Optional[str]
     thumbnail: Optional["ImageObject"]
@@ -1218,10 +1230,7 @@ class Mount(Thing):
 
 
 class Organization(Thing):
-    """
-    An organization such as a school, NGO, corporation, club, etc.
-    https://schema.org/Organization.
-    """
+    """An organization such as a school, NGO, corporation, club, etc."""
 
     address: Optional[str]
     brands: Optional[Array["Brand"]]
@@ -1291,9 +1300,7 @@ class Paragraph(Entity):
 
 
 class Person(Thing):
-    """
-    A person (alive, dead, undead, or fictional). https://schema.org/Person.
-    """
+    """A person (alive, dead, undead, or fictional)."""
 
     address: Optional[str]
     affiliations: Optional[Array["Organization"]]
@@ -1361,9 +1368,8 @@ class Person(Thing):
 
 class Product(Thing):
     """
-    Any offered product or service. For example, a pair of shoes; a concert
-    ticket; the rental of a car; a haircut; or an episode of a TV show streamed
-    online. https://schema.org/Product
+    Any offered product or service. For example, a pair of shoes; a haircut; or
+    an episode of a TV show streamed online.
     """
 
     brand: Optional["Brand"]
@@ -1399,13 +1405,7 @@ class Product(Thing):
 
 
 class Quote(Mark):
-    """
-    Inline, quoted content. Analagous to,   - HTML [`<q>`
-    element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q)
-  -
-    Pandoc
-    [`Quoted`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/De
-    """
+    """Inline, quoted content."""
 
     citation: Optional[str]
 
@@ -1586,10 +1586,7 @@ class SoftwareSession(Thing):
 
 
 class Strong(Mark):
-    """
-    Strongly emphasised content. Analagous to,   - JATS
-    [`<bold>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/bold.
-    """
+    """Strongly emphasised content."""
 
     def __init__(
         self,
@@ -1606,10 +1603,7 @@ class Strong(Mark):
 
 
 class Subscript(Mark):
-    """
-    Subscripted content. Analagous to,   - JATS
-    [`<sub>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/sub.ht
-    """
+    """Subscripted content."""
 
     def __init__(
         self,
@@ -1626,10 +1620,7 @@ class Subscript(Mark):
 
 
 class Superscript(Mark):
-    """
-    Superscripted content. Analagous to,   - JATS
-    [`<sup>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/sup.ht
-    """
+    """Superscripted content."""
 
     def __init__(
         self,
@@ -1707,6 +1698,7 @@ class TableCell(Entity):
 
     content: Array["InlineContent"]
     colspan: Optional[int]
+    kind: Optional["Enum1"]
     name: Optional[str]
     rowspan: Optional[int]
 
@@ -1715,6 +1707,7 @@ class TableCell(Entity):
         content: Array["InlineContent"],
         colspan: Optional[int] = None,
         id: Optional[str] = None,
+        kind: Optional["Enum1"] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         rowspan: Optional[int] = None
@@ -1727,6 +1720,8 @@ class TableCell(Entity):
             self.content = content
         if colspan is not None:
             self.colspan = colspan
+        if kind is not None:
+            self.kind = kind
         if name is not None:
             self.name = name
         if rowspan is not None:
@@ -1737,11 +1732,13 @@ class TableRow(Entity):
     """A row within a Table."""
 
     cells: Array["TableCell"]
+    kind: Optional["Enum2"]
 
     def __init__(
         self,
         cells: Array["TableCell"],
         id: Optional[str] = None,
+        kind: Optional["Enum2"] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
@@ -1750,6 +1747,8 @@ class TableRow(Entity):
         )
         if cells is not None:
             self.cells = cells
+        if kind is not None:
+            self.kind = kind
 
 
 class ThematicBreak(Entity):
@@ -1771,7 +1770,7 @@ class ThematicBreak(Entity):
 
 
 class VideoObject(MediaObject):
-    """A video file. https://schema.org/VideoObject"""
+    """A video file."""
 
     caption: Optional[str]
     thumbnail: Optional["ImageObject"]
@@ -1846,19 +1845,19 @@ class VideoObject(MediaObject):
 
 
 """
-Block content.
+Union type for valid block content.
 """
 BlockContent = Union["CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
 
 
 """
-Inline content.
+Union type for valid inline content.
 """
-InlineContent = Union[None, bool, int, float, str, "Emphasis", "Strong", "Delete", "Subscript", "Superscript", "Quote", "Code", "CodeExpr", "Link", "ImageObject"]
+InlineContent = Union[None, bool, int, float, str, "Code", "CodeExpr", "Delete", "Emphasis", "ImageObject", "Link", "Quote", "Strong", "Subscript", "Superscript"]
 
 
 """
-Describes a valid value for any node in the tree.
+Union type for all valid nodes.
 """
 Node = Union[None, bool, float, int, str, Array[Any], Dict[str, Any], "Entity"]
 

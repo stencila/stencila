@@ -4,7 +4,7 @@
  * To get `DEBUG` level log entries, set the `DEBUG` env var. e.g
  *
  * ```bash
- * DEBUG=1 npx ts-node src/schema.ts
+ * DEBUG=1 npx ts-node ts/bindings/schema.ts
  * ```
  */
 

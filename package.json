@@ -3,8 +3,7 @@
   "version": "0.19.0",
   "description": "Stencila schema and other specifications",
   "files": [
-    "dist",
-    "types.ts"
+    "dist"
   ],
   "main": "dist/index.js",
   "types": "dist/types.d.ts",
@@ -12,15 +11,15 @@
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
     "lint": "npx eslint './**/*.{js,ts}' --fix --env node --env es6 --env jest",
     "test": "npm run build:jsonschema && jest",
-    "build": "npm run build:ts",
-    "build:jsonschema": "ts-node src/schema.ts",
+    "build": "npm run build:jsonschema && npm run build:ts && npm run build:py && npm run build:r",
+    "build:jsonschema": "ts-node ts/bindings/schema.ts",
     "build:jsonld": "gulp jsonld",
-    "build:ts": "ts-node src/typescript.ts && tsc && cp built/*.schema.json dist",
-    "build:py": "ts-node src/python.ts",
-    "build:r": "ts-node src/r.ts",
+    "build:ts": "ts-node ts/bindings/typescript.ts && tsc && cp built/*.schema.json dist",
+    "build:py": "ts-node ts/bindings/python.ts",
+    "build:r": "ts-node ts/bindings/r.ts",
     "docs": "npm run docs:readme && npm run docs:build",
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
-    "docs:build": "npm run build:ts && ts-node scripts/docs",
+    "docs:build": "npm run build:ts && ts-node ts/docs",
     "docs:serve": "npx browser-sync ./built -f ./built --directory --no-ui --reload-debounce 750",
     "watch": "gulp watch",
     "clean": "gulp clean"

@@ -22,13 +22,13 @@ Entity <- function(
 }
 
 
-#' DatatableColumnSchema
+#' A schema specifying the data values that are valid within a Datatable column.
 #'
 #' @name DatatableColumnSchema
-#' @param items undefined \bold{Required}.
+#' @param items An object representing the JSON Schema `items` keyword. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
-#' @param uniqueItems undefined
+#' @param uniqueItems A flag to indicate that each value in the column should be unique.
 #' @seealso \code{\link{Entity}}
 #' @export
 DatatableColumnSchema <- function(
@@ -49,10 +49,10 @@ DatatableColumnSchema <- function(
 }
 
 
-#' A base class for nodes that mark some other inline content (e.g. `string` or other `InlineContent` nodes) in some way (e.g. as being emphasised, or quoted).
+#' A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
 #'
 #' @name Mark
-#' @param content The content that is marked.  \bold{Required}.
+#' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Entity}}
@@ -76,7 +76,7 @@ Mark <- function(
 #' Content that is marked for deletion
 #'
 #' @name Delete
-#' @param content The content that is marked.  \bold{Required}.
+#' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Mark}}
@@ -101,7 +101,7 @@ Delete <- function(
 #' Emphasised content.
 #'
 #' @name Emphasis
-#' @param content The content that is marked.  \bold{Required}.
+#' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Mark}}
@@ -123,7 +123,7 @@ Emphasis <- function(
 }
 
 
-#' The most generic type of item https://schema.org/Thing.
+#' The most generic type of item.
 #'
 #' @name Thing
 #' @param alternateNames Alternate names (aliases) for the item.
@@ -156,38 +156,39 @@ Thing <- function(
 }
 
 
-#' A brand is a name used by an organization or business person for labeling a product, product group, or similar. https://schema.org/Brand.
+#' A brand used by an organization or person for labeling a product, product group, or similar.
 #'
 #' @name Brand
+#' @param name The name of the item. \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
-#' @param logo A logo of of the brand. It can be either a URL of the image or image itself.
+#' @param logo A logo associated with the brand.
 #' @param meta Metadata associated with this item.
-#' @param name The name of the item.
-#' @param reviews Short reviews of the brand and/or the products it represents.
+#' @param reviews Reviews of the brand.
 #' @param url The URL of the item.
 #' @seealso \code{\link{Thing}}
 #' @export
 Brand <- function(
+  name,
   alternateNames,
   description,
   id,
   logo,
   meta,
-  name,
   reviews,
   url
 ){
   self <- Thing(
+    name = name,
     alternateNames = alternateNames,
     description = description,
     id = id,
     meta = meta,
-    name = name,
     url = url
   )
   self$type <- as_scalar("Brand")
+  self[["name"]] <- check_property("Brand", "name", TRUE, missing(name), "character", name)
   self[["logo"]] <- check_property("Brand", "logo", FALSE, missing(logo), Union("character", "ImageObject"), logo)
   self[["reviews"]] <- check_property("Brand", "reviews", FALSE, missing(reviews), Array("character"), reviews)
   class(self) <- c(class(self), "Entity")
@@ -274,17 +275,17 @@ CodeBlock <- function(
 }
 
 
-#' A contact point—for example, a R&D department. https://schema.org/ContactPoint.
+#' A contact point—for example, a R&D department.
 #'
 #' @name ContactPoint
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param availableLanguages Languages (human not programming) in which it is possible to communicate with the organization/department etc.
 #' @param description A description of the item.
-#' @param emails Email address for correspondence. It must be provided in a valid email format (eg. info@example.com ).
+#' @param emails Email address for correspondence.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
-#' @param telephone "Phone contact number. Accepted formats: +44 123455, (02)12345, 006645667."
+#' @param telephone The telephone number of the contact point. Accepted formats: +44 123455, (02)12345, 006645667.
 #' @param url The URL of the item.
 #' @seealso \code{\link{Thing}}
 #' @export
@@ -316,11 +317,11 @@ ContactPoint <- function(
 }
 
 
-#' The most generic kind of creative work, including books, movies, photographs, software programs, etc. https://schema.org/CreativeWork
+#' A creative work, including books, movies, photographs, software programs, etc.
 #'
 #' @name CreativeWork
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
@@ -337,9 +338,9 @@ ContactPoint <- function(
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
 #' @param text The textual content of this creative work.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{Thing}}
 #' @export
 CreativeWork <- function(
@@ -394,11 +395,11 @@ CreativeWork <- function(
 }
 
 
-#' Article
+#' An article, including news and scholarly articles.
 #'
 #' @name Article
-#' @param authors The authors of this this creative work. \bold{Required}.
-#' @param title undefined \bold{Required}.
+#' @param authors The authors of this creative work. \bold{Required}.
+#' @param title The title of the creative work. \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -418,7 +419,7 @@ CreativeWork <- function(
 #' @param publisher A publisher of the CreativeWork.
 #' @param text The textual content of this creative work.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Article <- function(
@@ -482,7 +483,7 @@ Article <- function(
 #' @name Collection
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.  \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
@@ -498,9 +499,9 @@ Article <- function(
 #' @param name The name of the item.
 #' @param publisher A publisher of the CreativeWork.
 #' @param text The textual content of this creative work.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Collection <- function(
@@ -559,9 +560,9 @@ Collection <- function(
 #' A table of data.
 #'
 #' @name Datatable
-#' @param columns TODO \bold{Required}.
+#' @param columns The columns of data. \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
@@ -578,9 +579,9 @@ Collection <- function(
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
 #' @param text The textual content of this creative work.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Datatable <- function(
@@ -637,12 +638,12 @@ Datatable <- function(
 }
 
 
-#' A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset. https://schema.org/MediaObject
+#' A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
 #'
 #' @name MediaObject
 #' @param contentUrl URL for the actual bytes of the media object, for example the image file or video file.  \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -663,9 +664,9 @@ Datatable <- function(
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
 #' @param text The textual content of this creative work.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 MediaObject <- function(
@@ -730,12 +731,12 @@ MediaObject <- function(
 }
 
 
-#' An audio file. https://schema.org/AudioObject
+#' An audio file
 #'
 #' @name AudioObject
 #' @param contentUrl URL for the actual bytes of the media object, for example the image file or video file.  \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
 #' @param caption The caption for this audio recording.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
@@ -757,10 +758,10 @@ MediaObject <- function(
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
 #' @param text The textual content of this creative work.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param transcript The transcript of this audio recording.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{MediaObject}}
 #' @export
 AudioObject <- function(
@@ -833,9 +834,9 @@ AudioObject <- function(
 #'
 #' @name SoftwareSourceCode
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
-#' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located (SVN, github, CodePlex)
+#' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
 #' @param codeSampleType What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
@@ -854,12 +855,12 @@ AudioObject <- function(
 #' @param programmingLanguage The computer programming language.
 #' @param publisher A publisher of the CreativeWork.
 #' @param runtimePlatform Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
-#' @param softwareRequirements Component dependency requirements for application. This includes runtime environments and shared libraries that are not included in the application distribution package, but required to run the application (Examples include DirectX, Java or .NET runtime).
-#' @param targetProducts Target Operating System / Product to which the code applies. If applies to several versions, just the product name can be used.
+#' @param softwareRequirements Dependency requirements for the software.
+#' @param targetProducts Target operating system or product to which the code applies.
 #' @param text The textual content of this creative work.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 SoftwareSourceCode <- function(
@@ -932,9 +933,9 @@ SoftwareSourceCode <- function(
 #'
 #' @name CodeChunk
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
-#' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located (SVN, github, CodePlex)
+#' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
 #' @param codeSampleType What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
@@ -954,12 +955,12 @@ SoftwareSourceCode <- function(
 #' @param programmingLanguage The computer programming language.
 #' @param publisher A publisher of the CreativeWork.
 #' @param runtimePlatform Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
-#' @param softwareRequirements Component dependency requirements for application. This includes runtime environments and shared libraries that are not included in the application distribution package, but required to run the application (Examples include DirectX, Java or .NET runtime).
-#' @param targetProducts Target Operating System / Product to which the code applies. If applies to several versions, just the product name can be used.
+#' @param softwareRequirements Dependency requirements for the software.
+#' @param targetProducts Target operating system or product to which the code applies.
 #' @param text The textual content of this creative work.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{SoftwareSourceCode}}
 #' @export
 CodeChunk <- function(
@@ -1030,13 +1031,13 @@ CodeChunk <- function(
 }
 
 
-#' An expression.
+#' An expression defined in programming language source code.
 #'
 #' @name CodeExpr
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
-#' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located (SVN, github, CodePlex)
+#' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
 #' @param codeSampleType What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
@@ -1055,13 +1056,13 @@ CodeChunk <- function(
 #' @param programmingLanguage The computer programming language.
 #' @param publisher A publisher of the CreativeWork.
 #' @param runtimePlatform Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
-#' @param softwareRequirements Component dependency requirements for application. This includes runtime environments and shared libraries that are not included in the application distribution package, but required to run the application (Examples include DirectX, Java or .NET runtime).
-#' @param targetProducts Target Operating System / Product to which the code applies. If applies to several versions, just the product name can be used.
+#' @param softwareRequirements Dependency requirements for the software.
+#' @param targetProducts Target operating system or product to which the code applies.
 #' @param text The textual content of this creative work.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param url The URL of the item.
-#' @param value undefined
-#' @param version undefined
+#' @param value The value of the expression when it was last evaluated.
+#' @param version The version of the creative work.
 #' @seealso \code{\link{SoftwareSourceCode}}
 #' @export
 CodeExpr <- function(
@@ -1132,11 +1133,11 @@ CodeExpr <- function(
 }
 
 
-#' DatatableColumn
+#' A column of data within a Datatable.
 #'
 #' @name DatatableColumn
 #' @param name The name of the item. \bold{Required}.
-#' @param values The values of the column. \bold{Required}.
+#' @param values The data values of the column. \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
@@ -1179,11 +1180,11 @@ DatatableColumn <- function(
 #' @param adds The packages that this environment adds to the base environments listed under `extends` (if any).,
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param description A description of the item.
-#' @param environmentSource Source of environment definition. For example, a URL to a Dockerfile, a path to Singularity recipe file, or a path to a filesystem folder.,
 #' @param extends Other environments that this environment extends by adding or removing packages.,
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param removes The packages that this environment removes from the base environments listed under `extends` (if any).,
+#' @param source Source of environment definition. e.g. a URL to a Dockerfile, or a path to a filesystem folder.
 #' @param url The URL of the item.
 #' @seealso \code{\link{Thing}}
 #' @export
@@ -1192,11 +1193,11 @@ Environment <- function(
   adds,
   alternateNames,
   description,
-  environmentSource,
   extends,
   id,
   meta,
   removes,
+  source,
   url
 ){
   self <- Thing(
@@ -1210,9 +1211,9 @@ Environment <- function(
   self$type <- as_scalar("Environment")
   self[["name"]] <- check_property("Environment", "name", TRUE, missing(name), "character", name)
   self[["adds"]] <- check_property("Environment", "adds", FALSE, missing(adds), Array("SoftwareSourceCode"), adds)
-  self[["environmentSource"]] <- check_property("Environment", "environmentSource", FALSE, missing(environmentSource), "character", environmentSource)
   self[["extends"]] <- check_property("Environment", "extends", FALSE, missing(extends), Array("Environment"), extends)
   self[["removes"]] <- check_property("Environment", "removes", FALSE, missing(removes), Array("SoftwareSourceCode"), removes)
+  self[["source"]] <- check_property("Environment", "source", FALSE, missing(source), "character", source)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -1222,7 +1223,7 @@ Environment <- function(
 #'
 #' @name Heading
 #' @param content Content of the heading. \bold{Required}.
-#' @param depth undefined \bold{Required}.
+#' @param depth The depth of the heading. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Entity}}
@@ -1245,12 +1246,12 @@ Heading <- function(
 }
 
 
-#' An image file. https://schema.org/ImageObject
+#' An image file.
 #'
 #' @name ImageObject
 #' @param contentUrl URL for the actual bytes of the media object, for example the image file or video file.  \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
 #' @param caption The caption for this image.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
@@ -1273,9 +1274,9 @@ Heading <- function(
 #' @param publisher A publisher of the CreativeWork.
 #' @param text The textual content of this creative work.
 #' @param thumbnail Thumbnail image of this image.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{MediaObject}}
 #' @export
 ImageObject <- function(
@@ -1380,8 +1381,8 @@ Include <- function(
 #' A hyperlink to other pages, sections within the same document, resources, or any URL.
 #'
 #' @name Link
-#' @param content undefined \bold{Required}.
-#' @param target undefined \bold{Required}.
+#' @param content The textual content of the link. \bold{Required}.
+#' @param target The target of the link. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param relation The relation between the target and the current thing.
@@ -1440,8 +1441,8 @@ List <- function(
 #' A single item in a list.
 #'
 #' @name ListItem
-#' @param content undefined \bold{Required}.
-#' @param checked undefined
+#' @param content The content of the list item. \bold{Required}.
+#' @param checked A flag to indicate if this list item is checked.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Entity}}
@@ -1509,7 +1510,7 @@ Mount <- function(
 }
 
 
-#' An organization such as a school, NGO, corporation, club, etc. https://schema.org/Organization.
+#' An organization such as a school, NGO, corporation, club, etc.
 #'
 #' @name Organization
 #' @param address Postal address for the organization.
@@ -1566,7 +1567,7 @@ Organization <- function(
 #' Paragraph
 #'
 #' @name Paragraph
-#' @param content undefined \bold{Required}.
+#' @param content The contents of the paragraph. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Entity}}
@@ -1587,7 +1588,7 @@ Paragraph <- function(
 }
 
 
-#' A person (alive, dead, undead, or fictional). https://schema.org/Person.
+#' A person (alive, dead, undead, or fictional).
 #'
 #' @name Person
 #' @param address Postal address for the person.
@@ -1595,9 +1596,9 @@ Paragraph <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param description A description of the item.
 #' @param emails Email addresses for the person.
-#' @param familyNames Family name. In the U.S., the last name of an Person. This can be used along with givenName instead of the name property.
+#' @param familyNames Family name. In the U.S., the last name of a person.
 #' @param funders A person or organization that supports (sponsors) something through some kind of financial contribution.
-#' @param givenNames Given name. In the U.S., the first name of a Person. This can be used along with familyName instead of the name property.
+#' @param givenNames Given name. In the U.S., the first name of a person.
 #' @param honorificPrefix An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
 #' @param honorificSuffix An honorific suffix after a person's name such as MD/PhD/MSCSW.
 #' @param id The identifier for this item.
@@ -1653,14 +1654,14 @@ Person <- function(
 }
 
 
-#' Any offered product or service. For example, a pair of shoes; a concert ticket; the rental of a car; a haircut; or an episode of a TV show streamed online. https://schema.org/Product
+#' Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
 #'
 #' @name Product
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param brand Brand that the product is labelled with.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
-#' @param logo A logo of of the product. It can be either a URL of the image or image itself.
+#' @param logo The logo of the product.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param productID Product identification code.
@@ -1695,10 +1696,10 @@ Product <- function(
 }
 
 
-#' Inline, quoted content. Analagous to,   - HTML [`<q>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q)   - Pandoc [`Quoted`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L262)
+#' Inline, quoted content.
 #'
 #' @name Quote
-#' @param content The content that is marked.  \bold{Required}.
+#' @param content The content that is marked. \bold{Required}.
 #' @param citation The source of the quote.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
@@ -1725,7 +1726,7 @@ Quote <- function(
 #' A section quoted from somewhere else.
 #'
 #' @name QuoteBlock
-#' @param content undefined \bold{Required}.
+#' @param content The content of the quote. \bold{Required}.
 #' @param citation The source of the quote
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
@@ -1792,7 +1793,7 @@ ResourceParameters <- function(
 #'
 #' @name SoftwareApplication
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
@@ -1808,12 +1809,12 @@ ResourceParameters <- function(
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
-#' @param softwareRequirements Component dependency requirements for application. This includes runtime environments and shared libraries that are not included in the application distribution package, but required to run the application (Examples: DirectX, Java or .NET runtime).
-#' @param softwareVersion Version of the software instance.
+#' @param softwareRequirements Requirements for application, including shared libraries that are not included in the application distribution.
+#' @param softwareVersion Version of the software.
 #' @param text The textual content of this creative work.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 SoftwareApplication <- function(
@@ -1877,10 +1878,10 @@ SoftwareApplication <- function(
 #' @name SoftwareSession
 #' @param environment Definition of the environment to execute this session in. \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param cpuResource undefined
+#' @param cpuResource The CPU resource for the session.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
-#' @param memoryResource undefined
+#' @param memoryResource The memory resource for the session.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param url The URL of the item.
@@ -1917,10 +1918,10 @@ SoftwareSession <- function(
 }
 
 
-#' Strongly emphasised content. Analagous to,   - JATS [`<bold>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/bold.html)   - HTML [`<strong>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong)   - MDAST [`Strong`](https://github.com/syntax-tree/mdast#strong)   - Pandoc [`Strong`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L257)
+#' Strongly emphasised content.
 #'
 #' @name Strong
-#' @param content The content that is marked.  \bold{Required}.
+#' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Mark}}
@@ -1942,10 +1943,10 @@ Strong <- function(
 }
 
 
-#' Subscripted content. Analagous to,   - JATS [`<sub>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/sub.html)   - HTML [`<sub>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub)   - Pandoc [`Subscript`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L260)
+#' Subscripted content.
 #'
 #' @name Subscript
-#' @param content The content that is marked.  \bold{Required}.
+#' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Mark}}
@@ -1967,10 +1968,10 @@ Subscript <- function(
 }
 
 
-#' Superscripted content. Analagous to,   - JATS [`<sup>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/sup.html)   - HTML [`<sup>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup)   - Pandoc [`Superscript`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L259)
+#' Superscripted content.
 #'
 #' @name Superscript
-#' @param content The content that is marked.  \bold{Required}.
+#' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Mark}}
@@ -1997,7 +1998,7 @@ Superscript <- function(
 #' @name Table
 #' @param rows Rows of cells in the table.  \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
@@ -2014,9 +2015,9 @@ Superscript <- function(
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
 #' @param text The textual content of this creative work.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Table <- function(
@@ -2076,11 +2077,12 @@ Table <- function(
 #' A cell within a `Table`.
 #'
 #' @name TableCell
-#' @param content Contents of the table cell.  \bold{Required}.
+#' @param content Contents of the table cell. \bold{Required}.
 #' @param colspan How many columns the cell extends.
 #' @param id The identifier for this item.
+#' @param kind Indicates whether the cell is a header.
 #' @param meta Metadata associated with this item.
-#' @param name The name of the cell. Cell's have an implicit name derived from their position in the table e.g. `C4` for the cell in the third column and fourth row. However this name can be overridden with an explicit name, e.g. `rate`.
+#' @param name The name of the cell.
 #' @param rowspan How many columns the cell extends.
 #' @seealso \code{\link{Entity}}
 #' @export
@@ -2088,6 +2090,7 @@ TableCell <- function(
   content,
   colspan,
   id,
+  kind,
   meta,
   name,
   rowspan
@@ -2099,6 +2102,7 @@ TableCell <- function(
   self$type <- as_scalar("TableCell")
   self[["content"]] <- check_property("TableCell", "content", TRUE, missing(content), Array("InlineContent"), content)
   self[["colspan"]] <- check_property("TableCell", "colspan", FALSE, missing(colspan), "numeric", colspan)
+  self[["kind"]] <- check_property("TableCell", "kind", FALSE, missing(kind), Enum("data", "header"), kind)
   self[["name"]] <- check_property("TableCell", "name", FALSE, missing(name), "character", name)
   self[["rowspan"]] <- check_property("TableCell", "rowspan", FALSE, missing(rowspan), "numeric", rowspan)
   class(self) <- c(class(self), "Entity")
@@ -2111,12 +2115,14 @@ TableCell <- function(
 #' @name TableRow
 #' @param cells An array of cells in the row. \bold{Required}.
 #' @param id The identifier for this item.
+#' @param kind If present, indicates that all cells in this row should be treated as header cells.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Entity}}
 #' @export
 TableRow <- function(
   cells,
   id,
+  kind,
   meta
 ){
   self <- Entity(
@@ -2125,6 +2131,7 @@ TableRow <- function(
   )
   self$type <- as_scalar("TableRow")
   self[["cells"]] <- check_property("TableRow", "cells", TRUE, missing(cells), Array("TableCell"), cells)
+  self[["kind"]] <- check_property("TableRow", "kind", FALSE, missing(kind), Enum("header", "footer"), kind)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -2152,12 +2159,12 @@ ThematicBreak <- function(
 }
 
 
-#' A video file. https://schema.org/VideoObject
+#' A video file.
 #'
 #' @name VideoObject
 #' @param contentUrl URL for the actual bytes of the media object, for example the image file or video file.  \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this this creative work.
+#' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
 #' @param caption The caption for this video recording.
 #' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
@@ -2180,10 +2187,10 @@ ThematicBreak <- function(
 #' @param publisher A publisher of the CreativeWork.
 #' @param text The textual content of this creative work.
 #' @param thumbnail Thumbnail image of this video recording.
-#' @param title undefined
+#' @param title The title of the creative work.
 #' @param transcript The transcript of this video recording.
 #' @param url The URL of the item.
-#' @param version undefined
+#' @param version The version of the creative work.
 #' @seealso \code{\link{MediaObject}}
 #' @export
 VideoObject <- function(
@@ -2255,21 +2262,21 @@ VideoObject <- function(
 
 
 
-#' Block content.
+#' Union type for valid block content.
 #'
 #' @export
 BlockContent = Union("CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "Paragraph", "QuoteBlock", "Table", "ThematicBreak")
 
 
-#' Inline content.
+#' Union type for valid inline content.
 #'
 #' @export
-InlineContent = Union("NULL", "logical", "numeric", "character", "Emphasis", "Strong", "Delete", "Subscript", "Superscript", "Quote", "Code", "CodeExpr", "Link", "ImageObject")
+InlineContent = Union("NULL", "logical", "numeric", "character", "Code", "CodeExpr", "Delete", "Emphasis", "ImageObject", "Link", "Quote", "Strong", "Subscript", "Superscript")
 
 
-#' Describes a valid value for any node in the tree.
+#' Union type for all valid nodes.
 #'
 #' @export
-Node = Union("NULL", "logical", "numeric", "character", Array(Any()), "list", "Thing")
+Node = Union("NULL", "logical", "numeric", "character", Array(Any()), "list", "Entity")
 
 

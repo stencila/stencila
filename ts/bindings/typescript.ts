@@ -4,10 +4,10 @@
 
 import fs from 'fs-extra'
 import path from 'path'
-import { props, read, Schema, types, unions } from './bindings'
+import { props, read, Schema, types, unions } from './index'
 
 /**
- * Generate `.../types.ts` from schemas.
+ * Generate `../types.ts` from schemas.
  */
 export const build = async (): Promise<string> => {
   const schemas = await read()
