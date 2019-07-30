@@ -7,11 +7,13 @@ description: A single item in a list.
 properties:
   content:
     '@id': stencila:content
+    description: The content of the list item.
     type: array
     items:
       $ref: Node
   checked:
     '@id': stencila:checked
+    description: A flag to indicate if this list item is checked.
     type: boolean
     default: false
 required:

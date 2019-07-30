@@ -1,7 +1,5 @@
 class Person(Thing):
-    """
-    A person (alive, dead, undead, or fictional). https://schema.org/Person.
-    """
+    """A person (alive, dead, undead, or fictional)."""
 
     address: Optional[str]
     affiliations: Optional[Array["Organization"]]

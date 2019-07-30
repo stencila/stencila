@@ -3,9 +3,5 @@ title: Superscript
 extends: Mark
 role: secondary
 status: stable
-description: |
-  Superscripted content. Analagous to,
-    - JATS [`<sup>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/sup.html)
-    - HTML [`<sup>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup)
-    - Pandoc [`Superscript`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L259)
+description: Superscripted content.
 properties: {}

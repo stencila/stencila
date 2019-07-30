@@ -3,10 +3,5 @@ title: Strong
 extends: Mark
 role: secondary
 status: stable
-description: |
-  Strongly emphasised content. Analagous to,
-    - JATS [`<bold>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/bold.html)
-    - HTML [`<strong>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong)
-    - MDAST [`Strong`](https://github.com/syntax-tree/mdast#strong)
-    - Pandoc [`Strong`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L257)
+description: Strongly emphasised content.
 properties: {}

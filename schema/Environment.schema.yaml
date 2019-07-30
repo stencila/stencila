@@ -23,11 +23,11 @@ properties:
     type: array
     items:
       $ref: SoftwareSourceCode
-  environmentSource:
+  source:
     '@id': stencila:environmentSource
     description: |
-      Source of environment definition. For example, a URL to a Dockerfile, a path to Singularity recipe file,
-      or a path to a filesystem folder.,
+      Source of environment definition. e.g. a URL to a Dockerfile,
+      or a path to a filesystem folder.
     type: string
 required:
   - name

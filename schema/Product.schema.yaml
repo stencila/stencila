@@ -4,22 +4,22 @@ extends: Thing
 role: tertiary
 status: stable
 description: |
-  Any offered product or service. For example, a pair of shoes; a concert ticket; the rental of a car;
-  a haircut; or an episode of a TV show streamed online. https://schema.org/Product
+  Any offered product or service. For example, a pair of shoes;
+  a haircut; or an episode of a TV show streamed online.
 properties:
   brand:
-    description: |
-      Brand that the product is labelled with.
-    $ref: Brand
+    '@id': schema:brand
+    description: Brand that the product is labelled with.
+    allOf:
+      - $ref: Brand
   logo:
-    description: |
-      A logo of of the product. It can be either a URL of the image or image itself.
+    '@id': schema:logo
+    description: The logo of the product.
     anyOf:
       - type: string
         format: uri
       - $ref: ImageObject
   productID:
     '@id': schema:productID
-    description: |
-      Product identification code.
+    description: Product identification code.
     type: string

@@ -1,5 +1,5 @@
 /**
- * A person (alive, dead, undead, or fictional). https://schema.org/Person.
+ * A person (alive, dead, undead, or fictional).
  */
 export interface Person extends Thing {
   type: 'Person'

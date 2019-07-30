@@ -3,10 +3,7 @@ title: Quote
 extends: Mark
 role: secondary
 status: stable
-description: |
-  Inline, quoted content. Analagous to,
-    - HTML [`<q>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/q)
-    - Pandoc [`Quoted`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L262)
+description: Inline, quoted content.
 properties:
   citation:
     '@id': schema:citation

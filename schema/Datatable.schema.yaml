@@ -6,7 +6,8 @@ status: experimental
 description: A table of data.
 properties:
   columns:
-    description: TODO
+    '@id': stencila:columns
+    description: The columns of data.
     type: array
     items:
       $ref: DatatableColumn

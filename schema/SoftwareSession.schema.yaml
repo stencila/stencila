@@ -4,7 +4,8 @@ extends: Thing
 role: primary
 status: experimental
 description: |
-  Represents a runtime session with the resources and image that is required by software to execute.
+  Represents a runtime session with the resources and image that
+  is required by software to execute.
 properties:
   volumeMounts:
     '@id': stencila:volumeMount
@@ -14,10 +15,12 @@ properties:
       - $ref: Mount
   cpuResource:
     '@id': stencila:cpuResource
+    description: The CPU resource for the session.
     allOf:
       - $ref: ResourceParameters
   memoryResource:
     '@id': stencila:memoryResource
+    description: The memory resource for the session.
     allOf:
       - $ref: ResourceParameters
   environment:

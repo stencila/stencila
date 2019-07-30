@@ -20,6 +20,12 @@ import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
  */
 export default interface Schema extends JSONSchema7 {
   /**
+   * The id for the type or property schema to be used
+   * when generating JSON-LD.
+   */
+  '@id'?: string
+
+  /**
    * The role that this schema has.
    */
   role?: 'base' | 'primary' | 'secondary' | 'tertiary'

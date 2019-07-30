@@ -3,7 +3,7 @@ title: Person
 extends: Thing
 role: secondary
 status: stable
-description: A person (alive, dead, undead, or fictional). https://schema.org/Person.
+description: A person (alive, dead, undead, or fictional).
 codec: person
 properties:
   address:
@@ -31,9 +31,8 @@ properties:
       - surnames
       - lastName
       - lastNames
-    description: |
-      Family name. In the U.S., the last name of an Person.
-      This can be used along with givenName instead of the name property.
+    description: Family name. In the U.S., the last name of a person.
+    $comment: This can be used along with givenName instead of the name property.
     allOf:
       - codec: ssv
       - type: array
@@ -56,9 +55,8 @@ properties:
       - firstNames
       # It is necessary to specify this alias because of use of allOf
       - givenName
-    description: |
-      Given name. In the U.S., the first name of a Person.
-      This can be used along with familyName instead of the name property.
+    description: Given name. In the U.S., the first name of a person.
+    $comment: This can be used along with familyName instead of the name property.
     allOf:
       - codec: ssv
       - type: array

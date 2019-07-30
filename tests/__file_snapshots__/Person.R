@@ -1,13 +1,13 @@
-#` A person (alive, dead, undead, or fictional). https://schema.org/Person.
+#` A person (alive, dead, undead, or fictional).
 #`
 #` @param  address Postal address for the person.
 #` @param  affiliations Organizations that the person is affiliated with.
 #` @param  alternateNames Alternate names (aliases) for the item.
 #` @param  description A description of the item.
 #` @param  emails Email addresses for the person.
-#` @param  familyNames Family name. In the U.S., the last name of an Person. This can be used along with givenName instead of the name property.
+#` @param  familyNames Family name. In the U.S., the last name of a person.
 #` @param  funders A person or organization that supports (sponsors) something through some kind of financial contribution.
-#` @param  givenNames Given name. In the U.S., the first name of a Person. This can be used along with familyName instead of the name property.
+#` @param  givenNames Given name. In the U.S., the first name of a person.
 #` @param  honorificPrefix An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
 #` @param  honorificSuffix An honorific suffix after a person's name such as MD/PhD/MSCSW.
 #` @param  id The identifier for this item.

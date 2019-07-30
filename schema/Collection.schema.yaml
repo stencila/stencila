@@ -3,8 +3,7 @@ title: Collection
 extends: CreativeWork
 role: secondary
 status: stable
-description: |
-  A created collection of CreativeWorks or other artefacts.
+description: A created collection of CreativeWorks or other artefacts.
 # The [schema.org defintion](https://schema.org/Collection) adds
 # `collectionSize` but has not been added here because that feels
 # redudant e.g. a developer could use `collection.parts.length` instead

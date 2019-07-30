@@ -3,9 +3,10 @@ title: CodeExpr
 extends: SoftwareSourceCode
 role: secondary
 status: unstable
-description: An expression.
+description: An expression defined in programming language source code.
 properties:
   value:
     '@id': schema:value
+    description: The value of the expression when it was last evaluated.
     allOf:
       - $ref: Node

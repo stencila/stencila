@@ -6,10 +6,13 @@ status: experimental
 description: Heading
 properties:
   depth:
+    '@id': stencila:depth
+    description: The depth of the heading.
     type: number
     minimum: 1
     maximum: 6
   content:
+    '@id': stencila:content
     description: Content of the heading.
     type: array
     items:

@@ -4,12 +4,12 @@ extends: Entity
 role: base
 status: stable
 description: |
-  A base class for nodes that mark some other inline content (e.g. `string` or other `InlineContent` nodes) in some way (e.g. as being emphasised, or quoted).
+  A base class for nodes that mark some other inline content
+  in some way (e.g. as being emphasised, or quoted).
 properties:
   content:
     '@id': 'stencila:content'
-    description: |
-      The content that is marked.
+    description: The content that is marked.
     type: array
     items:
       $ref: InlineContent
