@@ -1,5 +1,5 @@
 /**
- * The most generic type of item https://schema.org/Thing.
+ * The most generic type of item.
  */
 export interface Thing extends Entity {
   type: 'Thing' | 'Article' | 'AudioObject' | 'Brand' | 'Code' | 'CodeBlock' | 'CodeChunk' | 'CodeExpr' | 'Collection' | 'ContactPoint' | 'CreativeWork' | 'Datatable' | 'DatatableColumn' | 'Environment' | 'ImageObject' | 'MediaObject' | 'Mount' | 'Organization' | 'Person' | 'Product' | 'ResourceParameters' | 'SoftwareApplication' | 'SoftwareSession' | 'SoftwareSourceCode' | 'Table' | 'VideoObject'
