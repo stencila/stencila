@@ -46,8 +46,9 @@ export const build = async (): Promise<void> => {
   const schemata = Array.from(schemas.values())
 
   // Check each schema is valid
-  const fails = schemata.map(schema => checkSchema(schemas, schema))
-          .reduce((fails, ok) => !ok ? fails + 1 : fails, 0)
+  const fails = schemata
+    .map(schema => checkSchema(schemas, schema))
+    .reduce((fails, ok) => (!ok ? fails + 1 : fails), 0)
   if (fails > 0) {
     log.error(`Errors in ${fails} schemas, please see messages above`)
     // Exit with code 1 so that this fails on CI or elsewhere
@@ -91,7 +92,7 @@ const checkSchema = (schemas: Map<string, Schema>, schema: Schema): boolean => {
   const { title, extends: extends_, description, properties } = schema
   log.debug(`Checking type schema "${title}".`)
 
-  const error = (message: string) => {
+  const error = (message: string): void => {
     log.error(message)
     valid = false
   }
@@ -110,20 +111,18 @@ const checkSchema = (schemas: Map<string, Schema>, schema: Schema): boolean => {
     error(`${title} is not a valid JSON Schema:\n${message}`)
   }
 
-  const max_description_length = 120
+  const maxDescriptionLength = 120
 
   // All schemas should have a description
-  if (description === undefined)
-    error(`${title} is missing description`)
-  else if (description.length > max_description_length)
+  if (description === undefined) error(`${title} is missing description`)
+  else if (description.length > maxDescriptionLength)
     error(`${title}.description is too long`)
 
   // Type schemas have necessary properties and extends is valid
   if (properties !== undefined) {
-    if (schema['@id'] === undefined)
-      error(`${title} is missing @id`)
+    if (schema['@id'] === undefined) error(`${title} is missing @id`)
 
-    if (extends_ !== undefined){
+    if (extends_ !== undefined) {
       if (!schemas.has(extends_))
         error(`${title}.extends refers to unknown type "${extends_}`)
     }
@@ -135,7 +134,7 @@ const checkSchema = (schemas: Map<string, Schema>, schema: Schema): boolean => {
 
       if (property.description === undefined)
         error(`${title}.${name} is missing description`)
-      else if (property.description.length > max_description_length)
+      else if (property.description.length > maxDescriptionLength)
         error(`${title}.${name}.description is too long`)
     }
   }
