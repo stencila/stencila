@@ -1,0 +1,6 @@
+mypy
+pylint
+setuptools
+tox
+twine
+wheel

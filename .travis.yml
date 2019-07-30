@@ -1,24 +1,16 @@
-language: node_js
-node_js: '10'
+matrix:
+  include:
 
-script:
-  - npm run lint
-  - npm run format
-  - npm run build
-  - npm run test
-  - npm run docs
+    - language: r
+      r: release
 
-deploy:
-  # Deploy a new version of NPM package and create a Github release
-  - provider: script
-    skip_cleanup: true
-    script: npx semantic-release
+      install:
+        - make -C r setup
 
-  # Deploy documentation to Github Pages
-  # See https://docs.travis-ci.com/user/deployment/pages/
-  - provider: pages
-    skip-cleanup: true
-    github-token: $GITHUB_TOKEN
-    local-dir: built
-    on:
-      branch: master
+      script:
+        - make -C r lint
+        - make -C r test
+        - make -C r build
+
+      after_success:
+        - cd r && Rscript -e 'covr::codecov()'

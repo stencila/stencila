@@ -1,7 +1,23 @@
-import { BlockContent, CreativeWork, Delete, Emphasis, InlineContent, Quote, Strong, Subscript, Superscript } from '../types';
-import { TypeMap } from './type-map';
+import {
+  BlockContent,
+  CreativeWork,
+  Delete,
+  Emphasis,
+  InlineContent,
+  Quote,
+  Strong,
+  Subscript,
+  Superscript
+} from '../types'
+import { TypeMap } from './type-map'
 
-export type MarkTypes = Delete | Emphasis | Quote | Strong | Subscript | Superscript
+export type MarkTypes =
+  | Delete
+  | Emphasis
+  | Quote
+  | Strong
+  | Subscript
+  | Superscript
 
 export const markTypes: TypeMap<MarkTypes> = {
   Delete: 'Delete',

@@ -51,7 +51,9 @@ if (module.parent === null) build()
  * and can be used to get a type from its name at compile time.
  */
 export const typesInterface = (schemas: Schema[]): string => {
-  return `export interface Types {\n${schemas.map(({title}) => `  ${title}: ${title}`).join('\n')}\n}`
+  return `export interface Types {\n${schemas
+    .map(({ title }) => `  ${title}: ${title}`)
+    .join('\n')}\n}`
 }
 
 /**

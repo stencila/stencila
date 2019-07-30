@@ -1,0 +1,4 @@
+^.*\.Rproj$
+^.covrignore$
+^.lintr$
+^\.Rproj\.user$
