@@ -12,19 +12,22 @@ import { flatten } from 'lodash'
 import path from 'path'
 import { Article, Code, code, Link, link, Node, Strong } from '../types'
 import { isArticle } from '../util/guards'
+// The main reson this is imported is to configure the log handling
+import log from '../src/log'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 docs()
 
 /**
  * Generate docs for each `built/*.schema.json` file and
- *
-  convert any `schema/*.md` files to HTML.
+ * convert any `schema/*.md` files to HTML.
  *
  * The generated `built/*.schema.md` file should normally
  * in `include`d into the `schema/*.md` file for the type.
  */
 async function docs(): Promise<void> {
+  log.info('Building docs')
+
   const schemas = await globby('built/*.schema.json')
 
   await Promise.all(
