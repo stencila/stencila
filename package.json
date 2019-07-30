@@ -11,6 +11,7 @@
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
     "lint": "npx eslint './**/*.{js,ts}' --fix --env node --env es6 --env jest",
     "test": "npm run build:jsonschema && jest",
+    "cover": "npm run build:jsonschema && jest --coverage",
     "build": "npm run build:jsonschema && npm run build:ts && npm run build:py && npm run build:r",
     "build:jsonschema": "ts-node ts/bindings/schema.ts",
     "build:jsonld": "ts-node ts/bindings/jsonld.ts",
