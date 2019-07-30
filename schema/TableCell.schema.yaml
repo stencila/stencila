@@ -8,8 +8,7 @@ description: |
 properties:
   name:
     '@id': schema:name
-    description: |
-      The name of the cell.
+    description: The name of the cell.
     $comment: |
       Cell's have an implicit name derived from their position in the table
       e.g. `C4` for the cell in the third column and fourth row. However this name can be overridden
@@ -26,9 +25,10 @@ properties:
     default: 1
   kind:
     '@id': stencila:tableCellKind
-    description: |
-      Indicates whether the cell is a header (similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)),
-      or a default data cell (similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
+    description: Indicates whether the cell is a header.
+    $comment: |
+      When `header`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).
+      When `data`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
     type: string
     enum:
       - data
@@ -36,8 +36,7 @@ properties:
     default: data
   rowspan:
     '@id': stencila:rowspan
-    description: |
-      How many columns the cell extends.
+    description: How many columns the cell extends.
     $comment: Based on the HTML `rowspan` attribute for [table cells](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td).
     type: integer
     minimum: 0
@@ -45,8 +44,7 @@ properties:
     default: 1
   content:
     '@id': stencila:content
-    description: |
-      Contents of the table cell.
+    description: Contents of the table cell.
     type: array
     items:
       $ref: InlineContent
