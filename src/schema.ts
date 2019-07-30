@@ -139,6 +139,22 @@ const checkSchema = (schemas: Map<string, Schema>, schema: Schema): boolean => {
     }
   }
 
+  // Check $refs are valid
+  const walk = (node: Schema): void => {
+    if (typeof node !== 'object') return
+    for (const [key, child] of Object.entries(node)) {
+      if (
+        key === '$ref' &&
+        typeof child === 'string' &&
+        !schemas.has(child)
+      ) {
+        error(`${title} has a $ref to unknown type "${child}"`)
+      }
+      walk(child)
+    }
+  }
+  walk(schema)
+
   return valid
 }
 
