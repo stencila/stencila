@@ -9,9 +9,8 @@
  * ```
  */
 
-import fs from 'fs-extra'
 import * as typescript from 'typescript'
-import { build, typeGenerator, unionGenerator } from '../src/typescript'
+import { build, typeGenerator, unionGenerator } from '../ts/bindings/typescript'
 import { schema, snapshot } from './helpers'
 
 test('generators', async () => {

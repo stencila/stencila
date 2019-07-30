@@ -9,7 +9,7 @@
  * ```
  */
 
-import { classGenerator, unionGenerator, enumToType } from '../src/r'
+import { classGenerator, enumToType, unionGenerator } from '../ts/bindings/r'
 import { schema, snapshot } from './helpers'
 
 test('generators', async () => {

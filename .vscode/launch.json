@@ -26,17 +26,6 @@
       "windows": {
         "program": "${workspaceFolder}/node_modules/jest/bin/jest"
       }
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Gulp build",
-      "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
-      "stopOnEntry": false,
-      "args": ["build"],
-      "cwd": "${workspaceRoot}",
-      "runtimeArgs": ["--nolazy"],
-      "console": "internalConsole"
     }
   ]
 }

@@ -4,7 +4,7 @@
 
 import fs from 'fs-extra'
 import path from 'path'
-import { read, types, props, Schema, unions } from './bindings'
+import { props, read, Schema, types, unions } from '.'
 
 /**
  * Run `build()` when this file is run as a Node script
@@ -13,7 +13,7 @@ import { read, types, props, Schema, unions } from './bindings'
 if (module.parent === null) build()
 
 /**
- * Generate `src/types.R` from schemas.
+ * Generate `../../r/R/types.R` from schemas.
  */
 async function build(): Promise<void> {
   const schemas = await read()
@@ -36,7 +36,10 @@ ${classesCode}
 ${unionsCode}
 `
 
-  await fs.writeFile(path.join(__dirname, '..', 'r', 'R', 'types.R'), code)
+  await fs.writeFile(
+    path.join(__dirname, '..', '..', 'r', 'R', 'types.R'),
+    code
+  )
 }
 
 /**

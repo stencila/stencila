@@ -9,7 +9,7 @@
  * ```
  */
 
-import { classGenerator, unionGenerator } from '../src/python'
+import { classGenerator, unionGenerator } from '../ts/bindings/python'
 import { schema, snapshot } from './helpers'
 
 test('generators', async () => {

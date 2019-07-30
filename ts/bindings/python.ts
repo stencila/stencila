@@ -3,9 +3,9 @@
  */
 
 import crypto from 'crypto'
-import path from 'path'
 import fs from 'fs-extra'
-import { read, types, props, Schema, unions } from './bindings'
+import path from 'path'
+import { props, read, Schema, types, unions } from '.'
 
 const MAX_LINE_LENGTH = 75 // Desired max length - 4 to allow for indent
 
@@ -51,7 +51,7 @@ ${unionsCode}
 `
 
   await fs.writeFile(
-    path.join(__dirname, '..', 'py', 'stencila', 'schema', 'types.py'),
+    path.join(__dirname, '..', '..', 'py', 'stencila', 'schema', 'types.py'),
     code
   )
 }
