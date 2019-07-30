@@ -75,13 +75,11 @@ export const build = async (): Promise<void> => {
 if (module.parent === null) build()
 
 /**
- * Check that a schema is valid:
+ * Check that a schema is valid, including that,
  *
  * - is valid JSON Schema v7
- * - all type schemas (those with `properties`):
- *    - have a `@id` and `description`
- * - all property schemas (those that define a property)
- *    - have a `@id` and the `@id` is not used on another property having a different name
+ * - all type schemas (those with `properties`) have a `@id` and `description`
+ * - all property schemas (those that define a property) have a `@id` and `description`
  * - that other schemas that are referred to in `extends` or `$ref` exist
  *
  * @param schemas A map of all the schemas
