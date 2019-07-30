@@ -94,6 +94,9 @@ jobs:
       install:
         - make -C py setup
 
+      script:
+        - echo "Nothing to do; just deploying"
+
       deploy:
         provider: pypi
         user: $PYPI_USERNAME
