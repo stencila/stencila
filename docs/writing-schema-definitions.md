@@ -84,7 +84,7 @@ A RECOMMENDED custom keyword to indicate the development status of a type schema
 
 ## The `description` keyword
 
-It is RECOMMENDED to add a description for all type schemas and properties. Descriptions can be Markdown formatted.
+You MUST add a description for all types and properties. Descriptions must be plain text and less than 120 characters. We apply this rule so that descriptions can be rendered in a variety on contexts including documentation strings in a variety of languages. If you need to add more details, or want to use Markdown, put it in the `$comment` property.
 
 ## The `aliases` keyword
 
