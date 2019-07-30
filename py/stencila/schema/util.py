@@ -18,29 +18,32 @@ def to_dict(node: Entity) -> dict:
 
 def from_dict(node_dict: dict) -> typing.Union[dict, Node]:
     """Convert a dictionary to an Entity node (if it has a `type` item)."""
-    if "type" in node_dict:
-        node_type = node_dict.pop("type")
-        class_ = getattr(types, node_type, None)
+    if "type" not in node_dict:
+        return node_dict
 
-        if class_ is not None:
-            node_kwargs = {}
+    node_type = node_dict.pop("type")
+    class_ = getattr(types, node_type, None)
 
-            for key, val in node_dict.items():
-                if isinstance(val, dict):
-                    val = from_dict(val)
-                elif isinstance(val, list):
-                    processed_list = []
-                    for sub_val in val:
-                        if isinstance(sub_val, dict):
-                            processed_list.append(from_dict(sub_val))
-                        else:
-                            processed_list.append(sub_val)
-                    val = processed_list
+    if class_ is None:
+        return node_dict
 
-                node_kwargs[key] = val
+    node_kwargs = {}
 
-            return class_(**node_kwargs)
-    return node_dict
+    for key, val in node_dict.items():
+        if isinstance(val, dict):
+            val = from_dict(val)
+        elif isinstance(val, list):
+            processed_list = []
+            for sub_val in val:
+                if isinstance(sub_val, dict):
+                    processed_list.append(from_dict(sub_val))
+                else:
+                    processed_list.append(sub_val)
+            val = processed_list
+
+        node_kwargs[key] = val
+
+    return class_(**node_kwargs)
 
 
 def to_json(node: Node) -> str:

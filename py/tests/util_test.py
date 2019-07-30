@@ -2,7 +2,7 @@ import json
 import typing
 
 from stencila.schema import types
-from stencila.schema.util import to_json, from_json
+from stencila.schema.util import to_json, from_json, from_dict
 
 
 def test_to_json():
@@ -181,3 +181,11 @@ def test_from_json():
 
     assert len(article.content[1].content[1].content) == 1
     assert article.content[1].content[1].content[0] == 'With a Link'
+    assert article.content[1].content[1].meta == {'dict': True}
+
+
+def test_from_dict_with_bad_type():
+    """If calling `from_dict` with a dict that refers to a type that does not exist, just return the dict.."""
+    no_type = {'type': 'NoSuchTypeShouldEverExist', 'a': 1, 'b': 2}
+
+    assert no_type is from_dict(no_type)
