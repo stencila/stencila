@@ -7,11 +7,13 @@ description: A hyperlink to other pages, sections within the same document, reso
 properties:
   content:
     '@id': stencila:content
+    description: The textual content of the link.
     type: array
     items:
       $ref: InlineContent
   target:
     '@id': stencila:target
+    description: The target of the link.
     type: string
     format: uri
   title:

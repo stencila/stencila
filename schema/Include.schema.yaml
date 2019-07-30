@@ -7,15 +7,19 @@ status: experimental
 extends: Entity
 properties:
   source:
+    '@id': stencila:source
     description: The source of the content.
     type: string
   mediaType:
+    '@id': stencila:mediaType
     description: The media type of the source content.
     type: string
   hash:
+    '@id': stencila:hash
     description: A SHA256 hash of the source content and media type the last time that the source was decoded.
     type: string
   content:
+    '@id': stencila:content
     description: The content to be included.
     type: array
     items:

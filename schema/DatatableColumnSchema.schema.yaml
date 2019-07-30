@@ -2,12 +2,17 @@ title: DatatableColumnSchema
 '@id': stencila:DatatableColumnSchema
 extends: Entity
 role: tertiary
-status: experimental
+status: unstable
+description: |
+  A schema specifying the data values that are valid within a Datatable column.
 properties:
   items:
+    '@id': stencila:items
+    description: An object representing the JSON Schema `items` keyword.
     type: object
   uniqueItems:
+    '@id': stencila:uniqueItems
+    description: A flag to indicate that each value in the column should be unique.
     type: boolean
-    default: false
 required:
   - items

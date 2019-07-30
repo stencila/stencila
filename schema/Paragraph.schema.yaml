@@ -6,6 +6,8 @@ status: experimental
 description: Paragraph
 properties:
   content:
+    '@id': 'stencila:content'
+    description: The contents of the paragraph.
     type: array
     items:
       $ref: InlineContent

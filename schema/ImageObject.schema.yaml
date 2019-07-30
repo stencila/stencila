@@ -3,17 +3,14 @@ title: ImageObject
 extends: MediaObject
 role: secondary
 status: stable
-description: |
-  An image file. https://schema.org/ImageObject
+description: An image file.
 properties:
   caption:
     '@id': schema:caption
-    description: |
-      The caption for this image.
+    description: The caption for this image.
     type: string
   thumbnail:
     '@id': schema:thumbnail
-    description: |
-      Thumbnail image of this image.
+    description: Thumbnail image of this image.
     allOf:
       - $ref: ImageObject

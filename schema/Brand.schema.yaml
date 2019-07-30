@@ -4,20 +4,21 @@ extends: Thing
 role: tertiary
 status: unstable
 description: |
-  A brand is a name used by an organization or business person for labeling a product,
-  product group, or similar. https://schema.org/Brand.
+  A brand used by an organization or person for labeling a product,
+  product group, or similar.
 properties:
   logo:
-    description: |
-      A logo of of the brand. It can be either a URL of the image or image itself.
+    '@id': schema:logo
+    description: A logo associated with the brand.
     anyOf:
       - type: string
         format: uri
       - $ref: ImageObject
   reviews:
     '@id': schema:review
-    description: |
-      Short reviews of the brand and/or the products it represents.
+    description: Reviews of the brand.
     type: array
     items:
       type: string
+required:
+  - name
