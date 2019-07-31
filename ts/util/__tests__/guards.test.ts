@@ -8,7 +8,8 @@ import {
   isPrimitive,
   typeIs,
   nodeIs,
-  isa
+  isA,
+  isType
 } from '../guards'
 
 const primitives = [null, true, false, NaN, 2, 'string']
@@ -56,28 +57,47 @@ describe('nodeIs', () => {
     expect(nodeIs(typeMap)({ type: typeMap.someType })).toBe(true))
 })
 
-describe('isa', () => {
+describe('isA', () => {
   const person = { type: 'Person' }
   const para = { type: 'Paragraph', content: [] }
 
   test('it returns false for undefined types', () => {
     // This is a compile error too
     // @ts-ignore
-    expect(isa(person, 'Foo')).toBe(false)
+    expect(isA(person, 'Foo')).toBe(false)
   })
 
   test('it returns true for the right type', () => {
-    expect(isa(person, 'Person')).toBe(true)
-    expect(isa(para, 'Paragraph')).toBe(true)
+    expect(isA(person, 'Person')).toBe(true)
+    expect(isA(para, 'Paragraph')).toBe(true)
   })
 
   test('it returns false for the wrong type', () => {
-    expect(isa(para, 'Person')).toBe(false)
-    expect(isa(null, 'Person')).toBe(false)
-    expect(isa(true, 'Person')).toBe(false)
-    expect(isa(1.0, 'Person')).toBe(false)
-    expect(isa([], 'Person')).toBe(false)
-    expect(isa({ type: 'Foo' }, 'Person')).toBe(false)
+    expect(isA(para, 'Person')).toBe(false)
+    expect(isA(null, 'Person')).toBe(false)
+    expect(isA(true, 'Person')).toBe(false)
+    expect(isA(1.0, 'Person')).toBe(false)
+    expect(isA([], 'Person')).toBe(false)
+    expect(isA({ type: 'Foo' }, 'Person')).toBe(false)
+  })
+})
+
+describe('isType', () => {
+  const person = { type: 'Person' }
+  const para = { type: 'Paragraph', content: [] }
+
+  test('it returns false for undefined types', () => {
+    // This is a compile error too
+    // @ts-ignore
+    expect(isType('Foo')(person)).toBe(false)
+  })
+
+  test('it returns true for the right type', () => {
+    expect(isType('Person')(person)).toBe(true)
+  })
+
+  test('it returns false for the wrong type', () => {
+    expect(isType('Person')(para)).toBe(false)
   })
 })
 

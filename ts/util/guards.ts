@@ -65,9 +65,11 @@ export const is = <Ts extends Entity>(type: keyof TypeMap<Ts>) => {
 }
 
 /**
- * A type guard to determine whether a node is of a particular type.
+ * A type guard to determine whether a node is of a specific type.
  * Returns a boolean value and narrows the TypeScript inferred type to
  * the type.
+ *
+ * e.g. `isA(node, 'Paragraph')`
  *
  * @param type The type to test for
  */
@@ -76,6 +78,21 @@ export const isA = <K extends keyof Types>(
   type: K
 ): node is Types[K] => {
   return isEntity(node) && node.type === type
+}
+
+/**
+ * Returns a type guard to determine whether a node is of a specific type.
+ * Returns a boolean value and narrows the TypeScript inferred type to
+ * the type.
+ *
+ * e.g. `article.content.filter(isType('Paragraph'))`
+ *
+ * @param type The type to test for
+ */
+export const isType = <K extends keyof Types>(type: K) => (
+  node?: Node
+): node is Types[K] => {
+  return node !== undefined && isA(node, type)
 }
 
 /**
