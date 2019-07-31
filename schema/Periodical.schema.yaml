@@ -7,7 +7,7 @@ description: A periodical publication.
 properties:
   dateStart:
     '@id': schema:startDate
-    description: The date this Periodical was first publilshed.
+    description: The date this Periodical was first published.
     type: string
     anyOf:
       - type: string

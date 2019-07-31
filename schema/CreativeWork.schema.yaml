@@ -23,7 +23,7 @@ properties:
     items:
       anyOf:
         - type: string
-        - $ref: CreativeWork
+        - $ref: CreativeWorkTypes
   content:
     # We have added "content" because the existing schema.org property "text" implies
     # only unstructured text content.
@@ -84,7 +84,7 @@ properties:
     description: |
       An item or other CreativeWork that this CreativeWork is a part of.
     allOf:
-      - $ref: CreativeWork
+      - $ref: CreativeWorkTypes
   licenses:
     '@id': schema:license
     description: |
@@ -94,7 +94,7 @@ properties:
       anyOf:
         - type: string
           format: uri
-        - $ref: CreativeWork
+        - $ref: CreativeWorkTypes
   parts:
     # The name "parts" seems more intuitive for users and developers than schema.orgs's "hasParts".
     # We provide the latter as an alias.
@@ -106,7 +106,7 @@ properties:
       such as Articles, Datatables, Tables and more.
     type: array
     items:
-      $ref: CreativeWork
+      $ref: CreativeWorkTypes
   publisher:
     '@id': schema:publisher
     description: |
