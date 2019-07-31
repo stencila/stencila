@@ -18,6 +18,7 @@
     "build:ts": "ts-node ts/bindings/typescript.ts && tsc && cp built/*.schema.json dist",
     "build:py": "ts-node ts/bindings/python.ts",
     "build:r": "ts-node ts/bindings/r.ts",
+    "bindings:stage": "git add ./py/stencila/schema/types.py ./r/R/types.R",
     "docs": "npm run docs:readme && npm run docs:build",
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
     "docs:build": "npm run build:ts && ts-node ts/docs",
@@ -110,7 +111,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged",
+      "pre-commit": "npm run build:py && npm run build:r && npm run bindings:stage && pretty-quick --staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
