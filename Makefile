@@ -31,3 +31,25 @@ watch:
 clean:
 	npm run clean
 
+PYBINDINGS := 'py/stencila/schema/types.py'
+RBINDINGS := 'r/R/types.R'
+
+# Build schema bindings for Python and R. If the bindings have changed, this script
+# will commit the updated bindings. This script is run automatically as a git pre-push hook.
+checkBindings:
+	@echo "🔬 Checking if schema bindings have changed"
+	@echo "🏗 Building schema language bindings"
+	npm run build:jsonschema
+	npm run build:py & npm run build:r
+	@echo "🔗 Finished building language bindings"
+	@for i in $$(git ls-files -m); do \
+		if [ "$$i" = $(PYBINDINGS) ] || [ "$$i" = $(RBINDINGS) ] ; then \
+			echo "☝️ Bindings have changes, committing the changes"; \
+			make commitBindings; \
+			exit; \
+		fi \
+	done
+
+## Commits just the updated schema bindings
+commitBindings:
+	git commit --only py/stencila/schema/types.py r/R/types.R -m "chore(Type Bindings): Generate updated bindings"
