@@ -1783,7 +1783,7 @@ Product <- function(
 }
 
 
-#' A part of a successively published publication such as a periodical or publication volume, often numbered.
+#' A part of a successively published publication such as a periodical or publication  volume, often numbered.
 #'
 #' @name PublicationIssue
 #' @param alternateNames Alternate names (aliases) for the item.
@@ -1804,7 +1804,7 @@ Product <- function(
 #' @param name The name of the item.
 #' @param pageEnd The page on which the work ends; for example "138" or "xvi".
 #' @param pageStart The page on which the work starts; for example "135" or "xiii".
-#' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55" or "10-12, 46-49".
+#' @param pagination Any description of pages that is not separated into pageStart and pageEnd;  for example, "1-6, 9, 55".
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
 #' @param text The textual content of this creative work.
@@ -1893,7 +1893,7 @@ PublicationIssue <- function(
 #' @param name The name of the item.
 #' @param pageEnd The page on which the work ends; for example "138" or "xvi".
 #' @param pageStart The page on which the work starts; for example "135" or "xiii".
-#' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55" or "10-12, 46-49".
+#' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
 #' @param text The textual content of this creative work.

@@ -21,7 +21,7 @@ A periodical publication.
 | dateEnd               | `string<date>` \| `string<date-time>`                                           | The date this Periodical ceased publication.                                                                            | [Periodical](./Periodical.html)     |
 | dateModified          | `string<date>` \| `string<date-time>`                                           | Date/time of most recent modification.                                                                                  | [CreativeWork](./CreativeWork.html) |
 | datePublished         | `string<date>` \| `string<date-time>`                                           | Date of first publication.                                                                                              | [CreativeWork](./CreativeWork.html) |
-| dateStart             | `string<date>` \| `string<date-time>`                                           | The date this Periodical was first publilshed.                                                                          | [Periodical](./Periodical.html)     |
+| dateStart             | `string<date>` \| `string<date-time>`                                           | The date this Periodical was first published.                                                                           | [Periodical](./Periodical.html)     |
 | description           | `string`                                                                        | A description of the item.                                                                                              | [Thing](./Thing.html)               |
 | editors               | `array<`​[`Person`](./Person.html)​`>`                                          | Persons who edited the CreativeWork.                                                                                    | [CreativeWork](./CreativeWork.html) |
 | funders               | `array<`​[`Person`](./Person.html) \| [`Organization`](./Organization.html)​`>` | Person or organisation that funded the CreativeWork.                                                                    | [CreativeWork](./CreativeWork.html) |
@@ -45,7 +45,8 @@ such as a magazine, scholarly journal, or newspaper to continue indefinitely.
 
 ## Examples
 
-The journal Nature, in JSON format.
+An example of the journal Nature is below. The `dateStart` is the date it was first published. The first `issn` numbers
+is for the printed journal and the second for the online edition.
 
 ```json validate
 {

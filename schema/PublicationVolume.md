@@ -46,7 +46,8 @@ represent a time span, such as a year.
 
 # Examples
 
-A volume of Nature, in Stencila JSON.
+An example of a volume of the journal Nature is below. The volume has a `volumeNumber` and `isPartOf`
+the [`Periodical`](./Periodical.html) with the title "Nature".
 
 ```json validate
 {

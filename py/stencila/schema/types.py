@@ -1472,7 +1472,7 @@ class Product(Thing):
 class PublicationIssue(CreativeWork):
     """
     A part of a successively published publication such as a periodical or
-    publication volume, often numbered.
+    publication  volume, often numbered.
     """
 
     issueNumber: Optional[Union[str, int]]

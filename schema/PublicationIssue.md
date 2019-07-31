@@ -46,7 +46,8 @@ containing a grouping of works such as articles.
 
 # Examples
 
-An example of an issue of the journal Nature is below. Note that the issue has an `issueNumber` and `isPartOf` a volume that, in turn, `isPartOf` the [`Periodical`](./Periodical.html) with the title "Nature". 
+An example of an issue of the journal Nature is below. Note that the issue has an `issueNumber` and `isPartOf` a volume
+that, in turn, `isPartOf` the [`Periodical`](./Periodical.html) with the title "Nature".
 
 ```json validate
 {
