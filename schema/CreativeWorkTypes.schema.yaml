@@ -1,0 +1,18 @@
+title: CreativeWorkTypes
+description: Union type for call CreativeWork types.
+anyOf:
+  - $ref: Article
+  - $ref: AudioObject
+  - $ref: CodeChunk
+  - $ref: CodeExpr
+  - $ref: Collection
+  - $ref: Datatable
+  - $ref: ImageObject
+  - $ref: MediaObject
+  - $ref: Periodical
+  - $ref: PublicationIssue
+  - $ref: PublicationVolume
+  - $ref: SoftwareApplication
+  - $ref: SoftwareSourceCode
+  - $ref: Table
+  - $ref: VideoObject

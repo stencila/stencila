@@ -22,7 +22,6 @@ Where possible we use terms from existing vocabularies. Currently, the Stencila 
 - `bioschemas`: http://bioschemas.org
 - `codemeta`: https://doi.org/10.5063/schema/codemeta-2.0
 
-
 ### Type `@id`s
 
 You MUST declare the `@id` keyword for each type using the format `<context>:<type>`. Note that because this property name begins with the special character `@`, that it needs to be surrounded by quotes e.g.
@@ -56,20 +55,19 @@ By declaring the `@id` of that property as `schema:givenName` we are saying "wit
 
 Sometimes, a property name is not represented in another vocabulary. In these casese, define the property name as a new term within the Stencila vocabulary i.e. `'@id': stencila:<property>`
 
-
 ## The `extends` keyword
 
 This is a custom keyword which allows your type schema to inherit the `properties` and `required` keywords of a parent type schema. It should be the name of another type e.g.
 
 ```yaml
-extends: Thing
+extends: Entity
 ```
 
 ## The `role` keyword
 
 A RECOMMENDED custom keyword to indicate the role of the type schema:
 
-- `base`: base types, not usually instantiated but required for other types e.g `Thing`
+- `base`: base types, not usually instantiated but required for other types e.g `Entity` or `Thing`
 - `primary`: types that are usually the root of a tree generated from a file e.g. `Article`, `Datatable`, `Collection`
 - `secondary`: types usually only referred to by primary types e.g. `Organization` is used for the `publisher` property on a `Article`
 - `tertiary`: types usually only referred to by secondary types e.g. `ContactPoint` is used for the `contactPoints` property on an `Organization`

@@ -376,16 +376,16 @@ CreativeWork <- function(
   )
   self$type <- as_scalar("CreativeWork")
   self[["authors"]] <- check_property("CreativeWork", "authors", FALSE, missing(authors), Array(Union("Person", "Organization")), authors)
-  self[["citations"]] <- check_property("CreativeWork", "citations", FALSE, missing(citations), Array(Union("character", "CreativeWork")), citations)
+  self[["citations"]] <- check_property("CreativeWork", "citations", FALSE, missing(citations), Array(Union("character", "CreativeWorkTypes")), citations)
   self[["content"]] <- check_property("CreativeWork", "content", FALSE, missing(content), Array("Node"), content)
   self[["dateCreated"]] <- check_property("CreativeWork", "dateCreated", FALSE, missing(dateCreated), "character", dateCreated)
   self[["dateModified"]] <- check_property("CreativeWork", "dateModified", FALSE, missing(dateModified), "character", dateModified)
   self[["datePublished"]] <- check_property("CreativeWork", "datePublished", FALSE, missing(datePublished), "character", datePublished)
   self[["editors"]] <- check_property("CreativeWork", "editors", FALSE, missing(editors), Array("Person"), editors)
   self[["funders"]] <- check_property("CreativeWork", "funders", FALSE, missing(funders), Array(Union("Person", "Organization")), funders)
-  self[["isPartOf"]] <- check_property("CreativeWork", "isPartOf", FALSE, missing(isPartOf), "CreativeWork", isPartOf)
-  self[["licenses"]] <- check_property("CreativeWork", "licenses", FALSE, missing(licenses), Array(Union("character", "CreativeWork")), licenses)
-  self[["parts"]] <- check_property("CreativeWork", "parts", FALSE, missing(parts), Array("CreativeWork"), parts)
+  self[["isPartOf"]] <- check_property("CreativeWork", "isPartOf", FALSE, missing(isPartOf), "CreativeWorkTypes", isPartOf)
+  self[["licenses"]] <- check_property("CreativeWork", "licenses", FALSE, missing(licenses), Array(Union("character", "CreativeWorkTypes")), licenses)
+  self[["parts"]] <- check_property("CreativeWork", "parts", FALSE, missing(parts), Array("CreativeWorkTypes"), parts)
   self[["publisher"]] <- check_property("CreativeWork", "publisher", FALSE, missing(publisher), Union("Person", "Organization"), publisher)
   self[["text"]] <- check_property("CreativeWork", "text", FALSE, missing(text), "character", text)
   self[["title"]] <- check_property("CreativeWork", "title", FALSE, missing(title), "character", title)
@@ -551,7 +551,7 @@ Collection <- function(
     version = version
   )
   self$type <- as_scalar("Collection")
-  self[["parts"]] <- check_property("Collection", "parts", TRUE, missing(parts), Array("CreativeWork"), parts)
+  self[["parts"]] <- check_property("Collection", "parts", TRUE, missing(parts), Array("CreativeWorkTypes"), parts)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -1588,6 +1588,93 @@ Paragraph <- function(
 }
 
 
+#' A periodical publication.
+#'
+#' @name Periodical
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param authors The authors of this creative work.
+#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
+#' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateCreated Date/time of creation.
+#' @param dateEnd The date this Periodical ceased publication.
+#' @param dateModified Date/time of most recent modification.
+#' @param datePublished Date of first publication.
+#' @param dateStart The date this Periodical was first published.
+#' @param description A description of the item.
+#' @param editors Persons who edited the CreativeWork.
+#' @param funders Person or organisation that funded the CreativeWork.
+#' @param id The identifier for this item.
+#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
+#' @param issn The International Standard Serial Number (ISSN) that identifies this serial publication.
+#' @param licenses License documents that applies to this content, typically indicated by URL.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+#' @param publisher A publisher of the CreativeWork.
+#' @param text The textual content of this creative work.
+#' @param title The title of the creative work.
+#' @param url The URL of the item.
+#' @param version The version of the creative work.
+#' @seealso \code{\link{CreativeWork}}
+#' @export
+Periodical <- function(
+  alternateNames,
+  authors,
+  citations,
+  content,
+  dateCreated,
+  dateEnd,
+  dateModified,
+  datePublished,
+  dateStart,
+  description,
+  editors,
+  funders,
+  id,
+  isPartOf,
+  issn,
+  licenses,
+  meta,
+  name,
+  parts,
+  publisher,
+  text,
+  title,
+  url,
+  version
+){
+  self <- CreativeWork(
+    alternateNames = alternateNames,
+    authors = authors,
+    citations = citations,
+    content = content,
+    dateCreated = dateCreated,
+    dateModified = dateModified,
+    datePublished = datePublished,
+    description = description,
+    editors = editors,
+    funders = funders,
+    id = id,
+    isPartOf = isPartOf,
+    licenses = licenses,
+    meta = meta,
+    name = name,
+    parts = parts,
+    publisher = publisher,
+    text = text,
+    title = title,
+    url = url,
+    version = version
+  )
+  self$type <- as_scalar("Periodical")
+  self[["dateEnd"]] <- check_property("Periodical", "dateEnd", FALSE, missing(dateEnd), "character", dateEnd)
+  self[["dateStart"]] <- check_property("Periodical", "dateStart", FALSE, missing(dateStart), "character", dateStart)
+  self[["issn"]] <- check_property("Periodical", "issn", FALSE, missing(issn), Array("character"), issn)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
 #' A person (alive, dead, undead, or fictional).
 #'
 #' @name Person
@@ -1691,6 +1778,186 @@ Product <- function(
   self[["brand"]] <- check_property("Product", "brand", FALSE, missing(brand), "Brand", brand)
   self[["logo"]] <- check_property("Product", "logo", FALSE, missing(logo), Union("character", "ImageObject"), logo)
   self[["productID"]] <- check_property("Product", "productID", FALSE, missing(productID), "character", productID)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' A part of a successively published publication such as a periodical or publication  volume, often numbered.
+#'
+#' @name PublicationIssue
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param authors The authors of this creative work.
+#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
+#' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateCreated Date/time of creation.
+#' @param dateModified Date/time of most recent modification.
+#' @param datePublished Date of first publication.
+#' @param description A description of the item.
+#' @param editors Persons who edited the CreativeWork.
+#' @param funders Person or organisation that funded the CreativeWork.
+#' @param id The identifier for this item.
+#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
+#' @param issueNumber Identifies the issue of publication; for example, "iii" or "2".
+#' @param licenses License documents that applies to this content, typically indicated by URL.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param pageEnd The page on which the work ends; for example "138" or "xvi".
+#' @param pageStart The page on which the work starts; for example "135" or "xiii".
+#' @param pagination Any description of pages that is not separated into pageStart and pageEnd;  for example, "1-6, 9, 55".
+#' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+#' @param publisher A publisher of the CreativeWork.
+#' @param text The textual content of this creative work.
+#' @param title The title of the creative work.
+#' @param url The URL of the item.
+#' @param version The version of the creative work.
+#' @seealso \code{\link{CreativeWork}}
+#' @export
+PublicationIssue <- function(
+  alternateNames,
+  authors,
+  citations,
+  content,
+  dateCreated,
+  dateModified,
+  datePublished,
+  description,
+  editors,
+  funders,
+  id,
+  isPartOf,
+  issueNumber,
+  licenses,
+  meta,
+  name,
+  pageEnd,
+  pageStart,
+  pagination,
+  parts,
+  publisher,
+  text,
+  title,
+  url,
+  version
+){
+  self <- CreativeWork(
+    alternateNames = alternateNames,
+    authors = authors,
+    citations = citations,
+    content = content,
+    dateCreated = dateCreated,
+    dateModified = dateModified,
+    datePublished = datePublished,
+    description = description,
+    editors = editors,
+    funders = funders,
+    id = id,
+    isPartOf = isPartOf,
+    licenses = licenses,
+    meta = meta,
+    name = name,
+    parts = parts,
+    publisher = publisher,
+    text = text,
+    title = title,
+    url = url,
+    version = version
+  )
+  self$type <- as_scalar("PublicationIssue")
+  self[["issueNumber"]] <- check_property("PublicationIssue", "issueNumber", FALSE, missing(issueNumber), Union("character", "numeric"), issueNumber)
+  self[["pageEnd"]] <- check_property("PublicationIssue", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
+  self[["pageStart"]] <- check_property("PublicationIssue", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
+  self[["pagination"]] <- check_property("PublicationIssue", "pagination", FALSE, missing(pagination), "character", pagination)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' A part of a successively published publication such as a periodical or multi-volume work.
+#'
+#' @name PublicationVolume
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param authors The authors of this creative work.
+#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
+#' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateCreated Date/time of creation.
+#' @param dateModified Date/time of most recent modification.
+#' @param datePublished Date of first publication.
+#' @param description A description of the item.
+#' @param editors Persons who edited the CreativeWork.
+#' @param funders Person or organisation that funded the CreativeWork.
+#' @param id The identifier for this item.
+#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
+#' @param licenses License documents that applies to this content, typically indicated by URL.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param pageEnd The page on which the work ends; for example "138" or "xvi".
+#' @param pageStart The page on which the work starts; for example "135" or "xiii".
+#' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
+#' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+#' @param publisher A publisher of the CreativeWork.
+#' @param text The textual content of this creative work.
+#' @param title The title of the creative work.
+#' @param url The URL of the item.
+#' @param version The version of the creative work.
+#' @param volumeNumber Identifies the volume of publication or multi-part work; for example, "iii" or "2".
+#' @seealso \code{\link{CreativeWork}}
+#' @export
+PublicationVolume <- function(
+  alternateNames,
+  authors,
+  citations,
+  content,
+  dateCreated,
+  dateModified,
+  datePublished,
+  description,
+  editors,
+  funders,
+  id,
+  isPartOf,
+  licenses,
+  meta,
+  name,
+  pageEnd,
+  pageStart,
+  pagination,
+  parts,
+  publisher,
+  text,
+  title,
+  url,
+  version,
+  volumeNumber
+){
+  self <- CreativeWork(
+    alternateNames = alternateNames,
+    authors = authors,
+    citations = citations,
+    content = content,
+    dateCreated = dateCreated,
+    dateModified = dateModified,
+    datePublished = datePublished,
+    description = description,
+    editors = editors,
+    funders = funders,
+    id = id,
+    isPartOf = isPartOf,
+    licenses = licenses,
+    meta = meta,
+    name = name,
+    parts = parts,
+    publisher = publisher,
+    text = text,
+    title = title,
+    url = url,
+    version = version
+  )
+  self$type <- as_scalar("PublicationVolume")
+  self[["pageEnd"]] <- check_property("PublicationVolume", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
+  self[["pageStart"]] <- check_property("PublicationVolume", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
+  self[["pagination"]] <- check_property("PublicationVolume", "pagination", FALSE, missing(pagination), "character", pagination)
+  self[["volumeNumber"]] <- check_property("PublicationVolume", "volumeNumber", FALSE, missing(volumeNumber), Union("character", "numeric"), volumeNumber)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -2266,6 +2533,12 @@ VideoObject <- function(
 #'
 #' @export
 BlockContent = Union("CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "Paragraph", "QuoteBlock", "Table", "ThematicBreak")
+
+
+#' Union type for call CreativeWork types.
+#'
+#' @export
+CreativeWorkTypes = Union("Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject")
 
 
 #' Union type for valid inline content.

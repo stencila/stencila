@@ -1,0 +1,33 @@
+title: PublicationVolume
+'@id': stencila:PubllicationVolume
+extends: CreativeWork
+role: secondary
+status: unstable
+description: |
+  A part of a successively published publication such as a periodical or multi-volume work.
+properties:
+  pageStart:
+    '@id': schema:pageStart
+    description: The page on which the work starts; for example "135" or "xiii".
+    anyOf:
+      - type: string
+      - type: integer
+  pageEnd:
+    '@id': schema:pageEnd
+    description: The page on which the work ends; for example "138" or "xvi".
+    anyOf:
+      - type: string
+      - type: integer
+  pagination:
+    '@id': schema:pagination
+    description: |
+      Any description of pages that is not separated into pageStart and pageEnd;
+      for example, "1-6, 9, 55".
+    type: string
+  volumeNumber:
+    '@id': schema:volumeNumber
+    description: |
+      Identifies the volume of publication or multi-part work; for example, "iii" or "2".
+    anyOf:
+      - type: string
+      - type: integer

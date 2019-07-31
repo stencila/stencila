@@ -1,0 +1,31 @@
+title: Periodical
+'@id': stencila:Periodical
+extends: CreativeWork
+role: secondary
+status: unstable
+description: A periodical publication.
+properties:
+  dateStart:
+    '@id': schema:startDate
+    description: The date this Periodical was first published.
+    type: string
+    anyOf:
+      - type: string
+        format: date
+      - type: string
+        format: date-time
+  dateEnd:
+    '@id': schema:endDate
+    description: The date this Periodical ceased publication.
+    type: string
+    anyOf:
+      - type: string
+        format: date
+      - type: string
+        format: date-time
+  issn:
+    '@id': schema:issn
+    description: The International Standard Serial Number (ISSN) that identifies this serial publication.
+    type: array
+    items:
+      - type: string
