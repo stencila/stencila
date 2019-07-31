@@ -42,7 +42,8 @@ A part of a successively published publication such as a periodical or multi-vol
 :::
 
 A part of a successively published publication such as a periodical or multi-volume work, often numbered. It may
-represent a time span, such as a year.
+represent a time span, such as a year. Often embedded as the `isPartOf` property in a
+[`Publication Issue`](./PublicationIssue.html).
 
 # Examples
 

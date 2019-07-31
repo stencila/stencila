@@ -42,7 +42,8 @@ A part of a successively published publication such as a periodical or publicati
 :::
 
 A part of a successively published publication such as a periodical or publication volume, often numbered, usually
-containing a grouping of works such as articles.
+containing a grouping of works such as articles. In reproducible documents, [`Articles`](./Article.html) can reference
+a `PublicationIssue` for bibliographical/citation purposes.
 
 # Examples
 

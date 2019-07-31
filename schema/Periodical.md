@@ -41,7 +41,8 @@ A periodical publication.
 :::
 
 A publication in any medium issued in successive parts bearing numerical or chronological designations and intended,
-such as a magazine, scholarly journal, or newspaper to continue indefinitely.
+such as a magazine, scholarly journal, or newspaper to continue indefinitely. Often embedded as the `isPartOf` property
+in a [`Publication Volume`](./PublicationVolume.html).
 
 ## Examples
 
