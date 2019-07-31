@@ -116,6 +116,7 @@
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "release": {
-    "extends": "@stencila/semantic-release-config"
+    "extends": "@stencila/semantic-release-config",
+    "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
   }
 }
