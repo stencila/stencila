@@ -2,6 +2,7 @@ title: PublicationVolume
 '@id': stencila:PubllicationVolume
 extends: CreativeWork
 role: secondary
+status: unstable
 description: |
   A part of a successively published publication such as a periodical or multi-volume work.
 properties:

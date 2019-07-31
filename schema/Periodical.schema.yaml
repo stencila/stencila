@@ -2,7 +2,7 @@ title: Periodical
 '@id': stencila:Periodical
 extends: CreativeWork
 role: secondary
-status: experimental
+status: unstable
 description: A periodical publication.
 properties:
   dateStart:

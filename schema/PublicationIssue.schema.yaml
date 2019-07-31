@@ -2,7 +2,7 @@ title: PublicationIssue
 '@id': stencila:PublicationIssue
 extends: CreativeWork
 role: secondary
-status: experimental
+status: unstable
 description: |
   A part of a successively published publication such as a periodical or publication 
   volume, often numbered.
