@@ -1,8 +1,7 @@
 /built
 /dist
 /node_modules
-/.coverage
-/coverage.xml
+/coverage
 *.egg-info
 .idea
 .DS_Store

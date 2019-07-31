@@ -1,6 +1,8 @@
-matrix:
+jobs:
   include:
-    - language: node_js
+    # Test Typescript package
+    - stage: test
+      language: node_js
       node_js: '10'
 
       script:
@@ -9,22 +11,12 @@ matrix:
         - npm run test
         - npm run docs
 
-      deploy:
-        # Deploy a new version of NPM package and create a Github release
-        - provider: script
-          skip_cleanup: true
-          script: npx semantic-release
+      after_success:
+        - bash <(curl -s https://codecov.io/bash) -cF ts
 
-        # Deploy documentation to Github Pages
-        # See https://docs.travis-ci.com/user/deployment/pages/
-        - provider: pages
-          skip-cleanup: true
-          github-token: $GITHUB_TOKEN
-          local-dir: built
-          on:
-            branch: master
-
-    - language: python
+    # Test Python package
+    - stage: test
+      language: python
       python: '3.7'
       dist: xenial
 
@@ -35,18 +27,12 @@ matrix:
         - make -C py lint
         - make -C py test
 
-      deploy:
-        provider: pypi
-        user: $PYPI_USERNAME
-        password: $PYPI_PASSWORD
-        server: https://https://test.pypi.org/legacy/
-        on:
-          tags: true
-
       after_success:
         - bash <(curl -s https://codecov.io/bash) -cF py
 
-    - language: r
+    # Test R package
+    - stage: test
+      language: r
       r: release
       dist: xenial
       sudo: true
@@ -69,3 +55,52 @@ matrix:
 
       after_success:
         - Rscript -e 'covr::codecov()'
+
+    # The following deployment jobs will only run if all of
+    # the above test jobs have passed
+
+    # Deploy NPM package and create a release
+    - stage: deploy
+      language: node_js
+      node_js: '10'
+
+      script:
+        - npm run build
+        - npm run docs
+
+      deploy:
+        # Deploy a new version of NPM package and create a Github release
+        # This creates a new version tag, which will then trigger the
+        # following deploy jobs for other language packages.
+        - provider: script
+          skip_cleanup: true
+          script: npx semantic-release
+
+        # Deploy documentation to Github Pages
+        # See https://docs.travis-ci.com/user/deployment/pages/
+        - provider: pages
+          skip-cleanup: true
+          github-token: $GITHUB_TOKEN
+          local-dir: built
+          on:
+            branch: master
+
+    # Deploy Python package
+    - stage: deploy
+      language: python
+      python: '3.7'
+      dist: xenial
+
+      install:
+        - make -C py setup
+
+      script:
+        - echo "Nothing to do; just deploying"
+
+      deploy:
+        provider: pypi
+        user: $PYPI_USERNAME
+        password: $PYPI_PASSWORD
+        server: https://test.pypi.org/legacy/
+        on:
+          tags: true
