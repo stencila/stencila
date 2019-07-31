@@ -424,6 +424,71 @@ class Article(CreativeWork):
             self.environment = environment
 
 
+class Citation(CreativeWork):
+    """A reference to a CreativeWork that is cited in another CreativeWork."""
+
+    pageEnd: Optional[Union[str, int]]
+    pageStart: Optional[Union[str, int]]
+    pagination: Optional[str]
+
+    def __init__(
+        self,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        content: Optional[Array["Node"]] = None,
+        dateCreated: Optional[str] = None,
+        dateModified: Optional[str] = None,
+        datePublished: Optional[str] = None,
+        description: Optional[str] = None,
+        editors: Optional[Array["Person"]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        pageEnd: Optional[Union[str, int]] = None,
+        pageStart: Optional[Union[str, int]] = None,
+        pagination: Optional[str] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        text: Optional[str] = None,
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            authors=authors,
+            citations=citations,
+            content=content,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            description=description,
+            editors=editors,
+            funders=funders,
+            id=id,
+            isPartOf=isPartOf,
+            licenses=licenses,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if pageEnd is not None:
+            self.pageEnd = pageEnd
+        if pageStart is not None:
+            self.pageStart = pageStart
+        if pagination is not None:
+            self.pagination = pagination
+
+
 class Collection(CreativeWork):
     """A created collection of CreativeWorks or other artefacts."""
 
