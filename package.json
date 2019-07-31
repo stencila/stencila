@@ -101,7 +101,11 @@
     }
   },
   "eslintConfig": {
-    "extends": "@stencila/eslint-config"
+    "extends": "@stencila/eslint-config",
+    "env": {
+      "node": true,
+      "jest": true
+    }
   },
   "eslintIgnore": [
     "built",
@@ -111,11 +115,13 @@
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged",
+      "pre-push": "make checkBindings",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "release": {
-    "extends": "@stencila/semantic-release-config"
+    "extends": "@stencila/semantic-release-config",
+    "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
   }
 }
