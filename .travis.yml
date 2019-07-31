@@ -104,6 +104,9 @@ matrix:
         # Clear package.json overrides made when installing @stencila/dev-config
         - git checkout package.json
 
+      before_deploy:
+        - cd py
+
       deploy:
         provider: pypi
         username: $PYPI_USERNAME
