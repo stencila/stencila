@@ -1,4 +1,4 @@
-jobs:
+matrix:
   include:
     # Test Typescript package
     - stage: test
@@ -10,8 +10,6 @@ jobs:
         - npm run build
         - npm run test
         - npm run docs
-        # Clear package.json overrides made when installing @stencila/dev-config
-        - git checkout package.json
 
       after_success:
         - bash <(curl -s https://codecov.io/bash) -cF ts
@@ -37,7 +35,6 @@ jobs:
       language: r
       r: release
       dist: xenial
-      sudo: true
 
       r_binary_packages:
         - covr
@@ -70,6 +67,10 @@ jobs:
         - npm run build
         - npm run docs
 
+      after_success:
+        # Clear package.json overrides made when installing @stencila/dev-config
+        - git checkout package.json
+
       deploy:
         # Deploy a new version of NPM package and create a Github release
         # This creates a new version tag, which will then trigger the
@@ -81,9 +82,9 @@ jobs:
         # Deploy documentation to Github Pages
         # See https://docs.travis-ci.com/user/deployment/pages/
         - provider: pages
-          skip-cleanup: true
-          github-token: $GITHUB_TOKEN
-          local-dir: built
+          skip_cleanup: true
+          github_token: $GITHUB_TOKEN
+          local_dir: built
           on:
             branch: master
 
@@ -99,9 +100,13 @@ jobs:
       script:
         - echo "Nothing to do; just deploying"
 
+      after_success:
+        # Clear package.json overrides made when installing @stencila/dev-config
+        - git checkout package.json
+
       deploy:
         provider: pypi
-        user: $PYPI_USERNAME
+        username: $PYPI_USERNAME
         password: $PYPI_PASSWORD
         server: https://test.pypi.org/legacy/
         on:
