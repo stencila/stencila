@@ -1,5 +1,5 @@
 title: PublicationVolume
-'@id': stencila:PubllicationVolume
+'@id': stencila:PublicationVolume
 extends: CreativeWork
 role: secondary
 status: unstable
