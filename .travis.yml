@@ -10,6 +10,8 @@ jobs:
         - npm run build
         - npm run test
         - npm run docs
+        # Clear package.json overrides made when installing @stencila/dev-config
+        - git checkout package.json
 
       after_success:
         - bash <(curl -s https://codecov.io/bash) -cF ts
