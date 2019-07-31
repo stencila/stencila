@@ -44,7 +44,7 @@ checkBindings:
 	@echo "🔗 Finished building language bindings"
 	@for i in $$(git ls-files -m); do \
 		if [ "$$i" = $(PYBINDINGS) ] || [ "$$i" = $(RBINDINGS) ] ; then \
-			echo "☝️ Bindings have changes, committing the changes"; \
+			echo "☝️ Bindings have changed, committing the changes"; \
 			make commitBindings; \
 			exit; \
 		fi \
