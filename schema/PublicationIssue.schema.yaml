@@ -1,10 +1,11 @@
 title: PublicationIssue
-'@id': stencila:PublilcationIssue
+'@id': stencila:PublicationIssue
 extends: CreativeWork
 role: secondary
 status: experimental
 description: |
-  A part of a successively published publication such as a periodical or publication volume, often numbered.
+  A part of a successively published publication such as a periodical or publication 
+  volume, often numbered.
 properties:
   issueNumber:
     '@id': schema:issueNumber
@@ -27,5 +28,6 @@ properties:
   pagination:
     '@id': schema:pagination
     description: |
-      Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55" or "10-12, 46-49".
+      Any description of pages that is not separated into pageStart and pageEnd; 
+      for example, "1-6, 9, 55" or "10-12, 46-49".
     type: string
