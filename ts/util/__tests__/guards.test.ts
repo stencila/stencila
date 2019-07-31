@@ -7,7 +7,8 @@ import {
   isInlineEntity,
   isPrimitive,
   typeIs,
-  nodeIs
+  nodeIs,
+  isa
 } from '../guards'
 
 const primitives = [null, true, false, NaN, 2, 'string']
@@ -53,6 +54,31 @@ describe('nodeIs', () => {
   test('it returns true for Objects containing a "type" key found in the typeMap', () =>
     // @ts-ignore
     expect(nodeIs(typeMap)({ type: typeMap.someType })).toBe(true))
+})
+
+describe('isa', () => {
+  const person = { type: 'Person' }
+  const para = { type: 'Paragraph', content: [] }
+
+  test('it returns false for undefined types', () => {
+    // This is a compile error too
+    // @ts-ignore
+    expect(isa(person, 'Foo')).toBe(false)
+  })
+
+  test('it returns true for the right type', () => {
+    expect(isa(person, 'Person')).toBe(true)
+    expect(isa(para, 'Paragraph')).toBe(true)
+  })
+
+  test('it returns false for the wrong type', () => {
+    expect(isa(para, 'Person')).toBe(false)
+    expect(isa(null, 'Person')).toBe(false)
+    expect(isa(true, 'Person')).toBe(false)
+    expect(isa(1.0, 'Person')).toBe(false)
+    expect(isa([], 'Person')).toBe(false)
+    expect(isa({ type: 'Foo' }, 'Person')).toBe(false)
+  })
 })
 
 describe('isPrimitive', () => {
