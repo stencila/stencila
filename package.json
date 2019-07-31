@@ -1,6 +1,6 @@
 {
   "name": "@stencila/schema",
-  "version": "0.20.0",
+  "version": "0.20.1",
   "description": "Stencila schema and other specifications",
   "files": [
     "dist"
@@ -101,11 +101,7 @@
     }
   },
   "eslintConfig": {
-    "extends": "@stencila/eslint-config",
-    "env": {
-      "node": true,
-      "jest": true
-    }
+    "extends": "@stencila/eslint-config"
   },
   "eslintIgnore": [
     "built",
@@ -115,13 +111,11 @@
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged",
-      "pre-push": "make checkBindings",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "release": {
-    "extends": "@stencila/semantic-release-config",
-    "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
+    "extends": "@stencila/semantic-release-config"
   }
 }
