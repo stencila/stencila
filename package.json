@@ -101,7 +101,11 @@
     }
   },
   "eslintConfig": {
-    "extends": "@stencila/eslint-config"
+    "extends": "@stencila/eslint-config",
+    "env": {
+      "node": true,
+      "jest": true
+    }
   },
   "eslintIgnore": [
     "built",

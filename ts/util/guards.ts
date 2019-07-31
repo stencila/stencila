@@ -4,7 +4,8 @@ import {
   InlineContent,
   ListItem,
   Node,
-  Paragraph
+  Paragraph,
+  Types
 } from '../types'
 import { TypeMap, TypeMapGeneric } from './type-map'
 import {
@@ -52,7 +53,7 @@ export const nodeIs = <T extends Partial<TypeMap | TypeMapGeneric>>(
  * Returns a boolean value and narrows the TypeScript inferred type to
  * the type.
  *
- * @param type The type to test the
+ * @param type The type to test for
  */
 // eslint-disable-next-line
 export const is = <Ts extends Entity>(type: keyof TypeMap<Ts>) => {
@@ -61,6 +62,37 @@ export const is = <Ts extends Entity>(type: keyof TypeMap<Ts>) => {
     [type]: type
   }
   return nodeIs(typeMap)
+}
+
+/**
+ * A type guard to determine whether a node is of a specific type.
+ * Returns a boolean value and narrows the TypeScript inferred type to
+ * the type.
+ *
+ * e.g. `isA(node, 'Paragraph')`
+ *
+ * @param type The type to test for
+ */
+export const isA = <K extends keyof Types>(
+  type: K,
+  node: Node
+): node is Types[K] => {
+  return isEntity(node) && node.type === type
+}
+
+/**
+ * Returns a type guard to determine whether a node is of a specific type.
+ * Returns a boolean value and narrows the TypeScript inferred type to
+ * the type.
+ *
+ * e.g. `article.content.filter(isType('Paragraph'))`
+ *
+ * @param type The type to test for
+ */
+export const isType = <K extends keyof Types>(type: K) => (
+  node?: Node
+): node is Types[K] => {
+  return node !== undefined && isA(type, node)
 }
 
 /**

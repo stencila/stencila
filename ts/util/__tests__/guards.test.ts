@@ -1,14 +1,14 @@
-import { TypeMap } from '../type-map'
-
-import { blockContentTypes, inlineContentTypes } from '../type-maps'
-
 import {
+  isA,
   isInlineContent,
   isInlineEntity,
   isPrimitive,
-  typeIs,
-  nodeIs
+  isType,
+  nodeIs,
+  typeIs
 } from '../guards'
+import { TypeMap } from '../type-map'
+import { blockContentTypes, inlineContentTypes } from '../type-maps'
 
 const primitives = [null, true, false, NaN, 2, 'string']
 
@@ -53,6 +53,50 @@ describe('nodeIs', () => {
   test('it returns true for Objects containing a "type" key found in the typeMap', () =>
     // @ts-ignore
     expect(nodeIs(typeMap)({ type: typeMap.someType })).toBe(true))
+})
+
+describe('isA', () => {
+  const person = { type: 'Person' }
+  const para = { type: 'Paragraph', content: [] }
+
+  test('it returns false for undefined types', () => {
+    // This is a compile error too
+    // @ts-ignore
+    expect(isA(person, 'Foo')).toBe(false)
+  })
+
+  test('it returns true for the right type', () => {
+    expect(isA('Person', person)).toBe(true)
+    expect(isA('Paragraph', para)).toBe(true)
+  })
+
+  test('it returns false for the wrong type', () => {
+    expect(isA('Person', para)).toBe(false)
+    expect(isA('Person', null)).toBe(false)
+    expect(isA('Person', true)).toBe(false)
+    expect(isA('Person', 1.0)).toBe(false)
+    expect(isA('Person', [])).toBe(false)
+    expect(isA('Person', { type: 'Foo' })).toBe(false)
+  })
+})
+
+describe('isType', () => {
+  const person = { type: 'Person' }
+  const para = { type: 'Paragraph', content: [] }
+
+  test('it returns false for undefined types', () => {
+    // This is a compile error too
+    // @ts-ignore
+    expect(isType('Foo')(person)).toBe(false)
+  })
+
+  test('it returns true for the right type', () => {
+    expect(isType('Person')(person)).toBe(true)
+  })
+
+  test('it returns false for the wrong type', () => {
+    expect(isType('Person')(para)).toBe(false)
+  })
 })
 
 describe('isPrimitive', () => {
