@@ -278,16 +278,16 @@ class CreativeWork(Thing):
     """
 
     authors: Optional[Array[Union["Person", "Organization"]]]
-    citations: Optional[Array[Union[str, "CreativeWork"]]]
+    citations: Optional[Array[Union[str, "CreativeWorkTypes"]]]
     content: Optional[Array["Node"]]
     dateCreated: Optional[str]
     dateModified: Optional[str]
     datePublished: Optional[str]
     editors: Optional[Array["Person"]]
     funders: Optional[Array[Union["Person", "Organization"]]]
-    isPartOf: Optional["CreativeWork"]
-    licenses: Optional[Array[Union[str, "CreativeWork"]]]
-    parts: Optional[Array["CreativeWork"]]
+    isPartOf: Optional["CreativeWorkTypes"]
+    licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]]
+    parts: Optional[Array["CreativeWorkTypes"]]
     publisher: Optional[Union["Person", "Organization"]]
     text: Optional[str]
     title: Optional[str]
@@ -297,7 +297,7 @@ class CreativeWork(Thing):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -306,11 +306,11 @@ class CreativeWork(Thing):
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
@@ -369,7 +369,7 @@ class Article(CreativeWork):
         authors: Array[Union["Person", "Organization"]],
         title: str,
         alternateNames: Optional[Array[str]] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -379,11 +379,11 @@ class Article(CreativeWork):
         environment: Optional["Environment"] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         text: Optional[str] = None,
         url: Optional[str] = None,
@@ -423,14 +423,14 @@ class Article(CreativeWork):
 class Collection(CreativeWork):
     """A created collection of CreativeWorks or other artefacts."""
 
-    parts: Array["CreativeWork"]
+    parts: Array["CreativeWorkTypes"]
 
     def __init__(
         self,
-        parts: Array["CreativeWork"],
+        parts: Array["CreativeWorkTypes"],
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -439,8 +439,8 @@ class Collection(CreativeWork):
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
@@ -486,7 +486,7 @@ class Datatable(CreativeWork):
         columns: Array["DatatableColumn"],
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -495,11 +495,11 @@ class Datatable(CreativeWork):
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
@@ -551,7 +551,7 @@ class MediaObject(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateCreated: Optional[str] = None,
@@ -563,11 +563,11 @@ class MediaObject(CreativeWork):
         format: Optional[str] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
@@ -622,7 +622,7 @@ class AudioObject(MediaObject):
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
         caption: Optional[str] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateCreated: Optional[str] = None,
@@ -634,11 +634,11 @@ class AudioObject(MediaObject):
         format: Optional[str] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
@@ -698,7 +698,7 @@ class SoftwareSourceCode(CreativeWork):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         codeRepository: Optional[str] = None,
         codeSampleType: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
@@ -709,12 +709,12 @@ class SoftwareSourceCode(CreativeWork):
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         programmingLanguage: Optional[str] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         runtimePlatform: Optional[Array[str]] = None,
@@ -773,7 +773,7 @@ class CodeChunk(SoftwareSourceCode):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         codeRepository: Optional[str] = None,
         codeSampleType: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
@@ -784,13 +784,13 @@ class CodeChunk(SoftwareSourceCode):
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         outputs: Optional[Array["Node"]] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         programmingLanguage: Optional[str] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         runtimePlatform: Optional[Array[str]] = None,
@@ -844,7 +844,7 @@ class CodeExpr(SoftwareSourceCode):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         codeRepository: Optional[str] = None,
         codeSampleType: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
@@ -855,12 +855,12 @@ class CodeExpr(SoftwareSourceCode):
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         programmingLanguage: Optional[str] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         runtimePlatform: Optional[Array[str]] = None,
@@ -1018,7 +1018,7 @@ class ImageObject(MediaObject):
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
         caption: Optional[str] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateCreated: Optional[str] = None,
@@ -1030,11 +1030,11 @@ class ImageObject(MediaObject):
         format: Optional[str] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         text: Optional[str] = None,
         thumbnail: Optional["ImageObject"] = None,
@@ -1299,6 +1299,71 @@ class Paragraph(Entity):
             self.content = content
 
 
+class Periodical(CreativeWork):
+    """A periodical publication."""
+
+    dateEnd: Optional[str]
+    dateStart: Optional[str]
+    issn: Optional[Array[str]]
+
+    def __init__(
+        self,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        content: Optional[Array["Node"]] = None,
+        dateCreated: Optional[str] = None,
+        dateEnd: Optional[str] = None,
+        dateModified: Optional[str] = None,
+        datePublished: Optional[str] = None,
+        dateStart: Optional[str] = None,
+        description: Optional[str] = None,
+        editors: Optional[Array["Person"]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        issn: Optional[Array[str]] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        text: Optional[str] = None,
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            authors=authors,
+            citations=citations,
+            content=content,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            description=description,
+            editors=editors,
+            funders=funders,
+            id=id,
+            isPartOf=isPartOf,
+            licenses=licenses,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if dateEnd is not None:
+            self.dateEnd = dateEnd
+        if dateStart is not None:
+            self.dateStart = dateStart
+        if issn is not None:
+            self.issn = issn
+
+
 class Person(Thing):
     """A person (alive, dead, undead, or fictional)."""
 
@@ -1404,6 +1469,150 @@ class Product(Thing):
             self.productID = productID
 
 
+class PublicationIssue(CreativeWork):
+    """
+    A part of a successively published publication such as a periodical or
+    publication volume, often numbered.
+    """
+
+    issueNumber: Optional[Union[str, int]]
+    pageEnd: Optional[Union[str, int]]
+    pageStart: Optional[Union[str, int]]
+    pagination: Optional[str]
+
+    def __init__(
+        self,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        content: Optional[Array["Node"]] = None,
+        dateCreated: Optional[str] = None,
+        dateModified: Optional[str] = None,
+        datePublished: Optional[str] = None,
+        description: Optional[str] = None,
+        editors: Optional[Array["Person"]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        issueNumber: Optional[Union[str, int]] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        pageEnd: Optional[Union[str, int]] = None,
+        pageStart: Optional[Union[str, int]] = None,
+        pagination: Optional[str] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        text: Optional[str] = None,
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            authors=authors,
+            citations=citations,
+            content=content,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            description=description,
+            editors=editors,
+            funders=funders,
+            id=id,
+            isPartOf=isPartOf,
+            licenses=licenses,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if issueNumber is not None:
+            self.issueNumber = issueNumber
+        if pageEnd is not None:
+            self.pageEnd = pageEnd
+        if pageStart is not None:
+            self.pageStart = pageStart
+        if pagination is not None:
+            self.pagination = pagination
+
+
+class PublicationVolume(CreativeWork):
+    """
+    A part of a successively published publication such as a periodical or
+    multi-volume work.
+    """
+
+    pageEnd: Optional[Union[str, int]]
+    pageStart: Optional[Union[str, int]]
+    pagination: Optional[str]
+    volumeNumber: Optional[Union[str, int]]
+
+    def __init__(
+        self,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        content: Optional[Array["Node"]] = None,
+        dateCreated: Optional[str] = None,
+        dateModified: Optional[str] = None,
+        datePublished: Optional[str] = None,
+        description: Optional[str] = None,
+        editors: Optional[Array["Person"]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        pageEnd: Optional[Union[str, int]] = None,
+        pageStart: Optional[Union[str, int]] = None,
+        pagination: Optional[str] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        text: Optional[str] = None,
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None,
+        volumeNumber: Optional[Union[str, int]] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            authors=authors,
+            citations=citations,
+            content=content,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            description=description,
+            editors=editors,
+            funders=funders,
+            id=id,
+            isPartOf=isPartOf,
+            licenses=licenses,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if pageEnd is not None:
+            self.pageEnd = pageEnd
+        if pageStart is not None:
+            self.pageStart = pageStart
+        if pagination is not None:
+            self.pagination = pagination
+        if volumeNumber is not None:
+            self.volumeNumber = volumeNumber
+
+
 class Quote(Mark):
     """Inline, quoted content."""
 
@@ -1492,7 +1701,7 @@ class SoftwareApplication(CreativeWork):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -1501,11 +1710,11 @@ class SoftwareApplication(CreativeWork):
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         softwareRequirements: Optional[Array["SoftwareApplication"]] = None,
         softwareVersion: Optional[str] = None,
@@ -1646,7 +1855,7 @@ class Table(CreativeWork):
         rows: Array["TableRow"],
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -1655,11 +1864,11 @@ class Table(CreativeWork):
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
@@ -1783,7 +1992,7 @@ class VideoObject(MediaObject):
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
         caption: Optional[str] = None,
-        citations: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateCreated: Optional[str] = None,
@@ -1795,11 +2004,11 @@ class VideoObject(MediaObject):
         format: Optional[str] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        isPartOf: Optional["CreativeWork"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWork"]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        parts: Optional[Array["CreativeWork"]] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         text: Optional[str] = None,
         thumbnail: Optional["ImageObject"] = None,
@@ -1848,6 +2057,12 @@ class VideoObject(MediaObject):
 Union type for valid block content.
 """
 BlockContent = Union["CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
+
+
+"""
+Union type for call CreativeWork types.
+"""
+CreativeWorkTypes = Union["Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
 
 
 """
