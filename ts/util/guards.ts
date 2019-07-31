@@ -71,7 +71,7 @@ export const is = <Ts extends Entity>(type: keyof TypeMap<Ts>) => {
  *
  * @param type The type to test for
  */
-export const isa = <K extends keyof Types>(
+export const isA = <K extends keyof Types>(
   node: Node,
   type: K
 ): node is Types[K] => {
