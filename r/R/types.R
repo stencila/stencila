@@ -22,6 +22,48 @@ Entity <- function(
 }
 
 
+#' A reference to a CreativeWork that is cited in another CreativeWork.
+#'
+#' @name Cite
+#' @param target The target of the citation (URL or reference ID). \bold{Required}.
+#' @param citationMode How the cite is rendered in the surrounding text.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param pageEnd The page on which the work ends; for example "138" or "xvi".
+#' @param pageStart The page on which the work starts; for example "135" or "xiii".
+#' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
+#' @param prefix A prefix to show before the citation.
+#' @param suffix A suffix to show after the citation.
+#' @seealso \code{\link{Entity}}
+#' @export
+Cite <- function(
+  target,
+  citationMode,
+  id,
+  meta,
+  pageEnd,
+  pageStart,
+  pagination,
+  prefix,
+  suffix
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Cite")
+  self[["target"]] <- check_property("Cite", "target", TRUE, missing(target), "character", target)
+  self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("normal", "suppressAuthor"), citationMode)
+  self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
+  self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
+  self[["pagination"]] <- check_property("Cite", "pagination", FALSE, missing(pagination), "character", pagination)
+  self[["prefix"]] <- check_property("Cite", "prefix", FALSE, missing(prefix), "character", prefix)
+  self[["suffix"]] <- check_property("Cite", "suffix", FALSE, missing(suffix), "character", suffix)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
 #' A group of `Cite` nodes
 #'
 #' @name CiteGroup
@@ -497,105 +539,6 @@ Article <- function(
   self[["authors"]] <- check_property("Article", "authors", TRUE, missing(authors), Array(Union("Person", "Organization")), authors)
   self[["title"]] <- check_property("Article", "title", TRUE, missing(title), "character", title)
   self[["environment"]] <- check_property("Article", "environment", FALSE, missing(environment), "Environment", environment)
-  class(self) <- c(class(self), "Entity")
-  self
-}
-
-
-#' A reference to a CreativeWork that is cited in another CreativeWork.
-#'
-#' @name Cite
-#' @param target The target of the citation (URL or reference ID). \bold{Required}.
-#' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this creative work.
-#' @param citationMode How the cite is rendered in the surrounding text.
-#' @param content The structured content of this creative work c.f. property `text`.
-#' @param dateCreated Date/time of creation.
-#' @param dateModified Date/time of most recent modification.
-#' @param datePublished Date of first publication.
-#' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
-#' @param id The identifier for this item.
-#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param licenses License documents that applies to this content, typically indicated by URL.
-#' @param meta Metadata associated with this item.
-#' @param name The name of the item.
-#' @param pageEnd The page on which the work ends; for example "138" or "xvi".
-#' @param pageStart The page on which the work starts; for example "135" or "xiii".
-#' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
-#' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-#' @param prefix A prefix to show before the citation.
-#' @param publisher A publisher of the CreativeWork.
-#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
-#' @param suffix A suffix to show after the citation.
-#' @param text The textual content of this creative work.
-#' @param title The title of the creative work.
-#' @param url The URL of the item.
-#' @param version The version of the creative work.
-#' @seealso \code{\link{CreativeWork}}
-#' @export
-Cite <- function(
-  target,
-  alternateNames,
-  authors,
-  citationMode,
-  content,
-  dateCreated,
-  dateModified,
-  datePublished,
-  description,
-  editors,
-  funders,
-  id,
-  isPartOf,
-  licenses,
-  meta,
-  name,
-  pageEnd,
-  pageStart,
-  pagination,
-  parts,
-  prefix,
-  publisher,
-  references,
-  suffix,
-  text,
-  title,
-  url,
-  version
-){
-  self <- CreativeWork(
-    alternateNames = alternateNames,
-    authors = authors,
-    content = content,
-    dateCreated = dateCreated,
-    dateModified = dateModified,
-    datePublished = datePublished,
-    description = description,
-    editors = editors,
-    funders = funders,
-    id = id,
-    isPartOf = isPartOf,
-    licenses = licenses,
-    meta = meta,
-    name = name,
-    parts = parts,
-    publisher = publisher,
-    references = references,
-    text = text,
-    title = title,
-    url = url,
-    version = version
-  )
-  self$type <- as_scalar("Cite")
-  self[["target"]] <- check_property("Cite", "target", TRUE, missing(target), "character", target)
-  self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("normal", "suppressAuthor"), citationMode)
-  self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
-  self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
-  self[["pagination"]] <- check_property("Cite", "pagination", FALSE, missing(pagination), "character", pagination)
-  self[["prefix"]] <- check_property("Cite", "prefix", FALSE, missing(prefix), "character", prefix)
-  self[["suffix"]] <- check_property("Cite", "suffix", FALSE, missing(suffix), "character", suffix)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -2661,7 +2604,7 @@ BlockContent = Union("CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "P
 #' Union type for call CreativeWork types.
 #'
 #' @export
-CreativeWorkTypes = Union("Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject")
+CreativeWorkTypes = Union("CreativeWork", "Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject")
 
 
 #' Union type for valid inline content.

@@ -63,7 +63,6 @@ export const blockContentTypes: TypeMap<BlockContent> = {
 }
 
 export const creativeWorkTypes: TypeMap<CreativeWork> = {
-  Cite: 'Cite',
   CreativeWork: 'CreativeWork',
   Article: 'Article',
   AudioObject: 'AudioObject',

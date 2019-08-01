@@ -34,6 +34,49 @@ class Entity:
             self.meta = meta
 
 
+class Cite(Entity):
+    """A reference to a CreativeWork that is cited in another CreativeWork."""
+
+    target: str
+    citationMode: Optional["Enum0"]
+    pageEnd: Optional[Union[str, int]]
+    pageStart: Optional[Union[str, int]]
+    pagination: Optional[str]
+    prefix: Optional[str]
+    suffix: Optional[str]
+
+    def __init__(
+        self,
+        target: str,
+        citationMode: Optional["Enum0"] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        pageEnd: Optional[Union[str, int]] = None,
+        pageStart: Optional[Union[str, int]] = None,
+        pagination: Optional[str] = None,
+        prefix: Optional[str] = None,
+        suffix: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if target is not None:
+            self.target = target
+        if citationMode is not None:
+            self.citationMode = citationMode
+        if pageEnd is not None:
+            self.pageEnd = pageEnd
+        if pageStart is not None:
+            self.pageStart = pageStart
+        if pagination is not None:
+            self.pagination = pagination
+        if prefix is not None:
+            self.prefix = prefix
+        if suffix is not None:
+            self.suffix = suffix
+
+
 class CiteGroup(Entity):
     """A group of `Cite` nodes"""
 
@@ -443,87 +486,6 @@ class Article(CreativeWork):
             self.title = title
         if environment is not None:
             self.environment = environment
-
-
-class Cite(CreativeWork):
-    """A reference to a CreativeWork that is cited in another CreativeWork."""
-
-    target: str
-    citationMode: Optional["Enum0"]
-    pageEnd: Optional[Union[str, int]]
-    pageStart: Optional[Union[str, int]]
-    pagination: Optional[str]
-    prefix: Optional[str]
-    suffix: Optional[str]
-
-    def __init__(
-        self,
-        target: str,
-        alternateNames: Optional[Array[str]] = None,
-        authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citationMode: Optional["Enum0"] = None,
-        content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
-        description: Optional[str] = None,
-        editors: Optional[Array["Person"]] = None,
-        funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        id: Optional[str] = None,
-        isPartOf: Optional["CreativeWorkTypes"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        pageEnd: Optional[Union[str, int]] = None,
-        pageStart: Optional[Union[str, int]] = None,
-        pagination: Optional[str] = None,
-        parts: Optional[Array["CreativeWorkTypes"]] = None,
-        prefix: Optional[str] = None,
-        publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
-        suffix: Optional[str] = None,
-        text: Optional[str] = None,
-        title: Optional[str] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            authors=authors,
-            content=content,
-            dateCreated=dateCreated,
-            dateModified=dateModified,
-            datePublished=datePublished,
-            description=description,
-            editors=editors,
-            funders=funders,
-            id=id,
-            isPartOf=isPartOf,
-            licenses=licenses,
-            meta=meta,
-            name=name,
-            parts=parts,
-            publisher=publisher,
-            references=references,
-            text=text,
-            title=title,
-            url=url,
-            version=version
-        )
-        if target is not None:
-            self.target = target
-        if citationMode is not None:
-            self.citationMode = citationMode
-        if pageEnd is not None:
-            self.pageEnd = pageEnd
-        if pageStart is not None:
-            self.pageStart = pageStart
-        if pagination is not None:
-            self.pagination = pagination
-        if prefix is not None:
-            self.prefix = prefix
-        if suffix is not None:
-            self.suffix = suffix
 
 
 class Collection(CreativeWork):
@@ -2168,7 +2130,7 @@ BlockContent = Union["CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "P
 """
 Union type for call CreativeWork types.
 """
-CreativeWorkTypes = Union["Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
+CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
 
 
 """

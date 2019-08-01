@@ -1,6 +1,6 @@
 title: Cite
 '@id': stencila:Cite
-extends: CreativeWork
+extends: Entity
 role: secondary
 status: unstable
 description: |
