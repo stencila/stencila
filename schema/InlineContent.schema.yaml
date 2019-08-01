@@ -20,4 +20,5 @@ anyOf:
   - $ref: Strong
   - $ref: Subscript
   - $ref: Superscript
+  - $ref: Cite
   - $ref: CiteGroup

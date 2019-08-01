@@ -5,11 +5,13 @@
 from typing import Any, Dict, List as Array, Optional, Union
 from enum import Enum
 
-Enum0 = Enum("0", ["ascending", "descending", "unordered"])
+Enum0 = Enum("0", ["normal", "suppressAuthor"])
 
-Enum1 = Enum("1", ["data", "header"])
+Enum1 = Enum("1", ["ascending", "descending", "unordered"])
 
-Enum2 = Enum("2", ["header", "footer"])
+Enum2 = Enum("2", ["data", "header"])
+
+Enum3 = Enum("3", ["header", "footer"])
 
 
 class Entity:
@@ -30,6 +32,25 @@ class Entity:
             self.id = id
         if meta is not None:
             self.meta = meta
+
+
+class CiteGroup(Entity):
+    """A group of `Cite` nodes"""
+
+    items: Array["Cite"]
+
+    def __init__(
+        self,
+        items: Array["Cite"],
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if items is not None:
+            self.items = items
 
 
 class DatatableColumnSchema(Entity):
@@ -282,7 +303,6 @@ class CreativeWork(Thing):
     """
 
     authors: Optional[Array[Union["Person", "Organization"]]]
-    citations: Optional[Array[Union[str, "CreativeWorkTypes"]]]
     content: Optional[Array["Node"]]
     dateCreated: Optional[str]
     dateModified: Optional[str]
@@ -293,6 +313,7 @@ class CreativeWork(Thing):
     licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]]
     parts: Optional[Array["CreativeWorkTypes"]]
     publisher: Optional[Union["Person", "Organization"]]
+    references: Optional[Array[Union[str, "CreativeWorkTypes"]]]
     text: Optional[str]
     title: Optional[str]
     version: Optional[Union[str, float]]
@@ -301,7 +322,6 @@ class CreativeWork(Thing):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -316,6 +336,7 @@ class CreativeWork(Thing):
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
         url: Optional[str] = None,
@@ -331,8 +352,6 @@ class CreativeWork(Thing):
         )
         if authors is not None:
             self.authors = authors
-        if citations is not None:
-            self.citations = citations
         if content is not None:
             self.content = content
         if dateCreated is not None:
@@ -353,6 +372,8 @@ class CreativeWork(Thing):
             self.parts = parts
         if publisher is not None:
             self.publisher = publisher
+        if references is not None:
+            self.references = references
         if text is not None:
             self.text = text
         if title is not None:
@@ -373,7 +394,6 @@ class Article(CreativeWork):
         authors: Array[Union["Person", "Organization"]],
         title: str,
         alternateNames: Optional[Array[str]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -389,6 +409,7 @@ class Article(CreativeWork):
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
@@ -397,7 +418,6 @@ class Article(CreativeWork):
             authors=authors,
             title=title,
             alternateNames=alternateNames,
-            citations=citations,
             content=content,
             dateCreated=dateCreated,
             dateModified=dateModified,
@@ -412,6 +432,7 @@ class Article(CreativeWork):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             url=url,
             version=version
@@ -424,6 +445,87 @@ class Article(CreativeWork):
             self.environment = environment
 
 
+class Cite(CreativeWork):
+    """A reference to a CreativeWork that is cited in another CreativeWork."""
+
+    target: str
+    citationMode: Optional["Enum0"]
+    pageEnd: Optional[Union[str, int]]
+    pageStart: Optional[Union[str, int]]
+    pagination: Optional[str]
+    prefix: Optional[str]
+    suffix: Optional[str]
+
+    def __init__(
+        self,
+        target: str,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        citationMode: Optional["Enum0"] = None,
+        content: Optional[Array["Node"]] = None,
+        dateCreated: Optional[str] = None,
+        dateModified: Optional[str] = None,
+        datePublished: Optional[str] = None,
+        description: Optional[str] = None,
+        editors: Optional[Array["Person"]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        pageEnd: Optional[Union[str, int]] = None,
+        pageStart: Optional[Union[str, int]] = None,
+        pagination: Optional[str] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        prefix: Optional[str] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        suffix: Optional[str] = None,
+        text: Optional[str] = None,
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            authors=authors,
+            content=content,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            description=description,
+            editors=editors,
+            funders=funders,
+            id=id,
+            isPartOf=isPartOf,
+            licenses=licenses,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            references=references,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if target is not None:
+            self.target = target
+        if citationMode is not None:
+            self.citationMode = citationMode
+        if pageEnd is not None:
+            self.pageEnd = pageEnd
+        if pageStart is not None:
+            self.pageStart = pageStart
+        if pagination is not None:
+            self.pagination = pagination
+        if prefix is not None:
+            self.prefix = prefix
+        if suffix is not None:
+            self.suffix = suffix
+
+
 class Collection(CreativeWork):
     """A created collection of CreativeWorks or other artefacts."""
 
@@ -434,7 +536,6 @@ class Collection(CreativeWork):
         parts: Array["CreativeWorkTypes"],
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -448,6 +549,7 @@ class Collection(CreativeWork):
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
         url: Optional[str] = None,
@@ -457,7 +559,6 @@ class Collection(CreativeWork):
             parts=parts,
             alternateNames=alternateNames,
             authors=authors,
-            citations=citations,
             content=content,
             dateCreated=dateCreated,
             dateModified=dateModified,
@@ -471,6 +572,7 @@ class Collection(CreativeWork):
             meta=meta,
             name=name,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -490,7 +592,6 @@ class Datatable(CreativeWork):
         columns: Array["DatatableColumn"],
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -505,6 +606,7 @@ class Datatable(CreativeWork):
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
         url: Optional[str] = None,
@@ -513,7 +615,6 @@ class Datatable(CreativeWork):
         super().__init__(
             alternateNames=alternateNames,
             authors=authors,
-            citations=citations,
             content=content,
             dateCreated=dateCreated,
             dateModified=dateModified,
@@ -528,6 +629,7 @@ class Datatable(CreativeWork):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -555,7 +657,6 @@ class MediaObject(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateCreated: Optional[str] = None,
@@ -573,6 +674,7 @@ class MediaObject(CreativeWork):
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
         url: Optional[str] = None,
@@ -581,7 +683,6 @@ class MediaObject(CreativeWork):
         super().__init__(
             alternateNames=alternateNames,
             authors=authors,
-            citations=citations,
             content=content,
             dateCreated=dateCreated,
             dateModified=dateModified,
@@ -596,6 +697,7 @@ class MediaObject(CreativeWork):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -626,7 +728,6 @@ class AudioObject(MediaObject):
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
         caption: Optional[str] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateCreated: Optional[str] = None,
@@ -644,6 +745,7 @@ class AudioObject(MediaObject):
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
         transcript: Optional[str] = None,
@@ -655,7 +757,6 @@ class AudioObject(MediaObject):
             alternateNames=alternateNames,
             authors=authors,
             bitrate=bitrate,
-            citations=citations,
             content=content,
             contentSize=contentSize,
             dateCreated=dateCreated,
@@ -673,6 +774,7 @@ class AudioObject(MediaObject):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -702,7 +804,6 @@ class SoftwareSourceCode(CreativeWork):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         codeRepository: Optional[str] = None,
         codeSampleType: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
@@ -721,6 +822,7 @@ class SoftwareSourceCode(CreativeWork):
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         programmingLanguage: Optional[str] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         runtimePlatform: Optional[Array[str]] = None,
         softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
         targetProducts: Optional[Array["SoftwareApplication"]] = None,
@@ -732,7 +834,6 @@ class SoftwareSourceCode(CreativeWork):
         super().__init__(
             alternateNames=alternateNames,
             authors=authors,
-            citations=citations,
             content=content,
             dateCreated=dateCreated,
             dateModified=dateModified,
@@ -747,6 +848,7 @@ class SoftwareSourceCode(CreativeWork):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -777,7 +879,6 @@ class CodeChunk(SoftwareSourceCode):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         codeRepository: Optional[str] = None,
         codeSampleType: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
@@ -797,6 +898,7 @@ class CodeChunk(SoftwareSourceCode):
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         programmingLanguage: Optional[str] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         runtimePlatform: Optional[Array[str]] = None,
         softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
         targetProducts: Optional[Array["SoftwareApplication"]] = None,
@@ -808,7 +910,6 @@ class CodeChunk(SoftwareSourceCode):
         super().__init__(
             alternateNames=alternateNames,
             authors=authors,
-            citations=citations,
             codeRepository=codeRepository,
             codeSampleType=codeSampleType,
             content=content,
@@ -827,6 +928,7 @@ class CodeChunk(SoftwareSourceCode):
             parts=parts,
             programmingLanguage=programmingLanguage,
             publisher=publisher,
+            references=references,
             runtimePlatform=runtimePlatform,
             softwareRequirements=softwareRequirements,
             targetProducts=targetProducts,
@@ -848,7 +950,6 @@ class CodeExpr(SoftwareSourceCode):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         codeRepository: Optional[str] = None,
         codeSampleType: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
@@ -867,6 +968,7 @@ class CodeExpr(SoftwareSourceCode):
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         programmingLanguage: Optional[str] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         runtimePlatform: Optional[Array[str]] = None,
         softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
         targetProducts: Optional[Array["SoftwareApplication"]] = None,
@@ -879,7 +981,6 @@ class CodeExpr(SoftwareSourceCode):
         super().__init__(
             alternateNames=alternateNames,
             authors=authors,
-            citations=citations,
             codeRepository=codeRepository,
             codeSampleType=codeSampleType,
             content=content,
@@ -898,6 +999,7 @@ class CodeExpr(SoftwareSourceCode):
             parts=parts,
             programmingLanguage=programmingLanguage,
             publisher=publisher,
+            references=references,
             runtimePlatform=runtimePlatform,
             softwareRequirements=softwareRequirements,
             targetProducts=targetProducts,
@@ -1022,7 +1124,6 @@ class ImageObject(MediaObject):
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
         caption: Optional[str] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateCreated: Optional[str] = None,
@@ -1040,6 +1141,7 @@ class ImageObject(MediaObject):
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         thumbnail: Optional["ImageObject"] = None,
         title: Optional[str] = None,
@@ -1051,7 +1153,6 @@ class ImageObject(MediaObject):
             alternateNames=alternateNames,
             authors=authors,
             bitrate=bitrate,
-            citations=citations,
             content=content,
             contentSize=contentSize,
             dateCreated=dateCreated,
@@ -1069,6 +1170,7 @@ class ImageObject(MediaObject):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -1152,14 +1254,14 @@ class List(Entity):
     """A list of items."""
 
     items: Array["ListItem"]
-    order: Optional["Enum0"]
+    order: Optional["Enum1"]
 
     def __init__(
         self,
         items: Array["ListItem"],
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        order: Optional["Enum0"] = None
+        order: Optional["Enum1"] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1314,7 +1416,6 @@ class Periodical(CreativeWork):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateEnd: Optional[str] = None,
@@ -1332,6 +1433,7 @@ class Periodical(CreativeWork):
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
         url: Optional[str] = None,
@@ -1340,7 +1442,6 @@ class Periodical(CreativeWork):
         super().__init__(
             alternateNames=alternateNames,
             authors=authors,
-            citations=citations,
             content=content,
             dateCreated=dateCreated,
             dateModified=dateModified,
@@ -1355,6 +1456,7 @@ class Periodical(CreativeWork):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -1488,7 +1590,6 @@ class PublicationIssue(CreativeWork):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -1507,6 +1608,7 @@ class PublicationIssue(CreativeWork):
         pagination: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
         url: Optional[str] = None,
@@ -1515,7 +1617,6 @@ class PublicationIssue(CreativeWork):
         super().__init__(
             alternateNames=alternateNames,
             authors=authors,
-            citations=citations,
             content=content,
             dateCreated=dateCreated,
             dateModified=dateModified,
@@ -1530,6 +1631,7 @@ class PublicationIssue(CreativeWork):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -1560,7 +1662,6 @@ class PublicationVolume(CreativeWork):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -1578,6 +1679,7 @@ class PublicationVolume(CreativeWork):
         pagination: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
         url: Optional[str] = None,
@@ -1587,7 +1689,6 @@ class PublicationVolume(CreativeWork):
         super().__init__(
             alternateNames=alternateNames,
             authors=authors,
-            citations=citations,
             content=content,
             dateCreated=dateCreated,
             dateModified=dateModified,
@@ -1602,6 +1703,7 @@ class PublicationVolume(CreativeWork):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -1705,7 +1807,6 @@ class SoftwareApplication(CreativeWork):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -1720,6 +1821,7 @@ class SoftwareApplication(CreativeWork):
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         softwareRequirements: Optional[Array["SoftwareApplication"]] = None,
         softwareVersion: Optional[str] = None,
         text: Optional[str] = None,
@@ -1730,7 +1832,6 @@ class SoftwareApplication(CreativeWork):
         super().__init__(
             alternateNames=alternateNames,
             authors=authors,
-            citations=citations,
             content=content,
             dateCreated=dateCreated,
             dateModified=dateModified,
@@ -1745,6 +1846,7 @@ class SoftwareApplication(CreativeWork):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -1859,7 +1961,6 @@ class Table(CreativeWork):
         rows: Array["TableRow"],
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
@@ -1874,6 +1975,7 @@ class Table(CreativeWork):
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         title: Optional[str] = None,
         url: Optional[str] = None,
@@ -1882,7 +1984,6 @@ class Table(CreativeWork):
         super().__init__(
             alternateNames=alternateNames,
             authors=authors,
-            citations=citations,
             content=content,
             dateCreated=dateCreated,
             dateModified=dateModified,
@@ -1897,6 +1998,7 @@ class Table(CreativeWork):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -1911,7 +2013,7 @@ class TableCell(Entity):
 
     content: Array["InlineContent"]
     colspan: Optional[int]
-    kind: Optional["Enum1"]
+    kind: Optional["Enum2"]
     name: Optional[str]
     rowspan: Optional[int]
 
@@ -1920,7 +2022,7 @@ class TableCell(Entity):
         content: Array["InlineContent"],
         colspan: Optional[int] = None,
         id: Optional[str] = None,
-        kind: Optional["Enum1"] = None,
+        kind: Optional["Enum2"] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         rowspan: Optional[int] = None
@@ -1945,13 +2047,13 @@ class TableRow(Entity):
     """A row within a Table."""
 
     cells: Array["TableCell"]
-    kind: Optional["Enum2"]
+    kind: Optional["Enum3"]
 
     def __init__(
         self,
         cells: Array["TableCell"],
         id: Optional[str] = None,
-        kind: Optional["Enum2"] = None,
+        kind: Optional["Enum3"] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
@@ -1996,7 +2098,6 @@ class VideoObject(MediaObject):
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
         caption: Optional[str] = None,
-        citations: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateCreated: Optional[str] = None,
@@ -2014,6 +2115,7 @@ class VideoObject(MediaObject):
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         thumbnail: Optional["ImageObject"] = None,
         title: Optional[str] = None,
@@ -2026,7 +2128,6 @@ class VideoObject(MediaObject):
             alternateNames=alternateNames,
             authors=authors,
             bitrate=bitrate,
-            citations=citations,
             content=content,
             contentSize=contentSize,
             dateCreated=dateCreated,
@@ -2044,6 +2145,7 @@ class VideoObject(MediaObject):
             name=name,
             parts=parts,
             publisher=publisher,
+            references=references,
             text=text,
             title=title,
             url=url,
@@ -2072,7 +2174,7 @@ CreativeWorkTypes = Union["Article", "AudioObject", "CodeChunk", "CodeExpr", "Co
 """
 Union type for valid inline content.
 """
-InlineContent = Union[None, bool, int, float, str, "Code", "CodeExpr", "Delete", "Emphasis", "ImageObject", "Link", "Quote", "Strong", "Subscript", "Superscript"]
+InlineContent = Union[None, bool, int, float, str, "Code", "CodeExpr", "Delete", "Emphasis", "ImageObject", "Link", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup"]
 
 
 """

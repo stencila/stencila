@@ -35,6 +35,7 @@ export type InlineNodesWithType = Exclude<
 >
 
 export const inlineContentTypes: TypeMap<InlineNodesWithType> = {
+  Cite: 'Cite',
   CiteGroup: 'CiteGroup',
   Code: 'Code',
   CodeBlock: 'CodeBlock',
