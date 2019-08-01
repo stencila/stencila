@@ -15,10 +15,10 @@ properties:
       anyOf:
         - $ref: Person
         - $ref: Organization
-  citations:
+  references:
     '@id': schema:citation
     description: |
-      Citations or references to other creative works, such as another publication,
+      References to other creative works, such as another publication,
       web page, scholarly article, etc.
     type: array
     items:

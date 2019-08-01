@@ -388,7 +388,6 @@ ContactPoint <- function(
 #' @name CreativeWork
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
@@ -403,6 +402,7 @@ ContactPoint <- function(
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
@@ -412,7 +412,6 @@ ContactPoint <- function(
 CreativeWork <- function(
   alternateNames,
   authors,
-  citations,
   content,
   dateCreated,
   dateModified,
@@ -427,6 +426,7 @@ CreativeWork <- function(
   name,
   parts,
   publisher,
+  references,
   text,
   title,
   url,
@@ -442,7 +442,6 @@ CreativeWork <- function(
   )
   self$type <- as_scalar("CreativeWork")
   self[["authors"]] <- check_property("CreativeWork", "authors", FALSE, missing(authors), Array(Union("Person", "Organization")), authors)
-  self[["citations"]] <- check_property("CreativeWork", "citations", FALSE, missing(citations), Array(Union("character", "CreativeWorkTypes")), citations)
   self[["content"]] <- check_property("CreativeWork", "content", FALSE, missing(content), Array("Node"), content)
   self[["dateCreated"]] <- check_property("CreativeWork", "dateCreated", FALSE, missing(dateCreated), "character", dateCreated)
   self[["dateModified"]] <- check_property("CreativeWork", "dateModified", FALSE, missing(dateModified), "character", dateModified)
@@ -453,6 +452,7 @@ CreativeWork <- function(
   self[["licenses"]] <- check_property("CreativeWork", "licenses", FALSE, missing(licenses), Array(Union("character", "CreativeWorkTypes")), licenses)
   self[["parts"]] <- check_property("CreativeWork", "parts", FALSE, missing(parts), Array("CreativeWorkTypes"), parts)
   self[["publisher"]] <- check_property("CreativeWork", "publisher", FALSE, missing(publisher), Union("Person", "Organization"), publisher)
+  self[["references"]] <- check_property("CreativeWork", "references", FALSE, missing(references), Array(Union("character", "CreativeWorkTypes")), references)
   self[["text"]] <- check_property("CreativeWork", "text", FALSE, missing(text), "character", text)
   self[["title"]] <- check_property("CreativeWork", "title", FALSE, missing(title), "character", title)
   self[["version"]] <- check_property("CreativeWork", "version", FALSE, missing(version), Union("character", "numeric"), version)
@@ -467,7 +467,6 @@ CreativeWork <- function(
 #' @param authors The authors of this creative work. \bold{Required}.
 #' @param title The title of the creative work. \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
@@ -483,6 +482,7 @@ CreativeWork <- function(
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
@@ -492,7 +492,6 @@ Article <- function(
   authors,
   title,
   alternateNames,
-  citations,
   content,
   dateCreated,
   dateModified,
@@ -508,6 +507,7 @@ Article <- function(
   name,
   parts,
   publisher,
+  references,
   text,
   url,
   version
@@ -516,7 +516,6 @@ Article <- function(
     authors = authors,
     title = title,
     alternateNames = alternateNames,
-    citations = citations,
     content = content,
     dateCreated = dateCreated,
     dateModified = dateModified,
@@ -531,6 +530,7 @@ Article <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     url = url,
     version = version
@@ -550,7 +550,6 @@ Article <- function(
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.  \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
@@ -564,6 +563,7 @@ Article <- function(
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
@@ -574,7 +574,6 @@ Collection <- function(
   parts,
   alternateNames,
   authors,
-  citations,
   content,
   dateCreated,
   dateModified,
@@ -588,6 +587,7 @@ Collection <- function(
   meta,
   name,
   publisher,
+  references,
   text,
   title,
   url,
@@ -597,7 +597,6 @@ Collection <- function(
     parts = parts,
     alternateNames = alternateNames,
     authors = authors,
-    citations = citations,
     content = content,
     dateCreated = dateCreated,
     dateModified = dateModified,
@@ -611,6 +610,7 @@ Collection <- function(
     meta = meta,
     name = name,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -629,7 +629,6 @@ Collection <- function(
 #' @param columns The columns of data. \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
@@ -644,6 +643,7 @@ Collection <- function(
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
@@ -654,7 +654,6 @@ Datatable <- function(
   columns,
   alternateNames,
   authors,
-  citations,
   content,
   dateCreated,
   dateModified,
@@ -669,6 +668,7 @@ Datatable <- function(
   name,
   parts,
   publisher,
+  references,
   text,
   title,
   url,
@@ -677,7 +677,6 @@ Datatable <- function(
   self <- CreativeWork(
     alternateNames = alternateNames,
     authors = authors,
-    citations = citations,
     content = content,
     dateCreated = dateCreated,
     dateModified = dateModified,
@@ -692,6 +691,7 @@ Datatable <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -711,7 +711,6 @@ Datatable <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param contentSize File size in megabits (Mbit, Mb).
 #' @param dateCreated Date/time of creation.
@@ -729,6 +728,7 @@ Datatable <- function(
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
@@ -740,7 +740,6 @@ MediaObject <- function(
   alternateNames,
   authors,
   bitrate,
-  citations,
   content,
   contentSize,
   dateCreated,
@@ -758,6 +757,7 @@ MediaObject <- function(
   name,
   parts,
   publisher,
+  references,
   text,
   title,
   url,
@@ -766,7 +766,6 @@ MediaObject <- function(
   self <- CreativeWork(
     alternateNames = alternateNames,
     authors = authors,
-    citations = citations,
     content = content,
     dateCreated = dateCreated,
     dateModified = dateModified,
@@ -781,6 +780,7 @@ MediaObject <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -805,7 +805,6 @@ MediaObject <- function(
 #' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
 #' @param caption The caption for this audio recording.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param contentSize File size in megabits (Mbit, Mb).
 #' @param dateCreated Date/time of creation.
@@ -823,6 +822,7 @@ MediaObject <- function(
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param title The title of the creative work.
 #' @param transcript The transcript of this audio recording.
@@ -836,7 +836,6 @@ AudioObject <- function(
   authors,
   bitrate,
   caption,
-  citations,
   content,
   contentSize,
   dateCreated,
@@ -854,6 +853,7 @@ AudioObject <- function(
   name,
   parts,
   publisher,
+  references,
   text,
   title,
   transcript,
@@ -865,7 +865,6 @@ AudioObject <- function(
     alternateNames = alternateNames,
     authors = authors,
     bitrate = bitrate,
-    citations = citations,
     content = content,
     contentSize = contentSize,
     dateCreated = dateCreated,
@@ -883,6 +882,7 @@ AudioObject <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -901,7 +901,6 @@ AudioObject <- function(
 #' @name SoftwareSourceCode
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
 #' @param codeSampleType What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -920,6 +919,7 @@ AudioObject <- function(
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param programmingLanguage The computer programming language.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param runtimePlatform Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
 #' @param softwareRequirements Dependency requirements for the software.
 #' @param targetProducts Target operating system or product to which the code applies.
@@ -932,7 +932,6 @@ AudioObject <- function(
 SoftwareSourceCode <- function(
   alternateNames,
   authors,
-  citations,
   codeRepository,
   codeSampleType,
   content,
@@ -951,6 +950,7 @@ SoftwareSourceCode <- function(
   parts,
   programmingLanguage,
   publisher,
+  references,
   runtimePlatform,
   softwareRequirements,
   targetProducts,
@@ -962,7 +962,6 @@ SoftwareSourceCode <- function(
   self <- CreativeWork(
     alternateNames = alternateNames,
     authors = authors,
-    citations = citations,
     content = content,
     dateCreated = dateCreated,
     dateModified = dateModified,
@@ -977,6 +976,7 @@ SoftwareSourceCode <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -1000,7 +1000,6 @@ SoftwareSourceCode <- function(
 #' @name CodeChunk
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
 #' @param codeSampleType What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -1020,6 +1019,7 @@ SoftwareSourceCode <- function(
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param programmingLanguage The computer programming language.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param runtimePlatform Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
 #' @param softwareRequirements Dependency requirements for the software.
 #' @param targetProducts Target operating system or product to which the code applies.
@@ -1032,7 +1032,6 @@ SoftwareSourceCode <- function(
 CodeChunk <- function(
   alternateNames,
   authors,
-  citations,
   codeRepository,
   codeSampleType,
   content,
@@ -1052,6 +1051,7 @@ CodeChunk <- function(
   parts,
   programmingLanguage,
   publisher,
+  references,
   runtimePlatform,
   softwareRequirements,
   targetProducts,
@@ -1063,7 +1063,6 @@ CodeChunk <- function(
   self <- SoftwareSourceCode(
     alternateNames = alternateNames,
     authors = authors,
-    citations = citations,
     codeRepository = codeRepository,
     codeSampleType = codeSampleType,
     content = content,
@@ -1082,6 +1081,7 @@ CodeChunk <- function(
     parts = parts,
     programmingLanguage = programmingLanguage,
     publisher = publisher,
+    references = references,
     runtimePlatform = runtimePlatform,
     softwareRequirements = softwareRequirements,
     targetProducts = targetProducts,
@@ -1102,7 +1102,6 @@ CodeChunk <- function(
 #' @name CodeExpr
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
 #' @param codeSampleType What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -1121,6 +1120,7 @@ CodeChunk <- function(
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param programmingLanguage The computer programming language.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param runtimePlatform Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
 #' @param softwareRequirements Dependency requirements for the software.
 #' @param targetProducts Target operating system or product to which the code applies.
@@ -1134,7 +1134,6 @@ CodeChunk <- function(
 CodeExpr <- function(
   alternateNames,
   authors,
-  citations,
   codeRepository,
   codeSampleType,
   content,
@@ -1153,6 +1152,7 @@ CodeExpr <- function(
   parts,
   programmingLanguage,
   publisher,
+  references,
   runtimePlatform,
   softwareRequirements,
   targetProducts,
@@ -1165,7 +1165,6 @@ CodeExpr <- function(
   self <- SoftwareSourceCode(
     alternateNames = alternateNames,
     authors = authors,
-    citations = citations,
     codeRepository = codeRepository,
     codeSampleType = codeSampleType,
     content = content,
@@ -1184,6 +1183,7 @@ CodeExpr <- function(
     parts = parts,
     programmingLanguage = programmingLanguage,
     publisher = publisher,
+    references = references,
     runtimePlatform = runtimePlatform,
     softwareRequirements = softwareRequirements,
     targetProducts = targetProducts,
@@ -1320,7 +1320,6 @@ Heading <- function(
 #' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
 #' @param caption The caption for this image.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param contentSize File size in megabits (Mbit, Mb).
 #' @param dateCreated Date/time of creation.
@@ -1338,6 +1337,7 @@ Heading <- function(
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param thumbnail Thumbnail image of this image.
 #' @param title The title of the creative work.
@@ -1351,7 +1351,6 @@ ImageObject <- function(
   authors,
   bitrate,
   caption,
-  citations,
   content,
   contentSize,
   dateCreated,
@@ -1369,6 +1368,7 @@ ImageObject <- function(
   name,
   parts,
   publisher,
+  references,
   text,
   thumbnail,
   title,
@@ -1380,7 +1380,6 @@ ImageObject <- function(
     alternateNames = alternateNames,
     authors = authors,
     bitrate = bitrate,
-    citations = citations,
     content = content,
     contentSize = contentSize,
     dateCreated = dateCreated,
@@ -1398,6 +1397,7 @@ ImageObject <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -1659,7 +1659,6 @@ Paragraph <- function(
 #' @name Periodical
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
 #' @param dateEnd The date this Periodical ceased publication.
@@ -1677,6 +1676,7 @@ Paragraph <- function(
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
@@ -1686,7 +1686,6 @@ Paragraph <- function(
 Periodical <- function(
   alternateNames,
   authors,
-  citations,
   content,
   dateCreated,
   dateEnd,
@@ -1704,6 +1703,7 @@ Periodical <- function(
   name,
   parts,
   publisher,
+  references,
   text,
   title,
   url,
@@ -1712,7 +1712,6 @@ Periodical <- function(
   self <- CreativeWork(
     alternateNames = alternateNames,
     authors = authors,
-    citations = citations,
     content = content,
     dateCreated = dateCreated,
     dateModified = dateModified,
@@ -1727,6 +1726,7 @@ Periodical <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -1854,7 +1854,6 @@ Product <- function(
 #' @name PublicationIssue
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
@@ -1873,6 +1872,7 @@ Product <- function(
 #' @param pagination Any description of pages that is not separated into pageStart and pageEnd;  for example, "1-6, 9, 55".
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
@@ -1882,7 +1882,6 @@ Product <- function(
 PublicationIssue <- function(
   alternateNames,
   authors,
-  citations,
   content,
   dateCreated,
   dateModified,
@@ -1901,6 +1900,7 @@ PublicationIssue <- function(
   pagination,
   parts,
   publisher,
+  references,
   text,
   title,
   url,
@@ -1909,7 +1909,6 @@ PublicationIssue <- function(
   self <- CreativeWork(
     alternateNames = alternateNames,
     authors = authors,
-    citations = citations,
     content = content,
     dateCreated = dateCreated,
     dateModified = dateModified,
@@ -1924,6 +1923,7 @@ PublicationIssue <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -1944,7 +1944,6 @@ PublicationIssue <- function(
 #' @name PublicationVolume
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
@@ -1962,6 +1961,7 @@ PublicationIssue <- function(
 #' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
@@ -1972,7 +1972,6 @@ PublicationIssue <- function(
 PublicationVolume <- function(
   alternateNames,
   authors,
-  citations,
   content,
   dateCreated,
   dateModified,
@@ -1990,6 +1989,7 @@ PublicationVolume <- function(
   pagination,
   parts,
   publisher,
+  references,
   text,
   title,
   url,
@@ -1999,7 +1999,6 @@ PublicationVolume <- function(
   self <- CreativeWork(
     alternateNames = alternateNames,
     authors = authors,
-    citations = citations,
     content = content,
     dateCreated = dateCreated,
     dateModified = dateModified,
@@ -2014,6 +2013,7 @@ PublicationVolume <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -2127,7 +2127,6 @@ ResourceParameters <- function(
 #' @name SoftwareApplication
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
@@ -2142,6 +2141,7 @@ ResourceParameters <- function(
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param softwareRequirements Requirements for application, including shared libraries that are not included in the application distribution.
 #' @param softwareVersion Version of the software.
 #' @param text The textual content of this creative work.
@@ -2153,7 +2153,6 @@ ResourceParameters <- function(
 SoftwareApplication <- function(
   alternateNames,
   authors,
-  citations,
   content,
   dateCreated,
   dateModified,
@@ -2168,6 +2167,7 @@ SoftwareApplication <- function(
   name,
   parts,
   publisher,
+  references,
   softwareRequirements,
   softwareVersion,
   text,
@@ -2178,7 +2178,6 @@ SoftwareApplication <- function(
   self <- CreativeWork(
     alternateNames = alternateNames,
     authors = authors,
-    citations = citations,
     content = content,
     dateCreated = dateCreated,
     dateModified = dateModified,
@@ -2193,6 +2192,7 @@ SoftwareApplication <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -2332,7 +2332,6 @@ Superscript <- function(
 #' @param rows Rows of cells in the table.  \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
@@ -2347,6 +2346,7 @@ Superscript <- function(
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
@@ -2357,7 +2357,6 @@ Table <- function(
   rows,
   alternateNames,
   authors,
-  citations,
   content,
   dateCreated,
   dateModified,
@@ -2372,6 +2371,7 @@ Table <- function(
   name,
   parts,
   publisher,
+  references,
   text,
   title,
   url,
@@ -2380,7 +2380,6 @@ Table <- function(
   self <- CreativeWork(
     alternateNames = alternateNames,
     authors = authors,
-    citations = citations,
     content = content,
     dateCreated = dateCreated,
     dateModified = dateModified,
@@ -2395,6 +2394,7 @@ Table <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -2500,7 +2500,6 @@ ThematicBreak <- function(
 #' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
 #' @param caption The caption for this video recording.
-#' @param citations Citations or references to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param contentSize File size in megabits (Mbit, Mb).
 #' @param dateCreated Date/time of creation.
@@ -2518,6 +2517,7 @@ ThematicBreak <- function(
 #' @param name The name of the item.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
 #' @param text The textual content of this creative work.
 #' @param thumbnail Thumbnail image of this video recording.
 #' @param title The title of the creative work.
@@ -2532,7 +2532,6 @@ VideoObject <- function(
   authors,
   bitrate,
   caption,
-  citations,
   content,
   contentSize,
   dateCreated,
@@ -2550,6 +2549,7 @@ VideoObject <- function(
   name,
   parts,
   publisher,
+  references,
   text,
   thumbnail,
   title,
@@ -2562,7 +2562,6 @@ VideoObject <- function(
     alternateNames = alternateNames,
     authors = authors,
     bitrate = bitrate,
-    citations = citations,
     content = content,
     contentSize = contentSize,
     dateCreated = dateCreated,
@@ -2580,6 +2579,7 @@ VideoObject <- function(
     name = name,
     parts = parts,
     publisher = publisher,
+    references = references,
     text = text,
     title = title,
     url = url,
@@ -2610,7 +2610,7 @@ CreativeWorkTypes = Union("CreativeWork", "Article", "AudioObject", "CodeChunk",
 #' Union type for valid inline content.
 #'
 #' @export
-InlineContent = Union("NULL", "logical", "numeric", "character", "Code", "CodeExpr", "Delete", "Emphasis", "ImageObject", "Link", "Quote", "Strong", "Subscript", "Superscript")
+InlineContent = Union("NULL", "logical", "numeric", "character", "Code", "CodeExpr", "Delete", "Emphasis", "ImageObject", "Link", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup")
 
 
 #' Union type for all valid nodes.

@@ -1,0 +1,47 @@
+title: Cite
+'@id': stencila:Cite
+extends: Entity
+role: secondary
+status: unstable
+description: |
+  A reference to a CreativeWork that is cited in another CreativeWork.
+properties:
+  citationMode:
+    '@id': stencila:citationMode
+    description: How the cite is rendered in the surrounding text.
+    type: string
+    enum:
+      - normal
+      - suppressAuthor
+  pageStart:
+    '@id': schema:pageStart
+    description: The page on which the work starts; for example "135" or "xiii".
+    anyOf:
+      - type: string
+      - type: integer
+  pageEnd:
+    '@id': schema:pageEnd
+    description: The page on which the work ends; for example "138" or "xvi".
+    anyOf:
+      - type: string
+      - type: integer
+  pagination:
+    '@id': schema:pagination
+    description: |
+      Any description of pages that is not separated into pageStart and pageEnd;
+      for example, "1-6, 9, 55".
+    type: string
+  prefix:
+    '@id': stencila:citationPrefix
+    description: A prefix to show before the citation.
+    type: string
+  suffix:
+    '@id': stencila:citationSuffix
+    description: A suffix to show after the citation.
+    type: string
+  target:
+    '@id': stencila:target
+    description: The target of the citation (URL or reference ID).
+    type: string
+required:
+  - target

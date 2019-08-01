@@ -1,0 +1,16 @@
+title: CiteGroup
+'@id': stencila:CiteGroup
+extends: Entity
+role: secondary
+status: unstable
+description: |
+  A group of `Cite` nodes
+properties:
+  items:
+    '@id': stencila:items
+    type: array
+    description: One or more `Cite`s to be referenced in the same surrounding text.
+    items:
+      $ref: Cite
+required:
+  - items
