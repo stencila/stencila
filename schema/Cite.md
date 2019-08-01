@@ -42,7 +42,7 @@ A reference to a CreativeWork that is cited in another CreativeWork.
 
 :::
 
-A `Cite` node is used within a [`CreativeWork`](./CreativeWork.html), usually an [`Article`](./Article.html), to refer to an other `CreativeWork`. Often a `Cite` will be associated with other citations, in a [`CiteGroup`](../CiteGroup.html).
+A `Cite` node is used within a [`CreativeWork`](./CreativeWork.html), usually an [`Article`](./Article.html), to refer to an other `CreativeWork`. Often a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup.html).
 
 # Examples
 
