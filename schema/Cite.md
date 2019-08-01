@@ -46,7 +46,7 @@ A `Cite` node is used within a [`CreativeWork`](./CreativeWork.html), usually an
 
 # Examples
 
-The following example a (very) short article, shows how a `Cite` is used to refer to another `Article` in the article's `references`.
+The following example of a (very) short article, shows how a `Cite` is used to refer to another `Article` in the article's `references`.
 
 ```json import=ex1
 {
