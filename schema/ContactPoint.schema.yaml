@@ -3,7 +3,7 @@ title: ContactPoint
 extends: Thing
 role: tertiary
 status: unstable
-category: data
+category: metadata
 description: A contact point—for example, a R&D department.
 properties:
   availableLanguages:

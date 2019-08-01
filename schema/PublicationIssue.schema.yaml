@@ -3,7 +3,7 @@ title: PublicationIssue
 extends: CreativeWork
 role: secondary
 status: unstable
-category: data
+category: metadata
 description: |
   A part of a successively published publication such as a periodical or publication 
   volume, often numbered.

@@ -3,7 +3,7 @@ title: Person
 extends: Thing
 role: secondary
 status: stable
-category: data
+category: metadata
 description: A person (alive, dead, undead, or fictional).
 codec: person
 properties:
