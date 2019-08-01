@@ -3,6 +3,7 @@ title: ResourceParameters
 extends: Thing
 role: secondary
 status: experimental
+category: metadata
 description: |
   Describes limits or requested amounts for a particular resource (e.g. memory or CPU).
 properties:

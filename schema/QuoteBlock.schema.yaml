@@ -3,6 +3,7 @@ title: QuoteBlock
 extends: Entity
 role: secondary
 status: stable
+category: prose
 description: |
   A section quoted from somewhere else.
 properties:

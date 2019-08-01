@@ -3,6 +3,7 @@ title: ImageObject
 extends: MediaObject
 role: secondary
 status: stable
+category: data
 description: An image file.
 properties:
   caption:

@@ -3,6 +3,7 @@ title: PublicationVolume
 extends: CreativeWork
 role: secondary
 status: unstable
+category: data
 description: |
   A part of a successively published publication such as a periodical or multi-volume work.
 properties:

@@ -3,6 +3,7 @@ title: List
 extends: Entity
 role: secondary
 status: unstable
+category: prose
 description: |
   A list of items.
 properties:

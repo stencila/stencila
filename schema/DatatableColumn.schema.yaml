@@ -3,6 +3,7 @@ title: DatatableColumn
 extends: Thing
 role: secondary
 status: experimental
+category: data
 description: A column of data within a Datatable.
 properties:
   schema:

@@ -2,6 +2,7 @@ title: Entity
 '@id': stencila:Entity
 role: base
 status: unstable
+category: metadata
 description: The most basic item, defining the minimum properties required.
 properties:
   type:

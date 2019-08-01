@@ -3,5 +3,6 @@ title: Delete
 extends: Mark
 role: secondary
 status: stable
+category: prose
 description: Content that is marked for deletion
 properties: {}

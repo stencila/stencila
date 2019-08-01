@@ -3,6 +3,7 @@ title: Table
 extends: CreativeWork
 role: primary
 status: unstable
+category: prose
 description: A table.
 properties:
   rows:

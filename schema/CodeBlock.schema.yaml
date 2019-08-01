@@ -3,5 +3,6 @@ title: CodeBlock
 extends: Code
 role: secondary
 status: stable
+category: code
 description: A code block.
 properties: {}

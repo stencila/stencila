@@ -3,6 +3,7 @@ title: CodeExpr
 extends: SoftwareSourceCode
 role: secondary
 status: unstable
+category: code
 description: An expression defined in programming language source code.
 properties:
   value:

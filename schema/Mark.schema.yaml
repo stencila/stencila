@@ -3,6 +3,7 @@ title: Mark
 extends: Entity
 role: base
 status: stable
+category: metadata
 description: |
   A base class for nodes that mark some other inline content
   in some way (e.g. as being emphasised, or quoted).

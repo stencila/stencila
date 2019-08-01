@@ -3,6 +3,7 @@ title: SoftwareSession
 extends: Thing
 role: primary
 status: experimental
+category: metadata
 description: |
   Represents a runtime session with the resources and image that
   is required by software to execute.

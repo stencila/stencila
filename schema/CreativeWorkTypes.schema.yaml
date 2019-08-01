@@ -1,4 +1,5 @@
 title: CreativeWorkTypes
+category: metadata
 description: Union type for call CreativeWork types.
 anyOf:
   - $ref: CreativeWork

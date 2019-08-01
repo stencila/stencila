@@ -3,6 +3,7 @@ title: TableCell
 extends: Entity
 role: secondary
 status: experimental
+category: prose
 description: |
   A cell within a `Table`.
 properties:

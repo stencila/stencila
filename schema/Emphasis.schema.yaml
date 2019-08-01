@@ -3,5 +3,6 @@ title: Emphasis
 extends: Mark
 role: secondary
 status: stable
+category: prose
 description: Emphasised content.
 properties: {}
