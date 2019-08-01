@@ -35,6 +35,7 @@ export type InlineNodesWithType = Exclude<
 >
 
 export const inlineContentTypes: TypeMap<InlineNodesWithType> = {
+  CiteGroup: 'CiteGroup',
   Code: 'Code',
   CodeBlock: 'CodeBlock',
   CodeExpr: 'CodeExpr',
@@ -61,6 +62,7 @@ export const blockContentTypes: TypeMap<BlockContent> = {
 }
 
 export const creativeWorkTypes: TypeMap<CreativeWork> = {
+  Cite: 'Cite',
   CreativeWork: 'CreativeWork',
   Article: 'Article',
   AudioObject: 'AudioObject',
