@@ -5,11 +5,13 @@
 from typing import Any, Dict, List as Array, Optional, Union
 from enum import Enum
 
-Enum0 = Enum("0", ["ascending", "descending", "unordered"])
+Enum0 = Enum("0", ["normal", "suppressAuthor"])
 
-Enum1 = Enum("1", ["data", "header"])
+Enum1 = Enum("1", ["ascending", "descending", "unordered"])
 
-Enum2 = Enum("2", ["header", "footer"])
+Enum2 = Enum("2", ["data", "header"])
+
+Enum3 = Enum("3", ["header", "footer"])
 
 
 class Entity:
@@ -30,6 +32,25 @@ class Entity:
             self.id = id
         if meta is not None:
             self.meta = meta
+
+
+class CiteGroup(Entity):
+    """A group of `Cite` nodes"""
+
+    items: Array["Cite"]
+
+    def __init__(
+        self,
+        items: Array["Cite"],
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if items is not None:
+            self.items = items
 
 
 class DatatableColumnSchema(Entity):
@@ -422,6 +443,87 @@ class Article(CreativeWork):
             self.title = title
         if environment is not None:
             self.environment = environment
+
+
+class Cite(CreativeWork):
+    """A reference to a CreativeWork that is cited in another CreativeWork."""
+
+    target: str
+    citationMode: Optional["Enum0"]
+    pageEnd: Optional[Union[str, int]]
+    pageStart: Optional[Union[str, int]]
+    pagination: Optional[str]
+    prefix: Optional[str]
+    suffix: Optional[str]
+
+    def __init__(
+        self,
+        target: str,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        citationMode: Optional["Enum0"] = None,
+        content: Optional[Array["Node"]] = None,
+        dateCreated: Optional[str] = None,
+        dateModified: Optional[str] = None,
+        datePublished: Optional[str] = None,
+        description: Optional[str] = None,
+        editors: Optional[Array["Person"]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        pageEnd: Optional[Union[str, int]] = None,
+        pageStart: Optional[Union[str, int]] = None,
+        pagination: Optional[str] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        prefix: Optional[str] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        suffix: Optional[str] = None,
+        text: Optional[str] = None,
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            authors=authors,
+            content=content,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            description=description,
+            editors=editors,
+            funders=funders,
+            id=id,
+            isPartOf=isPartOf,
+            licenses=licenses,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            references=references,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if target is not None:
+            self.target = target
+        if citationMode is not None:
+            self.citationMode = citationMode
+        if pageEnd is not None:
+            self.pageEnd = pageEnd
+        if pageStart is not None:
+            self.pageStart = pageStart
+        if pagination is not None:
+            self.pagination = pagination
+        if prefix is not None:
+            self.prefix = prefix
+        if suffix is not None:
+            self.suffix = suffix
 
 
 class Collection(CreativeWork):
@@ -1152,14 +1254,14 @@ class List(Entity):
     """A list of items."""
 
     items: Array["ListItem"]
-    order: Optional["Enum0"]
+    order: Optional["Enum1"]
 
     def __init__(
         self,
         items: Array["ListItem"],
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        order: Optional["Enum0"] = None
+        order: Optional["Enum1"] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1911,7 +2013,7 @@ class TableCell(Entity):
 
     content: Array["InlineContent"]
     colspan: Optional[int]
-    kind: Optional["Enum1"]
+    kind: Optional["Enum2"]
     name: Optional[str]
     rowspan: Optional[int]
 
@@ -1920,7 +2022,7 @@ class TableCell(Entity):
         content: Array["InlineContent"],
         colspan: Optional[int] = None,
         id: Optional[str] = None,
-        kind: Optional["Enum1"] = None,
+        kind: Optional["Enum2"] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         rowspan: Optional[int] = None
@@ -1945,13 +2047,13 @@ class TableRow(Entity):
     """A row within a Table."""
 
     cells: Array["TableCell"]
-    kind: Optional["Enum2"]
+    kind: Optional["Enum3"]
 
     def __init__(
         self,
         cells: Array["TableCell"],
         id: Optional[str] = None,
-        kind: Optional["Enum2"] = None,
+        kind: Optional["Enum3"] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
