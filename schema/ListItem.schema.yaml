@@ -3,6 +3,7 @@ title: ListItem
 extends: Entity
 role: tertiary
 status: stable
+category: prose
 description: A single item in a list.
 properties:
   content:

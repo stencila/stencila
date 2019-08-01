@@ -3,6 +3,7 @@ title: SoftwareApplication
 extends: CreativeWork
 role: primary
 status: unstable
+category: code
 description: |
   A software application.
 properties:

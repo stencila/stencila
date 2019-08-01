@@ -3,6 +3,7 @@ title: VideoObject
 extends: MediaObject
 role: secondary
 status: stable
+category: data
 description: A video file.
 properties:
   caption:

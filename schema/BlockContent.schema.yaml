@@ -1,4 +1,5 @@
 title: BlockContent
+category: prose
 description: Union type for valid block content.
 anyOf:
   - $ref: CodeBlock

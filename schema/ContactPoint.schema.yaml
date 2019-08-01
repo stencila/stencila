@@ -3,6 +3,7 @@ title: ContactPoint
 extends: Thing
 role: tertiary
 status: unstable
+category: metadata
 description: A contact point—for example, a R&D department.
 properties:
   availableLanguages:
@@ -22,6 +23,6 @@ properties:
       format: email
   telephone:
     '@id': schema:telephone
-    description: "The telephone number of the contact point. Accepted formats: +44 123455, (02)12345, 006645667."
+    description: 'The telephone number of the contact point. Accepted formats: +44 123455, (02)12345, 006645667.'
     type: string
     pattern: '^[+#*\(\)\[\]]*([0-9][ ext+-pw#*\(\)\[\]]*){6,45}$'

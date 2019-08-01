@@ -1,4 +1,5 @@
 title: Node
+category: metadata
 description: Union type for all valid nodes.
 anyOf:
   - type: 'null'

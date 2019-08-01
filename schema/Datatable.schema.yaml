@@ -3,6 +3,7 @@ title: Datatable
 extends: CreativeWork
 role: primary
 status: experimental
+category: data
 description: A table of data.
 properties:
   columns:

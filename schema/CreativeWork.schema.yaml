@@ -3,6 +3,7 @@ title: CreativeWork
 extends: Thing
 role: base
 status: stable
+category: metadata
 description: |
   A creative work, including books, movies, photographs, software programs, etc.
 properties:

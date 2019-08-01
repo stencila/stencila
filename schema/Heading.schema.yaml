@@ -3,6 +3,7 @@ title: Heading
 extends: Entity
 role: secondary
 status: experimental
+category: prose
 description: Heading
 properties:
   depth:

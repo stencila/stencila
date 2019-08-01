@@ -3,6 +3,7 @@ title: Environment
 extends: Thing
 role: primary
 status: experimental
+category: code
 description: A computational environment.
 properties:
   extends:

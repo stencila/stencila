@@ -3,6 +3,7 @@ title: Link
 extends: Entity
 role: secondary
 status: unstable
+category: prose
 description: A hyperlink to other pages, sections within the same document, resources, or any URL.
 properties:
   content:

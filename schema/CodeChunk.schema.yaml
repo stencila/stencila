@@ -3,6 +3,7 @@ title: CodeChunk
 extends: SoftwareSourceCode
 role: secondary
 status: unstable
+category: code
 description: A executable chunk of code.
 properties:
   outputs:

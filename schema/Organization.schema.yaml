@@ -3,6 +3,7 @@ title: Organization
 extends: Thing
 role: secondary
 status: unstable
+category: metadata
 description: An organization such as a school, NGO, corporation, club, etc.
 properties:
   address:

@@ -5,11 +5,13 @@
 from typing import Any, Dict, List as Array, Optional, Union
 from enum import Enum
 
-Enum0 = Enum("0", ["ascending", "descending", "unordered"])
+Enum0 = Enum("0", ["normal", "suppressAuthor"])
 
-Enum1 = Enum("1", ["data", "header"])
+Enum1 = Enum("1", ["ascending", "descending", "unordered"])
 
-Enum2 = Enum("2", ["header", "footer"])
+Enum2 = Enum("2", ["data", "header"])
+
+Enum3 = Enum("3", ["header", "footer"])
 
 
 class Entity:
@@ -30,6 +32,68 @@ class Entity:
             self.id = id
         if meta is not None:
             self.meta = meta
+
+
+class Cite(Entity):
+    """A reference to a CreativeWork that is cited in another CreativeWork."""
+
+    target: str
+    citationMode: Optional["Enum0"]
+    pageEnd: Optional[Union[str, int]]
+    pageStart: Optional[Union[str, int]]
+    pagination: Optional[str]
+    prefix: Optional[str]
+    suffix: Optional[str]
+
+    def __init__(
+        self,
+        target: str,
+        citationMode: Optional["Enum0"] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        pageEnd: Optional[Union[str, int]] = None,
+        pageStart: Optional[Union[str, int]] = None,
+        pagination: Optional[str] = None,
+        prefix: Optional[str] = None,
+        suffix: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if target is not None:
+            self.target = target
+        if citationMode is not None:
+            self.citationMode = citationMode
+        if pageEnd is not None:
+            self.pageEnd = pageEnd
+        if pageStart is not None:
+            self.pageStart = pageStart
+        if pagination is not None:
+            self.pagination = pagination
+        if prefix is not None:
+            self.prefix = prefix
+        if suffix is not None:
+            self.suffix = suffix
+
+
+class CiteGroup(Entity):
+    """A group of `Cite` nodes"""
+
+    items: Array["Cite"]
+
+    def __init__(
+        self,
+        items: Array["Cite"],
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if items is not None:
+            self.items = items
 
 
 class DatatableColumnSchema(Entity):
@@ -1152,14 +1216,14 @@ class List(Entity):
     """A list of items."""
 
     items: Array["ListItem"]
-    order: Optional["Enum0"]
+    order: Optional["Enum1"]
 
     def __init__(
         self,
         items: Array["ListItem"],
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        order: Optional["Enum0"] = None
+        order: Optional["Enum1"] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1911,7 +1975,7 @@ class TableCell(Entity):
 
     content: Array["InlineContent"]
     colspan: Optional[int]
-    kind: Optional["Enum1"]
+    kind: Optional["Enum2"]
     name: Optional[str]
     rowspan: Optional[int]
 
@@ -1920,7 +1984,7 @@ class TableCell(Entity):
         content: Array["InlineContent"],
         colspan: Optional[int] = None,
         id: Optional[str] = None,
-        kind: Optional["Enum1"] = None,
+        kind: Optional["Enum2"] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         rowspan: Optional[int] = None
@@ -1945,13 +2009,13 @@ class TableRow(Entity):
     """A row within a Table."""
 
     cells: Array["TableCell"]
-    kind: Optional["Enum2"]
+    kind: Optional["Enum3"]
 
     def __init__(
         self,
         cells: Array["TableCell"],
         id: Optional[str] = None,
-        kind: Optional["Enum2"] = None,
+        kind: Optional["Enum3"] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
@@ -2066,7 +2130,7 @@ BlockContent = Union["CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "P
 """
 Union type for call CreativeWork types.
 """
-CreativeWorkTypes = Union["Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
+CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
 
 
 """

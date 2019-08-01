@@ -3,6 +3,7 @@ title: DatatableColumnSchema
 extends: Entity
 role: tertiary
 status: unstable
+category: data
 description: |
   A schema specifying the data values that are valid within a Datatable column.
 properties:

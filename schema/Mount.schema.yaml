@@ -3,6 +3,7 @@ title: Mount
 extends: Thing
 role: tertiary
 status: experimental
+category: code
 description: |
   Describes a volume mount from a host to container.
 properties:

@@ -3,6 +3,7 @@ title: Quote
 extends: Mark
 role: secondary
 status: stable
+category: prose
 description: Inline, quoted content.
 properties:
   citation:

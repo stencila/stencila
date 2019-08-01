@@ -3,6 +3,7 @@ title: Code
 extends: Thing
 role: secondary
 status: stable
+category: code
 description: Inline code.
 properties:
   language:

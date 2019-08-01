@@ -22,6 +22,72 @@ Entity <- function(
 }
 
 
+#' A reference to a CreativeWork that is cited in another CreativeWork.
+#'
+#' @name Cite
+#' @param target The target of the citation (URL or reference ID). \bold{Required}.
+#' @param citationMode How the cite is rendered in the surrounding text.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param pageEnd The page on which the work ends; for example "138" or "xvi".
+#' @param pageStart The page on which the work starts; for example "135" or "xiii".
+#' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
+#' @param prefix A prefix to show before the citation.
+#' @param suffix A suffix to show after the citation.
+#' @seealso \code{\link{Entity}}
+#' @export
+Cite <- function(
+  target,
+  citationMode,
+  id,
+  meta,
+  pageEnd,
+  pageStart,
+  pagination,
+  prefix,
+  suffix
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Cite")
+  self[["target"]] <- check_property("Cite", "target", TRUE, missing(target), "character", target)
+  self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("normal", "suppressAuthor"), citationMode)
+  self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
+  self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
+  self[["pagination"]] <- check_property("Cite", "pagination", FALSE, missing(pagination), "character", pagination)
+  self[["prefix"]] <- check_property("Cite", "prefix", FALSE, missing(prefix), "character", prefix)
+  self[["suffix"]] <- check_property("Cite", "suffix", FALSE, missing(suffix), "character", suffix)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' A group of `Cite` nodes
+#'
+#' @name CiteGroup
+#' @param items One or more `Cite`s to be referenced in the same surrounding text. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @seealso \code{\link{Entity}}
+#' @export
+CiteGroup <- function(
+  items,
+  id,
+  meta
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("CiteGroup")
+  self[["items"]] <- check_property("CiteGroup", "items", TRUE, missing(items), Array("Cite"), items)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
 #' A schema specifying the data values that are valid within a Datatable column.
 #'
 #' @name DatatableColumnSchema
@@ -2538,7 +2604,7 @@ BlockContent = Union("CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "P
 #' Union type for call CreativeWork types.
 #'
 #' @export
-CreativeWorkTypes = Union("Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject")
+CreativeWorkTypes = Union("CreativeWork", "Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject")
 
 
 #' Union type for valid inline content.
