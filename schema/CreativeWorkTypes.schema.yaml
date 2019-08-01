@@ -1,6 +1,7 @@
 title: CreativeWorkTypes
 description: Union type for call CreativeWork types.
 anyOf:
+  - $ref: CreativeWork
   - $ref: Article
   - $ref: AudioObject
   - $ref: CodeChunk
