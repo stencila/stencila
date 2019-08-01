@@ -15,16 +15,9 @@ export interface Thing extends Entity {
  * @returns {Thing}
  */
 export const thing = (
-  options: {
-    alternateNames?: Array<string>
-    description?: string
-    id?: string
-    meta?: {[key: string]: any}
-    name?: string
-    url?: string
-  } = {}
+  options: OptionalProps<Thing> = {}
 ): Thing => ({
-  ...options,
+  ...(compact(options)),
   type: 'Thing'
 })
 
