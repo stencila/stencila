@@ -31,6 +31,21 @@ const compact = <O extends object>(o: O): O =>
       v === undefined ? compactedO : { ...compactedO, [k]: v },
     {} as O
   )
+
+// Create a type consisting of just the optional property keys
+type OptionalKeys<T extends object> = Exclude<{
+  [K in keyof T]: T extends Record<K, T[K]>
+    ? never
+    : K
+}[keyof T], undefined>
+
+// Extract just the optional properties of a Schema.
+// This is used for the options argument in the factory functions
+type OptionalProps<T extends object> = Partial<{
+  [K in OptionalKeys<T>]: T[K]
+}>
+
+
 ${typesInterface(schemas)}
 
 ${typesCode}
@@ -105,11 +120,7 @@ export const typeGenerator = (schema: Schema): string => {
   code += required
     .map(({ name, schema }) => `  ${name}: ${schemaToType(schema)},\n`)
     .join('')
-  code += `  options: {\n`
-  code += optional
-    .map(({ name, schema }) => `    ${name}?: ${schemaToType(schema)}`)
-    .join('\n')
-  code += `\n  } = {}\n`
+  code += `  options: OptionalProps<${title}> = {}\n`
   code += `): ${title} => ({\n`
   code += required.map(({ name }) => `  ${name},\n`).join('')
   code += `  ...(compact(options)),\n`
