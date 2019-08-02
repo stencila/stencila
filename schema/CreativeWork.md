@@ -63,3 +63,9 @@ For example usage see:
 "version": "4"
 }
 ```
+
+# References
+
+- Representing bibliographic data in JSON https://github.com/rdmpage/bibliographic-metadata-json
+- Wallis, R and Scott, D (2014) Schema.org Support for Bibliographic Relationships and Periodicals. http://blog.schema.org/2014/09/schemaorg-support-for-bibliographic_2.html
+- Eaton, A JSON-LD representation of a scholarly article https://gist.github.com/hubgit/005ce6b78e4700374bc8
