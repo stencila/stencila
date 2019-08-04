@@ -75,7 +75,7 @@ export const is = <Ts extends Entity>(type: keyof TypeMap<Ts>) => {
  */
 export const isA = <K extends keyof Types>(
   type: K,
-  node: Node
+  node?: Node
 ): node is Types[K] => {
   return isEntity(node) && node.type === type
 }
@@ -103,7 +103,7 @@ export const isType = <K extends keyof Types>(type: K) => (
  * @returns {(node is null | boolean | number | string)} Returns true if node is one of `null`, `boolean`, `string`, or `number`
  */
 export const isPrimitive = (
-  node: Node
+  node?: Node
 ): node is null | boolean | number | string => {
   const type = typeof node
   if (node === null) return true
@@ -131,7 +131,7 @@ export const isEntity = (node?: Node): node is Entity => {
  * @param {Node} node The node to get the type for
  * @returns {(node is InlineNodesWithType)}
  */
-export const isInlineEntity = (node: Node): node is InlineNodesWithType => {
+export const isInlineEntity = (node?: Node): node is InlineNodesWithType => {
   return typeof node === 'object' && isEntity(node)
     ? typeIs(inlineContentTypes)(node.type)
     : false
@@ -142,7 +142,7 @@ export const isInlineEntity = (node: Node): node is InlineNodesWithType => {
  * @param {Node} node The node to get the type for
  * @returns {(node is InlineContent)}
  */
-export const isInlineContent = (node: Node): node is InlineContent => {
+export const isInlineContent = (node?: Node): node is InlineContent => {
   return isPrimitive(node) || isInlineEntity(node)
 }
 
