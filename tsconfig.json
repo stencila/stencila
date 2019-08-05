@@ -3,6 +3,5 @@
   "compilerOptions": {
     "outDir": "dist"
   },
-  "include": ["ts"],
-  "exclude": ["**/bindings/*", "**/__tests__/*", "**/*.test.ts"]
+  "files": ["ts/index.ts"]
 }

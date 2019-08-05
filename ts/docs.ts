@@ -14,6 +14,7 @@ import path from 'path'
 import log from './log'
 import { Article, Code, code, Link, link, Node, Strong } from './types'
 import { isArticle } from './util/guards'
+import Schema from './schema.d'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 docs()
@@ -232,7 +233,7 @@ function schema2Article(schema: { [key: string]: any }): Article {
     rows: Object.entries(properties)
       .sort(([a], [b]) => requiredPropsFirst(requiredProps)(a, b))
       .map(([name, prop]: [string, any]) => {
-        const { description = '', type = '', from = '' } = prop
+        const { description = '', from = '' } = prop
         return {
           type: 'TableRow',
           cells: [

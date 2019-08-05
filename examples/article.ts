@@ -1,4 +1,4 @@
-import { Article } from '../types'
+import { Article } from '../ts/types'
 
 export const minimal: Article = {
   type: 'Article',

@@ -4,7 +4,7 @@
 
 import fs from 'fs-extra'
 import path from 'path'
-import { read } from '.'
+import { read } from './utils'
 
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 

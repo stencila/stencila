@@ -10,20 +10,20 @@
  */
 
 import * as typescript from 'typescript'
-import { build, typeGenerator, unionGenerator } from '../ts/bindings/typescript'
-import { schema, snapshot } from './helpers'
+import { build, typeGenerator, unionGenerator } from './typescript'
+import { schema, snapshot } from '../__tests__/helpers'
 
 test('generators', async () => {
-  expect(await typeGenerator(await schema('Thing.schema.json'))).toMatchFile(
-    snapshot('Thing.ts')
+  expect(typeGenerator(await schema('Thing.schema.json'))).toMatchFile(
+    snapshot(__dirname, 'Thing.ts')
   )
-  expect(await typeGenerator(await schema('Person.schema.json'))).toMatchFile(
-    snapshot('Person.ts')
+  expect(typeGenerator(await schema('Person.schema.json'))).toMatchFile(
+    snapshot(__dirname, 'Person.ts')
   )
 
-  expect(
-    await unionGenerator(await schema('BlockContent.schema.json'))
-  ).toMatchFile(snapshot('BlockContent.ts'))
+  expect(unionGenerator(await schema('BlockContent.schema.json'))).toMatchFile(
+    snapshot(__dirname, 'BlockContent.ts')
+  )
 })
 
 /**

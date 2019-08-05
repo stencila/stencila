@@ -8,7 +8,7 @@ matrix:
       script:
         - npm run lint
         - npm run build
-        - npm run test
+        - npm run test:cover
         - npm run docs
 
       after_success:

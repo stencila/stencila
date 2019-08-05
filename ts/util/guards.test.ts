@@ -6,9 +6,9 @@ import {
   isType,
   nodeIs,
   typeIs
-} from '../guards'
-import { TypeMap } from '../type-map'
-import { blockContentTypes, inlineContentTypes } from '../type-maps'
+} from './guards'
+import { TypeMap } from './type-map'
+import { blockContentTypes, inlineContentTypes } from './type-maps'
 
 const primitives = [null, true, false, NaN, 2, 'string']
 
