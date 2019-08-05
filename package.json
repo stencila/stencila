@@ -6,7 +6,7 @@
     "dist"
   ],
   "main": "dist/index.js",
-  "types": "dist/types.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
     "lint": "npx eslint 'ts/**/*.{js,ts}' --fix",
