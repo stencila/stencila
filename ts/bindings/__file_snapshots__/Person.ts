@@ -4,16 +4,16 @@
 export interface Person extends Thing {
   type: 'Person'
   address?: string
-  affiliations?: Organization[]
-  emails?: string[]
-  familyNames?: string[]
-  funders?: (Organization | Person)[]
-  givenNames?: string[]
+  affiliations?: Array<Organization>
+  emails?: Array<string>
+  familyNames?: Array<string>
+  funders?: Array<Organization | Person>
+  givenNames?: Array<string>
   honorificPrefix?: string
   honorificSuffix?: string
   jobTitle?: string
-  memberOf?: Organization[]
-  telephoneNumbers?: string[]
+  memberOf?: Array<Organization>
+  telephoneNumbers?: Array<string>
 }
 
 /**
@@ -21,7 +21,10 @@ export interface Person extends Thing {
  * @param options Optional properties
  * @returns {Person}
  */
-export const person = (options: OptionalProps<Person> = {}): Person => ({
-  ...compact(options),
+export const person = (
+  options: OptionalProps<Person> = {}
+): Person => ({
+  ...(compact(options)),
   type: 'Person'
 })
+

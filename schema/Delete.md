@@ -14,6 +14,7 @@ Content that is marked for deletion
 | **type _(required)_**    | `string` | The name of the type and all descendant types. | [Entity](./Entity.html) |
 | id                       | `string` | The identifier for this item.                  | [Entity](./Entity.html) |
 | meta                     | `object` | Metadata associated with this item.            | [Entity](./Entity.html) |
+
 :::
 
 # Examples
@@ -104,12 +105,7 @@ The equivalent of `Delete` in Pandoc is the [`Strikeout`](https://github.com/jgm
       ]
     }
   ],
-  "pandoc-api-version": [
-    1,
-    17,
-    5,
-    4
-  ],
+  "pandoc-api-version": [1, 17, 5, 4],
   "meta": {}
 }
 ```
