@@ -1,3 +1,15 @@
+# [0.24.0](https://github.com/stencila/schema/compare/v0.23.0...v0.24.0) (2019-08-05)
+
+
+### Bug Fixes
+
+* **Schema:** Inherit propertyAliases ([a29f215](https://github.com/stencila/schema/commit/a29f215)), closes [#126](https://github.com/stencila/schema/issues/126)
+
+
+### Features
+
+* **Type Guards:** Allow typeGuards to work on undefined nodes ([35a9ba7](https://github.com/stencila/schema/commit/35a9ba7))
+
 # [0.23.0](https://github.com/stencila/schema/compare/v0.22.1...v0.23.0) (2019-08-01)
 
 ### Features
