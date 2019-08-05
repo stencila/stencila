@@ -180,11 +180,13 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
   try {
     const parent = parentSchema(schemas, schema)
     let parentProperties: { [key: string]: Schema } = {}
+    let parentPropertyAliases: { [key: string]: string } = {}
     let parentRequired: string[] = []
     if (parent !== null) {
       // Ensure that the parent schema has been processed (to collect properties)
       processSchema(schemas, parent)
       if (parent.properties !== undefined) parentProperties = parent.properties
+      if (parent.propertyAliases !== undefined) parentPropertyAliases = parent.propertyAliases
       if (parent.required !== undefined) parentRequired = parent.required
     }
 
@@ -240,6 +242,12 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
         ...parentRequired,
         ...(schema.required !== undefined ? schema.required : [])
       ]
+
+      // Extend `propertyAliases`
+      schema.propertyAliases = {
+        ...parentPropertyAliases,
+        ...(schema.propertyAliases !== undefined ? schema.propertyAliases : {})
+      }
 
       // Initialize the `type` property
       if (schema.properties.type !== undefined) {
