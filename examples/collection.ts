@@ -1,4 +1,4 @@
-import { Collection } from '../types'
+import { Collection } from '../ts/types'
 import * as article from './article'
 import * as datatable from './datatable'
 
