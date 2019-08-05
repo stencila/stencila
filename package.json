@@ -9,7 +9,7 @@
   "types": "dist/types.d.ts",
   "scripts": {
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
-    "lint": "npx eslint './**/*.{js,ts}' --fix --env node --env es6 --env jest",
+    "lint": "npx eslint 'ts/**/*.{js,ts}' --fix",
     "test": "npm run build:jsonschema && jest",
     "test:cover": "npm run build:jsonschema && jest --coverage",
     "build": "npm run build:jsonschema && npm run build:ts && npm run build:py && npm run build:r",
@@ -112,6 +112,7 @@
   "eslintConfig": {
     "extends": "@stencila/eslint-config",
     "env": {
+      "es6": true,
       "node": true,
       "jest": true
     }
@@ -119,7 +120,7 @@
   "eslintIgnore": [
     "built",
     "dist",
-    "tests"
+    "__file_snapshots__"
   ],
   "husky": {
     "hooks": {

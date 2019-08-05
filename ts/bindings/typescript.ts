@@ -86,7 +86,7 @@ export const typesInterface = (schemas: Schema[]): string => {
  */
 export const typeGenerator = (schema: Schema): string => {
   const { title = 'Undefined', extends: parent, description } = schema
-  const { own, required, optional } = props(schema)
+  const { own, required } = props(schema)
 
   const type =
     schema.properties !== undefined

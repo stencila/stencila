@@ -13,11 +13,11 @@ import { classGenerator, unionGenerator } from './python'
 import { schema, snapshot } from '../__tests__/helpers'
 
 test('generators', async () => {
-  expect(await classGenerator(await schema('Person.schema.json'))).toMatchFile(
+  expect(classGenerator(await schema('Person.schema.json'))).toMatchFile(
     snapshot(__dirname, 'Person.py')
   )
 
-  expect(
-    await unionGenerator(await schema('BlockContent.schema.json'))
-  ).toMatchFile(snapshot(__dirname, 'BlockContent.py'))
+  expect(unionGenerator(await schema('BlockContent.schema.json'))).toMatchFile(
+    snapshot(__dirname, 'BlockContent.py')
+  )
 })

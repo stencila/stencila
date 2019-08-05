@@ -14,16 +14,16 @@ import { build, typeGenerator, unionGenerator } from './typescript'
 import { schema, snapshot } from '../__tests__/helpers'
 
 test('generators', async () => {
-  expect(await typeGenerator(await schema('Thing.schema.json'))).toMatchFile(
+  expect(typeGenerator(await schema('Thing.schema.json'))).toMatchFile(
     snapshot(__dirname, 'Thing.ts')
   )
-  expect(await typeGenerator(await schema('Person.schema.json'))).toMatchFile(
+  expect(typeGenerator(await schema('Person.schema.json'))).toMatchFile(
     snapshot(__dirname, 'Person.ts')
   )
 
-  expect(
-    await unionGenerator(await schema('BlockContent.schema.json'))
-  ).toMatchFile(snapshot(__dirname, 'BlockContent.ts'))
+  expect(unionGenerator(await schema('BlockContent.schema.json'))).toMatchFile(
+    snapshot(__dirname, 'BlockContent.ts')
+  )
 })
 
 /**

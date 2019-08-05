@@ -78,9 +78,7 @@ if (module.parent === null) build()
  * Read a generated schema file
  */
 export const readSchema = async (type: string): Promise<Schema> => {
-  return await fs.readJSON(
-    path.join(__dirname, '..', 'built', type + '.schema.json')
-  )
+  return fs.readJSON(path.join(__dirname, '..', 'built', type + '.schema.json'))
 }
 
 /**

@@ -7,7 +7,7 @@ import { build, readSchema } from './schema'
 
 // Build schemas
 beforeAll(async () => {
-  return await build()
+  return build()
 })
 
 /**
@@ -16,6 +16,7 @@ beforeAll(async () => {
  */
 test('schemas are valid', async () => {
   const ajv = new Ajv({ jsonPointers: true })
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const metaSchema = require('ajv/lib/refs/json-schema-draft-07.json')
   const validate = ajv.compile(metaSchema)
 
@@ -24,7 +25,7 @@ test('schemas are valid', async () => {
   )
   for (const file of files) {
     const schema = await fs.readJSON(file)
-    if (!validate(schema)) {
+    if (validate(schema) !== true) {
       const message = betterAjvErrors(metaSchema, schema, validate.errors, {
         format: 'cli',
         indent: 2
@@ -41,6 +42,8 @@ test('schemas are valid', async () => {
 test('inheritance', async () => {
   const thing = await readSchema('Thing')
   const person = await readSchema('Person')
+
+  /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 
   // All `Thing` properties are in `Person` properties
   expect(
