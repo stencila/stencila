@@ -1,4 +1,4 @@
-import { article, organization, person } from '../types'
+import { article, organization, person } from './types'
 
 describe('Schema factory functions', () => {
   test('it creates a valid Person node', () => {

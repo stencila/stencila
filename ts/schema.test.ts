@@ -3,13 +3,12 @@ import betterAjvErrors from 'better-ajv-errors'
 import fs from 'fs-extra'
 import globby from 'globby'
 import path from 'path'
-import Schema from '../ts/bindings/schema.d'
+import { build, readSchema } from './schema'
 
-const readSchema = async (type: string): Promise<Schema> => {
-  return await fs.readJSON(
-    path.join(__dirname, '..', 'built', type + '.schema.json')
-  )
-}
+// Build schemas
+beforeAll(async () => {
+  return await build()
+})
 
 /**
  * Check that the `built/*.schema.json` files, generated from `schema/*.schema.yaml` files,
@@ -36,6 +35,9 @@ test('schemas are valid', async () => {
   }
 })
 
+/**
+ * Test inheritance via `extend` keyword
+ */
 test('inheritance', async () => {
   const thing = await readSchema('Thing')
   const person = await readSchema('Person')
@@ -49,7 +51,9 @@ test('inheritance', async () => {
 
   // All `Thing` required properties in `Person` required properties
   expect(
-    (thing.required || []).some(name => !(person.required || []).includes(name))
+    (thing.required || []).some(
+      (name: string) => !(person.required || []).includes(name)
+    )
   ).toBe(false)
 
   // All `Thing` property aliases in `Person` property aliases

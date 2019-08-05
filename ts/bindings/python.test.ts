@@ -9,15 +9,15 @@
  * ```
  */
 
-import { classGenerator, unionGenerator } from '../ts/bindings/python'
-import { schema, snapshot } from './helpers'
+import { classGenerator, unionGenerator } from './python'
+import { schema, snapshot } from '../__tests__/helpers'
 
 test('generators', async () => {
   expect(await classGenerator(await schema('Person.schema.json'))).toMatchFile(
-    snapshot('Person.py')
+    snapshot(__dirname, 'Person.py')
   )
 
   expect(
     await unionGenerator(await schema('BlockContent.schema.json'))
-  ).toMatchFile(snapshot('BlockContent.py'))
+  ).toMatchFile(snapshot(__dirname, 'BlockContent.py'))
 })

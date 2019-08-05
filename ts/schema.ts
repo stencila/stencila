@@ -10,11 +10,11 @@ import globby from 'globby'
 import yaml from 'js-yaml'
 import cloneDeep from 'lodash.clonedeep'
 import path from 'path'
-import log from '../log'
+import log from './log'
 import Schema from './schema.d'
 
-const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', '..', 'schema')
-const SCHEMA_DEST_DIR = path.join(__dirname, '..', '..', 'built')
+const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
+const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'built')
 
 // Create a validation function for JSON Schema for use in `checkSchema`
 const ajv = new Ajv({ jsonPointers: true })
@@ -73,6 +73,15 @@ export const build = async (): Promise<void> => {
  */
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 if (module.parent === null) build()
+
+/**
+ * Read a generated schema file
+ */
+export const readSchema = async (type: string): Promise<Schema> => {
+  return await fs.readJSON(
+    path.join(__dirname, '..', 'built', type + '.schema.json')
+  )
+}
 
 /**
  * Check that a schema is valid, including that,
@@ -186,7 +195,8 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
       // Ensure that the parent schema has been processed (to collect properties)
       processSchema(schemas, parent)
       if (parent.properties !== undefined) parentProperties = parent.properties
-      if (parent.propertyAliases !== undefined) parentPropertyAliases = parent.propertyAliases
+      if (parent.propertyAliases !== undefined)
+        parentPropertyAliases = parent.propertyAliases
       if (parent.required !== undefined) parentRequired = parent.required
     }
 
