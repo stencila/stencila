@@ -1289,7 +1289,6 @@ Environment <- function(
 #'
 #' @name Figure
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param alternatives Alternative representations or formats of the embedded `object`.
 #' @param authors The authors of this creative work.
 #' @param caption A caption to display for the figure.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -1305,7 +1304,6 @@ Environment <- function(
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
-#' @param object The actual content of the figure, usually an image, video or table, but can be any CreativeWork.
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
 #' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
@@ -1317,7 +1315,6 @@ Environment <- function(
 #' @export
 Figure <- function(
   alternateNames,
-  alternatives,
   authors,
   caption,
   content,
@@ -1333,7 +1330,6 @@ Figure <- function(
   licenses,
   meta,
   name,
-  object,
   parts,
   publisher,
   references,
@@ -1366,10 +1362,8 @@ Figure <- function(
     version = version
   )
   self$type <- as_scalar("Figure")
-  self[["alternatives"]] <- check_property("Figure", "alternatives", FALSE, missing(alternatives), Array("CreativeWorkTypes"), alternatives)
   self[["caption"]] <- check_property("Figure", "caption", FALSE, missing(caption), Array("InlineContent"), caption)
   self[["label"]] <- check_property("Figure", "label", FALSE, missing(label), "character", label)
-  self[["object"]] <- check_property("Figure", "object", FALSE, missing(object), "CreativeWorkTypes", object)
   class(self) <- c(class(self), "Entity")
   self
 }

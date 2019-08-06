@@ -16,13 +16,3 @@ properties:
     type: array
     items:
       $ref: InlineContent
-  object:
-    '@id': stencila:object
-    description: The actual content of the figure, usually an image, video or table, but can be any CreativeWork.
-    $ref: CreativeWorkTypes
-  alternatives:
-    '@id': stencila:alternatives
-    description: Alternative representations or formats of the embedded `object`.
-    type: array
-    items:
-      $ref: CreativeWorkTypes

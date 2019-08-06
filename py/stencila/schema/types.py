@@ -1056,15 +1056,12 @@ class Figure(CreativeWork):
     and labels for them.
     """
 
-    alternatives: Optional[Array["CreativeWorkTypes"]]
     caption: Optional[Array["InlineContent"]]
     label: Optional[str]
-    object: Optional["CreativeWorkTypes"]
 
     def __init__(
         self,
         alternateNames: Optional[Array[str]] = None,
-        alternatives: Optional[Array["CreativeWorkTypes"]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         caption: Optional[Array["InlineContent"]] = None,
         content: Optional[Array["Node"]] = None,
@@ -1080,7 +1077,6 @@ class Figure(CreativeWork):
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        object: Optional["CreativeWorkTypes"] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -1112,14 +1108,10 @@ class Figure(CreativeWork):
             url=url,
             version=version
         )
-        if alternatives is not None:
-            self.alternatives = alternatives
         if caption is not None:
             self.caption = caption
         if label is not None:
             self.label = label
-        if object is not None:
-            self.object = object
 
 
 class Heading(Entity):
