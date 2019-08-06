@@ -3,7 +3,7 @@
  * in this repository e.g. generation of `*.json.schema` files by `./schema.ts`.
  */
 
-import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
+import { JSONSchema7 } from 'json-schema'
 
 /**
  * Interface for Stencila `Schema` instances.
@@ -81,9 +81,6 @@ export default interface Schema extends JSONSchema7 {
    * A map of property aliases.
    * Added during schema processing based on the `aliases`
    * of properties.
-   *
-   * TODO: Currently we use `aliases.json`, a separate file,
-   * for storing aliases, but this could be used instead.
    */
   propertyAliases?: { [key: string]: string }
 

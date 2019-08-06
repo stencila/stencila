@@ -7,7 +7,7 @@ import globby from 'globby'
 import path from 'path'
 import toposort from 'toposort'
 import * as schema from '../schema'
-import Schema from '../schema.d'
+import Schema from '../schema-interface'
 
 export type Schema = Schema
 

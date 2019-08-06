@@ -11,7 +11,7 @@ import yaml from 'js-yaml'
 import cloneDeep from 'lodash.clonedeep'
 import path from 'path'
 import log from './log'
-import Schema from './schema.d'
+import Schema from './schema-interface'
 
 const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
 const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'built')
