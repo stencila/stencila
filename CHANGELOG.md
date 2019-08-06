@@ -1,3 +1,10 @@
+## [0.24.1](https://github.com/stencila/schema/compare/v0.24.0...v0.24.1) (2019-08-06)
+
+
+### Bug Fixes
+
+* **Package:** Rename `schema-interface.ts` so it is packaged ([ebd69d0](https://github.com/stencila/schema/commit/ebd69d0))
+
 # [0.24.0](https://github.com/stencila/schema/compare/v0.23.0...v0.24.0) (2019-08-05)
 
 
