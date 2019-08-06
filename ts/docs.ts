@@ -14,7 +14,6 @@ import path from 'path'
 import log from './log'
 import { Article, Code, code, Link, link, Node, Strong } from './types'
 import { isArticle } from './util/guards'
-import Schema from './schema.d'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 docs()
