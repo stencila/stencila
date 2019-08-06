@@ -12,6 +12,16 @@
   --bg-color: #fff;
 }
 
+@custom-selector :--cite-group [itemtype='https://stencila.github.io/schema/CiteGroup'];
+@custom-selector :--cite [itemtype='https://stencila.github.io/schema/Cite'];
+@custom-selector :--creative-work [itemtype='https://schema.org/CreativeWork'];
+@custom-selector :--title [itemprop='title'];
+@custom-selector :--authors [itemprop='authors'];
+@custom-selector :--person [itemtype='https://schema.org/Person'];
+@custom-selector :--publication-issue [itemtype='https://stencila.github.io/schema/PublicationIssue'];
+@custom-selector :--url [itemprop='url'];
+@custom-selector :--abstracts [itemprop='abstracts'];
+
 html,
 body {
   background-color: var(--bg-color);
@@ -298,5 +308,95 @@ blockquote {
   h1 {
     font-size: 2.875rem;
     line-height: 1.56522;
+  }
+}
+
+:--cite-group {
+  list-style: none;
+  counter-reset: cite-counter;
+  margin: 0;
+  padding: 0;
+  font-family: var(--heading-font);
+
+  ol,
+  ul {
+    padding-left: 0;
+    list-style: none;
+  }
+
+  > li {
+    counter-increment: cite-counter;
+    font-size: 0.875rem;
+    line-height: 1.71429;
+    position: relative;
+    margin-bottom: 0.75rem;
+    padding-left: 3rem;
+
+    &::before {
+      content: counter(cite-counter);
+      display: inline-block;
+      text-align: right;
+      font-size: 1rem;
+      font-weight: 600;
+      position: absolute;
+      margin: 0 -2rem;
+    }
+  }
+
+  :--creative-work > :--title {
+    display: inline-block;
+    font-size: 1rem;
+    line-height: 1.5;
+    font-weight: 600;
+    border-bottom: none;
+  }
+
+  :--authors {
+    display: inline;
+
+    :--person {
+      display: inline;
+
+      a {
+        border-bottom: none;
+
+        &::after {
+          content: ', ';
+        }
+      }
+
+      &:last-child a::after {
+        content: normal;
+      }
+    }
+  }
+
+  :--publication-issue,
+  :--abstracts {
+    font-family: var(--body-font);
+  }
+
+  :--url {
+    font-size: 0.6875rem;
+    line-height: 2.18182;
+    border-bottom: none;
+  }
+
+  :--abstracts {
+    li {
+      display: inline;
+
+      a {
+        border-bottom: none;
+      }
+
+      &::after {
+        content: ' | ';
+      }
+
+      &:last-child::after {
+        content: normal;
+      }
+    }
   }
 }
