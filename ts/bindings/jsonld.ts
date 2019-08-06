@@ -1,73 +1,72 @@
 /**
- * Generate `built/stencila.jsonld` files from `schema/*.schema.yaml` files.
+ * Generate `built/*.jsonld` files from `schema/*.schema.yaml` files.
+ *
+ * For custom types (those not defined elsewhere) generates a JSON-LD
+ * file similar to e.g. https://schema.org/Person.jsonld
+ *
+ * For custom properties generates a JSON-LD file similar to
+ * e.g. https://schema.org/sibling.jsonld
  */
 
 import fs from 'fs-extra'
 import path from 'path'
 import { read } from './utils'
 
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
-
 export const build = async (): Promise<void> => {
-  const schemas = await read()
-
   const types: { [key: string]: {} } = {}
   const properties: {
     [key: string]: { '@id': string } & { [key: string]: unknown }
   } = {}
 
-  schemas.map(schema => {
+  const schemas = await read()
+  for (const schema of schemas.values()) {
+    const { '@id': typeId, title, properties: typeProperties } = schema
+
+    // Skip union types like `Node` and `BlockContent` that do not need to
+    // be represented here.
+    if (typeId === undefined || title === undefined || properties === undefined)
+      continue
+
     // Create a schema.org [`Class`](https://meta.schema.org/Class) for those
-    // classes that are defined by this schema, otherwise link to source.
-    const cid = schema['@id']
-    if (cid) {
-      if (cid.startsWith('stencila:') && schema.title) {
-        types[schema.title] = {
-          '@id': cid,
-          '@type': 'schema:Class',
-          'schema:name': schema.title,
-          'schema:description': schema.description
-        }
-      } else if (schema.title) {
-        types[schema.title] = {
-          '@id': cid
-        }
+    // types that are defined by this schema, otherwise link to the class defined
+    // in the other context.
+    if (typeId.startsWith('stencila:')) {
+      types[title] = {
+        '@id': typeId,
+        '@type': 'schema:Class',
+        'schema:name': title,
+        'schema:description': schema.description
       }
     } else {
-      console.error(`Warning: @id is not defined at the top level in ${schema}`)
+      types[title] = {
+        '@id': typeId
+      }
     }
 
-    // Create a [`Property`](https://meta.schema.org/Property)
+    // Create a [`Property`](https://meta.schema.org/Property) for those
+    // properties that are defined by this schema, otherwise link to the property
+    // defined in the other context.
     // TODO: Implement schema:rangeIncludes property - requires the
     // resolving `$refs`. See https://github.com/epoberezkin/ajv/issues/125#issuecomment-408960384
     // for an approach to that.
-    const typeProperties =
-      schema.properties ||
-      (schema.allOf && schema.allOf[1] && schema.allOf[1].properties)
-    if (typeProperties) {
+    if (typeProperties !== undefined) {
       for (const [name, property] of Object.entries(typeProperties)) {
         const pid = property['@id']
-        if (!pid) continue
+        if (pid === undefined) continue
+
         if (pid.startsWith('stencila:')) {
-          if (!properties[name]) {
+          if (properties[name] === undefined) {
             properties[name] = {
               '@id': pid,
               '@type': 'schema:Property',
               'schema:name': name,
               'schema:description': property.description,
-              'schema:domainIncludes': [{ '@id': cid }]
+              'schema:domainIncludes': [{ '@id': typeId }]
             }
           } else {
-            if (properties[name]['@id'] !== pid) {
-              throw new Error(
-                `Property "${name}" has more than one @id "${
-                  properties[name]['@id']
-                }" and "${pid}"`
-              )
-            }
             const domainIncludes = properties[name]['schema:domainIncludes']
             if (Array.isArray(domainIncludes)) {
-              domainIncludes.push({ '@id': cid })
+              domainIncludes.push({ '@id': typeId })
             }
           }
         } else {
@@ -77,7 +76,7 @@ export const build = async (): Promise<void> => {
         }
       }
     }
-  })
+  }
 
   const jsonld = {
     '@context': {
@@ -104,8 +103,8 @@ export const build = async (): Promise<void> => {
     jsonld[key] = value
   }
 
-  fs.ensureDirSync(path.join(__dirname, '..', '..', 'built'))
-  fs.writeJSONSync(
+  await fs.ensureDir(path.join(__dirname, '..', '..', 'built'))
+  await fs.writeJSON(
     path.join(__dirname, '..', '..', 'built', 'stencila.jsonld'),
     jsonld,
     {
