@@ -1050,6 +1050,78 @@ class Environment(Thing):
             self.source = source
 
 
+class Figure(CreativeWork):
+    """
+    Encapsulates one or more images, videos, tables, etc, and provides captions
+    and labels for them.
+    """
+
+    alternatives: Optional[Array["CreativeWorkTypes"]]
+    caption: Optional[Array["InlineContent"]]
+    label: Optional[str]
+    object: Optional["CreativeWorkTypes"]
+
+    def __init__(
+        self,
+        alternateNames: Optional[Array[str]] = None,
+        alternatives: Optional[Array["CreativeWorkTypes"]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        caption: Optional[Array["InlineContent"]] = None,
+        content: Optional[Array["Node"]] = None,
+        dateCreated: Optional[str] = None,
+        dateModified: Optional[str] = None,
+        datePublished: Optional[str] = None,
+        description: Optional[str] = None,
+        editors: Optional[Array["Person"]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        label: Optional[str] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        object: Optional["CreativeWorkTypes"] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        text: Optional[str] = None,
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            authors=authors,
+            content=content,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            description=description,
+            editors=editors,
+            funders=funders,
+            id=id,
+            isPartOf=isPartOf,
+            licenses=licenses,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            references=references,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if alternatives is not None:
+            self.alternatives = alternatives
+        if caption is not None:
+            self.caption = caption
+        if label is not None:
+            self.label = label
+        if object is not None:
+            self.object = object
+
+
 class Heading(Entity):
     """Heading"""
 
@@ -2130,7 +2202,7 @@ BlockContent = Union["CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "P
 """
 Union type for call CreativeWork types.
 """
-CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
+CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
 
 
 """

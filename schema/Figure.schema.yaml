@@ -1,0 +1,28 @@
+title: Figure
+'@id': stencila:Figure
+extends: CreativeWork
+role: primary
+status: experimental
+category: prose
+description: Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
+properties:
+  label:
+    '@id': stencila:label
+    description: A short label for the figure.
+    type: string
+  caption:
+    '@id': schema:caption
+    description: A caption to display for the figure.
+    type: array
+    items:
+      $ref: InlineContent
+  object:
+    '@id': stencila:object
+    description: The actual content of the figure, usually an image, video or table, but can be any CreativeWork.
+    $ref: CreativeWorkTypes
+  alternatives:
+    '@id': stencila:alternatives
+    description: Alternative representations or formats of the embedded `object`.
+    type: array
+    items:
+      $ref: CreativeWorkTypes

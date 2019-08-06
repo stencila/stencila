@@ -71,6 +71,7 @@ export const creativeWorkTypes: TypeMap<CreativeWork> = {
   Collection: 'Collection',
   Datatable: 'Datatable',
   ImageObject: 'ImageObject',
+  Figure: 'Figure',
   MediaObject: 'MediaObject',
   Periodical: 'Periodical',
   PublicationIssue: 'PublicationIssue',
