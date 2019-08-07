@@ -2,7 +2,7 @@
 
 This package provides R bindings for [Stencila Schema](https://stencila.github.io/schema/).
 
-### Install
+## Install
 
 This package isn't on CRAN yet, but you can install it from this repository using the [`devtools`](https://github.com/hadley/devtools) package,
 
