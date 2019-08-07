@@ -12,7 +12,7 @@ from setuptools import setup, Command
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
-with io.open(os.path.join(HERE, 'README-python.md'), encoding='utf-8') as f:
+with io.open(os.path.join(HERE, 'README.md'), encoding='utf-8') as f:
     long_description = '\n' + f.read()
 
 
