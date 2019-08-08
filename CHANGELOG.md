@@ -1,3 +1,10 @@
+# [0.25.0](https://github.com/stencila/schema/compare/v0.24.1...v0.25.0) (2019-08-08)
+
+
+### Features
+
+* Add Figure schema ([b031afb](https://github.com/stencila/schema/commit/b031afb))
+
 ## [0.24.1](https://github.com/stencila/schema/compare/v0.24.0...v0.24.1) (2019-08-06)
 
 
