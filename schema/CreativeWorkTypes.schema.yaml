@@ -9,6 +9,7 @@ anyOf:
   - $ref: CodeExpr
   - $ref: Collection
   - $ref: Datatable
+  - $ref: Figure
   - $ref: ImageObject
   - $ref: MediaObject
   - $ref: Periodical
