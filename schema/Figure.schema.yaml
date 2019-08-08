@@ -15,4 +15,4 @@ properties:
     description: A caption to display for the figure.
     type: array
     items:
-      $ref: InlineContent
+      $ref: Node

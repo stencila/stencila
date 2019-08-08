@@ -1362,7 +1362,7 @@ Figure <- function(
     version = version
   )
   self$type <- as_scalar("Figure")
-  self[["caption"]] <- check_property("Figure", "caption", FALSE, missing(caption), Array("InlineContent"), caption)
+  self[["caption"]] <- check_property("Figure", "caption", FALSE, missing(caption), Array("Node"), caption)
   self[["label"]] <- check_property("Figure", "label", FALSE, missing(label), "character", label)
   class(self) <- c(class(self), "Entity")
   self

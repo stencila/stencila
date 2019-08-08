@@ -1056,14 +1056,14 @@ class Figure(CreativeWork):
     and labels for them.
     """
 
-    caption: Optional[Array["InlineContent"]]
+    caption: Optional[Array["Node"]]
     label: Optional[str]
 
     def __init__(
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        caption: Optional[Array["InlineContent"]] = None,
+        caption: Optional[Array["Node"]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[str] = None,
         dateModified: Optional[str] = None,
