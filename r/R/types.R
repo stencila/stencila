@@ -1795,6 +1795,33 @@ Paragraph <- function(
 }
 
 
+#' A parameter that can be set and used in evaluated code.
+#'
+#' @name Parameter
+#' @param dataType The type of data this parameter accepts. \bold{Required}.
+#' @param name The name the parameter is referred to in code. Should be in the format ([A-z_][A-z0-9_]+) \bold{Required}.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @seealso \code{\link{Entity}}
+#' @export
+Parameter <- function(
+  dataType,
+  name,
+  id,
+  meta
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Parameter")
+  self[["dataType"]] <- check_property("Parameter", "dataType", TRUE, missing(dataType), Enum("string", "int", "float", "boolean", "json"), dataType)
+  self[["name"]] <- check_property("Parameter", "name", TRUE, missing(name), "character", name)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
 #' A periodical publication.
 #'
 #' @name Periodical
