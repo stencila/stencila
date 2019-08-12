@@ -3,12 +3,7 @@ import betterAjvErrors from 'better-ajv-errors'
 import fs from 'fs-extra'
 import globby from 'globby'
 import path from 'path'
-import { build, readSchema } from './schema'
-
-// Build schemas
-beforeAll(async () => {
-  return build()
-})
+import { readSchema } from './schema'
 
 /**
  * Check that the `public/*.schema.json` files, generated from `schema/*.schema.yaml` files,

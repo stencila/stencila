@@ -77,6 +77,7 @@
     "setupFilesAfterEnv": [
       "<rootDir>/ts/__tests__/matchers.ts"
     ],
+    "globalSetup": "<rootDir>/ts/__tests__/setup.ts",
     "collectCoverageFrom": [
       "ts/**/*.ts",
       "!ts/**/*.d.ts",
