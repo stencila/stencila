@@ -17,9 +17,6 @@ export type Schema = Schema
 export async function read(
   glob: string = path.join(__dirname, '..', '..', 'public', '*.schema.json')
 ): Promise<Schema[]> {
-  // Ensure `*.schema.json` files are up to date
-  await schema.build()
-
   // Read in the schemas
   const files = await globby(glob)
   return Promise.all(

@@ -3,7 +3,18 @@ import betterAjvErrors from 'better-ajv-errors'
 import fs from 'fs-extra'
 import globby from 'globby'
 import path from 'path'
-import { readSchema } from './schema'
+import { build, readSchema } from './schema'
+
+/**
+ * Test build function works.
+ *
+ * Do not cleanup to avoid interfering with
+ * other tests that may require the schemas and that
+ * may be running in parallel.
+ */
+test('build', async () => {
+  await build(false)
+})
 
 /**
  * Check that the `public/*.schema.json` files, generated from `schema/*.schema.yaml` files,
