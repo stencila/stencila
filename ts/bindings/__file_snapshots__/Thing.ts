@@ -2,7 +2,7 @@
  * The most generic type of item.
  */
 export interface Thing extends Entity {
-  type: 'Thing' | 'Article' | 'AudioObject' | 'Brand' | 'Code' | 'CodeBlock' | 'CodeChunk' | 'CodeExpr' | 'Collection' | 'ContactPoint' | 'CreativeWork' | 'Datatable' | 'DatatableColumn' | 'Environment' | 'Figure' | 'ImageObject' | 'MediaObject' | 'Mount' | 'Organization' | 'Periodical' | 'Person' | 'Product' | 'PublicationIssue' | 'PublicationVolume' | 'ResourceParameters' | 'SoftwareApplication' | 'SoftwareSession' | 'SoftwareSourceCode' | 'Table' | 'VideoObject'
+  type: 'Thing' | 'Article' | 'AudioObject' | 'Brand' | 'Collection' | 'ContactPoint' | 'CreativeWork' | 'Datatable' | 'DatatableColumn' | 'Environment' | 'Figure' | 'ImageObject' | 'MediaObject' | 'Mount' | 'Organization' | 'Periodical' | 'Person' | 'Product' | 'PublicationIssue' | 'PublicationVolume' | 'ResourceParameters' | 'SoftwareApplication' | 'SoftwareSession' | 'SoftwareSourceCode' | 'Table' | 'VideoObject'
   alternateNames?: Array<string>
   description?: string
   name?: string

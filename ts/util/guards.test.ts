@@ -134,7 +134,7 @@ describe('isInlineEntity', () => {
     expect(isInlineEntity({ type: 'Paragraph' })).toBe(false))
 
   test('it returns true for Objects containing a "type" key found in the typeMap', () =>
-    expect(isInlineEntity({ type: 'CodeExpr' })).toBe(true))
+    expect(isInlineEntity({ type: 'CodeExpression' })).toBe(true))
 })
 
 describe('isInlineContent', () => {
@@ -142,10 +142,9 @@ describe('isInlineContent', () => {
     primitives.map(type => expect(isInlineContent(type)).toBe(true))
   })
 
-  // TODO: Revisit/revise Code schema (Code, CodeBlock, CodeExpression, & CodeChunk)
-  test.skip('returns false for BlockContent types ', () => {
+  test('returns false for BlockContent types ', () => {
     Object.values(blockContentTypes).map(type => {
-      expect(isInlineContent(type)).toBe(false)
+      expect(isInlineContent({type})).toBe(false)
     })
 
     expect.assertions(Object.values(blockContentTypes).length)
@@ -153,7 +152,7 @@ describe('isInlineContent', () => {
 
   test('returns true for InlineContent types ', () => {
     Object.values(inlineContentTypes).map(type => {
-      expect(isInlineContent(type)).toBe(true)
+      expect(isInlineContent({type})).toBe(true)
     })
 
     expect.assertions(Object.values(inlineContentTypes).length)
