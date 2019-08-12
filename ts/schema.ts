@@ -12,6 +12,7 @@ import cloneDeep from 'lodash.clonedeep'
 import path from 'path'
 import log from './log'
 import Schema from './schema-interface'
+import del from 'del'
 
 const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
 const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'public')
@@ -26,6 +27,9 @@ const validateSchema = ajv.compile(metaSchema)
  * Generate `public/*.schema.json` files from `schema/*.schema.yaml` files.
  */
 export const build = async (): Promise<void> => {
+  // Clean up old files
+  del('*.schema.json', {cwd: SCHEMA_DEST_DIR})
+
   // Asynchronously read all the schema definition YAML files into a map of objects
   const files = await globby('*.schema.yaml', { cwd: SCHEMA_SOURCE_DIR })
   const schemas = new Map<string, Schema>(
