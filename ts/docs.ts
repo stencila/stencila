@@ -12,7 +12,7 @@ import { flatten } from 'lodash'
 import path from 'path'
 // The main reason this is imported is to configure the log handling
 import log from './log'
-import { Article, Code, code, Link, link, Node, Strong } from './types'
+import { Article, CodeFragment, codeFragment, Link, link, Node, Strong } from './types'
 import { isArticle } from './util/guards'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -136,11 +136,11 @@ const intersperse = <T, S extends T>(arr: T[], separator: S): (T | S)[] =>
 
 const linkifyReference = (ref: string): Link => {
   const value = ref.replace('.schema.json', '')
-  return link([code(value)], `./${value}.html`)
+  return link([codeFragment(value)], `./${value}.html`)
 }
 
-const formattedType = (type: string, format: string): Code =>
-  code(`${type}<${format}>`)
+const formattedType = (type: string, format: string): CodeFragment =>
+  codeFragment(`${type}<${format}>`)
 
 /**
  * Formats a sub-schema inside with the correct formatting. Primarily used for
@@ -152,11 +152,11 @@ const formattedType = (type: string, format: string): Code =>
  * @returns {Node[]} Stencila Node tree
  */
 const subType = (prefix: string, subTypes: Node[], suffix: string): Node[] => [
-  code(prefix),
+  codeFragment(prefix),
   '​', // These quotes are not empty, they contain a zero-width space character to prevent Markdown decoding errors
   ...subTypes,
   '​', // These quotes are not empty, they contain a zero-width space character to prevent Markdown decoding errors
-  code(suffix)
+  codeFragment(suffix)
 ]
 
 const orSeparator = ' | '
@@ -185,7 +185,7 @@ const encodeContents = (content: any): (Node)[] => {
   if (content.enum) {
     return subType(
       'enum<',
-      intersperse<Node, string>(content.enum.map(code), orSeparator),
+      intersperse<Node, string>(content.enum.map(codeFragment), orSeparator),
       '>'
     )
   }
@@ -203,10 +203,10 @@ const encodeContents = (content: any): (Node)[] => {
   }
 
   if (content.codec) {
-    return [code(`codec<${content.codec}>`)]
+    return [codeFragment(`codec<${content.codec}>`)]
   }
 
-  return [code(content.type)]
+  return [codeFragment(content.type)]
 }
 
 /**
