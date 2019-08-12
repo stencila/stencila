@@ -1,0 +1,14 @@
+title: TupleSchema
+'@id': stencila:TupleSchema
+extends: Entity
+role: validation
+status: unstable
+category: data
+description: A schema specifying constraints on an array of heterogeneous items.
+properties:
+  items:
+    '@id': stencila:items
+    description: An array of schemas specifying the constraints on each successive item in the array.
+    type: array
+    items:
+      $ref: Schema

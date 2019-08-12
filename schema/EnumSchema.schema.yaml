@@ -1,0 +1,15 @@
+title: EnumSchema
+'@id': stencila:EnumSchema
+extends: Entity
+role: validation
+status: unstable
+category: data
+description: A schema specifying that a node must be one of several values.
+$comment: Analogous to the JSON Schema `enum` keyword.
+properties:
+  values:
+    '@id': stencila:values
+    description: A node is valid if it is equal to any of these values.
+    type: array
+    items:
+      $ref: Node

@@ -1,0 +1,32 @@
+title: ArraySchema
+'@id': stencila:ArraySchema
+extends: Entity
+role: validation
+status: unstable
+category: data
+description: A schema specifying constraints on an array node.
+properties:
+  items:
+    '@id': stencila:items
+    description: Another data schema node specifying the constraints on all items in the array.
+    allOf:
+      - $ref: Schema
+  contains:
+    '@id': stencila:contains
+    description: An array node is valid if at least one of its items is valid against the `contains` schema.
+    allOf:
+      - $ref: Schema
+  minItems:
+    '@id': stencila:minItems
+    description: An array node is valid if its size is greater than, or equal to, this value.
+    type: number
+    minimum: 0
+  maxItems:
+    '@id': stencila:maxItems
+    description: An array node is valid if its size is less than, or equal to, this value.
+    type: number
+    minimum: 0
+  uniqueItems:
+    '@id': stencila:uniqueItems
+    description: A flag to indicate that each value in the array should be unique.
+    type: boolean

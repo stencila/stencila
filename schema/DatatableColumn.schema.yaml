@@ -10,7 +10,7 @@ properties:
     '@id': stencila:schema
     description: The schema to use to validate data in the column.
     allOf:
-      - $ref: DatatableColumnSchema
+      - $ref: ArraySchema
   values:
     '@id': stencila:values
     description: The data values of the column.

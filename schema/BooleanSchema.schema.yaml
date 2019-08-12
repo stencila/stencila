@@ -1,0 +1,11 @@
+title: BooleanSchema
+'@id': stencila:BooleanSchema
+extends: Entity
+role: validation
+status: unstable
+category: data
+description: A schema specifying that a node must be a boolean value.
+$comment: |
+  A node will be valid against this schema if it is either `true` or `false.
+  Analagous to the JSON Schema `boolean` type.
+properties: {}

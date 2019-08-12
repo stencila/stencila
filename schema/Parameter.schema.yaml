@@ -7,20 +7,22 @@ category: code
 description: A parameter that can be set and used in evaluated code.
 properties:
   name:
-    '@id': stencila:name
-    description: The name the parameter is referred to in code. Should be in the format ([A-z_][A-z0-9_]+)
+    '@id': schema:name
+    description: The name the parameter is referred to in code.
     type: string
-    # todo: can we have `format: <some regex>` here?
-  dataType:
-    '@id': stencila:dataType
-    description: The type of data this parameter accepts.
-    type: string
-    enum:
-      - string
-      - int
-      - float
-      - boolean
-      - json
+    pattern: '[a-z_][A-z0-9_]*'
+    $comment: |
+      This regex allows for snake_case and camelCase names but excludes
+      PascalCase for parameter names.
+  schema:
+    '@id': stencila:schema
+    description: The schema that the value of the parameter will be validated against.
+    allOf:
+      - $ref: Schema
+  default:
+    '@id': stencila:value
+    description: The default value of the parameter.
+    allOf:
+      - $ref: Node
 required:
   - name
-  - dataType

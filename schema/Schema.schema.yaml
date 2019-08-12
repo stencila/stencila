@@ -1,0 +1,12 @@
+title: Schema
+category: data
+description: Union type for all data schemas.
+anyOf:
+  - $ref: ConstantSchema
+  - $ref: EnumSchema
+  - $ref: BooleanSchema
+  - $ref: NumberSchema
+  - $ref: IntegerSchema
+  - $ref: StringSchema
+  - $ref: ArraySchema
+  - $ref: TupleSchema

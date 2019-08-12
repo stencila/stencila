@@ -1,0 +1,34 @@
+title: StringSchema
+'@id': stencila:StringSchema
+extends: Entity
+role: validation
+status: unstable
+category: data
+description: A schema specifying constraints on a string node.
+$comment: |
+  A node will be valid against the schema if it is a string that
+  meets the schemas `minLength`, `maxLength` and `pattern` properties.
+  Analogous to the JSON Schema `string` type.
+properties:
+  minLength:
+    '@id': stencila:minLength
+    type: number
+    minimum: 0
+    description: The minimum length for a string node.
+    $comment: |
+      A string is valid against the schema if its length is greater than,
+      or exactly equal to, `minLength`.
+  maxLength:
+    '@id': stencila:maxLength
+    type: number
+    minimum: 0
+    description: The maximum length for a string node.
+    $comment: |
+      A string is valid against the schema if its length is less than,
+      or exactly equal to, `maxLength`.
+  pattern:
+    '@id': stencila:pattern
+    type: string
+    description: A regular expression that a string node must match.
+    $comment: |
+      A string is valid against the schema if it is matched by the regular expression.
