@@ -1,13 +1,13 @@
-title: CodeExpr
-'@id': stencila:CodeExpr
-extends: SoftwareSourceCode
+title: CodeExpression
+'@id': stencila:CodeExpression
+extends: CodeFragment
 role: secondary
-status: unstable
+status: stable
 category: code
 description: An expression defined in programming language source code.
 properties:
-  value:
-    '@id': schema:value
+  output:
+    '@id': stencila:output
     description: The value of the expression when it was last evaluated.
     allOf:
       - $ref: Node

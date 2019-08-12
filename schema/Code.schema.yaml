@@ -1,6 +1,6 @@
 title: Code
 '@id': stencila:Code
-extends: Thing
+extends: Entity
 role: secondary
 status: stable
 category: code
@@ -10,9 +10,9 @@ properties:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
-  value:
-    '@id': schema:value
-    description: The text value.
+  text:
+    '@id': schema:text
+    description: The text of the code.
     type: string
 required:
-  - value
+  - text

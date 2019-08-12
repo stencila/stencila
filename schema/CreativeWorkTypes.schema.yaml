@@ -5,8 +5,6 @@ anyOf:
   - $ref: CreativeWork
   - $ref: Article
   - $ref: AudioObject
-  - $ref: CodeChunk
-  - $ref: CodeExpr
   - $ref: Collection
   - $ref: Datatable
   - $ref: Figure

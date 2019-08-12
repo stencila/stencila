@@ -1,6 +1,6 @@
 title: CodeChunk
 '@id': stencila:CodeChunk
-extends: SoftwareSourceCode
+extends: CodeBlock
 role: secondary
 status: unstable
 category: code

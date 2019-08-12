@@ -11,8 +11,8 @@ anyOf:
   - type: integer
   - type: number
   - type: string
-  - $ref: Code
-  - $ref: CodeExpr
+  - $ref: CodeFragment
+  - $ref: CodeExpression
   - $ref: Delete
   - $ref: Emphasis
   - $ref: ImageObject

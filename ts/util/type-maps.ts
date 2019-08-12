@@ -1,24 +1,13 @@
-import {
-  BlockContent,
-  Code,
-  CreativeWork,
-  Delete,
-  Emphasis,
-  InlineContent,
-  Quote,
-  Strong,
-  Subscript,
-  Superscript
-} from '../types'
+import * as types from '../types'
 import { TypeMap } from './type-map'
 
 export type MarkTypes =
-  | Delete
-  | Emphasis
-  | Quote
-  | Strong
-  | Subscript
-  | Superscript
+  | types.Delete
+  | types.Emphasis
+  | types.Quote
+  | types.Strong
+  | types.Subscript
+  | types.Superscript
 
 export const markTypes: TypeMap<MarkTypes> = {
   Delete: 'Delete',
@@ -30,16 +19,15 @@ export const markTypes: TypeMap<MarkTypes> = {
 }
 
 export type InlineNodesWithType = Exclude<
-  InlineContent,
+  types.InlineContent,
   string | null | boolean | number
 >
 
 export const inlineContentTypes: TypeMap<InlineNodesWithType> = {
   Cite: 'Cite',
   CiteGroup: 'CiteGroup',
-  Code: 'Code',
-  CodeBlock: 'CodeBlock',
-  CodeExpr: 'CodeExpr',
+  CodeFragment: 'CodeFragment',
+  CodeExpression: 'CodeExpression',
   Delete: 'Delete',
   Emphasis: 'Emphasis',
   ImageObject: 'ImageObject',
@@ -50,7 +38,7 @@ export const inlineContentTypes: TypeMap<InlineNodesWithType> = {
   Superscript: 'Superscript'
 }
 
-export const blockContentTypes: TypeMap<BlockContent> = {
+export const blockContentTypes: TypeMap<types.BlockContent> = {
   CodeBlock: 'CodeBlock',
   CodeChunk: 'CodeChunk',
   Heading: 'Heading',
@@ -62,12 +50,10 @@ export const blockContentTypes: TypeMap<BlockContent> = {
   ThematicBreak: 'ThematicBreak'
 }
 
-export const creativeWorkTypes: TypeMap<CreativeWork> = {
+export const creativeWorkTypes: TypeMap<types.CreativeWork> = {
   CreativeWork: 'CreativeWork',
   Article: 'Article',
   AudioObject: 'AudioObject',
-  CodeChunk: 'CodeChunk',
-  CodeExpr: 'CodeExpr',
   Collection: 'Collection',
   Datatable: 'Datatable',
   ImageObject: 'ImageObject',
@@ -82,7 +68,15 @@ export const creativeWorkTypes: TypeMap<CreativeWork> = {
   VideoObject: 'VideoObject'
 }
 
-export const codeTypes: TypeMap<Code> = {
-  Code: 'Code',
-  CodeBlock: 'CodeBlock'
+export type CodeTypes =
+  | types.CodeFragment
+  | types.CodeExpression
+  | types.CodeBlock
+  | types.CodeChunk
+
+export const codeTypes: TypeMap<CodeTypes> = {
+  CodeFragment: 'CodeFragment',
+  CodeExpression: 'CodeExpression',
+  CodeBlock: 'CodeBlock',
+  CodeChunk: 'CodeChunk'
 }

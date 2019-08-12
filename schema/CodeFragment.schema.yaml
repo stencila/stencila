@@ -1,0 +1,8 @@
+title: CodeFragment
+'@id': stencila:CodeFragment
+extends: Code
+role: secondary
+status: stable
+category: code
+description: Inline code.
+properties: {}
