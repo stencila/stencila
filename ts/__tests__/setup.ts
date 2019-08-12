@@ -1,4 +1,4 @@
-import {build} from '../schema'
+import { build } from '../schema'
 
 /**
  * Global setup run before any tests

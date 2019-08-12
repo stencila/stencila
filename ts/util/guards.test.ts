@@ -144,7 +144,7 @@ describe('isInlineContent', () => {
 
   test('returns false for BlockContent types ', () => {
     Object.values(blockContentTypes).map(type => {
-      expect(isInlineContent({type})).toBe(false)
+      expect(isInlineContent({ type })).toBe(false)
     })
 
     expect.assertions(Object.values(blockContentTypes).length)
@@ -152,7 +152,7 @@ describe('isInlineContent', () => {
 
   test('returns true for InlineContent types ', () => {
     Object.values(inlineContentTypes).map(type => {
-      expect(isInlineContent({type})).toBe(true)
+      expect(isInlineContent({ type })).toBe(true)
     })
 
     expect.assertions(Object.values(inlineContentTypes).length)

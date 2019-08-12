@@ -28,7 +28,7 @@ const validateSchema = ajv.compile(metaSchema)
  */
 export const build = async (cleanup: boolean = true): Promise<void> => {
   // Clean up old files
-  if (cleanup) del('*.schema.json', {cwd: SCHEMA_DEST_DIR})
+  if (cleanup) await del('*.schema.json', { cwd: SCHEMA_DEST_DIR })
 
   // Asynchronously read all the schema definition YAML files into a map of objects
   const files = await globby('*.schema.yaml', { cwd: SCHEMA_SOURCE_DIR })
