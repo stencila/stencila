@@ -33,6 +33,8 @@ class Executor:
     globals: typing.Optional[typing.Dict[str, typing.Any]]
 
     def parse(self, source: Article) -> None:
+        # todo: this traverses the article twice. Make it less hard coded, maybe pass through a lookup table that maps
+        # a found type to its destination
         self.handle_item(source, Parameter, self.parameters, None)
         self.handle_item(source, (CodeChunk, CodeExpression), self.code, {'language': 'python'})
 
@@ -134,7 +136,8 @@ class ParameterParser:
         param_parser = argparse.ArgumentParser(description='Parse Parameters')
 
         for param in self.parameters.values():
-            param_parser.add_argument('--' + param.name, dest=param.name, required=param.default is None)
+            if not isinstance(param.schema, ConstantSchema):
+                param_parser.add_argument('--' + param.name, dest=param.name, required=param.default is None)
 
         args, _ = param_parser.parse_known_args(cli_args)
 
@@ -152,12 +155,12 @@ class ParameterParser:
         # Lots of TODOs here, might not care as passing this off to encoda soon
 
         if isinstance(parameter.schema, ConstantSchema):
-            # TODO: not sure about this one
-            raise NotImplementedError
+            return parameter.schema.value
 
         if isinstance(parameter.schema, EnumSchema):
-            # TODO: not sure about this one
-            raise NotImplementedError
+            if value not in parameter.schema.values:
+                raise TypeError('{} not found in enum values for {}'.format(value, parameter.name))
+            return value
 
         if isinstance(parameter.schema, BooleanSchema):
             return value.lower() in ('true', 'yes', '1' 't')
