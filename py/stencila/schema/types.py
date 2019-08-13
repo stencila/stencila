@@ -39,6 +39,7 @@ class Cite(Entity):
 
     target: str
     citationMode: Optional["Enum0"]
+    content: Optional[Array["InlineContent"]]
     pageEnd: Optional[Union[str, int]]
     pageStart: Optional[Union[str, int]]
     pagination: Optional[str]
@@ -49,6 +50,7 @@ class Cite(Entity):
         self,
         target: str,
         citationMode: Optional["Enum0"] = None,
+        content: Optional[Array["InlineContent"]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         pageEnd: Optional[Union[str, int]] = None,
@@ -65,6 +67,8 @@ class Cite(Entity):
             self.target = target
         if citationMode is not None:
             self.citationMode = citationMode
+        if content is not None:
+            self.content = content
         if pageEnd is not None:
             self.pageEnd = pageEnd
         if pageStart is not None:
