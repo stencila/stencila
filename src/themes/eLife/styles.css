@@ -12,14 +12,14 @@
   --bg-color: #fff;
 }
 
-@custom-selector :--CiteGroup [itemtype='https://stencila.github.io/schema/CiteGroup'];
-@custom-selector :--Cite [itemtype='https://stencila.github.io/schema/Cite'];
-@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
+@custom-selector [itemtype='https://stencila.github.io/schema/CiteGroup'];
+@custom-selector [itemtype='https://stencila.github.io/schema/Cite'];
+@custom-selector [itemtype='https://schema.org/CreativeWork'];
 @custom-selector :--title [itemprop='title'];
 @custom-selector :--authors [itemprop='authors'];
-@custom-selector :--Person [itemtype='https://schema.org/Person'];
+@custom-selector [itemtype='https://schema.org/Person'];
 @custom-selector :--citations [itemprop='citations'];
-@custom-selector :--PublicationIssue [itemtype='https://stencila.github.io/schema/PublicationIssue'];
+@custom-selector [itemtype='https://stencila.github.io/schema/PublicationIssue'];
 @custom-selector :--datePublished [itemprop='datePublished'];
 @custom-selector :--issueNumber [itemprop='issueNumber'];
 @custom-selector :--pagination [itemprop='pagination'];
@@ -351,14 +351,24 @@ blockquote {
     padding-left: 0;
     list-style: none;
   }
+  
+  :--CreativeWork > :--title {
+    display: inline-block;
+    font-size: 1rem;
+    line-height: 1.5;
+    font-weight: 600;
+    border-bottom: none;
+  }
 
-  :--citation-style-eLife {
+  /* eLife theme specific styles for citation titles */
+  :--citation-style-MLA,
+  :--citation-style-APA {
     :--CreativeWork > :--title {
-      display: inline-block;
-      font-size: 1rem;
-      line-height: 1.5;
-      font-weight: 600;
-      border-bottom: none;
+      display: inline;
+      font-size: 0.875rem;
+      line-height: 1.71429;
+      font-weight: normal;
+      border-bottom: 1px dotted var(--text-color);
     }
   }
 
@@ -368,15 +378,16 @@ blockquote {
     :--Person {
       display: inline;
 
-      span::after {
-        content: ', ';
-
-        a {
-          border-bottom: none;
-        }
+      a {
+        border-bottom: none;
       }
 
-      &:last-child span::after {
+      &::after {
+        content: ', ';
+
+      }
+
+      &:last-child::after {
         content: normal;
       }
     }
@@ -419,9 +430,12 @@ blockquote {
 
   :--citation-style-MLA {
     :--CreativeWork > :--title {
-      &::before,
-      &::after {
+      &::before {
         content: '"';
+      }
+
+      &::after {
+        content: '."';
       }
     }
 
@@ -445,7 +459,7 @@ blockquote {
 
     :--authors {
       :--Person {
-        &:last-child span::before {
+        &:last-child::before {
           content: '& ';
         }
       }
