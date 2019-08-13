@@ -12,15 +12,24 @@
   --bg-color: #fff;
 }
 
-@custom-selector :--cite-group [itemtype='https://stencila.github.io/schema/CiteGroup'];
-@custom-selector :--cite [itemtype='https://stencila.github.io/schema/Cite'];
-@custom-selector :--creative-work [itemtype='https://schema.org/CreativeWork'];
+@custom-selector :--CiteGroup [itemtype='https://stencila.github.io/schema/CiteGroup'];
+@custom-selector :--Cite [itemtype='https://stencila.github.io/schema/Cite'];
+@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
 @custom-selector :--title [itemprop='title'];
 @custom-selector :--authors [itemprop='authors'];
-@custom-selector :--person [itemtype='https://schema.org/Person'];
-@custom-selector :--publication-issue [itemtype='https://stencila.github.io/schema/PublicationIssue'];
+@custom-selector :--Person [itemtype='https://schema.org/Person'];
+@custom-selector :--citations [itemprop='citations'];
+@custom-selector :--PublicationIssue [itemtype='https://stencila.github.io/schema/PublicationIssue'];
+@custom-selector :--datePublished [itemprop='datePublished'];
+@custom-selector :--issueNumber [itemprop='issueNumber'];
+@custom-selector :--pagination [itemprop='pagination'];
 @custom-selector :--url [itemprop='url'];
 @custom-selector :--abstracts [itemprop='abstracts'];
+
+/* Citation Styles */
+@custom-selector :--citation-style-eLife [data-citation-style='eLife'];
+@custom-selector :--citation-style-MLA [data-citation-style='MLA'];
+@custom-selector :--citation-style-APA [data-citation-style='APA'];
 
 html,
 body {
@@ -311,18 +320,12 @@ blockquote {
   }
 }
 
-:--cite-group {
+:--citations {
   list-style: none;
   counter-reset: cite-counter;
   margin: 0;
   padding: 0;
   font-family: var(--heading-font);
-
-  ol,
-  ul {
-    padding-left: 0;
-    list-style: none;
-  }
 
   > li {
     counter-increment: cite-counter;
@@ -343,37 +346,51 @@ blockquote {
     }
   }
 
-  :--creative-work > :--title {
-    display: inline-block;
-    font-size: 1rem;
-    line-height: 1.5;
-    font-weight: 600;
-    border-bottom: none;
+  ol,
+  ul {
+    padding-left: 0;
+    list-style: none;
+  }
+
+  :--citation-style-eLife {
+    :--CreativeWork > :--title {
+      display: inline-block;
+      font-size: 1rem;
+      line-height: 1.5;
+      font-weight: 600;
+      border-bottom: none;
+    }
   }
 
   :--authors {
     display: inline;
 
-    :--person {
+    :--Person {
       display: inline;
 
-      a {
-        border-bottom: none;
+      span::after {
+        content: ', ';
 
-        &::after {
-          content: ', ';
+        a {
+          border-bottom: none;
         }
       }
 
-      &:last-child a::after {
+      &:last-child span::after {
         content: normal;
       }
     }
   }
 
-  :--publication-issue,
+  :--PublicationIssue,
   :--abstracts {
     font-family: var(--body-font);
+  }
+
+  :--pagination {
+    &::before {
+      content: ':';
+    }
   }
 
   :--url {
@@ -396,6 +413,71 @@ blockquote {
 
       &:last-child::after {
         content: normal;
+      }
+    }
+  }
+
+  :--citation-style-MLA {
+    :--CreativeWork > :--title {
+      &::before,
+      &::after {
+        content: '"';
+      }
+    }
+
+    :--PublicationIssue {
+      display: inline;
+
+      :--pagination {
+        &::before {
+          content: ': ';
+        }
+      }
+    }
+  }
+
+  :--citation-style-APA {
+    :--CreativeWork > :--title {
+      &::after {
+        content: '.';
+      }
+    }
+
+    :--authors {
+      :--Person {
+        &:last-child span::before {
+          content: '& ';
+        }
+      }
+    }
+
+    :--datePublished {
+      &::after {
+        content: '.';
+      }
+    }
+
+    :--PublicationIssue {
+      display: inline;
+
+      :--title {
+        &::after {
+          content: ', ';
+          font-style: normal;
+        }
+      }
+
+      :--issueNumber {
+        &::after {
+          content: ', ';
+          font-weight: normal;
+        }
+      }
+
+      :--pagination {
+        &::before {
+          content: normal;
+        }
       }
     }
   }
