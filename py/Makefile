@@ -4,7 +4,7 @@ setup:
 	pip3 install --upgrade -r requirements-dev.txt
 
 regen:
-	npm run build:py
+	npm execute_document build:py
 
 lint:
 	pylint stencila/schema

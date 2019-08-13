@@ -121,7 +121,7 @@ export function classGenerator(schema: Schema): string {
   const attrs = own
     .map(({ name, schema, optional }) => {
       const type = schemaToType(schema)
-      const attrType = optional ? `Optional[${type}]` : type
+      const attrType = optional ? `Optional[${type}] = None` : type
       return `    ${name}: ${attrType}`
     })
     .join('\n')
@@ -180,7 +180,7 @@ function schemaToType(schema: Schema): string {
   if ($ref !== undefined) return `"${$ref.replace('.schema.json', '')}"`
   if (anyOf !== undefined) return anyOfToType(anyOf)
   if (allOf !== undefined) return allOfToType(allOf)
-  if (schema.enum !== undefined) return enumToType(schema.enum)
+  if (schema.enum !== undefined) return enumToType(schema['@id'], schema.enum)
 
   if (type === 'null') return 'None'
   if (type === 'boolean') return 'bool'
@@ -237,7 +237,14 @@ function arrayToType(schema: Schema): string {
 /**
  * Convert a schema with the `enum` property to a Python `Enum`.
  */
-export function enumToType(enu: (string | number)[]): string {
+export function enumToType(
+  id: string | undefined,
+  enu: (string | number)[]
+): string {
+  const splitId = (id !== undefined ? id : '').split(':')
+  let enumName = splitId[splitId.length - 1]
+  enumName = enumName.charAt(0).toUpperCase() + enumName.slice(1)
+
   const values = enu
     .map(schema => {
       return JSON.stringify(schema)
@@ -248,23 +255,20 @@ export function enumToType(enu: (string | number)[]): string {
     .update(values)
     .digest('hex')
 
-  let enumIndex = Object.keys(enumSignatures).length
+  const enumIndex = Object.keys(enumSignatures).length
   let enumExists = false
 
   if (enumSignatures[signature] !== undefined) {
-    enumIndex = enumSignatures[signature]
     enumExists = true
   } else {
     enumSignatures[signature] = enumIndex
   }
 
-  const name = `Enum${enumIndex}`
-
   if (!enumExists) {
-    const defn = `${name} = Enum("${enumIndex}", [${values}])\n`
+    const defn = `E${enumName} = Enum("${enumName}", [${values}])\n`
 
     if (!globals.includes(defn)) globals.push(defn)
   }
 
-  return `"${name}"`
+  return `"E${enumName}"`
 }

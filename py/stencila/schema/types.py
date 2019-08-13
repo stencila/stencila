@@ -5,22 +5,20 @@
 from typing import Any, Dict, List as Array, Optional, Union
 from enum import Enum
 
-Enum0 = Enum("0", ["normal", "suppressAuthor"])
+ECitationMode = Enum("CitationMode", ["normal", "suppressAuthor"])
 
-Enum1 = Enum("1", ["ascending", "descending", "unordered"])
+EItemListOrder = Enum("ItemListOrder", ["ascending", "descending", "unordered"])
 
-Enum2 = Enum("2", ["string", "int", "float", "boolean", "json"])
+ETableCellKind = Enum("TableCellKind", ["data", "header"])
 
-Enum3 = Enum("3", ["data", "header"])
-
-Enum4 = Enum("4", ["header", "footer"])
+ETableRowKind = Enum("TableRowKind", ["header", "footer"])
 
 
 class Entity:
     """The most basic item, defining the minimum properties required."""
 
-    id: Optional[str]
-    meta: Optional[Dict[str, Any]]
+    id: Optional[str] = None
+    meta: Optional[Dict[str, Any]] = None
 
     def __init__(
         self,
@@ -36,21 +34,71 @@ class Entity:
             self.meta = meta
 
 
+class ArraySchema(Entity):
+    """A schema specifying constraints on an array node."""
+
+    contains: Optional["Schema"] = None
+    items: Optional["Schema"] = None
+    maxItems: Optional[float] = None
+    minItems: Optional[float] = None
+    uniqueItems: Optional[bool] = None
+
+    def __init__(
+        self,
+        contains: Optional["Schema"] = None,
+        id: Optional[str] = None,
+        items: Optional["Schema"] = None,
+        maxItems: Optional[float] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        minItems: Optional[float] = None,
+        uniqueItems: Optional[bool] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if contains is not None:
+            self.contains = contains
+        if items is not None:
+            self.items = items
+        if maxItems is not None:
+            self.maxItems = maxItems
+        if minItems is not None:
+            self.minItems = minItems
+        if uniqueItems is not None:
+            self.uniqueItems = uniqueItems
+
+
+class BooleanSchema(Entity):
+    """A schema specifying that a node must be a boolean value."""
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+
+
+
 class Cite(Entity):
     """A reference to a CreativeWork that is cited in another CreativeWork."""
 
     target: str
-    citationMode: Optional["Enum0"]
-    pageEnd: Optional[Union[str, int]]
-    pageStart: Optional[Union[str, int]]
-    pagination: Optional[str]
-    prefix: Optional[str]
-    suffix: Optional[str]
+    citationMode: Optional["ECitationMode"] = None
+    pageEnd: Optional[Union[str, int]] = None
+    pageStart: Optional[Union[str, int]] = None
+    pagination: Optional[str] = None
+    prefix: Optional[str] = None
+    suffix: Optional[str] = None
 
     def __init__(
         self,
         target: str,
-        citationMode: Optional["Enum0"] = None,
+        citationMode: Optional["ECitationMode"] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         pageEnd: Optional[Union[str, int]] = None,
@@ -98,30 +146,130 @@ class CiteGroup(Entity):
             self.items = items
 
 
-class DatatableColumnSchema(Entity):
-    """
-    A schema specifying the data values that are valid within a Datatable
-    column.
-    """
+class Code(Entity):
+    """Inline code."""
 
-    items: Dict[str, Any]
-    uniqueItems: Optional[bool]
+    text: str
+    language: Optional[str] = None
 
     def __init__(
         self,
-        items: Dict[str, Any],
+        text: str,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        uniqueItems: Optional[bool] = None
+        language: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
             id=id,
             meta=meta
         )
-        if items is not None:
-            self.items = items
-        if uniqueItems is not None:
-            self.uniqueItems = uniqueItems
+        if text is not None:
+            self.text = text
+        if language is not None:
+            self.language = language
+
+
+class CodeBlock(Code):
+    """A code block."""
+
+    def __init__(
+        self,
+        text: str,
+        id: Optional[str] = None,
+        language: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            text=text,
+            id=id,
+            language=language,
+            meta=meta
+        )
+
+
+
+class CodeChunk(CodeBlock):
+    """A executable chunk of code."""
+
+    outputs: Optional[Array["Node"]] = None
+
+    def __init__(
+        self,
+        text: str,
+        id: Optional[str] = None,
+        language: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        outputs: Optional[Array["Node"]] = None
+    ) -> None:
+        super().__init__(
+            text=text,
+            id=id,
+            language=language,
+            meta=meta
+        )
+        if outputs is not None:
+            self.outputs = outputs
+
+
+class CodeFragment(Code):
+    """Inline code."""
+
+    def __init__(
+        self,
+        text: str,
+        id: Optional[str] = None,
+        language: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            text=text,
+            id=id,
+            language=language,
+            meta=meta
+        )
+
+
+
+class CodeExpression(CodeFragment):
+    """An expression defined in programming language source code."""
+
+    output: Optional["Node"] = None
+
+    def __init__(
+        self,
+        text: str,
+        id: Optional[str] = None,
+        language: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        output: Optional["Node"] = None
+    ) -> None:
+        super().__init__(
+            text=text,
+            id=id,
+            language=language,
+            meta=meta
+        )
+        if output is not None:
+            self.output = output
+
+
+class ConstantSchema(Entity):
+    """A schema specifying a constant value that a node must have."""
+
+    value: Optional["Node"] = None
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        value: Optional["Node"] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if value is not None:
+            self.value = value
 
 
 class Mark(Entity):
@@ -183,10 +331,10 @@ class Emphasis(Mark):
 class Thing(Entity):
     """The most generic type of item."""
 
-    alternateNames: Optional[Array[str]]
-    description: Optional[str]
-    name: Optional[str]
-    url: Optional[str]
+    alternateNames: Optional[Array[str]] = None
+    description: Optional[str] = None
+    name: Optional[str] = None
+    url: Optional[str] = None
 
     def __init__(
         self,
@@ -218,8 +366,8 @@ class Brand(Thing):
     """
 
     name: str
-    logo: Optional[Union[str, "ImageObject"]]
-    reviews: Optional[Array[str]]
+    logo: Optional[Union[str, "ImageObject"]] = None
+    reviews: Optional[Array[str]] = None
 
     def __init__(
         self,
@@ -248,70 +396,12 @@ class Brand(Thing):
             self.reviews = reviews
 
 
-class Code(Thing):
-    """Inline code."""
-
-    value: str
-    language: Optional[str]
-
-    def __init__(
-        self,
-        value: str,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        language: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-        if value is not None:
-            self.value = value
-        if language is not None:
-            self.language = language
-
-
-class CodeBlock(Code):
-    """A code block."""
-
-    def __init__(
-        self,
-        value: str,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
-        id: Optional[str] = None,
-        language: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            value=value,
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            language=language,
-            meta=meta,
-            name=name,
-            url=url
-        )
-
-
-
 class ContactPoint(Thing):
     """A contact point—for example, a R&D department."""
 
-    availableLanguages: Optional[Array[str]]
-    emails: Optional[Array[str]]
-    telephone: Optional[str]
+    availableLanguages: Optional[Array[str]] = None
+    emails: Optional[Array[str]] = None
+    telephone: Optional[str] = None
 
     def __init__(
         self,
@@ -347,21 +437,21 @@ class CreativeWork(Thing):
     etc.
     """
 
-    authors: Optional[Array[Union["Person", "Organization"]]]
-    content: Optional[Array["Node"]]
-    dateCreated: Optional[str]
-    dateModified: Optional[str]
-    datePublished: Optional[str]
-    editors: Optional[Array["Person"]]
-    funders: Optional[Array[Union["Person", "Organization"]]]
-    isPartOf: Optional["CreativeWorkTypes"]
-    licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]]
-    parts: Optional[Array["CreativeWorkTypes"]]
-    publisher: Optional[Union["Person", "Organization"]]
-    references: Optional[Array[Union[str, "CreativeWorkTypes"]]]
-    text: Optional[str]
-    title: Optional[str]
-    version: Optional[Union[str, float]]
+    authors: Optional[Array[Union["Person", "Organization"]]] = None
+    content: Optional[Array["Node"]] = None
+    dateCreated: Optional[str] = None
+    dateModified: Optional[str] = None
+    datePublished: Optional[str] = None
+    editors: Optional[Array["Person"]] = None
+    funders: Optional[Array[Union["Person", "Organization"]]] = None
+    isPartOf: Optional["CreativeWorkTypes"] = None
+    licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None
+    parts: Optional[Array["CreativeWorkTypes"]] = None
+    publisher: Optional[Union["Person", "Organization"]] = None
+    references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None
+    text: Optional[str] = None
+    title: Optional[str] = None
+    version: Optional[Union[str, float]] = None
 
     def __init__(
         self,
@@ -432,7 +522,7 @@ class Article(CreativeWork):
 
     authors: Array[Union["Person", "Organization"]]
     title: str
-    environment: Optional["Environment"]
+    environment: Optional["Environment"] = None
 
     def __init__(
         self,
@@ -610,10 +700,10 @@ class MediaObject(CreativeWork):
     """
 
     contentUrl: str
-    bitrate: Optional[float]
-    contentSize: Optional[float]
-    embedUrl: Optional[str]
-    format: Optional[str]
+    bitrate: Optional[float] = None
+    contentSize: Optional[float] = None
+    embedUrl: Optional[str] = None
+    format: Optional[str] = None
 
     def __init__(
         self,
@@ -682,8 +772,8 @@ class MediaObject(CreativeWork):
 class AudioObject(MediaObject):
     """An audio file"""
 
-    caption: Optional[str]
-    transcript: Optional[str]
+    caption: Optional[str] = None
+    transcript: Optional[str] = None
 
     def __init__(
         self,
@@ -750,238 +840,12 @@ class AudioObject(MediaObject):
             self.transcript = transcript
 
 
-class SoftwareSourceCode(CreativeWork):
-    """
-    Computer programming source code. Example: Full (compile ready) solutions,
-    code snippet samples, scripts, templates.
-    """
-
-    codeRepository: Optional[str]
-    codeSampleType: Optional[str]
-    maintainers: Optional[Array[Union["Organization", "Person"]]]
-    programmingLanguage: Optional[str]
-    runtimePlatform: Optional[Array[str]]
-    softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]]
-    targetProducts: Optional[Array["SoftwareApplication"]]
-
-    def __init__(
-        self,
-        alternateNames: Optional[Array[str]] = None,
-        authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        codeRepository: Optional[str] = None,
-        codeSampleType: Optional[str] = None,
-        content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
-        description: Optional[str] = None,
-        editors: Optional[Array["Person"]] = None,
-        funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        id: Optional[str] = None,
-        isPartOf: Optional["CreativeWorkTypes"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
-        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        parts: Optional[Array["CreativeWorkTypes"]] = None,
-        programmingLanguage: Optional[str] = None,
-        publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
-        runtimePlatform: Optional[Array[str]] = None,
-        softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
-        targetProducts: Optional[Array["SoftwareApplication"]] = None,
-        text: Optional[str] = None,
-        title: Optional[str] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            authors=authors,
-            content=content,
-            dateCreated=dateCreated,
-            dateModified=dateModified,
-            datePublished=datePublished,
-            description=description,
-            editors=editors,
-            funders=funders,
-            id=id,
-            isPartOf=isPartOf,
-            licenses=licenses,
-            meta=meta,
-            name=name,
-            parts=parts,
-            publisher=publisher,
-            references=references,
-            text=text,
-            title=title,
-            url=url,
-            version=version
-        )
-        if codeRepository is not None:
-            self.codeRepository = codeRepository
-        if codeSampleType is not None:
-            self.codeSampleType = codeSampleType
-        if maintainers is not None:
-            self.maintainers = maintainers
-        if programmingLanguage is not None:
-            self.programmingLanguage = programmingLanguage
-        if runtimePlatform is not None:
-            self.runtimePlatform = runtimePlatform
-        if softwareRequirements is not None:
-            self.softwareRequirements = softwareRequirements
-        if targetProducts is not None:
-            self.targetProducts = targetProducts
-
-
-class CodeChunk(SoftwareSourceCode):
-    """A executable chunk of code."""
-
-    outputs: Optional[Array["Node"]]
-
-    def __init__(
-        self,
-        alternateNames: Optional[Array[str]] = None,
-        authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        codeRepository: Optional[str] = None,
-        codeSampleType: Optional[str] = None,
-        content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
-        description: Optional[str] = None,
-        editors: Optional[Array["Person"]] = None,
-        funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        id: Optional[str] = None,
-        isPartOf: Optional["CreativeWorkTypes"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
-        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        outputs: Optional[Array["Node"]] = None,
-        parts: Optional[Array["CreativeWorkTypes"]] = None,
-        programmingLanguage: Optional[str] = None,
-        publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
-        runtimePlatform: Optional[Array[str]] = None,
-        softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
-        targetProducts: Optional[Array["SoftwareApplication"]] = None,
-        text: Optional[str] = None,
-        title: Optional[str] = None,
-        url: Optional[str] = None,
-        version: Optional[Union[str, float]] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            authors=authors,
-            codeRepository=codeRepository,
-            codeSampleType=codeSampleType,
-            content=content,
-            dateCreated=dateCreated,
-            dateModified=dateModified,
-            datePublished=datePublished,
-            description=description,
-            editors=editors,
-            funders=funders,
-            id=id,
-            isPartOf=isPartOf,
-            licenses=licenses,
-            maintainers=maintainers,
-            meta=meta,
-            name=name,
-            parts=parts,
-            programmingLanguage=programmingLanguage,
-            publisher=publisher,
-            references=references,
-            runtimePlatform=runtimePlatform,
-            softwareRequirements=softwareRequirements,
-            targetProducts=targetProducts,
-            text=text,
-            title=title,
-            url=url,
-            version=version
-        )
-        if outputs is not None:
-            self.outputs = outputs
-
-
-class CodeExpr(SoftwareSourceCode):
-    """An expression defined in programming language source code."""
-
-    value: Optional["Node"]
-
-    def __init__(
-        self,
-        alternateNames: Optional[Array[str]] = None,
-        authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        codeRepository: Optional[str] = None,
-        codeSampleType: Optional[str] = None,
-        content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
-        description: Optional[str] = None,
-        editors: Optional[Array["Person"]] = None,
-        funders: Optional[Array[Union["Person", "Organization"]]] = None,
-        id: Optional[str] = None,
-        isPartOf: Optional["CreativeWorkTypes"] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
-        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        parts: Optional[Array["CreativeWorkTypes"]] = None,
-        programmingLanguage: Optional[str] = None,
-        publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
-        runtimePlatform: Optional[Array[str]] = None,
-        softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
-        targetProducts: Optional[Array["SoftwareApplication"]] = None,
-        text: Optional[str] = None,
-        title: Optional[str] = None,
-        url: Optional[str] = None,
-        value: Optional["Node"] = None,
-        version: Optional[Union[str, float]] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            authors=authors,
-            codeRepository=codeRepository,
-            codeSampleType=codeSampleType,
-            content=content,
-            dateCreated=dateCreated,
-            dateModified=dateModified,
-            datePublished=datePublished,
-            description=description,
-            editors=editors,
-            funders=funders,
-            id=id,
-            isPartOf=isPartOf,
-            licenses=licenses,
-            maintainers=maintainers,
-            meta=meta,
-            name=name,
-            parts=parts,
-            programmingLanguage=programmingLanguage,
-            publisher=publisher,
-            references=references,
-            runtimePlatform=runtimePlatform,
-            softwareRequirements=softwareRequirements,
-            targetProducts=targetProducts,
-            text=text,
-            title=title,
-            url=url,
-            version=version
-        )
-        if value is not None:
-            self.value = value
-
-
 class DatatableColumn(Thing):
     """A column of data within a Datatable."""
 
     name: str
     values: Array[Any]
-    schema: Optional["DatatableColumnSchema"]
+    schema: Optional["ArraySchema"] = None
 
     def __init__(
         self,
@@ -991,7 +855,7 @@ class DatatableColumn(Thing):
         description: Optional[str] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        schema: Optional["DatatableColumnSchema"] = None,
+        schema: Optional["ArraySchema"] = None,
         url: Optional[str] = None
     ) -> None:
         super().__init__(
@@ -1010,14 +874,33 @@ class DatatableColumn(Thing):
             self.schema = schema
 
 
+class EnumSchema(Entity):
+    """A schema specifying that a node must be one of several values."""
+
+    values: Optional[Array["Node"]] = None
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        values: Optional[Array["Node"]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if values is not None:
+            self.values = values
+
+
 class Environment(Thing):
     """A computational environment."""
 
     name: str
-    adds: Optional[Array["SoftwareSourceCode"]]
-    extends: Optional[Array["Environment"]]
-    removes: Optional[Array["SoftwareSourceCode"]]
-    source: Optional[str]
+    adds: Optional[Array["SoftwareSourceCode"]] = None
+    extends: Optional[Array["Environment"]] = None
+    removes: Optional[Array["SoftwareSourceCode"]] = None
+    source: Optional[str] = None
 
     def __init__(
         self,
@@ -1058,8 +941,8 @@ class Figure(CreativeWork):
     and labels for them.
     """
 
-    caption: Optional[Array["Node"]]
-    label: Optional[str]
+    caption: Optional[Array["Node"]] = None
+    label: Optional[str] = None
 
     def __init__(
         self,
@@ -1142,8 +1025,8 @@ class Heading(Entity):
 class ImageObject(MediaObject):
     """An image file."""
 
-    caption: Optional[str]
-    thumbnail: Optional["ImageObject"]
+    caption: Optional[str] = None
+    thumbnail: Optional["ImageObject"] = None
 
     def __init__(
         self,
@@ -1217,9 +1100,9 @@ class Include(Entity):
     """
 
     source: str
-    content: Optional[Array["Node"]]
-    hash: Optional[str]
-    mediaType: Optional[str]
+    content: Optional[Array["Node"]] = None
+    hash: Optional[str] = None
+    mediaType: Optional[str] = None
 
     def __init__(
         self,
@@ -1244,6 +1127,66 @@ class Include(Entity):
             self.mediaType = mediaType
 
 
+class NumberSchema(Entity):
+    """A schema specifying the constraints on a numeric node."""
+
+    exclusiveMaximum: Optional[float] = None
+    exclusiveMinimum: Optional[float] = None
+    maximum: Optional[float] = None
+    minimum: Optional[float] = None
+    multipleOf: Optional[float] = None
+
+    def __init__(
+        self,
+        exclusiveMaximum: Optional[float] = None,
+        exclusiveMinimum: Optional[float] = None,
+        id: Optional[str] = None,
+        maximum: Optional[float] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        minimum: Optional[float] = None,
+        multipleOf: Optional[float] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if exclusiveMaximum is not None:
+            self.exclusiveMaximum = exclusiveMaximum
+        if exclusiveMinimum is not None:
+            self.exclusiveMinimum = exclusiveMinimum
+        if maximum is not None:
+            self.maximum = maximum
+        if minimum is not None:
+            self.minimum = minimum
+        if multipleOf is not None:
+            self.multipleOf = multipleOf
+
+
+class IntegerSchema(NumberSchema):
+    """A schema specifying the constraints on an integer node."""
+
+    def __init__(
+        self,
+        exclusiveMaximum: Optional[float] = None,
+        exclusiveMinimum: Optional[float] = None,
+        id: Optional[str] = None,
+        maximum: Optional[float] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        minimum: Optional[float] = None,
+        multipleOf: Optional[float] = None
+    ) -> None:
+        super().__init__(
+            exclusiveMaximum=exclusiveMaximum,
+            exclusiveMinimum=exclusiveMinimum,
+            id=id,
+            maximum=maximum,
+            meta=meta,
+            minimum=minimum,
+            multipleOf=multipleOf
+        )
+
+
+
 class Link(Entity):
     """
     A hyperlink to other pages, sections within the same document, resources,
@@ -1252,8 +1195,8 @@ class Link(Entity):
 
     content: Array["InlineContent"]
     target: str
-    relation: Optional[str]
-    title: Optional[str]
+    relation: Optional[str] = None
+    title: Optional[str] = None
 
     def __init__(
         self,
@@ -1282,14 +1225,14 @@ class List(Entity):
     """A list of items."""
 
     items: Array["ListItem"]
-    order: Optional["Enum1"]
+    order: Optional["EItemListOrder"] = None
 
     def __init__(
         self,
         items: Array["ListItem"],
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        order: Optional["Enum1"] = None
+        order: Optional["EItemListOrder"] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1305,7 +1248,7 @@ class ListItem(Entity):
     """A single item in a list."""
 
     content: Array["Node"]
-    checked: Optional[bool]
+    checked: Optional[bool] = None
 
     def __init__(
         self,
@@ -1328,9 +1271,9 @@ class Mount(Thing):
     """Describes a volume mount from a host to container."""
 
     mountDestination: str
-    mountOptions: Optional[Array[str]]
-    mountSource: Optional[str]
-    mountType: Optional[str]
+    mountOptions: Optional[Array[str]] = None
+    mountSource: Optional[str] = None
+    mountType: Optional[str] = None
 
     def __init__(
         self,
@@ -1366,13 +1309,13 @@ class Mount(Thing):
 class Organization(Thing):
     """An organization such as a school, NGO, corporation, club, etc."""
 
-    address: Optional[str]
-    brands: Optional[Array["Brand"]]
-    contactPoints: Optional[Array["ContactPoint"]]
-    departments: Optional[Array["Organization"]]
-    funders: Optional[Array[Union["Organization", "Person"]]]
-    legalName: Optional[str]
-    parentOrganization: Optional["Organization"]
+    address: Optional[str] = None
+    brands: Optional[Array["Brand"]] = None
+    contactPoints: Optional[Array["ContactPoint"]] = None
+    departments: Optional[Array["Organization"]] = None
+    funders: Optional[Array[Union["Organization", "Person"]]] = None
+    legalName: Optional[str] = None
+    parentOrganization: Optional["Organization"] = None
 
     def __init__(
         self,
@@ -1436,32 +1379,36 @@ class Paragraph(Entity):
 class Parameter(Entity):
     """A parameter that can be set and used in evaluated code."""
 
-    dataType: "Enum2"
     name: str
+    default: Optional["Node"] = None
+    schema: Optional["Schema"] = None
 
     def __init__(
         self,
-        dataType: "Enum2",
         name: str,
+        default: Optional["Node"] = None,
         id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        meta: Optional[Dict[str, Any]] = None,
+        schema: Optional["Schema"] = None
     ) -> None:
         super().__init__(
             id=id,
             meta=meta
         )
-        if dataType is not None:
-            self.dataType = dataType
         if name is not None:
             self.name = name
+        if default is not None:
+            self.default = default
+        if schema is not None:
+            self.schema = schema
 
 
 class Periodical(CreativeWork):
     """A periodical publication."""
 
-    dateEnd: Optional[str]
-    dateStart: Optional[str]
-    issn: Optional[Array[str]]
+    dateEnd: Optional[str] = None
+    dateStart: Optional[str] = None
+    issn: Optional[Array[str]] = None
 
     def __init__(
         self,
@@ -1524,17 +1471,17 @@ class Periodical(CreativeWork):
 class Person(Thing):
     """A person (alive, dead, undead, or fictional)."""
 
-    address: Optional[str]
-    affiliations: Optional[Array["Organization"]]
-    emails: Optional[Array[str]]
-    familyNames: Optional[Array[str]]
-    funders: Optional[Array[Union["Organization", "Person"]]]
-    givenNames: Optional[Array[str]]
-    honorificPrefix: Optional[str]
-    honorificSuffix: Optional[str]
-    jobTitle: Optional[str]
-    memberOf: Optional[Array["Organization"]]
-    telephoneNumbers: Optional[Array[str]]
+    address: Optional[str] = None
+    affiliations: Optional[Array["Organization"]] = None
+    emails: Optional[Array[str]] = None
+    familyNames: Optional[Array[str]] = None
+    funders: Optional[Array[Union["Organization", "Person"]]] = None
+    givenNames: Optional[Array[str]] = None
+    honorificPrefix: Optional[str] = None
+    honorificSuffix: Optional[str] = None
+    jobTitle: Optional[str] = None
+    memberOf: Optional[Array["Organization"]] = None
+    telephoneNumbers: Optional[Array[str]] = None
 
     def __init__(
         self,
@@ -1594,9 +1541,9 @@ class Product(Thing):
     an episode of a TV show streamed online.
     """
 
-    brand: Optional["Brand"]
-    logo: Optional[Union[str, "ImageObject"]]
-    productID: Optional[str]
+    brand: Optional["Brand"] = None
+    logo: Optional[Union[str, "ImageObject"]] = None
+    productID: Optional[str] = None
 
     def __init__(
         self,
@@ -1632,10 +1579,10 @@ class PublicationIssue(CreativeWork):
     publication  volume, often numbered.
     """
 
-    issueNumber: Optional[Union[str, int]]
-    pageEnd: Optional[Union[str, int]]
-    pageStart: Optional[Union[str, int]]
-    pagination: Optional[str]
+    issueNumber: Optional[Union[str, int]] = None
+    pageEnd: Optional[Union[str, int]] = None
+    pageStart: Optional[Union[str, int]] = None
+    pagination: Optional[str] = None
 
     def __init__(
         self,
@@ -1704,10 +1651,10 @@ class PublicationVolume(CreativeWork):
     multi-volume work.
     """
 
-    pageEnd: Optional[Union[str, int]]
-    pageStart: Optional[Union[str, int]]
-    pagination: Optional[str]
-    volumeNumber: Optional[Union[str, int]]
+    pageEnd: Optional[Union[str, int]] = None
+    pageStart: Optional[Union[str, int]] = None
+    pagination: Optional[str] = None
+    volumeNumber: Optional[Union[str, int]] = None
 
     def __init__(
         self,
@@ -1773,7 +1720,7 @@ class PublicationVolume(CreativeWork):
 class Quote(Mark):
     """Inline, quoted content."""
 
-    citation: Optional[str]
+    citation: Optional[str] = None
 
     def __init__(
         self,
@@ -1795,7 +1742,7 @@ class QuoteBlock(Entity):
     """A section quoted from somewhere else."""
 
     content: Array["BlockContent"]
-    citation: Optional[str]
+    citation: Optional[str] = None
 
     def __init__(
         self,
@@ -1820,8 +1767,8 @@ class ResourceParameters(Thing):
     memory or CPU).
     """
 
-    resourceLimit: Optional[float]
-    resourceRequested: Optional[float]
+    resourceLimit: Optional[float] = None
+    resourceRequested: Optional[float] = None
 
     def __init__(
         self,
@@ -1851,8 +1798,8 @@ class ResourceParameters(Thing):
 class SoftwareApplication(CreativeWork):
     """A software application."""
 
-    softwareRequirements: Optional[Array["SoftwareApplication"]]
-    softwareVersion: Optional[str]
+    softwareRequirements: Optional[Array["SoftwareApplication"]] = None
+    softwareVersion: Optional[str] = None
 
     def __init__(
         self,
@@ -1916,9 +1863,9 @@ class SoftwareSession(Thing):
     """
 
     environment: "Environment"
-    cpuResource: Optional["ResourceParameters"]
-    memoryResource: Optional["ResourceParameters"]
-    volumeMounts: Optional[Array["Mount"]]
+    cpuResource: Optional["ResourceParameters"] = None
+    memoryResource: Optional["ResourceParameters"] = None
+    volumeMounts: Optional[Array["Mount"]] = None
 
     def __init__(
         self,
@@ -1949,6 +1896,117 @@ class SoftwareSession(Thing):
             self.memoryResource = memoryResource
         if volumeMounts is not None:
             self.volumeMounts = volumeMounts
+
+
+class SoftwareSourceCode(CreativeWork):
+    """
+    Computer programming source code. Example: Full (compile ready) solutions,
+    code snippet samples, scripts, templates.
+    """
+
+    codeRepository: Optional[str] = None
+    codeSampleType: Optional[str] = None
+    maintainers: Optional[Array[Union["Organization", "Person"]]] = None
+    programmingLanguage: Optional[str] = None
+    runtimePlatform: Optional[Array[str]] = None
+    softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None
+    targetProducts: Optional[Array["SoftwareApplication"]] = None
+
+    def __init__(
+        self,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        codeRepository: Optional[str] = None,
+        codeSampleType: Optional[str] = None,
+        content: Optional[Array["Node"]] = None,
+        dateCreated: Optional[str] = None,
+        dateModified: Optional[str] = None,
+        datePublished: Optional[str] = None,
+        description: Optional[str] = None,
+        editors: Optional[Array["Person"]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        programmingLanguage: Optional[str] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        runtimePlatform: Optional[Array[str]] = None,
+        softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
+        targetProducts: Optional[Array["SoftwareApplication"]] = None,
+        text: Optional[str] = None,
+        title: Optional[str] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            authors=authors,
+            content=content,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            description=description,
+            editors=editors,
+            funders=funders,
+            id=id,
+            isPartOf=isPartOf,
+            licenses=licenses,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            references=references,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if codeRepository is not None:
+            self.codeRepository = codeRepository
+        if codeSampleType is not None:
+            self.codeSampleType = codeSampleType
+        if maintainers is not None:
+            self.maintainers = maintainers
+        if programmingLanguage is not None:
+            self.programmingLanguage = programmingLanguage
+        if runtimePlatform is not None:
+            self.runtimePlatform = runtimePlatform
+        if softwareRequirements is not None:
+            self.softwareRequirements = softwareRequirements
+        if targetProducts is not None:
+            self.targetProducts = targetProducts
+
+
+class StringSchema(Entity):
+    """A schema specifying constraints on a string node."""
+
+    maxLength: Optional[float] = None
+    minLength: Optional[float] = None
+    pattern: Optional[str] = None
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        maxLength: Optional[float] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        minLength: Optional[float] = None,
+        pattern: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if maxLength is not None:
+            self.maxLength = maxLength
+        if minLength is not None:
+            self.minLength = minLength
+        if pattern is not None:
+            self.pattern = pattern
 
 
 class Strong(Mark):
@@ -2063,17 +2121,17 @@ class TableCell(Entity):
     """A cell within a `Table`."""
 
     content: Array["InlineContent"]
-    colspan: Optional[int]
-    kind: Optional["Enum3"]
-    name: Optional[str]
-    rowspan: Optional[int]
+    colspan: Optional[int] = None
+    kind: Optional["ETableCellKind"] = None
+    name: Optional[str] = None
+    rowspan: Optional[int] = None
 
     def __init__(
         self,
         content: Array["InlineContent"],
         colspan: Optional[int] = None,
         id: Optional[str] = None,
-        kind: Optional["Enum3"] = None,
+        kind: Optional["ETableCellKind"] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         rowspan: Optional[int] = None
@@ -2098,13 +2156,13 @@ class TableRow(Entity):
     """A row within a Table."""
 
     cells: Array["TableCell"]
-    kind: Optional["Enum4"]
+    kind: Optional["ETableRowKind"] = None
 
     def __init__(
         self,
         cells: Array["TableCell"],
         id: Optional[str] = None,
-        kind: Optional["Enum4"] = None,
+        kind: Optional["ETableRowKind"] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
@@ -2135,12 +2193,31 @@ class ThematicBreak(Entity):
 
 
 
+class TupleSchema(Entity):
+    """A schema specifying constraints on an array of heterogeneous items."""
+
+    items: Optional[Array["Schema"]] = None
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        items: Optional[Array["Schema"]] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if items is not None:
+            self.items = items
+
+
 class VideoObject(MediaObject):
     """A video file."""
 
-    caption: Optional[str]
-    thumbnail: Optional["ImageObject"]
-    transcript: Optional[str]
+    caption: Optional[str] = None
+    thumbnail: Optional["ImageObject"] = None
+    transcript: Optional[str] = None
 
     def __init__(
         self,
@@ -2219,17 +2296,23 @@ BlockContent = Union["CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "P
 """
 Union type for call CreativeWork types.
 """
-CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
+CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
 
 
 """
 Union type for valid inline content.
 """
-InlineContent = Union[None, bool, int, float, str, "Code", "CodeExpr", "Delete", "Emphasis", "ImageObject", "Link", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup"]
+InlineContent = Union[None, bool, int, float, str, "CodeFragment", "CodeExpression", "Delete", "Emphasis", "ImageObject", "Link", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup"]
 
 
 """
 Union type for all valid nodes.
 """
 Node = Union[None, bool, float, int, str, Array[Any], Dict[str, Any], "Entity"]
+
+
+"""
+Union type for all data schemas.
+"""
+Schema = Union["ConstantSchema", "EnumSchema", "BooleanSchema", "NumberSchema", "IntegerSchema", "StringSchema", "ArraySchema", "TupleSchema"]
 

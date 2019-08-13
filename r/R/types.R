@@ -22,12 +22,69 @@ Entity <- function(
 }
 
 
+#' A schema specifying constraints on an array node.
+#'
+#' @name ArraySchema
+#' @param contains An array node is valid if at least one of its items is valid against the `contains` schema.
+#' @param id The identifier for this item.
+#' @param items Another data schema node specifying the constraints on all items in the array.
+#' @param maxItems An array node is valid if its size is less than, or equal to, this value.
+#' @param meta Metadata associated with this item.
+#' @param minItems An array node is valid if its size is greater than, or equal to, this value.
+#' @param uniqueItems A flag to indicate that each value in the array should be unique.
+#' @seealso \code{\link{Entity}}
+#' @export
+ArraySchema <- function(
+  contains,
+  id,
+  items,
+  maxItems,
+  meta,
+  minItems,
+  uniqueItems
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("ArraySchema")
+  self[["contains"]] <- check_property("ArraySchema", "contains", FALSE, missing(contains), "Schema", contains)
+  self[["items"]] <- check_property("ArraySchema", "items", FALSE, missing(items), "Schema", items)
+  self[["maxItems"]] <- check_property("ArraySchema", "maxItems", FALSE, missing(maxItems), "numeric", maxItems)
+  self[["minItems"]] <- check_property("ArraySchema", "minItems", FALSE, missing(minItems), "numeric", minItems)
+  self[["uniqueItems"]] <- check_property("ArraySchema", "uniqueItems", FALSE, missing(uniqueItems), "logical", uniqueItems)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' A schema specifying that a node must be a boolean value.
+#'
+#' @name BooleanSchema
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @seealso \code{\link{Entity}}
+#' @export
+BooleanSchema <- function(
+  id,
+  meta
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("BooleanSchema")
+
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
 #' A reference to a CreativeWork that is cited in another CreativeWork.
 #'
 #' @name Cite
 #' @param target The target of the citation (URL or reference ID). \bold{Required}.
 #' @param citationMode How the cite is rendered in the surrounding text.
-#' @param content Optional structured content/text of this citation.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param pageEnd The page on which the work ends; for example "138" or "xvi".
@@ -40,7 +97,6 @@ Entity <- function(
 Cite <- function(
   target,
   citationMode,
-  content,
   id,
   meta,
   pageEnd,
@@ -56,7 +112,6 @@ Cite <- function(
   self$type <- as_scalar("Cite")
   self[["target"]] <- check_property("Cite", "target", TRUE, missing(target), "character", target)
   self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("normal", "suppressAuthor"), citationMode)
-  self[["content"]] <- check_property("Cite", "content", FALSE, missing(content), Array("InlineContent"), content)
   self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
   self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
   self[["pagination"]] <- check_property("Cite", "pagination", FALSE, missing(pagination), "character", pagination)
@@ -91,52 +146,168 @@ CiteGroup <- function(
 }
 
 
-#' A schema specifying the data values that are valid within a Datatable column.
+#' Inline code.
 #'
-#' @name DatatableColumnSchema
-#' @param items An object representing the JSON Schema `items` keyword. \bold{Required}.
+#' @name Code
+#' @param text The text of the code. \bold{Required}.
 #' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @param uniqueItems A flag to indicate that each value in the column should be unique.
-#' @seealso \code{\link{Entity}}
-#' @export
-DatatableColumnSchema <- function(
-  items,
-  id,
-  meta,
-  uniqueItems
-){
-  self <- Entity(
-    id = id,
-    meta = meta
-  )
-  self$type <- as_scalar("DatatableColumnSchema")
-  self[["items"]] <- check_property("DatatableColumnSchema", "items", TRUE, missing(items), "list", items)
-  self[["uniqueItems"]] <- check_property("DatatableColumnSchema", "uniqueItems", FALSE, missing(uniqueItems), "logical", uniqueItems)
-  class(self) <- c(class(self), "Entity")
-  self
-}
-
-
-#' A date encoded as a ISO 8601 string.
-#'
-#' @name Date
-#' @param value The date as a ISO 8601 string. \bold{Required}.
-#' @param id The identifier for this item.
+#' @param language The programming language of the code.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Entity}}
 #' @export
-Date <- function(
-  value,
+Code <- function(
+  text,
   id,
+  language,
   meta
 ){
   self <- Entity(
     id = id,
     meta = meta
   )
-  self$type <- as_scalar("Date")
-  self[["value"]] <- check_property("Date", "value", TRUE, missing(value), "character", value)
+  self$type <- as_scalar("Code")
+  self[["text"]] <- check_property("Code", "text", TRUE, missing(text), "character", text)
+  self[["language"]] <- check_property("Code", "language", FALSE, missing(language), "character", language)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' A code block.
+#'
+#' @name CodeBlock
+#' @param text The text of the code. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param language The programming language of the code.
+#' @param meta Metadata associated with this item.
+#' @seealso \code{\link{Code}}
+#' @export
+CodeBlock <- function(
+  text,
+  id,
+  language,
+  meta
+){
+  self <- Code(
+    text = text,
+    id = id,
+    language = language,
+    meta = meta
+  )
+  self$type <- as_scalar("CodeBlock")
+
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' A executable chunk of code.
+#'
+#' @name CodeChunk
+#' @param text The text of the code. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param language The programming language of the code.
+#' @param meta Metadata associated with this item.
+#' @param outputs Outputs from executing the chunk.
+#' @seealso \code{\link{CodeBlock}}
+#' @export
+CodeChunk <- function(
+  text,
+  id,
+  language,
+  meta,
+  outputs
+){
+  self <- CodeBlock(
+    text = text,
+    id = id,
+    language = language,
+    meta = meta
+  )
+  self$type <- as_scalar("CodeChunk")
+  self[["outputs"]] <- check_property("CodeChunk", "outputs", FALSE, missing(outputs), Array("Node"), outputs)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' Inline code.
+#'
+#' @name CodeFragment
+#' @param text The text of the code. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param language The programming language of the code.
+#' @param meta Metadata associated with this item.
+#' @seealso \code{\link{Code}}
+#' @export
+CodeFragment <- function(
+  text,
+  id,
+  language,
+  meta
+){
+  self <- Code(
+    text = text,
+    id = id,
+    language = language,
+    meta = meta
+  )
+  self$type <- as_scalar("CodeFragment")
+
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' An expression defined in programming language source code.
+#'
+#' @name CodeExpression
+#' @param text The text of the code. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param language The programming language of the code.
+#' @param meta Metadata associated with this item.
+#' @param output The value of the expression when it was last evaluated.
+#' @seealso \code{\link{CodeFragment}}
+#' @export
+CodeExpression <- function(
+  text,
+  id,
+  language,
+  meta,
+  output
+){
+  self <- CodeFragment(
+    text = text,
+    id = id,
+    language = language,
+    meta = meta
+  )
+  self$type <- as_scalar("CodeExpression")
+  self[["output"]] <- check_property("CodeExpression", "output", FALSE, missing(output), "Node", output)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' A schema specifying a constant value that a node must have.
+#'
+#' @name ConstantSchema
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param value The value that the node must have.
+#' @seealso \code{\link{Entity}}
+#' @export
+ConstantSchema <- function(
+  id,
+  meta,
+  value
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("ConstantSchema")
+  self[["value"]] <- check_property("ConstantSchema", "value", FALSE, missing(value), "Node", value)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -289,86 +460,7 @@ Brand <- function(
 }
 
 
-#' Inline code.
-#'
-#' @name Code
-#' @param value The text value. \bold{Required}.
-#' @param alternateNames Alternate names (aliases) for the item.
-#' @param description A description of the item.
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @param name The name of the item.
-#' @param programmingLanguage The programming language of the code.
-#' @param url The URL of the item.
-#' @seealso \code{\link{Thing}}
-#' @export
-Code <- function(
-  value,
-  alternateNames,
-  description,
-  id,
-  meta,
-  name,
-  programmingLanguage,
-  url
-){
-  self <- Thing(
-    alternateNames = alternateNames,
-    description = description,
-    id = id,
-    meta = meta,
-    name = name,
-    url = url
-  )
-  self$type <- as_scalar("Code")
-  self[["value"]] <- check_property("Code", "value", TRUE, missing(value), "character", value)
-  self[["programmingLanguage"]] <- check_property("Code", "programmingLanguage", FALSE, missing(programmingLanguage), "character", programmingLanguage)
-  class(self) <- c(class(self), "Entity")
-  self
-}
-
-
-#' A code block.
-#'
-#' @name CodeBlock
-#' @param value The text value. \bold{Required}.
-#' @param alternateNames Alternate names (aliases) for the item.
-#' @param description A description of the item.
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @param name The name of the item.
-#' @param programmingLanguage The programming language of the code.
-#' @param url The URL of the item.
-#' @seealso \code{\link{Code}}
-#' @export
-CodeBlock <- function(
-  value,
-  alternateNames,
-  description,
-  id,
-  meta,
-  name,
-  programmingLanguage,
-  url
-){
-  self <- Code(
-    value = value,
-    alternateNames = alternateNames,
-    description = description,
-    id = id,
-    meta = meta,
-    name = name,
-    programmingLanguage = programmingLanguage,
-    url = url
-  )
-  self$type <- as_scalar("CodeBlock")
-
-  class(self) <- c(class(self), "Entity")
-  self
-}
-
-
-#' A contact point, for example, a R&D department.
+#' A contact point—for example, a R&D department.
 #'
 #' @name ContactPoint
 #' @param alternateNames Alternate names (aliases) for the item.
@@ -378,7 +470,7 @@ CodeBlock <- function(
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
-#' @param telephoneNumbers Telephone numbers for the contact point.
+#' @param telephone The telephone number of the contact point. Accepted formats: +44 123455, (02)12345, 006645667.
 #' @param url The URL of the item.
 #' @seealso \code{\link{Thing}}
 #' @export
@@ -390,7 +482,7 @@ ContactPoint <- function(
   id,
   meta,
   name,
-  telephoneNumbers,
+  telephone,
   url
 ){
   self <- Thing(
@@ -404,7 +496,7 @@ ContactPoint <- function(
   self$type <- as_scalar("ContactPoint")
   self[["availableLanguages"]] <- check_property("ContactPoint", "availableLanguages", FALSE, missing(availableLanguages), Array("character"), availableLanguages)
   self[["emails"]] <- check_property("ContactPoint", "emails", FALSE, missing(emails), Array("character"), emails)
-  self[["telephoneNumbers"]] <- check_property("ContactPoint", "telephoneNumbers", FALSE, missing(telephoneNumbers), Array("character"), telephoneNumbers)
+  self[["telephone"]] <- check_property("ContactPoint", "telephone", FALSE, missing(telephone), "character", telephone)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -424,7 +516,6 @@ ContactPoint <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -449,7 +540,6 @@ CreativeWork <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   licenses,
   meta,
   name,
@@ -472,13 +562,12 @@ CreativeWork <- function(
   self$type <- as_scalar("CreativeWork")
   self[["authors"]] <- check_property("CreativeWork", "authors", FALSE, missing(authors), Array(Union("Person", "Organization")), authors)
   self[["content"]] <- check_property("CreativeWork", "content", FALSE, missing(content), Array("Node"), content)
-  self[["dateCreated"]] <- check_property("CreativeWork", "dateCreated", FALSE, missing(dateCreated), Union("Date", "character"), dateCreated)
-  self[["dateModified"]] <- check_property("CreativeWork", "dateModified", FALSE, missing(dateModified), Union("Date", "character"), dateModified)
-  self[["datePublished"]] <- check_property("CreativeWork", "datePublished", FALSE, missing(datePublished), Union("Date", "character"), datePublished)
+  self[["dateCreated"]] <- check_property("CreativeWork", "dateCreated", FALSE, missing(dateCreated), "character", dateCreated)
+  self[["dateModified"]] <- check_property("CreativeWork", "dateModified", FALSE, missing(dateModified), "character", dateModified)
+  self[["datePublished"]] <- check_property("CreativeWork", "datePublished", FALSE, missing(datePublished), "character", datePublished)
   self[["editors"]] <- check_property("CreativeWork", "editors", FALSE, missing(editors), Array("Person"), editors)
   self[["funders"]] <- check_property("CreativeWork", "funders", FALSE, missing(funders), Array(Union("Person", "Organization")), funders)
   self[["isPartOf"]] <- check_property("CreativeWork", "isPartOf", FALSE, missing(isPartOf), "CreativeWorkTypes", isPartOf)
-  self[["keywords"]] <- check_property("CreativeWork", "keywords", FALSE, missing(keywords), Array("character"), keywords)
   self[["licenses"]] <- check_property("CreativeWork", "licenses", FALSE, missing(licenses), Array(Union("character", "CreativeWorkTypes")), licenses)
   self[["parts"]] <- check_property("CreativeWork", "parts", FALSE, missing(parts), Array("CreativeWorkTypes"), parts)
   self[["publisher"]] <- check_property("CreativeWork", "publisher", FALSE, missing(publisher), Union("Person", "Organization"), publisher)
@@ -507,7 +596,6 @@ CreativeWork <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -533,7 +621,6 @@ Article <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   licenses,
   meta,
   name,
@@ -557,7 +644,6 @@ Article <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -592,7 +678,6 @@ Article <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -617,7 +702,6 @@ Collection <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   licenses,
   meta,
   name,
@@ -641,7 +725,6 @@ Collection <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -674,7 +757,6 @@ Collection <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -700,7 +782,6 @@ Datatable <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   licenses,
   meta,
   name,
@@ -724,7 +805,6 @@ Datatable <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -762,7 +842,6 @@ Datatable <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -792,7 +871,6 @@ MediaObject <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   licenses,
   meta,
   name,
@@ -816,7 +894,6 @@ MediaObject <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -859,7 +936,6 @@ MediaObject <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -891,7 +967,6 @@ AudioObject <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   licenses,
   meta,
   name,
@@ -921,7 +996,6 @@ AudioObject <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -936,318 +1010,6 @@ AudioObject <- function(
   self$type <- as_scalar("AudioObject")
   self[["caption"]] <- check_property("AudioObject", "caption", FALSE, missing(caption), "character", caption)
   self[["transcript"]] <- check_property("AudioObject", "transcript", FALSE, missing(transcript), "character", transcript)
-  class(self) <- c(class(self), "Entity")
-  self
-}
-
-
-#' Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
-#'
-#' @name SoftwareSourceCode
-#' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this creative work.
-#' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
-#' @param codeSampleType What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
-#' @param content The structured content of this creative work c.f. property `text`.
-#' @param dateCreated Date/time of creation.
-#' @param dateModified Date/time of most recent modification.
-#' @param datePublished Date of first publication.
-#' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
-#' @param id The identifier for this item.
-#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-#' @param licenses License documents that applies to this content, typically indicated by URL.
-#' @param maintainers The people or organizations who maintain the software.
-#' @param meta Metadata associated with this item.
-#' @param name The name of the item.
-#' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-#' @param programmingLanguage The computer programming language.
-#' @param publisher A publisher of the CreativeWork.
-#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
-#' @param runtimePlatform Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
-#' @param softwareRequirements Dependency requirements for the software.
-#' @param targetProducts Target operating system or product to which the code applies.
-#' @param text The textual content of this creative work.
-#' @param title The title of the creative work.
-#' @param url The URL of the item.
-#' @param version The version of the creative work.
-#' @seealso \code{\link{CreativeWork}}
-#' @export
-SoftwareSourceCode <- function(
-  alternateNames,
-  authors,
-  codeRepository,
-  codeSampleType,
-  content,
-  dateCreated,
-  dateModified,
-  datePublished,
-  description,
-  editors,
-  funders,
-  id,
-  isPartOf,
-  keywords,
-  licenses,
-  maintainers,
-  meta,
-  name,
-  parts,
-  programmingLanguage,
-  publisher,
-  references,
-  runtimePlatform,
-  softwareRequirements,
-  targetProducts,
-  text,
-  title,
-  url,
-  version
-){
-  self <- CreativeWork(
-    alternateNames = alternateNames,
-    authors = authors,
-    content = content,
-    dateCreated = dateCreated,
-    dateModified = dateModified,
-    datePublished = datePublished,
-    description = description,
-    editors = editors,
-    funders = funders,
-    id = id,
-    isPartOf = isPartOf,
-    keywords = keywords,
-    licenses = licenses,
-    meta = meta,
-    name = name,
-    parts = parts,
-    publisher = publisher,
-    references = references,
-    text = text,
-    title = title,
-    url = url,
-    version = version
-  )
-  self$type <- as_scalar("SoftwareSourceCode")
-  self[["codeRepository"]] <- check_property("SoftwareSourceCode", "codeRepository", FALSE, missing(codeRepository), "character", codeRepository)
-  self[["codeSampleType"]] <- check_property("SoftwareSourceCode", "codeSampleType", FALSE, missing(codeSampleType), "character", codeSampleType)
-  self[["maintainers"]] <- check_property("SoftwareSourceCode", "maintainers", FALSE, missing(maintainers), Array(Union("Organization", "Person")), maintainers)
-  self[["programmingLanguage"]] <- check_property("SoftwareSourceCode", "programmingLanguage", FALSE, missing(programmingLanguage), "character", programmingLanguage)
-  self[["runtimePlatform"]] <- check_property("SoftwareSourceCode", "runtimePlatform", FALSE, missing(runtimePlatform), Array("character"), runtimePlatform)
-  self[["softwareRequirements"]] <- check_property("SoftwareSourceCode", "softwareRequirements", FALSE, missing(softwareRequirements), Array(Union("SoftwareSourceCode", "SoftwareApplication", "character")), softwareRequirements)
-  self[["targetProducts"]] <- check_property("SoftwareSourceCode", "targetProducts", FALSE, missing(targetProducts), Array("SoftwareApplication"), targetProducts)
-  class(self) <- c(class(self), "Entity")
-  self
-}
-
-
-#' A executable chunk of code.
-#'
-#' @name CodeChunk
-#' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this creative work.
-#' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
-#' @param codeSampleType What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
-#' @param content The structured content of this creative work c.f. property `text`.
-#' @param dateCreated Date/time of creation.
-#' @param dateModified Date/time of most recent modification.
-#' @param datePublished Date of first publication.
-#' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
-#' @param id The identifier for this item.
-#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-#' @param licenses License documents that applies to this content, typically indicated by URL.
-#' @param maintainers The people or organizations who maintain the software.
-#' @param meta Metadata associated with this item.
-#' @param name The name of the item.
-#' @param outputs Outputs from executing the chunk.
-#' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-#' @param programmingLanguage The computer programming language.
-#' @param publisher A publisher of the CreativeWork.
-#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
-#' @param runtimePlatform Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
-#' @param softwareRequirements Dependency requirements for the software.
-#' @param targetProducts Target operating system or product to which the code applies.
-#' @param text The textual content of this creative work.
-#' @param title The title of the creative work.
-#' @param url The URL of the item.
-#' @param version The version of the creative work.
-#' @seealso \code{\link{SoftwareSourceCode}}
-#' @export
-CodeChunk <- function(
-  alternateNames,
-  authors,
-  codeRepository,
-  codeSampleType,
-  content,
-  dateCreated,
-  dateModified,
-  datePublished,
-  description,
-  editors,
-  funders,
-  id,
-  isPartOf,
-  keywords,
-  licenses,
-  maintainers,
-  meta,
-  name,
-  outputs,
-  parts,
-  programmingLanguage,
-  publisher,
-  references,
-  runtimePlatform,
-  softwareRequirements,
-  targetProducts,
-  text,
-  title,
-  url,
-  version
-){
-  self <- SoftwareSourceCode(
-    alternateNames = alternateNames,
-    authors = authors,
-    codeRepository = codeRepository,
-    codeSampleType = codeSampleType,
-    content = content,
-    dateCreated = dateCreated,
-    dateModified = dateModified,
-    datePublished = datePublished,
-    description = description,
-    editors = editors,
-    funders = funders,
-    id = id,
-    isPartOf = isPartOf,
-    keywords = keywords,
-    licenses = licenses,
-    maintainers = maintainers,
-    meta = meta,
-    name = name,
-    parts = parts,
-    programmingLanguage = programmingLanguage,
-    publisher = publisher,
-    references = references,
-    runtimePlatform = runtimePlatform,
-    softwareRequirements = softwareRequirements,
-    targetProducts = targetProducts,
-    text = text,
-    title = title,
-    url = url,
-    version = version
-  )
-  self$type <- as_scalar("CodeChunk")
-  self[["outputs"]] <- check_property("CodeChunk", "outputs", FALSE, missing(outputs), Array("Node"), outputs)
-  class(self) <- c(class(self), "Entity")
-  self
-}
-
-
-#' An expression defined in programming language source code.
-#'
-#' @name CodeExpr
-#' @param alternateNames Alternate names (aliases) for the item.
-#' @param authors The authors of this creative work.
-#' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
-#' @param codeSampleType What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
-#' @param content The structured content of this creative work c.f. property `text`.
-#' @param dateCreated Date/time of creation.
-#' @param dateModified Date/time of most recent modification.
-#' @param datePublished Date of first publication.
-#' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
-#' @param id The identifier for this item.
-#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-#' @param licenses License documents that applies to this content, typically indicated by URL.
-#' @param maintainers The people or organizations who maintain the software.
-#' @param meta Metadata associated with this item.
-#' @param name The name of the item.
-#' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-#' @param programmingLanguage The computer programming language.
-#' @param publisher A publisher of the CreativeWork.
-#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
-#' @param runtimePlatform Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
-#' @param softwareRequirements Dependency requirements for the software.
-#' @param targetProducts Target operating system or product to which the code applies.
-#' @param text The textual content of this creative work.
-#' @param title The title of the creative work.
-#' @param url The URL of the item.
-#' @param value The value of the expression when it was last evaluated.
-#' @param version The version of the creative work.
-#' @seealso \code{\link{SoftwareSourceCode}}
-#' @export
-CodeExpr <- function(
-  alternateNames,
-  authors,
-  codeRepository,
-  codeSampleType,
-  content,
-  dateCreated,
-  dateModified,
-  datePublished,
-  description,
-  editors,
-  funders,
-  id,
-  isPartOf,
-  keywords,
-  licenses,
-  maintainers,
-  meta,
-  name,
-  parts,
-  programmingLanguage,
-  publisher,
-  references,
-  runtimePlatform,
-  softwareRequirements,
-  targetProducts,
-  text,
-  title,
-  url,
-  value,
-  version
-){
-  self <- SoftwareSourceCode(
-    alternateNames = alternateNames,
-    authors = authors,
-    codeRepository = codeRepository,
-    codeSampleType = codeSampleType,
-    content = content,
-    dateCreated = dateCreated,
-    dateModified = dateModified,
-    datePublished = datePublished,
-    description = description,
-    editors = editors,
-    funders = funders,
-    id = id,
-    isPartOf = isPartOf,
-    keywords = keywords,
-    licenses = licenses,
-    maintainers = maintainers,
-    meta = meta,
-    name = name,
-    parts = parts,
-    programmingLanguage = programmingLanguage,
-    publisher = publisher,
-    references = references,
-    runtimePlatform = runtimePlatform,
-    softwareRequirements = softwareRequirements,
-    targetProducts = targetProducts,
-    text = text,
-    title = title,
-    url = url,
-    version = version
-  )
-  self$type <- as_scalar("CodeExpr")
-  self[["value"]] <- check_property("CodeExpr", "value", FALSE, missing(value), "Node", value)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -1287,7 +1049,31 @@ DatatableColumn <- function(
   self$type <- as_scalar("DatatableColumn")
   self[["name"]] <- check_property("DatatableColumn", "name", TRUE, missing(name), "character", name)
   self[["values"]] <- check_property("DatatableColumn", "values", TRUE, missing(values), Array(Any()), values)
-  self[["schema"]] <- check_property("DatatableColumn", "schema", FALSE, missing(schema), "DatatableColumnSchema", schema)
+  self[["schema"]] <- check_property("DatatableColumn", "schema", FALSE, missing(schema), "ArraySchema", schema)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' A schema specifying that a node must be one of several values.
+#'
+#' @name EnumSchema
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param values A node is valid if it is equal to any of these values.
+#' @seealso \code{\link{Entity}}
+#' @export
+EnumSchema <- function(
+  id,
+  meta,
+  values
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("EnumSchema")
+  self[["values"]] <- check_property("EnumSchema", "values", FALSE, missing(values), Array("Node"), values)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -1304,6 +1090,7 @@ DatatableColumn <- function(
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param removes The packages that this environment removes from the base environments listed under `extends` (if any).,
+#' @param source Source of environment definition. e.g. a URL to a Dockerfile, or a path to a filesystem folder.
 #' @param url The URL of the item.
 #' @seealso \code{\link{Thing}}
 #' @export
@@ -1316,6 +1103,7 @@ Environment <- function(
   id,
   meta,
   removes,
+  source,
   url
 ){
   self <- Thing(
@@ -1331,6 +1119,7 @@ Environment <- function(
   self[["adds"]] <- check_property("Environment", "adds", FALSE, missing(adds), Array("SoftwareSourceCode"), adds)
   self[["extends"]] <- check_property("Environment", "extends", FALSE, missing(extends), Array("Environment"), extends)
   self[["removes"]] <- check_property("Environment", "removes", FALSE, missing(removes), Array("SoftwareSourceCode"), removes)
+  self[["source"]] <- check_property("Environment", "source", FALSE, missing(source), "character", source)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -1351,7 +1140,6 @@ Environment <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param label A short label for the figure.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
@@ -1378,7 +1166,6 @@ Figure <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   label,
   licenses,
   meta,
@@ -1403,7 +1190,6 @@ Figure <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -1470,7 +1256,6 @@ Heading <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -1502,7 +1287,6 @@ ImageObject <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   licenses,
   meta,
   name,
@@ -1532,7 +1316,6 @@ ImageObject <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -1580,6 +1363,79 @@ Include <- function(
   self[["content"]] <- check_property("Include", "content", FALSE, missing(content), Array("Node"), content)
   self[["hash"]] <- check_property("Include", "hash", FALSE, missing(hash), "character", hash)
   self[["mediaType"]] <- check_property("Include", "mediaType", FALSE, missing(mediaType), "character", mediaType)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' A schema specifying the constraints on a numeric node.
+#'
+#' @name NumberSchema
+#' @param exclusiveMaximum The exclusive upper limit for a numeric node.
+#' @param exclusiveMinimum The exclusive lower limit for a numeric node.
+#' @param id The identifier for this item.
+#' @param maximum The inclusive upper limit for a numeric node.
+#' @param meta Metadata associated with this item.
+#' @param minimum The inclusive lower limit for a numeric node.
+#' @param multipleOf A number that a numeric node must be a multiple of.
+#' @seealso \code{\link{Entity}}
+#' @export
+NumberSchema <- function(
+  exclusiveMaximum,
+  exclusiveMinimum,
+  id,
+  maximum,
+  meta,
+  minimum,
+  multipleOf
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("NumberSchema")
+  self[["exclusiveMaximum"]] <- check_property("NumberSchema", "exclusiveMaximum", FALSE, missing(exclusiveMaximum), "numeric", exclusiveMaximum)
+  self[["exclusiveMinimum"]] <- check_property("NumberSchema", "exclusiveMinimum", FALSE, missing(exclusiveMinimum), "numeric", exclusiveMinimum)
+  self[["maximum"]] <- check_property("NumberSchema", "maximum", FALSE, missing(maximum), "numeric", maximum)
+  self[["minimum"]] <- check_property("NumberSchema", "minimum", FALSE, missing(minimum), "numeric", minimum)
+  self[["multipleOf"]] <- check_property("NumberSchema", "multipleOf", FALSE, missing(multipleOf), "numeric", multipleOf)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' A schema specifying the constraints on an integer node.
+#'
+#' @name IntegerSchema
+#' @param exclusiveMaximum The exclusive upper limit for a numeric node.
+#' @param exclusiveMinimum The exclusive lower limit for a numeric node.
+#' @param id The identifier for this item.
+#' @param maximum The inclusive upper limit for a numeric node.
+#' @param meta Metadata associated with this item.
+#' @param minimum The inclusive lower limit for a numeric node.
+#' @param multipleOf A number that a numeric node must be a multiple of.
+#' @seealso \code{\link{NumberSchema}}
+#' @export
+IntegerSchema <- function(
+  exclusiveMaximum,
+  exclusiveMinimum,
+  id,
+  maximum,
+  meta,
+  minimum,
+  multipleOf
+){
+  self <- NumberSchema(
+    exclusiveMaximum = exclusiveMaximum,
+    exclusiveMinimum = exclusiveMinimum,
+    id = id,
+    maximum = maximum,
+    meta = meta,
+    minimum = minimum,
+    multipleOf = multipleOf
+  )
+  self$type <- as_scalar("IntegerSchema")
+
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -1798,25 +1654,28 @@ Paragraph <- function(
 #' A parameter that can be set and used in evaluated code.
 #'
 #' @name Parameter
-#' @param dataType The type of data this parameter accepts. \bold{Required}.
-#' @param name The name the parameter is referred to in code. Should be in the format ([A-z_][A-z0-9_]+) \bold{Required}.
+#' @param name The name the parameter is referred to in code. \bold{Required}.
+#' @param default The default value of the parameter.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @param schema The schema that the value of the parameter will be validated against.
 #' @seealso \code{\link{Entity}}
 #' @export
 Parameter <- function(
-  dataType,
   name,
+  default,
   id,
-  meta
+  meta,
+  schema
 ){
   self <- Entity(
     id = id,
     meta = meta
   )
   self$type <- as_scalar("Parameter")
-  self[["dataType"]] <- check_property("Parameter", "dataType", TRUE, missing(dataType), Enum("string", "int", "float", "boolean", "json"), dataType)
   self[["name"]] <- check_property("Parameter", "name", TRUE, missing(name), "character", name)
+  self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), "Node", default)
+  self[["schema"]] <- check_property("Parameter", "schema", FALSE, missing(schema), "Schema", schema)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -1839,7 +1698,6 @@ Parameter <- function(
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param issn The International Standard Serial Number (ISSN) that identifies this serial publication.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -1867,7 +1725,6 @@ Periodical <- function(
   id,
   isPartOf,
   issn,
-  keywords,
   licenses,
   meta,
   name,
@@ -1891,7 +1748,6 @@ Periodical <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -1904,8 +1760,8 @@ Periodical <- function(
     version = version
   )
   self$type <- as_scalar("Periodical")
-  self[["dateEnd"]] <- check_property("Periodical", "dateEnd", FALSE, missing(dateEnd), Union("Date", "character"), dateEnd)
-  self[["dateStart"]] <- check_property("Periodical", "dateStart", FALSE, missing(dateStart), Union("Date", "character"), dateStart)
+  self[["dateEnd"]] <- check_property("Periodical", "dateEnd", FALSE, missing(dateEnd), "character", dateEnd)
+  self[["dateStart"]] <- check_property("Periodical", "dateStart", FALSE, missing(dateStart), "character", dateStart)
   self[["issn"]] <- check_property("Periodical", "issn", FALSE, missing(issn), Array("character"), issn)
   class(self) <- c(class(self), "Entity")
   self
@@ -1982,7 +1838,7 @@ Person <- function(
 #'
 #' @name Product
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param brands Brands that the product is labelled with.
+#' @param brand Brand that the product is labelled with.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
 #' @param logo The logo of the product.
@@ -1994,7 +1850,7 @@ Person <- function(
 #' @export
 Product <- function(
   alternateNames,
-  brands,
+  brand,
   description,
   id,
   logo,
@@ -2012,7 +1868,7 @@ Product <- function(
     url = url
   )
   self$type <- as_scalar("Product")
-  self[["brands"]] <- check_property("Product", "brands", FALSE, missing(brands), Array("Brand"), brands)
+  self[["brand"]] <- check_property("Product", "brand", FALSE, missing(brand), "Brand", brand)
   self[["logo"]] <- check_property("Product", "logo", FALSE, missing(logo), Union("character", "ImageObject"), logo)
   self[["productID"]] <- check_property("Product", "productID", FALSE, missing(productID), "character", productID)
   class(self) <- c(class(self), "Entity")
@@ -2020,7 +1876,7 @@ Product <- function(
 }
 
 
-#' A part of a successively published publication such as a periodical or publication volume, often numbered.
+#' A part of a successively published publication such as a periodical or publication  volume, often numbered.
 #'
 #' @name PublicationIssue
 #' @param alternateNames Alternate names (aliases) for the item.
@@ -2035,13 +1891,12 @@ Product <- function(
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param issueNumber Identifies the issue of publication; for example, "iii" or "2".
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param pageEnd The page on which the work ends; for example "138" or "xvi".
 #' @param pageStart The page on which the work starts; for example "135" or "xiii".
-#' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
+#' @param pagination Any description of pages that is not separated into pageStart and pageEnd;  for example, "1-6, 9, 55".
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
 #' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
@@ -2064,7 +1919,6 @@ PublicationIssue <- function(
   id,
   isPartOf,
   issueNumber,
-  keywords,
   licenses,
   meta,
   name,
@@ -2091,7 +1945,6 @@ PublicationIssue <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -2127,7 +1980,6 @@ PublicationIssue <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -2156,7 +2008,6 @@ PublicationVolume <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   licenses,
   meta,
   name,
@@ -2184,7 +2035,6 @@ PublicationVolume <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -2210,14 +2060,14 @@ PublicationVolume <- function(
 #'
 #' @name Quote
 #' @param content The content that is marked. \bold{Required}.
-#' @param cite The source of the quote.
+#' @param citation The source of the quote.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Mark}}
 #' @export
 Quote <- function(
   content,
-  cite,
+  citation,
   id,
   meta
 ){
@@ -2227,7 +2077,7 @@ Quote <- function(
     meta = meta
   )
   self$type <- as_scalar("Quote")
-  self[["cite"]] <- check_property("Quote", "cite", FALSE, missing(cite), Union("Cite", "character"), cite)
+  self[["citation"]] <- check_property("Quote", "citation", FALSE, missing(citation), "character", citation)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -2237,14 +2087,14 @@ Quote <- function(
 #'
 #' @name QuoteBlock
 #' @param content The content of the quote. \bold{Required}.
-#' @param cite The source of the quote.
+#' @param citation The source of the quote
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Entity}}
 #' @export
 QuoteBlock <- function(
   content,
-  cite,
+  citation,
   id,
   meta
 ){
@@ -2254,7 +2104,7 @@ QuoteBlock <- function(
   )
   self$type <- as_scalar("QuoteBlock")
   self[["content"]] <- check_property("QuoteBlock", "content", TRUE, missing(content), Array("BlockContent"), content)
-  self[["cite"]] <- check_property("QuoteBlock", "cite", FALSE, missing(cite), Union("Cite", "character"), cite)
+  self[["citation"]] <- check_property("QuoteBlock", "citation", FALSE, missing(citation), "character", citation)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -2313,7 +2163,6 @@ ResourceParameters <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -2340,7 +2189,6 @@ SoftwareApplication <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   licenses,
   meta,
   name,
@@ -2366,7 +2214,6 @@ SoftwareApplication <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -2426,6 +2273,135 @@ SoftwareSession <- function(
   self[["cpuResource"]] <- check_property("SoftwareSession", "cpuResource", FALSE, missing(cpuResource), "ResourceParameters", cpuResource)
   self[["memoryResource"]] <- check_property("SoftwareSession", "memoryResource", FALSE, missing(memoryResource), "ResourceParameters", memoryResource)
   self[["volumeMounts"]] <- check_property("SoftwareSession", "volumeMounts", FALSE, missing(volumeMounts), Array("Mount"), volumeMounts)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
+#'
+#' @name SoftwareSourceCode
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param authors The authors of this creative work.
+#' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
+#' @param codeSampleType What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
+#' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateCreated Date/time of creation.
+#' @param dateModified Date/time of most recent modification.
+#' @param datePublished Date of first publication.
+#' @param description A description of the item.
+#' @param editors Persons who edited the CreativeWork.
+#' @param funders Person or organisation that funded the CreativeWork.
+#' @param id The identifier for this item.
+#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
+#' @param licenses License documents that applies to this content, typically indicated by URL.
+#' @param maintainers The people or organizations who maintain the software.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+#' @param programmingLanguage The computer programming language.
+#' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
+#' @param runtimePlatform Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
+#' @param softwareRequirements Dependency requirements for the software.
+#' @param targetProducts Target operating system or product to which the code applies.
+#' @param text The textual content of this creative work.
+#' @param title The title of the creative work.
+#' @param url The URL of the item.
+#' @param version The version of the creative work.
+#' @seealso \code{\link{CreativeWork}}
+#' @export
+SoftwareSourceCode <- function(
+  alternateNames,
+  authors,
+  codeRepository,
+  codeSampleType,
+  content,
+  dateCreated,
+  dateModified,
+  datePublished,
+  description,
+  editors,
+  funders,
+  id,
+  isPartOf,
+  licenses,
+  maintainers,
+  meta,
+  name,
+  parts,
+  programmingLanguage,
+  publisher,
+  references,
+  runtimePlatform,
+  softwareRequirements,
+  targetProducts,
+  text,
+  title,
+  url,
+  version
+){
+  self <- CreativeWork(
+    alternateNames = alternateNames,
+    authors = authors,
+    content = content,
+    dateCreated = dateCreated,
+    dateModified = dateModified,
+    datePublished = datePublished,
+    description = description,
+    editors = editors,
+    funders = funders,
+    id = id,
+    isPartOf = isPartOf,
+    licenses = licenses,
+    meta = meta,
+    name = name,
+    parts = parts,
+    publisher = publisher,
+    references = references,
+    text = text,
+    title = title,
+    url = url,
+    version = version
+  )
+  self$type <- as_scalar("SoftwareSourceCode")
+  self[["codeRepository"]] <- check_property("SoftwareSourceCode", "codeRepository", FALSE, missing(codeRepository), "character", codeRepository)
+  self[["codeSampleType"]] <- check_property("SoftwareSourceCode", "codeSampleType", FALSE, missing(codeSampleType), "character", codeSampleType)
+  self[["maintainers"]] <- check_property("SoftwareSourceCode", "maintainers", FALSE, missing(maintainers), Array(Union("Organization", "Person")), maintainers)
+  self[["programmingLanguage"]] <- check_property("SoftwareSourceCode", "programmingLanguage", FALSE, missing(programmingLanguage), "character", programmingLanguage)
+  self[["runtimePlatform"]] <- check_property("SoftwareSourceCode", "runtimePlatform", FALSE, missing(runtimePlatform), Array("character"), runtimePlatform)
+  self[["softwareRequirements"]] <- check_property("SoftwareSourceCode", "softwareRequirements", FALSE, missing(softwareRequirements), Array(Union("SoftwareSourceCode", "SoftwareApplication", "character")), softwareRequirements)
+  self[["targetProducts"]] <- check_property("SoftwareSourceCode", "targetProducts", FALSE, missing(targetProducts), Array("SoftwareApplication"), targetProducts)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
+#' A schema specifying constraints on a string node.
+#'
+#' @name StringSchema
+#' @param id The identifier for this item.
+#' @param maxLength The maximum length for a string node.
+#' @param meta Metadata associated with this item.
+#' @param minLength The minimum length for a string node.
+#' @param pattern A regular expression that a string node must match.
+#' @seealso \code{\link{Entity}}
+#' @export
+StringSchema <- function(
+  id,
+  maxLength,
+  meta,
+  minLength,
+  pattern
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("StringSchema")
+  self[["maxLength"]] <- check_property("StringSchema", "maxLength", FALSE, missing(maxLength), "numeric", maxLength)
+  self[["minLength"]] <- check_property("StringSchema", "minLength", FALSE, missing(minLength), "numeric", minLength)
+  self[["pattern"]] <- check_property("StringSchema", "pattern", FALSE, missing(pattern), "character", pattern)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -2521,7 +2497,6 @@ Superscript <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -2547,7 +2522,6 @@ Table <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   licenses,
   meta,
   name,
@@ -2571,7 +2545,6 @@ Table <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -2594,9 +2567,9 @@ Table <- function(
 #'
 #' @name TableCell
 #' @param content Contents of the table cell. \bold{Required}.
-#' @param cellType Indicates whether the cell is a header or data.
 #' @param colspan How many columns the cell extends.
 #' @param id The identifier for this item.
+#' @param kind Indicates whether the cell is a header.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the cell.
 #' @param rowspan How many columns the cell extends.
@@ -2604,9 +2577,9 @@ Table <- function(
 #' @export
 TableCell <- function(
   content,
-  cellType,
   colspan,
   id,
+  kind,
   meta,
   name,
   rowspan
@@ -2617,8 +2590,8 @@ TableCell <- function(
   )
   self$type <- as_scalar("TableCell")
   self[["content"]] <- check_property("TableCell", "content", TRUE, missing(content), Array("InlineContent"), content)
-  self[["cellType"]] <- check_property("TableCell", "cellType", FALSE, missing(cellType), Enum("data", "header"), cellType)
   self[["colspan"]] <- check_property("TableCell", "colspan", FALSE, missing(colspan), "numeric", colspan)
+  self[["kind"]] <- check_property("TableCell", "kind", FALSE, missing(kind), Enum("data", "header"), kind)
   self[["name"]] <- check_property("TableCell", "name", FALSE, missing(name), "character", name)
   self[["rowspan"]] <- check_property("TableCell", "rowspan", FALSE, missing(rowspan), "numeric", rowspan)
   class(self) <- c(class(self), "Entity")
@@ -2631,15 +2604,15 @@ TableCell <- function(
 #' @name TableRow
 #' @param cells An array of cells in the row. \bold{Required}.
 #' @param id The identifier for this item.
+#' @param kind If present, indicates that all cells in this row should be treated as header cells.
 #' @param meta Metadata associated with this item.
-#' @param rowType If present, indicates that all cells in this row should be treated as header cells.
 #' @seealso \code{\link{Entity}}
 #' @export
 TableRow <- function(
   cells,
   id,
-  meta,
-  rowType
+  kind,
+  meta
 ){
   self <- Entity(
     id = id,
@@ -2647,7 +2620,7 @@ TableRow <- function(
   )
   self$type <- as_scalar("TableRow")
   self[["cells"]] <- check_property("TableRow", "cells", TRUE, missing(cells), Array("TableCell"), cells)
-  self[["rowType"]] <- check_property("TableRow", "rowType", FALSE, missing(rowType), Enum("header", "footer"), rowType)
+  self[["kind"]] <- check_property("TableRow", "kind", FALSE, missing(kind), Enum("header", "footer"), kind)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -2675,6 +2648,30 @@ ThematicBreak <- function(
 }
 
 
+#' A schema specifying constraints on an array of heterogeneous items.
+#'
+#' @name TupleSchema
+#' @param id The identifier for this item.
+#' @param items An array of schemas specifying the constraints on each successive item in the array.
+#' @param meta Metadata associated with this item.
+#' @seealso \code{\link{Entity}}
+#' @export
+TupleSchema <- function(
+  id,
+  items,
+  meta
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("TupleSchema")
+  self[["items"]] <- check_property("TupleSchema", "items", FALSE, missing(items), Array("Schema"), items)
+  class(self) <- c(class(self), "Entity")
+  self
+}
+
+
 #' A video file.
 #'
 #' @name VideoObject
@@ -2695,7 +2692,6 @@ ThematicBreak <- function(
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -2728,7 +2724,6 @@ VideoObject <- function(
   funders,
   id,
   isPartOf,
-  keywords,
   licenses,
   meta,
   name,
@@ -2759,7 +2754,6 @@ VideoObject <- function(
     funders = funders,
     id = id,
     isPartOf = isPartOf,
-    keywords = keywords,
     licenses = licenses,
     meta = meta,
     name = name,
@@ -2790,18 +2784,24 @@ BlockContent = Union("CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "P
 #' Union type for call CreativeWork types.
 #'
 #' @export
-CreativeWorkTypes = Union("CreativeWork", "Article", "AudioObject", "CodeChunk", "CodeExpr", "Collection", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject")
+CreativeWorkTypes = Union("CreativeWork", "Article", "AudioObject", "Collection", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject")
 
 
 #' Union type for valid inline content.
 #'
 #' @export
-InlineContent = Union("NULL", "logical", "numeric", "character", "Code", "CodeExpr", "Delete", "Emphasis", "ImageObject", "Link", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup")
+InlineContent = Union("NULL", "logical", "numeric", "character", "CodeFragment", "CodeExpression", "Delete", "Emphasis", "ImageObject", "Link", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup")
 
 
 #' Union type for all valid nodes.
 #'
 #' @export
 Node = Union("NULL", "logical", "numeric", "character", Array(Any()), "list", "Entity")
+
+
+#' Union type for all data schemas.
+#'
+#' @export
+Schema = Union("ConstantSchema", "EnumSchema", "BooleanSchema", "NumberSchema", "IntegerSchema", "StringSchema", "ArraySchema", "TupleSchema")
 
 
