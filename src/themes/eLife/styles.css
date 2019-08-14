@@ -12,14 +12,14 @@
   --bg-color: #fff;
 }
 
-@custom-selector [itemtype='https://stencila.github.io/schema/CiteGroup'];
-@custom-selector [itemtype='https://stencila.github.io/schema/Cite'];
-@custom-selector [itemtype='https://schema.org/CreativeWork'];
+@custom-selector :--CiteGroup [itemtype='https://stencila.github.io/schema/CiteGroup'];
+@custom-selector :--Cite [itemtype='https://stencila.github.io/schema/Cite'];
+@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
 @custom-selector :--title [itemprop='title'];
 @custom-selector :--authors [itemprop='authors'];
-@custom-selector [itemtype='https://schema.org/Person'];
-@custom-selector :--citations [itemprop='citations'];
-@custom-selector [itemtype='https://stencila.github.io/schema/PublicationIssue'];
+@custom-selector :--Person [itemtype='https://schema.org/Person'];
+@custom-selector :--references [itemprop='references'];
+@custom-selector :--PublicationIssue [itemtype='https://stencila.github.io/schema/PublicationIssue'];
 @custom-selector :--datePublished [itemprop='datePublished'];
 @custom-selector :--issueNumber [itemprop='issueNumber'];
 @custom-selector :--pagination [itemprop='pagination'];
@@ -320,7 +320,7 @@ blockquote {
   }
 }
 
-:--citations {
+:--references {
   list-style: none;
   counter-reset: cite-counter;
   margin: 0;
@@ -351,7 +351,7 @@ blockquote {
     padding-left: 0;
     list-style: none;
   }
-  
+
   :--CreativeWork > :--title {
     display: inline-block;
     font-size: 1rem;
@@ -384,7 +384,6 @@ blockquote {
 
       &::after {
         content: ', ';
-
       }
 
       &:last-child::after {

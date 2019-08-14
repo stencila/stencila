@@ -11,12 +11,48 @@
   --heading-color: #eeeeee;
 }
 
-.publication,
-.authors,
-.institutions {
+@custom-selector :--CiteGroup [itemtype='https://stencila.github.io/schema/CiteGroup'];
+@custom-selector :--Cite [itemtype='https://stencila.github.io/schema/Cite'];
+@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
+@custom-selector :--title [itemprop='title'];
+@custom-selector :--publisher [itemprop='publisher'];
+@custom-selector :--authors [itemprop='authors'];
+@custom-selector :--Person [itemtype='https://schema.org/Person'];
+@custom-selector :--references [itemprop='references'];
+@custom-selector :--PublicationIssue [itemtype='https://stencila.github.io/schema/PublicationIssue'];
+@custom-selector :--datePublished [itemprop='datePublished'];
+@custom-selector :--issueNumber [itemprop='issueNumber'];
+@custom-selector :--pagination [itemprop='pagination'];
+@custom-selector :--url [itemprop='url'];
+@custom-selector :--abstracts [itemprop='abstracts'];
+
+/* Citation Styles */
+@custom-selector :--citation-style-eLife [data-citation-style='eLife'];
+@custom-selector :--citation-style-MLA [data-citation-style='MLA'];
+@custom-selector :--citation-style-APA [data-citation-style='APA'];
+
+:--publisher,
+:--authors,
+:--CreativeWork header h3,
+:--CreativeWork header ol {
   font-family: var(--secondary-font);
-  font-size: .875rem;
+  font-size: 0.875rem;
   padding-left: 0;
+
+  a:link {
+    font-style: normal;
+  }
+}
+
+:--authors,
+:--CreativeWork header ol {
+  li {
+    display: inline;
+  }
+
+  a:link::after {
+    display: none;
+  }
 }
 
 .author-details h4,
@@ -29,22 +65,8 @@
   padding-left: 50px;
 }
 
-.authors li,
-.author-details li,
-.institutions li {
+.author-details li {
   display: inline;
-}
-
-.publication a:link,
-.authors a:link,
-.institutions a:link {
-  font-style: normal;
-
-}
-
-.authors a:link::after,
-.institutions a:link::after {
-  display: none;
 }
 
 body:after {
@@ -53,7 +75,7 @@ body:after {
   right: 0;
   top: 0;
   width: 100%;
-  background-color: #920B24;
+  background-color: #920b24;
   height: 39px;
 }
 
@@ -66,12 +88,12 @@ h2 {
   /* negative offset = section padding */
   margin: 0 -30px;
   /* add back section padding value */
-  padding: 1.25rem 30px .275rem;
+  padding: 1.25rem 30px 0.275rem;
   background: var(--heading-color);
 }
 
 h2:before {
-  content: "";
+  content: '';
   position: absolute;
   /* fill vertically */
   top: 0;
@@ -83,7 +105,7 @@ h2:before {
 
 @media screen and (max-width: 719px) {
   h2 {
-    padding: 1.25rem 0 .275rem;
+    padding: 1.25rem 0 0.275rem;
   }
 
   h2:before {
@@ -219,7 +241,7 @@ figcaption h6 {
 }
 
 figcaption p {
-  padding-left: 0
+  padding-left: 0;
 }
 
 figcaption *:last-child {
@@ -238,8 +260,8 @@ pre {
   font-size: 80% !important;
 }
 
-pre[class*="language-"] {
-  margin: .5em auto;
+pre[class*='language-'] {
+  margin: 0.5em auto;
 }
 
 p {
@@ -428,9 +450,8 @@ blockquote *:last-child {
 
 blockquote * {
   padding-left: 10px;
-  font-size: .875rem;
+  font-size: 0.875rem;
 }
-
 
 .references {
   list-style: none;
@@ -447,7 +468,7 @@ blockquote * {
 }
 
 .references > li::before {
-  content: counter(reference-counter) ". ";
+  content: counter(reference-counter) '. ';
   font-size: 24px;
   margin-right: 0.5rem;
   line-height: 1;
@@ -492,26 +513,23 @@ blockquote * {
      on mobile in a smaller area (vs. displayed in full
      width and height). */
   figure,
-  pre[class*="language-"] {
+  pre[class*='language-'] {
     max-width: 100%;
     overflow-y: auto;
   }
 }
 
-
 @media screen and (min-width: 720px) {
-  .publication,
-  .authors,
-  .institutions {
-    padding-left: 30px;
+  h1:first-of-type,
+  :--publisher,
+  :--authors,
+  :--CreativeWork header h3,
+  :--CreativeWork header ol {
+    padding-left: 50px;
   }
 
   body {
     margin: 4em 20vw 1em auto;
-  }
-
-  h1:first-of-type {
-    padding-left: 30px;
   }
 
   p,
@@ -524,7 +542,7 @@ blockquote * {
   }
 
   article > pre,
-  pre[class*="language-"],
+  pre[class*='language-'],
   figure,
   blockquote {
     /* margin-left: 50px; */
@@ -535,9 +553,8 @@ blockquote * {
   blockquote {
     max-width: calc(var(--max-width) - 50px);
     margin-left: 1.25rem 0 1.25rem;
-
   }
-  
+
   blockquote > p {
     padding-left: 10px;
   }
