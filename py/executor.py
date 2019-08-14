@@ -18,6 +18,8 @@ RESULT_CAPTURE_VAR = 'STENCILA_SCHEMA_EXEC_RESULT'
 ASSIGNMENT_RE = re.compile(r'^[_a-z][a-z0-9]+\s*=')
 IMPORT_RE = re.compile(r'^(import|from) ')
 
+ExecutableCode = typing.Union[CodeChunk, CodeExpression]
+
 
 class StdoutBuffer(TextIOWrapper):
     def write(self, string: typing.Union[bytes, str]) -> int:
@@ -27,62 +29,17 @@ class StdoutBuffer(TextIOWrapper):
             return super(StdoutBuffer, self).buffer.write(string)
 
 
-class Executor:
+class DocumentParser:
+    """Parse an executable document (`Article`) and cache references to its parameters and code nodes."""
+
     parameters: typing.List[Parameter] = []
-    code: typing.List[typing.Union[CodeChunk, CodeExpression]] = []
-    globals: typing.Optional[typing.Dict[str, typing.Any]]
+    code: typing.List[ExecutableCode] = []
 
     def parse(self, source: Article) -> None:
         # todo: this traverses the article twice. Make it less hard coded, maybe pass through a lookup table that maps
         # a found type to its destination
         self.handle_item(source, Parameter, self.parameters, None)
         self.handle_item(source, (CodeChunk, CodeExpression), self.code, {'language': 'python'})
-
-    def execute_code_chunk(self, chunk: CodeChunk, _locals: typing.Dict[str, typing.Any]) -> None:
-        cc_outputs = []
-        for statement in chunk.text.split('\n'):
-            capture_result = False
-
-            if IMPORT_RE.match(statement):
-                capture_result = False
-            elif not ASSIGNMENT_RE.match(statement):
-                capture_result = True
-                statement = '{} = {}'.format(RESULT_CAPTURE_VAR, statement)
-
-            s = StdoutBuffer(BytesIO(), sys.stdout.encoding)
-
-            with redirect_stdout(s):
-                exec(statement, self.globals, _locals)
-
-            if capture_result:
-                result = _locals[RESULT_CAPTURE_VAR]
-                del _locals[RESULT_CAPTURE_VAR]
-                if result is not None:
-                    cc_outputs.append(result)
-
-            s.seek(0)
-            output = s.buffer.read()
-
-            if output:
-                cc_outputs.append(output.decode('utf8'))
-
-        chunk.outputs = cc_outputs
-
-    def execute_code_expression(self, expression: CodeExpression, _locals: typing.Dict[str, typing.Any]) -> None:
-        expression.output = eval(expression.text, self.globals, _locals)
-
-    def execute(self, parameter_values: typing.Dict[str, typing.Any]) -> None:
-        self.globals = {}
-
-        _locals = parameter_values.copy()
-
-        for c in self.code:
-            if isinstance(c, CodeChunk):
-                self.execute_code_chunk(c, _locals)
-            elif isinstance(c, CodeExpression):
-                self.execute_code_expression(c, _locals)
-            else:
-                raise TypeError('Unknown Code node type found: {}'.format(c))
 
     def handle_item(self, item: typing.Any,
                     search_type: typing.Union[typing.Type[Entity], typing.Iterable[typing.Type[Entity]]],
@@ -120,7 +77,64 @@ class Executor:
             self.handle_item(child, search_type, destination, attr_match)
 
 
+class Executor:
+    """Execute a list of code blocks, maintaining its own `globals` scope for this execution run."""
+
+    globals: typing.Optional[typing.Dict[str, typing.Any]]
+
+    def execute_code_chunk(self, chunk: CodeChunk, _locals: typing.Dict[str, typing.Any]) -> None:
+        cc_outputs = []
+        for statement in chunk.text.split('\n'):
+            capture_result = False
+
+            if IMPORT_RE.match(statement):
+                capture_result = False
+            elif not ASSIGNMENT_RE.match(statement):
+                capture_result = True
+                statement = '{} = {}'.format(RESULT_CAPTURE_VAR, statement)
+
+            s = StdoutBuffer(BytesIO(), sys.stdout.encoding)
+
+            with redirect_stdout(s):
+                exec(statement, self.globals, _locals)
+
+            if capture_result:
+                result = _locals[RESULT_CAPTURE_VAR]
+                del _locals[RESULT_CAPTURE_VAR]
+                if result is not None:
+                    cc_outputs.append(result)
+
+            s.seek(0)
+            output = s.buffer.read()
+
+            if output:
+                cc_outputs.append(output.decode('utf8'))
+
+        chunk.outputs = cc_outputs
+
+    def execute_code_expression(self, expression: CodeExpression, _locals: typing.Dict[str, typing.Any]) -> None:
+        expression.output = eval(expression.text, self.globals, _locals)
+
+    def execute(self, code: typing.List[ExecutableCode], parameter_values: typing.Dict[str, typing.Any]) -> None:
+        self.globals = {}
+
+        _locals = parameter_values.copy()
+
+        for c in code:
+            if isinstance(c, CodeChunk):
+                self.execute_code_chunk(c, _locals)
+            elif isinstance(c, CodeExpression):
+                self.execute_code_expression(c, _locals)
+            else:
+                raise TypeError('Unknown Code node type found: {}'.format(c))
+
+
 class ParameterParser:
+    """
+    Parse parameters that the document requires, from the command line.
+
+    The `ArgumentParser` will fail if any required parameters are not passed in.
+    """
     parameters: typing.Dict[str, Parameter]
     parameter_values: typing.Dict[str, typing.Any]
 
@@ -137,7 +151,8 @@ class ParameterParser:
 
         for param in self.parameters.values():
             if not isinstance(param.schema, ConstantSchema):
-                param_parser.add_argument('--' + param.name, dest=param.name, required=param.default is None)
+                param_parser.add_argument('--' + param.name, dest=param.name,
+                                          required=self.get_parameter_default(param) is None)
 
         args, _ = param_parser.parse_known_args(cli_args)
 
@@ -149,6 +164,13 @@ class ParameterParser:
                 self.parameter_values[param_name] = self.parameters[param_name].default
             else:
                 self.parameter_values[param_name] = self.deserialize_parameter(self.parameters[param_name], cli_value)
+
+    @staticmethod
+    def get_parameter_default(parameter: Parameter) -> typing.Any:
+        if isinstance(parameter.schema, ConstantSchema):
+            return parameter.schema.value or parameter.default
+
+        return parameter.default
 
     @staticmethod
     def deserialize_parameter(parameter: Parameter, value: typing.Any) -> typing.Any:
@@ -199,13 +221,15 @@ def execute_document(cli_args: typing.List[str]):
     if not isinstance(article, Article):
         raise TypeError('Decoded JSON was not an Article')
 
-    e = Executor()
-    e.parse(article)
+    doc_parser = DocumentParser()
+    doc_parser.parse(article)
 
-    pp = ParameterParser(e.parameters)
+    e = Executor()
+
+    pp = ParameterParser(doc_parser.parameters)
     pp.parse_cli_args(cli_args)
 
-    e.execute(pp.parameter_values)
+    e.execute(doc_parser.code, pp.parameter_values)
 
     if args.output_file == '-':
         sys.stdout.write(to_json(article))
