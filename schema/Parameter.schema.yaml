@@ -18,7 +18,7 @@ properties:
     '@id': stencila:schema
     description: The schema that the value of the parameter will be validated against.
     allOf:
-      - $ref: Schema
+      - $ref: SchemaTypes
   default:
     '@id': stencila:value
     description: The default value of the parameter.

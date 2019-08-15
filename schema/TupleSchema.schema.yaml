@@ -11,4 +11,4 @@ properties:
     description: An array of schemas specifying the constraints on each successive item in the array.
     type: array
     items:
-      $ref: Schema
+      $ref: SchemaTypes

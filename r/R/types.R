@@ -48,8 +48,8 @@ ArraySchema <- function(
     meta = meta
   )
   self$type <- as_scalar("ArraySchema")
-  self[["contains"]] <- check_property("ArraySchema", "contains", FALSE, missing(contains), "Schema", contains)
-  self[["items"]] <- check_property("ArraySchema", "items", FALSE, missing(items), "Schema", items)
+  self[["contains"]] <- check_property("ArraySchema", "contains", FALSE, missing(contains), "SchemaTypes", contains)
+  self[["items"]] <- check_property("ArraySchema", "items", FALSE, missing(items), "SchemaTypes", items)
   self[["maxItems"]] <- check_property("ArraySchema", "maxItems", FALSE, missing(maxItems), "numeric", maxItems)
   self[["minItems"]] <- check_property("ArraySchema", "minItems", FALSE, missing(minItems), "numeric", minItems)
   self[["uniqueItems"]] <- check_property("ArraySchema", "uniqueItems", FALSE, missing(uniqueItems), "logical", uniqueItems)
@@ -1675,7 +1675,7 @@ Parameter <- function(
   self$type <- as_scalar("Parameter")
   self[["name"]] <- check_property("Parameter", "name", TRUE, missing(name), "character", name)
   self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), "Node", default)
-  self[["schema"]] <- check_property("Parameter", "schema", FALSE, missing(schema), "Schema", schema)
+  self[["schema"]] <- check_property("Parameter", "schema", FALSE, missing(schema), "SchemaTypes", schema)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -2666,7 +2666,7 @@ TupleSchema <- function(
     meta = meta
   )
   self$type <- as_scalar("TupleSchema")
-  self[["items"]] <- check_property("TupleSchema", "items", FALSE, missing(items), Array("Schema"), items)
+  self[["items"]] <- check_property("TupleSchema", "items", FALSE, missing(items), Array("SchemaTypes"), items)
   class(self) <- c(class(self), "Entity")
   self
 }
@@ -2802,6 +2802,6 @@ Node = Union("NULL", "logical", "numeric", "character", Array(Any()), "list", "E
 #' Union type for all data schemas.
 #'
 #' @export
-Schema = Union("ConstantSchema", "EnumSchema", "BooleanSchema", "NumberSchema", "IntegerSchema", "StringSchema", "ArraySchema", "TupleSchema")
+SchemaTypes = Union("ConstantSchema", "EnumSchema", "BooleanSchema", "NumberSchema", "IntegerSchema", "StringSchema", "ArraySchema", "TupleSchema")
 
 

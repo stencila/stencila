@@ -37,17 +37,17 @@ class Entity:
 class ArraySchema(Entity):
     """A schema specifying constraints on an array node."""
 
-    contains: Optional["Schema"] = None
-    items: Optional["Schema"] = None
+    contains: Optional["SchemaTypes"] = None
+    items: Optional["SchemaTypes"] = None
     maxItems: Optional[float] = None
     minItems: Optional[float] = None
     uniqueItems: Optional[bool] = None
 
     def __init__(
         self,
-        contains: Optional["Schema"] = None,
+        contains: Optional["SchemaTypes"] = None,
         id: Optional[str] = None,
-        items: Optional["Schema"] = None,
+        items: Optional["SchemaTypes"] = None,
         maxItems: Optional[float] = None,
         meta: Optional[Dict[str, Any]] = None,
         minItems: Optional[float] = None,
@@ -1381,7 +1381,7 @@ class Parameter(Entity):
 
     name: str
     default: Optional["Node"] = None
-    schema: Optional["Schema"] = None
+    schema: Optional["SchemaTypes"] = None
 
     def __init__(
         self,
@@ -1389,7 +1389,7 @@ class Parameter(Entity):
         default: Optional["Node"] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        schema: Optional["Schema"] = None
+        schema: Optional["SchemaTypes"] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2196,12 +2196,12 @@ class ThematicBreak(Entity):
 class TupleSchema(Entity):
     """A schema specifying constraints on an array of heterogeneous items."""
 
-    items: Optional[Array["Schema"]] = None
+    items: Optional[Array["SchemaTypes"]] = None
 
     def __init__(
         self,
         id: Optional[str] = None,
-        items: Optional[Array["Schema"]] = None,
+        items: Optional[Array["SchemaTypes"]] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
@@ -2314,5 +2314,5 @@ Node = Union[None, bool, float, int, str, Array[Any], Dict[str, Any], "Entity"]
 """
 Union type for all data schemas.
 """
-Schema = Union["ConstantSchema", "EnumSchema", "BooleanSchema", "NumberSchema", "IntegerSchema", "StringSchema", "ArraySchema", "TupleSchema"]
+SchemaTypes = Union["ConstantSchema", "EnumSchema", "BooleanSchema", "NumberSchema", "IntegerSchema", "StringSchema", "ArraySchema", "TupleSchema"]
 

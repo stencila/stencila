@@ -1,4 +1,4 @@
-title: Schema
+title: SchemaTypes
 category: data
 description: Union type for all data schemas.
 anyOf:

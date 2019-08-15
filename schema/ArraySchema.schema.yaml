@@ -10,12 +10,12 @@ properties:
     '@id': stencila:items
     description: Another data schema node specifying the constraints on all items in the array.
     allOf:
-      - $ref: Schema
+      - $ref: SchemaTypes
   contains:
     '@id': stencila:contains
     description: An array node is valid if at least one of its items is valid against the `contains` schema.
     allOf:
-      - $ref: Schema
+      - $ref: SchemaTypes
   minItems:
     '@id': stencila:minItems
     description: An array node is valid if its size is greater than, or equal to, this value.
