@@ -1,0 +1,2402 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>
+      Replication Study: Transcriptional amplification in tumor cells with
+      elevated c-Myc
+    </title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link href="../themes/plos/styles.css" rel="stylesheet" />
+    <script
+      src="https://unpkg.com/@stencila/thema@1.2.0/dist/themes/stencila/index.js"
+      type="text/javascript"
+    ></script>
+  </head>
+
+  <body>
+    <article>
+      <h1 role="title">
+        Replication Study: Transcriptional amplification in tumor cells with
+        elevated c-Myc
+      </h1>
+      <h1 id="introduction">Introduction</h1>
+      <p>
+        The
+        <a href="https://osf.io/e81xl/wiki/home/"
+          >Reproducibility Project: Cancer Biology</a
+        >
+        (RP:CB) is a collaboration between the
+        <a href="https://centerforopenscience.org/">Center for Open Science</a>
+        and <a href="https://www.scienceexchange.com/">Science Exchange</a> that
+        seeks to address concerns about reproducibility in scientific research
+        by conducting replications of selected experiments from a number of
+        high-profile papers in the field of cancer biology
+        (<stencila-thing>{target:'#bib6',type:'Cite'}</stencila-thing>). For
+        each of these papers a Registered Report detailing the proposed
+        experimental designs and protocols for the replications was peer
+        reviewed and published prior to data collection. The present paper is a
+        Replication Study that reports the results of the replication
+        experiments detailed in the Registered Report (<stencila-thing
+          >{target:'#bib3',type:'Cite'} </stencila-thing
+        >) for a 2012 paper by Lin et al., and uses a number of approaches to
+        compare the outcomes of the original experiments and the replications.
+      </p>
+      <p>
+        In 2012, Lin et al. reported results that the c-Myc transcription
+        factor, a potent oncogene that is frequently overexpressed in a large
+        percentage of cancers, globally amplifies the expression of actively
+        transcribed genes, opposed to regulating specific target genes. Using
+        the P493-6 cell line, a model for <em>MYC</em> activation in Burkitt’s
+        lymphoma, total levels of RNA per cell were reported to increase when
+        c-Myc was highly expressed compared to conditions where c-Myc expression
+        was low. Additionally, active genes in cells with low c-Myc levels were
+        reported to increase in expression upon c-Myc induction, in contrast to
+        genes that were silent under low c-Myc conditions that did not change.
+      </p>
+      <p>
+        The Registered Report for the 2012 paper by Lin et al. described the
+        experiments to be replicated (Figure 1B and 3E–F), and summarized the
+        current evidence for these findings (
+        <stencila-thing>{target:'#bib3',type:'Cite'}</stencila-thing>). Since
+        that publication there have been additional studies investigating the
+        ability c-Myc to influence the global gene expression output of cells.
+        Similar to Lin et al. other studies have reported c-Myc dependent
+        amplification of cellular RNA (<stencila-thing
+          >{target:'#bib9',type:'Cite'} </stencila-thing
+        >; <stencila-thing>{target:'#bib12',type:'Cite'}</stencila-thing>;
+        <stencila-thing>{target:'#bib19',type:'Cite'}</stencila-thing>;
+        <stencila-thing> {target:'#bib27',type:'Cite'}</stencila-thing>),
+        although this observation was not reported in all biological systems
+        (<stencila-thing>{target:'#bib7',type:'Cite'} </stencila-thing>;
+        <stencila-thing>{target:'#bib27',type:'Cite'}</stencila-thing>;
+        <stencila-thing>{target:'#bib35',type:'Cite'}</stencila-thing>). It has
+        been suggested c-Myc regulates specific genes that indirectly lead to
+        RNA amplification (<stencila-thing>
+          {target:'#bib27',type:'Cite'}</stencila-thing
+        >; <stencila-thing> {target:'#bib26',type:'Cite'}</stencila-thing>;
+        <stencila-thing> {target:'#bib35',type:'Cite'}</stencila-thing>). This
+        has also been suggested of MYCN (
+        <stencila-thing>{target:'#bib5',type:'Cite'}</stencila-thing>). The
+        reported differences could be a result of the intrinsic variation
+        between cell lines in maintaining the transcriptome
+        (<stencila-thing>{target:'#bib32',type:'Cite'}</stencila-thing>).
+        Indeed, a recent study reported that distinct transcriptional regulation
+        can be accounted for by differences in promoter affinity under different
+        c-Myc expression levels (<stencila-thing>
+          {target:'#bib18',type:'Cite'}</stencila-thing
+        >).
+      </p>
+      <p>
+        The outcome measures reported in this Replication Study will be
+        aggregated with those from the other Replication Studies to create a
+        dataset that will be examined to provide evidence about reproducibility
+        of cancer biology research, and to identify factors that influence
+        reproducibility more generally.
+      </p>
+      <h1 id="results-and-discussion">Results and discussion</h1>
+      <h2 id="conditional-expression-of-c-myc-in-the-b-cell-line-p493-6">
+        Conditional expression of c-Myc in the B-cell line P493-6
+      </h2>
+      <p>
+        To test the effects of increased levels of c-Myc on gene expression we
+        used the same human P493-6 B cell line of Burkitt’s lymphoma that
+        contains a conditional tetracycline-repressive <em>MYC</em> transgene
+        (<stencila-thing>{target:'#bib23',type:'Cite'}</stencila-thing>;
+        <stencila-thing>{target:'#bib30',type:'Cite'}</stencila-thing>) as the
+        original study. We performed Western blot analysis to confirm c-Myc
+        expression could be reduced to very low levels and then reactivated
+        after removal of tetracycline. This is comparable to what was reported
+        in Figure 1B of
+        <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing> and
+        described in Protocol 1 in the Registered Report (<stencila-thing>
+          {target:'#bib3',type:'Cite'}</stencila-thing
+        >). Since proliferation of P493-6 cells depend on c-Myc expression and
+        the presence of serum (<stencila-thing
+          >{target:'#bib23',type:'Cite'} </stencila-thing
+        >; <stencila-thing>{target:'#bib30',type:'Cite'}</stencila-thing>), with
+        serum reported to stimulate a majority of genes independent of c-Myc
+        (<stencila-thing> {target:'#bib28',type:'Cite'}</stencila-thing>), we
+        maintained these cells in separate lots of serum to assess whether the
+        results differed. For cells maintained in both lots of serum, treatment
+        with tetracycline resulted in a strong decrease in c-Myc protein
+        levels (<a href="#fig1">Figure 1A</a>). After removal of tetracycline,
+        c-Myc levels increased over time approaching the levels observed in
+        tetracycline-free conditions.
+      </p>
+      <stencila-thing>
+        {content:[{contentUrl:'fig1.jpg',format:'application/postscript',meta:{inline:false},type:'ImageObject'}],label:'Figure
+        1.',caption:[{content:['Induction of c-Myc in P493-6 cells and impact on
+        total RNA levels.'],depth:2,id:'s2-1',type:'Heading'},{content:['P493-6
+        cells were grown in the presence of tetracycline (Tet) for 72 hr and
+        switched into Tet-free growth medium to induce c-Myc expression. Cells
+        were cultured in two separate lots of serum.
+        (',{type:'Strong',content:['A']},') Representative Western blot using an
+        anti-c-Myc antibody (top panels) or an anti-ß-Actin antibody (bottom
+        panel). Two exposures of the anti-c-Myc antibody are presented to
+        facilitate detection of c-Myc. (',{type:'Strong',content:['B']},')
+        Quantification of total RNA levels (ng of total RNA per 1,000 cells) for
+        cells at 0, 1, and 24 hr after release from Tet. Means reported and
+        error bars represent s.e.m. from three independent biological repeats.
+        For serum lot one, one-way ANOVA on total RNA levels of all groups;
+        ',{type:'Emphasis',content:['F']},'(2, 6)=1.25,
+        ',{type:'Emphasis',content:['p']},'=0.353. Planned contrast between 0 hr
+        and 24 hr; ',{type:'Emphasis',content:['t']},'(6) = 1.02,
+        ',{type:'Emphasis',content:['p']},'=0.347 with
+        ',{type:'Emphasis',content:['a priori']},' alpha level = 0.05. For serum
+        lot two, one-way ANOVA on total RNA levels of all groups;
+        ',{type:'Emphasis',content:['F']},'(2, 6)=21.87,
+        ',{type:'Emphasis',content:['p']},'=0.00176. Planned contrast between 0
+        hr and 24 hr; ',{type:'Emphasis',content:['t']},'(6) = 5.03,
+        ',{type:'Emphasis',content:['p']},'=0.0024 with
+        ',{type:'Emphasis',content:['a priori']},' alpha level = 0.05.
+        Additional details for this experiment can be found at
+        ',{content:['https://osf.io/tfd57/'],target:'https://osf.io/tfd57/.',type:'Link'},'.'],type:'Paragraph'}],type:'Figure'}
+      </stencila-thing>
+      <h2 id="total-rna-levels-following-c-myc-overexpression">
+        Total RNA levels following c-Myc overexpression
+      </h2>
+      <p>
+        We sought to independently replicate whether increased levels of c-Myc
+        resulted in increased absolute levels of RNA. This experiment is similar
+        to what was reported in Figure 3E of
+        <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing> and used
+        the same extraction method for total RNA quantification, which was
+        described in Protocol 2 in the Registered Report
+        (<stencila-thing>{target:'#bib3',type:'Cite'}</stencila-thing>). Total
+        RNA was isolated from P493-6 cells 0, 1, and 24 hr after tetracycline
+        release and the amount of RNA per 1,000 cells was quantified (<a
+          href="#fig1"
+          >Figure 1B</a
+        >). We found that under conditions where c-Myc expression was low (0
+        hr), there was a mean of 1.55 ng total RNA per 1,000 cells (ng/1 k
+        cells) [n = 3, <em>SD</em> = 0.20], which increased to 1.77 ng/1 k cells
+        [n = 3, <em>SD</em> = 0.31] when c-Myc expression was high (24 hr), a
+        1.14 times increase, for serum lot one, which was not statistically
+        significant (<em>t</em>(6) = 1.02, <em>p</em>=0.347). Serum lot two
+        changed from a mean of 1.57 ng/1 k cells [n = 3, <em>SD</em> = 0.21] at
+        0 hr to 2.25 ng/1 k cells [n = 3, <em>SD</em> = 0.19] at 24 hr, a 1.43
+        times increase, which was statistically significant
+        (<em>t</em>(6 = 5.03, <em>p</em>=0.0024). This compares to the original
+        study, which reported a mean of 4.25 ng/1 k cells at 0 hr, which
+        increased to 5.47 ng/1 k cells at 24 hr, a 1.29 times increase in total
+        RNA levels. In both studies there was a minor decrease at 1 hr after
+        tetracycline release when c-Myc levels begin to become detectable. Total
+        RNA per 1,000 cells at 0 hr were much lower in this replication attempt
+        than those reported in the original study, although changes in total RNA
+        levels were in the same direction following c-Myc expression. Similarly,
+        another independent study that measured total RNA from P493-6 cells
+        reported a different level at 0 hr (~3 ng/1 k cells), while also
+        reporting increased levels following c-Myc expression
+        (<stencila-thing>{target:'#bib27',type:'Cite'}</stencila-thing>). There
+        are multiple possible explanations for these differences, such as
+        variation in RNA expression during cell culture passage (<stencila-thing
+          >{target:'#bib11',type:'Cite'}</stencila-thing
+        >
+        ), low yield of the RNA isolation procedure (e.g. incomplete
+        homogenization), or the high variance associated with manual cell counts
+        using a hemacytometer (<stencila-thing>
+          {target:'#bib2',type:'Cite'}</stencila-thing
+        >; <stencila-thing> {target:'#bib20',type:'Cite'}</stencila-thing>). To
+        summarize, for this experiment we found results that were in the same
+        direction as the original study and not statistically significant for
+        serum lot one, while statistically significant for serum lot two.
+      </p>
+      <h2 id="digital-gene-expression-following-c-myc-overexpression">
+        Digital gene expression following c-Myc overexpression
+      </h2>
+      <p>
+        To test whether c-Myc expression amplifies the existing gene expression
+        program, digital gene expression analysis using the NanoString nCounter
+        platform was performed on a set of genes from multiple functional
+        categories. This experiment is similar to what was reported in Figure 3F
+        and Table S1 of
+        <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing> and
+        described in Protocols 3–4 in the Registered Report (<stencila-thing>
+          {target:'#bib3',type:'Cite'}</stencila-thing
+        >). We quantified mRNA levels/cell of 1369 genes, of which 1212 were the
+        same genes as the 1338 genes interrogated in the original study. We used
+        the same criteria as the original study to classify a gene as silent
+        (expression was less than 0.5 transcript/cell at time 0 hr) or active
+        (more than one transcript/cell at time 0 hr). In cells with low levels
+        of c-Myc (0 hr) there were 708 active genes with a median expression of
+        4.70, and 580 silent genes with a median expression of 0.032, for serum
+        lot one. For active genes, 75% of the genes increased from 0 hr to 1 hr,
+        68% increased from 0 hr to 24 hr, and 59% increased from 1 hr to 24 hr
+        upon c-Myc induction. This corresponds to a 1.11, 1.50, and 1.36 times
+        increase in median expression, respectively (<a href="#fig2">Figure 2</a
+        >, <a href="#fig2s1">Figure 2—figure supplement 1</a>). For silent
+        genes, 74% of the genes increased from 0 hr to 1 hr, 66% increased from
+        0 hr to 24 hr, and 50% increased from 1 hr to 24 hr, corresponding to a
+        1.19 and 1.13 times increase, and a 0.05 times decrease in median
+        expression, respectively (<a href="#fig2">Figure 2</a>,
+        <a href="#fig2s1">Figure 2—figure supplement 1</a>). Serum lot two gave
+        similar results, although there were variations in the number of genes
+        identified as silent or active as well as the degree of increase among
+        the conditions (<a href="#fig2">Figure 2</a>,
+        <a href="#fig2s1">Figure 2—figure supplement 1</a>). This compares to
+        the original study that identified 755 active genes with a median
+        expression of 7.06, and 514 silent genes with a median expression of
+        0.00 (more than half the silent genes did not have a reported expression
+        value). Active genes in the original study, increased 91% from 0 hr to 1
+        hr, 96% from 0 hr to 24 hr, and 87% from 1 hr to 24 hr upon c-Myc
+        induction, corresponding to a 1.23, 2.45, and 1.99 times increase in
+        median expression, respectively. Silent genes in the original study,
+        increased 23% from 0 hr to 1 hr, 29% from 0 hr to 24 hr, and 30% from 1
+        hr to 24 hr, with the median expression unchanged among conditions. In
+        addition, we further examined the extent of overlap of active and silent
+        genes between the original study and this replication attempt. Of the
+        1212 genes that were interrogated in both studies, 88.8% (603/679) of
+        the active genes we identified in serum lot one were also active in the
+        original study (90.1% (612/679) for serum lot two). For silent genes,
+        96.4% (456/473) of the genes we identified as silent in serum lot one
+        were common with the silent genes identified in the original study
+        (95.8% (453/473) for serum lot two).
+      </p>
+      <stencila-thing>
+        {parts:[{content:[{contentUrl:'fig2.jpg',format:'application/postscript',meta:{inline:false},type:'ImageObject'},{contentUrl:'elife-30274-fig2-data1-v1.csv',format:'application/octet-stream',type:'MediaObject'}],label:'Figure
+        2.',caption:[{content:['Digital gene expression
+        analysis.'],depth:2,id:'s2-3',type:'Heading'},{content:['P493-6 cells
+        grown in the presence of tetracycline (Tet) for 72 hr for repression of
+        the conditional p',{type:'Emphasis',content:['myc']},'-tet construct,
+        were switched into Tet-free growth medium to induce c-Myc expression.
+        Cells were cultured in two separate lots of serum. Transcripts/cell
+        estimates from NanoString nCounter gene expression assays (1369 genes
+        assay) for active (left) and silent (right) genes at 0, 1, and 24 hr
+        after release from Tet. Active genes expressed greater than one
+        transcript/cell. Silent genes expressed less than 0.5 transcript/cell.
+        Box and whisker plots with median represented as the line through the
+        box and whiskers representing values within 1.5 IQR of the first and
+        third quartile. Cells grown in serum lot one: active genes = 708, silent
+        genes = 580. Cells grown in serum lot two: active genes = 719, silent
+        genes = 573. Confirmatory analysis is reported in ',{content:['Table
+        1'],target:'#table1',relation:'table',type:'Link'},' and exploratory
+        statistical analysis is reported in ',{content:['Table
+        2'],target:'#table2',relation:'table',type:'Link'},' and
+        ',{content:['Table 3'],target:'#table3',relation:'table',type:'Link'},'.
+        Additional details for this experiment can be found at
+        ',{content:['https://osf.io/fn2y4/'],target:'https://osf.io/fn2y4/.',type:'Link'},'.'],type:'Paragraph'},{content:['10.7554/eLife.30274.006','Figure
+        2—source data 1.'],type:'Paragraph'},{content:['List of Reporter
+        CodeSets and gene expression
+        values.'],depth:2,id:'s2-3',type:'Heading'},{contentUrl:'elife-30274-fig2-data1-v1.csv',format:'application/octet-stream',type:'MediaObject'}],type:'Figure'},{content:[{contentUrl:'fig2-figsupp1.jpg',format:'application/postscript',meta:{inline:false},type:'ImageObject'}],label:'Figure
+        2—figure supplement 1.',caption:[{content:['Logarithmic expression of
+        genes.'],depth:2,id:'s2-3',type:'Heading'},{content:['This is the same
+        experiment as in ',{content:['Figure
+        2'],target:'#fig2',relation:'fig',type:'Link'},'.
+        (',{type:'Strong',content:['A–B, E–F']},') Gene expression data plotted
+        on a log',{type:'Subscript',content:['2']},' transformed scale for
+        active (',{type:'Strong',content:['A, E']},') and silent
+        (',{type:'Strong',content:['B, F']},') genes at 0, 1, and 24 hr after
+        release from Tet for both lots of serum.
+        (',{type:'Strong',content:['C–D, G–H']},') Box and whisker plots showing
+        gene expression changes (log',{type:'Subscript',content:['2']},' ratio)
+        between the indicated times for active (',{type:'Strong',content:['C,
+        G']},') and silent (',{type:'Strong',content:['D, H']},') genes. Median
+        represented as the line through the box and whiskers representing values
+        within 1.5 IQR of the first and third quartile. Additional details for
+        this experiment can be found at
+        ',{content:['https://osf.io/fn2y4/'],target:'https://osf.io/fn2y4/.',type:'Link'},'.'],type:'Paragraph'}],type:'Figure'},{content:[{contentUrl:'fig2-figsupp2.jpg',format:'application/postscript',meta:{inline:false},type:'ImageObject'}],label:'Figure
+        2—figure supplement 2.',caption:[{content:['Comparison of gene
+        expression data as
+        continuous.'],depth:2,id:'s2-3',type:'Heading'},{content:['This is the
+        same experiment as in ',{content:['Figure
+        2'],target:'#fig2',relation:'fig',type:'Link'},'.
+        (',{type:'Strong',content:['A–C, E–G']},') Scatter plots of
+        log',{type:'Subscript',content:['2']},' transformed gene expression data
+        for all genes analyzed at the indicated times on the y and x axes for
+        both lots of serum. Active genes are blue, silent genes are red, and
+        genes that are neither active or silent (expression was more than 0.5
+        transcript/cell and less than one transcript/cell at time 0 hr) are
+        white. (',{type:'Strong',content:['D, H']},') Box and whisker plots
+        showing gene expression changes (log',{type:'Subscript',content:['2']},'
+        ratio) between the indicated times for all genes analyzed for both lots
+        of serum. Median represented as the line through the box and whiskers
+        representing values within 1.5 IQR of the first and third quartile.
+        Additional details for this experiment can be found at
+        ',{content:['https://osf.io/fn2y4/'],target:'https://osf.io/fn2y4/.',type:'Link'},'.'],type:'Paragraph'}],type:'Figure'}],meta:{usage:'figGroup'},type:'Collection'}
+      </stencila-thing>
+      <p>
+        To test whether active genes, as well as silent genes, increased
+        expression during c-Myc induction we performed the confirmatory analysis
+        as outlined in the Registered Report (
+        <stencila-thing>{target:'#bib3',type:'Cite'}</stencila-thing>). This
+        analysis differed from what was reported in the original study by
+        analyzing the data as paired instead of unpaired. As suggested during
+        peer review of the Registered Report, this is because expression of the
+        same gene, analyzed across different conditions, is not independent
+        (<stencila-thing> {target:'#bib3',type:'Cite'}</stencila-thing>). We
+        performed a Wilcoxon signed-rank test on active genes comparing
+        expression at 0 hr to 1 hr, 0 hr to 24 hr, and 1 hr to 24 hr, which were
+        statistically significant for cells grown in both lots of serum (<a
+          href="#table1"
+          >Table 1</a
+        >). The same comparisons were performed on silent genes, which were also
+        statistically significant, with the exception of the silent gene
+        comparison of 1 hr to 24 hr for serum lot one. Considering this was not
+        the test reported in the original study, we conducted these paired
+        analyses on the original data to provide a direct comparison. For both
+        active and silent genes c-Myc induction resulted in statistically
+        significant increases in expression, with the exception of the silent
+        gene comparison from 0 hr to 1 hr (<a href="#table1">Table 1</a>). This
+        is in contrast to the results of the unpaired tests that were reported
+        in the original study where active genes were reported to have a
+        statistically significant increase in expression and silent genes were
+        reported as not statistically significant for all comparisons. We
+        conducted an exploratory unpaired analysis on the replication data for
+        comparison, which resulted in statistically significant differences
+        among the active gene comparisons as well as half of the silent gene
+        comparisons (<a href="#table2">Table 2</a>).
+      </p>
+      <table>
+        <tbody>
+          <tr>
+            <td>Genes</td>
+            <td>Comparison</td>
+            <td>Study</td>
+            <td>Z value</td>
+            <td>P value</td>
+            <td>Sample size (n)</td>
+          </tr>
+          <tr>
+            <td>Active</td>
+            <td>0 hr vs 1 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>14.86</td>
+            <td>1.36e-55</td>
+            <td>708</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>11.83</td>
+            <td>2.83e-34</td>
+            <td>719</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>21.17</td>
+            <td>1.05e-130</td>
+            <td>755</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>0 hr vs 24 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>9.922</td>
+            <td>3.67e-24</td>
+            <td>708</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>12.77</td>
+            <td>3.77e-40</td>
+            <td>719</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>23.26</td>
+            <td>3.33e-184</td>
+            <td>755</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>1 hr vs 24 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>4.742</td>
+            <td>1.92e-06</td>
+            <td>708</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>10.04</td>
+            <td>9.91e-25</td>
+            <td>719</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>23.26</td>
+            <td>3.33e-184</td>
+            <td>755</td>
+          </tr>
+          <tr>
+            <td>Silent</td>
+            <td>0 hr vs 1 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>12.61</td>
+            <td>7.11e-40</td>
+            <td>580</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>7.05</td>
+            <td>9.29e-13</td>
+            <td>572</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>−1.998</td>
+            <td>0.0457</td>
+            <td>274</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>0 hr vs 24 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>8.328</td>
+            <td>2.22e-17</td>
+            <td>579</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>8.156</td>
+            <td>1.03e-16</td>
+            <td>572</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>3.179</td>
+            <td>0.00144</td>
+            <td>276</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>1 hr vs 24 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>0.6853</td>
+            <td>0.493</td>
+            <td>580</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>4.436</td>
+            <td>8.35e-06</td>
+            <td>573</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>5.806</td>
+            <td>4.11e-09</td>
+            <td>236</td>
+          </tr>
+        </tbody>
+      </table>
+      <table>
+        <tbody>
+          <tr>
+            <td>Genes</td>
+            <td>Comparison</td>
+            <td>Study</td>
+            <td>W value</td>
+            <td>P value</td>
+            <td>Sample size (n)</td>
+          </tr>
+          <tr>
+            <td>Active</td>
+            <td>0 hr vs 1 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>270378</td>
+            <td>0.0103</td>
+            <td>1416</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>274696</td>
+            <td>0.0395</td>
+            <td>1438</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>318799</td>
+            <td>6.67e-05</td>
+            <td>1510</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>0 hr vs 24 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>300774</td>
+            <td>7.16e-11</td>
+            <td>1416</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>324564</td>
+            <td>4.74e-17</td>
+            <td>1438</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>400999</td>
+            <td>1.16e-42</td>
+            <td>1510</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>1 hr vs 24 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>281679</td>
+            <td>5.45e-05</td>
+            <td>1416</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>308954</td>
+            <td>1.45e-10</td>
+            <td>1438</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>372714</td>
+            <td>4.11e-25</td>
+            <td>1510</td>
+          </tr>
+          <tr>
+            <td>Silent</td>
+            <td>0 hr vs 1 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>187682</td>
+            <td>0.000638</td>
+            <td>1160</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>174695</td>
+            <td>0.0602</td>
+            <td>1146</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>127104</td>
+            <td>0.236</td>
+            <td>1028</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>0 hr vs 24 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>185804</td>
+            <td>0.00203</td>
+            <td>1160</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>184470</td>
+            <td>0.000289</td>
+            <td>1146</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>132082</td>
+            <td>0.997</td>
+            <td>1028</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>1 hr vs 24 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>166122</td>
+            <td>0.716</td>
+            <td>1160</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>173608</td>
+            <td>0.0918</td>
+            <td>1146</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>136443</td>
+            <td>0.295</td>
+            <td>1028</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Importantly, though, the question of whether the change in expression
+        among active genes is different than silent genes has not been tested.
+        This would require a separate test on their difference
+        (<stencila-thing>{target:'#bib8',type:'Cite'}</stencila-thing>;
+        <stencila-thing> {target:'#bib21',type:'Cite'}</stencila-thing>). To
+        test whether active genes increased in expression during c-Myc induction
+        more than silent genes, we performed an exploratory analysis on the
+        difference in expression of active genes during c-Myc induction (e.g.
+        from 0 hr to 24 hr) compared to the difference in expression of silent
+        genes over that same period (e.g. from 0 hr to 24 hr). For both the
+        original and replication data, there was a statistically significant
+        increase in expression of active genes compared to silent genes (<a
+          href="#table3"
+          >Table 3</a
+        >). This suggests that active genes and silent genes do not have similar
+        rates of expression upon c-Myc induction. To summarize, for this
+        experiment we found results that were in the same direction as the
+        original study and suggest that while both active and silent genes
+        increased in expression upon c-Myc induction, the rate of increase was
+        different.
+      </p>
+      <table>
+        <tbody>
+          <tr>
+            <td>Comparison</td>
+            <td>Study</td>
+            <td>W value</td>
+            <td>P value</td>
+            <td>Sample size (n)</td>
+          </tr>
+          <tr>
+            <td>0 hr vs 1 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>303897</td>
+            <td>7.78e-50</td>
+            <td>1288</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>278646</td>
+            <td>1.1e-27</td>
+            <td>1292</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>349351</td>
+            <td>1.27e-130</td>
+            <td>1269</td>
+          </tr>
+          <tr>
+            <td>0 hr vs 24 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>272441</td>
+            <td>5.18e-24</td>
+            <td>1288</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>292865</td>
+            <td>7.4e-39</td>
+            <td>1292</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>368182</td>
+            <td>1.14e-163</td>
+            <td>1269</td>
+          </tr>
+          <tr>
+            <td>1 hr vs 24 hr</td>
+            <td>RP:CB Lot 1</td>
+            <td>235077</td>
+            <td>7.45e-06</td>
+            <td>1288</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>RP:CB Lot 2</td>
+            <td>272028</td>
+            <td>3.73e-23</td>
+            <td>1292</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>
+              <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>
+            </td>
+            <td>332069</td>
+            <td>5.72e-104</td>
+            <td>1269</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        The original study and this replication attempt used the same criteria
+        to characterize a gene as silent or active, but there are many negative
+        consequences of dichotomizing continuous variables, such as information
+        loss, especially with a small gene set (
+        <stencila-thing>{target:'#bib1',type:'Cite'}</stencila-thing>;
+        <stencila-thing> {target:'#bib4',type:'Cite'}</stencila-thing>). Papers
+        published after the original study took an unbiased view by collecting
+        comprehensive RNA-sequencing data to assess if the transcriptional
+        effects of c-Myc were direct or indirect, concluding c-Myc activates and
+        represses transcription of discrete gene sets, which in turn leads to
+        induced RNA amplification
+        (<stencila-thing>{target:'#bib27',type:'Cite'}</stencila-thing>;
+        <stencila-thing>{target:'#bib35',type:'Cite'}</stencila-thing>).
+        Furthermore, Sabò and colleagues also used NanoString technology to
+        quantify a subset of the differentially expressed genes identified by
+        RNA-seq and observed similar results that revealed upward shifts in gene
+        expression upon c-Myc induction (<stencila-thing>
+          {target:'#bib27',type:'Cite'}</stencila-thing
+        >). However, instead of dichotomizing genes as active or silent, gene
+        expression data was presented as continuous. Similarly, we presented the
+        digital gene expression data generated during this replication attempt
+        as continuous, which illustrates a general pattern of overall increased
+        gene expression following c-Myc induction (<a href="#fig2s2"
+          >Figure 2—figure supplement 2</a
+        >). Importantly, though, these results are limited to the 1369 genes
+        interrogated in this study and may or may not reflect how the entire
+        transcriptome of P493-6 cells respond to c-Myc induction.
+      </p>
+      <h2 id="meta-analyses-of-original-and-replicated-effects">
+        Meta-analyses of original and replicated effects
+      </h2>
+      <p>
+        We performed a meta-analysis using a random-effects model to combine
+        each of the effects described above as pre-specified in the confirmatory
+        analysis plan (<stencila-thing>
+          {target:'#bib3',type:'Cite'}</stencila-thing
+        >). To provide a standardized measure of the effect, a common effect
+        size was calculated for each effect from the original and replication
+        studies. Cohen’s <em>d</em> is the standardized difference between two
+        means using the pooled sample standard deviation. The effect size
+        <em>r</em> is a standardized measure of the strength and direction of
+        the association between two variables, in this case time during c-Myc
+        induction and gene expression. The estimate of the effect size of one
+        study, as well as the associated uncertainty (i.e. confidence interval),
+        compared to the effect size of the other study provides another approach
+        to compare the original and replication results
+        (<stencila-thing>{target:'#bib6',type:'Cite'}</stencila-thing>;
+        <stencila-thing>{target:'#bib33',type:'Cite'}</stencila-thing>).
+        Importantly, the width of the confidence interval for each study is a
+        reflection of not only the confidence level (e.g. 95%), but also
+        variability of the sample (e.g. <em>SD</em>) and sample size.
+      </p>
+      <p>
+        The comparison of total RNA levels at low levels of c-Myc (0 hr)
+        compared to high levels of c-Myc (24 hr) resulted in <em>d</em> = 4.19,
+        95% CI [0.94, 7.37] for the data reported in Figure 3E of the original
+        study (<stencila-thing>{target:'#bib17',type:'Cite'} </stencila-thing>).
+        This compares to <em>d</em> = 0.83, 95% CI [−0.91, 2.48] for serum lot
+        one and <em>d</em> = 4.11, 95% CI [0.90, 7.23] for serum lot two
+        reported in this study. A meta-analysis (<a href="#fig3">Figure 3A</a>)
+        of these effects resulted in <em>d</em> = 2.52, 95% CI [0.01, 5.03],
+        which was statistically significant (<em>p</em>=0.0488). The original
+        and replication results are consistent when considering the direction of
+        the effect, which suggests c-Myc induction increases total RNA levels in
+        P493-6 Burkitt’s lymphoma cells. Noticeably, there was substantial
+        within-study variation observed in this replication attempt, due the
+        different serum lots tested. The point estimate of serum lot one was not
+        within the confidence intervals of the original study and serum lot two,
+        and vice versa; however the point estimate of the original study and
+        serum lot two were within the confidence intervals of each other.
+      </p>
+      <stencila-thing>
+        {content:[{contentUrl:'fig3.jpg',format:'application/postscript',meta:{inline:false},type:'ImageObject'}],label:'Figure
+        3.',caption:[{content:['Meta-analyses of each
+        effect.'],depth:2,id:'s2-4',type:'Heading'},{content:['Effect size and
+        95% confidence interval are presented
+        for ',{target:'#bib17',type:'Cite'},', this replication study (RP:CB),
+        and a random effects meta-analysis of those two effects. Cohen’s
+        ',{type:'Emphasis',content:['d']},' is the standardized difference
+        between the two measurements, with a larger positive value indicating
+        total RNA levels are increased at 24 hr compared to 0 hr. The effect
+        size ',{type:'Emphasis',content:['r']},' is a standardized measure of
+        the correlation (strength and direction) of the association between gene
+        expression and c-Myc induction, with a larger positive value indicating
+        gene expression increased during the course of c-Myc induction. Sample
+        sizes used in ',{target:'#bib17',type:'Cite'},' and this replication
+        attempt are reported under the study name.
+        (',{type:'Strong',content:['A']},') Total RNA levels in P493-6 cells 0
+        hr compared to 24 hr after release from tetracycline (meta-analysis
+        ',{type:'Emphasis',content:['p']},' = 0.0488).
+        (',{type:'Strong',content:['B']},') Gene expression of active or silent
+        genes are shown for all comparisons. Active genes: 0 hr compared to 1 hr
+        (meta-analysis ',{type:'Emphasis',content:['p']},' =
+        1.12x10',{type:'Superscript',content:['-7']},'), 0 hr compared to 24 hr
+        (meta-analysis ',{type:'Emphasis',content:['p']},' =
+        7.01x10',{type:'Superscript',content:['-4']},'), 1 hr compared to 24 hr
+        (meta-analysis ',{type:'Emphasis',content:['p']},' = 0.0129). Silent
+        genes: 0 hr compared to 1 hr (meta-analysis
+        ',{type:'Emphasis',content:['p']},' = 0.203), 0 hr compared to 24 hr
+        (meta-analysis ',{type:'Emphasis',content:['p']},' =
+        7.10x10',{type:'Superscript',content:['-17']},'), 1 hr compared to 24 hr
+        (meta-analysis ',{type:'Emphasis',content:['p']},' = 0.0571). Additional
+        details for these meta-analyses can be found at
+        ',{content:['https://osf.io/5yscz/'],target:'https://osf.io/5yscz/',type:'Link'},'.'],type:'Paragraph'}],type:'Figure'}
+      </stencila-thing>
+      <p>
+        There were six comparisons of the gene expression data, three for active
+        genes and three for silent genes (<a href="#fig3">Figure 3B</a>). These
+        calculations were performed analyzing the data as paired, for reasons
+        discussed above and as prespecified in the Registered Report
+        (<stencila-thing>{target:'#bib3',type:'Cite'}</stencila-thing>). For
+        active genes, expression at 0 hr to 1 hr, 0 hr to 24 hr, and 1 hr to 24
+        hr the meta-analyses were statistically significant
+        (<em>p</em>=1.12×10<sup>−7</sup>, <em>p</em>=7.01×10<sup>−4</sup>,
+        <em>p</em>=0.0129, respectively). In all comparisons the results were
+        consistent when considering the direction of the effect; however the
+        effect size point estimate of each study (original, replication serum
+        lot one, replication serum lot two) was not within the confidence
+        interval of the other studies. Further, the large confidence intervals
+        of the meta-analysis along with statistically significant Cochran’s
+        <em>Q</em> tests suggest heterogeneity between the original and
+        replication studies. For silent genes, the meta-analysis was not
+        statistically significant for gene expression at 0 hr to 1 hr and 1 hr
+        to 24 hr (<em>p</em>=0.203, <em>p</em>=0.0571, respectively) and the
+        effect size point estimate of each study was not within the confidence
+        interval of the other studies. Similar to the active gene comparisons,
+        the large confidence intervals of the meta-analysis along with
+        statistically significant Cochran’s <em>Q</em> tests suggest
+        heterogeneity between the studies. Furthermore, for the 0 hr to 1 hr
+        comparison the original study and replication studies were in opposite
+        directions, while the 1 hr to 24 hr comparison was consistent. Finally,
+        the comparison between 0 hr and 24 hr for silent genes was consistent
+        when considering direction of the effect with a statistically
+        significant meta-analysis (<em>p</em>=7.10×10<sup>−17</sup>). The point
+        estimate of the original study was not within the confidence intervals
+        of the replication studies; however both replication studies with
+        different serum lots were within the confidence intervals of the
+        original study and each other. Overall, the gene expression analysis
+        indicates that the effect sizes observed from the two serum lots tested
+        in this replication attempt, although not identical, were more similar
+        to each other than to the original study.
+      </p>
+      <p>
+        This direct replication provides an opportunity to understand the
+        present evidence of these effects. Any known differences, including
+        reagents and protocol differences, were identified prior to conducting
+        the experimental work and described in the Registered Report (
+        <stencila-thing>{target:'#bib3',type:'Cite'}</stencila-thing>). However,
+        this is limited to what was obtainable from the original paper and
+        through communication with the original authors, which means there might
+        be particular features of the original experimental protocol that could
+        be critical, but unidentified. So while some aspects, such as the cell
+        line, induction time course, and the method used to measure gene
+        expression were maintained, others were changed at the time of study
+        design (<stencila-thing> {target:'#bib3',type:'Cite'}</stencila-thing>)
+        that could affect results, such as the analytical approach
+        (<stencila-thing>{target:'#bib31',type:'Cite'}</stencila-thing>) and
+        serum lot
+        (<stencila-thing>{target:'#bib15',type:'Cite'}</stencila-thing>).
+        Furthermore, other aspects were unknown or not easily controlled for.
+        These include variables such as cell line genetic drift
+        (<stencila-thing>{target:'#bib13',type:'Cite'}</stencila-thing>;
+        <stencila-thing>{target:'#bib14',type:'Cite'}</stencila-thing>) or
+        changes in cellular volume that can impact overall transcript abundance
+        (<stencila-thing> {target:'#bib22',type:'Cite'}</stencila-thing>).
+        Whether these or other factors influence the outcomes of this study is
+        open to hypothesizing and further investigation, which is facilitated by
+        direct replications and transparent reporting.
+      </p>
+      <h1 id="materials-and-methods">Materials and methods</h1>
+      <p>
+        As described in the Registered Report (<stencila-thing
+          >{target:'#bib3',type:'Cite'} </stencila-thing
+        >), we attempted a replication of the experiments reported in Figures 1B
+        and 3E-F of
+        <stencila-thing>{target:'#bib17',type:'Cite'}</stencila-thing>. A
+        detailed description of all protocols can be found in the Registered
+        Report (<stencila-thing> {target:'#bib3',type:'Cite'}</stencila-thing>).
+        Additional detailed experimental notes, data, and analysis are available
+        on the Open Science Framework (OSF) (RRID:<a
+          href="https://scicrunch.org/resolver/SCR_003238"
+          >SCR_003238</a
+        >) (<a href="https://osf.io/mokeb/">https://osf.io/mokeb/</a>;
+        <stencila-thing> {target:'#bib16',type:'Cite'}</stencila-thing>). This
+        includes the R Markdown file (<a href="https://osf.io/vdrsh/"
+          >https://osf.io/vdrsh/</a
+        >) that was used to compose this manuscript, which is a reproducible
+        document linking the results in the article directly to the data and
+        code that produced them (<stencila-thing
+          >{target:'#bib10',type:'Cite'} </stencila-thing
+        >).
+      </p>
+      <h2 id="cell-culture">Cell culture</h2>
+      <p>
+        P493-6 cells (shared by Young lab, Whitehead Institute for Biomedical
+        Research, RRID:
+        <a href="https://scicrunch.org/resolver/CVCL_6783">CVCL_6783</a>) were
+        maintained in RPMI-1640 supplemented with 1% Ala-Gln and 10%
+        tetracycline-free FBS (Clontech, Mountain View, CA, cat# 631105, lot# 1:
+        A15003, lot# 2: A15032). Cells were grown at 37°C in a humidified
+        atmosphere at 5% CO<sub>2</sub>. Quality control data for the cell line
+        are available at
+        <a href="https://osf.io/e6ftz/.">https://osf.io/e6ftz/.</a> This
+        includes results confirming the cell line was free of mycoplasma
+        contamination (DDC Medical, Fairfield, Ohio). Additionally, STR DNA
+        profiling of the cell line was performed (DDC Medical, Fairfield, Ohio).
+      </p>
+      <p>
+        For repression of the conditional p<em>myc</em>-tet construct in P493-6
+        cells, 0.1 µg/ml tetracycline (Sigma-Aldrich, St. Louis, MO, cat# T7660)
+        was added to the culture medium and cells were incubated for 72 hr.
+        Under these conditions, P493-6 cells did not proliferate due to a
+        dependency on the expression of <em>MYC</em> (<stencila-thing>
+          {target:'#bib30',type:'Cite'}</stencila-thing
+        >). For <em>MYC</em> re-induction, cells were washed three times with
+        growth medium and grown in tetracycline-free culture conditions.
+      </p>
+      <h2 id="western-blot">Western blot</h2>
+      <p>
+        P493-6 cells were harvested at the indicated times and total cell
+        lysates were prepared by pelleting ~1×10<sup>7</sup> cells (determined
+        with a C-chip disposable hemocytometer) at 4°C at 1,200 rpm for 5 min
+        using a refrigerated centrifuge (Eppendorf, Westbury, NY, model# 5810R).
+        After cell pellets were washed once with ice-cold 1X PBS, pellets were
+        resuspended in RIPA lysis buffer containing 2X SIGMAFAST Protease
+        inhibitors and 2X Phosphatase inhibitor cocktails 2 and 3. Protein
+        concentrations were determined using the Bradford assay according to the
+        manufacturer’s instructions. Sample buffer was added to protein lysates
+        and 50 µg of protein along with protein ladder was resolved by SDS-PAGE
+        and transferred to PVDF membrane as described in the Registered Report
+        (<stencila-thing>{target:'#bib3',type:'Cite'} </stencila-thing>). The
+        membrane was blocked with 5% w/v nonfat dry milk in 1X TBS with 0.2%
+        Tween-20 (TBST). Membranes were probed with rabbit anti-c-Myc [clone
+        Y69] (Epitomics, Burlingame, CA, cat# 1472–1; RRID:<a
+          href="https://scicrunch.org/resolver/AB_731658"
+          >AB_731658</a
+        >); 1:5000 dilution in 5% w/v nonfat dry milk/TBST and mouse
+        anti-ß-actin [clone AC-15] (Sigma-Aldrich, cat# A5441; RRID:<a
+          href="https://scicrunch.org/resolver/AB_476744"
+          >AB_476744</a
+        >); 1:10,000 dilution in 5% w/v nonfat dry milk/TBST. Each incubation
+        was followed by washes with TBST and the appropriate secondary antibody:
+        HRP-conjugated donkey anti-rabbit (Sigma-Aldrich, cat# GERPN2124);
+        1:10,000 dilution in 5% w/v nonfat dry milk/TBST or HRP-conjugated sheep
+        anti-mouse (Sigma-Aldrich, cat# GERPN2124); 1:10,000 dilution in 5% w/v
+        nonfat dry milk/TBST. Membranes were washed with TBST and incubated with
+        ECL Prime Chemiluminescent reagent (Sigma-Aldrich, cat# GERPN2232)
+        according to the manufacturer’s instructions. Western blot images were
+        acquired with G:BOX iChem XT and GeneSnap software (RRID:<a
+          href="https://scicrunch.org/resolver/SCR_014249"
+          >SCR_014249</a
+        >), version 7.12.02 (Syngene, Frederick, Maryland) and quantified using
+        ImageJ software (RRID:<a
+          href="https://scicrunch.org/resolver/SCR_003070"
+          >SCR_003070</a
+        >), version 1.50i (
+        <stencila-thing>{target:'#bib29',type:'Cite'}</stencila-thing>). All
+        images taken are available at
+        <a href="https://osf.io/ujg7t/.">https://osf.io/ujg7t/.</a>
+      </p>
+      <h2 id="rna-quantification">RNA quantification</h2>
+      <p>
+        P493-6 cells were harvested at the indicated times and total RNA
+        extraction was performed by pelleting ~1×10<sup>7</sup> cells (exact
+        number determined with a C-chip disposable hemocytometer) and
+        homogenizing the sample in 1 ml Tri Reagent (Sigma-Aldrich, cat# T9424)
+        according to the manufacturer’s instructions. For each sample 10% v/v
+        miRNA Homogenate Additive was added, vortexed, and incubated on ice for
+        10 min. For each 1 ml of Tri Reagent, 100 µl of bromochloropropane was
+        added, vortexed for 15–30 s, incubated for 5 min at RT, then centrifuged
+        at 12,000x<em>g</em> for 10 min at 4°C. The aqueous phase was recovered
+        and total RNA isolation was performed using the miRVana miRNA extraction
+        kit (Ambion, Waltham, MA, cat# AM1561) according to the manufacturer’s
+        instructions. Recovered RNA was eluated in 100 µl nuclease-free water.
+        Total RNA concentrations and purity (data available at
+        <a href="https://osf.io/jh5r4/">https://osf.io/jh5r4/</a>) were measured
+        using a NanoDrop ND-1000 (Thermo Fisher Scientific, Waltham,
+        Massachusetts) with the NanoDrop Operating Software, version 3.3, and
+        converted to ng per 1,000 cells.
+      </p>
+      <h2
+        id="rna-extraction-and-nanostring-ncounter-digital-gene-expression-assay"
+      >
+        RNA extraction and NanoString nCounter digital gene expression assay
+      </h2>
+      <p>
+        P493-6 cells were harvested at the indicated times and 1 × 10<sup
+          >6</sup
+        >
+        cells were collected (number determined with a C-chip disposable
+        hemocytometer) and lysed directly in 100 µl Buffer RLT (Qiagen,
+        Hilden, Germany, cat# 79216) supplemented with ß-mercaptoethanol to
+        yield a concentration of 10,000 cells per µl. This was performed four
+        independent times. Multiple 4 µl aliquots were stored and shipped at
+        −80°C with temperature monitored during shipping to avoid freeze/thaw
+        cycles. Lysates were processed according to the Cell Lysate Protocol
+        (nCounter Gene Expression Assay Manual, NanoString Technologies,
+        Seattle, Washington) according to the manufacturer’s instructions and as
+        described in the Registered Report
+        (<stencila-thing>{target:'#bib3',type:'Cite'}</stencila-thing>). Three
+        nCounter Reporter CodeSets (nCounter GX Human Immunology Kit, nCounter
+        GX Human Kinase Kit, nCounter Custom CodeSet) encompassing 1369 genes
+        across multiple functional categories were used. Following
+        hybridization, samples were immediately processed with the nCounter
+        Analysis System (NanoString Technologies, NCT-PREP-120). The count data
+        was collected using the nCounter RCC Collector Worksheet (NanoString
+        Technologies), version 1.6.0 and then positive-, negative-, and
+        housekeeping gene-normalized per nCounter guidelines. Expression for
+        each gene was averaged across the four independent replicate samples.
+        Additionally, for genes that appeared on multiple CodeSets, expression
+        values were averaged together to generate a single value for each gene.
+        A gene was defined as transcriptionally active if its average expression
+        was above one transcript/cell at 0 hr and transcriptionally silent if
+        below 0.5 transcript/cell. A list of all Reporter CodeSets and their
+        expression values (transcripts/cell) are available at
+        <a href="#fig2sdata1">Figure 2—source data 1</a>. Additional files and
+        analysis scripts are available at
+        <a href="https://osf.io/fn2y4/.">https://osf.io/fn2y4/.</a>
+      </p>
+      <h2 id="statistical-analysis">Statistical analysis</h2>
+      <p>
+        Statistical analysis was performed with R software (RRID:<a
+          href="https://scicrunch.org/resolver/SCR_001905"
+          >SCR_001905</a
+        >), version 3.3.2 (
+        <stencila-thing>{target:'#bib25',type:'Cite'}</stencila-thing>). All
+        data, csv files, and analysis scripts are available on the OSF (<a
+          href="https://osf.io/mokeb/"
+          >https://osf.io/mokeb/</a
+        >). Confirmatory statistical analysis was pre-registered (<a
+          href="https://osf.io/nj8wb/"
+          >https://osf.io/nj8wb/</a
+        >) before the experimental work began as outlined in the Registered
+        Report (<stencila-thing> {target:'#bib3',type:'Cite'}</stencila-thing>).
+        Proposed analysis of gene expression data was conducted by the Wilcoxon
+        signed-rank test using the method proposed by Pratt to handle zero
+        differences
+        (<stencila-thing>{target:'#bib24',type:'Cite'}</stencila-thing>), with
+        additional exploratory analysis performed using the Wilcoxon rank sum
+        test as reported in the original study and a Wilcoxon rank sum test on
+        the difference in expression of active genes during c-Myc induction
+        (e.g. from 0 hr to 24 hr) compared to the difference in expression of
+        silent genes over that same period (e.g. from 0 hr to 24 hr). Data were
+        checked to ensure assumptions of statistical tests were met. When
+        described in the results, the Bonferroni correction, to account for
+        multiple testings, was applied to the alpha error by dividing the
+        uncorrected value (.05) by the number of tests performed. Although the
+        Bonferroni method is conservative, it was accounted for in the power
+        calculations to ensure sample size was sufficient. In cases where the
+        number of groups were three and the sample sizes were evenly distributed
+        among the groups, Fisher&#39;s LSD test was performed resulting in an
+        <em>a priori</em> significance threshold of. 05. A meta-analysis of a
+        common original and replication effect size was performed with a random
+        effects model and the <em>metafor</em> package
+        (<stencila-thing>{target:'#bib34',type:'Cite'}</stencila-thing>)
+        (available at:
+        <a href="https://osf.io/5yscz/">https://osf.io/5yscz/</a>). The sample
+        sizes reported in <a href="#table1">Table 1</a> and
+        <a href="#fig3">Figure 3</a> for the gene analysis comparisons is based
+        on the sample size used in the Wilcoxon signed-rank test, which removes
+        samples with zero differences after ranking (<stencila-thing>
+          {target:'#bib24',type:'Cite'}</stencila-thing
+        >). The raw original study data were shared by the original authors with
+        the summary data published in the Registered Report (
+        <stencila-thing>{target:'#bib3',type:'Cite'}</stencila-thing>) and was
+        used in the power calculations to determine the sample size for this
+        study.
+      </p>
+      <h2 id="deviations-from-registered-report">
+        Deviations from registered report
+      </h2>
+      <p>
+        The number of flasks, and thus cells, was increased when tetracycline
+        was added to P493-6 cells to account for the cells not proliferating
+        during this period (i.e. there were two Flask B’s as described in the
+        Registered Report, which were pooled prior to seeding). The proposed
+        statistical analysis for the western blot analysis (Protocol 1)
+        described in the Registered Report was not performed since the levels of
+        normalized c-Myc at time 0 hr was at the limit of detection. The number
+        of genes analyzed in the original study, and thus listed in the
+        Registered Report, was reported incorrectly as 1388 instead of 1338
+        (data shared by original authors). NanoString analysis was conducted
+        using the nCounter RCC Collector Worksheet instead of nSolver Analysis
+        software. Additionally, the statistical tests reported in Figure 3F of
+        the original study incorrectly described the comparisons as between 0 hr
+        and 1 hr instead of between 0 hr and 24 hr (scripts shared by original
+        authors). The corrected values are described above for comparisons and
+        used in the meta-analysis. Additional materials and instrumentation not
+        listed in the Registered Report, but needed during experimentation are
+        also listed.
+      </p>
+      <section>
+        <h1>References</h1>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Altman</span
+            ><span itemprop="givenName">DG</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Royston</span
+            ><span itemprop="givenName">P</span></span
+          ><span itemprop="datePublished">2006</span
+          ><span itemprop="title"
+            >The cost of dichotomising continuous variables</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Biggs</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Macmillan</span
+            ><span itemprop="givenName">RL</span></span
+          ><span itemprop="datePublished">1948</span
+          ><span itemprop="title">The error of the red cell count</span>
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Blum</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hao</span
+            ><span itemprop="givenName">H</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">McCarthy</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="datePublished">2015</span
+          ><span itemprop="title"
+            >Registered report: Transcriptional amplification in tumor cells
+            with elevated c-Myc</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Cohen</span
+            ><span itemprop="givenName">J</span></span
+          ><span itemprop="datePublished">1983</span
+          ><span itemprop="title">The cost of dichotomization</span>
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Duffy</span
+            ><span itemprop="givenName">DJ</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Krstic</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Halasz</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Schwarzl</span
+            ><span itemprop="givenName">T</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Fey</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Iljin</span
+            ><span itemprop="givenName">K</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Mehta</span
+            ><span itemprop="givenName">JP</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Killick</span
+            ><span itemprop="givenName">K</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Whilde</span
+            ><span itemprop="givenName">J</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Turriziani</span
+            ><span itemprop="givenName">B</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Haapa-Paananen</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Fey</span
+            ><span itemprop="givenName">V</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Fischer</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Westermann</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Henrich</span
+            ><span itemprop="givenName">K-O</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bannert</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Higgins</span
+            ><span itemprop="givenName">DG</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kolch</span
+            ><span itemprop="givenName">W</span></span
+          ><span itemprop="datePublished">2015</span
+          ><span itemprop="title"
+            >Integrative omics reveals MYCN as a global suppressor of cellular
+            signalling and enables network-based therapeutic target discovery in
+            neuroblastoma</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Errington</span
+            ><span itemprop="givenName">TM</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Iorns</span
+            ><span itemprop="givenName">E</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Gunn</span
+            ><span itemprop="givenName">W</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Tan</span
+            ><span itemprop="givenName">FE</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Lomax</span
+            ><span itemprop="givenName">J</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Nosek</span
+            ><span itemprop="givenName">BA</span></span
+          ><span itemprop="datePublished">2014</span
+          ><span itemprop="title"
+            >An open investigation of the reproducibility of cancer biology
+            research</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Fagnocchi</span
+            ><span itemprop="givenName">L</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Cherubini</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hatsuda</span
+            ><span itemprop="givenName">H</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Fasciani</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Mazzoleni</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Poli</span
+            ><span itemprop="givenName">V</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Berno</span
+            ><span itemprop="givenName">V</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Rossi</span
+            ><span itemprop="givenName">RL</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Reinbold</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Endele</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Schroeder</span
+            ><span itemprop="givenName">T</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Rocchigiani</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Szkarłat</span
+            ><span itemprop="givenName">Ż</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Oliviero</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Dalton</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Zippo</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="datePublished">2016</span
+          ><span itemprop="title"
+            >A Myc-driven self-reinforcing regulatory network maintains mouse
+            embryonic stem cell identity</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Gelman</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Stern</span
+            ><span itemprop="givenName">H</span></span
+          ><span itemprop="datePublished">2006</span
+          ><span itemprop="title"
+            >The difference between “significant” and “not significant” is not
+            itself statistically significant</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hart</span
+            ><span itemprop="givenName">JR</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Roberts</span
+            ><span itemprop="givenName">TC</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Weinberg</span
+            ><span itemprop="givenName">MS</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Morris</span
+            ><span itemprop="givenName">KV</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Vogt</span
+            ><span itemprop="givenName">PK</span></span
+          ><span itemprop="datePublished">2014</span
+          ><span itemprop="title"
+            >MYC regulates the non-coding transcriptome</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hartgerink</span
+            ><span itemprop="givenName">CHJ</span></span
+          ><span itemprop="datePublished">2017</span
+          ><span itemprop="title"
+            >Composing reproducible manuscripts using R Markdown</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hiorns</span
+            ><span itemprop="givenName">LR</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bradshaw</span
+            ><span itemprop="givenName">TD</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Skelton</span
+            ><span itemprop="givenName">LA</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Yu</span
+            ><span itemprop="givenName">Q</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kelland</span
+            ><span itemprop="givenName">LR</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Leyland-Jones</span
+            ><span itemprop="givenName">B</span></span
+          ><span itemprop="datePublished">2004</span
+          ><span itemprop="title"
+            >Variation in RNA expression and genomic DNA content acquired during
+            cell culture</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hsu</span
+            ><span itemprop="givenName">TY</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Simon</span
+            ><span itemprop="givenName">LM</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Neill</span
+            ><span itemprop="givenName">NJ</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Marcotte</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Sayad</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bland</span
+            ><span itemprop="givenName">CS</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Echeverria</span
+            ><span itemprop="givenName">GV</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Sun</span
+            ><span itemprop="givenName">T</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kurley</span
+            ><span itemprop="givenName">SJ</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Tyagi</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Karlin</span
+            ><span itemprop="givenName">KL</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Dominguez-Vidaña</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hartman</span
+            ><span itemprop="givenName">JD</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Renwick</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Scorsone</span
+            ><span itemprop="givenName">K</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bernardi</span
+            ><span itemprop="givenName">RJ</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Skinner</span
+            ><span itemprop="givenName">SO</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Jain</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Orellana</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Lagisetti</span
+            ><span itemprop="givenName">C</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Golding</span
+            ><span itemprop="givenName">I</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Jung</span
+            ><span itemprop="givenName">SY</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Neilson</span
+            ><span itemprop="givenName">JR</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Zhang</span
+            ><span itemprop="givenName">XH</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Cooper</span
+            ><span itemprop="givenName">TA</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Webb</span
+            ><span itemprop="givenName">TR</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Neel</span
+            ><span itemprop="givenName">BG</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Shaw</span
+            ><span itemprop="givenName">CA</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Westbrook</span
+            ><span itemprop="givenName">TF</span></span
+          ><span itemprop="datePublished">2015</span
+          ><span itemprop="title"
+            >The spliceosome is a therapeutic vulnerability in MYC-driven
+            cancer</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hughes</span
+            ><span itemprop="givenName">P</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Marshall</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Reid</span
+            ><span itemprop="givenName">Y</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Parkes</span
+            ><span itemprop="givenName">H</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Gelber</span
+            ><span itemprop="givenName">C</span></span
+          ><span itemprop="datePublished">2007</span
+          ><span itemprop="title">The costs of using unauthenticated</span>
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kleensang</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Vantangoli</span
+            ><span itemprop="givenName">MM</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Odwin-DaCosta</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Andersen</span
+            ><span itemprop="givenName">ME</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Boekelheide</span
+            ><span itemprop="givenName">K</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bouhifd</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Fornace</span
+            ><span itemprop="givenName">AJ</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Li</span
+            ><span itemprop="givenName">HH</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Livi</span
+            ><span itemprop="givenName">CB</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Madnick</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Maertens</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Rosenberg</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Yager</span
+            ><span itemprop="givenName">JD</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Zhaog</span
+            ><span itemprop="givenName">L</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hartung</span
+            ><span itemprop="givenName">T</span></span
+          ><span itemprop="datePublished">2016</span
+          ><span itemprop="title"
+            >Genetic variability in a frozen batch of MCF-7 cells invisible in
+            routine authentication affecting cell function</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Leek</span
+            ><span itemprop="givenName">JT</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Scharpf</span
+            ><span itemprop="givenName">RB</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bravo</span
+            ><span itemprop="givenName">HC</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Simcha</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Langmead</span
+            ><span itemprop="givenName">B</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Johnson</span
+            ><span itemprop="givenName">WE</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Geman</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Baggerly</span
+            ><span itemprop="givenName">K</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Irizarry</span
+            ><span itemprop="givenName">RA</span></span
+          ><span itemprop="datePublished">2010</span
+          ><span itemprop="title"
+            >Tackling the widespread and critical impact of batch effects in
+            high-throughput data</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Lewis</span
+            ><span itemprop="givenName">LM</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Edwards</span
+            ><span itemprop="givenName">MC</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Meyers</span
+            ><span itemprop="givenName">ZR</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Talbot</span
+            ><span itemprop="givenName">CC</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hao</span
+            ><span itemprop="givenName">H</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Blum</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Iorns</span
+            ><span itemprop="givenName">E</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Tsui</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Denis</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Perfito</span
+            ><span itemprop="givenName">N</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Errington</span
+            ><span itemprop="givenName">TM</span></span
+          ><span itemprop="datePublished">2017</span
+          ><span itemprop="title"
+            >Study 48: Replication of Lin et al., 2012 (Cell)</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Lin</span
+            ><span itemprop="givenName">CY</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Lovén</span
+            ><span itemprop="givenName">J</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Rahl</span
+            ><span itemprop="givenName">PB</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Paranal</span
+            ><span itemprop="givenName">RM</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Burge</span
+            ><span itemprop="givenName">CB</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bradner</span
+            ><span itemprop="givenName">JE</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Lee</span
+            ><span itemprop="givenName">TI</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Young</span
+            ><span itemprop="givenName">RA</span></span
+          ><span itemprop="datePublished">2012</span
+          ><span itemprop="title"
+            >Transcriptional amplification in tumor cells with elevated
+            c-Myc</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Lorenzin</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Benary</span
+            ><span itemprop="givenName">U</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Baluapuri</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Walz</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Jung</span
+            ><span itemprop="givenName">LA</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">vonEyss</span
+            ><span itemprop="givenName">B</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kisker</span
+            ><span itemprop="givenName">C</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Wolf</span
+            ><span itemprop="givenName">J</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Eilers</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Wolf</span
+            ><span itemprop="givenName">E</span></span
+          ><span itemprop="datePublished">2016</span
+          ><span itemprop="title"
+            >Different promoter affinities account for specificity in
+            MYC-dependent gene regulation</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Nie</span
+            ><span itemprop="givenName">Z</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hu</span
+            ><span itemprop="givenName">G</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Wei</span
+            ><span itemprop="givenName">G</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Cui</span
+            ><span itemprop="givenName">K</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Yamane</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Resch</span
+            ><span itemprop="givenName">W</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Wang</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Green</span
+            ><span itemprop="givenName">DR</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Tessarollo</span
+            ><span itemprop="givenName">L</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Casellas</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Zhao</span
+            ><span itemprop="givenName">K</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Levens</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="datePublished">2012</span
+          ><span itemprop="title"
+            >c-Myc is a universal amplifier of expressed genes in lymphocytes
+            and embryonic stem cells</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Nielson</span
+            ><span itemprop="givenName">L</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Smyth</span
+            ><span itemprop="givenName">G</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Greenfield</span
+            ><span itemprop="givenName">P</span></span
+          ><span itemprop="datePublished">1991</span
+          ><span itemprop="title"
+            >Hemacytometer Cell Count Distributions: Implications of Non-Poisson
+            Behavior</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Nieuwenhuis</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Forstmann</span
+            ><span itemprop="givenName">BU</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Wagenmakers</span
+            ><span itemprop="givenName">EJ</span></span
+          ><span itemprop="datePublished">2011</span
+          ><span itemprop="title"
+            >Erroneous analyses of interactions in neuroscience: a problem of
+            significance</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Padovan-Merhar</span
+            ><span itemprop="givenName">O</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Nair</span
+            ><span itemprop="givenName">GP</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Biaesch</span
+            ><span itemprop="givenName">AG</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Mayer</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Scarfone</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Foley</span
+            ><span itemprop="givenName">SW</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Wu</span
+            ><span itemprop="givenName">AR</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Churchman</span
+            ><span itemprop="givenName">LS</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Singh</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Raj</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="datePublished">2015</span
+          ><span itemprop="title"
+            >Single mammalian cells compensate for differences in cellular
+            volume and DNA copy number through independent global
+            transcriptional mechanisms</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Pajic</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Spitkovsky</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Christoph</span
+            ><span itemprop="givenName">B</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kempkes</span
+            ><span itemprop="givenName">B</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Schuhmacher</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Staege</span
+            ><span itemprop="givenName">MS</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Brielmeier</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Ellwart</span
+            ><span itemprop="givenName">J</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kohlhuber</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bornkamm</span
+            ><span itemprop="givenName">GW</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Polack</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Eick</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="datePublished">2000</span
+          ><span itemprop="title"
+            >Cell cycle activation by c-myc in a burkitt lymphoma model cell
+            line</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Pratt</span
+            ><span itemprop="givenName">JW</span></span
+          ><span itemprop="datePublished">1959</span
+          ><span itemprop="title"
+            >Remarks on zeros and ties in the wilcoxon signed rank
+            procedures</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="datePublished">2017</span
+          ><span itemprop="title"></span>
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Sabò</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Amati</span
+            ><span itemprop="givenName">B</span></span
+          ><span itemprop="datePublished">2014</span
+          ><span itemprop="title">Genome recognition by MYC</span>
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Sabò</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kress</span
+            ><span itemprop="givenName">TR</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Pelizzola</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">dePretis</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Gorski</span
+            ><span itemprop="givenName">MM</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Tesi</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Morelli</span
+            ><span itemprop="givenName">MJ</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bora</span
+            ><span itemprop="givenName">P</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Doni</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Verrecchia</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Tonelli</span
+            ><span itemprop="givenName">C</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Fagà</span
+            ><span itemprop="givenName">G</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bianchi</span
+            ><span itemprop="givenName">V</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Ronchi</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Low</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Müller</span
+            ><span itemprop="givenName">H</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Guccione</span
+            ><span itemprop="givenName">E</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Campaner</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Amati</span
+            ><span itemprop="givenName">B</span></span
+          ><span itemprop="datePublished">2014</span
+          ><span itemprop="title"
+            >Selective transcriptional regulation by Myc in cellular growth
+            control and lymphomagenesis</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Schlosser</span
+            ><span itemprop="givenName">I</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hölzel</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hoffmann</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Burtscher</span
+            ><span itemprop="givenName">H</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kohlhuber</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Schuhmacher</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Chapman</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Weidle</span
+            ><span itemprop="givenName">UH</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Eick</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="datePublished">2005</span
+          ><span itemprop="title"
+            >Dissection of transcriptional programmes in response to serum and
+            c-Myc in a human B-cell line</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Schneider</span
+            ><span itemprop="givenName">CA</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Rasband</span
+            ><span itemprop="givenName">WS</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Eliceiri</span
+            ><span itemprop="givenName">KW</span></span
+          ><span itemprop="datePublished">2012</span
+          ><span itemprop="title"
+            >NIH Image to ImageJ: 25 years of image analysis</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Schuhmacher</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Staege</span
+            ><span itemprop="givenName">MS</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Pajic</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Polack</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Weidle</span
+            ><span itemprop="givenName">UH</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bornkamm</span
+            ><span itemprop="givenName">GW</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Eick</span
+            ><span itemprop="givenName">D</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kohlhuber</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="datePublished">1999</span
+          ><span itemprop="title"
+            >Control of cell growth by c-Myc in the absence of cell
+            division</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Silberzahn</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Uhlmann</span
+            ><span itemprop="givenName">EL</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Martin</span
+            ><span itemprop="givenName">DP</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Anselmi</span
+            ><span itemprop="givenName">P</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Aust</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Awtrey</span
+            ><span itemprop="givenName">EC</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bahník</span
+            ><span itemprop="givenName">Š</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bai</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bannard</span
+            ><span itemprop="givenName">C</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bonnier</span
+            ><span itemprop="givenName">E</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Carlsson</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Cheung</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Christensen</span
+            ><span itemprop="givenName">G</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Clay</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Craig</span
+            ><span itemprop="givenName">MA</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">DallaRosa</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Dam</span
+            ><span itemprop="givenName">L</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Evans</span
+            ><span itemprop="givenName">MH</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Cervantes</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Fong</span
+            ><span itemprop="givenName">N</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Gamez-Djokic</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Glenz</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Gordon-McKeon</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Heaton</span
+            ><span itemprop="givenName">T</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Eriksson</span
+            ><span itemprop="givenName">KH</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Heene</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">HofelichMohr</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Högden</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Hui</span
+            ><span itemprop="givenName">K</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Johannesson</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kalodimos</span
+            ><span itemprop="givenName">J</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kaszubowski</span
+            ><span itemprop="givenName">E</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kennedy</span
+            ><span itemprop="givenName">DM</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Lei</span
+            ><span itemprop="givenName">R</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Lindsay</span
+            ><span itemprop="givenName">TA</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Liverani</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Madan</span
+            ><span itemprop="givenName">CR</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Molden</span
+            ><span itemprop="givenName">DC</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Molleman</span
+            ><span itemprop="givenName">E</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Morey</span
+            ><span itemprop="givenName">RD</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Mulder</span
+            ><span itemprop="givenName">LB</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Nijstad</span
+            ><span itemprop="givenName">BA</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Pope</span
+            ><span itemprop="givenName">B</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Pope</span
+            ><span itemprop="givenName">NG</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Prenoveau</span
+            ><span itemprop="givenName">JM</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Rink</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Robusto</span
+            ><span itemprop="givenName">E</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Roderique</span
+            ><span itemprop="givenName">H</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Sandberg</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Schlueter</span
+            ><span itemprop="givenName">E</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Schönbrodt</span
+            ><span itemprop="givenName">FD</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Sherman</span
+            ><span itemprop="givenName">MF</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Sommer</span
+            ><span itemprop="givenName">SA</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Sotak</span
+            ><span itemprop="givenName">KL</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Spain</span
+            ><span itemprop="givenName">SM</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Spörlein</span
+            ><span itemprop="givenName">C</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Stafford</span
+            ><span itemprop="givenName">T</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Stefanutti</span
+            ><span itemprop="givenName">L</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Täuber</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Ullrich</span
+            ><span itemprop="givenName">J</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Vianello</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Wagenmakers</span
+            ><span itemprop="givenName">E-J</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Witkowiak</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Yoon</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Nosek</span
+            ><span itemprop="givenName">BA</span></span
+          ><span itemprop="datePublished">2017</span
+          ><span itemprop="title"
+            >Many analysts, one dataset: Making transparent how variations in
+            analytical choices affect results</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Trakhtenberg</span
+            ><span itemprop="givenName">EF</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Pho</span
+            ><span itemprop="givenName">N</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Holton</span
+            ><span itemprop="givenName">KM</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Chittenden</span
+            ><span itemprop="givenName">TW</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Goldberg</span
+            ><span itemprop="givenName">JL</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Dong</span
+            ><span itemprop="givenName">L</span></span
+          ><span itemprop="datePublished">2016</span
+          ><span itemprop="title"
+            >Cell types differ in global coordination of splicing and proportion
+            of highly expressed genes</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Valentine</span
+            ><span itemprop="givenName">JC</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Biglan</span
+            ><span itemprop="givenName">A</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Boruch</span
+            ><span itemprop="givenName">RF</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Castro</span
+            ><span itemprop="givenName">FG</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Collins</span
+            ><span itemprop="givenName">LM</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Flay</span
+            ><span itemprop="givenName">BR</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Kellam</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Mościcki</span
+            ><span itemprop="givenName">EK</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Schinke</span
+            ><span itemprop="givenName">SP</span></span
+          ><span itemprop="datePublished">2011</span
+          ><span itemprop="title">Replication in prevention science</span>
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Viechtbauer</span
+            ><span itemprop="givenName">W</span></span
+          ><span itemprop="datePublished">2010</span
+          ><span itemprop="title"
+            >Conducting Meta-Analyses in R with the metafor Package</span
+          >
+        </div>
+        <div itemprop="citation" itemtype="http://schema.org/CreativeWork">
+          <span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Walz</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Lorenzin</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Morton</span
+            ><span itemprop="givenName">J</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Wiese</span
+            ><span itemprop="givenName">KE</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">vonEyss</span
+            ><span itemprop="givenName">B</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Herold</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Rycak</span
+            ><span itemprop="givenName">L</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Dumay-Odelot</span
+            ><span itemprop="givenName">H</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Karim</span
+            ><span itemprop="givenName">S</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Bartkuhn</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Roels</span
+            ><span itemprop="givenName">F</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Wüstefeld</span
+            ><span itemprop="givenName">T</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Fischer</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Teichmann</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Zender</span
+            ><span itemprop="givenName">L</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Wei</span
+            ><span itemprop="givenName">CL</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Sansom</span
+            ><span itemprop="givenName">O</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Wolf</span
+            ><span itemprop="givenName">E</span></span
+          ><span itemprop="author" itemtype="http://schema.org/Person"
+            ><span itemprop="familyName">Eilers</span
+            ><span itemprop="givenName">M</span></span
+          ><span itemprop="datePublished">2014</span
+          ><span itemprop="title"
+            >Activation and repression by oncogenic MYC shape tumour-specific
+            gene expression profiles</span
+          >
+        </div>
+      </section>
+    </article>
+  </body>
+</html>
