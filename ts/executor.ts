@@ -1,5 +1,8 @@
 import getStdin from 'get-stdin'
 import minimist from 'minimist'
+import { parseScript } from 'meriyah'
+import { generate } from 'astring'
+
 import fs from 'fs'
 import {
   Article,
@@ -107,6 +110,8 @@ function parseItem(
 
 /**
  * Execute a `CodeExpression` (which should be a single expression) and set the result onto its `output` property.
+ *
+ * Uses `eval`, so should only be called with trusted code.
  */
 function executeCodeExpression(code: CodeExpression): void {
   // eslint-disable-next-line no-eval
@@ -116,29 +121,47 @@ function executeCodeExpression(code: CodeExpression): void {
 /**
  * Execute a `CodeChunk` (which might be multiple lines) and set any return values or console output as items in an
  * array on it `outputs` property.
+ *
+ * Uses `eval`, so should only be called with trusted code.
  */
 function executeCodeChunk(code: CodeChunk): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const outputs: any[] = []
 
-  code.text.split('\n').map(statement => {
-    const oldCl = console.log
+  const ast = parseScript(code.text)
+
+  ast.body.forEach(statement => {
+    /*
+    Convert `const` or `let` global declarations to `var`, otherwise they are lost in subsequent eval() calls due to
+    scope changes
+     */
+    if (statement.type === 'VariableDeclaration' && statement.kind !== 'var')
+      statement.kind = 'var'
+
+    // @ts-ignore
+    const generatedCode = generate(statement)
 
     let loggedData = ''
+
+    const oldCl = console.log
 
     console.log = (s: string) => {
       loggedData += s
     }
 
+    // @ts-ignore
     // eslint-disable-next-line no-eval
-    outputs.push(eval(statement))
+    const res = (1, eval)(generatedCode)
 
     console.log = oldCl
+
+    outputs.push(res)
 
     if (loggedData.length > 0) {
       outputs.push(loggedData)
     }
   })
+
   code.outputs = outputs.filter(o => o !== undefined)
 }
 
