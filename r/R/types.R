@@ -27,6 +27,7 @@ Entity <- function(
 #' @name Cite
 #' @param target The target of the citation (URL or reference ID). \bold{Required}.
 #' @param citationMode How the cite is rendered in the surrounding text.
+#' @param content Optional structured content/text of this citation.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param pageEnd The page on which the work ends; for example "138" or "xvi".
@@ -39,6 +40,7 @@ Entity <- function(
 Cite <- function(
   target,
   citationMode,
+  content,
   id,
   meta,
   pageEnd,
@@ -54,6 +56,7 @@ Cite <- function(
   self$type <- as_scalar("Cite")
   self[["target"]] <- check_property("Cite", "target", TRUE, missing(target), "character", target)
   self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("normal", "suppressAuthor"), citationMode)
+  self[["content"]] <- check_property("Cite", "content", FALSE, missing(content), Array("InlineContent"), content)
   self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
   self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
   self[["pagination"]] <- check_property("Cite", "pagination", FALSE, missing(pagination), "character", pagination)
