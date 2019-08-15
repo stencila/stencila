@@ -1,13 +1,14 @@
 import argparse
+import ast
 import base64
 import json
 import logging
-import re
 import sys
 import typing
 from contextlib import redirect_stdout
 from io import TextIOWrapper, BytesIO
 
+import astor
 from stencila.schema.types import Parameter, CodeChunk, Article, Entity, CodeExpression, ConstantSchema, EnumSchema, \
     BooleanSchema, NumberSchema, IntegerSchema, StringSchema, ArraySchema, TupleSchema, ImageObject, Datatable, \
     DatatableColumn
@@ -45,10 +46,6 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
-
-RESULT_CAPTURE_VAR = 'STENCILA_SCHEMA_EXEC_RESULT'
-ASSIGNMENT_RE = re.compile(r'^[_a-z][a-z0-9]+\s*=')
-IMPORT_RE = re.compile(r'^(import|from) ')
 
 ExecutableCode = typing.Union[CodeChunk, CodeExpression]
 
@@ -116,25 +113,29 @@ class Executor:
 
     def execute_code_chunk(self, chunk: CodeChunk, _locals: typing.Dict[str, typing.Any]) -> None:
         cc_outputs = []
-        for statement in chunk.text.split('\n'):
+
+        tree = ast.parse(chunk.text, 'exec')
+
+        for statement in tree.body:
             capture_result = False
 
-            if IMPORT_RE.match(statement):
-                capture_result = False
-            elif not ASSIGNMENT_RE.match(statement):
+            if isinstance(statement, ast.Expr):
                 capture_result = True
-                statement = '{} = {}'.format(RESULT_CAPTURE_VAR, statement)
+                run_function = eval
+                code_to_run = astor.to_source(statement)
+            else:
+                run_function = exec
+                m = ast.Module()
+                m.body = [statement]
+                code_to_run = compile(m, '<ast>', 'exec')
 
             s = StdoutBuffer(BytesIO(), sys.stdout.encoding)
 
             with redirect_stdout(s):
-                exec(statement, self.globals, _locals)
+                result = run_function(code_to_run, self.globals, _locals)
 
-            if capture_result:
-                result = _locals[RESULT_CAPTURE_VAR]
-                del _locals[RESULT_CAPTURE_VAR]
-                if result is not None:
-                    cc_outputs.append(self.decode_output(result))
+            if capture_result and result is not None:
+                cc_outputs.append(self.decode_output(result))
 
             s.seek(0)
             std_out_output = s.buffer.read()
