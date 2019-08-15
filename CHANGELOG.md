@@ -1,3 +1,10 @@
+# [0.26.0](https://github.com/stencila/schema/compare/v0.25.0...v0.26.0) (2019-08-15)
+
+
+### Features
+
+* **Cite:** Add content field to Cite schema ([e7826cb](https://github.com/stencila/schema/commit/e7826cb))
+
 # [0.25.0](https://github.com/stencila/schema/compare/v0.24.1...v0.25.0) (2019-08-08)
 
 
