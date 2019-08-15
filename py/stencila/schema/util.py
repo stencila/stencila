@@ -1,57 +1,13 @@
 """Utility functions for schema to/from JSON."""
-
 import json
 import typing
 
 from . import types
-from .types import Node, Entity, Datatable, DatatableColumn, BooleanSchema, IntegerSchema, NumberSchema, StringSchema, \
-    ArraySchema
-
-try:
-    from pandas import DataFrame
-    import numpy
-
-    pandas_available = True
-except ImportError:
-    class DataFrame:
-        pass
-
-    pandas_available = False
-
-
-def data_frame_to_data_table(df: DataFrame) -> Datatable:
-    columns = []
-
-    for column_name in df.columns:
-        column = df[column_name]
-        values = column.tolist()
-        if column.dtype in (numpy.bool_, numpy.bool8):
-            schema = BooleanSchema()
-            values = [bool(row) for row in values]
-        elif column.dtype in (numpy.int8, numpy.int16, numpy.int32, numpy.int64):
-            schema = IntegerSchema()
-            values = [int(row) for row in values]
-        elif column.dtype in (numpy.float16, numpy.float32, numpy.float64):
-            schema = NumberSchema()
-            values = [float(row) for row in values]
-        elif column.dtype in (numpy.str_, numpy.unicode_,):
-            schema = StringSchema()
-        else:
-            schema = None
-
-        columns.append(
-            DatatableColumn(column_name, values, schema=ArraySchema(items=schema))
-        )
-
-    return Datatable(columns)
+from .types import Node
 
 
 def to_dict(node: typing.Any) -> dict:
     """Convert an Entity node to a dictionary"""
-    if pandas_available:
-        if isinstance(node, DataFrame):
-            node = data_frame_to_data_table(node)
-
     node_dict = {
         "type": node.__class__.__name__
     }
