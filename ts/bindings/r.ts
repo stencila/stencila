@@ -37,6 +37,7 @@ async function build(): Promise<void> {
   const code = `${header}
 
 #' @include typing.R
+NULL
 
 ${classesCode}
 
@@ -64,7 +65,7 @@ export function classGenerator(schema: Schema): string {
           !optional ? `\\bold{Required}.` : ''
         }`
     ),
-    `@seealso \\code{\\link{${parent}}}`,
+    ...(parent !== undefined ? [`@seealso \\code{\\link{${parent}}}`] : []),
     '@export'
   ])
   code += `${title} <- function(\n`
@@ -92,7 +93,7 @@ export function classGenerator(schema: Schema): string {
 
   // Give the node the class `Entity` to be able to
   // provide methods like `print.Entity` in R.
-  code += `\n  class(self) <- c(class(self), "Entity")`
+  code += `\n  class(self) <- c("list", "Entity")`
   code += `\n  self`
 
   code += `\n}\n\n`

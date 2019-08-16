@@ -3,13 +3,13 @@
 # in the `schema` directory and run `npm run build:r` to regenerate it.
 
 #' @include typing.R
+NULL
 
 #' The most basic item, defining the minimum properties required.
 #'
 #' @name Entity
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
-#' @seealso \code{\link{undefined}}
 #' @export
 Entity <- function(
   id,
@@ -19,7 +19,7 @@ Entity <- function(
   self$type <- as_scalar("Entity")
   self[["id"]] <- check_property("Entity", "id", FALSE, missing(id), "character", id)
   self[["meta"]] <- check_property("Entity", "meta", FALSE, missing(meta), "list", meta)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -55,7 +55,7 @@ ArraySchema <- function(
   self[["maxItems"]] <- check_property("ArraySchema", "maxItems", FALSE, missing(maxItems), "numeric", maxItems)
   self[["minItems"]] <- check_property("ArraySchema", "minItems", FALSE, missing(minItems), "numeric", minItems)
   self[["uniqueItems"]] <- check_property("ArraySchema", "uniqueItems", FALSE, missing(uniqueItems), "logical", uniqueItems)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -77,7 +77,7 @@ BooleanSchema <- function(
   )
   self$type <- as_scalar("BooleanSchema")
 
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -119,7 +119,7 @@ Cite <- function(
   self[["pagination"]] <- check_property("Cite", "pagination", FALSE, missing(pagination), "character", pagination)
   self[["prefix"]] <- check_property("Cite", "prefix", FALSE, missing(prefix), "character", prefix)
   self[["suffix"]] <- check_property("Cite", "suffix", FALSE, missing(suffix), "character", suffix)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -143,7 +143,7 @@ CiteGroup <- function(
   )
   self$type <- as_scalar("CiteGroup")
   self[["items"]] <- check_property("CiteGroup", "items", TRUE, missing(items), Array("Cite"), items)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -170,7 +170,7 @@ Code <- function(
   self$type <- as_scalar("Code")
   self[["text"]] <- check_property("Code", "text", TRUE, missing(text), "character", text)
   self[["language"]] <- check_property("Code", "language", FALSE, missing(language), "character", language)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -198,7 +198,7 @@ CodeBlock <- function(
   )
   self$type <- as_scalar("CodeBlock")
 
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -228,7 +228,7 @@ CodeChunk <- function(
   )
   self$type <- as_scalar("CodeChunk")
   self[["outputs"]] <- check_property("CodeChunk", "outputs", FALSE, missing(outputs), Array("Node"), outputs)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -256,7 +256,7 @@ CodeFragment <- function(
   )
   self$type <- as_scalar("CodeFragment")
 
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -286,7 +286,7 @@ CodeExpression <- function(
   )
   self$type <- as_scalar("CodeExpression")
   self[["output"]] <- check_property("CodeExpression", "output", FALSE, missing(output), "Node", output)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -310,7 +310,7 @@ ConstantSchema <- function(
   )
   self$type <- as_scalar("ConstantSchema")
   self[["value"]] <- check_property("ConstantSchema", "value", FALSE, missing(value), "Node", value)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -334,7 +334,7 @@ Mark <- function(
   )
   self$type <- as_scalar("Mark")
   self[["content"]] <- check_property("Mark", "content", TRUE, missing(content), Array("InlineContent"), content)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -359,7 +359,7 @@ Delete <- function(
   )
   self$type <- as_scalar("Delete")
 
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -384,7 +384,7 @@ Emphasis <- function(
   )
   self$type <- as_scalar("Emphasis")
 
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -417,7 +417,7 @@ Thing <- function(
   self[["description"]] <- check_property("Thing", "description", FALSE, missing(description), "character", description)
   self[["name"]] <- check_property("Thing", "name", FALSE, missing(name), "character", name)
   self[["url"]] <- check_property("Thing", "url", FALSE, missing(url), "character", url)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -457,7 +457,7 @@ Brand <- function(
   self[["name"]] <- check_property("Brand", "name", TRUE, missing(name), "character", name)
   self[["logo"]] <- check_property("Brand", "logo", FALSE, missing(logo), Union("character", "ImageObject"), logo)
   self[["reviews"]] <- check_property("Brand", "reviews", FALSE, missing(reviews), Array("character"), reviews)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -499,7 +499,7 @@ ContactPoint <- function(
   self[["availableLanguages"]] <- check_property("ContactPoint", "availableLanguages", FALSE, missing(availableLanguages), Array("character"), availableLanguages)
   self[["emails"]] <- check_property("ContactPoint", "emails", FALSE, missing(emails), Array("character"), emails)
   self[["telephone"]] <- check_property("ContactPoint", "telephone", FALSE, missing(telephone), "character", telephone)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -577,7 +577,7 @@ CreativeWork <- function(
   self[["text"]] <- check_property("CreativeWork", "text", FALSE, missing(text), "character", text)
   self[["title"]] <- check_property("CreativeWork", "title", FALSE, missing(title), "character", title)
   self[["version"]] <- check_property("CreativeWork", "version", FALSE, missing(version), Union("character", "numeric"), version)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -660,7 +660,7 @@ Article <- function(
   self[["authors"]] <- check_property("Article", "authors", TRUE, missing(authors), Array(Union("Person", "Organization")), authors)
   self[["title"]] <- check_property("Article", "title", TRUE, missing(title), "character", title)
   self[["environment"]] <- check_property("Article", "environment", FALSE, missing(environment), "Environment", environment)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -739,7 +739,7 @@ Collection <- function(
   )
   self$type <- as_scalar("Collection")
   self[["parts"]] <- check_property("Collection", "parts", TRUE, missing(parts), Array("CreativeWorkTypes"), parts)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -820,7 +820,7 @@ Datatable <- function(
   )
   self$type <- as_scalar("Datatable")
   self[["columns"]] <- check_property("Datatable", "columns", TRUE, missing(columns), Array("DatatableColumn"), columns)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -913,7 +913,7 @@ MediaObject <- function(
   self[["contentSize"]] <- check_property("MediaObject", "contentSize", FALSE, missing(contentSize), "numeric", contentSize)
   self[["embedUrl"]] <- check_property("MediaObject", "embedUrl", FALSE, missing(embedUrl), "character", embedUrl)
   self[["format"]] <- check_property("MediaObject", "format", FALSE, missing(format), "character", format)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1012,7 +1012,7 @@ AudioObject <- function(
   self$type <- as_scalar("AudioObject")
   self[["caption"]] <- check_property("AudioObject", "caption", FALSE, missing(caption), "character", caption)
   self[["transcript"]] <- check_property("AudioObject", "transcript", FALSE, missing(transcript), "character", transcript)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1052,7 +1052,7 @@ DatatableColumn <- function(
   self[["name"]] <- check_property("DatatableColumn", "name", TRUE, missing(name), "character", name)
   self[["values"]] <- check_property("DatatableColumn", "values", TRUE, missing(values), Array(Any()), values)
   self[["schema"]] <- check_property("DatatableColumn", "schema", FALSE, missing(schema), "ArraySchema", schema)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1076,7 +1076,7 @@ EnumSchema <- function(
   )
   self$type <- as_scalar("EnumSchema")
   self[["values"]] <- check_property("EnumSchema", "values", FALSE, missing(values), Array("Node"), values)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1122,7 +1122,7 @@ Environment <- function(
   self[["extends"]] <- check_property("Environment", "extends", FALSE, missing(extends), Array("Environment"), extends)
   self[["removes"]] <- check_property("Environment", "removes", FALSE, missing(removes), Array("SoftwareSourceCode"), removes)
   self[["source"]] <- check_property("Environment", "source", FALSE, missing(source), "character", source)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1206,7 +1206,7 @@ Figure <- function(
   self$type <- as_scalar("Figure")
   self[["caption"]] <- check_property("Figure", "caption", FALSE, missing(caption), Array("Node"), caption)
   self[["label"]] <- check_property("Figure", "label", FALSE, missing(label), "character", label)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1233,7 +1233,7 @@ Heading <- function(
   self$type <- as_scalar("Heading")
   self[["content"]] <- check_property("Heading", "content", TRUE, missing(content), Array("InlineContent"), content)
   self[["depth"]] <- check_property("Heading", "depth", TRUE, missing(depth), "numeric", depth)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1332,7 +1332,7 @@ ImageObject <- function(
   self$type <- as_scalar("ImageObject")
   self[["caption"]] <- check_property("ImageObject", "caption", FALSE, missing(caption), "character", caption)
   self[["thumbnail"]] <- check_property("ImageObject", "thumbnail", FALSE, missing(thumbnail), "ImageObject", thumbnail)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1365,7 +1365,7 @@ Include <- function(
   self[["content"]] <- check_property("Include", "content", FALSE, missing(content), Array("Node"), content)
   self[["hash"]] <- check_property("Include", "hash", FALSE, missing(hash), "character", hash)
   self[["mediaType"]] <- check_property("Include", "mediaType", FALSE, missing(mediaType), "character", mediaType)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1401,7 +1401,7 @@ NumberSchema <- function(
   self[["maximum"]] <- check_property("NumberSchema", "maximum", FALSE, missing(maximum), "numeric", maximum)
   self[["minimum"]] <- check_property("NumberSchema", "minimum", FALSE, missing(minimum), "numeric", minimum)
   self[["multipleOf"]] <- check_property("NumberSchema", "multipleOf", FALSE, missing(multipleOf), "numeric", multipleOf)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1438,7 +1438,7 @@ IntegerSchema <- function(
   )
   self$type <- as_scalar("IntegerSchema")
 
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1471,7 +1471,7 @@ Link <- function(
   self[["target"]] <- check_property("Link", "target", TRUE, missing(target), "character", target)
   self[["relation"]] <- check_property("Link", "relation", FALSE, missing(relation), "character", relation)
   self[["title"]] <- check_property("Link", "title", FALSE, missing(title), "character", title)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1498,7 +1498,7 @@ List <- function(
   self$type <- as_scalar("List")
   self[["items"]] <- check_property("List", "items", TRUE, missing(items), Array("ListItem"), items)
   self[["order"]] <- check_property("List", "order", FALSE, missing(order), Enum("ascending", "descending", "unordered"), order)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1525,7 +1525,7 @@ ListItem <- function(
   self$type <- as_scalar("ListItem")
   self[["content"]] <- check_property("ListItem", "content", TRUE, missing(content), Array("Node"), content)
   self[["checked"]] <- check_property("ListItem", "checked", FALSE, missing(checked), "logical", checked)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1570,7 +1570,7 @@ Mount <- function(
   self[["mountOptions"]] <- check_property("Mount", "mountOptions", FALSE, missing(mountOptions), Array("character"), mountOptions)
   self[["mountSource"]] <- check_property("Mount", "mountSource", FALSE, missing(mountSource), "character", mountSource)
   self[["mountType"]] <- check_property("Mount", "mountType", FALSE, missing(mountType), "character", mountType)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1624,7 +1624,7 @@ Organization <- function(
   self[["funders"]] <- check_property("Organization", "funders", FALSE, missing(funders), Array(Union("Organization", "Person")), funders)
   self[["legalName"]] <- check_property("Organization", "legalName", FALSE, missing(legalName), "character", legalName)
   self[["parentOrganization"]] <- check_property("Organization", "parentOrganization", FALSE, missing(parentOrganization), "Organization", parentOrganization)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1648,7 +1648,7 @@ Paragraph <- function(
   )
   self$type <- as_scalar("Paragraph")
   self[["content"]] <- check_property("Paragraph", "content", TRUE, missing(content), Array("InlineContent"), content)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1678,7 +1678,7 @@ Parameter <- function(
   self[["name"]] <- check_property("Parameter", "name", TRUE, missing(name), "character", name)
   self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), "Node", default)
   self[["schema"]] <- check_property("Parameter", "schema", FALSE, missing(schema), "SchemaTypes", schema)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1765,7 +1765,7 @@ Periodical <- function(
   self[["dateEnd"]] <- check_property("Periodical", "dateEnd", FALSE, missing(dateEnd), "character", dateEnd)
   self[["dateStart"]] <- check_property("Periodical", "dateStart", FALSE, missing(dateStart), "character", dateStart)
   self[["issn"]] <- check_property("Periodical", "issn", FALSE, missing(issn), Array("character"), issn)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1831,7 +1831,7 @@ Person <- function(
   self[["jobTitle"]] <- check_property("Person", "jobTitle", FALSE, missing(jobTitle), "character", jobTitle)
   self[["memberOf"]] <- check_property("Person", "memberOf", FALSE, missing(memberOf), Array("Organization"), memberOf)
   self[["telephoneNumbers"]] <- check_property("Person", "telephoneNumbers", FALSE, missing(telephoneNumbers), Array("character"), telephoneNumbers)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1873,7 +1873,7 @@ Product <- function(
   self[["brand"]] <- check_property("Product", "brand", FALSE, missing(brand), "Brand", brand)
   self[["logo"]] <- check_property("Product", "logo", FALSE, missing(logo), Union("character", "ImageObject"), logo)
   self[["productID"]] <- check_property("Product", "productID", FALSE, missing(productID), "character", productID)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -1963,7 +1963,7 @@ PublicationIssue <- function(
   self[["pageEnd"]] <- check_property("PublicationIssue", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
   self[["pageStart"]] <- check_property("PublicationIssue", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
   self[["pagination"]] <- check_property("PublicationIssue", "pagination", FALSE, missing(pagination), "character", pagination)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2053,7 +2053,7 @@ PublicationVolume <- function(
   self[["pageStart"]] <- check_property("PublicationVolume", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
   self[["pagination"]] <- check_property("PublicationVolume", "pagination", FALSE, missing(pagination), "character", pagination)
   self[["volumeNumber"]] <- check_property("PublicationVolume", "volumeNumber", FALSE, missing(volumeNumber), Union("character", "numeric"), volumeNumber)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2080,7 +2080,7 @@ Quote <- function(
   )
   self$type <- as_scalar("Quote")
   self[["citation"]] <- check_property("Quote", "citation", FALSE, missing(citation), "character", citation)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2107,7 +2107,7 @@ QuoteBlock <- function(
   self$type <- as_scalar("QuoteBlock")
   self[["content"]] <- check_property("QuoteBlock", "content", TRUE, missing(content), Array("BlockContent"), content)
   self[["citation"]] <- check_property("QuoteBlock", "citation", FALSE, missing(citation), "character", citation)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2146,7 +2146,7 @@ ResourceParameters <- function(
   self$type <- as_scalar("ResourceParameters")
   self[["resourceLimit"]] <- check_property("ResourceParameters", "resourceLimit", FALSE, missing(resourceLimit), "numeric", resourceLimit)
   self[["resourceRequested"]] <- check_property("ResourceParameters", "resourceRequested", FALSE, missing(resourceRequested), "numeric", resourceRequested)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2230,7 +2230,7 @@ SoftwareApplication <- function(
   self$type <- as_scalar("SoftwareApplication")
   self[["softwareRequirements"]] <- check_property("SoftwareApplication", "softwareRequirements", FALSE, missing(softwareRequirements), Array("SoftwareApplication"), softwareRequirements)
   self[["softwareVersion"]] <- check_property("SoftwareApplication", "softwareVersion", FALSE, missing(softwareVersion), "character", softwareVersion)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2275,7 +2275,7 @@ SoftwareSession <- function(
   self[["cpuResource"]] <- check_property("SoftwareSession", "cpuResource", FALSE, missing(cpuResource), "ResourceParameters", cpuResource)
   self[["memoryResource"]] <- check_property("SoftwareSession", "memoryResource", FALSE, missing(memoryResource), "ResourceParameters", memoryResource)
   self[["volumeMounts"]] <- check_property("SoftwareSession", "volumeMounts", FALSE, missing(volumeMounts), Array("Mount"), volumeMounts)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2374,7 +2374,7 @@ SoftwareSourceCode <- function(
   self[["runtimePlatform"]] <- check_property("SoftwareSourceCode", "runtimePlatform", FALSE, missing(runtimePlatform), Array("character"), runtimePlatform)
   self[["softwareRequirements"]] <- check_property("SoftwareSourceCode", "softwareRequirements", FALSE, missing(softwareRequirements), Array(Union("SoftwareSourceCode", "SoftwareApplication", "character")), softwareRequirements)
   self[["targetProducts"]] <- check_property("SoftwareSourceCode", "targetProducts", FALSE, missing(targetProducts), Array("SoftwareApplication"), targetProducts)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2404,7 +2404,7 @@ StringSchema <- function(
   self[["maxLength"]] <- check_property("StringSchema", "maxLength", FALSE, missing(maxLength), "numeric", maxLength)
   self[["minLength"]] <- check_property("StringSchema", "minLength", FALSE, missing(minLength), "numeric", minLength)
   self[["pattern"]] <- check_property("StringSchema", "pattern", FALSE, missing(pattern), "character", pattern)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2429,7 +2429,7 @@ Strong <- function(
   )
   self$type <- as_scalar("Strong")
 
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2454,7 +2454,7 @@ Subscript <- function(
   )
   self$type <- as_scalar("Subscript")
 
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2479,7 +2479,7 @@ Superscript <- function(
   )
   self$type <- as_scalar("Superscript")
 
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2560,7 +2560,7 @@ Table <- function(
   )
   self$type <- as_scalar("Table")
   self[["rows"]] <- check_property("Table", "rows", TRUE, missing(rows), Array("TableRow"), rows)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2596,7 +2596,7 @@ TableCell <- function(
   self[["kind"]] <- check_property("TableCell", "kind", FALSE, missing(kind), Enum("data", "header"), kind)
   self[["name"]] <- check_property("TableCell", "name", FALSE, missing(name), "character", name)
   self[["rowspan"]] <- check_property("TableCell", "rowspan", FALSE, missing(rowspan), "numeric", rowspan)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2623,7 +2623,7 @@ TableRow <- function(
   self$type <- as_scalar("TableRow")
   self[["cells"]] <- check_property("TableRow", "cells", TRUE, missing(cells), Array("TableCell"), cells)
   self[["kind"]] <- check_property("TableRow", "kind", FALSE, missing(kind), Enum("header", "footer"), kind)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2645,7 +2645,7 @@ ThematicBreak <- function(
   )
   self$type <- as_scalar("ThematicBreak")
 
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2669,7 +2669,7 @@ TupleSchema <- function(
   )
   self$type <- as_scalar("TupleSchema")
   self[["items"]] <- check_property("TupleSchema", "items", FALSE, missing(items), Array("SchemaTypes"), items)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
@@ -2771,7 +2771,7 @@ VideoObject <- function(
   self[["caption"]] <- check_property("VideoObject", "caption", FALSE, missing(caption), "character", caption)
   self[["thumbnail"]] <- check_property("VideoObject", "thumbnail", FALSE, missing(thumbnail), "ImageObject", thumbnail)
   self[["transcript"]] <- check_property("VideoObject", "transcript", FALSE, missing(transcript), "character", transcript)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 
