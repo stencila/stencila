@@ -6,9 +6,80 @@ status: unstable
 category: code
 description: A executable chunk of code.
 properties:
+  imports:
+    '@id': stencila:imports
+    description: Software packages that the code chunk imports
+    type: array
+    items:
+      anyOf:
+        - type: string
+        - $ref: SoftwareSourceCode
+        - $ref: SoftwareApplication
+  declares:
+    '@id': stencila:declares
+    description: Variables that the code chunk declares.
+    type: array
+    items:
+      anyOf:
+        # String for when user want to specify manually that a cell
+        # declares a variable
+        - type: string
+        # For when we want to store type and possibly value of variable
+        - $ref: Variable
+        # Functions and datatables already have a name so it is
+        # redundant / confusing to wrap then in a variable
+        - $ref: Function
+        - $ref: Datatable
+  assigns:
+    '@id': stencila:assigns
+    description: Variables that the code chunk assigns to.
+    type: array
+    items:
+      type: string
+    $comment: |
+      In languages such as Python and R we are unable
+      to differentiate between an assignment that
+      is a declaration and an assignment that is an alteration
+      (a re-assignment).
+      The "primary" compiler keeps a track of the variables
+      declared in code chunks prior to the current chunk in the
+      document and may treat an assignment as a declaration.
+  alters:
+    '@id': stencila:alters
+    description: Names of variables that the code chunk alters.
+    type: array
+    items:
+      type: string
+    $comment: |
+      This property allows users to add undetected
+      alterations (i.e. not assignments) to this list. Chunks that alter a variable
+      need to be inserted into the dependency graph between `declares` and `uses`
+  uses:
+    '@id': stencila:uses
+    description: Names of variables that the code chunk uses (but does not alter).
+    type: array
+    items:
+      type: string
+  reads:
+    '@id': stencila:reads
+    description: Filesystem paths that this code chunk reads from.
+    type: array
+    items:
+      type: string
   outputs:
     '@id': stencila:outputs
     description: Outputs from executing the chunk.
     type: array
     items:
       $ref: Node
+  errors:
+    '@id': stencila:errors
+    description: Errors when compiling or executing the chunk.
+    type: array
+    items:
+      $ref: CodeChunkError
+  duration:
+    '@id': stencila:duration
+    description: Duration in seconds of the last execution of the chunk.
+    type: number
+    minimum: 0
