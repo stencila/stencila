@@ -72,7 +72,7 @@ print.Enum <- function(x) { # nolint
 #' Get the last class for an object
 #' The last class is usually the "highest" in the inheritance tree
 last_class <- function(obj) {
-  tail(class(obj), n = 1)
+  utils::tail(class(obj), n = 1)
 }
 
 #' Is a value of a particular class

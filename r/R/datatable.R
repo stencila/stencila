@@ -30,7 +30,11 @@ datatable_to_dataframe <- function(dt){
 }
 
 #' @export
-as.data.frame.Datatable <- datatable_to_dataframe
+as.data.frame.Datatable <- function(x, row.names, optional, ...) {
+  # Used parameters are necessary to avoid R CMD check warnings
+  # regarding S3 method consistency
+  datatable_to_dataframe(x)
+}
 
 #' Create a [DatatableColumn()] from a R object
 #'

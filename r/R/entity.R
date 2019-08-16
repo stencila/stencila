@@ -6,8 +6,8 @@
 #' This simply prints the JSON representation
 #' of the node.
 #' @export
-print.Entity <- function(entity) {
-  cat(node_to_json(entity, pretty = TRUE)) # nocov
+print.Entity <- function(x, ...) {
+  cat(node_to_json(x, pretty = TRUE)) # nocov
 }
 
 #' Create an [Entity()] from a `list`
