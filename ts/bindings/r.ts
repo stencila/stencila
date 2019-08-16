@@ -36,6 +36,8 @@ async function build(): Promise<void> {
 
   const code = `${header}
 
+#' @include typing.R
+
 ${classesCode}
 
 ${unionsCode}
