@@ -19,10 +19,13 @@ Suggests:
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1.9000
 Collate:
+    'read_funcs.R'
+    'nse_funcs.R'
+    'compile.R'
+    'datatable.R'
+    'entity.R'
+    'node.R'
     'stencila.R'
-    'util.R'
     'typing.R'
     'types.R'
-    'node.R'
-    'entity.R'
-    'datatable.R'
+    'util.R'

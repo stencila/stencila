@@ -2,6 +2,8 @@
 # Do not modify it by hand. Instead, modify the source `.schema.yaml` files
 # in the `schema` directory and run `npm run build:r` to regenerate it.
 
+#' @include typing.R
+
 #' The most basic item, defining the minimum properties required.
 #'
 #' @name Entity
