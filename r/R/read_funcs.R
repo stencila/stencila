@@ -2,6 +2,8 @@
 #' that read files from the filesystem. This list is used
 #' when R code is compiled to help determine the `reads` propery
 #' of the chunk
+#'
+#' @include util.R
 
 #' Create a entry for a function that reads a file
 #'
@@ -47,8 +49,8 @@ read_funcs <- list(
 )
 
 #' List of possible function call names to match
-read_funcs_names <- Reduce(
-  function(prev, curr) c(prev, curr$func, paste0(curr$package, "::", curr$func)),
+read_funcs_names <- reduce(
   read_funcs,
+  function(prev, curr) c(prev, curr$func, paste0(curr$package, "::", curr$func)),
   character()
 )
