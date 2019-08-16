@@ -2,3 +2,4 @@
 ^.covrignore$
 ^.lintr$
 ^\.Rproj\.user$
+^Makefile
