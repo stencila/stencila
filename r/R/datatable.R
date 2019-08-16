@@ -36,30 +36,30 @@ as.data.frame.Datatable <- datatable_to_dataframe
 #'
 #' Because a `factor`'s levels are always a
 #' character vector, factors are converted into a
-#' columns with `items` of type `string` with
-#' a `enum` containing the levels.
+#' column with `schema.items` of type `EnumSchema` with
+#' `values` containing the levels.
 #'
 #' @param name Name of the column
 #' @param object The object, usually a `vector`, to generate a schema and values from
 datatable_column_from_object <- function(name, object) {
   if (is.factor(object)) {
-    items <- list(
-      type = as_scalar("string"),
-      enum = levels(object)
+    sub_schema <- EnumSchema(
+      values = levels(object)
     )
     values <- as.character.factor(object)
   } else {
-    items <- list(
-      type = as_scalar(mode_to_schema_type(mode(object)))
+    sub_schema <- switch(
+      mode_to_schema_type(mode(object)),
+      boolean = BooleanSchema(),
+      number = NumberSchema(),
+      string = StringSchema()
     )
     values <- object
   }
 
   DatatableColumn(
     name = name,
-    schema = DatatableColumnSchema(
-      items = items
-    ),
+    schema = ArraySchema(items = sub_schema),
     values = values
   )
 }
@@ -77,11 +77,17 @@ datatable_column_to_values <- function(dtc) {
     if (!is.null(items)) {
       type <- items$type
       if (!is.null(type)) {
-        mode <- schema_type_to_mode(type)
-      }
-      enum <- items$enum
-      if (!is.null(enum)) {
-        values <- factor(values, levels = enum)
+        if (type == "EnumSchema") {
+          values <- factor(values, levels = items$values)
+        } else {
+          values <- switch(
+            type,
+            BooleanSchema = as.logical,
+            IntegerSchema = as.integer,
+            NumberSchema = as.numeric,
+            StringSchema = as.character
+          )(values)
+        }
       }
     }
   }

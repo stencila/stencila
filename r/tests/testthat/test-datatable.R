@@ -21,10 +21,10 @@ test_that("datatable_from_dataframe: column types", {
   )
   expect_equal(
     datatable_coltypes(dt),
-    c("number", "boolean", "string", "string")
+    c("NumberSchema", "BooleanSchema", "StringSchema", "EnumSchema")
   )
   expect_equal(
-    dt$columns[[4]]$schema$items$enum,
+    dt$columns[[4]]$schema$items$values,
     c("X", "Y", "Z")
   )
 })
@@ -39,7 +39,7 @@ test_that("datatable_from_dataframe: mtcars", {
   )
   expect_equal(
     datatable_coltypes(dt),
-    c("number", "number", "number", "number", "number", "number", "number", "number", "number", "number", "number")
+    rep("NumberSchema", 11)
   )
 })
 
@@ -53,10 +53,10 @@ test_that("datatable_from_dataframe: chickwts", {
   )
   expect_equal(
     datatable_coltypes(dt),
-    c("number", "string")
+    c("NumberSchema", "EnumSchema")
   )
   expect_equal(
-    dt$columns[[2]]$schema$items$enum,
+    dt$columns[[2]]$schema$items$values,
     c("casein", "horsebean", "linseed", "meatmeal", "soybean", "sunflower")
   )
 })
@@ -78,10 +78,9 @@ test_that("datatable_to_dataframe: column types", {
       ),
       DatatableColumn(
         name = "d",
-        schema = DatatableColumnSchema(
-          items = list(
-            type = "string",
-            enum = c("X", "Y", "Z")
+        schema = ArraySchema(
+          items = EnumSchema(
+            values = c("X", "Y", "Z")
           )
         ),
         values = c("X", "Y")
@@ -103,7 +102,7 @@ test_that("datatable_to_dataframe: column types", {
 })
 
 test_that("datatable - dataframe round trips", {
-  round <- function(df) datatable_to_dataframe(datatable_from_dataframe(df))
-  expect_equal(round(iris), iris)
-  expect_equal(round(chickwts), chickwts)
+  around <- function(df) datatable_to_dataframe(datatable_from_dataframe(df))
+  expect_equal(around(iris), iris)
+  expect_equal(around(chickwts), chickwts)
 })
