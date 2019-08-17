@@ -47,7 +47,11 @@ compile_code_chunk <- function(chunk) {
     for (line in lines) {
       match <- string_match(line, regex)
       if (!is.null(match)) {
-        values <- string_split(match[2], "\\s*,\\s*")
+        values_list <- trimws(match[2])
+        if (string_right(values_list) == '.' && string_right(values_list, 2) != ',.') {
+          values_list <- paste(substr(values_list, 1, nchar(values_list) - 1), '.', sep = ',')
+        }
+        values <- string_split(values_list, "\\s*,\\s*")
         assign(property, unique(c(get(property), values)))
       }
     }
@@ -55,11 +59,6 @@ compile_code_chunk <- function(chunk) {
 
   # Parse the code into an AST
   ast <- as.list(parse(text = text))
-
-  # Record assignments that are local
-  # to functions, they need to be considered
-  # for `uses`, but not for `assigns`
-  local_assigns <- NULL
 
   ast_walker <- function(node, depth = 0) {
     if (is.symbol(node)) {
@@ -134,7 +133,10 @@ compile_code_chunk <- function(chunk) {
           # Recurse until we find the variable that is target of alteration
           walk <- function(node) {
             left <- node[[2]]
-            if (is.symbol(left)) alters <<- unique(c(alters, as.character(left)))
+            if (is.symbol(left)) {
+              name <- as.character(left)
+              if (!(name %in% assigns)) alters <<- unique(c(alters, name))
+            }
             else walk(left)
           }
           walk(left)
@@ -165,36 +167,49 @@ compile_code_chunk <- function(chunk) {
         if (length(files) > 0) reads <<- unique(c(reads, files))
       } else {
         # Some other function
-        # Add function to `uses` if it is is not in base environment
-        if (!(
-          func_name %in% base_func_names ||
-          func_name %in% sapply(declares, function(func) func$name))
+        # Add function to `uses` if it is is not in declared
+        # or is in base environment
+        if (
+          nchar(func_name) > 0 &&
+          !(
+            func_name %in% base_func_names ||
+            func_name %in% sapply(declares, function(func) func$name)
+          )
         ) {
           uses <<- unique(c(uses, func_name))
         }
-        # Only walk arguments so that function name is not used in `uses`
-        if (length(node) > 2) lapply(node[3:length(node)], ast_walker, depth)
-        return()
+        # Walk arguments of function
+        if (func_name %in% nse_funcs_names) {
+          # Do not walk args of functions that are registered as using NSE
+          # TODO: only ignore args that are registered, if any.
+          return()
+        }
       }
     }
 
     # If there are child nodes, walk over them too
-    if (length(node) > 1) {
-      lapply(node[2:length(node)], ast_walker, depth)
-    }
+    if (length(node) > 1) lapply(node[2:length(node)], ast_walker, depth)
   }
   lapply(ast, ast_walker)
+
+  # Strip property values that are after a trailing dot
+  # Users can use this to control a property's content
+  strip <- function (property) {
+    matched <- match(".", property)
+    if (is.na(matched)) property
+    else property[1: (matched-1)]
+  }
 
   c(
     chunk,
     filter(
       list(
-        imports = imports,
+        imports = strip(imports),
         declares = declares,
-        assigns = assigns,
-        alters = alters,
-        uses = uses,
-        reads = reads
+        assigns = strip(assigns),
+        alters = strip(alters),
+        uses = strip(uses),
+        reads = strip(reads)
       ),
       function(property) !is.null(property)
     )

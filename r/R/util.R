@@ -72,3 +72,12 @@ string_match <- function(string, regex) {
 string_split <- function(string, regex) {
   strsplit(string, regex)[[1]]
 }
+
+#' Get characters on the right on a string
+#' 
+#' @param string The string to extract chars from
+#' @param chars Number of chars to extract
+string_right = function (string, chars = 1){
+  substr(string, nchar(string) - (chars-1), nchar(string))
+}
+

@@ -4,6 +4,7 @@
 #' of the chunk
 #'
 #' @include util.R
+NULL
 
 #' Create a entry for a function that reads a file
 #'
