@@ -121,26 +121,23 @@ compile_code_chunk <- function(chunk) {
           return()
         } else if (
           func_name == "assign" ||
-          (is.symbol(left) && (func_name == "<<-" || depth == 0))
+          is.symbol(left) && (func_name == "<<-" || depth == 0)
         ) {
           # Assignment using `<<-` operator or `assign` functin
           # are always assumed to bind to the top level
           # (even though they may not e.g. see `pos` arg of `assign`)
           assigns <<- unique(c(assigns, as.character(left)))
-        } else if (is.call(left)) {
+        } else if (
+          is.call(left) && (func_name == "<<-" || depth == 0)
+        ) {
           # Assignment to an existing object  e.g. a$b[1] <- NULL
           # Recurse until we find the variable that is target of alteration
           walk <- function(node) {
-            target <- node[[2]]
-            if (is.symbol(target)) {
-              if (is.null(alters) || !(target %in% alters)) {
-                alters <<- unique(c(alters, as.character(target)))
-              }
-            } else {
-              walk(target)
-            }
+            left <- node[[2]]
+            if (is.symbol(left)) alters <<- unique(c(alters, as.character(left)))
+            else walk(left)
           }
-          walk(target)
+          walk(left)
         }
       } else if (func_name %in% import_func_names) {
         # Package import

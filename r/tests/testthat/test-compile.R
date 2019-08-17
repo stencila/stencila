@@ -111,7 +111,8 @@ test_that("compile_code_chunk: assigns", {
     c("var4", "var5", "var1", "var2", "var3", "var6")
   )
 
-  # Assignments in functions
+  # Assignments in functions are ignored
+  # except global assigns <<- and assigns function
   expect_equal(
     assigns(paste(
       "func1 <- function() {",
@@ -122,8 +123,8 @@ test_that("compile_code_chunk: assigns", {
       "  assign('e', 5, 1)",
       "  innerfunc <- function() {",
       "    f <- 6",
-      "    g <<- 6",
-      "    assign('h', 7)",
+      "    g <<- 7",
+      "    assign('h', 8)",
       "  }",
       "}",
       sep = "\n"
@@ -148,4 +149,41 @@ test_that("compile_code_chunk: assigns", {
     chunk$uses,
     "b"
   )
+})
+
+
+test_that("compile_code_chunk: alters", {
+  alters <- function(text) compile_code_chunk(text)$alters
+
+  # The usual top level alters
+  expect_equal(
+    alters(paste(
+      "var1[1] <- 1",
+      "var2$prop = 2",
+      "var3$prop <<- 3",
+      "#' @alters var4, var5",
+      "var6[[2]] <- 4",
+      sep = "\n"
+    )),
+    c("var4", "var5", "var1", "var2", "var3", "var6")
+  )
+
+  # All alterations inside functions are ignored unless
+  # they use the <<- operator
+  expect_equal(
+    alters(paste(
+      "func <- function() {",
+      "  a$b <- 1",
+      "  c$d <<- 2",
+      "  innerfunc <- function() {",
+      "    e$f <- 6",
+      "    g$h <<- 7",
+      "    i[3] <<- 7",
+      "  }",
+      "}",
+      sep = "\n"
+    )),
+    c("c", "g", "i")
+  )
+
 })
