@@ -19,6 +19,7 @@ Suggests:
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1.9000
 Collate:
+    'util.R'
     'read_funcs.R'
     'nse_funcs.R'
     'compile.R'
@@ -28,4 +29,3 @@ Collate:
     'stencila.R'
     'typing.R'
     'types.R'
-    'util.R'

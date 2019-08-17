@@ -20,7 +20,7 @@ cover:
 	Rscript -e 'covr::package_coverage()'
 
 check:
-	Rscript -e 'devtools::check(document = FALSE)'
+	Rscript -e 'devtools::check()'
 
 build:
 	Rscript -e 'devtools::document(); warnings()'

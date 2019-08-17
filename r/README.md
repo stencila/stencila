@@ -30,7 +30,6 @@ Most development tasks can be run from R, using `make` shortcuts, or RStudio key
 Unit tests live in the `tests` folder and are written using the `testthat` package. To run test files individually, in R use the `test_file` function:
 
 ```r
-library(testthat)
 testthat::test_file(system.file("tests/testthat/test-types.R", package = "stencila"))
 ```
 
