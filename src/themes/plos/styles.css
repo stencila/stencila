@@ -5,14 +5,18 @@
 @import '../../common/fonts/openSans/openSans.css';
 
 /* Custom Selectors and Variables */
-@custom-selector [itemtype='https://stencila.github.io/schema/CiteGroup'];
-@custom-selector [itemtype='https://stencila.github.io/schema/Cite'];
-@custom-selector [itemtype='https://schema.org/CreativeWork'];
+@custom-selector :--CiteGroup [itemtype='https://stencila.github.io/schema/CiteGroup'];
+@custom-selector :--Cite [itemtype='https://stencila.github.io/schema/Cite'];
+@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
 @custom-selector :--title [itemprop='title'];
 @custom-selector :--authors [itemprop='authors'];
-@custom-selector [itemtype='https://schema.org/Person'];
+@custom-selector :--author [itemprop='author'];
+@custom-selector :--Person [itemtype='https://schema.org/Person'];
+@custom-selector :--givenName [itemprop='givenName'];
+@custom-selector :--familyName [itemprop='familyName'];
 @custom-selector :--references [itemprop='references'];
-@custom-selector [itemtype='https://stencila.github.io/schema/PublicationIssue'];
+@custom-selector :--citation [itemprop='citation'];
+@custom-selector :--PublicationIssue [itemtype='https://stencila.github.io/schema/PublicationIssue'];
 @custom-selector :--datePublished [itemprop='datePublished'];
 @custom-selector :--issueNumber [itemprop='issueNumber'];
 @custom-selector :--pagination [itemprop='pagination'];
@@ -42,7 +46,11 @@
 
 /* Stencila Components */
 stencila-thing {
-  max-width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  overflow-x: auto;
+  background-color: var(--figure-bg-color);
+  font-size: var(--body-font-size);
 }
 
 [itemprop='citation'] {
@@ -132,7 +140,7 @@ h3 {
   font-weight: 600;
 }
 
-h1:first-of-type {
+article > h1:first-of-type {
   font-family: var(--secondary-font);
   font-weight: var(--secondary-font-weight);
   font-size: 1.625rem;
@@ -256,7 +264,6 @@ h1 {
 }
 
 h2 {
-  border-top: 1px solid var(--border-color);
   line-height: 1.15385;
   padding: 1.3125rem 0;
 }
@@ -303,6 +310,19 @@ table {
   border-collapse: collapse;
   font-size: 80%;
   overflow-x: auto;
+  margin-bottom: 1.5rem;
+
+  /* Make first table row a heading
+     if there isn't a thead */
+  tbody:first-child {
+    tr:first-child {
+      font-weight: bold;
+      font-size: 0.8125rem;
+      line-height: 1.38462;
+      vertical-align: top;
+      background-color: #f7f7f7;
+    }
+  }
 }
 
 th,
@@ -345,8 +365,8 @@ blockquote {
 :--references {
   list-style: none;
   counter-reset: cite-counter;
-  margin: 0;
   padding: 0;
+  margin: 0 0 0 1em;
   font-family: var(--heading-font);
 
   > li {
@@ -358,13 +378,13 @@ blockquote {
     padding-left: 3rem;
 
     &::before {
-      content: counter(cite-counter);
+      content: counter(cite-counter) '. ';
       display: inline-block;
       text-align: right;
-      font-size: 1rem;
       font-weight: 600;
       position: absolute;
       margin: 0 -2rem;
+      width: 24px;
     }
   }
 
@@ -372,6 +392,28 @@ blockquote {
   ul {
     padding-left: 0;
     list-style: none;
+  }
+
+  :--citation {
+    display: flex;
+    flex-flow: wrap;
+
+    :--author {
+      order: 1;
+    }
+
+    :--title {
+      order: 2;
+
+      &:after {
+        content: '. ';
+        white-space: pre;
+      }
+    }
+
+    :--datePublished {
+      order: 3;
+    }
   }
 
   :--CreativeWork > :--title {
@@ -411,6 +453,24 @@ blockquote {
       &:last-child::after {
         content: normal;
       }
+    }
+  }
+
+  :--author {
+    :--familyName {
+      &::after {
+        content: ' ';
+        white-space: pre;
+      }
+    }
+    :--givenName::after {
+      content: ', ';
+      white-space: pre;
+    }
+
+    &:nth-last-of-type(3) :--givenName::after {
+      content: '. ';
+      white-space: pre;
     }
   }
 
