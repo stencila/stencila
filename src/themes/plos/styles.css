@@ -372,7 +372,6 @@ blockquote {
   > li {
     counter-increment: cite-counter;
     font-size: 0.875rem;
-    line-height: 1.71429;
     position: relative;
     margin-bottom: 0.75rem;
     padding-left: 3rem;
