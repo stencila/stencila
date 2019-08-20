@@ -1,6 +1,7 @@
 import argparse
 import ast
 import base64
+import datetime
 import json
 import logging
 import sys
@@ -68,6 +69,26 @@ class CodeChunkExecution(typing.NamedTuple):
 
 
 ExecutableCode = typing.Union[CodeChunkExecution, CodeExpression]
+
+
+class CodeTimer:
+    _start_time: datetime.datetime
+    duration: typing.Optional[datetime.timedelta] = None
+
+    def __enter__(self):
+        self.duration = None
+        self._start_time = datetime.datetime.now()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.duration = datetime.datetime.now() - self._start_time
+
+    @property
+    def duration_ms(self) -> float:
+        if not self.duration:
+            raise RuntimeError('CodeTimer has not yet been run')
+
+        return self.duration.total_seconds() * 1000
 
 
 class StdoutBuffer(TextIOWrapper):
@@ -235,6 +256,7 @@ def parse_code_chunk(chunk: CodeChunk) -> CodeChunkParseResult:
                     else:
                         assigns.add(v)
                         seen_vars.add(target_name)
+                        seen_vars.add(target_name)
         elif isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Call):
             if hasattr(statement.value, 'args'):
                 for arg in statement.value.args:
@@ -355,7 +377,9 @@ class Interpreter:
 
             with redirect_stdout(s):
                 try:
-                    result = run_function(code_to_run, self.globals, _locals)
+                    with CodeTimer() as ct:
+                        result = run_function(code_to_run, self.globals, _locals)
+                    chunk.duration = ct.duration_ms
                 except Exception as e:
                     set_code_error(chunk, e)
 
