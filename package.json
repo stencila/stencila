@@ -15,7 +15,7 @@
     "build": "npm run build:jsonschema && npm run build:jsonld && npm run build:ts && npm run build:py && npm run build:r",
     "build:jsonschema": "ts-node ts/schema.ts",
     "build:jsonld": "ts-node ts/bindings/jsonld.ts",
-    "build:ts": "ts-node ts/bindings/typescript.ts && tsc && cp built/*.schema.json dist",
+    "build:ts": "ts-node ts/bindings/typescript.ts && tsc && cp built/*.schema.json dist && cp built/*.jsonld dist",
     "build:py": "ts-node ts/bindings/python.ts",
     "build:r": "ts-node ts/bindings/r.ts",
     "docs": "npm run docs:readme && npm run docs:build",
