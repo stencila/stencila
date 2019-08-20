@@ -151,7 +151,10 @@ export const unionGenerator = (schema: Schema): string => {
  */
 const funcName = (name: string): string => {
   const func = `${name.substring(0, 1).toLowerCase() + name.substring(1)}`
-  const reserved: { [key: string]: string } = { delete: 'del' }
+  const reserved: { [key: string]: string } = {
+    delete: 'del',
+    function: 'function_'
+  }
   if (reserved[func] !== undefined) return reserved[func]
   else return func
 }

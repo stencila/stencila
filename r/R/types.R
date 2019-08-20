@@ -321,13 +321,17 @@ CodeExpression <- function(
 #' An error that occured when parsing, compiling or executing some Code.
 #'
 #' @name CodeError
+#' @param kind The type of error. \bold{Required}.
 #' @param id The identifier for this item.
+#' @param message The error message or brief description of the error.
 #' @param meta Metadata associated with this item.
 #' @param trace Stack trace leading up to the error.
 #' @seealso \code{\link{Entity}}
 #' @export
 CodeError <- function(
+  kind,
   id,
+  message,
   meta,
   trace
 ){
@@ -336,6 +340,8 @@ CodeError <- function(
     meta = meta
   )
   self$type <- as_scalar("CodeError")
+  self[["kind"]] <- check_property("CodeError", "kind", TRUE, missing(kind), "character", kind)
+  self[["message"]] <- check_property("CodeError", "message", FALSE, missing(message), "character", message)
   self[["trace"]] <- check_property("CodeError", "trace", FALSE, missing(trace), "character", trace)
   class(self) <- c("list", "Entity")
   self

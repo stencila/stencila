@@ -292,11 +292,15 @@ class CodeExpression(CodeFragment):
 class CodeError(Entity):
     """An error that occured when parsing, compiling or executing some Code."""
 
+    kind: str
+    message: Optional[str] = None
     trace: Optional[str] = None
 
     def __init__(
         self,
+        kind: str,
         id: Optional[str] = None,
+        message: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         trace: Optional[str] = None
     ) -> None:
@@ -304,6 +308,10 @@ class CodeError(Entity):
             id=id,
             meta=meta
         )
+        if kind is not None:
+            self.kind = kind
+        if message is not None:
+            self.message = message
         if trace is not None:
             self.trace = trace
 
