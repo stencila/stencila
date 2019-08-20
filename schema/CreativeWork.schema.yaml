@@ -37,6 +37,7 @@ properties:
     '@id': schema:dateCreated
     description: Date/time of creation.
     anyOf:
+      - $ref: Date
       - type: string
         format: date
       - type: string
@@ -45,6 +46,7 @@ properties:
     '@id': schema:dateModified
     description: Date/time of most recent modification.
     anyOf:
+      - $ref: Date
       - type: string
         format: date
       - type: string
@@ -60,6 +62,7 @@ properties:
       # Although schema.org says expected values are `Date`, for
       # consistency with `dateCreated` and `dateModified` we allow
       # for `DateTime` as well.
+      - $ref: Date
       - type: string
         format: date
       - type: string

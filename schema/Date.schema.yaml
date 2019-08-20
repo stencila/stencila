@@ -1,0 +1,19 @@
+title: Date
+'@id': schema:Date
+extends: Entity
+role: tertiary
+status: stable
+category: metadata
+description: A date encoded as a ISO 8601 string.
+$comment: This
+properties:
+  value:
+    '@id': 'schema:value'
+    description: The date as a ISO 8601 string.
+    anyOf:
+      - type: string
+        format: date
+      - type: string
+        format: date-time
+required:
+  - value

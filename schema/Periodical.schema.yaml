@@ -1,5 +1,5 @@
 title: Periodical
-'@id': stencila:Periodical
+'@id': schema:Periodical
 extends: CreativeWork
 role: secondary
 status: unstable
@@ -11,6 +11,7 @@ properties:
     description: The date this Periodical was first published.
     type: string
     anyOf:
+      - $ref: Date
       - type: string
         format: date
       - type: string
@@ -20,6 +21,7 @@ properties:
     description: The date this Periodical ceased publication.
     type: string
     anyOf:
+      - $ref: Date
       - type: string
         format: date
       - type: string

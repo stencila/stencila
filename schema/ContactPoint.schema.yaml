@@ -1,5 +1,5 @@
 title: ContactPoint
-'@id': schema:contactPoint
+'@id': schema:ContactPoint
 extends: Thing
 role: tertiary
 status: unstable
