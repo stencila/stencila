@@ -26,16 +26,20 @@ properties:
         - type: string
         # For when we want to store type and possibly value of variable
         - $ref: Variable
-        # Functions and datatables already have a name so it is
-        # redundant / confusing to wrap then in a variable
+        # Functions already have a name so it is redundant / confusing
+        # to wrap then in a variable
         - $ref: Function
-        - $ref: Datatable
   assigns:
     '@id': stencila:assigns
     description: Variables that the code chunk assigns to.
     type: array
     items:
-      type: string
+      anyOf:
+        # String for when user want to specify manually that a cell
+        # declares a variable
+        - type: string
+        # For when we want to store type and possibly value of variable
+        - $ref: Variable
     $comment: |
       In languages such as Python and R we are unable
       to differentiate between an assignment that
@@ -59,7 +63,9 @@ properties:
     description: Names of variables that the code chunk uses (but does not alter).
     type: array
     items:
-      type: string
+      anyOf:
+        - type: string
+        - $ref: Variable
   reads:
     '@id': stencila:reads
     description: Filesystem paths that this code chunk reads from.
@@ -77,7 +83,7 @@ properties:
     description: Errors when compiling or executing the chunk.
     type: array
     items:
-      $ref: CodeChunkError
+      $ref: CodeError
   duration:
     '@id': stencila:duration
     description: Duration in seconds of the last execution of the chunk.

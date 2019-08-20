@@ -1,0 +1,32 @@
+title: Variable
+'@id': stencila:Variable
+extends: Entity
+role: secondary
+status: unstable
+category: code
+description: A variable that can be set and used in code.
+properties:
+  name:
+    '@id': schema:name
+    description: The name the parameter is referred to in code.
+    type: string
+    pattern: '[a-z_][A-z0-9_]*'
+    $comment: |
+      This regex allows for snake_case and camelCase names but excludes
+      PascalCase for parameter names.
+  schema:
+    '@id': stencila:schema
+    description: The schema that the value of the parameter will be validated against.
+    allOf:
+      - $ref: SchemaTypes
+  default:
+    '@id': stencila:value
+    description: The default value of the parameter.
+    allOf:
+      - $ref: Node
+  required:
+    '@id': stencila:required
+    description: Is this parameter required, if not it should have a default or default is assumed to be null.
+    type: boolean
+required:
+  - name

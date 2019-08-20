@@ -1,0 +1,18 @@
+title: CodeError
+'@id': stencila:CodeError
+extends: Entity
+role: secondary
+status: unstable
+category: code
+description: An error that occured when parsing, compiling or executing some Code.
+properties:
+  type:
+    '@id': stencila:errorType
+    description: The type of error.
+    type: string
+  trace:
+    '@id': stencila:trace
+    description: Stack trace leading up to the error.
+    type: string
+required:
+  - type
