@@ -4,6 +4,7 @@ import base64
 import json
 import logging
 import sys
+import traceback
 import typing
 from contextlib import redirect_stdout
 from io import TextIOWrapper, BytesIO
@@ -139,7 +140,7 @@ def parse_open_filename(open_call: ast.Call) -> typing.Optional[str]:
 
 
 def exception_to_code_error(e: Exception) -> CodeError:
-    return CodeError(type(e).__name__, message=str(e))
+    return CodeError(type(e).__name__, message=str(e), trace=traceback.format_exc())
 
 
 def set_code_error(code: typing.Union[CodeChunk, CodeExpression], e: typing.Union[Exception, CodeError]) -> None:
