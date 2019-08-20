@@ -2,7 +2,7 @@ import argparse
 import logging
 from sys import argv, stderr, stdout
 
-from executor import execute_document
+from .interpreter import execute_document
 
 
 def cli_execute():

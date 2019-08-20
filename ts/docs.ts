@@ -12,7 +12,15 @@ import { flatten } from 'lodash'
 import path from 'path'
 // The main reason this is imported is to configure the log handling
 import log from './log'
-import { Article, CodeFragment, codeFragment, Link, link, Node, Strong } from './types'
+import {
+  Article,
+  CodeFragment,
+  codeFragment,
+  Link,
+  link,
+  Node,
+  Strong
+} from './types'
 import { isArticle } from './util/guards'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises

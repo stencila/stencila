@@ -191,15 +191,31 @@ class CodeBlock(Code):
 class CodeChunk(CodeBlock):
     """A executable chunk of code."""
 
+    alters: Optional[Array[str]] = None
+    assigns: Optional[Array[Union[str, "Variable"]]] = None
+    declares: Optional[Array[Union[str, "Variable", "Function"]]] = None
+    duration: Optional[float] = None
+    errors: Optional[Array["CodeError"]] = None
+    imports: Optional[Array[Union[str, "SoftwareSourceCode", "SoftwareApplication"]]] = None
     outputs: Optional[Array["Node"]] = None
+    reads: Optional[Array[str]] = None
+    uses: Optional[Array[Union[str, "Variable"]]] = None
 
     def __init__(
         self,
         text: str,
+        alters: Optional[Array[str]] = None,
+        assigns: Optional[Array[Union[str, "Variable"]]] = None,
+        declares: Optional[Array[Union[str, "Variable", "Function"]]] = None,
+        duration: Optional[float] = None,
+        errors: Optional[Array["CodeError"]] = None,
         id: Optional[str] = None,
+        imports: Optional[Array[Union[str, "SoftwareSourceCode", "SoftwareApplication"]]] = None,
         language: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        outputs: Optional[Array["Node"]] = None
+        outputs: Optional[Array["Node"]] = None,
+        reads: Optional[Array[str]] = None,
+        uses: Optional[Array[Union[str, "Variable"]]] = None
     ) -> None:
         super().__init__(
             text=text,
@@ -207,8 +223,24 @@ class CodeChunk(CodeBlock):
             language=language,
             meta=meta
         )
+        if alters is not None:
+            self.alters = alters
+        if assigns is not None:
+            self.assigns = assigns
+        if declares is not None:
+            self.declares = declares
+        if duration is not None:
+            self.duration = duration
+        if errors is not None:
+            self.errors = errors
+        if imports is not None:
+            self.imports = imports
         if outputs is not None:
             self.outputs = outputs
+        if reads is not None:
+            self.reads = reads
+        if uses is not None:
+            self.uses = uses
 
 
 class CodeFragment(Code):
@@ -233,11 +265,13 @@ class CodeFragment(Code):
 class CodeExpression(CodeFragment):
     """An expression defined in programming language source code."""
 
+    errors: Optional[Array["CodeError"]] = None
     output: Optional["Node"] = None
 
     def __init__(
         self,
         text: str,
+        errors: Optional[Array["CodeError"]] = None,
         id: Optional[str] = None,
         language: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -249,8 +283,29 @@ class CodeExpression(CodeFragment):
             language=language,
             meta=meta
         )
+        if errors is not None:
+            self.errors = errors
         if output is not None:
             self.output = output
+
+
+class CodeError(Entity):
+    """An error that occured when parsing, compiling or executing some Code."""
+
+    trace: Optional[str] = None
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        trace: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if trace is not None:
+            self.trace = trace
 
 
 class ConstantSchema(Entity):
@@ -999,6 +1054,36 @@ class Figure(CreativeWork):
             self.label = label
 
 
+class Function(Entity):
+    """
+    A function with a name, which might take Parameters and return a value of a
+    certain type.
+    """
+
+    name: str
+    parameters: Optional[Array["Parameter"]] = None
+    returns: Optional["SchemaTypes"] = None
+
+    def __init__(
+        self,
+        name: str,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        parameters: Optional[Array["Parameter"]] = None,
+        returns: Optional["SchemaTypes"] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if name is not None:
+            self.name = name
+        if parameters is not None:
+            self.parameters = parameters
+        if returns is not None:
+            self.returns = returns
+
+
 class Heading(Entity):
     """Heading"""
 
@@ -1376,11 +1461,12 @@ class Paragraph(Entity):
             self.content = content
 
 
-class Parameter(Entity):
-    """A parameter that can be set and used in evaluated code."""
+class Variable(Entity):
+    """A variable that can be set and used in code."""
 
     name: str
     default: Optional["Node"] = None
+    required: Optional[bool] = None
     schema: Optional["SchemaTypes"] = None
 
     def __init__(
@@ -1389,6 +1475,7 @@ class Parameter(Entity):
         default: Optional["Node"] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
+        required: Optional[bool] = None,
         schema: Optional["SchemaTypes"] = None
     ) -> None:
         super().__init__(
@@ -1399,8 +1486,37 @@ class Parameter(Entity):
             self.name = name
         if default is not None:
             self.default = default
+        if required is not None:
+            self.required = required
         if schema is not None:
             self.schema = schema
+
+
+class Parameter(Variable):
+    """A parameter that can be set and used in evaluated code."""
+
+    default: Optional["Node"] = None
+    required: Optional[bool] = None
+
+    def __init__(
+        self,
+        name: str,
+        default: Optional["Node"] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        required: Optional[bool] = None,
+        schema: Optional["SchemaTypes"] = None
+    ) -> None:
+        super().__init__(
+            name=name,
+            id=id,
+            meta=meta,
+            schema=schema
+        )
+        if default is not None:
+            self.default = default
+        if required is not None:
+            self.required = required
 
 
 class Periodical(CreativeWork):

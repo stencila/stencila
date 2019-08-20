@@ -11,7 +11,7 @@ from io import TextIOWrapper, BytesIO
 import astor
 from stencila.schema.types import Parameter, CodeChunk, Article, Entity, CodeExpression, ConstantSchema, EnumSchema, \
     BooleanSchema, NumberSchema, IntegerSchema, StringSchema, ArraySchema, TupleSchema, ImageObject, Datatable, \
-    DatatableColumn, SchemaTypes, SoftwareSourceCode
+    DatatableColumn, SchemaTypes, SoftwareSourceCode, Function, Variable
 from stencila.schema.util import from_json, to_json
 
 try:
@@ -58,31 +58,19 @@ class StdoutBuffer(TextIOWrapper):
             return super(StdoutBuffer, self).buffer.write(string)
 
 
-class Function:
-    name: str
-    parameters: typing.List[Parameter]
-    returns: SchemaTypes
-
-
-class Variable:
-    name: str
-    schema: typing.Optional[SchemaTypes]
-
-    def __init__(self, name: str, schema: typing.Optional[SchemaTypes] = None):
-        self.name = name
-        self.schema = schema
-
-
 class DocumentCompilationResult:
     parameters: typing.List[Parameter] = []
     code: typing.List[ExecutableCode] = []
-    declares: typing.List[typing.Union[Function, Variable]] = []
+    assigns: typing.List[typing.Union[Function, Variable]] = []
     imports: typing.List[str] = []
 
 
 class CodeChunkParseResult(typing.NamedTuple):
     imports: typing.List[typing.Union[str, SoftwareSourceCode]] = []
+    assigns: typing.List[typing.Union[Variable]] = []
     declares: typing.List[typing.Union[Function, Variable]] = []
+    uses: typing.List[str] = []
+    reads: typing.List[str] = []
 
 
 def annotation_name_to_schema(name: str) -> typing.Optional[SchemaTypes]:
@@ -102,13 +90,59 @@ def annotation_name_to_schema(name: str) -> typing.Optional[SchemaTypes]:
     return None
 
 
+def mode_is_read(mode: str) -> bool:
+    return 'r' in mode or '+' in mode
+
+
+def parse_open_filename(open_call: ast.Call) -> typing.Optional[str]:
+    # if not hasattr(open_call, 'args') or len(open_call.args) == 0:
+    #    return None
+    filename = None
+
+    if hasattr(open_call, 'args'):
+        if len(open_call.args) >= 1:
+            if not isinstance(open_call.args[0], ast.Str):
+                return None
+            filename = open_call.args[0].s
+
+            if len(open_call.args) >= 2:
+                if not isinstance(open_call.args[1], ast.Str):
+                    return None
+
+                if not mode_is_read(open_call.args[1].s):
+                    return None
+
+    if hasattr(open_call, 'keywords'):
+        for kw in open_call.keywords:
+            if not isinstance(kw.value, ast.Str):
+                continue
+
+            if kw.arg == 'file':
+                filename = kw.value.s
+
+            if kw.arg == 'mode':
+                if not mode_is_read(kw.value.s):
+                    return None
+
+    return filename
+
+
 def parse_code_chunk(chunk: CodeChunk) -> CodeChunkParseResult:
     imports: typing.List[str] = []
+    assigns: typing.List[Variable] = []
     declares: typing.List[typing.Union[Function, Variable]] = []
-
+    uses: typing.Set[str] = set()
+    reads: typing.Set[str] = set()
     seen_vars: typing.Set[str] = set()
 
-    for statement in ast.parse(chunk.text).body:
+    # If this is True, then there should be a call to 'open' somewhere in the code, which means the parser should
+    # try to find it. This is a basic check so there might not be one (like if the code did , but if 'open(' is NOT in
+    # the string then there definitely ISN'T one
+    search_for_open = 'open(' in chunk.text
+
+    chunk_ast = ast.parse(chunk.text)
+
+    for statement in chunk_ast.body:
         if isinstance(statement, ast.ImportFrom):
             if statement.module not in imports:
                 imports.append(statement.module)
@@ -117,7 +151,7 @@ def parse_code_chunk(chunk: CodeChunk) -> CodeChunkParseResult:
                 if module_name.name not in imports:
                     imports.append(module_name.name)
         elif isinstance(statement, ast.FunctionDef):
-            f = Function()
+            f = Function(statement.name)
             f.parameters = []
 
             for i, arg in enumerate(statement.args.args):
@@ -155,10 +189,25 @@ def parse_code_chunk(chunk: CodeChunk) -> CodeChunkParseResult:
                     if hasattr(statement, 'annotation'):
                         # assignment with Type Annotation
                         v.schema = annotation_name_to_schema(statement.annotation.id)
-
-                    declares.append(v)
+                        declares.append(v)
+                    else:
+                        assigns.append(v)
                     seen_vars.add(target_name)
-    return CodeChunkParseResult(imports, declares)
+        elif isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Call):
+            if hasattr(statement.value, 'args'):
+                for arg in statement.value.args:
+                    if isinstance(arg, ast.Name):
+                        uses.add(arg.id)
+
+    if search_for_open:
+        for node in ast.walk(chunk_ast):
+            if isinstance(node, ast.Call) and hasattr(node, 'func') and node.func.id == 'open':
+                filename = parse_open_filename(node)
+
+                if filename:
+                    reads.add(filename)
+
+    return CodeChunkParseResult(imports, assigns, declares, list(uses), list(reads))
 
 
 class DocumentCompiler:
@@ -189,7 +238,10 @@ class DocumentCompiler:
                 if item.language == self.TARGET_LANGUAGE:  # Only add Python code
 
                     if isinstance(item, CodeChunk):
-                        parse_code_chunk(item)
+                        cc_result = parse_code_chunk(item)
+                        item.assigns = cc_result.assigns
+                        item.uses = cc_result.uses
+                        item.reads = cc_result.reads
 
                     compilation_result.code.append(item)
                     logger.debug('Adding {}'.format(type(item)))
@@ -215,7 +267,7 @@ class DocumentCompiler:
             self.handle_item(child, compilation_result)
 
 
-class Executor:
+class Interpreter:
     """Execute a list of code blocks, maintaining its own `globals` scope for this execution run."""
 
     globals: typing.Optional[typing.Dict[str, typing.Any]]
@@ -421,7 +473,7 @@ def execute_document(cli_args: typing.List[str]):
     doc_parser = DocumentCompiler()
     doc_parser.compile(article)
 
-    e = Executor()
+    e = Interpreter()
 
     pp = ParameterParser(doc_parser.parameters)
     pp.parse_cli_args(cli_args)
