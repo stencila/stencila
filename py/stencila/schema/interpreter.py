@@ -11,7 +11,7 @@ from io import TextIOWrapper, BytesIO
 import astor
 from stencila.schema.types import Parameter, CodeChunk, Article, Entity, CodeExpression, ConstantSchema, EnumSchema, \
     BooleanSchema, NumberSchema, IntegerSchema, StringSchema, ArraySchema, TupleSchema, ImageObject, Datatable, \
-    DatatableColumn, SchemaTypes, SoftwareSourceCode, Function, Variable
+    DatatableColumn, SchemaTypes, SoftwareSourceCode, Function, Variable, CodeError
 from stencila.schema.util import from_json, to_json
 
 try:
@@ -47,7 +47,26 @@ except ImportError:
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
-ExecutableCode = typing.Union[CodeChunk, CodeExpression]
+CHUNK_PREVIEW_LENGTH = 20
+
+
+class CodeChunkParseResult(typing.NamedTuple):
+    chunk_ast: typing.Optional[ast.Module] = None
+    imports: typing.List[typing.Union[str, SoftwareSourceCode]] = []
+    assigns: typing.List[typing.Union[Variable]] = []
+    declares: typing.List[typing.Union[Function, Variable]] = []
+    alters: typing.List[str] = []
+    uses: typing.List[str] = []
+    reads: typing.List[str] = []
+    error: typing.Optional[CodeError] = None
+
+
+class CodeChunkExecution(typing.NamedTuple):
+    code_chunk: CodeChunk
+    parse_result: CodeChunkParseResult
+
+
+ExecutableCode = typing.Union[CodeChunkExecution, CodeExpression]
 
 
 class StdoutBuffer(TextIOWrapper):
@@ -63,14 +82,6 @@ class DocumentCompilationResult:
     code: typing.List[ExecutableCode] = []
     assigns: typing.List[typing.Union[Function, Variable]] = []
     imports: typing.List[str] = []
-
-
-class CodeChunkParseResult(typing.NamedTuple):
-    imports: typing.List[typing.Union[str, SoftwareSourceCode]] = []
-    assigns: typing.List[typing.Union[Variable]] = []
-    declares: typing.List[typing.Union[Function, Variable]] = []
-    uses: typing.List[str] = []
-    reads: typing.List[str] = []
 
 
 def annotation_name_to_schema(name: str) -> typing.Optional[SchemaTypes]:
@@ -127,10 +138,20 @@ def parse_open_filename(open_call: ast.Call) -> typing.Optional[str]:
     return filename
 
 
+def exception_to_code_error(e: Exception) -> CodeError:
+    return CodeError(type(e).__name__, message=str(e))
+
+
 def parse_code_chunk(chunk: CodeChunk) -> CodeChunkParseResult:
+    try:
+        chunk_ast = ast.parse(chunk.text)
+    except Exception as e:
+        return CodeChunkParseResult(None, error=exception_to_code_error(e))
+
     imports: typing.List[str] = []
-    assigns: typing.List[Variable] = []
-    declares: typing.List[typing.Union[Function, Variable]] = []
+    assigns: typing.Set[Variable] = set()
+    declares: typing.Set[typing.Union[Function, Variable]] = set()
+    alters: typing.Set[str] = set()
     uses: typing.Set[str] = set()
     reads: typing.Set[str] = set()
     seen_vars: typing.Set[str] = set()
@@ -139,8 +160,6 @@ def parse_code_chunk(chunk: CodeChunk) -> CodeChunkParseResult:
     # try to find it. This is a basic check so there might not be one (like if the code did , but if 'open(' is NOT in
     # the string then there definitely ISN'T one
     search_for_open = 'open(' in chunk.text
-
-    chunk_ast = ast.parse(chunk.text)
 
     for statement in chunk_ast.body:
         if isinstance(statement, ast.ImportFrom):
@@ -181,18 +200,30 @@ def parse_code_chunk(chunk: CodeChunk) -> CodeChunkParseResult:
                 raise TypeError('statement has no target or targets')
 
             for target in targets:
-                target_name = target.id
+                is_alters = False
+                if hasattr(target, 'id'):
+                    # simple variable set/declaration
+                    target_name = target.id
+                elif hasattr(target, 'value'):
+                    target_name = target.value.id
+                    is_alters = True
+                else:
+                    raise ValueError("Don't know how to handle this")
 
                 if target_name not in seen_vars:
+                    if is_alters:
+                        alters.add(target.value.id)
+                        continue
+
                     v = Variable(target_name)
 
                     if hasattr(statement, 'annotation'):
                         # assignment with Type Annotation
                         v.schema = annotation_name_to_schema(statement.annotation.id)
-                        declares.append(v)
+                        declares.add(v)
                     else:
-                        assigns.append(v)
-                    seen_vars.add(target_name)
+                        assigns.add(v)
+                        seen_vars.add(target_name)
         elif isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Call):
             if hasattr(statement.value, 'args'):
                 for arg in statement.value.args:
@@ -207,7 +238,8 @@ def parse_code_chunk(chunk: CodeChunk) -> CodeChunkParseResult:
                 if filename:
                     reads.add(filename)
 
-    return CodeChunkParseResult(imports, assigns, declares, list(uses), list(reads))
+    return CodeChunkParseResult(chunk_ast, imports, list(assigns), list(declares), list(alters), list(uses),
+                                list(reads))
 
 
 class DocumentCompiler:
@@ -215,14 +247,12 @@ class DocumentCompiler:
 
     TARGET_LANGUAGE = 'python'
 
-    parameters: typing.List[Parameter] = []
-    code: typing.List[ExecutableCode] = []
     function_depth: int = 0
 
     def compile(self, source: Article) -> DocumentCompilationResult:
         # todo: this traverses the article twice. Make it less hard coded, maybe pass through a lookup table that maps
         # a found type to its destination
-
+        self.function_depth = 0
         dcr = DocumentCompilationResult()
 
         self.handle_item(source, dcr)
@@ -239,11 +269,23 @@ class DocumentCompiler:
 
                     if isinstance(item, CodeChunk):
                         cc_result = parse_code_chunk(item)
+                        item.imports = cc_result.imports
+                        item.declares = cc_result.declares
                         item.assigns = cc_result.assigns
+                        item.alters = cc_result.alters
                         item.uses = cc_result.uses
                         item.reads = cc_result.reads
 
-                    compilation_result.code.append(item)
+                        if cc_result.error:
+                            if not item.errors:
+                                item.errors = []
+                            item.errors.append(cc_result.error)
+
+                        code_to_add = CodeChunkExecution(item, cc_result)
+                    else:
+                        code_to_add = item
+
+                    compilation_result.code.append(code_to_add)
                     logger.debug('Adding {}'.format(type(item)))
 
             elif isinstance(item, Parameter) and self.function_depth == 0:
@@ -271,17 +313,17 @@ class Interpreter:
     """Execute a list of code blocks, maintaining its own `globals` scope for this execution run."""
 
     globals: typing.Optional[typing.Dict[str, typing.Any]]
-    functions: typing.Dict[str, ast.FunctionDef] = {}
 
-    def execute_code_chunk(self, chunk: CodeChunk, _locals: typing.Dict[str, typing.Any]) -> None:
+    def execute_code_chunk(self, chunk_execution: CodeChunkExecution, _locals: typing.Dict[str, typing.Any]) -> None:
+        chunk, parse_result = chunk_execution
+
+        if parse_result.chunk_ast is None:
+            logger.info('Not executing CodeChunk without AST: {}'.format(chunk.text[:CHUNK_PREVIEW_LENGTH]))
+            return
+
         cc_outputs = []
 
-        tree = ast.parse(chunk.text, 'exec')
-
-        for statement in tree.body:
-            if isinstance(statement, ast.FunctionDef):
-                self.functions[statement.name] = statement
-
+        for statement in parse_result.chunk_ast.body:
             capture_result = False
 
             if isinstance(statement, ast.Expr):
@@ -296,8 +338,16 @@ class Interpreter:
 
             s = StdoutBuffer(BytesIO(), sys.stdout.encoding)
 
+            result = None
+
             with redirect_stdout(s):
-                result = run_function(code_to_run, self.globals, _locals)
+                try:
+                    result = run_function(code_to_run, self.globals, _locals)
+                except Exception as e:
+                    if chunk.errors is None:
+                        chunk.errors = []
+
+                    chunk.errors.append(exception_to_code_error(e))
 
             if capture_result and result is not None:
                 cc_outputs.append(self.decode_output(result))
@@ -311,7 +361,13 @@ class Interpreter:
         chunk.outputs = cc_outputs
 
     def execute_code_expression(self, expression: CodeExpression, _locals: typing.Dict[str, typing.Any]) -> None:
-        expression.output = self.decode_output(eval(expression.text, self.globals, _locals))
+        try:
+            expression.output = self.decode_output(eval(expression.text, self.globals, _locals))
+        except Exception as e:
+            if expression.errors is None:
+                expression.errors = []
+
+            expression.errors.append(exception_to_code_error(e))
 
     def execute(self, code: typing.List[ExecutableCode], parameter_values: typing.Dict[str, typing.Any]) -> None:
         self.globals = {}
@@ -319,7 +375,7 @@ class Interpreter:
         _locals = parameter_values.copy()
 
         for c in code:
-            if isinstance(c, CodeChunk):
+            if isinstance(c, CodeChunkExecution):
                 self.execute_code_chunk(c, _locals)
             elif isinstance(c, CodeExpression):
                 self.execute_code_expression(c, _locals)
@@ -470,15 +526,14 @@ def execute_document(cli_args: typing.List[str]):
     if not isinstance(article, Article):
         raise TypeError('Decoded JSON was not an Article')
 
-    doc_parser = DocumentCompiler()
-    doc_parser.compile(article)
+    compiler = DocumentCompiler()
+    dcr = compiler.compile(article)
 
-    e = Interpreter()
-
-    pp = ParameterParser(doc_parser.parameters)
+    pp = ParameterParser(dcr.parameters)
     pp.parse_cli_args(cli_args)
 
-    e.execute(doc_parser.code, pp.parameter_values)
+    i = Interpreter()
+    i.execute(dcr.code, pp.parameter_values)
 
     if args.output_file == '-':
         sys.stdout.write(to_json(article))
