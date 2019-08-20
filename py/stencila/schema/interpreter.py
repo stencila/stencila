@@ -142,6 +142,16 @@ def exception_to_code_error(e: Exception) -> CodeError:
     return CodeError(type(e).__name__, message=str(e))
 
 
+def set_code_error(code: typing.Union[CodeChunk, CodeExpression], e: typing.Union[Exception, CodeError]) -> None:
+    if code.errors is None:
+        code.errors = []
+
+    if isinstance(e, Exception):
+        e = exception_to_code_error(e)
+
+    code.errors.append(e)
+
+
 def parse_code_chunk(chunk: CodeChunk) -> CodeChunkParseResult:
     try:
         chunk_ast = ast.parse(chunk.text)
@@ -277,12 +287,14 @@ class DocumentCompiler:
                         item.reads = cc_result.reads
 
                         if cc_result.error:
-                            if not item.errors:
-                                item.errors = []
-                            item.errors.append(cc_result.error)
+                            set_code_error(item, cc_result.error)
 
                         code_to_add = CodeChunkExecution(item, cc_result)
                     else:
+                        try:
+                            ast.parse(item.text)
+                        except Exception as e:
+                            set_code_error(item, e)
                         code_to_add = item
 
                     compilation_result.code.append(code_to_add)
@@ -344,10 +356,7 @@ class Interpreter:
                 try:
                     result = run_function(code_to_run, self.globals, _locals)
                 except Exception as e:
-                    if chunk.errors is None:
-                        chunk.errors = []
-
-                    chunk.errors.append(exception_to_code_error(e))
+                    set_code_error(chunk, e)
 
             if capture_result and result is not None:
                 cc_outputs.append(self.decode_output(result))
@@ -364,10 +373,7 @@ class Interpreter:
         try:
             expression.output = self.decode_output(eval(expression.text, self.globals, _locals))
         except Exception as e:
-            if expression.errors is None:
-                expression.errors = []
-
-            expression.errors.append(exception_to_code_error(e))
+            set_code_error(expression, e)
 
     def execute(self, code: typing.List[ExecutableCode], parameter_values: typing.Dict[str, typing.Any]) -> None:
         self.globals = {}
