@@ -264,4 +264,3 @@ test_that("compile_code_chunk: reads", {
     c("file4.csv", "file1.csv", "file2.csv", "file3.csv")
   )
 })
-

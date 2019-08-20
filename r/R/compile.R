@@ -14,6 +14,7 @@ base_func_names <- ls(baseenv())
 # Temporary
 Function <- function(...) list(type = "Function", ...)
 
+#' Compile a `CodeChunk`
 compile_code_chunk <- function(chunk) {
   # For convienience, allow passing a string
   if (is.character(chunk)) {
@@ -48,8 +49,8 @@ compile_code_chunk <- function(chunk) {
       match <- string_match(line, regex)
       if (!is.null(match)) {
         values_list <- trimws(match[2])
-        if (string_right(values_list) == '.' && string_right(values_list, 2) != ',.') {
-          values_list <- paste(substr(values_list, 1, nchar(values_list) - 1), '.', sep = ',')
+        if (string_right(values_list) == "." && string_right(values_list, 2) != ",.") {
+          values_list <- paste(substr(values_list, 1, nchar(values_list) - 1), ".", sep = ",")
         }
         values <- string_split(values_list, "\\s*,\\s*")
         assign(property, unique(c(get(property), values)))
@@ -194,10 +195,10 @@ compile_code_chunk <- function(chunk) {
 
   # Strip property values that are after a trailing dot
   # Users can use this to control a property's content
-  strip <- function (property) {
+  strip <- function(property) {
     matched <- match(".", property)
     if (is.na(matched)) property
-    else property[1: (matched-1)]
+    else property[1: (matched - 1)]
   }
 
   c(

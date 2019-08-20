@@ -65,7 +65,7 @@ string_match <- function(string, regex) {
 }
 
 #' Split a string
-#' 
+#'
 #' @param string The string to split
 #' @param regex The regex to split using
 #' @return A character vector.
@@ -74,10 +74,9 @@ string_split <- function(string, regex) {
 }
 
 #' Get characters on the right on a string
-#' 
+#'
 #' @param string The string to extract chars from
 #' @param chars Number of chars to extract
-string_right = function (string, chars = 1){
-  substr(string, nchar(string) - (chars-1), nchar(string))
+string_right <- function(string, chars = 1){
+  substr(string, nchar(string) - (chars - 1), nchar(string))
 }
-
