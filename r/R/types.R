@@ -207,18 +207,34 @@ CodeBlock <- function(
 #'
 #' @name CodeChunk
 #' @param text The text of the code. \bold{Required}.
+#' @param alters Names of variables that the code chunk alters.
+#' @param assigns Variables that the code chunk assigns to.
+#' @param declares Variables that the code chunk declares.
+#' @param duration Duration in seconds of the last execution of the chunk.
+#' @param errors Errors when compiling or executing the chunk.
 #' @param id The identifier for this item.
+#' @param imports Software packages that the code chunk imports
 #' @param language The programming language of the code.
 #' @param meta Metadata associated with this item.
 #' @param outputs Outputs from executing the chunk.
+#' @param reads Filesystem paths that this code chunk reads from.
+#' @param uses Names of variables that the code chunk uses (but does not alter).
 #' @seealso \code{\link{CodeBlock}}
 #' @export
 CodeChunk <- function(
   text,
+  alters,
+  assigns,
+  declares,
+  duration,
+  errors,
   id,
+  imports,
   language,
   meta,
-  outputs
+  outputs,
+  reads,
+  uses
 ){
   self <- CodeBlock(
     text = text,
@@ -227,7 +243,15 @@ CodeChunk <- function(
     meta = meta
   )
   self$type <- as_scalar("CodeChunk")
+  self[["alters"]] <- check_property("CodeChunk", "alters", FALSE, missing(alters), Array("character"), alters)
+  self[["assigns"]] <- check_property("CodeChunk", "assigns", FALSE, missing(assigns), Array(Union("character", "Variable")), assigns)
+  self[["declares"]] <- check_property("CodeChunk", "declares", FALSE, missing(declares), Array(Union("character", "Variable", "Function")), declares)
+  self[["duration"]] <- check_property("CodeChunk", "duration", FALSE, missing(duration), "numeric", duration)
+  self[["errors"]] <- check_property("CodeChunk", "errors", FALSE, missing(errors), Array("CodeError"), errors)
+  self[["imports"]] <- check_property("CodeChunk", "imports", FALSE, missing(imports), Array(Union("character", "SoftwareSourceCode", "SoftwareApplication")), imports)
   self[["outputs"]] <- check_property("CodeChunk", "outputs", FALSE, missing(outputs), Array("Node"), outputs)
+  self[["reads"]] <- check_property("CodeChunk", "reads", FALSE, missing(reads), Array("character"), reads)
+  self[["uses"]] <- check_property("CodeChunk", "uses", FALSE, missing(uses), Array(Union("character", "Variable")), uses)
   class(self) <- c("list", "Entity")
   self
 }
@@ -265,6 +289,7 @@ CodeFragment <- function(
 #'
 #' @name CodeExpression
 #' @param text The text of the code. \bold{Required}.
+#' @param errors Errors when compiling or executing the chunk.
 #' @param id The identifier for this item.
 #' @param language The programming language of the code.
 #' @param meta Metadata associated with this item.
@@ -273,6 +298,7 @@ CodeFragment <- function(
 #' @export
 CodeExpression <- function(
   text,
+  errors,
   id,
   language,
   meta,
@@ -285,7 +311,32 @@ CodeExpression <- function(
     meta = meta
   )
   self$type <- as_scalar("CodeExpression")
+  self[["errors"]] <- check_property("CodeExpression", "errors", FALSE, missing(errors), Array("CodeError"), errors)
   self[["output"]] <- check_property("CodeExpression", "output", FALSE, missing(output), "Node", output)
+  class(self) <- c("list", "Entity")
+  self
+}
+
+
+#' An error that occured when parsing, compiling or executing some Code.
+#'
+#' @name CodeError
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param trace Stack trace leading up to the error.
+#' @seealso \code{\link{Entity}}
+#' @export
+CodeError <- function(
+  id,
+  meta,
+  trace
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("CodeError")
+  self[["trace"]] <- check_property("CodeError", "trace", FALSE, missing(trace), "character", trace)
   class(self) <- c("list", "Entity")
   self
 }
@@ -1211,6 +1262,36 @@ Figure <- function(
 }
 
 
+#' A function with a name, which might take Parameters and return a value of a certain type.
+#'
+#' @name Function
+#' @param name The name of the function. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param parameters An array of parameters the function exsists.
+#' @param returns The return type of the function.
+#' @seealso \code{\link{Entity}}
+#' @export
+Function <- function(
+  name,
+  id,
+  meta,
+  parameters,
+  returns
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Function")
+  self[["name"]] <- check_property("Function", "name", TRUE, missing(name), "character", name)
+  self[["parameters"]] <- check_property("Function", "parameters", FALSE, missing(parameters), Array("Parameter"), parameters)
+  self[["returns"]] <- check_property("Function", "returns", FALSE, missing(returns), "SchemaTypes", returns)
+  class(self) <- c("list", "Entity")
+  self
+}
+
+
 #' Heading
 #'
 #' @name Heading
@@ -1653,6 +1734,39 @@ Paragraph <- function(
 }
 
 
+#' A variable that can be set and used in code.
+#'
+#' @name Variable
+#' @param name The name the parameter is referred to in code. \bold{Required}.
+#' @param default The default value of the parameter.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param required Is this parameter required, if not it should have a default or default is assumed to be null.
+#' @param schema The schema that the value of the parameter will be validated against.
+#' @seealso \code{\link{Entity}}
+#' @export
+Variable <- function(
+  name,
+  default,
+  id,
+  meta,
+  required,
+  schema
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Variable")
+  self[["name"]] <- check_property("Variable", "name", TRUE, missing(name), "character", name)
+  self[["default"]] <- check_property("Variable", "default", FALSE, missing(default), "Node", default)
+  self[["required"]] <- check_property("Variable", "required", FALSE, missing(required), "logical", required)
+  self[["schema"]] <- check_property("Variable", "schema", FALSE, missing(schema), "SchemaTypes", schema)
+  class(self) <- c("list", "Entity")
+  self
+}
+
+
 #' A parameter that can be set and used in evaluated code.
 #'
 #' @name Parameter
@@ -1660,24 +1774,27 @@ Paragraph <- function(
 #' @param default The default value of the parameter.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @param required Is this parameter required, if not it should have a default or default is assumed to be null.
 #' @param schema The schema that the value of the parameter will be validated against.
-#' @seealso \code{\link{Entity}}
+#' @seealso \code{\link{Variable}}
 #' @export
 Parameter <- function(
   name,
   default,
   id,
   meta,
+  required,
   schema
 ){
-  self <- Entity(
+  self <- Variable(
+    name = name,
     id = id,
-    meta = meta
+    meta = meta,
+    schema = schema
   )
   self$type <- as_scalar("Parameter")
-  self[["name"]] <- check_property("Parameter", "name", TRUE, missing(name), "character", name)
   self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), "Node", default)
-  self[["schema"]] <- check_property("Parameter", "schema", FALSE, missing(schema), "SchemaTypes", schema)
+  self[["required"]] <- check_property("Parameter", "required", FALSE, missing(required), "logical", required)
   class(self) <- c("list", "Entity")
   self
 }
