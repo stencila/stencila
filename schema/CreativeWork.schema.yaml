@@ -10,11 +10,16 @@ properties:
   authors:
     '@id': schema:author
     description: The authors of this creative work.
+    # This first type:array allows for wrapping of objects into an array
+    # during `coerce()`
     type: array
-    items:
-      anyOf:
-        - $ref: Person
-        - $ref: Organization
+    allOf:
+      - codec: csi
+      - type: array
+        items:
+          anyOf:
+            - $ref: Person
+            - $ref: Organization
   references:
     '@id': schema:citation
     aliases:
