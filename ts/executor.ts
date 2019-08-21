@@ -1,6 +1,6 @@
 import getStdin from 'get-stdin'
 import minimist from 'minimist'
-import { parseScript } from 'meriyah'
+import { parse } from 'meriyah'
 import { generate } from 'astring'
 
 import fs from 'fs'
@@ -9,9 +9,27 @@ import {
   CodeChunk,
   CodeExpression,
   EnumSchema,
-  Parameter
+  Function,
+  function_,
+  parameter,
+  Parameter,
+  variable,
+  Variable
 } from './types'
 import { isA } from './util'
+import {
+  Node as EtreeNode, // In case of conflict with Stencila Node
+  BinaryExpression,
+  CallExpression,
+  FunctionDeclaration,
+  FunctionExpression,
+  MemberExpression,
+  UpdateExpression,
+  VariableDeclaration,
+  ExpressionStatement,
+  AssignmentExpression,
+  ImportDeclaration
+} from 'meriyah/dist/estree'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 main()
@@ -97,6 +115,14 @@ function parseItem(
       (isA('CodeChunk', item) || isA('CodeExpression', item)) &&
       item.language === 'javascript'
     ) {
+      if (isA('CodeChunk', item)) {
+        const parseResult = parseCodeChunk(item)
+        item.imports = parseResult.imports
+        item.declares = parseResult.declares
+        item.assigns = parseResult.assigns
+        item.alters = parseResult.alters
+        item.uses = parseResult.uses
+      }
       code.push(item)
     }
 
@@ -106,6 +132,221 @@ function parseItem(
   } else if (Array.isArray(item)) {
     item.forEach(i => parseItem(i, parameters, code))
   }
+}
+
+class CodeChunkParseResult {
+  public imports: string[] = []
+
+  public declares: (Variable | Function)[] = []
+
+  public assigns: string[] = []
+
+  public alters: string[] = []
+
+  public uses: string[] = []
+
+  private seenIdentifiers: string[] = []
+
+  private isNameSet(name: string): boolean {
+    if (this.seenIdentifiers.indexOf(name) === -1) {
+      this.seenIdentifiers.push(name)
+      return false
+    }
+    return true
+  }
+
+  public addImports(n: string): void {
+    if (this.imports.indexOf(n) === -1) this.imports.push(n)
+  }
+
+  public addDeclares(d: Variable | Function): void {
+    if (!this.isNameSet(d.name)) this.declares.push(d)
+  }
+
+  public addAssigns(n: string): void {
+    if (!this.isNameSet(n)) this.assigns.push(n)
+  }
+
+  public addAlters(n: string): void {
+    if (!this.isNameSet(n)) this.alters.push(n)
+  }
+
+  public addUses(n: string): void {
+    if (!this.isNameSet(n)) this.uses.push(n)
+  }
+}
+
+function recurseMemberExpression(expr: MemberExpression): string | null {
+  if (expr.object.type === 'Identifier') return expr.object.name
+  if (expr.object.type === 'MemberExpression')
+    return recurseMemberExpression(expr.object)
+
+  return null
+}
+
+function parseFunctionDeclaration(
+  result: CodeChunkParseResult,
+  fn: FunctionDeclaration | FunctionExpression,
+  name?: string | null
+): void {
+  if (name === undefined) {
+    name = fn.id !== null ? fn.id.name : null
+  }
+
+  if (name === null) return
+
+  const parameters: Parameter[] = []
+
+  if (fn.params !== undefined) {
+    fn.params.forEach(p => {
+      if (p.type === 'Identifier') parameters.push(parameter(p.name))
+    })
+  }
+
+  result.addDeclares(function_(name, { parameters }))
+}
+
+function parseVariableDeclaration(
+  result: CodeChunkParseResult,
+  statement: VariableDeclaration
+): void {
+  statement.declarations.forEach(declarator => {
+    if (declarator.id.type === 'Identifier') {
+      if (declarator.init === null) return
+
+      if (declarator.init.type === 'Literal')
+        result.addDeclares(variable(declarator.id.name))
+      else parseStatement(result, declarator.init, declarator.id.name)
+    }
+  })
+}
+
+function parseAssignmentExpression(
+  result: CodeChunkParseResult,
+  statement: AssignmentExpression
+): void {
+  let assignmentName: string | undefined
+
+  if (statement.left.type === 'Identifier') {
+    assignmentName = statement.left.name
+    result.addAssigns(statement.left.name)
+  } else if (statement.left.type === 'MemberExpression') {
+    const name = recurseMemberExpression(statement.left)
+    if (name !== null) result.addAlters(name)
+  }
+
+  /* an offshoot of only setting assignmentName for Identifiers only (not MemberExpressions) is that functions that
+  are declared and assigned to a property of an object won't be parsed, since their name will be like `a.b` so won't be
+  a valid function identifier
+  */
+  parseStatement(result, statement.right, assignmentName)
+}
+
+function parseBinaryExpression(
+  result: CodeChunkParseResult,
+  statement: BinaryExpression
+): void {
+  if (statement.left.type === 'Identifier') result.addUses(statement.left.name)
+  else parseStatement(result, statement.left)
+
+  if (statement.right.type === 'Identifier')
+    result.addUses(statement.right.name)
+  else parseStatement(result, statement.right)
+}
+
+function parseCallExpression(
+  result: CodeChunkParseResult,
+  statement: CallExpression
+): void {
+  statement.arguments.forEach(arg => {
+    if (arg.type === 'Identifier') result.addUses(arg.name)
+    else parseStatement(result, arg)
+  })
+}
+
+function parseUpdateExpression(
+  result: CodeChunkParseResult,
+  statement: UpdateExpression
+): void {
+  if (statement.argument.type === 'Identifier')
+    result.addAlters(statement.argument.name)
+  else parseStatement(result, statement.argument)
+}
+
+function parseImportExpression(
+  result: CodeChunkParseResult,
+  statement: ImportDeclaration
+): void {
+  if (
+    statement.source.type === 'Literal' &&
+    typeof statement.source.value === 'string'
+  ) {
+    result.addImports(statement.source.value)
+  }
+}
+
+function parseExpression(
+  result: CodeChunkParseResult,
+  statement: ExpressionStatement
+): void {
+  parseStatement(result, statement.expression)
+}
+
+function parseStatement(
+  result: CodeChunkParseResult,
+  statement: EtreeNode,
+  lastParsedVarName?: string
+): void {
+  switch (statement.type) {
+    case 'VariableDeclaration':
+      parseVariableDeclaration(result, statement as VariableDeclaration)
+      break
+    case 'ExpressionStatement':
+      parseExpression(result, statement as ExpressionStatement)
+      break
+    case 'AssignmentExpression':
+      parseAssignmentExpression(result, statement as AssignmentExpression)
+      break
+    case 'BinaryExpression':
+      parseBinaryExpression(result, statement as BinaryExpression)
+      break
+    case 'FunctionDeclaration':
+      parseFunctionDeclaration(result, statement as FunctionDeclaration)
+      break
+    case 'FunctionExpression':
+      parseFunctionDeclaration(
+        result,
+        statement as FunctionExpression,
+        lastParsedVarName
+      )
+      break
+    case 'CallExpression':
+      parseCallExpression(result, statement as CallExpression)
+      break
+    case 'UpdateExpression':
+      parseUpdateExpression(result, statement as UpdateExpression)
+      break
+    case 'ImportDeclaration':
+      parseImportExpression(result, statement as ImportDeclaration)
+      break
+    case 'Literal':
+      break
+    default:
+      console.log(statement)
+      throw new Error(`Unhandled statement ${statement.type}`)
+  }
+}
+
+function parseCodeChunk(codeChunk: CodeChunk): CodeChunkParseResult {
+  const chunkAst = parse(codeChunk.text, { module: true })
+
+  const parseResult: CodeChunkParseResult = new CodeChunkParseResult()
+
+  chunkAst.body.forEach(statement => {
+    parseStatement(parseResult, statement)
+  })
+
+  return parseResult
 }
 
 /**
@@ -128,7 +369,7 @@ function executeCodeChunk(code: CodeChunk): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const outputs: any[] = []
 
-  const ast = parseScript(code.text)
+  const ast = parse(code.text, { module: true })
 
   ast.body.forEach(statement => {
     /*
@@ -216,8 +457,8 @@ function decodeParameter(parameter: Parameter, value?: string): any {
 function decodeParameters(
   parameters: Parameter[],
   values: { [key: string]: string }
-): { [key: string]: any } {
-  const decodedValues: { [key: string]: any } = {}
+): StringDict {
+  const decodedValues: StringDict = {}
 
   parameters.forEach(p => {
     decodedValues[p.name] = decodeParameter(p, values[p.name])
@@ -253,7 +494,7 @@ function outputArticle(path: string, output: Article): void {
 /**
  * Execute a document based on arguments from the command line.
  */
-async function main() {
+async function main(): Promise<void> {
   const cliArgs = getCliArgs()
   const article = JSON.parse(await readInput(cliArgs.inputFile))
 
