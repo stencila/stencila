@@ -4,7 +4,7 @@ extends: Thing
 role: tertiary
 status: unstable
 category: metadata
-description: A contact point—for example, a R&D department.
+description: A contact point, for example, a R&D department.
 properties:
   availableLanguages:
     '@id': schema:availableLanguage
@@ -21,8 +21,11 @@ properties:
     items:
       type: string
       format: email
-  telephone:
+  telephoneNumbers:
     '@id': schema:telephone
-    description: 'The telephone number of the contact point. Accepted formats: +44 123455, (02)12345, 006645667.'
-    type: string
-    pattern: '^[+#*\(\)\[\]]*([0-9][ ext+-pw#*\(\)\[\]]*){6,45}$'
+    aliases:
+      - telephone
+    description: Telephone numbers for the contact point.
+    type: array
+    items:
+      type: string
