@@ -35,7 +35,7 @@ properties:
     description: Family name. In the U.S., the last name of a person.
     $comment: This can be used along with givenName instead of the name property.
     allOf:
-      - codec: ssv
+      - codec: ssi
       - type: array
         items:
           type: string
@@ -59,7 +59,7 @@ properties:
     description: Given name. In the U.S., the first name of a person.
     $comment: This can be used along with familyName instead of the name property.
     allOf:
-      - codec: ssv
+      - codec: ssi
       - type: array
         items:
           type: string
