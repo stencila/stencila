@@ -46,8 +46,11 @@ export const build = async (): Promise<void> => {
   const schemata = Array.from(schemas.values())
 
   // Check each schema is valid
+  const types: string[] = []
+  const properties: {[key: string]: string} = {}
+  const ids: {[key: string]: string} = {}
   const fails = schemata
-    .map(schema => checkSchema(schemas, schema))
+    .map(schema => checkSchema(schemas, schema, types, properties, ids))
     .reduce((fails, ok) => (!ok ? fails + 1 : fails), 0)
   if (fails > 0) {
     log.error(`Errors in ${fails} schemas, please see messages above`)
@@ -84,23 +87,38 @@ export const readSchema = async (type: string): Promise<Schema> => {
 /**
  * Check that a schema is valid, including that,
  *
+ * - no duplicate `title`s
  * - is valid JSON Schema v7
  * - all type schemas (those with `properties`) have a `@id` and `description`
  * - all property schemas (those that define a property) have a `@id` and `description`
+ * - each property name is associated with only one `@id`
+ * - each `@id` is associated with only one property name or type `title`
  * - that other schemas that are referred to in `extends` or `$ref` exist
  *
  * @param schemas A map of all the schemas
  * @param schema The schema being checked
  */
-const checkSchema = (schemas: Map<string, Schema>, schema: Schema): boolean => {
+const checkSchema = (
+  schemas: Map<string, Schema>,
+  schema: Schema,
+  allTypes: string[],
+  allProperties: { [key: string]: string },
+  allIds: { [key: string]: string }
+): boolean => {
   let valid = true
   const { title, extends: extends_, description, properties } = schema
+
   log.debug(`Checking type schema "${title}".`)
+  if (title === undefined) return true
 
   const error = (message: string): void => {
     log.error(message)
     valid = false
   }
+
+  // No type with same title already
+  if (allTypes.includes(title))
+    error(`Type ${title} already exists`)
 
   // Is a valid schema?
   if (validateSchema(schema) !== true) {
@@ -125,7 +143,14 @@ const checkSchema = (schemas: Map<string, Schema>, schema: Schema): boolean => {
 
   // Type schemas have necessary properties and extends is valid
   if (properties !== undefined) {
-    if (schema['@id'] === undefined) error(`${title} is missing @id`)
+    const id = schema['@id']
+    if (id === undefined) error(`${title} is missing @id`)
+    else {
+      if (allIds[id] !== undefined && allIds[id] !== title)
+        error(`@id "${id}" is associated with more than one name "${allIds[id]}", "${title}"`)
+      else
+        allIds[id] = title
+    }
 
     if (extends_ !== undefined) {
       if (!schemas.has(extends_))
@@ -134,8 +159,21 @@ const checkSchema = (schemas: Map<string, Schema>, schema: Schema): boolean => {
 
     // Property schemas have necessary properties
     for (const [name, property] of Object.entries(properties)) {
-      if (property['@id'] === undefined)
-        error(`${title}.${name} is missing @id`)
+      const id = property['@id']
+      if (id === undefined) error(`${title}.${name} is missing @id`)
+      else {
+        if (allIds[id] !== undefined && allIds[id] !== name)
+          error(`@id "${id}" is associated with more than one name "${allIds[id]}", "${name}"`)
+        else
+          allIds[id] = name
+      }
+
+      if (allProperties[name] !== undefined) {
+        if (allProperties[name] !== id)
+          error(`Property "${name}" is associated with more than one @id "${id}", "${allProperties[name]}"`)
+      } else if (id !== undefined){
+        allProperties[name] = id
+      }
 
       if (property.description === undefined)
         error(`${title}.${name} is missing description`)
