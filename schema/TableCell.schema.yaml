@@ -24,9 +24,9 @@ properties:
     minimum: 0
     maximum: 1000
     default: 1
-  kind:
-    '@id': stencila:tableCellKind
-    description: Indicates whether the cell is a header.
+  cellType:
+    '@id': stencila:cellType
+    description: Indicates whether the cell is a header or data.
     $comment: |
       When `header`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).
       When `data`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).

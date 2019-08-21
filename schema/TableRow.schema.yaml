@@ -12,8 +12,8 @@ properties:
     type: array
     items:
       $ref: TableCell
-  kind:
-    '@id': stencila:tableRowKind
+  rowType:
+    '@id': stencila:rowType
     description: |
       If present, indicates that all cells in this row should be treated as header cells.
     type: string
