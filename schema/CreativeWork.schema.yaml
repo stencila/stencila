@@ -17,6 +17,8 @@ properties:
         - $ref: Organization
   references:
     '@id': schema:citation
+    aliases:
+      - citations
     description: |
       References to other creative works, such as another publication,
       web page, scholarly article, etc.
@@ -83,6 +85,18 @@ properties:
       anyOf:
         - $ref: Person
         - $ref: Organization
+  keywords:
+    '@id': schema:keywords
+    description: |
+      Keywords or tags used to describe this content.
+      Multiple entries in a keywords list are typically delimited by commas.
+    allOf:
+      # Allow for a comma separated list of keywords to be decoded to
+      # an array of strings
+      - codec: csi
+      - type: array
+        items:
+          type: string
   isPartOf:
     '@id': schema:isPartOf
     description: |
