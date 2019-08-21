@@ -3,15 +3,7 @@
 @import '../../common/fonts/notoSerif/notoSerif.css';
 @import '../../common/fonts/notoSans/notoSans.css';
 
-:root {
-  --max-width: 650px;
-  --max-width-media: 980px;
-  --heading-font: 'Noto Sans', Arial, Helvetica, sans-serif;
-  --body-font: 'Noto Serif', serif;
-  --text-color: #212121;
-  --bg-color: #fff;
-}
-
+/* Custom Selectors */
 @custom-selector :--CiteGroup [itemtype='https://stencila.github.io/schema/CiteGroup'];
 @custom-selector :--Cite [itemtype='https://stencila.github.io/schema/Cite'];
 @custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
@@ -25,11 +17,21 @@
 @custom-selector :--pagination [itemprop='pagination'];
 @custom-selector :--url [itemprop='url'];
 @custom-selector :--abstracts [itemprop='abstracts'];
+@custom-selector :--authorDetails [itemprop='authorDetails'];
 
 /* Citation Styles */
 @custom-selector :--citation-style-eLife [data-citation-style='eLife'];
 @custom-selector :--citation-style-MLA [data-citation-style='MLA'];
 @custom-selector :--citation-style-APA [data-citation-style='APA'];
+
+:root {
+  --max-width: 650px;
+  --max-width-media: 980px;
+  --heading-font: 'Noto Sans', Arial, Helvetica, sans-serif;
+  --body-font: 'Noto Serif', serif;
+  --text-color: #212121;
+  --bg-color: #fff;
+}
 
 html,
 body {
@@ -84,9 +86,10 @@ h3,
 h4,
 h5,
 h6 {
-  line-height: 125%;
-  font-weight: 600;
   font-family: var(--heading-font);
+  font-weight: 600;
+  margin: 2.75rem auto 1rem;
+  line-height: 1.25;
 }
 
 p {
@@ -118,28 +121,18 @@ li > *:first-child {
   margin-top: 0;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--heading-font);
-  margin-top: 2rem;
-}
-
 figure {
   font-family: var(--heading-font);
   margin: 3rem auto;
   overflow: auto;
-}
 
-figure img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  border: 1px solid #e0e0e0;
-  padding: 0.75rem;
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #e0e0e0;
+    padding: 0.75rem;
+  }
 }
 
 figcaption {
@@ -147,24 +140,24 @@ figcaption {
   width: 100%;
   margin-top: 0.75rem;
 
-  & p {
-    margin-bottom: 0.75rem;
-  }
-
-  & *:last-child {
-    margin-bottom: 0;
-  }
-
-  & *:first-child {
+  *:first-child {
     margin-top: 0;
   }
 
-  & h1,
-  & h2,
-  & h3,
-  & h4,
-  & h5,
-  & h6 {
+  *:last-child {
+    margin-bottom: 0;
+  }
+
+  p {
+    margin-bottom: 0.75rem;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     margin-top: 0;
     margin-bottom: 0;
     line-height: 1.84615;
@@ -201,8 +194,6 @@ h2,
 h3,
 h4,
 h5 {
-  margin: 2.75rem auto 1rem;
-  line-height: 1.25;
 }
 
 h1 {
@@ -230,6 +221,10 @@ h4 {
 
 h5 {
   font-size: 0.8rem;
+}
+
+h6 {
+  margin-top: 2rem;
 }
 
 h6,
@@ -320,23 +315,24 @@ blockquote {
   }
 }
 
+/* Microdata-based Styles */
 :--references {
+  /* eLife Citation Styles */
   list-style: none;
-  counter-reset: cite-counter;
-  margin: 0;
+  counter-reset: reference-counter;
   padding: 0;
   font-family: var(--heading-font);
 
   > li {
-    counter-increment: cite-counter;
+    position: relative;
+    counter-increment: reference-counter;
     font-size: 0.875rem;
     line-height: 1.71429;
-    position: relative;
     margin-bottom: 0.75rem;
     padding-left: 3rem;
 
     &::before {
-      content: counter(cite-counter);
+      content: counter(reference-counter);
       display: inline-block;
       text-align: right;
       font-size: 1rem;
@@ -346,49 +342,15 @@ blockquote {
     }
   }
 
-  ol,
-  ul {
-    padding-left: 0;
-    list-style: none;
-  }
-
-  :--CreativeWork > :--title {
-    display: inline-block;
-    font-size: 1rem;
-    line-height: 1.5;
-    font-weight: 600;
-    border-bottom: none;
-  }
-
-  /* eLife theme specific styles for citation titles */
-  :--citation-style-MLA,
-  :--citation-style-APA {
-    :--CreativeWork > :--title {
-      display: inline;
-      font-size: 0.875rem;
-      line-height: 1.71429;
-      font-weight: normal;
-      border-bottom: 1px dotted var(--text-color);
-    }
-  }
-
-  :--authors {
+  :--CreativeWork {
     display: inline;
 
-    :--Person {
-      display: inline;
-
-      a {
-        border-bottom: none;
-      }
-
-      &::after {
-        content: ', ';
-      }
-
-      &:last-child::after {
-        content: normal;
-      }
+    > :--title {
+      display: inline-block;
+      font-size: 1rem;
+      line-height: 1.5;
+      font-weight: 600;
+      border-bottom: none;
     }
   }
 
@@ -397,9 +359,70 @@ blockquote {
     font-family: var(--body-font);
   }
 
+  /* Shared Styles */
+  ol,
+  ul {
+    padding-left: 0;
+    list-style: none;
+  }
+
+  :--CreativeWork {
+    font-size: 0.875rem;
+    line-height: 1.71429;
+    font-weight: normal;
+  }
+
+  :--authors {
+    display: inline;
+
+    :--Person {
+      display: inline-flex;
+
+      * {
+        display: inline-flex;
+      }
+
+      [itemprop='familyName'] {
+        order: 2;
+
+        &::after {
+          content: ', ';
+          white-space: pre;
+        }
+      }
+
+      [itemprop='givenName'] {
+        order: 1;
+
+        &::after {
+          content: ' ';
+          white-space: pre;
+        }
+      }
+
+      &:last-child [itemprop='familyName'] {
+        &::after {
+          content: normal;
+        }
+      }
+
+      a {
+        border-bottom: none;
+      }
+    }
+  }
+
   :--pagination {
     &::before {
       content: ':';
+    }
+
+    &::after {
+      content: '.';
+    }
+
+    + :--datePublished {
+      display: none;
     }
   }
 
@@ -427,8 +450,13 @@ blockquote {
     }
   }
 
+  /* MLA Citation Styles */
   :--citation-style-MLA {
     :--CreativeWork > :--title {
+      &:first-of-type {
+        display: none;
+      }
+
       &::before {
         content: '"';
       }
@@ -438,17 +466,60 @@ blockquote {
       }
     }
 
+    :--authors + :--datePublished {
+      display: none;
+    }
+
+    :--issueNumber + :--datePublished {
+      &::before {
+        content: ' ';
+      }
+    }
+
+    :--authors {
+      :--Person {
+        [itemprop='familyName'] {
+          order: 1;
+        }
+
+        [itemprop='givenName'] {
+          order: 2;
+        }
+
+        &:nth-of-type(n + 2) {
+          display: none;
+        }
+
+        &:nth-of-type(1)::after {
+          content: ', et al.';
+        }
+      }
+    }
+
     :--PublicationIssue {
       display: inline;
+    }
 
-      :--pagination {
-        &::before {
-          content: ': ';
+    :--pagination {
+      &::before {
+        content: ': ';
+      }
+
+      + :--datePublished {
+        display: inline;
+
+        &::after {
+          content: '.';
         }
+      }
+
+      ::after {
+        content: normal;
       }
     }
   }
 
+  /* APA Citation Styles */
   :--citation-style-APA {
     :--CreativeWork > :--title {
       &::after {
@@ -458,8 +529,34 @@ blockquote {
 
     :--authors {
       :--Person {
-        &:last-child::before {
-          content: '& ';
+        [itemprop='familyName'] {
+          order: 1;
+
+          &::after {
+            content: ', ';
+            white-space: pre;
+          }
+        }
+
+        [itemprop='givenName'] {
+          order: 2;
+
+          &::after {
+            content: '.,';
+          }
+        }
+
+        &:last-child {
+          &::before {
+            content: '& ';
+            white-space: pre;
+          }
+
+          [itemprop='givenName'] {
+            &::after {
+              content: '. ';
+            }
+          }
         }
       }
     }
