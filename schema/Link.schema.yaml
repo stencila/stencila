@@ -18,7 +18,7 @@ properties:
     type: string
     format: uri
   title:
-    '@id': stencila:title
+    '@id': schema:headline
     description: A title for the link.
     $comment: |
       This property is analagous to the HTML `title` global attribute which
