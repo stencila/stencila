@@ -6,9 +6,9 @@ status: stable
 category: code
 description: Inline code.
 properties:
-  language:
+  programmingLanguage:
     '@id': schema:programmingLanguage
-    description: The programming langauge of the code.
+    description: The programming language of the code.
     type: string
   value:
     '@id': schema:value
