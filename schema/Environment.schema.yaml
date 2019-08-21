@@ -24,11 +24,5 @@ properties:
     type: array
     items:
       $ref: SoftwareSourceCode
-  source:
-    '@id': stencila:environmentSource
-    description: |
-      Source of environment definition. e.g. a URL to a Dockerfile,
-      or a path to a filesystem folder.
-    type: string
 required:
   - name
