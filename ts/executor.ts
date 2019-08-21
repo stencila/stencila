@@ -28,13 +28,15 @@ import {
   VariableDeclaration,
   ExpressionStatement,
   AssignmentExpression,
-  ImportDeclaration
+  ImportDeclaration,
+  WhileStatement,
+  DoWhileStatement,
+  IfStatement,
+  Program
 } from 'meriyah/dist/estree'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 main()
-
-type ExecutableCode = CodeChunk | CodeExpression
 
 interface StringDict {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,6 +50,13 @@ interface CliArgs {
 
   parameterValues: StringDict
 }
+
+interface CodeChunkExecution {
+  codeChunk: CodeChunk
+  parseResult: CodeChunkParseResult
+}
+
+type ExecutableCode = CodeChunkExecution | CodeExpression
 
 /**
  * Process argv to get the source and destination for the document being executed
@@ -90,11 +99,8 @@ function execute(code: ExecutableCode[], parameterValues: StringDict): void {
   })
 
   code.forEach(c => {
-    if (isA('CodeChunk', c)) {
-      executeCodeChunk(c)
-    } else if (isA('CodeExpression', c)) {
-      executeCodeExpression(c)
-    }
+    if (isA('CodeExpression', c)) executeCodeExpression(c)
+    else executeCodeChunk(c)
   })
 }
 
@@ -106,7 +112,7 @@ function parseItem(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   item: any,
   parameters: Parameter[],
-  code: (CodeChunk | CodeExpression)[]
+  code: (CodeChunkExecution | CodeExpression)[]
 ): void {
   if (isA('Entity', item) || item instanceof Object) {
     if (isA('Parameter', item)) {
@@ -117,13 +123,19 @@ function parseItem(
     ) {
       if (isA('CodeChunk', item)) {
         const parseResult = parseCodeChunk(item)
+        parseResult.finalize()
+
         item.imports = parseResult.imports
         item.declares = parseResult.declares
         item.assigns = parseResult.assigns
         item.alters = parseResult.alters
         item.uses = parseResult.uses
-      }
-      code.push(item)
+
+        code.push({
+          codeChunk: item,
+          parseResult: parseResult
+        })
+      } else code.push(item)
     }
 
     Object.entries(item).forEach(([, i]) => {
@@ -135,6 +147,8 @@ function parseItem(
 }
 
 class CodeChunkParseResult {
+  public chunkAst: Program
+
   public imports: string[] = []
 
   public declares: (Variable | Function)[] = []
@@ -147,8 +161,14 @@ class CodeChunkParseResult {
 
   private seenIdentifiers: string[] = []
 
+  private possibleVariables: string[] = []
+
+  public constructor(chunkAst: Program) {
+    this.chunkAst = chunkAst
+  }
+
   private isNameSet(name: string): boolean {
-    if (this.seenIdentifiers.indexOf(name) === -1) {
+    if (!this.seenIdentifiers.includes(name)) {
       this.seenIdentifiers.push(name)
       return false
     }
@@ -156,7 +176,15 @@ class CodeChunkParseResult {
   }
 
   public addImports(n: string): void {
-    if (this.imports.indexOf(n) === -1) this.imports.push(n)
+    if (!this.imports.includes(n)) this.imports.push(n)
+  }
+
+  public addPossibleVariable(n: string): void {
+    /* If a declaration has a more complex initializer (like a ternary) then we don't know straight away if it's a
+     * variable or a function. So the identifier goes in here and if it wasn't computed to be a function declaration
+     * after parsing the rest of the code chunk, then set is as a variable.
+     */
+    if (!this.possibleVariables.includes(n)) this.possibleVariables.push(n)
   }
 
   public addDeclares(d: Variable | Function): void {
@@ -173,6 +201,12 @@ class CodeChunkParseResult {
 
   public addUses(n: string): void {
     if (!this.isNameSet(n)) this.uses.push(n)
+  }
+
+  public finalize(): void {
+    this.possibleVariables.forEach(n => {
+      if (!this.seenIdentifiers.includes(n)) this.declares.push(variable(n))
+    })
   }
 }
 
@@ -212,11 +246,12 @@ function parseVariableDeclaration(
 ): void {
   statement.declarations.forEach(declarator => {
     if (declarator.id.type === 'Identifier') {
-      if (declarator.init === null) return
-
-      if (declarator.init.type === 'Literal')
+      if (declarator.init === null || declarator.init.type === 'Literal')
         result.addDeclares(variable(declarator.id.name))
-      else parseStatement(result, declarator.init, declarator.id.name)
+      else {
+        result.addPossibleVariable(declarator.id.name)
+        parseStatement(result, declarator.init, declarator.id.name)
+      }
     }
   })
 }
@@ -285,6 +320,26 @@ function parseImportExpression(
   }
 }
 
+function parseWhileStatement(
+  result: CodeChunkParseResult,
+  statement: WhileStatement | DoWhileStatement
+): void {
+  parseStatement(result, statement.test)
+
+  parseStatement(result, statement.body)
+}
+
+function parseIfStatement(
+  result: CodeChunkParseResult,
+  statement: IfStatement
+): void {
+  parseStatement(result, statement.test)
+  parseStatement(result, statement.consequent)
+  if (statement.alternate !== null) {
+    parseStatement(result, statement.alternate)
+  }
+}
+
 function parseExpression(
   result: CodeChunkParseResult,
   statement: ExpressionStatement
@@ -329,6 +384,24 @@ function parseStatement(
     case 'ImportDeclaration':
       parseImportExpression(result, statement as ImportDeclaration)
       break
+    case 'WhileStatement':
+    case 'DoWhileStatement':
+      // both actually have the same interface so it is OK to cast just to WhileStatement
+      parseWhileStatement(result, statement as WhileStatement)
+      break
+    case 'IfStatement':
+    case 'ConditionalExpression':
+      // both actually have the same interface so it is OK to cast just to IfStatement
+      parseIfStatement(result, statement as IfStatement)
+      break
+    case 'BlockStatement':
+      statement.body.forEach(subStatement => {
+        parseStatement(result, subStatement)
+      })
+      break
+    case 'EmptyStatement':
+    case 'Identifier':
+    case 'UnaryExpression':
     case 'Literal':
       break
     default:
@@ -340,7 +413,7 @@ function parseStatement(
 function parseCodeChunk(codeChunk: CodeChunk): CodeChunkParseResult {
   const chunkAst = parse(codeChunk.text, { module: true })
 
-  const parseResult: CodeChunkParseResult = new CodeChunkParseResult()
+  const parseResult: CodeChunkParseResult = new CodeChunkParseResult(chunkAst)
 
   chunkAst.body.forEach(statement => {
     parseStatement(parseResult, statement)
@@ -365,11 +438,12 @@ function executeCodeExpression(code: CodeExpression): void {
  *
  * Uses `eval`, so should only be called with trusted code.
  */
-function executeCodeChunk(code: CodeChunk): void {
+function executeCodeChunk(code: CodeChunkExecution): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const outputs: any[] = []
 
-  const ast = parse(code.text, { module: true })
+  const ast = code.parseResult.chunkAst
+  const chunk = code.codeChunk
 
   ast.body.forEach(statement => {
     /*
@@ -403,7 +477,7 @@ function executeCodeChunk(code: CodeChunk): void {
     }
   })
 
-  code.outputs = outputs.filter(o => o !== undefined)
+  chunk.outputs = outputs.filter(o => o !== undefined)
 }
 
 /**
@@ -433,7 +507,7 @@ function decodeParameter(parameter: Parameter, value?: string): any {
       return b === 'true' || b === 't' || b === 'yes' || b === '1'
     case 'EnumSchema':
       const es = parameter.schema as EnumSchema
-      if (es.values !== undefined && es.values.indexOf(value) === -1)
+      if (es.values !== undefined && !es.values.includes(value))
         throw new Error(
           `${value} not found in enum values for ${parameter.name}`
         )
