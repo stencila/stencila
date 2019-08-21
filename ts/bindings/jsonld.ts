@@ -47,7 +47,7 @@ export const build = async (): Promise<void> => {
 
     }
 
-    types[typeId] = { '@id': typeId, name: title }
+    types[title] = { '@id': typeId }
 
     // Create a [`Property`](https://meta.schema.org/Property) for those
     // properties that are defined by this schema, otherwise link to the property
@@ -56,16 +56,19 @@ export const build = async (): Promise<void> => {
     // resolving `$refs`. See https://github.com/epoberezkin/ajv/issues/125#issuecomment-408960384
     // for an approach to that.
     if (typeProperties !== undefined) {
-      for (const [name, property] of Object.entries(typeProperties)) {
+      for (let [name, property] of Object.entries(typeProperties)) {
         let pid = property['@id']
         // Do not add terms that are aliases with JSON-LD keywords: @id, @type etc
         if (pid === undefined || name == 'id' || name === 'type' || name === 'value') continue
         // The `schema` property clashes with the schema.org alias. So rename it...
-        if (pid === 'stencila:schema') pid = 'stencila:scheme'
+        if (name === 'schema') {
+          name = 'scheme'
+          pid = 'stencila:scheme'
+        }
 
         if (pid.startsWith('stencila:')) {
           if (properties[name] === undefined) {
-            properties[pid] = {
+            properties[name] = {
               '@id': pid,
               '@type': 'schema:Property',
               'schema:name': name,
@@ -79,9 +82,8 @@ export const build = async (): Promise<void> => {
             }
           }
         } else {
-          properties[pid] = {
-            '@id': pid,
-            name
+          properties[name] = {
+            '@id': pid
           }
         }
       }
@@ -116,11 +118,10 @@ export const build = async (): Promise<void> => {
     // Types and properties added in alphabetical order after this e.g
     //   "schema:AudioObject": {"@id": "schema:AudioObject"},
     ...fromEntries([
-      ...[...Object.keys(types)].sort(),
-      ...[...Object.keys(properties)].sort()
-    ].map((id: string) => {
-      const term = id.split(':')[1]
-      return [term, { '@id': id }]
+      ...[...Object.entries(types)].sort(),
+      ...[...Object.entries(properties)].sort()
+    ].map(([name, entry]: [string, any]) => {
+      return [name, { '@id': entry['@id'] }]
     }))
   }
   await fs.writeJSON(
