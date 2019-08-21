@@ -5,11 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
-    <link rel="stylesheet" href="../themes/eLife/styles.css" />
+    <link id="theme1" rel="stylesheet" href="../themes/eLife/styles.css" />
+    <link
+      id="theme2"
+      rel="stylesheet"
+      disabled
+      href="../themes/nature/styles.css"
+    />
+    <link
+      id="theme3"
+      rel="stylesheet"
+      disabled
+      href="../themes/plos/styles.css"
+    />
+    <link
+      id="theme4"
+      rel="stylesheet"
+      disabled
+      href="../themes/stencila/styles.css"
+    />
   </head>
 
   <body>
     <article>
+      <label
+        >Theme
+        <select id="theme-select" name="theme-select">
+          <option value="theme1">eLife</option>
+          <option value="theme2">Nature</option>
+          <option value="theme3">PLoS</option>
+          <option value="theme4">Stencila</option>
+        </select>
+      </label>
       <p>
         <a href="https://elifesciences.org/articles/45107">
           elifesciences.org
@@ -6568,7 +6595,8 @@
                 <span
                   ><a
                     href="https://scholar.google.com/scholar?q=%22author:B+Aigouy%22"
-                    >B Aigouy</a
+                    ><span itemprop="familyName">Aigouy</span
+                    ><span itemprop="givenName">B</span></a
                   ></span
                 >
               </li>
@@ -6576,7 +6604,8 @@
                 <span
                   ><a
                     href="https://scholar.google.com/scholar?q=%22author:R+Farhadifar%22"
-                    >R Farhadifar</a
+                    ><span itemprop="familyName">Farhadifar</span
+                    ><span itemprop="givenName">R</span></a
                   ></span
                 >
               </li>
@@ -6584,7 +6613,8 @@
                 <span
                   ><a
                     href="https://scholar.google.com/scholar?q=%22author:DB+Staple%22"
-                    >DB Staple</a
+                    ><span itemprop="familyName">Staple</span
+                    ><span itemprop="givenName">DB</span></a
                   ></span
                 >
               </li>
@@ -6592,7 +6622,8 @@
                 <span
                   ><a
                     href="https://scholar.google.com/scholar?q=%22author:A+Sagner%22"
-                    >A Sagner</a
+                    ><span itemprop="familyName">Sagner</span
+                    ><span itemprop="givenName">A</span></a
                   ></span
                 >
               </li>
@@ -6600,7 +6631,8 @@
                 <span
                   ><a
                     href="https://scholar.google.com/scholar?q=%22author:JC+R%C3%B6per%22"
-                    >JC Röper</a
+                    ><span itemprop="familyName">Röper</span
+                    ><span itemprop="givenName">JC</span></a
                   ></span
                 >
               </li>
@@ -6608,7 +6640,8 @@
                 <span
                   ><a
                     href="https://scholar.google.com/scholar?q=%22author:F+J%C3%BClicher%22"
-                    >F Jülicher</a
+                    ><span itemprop="familyName">Jülicher</span
+                    ><span itemprop="givenName">F</span></a
                   ></span
                 >
               </li>
@@ -6616,7 +6649,8 @@
                 <span
                   ><a
                     href="https://scholar.google.com/scholar?q=%22author:S+Eaton%22"
-                    >S Eaton</a
+                    ><span itemprop="familyName">Eaton</span
+                    ><span itemprop="givenName">S</span></a
                   ></span
                 >
               </li>
@@ -6630,7 +6664,8 @@
             >
               <em itemprop="title">Cell</em>
               <strong itemprop="issueNumber">142</strong
-              ><span itemprop="pagination">773–786.</span>
+              ><span itemprop="pagination">773–786</span>
+              <time itemprop="datePublished" datetime="2010">(2010)</time>
             </ul>
 
             <a href="https://doi.org/10.1016/j.cell.2010.07.042" itemprop="url"
@@ -7410,7 +7445,7 @@
       <h3>
         Author details
       </h3>
-      <ol>
+      <ol itemprop="authorDetails">
         <li>
           <p></p>
           <h4>
@@ -7557,5 +7592,26 @@
     </article>
 
     <script src="../themes/eLife/index.ts" async></script>
+    <script>
+      const ready = () => {
+        const themeSelect = document.querySelector('#theme-select')
+
+        if (themeSelect) {
+          themeSelect.addEventListener('change', event => {
+            const theme = event.target.value
+
+            document
+              .querySelectorAll('link[rel="stylesheet"]')
+              .forEach(node =>
+                node.id === theme
+                  ? (node.disabled = false)
+                  : (node.disabled = true)
+              )
+          })
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', ready)
+    </script>
   </body>
 </html>
