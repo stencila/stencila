@@ -6,8 +6,10 @@ status: stable
 category: prose
 description: Inline, quoted content.
 properties:
-  citation:
-    '@id': schema:citation
+  cite:
+    '@id': stencila:cite
     description: The source of the quote.
-    type: string
-    format: uri
+    anyOf:
+      - $ref: Cite
+      - type: string
+        format: uri
