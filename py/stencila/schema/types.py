@@ -1504,14 +1504,18 @@ class Parameter(Variable):
     """A parameter that can be set and used in evaluated code."""
 
     default: Optional["Node"] = None
+    extends: Optional[bool] = None
+    repeats: Optional[bool] = None
     required: Optional[bool] = None
 
     def __init__(
         self,
         name: str,
         default: Optional["Node"] = None,
+        extends: Optional[bool] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
+        repeats: Optional[bool] = None,
         required: Optional[bool] = None,
         schema: Optional["SchemaTypes"] = None
     ) -> None:
@@ -1523,6 +1527,10 @@ class Parameter(Variable):
         )
         if default is not None:
             self.default = default
+        if extends is not None:
+            self.extends = extends
+        if repeats is not None:
+            self.repeats = repeats
         if required is not None:
             self.required = required
 

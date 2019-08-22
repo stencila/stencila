@@ -15,3 +15,11 @@ properties:
     '@id': stencila:required
     description: Is this parameter required, if not it should have a default or default is assumed to be null.
     type: boolean
+  repeats:
+    '@id': stencila:repeats
+    description: Indicates that this parameter is variadic and can accept multiple arguments.
+    type: boolean
+  extends:
+    '@id': stencila:extends
+    description: Indicates that this parameter is variadic and can accept multiple named arguments.
+    type: boolean

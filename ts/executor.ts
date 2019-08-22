@@ -112,10 +112,13 @@ function parseItem(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   item: any,
   parameters: Parameter[],
-  code: (CodeChunkExecution | CodeExpression)[]
+  code: (CodeChunkExecution | CodeExpression)[],
+  functionDepth: number = 0
 ): void {
   if (isA('Entity', item) || item instanceof Object) {
-    if (isA('Parameter', item)) {
+    if (isA('Function', item)) {
+      ++functionDepth
+    } else if (isA('Parameter', item) && functionDepth === 0) {
       parameters.push(item)
     } else if (
       (isA('CodeChunk', item) || isA('CodeExpression', item)) &&
@@ -139,10 +142,14 @@ function parseItem(
     }
 
     Object.entries(item).forEach(([, i]) => {
-      parseItem(i, parameters, code)
+      parseItem(i, parameters, code, functionDepth)
     })
+
+    if (isA('Function', item)) {
+      --functionDepth
+    }
   } else if (Array.isArray(item)) {
-    item.forEach(i => parseItem(i, parameters, code))
+    item.forEach(i => parseItem(i, parameters, code, functionDepth))
   }
 }
 
@@ -234,6 +241,8 @@ function parseFunctionDeclaration(
   if (fn.params !== undefined) {
     fn.params.forEach(p => {
       if (p.type === 'Identifier') parameters.push(parameter(p.name))
+      else if (p.type === 'RestElement' && p.argument.type === 'Identifier')
+        parameters.push(parameter(p.argument.name, { repeats: true }))
     })
   }
 

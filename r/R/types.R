@@ -1778,8 +1778,10 @@ Variable <- function(
 #' @name Parameter
 #' @param name The name the parameter is referred to in code. \bold{Required}.
 #' @param default The default value of the parameter.
+#' @param extends Indicates that this parameter is variadic and can accept multiple named arguments.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @param repeats Indicates that this parameter is variadic and can accept multiple arguments.
 #' @param required Is this parameter required, if not it should have a default or default is assumed to be null.
 #' @param schema The schema that the value of the parameter will be validated against.
 #' @seealso \code{\link{Variable}}
@@ -1787,8 +1789,10 @@ Variable <- function(
 Parameter <- function(
   name,
   default,
+  extends,
   id,
   meta,
+  repeats,
   required,
   schema
 ){
@@ -1800,6 +1804,8 @@ Parameter <- function(
   )
   self$type <- as_scalar("Parameter")
   self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), "Node", default)
+  self[["extends"]] <- check_property("Parameter", "extends", FALSE, missing(extends), "logical", extends)
+  self[["repeats"]] <- check_property("Parameter", "repeats", FALSE, missing(repeats), "logical", repeats)
   self[["required"]] <- check_property("Parameter", "required", FALSE, missing(required), "logical", required)
   class(self) <- c("list", "Entity")
   self
