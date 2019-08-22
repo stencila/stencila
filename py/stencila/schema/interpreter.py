@@ -499,6 +499,8 @@ class Interpreter:
 
         cc_outputs = []
 
+        duration = 0
+
         for statement in parse_result.chunk_ast.body:
             capture_result = False
 
@@ -520,7 +522,7 @@ class Interpreter:
                 try:
                     with CodeTimer() as ct:
                         result = run_function(code_to_run, self.globals, _locals)
-                    chunk.duration = ct.duration_ms
+                    duration += ct.duration_ms
                 except Exception as e:
                     set_code_error(chunk, e)
 
@@ -533,6 +535,7 @@ class Interpreter:
             if std_out_output:
                 cc_outputs.append(std_out_output.decode('utf8'))
 
+        chunk.duration = duration
         chunk.outputs = cc_outputs
 
     def execute_code_expression(self, expression: CodeExpression, _locals: typing.Dict[str, typing.Any]) -> None:
