@@ -256,13 +256,17 @@ class CodeChunkParser:
             self.parse_statement(statement.value)
         elif isinstance(statement, ast.AugAssign):
             self.parse_aug_assign(statement)
-        elif isinstance(statement, ast.If):
-            self.parse_if(statement)
+        elif isinstance(statement, (ast.If, ast.While)):
+            self.parse_if_while(statement)
         elif isinstance(statement, ast.Compare):
             self.parse_compare(statement)
         elif isinstance(statement, ast.For):
             self.parse_for(statement)
-        elif isinstance(statement, (ast.ClassDef, ast.Num, ast.Str)):
+        elif isinstance(statement, ast.Try):
+            self.parse_try(statement)
+        elif isinstance(statement, ast.ExceptHandler):
+            self.parse_except_handler(statement)
+        elif isinstance(statement, (ast.ClassDef, ast.Num, ast.Str, ast.Pass)):
             pass
         else:
             raise TypeError('Unrecognized statement: {}'.format(statement))
@@ -372,7 +376,7 @@ class CodeChunkParser:
 
         self.parse_statement(statement.value)
 
-    def parse_if(self, statement: ast.If) -> None:
+    def parse_if_while(self, statement: typing.Union[ast.If, ast.While]) -> None:
         self.parse_statement(statement.test)
         self.parse_statement(statement.body)
         self.parse_statement(statement.orelse)
@@ -385,6 +389,15 @@ class CodeChunkParser:
         if isinstance(statement.target, ast.Name):
             self.add_name(statement.target.id, self.assigns)
         self.parse_statement(statement.iter)
+        self.parse_statement(statement.body)
+
+    def parse_try(self, statement: ast.Try) -> None:
+        self.parse_statement(statement.handlers)
+        self.parse_statement(statement.body)
+        self.parse_statement(statement.finalbody)
+        self.parse_statement(statement.orelse)
+
+    def parse_except_handler(self, statement: ast.ExceptHandler) -> None:
         self.parse_statement(statement.body)
 
     def find_file_reads(self, chunk_ast: ast.Module) -> None:
