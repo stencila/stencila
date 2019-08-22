@@ -412,6 +412,16 @@ blockquote {
     }
   }
 
+  :--datePublished {
+    &::before {
+      content: '(';
+    }
+
+    &::after {
+      content: ')';
+    }
+  }
+
   :--pagination {
     &::before {
       content: ':';
@@ -490,8 +500,14 @@ blockquote {
           display: none;
         }
 
-        &:nth-of-type(1)::after {
-          content: ', et al.';
+        &:nth-of-type(1) {
+          &::after {
+            content: ', et al.';
+          }
+
+          [itemprop='givenName']::after {
+            content: normal;
+          }
         }
       }
     }
@@ -513,7 +529,7 @@ blockquote {
         }
       }
 
-      ::after {
+      &::after {
         content: normal;
       }
     }
