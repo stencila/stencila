@@ -2,6 +2,7 @@ import getStdin from 'get-stdin'
 import minimist from 'minimist'
 import { parse } from 'meriyah'
 import { generate } from 'astring'
+import { performance } from 'perf_hooks'
 
 import fs from 'fs'
 import {
@@ -523,6 +524,8 @@ function executeCodeChunk(code: CodeChunkExecution): void {
 
   const chunk = code.codeChunk
 
+  let duration = 0
+
   ast.body.forEach(statement => {
     /*
     Convert `const` or `let` global declarations to `var`, otherwise they are lost in subsequent eval() calls due to
@@ -544,6 +547,8 @@ function executeCodeChunk(code: CodeChunkExecution): void {
 
     let res
 
+    const execStart = performance.now()
+
     try {
       // @ts-ignore
       // eslint-disable-next-line no-eval
@@ -551,6 +556,8 @@ function executeCodeChunk(code: CodeChunkExecution): void {
     } catch (e) {
       setCodeError(chunk, e)
     }
+
+    duration += performance.now() - execStart
 
     console.log = oldCl
 
@@ -561,6 +568,7 @@ function executeCodeChunk(code: CodeChunkExecution): void {
     }
   })
 
+  chunk.duration = duration
   chunk.outputs = outputs.filter(o => o !== undefined)
 }
 
