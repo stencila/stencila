@@ -353,6 +353,12 @@ class CodeChunkParser:
 
             f.parameters.append(p)
 
+        if statement.args.vararg:
+            f.parameters.append(Parameter(statement.args.vararg.arg, required=False, repeats=True))
+
+        if statement.args.kwarg:
+            f.parameters.append(Parameter(statement.args.kwarg.arg, required=False, extends=True))
+
         self.seen_vars.append(f.name)
         self.declares.append(f)
 
