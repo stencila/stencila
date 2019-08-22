@@ -32,7 +32,8 @@ import {
   WhileStatement,
   DoWhileStatement,
   IfStatement,
-  Program
+  Program,
+  TryStatement
 } from 'meriyah/dist/estree'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -349,6 +350,27 @@ function parseIfStatement(
   }
 }
 
+function parseTryStatement(
+  result: CodeChunkParseResult,
+  statement: TryStatement
+): void {
+  statement.block.body.forEach(subStatement => {
+    parseStatement(result, subStatement)
+  })
+
+  if (statement.handler !== null) {
+    statement.handler.body.body.forEach(subStatement => {
+      parseStatement(result, subStatement)
+    })
+  }
+
+  if (statement.finalizer !== null) {
+    statement.finalizer.body.forEach(subStatement => {
+      parseStatement(result, subStatement)
+    })
+  }
+}
+
 function parseExpression(
   result: CodeChunkParseResult,
   statement: ExpressionStatement
@@ -408,10 +430,14 @@ function parseStatement(
         parseStatement(result, subStatement)
       })
       break
+    case 'TryStatement':
+      parseTryStatement(result, statement)
+      break
     case 'EmptyStatement':
     case 'Identifier':
     case 'UnaryExpression':
     case 'Literal':
+    case 'ThrowStatement':
       break
     default:
       console.log(statement)
