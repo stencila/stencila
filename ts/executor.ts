@@ -7,6 +7,8 @@ import fs from 'fs'
 import {
   Article,
   CodeChunk,
+  codeError,
+  CodeError,
   CodeExpression,
   EnumSchema,
   Function,
@@ -135,6 +137,12 @@ function parseItem(
         item.alters = parseResult.alters
         item.uses = parseResult.uses
 
+        if (parseResult.errors.length > 0) {
+          if (item.errors === undefined) {
+            item.errors = []
+          }
+          item.errors = item.errors.concat(parseResult.errors)
+        }
         code.push({
           codeChunk: item,
           parseResult: parseResult
@@ -155,7 +163,7 @@ function parseItem(
 }
 
 class CodeChunkParseResult {
-  public chunkAst: Program
+  public chunkAst: Program | null
 
   public imports: string[] = []
 
@@ -167,11 +175,13 @@ class CodeChunkParseResult {
 
   public uses: string[] = []
 
+  public errors: CodeError[] = []
+
   private seenIdentifiers: string[] = []
 
   private possibleVariables: string[] = []
 
-  public constructor(chunkAst: Program) {
+  public constructor(chunkAst: Program | null) {
     this.chunkAst = chunkAst
   }
 
@@ -445,8 +455,34 @@ function parseStatement(
   }
 }
 
+function exceptionToCodeError(error: Error | string): CodeError {
+  if (typeof error === 'string') {
+    return codeError('Exception', { message: error })
+  } else {
+    return codeError(error.name, { message: error.message, trace: error.stack })
+  }
+}
+
+function setCodeError(
+  code: CodeChunk | CodeExpression,
+  error: Error | string
+): void {
+  if (code.errors === undefined) {
+    code.errors = []
+  }
+  code.errors.push(exceptionToCodeError(error))
+}
+
 function parseCodeChunk(codeChunk: CodeChunk): CodeChunkParseResult {
-  const chunkAst = parse(codeChunk.text, { module: true })
+  let chunkAst: Program | null = null
+
+  try {
+    chunkAst = parse(codeChunk.text, { module: true })
+  } catch (e) {
+    const badParseResult: CodeChunkParseResult = new CodeChunkParseResult(null)
+    badParseResult.errors.push(exceptionToCodeError(e))
+    return badParseResult
+  }
 
   const parseResult: CodeChunkParseResult = new CodeChunkParseResult(chunkAst)
 
@@ -463,8 +499,12 @@ function parseCodeChunk(codeChunk: CodeChunk): CodeChunkParseResult {
  * Uses `eval`, so should only be called with trusted code.
  */
 function executeCodeExpression(code: CodeExpression): void {
-  // eslint-disable-next-line no-eval
-  code.output = eval(code.text)
+  try {
+    // eslint-disable-next-line no-eval
+    code.output = eval(code.text)
+  } catch (e) {
+    setCodeError(code, e)
+  }
 }
 
 /**
@@ -478,6 +518,9 @@ function executeCodeChunk(code: CodeChunkExecution): void {
   const outputs: any[] = []
 
   const ast = code.parseResult.chunkAst
+
+  if (ast === null) return
+
   const chunk = code.codeChunk
 
   ast.body.forEach(statement => {
@@ -499,9 +542,15 @@ function executeCodeChunk(code: CodeChunkExecution): void {
       loggedData += s
     }
 
-    // @ts-ignore
-    // eslint-disable-next-line no-eval
-    const res = (1, eval)(generatedCode)
+    let res
+
+    try {
+      // @ts-ignore
+      // eslint-disable-next-line no-eval
+      res = (1, eval)(generatedCode)
+    } catch (e) {
+      setCodeError(chunk, e)
+    }
 
     console.log = oldCl
 
@@ -591,7 +640,7 @@ async function readInput(path: string): Promise<string> {
  * Write the executed document (`Article`) to a file or stdout.
  */
 function outputArticle(path: string, output: Article): void {
-  const j = JSON.stringify(output)
+  const j = JSON.stringify(output, null, 2)
 
   if (path === '-') {
     console.log(j)

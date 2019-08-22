@@ -219,8 +219,8 @@ class CodeChunkParser:
             return CodeChunkParseResult(None, error=exception_to_code_error(e))
 
         # If this is True, then there should be a call to 'open' somewhere in the code, which means the parser should
-        # try to find it. This is a basic check so there might not be one (like if the code did , but if 'open(' is NOT in
-        # the string then there definitely ISN'T one
+        # try to find it. This is a basic check so there might not be one (like if the code did , but if 'open(' is NOT
+        # in the string then there definitely ISN'T one
         search_for_open = 'open(' in chunk.text
 
         for statement in chunk_ast.body:
