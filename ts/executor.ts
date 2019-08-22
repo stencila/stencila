@@ -36,7 +36,11 @@ import {
   DoWhileStatement,
   IfStatement,
   Program,
-  TryStatement
+  TryStatement,
+  ForStatement,
+  ForInStatement,
+  ForOfStatement,
+  ConditionalExpression
 } from 'meriyah/dist/estree'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -350,9 +354,9 @@ function parseWhileStatement(
   parseStatement(result, statement.body)
 }
 
-function parseIfStatement(
+function parseConditionalStatement(
   result: CodeChunkParseResult,
-  statement: IfStatement
+  statement: IfStatement | ConditionalExpression
 ): void {
   parseStatement(result, statement.test)
   parseStatement(result, statement.consequent)
@@ -382,6 +386,15 @@ function parseTryStatement(
   }
 }
 
+function parseForStatement(
+  result: CodeChunkParseResult,
+  statement: ForStatement | ForInStatement | ForOfStatement
+): void {
+  // ignore statement.init, statement.test and statement.update as variables set here probably aren't intended for use
+  // throughout the code. This stance can be revised if it turns out users are setting vars in for() to use later
+  parseStatement(result, statement.body)
+}
+
 function parseExpression(
   result: CodeChunkParseResult,
   statement: ExpressionStatement
@@ -396,19 +409,19 @@ function parseStatement(
 ): void {
   switch (statement.type) {
     case 'VariableDeclaration':
-      parseVariableDeclaration(result, statement as VariableDeclaration)
+      parseVariableDeclaration(result, statement)
       break
     case 'ExpressionStatement':
-      parseExpression(result, statement as ExpressionStatement)
+      parseExpression(result, statement)
       break
     case 'AssignmentExpression':
-      parseAssignmentExpression(result, statement as AssignmentExpression)
+      parseAssignmentExpression(result, statement)
       break
     case 'BinaryExpression':
-      parseBinaryExpression(result, statement as BinaryExpression)
+      parseBinaryExpression(result, statement)
       break
     case 'FunctionDeclaration':
-      parseFunctionDeclaration(result, statement as FunctionDeclaration)
+      parseFunctionDeclaration(result, statement)
       break
     case 'FunctionExpression':
       parseFunctionDeclaration(
@@ -418,23 +431,21 @@ function parseStatement(
       )
       break
     case 'CallExpression':
-      parseCallExpression(result, statement as CallExpression)
+      parseCallExpression(result, statement)
       break
     case 'UpdateExpression':
-      parseUpdateExpression(result, statement as UpdateExpression)
+      parseUpdateExpression(result, statement)
       break
     case 'ImportDeclaration':
-      parseImportExpression(result, statement as ImportDeclaration)
+      parseImportExpression(result, statement)
       break
     case 'WhileStatement':
     case 'DoWhileStatement':
-      // both actually have the same interface so it is OK to cast just to WhileStatement
-      parseWhileStatement(result, statement as WhileStatement)
+      parseWhileStatement(result, statement)
       break
     case 'IfStatement':
     case 'ConditionalExpression':
-      // both actually have the same interface so it is OK to cast just to IfStatement
-      parseIfStatement(result, statement as IfStatement)
+      parseConditionalStatement(result, statement)
       break
     case 'BlockStatement':
       statement.body.forEach(subStatement => {
@@ -443,6 +454,11 @@ function parseStatement(
       break
     case 'TryStatement':
       parseTryStatement(result, statement)
+      break
+    case 'ForStatement':
+    case 'ForInStatement':
+    case 'ForOfStatement':
+      parseForStatement(result, statement)
       break
     case 'EmptyStatement':
     case 'Identifier':
