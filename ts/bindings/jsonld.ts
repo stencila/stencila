@@ -62,13 +62,13 @@ export const build = async (): Promise<void> => {
 
         if (pid.startsWith('stencila:')) {
           if (properties[name] === undefined) {
-            const range = (properties[name] = {
+            properties[name] = {
               '@id': pid,
               '@type': 'schema:Property',
               'schema:name': name,
               'schema:description': property.description,
               'schema:domainIncludes': [{ '@id': typeId }]
-            })
+            }
           } else {
             const domainIncludes = properties[name]['schema:domainIncludes']
             if (Array.isArray(domainIncludes)) {
@@ -115,9 +115,10 @@ export const build = async (): Promise<void> => {
       [
         ...[...Object.entries(types)].sort(),
         ...[...Object.entries(properties)].sort()
-      ].map(([name, entry]: [string, any]) => {
-        return [name, { '@id': entry['@id'] }]
-      })
+      ].map(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ([name, entry]: [string, any]) => [name, { '@id': entry['@id'] }]
+      )
     )
   }
 
@@ -129,8 +130,10 @@ export const build = async (): Promise<void> => {
 
   await Promise.all(
     Object.entries({ ...types, ...properties })
-      // @ts-ignore
-      .filter(([name, entry]) => entry['@id'].startsWith('stencila:'))
+      .filter(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ([name, entry]) => entry['@id'].startsWith('stencila:')
+      )
       .map(([name, entry]) =>
         fs.writeJSON(
           path.join(BUILT_DIR, `${name}.jsonld`),
