@@ -5,7 +5,7 @@ authors: []
 
 An `Article` type allows you to provide details about a document containing amongst other properties, the content as written prose, executable snippets of code, as well as images.
 
-include: ../built/Article.schema.md
+include: ../public/Article.schema.md
 :::
 | Entity | type | The name of the type and all descendant types. | string |
 | ------------ | -------------- | ----------------------------------------------------------------------------- | ------ |

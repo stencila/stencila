@@ -1,5 +1,5 @@
 /**
- * Check `schema/*.schema.yaml` files and generate `built/*.schema.json`
+ * Check `schema/*.schema.yaml` files and generate `public/*.schema.json`
  * from them.
  */
 
@@ -14,7 +14,7 @@ import log from './log'
 import Schema from './schema-interface'
 
 const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
-const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'built')
+const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'public')
 
 // Create a validation function for JSON Schema for use in `checkSchema`
 const ajv = new Ajv({ jsonPointers: true })
@@ -23,7 +23,7 @@ const metaSchema = require('ajv/lib/refs/json-schema-draft-07.json')
 const validateSchema = ajv.compile(metaSchema)
 
 /**
- * Generate `built/*.schema.json` files from `schema/*.schema.yaml` files.
+ * Generate `public/*.schema.json` files from `schema/*.schema.yaml` files.
  */
 export const build = async (): Promise<void> => {
   // Asynchronously read all the schema definition YAML files into a map of objects
@@ -62,7 +62,7 @@ export const build = async (): Promise<void> => {
   schemata.forEach(schema => processSchema(schemas, schema))
 
   // Write to destination
-  await fs.ensureDir('built')
+  await fs.ensureDir('public')
   await Promise.all(
     Array.from(schemas.entries()).map(async ([title, schema]) => {
       const destPath = path.join(SCHEMA_DEST_DIR, title + '.schema.json')
@@ -81,7 +81,9 @@ if (module.parent === null) build()
  * Read a generated schema file
  */
 export const readSchema = async (type: string): Promise<Schema> => {
-  return fs.readJSON(path.join(__dirname, '..', 'built', type + '.schema.json'))
+  return fs.readJSON(
+    path.join(__dirname, '..', 'public', type + '.schema.json')
+  )
 }
 
 /**

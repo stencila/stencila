@@ -3,7 +3,7 @@ title: Product
 authors: []
 ---
 
-include: ../built/Product.schema.md
+include: ../public/Product.schema.md
 :::
 Any offered product or service. For example, a pair of shoes; a concert ticket; the rental of a car; a haircut; or an episode of a TV show streamed online. https&#x3A;//schema.org/Product
 

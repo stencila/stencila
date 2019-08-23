@@ -3,7 +3,7 @@ title: Organization
 authors: []
 ---
 
-include: ../built/Organization.schema.md
+include: ../public/Organization.schema.md
 :::
 An organization such as a school, NGO, corporation, club, etc. https&#x3A;//schema.org/Organization.
 

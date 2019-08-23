@@ -3,7 +3,7 @@ title: Strong
 authors: []
 ---
 
-include: ../built/Strong.schema.md
+include: ../public/Strong.schema.md
 :::
 Strongly emphasised content. Analagous to, - JATS \[\`&lt;bold>\`](https&#x3A;//jats.nlm.nih.gov/archiving/tag-library/1.1/element/bold.html) - HTML \[\`&lt;strong>\`](https&#x3A;//developer.mozilla.org/en-US/docs/Web/HTML/Element/strong) - MDAST \[\`Strong\`](https&#x3A;//github.com/syntax-tree/mdast#strong) - Pandoc \[\`Strong\`](https&#x3A;//github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L257)
 

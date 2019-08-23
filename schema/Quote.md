@@ -3,7 +3,7 @@ title: Quote
 authors: []
 ---
 
-include: ../built/Quote.schema.md
+include: ../public/Quote.schema.md
 :::
 Inline, quoted content. Analagous to, - HTML \[\`&lt;q>\` element](https&#x3A;//developer.mozilla.org/en-US/docs/Web/HTML/Element/q) - Pandoc \[\`Quoted\`](https&#x3A;//github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L262)
 

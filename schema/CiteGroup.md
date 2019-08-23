@@ -3,7 +3,7 @@ title: Cite Group
 authors: []
 ---
 
-include: ../built/CiteGroup.schema.md
+include: ../public/CiteGroup.schema.md
 :::
 A group of `Cite` nodes
 

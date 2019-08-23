@@ -3,7 +3,7 @@ title: ResourceParameters
 authors: []
 ---
 
-include: ../built/ResourceParameters.schema.md
+include: ../public/ResourceParameters.schema.md
 :::
 Describes limits or requested amounts for a particular resource (e.g. memory or CPU).
 

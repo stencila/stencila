@@ -1,5 +1,5 @@
 /**
- * Generate `built/*.jsonld` files from `schema/*.schema.yaml` files.
+ * Generate `public/*.jsonld` files from `schema/*.schema.yaml` files.
  *
  * For custom types and properties (those not defined in other contexts) generate a JSON-LD
  * file similar to those on schema.org e.g. https://schema.org/Person.jsonld,
@@ -11,12 +11,11 @@ import path from 'path'
 // @ts-ignore
 import fromEntries from 'object.fromentries'
 import { read } from './utils'
-import { Schema } from '../..'
 
-const BUILT_DIR = path.join(__dirname, '..', '..', 'built')
+const DEST_DIR = path.join(__dirname, '..', '..', 'public')
 
 export const build = async (): Promise<void> => {
-  await fs.ensureDir(BUILT_DIR)
+  await fs.ensureDir(DEST_DIR)
 
   const types: { [key: string]: {} } = {}
   const properties: {
@@ -123,7 +122,7 @@ export const build = async (): Promise<void> => {
   }
 
   await fs.writeJSON(
-    path.join(BUILT_DIR, 'stencila.jsonld'),
+    path.join(DEST_DIR, 'stencila.jsonld'),
     { '@context': context },
     { spaces: 2 }
   )
@@ -131,12 +130,13 @@ export const build = async (): Promise<void> => {
   await Promise.all(
     Object.entries({ ...types, ...properties })
       .filter(
+        // @ts-ignore
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([name, entry]) => entry['@id'].startsWith('stencila:')
       )
       .map(([name, entry]) =>
         fs.writeJSON(
-          path.join(BUILT_DIR, `${name}.jsonld`),
+          path.join(DEST_DIR, `${name}.jsonld`),
           {
             '@context': {
               schema: 'http://schema.org/',

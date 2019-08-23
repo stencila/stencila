@@ -3,7 +3,7 @@ title: Person
 authors: []
 ---
 
-include: ../built/Person.schema.md
+include: ../public/Person.schema.md
 :::
 A person (alive, dead, undead, or fictional). https&#x3A;//schema.org/Person.
 

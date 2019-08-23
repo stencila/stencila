@@ -5,7 +5,7 @@ authors: []
 
 # Publication Volume
 
-include: ../built/PublicationVolume.schema.md
+include: ../public/PublicationVolume.schema.md
 :::
 A part of a successively published publication such as a periodical or multi-volume work.
 

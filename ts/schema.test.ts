@@ -11,7 +11,7 @@ beforeAll(async () => {
 })
 
 /**
- * Check that the `built/*.schema.json` files, generated from `schema/*.schema.yaml` files,
+ * Check that the `public/*.schema.json` files, generated from `schema/*.schema.yaml` files,
  * are valid JSON Schemas.
  */
 test('schemas are valid', async () => {
@@ -21,7 +21,7 @@ test('schemas are valid', async () => {
   const validate = ajv.compile(metaSchema)
 
   const files = await globby(
-    path.join(__dirname, '..', 'built', '*.schema.json')
+    path.join(__dirname, '..', 'public', '*.schema.json')
   )
   for (const file of files) {
     const schema = await fs.readJSON(file)

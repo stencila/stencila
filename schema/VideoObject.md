@@ -3,7 +3,7 @@ title: VideoObject
 authors: []
 ---
 
-include: ../built/VideoObject.schema.md
+include: ../public/VideoObject.schema.md
 :::
 A video file. https&#x3A;//schema.org/VideoObject
 

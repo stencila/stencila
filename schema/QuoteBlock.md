@@ -3,7 +3,7 @@ title: Quote Block
 authors: []
 ---
 
-include: ../built/QuoteBlock.schema.md
+include: ../public/QuoteBlock.schema.md
 :::
 A section quoted from somewhere else.
 

@@ -7,7 +7,7 @@ authors: []
 
 The `Link` schema represents a hyperlink to other pages, sections within the same document, resources, or any URL.
 
-include: ../built/Link.schema.md
+include: ../public/Link.schema.md
 :::
 A link.
 

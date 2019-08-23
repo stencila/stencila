@@ -3,7 +3,7 @@ title: Paragraph
 authors: []
 ---
 
-include: ../built/Paragraph.schema.md
+include: ../public/Paragraph.schema.md
 :::
 Paragraph
 

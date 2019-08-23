@@ -3,7 +3,7 @@ title: List
 authors: []
 ---
 
-include: ../built/List.schema.md
+include: ../public/List.schema.md
 :::
 A list of items.
 

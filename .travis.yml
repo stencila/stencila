@@ -84,7 +84,7 @@ matrix:
         - provider: pages
           skip_cleanup: true
           github_token: $GITHUB_TOKEN
-          local_dir: built
+          local_dir: public
           on:
             branch: master
 

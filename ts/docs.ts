@@ -19,16 +19,16 @@ import { isArticle } from './util/guards'
 docs()
 
 /**
- * Generate docs for each `built/*.schema.json` file and
+ * Generate docs for each `public/*.schema.json` file and
  * convert any `schema/*.md` files to HTML.
  *
- * The generated `built/*.schema.md` file should normally
+ * The generated `public/*.schema.md` file should normally
  * in `include`d into the `schema/*.md` file for the type.
  */
 async function docs(): Promise<void> {
   log.info('Building docs')
 
-  const schemas = await globby('built/*.schema.json')
+  const schemas = await globby('public/*.schema.json')
 
   await Promise.all(
     schemas.map(async jsonFile => {
@@ -37,7 +37,7 @@ async function docs(): Promise<void> {
         const { title } = schema
 
         const articleMd = schema2Article(schema)
-        const schemaMdFile = path.join('built', `${title}.schema.md`)
+        const schemaMdFile = path.join('public', `${title}.schema.md`)
         await encoda.write(articleMd, schemaMdFile)
 
         const mdFile = path.join('schema', `${title}.md`)
@@ -71,7 +71,7 @@ async function docs(): Promise<void> {
             path.dirname(mdFile)
           )
 
-          const htmlFile = path.join('built', `${title}.html`)
+          const htmlFile = path.join('public', `${title}.html`)
           await encoda.write(processed, htmlFile, {
             isBundle: false, // Set isBundle to true to work locally with NPM linked Thema style changes
             theme: 'stencila'
@@ -88,7 +88,7 @@ async function docs(): Promise<void> {
   const outs = await globby('schema/*.out.*')
   await Promise.all(
     outs.map(async file => {
-      return fs.copy(file, path.join('built', path.basename(file)))
+      return fs.copy(file, path.join('public', path.basename(file)))
     })
   )
 }

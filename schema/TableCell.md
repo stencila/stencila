@@ -3,7 +3,7 @@ title: TableCell
 authors: []
 ---
 
-include: ../built/TableCell.schema.md
+include: ../public/TableCell.schema.md
 :::
 A cell within a \`Table\`.
 

@@ -3,7 +3,7 @@ title: Data Table
 authors: []
 ---
 
-include: ../built/Datatable.schema.md
+include: ../public/Datatable.schema.md
 :::
 A table of data.
 

@@ -3,7 +3,7 @@ title: Image Object
 authors: []
 ---
 
-include: ../built/ImageObject.schema.md
+include: ../public/ImageObject.schema.md
 :::
 An image file. https&#x3A;//schema.org/ImageObject
 

@@ -3,7 +3,7 @@ title: Delete
 authors: []
 ---
 
-include: ../built/Delete.schema.md
+include: ../public/Delete.schema.md
 :::
 Content that is marked for deletion
 
