@@ -1,3 +1,31 @@
+# [0.27.0](https://github.com/stencila/schema/compare/v0.26.0...v0.27.0) (2019-08-23)
+
+
+### Bug Fixes
+
+* **Code:** Revert to `programmingLanguage` for consistency with id ([426bcb5](https://github.com/stencila/schema/commit/426bcb5))
+* **ContactPoint:** Make telephone number prop conistent with Person ([d5e0f87](https://github.com/stencila/schema/commit/d5e0f87))
+* **CreativeWork:** Add csi codec to CreativeWork.authors ([60cc14f](https://github.com/stencila/schema/commit/60cc14f))
+* **Environment:** Remove unused and conflicting source prop ([c41e520](https://github.com/stencila/schema/commit/c41e520))
+* **Items prop:** Use `schema:itemListElement` for all `items` properties ([4df5443](https://github.com/stencila/schema/commit/4df5443))
+* **JSON Schema:** Check for conflicting names and `[@id](https://github.com/id)`s ([645f736](https://github.com/stencila/schema/commit/645f736))
+* **JSON-LD:** Fix build of JSON-LD context ([94c2a5f](https://github.com/stencila/schema/commit/94c2a5f))
+* **JSON-LD:** Generate files for custom types and properties ([46d7cd5](https://github.com/stencila/schema/commit/46d7cd5))
+* **JSON-LD:** Improve generation of JSON-LD context ([0f6fea9](https://github.com/stencila/schema/commit/0f6fea9))
+* **JSON-LD:** Improve JSON-LD context generation ([af2b8e9](https://github.com/stencila/schema/commit/af2b8e9))
+* **Link:** Use consistent `[@id](https://github.com/id)` for title property ([4ab903d](https://github.com/stencila/schema/commit/4ab903d))
+* **MediaObject:** Remove uri format constraint ([92c0871](https://github.com/stencila/schema/commit/92c0871))
+* **Person:** Rename ssv to ssi codec ([d9a6291](https://github.com/stencila/schema/commit/d9a6291))
+* **Product:** Make `brand` prop consistent with Organization ([f4d2a9f](https://github.com/stencila/schema/commit/f4d2a9f))
+* **Quote, QuoteBlock:** Use `cite` instead of `citation` ([cef76af](https://github.com/stencila/schema/commit/cef76af))
+* **TableCell, TableRow:** Rename props to `cellType` and `rowType` ([2f9321d](https://github.com/stencila/schema/commit/2f9321d))
+
+
+### Features
+
+* **CreativeWork:** Add `keywords` property and alias for `references` ([b44a34e](https://github.com/stencila/schema/commit/b44a34e))
+* **Date:** Add Date schema ([008247f](https://github.com/stencila/schema/commit/008247f))
+
 # [0.26.0](https://github.com/stencila/schema/compare/v0.25.0...v0.26.0) (2019-08-15)
 
 
