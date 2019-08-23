@@ -1,73 +1,77 @@
 /**
- * Generate `built/stencila.jsonld` files from `schema/*.schema.yaml` files.
+ * Generate `public/*.jsonld` files from `schema/*.schema.yaml` files.
+ *
+ * For custom types and properties (those not defined in other contexts) generate a JSON-LD
+ * file similar to those on schema.org e.g. https://schema.org/Person.jsonld,
+ * https://schema.org/sibling.jsonld
  */
 
 import fs from 'fs-extra'
 import path from 'path'
+// @ts-ignore
+import fromEntries from 'object.fromentries'
 import { read } from './utils'
 
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+const DEST_DIR = path.join(__dirname, '..', '..', 'public')
 
 export const build = async (): Promise<void> => {
-  const schemas = await read()
+  await fs.ensureDir(DEST_DIR)
 
   const types: { [key: string]: {} } = {}
   const properties: {
     [key: string]: { '@id': string } & { [key: string]: unknown }
   } = {}
 
-  schemas.map(schema => {
-    // Create a schema.org [`Class`](https://meta.schema.org/Class) for those
-    // classes that are defined by this schema, otherwise link to source.
-    const cid = schema['@id']
-    if (cid) {
-      if (cid.startsWith('stencila:') && schema.title) {
-        types[schema.title] = {
-          '@id': cid,
-          '@type': 'schema:Class',
-          'schema:name': schema.title,
-          'schema:description': schema.description
-        }
-      } else if (schema.title) {
-        types[schema.title] = {
-          '@id': cid
-        }
+  const schemas = await read()
+  for (const schema of schemas.values()) {
+    const { '@id': typeId, title, properties: typeProperties } = schema
+
+    // Skip union types, like `Node` and `BlockContent`, that do not need to
+    // be represented in the `@context`.
+    if (typeId === undefined || title === undefined || properties === undefined)
+      continue
+
+    if (typeId.startsWith('stencila:')) {
+      types[title] = {
+        '@id': typeId,
+        '@type': 'schema:Class',
+        'schema:name': title,
+        'schema:description': schema.description
       }
     } else {
-      console.error(`Warning: @id is not defined at the top level in ${schema}`)
+      types[title] = { '@id': typeId }
     }
 
-    // Create a [`Property`](https://meta.schema.org/Property)
-    // TODO: Implement schema:rangeIncludes property - requires the
-    // resolving `$refs`. See https://github.com/epoberezkin/ajv/issues/125#issuecomment-408960384
-    // for an approach to that.
-    const typeProperties =
-      schema.properties ||
-      (schema.allOf && schema.allOf[1] && schema.allOf[1].properties)
-    if (typeProperties) {
-      for (const [name, property] of Object.entries(typeProperties)) {
-        const pid = property['@id']
-        if (!pid) continue
+    if (typeProperties !== undefined) {
+      for (let [name, property] of Object.entries(typeProperties)) {
+        let pid = property['@id']
+        // Do not add terms that are aliases with JSON-LD keywords: @id, @type etc
+        if (
+          pid === undefined ||
+          name === 'id' ||
+          name === 'type' ||
+          name === 'value'
+        )
+          continue
+        // The `schema` property clashes with the schema.org alias. So rename it...
+        if (name === 'schema') {
+          name = 'scheme'
+          pid = 'stencila:scheme'
+        }
+
         if (pid.startsWith('stencila:')) {
-          if (!properties[name]) {
+          if (properties[name] === undefined) {
             properties[name] = {
               '@id': pid,
               '@type': 'schema:Property',
               'schema:name': name,
               'schema:description': property.description,
-              'schema:domainIncludes': [{ '@id': cid }]
+              'schema:domainIncludes': [{ '@id': typeId }]
             }
           } else {
-            if (properties[name]['@id'] !== pid) {
-              throw new Error(
-                `Property "${name}" has more than one @id "${
-                  properties[name]['@id']
-                }" and "${pid}"`
-              )
-            }
             const domainIncludes = properties[name]['schema:domainIncludes']
             if (Array.isArray(domainIncludes)) {
-              domainIncludes.push({ '@id': cid })
+              domainIncludes.push({ '@id': typeId })
             }
           }
         } else {
@@ -77,40 +81,74 @@ export const build = async (): Promise<void> => {
         }
       }
     }
-  })
-
-  const jsonld = {
-    '@context': {
-      // Contexts referred to, including this one
-      schema: 'https://schema.org/',
-      bioschemas: 'http://bioschemas.org',
-      codemeta: 'https://doi.org/10.5063/schema/codemeta-2.0',
-      stencila: 'https://stencila.github.io/schema/01-draft',
-
-      // Alias `@type` and `@id`
-      // See "Addressing the “@” issue" at https://datalanguage.com/news/publishing-json-ld-for-developers
-      // for why this is useful.
-      type: '@type',
-      id: '@id'
-    }
   }
 
-  // Add types and properties alphabetically
-  for (const [key, value] of [
-    ...[...Object.entries(types)].sort(),
-    ...[...Object.entries(properties)].sort()
-  ]) {
-    // @ts-ignore
-    jsonld[key] = value
+  /**
+   * The main JSON-LD @context.
+   *
+   * Written to be similar to schema.org's @context:
+   * https://schema.org/docs/jsonldcontext.jsonld
+   */
+  const context = {
+    // Alias JSON-LD keywords e.g. `@type` and `@id`
+    // For why this is useful, see "Addressing the “@” issue" at
+    //    https://datalanguage.com/news/publishing-json-ld-for-developers
+    type: '@type',
+    id: '@id',
+    value: '@value',
+
+    // Other contexts referred to, including this one
+    // Note that http vs https is important!
+    schema: 'http://schema.org/',
+    bioschemas: 'http://bioschemas.org',
+    codemeta: 'http://doi.org/10.5063/schema/codemeta-2.0',
+    stencila: 'http://schema.stenci.la/',
+
+    // Define that in this context all terms derive from this vocabulary
+    // (and so do not need prefixing)
+    '@vocab': 'http://schema.stenci.la/',
+
+    // Types and properties added in alphabetical order after this e.g
+    //   "schema:AudioObject": {"@id": "schema:AudioObject"},
+    ...fromEntries(
+      [
+        ...[...Object.entries(types)].sort(),
+        ...[...Object.entries(properties)].sort()
+      ].map(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ([name, entry]: [string, any]) => [name, { '@id': entry['@id'] }]
+      )
+    )
   }
 
-  fs.ensureDirSync(path.join(__dirname, '..', '..', 'built'))
-  fs.writeJSONSync(
-    path.join(__dirname, '..', '..', 'built', 'stencila.jsonld'),
-    jsonld,
-    {
-      spaces: 2
-    }
+  await fs.writeJSON(
+    path.join(DEST_DIR, 'stencila.jsonld'),
+    { '@context': context },
+    { spaces: 2 }
+  )
+
+  await Promise.all(
+    Object.entries({ ...types, ...properties })
+      .filter(
+        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ([name, entry]) => entry['@id'].startsWith('stencila:')
+      )
+      .map(([name, entry]) =>
+        fs.writeJSON(
+          path.join(DEST_DIR, `${name}.jsonld`),
+          {
+            '@context': {
+              schema: 'http://schema.org/',
+              stencila: 'http://schema.stenci.la/'
+            },
+            ...entry
+          },
+          {
+            spaces: 2
+          }
+        )
+      )
   )
 }
 

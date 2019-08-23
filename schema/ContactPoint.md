@@ -3,7 +3,7 @@ title: Contact Point
 authors: []
 ---
 
-include: ../built/ContactPoint.schema.md
+include: ../public/ContactPoint.schema.md
 :::
 A contact point—for example, a R&D department. https&#x3A;//schema.org/ContactPoint.
 

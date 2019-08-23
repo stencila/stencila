@@ -8,7 +8,7 @@ description: |
   A schema specifying the data values that are valid within a Datatable column.
 properties:
   items:
-    '@id': stencila:items
+    '@id': schema:itemListElement
     description: An object representing the JSON Schema `items` keyword.
     type: object
   uniqueItems:

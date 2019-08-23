@@ -3,7 +3,7 @@ title: Creative Work
 authors: []
 ---
 
-include: ../built/CreativeWork.schema.md
+include: ../public/CreativeWork.schema.md
 :::
 The most generic kind of creative work, including books, movies, photographs, software programs, etc. https&#x3A;//schema.org/CreativeWork
 

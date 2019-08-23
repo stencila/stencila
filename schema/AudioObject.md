@@ -3,7 +3,7 @@ title: Audio Object
 authors: []
 ---
 
-include: ../built/AudioObject.schema.md
+include: ../public/AudioObject.schema.md
 :::
 An audio file. https&#x3A;//schema.org/AudioObject
 

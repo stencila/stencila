@@ -5,7 +5,7 @@ authors: []
 
 # Periodical
 
-include: ../built/Periodical.schema.md
+include: ../public/Periodical.schema.md
 :::
 A periodical publication.
 

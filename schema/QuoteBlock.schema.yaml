@@ -7,11 +7,13 @@ category: prose
 description: |
   A section quoted from somewhere else.
 properties:
-  citation:
-    '@id': schema:citation
-    description: The source of the quote
-    type: string
-    format: uri
+  cite:
+    '@id': stencila:cite
+    description: The source of the quote.
+    anyOf:
+      - $ref: Cite
+      - type: string
+        format: uri
   content:
     '@id': 'stencila:content'
     description: The content of the quote.

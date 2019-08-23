@@ -3,7 +3,7 @@ title: Media Object
 authors: []
 ---
 
-include: ../built/MediaObject.schema.md
+include: ../public/MediaObject.schema.md
 :::
 A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset. https&#x3A;//schema.org/MediaObject
 

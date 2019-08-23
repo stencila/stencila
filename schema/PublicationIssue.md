@@ -5,7 +5,7 @@ authors: []
 
 # Publication Issue
 
-include: ../built/PublicationIssue.schema.md
+include: ../public/PublicationIssue.schema.md
 :::
 A part of a successively published publication such as a periodical or publication volume, often numbered.
 

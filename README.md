@@ -2,11 +2,12 @@
 
 ![Status](https://img.shields.io/badge/status-draft-orange.svg)
 [![Build](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/b0e0d714-29f1-4ad1-8a7d-1af7799fb85b/deploy-status)](https://app.netlify.com/sites/stencila-schema/deploys)
 [![Code coverage](https://codecov.io/gh/stencila/schema/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/schema)
 [![NPM](http://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema)
 [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/)
 [![Community](https://img.shields.io/badge/join-community-green.svg)](https://community.stenci.la)
-[![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila) [![Greenkeeper badge](https://badges.greenkeeper.io/stencila/schema.svg)](https://greenkeeper.io/)
+[![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
 
 > :sparkles:
 > This is a **work in progress**. But comments, suggestions, and pull requests are very much appreciated

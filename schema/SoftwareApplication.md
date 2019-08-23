@@ -3,7 +3,7 @@ title: SoftwareApplication
 authors: []
 ---
 
-include: ../built/SoftwareApplication.schema.md
+include: ../public/SoftwareApplication.schema.md
 :::
 A software application.
 

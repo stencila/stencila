@@ -3,7 +3,7 @@ title: Table
 authors: []
 ---
 
-include: ../built/Table.schema.md
+include: ../public/Table.schema.md
 :::
 A table.
 

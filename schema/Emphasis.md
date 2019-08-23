@@ -3,7 +3,7 @@ title: Emphasis
 authors: []
 ---
 
-include: ../built/Emphasis.schema.md
+include: ../public/Emphasis.schema.md
 :::
 Emphasised content.
 

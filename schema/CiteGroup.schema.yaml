@@ -7,7 +7,7 @@ description: |
   A group of `Cite` nodes
 properties:
   items:
-    '@id': stencila:items
+    '@id': schema:itemListElement
     type: array
     description: One or more `Cite`s to be referenced in the same surrounding text.
     items:

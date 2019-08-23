@@ -3,7 +3,7 @@ title: Cite
 authors: []
 ---
 
-include: ../built/Cite.schema.md
+include: ../public/Cite.schema.md
 :::
 A reference to a CreativeWork that is cited in another CreativeWork.
 

@@ -3,7 +3,7 @@ title: Collection
 authors: []
 ---
 
-include: ../built/Collection.schema.md
+include: ../public/Collection.schema.md
 :::
 A created collection of CreativeWorks or other artefacts.
 

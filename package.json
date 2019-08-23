@@ -12,17 +12,17 @@
     "lint": "npx eslint 'ts/**/*.{js,ts}' --fix",
     "test": "npm run build:jsonschema && jest",
     "test:cover": "npm run build:jsonschema && jest --coverage",
-    "build": "npm run build:jsonschema && npm run build:ts && npm run build:py && npm run build:r",
+    "build": "npm run build:jsonschema && npm run build:jsonld && npm run build:ts && npm run build:py && npm run build:r",
     "build:jsonschema": "ts-node ts/schema.ts",
-    "build:jsonld": "ts-node ts/jsonld.ts",
-    "build:ts": "ts-node ts/bindings/typescript.ts && tsc && cp built/*.schema.json dist",
+    "build:jsonld": "ts-node ts/bindings/jsonld.ts",
+    "build:ts": "ts-node ts/bindings/typescript.ts && tsc && cp public/*.schema.json dist && cp public/*.jsonld dist",
     "build:py": "ts-node ts/bindings/python.ts",
     "build:r": "ts-node ts/bindings/r.ts",
     "docs": "npm run docs:readme && npm run docs:build",
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
     "docs:build": "npm run build:ts && ts-node ts/docs",
-    "docs:serve": "npx browser-sync ./built -f ./built --directory --no-ui --reload-debounce 750",
-    "clean": "rimraf dist/* built/* ts/types.ts"
+    "docs:serve": "npx browser-sync ./public -f ./public --directory --no-ui --reload-debounce 750",
+    "clean": "rimraf dist/* public/* ts/types.ts"
   },
   "repository": {
     "type": "git",
@@ -88,7 +88,7 @@
     ],
     "watchPathIgnorePatterns": [
       "__file_snapshots__",
-      "built",
+      "public",
       "dist"
     ]
   },
@@ -110,7 +110,7 @@
     }
   },
   "eslintIgnore": [
-    "built",
+    "public",
     "dist",
     "__file_snapshots__"
   ],

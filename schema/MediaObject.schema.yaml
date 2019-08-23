@@ -24,14 +24,15 @@ properties:
     '@id': schema:contentUrl
     description: |
       URL for the actual bytes of the media object, for example the image file or video file.
+    $comment: |
+      To allow for file paths, including possibly erroneous paths, niether `format` or `pattern`
+      keywords are used here, or on `embedUrl`.
     type: string
-    format: uri
   embedUrl:
     '@id': schema:embedUrl
     description: |
       URL that can be used to embed the media on a web page via a specific media player.
     type: string
-    format: uri
   format:
     # We use the name "format" for this property because it is shorter, and does not
     # clash with any other existing schema.org properties.

@@ -3,7 +3,7 @@ title: List Item
 authors: []
 ---
 
-include: ../built/ListItem.schema.md
+include: ../public/ListItem.schema.md
 :::
 A single item in a list.
 

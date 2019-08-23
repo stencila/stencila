@@ -12,10 +12,10 @@ import Schema from '../schema-interface'
 export type Schema = Schema
 
 /**
- * Read the schemas from `built/*.schema.json`.
+ * Read the schemas from `public/*.schema.json`.
  */
 export async function read(
-  glob: string = path.join(__dirname, '..', '..', 'built', '*.schema.json')
+  glob: string = path.join(__dirname, '..', '..', 'public', '*.schema.json')
 ): Promise<Schema[]> {
   // Ensure `*.schema.json` files are up to date
   await schema.build()

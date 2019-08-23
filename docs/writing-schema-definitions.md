@@ -101,25 +101,23 @@ properties:
       - lastNames
 ```
 
-## The `parser` keyword
+## The `codec` keyword
 
-A custom keyword which allow you to define allowable shorthand strings for a property or types. The value of the keyword is the name of a parser to use. Parsers always take a string but differ in the type that they produce. Several parsers are available:
+A custom keyword which allow you to define allowable shorthand strings for a property or types. The value of the keyword is the name of a codec to use. Parsers always take a string but differ in the type that they produce, for example:
 
-- `ssv`: space separated values to an array of strings
-- `csv`: comma separated values to an array of strings
-- `person`: personal name, email and url to a `Person`
+- `ssi`: decodes a space separated list of items to an array of strings
+- `csi`: decodes a comma separated list of items to an array of strings
+- `person`: decodes a personal name, email or url to a `Person`
 
-You can implement and register additional parsers. See the parser for `Person` as an example of how to do that.
-
-You can specify a parser for both types and properties. To specify a parser for a type, add the `parser` keyword at the top level e.g.
+You can specify a codec for both types and properties. To specify a codec for a type, add the `codec` keyword at the top level e.g.
 
 ```yaml
 title: Person
 ---
-parser: person
+codec: person
 ```
 
-You can specify a parser for a property using `anyOf`. For example, to allow `givenNames` to de provided as either a space separated values string or as an array of strings.
+You can specify a codec for a property using `anyOf`. For example, to allow `givenNames` to de provided as either a space separated values string or as an array of strings.
 
 ```yaml
 title: Person
@@ -129,7 +127,7 @@ properties:
   givenNames:
     ...
     anyOf:
-      - parser: ssv
+      - codec: ssi
       - type: array
         items:
           type: strings

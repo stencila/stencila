@@ -3,7 +3,7 @@ title: SoftwareSession
 authors: []
 ---
 
-include: ../built/SoftwareSession.schema.md
+include: ../public/SoftwareSession.schema.md
 :::
 Represents a runtime session with the resources and image that is required by software to execute.
 

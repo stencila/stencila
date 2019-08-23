@@ -3,7 +3,7 @@ title: Person
 authors: []
 ---
 
-include: ../built/Person.schema.md
+include: ../public/Person.schema.md
 :::
 A person (alive, dead, undead, or fictional). https&#x3A;//schema.org/Person.
 
@@ -58,7 +58,8 @@ YAML provides a more readable format for providing details about a person in pla
 ---
 title: Recherches sur les substances radioactives
 authors:
-  - prefix: Dr
+  - type: Person
+    prefix: Dr
     firstNames: Marie Skłodowska
     lastName: Curie
     suffix: PhD

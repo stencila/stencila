@@ -3,7 +3,7 @@ title: TableRow
 authors: []
 ---
 
-include: ../built/TableRow.schema.md
+include: ../public/TableRow.schema.md
 :::
 A row within a Table.
 

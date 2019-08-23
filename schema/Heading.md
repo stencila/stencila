@@ -3,7 +3,7 @@ title: Heading
 authors: []
 ---
 
-include: ../built/Heading.schema.md
+include: ../public/Heading.schema.md
 :::
 Heading
 
