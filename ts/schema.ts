@@ -47,8 +47,8 @@ export const build = async (): Promise<void> => {
 
   // Check each schema is valid
   const types: string[] = []
-  const properties: {[key: string]: string} = {}
-  const ids: {[key: string]: string} = {}
+  const properties: { [key: string]: string } = {}
+  const ids: { [key: string]: string } = {}
   const fails = schemata
     .map(schema => checkSchema(schemas, schema, types, properties, ids))
     .reduce((fails, ok) => (!ok ? fails + 1 : fails), 0)
@@ -117,8 +117,7 @@ const checkSchema = (
   }
 
   // No type with same title already
-  if (allTypes.includes(title))
-    error(`Type ${title} already exists`)
+  if (allTypes.includes(title)) error(`Type ${title} already exists`)
 
   // Is a valid schema?
   if (validateSchema(schema) !== true) {
@@ -147,9 +146,12 @@ const checkSchema = (
     if (id === undefined) error(`${title} is missing @id`)
     else {
       if (allIds[id] !== undefined && allIds[id] !== title)
-        error(`@id "${id}" is associated with more than one name "${allIds[id]}", "${title}"`)
-      else
-        allIds[id] = title
+        error(
+          `@id "${id}" is associated with more than one name "${
+            allIds[id]
+          }", "${title}"`
+        )
+      else allIds[id] = title
     }
 
     if (extends_ !== undefined) {
@@ -163,15 +165,22 @@ const checkSchema = (
       if (id === undefined) error(`${title}.${name} is missing @id`)
       else {
         if (allIds[id] !== undefined && allIds[id] !== name)
-          error(`@id "${id}" is associated with more than one name "${allIds[id]}", "${name}"`)
-        else
-          allIds[id] = name
+          error(
+            `@id "${id}" is associated with more than one name "${
+              allIds[id]
+            }", "${name}"`
+          )
+        else allIds[id] = name
       }
 
       if (allProperties[name] !== undefined) {
         if (allProperties[name] !== id)
-          error(`Property "${name}" is associated with more than one @id "${id}", "${allProperties[name]}"`)
-      } else if (id !== undefined){
+          error(
+            `Property "${name}" is associated with more than one @id "${id}", "${
+              allProperties[name]
+            }"`
+          )
+      } else if (id !== undefined) {
         allProperties[name] = id
       }
 

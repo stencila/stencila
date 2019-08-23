@@ -1,11 +1,9 @@
 /**
  * Generate `built/*.jsonld` files from `schema/*.schema.yaml` files.
  *
- * For custom types (those not defined elsewhere) generates a JSON-LD
- * file similar to those on schema.org e.g. https://schema.org/Person.jsonld
- *
- * For custom properties generates a JSON-LD file similar to
- * those on schema.org e.g. https://schema.org/sibling.jsonld
+ * For custom types and properties (those not defined in other contexts) generate a JSON-LD
+ * file similar to those on schema.org e.g. https://schema.org/Person.jsonld,
+ * https://schema.org/sibling.jsonld
  */
 
 import fs from 'fs-extra'
@@ -13,9 +11,12 @@ import path from 'path'
 // @ts-ignore
 import fromEntries from 'object.fromentries'
 import { read } from './utils'
+import { Schema } from '../..'
+
+const BUILT_DIR = path.join(__dirname, '..', '..', 'built')
 
 export const build = async (): Promise<void> => {
-  await fs.ensureDir(path.join(__dirname, '..', '..', 'built'))
+  await fs.ensureDir(BUILT_DIR)
 
   const types: { [key: string]: {} } = {}
   const properties: {
@@ -24,42 +25,35 @@ export const build = async (): Promise<void> => {
 
   const schemas = await read()
   for (const schema of schemas.values()) {
-    const {
-      '@id': typeId,
-      title,
-      properties: typeProperties
-    } = schema
+    const { '@id': typeId, title, properties: typeProperties } = schema
 
     // Skip union types, like `Node` and `BlockContent`, that do not need to
     // be represented in the `@context`.
     if (typeId === undefined || title === undefined || properties === undefined)
       continue
 
-    // Create a schema.org [`Class`](https://meta.schema.org/Class) for
-    // types defined by this schema.
     if (typeId.startsWith('stencila:')) {
-      const classs = {
+      types[title] = {
         '@id': typeId,
         '@type': 'schema:Class',
         'schema:name': title,
         'schema:description': schema.description
       }
-
+    } else {
+      types[title] = { '@id': typeId }
     }
 
-    types[title] = { '@id': typeId }
-
-    // Create a [`Property`](https://meta.schema.org/Property) for those
-    // properties that are defined by this schema, otherwise link to the property
-    // defined in the other context.
-    // TODO: Implement schema:rangeIncludes property - requires the
-    // resolving `$refs`. See https://github.com/epoberezkin/ajv/issues/125#issuecomment-408960384
-    // for an approach to that.
     if (typeProperties !== undefined) {
       for (let [name, property] of Object.entries(typeProperties)) {
         let pid = property['@id']
         // Do not add terms that are aliases with JSON-LD keywords: @id, @type etc
-        if (pid === undefined || name == 'id' || name === 'type' || name === 'value') continue
+        if (
+          pid === undefined ||
+          name === 'id' ||
+          name === 'type' ||
+          name === 'value'
+        )
+          continue
         // The `schema` property clashes with the schema.org alias. So rename it...
         if (name === 'schema') {
           name = 'scheme'
@@ -68,13 +62,13 @@ export const build = async (): Promise<void> => {
 
         if (pid.startsWith('stencila:')) {
           if (properties[name] === undefined) {
-            properties[name] = {
+            const range = (properties[name] = {
               '@id': pid,
               '@type': 'schema:Property',
               'schema:name': name,
               'schema:description': property.description,
               'schema:domainIncludes': [{ '@id': typeId }]
-            }
+            })
           } else {
             const domainIncludes = properties[name]['schema:domainIncludes']
             if (Array.isArray(domainIncludes)) {
@@ -113,21 +107,45 @@ export const build = async (): Promise<void> => {
 
     // Define that in this context all terms derive from this vocabulary
     // (and so do not need prefixing)
-    "@vocab": "http://schema.stenci.la/",
+    '@vocab': 'http://schema.stenci.la/',
 
     // Types and properties added in alphabetical order after this e.g
     //   "schema:AudioObject": {"@id": "schema:AudioObject"},
-    ...fromEntries([
-      ...[...Object.entries(types)].sort(),
-      ...[...Object.entries(properties)].sort()
-    ].map(([name, entry]: [string, any]) => {
-      return [name, { '@id': entry['@id'] }]
-    }))
+    ...fromEntries(
+      [
+        ...[...Object.entries(types)].sort(),
+        ...[...Object.entries(properties)].sort()
+      ].map(([name, entry]: [string, any]) => {
+        return [name, { '@id': entry['@id'] }]
+      })
+    )
   }
+
   await fs.writeJSON(
-    path.join(__dirname, '..', '..', 'built', 'stencila.jsonld'),
+    path.join(BUILT_DIR, 'stencila.jsonld'),
     { '@context': context },
     { spaces: 2 }
+  )
+
+  await Promise.all(
+    Object.entries({ ...types, ...properties })
+      // @ts-ignore
+      .filter(([name, entry]) => entry['@id'].startsWith('stencila:'))
+      .map(([name, entry]) =>
+        fs.writeJSON(
+          path.join(BUILT_DIR, `${name}.jsonld`),
+          {
+            '@context': {
+              schema: 'http://schema.org/',
+              stencila: 'http://schema.stenci.la/'
+            },
+            ...entry
+          },
+          {
+            spaces: 2
+          }
+        )
+      )
   )
 }
 
