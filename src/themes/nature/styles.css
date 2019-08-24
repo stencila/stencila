@@ -66,11 +66,11 @@ article > * {
 }
 
 /* Heading Overflow Styles */
-h1 {
+h1[role='title'] {
   font-weight: 400;
 }
 
-h2 {
+h1:not([role='title']) {
   position: relative; /* child absolute */
   /* negative offset = section padding */
   margin: 0 -30px;
@@ -79,7 +79,7 @@ h2 {
   background: var(--heading-color);
 }
 
-h2:before {
+h1:not([role='title']):before {
   content: '';
   position: absolute;
   /* fill vertically */
@@ -91,23 +91,23 @@ h2:before {
 }
 
 @media screen and (max-width: 719px) {
-  h2 {
+  h1:not([role='title']) {
     padding: 1.25rem 0 0.275rem;
   }
 
-  h2:before {
+  h1:not([role='title']):before {
     z-index: -1;
     right: -16px;
   }
 }
 
 p,
-h1,
+h1[role='title'],
+h1:not([role='title']),
 h2,
 h3,
 h4,
 h5,
-h6,
 ul,
 ol,
 hr,
@@ -117,33 +117,33 @@ a {
   margin-right: auto;
 }
 
-h1,
+h1[role='title'],
+h1:not([role='title']),
 h2,
 h3,
 h4,
-h5,
-h6 {
+h5 {
   line-height: 125%;
   margin-top: 2rem;
 }
 
-p + h1,
+p + h1[role='title'],
+p + h1:not([role='title']),
 p + h2,
 p + h3,
 p + h4,
-p + h5,
-p + h6 {
+p + h5 {
   margin-top: 2.25rem;
 }
 
+ol + h2,
 ol + h3,
 ol + h4,
 ol + h5,
-ol + h6,
+ul + h2,
 ul + h3,
 ul + h4,
-ul + h5,
-ul + h6 {
+ul + h5 {
   margin-top: 1.75rem;
 }
 
@@ -175,6 +175,10 @@ article > pre {
 }
 
 figure {
+  > figure {
+    border: none;
+  }
+
   img,
   pre {
     padding: 1rem;
@@ -200,9 +204,15 @@ figcaption {
     padding-left: 0;
   }
 
-  h6 {
+  h1[role='title'],
+  h1:not([role='title']),
+  h2,
+  h3,
+  h4,
+  h5 {
     font-family: var(--body-font);
     font-size: 1rem;
+    padding-left: 0;
   }
 
   *:first-child {
@@ -243,23 +253,28 @@ a:link {
   }
 }
 
-h1,
+h1[role='title'],
+h1:not([role='title']),
 h2,
 h3,
-h4,
-h5 {
+h4 {
   margin: 2.75rem auto 1rem;
   line-height: 1.25;
 }
 
-h1 {
+h1[role='title'] {
+  padding-left: 30px;
   margin-top: 0;
-  font-weight: 900;
   font-size: 1.953rem;
 }
 
-h2 {
+h1:not([role='title']) {
   font-size: 1.563rem;
+}
+
+h2 {
+  font-size: 1rem;
+  margin-bottom: 0;
 }
 
 h3 {
@@ -268,67 +283,62 @@ h3 {
 }
 
 h4 {
-  font-size: 1rem;
-  margin-bottom: 0;
-}
-
-h5 {
   font-size: 0.8rem;
   margin-bottom: 0;
 }
 
-h6,
+h5,
 small,
 .text_small {
   font-size: 0.725rem;
   margin-bottom: 0;
 }
 
-h1 + h1,
+h1[role='title'] + h1[role='title'],
 h1 + h2,
-h1 + h3,
-h1 + h4,
-h1 + h5,
-h1 + h6,
-h2 + h1,
+h1[role='title'] + h2,
+h1[role='title'] + h3,
+h1[role='title'] + h4,
+h1[role='title'] + h5,
+h1:not([role='title']) + h1[role='title'],
+h1:not([role='title']) + h1:not([role='title']),
+h1:not([role='title']) + h3,
+h1:not([role='title']) + h4,
+h1:not([role='title']) + h5,
+h2 + h1[role='title'],
+h2 + h1:not([role='title']),
 h2 + h2,
+h2 + h3,
 h2 + h4,
 h2 + h5,
-h2 + h6,
-h3 + h1,
+h3 + h1[role='title'],
+h3 + h1:not([role='title']),
 h3 + h2,
 h3 + h3,
 h3 + h4,
 h3 + h5,
-h3 + h6,
-h4 + h1,
+h4 + h1[role='title'],
+h4 + h1:not([role='title']),
 h4 + h2,
 h4 + h3,
 h4 + h4,
 h4 + h5,
-h4 + h6,
-h5 + h1,
+h5 + h1[role='title'],
+h5 + h1:not([role='title']),
 h5 + h2,
 h5 + h3,
 h5 + h4,
-h5 + h5,
-h5 + h6,
-h6 + h1,
-h6 + h2,
-h6 + h3,
-h6 + h4,
-h6 + h5,
-h6 + h6 {
+h5 + h5 {
   margin-top: 0;
 }
 
-h1:first-of-type,
+h1[role='title'],
 h1 + h2 {
   padding-top: inherit;
   margin-top: inherit;
 }
 
-h1:first-of-type {
+h1[role='title'] {
   font-weight: normal;
 }
 
@@ -340,7 +350,7 @@ h1 + h2 {
   color: #7a7a7a;
 }
 
-h2 + h3 {
+h1:not([role='title']) + h2 {
   margin-top: 1rem;
 }
 
@@ -361,32 +371,41 @@ li * {
 }
 
 table {
+  font-family: var(--secondary-font);
   text-align: left;
   border-collapse: collapse;
   font-size: 80%;
   overflow-x: auto;
+  max-width: calc(var(--max-width) - 100px);
+  margin: 0 auto;
+  border: 2px solid #d5d5d5;
+
+  figure > & {
+    max-width: 100%;
+  }
+
+  + table {
+    margin-top: 1.25rem;
+  }
 }
 
-thead {
+thead,
+tbody:first-child tr:first-child {
   font-weight: 900;
-  text-transform: uppercase;
-  font-size: 75%;
-  letter-spacing: 1px;
-  border-bottom: 2px solid #f5f5f5;
+  border-bottom: 5px solid #959595;
 }
 
-th {
+th,
+tbody:first-child tr:first-child {
   font-weight: 900;
   padding: 0.5em 1em;
   border-right: solid 1px #f1f1f2;
-}
-
-tr:nth-child(even) {
-  background-color: #f5f5f5;
+  background-color: #eeeeee;
 }
 
 td {
   border-right: solid 1px #f1f1f2;
+  border-bottom: 1px solid #d5d5d5;
   padding: 0.25em 1em;
 }
 
@@ -414,7 +433,7 @@ blockquote {
 /* Microdata-based Styles */
 :--publisher,
 :--authors,
-:--CreativeWork header h3,
+:--CreativeWork header h2,
 :--CreativeWork header ol {
   font-family: var(--secondary-font);
   font-size: 0.875rem;
@@ -451,7 +470,8 @@ blockquote {
     &::before {
       content: counter(reference-counter) '. ';
       font-size: 24px;
-      margin-right: 0.5rem;
+      margin-right: 5px;
+      margin-left: -90px;
       line-height: 1;
       display: inline-block;
       text-align: right;
@@ -460,109 +480,39 @@ blockquote {
   }
 
   :--CreativeWork {
-    margin: -2rem 0 0 90px;
-  }
-
-  /* Shared Styles */
-  ol,
-  ul {
-    padding-left: 0;
-    list-style: none;
-  }
-
-  :--CreativeWork {
-    font-size: 0.875rem;
-    line-height: 1.71429;
-    font-weight: normal;
-  }
-
-  :--authors {
-    display: inline;
-
-    :--Person {
-      display: inline-flex;
-
-      * {
-        display: inline-flex;
-      }
-
-      [itemprop='familyName'] {
-        order: 2;
-
-        &::after {
-          content: ', ';
-          white-space: pre;
-        }
-      }
-
-      [itemprop='givenName'] {
-        order: 1;
-
-        &::after {
-          content: ' ';
-          white-space: pre;
-        }
-      }
-
-      &:last-child [itemprop='familyName'] {
-        &::after {
-          content: normal;
-        }
-      }
-
-      a {
-        border-bottom: none;
-      }
-    }
-  }
-
-  :--pagination {
-    &::before {
-      content: ':';
-    }
-
-    &::after {
-      content: '.';
-    }
-  }
-
-  :--url {
-    font-size: 0.6875rem;
-    line-height: 2.18182;
-    border-bottom: none;
+    margin-left: 90px;
+    font-size: 17px;
   }
 
   :--abstracts {
+    text-align: right;
+
     li {
       display: inline;
+      padding-left: 22px;
 
       a {
         border-bottom: none;
+        font-style: normal;
+        font-family: var(--secondary-font);
+        font-weight: bold;
+        font-size: 13px;
       }
 
       &::after {
-        content: ' | ';
-      }
-
-      &:last-child::after {
         content: normal;
       }
     }
   }
 
   /* MLA Citation Styles */
-  /* :--citation-style-MLA { */
   :--CreativeWork > :--title {
     &:first-of-type {
       display: none;
     }
 
-    &::before {
-      content: '"';
-    }
-
     &::after {
-      content: '."';
+      content: '.';
     }
   }
 
@@ -572,7 +522,13 @@ blockquote {
 
   :--issueNumber + :--datePublished {
     &::before {
-      content: ' ';
+      content: ' (';
+    }
+
+    + :--pagination {
+      &::after {
+        content: '.';
+      }
     }
   }
 
@@ -580,31 +536,62 @@ blockquote {
     :--Person {
       [itemprop='familyName'] {
         order: 1;
+
+        &::after {
+          content: normal;
+        }
       }
 
       [itemprop='givenName'] {
         order: 2;
-      }
 
-      &:nth-of-type(n + 2) {
-        display: none;
-      }
-
-      &:nth-of-type(1) {
-        [itemprop='givenName']::after {
-          content: normal;
+        &::before {
+          content: ', ';
+          white-space: pre;
         }
 
         &::after {
-          content: ', et al.';
+          content: ',';
           white-space: pre;
         }
+      }
+
+      &:last-of-type {
+        [itemprop='givenName']::after {
+          content: '.';
+        }
+      }
+    }
+  }
+
+  :--datePublished {
+    + :--title {
+      display: inline;
+    }
+
+    &:last-child {
+      &::before {
+        content: ' (';
+        white-space: pre;
+      }
+
+      &::after {
+        content: ').';
+        white-space: pre;
       }
     }
   }
 
   :--PublicationIssue {
     display: inline;
+
+    + :--datePublished {
+      display: inline;
+
+      &::after {
+        content: ').';
+      }
+    }
   }
 
   :--pagination {
@@ -612,123 +599,20 @@ blockquote {
       content: ': ';
     }
 
-    + :--datePublished {
-      display: inline;
-
-      &::after {
-        content: '.';
-      }
-    }
-
     &::after {
       content: normal;
     }
   }
-  /* } */
 
-  /* APA Citation Styles */
-  :--citation-style-APA {
-    :--CreativeWork > :--title {
-      &::after {
-        content: '.';
-      }
-    }
-
-    :--authors {
-      :--Person {
-        [itemprop='familyName'] {
-          order: 1;
-
-          &::after {
-            content: ', ';
-            white-space: pre;
-          }
-        }
-
-        [itemprop='givenName'] {
-          order: 2;
-
-          &::after {
-            content: '.,';
-          }
-        }
-
-        &:last-child {
-          &::before {
-            content: '& ';
-            white-space: pre;
-          }
-
-          [itemprop='givenName'] {
-            &::after {
-              content: '. ';
-            }
-          }
-        }
-      }
-    }
-
-    :--datePublished {
-      &::after {
-        content: '.';
-      }
-    }
-
-    :--PublicationIssue {
-      display: inline;
-
-      :--title {
-        &::after {
-          content: ', ';
-          font-style: normal;
-        }
-      }
-
-      :--issueNumber {
-        &::after {
-          content: ', ';
-          font-weight: normal;
-        }
-      }
-
-      :--pagination {
-        &::before {
-          content: normal;
-        }
-      }
-    }
+  :--url {
+    display: block;
   }
-
-  /* ol,
-  ul {
-    padding-left: 0 !important;
-
-    > li {
-      display: inline;
-      padding-left: 0 !important;
-    }
-  }
-
-  ol {
-    display: inline;
-  }
-
-  li {
-    > p:not(:first-child) {
-      padding-left: 0;
-      display: inline;
-    }
-
-    > p:first-child {
-      padding-left: 0;
-    }
-  } */
 }
 
 :--authorDetails {
+  h3,
   h4,
-  h5,
-  h6 {
+  h5 {
     padding-left: 0;
   }
 }
@@ -750,10 +634,10 @@ blockquote {
 }
 
 @media screen and (min-width: 720px) {
-  h1:first-of-type,
+  h1[role='title'],
   :--publisher,
   :--authors,
-  :--CreativeWork header h3,
+  :--CreativeWork header h2,
   :--CreativeWork header ol {
     padding-left: 50px;
   }
@@ -763,9 +647,9 @@ blockquote {
   }
 
   p,
+  h2,
   h3,
   h4,
-  h5,
   ul,
   ol {
     padding-left: 50px; /* desktop+ */
@@ -773,7 +657,6 @@ blockquote {
 
   article > pre,
   pre[class*='language-'],
-  figure,
   blockquote {
     max-width: calc(var(--max-width) - 100px);
     margin: 0 auto;
@@ -786,5 +669,9 @@ blockquote {
     > p {
       padding-left: 10px;
     }
+  }
+
+  figure {
+    max-width: calc(var(--max-width) - 100px);
   }
 }

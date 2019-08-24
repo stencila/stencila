@@ -6603,6 +6603,41 @@
               )
           })
         }
+
+        const referenceListItemSel = '[itemprop="references"] > li'
+        const titleSel = '[itemprop="title"]'
+        const datePublishedSel = '[itemprop="datePublished"]'
+        const publicationIssueSel =
+          '[itemtype="https://schema.stenci.la/PublicationIssue"]'
+
+        document.querySelectorAll(referenceListItemSel).forEach(node => {
+          const datePublished = node.querySelector(datePublishedSel)
+          const title = node.querySelector(titleSel)
+          const titleCopy = title.cloneNode(true)
+
+          // Add title node after original datePublished node
+          datePublished.parentNode.insertBefore(
+            titleCopy,
+            datePublished.nextSibling
+          )
+
+          // Add datePublished node after PublicationIssue node (if exists)
+          const publicationIssue = node.querySelector(publicationIssueSel)
+          const datePublishedCopy = datePublished.cloneNode(true)
+
+          if (publicationIssue) {
+            publicationIssue.parentNode.insertBefore(
+              datePublishedCopy,
+              publicationIssue.nextSibling
+            )
+          } else {
+            // Otherwise, add node after titleCopy
+            titleCopy.parentNode.insertBefore(
+              datePublishedCopy,
+              titleCopy.nextSibling
+            )
+          }
+        })
       }
 
       document.addEventListener('DOMContentLoaded', ready)
