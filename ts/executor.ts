@@ -141,6 +141,7 @@ function parseItem(
         item.assigns = parseResult.assigns
         item.alters = parseResult.alters
         item.uses = parseResult.uses
+        item.reads = parseResult.reads
 
         if (parseResult.errors.length > 0) {
           if (item.errors === undefined) {
@@ -180,7 +181,11 @@ class CodeChunkParseResult {
 
   public uses: string[] = []
 
+  public reads: string[] = []
+
   public errors: CodeError[] = []
+
+  public functionDeclarationDepth = 0
 
   private seenIdentifiers: string[] = []
 
@@ -199,6 +204,8 @@ class CodeChunkParseResult {
   }
 
   public addImports(n: string): void {
+    if (this.functionDeclarationDepth > 0) return
+
     if (!this.imports.includes(n)) this.imports.push(n)
   }
 
@@ -207,23 +214,37 @@ class CodeChunkParseResult {
      * variable or a function. So the identifier goes in here and if it wasn't computed to be a function declaration
      * after parsing the rest of the code chunk, then set is as a variable.
      */
+    if (this.functionDeclarationDepth > 0) return
+
     if (!this.possibleVariables.includes(n)) this.possibleVariables.push(n)
   }
 
   public addDeclares(d: Variable | Function): void {
+    if (this.functionDeclarationDepth > 0) return
+
     if (!this.isNameSet(d.name)) this.declares.push(d)
   }
 
   public addAssigns(n: string): void {
+    if (this.functionDeclarationDepth > 0) return
+
     if (!this.isNameSet(n)) this.assigns.push(n)
   }
 
   public addAlters(n: string): void {
+    if (this.functionDeclarationDepth > 0) return
+
     if (!this.isNameSet(n)) this.alters.push(n)
   }
 
   public addUses(n: string): void {
+    if (this.functionDeclarationDepth > 0) return
+
     if (!this.isNameSet(n)) this.uses.push(n)
+  }
+
+  public addReads(f: string): void {
+    if (!this.reads.includes(f)) this.reads.push(f)
   }
 
   public finalize(): void {
@@ -263,6 +284,12 @@ function parseFunctionDeclaration(
   }
 
   result.addDeclares(function_(name, { parameters }))
+
+  if (fn.body !== undefined && fn.body !== null) {
+    ++result.functionDeclarationDepth
+    parseStatement(result, fn.body)
+    --result.functionDeclarationDepth
+  }
 }
 
 function parseVariableDeclaration(
@@ -314,10 +341,61 @@ function parseBinaryExpression(
   else parseStatement(result, statement.right)
 }
 
+function isFileRead(statement: CallExpression): [boolean, string | null] {
+  let calleeName: string
+  if (statement.callee.name !== undefined) {
+    calleeName = statement.callee.name
+  } else if (
+    statement.callee.type === 'MemberExpression' &&
+    statement.callee.property.type === 'Identifier'
+  ) {
+    calleeName = statement.callee.property.name
+  } else return [false, null]
+  return [
+    calleeName === 'readFileSync' ||
+      calleeName === 'readFile' ||
+      calleeName === 'open',
+    calleeName
+  ]
+}
+
+function parseFileReadExpression(
+  result: CodeChunkParseResult,
+  statement: CallExpression,
+  calleeName: string
+): void {
+  if (statement.arguments.length === 0) return
+
+  const arg = statement.arguments[0]
+
+  if (arg.type !== 'Literal' || typeof arg.value !== 'string') {
+    return
+  }
+  // file name is a string so we can determine the path without executing
+
+  if (calleeName === 'open' && statement.arguments.length >= 2) {
+    // if for some reason open() only has one arg assume it is a read. this is invalid code though.
+    const modeObj = statement.arguments[1]
+    if (modeObj.type !== 'Literal' || typeof modeObj.value !== 'string') return
+
+    const mode = modeObj.value
+
+    if (mode.indexOf('r') === -1 && mode.indexOf('+') === -1) return
+  }
+
+  result.addReads(arg.value)
+}
+
 function parseCallExpression(
   result: CodeChunkParseResult,
   statement: CallExpression
 ): void {
+  const [isRead, calleeName] = isFileRead(statement)
+
+  if (isRead) {
+    parseFileReadExpression(result, statement, calleeName as string) // typecasting as calleeName is always non-null if isRead is true
+  }
+
   statement.arguments.forEach(arg => {
     if (arg.type === 'Identifier') result.addUses(arg.name)
     else parseStatement(result, arg)
