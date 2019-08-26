@@ -11,6 +11,7 @@ from contextlib import redirect_stdout
 from io import TextIOWrapper, BytesIO
 
 import astor
+
 from stencila.schema.types import Parameter, CodeChunk, Article, Entity, CodeExpression, ConstantSchema, EnumSchema, \
     BooleanSchema, NumberSchema, IntegerSchema, StringSchema, ArraySchema, TupleSchema, ImageObject, Datatable, \
     DatatableColumn, SchemaTypes, SoftwareSourceCode, Function, Variable, CodeError
@@ -232,23 +233,30 @@ class CodeChunkParser:
         return CodeChunkParseResult(chunk_ast, self.imports, self.assigns, self.declares, self.alters, self.uses,
                                     self.reads)
 
-    def parse_statement(self, statement: typing.Union[ast.stmt, typing.List[ast.stmt]]) -> None:
+    def parse_statement(self, statement: typing.Union[
+        ast.stmt, ast.expr, typing.List[typing.Union[ast.stmt, ast.expr]]]) -> None:
         if isinstance(statement, list):
             for sub_statement in statement:
                 self.parse_statement(sub_statement)
-        elif isinstance(statement, ast.ImportFrom):
+        elif isinstance(statement, (ast.ImportFrom, ast.Import)):
             self.parse_import(statement)
         elif isinstance(statement, (ast.Assign, ast.AnnAssign)):
             self.parse_assigns(statement)
         elif isinstance(statement, ast.BinOp):
             self.parse_bin_op(statement)
+        elif isinstance(statement, ast.BoolOp):
+            self.parse_bool_op(statement)
+        elif isinstance(statement, ast.Attribute):
+            self.parse_attribute(statement)
+        elif isinstance(statement, ast.Subscript):
+            self.parse_subscript(statement)
         elif isinstance(statement, ast.Call):
             self.parse_call(statement)
         elif isinstance(statement, ast.FunctionDef):
             self.parse_function_def(statement)
         elif isinstance(statement, ast.Dict):
             self.parse_dict(statement)
-        elif isinstance(statement, ast.List):
+        elif isinstance(statement, (ast.List, ast.Tuple)):
             self.parse_statement(statement.elts)
         elif isinstance(statement, ast.Name):
             self.add_name(statement.id, self.uses)
@@ -266,22 +274,41 @@ class CodeChunkParser:
             self.parse_try(statement)
         elif isinstance(statement, ast.ExceptHandler):
             self.parse_except_handler(statement)
+        elif isinstance(statement, ast.With):
+            self.parse_with(statement)
         elif isinstance(statement, (ast.ClassDef, ast.Num, ast.Str, ast.Pass)):
             pass
         else:
             raise TypeError('Unrecognized statement: {}'.format(statement))
 
-    def parse_import(self, statement: ast.ImportFrom) -> None:
-        if statement.module not in self.imports:
-            self.imports.append(statement.module)
+    def parse_import(self, statement: typing.Union[ast.ImportFrom, ast.Import]) -> None:
+        if isinstance(statement, ast.ImportFrom):
+            modules = [statement.module]
+        else:
+            modules = [name.name for name in statement.names]
 
-    def recurse_attribute(self, attr: ast.Attribute) -> str:
-        if isinstance(attr.value, ast.Attribute):
-            return self.recurse_attribute(attr.value)
-        if isinstance(attr.value, ast.Name):
-            return attr.value.id
+        for m in modules:
+            if m not in self.imports:
+                self.imports.append(m)
 
-        raise TypeError('Unable to determine name of attribute {}'.format(attr.value))
+    def parse_reference(self, ref: typing.Optional[typing.Union[ast.stmt, ast.expr]]) -> typing.Optional[str]:
+        if ref is None:
+            return None
+
+        if isinstance(ref, ast.Name):
+            return ref.id
+
+        if isinstance(ref, ast.Attribute):
+            return self.recurse_attribute(ref)
+
+        if not isinstance(ref, ast.Subscript) and hasattr(ref, 'value'):
+            # for some reason isinstance (ref, ast.Index) doesn't work, so the hasattr check is a workaround to check
+            # for an ast.Index object
+            #if isinstance(ref.value, ast.Subscript):
+            #    self.parse_subscript(ref.value)
+            return self.parse_reference(ref.value)
+
+        #self.parse_statement(ref)
 
     def parse_assigns(self, statement: typing.Union[ast.Assign, ast.AnnAssign]) -> None:
         if hasattr(statement, 'targets'):
@@ -306,9 +333,44 @@ class CodeChunkParser:
         if getattr(statement, 'value', None) is not None:
             self.parse_statement(statement.value)
 
+    def recurse_attribute(self, ref: typing.Union[ast.stmt, ast.expr]) -> str:
+        if isinstance(ref.value, ast.Attribute):
+            return self.recurse_attribute(ref.value)
+
+        if isinstance(ref.value, ast.Name):
+            return ref.value.id
+
+        raise TypeError('Can\'t get name of {}'.format(ref))
+
+    def parse_attribute(self, statement: ast.Attribute) -> None:
+        self.add_name(self.recurse_attribute(statement), self.uses)
+
+    def parse_subscript(self, statement: ast.Subscript) -> None:
+        if isinstance(statement.slice, ast.Slice):
+            for ref_name in ('lower', 'step', 'upper'):
+                ref = getattr(statement.slice, ref_name, None)
+                name = self.parse_reference(ref)
+                if name is not None:
+                    self.add_name(name, self.uses)
+                if ref is not None:
+                    self.parse_statement(ref)
+        else:
+            self.add_name(self.parse_reference(statement.slice), self.uses)
+
+        if isinstance(statement.value, ast.Subscript):
+            self.parse_statement(statement.value)
+        else:
+            ref_name = self.parse_reference(statement.value)
+
+            if ref_name:
+                self.add_name(ref_name, self.uses)
+
     def parse_bin_op(self, statement: ast.BinOp) -> None:
         self.parse_statement(statement.left)
         self.parse_statement(statement.right)
+
+    def parse_bool_op(self, statement: ast.BoolOp) -> None:
+        self.parse_statement(statement.values)
 
     def parse_call(self, statement: ast.Call) -> None:
         if hasattr(statement, 'args'):
@@ -406,9 +468,13 @@ class CodeChunkParser:
     def parse_except_handler(self, statement: ast.ExceptHandler) -> None:
         self.parse_statement(statement.body)
 
+    def parse_with(self, statement: ast.With) -> None:
+        self.parse_statement(statement.body)
+
     def find_file_reads(self, chunk_ast: ast.Module) -> None:
         for node in ast.walk(chunk_ast):
-            if isinstance(node, ast.Call) and hasattr(node, 'func') and node.func.id == 'open':
+            if isinstance(node, ast.Call) and isinstance(getattr(node, 'func', None),
+                                                         ast.Name) and node.func.id == 'open':
                 filename = parse_open_filename(node)
 
                 if filename and filename not in self.reads:

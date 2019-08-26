@@ -15,3 +15,4 @@ py/coverage.xml
 *.out.*
 /ts/types.ts
 .Rproj.user
+py/htmlcov
