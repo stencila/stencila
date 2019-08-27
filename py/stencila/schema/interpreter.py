@@ -211,6 +211,20 @@ class CodeChunkParser:
             self.seen_vars.append(name)
             target.append(name)
 
+    def add_alters(self, name: str) -> None:
+        if name in self.alters:
+            return
+
+        if name in self.seen_vars:
+            if name not in self.uses:
+                return
+
+            self.uses.remove(name)
+            # var has been seen, but only in `uses`, a more accurate description is `alters` so move it there
+
+        self.seen_vars.append(name)
+        self.alters.append(name)
+
     def parse(self, chunk: CodeChunk) -> CodeChunkParseResult:
         self.reset()
 
@@ -249,7 +263,7 @@ class CodeChunkParser:
         elif isinstance(statement, ast.Attribute):
             self.parse_attribute(statement)
         elif isinstance(statement, ast.Subscript):
-            self.parse_subscript(statement)
+            self.parse_subscript(statement, False)
         elif isinstance(statement, ast.Call):
             self.parse_call(statement)
         elif isinstance(statement, ast.FunctionDef):
@@ -298,17 +312,10 @@ class CodeChunkParser:
         if isinstance(ref, ast.Name):
             return ref.id
 
-        if isinstance(ref, ast.Attribute):
-            return self.recurse_attribute(ref)
-
         if not isinstance(ref, ast.Subscript) and hasattr(ref, 'value'):
             # for some reason isinstance (ref, ast.Index) doesn't work, so the hasattr check is a workaround to check
             # for an ast.Index object
-            #if isinstance(ref.value, ast.Subscript):
-            #    self.parse_subscript(ref.value)
             return self.parse_reference(ref.value)
-
-        #self.parse_statement(ref)
 
     def parse_assigns(self, statement: typing.Union[ast.Assign, ast.AnnAssign]) -> None:
         if hasattr(statement, 'targets'):
@@ -320,7 +327,11 @@ class CodeChunkParser:
 
         for target in targets:
             if isinstance(target, ast.Attribute):
-                self.add_name(self.recurse_attribute(target), self.alters)
+                self.add_alters(self.recurse_attribute(target))
+                continue
+
+            if isinstance(target, ast.Subscript):
+                self.add_alters(self.parse_subscript(target, True))
                 continue
 
             if isinstance(target, ast.Name):
@@ -345,7 +356,7 @@ class CodeChunkParser:
     def parse_attribute(self, statement: ast.Attribute) -> None:
         self.add_name(self.recurse_attribute(statement), self.uses)
 
-    def parse_subscript(self, statement: ast.Subscript) -> None:
+    def parse_subscript(self, statement: ast.Subscript, in_assign: bool) -> typing.Optional[str]:
         if isinstance(statement.slice, ast.Slice):
             for ref_name in ('lower', 'step', 'upper'):
                 ref = getattr(statement.slice, ref_name, None)
@@ -355,15 +366,19 @@ class CodeChunkParser:
                 if ref is not None:
                     self.parse_statement(ref)
         else:
-            self.add_name(self.parse_reference(statement.slice), self.uses)
+            slice_name = self.parse_reference(statement.slice)
+            if slice_name is not None:
+                self.add_name(slice_name, self.uses)
 
-        if isinstance(statement.value, ast.Subscript):
-            self.parse_statement(statement.value)
+        value_ref = self.parse_reference(statement.value)
+        if value_ref is not None:
+            if not in_assign:
+                self.add_name(value_ref, self.uses)
+            return value_ref
+        elif isinstance(statement, ast.Subscript):
+            return self.parse_subscript(statement.value, in_assign)
         else:
-            ref_name = self.parse_reference(statement.value)
-
-            if ref_name:
-                self.add_name(ref_name, self.uses)
+            self.parse_statement(statement.value)
 
     def parse_bin_op(self, statement: ast.BinOp) -> None:
         self.parse_statement(statement.left)
@@ -438,9 +453,11 @@ class CodeChunkParser:
 
     def parse_aug_assign(self, statement: ast.AugAssign) -> None:
         if isinstance(statement.target, ast.Name):
-            self.add_name(statement.target.id, self.alters)
-        else:
-            self.parse_statement(statement.target)
+            self.add_alters(statement.target.id)
+        elif isinstance(statement.target, ast.Attribute):
+            self.add_alters(self.recurse_attribute(statement.target))
+        elif isinstance(statement.target, ast.Subscript):
+            self.add_alters(self.parse_subscript(statement.target, True))
 
         self.parse_statement(statement.value)
 
@@ -458,6 +475,7 @@ class CodeChunkParser:
             self.add_name(statement.target.id, self.assigns)
         self.parse_statement(statement.iter)
         self.parse_statement(statement.body)
+        self.parse_statement(statement.orelse)
 
     def parse_try(self, statement: ast.Try) -> None:
         self.parse_statement(statement.handlers)

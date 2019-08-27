@@ -1,8 +1,8 @@
 import typing
 
-from stencila.schema.interpreter import CodeChunkParser, CodeChunkParseResult
+from stencila.schema.interpreter import CodeChunkParser, CodeChunkParseResult, annotation_name_to_schema
 from stencila.schema.types import Variable, IntegerSchema, CodeChunk, Function, Parameter, SchemaTypes, StringSchema, \
-    BooleanSchema
+    BooleanSchema, NumberSchema, ArraySchema, TupleSchema
 
 ASSIGNMENT_CODE = """
 # this code assigns variables
@@ -43,6 +43,9 @@ def named_constants(t = True, f = False, n = None):
     
 def function_defaults(v = somefunc()):
     return 0
+    
+def basic():  # don't add it twice
+    return 2
 """
 
 USES_CODE = """
@@ -120,6 +123,69 @@ a[c:d]
 a[d:e:f]
 """
 
+ALTERS_CODE = """
+# this code alters properties/items on existing variables
+
+g: SomeType = SomeType()
+g.i = 10 # should not be moved to alters
+
+a.b.c = '123'
+a.d = '456'
+c['d'][3] = 456
+h[5][6] = 9
+
+d[f] = 4
+f.g = 5  # f should be moved to alters
+"""
+
+AUG_ASSIGNMENT_CODE = """
+# augmented assignment is e.g. increment/decrement (a += 1  / b -= 1)
+a += 1
+b -= func_call(c)
+d[f] += 1
+g.h -= 10
+"""
+
+CONDITIONAL_CODE = """
+# test out ifs and while
+
+if a > b:
+    c = 1
+elif d < e < f:
+    g = 2
+else:
+    h = 3
+    
+while i:
+    j = 4
+else:
+    k = 5
+"""
+
+FOR_CODE = """
+for a in range(10):
+    print("{}".format(d))
+else:
+    print(e)
+"""
+
+EXCEPT_CODE = """
+try:
+    a = 3
+except ValueError as f:
+    b = 4
+except:
+    c = 5
+else:
+    d = 6
+finally:
+    e = 7
+"""
+
+
+def parse_code(code: str) -> CodeChunkParseResult:
+    return CodeChunkParser().parse(CodeChunk(code))
+
 
 def check_result_fields_empty(result: CodeChunkParseResult, non_empty_fields: typing.List[str]) -> None:
     for name, value in result._asdict().items():
@@ -148,9 +214,7 @@ def test_variable_parsing() -> None:
      - variables that are reassigned are only recorded once
      - assignment/declarations in function definitions are not recorded
     """
-    c = CodeChunk(ASSIGNMENT_CODE)
-    ccp = CodeChunkParser()
-    parse_result = ccp.parse(c)
+    parse_result = parse_code(ASSIGNMENT_CODE)
 
     assert len(parse_result.declares) == 2
     assert type(parse_result.declares[0]) == Variable
@@ -165,9 +229,7 @@ def test_variable_parsing() -> None:
 
 
 def test_function_def_parsing():
-    c = CodeChunk(FUNCTION_CODE)
-    ccp = CodeChunkParser()
-    parse_result = ccp.parse(c)
+    parse_result = parse_code(FUNCTION_CODE)
 
     basic, standard_args, variable_args, default_args, annotated_types, named_constants, function_defaults = \
         parse_result.declares
@@ -224,9 +286,7 @@ def test_function_def_parsing():
 
 
 def test_uses_parsing():
-    c = CodeChunk(USES_CODE)
-    ccp = CodeChunkParser()
-    parse_result = ccp.parse(c)
+    parse_result = parse_code(USES_CODE)
 
     check_result_fields_empty(parse_result, ['uses'])
 
@@ -237,9 +297,7 @@ def test_uses_parsing():
 
 
 def test_parsing_error():
-    c = CodeChunk('this is invalid python++ code')
-    ccp = CodeChunkParser()
-    parse_result = ccp.parse(c)
+    parse_result = parse_code('this is invalid python++ code')
 
     assert parse_result.error.kind == 'SyntaxError'
     assert parse_result.error.message == 'invalid syntax (<unknown>, line 1)'
@@ -256,9 +314,7 @@ def test_reads_parsing():
 
 
 def test_imports_parsing():
-    c = CodeChunk(IMPORT_CODE)
-    ccp = CodeChunkParser()
-    parse_result = ccp.parse(c)
+    parse_result = parse_code(IMPORT_CODE)
 
     assert ['abc', 'foo.bar', 'rex'] == sorted(parse_result.imports)
 
@@ -266,9 +322,7 @@ def test_imports_parsing():
 
 
 def test_collections_parsing():
-    c = CodeChunk(COLLECTIONS_CODE)
-    ccp = CodeChunkParser()
-    parse_result = ccp.parse(c)
+    parse_result = parse_code(COLLECTIONS_CODE)
 
     assert [chr(c) for c in range(ord('a'), ord('z') + 1)] == sorted(parse_result.uses)
 
@@ -276,10 +330,63 @@ def test_collections_parsing():
 
 
 def test_slices_parsing():
-    c = CodeChunk(SLICES_CODE)
-    ccp = CodeChunkParser()
-    parse_result = ccp.parse(c)
+    parse_result = parse_code(SLICES_CODE)
 
     assert [chr(c) for c in range(ord('a'), ord('f') + 1)] == sorted(parse_result.uses)
 
     check_result_fields_empty(parse_result, ['uses'])
+
+
+def test_alters_parsing():
+    parse_result = parse_code(ALTERS_CODE)
+
+    assert ['a', 'c', 'd', 'f', 'h'] == sorted(parse_result.alters)
+
+    assert len(parse_result.declares) == 1
+    assert parse_result.declares[0].name == 'g'
+
+    check_result_fields_empty(parse_result, ['alters', 'declares'])
+
+
+def test_aug_assignment_parsing():
+    parse_result = parse_code(AUG_ASSIGNMENT_CODE)
+
+    assert ['a', 'b', 'd', 'g'] == sorted(parse_result.alters)
+    assert ['c', 'f'] == sorted(parse_result.uses)
+
+    check_result_fields_empty(parse_result, ['alters', 'uses'])
+
+
+def test_conditional_code_parsing():
+    parse_result = parse_code(CONDITIONAL_CODE)
+
+    assert ['a', 'b', 'd', 'e', 'f', 'i'] == sorted(parse_result.uses)
+    assert ['c', 'g', 'h', 'j', 'k'] == sorted(parse_result.assigns)
+
+    check_result_fields_empty(parse_result, ['assigns', 'uses'])
+
+
+def test_for_parsing():
+    parse_result = parse_code(FOR_CODE)
+
+    assert ['a'] == parse_result.assigns
+    assert ['d', 'e'] == sorted(parse_result.uses)
+
+    check_result_fields_empty(parse_result, ['assigns', 'uses'])
+
+
+def test_except_parsing():
+    parse_result = parse_code(EXCEPT_CODE)
+    assert ['a', 'b', 'c', 'd', 'e'] == sorted(parse_result.assigns)
+
+    check_result_fields_empty(parse_result, ['assigns', 'uses'])
+
+
+def test_annotation_parsing():
+    assert annotation_name_to_schema(None) is None
+    assert isinstance(annotation_name_to_schema('bool'), BooleanSchema)
+    assert isinstance(annotation_name_to_schema('str'), StringSchema)
+    assert isinstance(annotation_name_to_schema('int'), IntegerSchema)
+    assert isinstance(annotation_name_to_schema('float'), NumberSchema)
+    assert isinstance(annotation_name_to_schema('list'), ArraySchema)
+    assert isinstance(annotation_name_to_schema('tuple'), TupleSchema)
