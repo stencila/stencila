@@ -101,10 +101,10 @@ class StdoutBuffer(TextIOWrapper):
 
 
 class DocumentCompilationResult:
+    """Stores references to Parameters and Code that is parsed from a Document."""
+
     parameters: typing.List[Parameter] = []
     code: typing.List[ExecutableCode] = []
-    assigns: typing.List[typing.Union[Function, Variable]] = []
-    imports: typing.List[str] = []
 
 
 def annotation_name_to_schema(name: typing.Optional[str]) -> typing.Optional[SchemaTypes]:
@@ -507,8 +507,6 @@ class DocumentCompiler:
     function_depth: int = 0
 
     def compile(self, source: Article) -> DocumentCompilationResult:
-        # todo: this traverses the article twice. Make it less hard coded, maybe pass through a lookup table that maps
-        # a found type to its destination
         self.function_depth = 0
         dcr = DocumentCompilationResult()
 
