@@ -30,7 +30,7 @@ As much as possible, we use existing specifications, and avoid defining any new 
 
 ## Documentation
 
-Documentation is available at https://stencila.github.io/schema/.
+Documentation is available at https://schema.stenci.la/.
 
 ## JSON Schema definitions
 
@@ -38,7 +38,7 @@ JSON Schemas are defined in the [`schema`](schema) directory.
 
 ## JSON-LD context
 
-A JSON-LD `@context` is generated from the JSON Schema sources is available at https://stencila.github.io/schema/stencila.jsonld.
+A JSON-LD `@context` is generated from the JSON Schema sources is available at https://schema.stenci.la/stencila.jsonld.
 
 ## Typescript type definitions
 
