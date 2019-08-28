@@ -583,6 +583,8 @@ class Interpreter:
 
         duration = 0
 
+        error_occured = False
+
         for statement in parse_result.chunk_ast.body:
             capture_result = False
 
@@ -606,6 +608,7 @@ class Interpreter:
                         result = run_function(code_to_run, self.globals, _locals)
                     duration += ct.duration_ms
                 except Exception as e:
+                    error_occured = True
                     set_code_error(chunk, e)
 
             if capture_result and result is not None:
@@ -616,6 +619,9 @@ class Interpreter:
 
             if std_out_output:
                 cc_outputs.append(std_out_output.decode('utf8'))
+
+            if error_occured:
+                break  # stop executing the rest of the statements after capturing the output etc
 
         chunk.duration = duration
         chunk.outputs = cc_outputs
