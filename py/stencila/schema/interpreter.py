@@ -719,8 +719,7 @@ class ParameterParser:
 
         for param in self.parameters.values():
             if not isinstance(param.schema, ConstantSchema):
-                param_parser.add_argument('--' + param.name, dest=param.name,
-                                          required=self.get_parameter_default(param) is None)
+                param_parser.add_argument('--' + param.name, dest=param.name, required=param.required)
 
         args, _ = param_parser.parse_known_args(cli_args)
 
@@ -732,13 +731,6 @@ class ParameterParser:
                 self.parameter_values[param_name] = self.parameters[param_name].default
             else:
                 self.parameter_values[param_name] = self.deserialize_parameter(self.parameters[param_name], cli_value)
-
-    @staticmethod
-    def get_parameter_default(parameter: Parameter) -> typing.Any:
-        if isinstance(parameter.schema, ConstantSchema):
-            return parameter.schema.value or parameter.default
-
-        return parameter.default
 
     @staticmethod
     def deserialize_parameter(parameter: Parameter, value: typing.Any) -> typing.Any:
@@ -753,7 +745,7 @@ class ParameterParser:
             return value
 
         if isinstance(parameter.schema, BooleanSchema):
-            return value.lower() in ('true', 'yes', '1' 't')
+            return value.lower() in ('true', 'yes', '1', 't')
 
         if isinstance(parameter.schema, IntegerSchema):
             return int(value)
@@ -770,41 +762,53 @@ class ParameterParser:
         if isinstance(parameter.schema, TupleSchema):
             return json.loads(value)
 
+        return value
 
-def execute_document(cli_args: typing.List[str]):
+
+def read_input(input_file: str) -> Article:
+    if input_file == '-':
+        j = sys.stdin.read()
+    else:
+        with open(input_file) as i:
+            j = i.read()
+    article = from_json(j)
+    if not isinstance(article, Article):
+        raise TypeError('Decoded JSON was not an Article')
+    return article
+
+
+def write_output(output_file: str, article: Article) -> None:
+    if output_file == '-':
+        sys.stdout.write(to_json(article))
+    else:
+        with open(output_file, 'w') as o:
+            o.write(to_json(article))
+
+
+def execute_article(article: Article, parameter_flags: typing.List[str]) -> None:
+    dcr = DocumentCompiler().compile(article)
+    pp = ParameterParser(dcr.parameters)
+    pp.parse_cli_args(parameter_flags)
+    Interpreter().execute(dcr.code, pp.parameter_values)
+
+
+def execute_from_cli(cli_args: typing.List[str]):
     cli_parser = argparse.ArgumentParser()
     cli_parser.add_argument('input_file', help='File to read from or "-" to read from stdin', nargs='?', default='-')
     cli_parser.add_argument('output_file', help='File to write to or "-" to write to stdout', nargs='?', default='-')
 
     args, _ = cli_parser.parse_known_args(cli_args)
 
-    if args.input_file == '-':
-        j = sys.stdin.read()
-    else:
-        with open(args.input_file) as i:
-            j = i.read()
+    input_file = args.input_file
+    output_file = args.output_file
 
-    article = from_json(j)
+    article = read_input(input_file)
 
-    if not isinstance(article, Article):
-        raise TypeError('Decoded JSON was not an Article')
+    execute_article(article, cli_args)
 
-    compiler = DocumentCompiler()
-    dcr = compiler.compile(article)
-
-    pp = ParameterParser(dcr.parameters)
-    pp.parse_cli_args(cli_args)
-
-    i = Interpreter()
-    i.execute(dcr.code, pp.parameter_values)
-
-    if args.output_file == '-':
-        sys.stdout.write(to_json(article))
-    else:
-        with open(args.output_file, 'w') as o:
-            o.write(to_json(article))
+    write_output(output_file, article)
 
 
 if __name__ == '__main__':
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-    execute_document(sys.argv[1:])
+    execute_from_cli(sys.argv[1:])

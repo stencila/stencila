@@ -1,7 +1,8 @@
 import unittest.mock
 
-from stencila.schema.interpreter import Interpreter, CodeChunkExecution, CodeChunkParseResult, CodeChunkParser
-from stencila.schema.types import CodeExpression, CodeChunk
+from stencila.schema.interpreter import Interpreter, CodeChunkExecution, CodeChunkParseResult, CodeChunkParser, \
+    DocumentCompiler, ParameterParser, execute_article
+from stencila.schema.types import CodeExpression, CodeChunk, Article
 
 
 def execute_code_chunk(text: str) -> CodeChunk:
@@ -86,3 +87,23 @@ def test_code_chunk_exception_capture():
     assert cc1.errors[0].kind == 'NameError'
 
     assert cc2.outputs == [4, 'CodeChunk2\n']
+
+
+@unittest.mock.patch('stencila.schema.interpreter.DocumentCompiler')
+@unittest.mock.patch('stencila.schema.interpreter.ParameterParser')
+@unittest.mock.patch('stencila.schema.interpreter.Interpreter')
+def test_execute_article(mock_interpreter_class, mock_pp_class, mock_dc_class):
+    article = unittest.mock.MagicMock(spec=Article)
+    parameters = ['--flag', 'value']
+
+    parameter_parser = mock_pp_class.return_value
+    interpreter = mock_interpreter_class.return_value
+
+    compilation_result = mock_dc_class.return_value.compile.return_value
+
+    execute_article(article, parameters)
+
+    mock_dc_class.return_value.compile.assert_called_with(article)
+    mock_pp_class.assert_called_with(compilation_result.parameters)
+    parameter_parser.parse_cli_args.assert_called_with(parameters)
+    interpreter.execute.assert_called_with(compilation_result.code, parameter_parser.parameter_values)

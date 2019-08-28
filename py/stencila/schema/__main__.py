@@ -2,11 +2,11 @@ import argparse
 import logging
 from sys import argv, stderr, stdout
 
-from .interpreter import execute_document
+from .interpreter import execute_from_cli
 
 
 def cli_execute():
-    execute_document(argv[2:])
+    execute_from_cli(argv[2:])
 
 
 if __name__ == '__main__':
