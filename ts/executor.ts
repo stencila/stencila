@@ -40,11 +40,16 @@ import {
   ForStatement,
   ForInStatement,
   ForOfStatement,
-  ConditionalExpression
+  ConditionalExpression,
+  ArrayExpression,
+  ObjectExpression,
+  LogicalExpression,
+  SwitchStatement
 } from 'meriyah/dist/estree'
+import { identifier } from '@babel/types'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-main()
+if (process.env.JEST_WORKER_ID === undefined) main()
 
 interface StringDict {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -228,6 +233,14 @@ class CodeChunkParseResult {
   public addAssigns(n: string): void {
     if (this.functionDeclarationDepth > 0) return
 
+    const useIndex = this.uses.indexOf(n)
+
+    if (useIndex !== -1) {
+      this.uses.splice(useIndex, 1)
+      this.assigns.push(n)
+      return // it will already exist in the isNameSet array
+    }
+
     if (!this.isNameSet(n)) this.assigns.push(n)
   }
 
@@ -254,10 +267,26 @@ class CodeChunkParseResult {
   }
 }
 
-function recurseMemberExpression(expr: MemberExpression): string | null {
-  if (expr.object.type === 'Identifier') return expr.object.name
-  if (expr.object.type === 'MemberExpression')
+function recurseMemberExpression(
+  expr: MemberExpression,
+  result?: CodeChunkParseResult
+): string | null {
+  // pass result to store Identifiers found while recursing
+  if (result !== undefined) {
+    if (expr.property.type === 'MemberExpression') {
+      recurseMemberExpression(expr.property, result)
+    } else if (expr.property.type === 'Identifier') {
+      result.addUses(expr.property.name)
+    }
+  }
+
+  if (expr.object.type === 'Identifier') {
+    if (result !== undefined) result.addUses(expr.object.name)
+    return expr.object.name
+  }
+  if (expr.object.type === 'MemberExpression') {
     return recurseMemberExpression(expr.object)
+  }
 
   return null
 }
@@ -277,9 +306,18 @@ function parseFunctionDeclaration(
 
   if (fn.params !== undefined) {
     fn.params.forEach(p => {
-      if (p.type === 'Identifier') parameters.push(parameter(p.name))
+      if (p.type === 'Identifier')
+        parameters.push(
+          parameter(p.name, { required: true, repeats: false, extends: false })
+        )
       else if (p.type === 'RestElement' && p.argument.type === 'Identifier')
-        parameters.push(parameter(p.argument.name, { repeats: true }))
+        parameters.push(
+          parameter(p.argument.name, {
+            required: false,
+            repeats: true,
+            extends: false
+          })
+        )
     })
   }
 
@@ -322,16 +360,20 @@ function parseAssignmentExpression(
     if (name !== null) result.addAlters(name)
   }
 
-  /* an offshoot of only setting assignmentName for Identifiers only (not MemberExpressions) is that functions that
-  are declared and assigned to a property of an object won't be parsed, since their name will be like `a.b` so won't be
-  a valid function identifier
-  */
-  parseStatement(result, statement.right, assignmentName)
+  if (statement.right.type === 'Identifier') {
+    result.addUses(statement.right.name)
+  } else {
+    /* an offshoot of only setting assignmentName for Identifiers only (not MemberExpressions) is that functions that
+    are declared and assigned to a property of an object won't be parsed, since their name will be like `a.b` so won't be
+    a valid function identifier
+    */
+    parseStatement(result, statement.right, assignmentName)
+  }
 }
 
-function parseBinaryExpression(
+function parseBinaryOrLogicalExpression(
   result: CodeChunkParseResult,
-  statement: BinaryExpression
+  statement: BinaryExpression | LogicalExpression
 ): void {
   if (statement.left.type === 'Identifier') result.addUses(statement.left.name)
   else parseStatement(result, statement.left)
@@ -468,9 +510,69 @@ function parseForStatement(
   result: CodeChunkParseResult,
   statement: ForStatement | ForInStatement | ForOfStatement
 ): void {
+  if (
+    statement.type === 'ForInStatement' ||
+    statement.type === 'ForOfStatement'
+  ) {
+    if (statement.right.type === 'Identifier')
+      result.addUses(statement.right.name)
+  }
+
   // ignore statement.init, statement.test and statement.update as variables set here probably aren't intended for use
   // throughout the code. This stance can be revised if it turns out users are setting vars in for() to use later
   parseStatement(result, statement.body)
+}
+
+function parseArrayExpression(
+  result: CodeChunkParseResult,
+  statement: ArrayExpression
+): void {
+  statement.elements.forEach(el => {
+    if (el.type === 'Identifier') result.addUses(el.name)
+    else parseStatement(result, el)
+  })
+}
+
+function parseObjectExpression(
+  result: CodeChunkParseResult,
+  statement: ObjectExpression
+): void {
+  statement.properties.forEach(p => {
+    if (p.type === 'Property') {
+      if (p.key.type === 'Identifier') result.addUses(p.key.name)
+      else if (p.key.type === 'MemberExpression') {
+        recurseMemberExpression(p.key, result)
+      }
+
+      if (p.value.type === 'Identifier') result.addUses(p.value.name)
+      else if (p.value.type === 'MemberExpression') {
+        recurseMemberExpression(p.value, result)
+      }
+    }
+  })
+}
+
+function parseMemberExpression(
+  result: CodeChunkParseResult,
+  statement: MemberExpression
+): void {
+  const memberName = recurseMemberExpression(statement)
+  if (memberName !== null) result.addUses(memberName)
+}
+
+function parseSwitchStatement(
+  result: CodeChunkParseResult,
+  statement: SwitchStatement
+): void {
+  parseStatement(result, statement.discriminant)
+  statement.cases.forEach(c => {
+    if (c.test !== null) {
+      if (c.test.type === 'Identifier') {
+        result.addUses(c.test.name)
+      } else parseStatement(result, c.test)
+    }
+    c.consequent.forEach(subStatement => parseStatement(result, subStatement))
+  })
 }
 
 function parseExpression(
@@ -496,7 +598,8 @@ function parseStatement(
       parseAssignmentExpression(result, statement)
       break
     case 'BinaryExpression':
-      parseBinaryExpression(result, statement)
+    case 'LogicalExpression':
+      parseBinaryOrLogicalExpression(result, statement)
       break
     case 'FunctionDeclaration':
       parseFunctionDeclaration(result, statement)
@@ -538,11 +641,25 @@ function parseStatement(
     case 'ForOfStatement':
       parseForStatement(result, statement)
       break
+    case 'ArrayExpression':
+      parseArrayExpression(result, statement)
+      break
+    case 'ObjectExpression':
+      parseObjectExpression(result, statement)
+      break
+    case 'MemberExpression':
+      parseMemberExpression(result, statement)
+      break
+    case 'SwitchStatement':
+      parseSwitchStatement(result, statement)
+      break
     case 'EmptyStatement':
     case 'Identifier':
     case 'UnaryExpression':
     case 'Literal':
     case 'ThrowStatement':
+    case 'ReturnStatement':
+    case 'BreakStatement':
       break
     default:
       console.log(statement)
@@ -568,7 +685,7 @@ function setCodeError(
   code.errors.push(exceptionToCodeError(error))
 }
 
-function parseCodeChunk(codeChunk: CodeChunk): CodeChunkParseResult {
+export function parseCodeChunk(codeChunk: CodeChunk): CodeChunkParseResult {
   let chunkAst: Program | null = null
 
   try {
