@@ -3,14 +3,14 @@
 @import 'prismjs/plugins/line-numbers/prism-line-numbers.css';
 
 /* Custom Selectors */
-@custom-selector :--CiteGroup [itemtype='https://stencila.github.io/schema/CiteGroup'];
-@custom-selector :--Cite [itemtype='https://stencila.github.io/schema/Cite'];
+@custom-selector :--CiteGroup [itemtype='https://schema.stenci.la/CiteGroup'];
+@custom-selector :--Cite [itemtype='https://schema.stenci.la/Cite'];
 @custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
 @custom-selector :--title [itemprop='title'];
 @custom-selector :--authors [itemprop='authors'];
 @custom-selector :--Person [itemtype='https://schema.org/Person'];
 @custom-selector :--references [itemprop='references'];
-@custom-selector :--PublicationIssue [itemtype='https://stencila.github.io/schema/PublicationIssue'];
+@custom-selector :--PublicationIssue [itemtype='https://schema.stenci.la/PublicationIssue'];
 @custom-selector :--datePublished [itemprop='datePublished'];
 @custom-selector :--issueNumber [itemprop='issueNumber'];
 @custom-selector :--pagination [itemprop='pagination'];
@@ -19,7 +19,6 @@
 @custom-selector :--authorDetails [itemprop='authorDetails'];
 
 /* Citation Styles */
-@custom-selector :--citation-style-eLife [data-citation-style='eLife'];
 @custom-selector :--citation-style-MLA [data-citation-style='MLA'];
 @custom-selector :--citation-style-APA [data-citation-style='APA'];
 
@@ -130,6 +129,13 @@ html {
   }
 
   :--PublicationIssue {
+    :--title {
+      &::after {
+        content: ' ';
+        white-space: pre;
+      }
+    }
+
     + :--datePublished {
       display: none;
     }
