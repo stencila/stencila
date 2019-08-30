@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/stencila/thema/compare/v1.3.0...v1.4.0) (2019-08-30)
+
+
+### Features
+
+* **TypeScript:** Generate TS declarations & export theme names ([be71bd0](https://github.com/stencila/thema/commit/be71bd0))
+
 # [1.3.0](https://github.com/stencila/thema/compare/v1.2.0...v1.3.0) (2019-08-30)
 
 
