@@ -6655,31 +6655,21 @@
 
           <time itemprop="datePublished" datetime="2010">2010</time>
 
-          <a href="https://doi.org/10.1016/j.cell.2010.07.042" itemprop="title"
-            >Cell flow reorients the axis of planar polarity in the wing
-            epithelium of Drosophila</a
-          >
-
-          <ul
-            itemscope
-            itemtype="https://stencila.github.io/schema/PublicationIssue"
-          >
-            <em itemprop="title">Cell</em>
-            <strong itemprop="issueNumber">142</strong
+          <ul itemscope itemtype="https://schema.stenci.la/PublicationIssue">
+            <em itemprop="title">Cell</em
+            ><strong itemprop="issueNumber">142</strong
             ><span itemprop="pagination">773–786</span>
           </ul>
-
-          <time itemprop="datePublished" datetime="2010">2010</time>
 
           <a href="https://doi.org/10.1016/j.cell.2010.07.042" itemprop="url"
             >https://doi.org/10.1016/j.cell.2010.07.042</a
           >
 
           <ul itemprop="abstracts">
-            <li itemscope itemtype="https://stencila.github.io/schema/Abstract">
+            <li itemscope itemtype="https://schema.stenci.la/Abstract">
               <a href="https://www.ncbi.nlm.nih.gov/pubmed/20813263">PubMed</a>
             </li>
-            <li itemscope itemtype="https://stencila.github.io/schema/Abstract">
+            <li itemscope itemtype="https://schema.stenci.la/Abstract">
               <a
                 href="https://scholar.google.com/scholar_lookup?title=Cell+flow+reorients+the+axis+of+planar+polarity+in+the+wing+epithelium+of+Drosophila&amp;author=B+Aigouy&amp;author=R+Farhadifar&amp;author%5B2%5D=DB+Staple&amp;author%5B3%5D=A+Sagner&amp;author%5B4%5D=JC+R%C3%B6per&amp;author%5B5%5D=F+J%C3%BClicher&amp;author%5B6%5D=S+Eaton&amp;publication_year=2010&amp;journal=Cell&amp;volume=142&amp;pages=pp.+773%E2%80%93786&amp;pmid=20813263"
                 >Google Scholar</a
@@ -7585,27 +7575,6 @@
       </p>
     </article>
 
-    <script src="../themes/eLife/index.ts" async></script>
-    <script>
-      const ready = () => {
-        const themeSelect = document.querySelector('#theme-select')
-
-        if (themeSelect) {
-          themeSelect.addEventListener('change', event => {
-            const theme = event.target.value
-
-            document
-              .querySelectorAll('link[rel="stylesheet"]')
-              .forEach(node =>
-                node.id === theme
-                  ? (node.disabled = false)
-                  : (node.disabled = true)
-              )
-          })
-        }
-      }
-
-      document.addEventListener('DOMContentLoaded', ready)
-    </script>
+    <script src="../themes/eLife/index.ts" defer></script>
   </body>
 </html>
