@@ -46,7 +46,6 @@ import {
   LogicalExpression,
   SwitchStatement
 } from 'meriyah/dist/estree'
-import { identifier } from '@babel/types'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 if (process.env.JEST_WORKER_ID === undefined) main()
@@ -64,12 +63,12 @@ interface CliArgs {
   parameterValues: StringDict
 }
 
-interface CodeChunkExecution {
+export interface CodeChunkExecution {
   codeChunk: CodeChunk
   parseResult: CodeChunkParseResult
 }
 
-type ExecutableCode = CodeChunkExecution | CodeExpression
+export type ExecutableCode = CodeChunkExecution | CodeExpression
 
 /**
  * Process argv to get the source and destination for the document being executed
@@ -104,7 +103,10 @@ function getCliArgs(): CliArgs {
 /**
  * Execute each item in `code`, making each `parameter` available in the execution context scope.
  */
-function execute(code: ExecutableCode[], parameterValues: StringDict): void {
+export function execute(
+  code: ExecutableCode[],
+  parameterValues: StringDict
+): void {
   Object.entries(parameterValues).forEach(([key, value]) => {
     // Add each parameter into the global scope
     // @ts-ignore
@@ -121,7 +123,7 @@ function execute(code: ExecutableCode[], parameterValues: StringDict): void {
  * Traverse a `Node` hierarchy and push any `Parmamater` that is found onto the `paramaters` array,
  * and any executable code block onto the `code` array.
  */
-function parseItem(
+export function parseItem(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   item: any,
   parameters: Parameter[],
@@ -791,7 +793,7 @@ function decodeParameter(parameter: Parameter, value?: string): any {
   if (isA('ConstantSchema', parameter.schema)) return parameter.schema.value
 
   if (value === undefined) {
-    if (parameter.default === undefined)
+    if (parameter.required === true)
       throw new Error(
         `No value or default found for parameter ${parameter.name}`
       )
@@ -831,7 +833,7 @@ function decodeParameter(parameter: Parameter, value?: string): any {
 /**
  * Decode all the parameters read from the command line, based on the `Parameter` nodes found in the document.
  */
-function decodeParameters(
+export function decodeParameters(
   parameters: Parameter[],
   values: { [key: string]: string }
 ): StringDict {
