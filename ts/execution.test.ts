@@ -1,4 +1,4 @@
-import { execute, parseCodeChunk } from './executor'
+import { execute, parseCodeChunk } from './interpreter'
 import { codeChunk, CodeError, codeExpression } from './types'
 
 describe('Code execution', () => {

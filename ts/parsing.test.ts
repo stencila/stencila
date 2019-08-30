@@ -20,7 +20,7 @@ import {
   parseItem,
   parseCodeChunk,
   decodeParameters
-} from './executor'
+} from './interpreter'
 
 describe('Code chunk parsing', () => {
   test('it parses variable declarations', () => {
