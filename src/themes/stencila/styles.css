@@ -2,6 +2,22 @@
 @import 'prismjs/themes/prism.css';
 @import '../../common/fonts/merriweather/merriweather.css';
 
+/* Custom Selectors */
+@custom-selector :--CiteGroup [itemtype='https://schema.stenci.la/CiteGroup'];
+@custom-selector :--Cite [itemtype='https://schema.stenci.la/Cite'];
+@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
+@custom-selector :--title [itemprop='title'];
+@custom-selector :--authors [itemprop='authors'];
+@custom-selector :--Person [itemtype='https://schema.org/Person'];
+@custom-selector :--references [itemprop='references'];
+@custom-selector :--PublicationIssue [itemtype='https://schema.stenci.la/PublicationIssue'];
+@custom-selector :--datePublished [itemprop='datePublished'];
+@custom-selector :--issueNumber [itemprop='issueNumber'];
+@custom-selector :--pagination [itemprop='pagination'];
+@custom-selector :--url [itemprop='url'];
+@custom-selector :--abstracts [itemprop='abstracts'];
+@custom-selector :--authorDetails [itemprop='authorDetails'];
+
 :root {
   --max-width: 680px;
   --max-width-media: 980px;
@@ -15,7 +31,7 @@ body {
   padding: 0 1em;
   line-height: 1.65;
 
-  &:after {
+  &::after {
     position: absolute;
     content: '';
     right: 0;
@@ -37,7 +53,7 @@ article {
   flex-wrap: wrap;
   align-content: center;
 
-  & > *:not(table, figure) {
+  & > *:not(figure, table) {
     width: 100%;
   }
 }
@@ -59,21 +75,72 @@ a {
   margin-right: auto;
 }
 
-figure,
-table,
-article > pre,
-img {
-  max-width: 100%;
-  overflow: auto;
-}
-
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  line-height: 125%;
+  margin: 2.75rem auto 1rem;
+  line-height: 1.25;
+
+  & + h1,
+  & + h2,
+  & + h3,
+  & + h4,
+  & + h5,
+  & + h6 {
+    margin-top: 0;
+  }
+}
+
+h1,
+h2 {
+  border-top: 3px double #dbdbdb;
+  padding-top: 3rem;
+}
+
+h1 {
+  margin-top: 0;
+  font-weight: 900;
+  font-size: 1.953rem;
+
+  &:first-of-type,
+  & + h2 {
+    border-top: none;
+    padding-top: inherit;
+    margin-top: inherit;
+  }
+
+  & + h2 {
+    text-transform: lowercase;
+    font-variant: small-caps;
+    letter-spacing: 1px;
+    font-size: 1.2rem;
+    color: #7a7a7a;
+  }
+}
+
+h2 {
+  font-size: 1.563rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+h4 {
+  font-size: 1rem;
+}
+
+h5 {
+  font-size: 0.8rem;
+}
+
+h6,
+small,
+.text_small {
+  font-size: 0.725rem;
 }
 
 p {
@@ -110,6 +177,14 @@ p {
 
 ol,
 ul {
+  padding: 0;
+  list-style-position: inside;
+
+  & ul,
+  & ol {
+    padding-left: 1rem;
+  }
+
   & + h3,
   & + h4,
   & + h5,
@@ -118,21 +193,22 @@ ul {
   }
 }
 
-li > *:first-child {
-  margin-top: 0;
+li {
+  > *:first-child {
+    margin-top: 0;
+  }
+
+  > *:last-child:not(figure) {
+    margin-bottom: 0;
+  }
 }
 
-li > *:last-child {
-  margin-bottom: 0;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin-top: 2rem;
+figure,
+table,
+article > pre,
+img {
+  max-width: 100%;
+  overflow: auto;
 }
 
 article > pre,
@@ -140,39 +216,13 @@ article > pre[class*='language-'],
 figure {
   background-color: #fff;
   width: auto;
-  max-width: 100%;
+  max-width: var(--max-width);
   margin: 1.25rem auto;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
   border: 1px solid #dbdbdb;
+  border-radius: 4px;
   overflow-y: hidden;
   overflow-x: auto;
-  border-radius: 4px;
-}
-
-figure img,
-figure pre {
-  padding: 1rem;
-}
-
-figure img {
-  display: block;
-  margin: 0 auto;
-}
-
-figcaption {
-  font-size: 85%;
-  background-color: #f1f1f2;
-  width: 100%;
-  /* margin-top: 1rem; */
-  padding: 1.5rem 1rem;
-}
-
-figcaption *:last-child {
-  margin-bottom: 0;
-}
-
-figcaption *:first-child {
-  margin-top: 0;
 }
 
 article > pre {
@@ -181,6 +231,51 @@ article > pre {
 
 pre {
   font-size: 80%;
+}
+
+figure {
+  img,
+  pre {
+    padding: 1rem;
+  }
+
+  img {
+    display: block;
+    margin: 0 auto;
+  }
+
+  > figure {
+    box-shadow: none;
+    border: none;
+  }
+}
+
+figcaption {
+  font-size: 85%;
+  background-color: #f1f1f2;
+  width: 100%;
+  padding: 1.5rem 1rem;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: 0.725rem;
+    margin-left: 0;
+    margin-right: 0;
+    padding-top: 0;
+    border: none;
+  }
+
+  *:first-child {
+    margin-top: 0;
+  }
+
+  *:last-child {
+    margin-bottom: 0;
+  }
 }
 
 p {
@@ -199,7 +294,7 @@ a {
     font-style: italic;
   }
 
-  &:link:after {
+  &:link::after {
     display: block;
     width: 100%;
     content: '';
@@ -213,96 +308,11 @@ a {
 
   &:hover {
     color: rgba(29, 99, 243, 1);
-  }
 
-  &:hover:after {
-    background-color: rgba(29, 99, 243, 1);
-    bottom: 0;
-  }
-}
-
-h1,
-h2 {
-  border-top: 3px double #dbdbdb;
-  padding-top: 3rem;
-}
-
-h1 + h2,
-h1:first-of-type {
-  border-top: none;
-  padding-top: inherit;
-  margin-top: inherit;
-}
-
-h1 + h2 {
-  text-transform: lowercase;
-  font-variant: small-caps;
-  letter-spacing: 1px;
-  font-size: 1.2rem;
-  color: #7a7a7a;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5 {
-  margin: 2.75rem auto 1rem;
-  line-height: 1.25;
-}
-
-h1 {
-  margin-top: 0;
-  font-weight: 900;
-  font-size: 1.953rem;
-}
-
-h2 {
-  font-size: 1.563rem;
-}
-
-h3 {
-  font-size: 1.25rem;
-}
-
-h4 {
-  font-size: 1rem;
-}
-
-h5 {
-  font-size: 0.8rem;
-}
-
-h6,
-small,
-.text_small {
-  font-size: 0.725rem;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  & + h1,
-  & + h2,
-  & + h3,
-  & + h4,
-  & + h5,
-  & + h6 {
-    margin-top: 0;
-  }
-}
-
-ul,
-ol {
-  padding: 0;
-  list-style-position: inside;
-
-  & ul,
-  & ol {
-    padding-left: 1rem;
+    &::after {
+      background-color: rgba(29, 99, 243, 1);
+      bottom: 0;
+    }
   }
 }
 
@@ -313,9 +323,15 @@ table {
   margin: 1rem auto;
   min-width: var(--max-width);
   overflow-x: auto;
+  border: 2px solid #f5f5f5;
+
+  figure & {
+    margin: 0 auto;
+  }
 }
 
-thead {
+thead,
+tbody:first-child tr:first-child {
   font-weight: 900;
   text-transform: uppercase;
   font-size: 75%;
@@ -323,7 +339,8 @@ thead {
   border-bottom: 2px solid #f5f5f5;
 }
 
-th {
+th,
+tbody:first-child tr:first-child {
   font-weight: 900;
   padding: 0.5em 1em;
   border-right: solid 1px #f1f1f2;
@@ -386,5 +403,23 @@ blockquote {
   ul,
   ol {
     list-style-position: outside;
+  }
+}
+
+:--references {
+  :--CreativeWork {
+    margin-bottom: 1rem;
+
+    > :--title:first-of-type {
+      display: block;
+      font-size: 1rem;
+      line-height: 1.5;
+      font-weight: 600;
+      border-bottom: none;
+    }
+  }
+
+  :--title + :--datePublished {
+    display: none;
   }
 }

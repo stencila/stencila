@@ -5,11 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
-    <link rel="stylesheet" href="../themes/eLife/styles.css" />
+    <link id="theme1" rel="stylesheet" href="../themes/eLife/styles.css" />
+    <link
+      id="theme2"
+      rel="stylesheet"
+      disabled
+      href="../themes/nature/styles.css"
+    />
+    <link
+      id="theme3"
+      rel="stylesheet"
+      disabled
+      href="../themes/plos/styles.css"
+    />
+    <link
+      id="theme4"
+      rel="stylesheet"
+      disabled
+      href="../themes/stencila/styles.css"
+    />
   </head>
 
   <body>
     <article>
+      <label
+        >Theme
+        <select id="theme-select" name="theme-select">
+          <option value="theme1">eLife</option>
+          <option value="theme2">Nature</option>
+          <option value="theme3">PLoS</option>
+          <option value="theme4">Stencila</option>
+        </select>
+      </label>
       <p>
         <a href="https://elifesciences.org/articles/45107">
           elifesciences.org
@@ -6553,244 +6580,272 @@
         References
       </h2>
 
-      <ol>
-        <li>
-          1
-        </li>
-        <li>
-          2
-        </li>
-        <li>
-          3
-        </li>
-        <li>
-          4
-        </li>
-        <li>
-          5
-        </li>
-        <li>
-          6
-        </li>
-        <li>
-          7
-        </li>
-        <li>
-          8
-        </li>
-        <li>
-          9
-        </li>
-        <li>
-          10
-        </li>
-        <li>
-          11
-        </li>
-        <li>
-          12
-        </li>
-        <li>
-          13
-        </li>
-        <li>
-          14
-        </li>
-        <li>
-          15
-        </li>
-        <li>
-          16
-        </li>
-        <li>
-          17
-        </li>
-        <li>
-          18
-        </li>
-        <li>
-          19
-        </li>
-        <li>
-          20
-        </li>
-        <li>
-          21
-        </li>
-        <li>
-          22
-        </li>
-        <li>
-          23
-        </li>
-        <li>
-          24
-        </li>
-        <li>
-          25
-        </li>
-        <li>
-          26
-        </li>
-        <li>
-          27
-        </li>
-        <li>
-          28
-        </li>
-        <li>
-          29
-        </li>
-        <li>
-          30
-        </li>
-        <li>
-          31
-        </li>
-        <li>
-          32
-        </li>
-        <li>
-          33
-        </li>
-        <li>
-          34
-        </li>
-        <li>
-          35
-        </li>
-        <li>
-          36
+      <ol itemprop="references">
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          <a href="https://doi.org/10.1016/j.cell.2010.07.042" itemprop="title"
+            >Cell flow reorients the axis of planar polarity in the wing
+            epithelium of Drosophila</a
+          >
 
-          <p>
-            A mutational analysis of
-            <em>
-              dishevelled
-            </em>
-            in
-            <em>
-              Drosophila
-            </em>
-            defines novel domains in the dishevelled protein as well as novel
-            suppressing alleles of
-            <em>
-              axin
-            </em>
-          </p>
-          <ol>
-            <li>
-              <a
-                href="https://scholar.google.com/scholar?q=%22author:A+Penton%22"
+          <ol itemprop="authors">
+            <li itemscope itemtype="https://schema.org/Person">
+              <span
+                ><a
+                  href="https://scholar.google.com/scholar?q=%22author:B+Aigouy%22"
+                  ><span itemprop="familyName">Aigouy</span
+                  ><span itemprop="givenName">B</span></a
+                ></span
               >
-                A Penton
-              </a>
             </li>
-            <li>
-              <a
-                href="https://scholar.google.com/scholar?q=%22author:A+Wodarz%22"
+            <li itemscope itemtype="https://schema.org/Person">
+              <span
+                ><a
+                  href="https://scholar.google.com/scholar?q=%22author:R+Farhadifar%22"
+                  ><span itemprop="familyName">Farhadifar</span
+                  ><span itemprop="givenName">R</span></a
+                ></span
               >
-                A Wodarz
-              </a>
             </li>
-            <li>
-              <a
-                href="https://scholar.google.com/scholar?q=%22author:R+Nusse%22"
+            <li itemscope itemtype="https://schema.org/Person">
+              <span
+                ><a
+                  href="https://scholar.google.com/scholar?q=%22author:DB+Staple%22"
+                  ><span itemprop="familyName">Staple</span
+                  ><span itemprop="givenName">DB</span></a
+                ></span
               >
-                R Nusse
-              </a>
+            </li>
+            <li itemscope itemtype="https://schema.org/Person">
+              <span
+                ><a
+                  href="https://scholar.google.com/scholar?q=%22author:A+Sagner%22"
+                  ><span itemprop="familyName">Sagner</span
+                  ><span itemprop="givenName">A</span></a
+                ></span
+              >
+            </li>
+            <li itemscope itemtype="https://schema.org/Person">
+              <span
+                ><a
+                  href="https://scholar.google.com/scholar?q=%22author:JC+R%C3%B6per%22"
+                  ><span itemprop="familyName">Röper</span
+                  ><span itemprop="givenName">JC</span></a
+                ></span
+              >
+            </li>
+            <li itemscope itemtype="https://schema.org/Person">
+              <span
+                ><a
+                  href="https://scholar.google.com/scholar?q=%22author:F+J%C3%BClicher%22"
+                  ><span itemprop="familyName">Jülicher</span
+                  ><span itemprop="givenName">F</span></a
+                ></span
+              >
+            </li>
+            <li itemscope itemtype="https://schema.org/Person">
+              <span
+                ><a
+                  href="https://scholar.google.com/scholar?q=%22author:S+Eaton%22"
+                  ><span itemprop="familyName">Eaton</span
+                  ><span itemprop="givenName">S</span></a
+                ></span
+              >
             </li>
           </ol>
-          <p>
-            (2002)
-          </p>
-          <p>
-            <em>
-              Genetics
-            </em>
-            <strong>
-              161
-            </strong>
-            :747–762.
-          </p>
-          <ul>
-            <li>
-              <a href="https://www.ncbi.nlm.nih.gov/pubmed/12072470">
-                PubMed
-              </a>
+
+          <time itemprop="datePublished" datetime="2010">2010</time>
+
+          <ul itemscope itemtype="https://schema.stenci.la/PublicationIssue">
+            <em itemprop="title">Cell</em
+            ><strong itemprop="issueNumber">142</strong
+            ><span itemprop="pagination">773–786</span>
+          </ul>
+
+          <a href="https://doi.org/10.1016/j.cell.2010.07.042" itemprop="url"
+            >https://doi.org/10.1016/j.cell.2010.07.042</a
+          >
+
+          <ul itemprop="abstracts">
+            <li itemscope itemtype="https://schema.stenci.la/Abstract">
+              <a href="https://www.ncbi.nlm.nih.gov/pubmed/20813263">PubMed</a>
             </li>
-            <li>
+            <li itemscope itemtype="https://schema.stenci.la/Abstract">
               <a
-                href="https://scholar.google.com/scholar_lookup?title=A+mutational+analysis+of+dishevelled+in+Drosophila+defines+novel+domains+in+the+dishevelled+protein+as+well+as+novel+suppressing+alleles+of+axin&amp;author=A+Penton&amp;author=A+Wodarz&amp;author%5B2%5D=R+Nusse&amp;publication_year=2002&amp;journal=Genetics&amp;volume=161&amp;pages=pp.+747%E2%80%93762&amp;pmid=12072470"
+                href="https://scholar.google.com/scholar_lookup?title=Cell+flow+reorients+the+axis+of+planar+polarity+in+the+wing+epithelium+of+Drosophila&amp;author=B+Aigouy&amp;author=R+Farhadifar&amp;author%5B2%5D=DB+Staple&amp;author%5B3%5D=A+Sagner&amp;author%5B4%5D=JC+R%C3%B6per&amp;author%5B5%5D=F+J%C3%BClicher&amp;author%5B6%5D=S+Eaton&amp;publication_year=2010&amp;journal=Cell&amp;volume=142&amp;pages=pp.+773%E2%80%93786&amp;pmid=20813263"
+                >Google Scholar</a
               >
-                Google Scholar
-              </a>
             </li>
           </ul>
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          2
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          3
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          4
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          5
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          6
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          7
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          8
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          9
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          10
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          11
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          12
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          13
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          14
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          15
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          16
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          17
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          18
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          19
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          20
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          21
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          22
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          23
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          24
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          25
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          26
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          27
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          28
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          29
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          30
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          31
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          32
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          33
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          34
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          35
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
+          36
+        </li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           37
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           38
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           39
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           40
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           41
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           42
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           43
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           44
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           45
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           46
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           47
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           48
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           49
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           50
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           51
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           52
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           53
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           54
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           55
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           56
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           57
         </li>
-        <li>
+        <li itemscope itemtype="https://schema.org/CreativeWork">
           58
         </li>
       </ol>
@@ -7374,7 +7429,7 @@
       <h3>
         Author details
       </h3>
-      <ol>
+      <ol itemprop="authorDetails">
         <li>
           <p></p>
           <h4>
@@ -7520,6 +7575,6 @@
       </p>
     </article>
 
-    <script src="../themes/eLife/index.ts" async></script>
+    <script src="../themes/eLife/index.ts" defer></script>
   </body>
 </html>
