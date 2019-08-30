@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/stencila/thema/compare/v1.4.0...v1.4.1) (2019-08-30)
+
+
+### Bug Fixes
+
+* **TypeScript:** Fix getTheme function logic ([39652d6](https://github.com/stencila/thema/commit/39652d6))
+
 # [1.4.0](https://github.com/stencila/thema/compare/v1.3.0...v1.4.0) (2019-08-30)
 
 
