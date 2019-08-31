@@ -265,22 +265,22 @@ describe('Parsing information from an Article', () => {
       {
         type: 'CodeChunk',
         text: "def a():\n    return 'I am python!'",
-        language: 'notjavascript'
+        programmingLanguage: 'notjavascript'
       },
       {
         type: 'CodeChunk',
         text: chunk1Text,
-        language: 'javascript'
+        programmingLanguage: 'javascript'
       },
       {
         type: 'CodeChunk',
         text: chunk2Text,
-        language: 'javascript'
+        programmingLanguage: 'javascript'
       },
       {
         type: 'CodeChunk',
         text: chunk3Text,
-        language: 'javascript',
+        programmingLanguage: 'javascript',
         declares: [
           {
             type: 'Function',
@@ -298,17 +298,17 @@ describe('Parsing information from an Article', () => {
       {
         type: 'CodeExpression',
         text: 'invalid code',
-        language: 'notjavascript'
+        programmingLanguage: 'notjavascript'
       },
       {
         type: 'CodeExpression',
         text: expr1Text,
-        language: 'javascript'
+        programmingLanguage: 'javascript'
       },
       {
         type: 'CodeExpression',
         text: expr2Text,
-        language: 'javascript'
+        programmingLanguage: 'javascript'
       }
     ]
   }
@@ -327,18 +327,22 @@ describe('Parsing information from an Article', () => {
     expect((code[3] as CodeExpression).text).toEqual(expr1Text)
     expect((code[4] as CodeExpression).text).toEqual(expr2Text)
 
-    expect((code[0] as CodeChunkExecution).codeChunk.language).toEqual(
-      'javascript'
-    )
-    expect((code[1] as CodeChunkExecution).codeChunk.language).toEqual(
-      'javascript'
-    )
-    expect((code[2] as CodeChunkExecution).codeChunk.language).toEqual(
-      'javascript'
-    )
+    expect(
+      (code[0] as CodeChunkExecution).codeChunk.programmingLanguage
+    ).toEqual('javascript')
+    expect(
+      (code[1] as CodeChunkExecution).codeChunk.programmingLanguage
+    ).toEqual('javascript')
+    expect(
+      (code[2] as CodeChunkExecution).codeChunk.programmingLanguage
+    ).toEqual('javascript')
 
-    expect((code[3] as CodeExpression).language).toEqual('javascript')
-    expect((code[4] as CodeExpression).language).toEqual('javascript')
+    expect((code[3] as CodeExpression).programmingLanguage).toEqual(
+      'javascript'
+    )
+    expect((code[4] as CodeExpression).programmingLanguage).toEqual(
+      'javascript'
+    )
   })
 
   test('it only parses Parameters that are not inside a Function', () => {
@@ -353,7 +357,7 @@ describe('Parsing information from an Article', () => {
     const c = codeChunk(
       "import { export1 } from 'module-name3'\nimport { export2 } from 'module-name4'",
       {
-        language: 'javascript',
+        programmingLanguage: 'javascript',
         imports: ['module-name1', 'module-name2', 'module-name3']
       }
     )
@@ -369,7 +373,10 @@ describe('Parsing information from an Article', () => {
   test("it doesn't add imports it finds to existing CodeChunk imports if the empty string semaphore is present", () => {
     const c = codeChunk(
       "import { export1 } from 'module-name3'\nimport { export2 } from 'module-name4'",
-      { language: 'javascript', imports: ['module-name1', 'module-name2', ''] }
+      {
+        programmingLanguage: 'javascript',
+        imports: ['module-name1', 'module-name2', '']
+      }
     )
     parseItem(c, [], [])
 

@@ -7,7 +7,7 @@ category: data
 description: A schema specifying constraints on an array node.
 properties:
   items:
-    '@id': stencila:items
+    '@id': schema:itemListElement
     description: Another data schema node specifying the constraints on all items in the array.
     allOf:
       - $ref: SchemaTypes

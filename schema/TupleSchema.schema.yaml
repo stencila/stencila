@@ -7,7 +7,7 @@ category: data
 description: A schema specifying constraints on an array of heterogeneous items.
 properties:
   items:
-    '@id': stencila:items
+    '@id': schema:itemListElement
     description: An array of schemas specifying the constraints on each successive item in the array.
     type: array
     items:

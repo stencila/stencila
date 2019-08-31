@@ -27,7 +27,7 @@ properties:
       A number is valid against the schema only if it has a value greater
       than (not equal to) `exclusiveMinimum`.
   maximum:
-    '@id': stencila:exclusiveMaximum
+    '@id': stencila:maximum
     type: number
     description: The inclusive upper limit for a numeric node.
     $comment: |

@@ -9,9 +9,9 @@ ECitationMode = Enum("CitationMode", ["normal", "suppressAuthor"])
 
 EItemListOrder = Enum("ItemListOrder", ["ascending", "descending", "unordered"])
 
-ETableCellKind = Enum("TableCellKind", ["data", "header"])
+ECellType = Enum("CellType", ["data", "header"])
 
-ETableRowKind = Enum("TableRowKind", ["header", "footer"])
+ERowType = Enum("RowType", ["header", "footer"])
 
 
 class Entity:
@@ -89,6 +89,7 @@ class Cite(Entity):
 
     target: str
     citationMode: Optional["ECitationMode"] = None
+    content: Optional[Array["InlineContent"]] = None
     pageEnd: Optional[Union[str, int]] = None
     pageStart: Optional[Union[str, int]] = None
     pagination: Optional[str] = None
@@ -99,6 +100,7 @@ class Cite(Entity):
         self,
         target: str,
         citationMode: Optional["ECitationMode"] = None,
+        content: Optional[Array["InlineContent"]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         pageEnd: Optional[Union[str, int]] = None,
@@ -115,6 +117,8 @@ class Cite(Entity):
             self.target = target
         if citationMode is not None:
             self.citationMode = citationMode
+        if content is not None:
+            self.content = content
         if pageEnd is not None:
             self.pageEnd = pageEnd
         if pageStart is not None:
@@ -150,14 +154,14 @@ class Code(Entity):
     """Inline code."""
 
     text: str
-    language: Optional[str] = None
+    programmingLanguage: Optional[str] = None
 
     def __init__(
         self,
         text: str,
         id: Optional[str] = None,
-        language: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        meta: Optional[Dict[str, Any]] = None,
+        programmingLanguage: Optional[str] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -165,8 +169,8 @@ class Code(Entity):
         )
         if text is not None:
             self.text = text
-        if language is not None:
-            self.language = language
+        if programmingLanguage is not None:
+            self.programmingLanguage = programmingLanguage
 
 
 class CodeBlock(Code):
@@ -176,14 +180,14 @@ class CodeBlock(Code):
         self,
         text: str,
         id: Optional[str] = None,
-        language: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        meta: Optional[Dict[str, Any]] = None,
+        programmingLanguage: Optional[str] = None
     ) -> None:
         super().__init__(
             text=text,
             id=id,
-            language=language,
-            meta=meta
+            meta=meta,
+            programmingLanguage=programmingLanguage
         )
 
 
@@ -211,17 +215,17 @@ class CodeChunk(CodeBlock):
         errors: Optional[Array["CodeError"]] = None,
         id: Optional[str] = None,
         imports: Optional[Array[Union[str, "SoftwareSourceCode", "SoftwareApplication"]]] = None,
-        language: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         outputs: Optional[Array["Node"]] = None,
+        programmingLanguage: Optional[str] = None,
         reads: Optional[Array[str]] = None,
         uses: Optional[Array[Union[str, "Variable"]]] = None
     ) -> None:
         super().__init__(
             text=text,
             id=id,
-            language=language,
-            meta=meta
+            meta=meta,
+            programmingLanguage=programmingLanguage
         )
         if alters is not None:
             self.alters = alters
@@ -250,14 +254,14 @@ class CodeFragment(Code):
         self,
         text: str,
         id: Optional[str] = None,
-        language: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
+        meta: Optional[Dict[str, Any]] = None,
+        programmingLanguage: Optional[str] = None
     ) -> None:
         super().__init__(
             text=text,
             id=id,
-            language=language,
-            meta=meta
+            meta=meta,
+            programmingLanguage=programmingLanguage
         )
 
 
@@ -273,15 +277,15 @@ class CodeExpression(CodeFragment):
         text: str,
         errors: Optional[Array["CodeError"]] = None,
         id: Optional[str] = None,
-        language: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        output: Optional["Node"] = None
+        output: Optional["Node"] = None,
+        programmingLanguage: Optional[str] = None
     ) -> None:
         super().__init__(
             text=text,
             id=id,
-            language=language,
-            meta=meta
+            meta=meta,
+            programmingLanguage=programmingLanguage
         )
         if errors is not None:
             self.errors = errors
@@ -326,6 +330,25 @@ class ConstantSchema(Entity):
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         value: Optional["Node"] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if value is not None:
+            self.value = value
+
+
+class Date(Entity):
+    """A date encoded as a ISO 8601 string."""
+
+    value: str
+
+    def __init__(
+        self,
+        value: str,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -460,11 +483,11 @@ class Brand(Thing):
 
 
 class ContactPoint(Thing):
-    """A contact point—for example, a R&D department."""
+    """A contact point, for example, a R&D department."""
 
     availableLanguages: Optional[Array[str]] = None
     emails: Optional[Array[str]] = None
-    telephone: Optional[str] = None
+    telephoneNumbers: Optional[Array[str]] = None
 
     def __init__(
         self,
@@ -475,7 +498,7 @@ class ContactPoint(Thing):
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        telephone: Optional[str] = None,
+        telephoneNumbers: Optional[Array[str]] = None,
         url: Optional[str] = None
     ) -> None:
         super().__init__(
@@ -490,8 +513,8 @@ class ContactPoint(Thing):
             self.availableLanguages = availableLanguages
         if emails is not None:
             self.emails = emails
-        if telephone is not None:
-            self.telephone = telephone
+        if telephoneNumbers is not None:
+            self.telephoneNumbers = telephoneNumbers
 
 
 class CreativeWork(Thing):
@@ -502,12 +525,13 @@ class CreativeWork(Thing):
 
     authors: Optional[Array[Union["Person", "Organization"]]] = None
     content: Optional[Array["Node"]] = None
-    dateCreated: Optional[str] = None
-    dateModified: Optional[str] = None
-    datePublished: Optional[str] = None
+    dateCreated: Optional[Union["Date", str]] = None
+    dateModified: Optional[Union["Date", str]] = None
+    datePublished: Optional[Union["Date", str]] = None
     editors: Optional[Array["Person"]] = None
     funders: Optional[Array[Union["Person", "Organization"]]] = None
     isPartOf: Optional["CreativeWorkTypes"] = None
+    keywords: Optional[Array[str]] = None
     licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None
     parts: Optional[Array["CreativeWorkTypes"]] = None
     publisher: Optional[Union["Person", "Organization"]] = None
@@ -521,14 +545,15 @@ class CreativeWork(Thing):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -564,6 +589,8 @@ class CreativeWork(Thing):
             self.funders = funders
         if isPartOf is not None:
             self.isPartOf = isPartOf
+        if keywords is not None:
+            self.keywords = keywords
         if licenses is not None:
             self.licenses = licenses
         if parts is not None:
@@ -593,15 +620,16 @@ class Article(CreativeWork):
         title: str,
         alternateNames: Optional[Array[str]] = None,
         content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         environment: Optional["Environment"] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -625,6 +653,7 @@ class Article(CreativeWork):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -654,14 +683,15 @@ class Collection(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -685,6 +715,7 @@ class Collection(CreativeWork):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -710,14 +741,15 @@ class Datatable(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -741,6 +773,7 @@ class Datatable(CreativeWork):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -776,9 +809,9 @@ class MediaObject(CreativeWork):
         bitrate: Optional[float] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
@@ -786,6 +819,7 @@ class MediaObject(CreativeWork):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -809,6 +843,7 @@ class MediaObject(CreativeWork):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -847,9 +882,9 @@ class AudioObject(MediaObject):
         caption: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
@@ -857,6 +892,7 @@ class AudioObject(MediaObject):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -886,6 +922,7 @@ class AudioObject(MediaObject):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -963,7 +1000,6 @@ class Environment(Thing):
     adds: Optional[Array["SoftwareSourceCode"]] = None
     extends: Optional[Array["Environment"]] = None
     removes: Optional[Array["SoftwareSourceCode"]] = None
-    source: Optional[str] = None
 
     def __init__(
         self,
@@ -975,7 +1011,6 @@ class Environment(Thing):
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         removes: Optional[Array["SoftwareSourceCode"]] = None,
-        source: Optional[str] = None,
         url: Optional[str] = None
     ) -> None:
         super().__init__(
@@ -994,8 +1029,6 @@ class Environment(Thing):
             self.extends = extends
         if removes is not None:
             self.removes = removes
-        if source is not None:
-            self.source = source
 
 
 class Figure(CreativeWork):
@@ -1013,14 +1046,15 @@ class Figure(CreativeWork):
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         caption: Optional[Array["Node"]] = None,
         content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         label: Optional[str] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -1045,6 +1079,7 @@ class Figure(CreativeWork):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -1130,9 +1165,9 @@ class ImageObject(MediaObject):
         caption: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
@@ -1140,6 +1175,7 @@ class ImageObject(MediaObject):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -1169,6 +1205,7 @@ class ImageObject(MediaObject):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -1538,8 +1575,8 @@ class Parameter(Variable):
 class Periodical(CreativeWork):
     """A periodical publication."""
 
-    dateEnd: Optional[str] = None
-    dateStart: Optional[str] = None
+    dateEnd: Optional[Union["Date", str]] = None
+    dateStart: Optional[Union["Date", str]] = None
     issn: Optional[Array[str]] = None
 
     def __init__(
@@ -1547,17 +1584,18 @@ class Periodical(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateEnd: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
-        dateStart: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateEnd: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
+        dateStart: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         issn: Optional[Array[str]] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -1581,6 +1619,7 @@ class Periodical(CreativeWork):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -1673,14 +1712,14 @@ class Product(Thing):
     an episode of a TV show streamed online.
     """
 
-    brand: Optional["Brand"] = None
+    brands: Optional[Array["Brand"]] = None
     logo: Optional[Union[str, "ImageObject"]] = None
     productID: Optional[str] = None
 
     def __init__(
         self,
         alternateNames: Optional[Array[str]] = None,
-        brand: Optional["Brand"] = None,
+        brands: Optional[Array["Brand"]] = None,
         description: Optional[str] = None,
         id: Optional[str] = None,
         logo: Optional[Union[str, "ImageObject"]] = None,
@@ -1697,8 +1736,8 @@ class Product(Thing):
             name=name,
             url=url
         )
-        if brand is not None:
-            self.brand = brand
+        if brands is not None:
+            self.brands = brands
         if logo is not None:
             self.logo = logo
         if productID is not None:
@@ -1708,7 +1747,7 @@ class Product(Thing):
 class PublicationIssue(CreativeWork):
     """
     A part of a successively published publication such as a periodical or
-    publication  volume, often numbered.
+    publication volume, often numbered.
     """
 
     issueNumber: Optional[Union[str, int]] = None
@@ -1721,15 +1760,16 @@ class PublicationIssue(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         issueNumber: Optional[Union[str, int]] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -1756,6 +1796,7 @@ class PublicationIssue(CreativeWork):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -1793,14 +1834,15 @@ class PublicationVolume(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -1828,6 +1870,7 @@ class PublicationVolume(CreativeWork):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -1852,12 +1895,12 @@ class PublicationVolume(CreativeWork):
 class Quote(Mark):
     """Inline, quoted content."""
 
-    citation: Optional[str] = None
+    cite: Optional[Union["Cite", str]] = None
 
     def __init__(
         self,
         content: Array["InlineContent"],
-        citation: Optional[str] = None,
+        cite: Optional[Union["Cite", str]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
@@ -1866,20 +1909,20 @@ class Quote(Mark):
             id=id,
             meta=meta
         )
-        if citation is not None:
-            self.citation = citation
+        if cite is not None:
+            self.cite = cite
 
 
 class QuoteBlock(Entity):
     """A section quoted from somewhere else."""
 
     content: Array["BlockContent"]
-    citation: Optional[str] = None
+    cite: Optional[Union["Cite", str]] = None
 
     def __init__(
         self,
         content: Array["BlockContent"],
-        citation: Optional[str] = None,
+        cite: Optional[Union["Cite", str]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
@@ -1889,8 +1932,8 @@ class QuoteBlock(Entity):
         )
         if content is not None:
             self.content = content
-        if citation is not None:
-            self.citation = citation
+        if cite is not None:
+            self.cite = cite
 
 
 class ResourceParameters(Thing):
@@ -1938,14 +1981,15 @@ class SoftwareApplication(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -1971,6 +2015,7 @@ class SoftwareApplication(CreativeWork):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -2051,14 +2096,15 @@ class SoftwareSourceCode(CreativeWork):
         codeRepository: Optional[str] = None,
         codeSampleType: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -2087,6 +2133,7 @@ class SoftwareSourceCode(CreativeWork):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -2203,14 +2250,15 @@ class Table(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -2234,6 +2282,7 @@ class Table(CreativeWork):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,
@@ -2253,17 +2302,17 @@ class TableCell(Entity):
     """A cell within a `Table`."""
 
     content: Array["InlineContent"]
+    cellType: Optional["ECellType"] = None
     colspan: Optional[int] = None
-    kind: Optional["ETableCellKind"] = None
     name: Optional[str] = None
     rowspan: Optional[int] = None
 
     def __init__(
         self,
         content: Array["InlineContent"],
+        cellType: Optional["ECellType"] = None,
         colspan: Optional[int] = None,
         id: Optional[str] = None,
-        kind: Optional["ETableCellKind"] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         rowspan: Optional[int] = None
@@ -2274,10 +2323,10 @@ class TableCell(Entity):
         )
         if content is not None:
             self.content = content
+        if cellType is not None:
+            self.cellType = cellType
         if colspan is not None:
             self.colspan = colspan
-        if kind is not None:
-            self.kind = kind
         if name is not None:
             self.name = name
         if rowspan is not None:
@@ -2288,14 +2337,14 @@ class TableRow(Entity):
     """A row within a Table."""
 
     cells: Array["TableCell"]
-    kind: Optional["ETableRowKind"] = None
+    rowType: Optional["ERowType"] = None
 
     def __init__(
         self,
         cells: Array["TableCell"],
         id: Optional[str] = None,
-        kind: Optional["ETableRowKind"] = None,
-        meta: Optional[Dict[str, Any]] = None
+        meta: Optional[Dict[str, Any]] = None,
+        rowType: Optional["ERowType"] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -2303,8 +2352,8 @@ class TableRow(Entity):
         )
         if cells is not None:
             self.cells = cells
-        if kind is not None:
-            self.kind = kind
+        if rowType is not None:
+            self.rowType = rowType
 
 
 class ThematicBreak(Entity):
@@ -2360,9 +2409,9 @@ class VideoObject(MediaObject):
         caption: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
-        dateCreated: Optional[str] = None,
-        dateModified: Optional[str] = None,
-        datePublished: Optional[str] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
         description: Optional[str] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
@@ -2370,6 +2419,7 @@ class VideoObject(MediaObject):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -2400,6 +2450,7 @@ class VideoObject(MediaObject):
             funders=funders,
             id=id,
             isPartOf=isPartOf,
+            keywords=keywords,
             licenses=licenses,
             meta=meta,
             name=name,

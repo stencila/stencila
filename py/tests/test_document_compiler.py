@@ -35,22 +35,22 @@ def test_compile_article():
             {
                 'type': 'CodeChunk',
                 'text': 'let a = \'I am JavaScript!\'',
-                'language': 'notpython'
+                'programmingLanguage': 'notpython'
             },
             {
                 'type': 'CodeChunk',
                 'text': chunk_1_text,
-                'language': 'python'
+                'programmingLanguage': 'python'
             },
             {
                 'type': 'CodeChunk',
                 'text': chunk_2_text,
-                'language': 'python'
+                'programmingLanguage': 'python'
             },
             {
                 'type': 'CodeChunk',
                 'text': chunk_3_text,
-                'language': 'python',
+                'programmingLanguage': 'python',
                 'declares': [
                     {
                         'type': 'Function',
@@ -68,17 +68,17 @@ def test_compile_article():
             {
                 'type': 'CodeExpression',
                 'text': 'invalid code',
-                'language': 'notpython'
+                'programmingLanguage': 'notpython'
             },
             {
                 'type': 'CodeExpression',
                 'text': expr_1_text,
-                'language': 'python'
+                'programmingLanguage': 'python'
             },
             {
                 'type': 'CodeExpression',
                 'text': expr_2_text,
-                'language': 'python'
+                'programmingLanguage': 'python'
             }
         ]
     })
@@ -96,7 +96,7 @@ def test_compile_article():
     for c in dcr.code:
         if isinstance(c, CodeChunkExecution):
             c = c[0]
-        assert c.language == 'python'
+        assert c.programmingLanguage == 'python'
 
     code_chunks = list(map(lambda c: c[0], filter(lambda ce: isinstance(ce, CodeChunkExecution), dcr.code)))
     code_exprs = list(filter(lambda ce: isinstance(ce, CodeExpression), dcr.code))
@@ -111,7 +111,7 @@ def test_compile_article():
 
 def test_import_appending():
     """Found imports in a piece of code should be added to the list of imports the code chunk already specifies."""
-    c = CodeChunk('import moda\nimport modb\nimport modc', imports=['modc', 'modd'], language='python')
+    c = CodeChunk('import moda\nimport modb\nimport modc', imports=['modc', 'modd'], programmingLanguage='python')
 
     dc = DocumentCompiler()
     dc.compile(c)
@@ -125,7 +125,7 @@ def test_import_appending():
 
 def test_import_with_semaphore():
     """If a `CodeChunk`'s imports has an empty string element then no imports should be added to its list."""
-    c = CodeChunk('import moda\nimport modb', imports=['modc', 'modd', ''])
+    c = CodeChunk('import moda\nimport modb', imports=['modc', 'modd', ''], programmingLanguage='python')
 
     dc = DocumentCompiler()
     dc.compile(c)

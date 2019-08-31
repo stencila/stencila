@@ -162,7 +162,7 @@ export function parseItem(
       parameters.push(item)
     } else if (
       (isA('CodeChunk', item) || isA('CodeExpression', item)) &&
-      item.language === 'javascript'
+      item.programmingLanguage === 'javascript'
     ) {
       if (isA('CodeChunk', item)) {
         const parseResult = parseCodeChunk(item)

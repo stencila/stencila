@@ -628,7 +628,7 @@ class DocumentCompiler:
             self.traverse_list(item, compilation_result)
         elif isinstance(item, Entity):
             if isinstance(item, (CodeChunk, CodeExpression)):
-                if item.language == self.TARGET_LANGUAGE:  # Only add Python code
+                if item.programmingLanguage == self.TARGET_LANGUAGE:  # Only add Python code
                     self.handle_code(item, compilation_result)
 
             elif isinstance(item, Parameter) and self.function_depth == 0:
