@@ -348,6 +348,36 @@ describe('Parsing information from an Article', () => {
       'IntegerSchema'
     )
   })
+
+  test('it adds imports it finds to existing CodeChunk imports', () => {
+    const c = codeChunk(
+      "import { export1 } from 'module-name3'\nimport { export2 } from 'module-name4'",
+      {
+        language: 'javascript',
+        imports: ['module-name1', 'module-name2', 'module-name3']
+      }
+    )
+    parseItem(c, [], [])
+
+    expect(c.imports).toHaveLength(4)
+    expect(c.imports).toContain('module-name1')
+    expect(c.imports).toContain('module-name2')
+    expect(c.imports).toContain('module-name3')
+    expect(c.imports).toContain('module-name4')
+  })
+
+  test("it doesn't add imports it finds to existing CodeChunk imports if the empty string semaphore is present", () => {
+    const c = codeChunk(
+      "import { export1 } from 'module-name3'\nimport { export2 } from 'module-name4'",
+      { language: 'javascript', imports: ['module-name1', 'module-name2', ''] }
+    )
+    parseItem(c, [], [])
+
+    expect(c.imports).toHaveLength(3)
+    expect(c.imports).toContain('module-name1')
+    expect(c.imports).toContain('module-name2')
+    expect(c.imports).toContain('')
+  })
 })
 
 describe('CLI parameter parsing', () => {

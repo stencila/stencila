@@ -111,7 +111,7 @@ def test_compile_article():
 
 def test_import_appending():
     """Found imports in a piece of code should be added to the list of imports the code chunk already specifies."""
-    c = CodeChunk('import moda\nimport modb', imports=['modc', 'modd'], language='python')
+    c = CodeChunk('import moda\nimport modb\nimport modc', imports=['modc', 'modd'], language='python')
 
     dc = DocumentCompiler()
     dc.compile(c)

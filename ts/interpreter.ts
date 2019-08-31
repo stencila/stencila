@@ -124,6 +124,27 @@ export function execute(
 }
 
 /**
+ * Add `imports` to the `CodeChunk.imports` array if they aren't already there. If the existing imports array contains
+ * the empty string semaphore then no more imports should be added.
+ */
+function setCodeChunkImports(code: CodeChunk, imports: string[]): void {
+  if (code.imports === undefined) {
+    code.imports = imports
+    return
+  }
+
+  if (code.imports.includes('')) return
+
+  // Can't do any kind of de-dupe magic as code.imports might contain types other than strings.
+  imports.forEach(im => {
+    // Typescript seems to forget that this has already been checked to not be undefined
+    if (code.imports === undefined) return
+
+    if (!code.imports.includes(im)) code.imports.push(im)
+  })
+}
+
+/**
  * Traverse a `Node` hierarchy and push any `Parameter` that is found onto the `parameters` array,
  * and any executable code block onto the `code` array.
  */
@@ -146,7 +167,7 @@ export function parseItem(
       if (isA('CodeChunk', item)) {
         const parseResult = parseCodeChunk(item)
 
-        item.imports = parseResult.imports
+        setCodeChunkImports(item, parseResult.imports)
         item.declares = parseResult.declares
         item.assigns = parseResult.assigns
         item.alters = parseResult.alters
