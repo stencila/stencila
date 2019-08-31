@@ -63,6 +63,10 @@ interface CliArgs {
   parameterValues: StringDict
 }
 
+/**
+ * To prevent having to build an AST from the `CodeChunk` twice (once when it is parsed and again when executed) store
+ * the `CodeChunk` and `CodeChunkParseResult` (which contains the AST) together for execution.
+ */
 export interface CodeChunkExecution {
   codeChunk: CodeChunk
   parseResult: CodeChunkParseResult
@@ -120,7 +124,7 @@ export function execute(
 }
 
 /**
- * Traverse a `Node` hierarchy and push any `Parmamater` that is found onto the `paramaters` array,
+ * Traverse a `Node` hierarchy and push any `Parameter` that is found onto the `parameters` array,
  * and any executable code block onto the `code` array.
  */
 export function parseItem(
@@ -141,7 +145,6 @@ export function parseItem(
     ) {
       if (isA('CodeChunk', item)) {
         const parseResult = parseCodeChunk(item)
-        parseResult.finalize()
 
         item.imports = parseResult.imports
         item.declares = parseResult.declares
@@ -175,6 +178,9 @@ export function parseItem(
   }
 }
 
+/**
+ * Store the results of parsing a `CodeChunk`. Usually these attributes are then stored on the `CodeChunk` itself.
+ */
 class CodeChunkParseResult {
   public chunkAst: Program | null
 
@@ -269,11 +275,17 @@ class CodeChunkParseResult {
   }
 }
 
+/**
+ * Recurse through an expression like a.b.c or a[b][c]. Return the actual variable to which the members belong (in this
+ * case, `a`).
+ *
+ * If the `result` parameter is supplied (usually only in the array access case), then store identifiers found along
+ * the way into the `uses` array. In this case, `b` and `c` would be stored.
+ */
 function recurseMemberExpression(
   expr: MemberExpression,
   result?: CodeChunkParseResult
 ): string | null {
-  // pass result to store Identifiers found while recursing
   if (result !== undefined) {
     if (expr.property.type === 'MemberExpression') {
       recurseMemberExpression(expr.property, result)
@@ -293,6 +305,12 @@ function recurseMemberExpression(
   return null
 }
 
+/**
+ * Parse a `function functionName() {...}` block (FunctionDeclaration) or
+ * `(var | const | let) functionName = function () {...}` block (FunctionExpression). In the latter case the name of
+ * the function is not part of the `fn` object (as it is parsed as a VariableDeclaration in a previous call) so it needs
+ * to be passed in as the `name` parameter.
+ */
 function parseFunctionDeclaration(
   result: CodeChunkParseResult,
   fn: FunctionDeclaration | FunctionExpression,
@@ -332,6 +350,14 @@ function parseFunctionDeclaration(
   }
 }
 
+/**
+ * Parse a VariableDeclaration statement (`const`/`let`/`var`) and add it to the result's `declares` array. In some
+ * cases (e.g. function declarations) the declaration is not added immediately, instead it is added to the
+ * `possibleVariables` array in the result. If it is a function declaration then the `parseFunctionDeclaration` function
+ * will take care of adding it to the `declares` array as a `Function`. If it is some other initializer (like a member
+ * expression) then upon calling `finalize()` on the `result` when parsing finishes, the found name with be added to the
+ * `declares` array as a `Variable`.
+ */
 function parseVariableDeclaration(
   result: CodeChunkParseResult,
   statement: VariableDeclaration
@@ -348,6 +374,13 @@ function parseVariableDeclaration(
   })
 }
 
+/**
+ * Parse a variable assignment. If the left side is a simple variable (e.g. `a = 4` or `b = c.d`) it will be added to
+ * the result's `assigns` array. If it is a member expression (e.g. `a.b = 5` or `c[d][e] = 6`) then the statement will
+ * be recursed to find the actual variable being modified (`a` or `c` respectively) and this will be added to the
+ * `alters` array. In the latter (array) case then variables used to access elements (`d` and `e`) will be added to the
+ * `uses` array.
+ */
 function parseAssignmentExpression(
   result: CodeChunkParseResult,
   statement: AssignmentExpression
@@ -366,13 +399,17 @@ function parseAssignmentExpression(
     result.addUses(statement.right.name)
   } else {
     /* an offshoot of only setting assignmentName for Identifiers only (not MemberExpressions) is that functions that
-    are declared and assigned to a property of an object won't be parsed, since their name will be like `a.b` so won't be
-    a valid function identifier
+    are declared and assigned to a property of an object won't be parsed, since their name will be like `a.b` so won't
+    be a valid function identifier
     */
     parseStatement(result, statement.right, assignmentName)
   }
 }
 
+/**
+ * Parses a Binary (`a + b`, `d - e`, etc) or logical (`a && b`, `c || d`, etc) adding the variables it uses to the
+ * result's `uses` array.
+ */
 function parseBinaryOrLogicalExpression(
   result: CodeChunkParseResult,
   statement: BinaryExpression | LogicalExpression
@@ -385,7 +422,14 @@ function parseBinaryOrLogicalExpression(
   else parseStatement(result, statement.right)
 }
 
-function isFileRead(statement: CallExpression): [boolean, string | null] {
+/**
+ * For a function call, return its name if it is a known (potential) file reading function. Otherwise return null.
+ * This takes into account a module name in the call, e.g `fs.readFile` and `readFile` both will return `readFile`.
+ *
+ * The known function calls for file reading are: `readFile`, `readFileSync` and `open`. Note that other checks are
+ * performed later to verify that a call is actually a read, as `open` can be called with modes (e.g. 'w') that are not.
+ */
+function fileReadFunctionName(statement: CallExpression): string | null {
   let calleeName: string
   if (statement.callee.name !== undefined) {
     calleeName = statement.callee.name
@@ -394,15 +438,23 @@ function isFileRead(statement: CallExpression): [boolean, string | null] {
     statement.callee.property.type === 'Identifier'
   ) {
     calleeName = statement.callee.property.name
-  } else return [false, null]
-  return [
-    calleeName === 'readFileSync' ||
-      calleeName === 'readFile' ||
-      calleeName === 'open',
-    calleeName
-  ]
+  } else return null
+
+  switch (calleeName) {
+    case 'readFileSync':
+    case 'readFile':
+    case 'open':
+      return calleeName
+    default:
+      return null
+  }
 }
 
+/**
+ * Parse a function call that should have previously been determined to be a `fileReadFunctionName`. If it is `open`,
+ * check for a `mode` that indicates a read and not just a write. Otherwise, assume the first arg to the function is a
+ * file name or path and add it to the result's `reads` array.
+ */
 function parseFileReadExpression(
   result: CodeChunkParseResult,
   statement: CallExpression,
@@ -430,14 +482,19 @@ function parseFileReadExpression(
   result.addReads(arg.value)
 }
 
+/**
+ * Parse a function call and add any identifier parameters it uses to the result's `uses` array.
+ *
+ * For example: `callFunc(a, 'b', true, c)`, `a`, `c` will be added to `uses`.
+ */
 function parseCallExpression(
   result: CodeChunkParseResult,
   statement: CallExpression
 ): void {
-  const [isRead, calleeName] = isFileRead(statement)
+  const calleeName = fileReadFunctionName(statement)
 
-  if (isRead) {
-    parseFileReadExpression(result, statement, calleeName as string) // typecasting as calleeName is always non-null if isRead is true
+  if (calleeName !== null) {
+    parseFileReadExpression(result, statement, calleeName)
   }
 
   statement.arguments.forEach(arg => {
@@ -446,6 +503,9 @@ function parseCallExpression(
   })
 }
 
+/**
+ * Add a variable that is updated in place (`a++`, `b--`, etc) to the result's `alters` array.
+ */
 function parseUpdateExpression(
   result: CodeChunkParseResult,
   statement: UpdateExpression
@@ -455,6 +515,11 @@ function parseUpdateExpression(
   else parseStatement(result, statement.argument)
 }
 
+/**
+ * Parse an `import` statement in a variety of formats and add its module (not the imported name) to the result's
+ * `imports` array. This is designed to find the modules the code relies upon rather than the individual functions it
+ * imports from them.
+ */
 function parseImportExpression(
   result: CodeChunkParseResult,
   statement: ImportDeclaration
@@ -467,6 +532,10 @@ function parseImportExpression(
   }
 }
 
+/**
+ * Parse a `while (...) {...}` or `do { ... } while (...)` loop, adding the variables used in the condition to the
+ * result's `uses` array.
+ */
 function parseWhileStatement(
   result: CodeChunkParseResult,
   statement: WhileStatement | DoWhileStatement
@@ -476,6 +545,9 @@ function parseWhileStatement(
   parseStatement(result, statement.body)
 }
 
+/**
+ * Parse an `if` statement or ternary expression, adding the variables it uses to the result's `uses` array.
+ */
 function parseConditionalStatement(
   result: CodeChunkParseResult,
   statement: IfStatement | ConditionalExpression
@@ -487,6 +559,9 @@ function parseConditionalStatement(
   }
 }
 
+/**
+ * Parse a `try` statement, (basically just recursing into the body/handler/finalizer blocks).
+ */
 function parseTryStatement(
   result: CodeChunkParseResult,
   statement: TryStatement
@@ -508,6 +583,12 @@ function parseTryStatement(
   }
 }
 
+/**
+ * Parse a `for(.. .; ...; ...) {...}`, `for(... of ...) {...}` or `for(... in ...) {...}` loop. Adds the variables
+ * used in a ForIn or ForOf to a result's `uses` array. A normal `for` loop's init/test/update statements are not parsed
+ * because it is assumed that these variables are specific only to the for loop and will be out of scope when it
+ * completes.
+ */
 function parseForStatement(
   result: CodeChunkParseResult,
   statement: ForStatement | ForInStatement | ForOfStatement
@@ -525,6 +606,11 @@ function parseForStatement(
   parseStatement(result, statement.body)
 }
 
+/**
+ * Parse an array, added any identifiers found in initialization to the result's `uses` array.
+ *
+ * e.g `[a, b, 1, 'foo', someFunc(d)]` adds `a`, `b` and `d`.
+ */
 function parseArrayExpression(
   result: CodeChunkParseResult,
   statement: ArrayExpression
@@ -535,6 +621,12 @@ function parseArrayExpression(
   })
 }
 
+/**
+ * Parse an object, added any identifiers found in initialization to the result's `uses` array.
+ *
+ * e.g `{a, b: c, d: 1, 'e': 'foo'}` adds `a`, `b`, `c` and `d`. Note: this might not be strictly correct due to the
+ * way object keys could be strings or literals.
+ */
 function parseObjectExpression(
   result: CodeChunkParseResult,
   statement: ObjectExpression
@@ -554,6 +646,10 @@ function parseObjectExpression(
   })
 }
 
+/**
+ * Recurse a MemberExpression (e.g. a.b.c.d) and add the actual variable to the result's `uses` array. In this case,
+ * just `a`.
+ */
 function parseMemberExpression(
   result: CodeChunkParseResult,
   statement: MemberExpression
@@ -562,6 +658,11 @@ function parseMemberExpression(
   if (memberName !== null) result.addUses(memberName)
 }
 
+/**
+ * Parse a `switch` statement, adding identifiers used in tests to the result's `uses` array.
+ *
+ * `switch (a) case b: doSomething(); break; default: break;` will add the variables `a` and `b`.
+ */
 function parseSwitchStatement(
   result: CodeChunkParseResult,
   statement: SwitchStatement
@@ -577,6 +678,10 @@ function parseSwitchStatement(
   })
 }
 
+/**
+ * An `ExpressionStatement` is a container for something like a `BinaryExpression` or `LogicalExpression`, so pass that
+ * contained expression to the main parser.
+ */
 function parseExpression(
   result: CodeChunkParseResult,
   statement: ExpressionStatement
@@ -584,6 +689,10 @@ function parseExpression(
   parseStatement(result, statement.expression)
 }
 
+/**
+ * Tthis is the general parser function which switches on the statement type and delegates to the appropriate parser
+ * function. It returns nothing, instead passing around the `result` variable to store the parsed properties.
+ */
 function parseStatement(
   result: CodeChunkParseResult,
   statement: EtreeNode,
@@ -669,6 +778,9 @@ function parseStatement(
   }
 }
 
+/**
+ * Transform an `Error` or `string` (containing an error message` to a new `CodeError` entity.
+ */
 function exceptionToCodeError(error: Error | string): CodeError {
   if (typeof error === 'string') {
     return codeError('Exception', { message: error })
@@ -677,6 +789,10 @@ function exceptionToCodeError(error: Error | string): CodeError {
   }
 }
 
+/**
+ * Shortcut function to add a `CodeError` to the code entity's `errors` property. This will create the `errors` array on
+ * the code entity if it is `undefined`.
+ */
 function setCodeError(
   code: CodeChunk | CodeExpression,
   error: Error | string
@@ -687,6 +803,11 @@ function setCodeError(
   code.errors.push(exceptionToCodeError(error))
 }
 
+/**
+ * Parse a `CodeChunk.text` property into an AST then iterate through that to find out things about the code.
+ * The `CodeChunkParseResult` is intended as temporary storage and the attributes should be assigned to a `CodeChunk`'s
+ * matching properties for output as part of an executed document.
+ */
 export function parseCodeChunk(codeChunk: CodeChunk): CodeChunkParseResult {
   let chunkAst: Program | null = null
 
@@ -704,6 +825,7 @@ export function parseCodeChunk(codeChunk: CodeChunk): CodeChunkParseResult {
     parseStatement(parseResult, statement)
   })
 
+  parseResult.finalize()
   return parseResult
 }
 
