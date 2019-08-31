@@ -2,7 +2,7 @@ import typing
 
 from stencila.schema import util
 from stencila.schema.interpreter import DocumentCompiler, CodeChunkExecution
-from stencila.schema.types import Article, Parameter, CodeExpression
+from stencila.schema.types import Article, Parameter, CodeExpression, CodeChunk
 
 
 def test_compile_article():
@@ -107,3 +107,32 @@ def test_compile_article():
 
     assert code_exprs[0].text == expr_1_text
     assert code_exprs[1].text == expr_2_text
+
+
+def test_import_appending():
+    """Found imports in a piece of code should be added to the list of imports the code chunk already specifies."""
+    c = CodeChunk('import moda\nimport modb', imports=['modc', 'modd'], language='python')
+
+    dc = DocumentCompiler()
+    dc.compile(c)
+
+    assert len(c.imports) == 4
+    assert 'moda' in c.imports
+    assert 'modb' in c.imports
+    assert 'modc' in c.imports
+    assert 'modd' in c.imports
+
+
+def test_import_with_semaphore():
+    """If a `CodeChunk`'s imports has an empty string element then no imports should be added to its list."""
+    c = CodeChunk('import moda\nimport modb', imports=['modc', 'modd', ''])
+
+    dc = DocumentCompiler()
+    dc.compile(c)
+
+    assert len(c.imports) == 3
+    assert 'moda' not in c.imports
+    assert 'modb' not in c.imports
+    assert 'modc' in c.imports
+    assert 'modd' in c.imports
+    assert '' in c.imports

@@ -521,30 +521,7 @@ class DocumentCompiler:
         elif isinstance(item, Entity):
             if isinstance(item, (CodeChunk, CodeExpression)):
                 if item.language == self.TARGET_LANGUAGE:  # Only add Python code
-
-                    if isinstance(item, CodeChunk):
-                        parser = CodeChunkParser()
-                        cc_result = parser.parse(item)
-                        item.imports = cc_result.imports
-                        item.declares = cc_result.declares
-                        item.assigns = cc_result.assigns
-                        item.alters = cc_result.alters
-                        item.uses = cc_result.uses
-                        item.reads = cc_result.reads
-
-                        if cc_result.error:
-                            set_code_error(item, cc_result.error)
-
-                        code_to_add = CodeChunkExecution(item, cc_result)
-                    else:
-                        try:
-                            ast.parse(item.text)
-                        except Exception as e:
-                            set_code_error(item, e)
-                        code_to_add = item
-
-                    compilation_result.code.append(code_to_add)
-                    logger.debug('Adding {}'.format(type(item)))
+                    self.handle_code(item, compilation_result)
 
             elif isinstance(item, Parameter) and self.function_depth == 0:
                 compilation_result.parameters.append(item)
@@ -557,6 +534,44 @@ class DocumentCompiler:
 
             if isinstance(item, Function):
                 self.function_depth -= 1
+
+    @staticmethod
+    def set_code_imports(code: CodeChunk, imports: typing.List[str]) -> None:
+        if code.imports is None:
+            code.imports = imports
+            return
+
+        if '' in code.imports:
+            return
+
+        for im in imports:
+            if im not in code.imports:
+                code.imports.append(im)
+
+    def handle_code(self, item: typing.Union[CodeChunk, CodeExpression],
+                    compilation_result: DocumentCompilationResult) -> None:
+        if isinstance(item, CodeChunk):
+            parser = CodeChunkParser()
+            cc_result = parser.parse(item)
+            self.set_code_imports(item, cc_result.imports)
+            item.declares = cc_result.declares
+            item.assigns = cc_result.assigns
+            item.alters = cc_result.alters
+            item.uses = cc_result.uses
+            item.reads = cc_result.reads
+
+            if cc_result.error:
+                set_code_error(item, cc_result.error)
+
+            code_to_add = CodeChunkExecution(item, cc_result)
+        else:
+            try:
+                ast.parse(item.text)
+            except Exception as e:
+                set_code_error(item, e)
+            code_to_add = item
+        compilation_result.code.append(code_to_add)
+        logger.debug('Adding {}'.format(type(item)))
 
     def traverse_dict(self, d: dict, compilation_result: DocumentCompilationResult) -> None:
         for child in d.values():
