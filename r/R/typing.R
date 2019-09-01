@@ -92,7 +92,7 @@ is_entity <- function(node) {
 }
 
 #' Does a value conform to the type?
-is_type <- function(value, type) {
+is_type <- function(value, type) { # nolint TODO: Reduce cyclometric complexity of this function
   type_class <- last_class(type)
   if (type_class == "Any") {
     TRUE

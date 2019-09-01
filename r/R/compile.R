@@ -15,7 +15,7 @@ base_func_names <- ls(baseenv())
 Function <- function(...) list(type = "Function", ...)
 
 #' Compile a `CodeChunk`
-compile_code_chunk <- function(chunk) {
+compile_code_chunk <- function(chunk) { # nolint TODO: Reduce cyclometric complexity of this function
   # For convienience, allow passing a string
   if (is.character(chunk)) {
     chunk <- CodeChunk(

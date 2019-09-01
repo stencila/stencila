@@ -15,7 +15,7 @@ datatable_from_dataframe <- function(df){
 }
 
 #' @export
-as.Datatable.data.frame <- datatable_from_dataframe
+as.Datatable.data.frame <- datatable_from_dataframe # nolint
 
 #' Create a `data.frame` from a [Datatable()]
 #'
