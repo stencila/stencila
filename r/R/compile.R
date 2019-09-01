@@ -19,13 +19,13 @@ compile_code_chunk <- function(chunk) { # nolint TODO: Reduce cyclometric comple
   # For convienience, allow passing a string
   if (is.character(chunk)) {
     chunk <- CodeChunk(
-      language = "r",
+      programmingLanguage = "r",
       text = chunk
     )
   }
 
   # Code chunk "source" properties
-  language <- chunk$language
+  language <- chunk$programmingLanguage
   if (is.null(language)) language <- "r"
   else if (!(language %in% c("r", "R"))) return(chunk)
   text <- chunk$text
