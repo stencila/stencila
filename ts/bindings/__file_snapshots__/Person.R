@@ -59,7 +59,7 @@ Person <- function(
   self[["jobTitle"]] <- check_property("Person", "jobTitle", FALSE, missing(jobTitle), "character", jobTitle)
   self[["memberOf"]] <- check_property("Person", "memberOf", FALSE, missing(memberOf), Array("Organization"), memberOf)
   self[["telephoneNumbers"]] <- check_property("Person", "telephoneNumbers", FALSE, missing(telephoneNumbers), Array("character"), telephoneNumbers)
-  class(self) <- c(class(self), "Entity")
+  class(self) <- c("list", "Entity")
   self
 }
 

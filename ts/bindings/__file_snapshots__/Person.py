@@ -1,17 +1,17 @@
 class Person(Thing):
     """A person (alive, dead, undead, or fictional)."""
 
-    address: Optional[str]
-    affiliations: Optional[Array["Organization"]]
-    emails: Optional[Array[str]]
-    familyNames: Optional[Array[str]]
-    funders: Optional[Array[Union["Organization", "Person"]]]
-    givenNames: Optional[Array[str]]
-    honorificPrefix: Optional[str]
-    honorificSuffix: Optional[str]
-    jobTitle: Optional[str]
-    memberOf: Optional[Array["Organization"]]
-    telephoneNumbers: Optional[Array[str]]
+    address: Optional[str] = None
+    affiliations: Optional[Array["Organization"]] = None
+    emails: Optional[Array[str]] = None
+    familyNames: Optional[Array[str]] = None
+    funders: Optional[Array[Union["Organization", "Person"]]] = None
+    givenNames: Optional[Array[str]] = None
+    honorificPrefix: Optional[str] = None
+    honorificSuffix: Optional[str] = None
+    jobTitle: Optional[str] = None
+    memberOf: Optional[Array["Organization"]] = None
+    telephoneNumbers: Optional[Array[str]] = None
 
     def __init__(
         self,
