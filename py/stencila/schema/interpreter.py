@@ -12,9 +12,10 @@ from io import TextIOWrapper, BytesIO
 
 import astor
 
-from stencila.schema.types import Parameter, CodeChunk, Article, Entity, CodeExpression, ConstantSchema, EnumSchema, \
-    BooleanSchema, NumberSchema, IntegerSchema, StringSchema, ArraySchema, TupleSchema, ImageObject, Datatable, \
-    DatatableColumn, SchemaTypes, SoftwareSourceCode, Function, Variable, CodeError
+from stencila.schema.types import Parameter, CodeChunk, Article, Entity, CodeExpression, \
+    ConstantSchema, EnumSchema, BooleanSchema, NumberSchema, IntegerSchema, StringSchema, \
+    ArraySchema, TupleSchema, ImageObject, Datatable, DatatableColumn, SchemaTypes, \
+    SoftwareSourceCode, Function, Variable, CodeError
 from stencila.schema.util import from_json, to_json
 
 try:
@@ -69,7 +70,8 @@ class CodeChunkExecution(typing.NamedTuple):
     """
     Combination of a `CodeChunk` and its parse result.
 
-    This is so the AST does not have to be parsed twice (once during parsing and again during execution.
+    This is so the AST does not have to be parsed twice
+    (once during parsing and again during execution).
     """
     code_chunk: CodeChunk
     parse_result: CodeChunkParseResult
@@ -138,7 +140,10 @@ def annotation_name_to_schema(name: typing.Optional[str]) -> typing.Optional[Sch
 
 
 def mode_is_read(mode: str) -> bool:
-    """Determine if an open mode is a read. Opening a file with `w+` or `a+` allows read and write."""
+    """
+    Determine if an open mode is a read. Opening a file with `w+` or `a+`
+    allows read and write.
+    """
     return 'r' in mode or '+' in mode
 
 
@@ -146,8 +151,8 @@ def parse_open_filename(open_call: ast.Call) -> typing.Optional[str]:
     """
     Return the filename used in an `open` call (whether it's define positionally or with kwarg).
 
-    If the filename is a variable, or the mode is not a read (or is a variable and thus can't be determined) then return
-    `None`.
+    If the filename is a variable, or the mode is not a read (or is a variable and thus can't
+    be determined) then return `None`.
     """
     filename = None
 
@@ -184,7 +189,8 @@ def exception_to_code_error(e: Exception) -> CodeError:
     return CodeError(type(e).__name__, message=str(e), trace=traceback.format_exc())
 
 
-def set_code_error(code: typing.Union[CodeChunk, CodeExpression], e: typing.Union[Exception, CodeError]) -> None:
+def set_code_error(code: typing.Union[CodeChunk, CodeExpression],
+                   error: typing.Union[Exception, CodeError]) -> None:
     """
     Add the `CodeError` to a `CodeChunk` or `CodeExpression` `errors` list.
 
@@ -193,10 +199,10 @@ def set_code_error(code: typing.Union[CodeChunk, CodeExpression], e: typing.Unio
     if code.errors is None:
         code.errors = []
 
-    if isinstance(e, Exception):
-        e = exception_to_code_error(e)
+    if isinstance(error, Exception):
+        error = exception_to_code_error(error)
 
-    code.errors.append(e)
+    code.errors.append(error)
 
 
 class CodeChunkParser:
@@ -239,8 +245,9 @@ class CodeChunkParser:
         """
         Add a name to the target list, if it not already used.
 
-        `target` should be one of the self properties (`imports`, `declares`, etc). `seen_vars` is the global record of
-        any seen names to prevent duplicates (e.g. a variable would not be both declared [in `declares` list] and then
+        `target` should be one of the self properties (`imports`, `declares`, etc).
+        `seen_vars` is the global record of any seen names to prevent duplicates
+        (e.g. a variable would not be both declared [in `declares` list] and then
         used [in `uses` list]).
         """
         if name not in self.seen_vars and name not in target:
@@ -249,10 +256,11 @@ class CodeChunkParser:
 
     def add_alters(self, name: str) -> None:
         """
-        A special function for adding an `alters` name instead of using the general `add_name` function above.
+        A special function for adding an `alters` name instead of using the general `add_name`
+        function above.
 
-        The difference is that if a name is added here and is already in `uses`, then it is removed from `uses` and
-        added to `alters` as this is a more accurate definition.
+        The difference is that if a name is added here and is already in `uses`, then it is
+        removed from `uses` and added to `alters` as this is a more accurate definition.
         """
         if name in self.alters:
             return
@@ -262,23 +270,28 @@ class CodeChunkParser:
                 return
 
             self.uses.remove(name)
-            # var has been seen, but only in `uses`, a more accurate description is `alters` so move it there
+            # var has been seen, but only in `uses`, a more accurate description is `alters` so
+            # move it there
 
         self.seen_vars.append(name)
         self.alters.append(name)
 
     def parse(self, chunk: CodeChunk) -> CodeChunkParseResult:
-        """Main entry function for this class, parses a CodeChunk's properties into a CodeChunkParseResult."""
+        """
+        Main entry function for this class, parses a CodeChunk's properties into a
+        CodeChunkParseResult.
+        """
         self.reset()
 
         try:
             chunk_ast = ast.parse(chunk.text)
-        except Exception as e:
-            return CodeChunkParseResult(None, error=exception_to_code_error(e))
+        except Exception as exc:
+            return CodeChunkParseResult(None, error=exception_to_code_error(exc))
 
-        # If this is True, then there should be a call to 'open' somewhere in the code, which means the parser should
-        # try to find it. This is a basic check so there might not be one (like if the code did , but if 'open(' is NOT
-        # in the string then there definitely ISN'T one
+        # If this is True, then there should be a call to 'open' somewhere in the code, which
+        # means the parser should try to find it. This is a basic check so there might not be
+        # one (like if the code did , but if 'open(' is NOT in the string then there definitely
+        # ISN'T one
         search_for_open = 'open(' in chunk.text
 
         for statement in chunk_ast.body:
@@ -291,7 +304,7 @@ class CodeChunkParser:
                                     self.reads)
 
     def parse_statement(self, statement: typing.Union[
-        ast.stmt, ast.expr, typing.List[typing.Union[ast.stmt, ast.expr]]]) -> None:
+            ast.stmt, ast.expr, typing.List[typing.Union[ast.stmt, ast.expr]]]) -> None:
         """General statement parser that delegates to parsers for specific parser types."""
         if isinstance(statement, list):
             for sub_statement in statement:
@@ -367,19 +380,19 @@ class CodeChunkParser:
             return ref.id
 
         if not isinstance(ref, ast.Subscript) and hasattr(ref, 'value'):
-            # for some reason isinstance (ref, ast.Index) doesn't work, so the hasattr check is a workaround to check
-            # for an ast.Index object
+            # for some reason isinstance (ref, ast.Index) doesn't work, so the hasattr check is a
+            # workaround to check for an ast.Index object
             return self.parse_reference(ref.value)
 
     def parse_assigns(self, statement: typing.Union[ast.Assign, ast.AnnAssign]) -> None:
         """
         Parse an assigment and try to choose the best place to store it.
 
-        If the assignment has a type annotation, treat that as a variable declaration (name into `declares`).
-        If the assignment is to an object (e.g. `x.y = z`) or list (e.g. `x[y] = z` treat that as an alters (`x` into
-        `alters`).
-        Otherwise, put the name into the `assigns` list. Also parse the right side of the expression to find other
-        variables that are used.
+        If the assignment has a type annotation, treat that as a variable declaration (name into
+        `declares`). If the assignment is to an object (e.g. `x.y = z`) or list (e.g. `x[y] = z`
+        treat that as an alters (`x` into `alters`).
+        Otherwise, put the name into the `assigns` list. Also parse the right side of the
+        expression to find other variables that are used.
         """
         if hasattr(statement, 'targets'):
             targets = statement.targets
@@ -483,13 +496,13 @@ class CodeChunkParser:
 
         return_ann = statement.returns.id if isinstance(statement.returns, ast.Name) else None
 
-        f = Function(statement.name, returns=annotation_name_to_schema(return_ann), parameters=[])
+        func = Function(statement.name, returns=annotation_name_to_schema(return_ann), parameters=[])
 
         for i, arg in enumerate(statement.args.args):
-            p = Parameter(arg.arg)
+            param = Parameter(arg.arg)
 
             if arg.annotation:
-                p.schema = annotation_name_to_schema(arg.annotation.id)
+                param.schema = annotation_name_to_schema(arg.annotation.id)
 
             default_index = len(statement.args.defaults) - len(statement.args.args) + i
             # Only the last len(statement.args.defaults) can have defaults (since they must come after non-default
@@ -498,31 +511,34 @@ class CodeChunkParser:
                 default = statement.args.defaults[default_index]
 
                 if isinstance(default, ast.Num):
-                    p.default = default.n
+                    param.default = default.n
                 elif isinstance(default, ast.Str):
-                    p.default = default.s
+                    param.default = default.s
                 elif isinstance(default, ast.NameConstant):
                     # default of None/True/False
-                    p.default = default.value
+                    param.default = default.value
                 else:
                     self.parse_statement(default)
-                p.required = False
+                param.required = False
             else:
-                p.required = True
+                param.required = True
 
-            f.parameters.append(p)
+            func.parameters.append(param)
 
         if statement.args.vararg:
-            f.parameters.append(Parameter(statement.args.vararg.arg, required=False, repeats=True))
+            func.parameters.append(Parameter(statement.args.vararg.arg, required=False, repeats=True))
 
         if statement.args.kwarg:
-            f.parameters.append(Parameter(statement.args.kwarg.arg, required=False, extends=True))
+            func.parameters.append(Parameter(statement.args.kwarg.arg, required=False, extends=True))
 
-        self.seen_vars.append(f.name)
-        self.declares.append(f)
+        self.seen_vars.append(func.name)
+        self.declares.append(func)
 
     def parse_dict(self, statement: ast.Dict) -> None:
-        """Parse a dictionary definition, adding any variables it uses as keys or values to `uses`."""
+        """
+        Parse a dictionary definition, adding any variables it uses as keys or values
+        to `uses`.
+        """
         for key in statement.keys:
             if isinstance(key, ast.Name):
                 self.add_name(key.id, self.uses)
@@ -659,9 +675,9 @@ class DocumentCompiler:
         if '' in code.imports:
             return
 
-        for im in imports:
-            if im not in code.imports:
-                code.imports.append(im)
+        for imp in imports:
+            if imp not in code.imports:
+                code.imports.append(imp)
 
     def handle_code(self, item: typing.Union[CodeChunk, CodeExpression],
                     compilation_result: DocumentCompilationResult) -> None:
@@ -683,8 +699,8 @@ class DocumentCompiler:
         else:
             try:
                 ast.parse(item.text)
-            except Exception as e:
-                set_code_error(item, e)
+            except Exception as exc:
+                set_code_error(item, exc)
             code_to_add = item
         compilation_result.code.append(code_to_add)
         logger.debug('Adding {}'.format(type(item)))
@@ -710,7 +726,7 @@ class Interpreter:
         chunk, parse_result = chunk_execution
 
         if parse_result.chunk_ast is None:
-            logger.info('Not executing CodeChunk without AST: {}'.format(chunk.text[:CHUNK_PREVIEW_LENGTH]))
+            logger.info('Not executing CodeChunk without AST: %s', chunk.text[:CHUNK_PREVIEW_LENGTH])
             return
 
         cc_outputs = []
@@ -733,28 +749,28 @@ class Interpreter:
                 """We don't care about the result of this call (it could just be an assignment, update or even function
                 definition) so it can be executed with `exec`."""
                 run_function = exec
-                m = ast.Module()
-                m.body = [statement]
-                code_to_run = compile(m, '<ast>', 'exec')
+                mod = ast.Module()
+                mod.body = [statement]
+                code_to_run = compile(mod, '<ast>', 'exec')
 
-            s = StdoutBuffer(BytesIO(), sys.stdout.encoding)
+            stdout = StdoutBuffer(BytesIO(), sys.stdout.encoding)
 
             result = None
 
-            with redirect_stdout(s):
+            with redirect_stdout(stdout):
                 try:
-                    with CodeTimer() as ct:
+                    with CodeTimer() as code_timer:
                         result = run_function(code_to_run, self.globals, _locals)
-                    duration += ct.duration_ms
-                except Exception as e:
+                    duration += code_timer.duration_ms
+                except Exception as exc:
                     error_occurred = True
-                    set_code_error(chunk, e)
+                    set_code_error(chunk, exc)
 
             if capture_result and result is not None:
                 cc_outputs.append(self.decode_output(result))
 
-            s.seek(0)
-            std_out_output = s.buffer.read()
+            stdout.seek(0)
+            std_out_output = stdout.buffer.read()
 
             if std_out_output:
                 cc_outputs.append(std_out_output.decode('utf8'))
@@ -769,8 +785,8 @@ class Interpreter:
         """eval `CodeExpression.text`, and get the result. Catch any exception the occurs."""
         try:
             expression.output = self.decode_output(eval(expression.text, self.globals, _locals))
-        except Exception as e:
-            set_code_error(expression, e)
+        except Exception as exc:
+            set_code_error(expression, exc)
 
     def execute(self, code: typing.List[ExecutableCode], parameter_values: typing.Dict[str, typing.Any]) -> None:
         """
@@ -783,13 +799,13 @@ class Interpreter:
 
         _locals = parameter_values.copy()
 
-        for c in code:
-            if isinstance(c, CodeChunkExecution):
-                self.execute_code_chunk(c, _locals)
-            elif isinstance(c, CodeExpression):
-                self.execute_code_expression(c, _locals)
+        for piece in code:
+            if isinstance(piece, CodeChunkExecution):
+                self.execute_code_chunk(piece, _locals)
+            elif isinstance(piece, CodeExpression):
+                self.execute_code_expression(piece, _locals)
             else:
-                raise TypeError('Unknown Code node type found: {}'.format(c))
+                raise TypeError('Unknown Code node type found: {}'.format(piece))
 
     @staticmethod
     def value_is_mpl(value: typing.Any) -> bool:
@@ -813,12 +829,12 @@ class Interpreter:
         return ImageObject(src)
 
     @staticmethod
-    def decode_dataframe(df: DataFrame) -> Datatable:
+    def decode_dataframe(data_frame: DataFrame) -> Datatable:
         """Decode a pandas `DataFrame` into a `Datatable`"""
         columns = []
 
-        for column_name in df.columns:
-            column = df[column_name]
+        for column_name in data_frame.columns:
+            column = data_frame[column_name]
             values = column.tolist()
             if column.dtype in (numpy.bool_, numpy.bool8):
                 schema = BooleanSchema()
@@ -886,7 +902,7 @@ class ParameterParser:
 
         args, _ = param_parser.parse_known_args(cli_args)
 
-        logger.debug('Parsed command line args: {}'.format(args))
+        logger.debug('Parsed command line args: %s', args)
 
         for param_name in self.parameters:
             cli_value = getattr(args, param_name, None)
@@ -955,16 +971,16 @@ def write_output(output_file: str, article: Article) -> None:
     if output_file == '-':
         sys.stdout.write(to_json(article))
     else:
-        with open(output_file, 'w') as o:
-            o.write(to_json(article))
+        with open(output_file, 'w') as file:
+            file.write(to_json(article))
 
 
 def execute_article(article: Article, parameter_flags: typing.List[str]) -> None:
     """Compile an `Article`, and interpret it with the given parameters (in a format that would be read from CLI)."""
     dcr = DocumentCompiler().compile(article)
-    pp = ParameterParser(dcr.parameters)
-    pp.parse_cli_args(parameter_flags)
-    Interpreter().execute(dcr.code, pp.parameter_values)
+    param_parser = ParameterParser(dcr.parameters)
+    param_parser.parse_cli_args(parameter_flags)
+    Interpreter().execute(dcr.code, param_parser.parameter_values)
 
 
 def execute_from_cli(cli_args: typing.List[str]) -> None:
