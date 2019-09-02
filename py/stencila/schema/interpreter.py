@@ -32,7 +32,9 @@ try:
     import matplotlib.figure
     import matplotlib.artist
 
+    # pylint: disable=C0103
     MPLFigure = matplotlib.figure.Figure
+    # pylint: disable=C0103
     MPLArtist = matplotlib.artist.Artist
     MPL_AVAILABLE = True
 except ImportError:

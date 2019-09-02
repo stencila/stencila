@@ -1,7 +1,7 @@
 all: setup clean regen lint test build
 
 setup:
-	pip3 install --upgrade -r requirements-dev.txt
+	pip3 install --upgrade -r requirements-dev.txt -r requirements.txt
 
 regen:
 	npm run build:py
@@ -17,4 +17,4 @@ build:
 	python3 setup.py sdist bdist_wheel
 
 clean:
-	rm -rf build .coverage coverage.xml *.egg-info .tox **/__pycache__
+	rm -rf build .coverage htmlcov coverage.xml *.egg-info .tox **/__pycache__
