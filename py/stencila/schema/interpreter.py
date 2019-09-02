@@ -1,3 +1,14 @@
+"""
+This is for interpreting and executing an executable document in JSON format. It can be called from the command line:
+
+python3 interpreter.py <infile> <outfile> [document parameters]
+
+See README.md for more information.
+
+Warning: `eval` and `exec` are used to run code in the document. Don't execute documents that you haven't verified
+yourself.
+"""
+
 import argparse
 import ast
 import base64
@@ -5,17 +16,16 @@ import datetime
 import json
 import logging
 import sys
-import traceback
 import typing
 from contextlib import redirect_stdout
 from io import TextIOWrapper, BytesIO
 
 import astor
 
+from stencila.schema.code_parsing import CodeChunkExecution, set_code_error, CodeChunkParser
 from stencila.schema.types import Parameter, CodeChunk, Article, Entity, CodeExpression, \
     ConstantSchema, EnumSchema, BooleanSchema, NumberSchema, IntegerSchema, StringSchema, \
-    ArraySchema, TupleSchema, ImageObject, Datatable, DatatableColumn, SchemaTypes, \
-    SoftwareSourceCode, Function, Variable, CodeError
+    ArraySchema, TupleSchema, ImageObject, Datatable, DatatableColumn, Function
 from stencila.schema.util import from_json, to_json
 
 try:
@@ -24,58 +34,37 @@ try:
 
     MPLFigure = matplotlib.figure.Figure
     MPLArtist = matplotlib.artist.Artist
-    mpl_available = True
+    MPL_AVAILABLE = True
 except ImportError:
+    # pylint: disable=R0903
     class MPLFigure:
-        pass
+        """A fake MPLFigure to prevent RefenceErrors later."""
 
 
+    # pylint: disable=R0903
     class MLPArtist:
-        pass
+        """A fake MLPArtist to prevent RefenceErrors later."""
 
 
-    mpl_available = False
+    MPL_AVAILABLE = False
 
 try:
     from pandas import DataFrame
     import numpy
 
-    pandas_available = True
+    PANDAS_AVAILABLE = True
 except ImportError:
+    # pylint: disable=R0903
     class DataFrame:
-        pass
+        """A fake DataFrame to prevent RefenceErrors later."""
 
 
-    pandas_available = False
+    PANDAS_AVAILABLE = False
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
+LOGGER = logging.getLogger(__name__)
+LOGGER.addHandler(logging.NullHandler())
 
 CHUNK_PREVIEW_LENGTH = 20
-
-
-class CodeChunkParseResult(typing.NamedTuple):
-    """The result of parsing a `CodeChunk`."""
-    chunk_ast: typing.Optional[ast.Module] = None
-    imports: typing.List[typing.Union[str, SoftwareSourceCode]] = []
-    assigns: typing.List[str] = []
-    declares: typing.List[typing.Union[Function, Variable]] = []
-    alters: typing.List[str] = []
-    uses: typing.List[str] = []
-    reads: typing.List[str] = []
-    error: typing.Optional[CodeError] = None
-
-
-class CodeChunkExecution(typing.NamedTuple):
-    """
-    Combination of a `CodeChunk` and its parse result.
-
-    This is so the AST does not have to be parsed twice
-    (once during parsing and again during execution).
-    """
-    code_chunk: CodeChunk
-    parse_result: CodeChunkParseResult
-
 
 ExecutableCode = typing.Union[CodeChunkExecution, CodeExpression]
 
@@ -95,6 +84,7 @@ class CodeTimer:
 
     @property
     def duration_ms(self) -> float:
+        """Calculate the duration (time between `__enter__` and `__exit__` in microseconds."""
         if not self.duration:
             raise RuntimeError('CodeTimer has not yet been run')
 
@@ -107,515 +97,14 @@ class StdoutBuffer(TextIOWrapper):
     def write(self, string: typing.Union[bytes, str]) -> int:
         if isinstance(string, str):
             return super(StdoutBuffer, self).write(string)
-        else:
-            return super(StdoutBuffer, self).buffer.write(string)
+        return super(StdoutBuffer, self).buffer.write(string)
 
 
-class DocumentCompilationResult:
+class DocumentCompilationResult(typing.NamedTuple):
     """Stores references to Parameters and Code that is parsed from a Document."""
 
     parameters: typing.List[Parameter] = []
     code: typing.List[ExecutableCode] = []
-
-
-def annotation_name_to_schema(name: typing.Optional[str]) -> typing.Optional[SchemaTypes]:
-    """Parse a Python annotation string (basically a type name) and convert to a `Schema` type."""
-    if not name:
-        return None
-
-    if name == 'bool':
-        return BooleanSchema()
-    elif name == 'str':
-        return StringSchema()
-    elif name == 'int':
-        return IntegerSchema()
-    elif name == 'float':
-        return NumberSchema()
-    elif 'list' in name.lower():
-        return ArraySchema()
-    elif 'tuple' in name.lower():
-        return TupleSchema()
-
-    return None
-
-
-def mode_is_read(mode: str) -> bool:
-    """
-    Determine if an open mode is a read. Opening a file with `w+` or `a+`
-    allows read and write.
-    """
-    return 'r' in mode or '+' in mode
-
-
-def parse_open_filename(open_call: ast.Call) -> typing.Optional[str]:
-    """
-    Return the filename used in an `open` call (whether it's define positionally or with kwarg).
-
-    If the filename is a variable, or the mode is not a read (or is a variable and thus can't
-    be determined) then return `None`.
-    """
-    filename = None
-
-    if hasattr(open_call, 'args'):
-        if len(open_call.args) >= 1:
-            if not isinstance(open_call.args[0], ast.Str):
-                return None
-            filename = open_call.args[0].s
-
-            if len(open_call.args) >= 2:
-                if not isinstance(open_call.args[1], ast.Str):
-                    return None
-
-                if not mode_is_read(open_call.args[1].s):
-                    return None
-
-    if hasattr(open_call, 'keywords'):
-        for kw in open_call.keywords:
-            if not isinstance(kw.value, ast.Str):
-                continue
-
-            if kw.arg == 'file':
-                filename = kw.value.s
-
-            if kw.arg == 'mode':
-                if not mode_is_read(kw.value.s):
-                    return None
-
-    return filename
-
-
-def exception_to_code_error(e: Exception) -> CodeError:
-    """Convert an `Exception` to a `CodeError` entity."""
-    return CodeError(type(e).__name__, message=str(e), trace=traceback.format_exc())
-
-
-def set_code_error(code: typing.Union[CodeChunk, CodeExpression],
-                   error: typing.Union[Exception, CodeError]) -> None:
-    """
-    Add the `CodeError` to a `CodeChunk` or `CodeExpression` `errors` list.
-
-    If an `Exception` is passed then it is converted to a `CodeError`.
-    """
-    if code.errors is None:
-        code.errors = []
-
-    if isinstance(error, Exception):
-        error = exception_to_code_error(error)
-
-    code.errors.append(error)
-
-
-class CodeChunkParser:
-    """Parse a `CodeChunk` by parsing its `text` into an AST and traversing it."""
-
-    imports: typing.List[str]
-    declares: typing.List[typing.Union[Variable, Function]]
-    assigns: typing.List[str]
-    alters: typing.List[str]
-    uses: typing.List[str]
-    reads: typing.List[str]
-
-    seen_vars: typing.List[str]
-
-    def reset(self) -> None:
-        """Reset the storage lists."""
-        self.imports = []
-        self.declares = []
-        self.assigns = []
-        self.alters = []
-        self.uses = []
-        self.reads = []
-
-        self.seen_vars = []
-
-    def add_variable(self, name: str, type_annotation: typing.Optional[str]) -> None:
-        """
-        Store a variable declaration.
-
-        Parses the `type_annotation` (if set) and transforms to a Schema subclass.
-        """
-        if name in self.seen_vars:
-            return
-        v = Variable(name)
-        v.schema = annotation_name_to_schema(type_annotation)
-        self.seen_vars.append(name)
-        self.declares.append(v)
-
-    def add_name(self, name: str, target: typing.List) -> None:
-        """
-        Add a name to the target list, if it not already used.
-
-        `target` should be one of the self properties (`imports`, `declares`, etc).
-        `seen_vars` is the global record of any seen names to prevent duplicates
-        (e.g. a variable would not be both declared [in `declares` list] and then
-        used [in `uses` list]).
-        """
-        if name not in self.seen_vars and name not in target:
-            self.seen_vars.append(name)
-            target.append(name)
-
-    def add_alters(self, name: str) -> None:
-        """
-        A special function for adding an `alters` name instead of using the general `add_name`
-        function above.
-
-        The difference is that if a name is added here and is already in `uses`, then it is
-        removed from `uses` and added to `alters` as this is a more accurate definition.
-        """
-        if name in self.alters:
-            return
-
-        if name in self.seen_vars:
-            if name not in self.uses:
-                return
-
-            self.uses.remove(name)
-            # var has been seen, but only in `uses`, a more accurate description is `alters` so
-            # move it there
-
-        self.seen_vars.append(name)
-        self.alters.append(name)
-
-    def parse(self, chunk: CodeChunk) -> CodeChunkParseResult:
-        """
-        Main entry function for this class, parses a CodeChunk's properties into a
-        CodeChunkParseResult.
-        """
-        self.reset()
-
-        try:
-            chunk_ast = ast.parse(chunk.text)
-        except Exception as exc:
-            return CodeChunkParseResult(None, error=exception_to_code_error(exc))
-
-        # If this is True, then there should be a call to 'open' somewhere in the code, which
-        # means the parser should try to find it. This is a basic check so there might not be
-        # one (like if the code did , but if 'open(' is NOT in the string then there definitely
-        # ISN'T one
-        search_for_open = 'open(' in chunk.text
-
-        for statement in chunk_ast.body:
-            self.parse_statement(statement)
-
-        if search_for_open:
-            self.find_file_reads(chunk_ast)
-
-        return CodeChunkParseResult(chunk_ast, self.imports, self.assigns, self.declares, self.alters, self.uses,
-                                    self.reads)
-
-    def parse_statement(self, statement: typing.Union[
-            ast.stmt, ast.expr, typing.List[typing.Union[ast.stmt, ast.expr]]]) -> None:
-        """General statement parser that delegates to parsers for specific parser types."""
-        if isinstance(statement, list):
-            for sub_statement in statement:
-                self.parse_statement(sub_statement)
-        elif isinstance(statement, (ast.ImportFrom, ast.Import)):
-            self.parse_import(statement)
-        elif isinstance(statement, (ast.Assign, ast.AnnAssign)):
-            self.parse_assigns(statement)
-        elif isinstance(statement, ast.BinOp):
-            self.parse_bin_op(statement)
-        elif isinstance(statement, ast.BoolOp):
-            self.parse_bool_op(statement)
-        elif isinstance(statement, ast.Attribute):
-            self.parse_attribute(statement)
-        elif isinstance(statement, ast.Subscript):
-            self.parse_subscript(statement, False)
-        elif isinstance(statement, ast.Call):
-            self.parse_call(statement)
-        elif isinstance(statement, ast.FunctionDef):
-            self.parse_function_def(statement)
-        elif isinstance(statement, ast.Dict):
-            self.parse_dict(statement)
-        elif isinstance(statement, (ast.List, ast.Tuple)):
-            self.parse_statement(statement.elts)
-        elif isinstance(statement, ast.Name):
-            self.add_name(statement.id, self.uses)
-        elif isinstance(statement, ast.Expr):
-            self.parse_statement(statement.value)
-        elif isinstance(statement, ast.AugAssign):
-            self.parse_aug_assign(statement)
-        elif isinstance(statement, (ast.If, ast.While)):
-            self.parse_if_while(statement)
-        elif isinstance(statement, ast.Compare):
-            self.parse_compare(statement)
-        elif isinstance(statement, ast.For):
-            self.parse_for(statement)
-        elif isinstance(statement, ast.Try):
-            self.parse_try(statement)
-        elif isinstance(statement, ast.ExceptHandler):
-            self.parse_except_handler(statement)
-        elif isinstance(statement, ast.With):
-            self.parse_with(statement)
-        elif isinstance(statement, (ast.ClassDef, ast.Num, ast.Str, ast.Pass)):
-            pass
-        else:
-            raise TypeError('Unrecognized statement: {}'.format(statement))
-
-    def parse_import(self, statement: typing.Union[ast.ImportFrom, ast.Import]) -> None:
-        """
-        Parse 'import ...' or 'from ... import ...' statements.
-
-        Adds the modules that are being imported from to the `imports` list.
-        """
-        if isinstance(statement, ast.ImportFrom):
-            modules = [statement.module]
-        else:
-            modules = [name.name for name in statement.names]
-
-        for m in modules:
-            if m not in self.imports:
-                self.imports.append(m)
-
-    def parse_reference(self, ref: typing.Optional[typing.Union[ast.stmt, ast.expr]]) -> typing.Optional[str]:
-        """
-        Attempts to get the final name of a reference (usually an `Index` used in a subscript).
-
-        For example, `a[b:c:d]` -> `b`, `c`, `d`.
-        """
-        if ref is None:
-            return None
-
-        if isinstance(ref, ast.Name):
-            return ref.id
-
-        if not isinstance(ref, ast.Subscript) and hasattr(ref, 'value'):
-            # for some reason isinstance (ref, ast.Index) doesn't work, so the hasattr check is a
-            # workaround to check for an ast.Index object
-            return self.parse_reference(ref.value)
-
-    def parse_assigns(self, statement: typing.Union[ast.Assign, ast.AnnAssign]) -> None:
-        """
-        Parse an assigment and try to choose the best place to store it.
-
-        If the assignment has a type annotation, treat that as a variable declaration (name into
-        `declares`). If the assignment is to an object (e.g. `x.y = z`) or list (e.g. `x[y] = z`
-        treat that as an alters (`x` into `alters`).
-        Otherwise, put the name into the `assigns` list. Also parse the right side of the
-        expression to find other variables that are used.
-        """
-        if hasattr(statement, 'targets'):
-            targets = statement.targets
-        elif hasattr(statement, 'target'):
-            targets = [statement.target]
-        else:
-            raise TypeError('{} has no target or targets'.format(statement))
-
-        for target in targets:
-            if isinstance(target, ast.Attribute):
-                self.add_alters(self.recurse_attribute(target))
-                continue
-
-            if isinstance(target, ast.Subscript):
-                self.add_alters(self.parse_subscript(target, True))
-                continue
-
-            if isinstance(target, ast.Name):
-                if isinstance(statement, ast.AnnAssign):
-                    annotation_name = statement.annotation.id if isinstance(statement.annotation, ast.Name) else None
-                    self.add_variable(target.id, annotation_name)
-                else:
-                    self.add_name(target.id, self.assigns)
-
-        if getattr(statement, 'value', None) is not None:
-            self.parse_statement(statement.value)
-
-    def recurse_attribute(self, ref: typing.Union[ast.stmt, ast.expr]) -> str:
-        """Recurse through an attribute to get the actual variable (e.g. `x.y.z` -> `x`)."""
-        if isinstance(ref.value, ast.Attribute):
-            return self.recurse_attribute(ref.value)
-
-        if isinstance(ref.value, ast.Name):
-            return ref.value.id
-
-        raise TypeError('Can\'t get name of {}'.format(ref))
-
-    def parse_attribute(self, statement: ast.Attribute) -> None:
-        """
-        Parse a standalone attribute and add it to the `uses` list.
-
-        This will be in cases like list or dict literals, or function calls.
-        Some examples:
-        `a = [b.c]` -> `b` into `uses`.
-        `a = {c.d: e.f}` -> `c` and `e` into `uses`.
-        `call_func(a.b, c.d)` -> `a` and `c` into `uses`.
-        """
-        self.add_name(self.recurse_attribute(statement), self.uses)
-
-    def parse_subscript(self, statement: ast.Subscript, in_assign: bool) -> typing.Optional[str]:
-        """
-        Parse a subscript (list access).
-
-        Handles single element access (`a[b]`) and slices (`a[b:c:d]`).
-        """
-        if isinstance(statement.slice, ast.Slice):
-            for ref_name in ('lower', 'step', 'upper'):
-                ref = getattr(statement.slice, ref_name, None)
-                name = self.parse_reference(ref)
-                if name is not None:
-                    self.add_name(name, self.uses)
-                if ref is not None:
-                    self.parse_statement(ref)
-        else:
-            slice_name = self.parse_reference(statement.slice)
-            if slice_name is not None:
-                self.add_name(slice_name, self.uses)
-
-        value_ref = self.parse_reference(statement.value)
-        if value_ref is not None:
-            if not in_assign:
-                self.add_name(value_ref, self.uses)
-            return value_ref
-        elif isinstance(statement, ast.Subscript):
-            return self.parse_subscript(statement.value, in_assign)
-        else:
-            self.parse_statement(statement.value)
-
-    def parse_bin_op(self, statement: ast.BinOp) -> None:
-        """Parse a binary operation, e.g `a + b`, `c - d`."""
-        self.parse_statement(statement.left)
-        self.parse_statement(statement.right)
-
-    def parse_bool_op(self, statement: ast.BoolOp) -> None:
-        """Pares a boolean operation, e.g. `a or b`, `d or e`."""
-        self.parse_statement(statement.values)
-
-    def parse_call(self, statement: ast.Call) -> None:
-        """Parse a function call to extract the variables used."""
-        if hasattr(statement, 'args'):
-            self.parse_statement(statement.args)
-
-        if hasattr(statement, 'keywords'):
-            for kw in statement.keywords:
-                self.parse_statement(kw.value)
-
-    def parse_function_def(self, statement: ast.FunctionDef) -> None:
-        """Parse a function definition to extract the `Parameter`s it accepts."""
-        if statement.name in self.seen_vars:
-            return
-
-        return_ann = statement.returns.id if isinstance(statement.returns, ast.Name) else None
-
-        func = Function(statement.name, returns=annotation_name_to_schema(return_ann), parameters=[])
-
-        for i, arg in enumerate(statement.args.args):
-            param = Parameter(arg.arg)
-
-            if arg.annotation:
-                param.schema = annotation_name_to_schema(arg.annotation.id)
-
-            default_index = len(statement.args.defaults) - len(statement.args.args) + i
-            # Only the last len(statement.args.defaults) can have defaults (since they must come after non-default
-            # parameters)
-            if default_index >= 0:
-                default = statement.args.defaults[default_index]
-
-                if isinstance(default, ast.Num):
-                    param.default = default.n
-                elif isinstance(default, ast.Str):
-                    param.default = default.s
-                elif isinstance(default, ast.NameConstant):
-                    # default of None/True/False
-                    param.default = default.value
-                else:
-                    self.parse_statement(default)
-                param.required = False
-            else:
-                param.required = True
-
-            func.parameters.append(param)
-
-        if statement.args.vararg:
-            func.parameters.append(Parameter(statement.args.vararg.arg, required=False, repeats=True))
-
-        if statement.args.kwarg:
-            func.parameters.append(Parameter(statement.args.kwarg.arg, required=False, extends=True))
-
-        self.seen_vars.append(func.name)
-        self.declares.append(func)
-
-    def parse_dict(self, statement: ast.Dict) -> None:
-        """
-        Parse a dictionary definition, adding any variables it uses as keys or values
-        to `uses`.
-        """
-        for key in statement.keys:
-            if isinstance(key, ast.Name):
-                self.add_name(key.id, self.uses)
-            else:
-                self.parse_statement(key)
-        for value in statement.values:
-            if isinstance(value, ast.Name):
-                self.add_name(value.id, self.uses)
-            else:
-                self.parse_statement(value)
-
-    def parse_aug_assign(self, statement: ast.AugAssign) -> None:
-        """
-        Parse an augmented assignment (e.g. a += 1).
-
-        Adds the variable being altered to the `alters` list.
-        """
-        if isinstance(statement.target, ast.Name):
-            self.add_alters(statement.target.id)
-        elif isinstance(statement.target, ast.Attribute):
-            self.add_alters(self.recurse_attribute(statement.target))
-        elif isinstance(statement.target, ast.Subscript):
-            self.add_alters(self.parse_subscript(statement.target, True))
-
-        self.parse_statement(statement.value)
-
-    def parse_if_while(self, statement: typing.Union[ast.If, ast.While]) -> None:
-        """Parse the test (condition), body, and `elif`/`else` statements of an `if` or `while`."""
-        self.parse_statement(statement.test)
-        self.parse_statement(statement.body)
-        self.parse_statement(statement.orelse)
-
-    def parse_compare(self, statement: ast.Compare) -> None:
-        """Parse a comparison statement (e.g. a > b, c < d, etc) and add the variables it uses to the `uses` list."""
-        self.parse_statement(statement.left)
-        self.parse_statement(statement.comparators)
-
-    def parse_for(self, statement: ast.For) -> None:
-        """
-        Parse a `for ...:` statement.
-
-        Since the variable being assigned in iteration is available after the loop, it is added to the `assigns` list.
-        """
-        if isinstance(statement.target, ast.Name):
-            self.add_name(statement.target.id, self.assigns)
-        self.parse_statement(statement.iter)
-        self.parse_statement(statement.body)
-        self.parse_statement(statement.orelse)
-
-    def parse_try(self, statement: ast.Try) -> None:
-        """Parse a `try`/`except`/`finally`/`else` statement."""
-        self.parse_statement(statement.handlers)
-        self.parse_statement(statement.body)
-        self.parse_statement(statement.finalbody)
-        self.parse_statement(statement.orelse)
-
-    def parse_except_handler(self, statement: ast.ExceptHandler) -> None:
-        """Parse an `except` handler (i.e. parse the statements in its `body`)."""
-        self.parse_statement(statement.body)
-
-    def parse_with(self, statement: ast.With) -> None:
-        """Parse a `with` statement (i.e. parse the statements in its `body`)."""
-        self.parse_statement(statement.body)
-
-    def find_file_reads(self, chunk_ast: ast.Module) -> None:
-        """
-        Walk the ast (including into function defs) and look for `open` function calls.
-
-        Add any file reads (any `open` calls that aren't exclusively writes) to the `reads` list.
-        """
-        for node in ast.walk(chunk_ast):
-            if isinstance(node, ast.Call) and isinstance(getattr(node, 'func', None),
-                                                         ast.Name) and node.func.id == 'open':
-                filename = parse_open_filename(node)
-
-                if filename and filename not in self.reads:
-                    self.reads.append(filename)
 
 
 class DocumentCompiler:
@@ -626,6 +115,11 @@ class DocumentCompiler:
     function_depth: int = 0
 
     def compile(self, source: Article) -> DocumentCompilationResult:
+        """
+        Compile an `Article` by walking it and finding `Parameter`s and `CodeChunk` or `CodeExpression` nodes.
+
+        These are set on a `DocumentCompilationResult` which can be passed to the `Interpreter`.
+        """
         self.function_depth = 0
         dcr = DocumentCompilationResult()
 
@@ -649,7 +143,7 @@ class DocumentCompiler:
 
             elif isinstance(item, Parameter) and self.function_depth == 0:
                 compilation_result.parameters.append(item)
-                logger.debug('Adding {}'.format(type(item)))
+                LOGGER.debug('Adding %s', type(item))
 
             if isinstance(item, Function):
                 # This prevents treating a `Parameter` found inside `Function` as a document parameter
@@ -699,20 +193,20 @@ class DocumentCompiler:
         else:
             try:
                 ast.parse(item.text)
-            except Exception as exc:
+            except SyntaxError as exc:  # Probably will only be this
                 set_code_error(item, exc)
             code_to_add = item
         compilation_result.code.append(code_to_add)
-        logger.debug('Adding {}'.format(type(item)))
+        LOGGER.debug('Adding %s', type(item))
 
-    def traverse_dict(self, d: dict, compilation_result: DocumentCompilationResult) -> None:
+    def traverse_dict(self, _dict: dict, compilation_result: DocumentCompilationResult) -> None:
         """Traverse into each item of a dict."""
-        for child in d.values():
+        for child in _dict.values():
             self.handle_item(child, compilation_result)
 
-    def traverse_list(self, l: typing.List, compilation_result: DocumentCompilationResult) -> None:
+    def traverse_list(self, _list: typing.List, compilation_result: DocumentCompilationResult) -> None:
         """Traverse into each element in a list."""
-        for child in l:
+        for child in _list:
             self.handle_item(child, compilation_result)
 
 
@@ -726,54 +220,15 @@ class Interpreter:
         chunk, parse_result = chunk_execution
 
         if parse_result.chunk_ast is None:
-            logger.info('Not executing CodeChunk without AST: %s', chunk.text[:CHUNK_PREVIEW_LENGTH])
+            LOGGER.info('Not executing CodeChunk without AST: %s', chunk.text[:CHUNK_PREVIEW_LENGTH])
             return
 
         cc_outputs = []
 
         duration = 0
 
-        error_occurred = False
-
         for statement in parse_result.chunk_ast.body:
-            capture_result = False
-
-            if isinstance(statement, ast.Expr):
-                """An expression is something that we want to capture the result of - this could be something like
-                 `a + 3` or a function call (not an assingnmenmt). It must be executed with `eval`. Since `eval` can't
-                 execute compiled code `astor` is used to convert it back to source code."""
-                capture_result = True
-                run_function = eval
-                code_to_run = astor.to_source(statement)
-            else:
-                """We don't care about the result of this call (it could just be an assignment, update or even function
-                definition) so it can be executed with `exec`."""
-                run_function = exec
-                mod = ast.Module()
-                mod.body = [statement]
-                code_to_run = compile(mod, '<ast>', 'exec')
-
-            stdout = StdoutBuffer(BytesIO(), sys.stdout.encoding)
-
-            result = None
-
-            with redirect_stdout(stdout):
-                try:
-                    with CodeTimer() as code_timer:
-                        result = run_function(code_to_run, self.globals, _locals)
-                    duration += code_timer.duration_ms
-                except Exception as exc:
-                    error_occurred = True
-                    set_code_error(chunk, exc)
-
-            if capture_result and result is not None:
-                cc_outputs.append(self.decode_output(result))
-
-            stdout.seek(0)
-            std_out_output = stdout.buffer.read()
-
-            if std_out_output:
-                cc_outputs.append(std_out_output.decode('utf8'))
+            duration, error_occurred = self.execute_statement(statement, chunk, _locals, cc_outputs, duration)
 
             if error_occurred:
                 break  # stop executing the rest of the statements in the chunk after capturing the outputs
@@ -781,10 +236,73 @@ class Interpreter:
         chunk.duration = duration
         chunk.outputs = cc_outputs
 
+    def execute_statement(self, statement: ast.stmt, chunk: CodeChunk, _locals: typing.Dict[str, typing.Any],
+                          cc_outputs: typing.List[str], duration: float) -> typing.Tuple[float, bool]:
+        """
+        Execute a single AST statement.
+
+        The statement will be executed with `eval` or `exec` depending on its type (see `parse_statement_runtime`).
+        """
+        error_occurred = False
+
+        capture_result, code_to_run, run_function = self.parse_statement_runtime(statement)
+        stdout = StdoutBuffer(BytesIO(), sys.stdout.encoding)
+        result = None
+
+        with redirect_stdout(stdout):
+            try:
+                with CodeTimer() as code_timer:
+                    result = run_function(code_to_run, self.globals, _locals)
+                duration += code_timer.duration_ms
+            # pylint: disable=W0703  # we really don't know what Exception some exec'd code might raise.
+            except Exception as exc:
+                error_occurred = True
+                set_code_error(chunk, exc)
+
+        if capture_result and result is not None:
+            cc_outputs.append(self.decode_output(result))
+        stdout.seek(0)
+        std_out_output = stdout.buffer.read()
+        if std_out_output:
+            cc_outputs.append(std_out_output.decode('utf8'))
+
+        # could save a variable by returning `duration` as `None` if an error occurs but I think that breaks readability
+        return duration, error_occurred
+
+    @staticmethod
+    def parse_statement_runtime(statement: ast.stmt) -> typing.Tuple[bool, typing.Union[str, 'code'], typing.Callable]:
+        """
+        Determine the information to execute a statement.
+
+        Returns the function with which to execute a statement (`eval` or `exec`), whether its output should be captured
+        or not, and the compiled code to execute.
+
+        See the other comments below on how/why these functions are chosen.
+        """
+
+        if isinstance(statement, ast.Expr):
+            # An expression is something that we want to capture the result of - this could be something like
+            # `a + 3` or a function call (not an assignment). It must be executed with `eval`. Since `eval` can't
+            # execute compiled code, `astor` is used to convert it back to source code.
+            capture_result = True
+            run_function = eval
+            code_to_run = astor.to_source(statement)
+        else:
+            # We don't care about the result of this call (it could just be an assignment, update or even function
+            # definition) so it can be executed with `exec`.
+            capture_result = False
+            run_function = exec
+            mod = ast.Module()
+            mod.body = [statement]
+            code_to_run = compile(mod, '<ast>', 'exec')
+        return capture_result, code_to_run, run_function
+
     def execute_code_expression(self, expression: CodeExpression, _locals: typing.Dict[str, typing.Any]) -> None:
         """eval `CodeExpression.text`, and get the result. Catch any exception the occurs."""
         try:
+            # pylint: disable=W0123  # Disable warning that eval is being used.
             expression.output = self.decode_output(eval(expression.text, self.globals, _locals))
+        # pylint: disable=W0703  # we really don't know what Exception some eval'd code might raise.
         except Exception as exc:
             set_code_error(expression, exc)
 
@@ -810,11 +328,12 @@ class Interpreter:
     @staticmethod
     def value_is_mpl(value: typing.Any) -> bool:
         """Basic type checking to determine if a variable is a MatPlotLib figure."""
-        if not mpl_available:
+        if not MPL_AVAILABLE:
             return False
 
-        return isinstance(value, (MPLFigure, MPLArtist)) or (
-                isinstance(value, list) and len(value) == 1 and isinstance(value[0], MPLArtist))
+        return isinstance(value, (MPLFigure, MPLArtist)) or (isinstance(value, list) and
+                                                             len(value) == 1 and
+                                                             isinstance(value[0], MPLArtist))
 
     @staticmethod
     def decode_mpl() -> ImageObject:
@@ -891,7 +410,7 @@ class ParameterParser:
         then the `ArgumentParser` class will cause the process to exit.
         """
         if not self.parameters:
-            logger.debug('No parameters passed to parse_cli_args')
+            LOGGER.debug('No parameters passed to parse_cli_args')
             return
 
         param_parser = argparse.ArgumentParser(description='Parse Parameters')
@@ -902,7 +421,7 @@ class ParameterParser:
 
         args, _ = param_parser.parse_known_args(cli_args)
 
-        logger.debug('Parsed command line args: %s', args)
+        LOGGER.debug('Parsed command line args: %s', args)
 
         for param_name in self.parameters:
             cli_value = getattr(args, param_name, None)
@@ -914,8 +433,6 @@ class ParameterParser:
     @staticmethod
     def deserialize_parameter(parameter: Parameter, value: typing.Any) -> typing.Any:
         """Convert a value (usually a string) into the type specified by the parameter's schema."""
-        # Lots of TODOs here, might not care as passing this off to encoda soon
-
         if isinstance(parameter.schema, ConstantSchema):
             # A ConstantSchema doesn't take a value it stores its own value.
             return parameter.schema.value
@@ -928,22 +445,16 @@ class ParameterParser:
         if isinstance(parameter.schema, BooleanSchema):
             return value.lower() in ('true', 'yes', '1', 't')
 
+        conversion_function = None
+
         if isinstance(parameter.schema, IntegerSchema):
-            return int(value)
+            conversion_function = int
+        elif isinstance(parameter.schema, NumberSchema):
+            conversion_function = float  # If there are problems with inaccuracy consider using Decimal instead
+        elif isinstance(parameter.schema, (ArraySchema, TupleSchema)):
+            conversion_function = json.loads
 
-        if isinstance(parameter.schema, NumberSchema):
-            return float(value)  # TODO should be a decimal?
-
-        if isinstance(parameter.schema, StringSchema):
-            return value
-
-        if isinstance(parameter.schema, ArraySchema):
-            return json.loads(value)
-
-        if isinstance(parameter.schema, TupleSchema):
-            return json.loads(value)
-
-        return value
+        return conversion_function(value) if conversion_function else value
 
 
 def read_input(input_file: str) -> Article:

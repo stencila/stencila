@@ -7,7 +7,7 @@ regen:
 	npm run build:py
 
 lint:
-	pylint stencila/schema
+	pylint stencila/schema --max-line-length=120
 	mypy stencila/schema
 
 test:

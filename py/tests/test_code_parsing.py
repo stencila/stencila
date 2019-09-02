@@ -1,6 +1,6 @@
 import typing
 
-from stencila.schema.interpreter import CodeChunkParser, CodeChunkParseResult, annotation_name_to_schema
+from stencila.schema.code_parsing import CodeChunkParseResult, annotation_name_to_schema, CodeChunkParser
 from stencila.schema.types import Variable, IntegerSchema, CodeChunk, Function, Parameter, SchemaTypes, StringSchema, \
     BooleanSchema, NumberSchema, ArraySchema, TupleSchema
 

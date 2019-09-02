@@ -1,7 +1,8 @@
 import typing
 
 from stencila.schema import util
-from stencila.schema.interpreter import DocumentCompiler, CodeChunkExecution
+from stencila.schema.interpreter import DocumentCompiler
+from stencila.schema.code_parsing import CodeChunkExecution
 from stencila.schema.types import Article, Parameter, CodeExpression, CodeChunk
 
 

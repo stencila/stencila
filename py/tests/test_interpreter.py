@@ -1,7 +1,7 @@
 import unittest.mock
 
-from stencila.schema.interpreter import Interpreter, CodeChunkExecution, CodeChunkParseResult, CodeChunkParser, \
-    DocumentCompiler, ParameterParser, execute_article
+from stencila.schema.interpreter import Interpreter, DocumentCompiler, ParameterParser, execute_article
+from stencila.schema.code_parsing import CodeChunkParseResult, CodeChunkExecution, CodeChunkParser
 from stencila.schema.types import CodeExpression, CodeChunk, Article
 
 
@@ -35,7 +35,7 @@ def test_catch_code_expression_error():
     assert ce.errors[0].trace is not None
 
 
-@unittest.mock.patch('stencila.schema.interpreter.logger')
+@unittest.mock.patch('stencila.schema.interpreter.LOGGER')
 @unittest.mock.patch('stencila.schema.interpreter.exec')
 @unittest.mock.patch('stencila.schema.interpreter.eval')
 def test_execute_code_chunk_without_ast(mock_eval, mock_exec, mock_logger):
