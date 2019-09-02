@@ -133,6 +133,7 @@ function setCodeChunkImports(code: CodeChunk, imports: string[]): void {
     return
   }
 
+  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
   if (code.imports.includes('')) return
 
   // Can't do any kind of de-dupe magic as code.imports might contain types other than strings.
@@ -140,6 +141,7 @@ function setCodeChunkImports(code: CodeChunk, imports: string[]): void {
     // Typescript seems to forget that this has already been checked to not be undefined
     if (code.imports === undefined) return
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!code.imports.includes(im)) code.imports.push(im)
   })
 }
@@ -955,6 +957,7 @@ function decodeParameter(parameter: Parameter, value?: string): any {
       return b === 'true' || b === 't' || b === 'yes' || b === '1'
     case 'EnumSchema':
       const es = parameter.schema as EnumSchema
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (es.values !== undefined && !es.values.includes(value))
         throw new Error(
           `${value} not found in enum values for ${parameter.name}`
@@ -962,11 +965,11 @@ function decodeParameter(parameter: Parameter, value?: string): any {
       return value
     case 'IntegerSchema':
       const intValue = parseInt(value)
-      if (isNaN(intValue)) throw new Error(`$[raw} is not a valid integer`)
+      if (isNaN(intValue)) throw new Error(`${value} is not a valid integer`)
       return intValue
     case 'NumberSchema':
       const floatValue = parseFloat(value)
-      if (isNaN(floatValue)) throw new Error(`$[raw} is not a valid float`)
+      if (isNaN(floatValue)) throw new Error(`${value} is not a valid float`)
       return floatValue
   }
 
