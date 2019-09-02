@@ -1,7 +1,10 @@
 all: setup clean regen lint test build
 
 setup:
-	pip3 install --upgrade -r requirements-dev.txt -r requirements.txt
+	pip3 install --upgrade -r requirements-dev.txt
+
+install:
+	python3 setup.py install
 
 regen:
 	npm run build:py

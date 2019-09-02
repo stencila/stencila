@@ -22,6 +22,7 @@ matrix:
 
       install:
         - make -C py setup
+        - make -C py install
 
       script:
         - make -C py lint
