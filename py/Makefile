@@ -8,7 +8,7 @@ regen:
 
 lint:
 	pylint stencila/schema --max-line-length=120
-	mypy stencila/schema
+	mypy stencila/schema --ignore-missing-imports
 
 test:
 	tox

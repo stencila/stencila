@@ -37,12 +37,12 @@ try:
     MPL_AVAILABLE = True
 except ImportError:
     # pylint: disable=R0903
-    class MPLFigure:
+    class MPLFigure:  # type: ignore
         """A fake MPLFigure to prevent RefenceErrors later."""
 
 
     # pylint: disable=R0903
-    class MLPArtist:
+    class MLPArtist:  # type: ignore
         """A fake MLPArtist to prevent RefenceErrors later."""
 
 
@@ -55,7 +55,7 @@ try:
     PANDAS_AVAILABLE = True
 except ImportError:
     # pylint: disable=R0903
-    class DataFrame:
+    class DataFrame:  # type: ignore
         """A fake DataFrame to prevent RefenceErrors later."""
 
 
@@ -67,6 +67,7 @@ LOGGER.addHandler(logging.NullHandler())
 CHUNK_PREVIEW_LENGTH = 20
 
 ExecutableCode = typing.Union[CodeChunkExecution, CodeExpression]
+StatementRuntime = typing.Tuple[bool, typing.Union[str], typing.Callable]
 
 
 class CodeTimer:
@@ -223,9 +224,9 @@ class Interpreter:
             LOGGER.info('Not executing CodeChunk without AST: %s', chunk.text[:CHUNK_PREVIEW_LENGTH])
             return
 
-        cc_outputs = []
+        cc_outputs: typing.List[typing.Any] = []
 
-        duration = 0
+        duration = 0.0
 
         for statement in parse_result.chunk_ast.body:
             duration, error_occurred = self.execute_statement(statement, chunk, _locals, cc_outputs, duration)
@@ -270,7 +271,7 @@ class Interpreter:
         return duration, error_occurred
 
     @staticmethod
-    def parse_statement_runtime(statement: ast.stmt) -> typing.Tuple[bool, typing.Union[str, 'code'], typing.Callable]:
+    def parse_statement_runtime(statement: ast.stmt) -> StatementRuntime:
         """
         Determine the information to execute a statement.
 
@@ -445,7 +446,7 @@ class ParameterParser:
         if isinstance(parameter.schema, BooleanSchema):
             return value.lower() in ('true', 'yes', '1', 't')
 
-        conversion_function = None
+        conversion_function: typing.Optional[typing.Callable] = None
 
         if isinstance(parameter.schema, IntegerSchema):
             conversion_function = int

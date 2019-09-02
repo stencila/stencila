@@ -33,6 +33,9 @@ class CodeChunkExecution(typing.NamedTuple):
 
 def annotation_name_to_schema(name: typing.Optional[str]) -> typing.Optional[SchemaTypes]:
     """Parse a Python annotation string (basically a type name) and convert to a `Schema` type."""
+    if name is None:
+        return None
+
     return {
         'bool': BooleanSchema(),
         'str': StringSchema(),
@@ -206,7 +209,7 @@ class CodeChunkParser:
 
     # pylint: disable=R0912  # Too many branches warning but this is kind of a special case
     def parse_statement(self,
-                        statement: typing.Union[ast.stmt, ast.expr, typing.List[typing.Union[ast.stmt, ast.expr]]]
+                        statement: typing.Union[ast.stmt, ast.expr, typing.Sequence[typing.Union[ast.stmt, ast.expr]]]
                         ) -> None:
         """General statement parser that delegates to parsers for specific parser types."""
         if isinstance(statement, list):
@@ -267,10 +270,11 @@ class CodeChunkParser:
             modules = [name.name for name in statement.names]
 
         for module in modules:
-            if module not in self.imports:
+            if module is not None and module not in self.imports:
                 self.imports.append(module)
 
-    def _parse_reference(self, ref: typing.Optional[typing.Union[ast.stmt, ast.expr]]) -> typing.Optional[str]:
+    def _parse_reference(self,
+                         ref: typing.Optional[typing.Union[ast.stmt, ast.expr, ast.slice]]) -> typing.Optional[str]:
         """
         Attempts to get the final name of a reference (usually an `Index` used in a subscript).
 
@@ -282,7 +286,7 @@ class CodeChunkParser:
         if not isinstance(ref, ast.Subscript) and hasattr(ref, 'value'):
             # for some reason isinstance (ref, ast.Index) doesn't work, so the hasattr check is a
             # workaround to check for an ast.Index object
-            return self._parse_reference(ref.value)
+            return self._parse_reference(ref.value)  # type: ignore
 
         return None
 
@@ -296,9 +300,9 @@ class CodeChunkParser:
         Otherwise, put the name into the `assigns` list. Also parse the right side of the expression to find other
         variables that are used.
         """
-        if hasattr(statement, 'targets'):
+        if isinstance(statement, ast.Assign):
             targets = statement.targets
-        elif hasattr(statement, 'target'):
+        elif isinstance(statement, ast.AnnAssign):
             targets = [statement.target]
         else:
             raise TypeError('{} has no target or targets'.format(statement))
@@ -309,7 +313,9 @@ class CodeChunkParser:
                 continue
 
             if isinstance(target, ast.Subscript):
-                self.add_alters(self._parse_subscript(target, True))
+                subscript_name = self._parse_subscript(target, True)
+                if subscript_name is not None:
+                    self.add_alters(subscript_name)
                 continue
 
             if isinstance(target, ast.Name):
@@ -319,16 +325,18 @@ class CodeChunkParser:
                 else:
                     self.add_name(target.id, self.assigns)
 
-        if getattr(statement, 'value', None) is not None:
-            self.parse_statement(statement.value)
+        statement_value = getattr(statement, 'value', None)
+        if statement_value is not None:
+            self.parse_statement(statement_value)
 
     def _recurse_attribute(self, ref: typing.Union[ast.stmt, ast.expr]) -> str:
         """Recurse through an attribute to get the actual variable (e.g. `x.y.z` -> `x`)."""
-        if isinstance(ref.value, ast.Attribute):
-            return self._recurse_attribute(ref.value)
+        if hasattr(ref, 'value'):
+            if isinstance(ref.value, ast.Attribute):  # type: ignore
+                return self._recurse_attribute(ref.value)  # type: ignore
 
-        if isinstance(ref.value, ast.Name):
-            return ref.value.id
+            if isinstance(ref.value, ast.Name):  # type: ignore
+                return ref.value.id  # type: ignore
 
         raise TypeError('Can\'t get name of {}'.format(ref))
 
@@ -369,7 +377,7 @@ class CodeChunkParser:
                 self.add_name(value_ref, self.uses)
             return value_ref
 
-        if isinstance(statement, ast.Subscript):
+        if isinstance(statement, ast.Subscript) and isinstance(statement.value, ast.Subscript):
             return self._parse_subscript(statement.value, in_assign)
 
         self.parse_statement(statement.value)
@@ -405,8 +413,8 @@ class CodeChunkParser:
         for i, arg in enumerate(statement.args.args):
             param = Parameter(arg.arg)
 
-            if arg.annotation:
-                param.schema = annotation_name_to_schema(arg.annotation.id)
+            if arg.annotation and hasattr(arg.annotation, 'id'):
+                param.schema = annotation_name_to_schema(arg.annotation.id)  # type: ignore
 
             default_index = len(statement.args.defaults) - len(statement.args.args) + i
             # Only the last len(statement.args.defaults) can have defaults (since they must come after non-default
@@ -465,7 +473,9 @@ class CodeChunkParser:
         elif isinstance(statement.target, ast.Attribute):
             self.add_alters(self._recurse_attribute(statement.target))
         elif isinstance(statement.target, ast.Subscript):
-            self.add_alters(self._parse_subscript(statement.target, True))
+            target_name = self._parse_subscript(statement.target, True)
+            if target_name:
+                self.add_alters(target_name)
 
         self.parse_statement(statement.value)
 
@@ -494,7 +504,8 @@ class CodeChunkParser:
 
     def _parse_try(self, statement: ast.Try) -> None:
         """Parse a `try`/`except`/`finally`/`else` statement."""
-        self.parse_statement(statement.handlers)
+        self.parse_statement(statement.handlers)  # type: ignore  # Doesn't seem to understand List[ExceptHandler]
+        # is valid
         self.parse_statement(statement.body)
         self.parse_statement(statement.finalbody)
         self.parse_statement(statement.orelse)
@@ -515,7 +526,7 @@ class CodeChunkParser:
         """
         for node in ast.walk(chunk_ast):
             if isinstance(node, ast.Call) and isinstance(getattr(node, 'func', None),
-                                                         ast.Name) and node.func.id == 'open':
+                                                         ast.Name) and node.func.id == 'open':  # type: ignore
                 filename = parse_open_filename(node)
 
                 if filename and filename not in self.reads:
