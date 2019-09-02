@@ -1,3 +1,44 @@
+# [0.28.0](https://github.com/stencila/schema/compare/v0.27.0...v0.28.0) (2019-09-02)
+
+
+### Bug Fixes
+
+* **Code:** Refactor code related classes ([deb1c51](https://github.com/stencila/schema/commit/deb1c51)), closes [#92](https://github.com/stencila/schema/issues/92)
+* Fixed behaviour of ConstantSchema and EnumSchema in python executor ([c50d5ac](https://github.com/stencila/schema/commit/c50d5ac))
+* **Py:** Fixed Execution timing to include entire CodeChunk ([44338e5](https://github.com/stencila/schema/commit/44338e5))
+* **R:** Add include tag so collation order is correct ([3cee6d8](https://github.com/stencila/schema/commit/3cee6d8))
+* **R:** Correct Datatable functions  for new schema ([c50903a](https://github.com/stencila/schema/commit/c50903a))
+* **R:** Fix and improve generated bindings ([cffc5fe](https://github.com/stencila/schema/commit/cffc5fe))
+* Refactor after rebasing ([f21ad6c](https://github.com/stencila/schema/commit/f21ad6c))
+* Treating typed variables as declarations and other as assigns ([dbefd62](https://github.com/stencila/schema/commit/dbefd62))
+* TS generation of function function and type usage in CodeError ([2f43bfa](https://github.com/stencila/schema/commit/2f43bfa))
+
+
+### Features
+
+* **Js/WIP:** Parsing of CodeChunk properties ([1fdbd1d](https://github.com/stencila/schema/commit/1fdbd1d))
+* Add Parameter schema ([cf6e358](https://github.com/stencila/schema/commit/cf6e358))
+* **CodeChunk:** Add more properties to CodeChunk ([49c3543](https://github.com/stencila/schema/commit/49c3543))
+* **Js:** Added Handling of for statements ([e6799f6](https://github.com/stencila/schema/commit/e6799f6))
+* **Js:** Adding timing of CodeChunk execution ([b1aa9cc](https://github.com/stencila/schema/commit/b1aa9cc))
+* Added parsing of alters and error capturing ([3e43901](https://github.com/stencila/schema/commit/3e43901))
+* **Js:** Capturing files read by readFile/readFileSync and open ([aaf3fa4](https://github.com/stencila/schema/commit/aaf3fa4))
+* **Js:** Catching exceptions during parsing/execution ([e499eb4](https://github.com/stencila/schema/commit/e499eb4))
+* **JS:** Added checking for empty string semaphore in imports ([d2e2d48](https://github.com/stencila/schema/commit/d2e2d48))
+* **JS:** Added parsing of try/except ([81942ec](https://github.com/stencila/schema/commit/81942ec))
+* **Parameter:** Add schema schemas ([d5b67b0](https://github.com/stencila/schema/commit/d5b67b0))
+* **Py:** Added checking for empty string semaphore in imports ([648ac8e](https://github.com/stencila/schema/commit/648ac8e))
+* **Py:** Added Exception parsing ([5e55bcb](https://github.com/stencila/schema/commit/5e55bcb))
+* **Py:** Added Python args/kwargs parsing ([2f4b927](https://github.com/stencila/schema/commit/2f4b927))
+* **R:** Add compilation of CodeChunks ([68a183e](https://github.com/stencila/schema/commit/68a183e))
+* Add Python command line executor ([e4dbe3d](https://github.com/stencila/schema/commit/e4dbe3d))
+* Added 'repeats' and 'extends' properties for Parameter ([398e658](https://github.com/stencila/schema/commit/398e658))
+* Added first draft of JavaScript executor ([0bdc46e](https://github.com/stencila/schema/commit/0bdc46e))
+* Added parsing of If, While etc to JS interpreter ([7c062d1](https://github.com/stencila/schema/commit/7c062d1))
+* Converting matplotlib figures to ImageObjects during Py execution ([e080f6b](https://github.com/stencila/schema/commit/e080f6b))
+* Converting Pandas DataFrames to Datatables in Python JSON output ([39406e5](https://github.com/stencila/schema/commit/39406e5))
+* Extracting features from CodeChunks ([790f9bf](https://github.com/stencila/schema/commit/790f9bf))
+
 # [0.27.0](https://github.com/stencila/schema/compare/v0.26.0...v0.27.0) (2019-08-23)
 
 
