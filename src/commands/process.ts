@@ -2,6 +2,7 @@ import express from 'express'
 import asyncHandler from 'express-async-handler'
 import yargs from 'yargs'
 import * as encoda from '@stencila/encoda'
+import { default as encodaProcess } from '@stencila/encoda/dist/process'
 import { cliArgsDefine, cliArgsDefaults } from './convert'
 import path from 'path'
 import { getLogger } from '@stencila/logga'
@@ -24,7 +25,7 @@ export function cli(yargsDefinition: yargs.Argv, next?: Function) {
       const { input, output, from, to } = cliArgsDefaults(argv)
 
       const node = await encoda.read(input, from)
-      const processed = await encoda.process(node)
+      const processed = await encodaProcess(node)
       await encoda.write(processed, output, to)
 
       if (next) next()
@@ -59,8 +60,8 @@ export function http(expressApp: express.Application, folder: string) {
       logger.info(`Processing ${file} to ${mediaType}`)
 
       const node = await encoda.read(filePath)
-      const processed = await encoda.process(node)
-      const content = await encoda.dump(processed, { format: mediaType })
+      const processed = await encodaProcess(node)
+      const content = await encoda.dump(processed, mediaType)
 
       res.set('Content-Type', mediaType)
       res.send(content)
@@ -79,8 +80,8 @@ export function http(expressApp: express.Application, folder: string) {
       logger.info(`Processing content from ${mediaTypeFrom} to ${mediaTypeTo}`)
 
       const node = await encoda.load(content, mediaTypeFrom)
-      const processed = await encoda.process(node)
-      const result = await encoda.dump(processed, { format: mediaTypeTo })
+      const processed = await encodaProcess(node)
+      const result = await encoda.dump(processed, mediaTypeTo)
 
       res.set('Content-Type', mediaTypeTo)
       res.send(result)

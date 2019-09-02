@@ -40,7 +40,7 @@ export default function web(
       const { message, stack } = error
 
       // Send error to logger
-      logger.error({ message, stackTrace: stack })
+      logger.error({ message, stack })
 
       // Send a detailed error message as
       // HTML or JSON to the client
@@ -78,7 +78,7 @@ export default function web(
       <div>
         <div>${LogLevel[data.level]}</div>
         <div>${data.message}</div>
-        <pre>${data.level < 4 ? data.stackTrace : ''}</pre>
+        <pre>${data.level < 4 ? data.stack : ''}</pre>
       </div>`
       browser.notify(html, 30 * 1000)
     })

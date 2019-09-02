@@ -28,10 +28,7 @@ const winstonLogger = setupLogger()
 // Add handler to send log events to winston
 addHandler(function(data: LogData) {
   if (data.level <= LogLevel.error) {
-    const youch = new Youch(
-      { message: data.message, stack: data.stackTrace },
-      {}
-    )
+    const youch = new Youch({ message: data.message, stack: data.stack }, {})
     youch.toJSON().then((obj: any) => console.error(youchTerminal(obj)))
   }
 
@@ -39,7 +36,7 @@ addHandler(function(data: LogData) {
     LogLevel[data.level],
     data.message,
     // Only record stack traces for errors and worse.
-    data.level <= LogLevel.error ? data.stackTrace : undefined
+    data.level <= LogLevel.error ? data.stack : undefined
   )
 })
 

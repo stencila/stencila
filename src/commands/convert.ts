@@ -30,7 +30,7 @@ export function cli(
       await encoda.convert(input, output, {
         from,
         to,
-        options: { codecOptions: { theme } }
+        encodeOptions: { theme }
       })
       if (callbackFunction) callbackFunction()
     }
@@ -107,14 +107,11 @@ export function http(expressApp: express.Application, folder: string) {
       const content = req.body || {}
       const mediaTypeFrom = req.get('Content-Type') || 'application/json'
       const mediaTypeTo = req.get('Accept') || 'application/json'
-      const theme = req.params.get('theme') || DEFAULT_THEME
+      const theme = req.query.theme || DEFAULT_THEME
       logger.info(`Converting content from ${mediaTypeFrom} to ${mediaTypeTo}`)
 
       const node = await encoda.load(content, mediaTypeFrom)
-      const result = await encoda.dump(node, {
-        format: mediaTypeTo,
-        codecOptions: { theme }
-      })
+      const result = await encoda.dump(node, mediaTypeTo, { theme })
 
       res.set('Content-Type', mediaTypeTo)
       res.send(result)
