@@ -30,7 +30,7 @@ export default function web(
   app.use(bodyParser.raw({ type: '*/*' }))
 
   // Add command endpoints
-  convert.http(app, folder)
+  convert.http(app)
   process.http(app, folder)
 
   // Add error handling middleware to handle uncaught errors
