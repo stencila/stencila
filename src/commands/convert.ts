@@ -44,11 +44,7 @@ export function cli(
       }>
     ): Promise<void> => {
       let { input, output, from, to, theme } = argv
-      if (
-        (input === '-' || !/\.([a-z]{2,5})$/.test(input)) &&
-        from === undefined
-      )
-        from = 'md'
+      if (input === '-' && from === undefined) from = 'md'
       if (output === '-' && to === undefined) to = 'yaml'
       await encoda.convert(
         input,
