@@ -14,11 +14,10 @@
  *   - https://github.com/JoshuaWise/better-sqlite3/issues/173
  *   - `package.json`
  */
+import { getLogger } from '@stencila/logga'
 import fs from 'fs-extra'
 import path from 'path'
 import tar from 'tar'
-
-import { getLogger } from '@stencila/logga'
 
 const logger = getLogger('stencila')
 

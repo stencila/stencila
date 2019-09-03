@@ -8,40 +8,17 @@
  */
 
 import yargs from 'yargs'
-// @ts-ignore
-import Youch from 'youch'
-// @ts-ignore
-import youchTerminal from 'youch-terminal'
-import {
-  replaceHandlers,
-  defaultHandler,
-  LogData,
-  LogLevel
-} from '@stencila/logga'
-
 import * as convert from './commands/convert'
 import * as process_ from './commands/process'
 import * as serve from './commands/serve'
 import * as system from './commands/system'
-import { extractDeps } from './boot'
+import * as boot from './boot'
+import * as log from './log'
 
 const VERSION = require('../package').version
 
-// Replace the default log handler with one that also sends
-// events to winston
-replaceHandlers(function(data: LogData) {
-  if (data.level <= LogLevel.error) {
-    const youch = new Youch({ message: data.message, stack: data.stack }, {})
-    youch.toJSON().then((obj: unknown) => console.error(youchTerminal(obj)))
-  } else {
-    defaultHandler(data)
-  }
-})
-
-/**
- * Attempt to extract the dependencies, nothing will happen if they have already been extracted
- */
-extractDeps()
+log.configure()
+boot.extractDeps()
 
 const yargsDefinition = yargs.scriptName('stencila')
 
