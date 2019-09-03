@@ -5,7 +5,7 @@ import * as winston from 'winston'
  *
  * For now, just log to console, until various bugs are fixed to allow configuration from file.
  */
-export function setupLogger(configPath?: string): winston.Logger {
+export function setupLogger(): winston.Logger {
   return winston.createLogger({
     format: winston.format.simple(),
     transports: [new winston.transports.Console({ level: 'debug' })]

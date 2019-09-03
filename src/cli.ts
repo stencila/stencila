@@ -29,7 +29,7 @@ const winstonLogger = setupLogger()
 addHandler(function(data: LogData) {
   if (data.level <= LogLevel.error) {
     const youch = new Youch({ message: data.message, stack: data.stack }, {})
-    youch.toJSON().then((obj: any) => console.error(youchTerminal(obj)))
+    youch.toJSON().then((obj: unknown) => console.error(youchTerminal(obj)))
   }
 
   winstonLogger.log(
@@ -77,7 +77,7 @@ yargsDefinition
   .parse()
 
 // Clean up before process.exit
-function cleanup() {
+function cleanup(): void {
   // Emit a beforeExit event. e.g. used by Encoda's Puppeteer interface to
   // destroy any browser instance. Note that:
   //   "The 'beforeExit' event is not emitted for conditions causing

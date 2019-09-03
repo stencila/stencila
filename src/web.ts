@@ -23,7 +23,7 @@ export default function web(
   sync: boolean = false,
   port: number = 3000,
   address: string = 'localhost'
-) {
+): void {
   const app = express()
 
   // Body parsing
@@ -35,26 +35,24 @@ export default function web(
 
   // Add error handling middleware to handle uncaught errors
   // and send them to the logger and client
-  app.use(
-    (error: Error, req: express.Request, res: express.Response, next: any) => {
-      const { message, stack } = error
+  app.use(async (error: Error, req: express.Request, res: express.Response) => {
+    const { message, stack } = error
 
-      // Send error to logger
-      logger.error({ message, stack })
+    // Send error to logger
+    logger.error({ message, stack })
 
-      // Send a detailed error message as
-      // HTML or JSON to the client
-      res.status(500)
-      if (req.accepts('html')) {
-        htmlError(error, req).then((html: string) => {
-          res.header('Content-Type', 'text/html')
-          res.send(html)
-        })
-      } else {
-        res.json({ message, stack })
-      }
+    // Send a detailed error message as
+    // HTML or JSON to the client
+    res.status(500)
+    if (req.accepts('html') !== undefined) {
+      await htmlError(error, req).then((html: string) => {
+        res.header('Content-Type', 'text/html')
+        res.send(html)
+      })
+    } else {
+      res.json({ message, stack })
     }
-  )
+  })
 
   // Start server
   app.listen(port, address)

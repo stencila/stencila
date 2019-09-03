@@ -26,8 +26,9 @@ const logger = getLogger('stencila')
  * Is this process being run as a `pkg` packaged binary?
  */
 const packaged =
-  ((process.mainModule && process.mainModule.id.endsWith('.exe')) ||
-    process.hasOwnProperty('pkg')) &&
+  ((process.mainModule !== undefined &&
+    process.mainModule.id.endsWith('.exe')) ||
+    Object.prototype.hasOwnProperty.call(process, 'pkg')) &&
   fs.existsSync(path.join('/', 'snapshot'))
 
 /**
@@ -39,7 +40,7 @@ const home = packaged ? path.dirname(process.execPath) : path.dirname(__dirname)
 /**
  *  Unzip the native dependencies to home
  */
-export function extractDeps(forceExtract: boolean = false) {
+export function extractDeps(forceExtract: boolean = false): void {
   const shouldExtract =
     packaged &&
     (forceExtract || !fs.existsSync(path.join(home, 'node_modules')))
