@@ -12,9 +12,13 @@ import yargs from 'yargs'
 import Youch from 'youch'
 // @ts-ignore
 import youchTerminal from 'youch-terminal'
-import { addHandler, LogData, LogLevel } from '@stencila/logga'
+import {
+  replaceHandlers,
+  defaultHandler,
+  LogData,
+  LogLevel
+} from '@stencila/logga'
 
-import { setupLogger } from './logs'
 import * as convert from './commands/convert'
 import * as process_ from './commands/process'
 import * as serve from './commands/serve'
@@ -23,21 +27,15 @@ import { extractDeps } from './boot'
 
 const VERSION = require('../package').version
 
-const winstonLogger = setupLogger()
-
-// Add handler to send log events to winston
-addHandler(function(data: LogData) {
+// Replace the default log handler with one that also sends
+// events to winston
+replaceHandlers(function(data: LogData) {
   if (data.level <= LogLevel.error) {
     const youch = new Youch({ message: data.message, stack: data.stack }, {})
     youch.toJSON().then((obj: unknown) => console.error(youchTerminal(obj)))
+  } else {
+    defaultHandler(data)
   }
-
-  winstonLogger.log(
-    LogLevel[data.level],
-    data.message,
-    // Only record stack traces for errors and worse.
-    data.level <= LogLevel.error ? data.stack : undefined
-  )
 })
 
 /**
