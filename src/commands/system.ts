@@ -1,5 +1,4 @@
 import yargs from 'yargs'
-import web from '../web'
 import { extractDeps } from '../boot'
 
 /**
@@ -15,12 +14,12 @@ export function cli(
   return yargsDefinition.command(
     'setup',
     'Force re-extraction of the stencila CLI environment deps',
-    (yargsDefinition: yargs.Argv): yargs.Argv<any> => {
+    (yargsDefinition: yargs.Argv): yargs.Argv => {
       return yargsDefinition
     },
-    async (argv: any): Promise<void> => {
+    async (): Promise<void> => {
       extractDeps(true)
-      if (callbackFunction) callbackFunction()
+      if (callbackFunction !== undefined) callbackFunction()
     }
   )
 }

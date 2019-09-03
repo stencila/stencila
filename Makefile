@@ -1,4 +1,4 @@
-all: setup lint cover build
+all: setup lint format build
 
 setup:
 	npm install
@@ -6,11 +6,8 @@ setup:
 lint:
 	npm run lint
 
-test:
-	npm test
-
-cover:
-	npm run cover
+format:
+	npm run format
 
 build:
 	npm run build

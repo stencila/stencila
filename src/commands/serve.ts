@@ -14,7 +14,7 @@ export function cli(
   return yargsDefinition.command(
     'serve [folder]',
     'Serve a project folder',
-    (yargsDefinition: yargs.Argv): yargs.Argv<any> => {
+    (yargsDefinition: yargs.Argv): yargs.Argv => {
       return yargsDefinition
         .positional('folder', {
           describe:
@@ -28,10 +28,10 @@ export function cli(
           default: false
         })
     },
-    async (argv: any): Promise<void> => {
-      let { folder, sync, include, exclude } = argv
-      web(folder, sync)
-      if (callbackFunction) callbackFunction()
+    async (argv: yargs.Arguments): Promise<void> => {
+      const { folder, sync } = argv
+      web(folder as string, sync as boolean)
+      if (callbackFunction !== undefined) callbackFunction()
     }
   )
 }

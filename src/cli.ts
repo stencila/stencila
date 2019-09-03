@@ -8,45 +8,17 @@
  */
 
 import yargs from 'yargs'
-// @ts-ignore
-import Youch from 'youch'
-// @ts-ignore
-import youchTerminal from 'youch-terminal'
-import { addHandler, LogData, LogLevel } from '@stencila/logga'
-
-import { setupLogger } from './logs'
 import * as convert from './commands/convert'
 import * as process_ from './commands/process'
 import * as serve from './commands/serve'
 import * as system from './commands/system'
-import { extractDeps } from './boot'
+import * as boot from './boot'
+import * as log from './log'
 
 const VERSION = require('../package').version
 
-const winstonLogger = setupLogger()
-
-// Add handler to send log events to winston
-addHandler(function(data: LogData) {
-  if (data.level <= LogLevel.error) {
-    const youch = new Youch(
-      { message: data.message, stack: data.stackTrace },
-      {}
-    )
-    youch.toJSON().then((obj: any) => console.error(youchTerminal(obj)))
-  }
-
-  winstonLogger.log(
-    LogLevel[data.level],
-    data.message,
-    // Only record stack traces for errors and worse.
-    data.level <= LogLevel.error ? data.stackTrace : undefined
-  )
-})
-
-/**
- * Attempt to extract the dependencies, nothing will happen if they have already been extracted
- */
-extractDeps()
+log.configure()
+boot.extractDeps()
 
 const yargsDefinition = yargs.scriptName('stencila')
 
@@ -80,7 +52,7 @@ yargsDefinition
   .parse()
 
 // Clean up before process.exit
-function cleanup() {
+function cleanup(): void {
   // Emit a beforeExit event. e.g. used by Encoda's Puppeteer interface to
   // destroy any browser instance. Note that:
   //   "The 'beforeExit' event is not emitted for conditions causing

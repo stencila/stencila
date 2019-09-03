@@ -7,12 +7,22 @@ import yargs from 'yargs'
 import * as encoda from '@stencila/encoda'
 import asyncHandler from 'express-async-handler'
 import { getLogger } from '@stencila/logga'
+import { fallback } from '../util/fallback'
 
 const logger = getLogger('stencila')
 const DEFAULT_THEME = 'stencila'
 
 /**
  * Add `convert` CLI command to a `yargs` definition.
+ *
+ * Generate defaults for CLI arguments based on other arguments.
+ *
+ * For standard input, or content that does not appear to be a file with an extension,
+ * default to Markdown input as the most human writable format
+ * in the terminal.
+ *
+ * For standard output, default to YAML output as the most human readable format
+ * in the terminal.
  *
  * @param yargsDefinition The current `yargs` definition that has been created in `cli.ts`.
  * @param callbackFunction Function to be called after the command has executed.
@@ -25,14 +35,28 @@ export function cli(
     'convert [input] [output]',
     'Convert between file formats',
     cliArgsDefine,
-    async (argv: any): Promise<void> => {
-      const { input, output, from, to, theme } = cliArgsDefaults(argv)
-      await encoda.convert(input, output, {
-        from,
-        to,
-        options: { codecOptions: { theme } }
-      })
-      if (callbackFunction) callbackFunction()
+    async (
+      argv: yargs.Arguments<{
+        input: string
+        output: string
+        from: string
+        to: string
+      }>
+    ): Promise<void> => {
+      let { input, output, from, to, theme } = argv
+      if (input === '-' && from === undefined) from = 'md'
+      if (output === '-' && to === undefined) to = 'yaml'
+      await encoda.convert(
+        input,
+        output,
+        // @ts-ignore
+        {
+          from,
+          to,
+          encodeOptions: { theme }
+        }
+      )
+      if (callbackFunction !== undefined) callbackFunction()
     }
   )
 }
@@ -45,6 +69,7 @@ export function cli(
  *
  * @param yargsDefinition The current `yargs` definition that has been created in `cli.ts`.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function cliArgsDefine(yargsDefinition: yargs.Argv): yargs.Argv<any> {
   return yargsDefinition
     .positional('input', {
@@ -73,48 +98,29 @@ export function cliArgsDefine(yargsDefinition: yargs.Argv): yargs.Argv<any> {
 }
 
 /**
- * Generate defaults for CLI arguments based on other arguments.
- *
- * For standard input, or content that does not appear to be a file with an extension,
- * default to Markdown input as the most human writable format
- * in the terminal.
- *
- * For standard output, default to YAML output as the most human readable format
- * in the terminal.
- *
- * @param argv Array of arguments
- */
-export function cliArgsDefaults(argv: any) {
-  let { input, output, from, to, theme } = argv
-  if ((input === '-' || !/\.([a-z]{2,5})$/.test(input)) && !from) from = 'md'
-  if (output === '-' && !to) to = 'yaml'
-  return { input, output, from, to, theme }
-}
-
-/**
  * Add HTTP endpoints to an `express` application.
  *
  * @param expressApp The current `express` app created in `web.ts`
  * @param folder The folder
  */
-export function http(expressApp: express.Application, folder: string) {
+export function http(expressApp: express.Application): void {
   /**
    * `POST /convert`: convert content in the request body
    */
   expressApp.post(
     '/convert',
     asyncHandler(async (req: express.Request, res: express.Response) => {
-      const content = req.body || {}
-      const mediaTypeFrom = req.get('Content-Type') || 'application/json'
-      const mediaTypeTo = req.get('Accept') || 'application/json'
-      const theme = req.params.get('theme') || DEFAULT_THEME
+      const content = fallback(req.body, '')
+      const mediaTypeFrom = fallback(
+        req.get('Content-Type'),
+        'application/json'
+      )
+      const mediaTypeTo = fallback(req.get('Accept'), 'application/json')
+      const theme = fallback(req.query.theme, DEFAULT_THEME)
       logger.info(`Converting content from ${mediaTypeFrom} to ${mediaTypeTo}`)
 
       const node = await encoda.load(content, mediaTypeFrom)
-      const result = await encoda.dump(node, {
-        format: mediaTypeTo,
-        codecOptions: { theme }
-      })
+      const result = await encoda.dump(node, mediaTypeTo, { theme })
 
       res.set('Content-Type', mediaTypeTo)
       res.send(result)
