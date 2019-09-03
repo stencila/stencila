@@ -47,8 +47,7 @@
     "fs-extra": "^8.1.0",
     "tar": "^4.4.10",
     "yargs": "^14.0.0",
-    "youch": "^2.0.10",
-    "youch-terminal": "^1.0.0"
+    "youch": "^2.0.10"
   },
   "devDependencies": {
     "@stencila/dev-config": "^1.1.3",
