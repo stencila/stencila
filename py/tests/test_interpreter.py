@@ -1,8 +1,8 @@
 import unittest.mock
 
-from stencila.schema.interpreter import Interpreter, DocumentCompiler, ParameterParser, execute_compilation, \
-    compile_article, DocumentCompilationResult, SKIP_OUTPUT_SEMAPHORE
-from stencila.schema.code_parsing import CodeChunkParseResult, CodeChunkExecution, CodeChunkParser
+from stencila.schema.code_parsing import CodeChunkExecution, CodeChunkParser
+from stencila.schema.interpreter import Interpreter, execute_compilation, compile_article, DocumentCompilationResult, \
+    SKIP_OUTPUT_SEMAPHORE
 from stencila.schema.types import CodeExpression, CodeChunk, Article
 
 
