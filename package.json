@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.30.3",
+  "version": "0.30.5",
   "description": "Living documents for reproducible research.",
   "main": "./dist/index.js",
   "bin": "./dist/cli.js",
@@ -90,20 +90,7 @@
     "extends": "@stencila/eslint-config"
   },
   "release": {
-    "extends": "@stencila/semantic-release-config",
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      "@semantic-release/changelog",
-      "@semantic-release/npm",
-      [
-        "@semantic-release/git",
-        {
-          "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
-        }
-      ],
-      "@semantic-release/github"
-    ]
+    "extends": "@stencila/semantic-release-config"
   },
   "commitlint": {
     "extends": [

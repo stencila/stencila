@@ -1,3 +1,11 @@
+## [0.30.5](https://github.com/stencila/stencila/compare/v0.30.4...v0.30.5) (2019-09-04)
+
+
+### Bug Fixes
+
+* **CLI:** Add global error handler ([fef2000](https://github.com/stencila/stencila/commit/fef2000))
+* **Encoda:** Update encoda to 0.71.2 ([658e2bc](https://github.com/stencila/stencila/commit/658e2bc))
+
 ## [0.30.3](https://github.com/stencila/stencila/compare/v0.30.2...v0.30.3) (2019-09-03)
 
 
