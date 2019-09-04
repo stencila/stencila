@@ -10,6 +10,8 @@
 @custom-selector :--authorDetails [itemprop='authorDetails'];
 @custom-selector :--authors [itemprop='authors'];
 @custom-selector :--datePublished [itemprop='datePublished'];
+@custom-selector :--familyName [itemprop='familyName'];
+@custom-selector :--givenName [itemprop='givenName'];
 @custom-selector :--issueNumber [itemprop='issueNumber'];
 @custom-selector :--pagination [itemprop='pagination'];
 @custom-selector :--references [itemprop='references'];

@@ -26,7 +26,7 @@
         display: inline-flex;
       }
 
-      [itemprop='familyName'] {
+      :--familyName {
         order: 2;
 
         &::after {
@@ -35,7 +35,7 @@
         }
       }
 
-      [itemprop='givenName'] {
+      :--givenName {
         order: 1;
 
         &::after {
@@ -44,7 +44,7 @@
         }
       }
 
-      &:last-child [itemprop='familyName'] {
+      &:last-child :--familyName {
         &::after {
           content: normal;
         }
@@ -151,11 +151,11 @@
 
     :--authors {
       :--Person {
-        [itemprop='familyName'] {
+        :--familyName {
           order: 1;
         }
 
-        [itemprop='givenName'] {
+        :--givenName {
           order: 2;
         }
 
@@ -169,7 +169,7 @@
             font-style: italic;
           }
 
-          [itemprop='givenName']::after {
+          :--givenName::after {
             content: normal;
           }
         }
@@ -219,7 +219,7 @@
 
     :--authors {
       :--Person {
-        [itemprop='familyName'] {
+        :--familyName {
           order: 1;
 
           &::after {
@@ -228,7 +228,7 @@
           }
         }
 
-        [itemprop='givenName'] {
+        :--givenName {
           order: 2;
 
           &::after {
@@ -242,7 +242,7 @@
             white-space: pre;
           }
 
-          [itemprop='givenName'] {
+          :--givenName {
             &::after {
               content: '. ';
             }

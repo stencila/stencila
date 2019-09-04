@@ -352,7 +352,7 @@ blockquote {
 
   :--authors {
     :--Person {
-      [itemprop='familyName'] {
+      :--familyName {
         order: 1;
 
         &::after {
@@ -361,7 +361,7 @@ blockquote {
         }
       }
 
-      [itemprop='givenName'] {
+      :--givenName {
         order: 2;
 
         &::after {
@@ -371,12 +371,12 @@ blockquote {
       }
 
       &:last-of-type {
-        [itemprop='familyName']::after {
+        :--familyName::after {
           content: ' ';
           white-space: pre;
         }
 
-        [itemprop='givenName']::after {
+        :--givenName::after {
           content: '.';
           white-space: pre;
         }
