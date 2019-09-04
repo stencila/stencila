@@ -1,6 +1,11 @@
 import * as logga from '@stencila/logga'
 
 /**
+ * A logger object to use to emit log events
+ */
+export const logger = logga.getLogger('stencila')
+
+/**
  * Configure log event handling
  */
 export const configure = (debug: boolean = false): void => {

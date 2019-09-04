@@ -49,6 +49,13 @@ yargsDefinition
   .alias('version', 'v')
   .describe('version', 'Show version')
 
+  // Unhandled errors
+  .fail(function(msg, err) {
+    if (err) log.logger.error(err)
+    else log.logger.error(msg)
+    process.exit(1)
+  })
+
   .parse()
 
 // Clean up before process.exit
