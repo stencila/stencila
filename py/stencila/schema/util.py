@@ -8,6 +8,9 @@ from .types import Node
 
 def to_dict(node: typing.Any) -> dict:
     """Convert an Entity node to a dictionary"""
+    if not isinstance(node, types.Entity):
+        return str(node)
+
     node_dict = {
         "type": node.__class__.__name__
     }

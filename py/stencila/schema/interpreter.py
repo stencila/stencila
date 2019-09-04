@@ -40,12 +40,12 @@ try:
 except ImportError:
     # pylint: disable=R0903
     class MPLFigure:  # type: ignore
-        """A fake MPLFigure to prevent RefenceErrors later."""
+        """A fake MPLFigure to prevent ReferenceErrors later."""
 
 
     # pylint: disable=R0903
     class MLPArtist:  # type: ignore
-        """A fake MLPArtist to prevent RefenceErrors later."""
+        """A fake MLPArtist to prevent ReferenceErrors later."""
 
 
     MPL_AVAILABLE = False
@@ -58,7 +58,7 @@ try:
 except ImportError:
     # pylint: disable=R0903
     class DataFrame:  # type: ignore
-        """A fake DataFrame to prevent RefenceErrors later."""
+        """A fake DataFrame to prevent ReferenceErrors later."""
 
 
     PANDAS_AVAILABLE = False
@@ -383,11 +383,22 @@ class Interpreter:
         Check if the output is convertible from a special data type to a Stencila type.
 
         If not, just return the original object."""
+
+        if isinstance(output, list):
+            return [self.decode_output(item) for item in output]
+
+        if isinstance(output, tuple):
+            return tuple(self.decode_output(item) for item in output)
+
         if self.value_is_mpl(output):
             return self.decode_mpl()
 
         if isinstance(output, DataFrame):
             return self.decode_dataframe(output)
+
+        if PANDAS_AVAILABLE:
+            if isinstance(output, numpy.ndarray):
+                return output.tolist()
 
         return output
 
