@@ -51,7 +51,7 @@ yargsDefinition
 
   // Unhandled errors
   .fail(function(msg, err) {
-    if (err) log.logger.error(err)
+    if (err !== undefined) log.logger.error(err)
     else log.logger.error(msg)
     process.exit(1)
   })
