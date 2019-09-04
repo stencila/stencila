@@ -1,0 +1,17 @@
+/* Types */
+@custom-selector :--Cite [itemtype='https://schema.stenci.la/Cite'];
+@custom-selector :--CiteGroup [itemtype='https://schema.stenci.la/CiteGroup'];
+@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
+@custom-selector :--Person [itemtype='https://schema.org/Person'];
+@custom-selector :--PublicationIssue [itemtype='https://schema.stenci.la/PublicationIssue'];
+
+/* Properties */
+@custom-selector :--abstracts [itemprop='abstracts'];
+@custom-selector :--authorDetails [itemprop='authorDetails'];
+@custom-selector :--authors [itemprop='authors'];
+@custom-selector :--datePublished [itemprop='datePublished'];
+@custom-selector :--issueNumber [itemprop='issueNumber'];
+@custom-selector :--pagination [itemprop='pagination'];
+@custom-selector :--references [itemprop='references'];
+@custom-selector :--title [itemprop='title'];
+@custom-selector :--url [itemprop='url'];
