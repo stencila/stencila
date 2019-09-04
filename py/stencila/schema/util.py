@@ -6,7 +6,7 @@ from . import types
 from .types import Node
 
 
-def to_dict(node: typing.Any) -> dict:
+def object_encode(node: typing.Any) -> typing.Union[dict, str]:
     """Convert an Entity node to a dictionary"""
     if not isinstance(node, types.Entity):
         return str(node)
@@ -50,7 +50,7 @@ def from_dict(node_dict: dict) -> typing.Union[dict, Node]:
 
 def to_json(node: Node) -> str:
     """Convert a node to JSON"""
-    return json.dumps(node, default=to_dict, indent=2)
+    return json.dumps(node, default=object_encode, indent=2)
 
 
 def from_json(serialized: str) -> typing.Union[dict, Node]:
