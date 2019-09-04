@@ -1,6 +1,7 @@
 import unittest.mock
 
-from stencila.schema.interpreter import Interpreter, DocumentCompiler, ParameterParser, execute_article
+from stencila.schema.interpreter import Interpreter, DocumentCompiler, ParameterParser, execute_compilation, \
+    compile_article, DocumentCompilationResult, SKIP_OUTPUT_SEMAPHORE
 from stencila.schema.code_parsing import CodeChunkParseResult, CodeChunkExecution, CodeChunkParser
 from stencila.schema.types import CodeExpression, CodeChunk, Article
 
@@ -90,20 +91,43 @@ def test_code_chunk_exception_capture():
 
 
 @unittest.mock.patch('stencila.schema.interpreter.DocumentCompiler')
+def test_compile_article(mock_dc_class):
+    article = unittest.mock.MagicMock(spec=Article)
+
+    dcr = compile_article(article)
+
+    mock_dc_class.return_value.compile.assert_called_with(article)
+    assert mock_dc_class.return_value.compile.return_value == dcr
+
+
 @unittest.mock.patch('stencila.schema.interpreter.ParameterParser')
 @unittest.mock.patch('stencila.schema.interpreter.Interpreter')
-def test_execute_article(mock_interpreter_class, mock_pp_class, mock_dc_class):
-    article = unittest.mock.MagicMock(spec=Article)
+def test_execute_compilation(mock_interpreter_class, mock_pp_class):
+    compilation_result = unittest.mock.MagicMock(spec=DocumentCompilationResult)
     parameters = ['--flag', 'value']
 
     parameter_parser = mock_pp_class.return_value
     interpreter = mock_interpreter_class.return_value
 
-    compilation_result = mock_dc_class.return_value.compile.return_value
+    execute_compilation(compilation_result, parameters)
 
-    execute_article(article, parameters)
-
-    mock_dc_class.return_value.compile.assert_called_with(article)
     mock_pp_class.assert_called_with(compilation_result.parameters)
     parameter_parser.parse_cli_args.assert_called_with(parameters)
     interpreter.execute.assert_called_with(compilation_result.code, parameter_parser.parameter_values)
+
+
+def test_sempahore_skipping():
+    """If decode_output returns a SKIP_OUTPUT_SEMAPHORE then it should not be added to the outputs array."""
+    i = Interpreter()
+    outputs = []
+
+    i.add_output(outputs, 'abc123')
+
+    decode_original = i.decode_output
+    i.decode_output = unittest.mock.MagicMock(return_value=SKIP_OUTPUT_SEMAPHORE)
+    i.add_output(outputs, 'skip')
+    i.decode_output = decode_original
+
+    i.add_output(outputs, [1, 2, 3])
+
+    assert outputs == ['abc123', [1, 2, 3]]

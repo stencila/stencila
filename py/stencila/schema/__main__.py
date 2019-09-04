@@ -20,6 +20,11 @@ def cli_execute():
     execute_from_cli(argv[2:])
 
 
+def cli_compile():
+    """Compile an executable document by delegating to the execute_from_cli function with the `compile_only` flag."""
+    execute_from_cli(argv[2:], True)
+
+
 def main():
     """The main entry point to this module, read the first CLI arg and call out to the corresponding function."""
     command = argv[1] if len(argv) > 1 else ''
@@ -27,6 +32,9 @@ def main():
     if command == 'execute':
         logging.basicConfig(stream=stdout, level=logging.DEBUG)
         cli_execute()
+    elif command == 'compile':
+        logging.basicConfig(stream=stdout, level=logging.DEBUG)
+        cli_compile()
     else:
         stderr.write('Unknown command "{}"\n'.format(command))
 
