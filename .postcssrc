@@ -5,7 +5,9 @@
     "postcss-import-url": { "modernBrowser": true },
     "postcss-url": { "url": "rebase" },
     "postcss-nested": true,
-    "postcss-custom-selectors": true,
+    "postcss-custom-selectors": {
+      "importFrom": "src/common/styles/selectors.css"
+    },
     "postcss-custom-properties": {
       "preserve": false
     },
