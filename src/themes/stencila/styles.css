@@ -394,7 +394,7 @@ blockquote {
   :--CreativeWork {
     margin-bottom: 1rem;
 
-    > :--title:first-of-type {
+    > :--headline:first-of-type {
       display: block;
       font-size: 1rem;
       line-height: 1.5;
@@ -403,7 +403,7 @@ blockquote {
     }
   }
 
-  :--title + :--datePublished {
+  :--headline + :--datePublished {
     display: none;
   }
 }

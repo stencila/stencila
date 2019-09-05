@@ -5,11 +5,11 @@
 import './syntaxHighlight'
 
 export const init = (): void => {
-  const referenceListItemSel = '[itemprop="references"] > li'
-  const titleSel = '[itemprop="title"]'
+  const referenceListItemSel = '.references > li'
+  const titleSel = 'span[itemprop="headline"]'
   const datePublishedSel = '[itemprop="datePublished"]'
   const publicationIssueSel =
-    '[itemtype="https://schema.stenci.la/PublicationIssue"]'
+    '[itemtype="https://schema.org/PublicationIssue"]'
 
   document.querySelectorAll(referenceListItemSel).forEach(node => {
     const datePublished = node.querySelector(datePublishedSel) as HTMLElement

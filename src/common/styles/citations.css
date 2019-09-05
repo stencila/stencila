@@ -65,7 +65,7 @@
       content: ')';
     }
 
-    + :--title {
+    + :--headline {
       display: none;
     }
   }
@@ -81,7 +81,7 @@
   }
 
   :--PublicationIssue {
-    :--title {
+    :--headline {
       &::after {
         content: ' ';
         white-space: pre;
@@ -119,7 +119,7 @@
 
   /* MLA Citation Styles */
   :--citation-style-MLA {
-    :--CreativeWork > :--title {
+    :--CreativeWork > :--headline {
       &:first-of-type {
         display: none;
       }
@@ -177,7 +177,7 @@
     }
 
     :--datePublished {
-      + :--title {
+      + :--headline {
         display: inline;
       }
     }
@@ -211,7 +211,7 @@
 
   /* APA Citation Styles */
   :--citation-style-APA {
-    :--CreativeWork > :--title {
+    :--CreativeWork > :--headline {
       &::after {
         content: '.';
       }
@@ -260,7 +260,7 @@
     :--PublicationIssue {
       display: inline;
 
-      :--title {
+      :--headline {
         &::after {
           content: ', ';
           font-style: normal;

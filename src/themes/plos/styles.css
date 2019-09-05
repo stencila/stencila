@@ -301,7 +301,7 @@ blockquote {
     }
   }
 
-  :--CreativeWork > :--title {
+  :--CreativeWork > :--headline {
     &:first-of-type {
       display: none;
     }
@@ -311,7 +311,7 @@ blockquote {
     display: none;
   }
 
-  :--datePublished + :--title {
+  :--datePublished + :--headline {
     display: inline;
 
     &::after {
@@ -321,14 +321,14 @@ blockquote {
   }
 
   :--PublicationIssue {
-    :--title {
+    :--headline {
       &::after {
         content: '. ';
         white-space: pre;
       }
     }
 
-    :--title + :--datePublished {
+    :--headline + :--datePublished {
       &:not(:last-child)::after {
         content: ';';
         white-space: pre;

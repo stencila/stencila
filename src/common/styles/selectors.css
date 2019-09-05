@@ -6,15 +6,20 @@
 @custom-selector :--PublicationIssue [itemtype='https://schema.stenci.la/PublicationIssue'];
 
 /* Properties */
+
+/* schema.org properties */
 @custom-selector :--abstracts [itemprop='abstracts'];
+@custom-selector :--author [itemprop='author'];
 @custom-selector :--authorDetails [itemprop='authorDetails'];
-@custom-selector :--authors [itemprop='authors'];
+@custom-selector :--citation [itemprop='citation'];
 @custom-selector :--datePublished [itemprop='datePublished'];
 @custom-selector :--familyName [itemprop='familyName'];
 @custom-selector :--givenName [itemprop='givenName'];
 @custom-selector :--headline [itemprop='headline'];
 @custom-selector :--issueNumber [itemprop='issueNumber'];
 @custom-selector :--pagination [itemprop='pagination'];
-@custom-selector :--references [itemprop='references'];
-@custom-selector :--title [itemprop='title'];
 @custom-selector :--url [itemprop='url'];
+
+/* Custom properties / names */
+@custom-selector :--authors .authors;
+@custom-selector :--references .references;

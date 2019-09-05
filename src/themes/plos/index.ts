@@ -4,7 +4,7 @@ export const init = (): void => {
   const referenceListItemSel = '[itemprop="references"] > li'
   const datePublishedSel = '[itemprop="datePublished"]'
   const publicationIssueTitleSel =
-    '[itemtype="https://schema.stenci.la/PublicationIssue"] [itemprop="title"]'
+    '[itemtype="https://schema.org/PublicationIssue"] [itemprop="title"]'
 
   document.querySelectorAll(referenceListItemSel).forEach(node => {
     // If PublicationIssue title node exists,

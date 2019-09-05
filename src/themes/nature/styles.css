@@ -485,7 +485,7 @@ blockquote {
   }
 
   /* MLA Citation Styles */
-  :--CreativeWork > :--title {
+  :--CreativeWork > :--headline {
     &:first-of-type {
       display: none;
     }
@@ -544,7 +544,7 @@ blockquote {
   }
 
   :--datePublished {
-    + :--title {
+    + :--headline {
       display: inline;
     }
 
