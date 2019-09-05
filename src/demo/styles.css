@@ -1,0 +1,18 @@
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: white;
+  opacity: 0.95;
+  border-bottom: 1px solid #dedede;
+  height: 3rem;
+  padding: 0.5rem 1rem 1rem 1rem;
+  font-family: sans-serif;
+
+  label {
+    float: right;
+    margin: 0.2rem;
+  }
+}

@@ -51,7 +51,7 @@ if (themeSelect) {
     // Enable the theme's stylesheet and disable all others
     const main = document.getElementsByTagName('main')[0]
     document
-      .querySelectorAll('link[rel="stylesheet"]')
+      .querySelectorAll('link.theme[rel="stylesheet"]')
       .forEach(node => (node as HTMLInputElement).disabled = node.id !== theme)
   })
 }
