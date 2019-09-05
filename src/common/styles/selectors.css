@@ -12,6 +12,7 @@
 @custom-selector :--datePublished [itemprop='datePublished'];
 @custom-selector :--familyName [itemprop='familyName'];
 @custom-selector :--givenName [itemprop='givenName'];
+@custom-selector :--headline [itemprop='headline'];
 @custom-selector :--issueNumber [itemprop='issueNumber'];
 @custom-selector :--pagination [itemprop='pagination'];
 @custom-selector :--references [itemprop='references'];

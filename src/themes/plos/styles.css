@@ -82,7 +82,7 @@ h1 {
   padding-top: 3rem;
 }
 
-article > h1[role='title'] {
+article > h1:--headline {
   font-family: var(--secondary-font);
   font-weight: var(--secondary-font-weight);
   font-size: 1.625rem;
