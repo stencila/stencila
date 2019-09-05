@@ -44,6 +44,7 @@ if (themeSelect) {
     const theme = element.value
 
     // Load the theme's Javascript module and run it's `init()` function
+    // @ts-ignore
     const mod = await modules[theme]
     if (mod !== undefined && 'init' in mod) mod.init()
 

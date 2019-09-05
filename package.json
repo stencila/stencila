@@ -8,9 +8,10 @@
   "main": "./dist/index.js",
   "scripts": {
     "dev": "parcel ./src/demo/index.html --open",
-    "build": "parcel build ./src/**/*.css ./src/**/*.ts && tsc --emitDeclarationOnly",
+    "build": "parcel build ./src/{common,themes}/**/*.{css,ts} && tsc --emitDeclarationOnly",
     "watch": "parcel watch ./src/**/*.css ./src/**/*.ts",
     "pages": "parcel build ./src/demo/index.html -d pages  --public-url .",
+    "clean": "rm -rf .cache dist pages",
     "semantic-release": "semantic-release"
   },
   "repository": {
