@@ -1,6 +1,6 @@
 import '../../common/js/index'
 
-const ready = (): void => {
+export const init = (): void => {
   const referenceListItemSel = '[itemprop="references"] > li'
   const datePublishedSel = '[itemprop="datePublished"]'
   const publicationIssueTitleSel =
@@ -23,4 +23,4 @@ const ready = (): void => {
   })
 }
 
-document.addEventListener('DOMContentLoaded', ready)
+document.addEventListener('DOMContentLoaded', init)

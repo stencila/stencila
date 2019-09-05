@@ -4,24 +4,7 @@
 
 import './syntaxHighlight'
 
-const ready = (): void => {
-  const themeSelect = document.querySelector('#theme-select')
-
-  if (themeSelect) {
-    themeSelect.addEventListener('change', event => {
-      const element = event.target as HTMLInputElement
-      const theme = element.value
-
-      document
-        .querySelectorAll('link[rel="stylesheet"]')
-        .forEach(node =>
-          node.id === theme
-            ? ((<HTMLInputElement>node).disabled = false)
-            : ((<HTMLInputElement>node).disabled = true)
-        )
-    })
-  }
-
+export const init = (): void => {
   const referenceListItemSel = '[itemprop="references"] > li'
   const titleSel = '[itemprop="title"]'
   const datePublishedSel = '[itemprop="datePublished"]'
@@ -67,4 +50,4 @@ const ready = (): void => {
   })
 }
 
-document.addEventListener('DOMContentLoaded', ready)
+document.addEventListener('DOMContentLoaded', init)

@@ -1,24 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <title>Stencila Thema Demo</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="stylesheet" href="../themes/stencila/styles.css" />
-    <title>Stencila Thema</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link id="elife" rel="stylesheet" href="../themes/eLife/styles.css" disabled />
+    <link id="nature" rel="stylesheet" href="../themes/nature/styles.css" disabled />
+    <link id="plos" rel="stylesheet" href="../themes/plos/styles.css" disabled />
+    <link id="stencila" rel="stylesheet" href="../themes/stencila/styles.css" />
   </head>
-
   <body>
-    <ul>
-      <li>
-        <a href="./simple.html">Simple (Stencila theme)</a>
-      </li>
-      <li>
-        <a href="./article.html">Article (eLife theme)</a>
-      </li>
-      <li>
-        <a href="./converted-article.html">Converted Article (eLife theme)</a>
-      </li>
-    </ul>
+      <header>
+        <label>
+          Content
+          <select id="content-select">
+            <option value="simple">Simple</option>
+            <option value="article-1" selected>Article-1</option>
+          </select>
+        </label>
+        <label>
+          Theme
+          <select id="theme-select">
+            <option value="stencila" selected>Stencila</option>
+            <option value="elife">eLife</option>
+            <option value="nature">Nature</option>
+            <option value="plos">PLoS</option>
+          </select>
+        </label>
+      </header>
+      <main>
+      </main>
+      <script src="index.ts"></script>
   </body>
 </html>

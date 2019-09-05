@@ -1,1 +1,1 @@
-import '../../common/js/index'
+export { init } from '../../common/js/index'
