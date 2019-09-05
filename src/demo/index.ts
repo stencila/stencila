@@ -35,7 +35,7 @@ const contentSet = async (example: string) => {
 }
 
 // Initial content...
-contentSet('article-1')
+contentSet('article-drosophila')
 
 const themeSelect = document.querySelector('#theme-select')
 if (themeSelect) {
@@ -48,6 +48,7 @@ if (themeSelect) {
     if (mod !== undefined && 'init' in mod) mod.init()
 
     // Enable the theme's stylesheet and disable all others
+    const main = document.getElementsByTagName('main')[0]
     document
       .querySelectorAll('link[rel="stylesheet"]')
       .forEach(node => (node as HTMLInputElement).disabled = node.id !== theme)
