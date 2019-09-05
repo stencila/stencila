@@ -9,7 +9,23 @@ header {
   border-bottom: 1px solid #dedede;
   height: 3rem;
   padding: 0.5rem 1rem 1rem 1rem;
+
+  color: #777;
+  font-size: 0.9rem;
   font-family: sans-serif;
+
+  * {
+    vertical-align: middle;
+  }
+
+  .name {
+    font-size: 1.1rem;
+    color: #444;
+  }
+
+  img {
+    height: 2rem;
+  }
 
   label {
     float: right;
