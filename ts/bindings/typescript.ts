@@ -85,14 +85,19 @@ export const typesInterface = (schemas: Schema[]): string => {
  * Generate a `interface` and a factory function for each type.
  */
 export const typeGenerator = (schema: Schema): string => {
-  const { title = 'Undefined', extends: parent, description } = schema
+  const {
+    title = 'Undefined',
+    extends: parent,
+    properties,
+    description
+  } = schema
   const { own, required } = props(schema)
 
   const type =
-    schema.properties !== undefined
-      ? schema.properties.type !== undefined
-        ? schema.properties.type.enum !== undefined
-          ? schema.properties.type.enum.map(type => `'${type}'`).join(' | ')
+    properties !== undefined
+      ? properties.type !== undefined
+        ? properties.type.enum !== undefined
+          ? properties.type.enum.map(type => `'${type}'`).join(' | ')
           : ''
         : ''
       : ''
@@ -175,7 +180,7 @@ const docComment = (description?: string, tags: string[] = []): string => {
 }
 
 /**
- * Convert a schema definition to a Python type
+ * Convert a schema definition to a Typescript type
  */
 const schemaToType = (schema: Schema): string => {
   const { type, anyOf, allOf, $ref } = schema
@@ -197,7 +202,7 @@ const schemaToType = (schema: Schema): string => {
 }
 
 /**
- * Convert a schema with the `anyOf` property to a Python `Union` type.
+ * Convert a schema with the `anyOf` property to a Typescript `Union` type.
  */
 const anyOfToType = (anyOf: Schema[]): string => {
   const types = anyOf
@@ -212,7 +217,7 @@ const anyOfToType = (anyOf: Schema[]): string => {
 }
 
 /**
- * Convert a schema with the `allOf` property to a Python type.
+ * Convert a schema with the `allOf` property to a Typescript type.
  *
  * If the `allOf` is singular then just use that (this usually arises
  * because the `allOf` is used for a property with a `$ref`). Otherwise,

@@ -25,14 +25,14 @@ export async function read(
 }
 
 /**
- * Get the 'normal' types (i.e. not union types) which are
+ * Get the 'type' schemas (i.e. not union schema, not property schemas) which are
  * usually translated into classes or similar for the language.
  *
  * Types are sorted topologically so that schemas come before
  * any of their descendants.
  */
 export function types(schemas: Schema[]): Schema[] {
-  const types = schemas.filter(schema => schema.anyOf === undefined)
+  const types = schemas.filter(schema => schema.properties !== undefined)
   const map = new Map(schemas.map(schema => [schema.title, schema]))
 
   const edges = types.map(

@@ -20,18 +20,6 @@ properties:
           anyOf:
             - $ref: Person
             - $ref: Organization
-  references:
-    '@id': schema:citation
-    aliases:
-      - citations
-    description: |
-      References to other creative works, such as another publication,
-      web page, scholarly article, etc.
-    type: array
-    items:
-      anyOf:
-        - type: string
-        - $ref: CreativeWorkTypes
   content:
     # We have added "content" because the existing schema.org property "text" implies
     # only unstructured text content.
@@ -137,6 +125,18 @@ properties:
     anyOf:
       - $ref: Person
       - $ref: Organization
+  references:
+    '@id': schema:citation
+    aliases:
+      - citations
+    description: |
+      References to other creative works, such as another publication,
+      web page, scholarly article, etc.
+    type: array
+    items:
+      anyOf:
+        - type: string
+        - $ref: CreativeWorkTypes
   text:
     '@id': schema:text
     description: The textual content of this creative work.
@@ -148,7 +148,11 @@ properties:
     description: The title of the creative work.
     aliases:
       - headline
-    type: string
+    anyOf:
+      - type: string
+      - type: array
+        items:
+          $ref: Node
   version:
     '@id': schema:version
     description: The version of the creative work.
