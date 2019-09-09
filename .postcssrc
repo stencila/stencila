@@ -4,13 +4,16 @@
     "postcss-import": true,
     "postcss-import-url": { "modernBrowser": true },
     "postcss-url": { "url": "rebase" },
-    "postcss-nested": true,
+    "postcss-mixins": {
+      "mixinsDir": "src/common/styles/mixins"
+    },
     "postcss-custom-selectors": {
       "importFrom": "src/common/styles/selectors.css"
     },
     "postcss-custom-properties": {
       "preserve": false
     },
+    "postcss-nested": true,
     "autoprefixer": true
   }
 }

@@ -1,0 +1,67 @@
+:--Person {
+  display: inline-flex;
+
+  /*
+    The `name` property acts as a container for `honorificPrefix`, `givenNames`
+    etc. So turn on display.
+  */
+  :--name {
+    order: 1;
+    display: inline-flex;
+
+    /*
+      Currently, `givenNames` and `familyNames` are concatenated text content
+      (not a list of given names etc). So just display each and
+      put space after given names.
+    */
+
+    :--givenName {
+      order: 1;
+      display: inline;
+
+      &::after {
+        content: '\00a0';
+      }
+    }
+
+    :--familyName {
+      order: 2;
+      display: inline;
+    }
+  }
+
+  /*
+    If any `emails`, indicate that with an emoji, but don't display
+    the email address/es (leave that to web component).
+  */
+  :--emails {
+    @mixin list-separated;
+    order: 2;
+
+    :--email {
+      display: none;
+    }
+
+    &::after {
+      content: '\00a0📧';
+      vertical-align: super;
+      color: #9E9E9E;
+      font-size: 90%;
+    }
+  }
+
+  /*
+    `affiliations` property as a comma separated list
+    of integer links.
+  */
+  :--affiliations {
+    @mixin list-separated;
+    order: 3;
+
+    :--affiliation {
+      display: inline;
+      vertical-align: super;
+      font-size: 90%;
+    }
+  }
+}
