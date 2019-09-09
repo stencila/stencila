@@ -332,7 +332,7 @@ blockquote {
   }
 
   :--PublicationIssue,
-  :--abstracts {
+  :--description {
     font-family: var(--body-font);
   }
 
