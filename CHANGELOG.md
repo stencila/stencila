@@ -1,3 +1,10 @@
+# [0.31.0](https://github.com/stencila/stencila/compare/v0.30.5...v0.31.0) (2019-09-10)
+
+
+### Features
+
+* **Convert:** Upgrade Encoda, allow for multiple convert output files ([d299320](https://github.com/stencila/stencila/commit/d299320))
+
 ## [0.30.5](https://github.com/stencila/stencila/compare/v0.30.4...v0.30.5) (2019-09-04)
 
 
