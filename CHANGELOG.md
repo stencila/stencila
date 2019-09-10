@@ -1,3 +1,13 @@
+## [1.4.2](https://github.com/stencila/thema/compare/v1.4.1...v1.4.2) (2019-09-10)
+
+
+### Bug Fixes
+
+* Fix selectors used in references for chnages in Encoda ([854f427](https://github.com/stencila/thema/commit/854f427))
+* Use headline custom selector ([9864393](https://github.com/stencila/thema/commit/9864393))
+* **Selectors:** Update selectors ([50c14a9](https://github.com/stencila/thema/commit/50c14a9))
+* **Stencila theme:** Ensure init function ([602550a](https://github.com/stencila/thema/commit/602550a))
+
 ## [1.4.1](https://github.com/stencila/thema/compare/v1.4.0...v1.4.1) (2019-08-30)
 
 
