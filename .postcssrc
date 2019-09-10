@@ -5,13 +5,13 @@
     "postcss-import-url": { "modernBrowser": true },
     "postcss-url": { "url": "rebase" },
     "postcss-mixins": {
-      "mixinsDir": "src/common/styles/mixins"
+      "mixinsDir": "src/designa/mixins"
     },
     "postcss-custom-selectors": {
       "importFrom": "src/common/styles/selectors.css"
     },
     "postcss-custom-properties": {
-      "preserve": false
+      "preserve": true
     },
     "postcss-nested": true,
     "autoprefixer": true

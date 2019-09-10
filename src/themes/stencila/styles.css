@@ -1,4 +1,3 @@
-@import '../../common/styles/common.css';
 @import 'prismjs/themes/prism.css';
 @import '../../common/fonts/merriweather/merriweather.css';
 
@@ -7,6 +6,8 @@
   --max-width-media: 980px;
   --body-font: Merriweather, serif;
 }
+
+@import '../../designa/Article.css';
 
 body {
   font-family: var(--body-font);
@@ -42,6 +43,7 @@ article {
   }
 }
 
+div,
 p,
 h1,
 h2,

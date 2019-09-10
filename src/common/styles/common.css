@@ -2,10 +2,6 @@
 @import 'prismjs/plugins/line-highlight/prism-line-highlight.css';
 @import 'prismjs/plugins/line-numbers/prism-line-numbers.css';
 
-@import './Entity.css';
-@import './Person.css';
-@import './Article.css';
-
 @import './citations.css';
 
 article {
