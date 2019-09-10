@@ -32,23 +32,23 @@ export function cli(
   callbackFunction?: Function
 ): yargs.Argv {
   return yargsDefinition.command(
-    'convert [input] [output]',
+    'convert input [outputs..]',
     'Convert between file formats',
     cliArgsDefine,
     async (
       argv: yargs.Arguments<{
         input: string
-        output: string
+        outputs: string[]
         from: string
         to: string
       }>
     ): Promise<void> => {
-      let { input, output, from, to, theme } = argv
+      let { input, outputs, from, to, theme } = argv
       if (input === '-' && from === undefined) from = 'md'
-      if (output === '-' && to === undefined) to = 'yaml'
+      if (outputs === ['-'] && to === undefined) to = 'yaml'
       await encoda.convert(
         input,
-        output,
+        outputs,
         // @ts-ignore
         {
           from,
@@ -74,11 +74,10 @@ export function cliArgsDefine(yargsDefinition: yargs.Argv): yargs.Argv<any> {
   return yargsDefinition
     .positional('input', {
       describe: 'The input file path. Defaults to standard input.',
-      type: 'string',
-      default: '-'
+      type: 'string'
     })
-    .positional('output', {
-      describe: 'The output file path. Defaults to standard output.',
+    .positional('outputs', {
+      describe: 'The output file path/s. Defaults to standard output.',
       type: 'string',
       default: '-'
     })
