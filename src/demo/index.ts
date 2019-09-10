@@ -14,7 +14,7 @@
  */
 
 import { examples } from '../examples'
-import { modules } from '..'
+import { modules } from '../themes'
 
 const contentSelect = document.querySelector('#content-select')
 if (contentSelect) {

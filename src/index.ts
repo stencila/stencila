@@ -5,15 +5,8 @@ export const themes = {
   stencila: 'stencila' as const
 }
 
-type Themes = typeof themes
+export type Themes = typeof themes
 export type ThemeNames = Themes[keyof Themes]
-
-export const modules: {[key in keyof Themes]: Promise<any>} = {
-  elife: import('./themes/eLife'),
-  nature: import('./themes/nature') ,
-  plos: import('./themes/plos'),
-  stencila: import('./themes/stencila')
-}
 
 export const themePath = 'dist/themes'
 
