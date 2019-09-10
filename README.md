@@ -2,7 +2,7 @@
 
 ![Status](https://img.shields.io/badge/status-draft-orange.svg)
 [![Build](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/b0e0d714-29f1-4ad1-8a7d-1af7799fb85b/deploy-status)](https://app.netlify.com/sites/stencila-schema/deploys)
+[![Netlify](https://img.shields.io/netlify/b0e0d714-29f1-4ad1-8a7d-1af7799fb85b)](https://app.netlify.com/sites/stencila-schema/deploys)
 [![Code coverage](https://codecov.io/gh/stencila/schema/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/schema)
 [![NPM](http://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema)
 [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/)
