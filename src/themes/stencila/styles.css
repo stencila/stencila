@@ -1,28 +1,13 @@
-@import '../../common/styles/common.css';
 @import 'prismjs/themes/prism.css';
 @import '../../common/fonts/merriweather/merriweather.css';
-
-/* Custom Selectors */
-@custom-selector :--CiteGroup [itemtype='https://schema.stenci.la/CiteGroup'];
-@custom-selector :--Cite [itemtype='https://schema.stenci.la/Cite'];
-@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
-@custom-selector :--title [itemprop='title'];
-@custom-selector :--authors [itemprop='authors'];
-@custom-selector :--Person [itemtype='https://schema.org/Person'];
-@custom-selector :--references [itemprop='references'];
-@custom-selector :--PublicationIssue [itemtype='https://schema.stenci.la/PublicationIssue'];
-@custom-selector :--datePublished [itemprop='datePublished'];
-@custom-selector :--issueNumber [itemprop='issueNumber'];
-@custom-selector :--pagination [itemprop='pagination'];
-@custom-selector :--url [itemprop='url'];
-@custom-selector :--abstracts [itemprop='abstracts'];
-@custom-selector :--authorDetails [itemprop='authorDetails'];
 
 :root {
   --max-width: 680px;
   --max-width-media: 980px;
   --body-font: Merriweather, serif;
 }
+
+@import '../../designa/Article.css';
 
 body {
   font-family: var(--body-font);
@@ -58,6 +43,7 @@ article {
   }
 }
 
+div,
 p,
 h1,
 h2,
@@ -410,7 +396,7 @@ blockquote {
   :--CreativeWork {
     margin-bottom: 1rem;
 
-    > :--title:first-of-type {
+    > :--headline:first-of-type {
       display: block;
       font-size: 1rem;
       line-height: 1.5;
@@ -419,7 +405,7 @@ blockquote {
     }
   }
 
-  :--title + :--datePublished {
+  :--headline + :--datePublished {
     display: none;
   }
 }

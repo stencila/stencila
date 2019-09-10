@@ -4,29 +4,12 @@
 
 import './syntaxHighlight'
 
-const ready = (): void => {
-  const themeSelect = document.querySelector('#theme-select')
-
-  if (themeSelect) {
-    themeSelect.addEventListener('change', event => {
-      const element = event.target as HTMLInputElement
-      const theme = element.value
-
-      document
-        .querySelectorAll('link[rel="stylesheet"]')
-        .forEach(node =>
-          node.id === theme
-            ? ((<HTMLInputElement>node).disabled = false)
-            : ((<HTMLInputElement>node).disabled = true)
-        )
-    })
-  }
-
-  const referenceListItemSel = '[itemprop="references"] > li'
-  const titleSel = '[itemprop="title"]'
+export const init = (): void => {
+  const referenceListItemSel = '.references > li'
+  const titleSel = 'span[itemprop="headline"]'
   const datePublishedSel = '[itemprop="datePublished"]'
   const publicationIssueSel =
-    '[itemtype="https://schema.stenci.la/PublicationIssue"]'
+    '[itemtype="https://schema.org/PublicationIssue"]'
 
   document.querySelectorAll(referenceListItemSel).forEach(node => {
     const datePublished = node.querySelector(datePublishedSel) as HTMLElement
@@ -67,4 +50,4 @@ const ready = (): void => {
   })
 }
 
-document.addEventListener('DOMContentLoaded', ready)
+document.addEventListener('DOMContentLoaded', init)

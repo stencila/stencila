@@ -2,22 +2,6 @@
 @import 'prismjs/themes/prism.css';
 @import '../../common/fonts/openSans/openSans.css';
 
-/* Custom Selectors */
-@custom-selector :--CiteGroup [itemtype='https://schema.stenci.la/CiteGroup'];
-@custom-selector :--Cite [itemtype='https://schema.stenci.la/Cite'];
-@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
-@custom-selector :--title [itemprop='title'];
-@custom-selector :--authors [itemprop='authors'];
-@custom-selector :--Person [itemtype='https://schema.org/Person'];
-@custom-selector :--references [itemprop='references'];
-@custom-selector :--PublicationIssue [itemtype='https://schema.stenci.la/PublicationIssue'];
-@custom-selector :--datePublished [itemprop='datePublished'];
-@custom-selector :--issueNumber [itemprop='issueNumber'];
-@custom-selector :--pagination [itemprop='pagination'];
-@custom-selector :--url [itemprop='url'];
-@custom-selector :--abstracts [itemprop='abstracts'];
-@custom-selector :--authorDetails [itemprop='authorDetails'];
-
 :root {
   --max-width: 650px;
   --max-width-media: 980px;
@@ -98,7 +82,7 @@ h1 {
   padding-top: 3rem;
 }
 
-article > h1[role='title'] {
+article > h1:--headline {
   font-family: var(--secondary-font);
   font-weight: var(--secondary-font-weight);
   font-size: 1.625rem;
@@ -317,7 +301,7 @@ blockquote {
     }
   }
 
-  :--CreativeWork > :--title {
+  :--CreativeWork > :--headline {
     &:first-of-type {
       display: none;
     }
@@ -327,7 +311,7 @@ blockquote {
     display: none;
   }
 
-  :--datePublished + :--title {
+  :--datePublished + :--headline {
     display: inline;
 
     &::after {
@@ -337,14 +321,14 @@ blockquote {
   }
 
   :--PublicationIssue {
-    :--title {
+    :--headline {
       &::after {
         content: '. ';
         white-space: pre;
       }
     }
 
-    :--title + :--datePublished {
+    :--headline + :--datePublished {
       &:not(:last-child)::after {
         content: ';';
         white-space: pre;
@@ -357,7 +341,7 @@ blockquote {
     }
   }
 
-  :--abstracts {
+  :--description {
     li {
       &::after {
         content: ' • ';
@@ -368,7 +352,7 @@ blockquote {
 
   :--authors {
     :--Person {
-      [itemprop='familyName'] {
+      :--familyName {
         order: 1;
 
         &::after {
@@ -377,7 +361,7 @@ blockquote {
         }
       }
 
-      [itemprop='givenName'] {
+      :--givenName {
         order: 2;
 
         &::after {
@@ -387,12 +371,12 @@ blockquote {
       }
 
       &:last-of-type {
-        [itemprop='familyName']::after {
+        :--familyName::after {
           content: ' ';
           white-space: pre;
         }
 
-        [itemprop='givenName']::after {
+        :--givenName::after {
           content: '.';
           white-space: pre;
         }

@@ -1,1 +1,2 @@
-import '../../common/js/index'
+export const init = (): void => {
+}

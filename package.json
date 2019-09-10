@@ -8,9 +8,10 @@
   "main": "./dist/index.js",
   "scripts": {
     "dev": "parcel ./src/demo/index.html --open",
-    "build": "parcel build ./src/**/*.css ./src/**/*.ts && tsc --emitDeclarationOnly",
+    "build": "parcel build ./src/{common,themes}/**/*.{css,ts} && tsc --emitDeclarationOnly",
     "watch": "parcel watch ./src/**/*.css ./src/**/*.ts",
     "pages": "parcel build ./src/demo/index.html -d pages  --public-url .",
+    "clean": "rm -rf .cache dist pages",
     "semantic-release": "semantic-release"
   },
   "repository": {
@@ -42,6 +43,7 @@
     "postcss-custom-selectors": "^5.1.2",
     "postcss-import": "^12.0.1",
     "postcss-import-url": "^4.0.0",
+    "postcss-mixins": "^6.2.2",
     "postcss-nested": "^4.1.2",
     "postcss-url": "^8.0.0",
     "prismjs": "^1.17.1",

@@ -3,22 +3,6 @@
 @import '../../common/fonts/notoSerif/notoSerif.css';
 @import '../../common/fonts/notoSans/notoSans.css';
 
-/* Custom Selectors */
-@custom-selector :--CiteGroup [itemtype='https://schema.stenci.la/CiteGroup'];
-@custom-selector :--Cite [itemtype='https://schema.stenci.la/Cite'];
-@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
-@custom-selector :--title [itemprop='title'];
-@custom-selector :--authors [itemprop='authors'];
-@custom-selector :--Person [itemtype='https://schema.org/Person'];
-@custom-selector :--references [itemprop='references'];
-@custom-selector :--PublicationIssue [itemtype='https://schema.stenci.la/PublicationIssue'];
-@custom-selector :--datePublished [itemprop='datePublished'];
-@custom-selector :--issueNumber [itemprop='issueNumber'];
-@custom-selector :--pagination [itemprop='pagination'];
-@custom-selector :--url [itemprop='url'];
-@custom-selector :--abstracts [itemprop='abstracts'];
-@custom-selector :--authorDetails [itemprop='authorDetails'];
-
 :root {
   --max-width: 650px;
   --max-width-media: 980px;
@@ -54,8 +38,8 @@ article > * {
 }
 
 p,
-h1[role='title'],
-h1:not([role='title']),
+h1:--headline,
+h1:not(:--headline),
 h2,
 h3,
 h4,
@@ -75,8 +59,8 @@ img {
   margin-right: auto;
 }
 
-h1[role='title'],
-h1:not([role='title']),
+h1:--headline,
+h1:not(:--headline),
 h2,
 h3,
 h4,
@@ -88,8 +72,8 @@ h5 {
 }
 
 p {
-  & + h1[role='title'],
-  & + h1:not([role='title']) {
+  & + h1:--headline,
+  & + h1:not(:--headline) {
     margin-top: 2.25rem;
   }
 
@@ -151,8 +135,8 @@ figcaption {
     margin-bottom: 0.75rem;
   }
 
-  h1[role='title'],
-  h1:not([role='title']),
+  h1:--headline,
+  h1:not(:--headline),
   h2,
   h3,
   h4,
@@ -180,19 +164,19 @@ a:hover {
   color: #0288d1;
 }
 
-h1[role='title'],
-h1:not([role='title']) {
+h1:--headline,
+h1:not(:--headline) {
   padding-top: 3rem;
 }
 
-h1[role='title'] {
+h1:--headline {
   text-align: center;
   font-size: 1.8125rem;
   line-height: 1.24138;
   margin-bottom: 1.5rem;
 }
 
-h1:not([role='title']) {
+h1:not(:--headline) {
   border-top: 1px solid #e0e0e0;
   font-size: 1.625rem;
   line-height: 1.15385;
@@ -224,14 +208,14 @@ small,
   line-height: 1.84615;
 }
 
-h1[role='title'],
-h1:not([role='title']),
+h1:--headline,
+h1:not(:--headline),
 h2,
 h3,
 h4,
 h5 {
-  & + h1[role='title'],
-  & + h1:not([role='title']),
+  & + h1:--headline,
+  & + h1:not(:--headline),
   & + h2,
   & + h3,
   & + h4,
@@ -297,14 +281,14 @@ blockquote {
     padding-right: 14%;
   }
 
-  h1[role='title'] {
+  h1:--headline {
     font-size: 2.25rem;
     line-height: 1.33333;
   }
 }
 
 @media only all and (min-width: 56.25em) {
-  h1[role='title'] {
+  h1:--headline {
     font-size: 2.875rem;
     line-height: 1.56522;
   }
@@ -338,7 +322,7 @@ blockquote {
   }
 
   :--CreativeWork {
-    > :--title:first-of-type {
+    > :--headline:first-of-type {
       display: block;
       font-size: 1rem;
       line-height: 1.5;
@@ -348,11 +332,11 @@ blockquote {
   }
 
   :--PublicationIssue,
-  :--abstracts {
+  :--description {
     font-family: var(--body-font);
   }
 
-  :--title + :--datePublished {
+  :--headline + :--datePublished {
     display: none;
   }
 }

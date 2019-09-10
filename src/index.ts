@@ -8,6 +8,13 @@ export const themes = {
 type Themes = typeof themes
 export type ThemeNames = Themes[keyof Themes]
 
+export const modules: {[key in keyof Themes]: Promise<any>} = {
+  elife: import('./themes/eLife'),
+  nature: import('./themes/nature') ,
+  plos: import('./themes/plos'),
+  stencila: import('./themes/stencila')
+}
+
 export const themePath = 'dist/themes'
 
 const themeNameGuard = (s: string): s is keyof Themes => s in themes
