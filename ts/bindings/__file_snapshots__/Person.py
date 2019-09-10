@@ -18,7 +18,7 @@ class Person(Thing):
         address: Optional[str] = None,
         affiliations: Optional[Array["Organization"]] = None,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         emails: Optional[Array[str]] = None,
         familyNames: Optional[Array[str]] = None,
         funders: Optional[Array[Union["Organization", "Person"]]] = None,

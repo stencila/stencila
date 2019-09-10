@@ -418,14 +418,14 @@ class Thing(Entity):
     """The most generic type of item."""
 
     alternateNames: Optional[Array[str]] = None
-    description: Optional[str] = None
+    description: Optional[Union[str, Array["Node"]]] = None
     name: Optional[str] = None
     url: Optional[str] = None
 
     def __init__(
         self,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -459,7 +459,7 @@ class Brand(Thing):
         self,
         name: str,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         logo: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -493,7 +493,7 @@ class ContactPoint(Thing):
         self,
         alternateNames: Optional[Array[str]] = None,
         availableLanguages: Optional[Array[str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         emails: Optional[Array[str]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -537,7 +537,7 @@ class CreativeWork(Thing):
     publisher: Optional[Union["Person", "Organization"]] = None
     references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None
     text: Optional[str] = None
-    title: Optional[str] = None
+    title: Optional[Union[str, Array["Node"]]] = None
     version: Optional[Union[str, float]] = None
 
     def __init__(
@@ -548,7 +548,7 @@ class CreativeWork(Thing):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
@@ -561,7 +561,7 @@ class CreativeWork(Thing):
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -611,19 +611,19 @@ class Article(CreativeWork):
     """An article, including news and scholarly articles."""
 
     authors: Array[Union["Person", "Organization"]]
-    title: str
+    title: Union[str, Array["Node"]]
     environment: Optional["Environment"] = None
 
     def __init__(
         self,
         authors: Array[Union["Person", "Organization"]],
-        title: str,
+        title: Union[str, Array["Node"]],
         alternateNames: Optional[Array[str]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         environment: Optional["Environment"] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
@@ -686,7 +686,7 @@ class Collection(CreativeWork):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
@@ -698,7 +698,7 @@ class Collection(CreativeWork):
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -744,7 +744,7 @@ class Datatable(CreativeWork):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
@@ -757,7 +757,7 @@ class Datatable(CreativeWork):
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -812,7 +812,7 @@ class MediaObject(CreativeWork):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
@@ -827,7 +827,7 @@ class MediaObject(CreativeWork):
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -885,7 +885,7 @@ class AudioObject(MediaObject):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
@@ -900,7 +900,7 @@ class AudioObject(MediaObject):
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         transcript: Optional[str] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
@@ -952,7 +952,7 @@ class DatatableColumn(Thing):
         name: str,
         values: Array[Any],
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         schema: Optional["ArraySchema"] = None,
@@ -1006,7 +1006,7 @@ class Environment(Thing):
         name: str,
         adds: Optional[Array["SoftwareSourceCode"]] = None,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         extends: Optional[Array["Environment"]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -1049,7 +1049,7 @@ class Figure(CreativeWork):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
@@ -1063,7 +1063,7 @@ class Figure(CreativeWork):
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -1168,7 +1168,7 @@ class ImageObject(MediaObject):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
@@ -1184,7 +1184,7 @@ class ImageObject(MediaObject):
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         thumbnail: Optional["ImageObject"] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -1409,7 +1409,7 @@ class Mount(Thing):
         self,
         mountDestination: str,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         mountOptions: Optional[Array[str]] = None,
@@ -1454,7 +1454,7 @@ class Organization(Thing):
         brands: Optional[Array["Brand"]] = None,
         contactPoints: Optional[Array["ContactPoint"]] = None,
         departments: Optional[Array["Organization"]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         funders: Optional[Array[Union["Organization", "Person"]]] = None,
         id: Optional[str] = None,
         legalName: Optional[str] = None,
@@ -1589,7 +1589,7 @@ class Periodical(CreativeWork):
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateStart: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
@@ -1603,7 +1603,7 @@ class Periodical(CreativeWork):
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -1659,7 +1659,7 @@ class Person(Thing):
         address: Optional[str] = None,
         affiliations: Optional[Array["Organization"]] = None,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         emails: Optional[Array[str]] = None,
         familyNames: Optional[Array[str]] = None,
         funders: Optional[Array[Union["Organization", "Person"]]] = None,
@@ -1720,7 +1720,7 @@ class Product(Thing):
         self,
         alternateNames: Optional[Array[str]] = None,
         brands: Optional[Array["Brand"]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         logo: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -1763,7 +1763,7 @@ class PublicationIssue(CreativeWork):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
@@ -1780,7 +1780,7 @@ class PublicationIssue(CreativeWork):
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -1837,7 +1837,7 @@ class PublicationVolume(CreativeWork):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
@@ -1853,7 +1853,7 @@ class PublicationVolume(CreativeWork):
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None,
         volumeNumber: Optional[Union[str, int]] = None
@@ -1948,7 +1948,7 @@ class ResourceParameters(Thing):
     def __init__(
         self,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -1984,7 +1984,7 @@ class SoftwareApplication(CreativeWork):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
@@ -1999,7 +1999,7 @@ class SoftwareApplication(CreativeWork):
         softwareRequirements: Optional[Array["SoftwareApplication"]] = None,
         softwareVersion: Optional[str] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -2049,7 +2049,7 @@ class SoftwareSession(Thing):
         environment: "Environment",
         alternateNames: Optional[Array[str]] = None,
         cpuResource: Optional["ResourceParameters"] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         memoryResource: Optional["ResourceParameters"] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -2099,7 +2099,7 @@ class SoftwareSourceCode(CreativeWork):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
@@ -2117,7 +2117,7 @@ class SoftwareSourceCode(CreativeWork):
         softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
         targetProducts: Optional[Array["SoftwareApplication"]] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -2253,7 +2253,7 @@ class Table(CreativeWork):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
@@ -2266,7 +2266,7 @@ class Table(CreativeWork):
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -2412,7 +2412,7 @@ class VideoObject(MediaObject):
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
-        description: Optional[str] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
@@ -2428,7 +2428,7 @@ class VideoObject(MediaObject):
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
         thumbnail: Optional["ImageObject"] = None,
-        title: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         transcript: Optional[str] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None

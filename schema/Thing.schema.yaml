@@ -14,7 +14,11 @@ properties:
   description:
     '@id': schema:description
     description: A description of the item.
-    type: string
+    anyOf:
+      - type: string
+      - type: array
+        items:
+          $ref: Node
   name:
     '@id': schema:name
     description: The name of the item.

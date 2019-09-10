@@ -498,7 +498,7 @@ Thing <- function(
   )
   self$type <- as_scalar("Thing")
   self[["alternateNames"]] <- check_property("Thing", "alternateNames", FALSE, missing(alternateNames), Array("character"), alternateNames)
-  self[["description"]] <- check_property("Thing", "description", FALSE, missing(description), "character", description)
+  self[["description"]] <- check_property("Thing", "description", FALSE, missing(description), Union("character", Array("Node")), description)
   self[["name"]] <- check_property("Thing", "name", FALSE, missing(name), "character", name)
   self[["url"]] <- check_property("Thing", "url", FALSE, missing(url), "character", url)
   class(self) <- c("list", "Entity")
@@ -662,7 +662,7 @@ CreativeWork <- function(
   self[["publisher"]] <- check_property("CreativeWork", "publisher", FALSE, missing(publisher), Union("Person", "Organization"), publisher)
   self[["references"]] <- check_property("CreativeWork", "references", FALSE, missing(references), Array(Union("character", "CreativeWorkTypes")), references)
   self[["text"]] <- check_property("CreativeWork", "text", FALSE, missing(text), "character", text)
-  self[["title"]] <- check_property("CreativeWork", "title", FALSE, missing(title), "character", title)
+  self[["title"]] <- check_property("CreativeWork", "title", FALSE, missing(title), Union("character", Array("Node")), title)
   self[["version"]] <- check_property("CreativeWork", "version", FALSE, missing(version), Union("character", "numeric"), version)
   class(self) <- c("list", "Entity")
   self
@@ -748,7 +748,7 @@ Article <- function(
   )
   self$type <- as_scalar("Article")
   self[["authors"]] <- check_property("Article", "authors", TRUE, missing(authors), Array(Union("Person", "Organization")), authors)
-  self[["title"]] <- check_property("Article", "title", TRUE, missing(title), "character", title)
+  self[["title"]] <- check_property("Article", "title", TRUE, missing(title), Union("character", Array("Node")), title)
   self[["environment"]] <- check_property("Article", "environment", FALSE, missing(environment), "Environment", environment)
   class(self) <- c("list", "Entity")
   self
