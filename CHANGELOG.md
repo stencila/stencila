@@ -1,3 +1,18 @@
+# [0.29.0](https://github.com/stencila/schema/compare/v0.28.0...v0.29.0) (2019-09-10)
+
+
+### Bug Fixes
+
+* Added conversion of ndarray to list for JSON encoding ([f433e3d](https://github.com/stencila/schema/commit/f433e3d))
+* Renamed to_dict to object_encode to be more accurate ([6931651](https://github.com/stencila/schema/commit/6931651))
+* **Thing, CreativeWork:** Allow Thing.description and CreativeWork.title to be content (ie. Node[]) ([ad6a002](https://github.com/stencila/schema/commit/ad6a002))
+
+
+### Features
+
+* **JS:** Interpreter now requires command ([d9d275f](https://github.com/stencila/schema/commit/d9d275f))
+* **Py:** 'compile' arg and MPL figure fixes ([5b791d5](https://github.com/stencila/schema/commit/5b791d5))
+
 # [0.28.0](https://github.com/stencila/schema/compare/v0.27.0...v0.28.0) (2019-09-02)
 
 
