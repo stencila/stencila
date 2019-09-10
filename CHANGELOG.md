@@ -1,3 +1,10 @@
+## [0.31.1](https://github.com/stencila/stencila/compare/v0.31.0...v0.31.1) (2019-09-10)
+
+
+### Bug Fixes
+
+* **CI:** Do no skip CI on tag to trigger new release ([530365f](https://github.com/stencila/stencila/commit/530365f))
+
 # [0.31.0](https://github.com/stencila/stencila/compare/v0.30.5...v0.31.0) (2019-09-10)
 
 
