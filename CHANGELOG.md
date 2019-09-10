@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/stencila/thema/compare/v1.4.2...v1.4.3) (2019-09-10)
+
+
+### Bug Fixes
+
+* **Build:** Refactor TS modules and fix build task ([4f0815b](https://github.com/stencila/thema/commit/4f0815b))
+
 ## [1.4.2](https://github.com/stencila/thema/compare/v1.4.1...v1.4.2) (2019-09-10)
 
 
