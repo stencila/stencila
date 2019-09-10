@@ -31,6 +31,7 @@ from stencila.schema.util import from_json, to_json
 try:
     import matplotlib.figure
     import matplotlib.artist
+    from matplotlib.cbook import silent_list
 
     # pylint: disable=C0103
     MPLFigure = matplotlib.figure.Figure
@@ -46,6 +47,11 @@ except ImportError:
     # pylint: disable=R0903
     class MLPArtist:  # type: ignore
         """A fake MLPArtist to prevent ReferenceErrors later."""
+
+
+    # pylint: disable=R0903,C0103
+    class silent_list:  # type: ignore
+        """A fake silent_list to prevent ReferenceErrors later."""
 
 
     MPL_AVAILABLE = False
@@ -70,6 +76,10 @@ CHUNK_PREVIEW_LENGTH = 20
 
 ExecutableCode = typing.Union[CodeChunkExecution, CodeExpression]
 StatementRuntime = typing.Tuple[bool, typing.Union[str], typing.Callable]
+
+
+# Used to indicate that a particular output should not be added to outputs (c.f. a valid `None` value)
+SKIP_OUTPUT_SEMAPHORE = object()
 
 
 class CodeTimer:
@@ -237,6 +247,21 @@ class Interpreter:
                 break  # stop executing the rest of the statements in the chunk after capturing the outputs
 
         chunk.duration = duration
+
+        if MPL_AVAILABLE:
+            # Because of the way matplotlib might progressively build an image, only keep the last MPL that was
+            # generated for a specific code chunk
+            mpl_output_indexes = [i for i, output in enumerate(cc_outputs) if self.value_is_mpl(output)]
+
+            if mpl_output_indexes:
+                for i in reversed(mpl_output_indexes[:-1]):
+                    # remove all but the last mpl
+                    cc_outputs.pop(i)
+
+                new_last_index = mpl_output_indexes[-1] - (len(mpl_output_indexes) - 1)  # output will have shifted back
+
+                cc_outputs[new_last_index] = self.decode_mpl()
+
         chunk.outputs = cc_outputs
 
     def execute_statement(self, statement: ast.stmt, chunk: CodeChunk, _locals: typing.Dict[str, typing.Any],
@@ -263,7 +288,8 @@ class Interpreter:
                 set_code_error(chunk, exc)
 
         if capture_result and result is not None:
-            cc_outputs.append(self.decode_output(result))
+            self.add_output(cc_outputs, result)
+
         stdout.seek(0)
         std_out_output = stdout.buffer.read()
         if std_out_output:
@@ -271,6 +297,17 @@ class Interpreter:
 
         # could save a variable by returning `duration` as `None` if an error occurs but I think that breaks readability
         return duration, error_occurred
+
+    def add_output(self, cc_outputs: typing.List[typing.Any], result: typing.Any) -> None:
+        """
+        Add an output to cc_outputs.
+
+        Should be inside `execute_statement` as it's only used there, but pylint complains about too many local
+        variables.
+        """
+        decoded = self.decode_output(result)
+        if decoded != SKIP_OUTPUT_SEMAPHORE:
+            cc_outputs.append(decoded)
 
     @staticmethod
     def parse_statement_runtime(statement: ast.stmt) -> StatementRuntime:
@@ -384,14 +421,15 @@ class Interpreter:
 
         If not, just return the original object."""
 
+        if MPL_AVAILABLE:
+            if isinstance(output, silent_list):
+                return SKIP_OUTPUT_SEMAPHORE
+
         if isinstance(output, list):
             return [self.decode_output(item) for item in output]
 
         if isinstance(output, tuple):
             return tuple(self.decode_output(item) for item in output)
-
-        if self.value_is_mpl(output):
-            return self.decode_mpl()
 
         if isinstance(output, DataFrame):
             return self.decode_dataframe(output)
@@ -500,15 +538,19 @@ def write_output(output_file: str, article: Article) -> None:
             file.write(to_json(article))
 
 
-def execute_article(article: Article, parameter_flags: typing.List[str]) -> None:
+def execute_compilation(compilation_result: DocumentCompilationResult, parameter_flags: typing.List[str]) -> None:
     """Compile an `Article`, and interpret it with the given parameters (in a format that would be read from CLI)."""
-    dcr = DocumentCompiler().compile(article)
-    param_parser = ParameterParser(dcr.parameters)
+    param_parser = ParameterParser(compilation_result.parameters)
     param_parser.parse_cli_args(parameter_flags)
-    Interpreter().execute(dcr.code, param_parser.parameter_values)
+    Interpreter().execute(compilation_result.code, param_parser.parameter_values)
 
 
-def execute_from_cli(cli_args: typing.List[str]) -> None:
+def compile_article(article: Article) -> DocumentCompilationResult:
+    """Compile an `Article`, without executing it afterward."""
+    return DocumentCompiler().compile(article)
+
+
+def execute_from_cli(cli_args: typing.List[str], compile_only=False) -> None:
     """Read arguments from the CLI then parse an `Article` in JSON format, execute it, and output it somewhere."""
     cli_parser = argparse.ArgumentParser()
     cli_parser.add_argument('input_file', help='File to read from or "-" to read from stdin', nargs='?', default='-')
@@ -521,7 +563,10 @@ def execute_from_cli(cli_args: typing.List[str]) -> None:
 
     article = read_input(input_file)
 
-    execute_article(article, cli_args)
+    compilation_result = compile_article(article)
+
+    if not compile_only:
+        execute_compilation(compilation_result, cli_args)
 
     write_output(output_file, article)
 

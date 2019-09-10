@@ -56,6 +56,8 @@ interface StringDict {
 }
 
 interface CliArgs {
+  command: string
+
   inputFile: string
 
   outputFile: string
@@ -78,29 +80,42 @@ export type ExecutableCode = CodeChunkExecution | CodeExpression
  * Process argv to get the source and destination for the document being executed
  */
 function getCliArgs(): CliArgs {
-  const { _, ...params } = minimist(process.argv.slice(2), {})
+  const { _, ...parameterValues } = minimist(process.argv.slice(2), {})
 
-  let inFile = '-'
-  let outFile = '-'
+  if (_.length === 0) throw new Error('No command supplied')
 
-  if (_.length === 0) {
+  const command = _[0]
+
+  switch (command) {
+    case 'execute':
+    case 'compile':
+      break
+    default:
+      throw new Error(`Unknown command ${command}`)
+  }
+
+  let inputFile = '-'
+  let outputFile = '-'
+
+  if (_.length === 1) {
     // read from stdin and output to stdout
   }
 
-  if (_.length >= 1) {
-    // read from provided file arg which might be -, output to stdout
-    inFile = _[0]
+  if (_.length >= 2) {
+    // read from provided file arg (which might be -), then output to stdout
+    inputFile = _[1]
 
-    if (_.length >= 2) {
-      // read from file, out to file. but they might be -
-      outFile = _[1]
+    if (_.length >= 3) {
+      // read from file, output to a file. but the args might both be -
+      outputFile = _[2]
     }
   }
 
   return {
-    inputFile: inFile,
-    outputFile: outFile,
-    parameterValues: params
+    command,
+    inputFile,
+    outputFile,
+    parameterValues
   }
 }
 
@@ -1030,7 +1045,8 @@ async function main(): Promise<void> {
 
   parseItem(article, parameters, code)
 
-  execute(code, decodeParameters(parameters, cliArgs.parameterValues))
+  if (cliArgs.command === 'execute')
+    execute(code, decodeParameters(parameters, cliArgs.parameterValues))
 
   outputArticle(cliArgs.outputFile, article)
 }
