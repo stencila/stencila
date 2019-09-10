@@ -90,7 +90,20 @@
     "extends": "@stencila/eslint-config"
   },
   "release": {
-    "extends": "@stencila/semantic-release-config"
+    "extends": "@stencila/semantic-release-config",
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/npm",
+      [
+        "@semantic-release/git",
+        {
+          "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
+        }
+      ],
+      "@semantic-release/github"
+    ]
   },
   "commitlint": {
     "extends": [
