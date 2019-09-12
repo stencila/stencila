@@ -21,12 +21,16 @@ const enum sessionKey {
   ARTICLE = 'article'
 }
 
-const contentSelect = document.querySelector('#content-select')
+const contentSelect = document.querySelector<HTMLSelectElement>(
+  '#content-select'
+)
 if (contentSelect !== null) {
-  contentSelect.addEventListener(
-    'change',
-    async event => await contentSet((event.target as HTMLInputElement).value)
-  )
+  contentSelect.addEventListener('change', async event => {
+    if (event.currentTarget !== null) {
+      const el = event.currentTarget as HTMLSelectElement
+      contentSet(el.value)
+    }
+  })
 }
 
 const contentSet = async (example: string): Promise<void> => {
@@ -50,26 +54,35 @@ const activateTheme = (theme: string): void => {
     .forEach(node => ((node as HTMLInputElement).disabled = node.id !== theme))
 }
 
-const themeSelect = document.querySelector('#theme-select')
+const themeSelect = document.querySelector<HTMLInputElement>('#theme-select')
 if (themeSelect !== null) {
   themeSelect.addEventListener('change', async event => {
-    const element = event.target as HTMLInputElement
-    const theme = element.value
+    if (event.currentTarget !== null) {
+      const el = event.currentTarget as HTMLSelectElement
+      const theme = el.value
 
-    // Load the theme's Javascript module and run it's `init()` function
-    // @ts-ignore
-    const mod = await modules[theme]
-    if (mod !== undefined && 'init' in mod) mod.init()
+      // Load the theme's Javascript module and run it's `init()` function
+      // @ts-ignore
+      const mod = await modules[theme]
+      if (mod !== undefined && 'init' in mod) mod.init()
 
-    activateTheme(theme)
+      activateTheme(theme)
+    }
   })
 }
 
 // Initial content...
 const content = window.sessionStorage.getItem(sessionKey.ARTICLE)
 contentSet(content === null ? 'article-drosophila' : content)
+if (contentSelect !== null) {
+  contentSelect.value = content === null ? contentSelect.value : content
+}
 
 const theme = window.sessionStorage.getItem(sessionKey.THEME)
 if (theme !== null) {
   activateTheme(theme)
+
+  if (themeSelect !== null) {
+    themeSelect.value = theme === null ? themeSelect.value : theme
+  }
 }
