@@ -137,16 +137,19 @@ img {
   max-width: 100%;
 }
 
-article > pre,
-figure {
-  background-color: #fff;
-  width: auto;
-  max-width: calc(var(--max-width) - 50px); /* desktop+ */
-  max-width: max-content;
-  margin: 1.25rem auto;
-  border: 5px solid #dbdbdb;
-  overflow-y: hidden;
-  overflow-x: auto;
+article {
+  & > pre,
+  & > figure,
+  :--code-chunk {
+    background-color: #fff;
+    width: auto;
+    max-width: calc(var(--max-width) - 50px); /* desktop+ */
+    max-width: max-content;
+    margin: 1.25rem auto;
+    border: 5px solid #dbdbdb;
+    overflow-y: hidden;
+    overflow-x: auto;
+  }
 }
 
 article > pre {

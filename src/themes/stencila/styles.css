@@ -5,6 +5,7 @@
   --max-width: 680px;
   --max-width-media: 980px;
   --body-font: Merriweather, serif;
+  --color-key: #363636;
 }
 
 @import '../../designa/Article.css';
@@ -29,7 +30,7 @@ body {
 
 html,
 body {
-  color: #363636;
+  color: var(--color-key);
 }
 
 article {
@@ -199,7 +200,10 @@ img {
 
 article > pre,
 article > pre[class*='language-'],
-figure {
+body > figure,
+main > pre,
+article > figure,
+:--code-chunk {
   background-color: #fff;
   width: auto;
   max-width: var(--max-width);
@@ -211,6 +215,10 @@ figure {
   overflow-x: auto;
 }
 
+:--code-chunk {
+  max-width: var(--max-width-media);
+}
+
 article > pre {
   background-color: #fff;
 }
@@ -219,7 +227,9 @@ pre {
   font-size: 80%;
 }
 
-figure {
+body > figure,
+main > figure,
+article > figure {
   img,
   pre {
     padding: 1rem;
@@ -228,11 +238,6 @@ figure {
   img {
     display: block;
     margin: 0 auto;
-  }
-
-  > figure {
-    box-shadow: none;
-    border: none;
   }
 }
 
@@ -382,7 +387,9 @@ blockquote {
 @media screen and (min-width: 720px) {
   article > pre,
   article > pre[class*='language-'],
-  figure {
+  body > figure,
+  main > figure,
+  article > figure {
     min-width: var(--max-width);
   }
 

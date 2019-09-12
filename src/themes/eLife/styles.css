@@ -53,7 +53,8 @@ figure,
 table,
 article > pre,
 article > pre[class*='language-'],
-img {
+img,
+:--code-chunk {
   max-width: var(--max-width);
   margin-left: auto;
   margin-right: auto;
@@ -100,7 +101,9 @@ li > *:first-child {
   margin-top: 0;
 }
 
-figure {
+article > figure,
+body > figure,
+main > figure {
   font-family: var(--heading-font);
   margin: 3rem auto;
   overflow: auto;
@@ -145,6 +148,16 @@ figcaption {
     margin-bottom: 0;
     line-height: 1.84615;
     font-size: 0.8125rem;
+  }
+}
+
+:--code-chunk {
+  border: 1px solid #e0e0e0 !important;
+  margin: 3rem auto;
+  padding: 0.75rem;
+
+  img {
+    max-width: 100%;
   }
 }
 

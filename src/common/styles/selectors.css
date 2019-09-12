@@ -1,12 +1,15 @@
 /* Types */
-@custom-selector :--Article [itemtype='https://schema.org/Article'];
-@custom-selector :--Cite [itemtype='https://schema.stenci.la/Cite'];
-@custom-selector :--CiteGroup [itemtype='https://schema.stenci.la/CiteGroup'];
-@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
-@custom-selector :--Thing [itemtype='https://schema.org/Thing'];
-@custom-selector :--Entity [itemtype='https://schema.stenci.la/Entity'];
-@custom-selector :--Person [itemtype='https://schema.org/Person'];
-@custom-selector :--PublicationIssue [itemtype='https://schema.org/PublicationIssue'];
+@custom-selector [itemtype='https://schema.org/Article'];
+@custom-selector [itemtype='https://schema.stenci.la/Cite'];
+@custom-selector [itemtype='https://schema.stenci.la/CiteGroup'];
+@custom-selector [itemtype='https://schema.org/CreativeWork'];
+@custom-selector [itemtype='https://schema.org/Thing'];
+@custom-selector [itemtype='https://schema.stenci.la/Entity'];
+@custom-selector [itemtype='https://schema.org/Person'];
+@custom-selector [itemtype='https://schema.org/PublicationIssue'];
+
+/* Custom Web Component */
+@custom-selector :--code-chunk stencila-codechunk;
 
 /* Properties */
 
