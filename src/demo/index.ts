@@ -16,14 +16,22 @@
 import { examples } from '../examples'
 import { modules } from '../themes'
 
+const enum sessionKey {
+  THEME = 'theme',
+  ARTICLE = 'article'
+}
+
 const contentSelect = document.querySelector('#content-select')
-if (contentSelect) {
-  contentSelect.addEventListener('change', async event =>
-    await contentSet((event.target as HTMLInputElement).value)
+if (contentSelect !== null) {
+  contentSelect.addEventListener(
+    'change',
+    async event => await contentSet((event.target as HTMLInputElement).value)
   )
 }
 
-const contentSet = async (example: string) => {
+const contentSet = async (example: string): Promise<void> => {
+  window.sessionStorage.setItem(sessionKey.ARTICLE, example)
+
   // Load the HTML content
   const content = await examples[example]
   const html = content.default
@@ -34,11 +42,16 @@ const contentSet = async (example: string) => {
   main.innerHTML = dom.body.innerHTML
 }
 
-// Initial content...
-contentSet('article-drosophila')
+const activateTheme = (theme: string): void => {
+  window.sessionStorage.setItem(sessionKey.THEME, theme)
+  // Enable the theme's stylesheet and disable all others
+  document
+    .querySelectorAll('link.theme[rel="stylesheet"]')
+    .forEach(node => ((node as HTMLInputElement).disabled = node.id !== theme))
+}
 
 const themeSelect = document.querySelector('#theme-select')
-if (themeSelect) {
+if (themeSelect !== null) {
   themeSelect.addEventListener('change', async event => {
     const element = event.target as HTMLInputElement
     const theme = element.value
@@ -48,10 +61,15 @@ if (themeSelect) {
     const mod = await modules[theme]
     if (mod !== undefined && 'init' in mod) mod.init()
 
-    // Enable the theme's stylesheet and disable all others
-    const main = document.getElementsByTagName('main')[0]
-    document
-      .querySelectorAll('link.theme[rel="stylesheet"]')
-      .forEach(node => (node as HTMLInputElement).disabled = node.id !== theme)
+    activateTheme(theme)
   })
+}
+
+// Initial content...
+const content = window.sessionStorage.getItem(sessionKey.ARTICLE)
+contentSet(content === null ? 'article-drosophila' : content)
+
+const theme = window.sessionStorage.getItem(sessionKey.THEME)
+if (theme !== null) {
+  activateTheme(theme)
 }
