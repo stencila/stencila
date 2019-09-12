@@ -6,14 +6,11 @@
 
 @import './citations.css';
 
-article {
-  label:first-of-type {
-    position: sticky;
-    top: 0;
-    text-align: right;
-    padding: 12px 24px;
-    background: #fff;
-    z-index: 1;
+:--code-chunk {
+  pre,
+  pre[class*='language-'] {
+    background-color: transparent;
+    height: 100%;
   }
 }
 

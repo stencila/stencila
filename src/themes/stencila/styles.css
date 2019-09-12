@@ -1,3 +1,4 @@
+@import '../../common/styles/common.css';
 @import 'prismjs/themes/prism.css';
 @import '../../common/fonts/merriweather/merriweather.css';
 
@@ -217,10 +218,20 @@ article > figure,
 
 :--code-chunk {
   max-width: var(--max-width-media);
+
+  pre,
+  code,
+  pre[class*='language-'],
+  code[class*='language-'] {
+    font-family: var(--font-family-mono);
+  }
 }
 
-article > pre {
+article > pre,
+body > pre,
+main > pre {
   background-color: #fff;
+  padding: 1rem;
 }
 
 pre {
