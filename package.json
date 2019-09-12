@@ -70,7 +70,8 @@
     "scripts": "./dist/**/*.js",
     "assets": [
       "./stencila-deps.tgz",
-      "./node_modules/@stencila/schema/dist/**/*.json"
+      "./node_modules/@stencila/schema/dist/**/*.json",
+      "./node_modules/@stencila/encoda/dist/**/*.json"
     ]
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
