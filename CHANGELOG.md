@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/stencila/thema/compare/v1.4.3...v1.5.0) (2019-09-12)
+
+
+### Features
+
+* Add & refine styles for CodeChunk component ([14b2f19](https://github.com/stencila/thema/commit/14b2f19))
+
 ## [1.4.3](https://github.com/stencila/thema/compare/v1.4.2...v1.4.3) (2019-09-10)
 
 
