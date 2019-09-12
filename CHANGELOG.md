@@ -1,3 +1,12 @@
+## [1.5.1](https://github.com/stencila/thema/compare/v1.5.0...v1.5.1) (2019-09-12)
+
+
+### Bug Fixes
+
+* **Demo:** Reflect active theme/article in dropdown when reloading ([8e050b9](https://github.com/stencila/thema/commit/8e050b9))
+* **JS:** Initalize JS even if script is loaded after DOMContentLoaded ([7639b4b](https://github.com/stencila/thema/commit/7639b4b))
+* **Stencila:** Add common theme dependencies ([4c856bd](https://github.com/stencila/thema/commit/4c856bd))
+
 # [1.5.0](https://github.com/stencila/thema/compare/v1.4.3...v1.5.0) (2019-09-12)
 
 
