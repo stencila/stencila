@@ -2,14 +2,13 @@
  * This file is imported by all themes, allowing for shared configurations among themes.
  */
 
-import './syntaxHighlight'
+import { codeHighlight } from './syntaxHighlight'
 
-export const init = (): void => {
+export const formatReferences = (): void => {
   const referenceListItemSel = '.references > li'
   const titleSel = 'span[itemprop="headline"]'
   const datePublishedSel = '[itemprop="datePublished"]'
-  const publicationIssueSel =
-    '[itemtype="https://schema.org/PublicationIssue"]'
+  const publicationIssueSel = '[itemtype="https://schema.org/PublicationIssue"]'
 
   document.querySelectorAll(referenceListItemSel).forEach(node => {
     const datePublished = node.querySelector(datePublishedSel) as HTMLElement
@@ -50,4 +49,15 @@ export const init = (): void => {
   })
 }
 
-document.addEventListener('DOMContentLoaded', init)
+const onReadyHandler = (): void => {
+  codeHighlight()
+  formatReferences()
+}
+
+export const load = (): void => {
+  if (document.readyState !== 'loading') {
+    onReadyHandler()
+  }
+
+  document.addEventListener('DOMContentLoaded', onReadyHandler)
+}

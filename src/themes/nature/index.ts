@@ -1,1 +1,1 @@
-export { init } from '../../common/js/index'
+export { load } from '../../common/js/index'
