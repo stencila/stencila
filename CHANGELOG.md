@@ -1,3 +1,10 @@
+# [0.32.0](https://github.com/stencila/stencila/compare/v0.31.1...v0.32.0) (2019-09-13)
+
+
+### Features
+
+* **Deps:** Upgrade Encoda to 0.75.4 ([1528d09](https://github.com/stencila/stencila/commit/1528d09))
+
 ## [0.31.1](https://github.com/stencila/stencila/compare/v0.31.0...v0.31.1) (2019-09-10)
 
 
