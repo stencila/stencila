@@ -5,7 +5,7 @@ set -e
 mkdir -p stencila-deps
 
 if [[ "$(uname)" == "Darwin" ]]; then
-  CP="rsync -R"
+  CP="rsync -Ra"
 else
   CP="cp --parent --recursive"
 fi
