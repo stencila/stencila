@@ -1,3 +1,10 @@
+# [0.33.0](https://github.com/stencila/stencila/compare/v0.32.1...v0.33.0) (2019-09-17)
+
+
+### Features
+
+* **Zip archive:** Add option to create a zip archive ([88c9ac7](https://github.com/stencila/stencila/commit/88c9ac7))
+
 ## [0.32.1](https://github.com/stencila/stencila/compare/v0.32.0...v0.32.1) (2019-09-15)
 
 
