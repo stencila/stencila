@@ -43,7 +43,7 @@ export function cli(
         to: string
       }>
     ): Promise<void> => {
-      let { input, outputs, from, to, theme } = argv
+      let { input, outputs, from, to, theme, zip } = argv
       if (input === '-' && from === undefined) from = 'md'
       if (outputs === ['-'] && to === undefined) to = 'yaml'
       await encoda.convert(
@@ -53,7 +53,10 @@ export function cli(
         {
           from,
           to,
-          encodeOptions: { theme }
+          encodeOptions: {
+            theme,
+            shouldZip: zip
+          }
         }
       )
       if (callbackFunction !== undefined) callbackFunction()
@@ -93,6 +96,12 @@ export function cliArgsDefine(yargsDefinition: yargs.Argv): yargs.Argv<any> {
       describe: `The theme to use for the output format (default: ${DEFAULT_THEME}).`,
       type: 'string',
       default: DEFAULT_THEME
+    })
+    .option('zip', {
+      describe:
+        'Create Zip archive containing output files? no (default), yes, maybe (only if more than one file)',
+      choices: ['no', 'yes', 'maybe'],
+      default: 'no'
     })
 }
 
