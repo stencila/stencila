@@ -1,3 +1,10 @@
+## [0.33.1](https://github.com/stencila/stencila/compare/v0.33.0...v0.33.1) (2019-09-20)
+
+
+### Bug Fixes
+
+* Updated to encoda 0.77.1 for relative zip dir fixes ([9ab97bd](https://github.com/stencila/stencila/commit/9ab97bd))
+
 # [0.33.0](https://github.com/stencila/stencila/compare/v0.32.1...v0.33.0) (2019-09-17)
 
 
