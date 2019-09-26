@@ -6,9 +6,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://unpkg.com/@stencila/thema@1.4.1/dist/themes/stencila/styles.css"
+    <link href="https://unpkg.com/@stencila/thema@1.5.1/dist/themes/stencila/styles.css"
       rel="stylesheet">
-    <script src="https://unpkg.com/@stencila/thema@1.4.1/dist/themes/stencila/index.js"
+    <script src="https://unpkg.com/@stencila/thema@1.5.1/dist/themes/stencila/index.js"
+      type="text/javascript"></script>
+    <script
+      src="https://unpkg.com/@stencila/components@&lt;=1/dist/stencila-components/stencila-components.esm.js"
+      type="module"></script>
+    <script
+      src="https://unpkg.com/@stencila/components@&lt;=1/dist/stencila-components/stencila-components.js"
       type="text/javascript"></script>
   </head>
 
@@ -130,8 +136,7 @@
             itemid="#author-organization-3"><span itemprop="name">Israel Structural Proteomics
               Center, Weizmann Institute of Science, Rehovot, Israel</span></li>
         </ol>
-      </div><time itemprop="datePublished"
-        datetime="2019-09-09T04:08:09.450Z">2019-09-09T04:08:09.450Z</time>
+      </div>
       <section>
         <h2>Abstract</h2>
         <div itemprop="description">
@@ -261,7 +266,7 @@
         selected for binding and expression (<strong><a href="#pcbi.1007207.g001">Fig
             1B</a></strong>).</p>
       <figure id="pcbi.1007207.g001" title="Fig 1"><img src="article-antibodies.html.media/g001.png"
-          itemtype="https://schema.org/ImageObject" itemprop="image">
+          itemprop="image">
         <figcaption>
           <h2 id="deep-mutational-scanning-of-an-antibody-variable-fragment-fv">Deep mutational
             scanning of an antibody variable fragment (Fv).</h2>
@@ -357,7 +362,7 @@
         exhibited improved thermal denaturation and aggregation resistance (<strong><a
             href="#pcbi.1007207.g002">Fig 2C and 2D</a></strong>).</p>
       <figure id="pcbi.1007207.g002" title="Fig 2"><img src="article-antibodies.html.media/g002.png"
-          itemtype="https://schema.org/ImageObject" itemprop="image">
+          itemprop="image">
         <figcaption>
           <h2
             id="gains-in-affinity-stability-and-aggregation-resistance-through-vl-vh-interface-design-guided-by-deep-mutational-scanning">
@@ -459,7 +464,7 @@
         are available as Supplemental Data, and the AbLIFT web server enables user control of these
         parameters.</p>
       <figure id="pcbi.1007207.g003" title="Fig 3"><img src="article-antibodies.html.media/g003.png"
-          itemtype="https://schema.org/ImageObject" itemprop="image">
+          itemprop="image">
         <figcaption>
           <h2
             id="mutational-tolerance-mapping-by-rosetta-atomistic-energy-calculations-δδg-and-evolutionary-conservation-scores-pssm">
@@ -545,7 +550,7 @@
         Fab (<strong><a href="#pcbi.1007207.s004">S4A and S4B Fig</a></strong>) [<cite><a
             href="#pcbi.1007207.ref052">#pcbi.1007207.ref052</a></cite>].</p>
       <figure id="pcbi.1007207.g004" title="Fig 4"><img src="article-antibodies.html.media/g004.png"
-          itemtype="https://schema.org/ImageObject" itemprop="image">
+          itemprop="image">
         <figcaption>
           <h2 id="fully-automated-antibody-stability-and-affinity-optimization-using-ablift">Fully
             automated antibody stability and affinity optimization using AbLIFT.</h2>
@@ -636,7 +641,7 @@
         optimizing this region could have a dramatic effect on the expression levels of engineered
         antibodies.</p>
       <figure id="pcbi.1007207.g005" title="Fig 5"><img src="article-antibodies.html.media/g005.png"
-          itemtype="https://schema.org/ImageObject" itemprop="image">
+          itemprop="image">
         <figcaption>
           <h2 id="substantial-increase-in-antibody-expression-yields-following-ablift-design">
             Substantial increase in antibody expression yields following AbLIFT design.</h2>
@@ -799,15 +804,13 @@
       <p>To derive the mutational landscapes we compute the frequency <em>P<sup>i,j</sup></em> of
         each mutant relative to wild-type in the selected and reference pools, where <em>i</em> is
         the position and <em>j</em> is the substitution, relative to wild-type: <img
-          src="article-antibodies.html.media/e001.png" itemtype="https://schema.org/ImageObject"
-          itemprop="image">(Eq 1) where count is the number of reads for each mutant. The selection
-        coefficients are then computed as the ratio: <img
-          src="article-antibodies.html.media/e002.png" itemtype="https://schema.org/ImageObject"
-          itemprop="image">(Eq 2) where <em>selected</em> refers to the top 15% binding population
-        and reference refers to the reference population (Expression). The resulting
-        <em>S<sup>i,j</sup></em> values are then transformed to <em>−ln</em> enrichment values: <img
-          src="article-antibodies.html.media/e003.png" itemtype="https://schema.org/ImageObject"
-          itemprop="image">(Eq 3)</p><math>
+          src="article-antibodies.html.media/e001.png" itemprop="image">(Eq 1) where count is the
+        number of reads for each mutant. The selection coefficients are then computed as the ratio:
+        <img src="article-antibodies.html.media/e002.png" itemprop="image">(Eq 2) where
+        <em>selected</em> refers to the top 15% binding population and reference refers to the
+        reference population (Expression). The resulting <em>S<sup>i,j</sup></em> values are then
+        transformed to <em>−ln</em> enrichment values: <img
+          src="article-antibodies.html.media/e003.png" itemprop="image">(Eq 3)</p><math>
         <mml:msup>
           <mml:mrow>
             <mml:mi>P</mml:mi>
@@ -1283,7 +1286,6 @@
                     itemprop="name" content="A Cauerhff"><span itemprop="givenName">A</span><span
                       itemprop="familyName">Cauerhff</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2007">2007</time>
           </li>
           <li id="pcbi.1007207.ref002" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1305,7 +1307,6 @@
                     itemprop="name" content="S Garad"><span itemprop="givenName">S</span><span
                       itemprop="familyName">Garad</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2009">2009</time>
           </li>
           <li id="pcbi.1007207.ref003" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1332,7 +1333,6 @@
                     itemprop="name" content="KD Wittrup"><span itemprop="givenName">KD</span><span
                       itemprop="familyName">Wittrup</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2006">2006</time>
           </li>
           <li id="pcbi.1007207.ref004" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1350,7 +1350,6 @@
                     itemprop="name" content="KD Wittrup"><span itemprop="givenName">KD</span><span
                       itemprop="familyName">Wittrup</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2000">2000</time>
           </li>
           <li id="pcbi.1007207.ref005" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1377,7 +1376,6 @@
                     itemprop="name" content="KD Wittrup"><span itemprop="givenName">KD</span><span
                       itemprop="familyName">Wittrup</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2004">2004</time>
           </li>
           <li id="pcbi.1007207.ref006" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1402,7 +1400,6 @@
                     itemprop="name" content="PM Tessier"><span itemprop="givenName">PM</span><span
                       itemprop="familyName">Tessier</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2017">2017</time>
           </li>
           <li id="pcbi.1007207.ref007" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1424,7 +1421,6 @@
                     itemprop="name" content="K Tissot"><span itemprop="givenName">K</span><span
                       itemprop="familyName">Tissot</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2011">2011</time>
           </li>
           <li id="pcbi.1007207.ref008" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1443,7 +1439,6 @@
                     itemprop="name" content="F Jacobson"><span itemprop="givenName">F</span><span
                       itemprop="familyName">Jacobson</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2006">2006</time>
           </li>
           <li id="pcbi.1007207.ref009" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1455,7 +1450,6 @@
                     itemprop="name" content="AS Rosenberg"><span itemprop="givenName">AS</span><span
                       itemprop="familyName">Rosenberg</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2006">2006</time>
           </li>
           <li id="pcbi.1007207.ref010" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1482,7 +1476,6 @@
                     itemprop="name" content="V Antochshuk"><span itemprop="givenName">V</span><span
                       itemprop="familyName">Antochshuk</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2013">2013</time>
           </li>
           <li id="pcbi.1007207.ref011" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1503,7 +1496,6 @@
                     itemprop="name" content="N Corvaia"><span itemprop="givenName">N</span><span
                       itemprop="familyName">Corvaia</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2010">2010</time>
           </li>
           <li id="pcbi.1007207.ref012" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1521,7 +1513,6 @@
                     itemprop="name" content="B Tidor"><span itemprop="givenName">B</span><span
                       itemprop="familyName">Tidor</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2007">2007</time>
           </li>
           <li id="pcbi.1007207.ref013" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1546,7 +1537,6 @@
                     itemprop="name" content="BL Trout"><span itemprop="givenName">BL</span><span
                       itemprop="familyName">Trout</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2009">2009</time>
           </li>
           <li id="pcbi.1007207.ref014" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1573,7 +1563,6 @@
                     itemprop="name" content="JH Nett"><span itemprop="givenName">JH</span><span
                       itemprop="familyName">Nett</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2017">2017</time>
           </li>
           <li id="pcbi.1007207.ref015" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1601,7 +1590,6 @@
                     itemprop="name" content="M Blech"><span itemprop="givenName">M</span><span
                       itemprop="familyName">Blech</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2015">2015</time>
           </li>
           <li id="pcbi.1007207.ref016" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1628,7 +1616,6 @@
                     itemprop="name" content="D Langley"><span itemprop="givenName">D</span><span
                       itemprop="familyName">Langley</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2012">2012</time>
           </li>
           <li id="pcbi.1007207.ref017" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1655,7 +1642,6 @@
                     itemprop="name" content="R a. Hughes"><span itemprop="givenName">R
                       a.</span><span itemprop="familyName">Hughes</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2012">2012</time>
           </li>
           <li id="pcbi.1007207.ref018" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1676,7 +1662,6 @@
                     itemprop="name" content="G Winter"><span itemprop="givenName">G</span><span
                       itemprop="familyName">Winter</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2004">2004</time>
           </li>
           <li id="pcbi.1007207.ref019" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1694,7 +1679,6 @@
                     itemprop="name" content="BC Braden"><span itemprop="givenName">BC</span><span
                       itemprop="familyName">Braden</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2004">2004</time>
           </li>
           <li id="pcbi.1007207.ref020" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1721,7 +1705,6 @@
                     itemprop="name" content="Y Ashani"><span itemprop="givenName">Y</span><span
                       itemprop="familyName">Ashani</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2016">2016</time>
           </li>
           <li id="pcbi.1007207.ref021" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1736,7 +1719,6 @@
                     itemprop="name" content="SJ Fleishman"><span itemprop="givenName">SJ</span><span
                       itemprop="familyName">Fleishman</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2018">2018</time>
           </li>
           <li id="pcbi.1007207.ref022" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1763,7 +1745,6 @@
                     itemprop="name" content="SE Silk"><span itemprop="givenName">SE</span><span
                       itemprop="familyName">Silk</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2017">2017</time>
           </li>
           <li id="pcbi.1007207.ref023" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1778,7 +1759,6 @@
                     itemprop="name" content="JJ Havranek"><span itemprop="givenName">JJ</span><span
                       itemprop="familyName">Havranek</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2012">2012</time>
           </li>
           <li id="pcbi.1007207.ref024" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1805,7 +1785,6 @@
                     itemprop="name" content="C De Mattos"><span itemprop="givenName">C</span><span
                       itemprop="familyName">De Mattos</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2012">2012</time>
           </li>
           <li id="pcbi.1007207.ref025" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1820,7 +1799,6 @@
                     itemprop="name" content="S Fields"><span itemprop="givenName">S</span><span
                       itemprop="familyName">Fields</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2014">2014</time>
           </li>
           <li id="pcbi.1007207.ref026" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1847,7 +1825,6 @@
                     itemprop="name" content="D Baker"><span itemprop="givenName">D</span><span
                       itemprop="familyName">Baker</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2010">2010</time>
           </li>
           <li id="pcbi.1007207.ref027" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1875,7 +1852,6 @@
                     itemprop="name" content="TW Patapoff"><span itemprop="givenName">TW</span><span
                       itemprop="familyName">Patapoff</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2017">2017</time>
           </li>
           <li id="pcbi.1007207.ref028" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1903,7 +1879,6 @@
                     itemprop="name" content="AV Ivanov"><span itemprop="givenName">AV</span><span
                       itemprop="familyName">Ivanov</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2013">2013</time>
           </li>
           <li id="pcbi.1007207.ref029" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1930,7 +1905,6 @@
                     itemprop="name" content="L Hunt"><span itemprop="givenName">L</span><span
                       itemprop="familyName">Hunt</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2012">2012</time>
           </li>
           <li id="pcbi.1007207.ref030" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1951,7 +1925,6 @@
                     itemprop="name" content="JB Kinney"><span itemprop="givenName">JB</span><span
                       itemprop="familyName">Kinney</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2016">2016</time>
           </li>
           <li id="pcbi.1007207.ref031" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1972,7 +1945,6 @@
                     itemprop="name" content="SS Sidhu"><span itemprop="givenName">SS</span><span
                       itemprop="familyName">Sidhu</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2016">2016</time>
           </li>
           <li id="pcbi.1007207.ref032" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -1990,7 +1962,6 @@
                     itemprop="name" content="SJ Fleishman"><span itemprop="givenName">SJ</span><span
                       itemprop="familyName">Fleishman</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2013">2013</time>
           </li>
           <li id="pcbi.1007207.ref033" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2017,7 +1988,6 @@
                     itemprop="name" content="J Navaza"><span itemprop="givenName">J</span><span
                       itemprop="familyName">Navaza</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="1994">1994</time>
           </li>
           <li id="pcbi.1007207.ref034" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2029,7 +1999,6 @@
                     itemprop="name" content="PM Colman"><span itemprop="givenName">PM</span><span
                       itemprop="familyName">Colman</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="1988">1988</time>
           </li>
           <li id="pcbi.1007207.ref035" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2056,7 +2025,6 @@
                     itemprop="name" content="CL Brooks"><span itemprop="givenName">CL</span><span
                       itemprop="familyName">Brooks</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2006">2006</time>
           </li>
           <li id="pcbi.1007207.ref036" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2078,7 +2046,6 @@
                       itemprop="givenName">HWT</span><span itemprop="familyName">van
                       Vlijmen</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2006">2006</time>
           </li>
           <li id="pcbi.1007207.ref037" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2095,7 +2062,6 @@
                     itemprop="name" content="JS Emtage"><span itemprop="givenName">JS</span><span
                       itemprop="familyName">Emtage</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="1995">1995</time>
           </li>
           <li id="pcbi.1007207.ref038" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2122,7 +2088,6 @@
                     itemprop="name" content="MD Tyka"><span itemprop="givenName">MD</span><span
                       itemprop="familyName">Tyka</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2015">2015</time>
           </li>
           <li id="pcbi.1007207.ref039" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2149,7 +2114,6 @@
                     itemprop="name" content="T Unger"><span itemprop="givenName">T</span><span
                       itemprop="familyName">Unger</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2017">2017</time>
           </li>
           <li id="pcbi.1007207.ref040" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2176,7 +2140,6 @@
                     itemprop="name" content="S Rogotner"><span itemprop="givenName">S</span><span
                       itemprop="familyName">Rogotner</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2018">2018</time>
           </li>
           <li id="pcbi.1007207.ref041" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2203,7 +2166,6 @@
                     itemprop="name" content="H Leader"><span itemprop="givenName">H</span><span
                       itemprop="familyName">Leader</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2018">2018</time>
           </li>
           <li id="pcbi.1007207.ref042" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2230,7 +2192,6 @@
                     itemprop="name" content="O Knop"><span itemprop="givenName">O</span><span
                       itemprop="familyName">Knop</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2018">2018</time>
           </li>
           <li id="pcbi.1007207.ref043" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2245,7 +2206,6 @@
                     itemprop="name" content="SJ Fleishman"><span itemprop="givenName">SJ</span><span
                       itemprop="familyName">Fleishman</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2016">2016</time>
           </li>
           <li id="pcbi.1007207.ref044" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2261,7 +2221,6 @@
                     itemprop="name" content="ACR Martin"><span itemprop="givenName">ACR</span><span
                       itemprop="familyName">Martin</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2010">2010</time>
           </li>
           <li id="pcbi.1007207.ref045" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2289,7 +2248,6 @@
                     itemprop="name" content="B Moffat"><span itemprop="givenName">B</span><span
                       itemprop="familyName">Moffat</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2006">2006</time>
           </li>
           <li id="pcbi.1007207.ref046" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2316,7 +2274,6 @@
                     itemprop="name" content="J Milbrandt"><span itemprop="givenName">J</span><span
                       itemprop="familyName">Milbrandt</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2009">2009</time>
           </li>
           <li id="pcbi.1007207.ref047" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2337,7 +2294,6 @@
                     itemprop="name" content="D Fass"><span itemprop="givenName">D</span><span
                       itemprop="familyName">Fass</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2013">2013</time>
           </li>
           <li id="pcbi.1007207.ref048" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2364,7 +2320,6 @@
                     itemprop="name" content="T Mehlman"><span itemprop="givenName">T</span><span
                       itemprop="familyName">Mehlman</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2012">2012</time>
           </li>
           <li id="pcbi.1007207.ref049" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2391,7 +2346,6 @@
                     itemprop="name" content="G Fuh"><span itemprop="givenName">G</span><span
                       itemprop="familyName">Fuh</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2004">2004</time>
           </li>
           <li id="pcbi.1007207.ref050" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2409,7 +2363,6 @@
                     itemprop="name" content="D Baker"><span itemprop="givenName">D</span><span
                       itemprop="familyName">Baker</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2011">2011</time>
           </li>
           <li id="pcbi.1007207.ref051" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2427,7 +2380,6 @@
                     itemprop="name" content="NV Dokholyan"><span itemprop="givenName">NV</span><span
                       itemprop="familyName">Dokholyan</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2007">2007</time>
           </li>
           <li id="pcbi.1007207.ref052" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2456,7 +2408,6 @@
                       itemprop="givenName">H</span><span
                       itemprop="familyName">Kettenberger</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2015">2015</time>
           </li>
           <li id="pcbi.1007207.ref053" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2483,7 +2434,6 @@
                     itemprop="name" content="A Ford"><span itemprop="givenName">A</span><span
                       itemprop="familyName">Ford</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2016">2016</time>
           </li>
           <li id="pcbi.1007207.ref054" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2498,7 +2448,6 @@
                     itemprop="name" content="SJ Fleishman"><span itemprop="givenName">SJ</span><span
                       itemprop="familyName">Fleishman</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2016">2016</time>
           </li>
           <li id="pcbi.1007207.ref055" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2524,7 +2473,6 @@
                     itemprop="name" content="T Unger"><span itemprop="givenName">T</span><span
                       itemprop="familyName">Unger</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div>
           </li>
           <li id="pcbi.1007207.ref056" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2545,7 +2493,6 @@
                     itemprop="name" content="C Thorpe"><span itemprop="givenName">C</span><span
                       itemprop="familyName">Thorpe</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2014">2014</time>
           </li>
           <li id="pcbi.1007207.ref057" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2563,7 +2510,6 @@
                     itemprop="name" content="A Tramontano"><span itemprop="givenName">A</span><span
                       itemprop="familyName">Tramontano</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2011">2011</time>
           </li>
           <li id="pcbi.1007207.ref058" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2591,7 +2537,6 @@
                       itemprop="givenName">F</span><span
                       itemprop="familyName">Hernandez-Guzman</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2014">2014</time>
           </li>
           <li id="pcbi.1007207.ref059" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2609,7 +2554,6 @@
                     itemprop="name" content="SJ Fleishman"><span itemprop="givenName">SJ</span><span
                       itemprop="familyName">Fleishman</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2017">2017</time>
           </li>
           <li id="pcbi.1007207.ref060" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2630,7 +2574,6 @@
                     itemprop="name" content="SJ Fleishman"><span itemprop="givenName">SJ</span><span
                       itemprop="familyName">Fleishman</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2019">2019</time>
           </li>
           <li id="pcbi.1007207.ref061" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2649,7 +2592,6 @@
                     itemprop="name" content="IA Wilson"><span itemprop="givenName">IA</span><span
                       itemprop="familyName">Wilson</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="1992">1992</time>
           </li>
           <li id="pcbi.1007207.ref062" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2661,7 +2603,6 @@
                     itemprop="name" content="L Pauling"><span itemprop="givenName">L</span><span
                       itemprop="familyName">Pauling</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="1940">1940</time>
           </li>
           <li id="pcbi.1007207.ref063" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2686,7 +2627,6 @@
                     itemprop="name" content="IA Wilson"><span itemprop="givenName">IA</span><span
                       itemprop="familyName">Wilson</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="1993">1993</time>
           </li>
           <li id="pcbi.1007207.ref064" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2714,7 +2654,6 @@
                     itemprop="name" content="SJ Fleishman"><span itemprop="givenName">SJ</span><span
                       itemprop="familyName">Fleishman</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2016">2016</time>
           </li>
           <li id="pcbi.1007207.ref065" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2729,7 +2668,6 @@
                     itemprop="name" content="JH Naismith"><span itemprop="givenName">JH</span><span
                       itemprop="familyName">Naismith</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2008">2008</time>
           </li>
           <li id="pcbi.1007207.ref066" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2744,7 +2682,6 @@
                     itemprop="name" content="RH Schiestl"><span itemprop="givenName">RH</span><span
                       itemprop="familyName">Schiestl</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2007">2007</time>
           </li>
           <li id="pcbi.1007207.ref067" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2771,7 +2708,6 @@
                     itemprop="name" content="N Koga"><span itemprop="givenName">N</span><span
                       itemprop="familyName">Koga</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2011">2011</time>
           </li>
           <li id="pcbi.1007207.ref068" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2798,7 +2734,6 @@
                     itemprop="name" content="F DiMaio"><span itemprop="givenName">F</span><span
                       itemprop="familyName">DiMaio</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2015">2015</time>
           </li>
           <li id="pcbi.1007207.ref069" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2825,7 +2760,6 @@
                     itemprop="name" content="DE Kim"><span itemprop="givenName">DE</span><span
                       itemprop="familyName">Kim</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2016">2016</time>
           </li>
           <li id="pcbi.1007207.ref070" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2852,7 +2786,6 @@
                     itemprop="name" content="G Arkind"><span itemprop="givenName">G</span><span
                       itemprop="familyName">Arkind</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2017">2017</time>
           </li>
           <li id="pcbi.1007207.ref071" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2871,7 +2804,6 @@
                     itemprop="name" content="M Sharon"><span itemprop="givenName">M</span><span
                       itemprop="familyName">Sharon</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2010">2010</time>
           </li>
           <li id="pcbi.1007207.ref072" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2900,7 +2832,6 @@
                     itemprop="name" content="H Wardemann"><span itemprop="givenName">H</span><span
                       itemprop="familyName">Wardemann</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2008">2008</time>
           </li>
           <li id="pcbi.1007207.ref073" itemtype="https://schema.org/CreativeWork" itemscope="true"
@@ -2924,7 +2855,6 @@
                     itemprop="name" content="Y Peleg"><span itemprop="givenName">Y</span><span
                       itemprop="familyName">Peleg</span></span></li>
               </ol>
-              <ol class="organizations"></ol>
             </div><time itemprop="datePublished" datetime="2010">2010</time>
           </li>
         </ol>
