@@ -13,6 +13,7 @@ import logging
 from sys import argv, stderr, stdout
 
 from .interpreter import execute_from_cli
+from .listener import start_stdio_interpreter
 
 
 def cli_execute():
@@ -25,16 +26,22 @@ def cli_compile():
     execute_from_cli(argv[2:], True)
 
 
+def interpreter_listen():
+    start_stdio_interpreter()
+
+
 def main():
     """The main entry point to this module, read the first CLI arg and call out to the corresponding function."""
     command = argv[1] if len(argv) > 1 else ''
 
+    logging.basicConfig(stream=stdout, level=logging.DEBUG)
+
     if command == 'execute':
-        logging.basicConfig(stream=stdout, level=logging.DEBUG)
         cli_execute()
     elif command == 'compile':
-        logging.basicConfig(stream=stdout, level=logging.DEBUG)
         cli_compile()
+    elif command == 'listen':
+        interpreter_listen()
     else:
         stderr.write('Unknown command "{}"\n'.format(command))
 

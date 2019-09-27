@@ -111,6 +111,21 @@ def set_code_error(code: typing.Union[CodeChunk, CodeExpression],
     code.errors.append(error)
 
 
+def simple_code_chunk_parse(code: CodeChunk) -> CodeChunkExecution:
+    """
+    "Build a CodeChunkExecution from CodeChunk.
+
+    This is the most basic information that is needed to execute a CodeChunk in the interpreter.
+    """
+    parser = CodeChunkParser()
+    cc_result = parser.parse(code)
+
+    if cc_result.error:
+        set_code_error(code, cc_result.error)
+
+    return CodeChunkExecution(code, cc_result)
+
+
 class CodeChunkParser:
     """Parse a `CodeChunk` by parsing its `text` into an AST and traversing it."""
 
