@@ -1,3 +1,11 @@
+## [1.5.2](https://github.com/stencila/thema/compare/v1.5.1...v1.5.2) (2019-09-29)
+
+
+### Bug Fixes
+
+* **Selectors:** Fix custom selectors ([7bd1398](https://github.com/stencila/thema/commit/7bd1398))
+* **Selectors:** Rename code-chunk to CodeChunk ([70e669f](https://github.com/stencila/thema/commit/70e669f))
+
 ## [1.5.1](https://github.com/stencila/thema/compare/v1.5.0...v1.5.1) (2019-09-12)
 
 
