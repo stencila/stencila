@@ -6,7 +6,7 @@
 
 @import './citations.css';
 
-:--code-chunk {
+:--CodeChunk {
   pre,
   pre[class*='language-'] {
     background-color: transparent;

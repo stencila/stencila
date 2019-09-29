@@ -58,7 +58,7 @@ figure,
 table,
 article > pre,
 article > pre[class*='language-'],
-:--code-chunk {
+:--CodeChunk {
   max-width: var(--max-width);
   margin-left: auto;
   margin-right: auto;
@@ -188,7 +188,7 @@ li {
 }
 
 figure,
-:--code-chunk {
+:--CodeChunk {
   font-family: var(--body-font);
   margin: 1.25rem auto;
   overflow: auto;

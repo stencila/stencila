@@ -204,7 +204,7 @@ article > pre[class*='language-'],
 body > figure,
 main > pre,
 article > figure,
-:--code-chunk {
+:--CodeChunk {
   background-color: #fff;
   width: auto;
   max-width: var(--max-width);
@@ -216,7 +216,7 @@ article > figure,
   overflow-x: auto;
 }
 
-:--code-chunk {
+:--CodeChunk {
   max-width: var(--max-width-media);
 
   pre,
