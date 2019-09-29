@@ -1,36 +1,62 @@
-/* Types */
-@custom-selector [itemtype='https://schema.org/Article'];
-@custom-selector [itemtype='https://schema.stenci.la/Cite'];
-@custom-selector [itemtype='https://schema.stenci.la/CiteGroup'];
-@custom-selector [itemtype='https://schema.org/CreativeWork'];
-@custom-selector [itemtype='https://schema.org/Thing'];
-@custom-selector [itemtype='https://schema.stenci.la/Entity'];
-@custom-selector [itemtype='https://schema.org/Person'];
-@custom-selector [itemtype='https://schema.org/PublicationIssue'];
+/**
+ * Custom, semantic, CSS selectors
+ *
+ * In Thema the approach to CSS naming is, as much as possible, to
+ * use custom selectors for the type of entities being styled and
+ * their properties.
+ */
 
-/* Custom Web Component */
-@custom-selector :--code-chunk stencila-codechunk;
 
-/* Properties */
+/**
+ * Type selectors
+ *
+ * For types defined in http://schema.org (e.g. `Article`), or extensions such as,
+ * http://schema.stenci.la (e.g. `CodeChunk`), http://bioschemas.org (e.g. `Taxon`) etc.
+ *
+ * Conventions:
+ *
+ * - use the same upper camel case as in the schema the type is defined in
+ * - use a `[itemtype=...]` selector if possible (i.e. if Encoda encodes it in HTML)
+ */
+@custom-selector :--Article [itemtype='https://schema.org/Article'];
+@custom-selector :--Cite [itemtype='https://schema.stenci.la/Cite'];
+@custom-selector :--CiteGroup [itemtype='https://schema.stenci.la/CiteGroup'];
+@custom-selector :--CodeChunk stencila-code-chunk;
+@custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
+@custom-selector :--Entity [itemtype='https://schema.stenci.la/Entity'];
+@custom-selector :--Person [itemtype='https://schema.org/Person'];
+@custom-selector :--PublicationIssue [itemtype='https://schema.org/PublicationIssue'];
+@custom-selector :--Thing [itemtype='https://schema.org/Thing'];
 
-/* schema.org properties */
-@custom-selector :--description [itemprop='description'];
+/**
+ * Property selectors
+ *
+ * For properties of types defined in schemas. Note that
+ * some of these select an entire container property e.g. `authors` and
+ * selector for a class, and some select items in those properties
+ * e.g. `author` and select for a `itemprop`.
+ *
+ * Conventions:
+ *
+ * - use the same lower camel case as in the schema the property is defined in
+ * - use a `.class` selector for container properties
+ * - use a `[itemprop=...]` selector for singular properties, or items of container properties
+ */
 @custom-selector :--address [itemprop='address'];
 @custom-selector :--affiliation [itemprop='affiliation'];
+@custom-selector :--affiliations .affiliations;
 @custom-selector :--author [itemprop='author'];
+@custom-selector :--authors .authors;
 @custom-selector :--citation [itemprop='citation'];
 @custom-selector :--datePublished [itemprop='datePublished'];
+@custom-selector :--description [itemprop='description'];
 @custom-selector :--email [itemprop='email'];
+@custom-selector :--emails .emails;
 @custom-selector :--familyName [itemprop='familyName'];
 @custom-selector :--givenName [itemprop='givenName'];
 @custom-selector :--headline [itemprop='headline'];
 @custom-selector :--issueNumber [itemprop='issueNumber'];
 @custom-selector :--name [itemprop='name'];
 @custom-selector :--pagination [itemprop='pagination'];
-@custom-selector :--url [itemprop='url'];
-
-/* Custom properties / names */
-@custom-selector :--affiliations .affiliations;
-@custom-selector :--authors .authors;
-@custom-selector :--emails .emails;
 @custom-selector :--references .references;
+@custom-selector :--url [itemprop='url'];

@@ -140,7 +140,7 @@ img {
 article {
   & > pre,
   & > figure,
-  :--code-chunk {
+  :--CodeChunk {
     background-color: #fff;
     width: auto;
     max-width: calc(var(--max-width) - 50px); /* desktop+ */
