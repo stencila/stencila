@@ -1,3 +1,11 @@
+## [0.33.4](https://github.com/stencila/stencila/compare/v0.33.3...v0.33.4) (2019-09-30)
+
+
+### Bug Fixes
+
+* Update Encoda to 0.80.0 ([072f340](https://github.com/stencila/stencila/commit/072f340))
+* Update packages using `npm audit fix` ([81a9dcc](https://github.com/stencila/stencila/commit/81a9dcc))
+
 ## [0.33.3](https://github.com/stencila/stencila/compare/v0.33.2...v0.33.3) (2019-09-25)
 
 
