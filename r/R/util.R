@@ -77,6 +77,6 @@ string_split <- function(string, regex) {
 #'
 #' @param string The string to extract chars from
 #' @param chars Number of chars to extract
-string_right <- function(string, chars = 1){
+string_right <- function(string, chars = 1) {
   substr(string, nchar(string) - (chars - 1), nchar(string))
 }

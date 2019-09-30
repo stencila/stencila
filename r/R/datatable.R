@@ -6,7 +6,7 @@
 #' @param df The data frame to convert
 #' @aliases as.Datatable.data.frame
 #' @export
-datatable_from_dataframe <- function(df){
+datatable_from_dataframe <- function(df) {
   Datatable(
     columns = lapply(colnames(df), function(colname) {
       datatable_column_from_object(colname, df[[colname]])
@@ -22,7 +22,7 @@ as.Datatable.data.frame <- datatable_from_dataframe # nolint
 #' @param dt The `Datatable` to convert
 #' @aliases as.data.frame.Datatable
 #' @export
-datatable_to_dataframe <- function(dt){
+datatable_to_dataframe <- function(dt) {
   data.frame(
     lapply(dt$columns, datatable_column_to_values),
     stringsAsFactors = FALSE

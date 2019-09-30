@@ -66,7 +66,7 @@ test_that("compile_code_chunk: declares", {
   declares <- function(text) compile_code_chunk(text)$declares
 
   expect_equal(
-    declares("func <- function(){}"),
+    declares("func <- function() {}"),
     list(
       Function(
         name = "func"
@@ -75,7 +75,7 @@ test_that("compile_code_chunk: declares", {
   )
 
   expect_equal(
-    declares("func1 <- function(a){}\nfunc2 <- function(a, b){}"),
+    declares("func1 <- function(a) {}\nfunc2 <- function(a, b) {}"),
     list(
       Function(
         name = "func1",
@@ -97,9 +97,9 @@ test_that("compile_code_chunk: declares", {
   # used before declaration.
   chunk <- compile_code_chunk(paste(
     "func2()",
-    "func1 <- function(){}",
+    "func1 <- function() {}",
     "func1()",
-    "func2 <- function(){}",
+    "func2 <- function() {}",
     sep = "\n"
   ))
   expect_equal(
@@ -228,10 +228,10 @@ test_that("compile_code_chunk: uses", {
       "var1",
       "var2",
       "var2 <- 2",
-      "func1 <- function(){}",
+      "func1 <- function() {}",
       "func1()",
       "func2()",
-      "func2 <- function(){}",
+      "func2 <- function() {}",
       sep = "\n"
     )),
     c("var2", "func2")
