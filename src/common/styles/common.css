@@ -12,6 +12,12 @@
     background-color: transparent;
     height: 100%;
   }
+
+  .codeContainer {
+    pre {
+      overflow-x: auto;
+    }
+  }
 }
 
 html {
