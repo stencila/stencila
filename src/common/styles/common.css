@@ -24,6 +24,14 @@
   }
 }
 
+/*
+  `description` property: a `div` or `div > p` abstract or description.
+*/
+:--description {
+  margin: 0 auto 1.25rem;
+  max-width: var(--max-width);
+}
+
 html {
   font-size: 16px;
   box-sizing: border-box;

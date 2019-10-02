@@ -442,8 +442,6 @@ blockquote {
   }
 
   :--description {
-    margin: 0 auto 1.25rem;
-    max-width: var(--max-width);
     padding-left: 50px;
 
     > p {
