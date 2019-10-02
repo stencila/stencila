@@ -308,6 +308,34 @@ blockquote {
 }
 
 /* Microdata-based Styles */
+@import '../../designa/Person.css';
+
+:--Article {
+  > :--headline + div {
+    text-align: center;
+    font-family: var(--heading-font);
+
+    :--authors {
+      margin-bottom: 0;
+    }
+
+    :--organizations {
+      font-size: 14px;
+
+      @mixin list-separated;
+
+      li > * {
+        display: inline;
+      }
+    }
+  }
+
+  :--description {
+    margin: 0 auto 1.25rem;
+    max-width: var(--max-width);
+  }
+}
+
 :--references {
   /* eLife Citation Styles */
   list-style: none;
