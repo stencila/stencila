@@ -308,6 +308,7 @@ blockquote {
 }
 
 /* Microdata-based Styles */
+@import '../../designa/Entity.css';
 @import '../../designa/Person.css';
 
 :--Article {

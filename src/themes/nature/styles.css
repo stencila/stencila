@@ -413,6 +413,50 @@ blockquote {
 }
 
 /* Microdata-based Styles */
+@import '../../designa/Entity.css';
+@import '../../designa/Person.css';
+
+:--Article {
+  > :--headline {
+    padding-left: 50px;
+  }
+
+  > :--headline + div {
+    font-family: var(--heading-font);
+
+    :--authors {
+      margin: 0 auto;
+    }
+
+    :--organizations {
+      @mixin list-separated;
+      font-size: 14px;
+      display: block;
+      margin: 1.25rem auto;
+      padding-left: 50px;
+
+      li > * {
+        display: inline;
+      }
+    }
+  }
+
+  :--description {
+    margin: 0 auto 1.25rem;
+    max-width: var(--max-width);
+    padding-left: 50px;
+
+    > p {
+      padding-left: 0;
+    }
+  }
+
+  :--CodeChunk {
+    /* Match figure width */
+    max-width: calc(var(--max-width) - 100px);
+  }
+}
+
 :--publisher,
 :--authors,
 :--CreativeWork header h2,

@@ -16,6 +16,10 @@
   .codeContainer {
     pre {
       overflow-x: auto;
+
+      output {
+        white-space: pre-line;
+      }
     }
   }
 }
