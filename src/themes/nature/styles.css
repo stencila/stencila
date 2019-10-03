@@ -42,6 +42,13 @@ article {
 
 article > * {
   width: 100%;
+
+  &:not(figure):not(h1):not(.references):not(section):not(:--CodeChunk) {
+    max-width: var(--max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 50px;
+  }
 }
 
 /* Heading Overflow Styles */
@@ -422,18 +429,20 @@ blockquote {
   }
 
   > :--headline + div {
-    font-family: var(--heading-font);
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding-left: 50px;
+    font-family: var(--secondary-font);
+    font-size: 85%;
 
-    :--authors {
-      margin: 0 auto;
+    :--authors,
+    :--organizations {
+      @mixin list-separated;
+      display: block;
     }
 
     :--organizations {
-      @mixin list-separated;
-      font-size: 14px;
-      display: block;
-      margin: 1.25rem auto;
-      padding-left: 50px;
+      @mixin list-separated '; ';
 
       li > * {
         display: inline;
@@ -489,7 +498,7 @@ blockquote {
     position: relative;
     counter-increment: reference-counter;
     font-size: 1rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
 
     &::before {
       content: counter(reference-counter) '. ';
@@ -537,6 +546,14 @@ blockquote {
 
     &::after {
       content: '.';
+    }
+
+    + div {
+      display: inline;
+
+      + :--datePublished {
+        display: none;
+      }
     }
   }
 
