@@ -162,6 +162,29 @@ function setCodeChunkImports(code: CodeChunk, imports: string[]): void {
 }
 
 /**
+ * Set the properties from a `CodeChunkParseResult` onto a `CodeChunk` (hopefully the one from which the parse result
+ * was generated).
+ */
+function setCodeChunkProperties(
+  codeChunk: CodeChunk,
+  parseResult: CodeChunkParseResult
+): void {
+  setCodeChunkImports(codeChunk, parseResult.imports)
+  codeChunk.declares = parseResult.declares
+  codeChunk.assigns = parseResult.assigns
+  codeChunk.alters = parseResult.alters
+  codeChunk.uses = parseResult.uses
+  codeChunk.reads = parseResult.reads
+
+  if (parseResult.errors.length > 0) {
+    if (codeChunk.errors === undefined) {
+      codeChunk.errors = []
+    }
+    codeChunk.errors = codeChunk.errors.concat(parseResult.errors)
+  }
+}
+
+/**
  * Traverse a `Node` hierarchy and push any `Parameter` that is found onto the `parameters` array,
  * and any executable code block onto the `code` array.
  */
@@ -183,20 +206,7 @@ export function parseItem(
     ) {
       if (isA('CodeChunk', item)) {
         const parseResult = parseCodeChunk(item)
-
-        setCodeChunkImports(item, parseResult.imports)
-        item.declares = parseResult.declares
-        item.assigns = parseResult.assigns
-        item.alters = parseResult.alters
-        item.uses = parseResult.uses
-        item.reads = parseResult.reads
-
-        if (parseResult.errors.length > 0) {
-          if (item.errors === undefined) {
-            item.errors = []
-          }
-          item.errors = item.errors.concat(parseResult.errors)
-        }
+        setCodeChunkProperties(item, parseResult)
         code.push({
           codeChunk: item,
           parseResult: parseResult

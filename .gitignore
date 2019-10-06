@@ -16,3 +16,4 @@ py/coverage.xml
 /ts/types.ts
 .Rproj.user
 py/htmlcov
+engine/node_modules
