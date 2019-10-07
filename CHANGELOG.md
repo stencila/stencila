@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/stencila/thema/compare/v1.5.3...v1.5.4) (2019-10-07)
+
+
+### Bug Fixes
+
+* **Pre:** Fix Safari bug with rendering Pre elements inside iFrames ([6b5c8b0](https://github.com/stencila/thema/commit/6b5c8b0))
+
 ## [1.5.3](https://github.com/stencila/thema/compare/v1.5.2...v1.5.3) (2019-10-07)
 
 
