@@ -10,7 +10,6 @@
   pre,
   pre[class*='language-'] {
     background-color: transparent;
-    height: 100%;
   }
 
   .codeContainer {
