@@ -444,7 +444,7 @@ blockquote {
     :--organizations {
       @mixin list-separated '; ';
 
-      li > * {
+      :--Organization > * {
         display: inline;
       }
     }

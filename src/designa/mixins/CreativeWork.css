@@ -11,7 +11,7 @@
 
   :--references > :--CreativeWork {
     :--authors {
-      li::after {
+      :--author::after {
         content: normal;
       }
     }

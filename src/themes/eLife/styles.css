@@ -334,7 +334,7 @@ blockquote {
       @mixin list-separated '; ';
       font-size: 14px;
 
-      li > * {
+      :--Organization > * {
         display: inline;
       }
     }
