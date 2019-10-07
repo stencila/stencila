@@ -1,3 +1,17 @@
+## [1.5.3](https://github.com/stencila/thema/compare/v1.5.2...v1.5.3) (2019-10-07)
+
+
+### Bug Fixes
+
+* **Citations:** Handle race condition with formatReferences ([38c6386](https://github.com/stencila/thema/commit/38c6386))
+* **CodeChunk:** Show x-scrollbars for overflowing codechunks ([5039d15](https://github.com/stencila/thema/commit/5039d15))
+* **Common Styles:** Move description/abstract from themes to common.css ([b2eab4b](https://github.com/stencila/thema/commit/b2eab4b))
+* **CreativeWork:** Don't add extraneous commas in reference authors ([3967e65](https://github.com/stencila/thema/commit/3967e65))
+* **eLife:** Handle YAML frontmatter for authors, organizations, abstract ([375f54c](https://github.com/stencila/thema/commit/375f54c))
+* **Nature:** Adjust theme to handle YAML frontmatter + CodeChunks ([802cfcf](https://github.com/stencila/thema/commit/802cfcf))
+* **Themes:** Refinements for eLife, Nature, PLOS themes ([80dac6d](https://github.com/stencila/thema/commit/80dac6d))
+* **Themes:** Use semantic selectors, comment setTimeout usage ([9b2da0c](https://github.com/stencila/thema/commit/9b2da0c))
+
 ## [1.5.2](https://github.com/stencila/thema/compare/v1.5.1...v1.5.2) (2019-09-29)
 
 
