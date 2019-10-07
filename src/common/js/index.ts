@@ -51,13 +51,16 @@ export const formatReferences = (): void => {
 
 const onReadyHandler = (): void => {
   codeHighlight()
-  formatReferences()
+  // Use setTimeout to queue formatReferences until
+  // the current call stack gets executed (allow DOM elements
+  // to load before rearranging references for theme styles)
+  window.setTimeout(formatReferences, 0)
 }
 
 export const load = (): void => {
-  if (document.readyState !== 'loading') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', onReadyHandler)
+  } else {
     onReadyHandler()
   }
-
-  document.addEventListener('DOMContentLoaded', onReadyHandler)
 }

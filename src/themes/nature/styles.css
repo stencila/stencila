@@ -42,6 +42,13 @@ article {
 
 article > * {
   width: 100%;
+
+  &:not(figure):not(h1):not(.references):not(section):not(:--CodeChunk) {
+    max-width: var(--max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 50px;
+  }
 }
 
 /* Heading Overflow Styles */
@@ -413,6 +420,50 @@ blockquote {
 }
 
 /* Microdata-based Styles */
+@import '../../designa/Entity.css';
+@import '../../designa/Person.css';
+
+:--Article {
+  > :--headline {
+    padding-left: 50px;
+  }
+
+  > :--headline + div {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding-left: 50px;
+    font-family: var(--secondary-font);
+    font-size: 85%;
+
+    :--authors,
+    :--organizations {
+      @mixin list-separated;
+      display: block;
+    }
+
+    :--organizations {
+      @mixin list-separated '; ';
+
+      :--Organization > * {
+        display: inline;
+      }
+    }
+  }
+
+  :--description {
+    padding-left: 50px;
+
+    > p {
+      padding-left: 0;
+    }
+  }
+
+  :--CodeChunk {
+    /* Match figure width */
+    max-width: calc(var(--max-width) - 100px);
+  }
+}
+
 :--publisher,
 :--authors,
 :--CreativeWork header h2,
@@ -447,7 +498,7 @@ blockquote {
     position: relative;
     counter-increment: reference-counter;
     font-size: 1rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
 
     &::before {
       content: counter(reference-counter) '. ';
@@ -495,6 +546,14 @@ blockquote {
 
     &::after {
       content: '.';
+    }
+
+    + div {
+      display: inline;
+
+      + :--datePublished {
+        display: none;
+      }
     }
   }
 

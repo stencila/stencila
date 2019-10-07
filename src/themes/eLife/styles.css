@@ -35,6 +35,12 @@ article {
 
 article > * {
   width: 100%;
+
+  /*
+    Align miscelaneous nodes (text, math, etc) with
+    the rest of article.
+  */
+  max-width: var(--max-width);
 }
 
 p,
@@ -308,6 +314,33 @@ blockquote {
 }
 
 /* Microdata-based Styles */
+@import '../../designa/Entity.css';
+@import '../../designa/Person.css';
+
+:--Article {
+  @mixin CreativeWork;
+
+  > :--headline + div {
+    text-align: center;
+    font-family: var(--heading-font);
+
+    :--authors {
+      @mixin list-separated;
+      display: block;
+      margin: 0 auto;
+    }
+
+    :--organizations {
+      @mixin list-separated '; ';
+      font-size: 14px;
+
+      :--Organization > * {
+        display: inline;
+      }
+    }
+  }
+}
+
 :--references {
   /* eLife Citation Styles */
   list-style: none;
@@ -341,6 +374,14 @@ blockquote {
       line-height: 1.5;
       font-weight: 600;
       border-bottom: none;
+    }
+
+    > :--headline + div {
+      /* 
+        Allow datePublished and authors to be listed
+        on the same line.
+      */
+      display: inline;
     }
   }
 

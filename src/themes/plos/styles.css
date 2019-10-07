@@ -11,11 +11,40 @@
   --secondary-font: 'Open Sans', Helvetica, Arial, sans-serif;
   --secondary-font-weight: 600;
   --text-color: #202020;
+  --light-text-color: #606060;
   --link-color: #16a127;
   --hover-color: #202020;
   --border-color: #e0e0e0;
   --figure-bg-color: #efefef;
   --bg-color: #fff;
+}
+
+/* Microdata-based Styles */
+@import '../../designa/Entity.css';
+@import '../../designa/Person.css';
+
+:--Article {
+  > :--headline + div {
+    max-width: var(--max-width);
+    margin: 0 auto 1.25rem;
+    font-size: var(--body-font-size);
+    color: var(--light-text-color);
+    line-height: normal;
+
+    :--authors {
+      @mixin list-separated;
+    }
+
+    :--organizations {
+      @mixin list-separated '; ';
+      margin-top: 1.25rem;
+      display: block;
+
+      :--Organization > * {
+        display: inline;
+      }
+    }
+  }
 }
 
 html,
@@ -40,6 +69,14 @@ article {
 
 article > * {
   width: 100%;
+
+  /*
+    Align miscelaneous nodes (text, math, etc) with
+    the rest of article.
+  */
+  max-width: var(--max-width);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 p,
@@ -305,6 +342,14 @@ blockquote {
   :--CreativeWork > :--headline {
     &:first-of-type {
       display: none;
+    }
+
+    + div {
+      display: inline;
+
+      + :--datePublished {
+        display: none;
+      }
     }
   }
 
