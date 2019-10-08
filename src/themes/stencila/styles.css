@@ -61,6 +61,7 @@ a {
   max-width: var(--max-width);
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
 }
 
 h1,
@@ -165,8 +166,7 @@ p {
 
 ol,
 ul {
-  padding: 0;
-  list-style-position: inside;
+  padding: 0 0 0 1.25rem;
 
   & ul,
   & ol {
