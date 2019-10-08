@@ -2,7 +2,8 @@
 @import 'https://unpkg.com/@stencila/components@0.2.0/dist/stencila-components-styles.css';
 @import 'normalize.css';
 @import 'prismjs/plugins/line-highlight/prism-line-highlight.css';
-@import 'prismjs/plugins/line-numbers/prism-line-numbers.css';
+/* NOTE: Add the following line to a theme stylesheet to enable Line Numbers */
+/* @import 'prismjs/plugins/line-numbers/prism-line-numbers.css'; */
 
 @import './citations.css';
 
