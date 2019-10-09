@@ -1,3 +1,12 @@
+## [1.5.5](https://github.com/stencila/thema/compare/v1.5.4...v1.5.5) (2019-10-09)
+
+
+### Bug Fixes
+
+* **Examples:** Update Simple example with new component tag names ([e1b738e](https://github.com/stencila/thema/commit/e1b738e))
+* **Stencila:** Fix short paragraphs being centre aligned ([236f1e7](https://github.com/stencila/thema/commit/236f1e7))
+* **Stencila:** Reduce max-width of CodeChunk components ([5ee20b0](https://github.com/stencila/thema/commit/5ee20b0))
+
 ## [1.5.4](https://github.com/stencila/thema/compare/v1.5.3...v1.5.4) (2019-10-07)
 
 
