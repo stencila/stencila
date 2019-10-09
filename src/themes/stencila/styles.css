@@ -61,6 +61,7 @@ a {
   max-width: var(--max-width);
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
 }
 
 h1,
@@ -165,8 +166,7 @@ p {
 
 ol,
 ul {
-  padding: 0;
-  list-style-position: inside;
+  padding: 0 0 0 1.25rem;
 
   & ul,
   & ol {
@@ -206,18 +206,14 @@ main > pre,
 article > figure,
 :--CodeChunk {
   background-color: #fff;
-  width: auto;
-  max-width: var(--max-width);
-  margin: 1.25rem auto;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
-  border: 1px solid #dbdbdb;
   border-radius: 4px;
-  overflow-y: hidden;
-  overflow-x: auto;
-}
-
-:--CodeChunk {
+  border: 1px solid #dbdbdb;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.16);
+  margin: 1.25rem auto;
   max-width: var(--max-width-media);
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: auto;
 
   pre,
   code,
