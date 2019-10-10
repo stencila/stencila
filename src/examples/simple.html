@@ -37,6 +37,8 @@ time.sleep(10)</code></pre>
       </figure>
     </stencila-code-chunk>
 
+    <h2>Lists</h2>
+
     <ul>
       <li>Item number 1</li>
       <li>Item number 2</li>
@@ -55,6 +57,65 @@ time.sleep(10)</code></pre>
       <li>Item number 7</li>
       <li>Item number 8</li>
     </ul>
+
+    <p>
+      Stencila recognises lists in Google Docs including unordered (bulleted)
+      lists like this:
+    </p>
+    <ul>
+      <li>
+        <p>Apple</p>
+      </li>
+      <li>
+        <p>Pear</p>
+      </li>
+      <li>
+        <p>Peach</p>
+      </li>
+    </ul>
+    <p>And ordered lists like this:</p>
+    <ol>
+      <li>
+        <p>Butter</p>
+      </li>
+      <li>
+        <p>Cheese</p>
+      </li>
+      <li>
+        <p>Milk</p>
+      </li>
+    </ol>
+    <p>Nested lists are supported too:</p>
+    <ol>
+      <li>
+        <p>Fruit</p>
+        <ol>
+          <li>
+            <p>Apple</p>
+          </li>
+          <li>
+            <p>Pear</p>
+          </li>
+          <li>
+            <p>Peach</p>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <p>Dairy</p>
+        <ol>
+          <li>
+            <p>Butter</p>
+          </li>
+          <li>
+            <p>Cheese</p>
+          </li>
+          <li>
+            <p>Milk</p>
+          </li>
+        </ol>
+      </li>
+    </ol>
 
     <stencila-code-chunk data-collapsed="false" data-execution_count="4">
       <pre slot="text"><code class="lang-python">import time
