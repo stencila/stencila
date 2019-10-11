@@ -1,3 +1,10 @@
+## [1.5.6](https://github.com/stencila/thema/compare/v1.5.5...v1.5.6) (2019-10-11)
+
+
+### Bug Fixes
+
+* **Stencila:** Fix vertical spacing for nested lists after paragraphs ([2ef401a](https://github.com/stencila/thema/commit/2ef401a))
+
 ## [1.5.5](https://github.com/stencila/thema/compare/v1.5.4...v1.5.5) (2019-10-09)
 
 
