@@ -1,3 +1,10 @@
+## [0.33.5](https://github.com/stencila/stencila/compare/v0.33.4...v0.33.5) (2019-10-11)
+
+
+### Bug Fixes
+
+* Updated to encoda 0.80.1 ([02518d1](https://github.com/stencila/stencila/commit/02518d1))
+
 ## [0.33.4](https://github.com/stencila/stencila/compare/v0.33.3...v0.33.4) (2019-09-30)
 
 
