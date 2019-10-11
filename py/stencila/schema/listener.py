@@ -84,16 +84,25 @@ class InterpreterListener:
 
     def run_interpreter(self) -> None:
         for message in self.read_message():
-            envelope = json.loads(message.decode('utf8'))
+            request = json.loads(message.decode('utf8'))
 
-            code = from_dict(envelope['body'])
+            code = from_dict(request['params']['node'])
+
+            sys.stderr.write(message.decode('utf8'))
+            sys.stderr.flush()
 
             if isinstance(code, CodeChunk):
                 code = simple_code_chunk_parse(code)
 
             self.interpreter.execute([code], {})
-            envelope['body'] = code
-            self.write_message(to_json(envelope).encode('utf8'))
+
+            response = {
+                'jsonrpc': '2.0',
+                'id': request['id'],
+                'result': code
+            }
+
+            self.write_message(to_json(response).encode('utf8'))
 
 
 def start_stdio_interpreter() -> None:

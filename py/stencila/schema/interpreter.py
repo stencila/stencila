@@ -226,7 +226,11 @@ class DocumentCompiler:
 class Interpreter:
     """Execute a list of code blocks, maintaining its own `globals` scope for this execution run."""
 
-    globals: typing.Optional[typing.Dict[str, typing.Any]]
+    globals: typing.Dict[str, typing.Any]
+
+    def __init__(self) -> None:
+        self.globals = {}
+        self.locals = {}
 
     def execute_code_chunk(self, chunk_execution: CodeChunkExecution, _locals: typing.Dict[str, typing.Any]) -> None:
         """Execute a `CodeChunk` that has been parsed and stored in a `CodeChunkExecution`."""
@@ -353,9 +357,9 @@ class Interpreter:
         The `parameter_values` are used as the locals values for all executions or evals throughout the code in this
         `Article`.
         """
-        self.globals = {}
-
-        _locals = parameter_values.copy()
+        _locals = self.locals
+        _locals.update(parameter_values)
+        #_locals = parameter_values.copy()
 
         for piece in code:
             if isinstance(piece, CodeChunkExecution):

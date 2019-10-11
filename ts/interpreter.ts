@@ -4,6 +4,8 @@ import { parse } from 'meriyah'
 import { generate } from 'astring'
 import { performance } from 'perf_hooks'
 
+const lps = require('length-prefixed-stream')
+
 import fs from 'fs'
 import {
   Article,
@@ -89,6 +91,7 @@ function getCliArgs(): CliArgs {
   switch (command) {
     case 'execute':
     case 'compile':
+    case 'listen':
       break
     default:
       throw new Error(`Unknown command ${command}`)
@@ -956,6 +959,55 @@ function executeCodeChunk(code: CodeChunkExecution): void {
 }
 
 /**
+ * Execute a single CodeChunk or CodeExpression with the given parameters
+ */
+function executeCodeItem<T extends CodeChunk | CodeExpression>(
+  code: T,
+  parameterValues: StringDict
+): T {
+  let toExecute: ExecutableCode
+
+  if (isA('CodeChunk', code)) {
+    const parseResult = parseCodeChunk(code)
+    setCodeChunkProperties(code, parseResult)
+    toExecute = { codeChunk: code, parseResult }
+  } else {
+    toExecute = code as CodeExpression
+  }
+
+  execute([toExecute], parameterValues)
+
+  return code
+}
+
+function listen() {
+  const decode = lps.decode()
+  process.stdin.pipe(decode)
+
+  const encode = lps.encode()
+  encode.pipe(process.stdout)
+
+  decode.on('data', async (json: Buffer) => {
+    const request = JSON.parse(json.toString())
+    const response: { [key: string]: string | string[] | null } = {
+      jsonrpc: '2.0',
+      id: request.id
+    }
+
+    if (request.method !== 'execute') {
+      response.error = `Invalid method "${request.method}"`
+      response.result = null
+    } else {
+      const codeNode = request.params.node
+      executeCodeItem(codeNode, {})
+      response.result = [codeNode]
+    }
+
+    encode.write(JSON.stringify(response))
+  })
+}
+
+/**
  * Decode a parameter (e.g. read from the command line, a string) into a value based on the `schema` of the `parameter`.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1046,17 +1098,21 @@ function outputArticle(path: string, output: Article): void {
  */
 async function main(): Promise<void> {
   const cliArgs = getCliArgs()
-  const article = JSON.parse(await readInput(cliArgs.inputFile))
 
-  if (!isA('Article', article)) throw TypeError('Not an Article')
+  if (cliArgs.command === 'compile' || cliArgs.command === 'execute') {
+    const article = JSON.parse(await readInput(cliArgs.inputFile))
 
-  const parameters: Parameter[] = []
-  const code: ExecutableCode[] = []
+    if (!isA('Article', article)) throw TypeError('Not an Article')
 
-  parseItem(article, parameters, code)
+    const parameters: Parameter[] = []
+    const code: ExecutableCode[] = []
+    parseItem(article, parameters, code)
 
-  if (cliArgs.command === 'execute')
-    execute(code, decodeParameters(parameters, cliArgs.parameterValues))
+    if (cliArgs.command === 'execute')
+      execute(code, decodeParameters(parameters, cliArgs.parameterValues))
 
-  outputArticle(cliArgs.outputFile, article)
+    outputArticle(cliArgs.outputFile, article)
+  } else if (cliArgs.command === 'listen') {
+    listen()
+  }
 }

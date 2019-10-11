@@ -130,6 +130,7 @@
   },
   "dependencies": {
     "astring": "^1.4.1",
+    "length-prefixed-stream": "^2.0.0",
     "meriyah": "^1.6.10"
   }
 }

@@ -12,6 +12,7 @@ yourself.
 import logging
 from sys import argv, stderr, stdout
 
+from stencila.schema.system import register, deregister
 from .interpreter import execute_from_cli
 from .listener import start_stdio_interpreter
 
@@ -42,6 +43,10 @@ def main():
         cli_compile()
     elif command == 'listen':
         interpreter_listen()
+    elif command == 'register':
+        register()
+    elif command == 'deregister':
+        deregister()
     else:
         stderr.write('Unknown command "{}"\n'.format(command))
 
