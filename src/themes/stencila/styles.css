@@ -186,6 +186,11 @@ li {
     margin-top: 0;
   }
 
+  p + ul,
+  p + ol {
+    margin-top: -1.25rem;
+  }
+
   > *:last-child:not(figure) {
     margin-bottom: 0;
   }
