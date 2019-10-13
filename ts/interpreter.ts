@@ -980,7 +980,11 @@ function executeCodeItem<T extends CodeChunk | CodeExpression>(
   return code
 }
 
-function listen() {
+/**
+ * Starts a looping listener that reads from STDIN and writes to STDOUT and executes code it receives. Communication is
+ * done with LPS protocol.
+ */
+function listen(): void {
   const decode = lps.decode()
   process.stdin.pipe(decode)
 
