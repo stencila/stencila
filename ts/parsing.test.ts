@@ -197,8 +197,8 @@ describe('Code chunk parsing', () => {
         "import defaultExport from 'module-name'\n" +
           "import * as name from 'module-name2'\n" +
           "import { export1 } from 'module-name3'\n" +
-          "import { export1 as alias1 } from 'module-name4'\n" +
-          "import { export1 , export2 } from 'module-name5'"
+          "import { export2 as alias1 } from 'module-name4'\n" +
+          "import { export3 , export4 } from 'module-name5'"
       )
     )
 

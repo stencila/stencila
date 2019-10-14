@@ -1,10 +1,9 @@
 import getStdin from 'get-stdin'
 import minimist from 'minimist'
-import { parse } from 'meriyah'
+import { Parser } from 'acorn'
+
 import { generate } from 'astring'
 import { performance } from 'perf_hooks'
-
-const lps = require('length-prefixed-stream')
 
 import fs from 'fs'
 import {
@@ -47,7 +46,16 @@ import {
   ObjectExpression,
   LogicalExpression,
   SwitchStatement
-} from 'meriyah/dist/estree'
+} from 'estree'
+import * as os from 'os'
+import * as path from 'path'
+import log from './log'
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const lps = require('length-prefixed-stream')
+
+const EXECUTORS_DIR_NAME = 'executors'
+const MANIFEST_FILE_NAME = 'javascript.json'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 if (process.env.JEST_WORKER_ID === undefined) main()
@@ -92,6 +100,7 @@ function getCliArgs(): CliArgs {
     case 'execute':
     case 'compile':
     case 'listen':
+    case 'register':
       break
     default:
       throw new Error(`Unknown command ${command}`)
@@ -368,7 +377,7 @@ function parseFunctionDeclaration(
   name?: string | null
 ): void {
   if (name === undefined) {
-    name = fn.id !== null ? fn.id.name : null
+    name = fn.id !== undefined && fn.id !== null ? fn.id.name : null
   }
 
   if (name === null) return
@@ -415,7 +424,11 @@ function parseVariableDeclaration(
 ): void {
   statement.declarations.forEach(declarator => {
     if (declarator.id.type === 'Identifier') {
-      if (declarator.init === null || declarator.init.type === 'Literal')
+      if (
+        declarator.init === null ||
+        declarator.init === undefined ||
+        declarator.init.type === 'Literal'
+      )
         result.addDeclares(variable(declarator.id.name))
       else {
         result.addPossibleVariable(declarator.id.name)
@@ -482,7 +495,7 @@ function parseBinaryOrLogicalExpression(
  */
 function fileReadFunctionName(statement: CallExpression): string | null {
   let calleeName: string
-  if (statement.callee.name !== undefined) {
+  if ('name' in statement.callee && statement.callee.name !== undefined) {
     calleeName = statement.callee.name
   } else if (
     statement.callee.type === 'MemberExpression' &&
@@ -605,7 +618,7 @@ function parseConditionalStatement(
 ): void {
   parseStatement(result, statement.test)
   parseStatement(result, statement.consequent)
-  if (statement.alternate !== null) {
+  if (statement.alternate !== null && statement.alternate !== undefined) {
     parseStatement(result, statement.alternate)
   }
 }
@@ -621,13 +634,13 @@ function parseTryStatement(
     parseStatement(result, subStatement)
   })
 
-  if (statement.handler !== null) {
+  if (statement.handler !== null && statement.handler !== undefined) {
     statement.handler.body.body.forEach(subStatement => {
       parseStatement(result, subStatement)
     })
   }
 
-  if (statement.finalizer !== null) {
+  if (statement.finalizer !== null && statement.finalizer !== undefined) {
     statement.finalizer.body.forEach(subStatement => {
       parseStatement(result, subStatement)
     })
@@ -720,7 +733,7 @@ function parseSwitchStatement(
 ): void {
   parseStatement(result, statement.discriminant)
   statement.cases.forEach(c => {
-    if (c.test !== null) {
+    if (c.test !== null && c.test !== undefined) {
       if (c.test.type === 'Identifier') {
         result.addUses(c.test.name)
       } else parseStatement(result, c.test)
@@ -863,14 +876,18 @@ export function parseCodeChunk(codeChunk: CodeChunk): CodeChunkParseResult {
   let chunkAst: Program | null = null
 
   try {
-    chunkAst = parse(codeChunk.text, { module: true })
+    chunkAst = (Parser.parse(codeChunk.text, {
+      sourceType: 'module'
+    }) as unknown) as Program
   } catch (e) {
     const badParseResult: CodeChunkParseResult = new CodeChunkParseResult(null)
     badParseResult.errors.push(exceptionToCodeError(e))
     return badParseResult
   }
 
-  const parseResult: CodeChunkParseResult = new CodeChunkParseResult(chunkAst)
+  const parseResult: CodeChunkParseResult = new CodeChunkParseResult(
+    chunkAst as Program
+  )
 
   chunkAst.body.forEach(statement => {
     parseStatement(parseResult, statement)
@@ -978,6 +995,82 @@ function executeCodeItem<T extends CodeChunk | CodeExpression>(
   execute([toExecute], parameterValues)
 
   return code
+}
+
+function getExecutorsDir(): string {
+  let stencilaHome: string
+  switch (os.platform()) {
+    case 'darwin':
+      stencilaHome = path.join(
+        process.env.HOME !== undefined ? process.env.HOME : '',
+        'Library',
+        'Application Support',
+        'Stencila'
+      )
+      break
+    case 'linux':
+      stencilaHome = path.join(
+        process.env.HOME !== undefined ? process.env.HOME : '',
+        '.stencila'
+      )
+      break
+    case 'win32': // is 'win32' even on 64 bit windows systems
+      stencilaHome = path.join(
+        process.env.APPDATA !== undefined ? process.env.APPDATA : '',
+        'Stencila'
+      )
+      break
+    default:
+      stencilaHome = path.join(
+        process.env.HOME !== undefined ? process.env.HOME : '',
+        'stencila'
+      )
+  }
+  return path.join(stencilaHome, EXECUTORS_DIR_NAME)
+}
+
+function getManifestFilePath(): string {
+  return path.join(getExecutorsDir(), MANIFEST_FILE_NAME)
+}
+
+/**
+ * Write out a manifest JSON file for use with Executa automatically detecting execution engines
+ */
+function register(): void {
+  fs.mkdirSync(getExecutorsDir(), { recursive: true })
+
+  const manifest = {
+    capabilities: {
+      execute: {
+        type: 'object',
+        required: ['node'],
+        properties: {
+          node: {
+            type: 'object',
+            required: ['type', 'programmingLanguage'],
+            properties: {
+              type: {
+                enum: ['CodeChunk', 'CodeExpression']
+              },
+              programmingLanguage: {
+                enum: ['javascript']
+              }
+            }
+          }
+        }
+      }
+    },
+    addresses: {
+      stdio: {
+        type: 'stdio',
+        command: 'stencila',
+        args: ['listen']
+      }
+    }
+  }
+  const manifestPath = getManifestFilePath()
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
+  log.info(`Manifest written to '${manifestPath}'`)
 }
 
 /**
@@ -1118,5 +1211,7 @@ async function main(): Promise<void> {
     outputArticle(cliArgs.outputFile, article)
   } else if (cliArgs.command === 'listen') {
     listen()
+  } else if (cliArgs.command === 'register') {
+    register()
   }
 }
