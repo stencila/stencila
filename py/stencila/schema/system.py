@@ -71,14 +71,14 @@ class ManifestManager:
         os.makedirs(self.manifest_dir(), exist_ok=True)
         with open(self.manifest_path(), 'w') as f:
             json.dump(MANIFEST, f, indent=True)
-        LOGGER.info('Manifest saved to %s', self.manifest_path())
+        LOGGER.info('Manifest saved to \'%s\'', self.manifest_path())
 
     def deregister(self):
         if os.path.exists(self.manifest_path()):
             os.unlink(self.manifest_path())
-            LOGGER.info('Deleted manifest at path %s', self.manifest_path())
+            LOGGER.info('Deleted manifest at path \'%s\'', self.manifest_path())
         else:
-            LOGGER.warning('Not deregistering as path %s does not exist', self.manifest_path())
+            LOGGER.warning('Not deregistering as file \'%s\' does not exist', self.manifest_path())
 
 
 def register():
