@@ -57,8 +57,10 @@ const lps = require('length-prefixed-stream')
 const EXECUTORS_DIR_NAME = 'executors'
 const MANIFEST_FILE_NAME = 'javascript.json'
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-if (process.env.JEST_WORKER_ID === undefined) main()
+if (process.env.JEST_WORKER_ID === undefined)
+  main()
+    .then()
+    .catch(log.error)
 
 interface StringDict {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
