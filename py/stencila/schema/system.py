@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 
-
 LOGGER = logging.getLogger(__name__)
 LOGGER.addHandler(logging.NullHandler())
 
@@ -39,6 +38,7 @@ MANIFEST = {
 
 MANIFEST_FILE_NAME = 'py.json'
 EXECUTORS_DIR_NAME = 'executors'
+
 
 class ManifestManager:
     @staticmethod
