@@ -103,6 +103,7 @@ function getCliArgs(): CliArgs {
     case 'compile':
     case 'listen':
     case 'register':
+    case 'deregister':
       break
     default:
       throw new Error(`Unknown command ${command}`)
@@ -999,6 +1000,9 @@ function executeCodeItem<T extends CodeChunk | CodeExpression>(
   return code
 }
 
+/**
+ * Generate the path to the Stencila executors directory.
+ */
 function getExecutorsDir(): string {
   let stencilaHome: string
   switch (os.platform()) {
@@ -1031,6 +1035,9 @@ function getExecutorsDir(): string {
   return path.join(stencilaHome, EXECUTORS_DIR_NAME)
 }
 
+/**
+ * Generate the path to the manifest file for this executor.
+ */
 function getManifestFilePath(): string {
   return path.join(getExecutorsDir(), MANIFEST_FILE_NAME)
 }
@@ -1065,14 +1072,25 @@ function register(): void {
     addresses: {
       stdio: {
         type: 'stdio',
-        command: 'stencila',
-        args: ['listen']
+        command: 'node',
+        args: [__filename]
       }
     }
   }
   const manifestPath = getManifestFilePath()
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
-  log.info(`Manifest written to '${manifestPath}'`)
+  log.info(`Manifest saved to '${manifestPath}'`)
+}
+
+/**
+ * Remove the manifest JSON file, if it exists.
+ */
+function deregister(): void {
+  const manifestPath = getManifestFilePath()
+  if (fs.existsSync(manifestPath)) {
+    fs.unlinkSync(manifestPath)
+    log.info(`Deleted manifest at path '${manifestPath}'`)
+  } else log.warn(`Not deregistering as file '${manifestPath}' does not exist`)
 }
 
 /**
@@ -1215,5 +1233,7 @@ async function main(): Promise<void> {
     listen()
   } else if (cliArgs.command === 'register') {
     register()
+  } else if (cliArgs.command === 'deregister') {
+    deregister()
   }
 }
