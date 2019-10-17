@@ -1,3 +1,19 @@
+# [0.30.0](https://github.com/stencila/schema/compare/v0.29.0...v0.30.0) (2019-10-17)
+
+
+### Bug Fixes
+
+* Fix version getting in setup.py ([ee6ef34](https://github.com/stencila/schema/commit/ee6ef34))
+* Fixed floating promise in main() call ([ade2abe](https://github.com/stencila/schema/commit/ade2abe))
+
+
+### Features
+
+* Added deregister method ([f4c3bd8](https://github.com/stencila/schema/commit/f4c3bd8))
+* Added listen command for Interpreter ([32d70c9](https://github.com/stencila/schema/commit/32d70c9))
+* Added Node execution engine/delegator ([7ab2c91](https://github.com/stencila/schema/commit/7ab2c91))
+* Added TS/Py interpreter loops ([1898d99](https://github.com/stencila/schema/commit/1898d99))
+
 # [0.29.0](https://github.com/stencila/schema/compare/v0.28.0...v0.29.0) (2019-09-10)
 
 
