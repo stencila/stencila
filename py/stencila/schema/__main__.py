@@ -28,6 +28,7 @@ def cli_compile():
 
 
 def interpreter_listen():
+    """Start an execution loop communicating over STDIO."""
     start_stdio_interpreter()
 
 

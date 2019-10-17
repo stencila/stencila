@@ -227,6 +227,7 @@ class Interpreter:
     """Execute a list of code blocks, maintaining its own `globals` scope for this execution run."""
 
     globals: typing.Dict[str, typing.Any]
+    locals: typing.Dict[str, typing.Any]
 
     def __init__(self) -> None:
         self.globals = {}
