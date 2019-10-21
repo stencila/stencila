@@ -1,3 +1,10 @@
+## [0.30.1](https://github.com/stencila/schema/compare/v0.30.0...v0.30.1) (2019-10-21)
+
+
+### Bug Fixes
+
+* Package get-stdin added to dependencies ([044fb3e](https://github.com/stencila/schema/commit/044fb3e))
+
 # [0.30.0](https://github.com/stencila/schema/compare/v0.29.0...v0.30.0) (2019-10-17)
 
 
