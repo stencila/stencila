@@ -131,6 +131,7 @@
   "dependencies": {
     "acorn": "^7.1.0",
     "astring": "^1.4.1",
+    "get-stdin": "^7.0.0",
     "length-prefixed-stream": "^2.0.0"
   }
 }
