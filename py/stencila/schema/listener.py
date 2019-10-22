@@ -127,9 +127,11 @@ class InterpreterListener:
             code = from_dict(request['params']['node'])
 
             if isinstance(code, CodeChunk):
-                code = simple_code_chunk_parse(code)
+                to_execute = simple_code_chunk_parse(code)
+            else:
+                to_execute = code
 
-            self.interpreter.execute([code], {})
+            self.interpreter.execute([to_execute], {})
 
             response = {
                 'jsonrpc': '2.0',

@@ -1117,7 +1117,7 @@ function listen(): void {
     } else {
       const codeNode = request.params.node
       executeCodeItem(codeNode, {})
-      response.result = [codeNode]
+      response.result = codeNode
     }
 
     encode.write(JSON.stringify(response))
