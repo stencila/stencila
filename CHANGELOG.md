@@ -1,3 +1,10 @@
+## [0.30.3](https://github.com/stencila/schema/compare/v0.30.2...v0.30.3) (2019-10-22)
+
+
+### Bug Fixes
+
+* JS and Py interpreters no longer return arrays in JSON RCP response ([63cfda7](https://github.com/stencila/schema/commit/63cfda7))
+
 ## [0.30.2](https://github.com/stencila/schema/compare/v0.30.1...v0.30.2) (2019-10-22)
 
 
