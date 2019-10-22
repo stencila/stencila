@@ -1073,7 +1073,7 @@ function register(): void {
       stdio: {
         type: 'stdio',
         command: 'node',
-        args: [__filename]
+        args: [__filename, 'listen']
       }
     }
   }
