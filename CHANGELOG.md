@@ -1,3 +1,11 @@
+## [0.30.2](https://github.com/stencila/schema/compare/v0.30.1...v0.30.2) (2019-10-22)
+
+
+### Bug Fixes
+
+* Added listen arg to JS manifest ([e9b5716](https://github.com/stencila/schema/commit/e9b5716))
+* Added minimist and logga as dependencies ([8c28196](https://github.com/stencila/schema/commit/8c28196))
+
 ## [0.30.1](https://github.com/stencila/schema/compare/v0.30.0...v0.30.1) (2019-10-21)
 
 
