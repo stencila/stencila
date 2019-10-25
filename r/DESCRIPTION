@@ -17,7 +17,7 @@ Suggests:
     roxygen2,
     testthat
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.1.9000
+RoxygenNote: 6.1.99.9001
 Collate:
     'util.R'
     'read_funcs.R'
