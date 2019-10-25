@@ -1,5 +1,5 @@
-title: Mount
-'@id': stencila:Mount
+title: VolumeMount
+'@id': stencila:VolumeMount
 extends: Thing
 role: tertiary
 status: experimental
@@ -17,8 +17,8 @@ properties:
     type: string
   mountOptions:
     '@id': stencila:mountOptions
-    type: array
     description: A list of options to use when applying the mount.
+    type: array
     items:
       - type: string
   mountType:

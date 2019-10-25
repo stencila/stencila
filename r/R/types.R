@@ -749,7 +749,7 @@ Article <- function(
   self$type <- as_scalar("Article")
   self[["authors"]] <- check_property("Article", "authors", TRUE, missing(authors), Array(Union("Person", "Organization")), authors)
   self[["title"]] <- check_property("Article", "title", TRUE, missing(title), Union("character", Array("Node")), title)
-  self[["environment"]] <- check_property("Article", "environment", FALSE, missing(environment), "Environment", environment)
+  self[["environment"]] <- check_property("Article", "environment", FALSE, missing(environment), "SoftwareEnvironment", environment)
   class(self) <- c("list", "Entity")
   self
 }
@@ -1178,49 +1178,6 @@ EnumSchema <- function(
   )
   self$type <- as_scalar("EnumSchema")
   self[["values"]] <- check_property("EnumSchema", "values", FALSE, missing(values), Array("Node"), values)
-  class(self) <- c("list", "Entity")
-  self
-}
-
-
-#' A computational environment.
-#'
-#' @name Environment
-#' @param name The name of the item. \bold{Required}.
-#' @param adds The packages that this environment adds to the base environments listed under `extends` (if any).,
-#' @param alternateNames Alternate names (aliases) for the item.
-#' @param description A description of the item.
-#' @param extends Other environments that this environment extends by adding or removing packages.,
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @param removes The packages that this environment removes from the base environments listed under `extends` (if any).,
-#' @param url The URL of the item.
-#' @seealso \code{\link{Thing}}
-#' @export
-Environment <- function(
-  name,
-  adds,
-  alternateNames,
-  description,
-  extends,
-  id,
-  meta,
-  removes,
-  url
-){
-  self <- Thing(
-    name = name,
-    alternateNames = alternateNames,
-    description = description,
-    id = id,
-    meta = meta,
-    url = url
-  )
-  self$type <- as_scalar("Environment")
-  self[["name"]] <- check_property("Environment", "name", TRUE, missing(name), "character", name)
-  self[["adds"]] <- check_property("Environment", "adds", FALSE, missing(adds), Array("SoftwareSourceCode"), adds)
-  self[["extends"]] <- check_property("Environment", "extends", FALSE, missing(extends), Array("Environment"), extends)
-  self[["removes"]] <- check_property("Environment", "removes", FALSE, missing(removes), Array("SoftwareSourceCode"), removes)
   class(self) <- c("list", "Entity")
   self
 }
@@ -1660,51 +1617,6 @@ ListItem <- function(
   self$type <- as_scalar("ListItem")
   self[["content"]] <- check_property("ListItem", "content", TRUE, missing(content), Array("Node"), content)
   self[["checked"]] <- check_property("ListItem", "checked", FALSE, missing(checked), "logical", checked)
-  class(self) <- c("list", "Entity")
-  self
-}
-
-
-#' Describes a volume mount from a host to container.
-#'
-#' @name Mount
-#' @param mountDestination The mount location inside the container. \bold{Required}.
-#' @param alternateNames Alternate names (aliases) for the item.
-#' @param description A description of the item.
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @param mountOptions A list of options to use when applying the mount.
-#' @param mountSource The mount source directory on the host.
-#' @param mountType The type of mount.
-#' @param name The name of the item.
-#' @param url The URL of the item.
-#' @seealso \code{\link{Thing}}
-#' @export
-Mount <- function(
-  mountDestination,
-  alternateNames,
-  description,
-  id,
-  meta,
-  mountOptions,
-  mountSource,
-  mountType,
-  name,
-  url
-){
-  self <- Thing(
-    alternateNames = alternateNames,
-    description = description,
-    id = id,
-    meta = meta,
-    name = name,
-    url = url
-  )
-  self$type <- as_scalar("Mount")
-  self[["mountDestination"]] <- check_property("Mount", "mountDestination", TRUE, missing(mountDestination), "character", mountDestination)
-  self[["mountOptions"]] <- check_property("Mount", "mountOptions", FALSE, missing(mountOptions), Array("character"), mountOptions)
-  self[["mountSource"]] <- check_property("Mount", "mountSource", FALSE, missing(mountSource), "character", mountSource)
-  self[["mountType"]] <- check_property("Mount", "mountType", FALSE, missing(mountType), "character", mountType)
   class(self) <- c("list", "Entity")
   self
 }
@@ -2298,45 +2210,6 @@ QuoteBlock <- function(
 }
 
 
-#' Describes limits or requested amounts for a particular resource (e.g. memory or CPU).
-#'
-#' @name ResourceParameters
-#' @param alternateNames Alternate names (aliases) for the item.
-#' @param description A description of the item.
-#' @param id The identifier for this item.
-#' @param meta Metadata associated with this item.
-#' @param name The name of the item.
-#' @param resourceLimit The maximum amount of the resource that can be used.
-#' @param resourceRequested The amount of the resource that has been requested (and possibly reserved).
-#' @param url The URL of the item.
-#' @seealso \code{\link{Thing}}
-#' @export
-ResourceParameters <- function(
-  alternateNames,
-  description,
-  id,
-  meta,
-  name,
-  resourceLimit,
-  resourceRequested,
-  url
-){
-  self <- Thing(
-    alternateNames = alternateNames,
-    description = description,
-    id = id,
-    meta = meta,
-    name = name,
-    url = url
-  )
-  self$type <- as_scalar("ResourceParameters")
-  self[["resourceLimit"]] <- check_property("ResourceParameters", "resourceLimit", FALSE, missing(resourceLimit), "numeric", resourceLimit)
-  self[["resourceRequested"]] <- check_property("ResourceParameters", "resourceRequested", FALSE, missing(resourceRequested), "numeric", resourceRequested)
-  class(self) <- c("list", "Entity")
-  self
-}
-
-
 #' A software application.
 #'
 #' @name SoftwareApplication
@@ -2424,17 +2297,65 @@ SoftwareApplication <- function(
 }
 
 
+#' A computational environment.
+#'
+#' @name SoftwareEnvironment
+#' @param name The name of the item. \bold{Required}.
+#' @param adds The packages that this environment adds to the base environments listed under `extends` (if any).,
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param description A description of the item.
+#' @param extends Other environments that this environment extends by adding or removing packages.,
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param removes The packages that this environment removes from the base environments listed under `extends` (if any).,
+#' @param url The URL of the item.
+#' @seealso \code{\link{Thing}}
+#' @export
+SoftwareEnvironment <- function(
+  name,
+  adds,
+  alternateNames,
+  description,
+  extends,
+  id,
+  meta,
+  removes,
+  url
+){
+  self <- Thing(
+    name = name,
+    alternateNames = alternateNames,
+    description = description,
+    id = id,
+    meta = meta,
+    url = url
+  )
+  self$type <- as_scalar("SoftwareEnvironment")
+  self[["name"]] <- check_property("SoftwareEnvironment", "name", TRUE, missing(name), "character", name)
+  self[["adds"]] <- check_property("SoftwareEnvironment", "adds", FALSE, missing(adds), Array("SoftwareSourceCode"), adds)
+  self[["extends"]] <- check_property("SoftwareEnvironment", "extends", FALSE, missing(extends), Array("SoftwareEnvironment"), extends)
+  self[["removes"]] <- check_property("SoftwareEnvironment", "removes", FALSE, missing(removes), Array("SoftwareSourceCode"), removes)
+  class(self) <- c("list", "Entity")
+  self
+}
+
+
 #' Represents a runtime session with the resources and image that is required by software to execute.
 #'
 #' @name SoftwareSession
 #' @param environment Definition of the environment to execute this session in. \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param cpuResource The CPU resource for the session.
+#' @param cpuLimit The amount of CPU the session has been limited to.
+#' @param cpuRequested The amount of CPU requested for the session.
+#' @param dateEnd The date-time that the session ended
+#' @param dateStart The date-time that the session began
 #' @param description A description of the item.
 #' @param id The identifier for this item.
-#' @param memoryResource The memory resource for the session.
+#' @param memoryLimit The amount of memory that the session has been limited to.
+#' @param memoryRequested The amount of memory requested for the session.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
+#' @param status The status of the session (running, stopped, etc).
 #' @param url The URL of the item.
 #' @param volumeMounts Volumes to mount in the session.
 #' @seealso \code{\link{Thing}}
@@ -2442,12 +2363,17 @@ SoftwareApplication <- function(
 SoftwareSession <- function(
   environment,
   alternateNames,
-  cpuResource,
+  cpuLimit,
+  cpuRequested,
+  dateEnd,
+  dateStart,
   description,
   id,
-  memoryResource,
+  memoryLimit,
+  memoryRequested,
   meta,
   name,
+  status,
   url,
   volumeMounts
 ){
@@ -2460,10 +2386,15 @@ SoftwareSession <- function(
     url = url
   )
   self$type <- as_scalar("SoftwareSession")
-  self[["environment"]] <- check_property("SoftwareSession", "environment", TRUE, missing(environment), "Environment", environment)
-  self[["cpuResource"]] <- check_property("SoftwareSession", "cpuResource", FALSE, missing(cpuResource), "ResourceParameters", cpuResource)
-  self[["memoryResource"]] <- check_property("SoftwareSession", "memoryResource", FALSE, missing(memoryResource), "ResourceParameters", memoryResource)
-  self[["volumeMounts"]] <- check_property("SoftwareSession", "volumeMounts", FALSE, missing(volumeMounts), Array("Mount"), volumeMounts)
+  self[["environment"]] <- check_property("SoftwareSession", "environment", TRUE, missing(environment), "SoftwareEnvironment", environment)
+  self[["cpuLimit"]] <- check_property("SoftwareSession", "cpuLimit", FALSE, missing(cpuLimit), "numeric", cpuLimit)
+  self[["cpuRequested"]] <- check_property("SoftwareSession", "cpuRequested", FALSE, missing(cpuRequested), "numeric", cpuRequested)
+  self[["dateEnd"]] <- check_property("SoftwareSession", "dateEnd", FALSE, missing(dateEnd), Union("Date", "character"), dateEnd)
+  self[["dateStart"]] <- check_property("SoftwareSession", "dateStart", FALSE, missing(dateStart), Union("Date", "character"), dateStart)
+  self[["memoryLimit"]] <- check_property("SoftwareSession", "memoryLimit", FALSE, missing(memoryLimit), "numeric", memoryLimit)
+  self[["memoryRequested"]] <- check_property("SoftwareSession", "memoryRequested", FALSE, missing(memoryRequested), "numeric", memoryRequested)
+  self[["status"]] <- check_property("SoftwareSession", "status", FALSE, missing(status), Enum("unknown", "starting", "started", "stopping", "stopped", "failed"), status)
+  self[["volumeMounts"]] <- check_property("SoftwareSession", "volumeMounts", FALSE, missing(volumeMounts), Array("VolumeMount"), volumeMounts)
   class(self) <- c("list", "Entity")
   self
 }
@@ -2969,6 +2900,51 @@ VideoObject <- function(
   self[["caption"]] <- check_property("VideoObject", "caption", FALSE, missing(caption), "character", caption)
   self[["thumbnail"]] <- check_property("VideoObject", "thumbnail", FALSE, missing(thumbnail), "ImageObject", thumbnail)
   self[["transcript"]] <- check_property("VideoObject", "transcript", FALSE, missing(transcript), "character", transcript)
+  class(self) <- c("list", "Entity")
+  self
+}
+
+
+#' Describes a volume mount from a host to container.
+#'
+#' @name VolumeMount
+#' @param mountDestination The mount location inside the container. \bold{Required}.
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param description A description of the item.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param mountOptions A list of options to use when applying the mount.
+#' @param mountSource The mount source directory on the host.
+#' @param mountType The type of mount.
+#' @param name The name of the item.
+#' @param url The URL of the item.
+#' @seealso \code{\link{Thing}}
+#' @export
+VolumeMount <- function(
+  mountDestination,
+  alternateNames,
+  description,
+  id,
+  meta,
+  mountOptions,
+  mountSource,
+  mountType,
+  name,
+  url
+){
+  self <- Thing(
+    alternateNames = alternateNames,
+    description = description,
+    id = id,
+    meta = meta,
+    name = name,
+    url = url
+  )
+  self$type <- as_scalar("VolumeMount")
+  self[["mountDestination"]] <- check_property("VolumeMount", "mountDestination", TRUE, missing(mountDestination), "character", mountDestination)
+  self[["mountOptions"]] <- check_property("VolumeMount", "mountOptions", FALSE, missing(mountOptions), Array("character"), mountOptions)
+  self[["mountSource"]] <- check_property("VolumeMount", "mountSource", FALSE, missing(mountSource), "character", mountSource)
+  self[["mountType"]] <- check_property("VolumeMount", "mountType", FALSE, missing(mountType), "character", mountType)
   class(self) <- c("list", "Entity")
   self
 }

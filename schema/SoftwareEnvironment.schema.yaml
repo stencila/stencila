@@ -1,5 +1,5 @@
-title: Environment
-'@id': stencila:Environment
+title: SoftwareEnvironment
+'@id': stencila:SoftwareEnvironment
 extends: Thing
 role: primary
 status: experimental
@@ -11,7 +11,7 @@ properties:
     description: Other environments that this environment extends by adding or removing packages.,
     type: array
     items:
-      $ref: Environment
+      $ref: SoftwareEnvironment
   adds:
     '@id': stencila:adds
     description: The packages that this environment adds to the base environments listed under `extends` (if any).,

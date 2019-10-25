@@ -11,7 +11,7 @@ properties:
     description: |
       The computational environment in which the document should be executed.
     allOf:
-      - $ref: Environment
+      - $ref: SoftwareEnvironment
 
 required:
   # See Google's list of required properties at

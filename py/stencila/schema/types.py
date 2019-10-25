@@ -9,6 +9,8 @@ ECitationMode = Enum("CitationMode", ["normal", "suppressAuthor"])
 
 EItemListOrder = Enum("ItemListOrder", ["ascending", "descending", "unordered"])
 
+ESessionStatus = Enum("SessionStatus", ["unknown", "starting", "started", "stopping", "stopped", "failed"])
+
 ECellType = Enum("CellType", ["data", "header"])
 
 ERowType = Enum("RowType", ["header", "footer"])
@@ -612,7 +614,7 @@ class Article(CreativeWork):
 
     authors: Array[Union["Person", "Organization"]]
     title: Union[str, Array["Node"]]
-    environment: Optional["Environment"] = None
+    environment: Optional["SoftwareEnvironment"] = None
 
     def __init__(
         self,
@@ -625,7 +627,7 @@ class Article(CreativeWork):
         datePublished: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
-        environment: Optional["Environment"] = None,
+        environment: Optional["SoftwareEnvironment"] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
@@ -993,44 +995,6 @@ class EnumSchema(Entity):
             self.values = values
 
 
-class Environment(Thing):
-    """A computational environment."""
-
-    name: str
-    adds: Optional[Array["SoftwareSourceCode"]] = None
-    extends: Optional[Array["Environment"]] = None
-    removes: Optional[Array["SoftwareSourceCode"]] = None
-
-    def __init__(
-        self,
-        name: str,
-        adds: Optional[Array["SoftwareSourceCode"]] = None,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
-        extends: Optional[Array["Environment"]] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        removes: Optional[Array["SoftwareSourceCode"]] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            name=name,
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            url=url
-        )
-        if name is not None:
-            self.name = name
-        if adds is not None:
-            self.adds = adds
-        if extends is not None:
-            self.extends = extends
-        if removes is not None:
-            self.removes = removes
-
-
 class Figure(CreativeWork):
     """
     Encapsulates one or more images, videos, tables, etc, and provides captions
@@ -1395,45 +1359,6 @@ class ListItem(Entity):
             self.content = content
         if checked is not None:
             self.checked = checked
-
-
-class Mount(Thing):
-    """Describes a volume mount from a host to container."""
-
-    mountDestination: str
-    mountOptions: Optional[Array[str]] = None
-    mountSource: Optional[str] = None
-    mountType: Optional[str] = None
-
-    def __init__(
-        self,
-        mountDestination: str,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        mountOptions: Optional[Array[str]] = None,
-        mountSource: Optional[str] = None,
-        mountType: Optional[str] = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-        if mountDestination is not None:
-            self.mountDestination = mountDestination
-        if mountOptions is not None:
-            self.mountOptions = mountOptions
-        if mountSource is not None:
-            self.mountSource = mountSource
-        if mountType is not None:
-            self.mountType = mountType
 
 
 class Organization(Thing):
@@ -1936,40 +1861,6 @@ class QuoteBlock(Entity):
             self.cite = cite
 
 
-class ResourceParameters(Thing):
-    """
-    Describes limits or requested amounts for a particular resource (e.g.
-    memory or CPU).
-    """
-
-    resourceLimit: Optional[float] = None
-    resourceRequested: Optional[float] = None
-
-    def __init__(
-        self,
-        alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        name: Optional[str] = None,
-        resourceLimit: Optional[float] = None,
-        resourceRequested: Optional[float] = None,
-        url: Optional[str] = None
-    ) -> None:
-        super().__init__(
-            alternateNames=alternateNames,
-            description=description,
-            id=id,
-            meta=meta,
-            name=name,
-            url=url
-        )
-        if resourceLimit is not None:
-            self.resourceLimit = resourceLimit
-        if resourceRequested is not None:
-            self.resourceRequested = resourceRequested
-
-
 class SoftwareApplication(CreativeWork):
     """A software application."""
 
@@ -2033,29 +1924,77 @@ class SoftwareApplication(CreativeWork):
             self.softwareVersion = softwareVersion
 
 
+class SoftwareEnvironment(Thing):
+    """A computational environment."""
+
+    name: str
+    adds: Optional[Array["SoftwareSourceCode"]] = None
+    extends: Optional[Array["SoftwareEnvironment"]] = None
+    removes: Optional[Array["SoftwareSourceCode"]] = None
+
+    def __init__(
+        self,
+        name: str,
+        adds: Optional[Array["SoftwareSourceCode"]] = None,
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
+        extends: Optional[Array["SoftwareEnvironment"]] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        removes: Optional[Array["SoftwareSourceCode"]] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            name=name,
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            meta=meta,
+            url=url
+        )
+        if name is not None:
+            self.name = name
+        if adds is not None:
+            self.adds = adds
+        if extends is not None:
+            self.extends = extends
+        if removes is not None:
+            self.removes = removes
+
+
 class SoftwareSession(Thing):
     """
     Represents a runtime session with the resources and image that is required
     by software to execute.
     """
 
-    environment: "Environment"
-    cpuResource: Optional["ResourceParameters"] = None
-    memoryResource: Optional["ResourceParameters"] = None
-    volumeMounts: Optional[Array["Mount"]] = None
+    environment: "SoftwareEnvironment"
+    cpuLimit: Optional[float] = None
+    cpuRequested: Optional[float] = None
+    dateEnd: Optional[Union["Date", str]] = None
+    dateStart: Optional[Union["Date", str]] = None
+    memoryLimit: Optional[float] = None
+    memoryRequested: Optional[float] = None
+    status: Optional["ESessionStatus"] = None
+    volumeMounts: Optional[Array["VolumeMount"]] = None
 
     def __init__(
         self,
-        environment: "Environment",
+        environment: "SoftwareEnvironment",
         alternateNames: Optional[Array[str]] = None,
-        cpuResource: Optional["ResourceParameters"] = None,
+        cpuLimit: Optional[float] = None,
+        cpuRequested: Optional[float] = None,
+        dateEnd: Optional[Union["Date", str]] = None,
+        dateStart: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
-        memoryResource: Optional["ResourceParameters"] = None,
+        memoryLimit: Optional[float] = None,
+        memoryRequested: Optional[float] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
+        status: Optional["ESessionStatus"] = None,
         url: Optional[str] = None,
-        volumeMounts: Optional[Array["Mount"]] = None
+        volumeMounts: Optional[Array["VolumeMount"]] = None
     ) -> None:
         super().__init__(
             alternateNames=alternateNames,
@@ -2067,10 +2006,20 @@ class SoftwareSession(Thing):
         )
         if environment is not None:
             self.environment = environment
-        if cpuResource is not None:
-            self.cpuResource = cpuResource
-        if memoryResource is not None:
-            self.memoryResource = memoryResource
+        if cpuLimit is not None:
+            self.cpuLimit = cpuLimit
+        if cpuRequested is not None:
+            self.cpuRequested = cpuRequested
+        if dateEnd is not None:
+            self.dateEnd = dateEnd
+        if dateStart is not None:
+            self.dateStart = dateStart
+        if memoryLimit is not None:
+            self.memoryLimit = memoryLimit
+        if memoryRequested is not None:
+            self.memoryRequested = memoryRequested
+        if status is not None:
+            self.status = status
         if volumeMounts is not None:
             self.volumeMounts = volumeMounts
 
@@ -2468,6 +2417,45 @@ class VideoObject(MediaObject):
             self.thumbnail = thumbnail
         if transcript is not None:
             self.transcript = transcript
+
+
+class VolumeMount(Thing):
+    """Describes a volume mount from a host to container."""
+
+    mountDestination: str
+    mountOptions: Optional[Array[str]] = None
+    mountSource: Optional[str] = None
+    mountType: Optional[str] = None
+
+    def __init__(
+        self,
+        mountDestination: str,
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        mountOptions: Optional[Array[str]] = None,
+        mountSource: Optional[str] = None,
+        mountType: Optional[str] = None,
+        name: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            meta=meta,
+            name=name,
+            url=url
+        )
+        if mountDestination is not None:
+            self.mountDestination = mountDestination
+        if mountOptions is not None:
+            self.mountOptions = mountOptions
+        if mountSource is not None:
+            self.mountSource = mountSource
+        if mountType is not None:
+            self.mountType = mountType
 
 
 """

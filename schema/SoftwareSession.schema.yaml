@@ -8,26 +8,64 @@ description: |
   Represents a runtime session with the resources and image that
   is required by software to execute.
 properties:
-  volumeMounts:
-    '@id': stencila:volumeMount
-    description: Volumes to mount in the session.
-    type: array
-    items:
-      - $ref: Mount
-  cpuResource:
-    '@id': stencila:cpuResource
-    description: The CPU resource for the session.
-    allOf:
-      - $ref: ResourceParameters
-  memoryResource:
-    '@id': stencila:memoryResource
-    description: The memory resource for the session.
-    allOf:
-      - $ref: ResourceParameters
+  dateStart:
+    '@id': schema:startDate
+    description: The date-time that the session began
+    anyOf:
+      - $ref: Date
+      - type: string
+        format: date
+      - type: string
+        format: date-time
+  dateEnd:
+    '@id': schema:endDate
+    description: The date-time that the session ended
+    anyOf:
+      - $ref: Date
+      - type: string
+        format: date
+      - type: string
+        format: date-time
+  status:
+    '@id': stencila:sessionStatus
+    description: The status of the session (running, stopped, etc).
+    enum:
+      - unknown
+      - starting
+      - started
+      - stopping
+      - stopped
+      - failed
+  cpuRequested:
+    '@id': stencila:cpuRequested
+    description: The amount of CPU requested for the session.
+    type: number
+    minimum: 0
+  cpuLimit:
+    '@id': stencila:cpuLimit
+    description: The amount of CPU the session has been limited to.
+    type: number
+    minimum: 0
+  memoryRequested:
+    '@id': stencila:memoryRequested
+    description: The amount of memory requested for the session.
+    type: number
+    minimum: 0
+  memoryLimit:
+    '@id': stencila:memoryLimit
+    description: The amount of memory that the session has been limited to.
+    type: number
+    minimum: 0
   environment:
     '@id': stencila:environment
     description: Definition of the environment to execute this session in.
     allOf:
-      - $ref: Environment
+      - $ref: SoftwareEnvironment
+  volumeMounts:
+    '@id': stencila:volumeMounts
+    description: Volumes to mount in the session.
+    type: array
+    items:
+      - $ref: VolumeMount
 required:
   - environment
