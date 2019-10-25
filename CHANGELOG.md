@@ -1,3 +1,11 @@
+## [0.30.4](https://github.com/stencila/schema/compare/v0.30.3...v0.30.4) (2019-10-25)
+
+
+### Bug Fixes
+
+* **R:** Update NAMESPACE file ([a717d0a](https://github.com/stencila/schema/commit/a717d0a))
+* **SoftwareSession:** Refactoring of SoftwareSession and associated types ([eb950f2](https://github.com/stencila/schema/commit/eb950f2))
+
 ## [0.30.3](https://github.com/stencila/schema/compare/v0.30.2...v0.30.3) (2019-10-22)
 
 
