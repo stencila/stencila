@@ -2343,13 +2343,13 @@ SoftwareEnvironment <- function(
 #' Represents a runtime session with the resources and image that is required by software to execute.
 #'
 #' @name SoftwareSession
-#' @param environment Definition of the environment to execute this session in. \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param cpuLimit The amount of CPU the session has been limited to.
 #' @param cpuRequested The amount of CPU requested for the session.
 #' @param dateEnd The date-time that the session ended
 #' @param dateStart The date-time that the session began
 #' @param description A description of the item.
+#' @param environment Definition of the environment to execute this session in.
 #' @param id The identifier for this item.
 #' @param memoryLimit The amount of memory that the session has been limited to.
 #' @param memoryRequested The amount of memory requested for the session.
@@ -2361,13 +2361,13 @@ SoftwareEnvironment <- function(
 #' @seealso \code{\link{Thing}}
 #' @export
 SoftwareSession <- function(
-  environment,
   alternateNames,
   cpuLimit,
   cpuRequested,
   dateEnd,
   dateStart,
   description,
+  environment,
   id,
   memoryLimit,
   memoryRequested,
@@ -2386,11 +2386,11 @@ SoftwareSession <- function(
     url = url
   )
   self$type <- as_scalar("SoftwareSession")
-  self[["environment"]] <- check_property("SoftwareSession", "environment", TRUE, missing(environment), "SoftwareEnvironment", environment)
   self[["cpuLimit"]] <- check_property("SoftwareSession", "cpuLimit", FALSE, missing(cpuLimit), "numeric", cpuLimit)
   self[["cpuRequested"]] <- check_property("SoftwareSession", "cpuRequested", FALSE, missing(cpuRequested), "numeric", cpuRequested)
   self[["dateEnd"]] <- check_property("SoftwareSession", "dateEnd", FALSE, missing(dateEnd), Union("Date", "character"), dateEnd)
   self[["dateStart"]] <- check_property("SoftwareSession", "dateStart", FALSE, missing(dateStart), Union("Date", "character"), dateStart)
+  self[["environment"]] <- check_property("SoftwareSession", "environment", FALSE, missing(environment), "SoftwareEnvironment", environment)
   self[["memoryLimit"]] <- check_property("SoftwareSession", "memoryLimit", FALSE, missing(memoryLimit), "numeric", memoryLimit)
   self[["memoryRequested"]] <- check_property("SoftwareSession", "memoryRequested", FALSE, missing(memoryRequested), "numeric", memoryRequested)
   self[["status"]] <- check_property("SoftwareSession", "status", FALSE, missing(status), Enum("unknown", "starting", "started", "stopping", "stopped", "failed"), status)

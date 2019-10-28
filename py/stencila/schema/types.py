@@ -1968,11 +1968,11 @@ class SoftwareSession(Thing):
     by software to execute.
     """
 
-    environment: "SoftwareEnvironment"
     cpuLimit: Optional[float] = None
     cpuRequested: Optional[float] = None
     dateEnd: Optional[Union["Date", str]] = None
     dateStart: Optional[Union["Date", str]] = None
+    environment: Optional["SoftwareEnvironment"] = None
     memoryLimit: Optional[float] = None
     memoryRequested: Optional[float] = None
     status: Optional["ESessionStatus"] = None
@@ -1980,13 +1980,13 @@ class SoftwareSession(Thing):
 
     def __init__(
         self,
-        environment: "SoftwareEnvironment",
         alternateNames: Optional[Array[str]] = None,
         cpuLimit: Optional[float] = None,
         cpuRequested: Optional[float] = None,
         dateEnd: Optional[Union["Date", str]] = None,
         dateStart: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
+        environment: Optional["SoftwareEnvironment"] = None,
         id: Optional[str] = None,
         memoryLimit: Optional[float] = None,
         memoryRequested: Optional[float] = None,
@@ -2004,8 +2004,6 @@ class SoftwareSession(Thing):
             name=name,
             url=url
         )
-        if environment is not None:
-            self.environment = environment
         if cpuLimit is not None:
             self.cpuLimit = cpuLimit
         if cpuRequested is not None:
@@ -2014,6 +2012,8 @@ class SoftwareSession(Thing):
             self.dateEnd = dateEnd
         if dateStart is not None:
             self.dateStart = dateStart
+        if environment is not None:
+            self.environment = environment
         if memoryLimit is not None:
             self.memoryLimit = memoryLimit
         if memoryRequested is not None:
