@@ -1,3 +1,15 @@
+# [0.31.0](https://github.com/stencila/schema/compare/v0.30.5...v0.31.0) (2019-11-06)
+
+
+### Bug Fixes
+
+* **Dependencies:** Move logga to production deps ([c444747](https://github.com/stencila/schema/commit/c444747))
+
+
+### Features
+
+* **SoftwareSession:** Add properties and rename others ([b7f30de](https://github.com/stencila/schema/commit/b7f30de))
+
 ## [0.30.5](https://github.com/stencila/schema/compare/v0.30.4...v0.30.5) (2019-10-28)
 
 
