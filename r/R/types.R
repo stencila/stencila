@@ -2340,40 +2340,56 @@ SoftwareEnvironment <- function(
 }
 
 
-#' Represents a runtime session with the resources and image that is required by software to execute.
+#' Definition of a compute session, including its software and compute resource requirements and status.
 #'
 #' @name SoftwareSession
 #' @param alternateNames Alternate names (aliases) for the item.
-#' @param cpuLimit The amount of CPU the session has been limited to.
-#' @param cpuRequested The amount of CPU requested for the session.
-#' @param dateEnd The date-time that the session ended
-#' @param dateStart The date-time that the session began
+#' @param clientsLimit The maximum number of concurrent clients the session is limited to.
+#' @param clientsRequest The maximum number of concurrent clients requested for the session.
+#' @param cpuLimit The amount of CPU the session is limited to.
+#' @param cpuRequest The amount of CPU requested for the session.
+#' @param dateEnd The date-time that the session ended.
+#' @param dateStart The date-time that the session began.
 #' @param description A description of the item.
-#' @param environment Definition of the environment to execute this session in.
+#' @param durationLimit The maximum duration (seconds) the session is limited to.
+#' @param durationRequest The maximum duration (seconds) requested for the session.
+#' @param environment The software environment to execute this session in.
 #' @param id The identifier for this item.
-#' @param memoryLimit The amount of memory that the session has been limited to.
-#' @param memoryRequested The amount of memory requested for the session.
+#' @param memoryLimit The amount of memory that the session is limited to.
+#' @param memoryRequest The amount of memory requested for the session.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
-#' @param status The status of the session (running, stopped, etc).
+#' @param networkTransferLimit The amount of network data transfer (GiB) that the session is limited to.
+#' @param networkTransferRequest The amount of network data transfer (GiB) requested for the session.
+#' @param status The status of the session (starting, stopped, etc).
+#' @param timeoutLimit The inactivity timeout (seconds) the session is limited to.
+#' @param timeoutRequest The inactivity timeout (seconds) requested for the session.
 #' @param url The URL of the item.
 #' @param volumeMounts Volumes to mount in the session.
 #' @seealso \code{\link{Thing}}
 #' @export
 SoftwareSession <- function(
   alternateNames,
+  clientsLimit,
+  clientsRequest,
   cpuLimit,
-  cpuRequested,
+  cpuRequest,
   dateEnd,
   dateStart,
   description,
+  durationLimit,
+  durationRequest,
   environment,
   id,
   memoryLimit,
-  memoryRequested,
+  memoryRequest,
   meta,
   name,
+  networkTransferLimit,
+  networkTransferRequest,
   status,
+  timeoutLimit,
+  timeoutRequest,
   url,
   volumeMounts
 ){
@@ -2386,14 +2402,22 @@ SoftwareSession <- function(
     url = url
   )
   self$type <- as_scalar("SoftwareSession")
+  self[["clientsLimit"]] <- check_property("SoftwareSession", "clientsLimit", FALSE, missing(clientsLimit), "numeric", clientsLimit)
+  self[["clientsRequest"]] <- check_property("SoftwareSession", "clientsRequest", FALSE, missing(clientsRequest), "numeric", clientsRequest)
   self[["cpuLimit"]] <- check_property("SoftwareSession", "cpuLimit", FALSE, missing(cpuLimit), "numeric", cpuLimit)
-  self[["cpuRequested"]] <- check_property("SoftwareSession", "cpuRequested", FALSE, missing(cpuRequested), "numeric", cpuRequested)
+  self[["cpuRequest"]] <- check_property("SoftwareSession", "cpuRequest", FALSE, missing(cpuRequest), "numeric", cpuRequest)
   self[["dateEnd"]] <- check_property("SoftwareSession", "dateEnd", FALSE, missing(dateEnd), Union("Date", "character"), dateEnd)
   self[["dateStart"]] <- check_property("SoftwareSession", "dateStart", FALSE, missing(dateStart), Union("Date", "character"), dateStart)
+  self[["durationLimit"]] <- check_property("SoftwareSession", "durationLimit", FALSE, missing(durationLimit), "numeric", durationLimit)
+  self[["durationRequest"]] <- check_property("SoftwareSession", "durationRequest", FALSE, missing(durationRequest), "numeric", durationRequest)
   self[["environment"]] <- check_property("SoftwareSession", "environment", FALSE, missing(environment), "SoftwareEnvironment", environment)
   self[["memoryLimit"]] <- check_property("SoftwareSession", "memoryLimit", FALSE, missing(memoryLimit), "numeric", memoryLimit)
-  self[["memoryRequested"]] <- check_property("SoftwareSession", "memoryRequested", FALSE, missing(memoryRequested), "numeric", memoryRequested)
+  self[["memoryRequest"]] <- check_property("SoftwareSession", "memoryRequest", FALSE, missing(memoryRequest), "numeric", memoryRequest)
+  self[["networkTransferLimit"]] <- check_property("SoftwareSession", "networkTransferLimit", FALSE, missing(networkTransferLimit), "numeric", networkTransferLimit)
+  self[["networkTransferRequest"]] <- check_property("SoftwareSession", "networkTransferRequest", FALSE, missing(networkTransferRequest), "numeric", networkTransferRequest)
   self[["status"]] <- check_property("SoftwareSession", "status", FALSE, missing(status), Enum("unknown", "starting", "started", "stopping", "stopped", "failed"), status)
+  self[["timeoutLimit"]] <- check_property("SoftwareSession", "timeoutLimit", FALSE, missing(timeoutLimit), "numeric", timeoutLimit)
+  self[["timeoutRequest"]] <- check_property("SoftwareSession", "timeoutRequest", FALSE, missing(timeoutRequest), "numeric", timeoutRequest)
   self[["volumeMounts"]] <- check_property("SoftwareSession", "volumeMounts", FALSE, missing(volumeMounts), Array("VolumeMount"), volumeMounts)
   class(self) <- c("list", "Entity")
   self

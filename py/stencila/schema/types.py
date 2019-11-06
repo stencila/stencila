@@ -1964,35 +1964,51 @@ class SoftwareEnvironment(Thing):
 
 class SoftwareSession(Thing):
     """
-    Represents a runtime session with the resources and image that is required
-    by software to execute.
+    Definition of a compute session, including its software and compute
+    resource requirements and status.
     """
 
+    clientsLimit: Optional[float] = None
+    clientsRequest: Optional[float] = None
     cpuLimit: Optional[float] = None
-    cpuRequested: Optional[float] = None
+    cpuRequest: Optional[float] = None
     dateEnd: Optional[Union["Date", str]] = None
     dateStart: Optional[Union["Date", str]] = None
+    durationLimit: Optional[float] = None
+    durationRequest: Optional[float] = None
     environment: Optional["SoftwareEnvironment"] = None
     memoryLimit: Optional[float] = None
-    memoryRequested: Optional[float] = None
+    memoryRequest: Optional[float] = None
+    networkTransferLimit: Optional[float] = None
+    networkTransferRequest: Optional[float] = None
     status: Optional["ESessionStatus"] = None
+    timeoutLimit: Optional[float] = None
+    timeoutRequest: Optional[float] = None
     volumeMounts: Optional[Array["VolumeMount"]] = None
 
     def __init__(
         self,
         alternateNames: Optional[Array[str]] = None,
+        clientsLimit: Optional[float] = None,
+        clientsRequest: Optional[float] = None,
         cpuLimit: Optional[float] = None,
-        cpuRequested: Optional[float] = None,
+        cpuRequest: Optional[float] = None,
         dateEnd: Optional[Union["Date", str]] = None,
         dateStart: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
+        durationLimit: Optional[float] = None,
+        durationRequest: Optional[float] = None,
         environment: Optional["SoftwareEnvironment"] = None,
         id: Optional[str] = None,
         memoryLimit: Optional[float] = None,
-        memoryRequested: Optional[float] = None,
+        memoryRequest: Optional[float] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
+        networkTransferLimit: Optional[float] = None,
+        networkTransferRequest: Optional[float] = None,
         status: Optional["ESessionStatus"] = None,
+        timeoutLimit: Optional[float] = None,
+        timeoutRequest: Optional[float] = None,
         url: Optional[str] = None,
         volumeMounts: Optional[Array["VolumeMount"]] = None
     ) -> None:
@@ -2004,22 +2020,38 @@ class SoftwareSession(Thing):
             name=name,
             url=url
         )
+        if clientsLimit is not None:
+            self.clientsLimit = clientsLimit
+        if clientsRequest is not None:
+            self.clientsRequest = clientsRequest
         if cpuLimit is not None:
             self.cpuLimit = cpuLimit
-        if cpuRequested is not None:
-            self.cpuRequested = cpuRequested
+        if cpuRequest is not None:
+            self.cpuRequest = cpuRequest
         if dateEnd is not None:
             self.dateEnd = dateEnd
         if dateStart is not None:
             self.dateStart = dateStart
+        if durationLimit is not None:
+            self.durationLimit = durationLimit
+        if durationRequest is not None:
+            self.durationRequest = durationRequest
         if environment is not None:
             self.environment = environment
         if memoryLimit is not None:
             self.memoryLimit = memoryLimit
-        if memoryRequested is not None:
-            self.memoryRequested = memoryRequested
+        if memoryRequest is not None:
+            self.memoryRequest = memoryRequest
+        if networkTransferLimit is not None:
+            self.networkTransferLimit = networkTransferLimit
+        if networkTransferRequest is not None:
+            self.networkTransferRequest = networkTransferRequest
         if status is not None:
             self.status = status
+        if timeoutLimit is not None:
+            self.timeoutLimit = timeoutLimit
+        if timeoutRequest is not None:
+            self.timeoutRequest = timeoutRequest
         if volumeMounts is not None:
             self.volumeMounts = volumeMounts
 
