@@ -5,7 +5,10 @@
   "files": [
     "dist"
   ],
+  "source": "ts/index.ts",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "unpkg": "dist/index.umd.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
@@ -15,7 +18,7 @@
     "build": "npm run build:jsonschema && npm run build:jsonld && npm run build:ts && npm run build:py && npm run build:r",
     "build:jsonschema": "ts-node ts/schema.ts",
     "build:jsonld": "ts-node ts/bindings/jsonld.ts",
-    "build:ts": "ts-node ts/bindings/typescript.ts && tsc && cp public/*.schema.json dist && cp public/*.jsonld dist",
+    "build:ts": "ts-node ts/bindings/typescript.ts && microbundle --tsconfig tsconfig.lib.json && cp public/*.schema.json dist && cp public/*.jsonld dist",
     "build:py": "ts-node ts/bindings/python.ts",
     "build:r": "ts-node ts/bindings/r.ts",
     "docs": "npm run docs:readme && npm run docs:build",
@@ -57,6 +60,7 @@
     "json-schema-to-typescript": "^6.1.3",
     "lodash.clonedeep": "^4.5.0",
     "markdown-toc": "^1.2.0",
+    "microbundle": "^0.12.0-next.6",
     "object.fromentries": "^2.0.0",
     "rimraf": "^2.6.3",
     "tempy": "^0.3.0",
