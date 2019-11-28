@@ -1,3 +1,10 @@
+## [0.31.1](https://github.com/stencila/schema/compare/v0.31.0...v0.31.1) (2019-11-28)
+
+
+### Bug Fixes
+
+* **TS:** Fix error re. conflicting type definition ([3f227f1](https://github.com/stencila/schema/commit/3f227f1))
+
 # [0.31.0](https://github.com/stencila/schema/compare/v0.30.5...v0.31.0) (2019-11-06)
 
 
