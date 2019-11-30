@@ -7,6 +7,10 @@ os:
 script:
   - npm run build
   - npm run pages
+  - npm run test
+
+after_success:
+  - argos upload test/screenshots/local -C $TRAVIS_COMMIT -B $TRAVIS_BRANCH -T $ARGOS_TOKEN || true
 
 deploy:
   # Do a semantic release
