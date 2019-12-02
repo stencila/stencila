@@ -12,6 +12,7 @@
   - [Installation](#installation)
   - [Testing](#testing)
 - [Technical Notes](#technical-notes)
+- [Acknowledgments](#acknowledgments)
 
 ## Quick Start
 
@@ -102,3 +103,13 @@ is [`parcel-plugin-url-loader`](https://github.com/stencila/parcel-plugin-url-lo
 to base64 encode and inline binary assets found in the CSS. This has the
 tradeoff that it leads to much larger page sizes, but the ability to generate
 stylesheets without inlining assets is on the roadmap.
+
+## Acknowledgments
+
+We rely on many tools and services for which we are grateful ❤ to their developers and contributors for all their time and energy.
+
+| Tool                                                                                                                                                       | Use                                                                                                |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| <a href="Sauce Labs"><img src="./.github/PoweredBySauceLabs.svg" width="150" alt="Testing powered by Sauce Labs" /></a>                                    | Cross-browser Testing Platform and Open Source <3 Provided by [Sauce Labs](https://saucelabs.com). |
+| <a href="WebdriverIO"><img src="https://webdriver.io/img/webdriverio.png" width="50" alt="Next-gen WebDriver test framework for Node.js" />WebdriverIO</a> | Next-gen WebDriver test framework for Node.js.                                                     |
+| [Argos CI](https://www.argos-ci.com)                                                                                                                       | visual regression system gives you high confidence in doing changes.                               |
