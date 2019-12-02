@@ -136,7 +136,7 @@ exports.config = {
   // e.g. using promises you can set the sync option to false.
   sync: false,
   // Level of logging verbosity: trace | debug | info | warn | error | silent
-  logLevel: 'trace',
+  logLevel: 'warn',
   // Saves a screenshot to a given path if a command fails.
   screenshotPath: env.errors,
   coloredLogs: true,
