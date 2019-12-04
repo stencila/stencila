@@ -14,7 +14,7 @@
     "pages:test": "parcel build ./src/examples/*.html -d test/examples --public-url .",
     "clean": "rm -rf .cache dist pages test/examples",
     "semantic-release": "semantic-release",
-    "test": "npm run pages:test && SAUCE_API_HOST=eu-central-1.saucelabs.com wdio"
+    "test": "SAUCE_API_HOST=eu-central-1.saucelabs.com wdio"
   },
   "repository": {
     "type": "git",

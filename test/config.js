@@ -97,7 +97,12 @@ const compareStrategy =
       })
 
 exports.config = {
+  // Will bre prefixed to all relative test URLs. https://webdriver.io/docs/options.html#baseurl
   baseUrl: env.baseUrl,
+  // Required for resolving test sessions
+  path: process.env.CI ? undefined : '/',
+  // Level of logging verbosity: trace | debug | info | warn | error | silent
+  logLevel: 'warn',
   connectionRetryTimeout: 600000,
   // Define which test specs should run. The pattern is relative to the directory
   // from which `wdio` was called. Notice that, if you are calling `wdio` from an
@@ -123,20 +128,25 @@ exports.config = {
   // Sauce Labs platform configurator - a great tool to configure your capabilities:
   // https://docs.saucelabs.com/reference/platforms-configurator
   capabilities: [
-    Object.assign({}, browserCapabilities[testBrowser], {
-      // When using Open Sauce (https://saucelabs.com/opensauce/),
-      // capabilities must be tagged as "public" for the jobs's status
-      // to update (failed/passed). If omitted on Open Sauce, the job's
-      // status will only be marked "Finished."
-      public: true
-    })
+    Object.assign(
+      {},
+      browserCapabilities[testBrowser],
+      env.CI
+        ? {
+            // When using Open Sauce (https://saucelabs.com/opensauce/),
+            // capabilities must be tagged as "public" for the jobs's status
+            // to update (failed/passed). If omitted on Open Sauce, the job's
+            // status will only be marked "Finished."
+            public: true,
+            recordScreenshots: false
+          }
+        : {}
+    )
   ],
   // By default WebdriverIO commands are executed in a synchronous way using
   // the wdio-sync package. If you still want to run your tests in an async way
   // e.g. using promises you can set the sync option to false.
   sync: false,
-  // Level of logging verbosity: trace | debug | info | warn | error | silent
-  logLevel: 'warn',
   // Saves a screenshot to a given path if a command fails.
   screenshotPath: env.errors,
   coloredLogs: true,
@@ -156,7 +166,10 @@ exports.config = {
     // https://github.com/Jnegrier/wdio-novus-visual-regression-service
     compare: compareStrategy,
     viewportChangePause: 400,
-    viewports: [{ width: 320, height: 1920 }, { width: 1440, height: 1800 }],
+    viewports: [
+      { width: 320, height: 568 },
+      { width: 1440, height: 900 }
+    ],
     orientations: ['landscape', 'portrait']
   },
   // Sauce Labs configuration
