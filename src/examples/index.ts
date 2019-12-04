@@ -1,10 +1,6 @@
-export const examples: {[key: string]: Promise<any>} = {
-  // @ts-ignore
-  'simple': import('./simple.html'),
-  // @ts-ignore
-  'article-antibodies': import('./article-antibodies.html'),
-  // @ts-ignore
-  'article-drosophila': import('./article-drosophila.html'),
-  // @ts-ignore
-  'article-rmarkdown': import('./article-rmarkdown.html')
+export const examples: { [key: string]: string } = {
+  simple: '/examples/simple.html',
+  'article-antibodies': '/examples/article-antibodies.html',
+  'article-drosophila': '/examples/article-drosophila.html',
+  'article-rmarkdown': '/examples/article-rmarkdown.html'
 }

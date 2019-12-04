@@ -7,10 +7,10 @@
   ],
   "main": "./dist/index.js",
   "scripts": {
-    "dev": "parcel ./src/demo/index.html --open",
+    "dev": "parcel ./src/index.html ./src/examples/*.html --open",
     "build": "parcel build ./src/*.ts ./src/{common,themes}/**/*.{css,ts} && tsc --emitDeclarationOnly",
     "watch": "parcel watch ./src/**/*.css ./src/**/*.ts",
-    "pages": "parcel build ./src/demo/index.html -d pages  --public-url .",
+    "pages": "parcel build ./src/index.html ./src/examples/*.html -d pages --public-url .",
     "pages:test": "parcel build ./src/examples/*.html -d test/examples --public-url .",
     "clean": "rm -rf .cache dist pages test/examples",
     "semantic-release": "semantic-release",

@@ -1,3 +1,3 @@
-import { load } from '../../common/js/index'
+import { load } from '../../common/js'
 
 load()

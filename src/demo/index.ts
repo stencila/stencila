@@ -9,7 +9,7 @@
  * content for all examples and all themes i.e. it is not truly lazy.
  *
  * For CSS, this `import()` approach did not work, maybe because it loads all the
- * CSS stylesheets into the global DOM. So, we take the approach of enablig/diabling `<link>`
+ * CSS stylesheets into the global DOM. So, we take the approach of enabling/disabling `<link>`
  * elements.
  */
 
@@ -37,8 +37,10 @@ const contentSet = async (example: string): Promise<void> => {
   window.sessionStorage.setItem(sessionKey.ARTICLE, example)
 
   // Load the HTML content
-  const content = await examples[example]
-  const html = content.default
+  const req = new XMLHttpRequest()
+  req.open('GET', `./${examples[example]}`, false)
+  req.send(null)
+  const html = req.responseText
 
   // Set the content of `<main>` to the content of the example `<body>`
   const dom = new DOMParser().parseFromString(html, 'text/html')
