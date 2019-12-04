@@ -1,5 +1,3 @@
-import '../../common/js/index'
-
 export const init = (): void => {
   const referenceListItemSel = '[itemprop="references"] > li'
   const datePublishedSel = '[itemprop="datePublished"]'

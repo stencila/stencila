@@ -4,14 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link
-      href="https://unpkg.com/@stencila/thema@1.5.1/dist/themes/stencila/styles.css"
-      rel="stylesheet"
-    />
-    <script
-      src="https://unpkg.com/@stencila/thema@1.5.1/dist/themes/stencila/index.js"
-      type="text/javascript"
-    ></script>
+    <link href="../themes/stencila/styles.css" rel="stylesheet" />
+    <script src="../themes/stencila/index.ts" type="text/javascript"></script>
     <script
       src="https://unpkg.com/@stencila/components@&lt;=1/dist/stencila-components/stencila-components.esm.js"
       type="module"
@@ -38,6 +32,62 @@
               ><span itemprop="givenName">Nokome</span
               ><span itemprop="familyName">Bentley</span></span
             >
+            <ol class="affiliations">
+              <li>
+                <a itemprop="affiliation" href="#author-organization-1">1</a>
+              </li>
+            </ol>
+          </li>
+          <li
+            itemtype="https://schema.org/Person"
+            itemscope="true"
+            itemprop="author"
+          >
+            <a
+              itemprop="url"
+              href="http://library.brown.edu/about/hay/carberry.php"
+              ><span itemprop="name" content="Josiah Carberry"
+                ><span itemprop="givenName">Josiah</span
+                ><span itemprop="familyName">Carberry</span></span
+              ></a
+            >
+            <ol class="affiliations">
+              <li>
+                <a itemprop="affiliation" href="#author-organization-2">2</a>
+              </li>
+              <li>
+                <a itemprop="affiliation" href="#author-organization-3">3</a>
+              </li>
+            </ol>
+          </li>
+        </ol>
+        <ol class="organizations">
+          <li
+            id="author-organization-1"
+            itemtype="https://schema.org/Organization"
+            itemscope="true"
+            itemid="#author-organization-1"
+          >
+            <a itemprop="url" href="https://stenci.la"
+              ><span itemprop="name">Stencila</span></a
+            >
+            <address itemprop="address">Kaikoura, New Zealand</address>
+          </li>
+          <li
+            id="author-organization-2"
+            itemtype="https://schema.org/Organization"
+            itemscope="true"
+            itemid="#author-organization-2"
+          >
+            <span itemprop="name">Wesleyan University</span>
+          </li>
+          <li
+            id="author-organization-3"
+            itemtype="https://schema.org/Organization"
+            itemscope="true"
+            itemid="#author-organization-3"
+          >
+            <span itemprop="name">Brown University</span>
           </li>
         </ol>
       </div>
@@ -56,8 +106,8 @@
       <h1 id="preface">Preface</h1>
       <p>
         This is part of a series of “self-documenting” example articles, each
-        written in a particular format, describing how to author reproducibles
-        in that format. The canonical source for this article is
+        written in a particular format, describing how to author reproducible
+        articles in that format. The canonical source for this article is
         <a
           href="https://github.com/stencila/examples/tree/master/rmarkdown/rmarkdown.Rmd"
           ><code>rmarkdown.Rmd</code></a
@@ -178,9 +228,7 @@
         <code>randoms</code> variable that we assigned earlier:
         <stencila-code-expression programming-language="r"
           ><code class="r" slot="text">mean(randoms)</code
-          ><output slot="output"
-            >6.077451710^{-4}</output
-          > </stencila-code-expression
+          ><output slot="output">-0.002458</output> </stencila-code-expression
         >. In Stencila, we call these <code>CodeExpression</code>s, because they
         are intended to display a calculated value, and shouldn’t be used for
         statements, such as assigning a variable.
