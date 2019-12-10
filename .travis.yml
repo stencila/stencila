@@ -112,6 +112,5 @@ matrix:
         provider: pypi
         username: $PYPI_USERNAME
         password: $PYPI_PASSWORD
-        server: https://test.pypi.org/legacy/
         on:
           tags: true
