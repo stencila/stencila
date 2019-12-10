@@ -1,3 +1,10 @@
+# [0.32.0](https://github.com/stencila/schema/compare/v0.31.1...v0.32.0) (2019-12-10)
+
+
+### Features
+
+* Fixes to setup.py ([ee1a6a7](https://github.com/stencila/schema/commit/ee1a6a7))
+
 ## [0.31.1](https://github.com/stencila/schema/compare/v0.31.0...v0.31.1) (2019-11-28)
 
 
