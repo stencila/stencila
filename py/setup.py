@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import io
-import os
 import sys
 
+import io
+import os
 import subprocess
-from shutil import rmtree
-
 from setuptools import setup, Command
+from shutil import rmtree
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -19,6 +18,7 @@ VERSION_PATH = os.path.join(HERE, 'version')
 
 
 def get_tag_version() -> str:
+    """Get the version by parsing git tag."""
     result = subprocess.run(['git', 'describe', '--tags', '--abbrev=0'], stdout=subprocess.PIPE, encoding='ascii')
     version = result.stdout
     return version[1:] if version.startswith('v') else version
