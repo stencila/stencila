@@ -87,9 +87,6 @@ setup(
     python_requires='>=3.6.0',
     url='https://github.com/stencila/schema',
     packages=['stencila.schema'],
-    install_requires=[
-        'astor==0.8.0'
-    ],
     extras_require={},
     include_package_data=True,
     license='Apache-2.0',
