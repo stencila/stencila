@@ -1,31 +1,23 @@
-Package: stencila
-Type: Package
-Title: Stencila
-Description: Stencila.
-Authors@R: c(person("Nokome", "Bentley", email = "nokome@stenci.la", role = c("aut", "cre")))
+Package: stencilaschema
+Title: R bindings for Stencila Schema
+Description: R classes for each of the types in the Stencila Schema.
+Authors@R: c(
+    person("Nokome", "Bentley", "nokome@stenci.la", role = c("aut", "cre"))
+  )
 URL: https://github.com/stencila/schema#readme
 BugReports: https://github.com/stencila/schema/issues
-License: MIT + file LICENSE
+License: file LICENSE
 Version: 0.0.1
 Encoding: UTF-8
-Imports:
-    jsonlite
 Suggests:
     covr,
     devtools,
     lintr,
+    pkgdown,
     roxygen2,
     testthat
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.99.9001
+RoxygenNote: 7.0.2.9000
 Collate:
-    'util.R'
-    'read_funcs.R'
-    'nse_funcs.R'
-    'compile.R'
-    'datatable.R'
-    'entity.R'
-    'node.R'
-    'stencila.R'
     'typing.R'
     'types.R'
