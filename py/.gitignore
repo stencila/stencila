@@ -4,6 +4,7 @@ __pycache__
 .idea
 .mypy_cache
 .tox
+*.egg-info
 build
 coverage.xml
 dist

@@ -1,7 +1,5 @@
 .DS_Store
 .idea
-.Rproj.user
-*.egg-info
 *.out.*
 /coverage
 /dist
@@ -9,4 +7,3 @@
 /public
 /ts/types.ts
 engine/node_modules
-
