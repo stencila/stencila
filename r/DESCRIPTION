@@ -2,7 +2,7 @@ Package: stencilaschema
 Title: R bindings for Stencila Schema
 Description: R classes for each of the types in the Stencila Schema.
 Authors@R: c(
-    person("Nokome", "Bentley", "nokome@stenci.la", role = c("aut", "cre"))
+    person("Nokome", "Bentley", email = "nokome@stenci.la", role = c("aut", "cre"))
   )
 URL: https://github.com/stencila/schema#readme
 BugReports: https://github.com/stencila/schema/issues

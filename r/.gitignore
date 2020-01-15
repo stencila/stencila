@@ -1,5 +1,6 @@
+*.Rcheck
 *.Rhistory
 *.Rproj.user
-*.Rcheck
+docs
 man
 stencila_*

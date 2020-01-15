@@ -1,8 +1,7 @@
-all: setup clean lint test build docs
+all: regen lint test build docs
 
 setup:
-	Rscript -e "install.packages('devtools')"
-	Rscript -e "devtools::install_github(c('jimhester/lintr', 'klutometis/roxygen', 'r-lib/covr', 'r-lib/testthat'))"
+	Rscript -e "install.packages('devtools'); devtools::install_dev_deps()"
 
 regen:
 	npm run build:r
@@ -27,7 +26,11 @@ build:
 	Rscript -e 'devtools::build()'
 
 docs:
-	Rscript -e 'devtools::document()'
+	Rscript -e 'devtools::document(); pkgdown::build_site()'
+.PHONY: docs
+
+install: build
+	Rscript -e 'devtools::install()'
 
 clean:
 	rm -rf man stencilaschema_*.tar.gz stencilaschema.Rcheck
