@@ -60,10 +60,6 @@ matrix:
         - npm run build
         - npm run docs
 
-      after_success:
-        # Clear package.json overrides made when installing @stencila/dev-config
-        - git checkout package.json
-
       deploy:
         # Deploy a new version of NPM package and create a Github release
         # This creates a new version tag, which will then trigger the
