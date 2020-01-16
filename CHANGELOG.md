@@ -1,3 +1,11 @@
+## [0.32.1](https://github.com/stencila/schema/compare/v0.32.0...v0.32.1) (2020-01-16)
+
+
+### Bug Fixes
+
+* **deps:** npm audit fix ([25a6a6a](https://github.com/stencila/schema/commit/25a6a6a859f72c4ee796b97cb2808a9694917653))
+* **R bindings:** Improve type specs and checking ([1ef3c27](https://github.com/stencila/schema/commit/1ef3c27dce6b3fa032995a9d6aeb59af7f3826d1))
+
 # [0.32.0](https://github.com/stencila/schema/compare/v0.31.1...v0.32.0) (2019-12-10)
 
 
