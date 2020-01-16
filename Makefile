@@ -7,7 +7,7 @@
 # and `cat Makefile` to quickly understand what to do next. Regardless
 # or whether it's a Typescript, Python or R project.
 
-all: setup lint test build docs
+all: lint test build docs
 
 setup:
 	npm install
@@ -52,4 +52,4 @@ checkBindings:
 
 ## Commits just the updated schema bindings
 commitBindings:
-	git commit --only py/stencila/schema/types.py r/R/types.R -m "chore(Type Bindings): Generate updated bindings"
+	git commit --only $(PYBINDINGS) $(RBINDINGS) -m "chore(Type Bindings): Generate updated bindings"
