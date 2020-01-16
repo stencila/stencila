@@ -91,11 +91,9 @@ export function classGenerator(schema: Schema): string {
     })
     .join('\n')
 
-  // Give the node the class `Entity` to be able to
-  // provide methods like `print.Entity` in R.
-  code += `\n  class(self) <- c("list", "Entity")`
-  code += `\n  self`
+  code += `\n  class(self) <- c(class(self), "${title}")`
 
+  code += `\n  self`
   code += `\n}\n\n`
 
   return code
@@ -107,7 +105,7 @@ export function classGenerator(schema: Schema): string {
 export function unionGenerator(schema: Schema): string {
   const { title = '', description = title } = schema
   let code = docComment(description, ['@export'])
-  code += `${title} = ${schemaToType(schema)}\n\n`
+  code += `${title} <- ${schemaToType(schema)}\n\n`
   return code
 }
 
@@ -132,7 +130,7 @@ function docComment(description: string, tags: string[] = []): string {
 function schemaToType(schema: Schema): string {
   const { type, anyOf, allOf, $ref } = schema
 
-  if ($ref !== undefined) return `"${$ref.replace('.schema.json', '')}"`
+  if ($ref !== undefined) return `${$ref.replace('.schema.json', '')}`
   if (anyOf !== undefined) return anyOfToType(anyOf)
   if (allOf !== undefined) return allOfToType(allOf)
   if (schema.enum !== undefined) return enumToType(schema.enum)

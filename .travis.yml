@@ -35,15 +35,6 @@ matrix:
     - stage: test
       language: r
       r: release
-      dist: xenial
-
-      r_binary_packages:
-        - covr
-        - roxygen2
-        - testthat
-
-      r_github_packages:
-        - jimhester/lintr
 
       before_install:
         - cd r
@@ -52,6 +43,7 @@ matrix:
         - make lint
         - make test
         - make build
+        - make docs
 
       after_success:
         - Rscript -e 'covr::codecov()'
@@ -67,10 +59,6 @@ matrix:
       script:
         - npm run build
         - npm run docs
-
-      after_success:
-        # Clear package.json overrides made when installing @stencila/dev-config
-        - git checkout package.json
 
       deploy:
         # Deploy a new version of NPM package and create a Github release

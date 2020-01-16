@@ -8,7 +8,7 @@ import * as encoda from '@stencila/encoda'
 import encodaProcess from '@stencila/encoda/dist/process'
 import fs from 'fs-extra'
 import globby from 'globby'
-import { flatten } from 'lodash'
+import flatten from 'lodash.flatten'
 import path from 'path'
 // The main reason this is imported is to configure the log handling
 import log from './log'
@@ -176,14 +176,14 @@ const andSeparator = ' & '
  * @param {JSON Schema object} content
  * @returns {(Node)[]} Stencila Node tree
  */
-const encodeContents = (content: any): (Node)[] => {
+const encodeContents = (content: any): Node[] => {
   if (typeof content.format === 'string') {
     return [formattedType(content.type, content.format)]
   }
 
   if (content.type === 'array' && content.items) {
     // Items of an `array` type can either be a single schema object or an array of schemas to validate each item against
-    const items: (Node)[] = Array.isArray(content.items)
+    const items: Node[] = Array.isArray(content.items)
       ? flatten(content.items.map(encodeContents))
       : encodeContents(content.items)
 

@@ -1,0 +1,14 @@
+template:
+  params:
+    bootswatch: cosmo
+
+navbar:
+  title: R bindings for the Stencila Schema
+  left:
+    - text: Home
+      href: index.html
+    - text: Reference
+      href: reference/index.html
+  right:
+    - icon: fa-github
+      href: https://github.com/stencila/schema

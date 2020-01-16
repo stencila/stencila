@@ -1,5 +1,6 @@
-/.Rproj.user
-/man
-/stencila_*
-/*.Rcheck
-/.Rhistory
+*.Rcheck
+*.Rhistory
+*.Rproj.user
+docs
+man
+stencila_*

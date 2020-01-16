@@ -33,12 +33,10 @@ export function types(schemas: Schema[]): Schema[] {
   const types = schemas.filter(schema => schema.properties !== undefined)
   const map = new Map(schemas.map(schema => [schema.title, schema]))
 
-  const edges = types.map(
-    (schema): [string, string] => [
-      schema.extends !== undefined ? schema.extends : '',
-      schema.title !== undefined ? schema.title : ''
-    ]
-  )
+  const edges = types.map((schema): [string, string] => [
+    schema.extends !== undefined ? schema.extends : '',
+    schema.title !== undefined ? schema.title : ''
+  ])
   const ordered = toposort(edges).filter(title => title !== '')
 
   return ordered.map(title => {
