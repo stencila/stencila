@@ -7,10 +7,10 @@
  */
 
 import fs from 'fs-extra'
-import path from 'path'
 // @ts-ignore
 import fromEntries from 'object.fromentries'
-import { read } from './utils'
+import path from 'path'
+import { readSchemas } from '../helpers'
 
 const DEST_DIR = path.join(__dirname, '..', '..', 'public')
 
@@ -22,7 +22,7 @@ export const build = async (): Promise<void> => {
     [key: string]: { '@id': string } & { [key: string]: unknown }
   } = {}
 
-  const schemas = await read()
+  const schemas = await readSchemas()
   for (const schema of schemas.values()) {
     const { '@id': typeId, title, properties: typeProperties } = schema
 

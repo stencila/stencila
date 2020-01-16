@@ -1,19 +1,20 @@
 /**
- * A module providing functions to be used in languages bindings.
+ * A module providing helper functions that are useful when
+ * generating languages bindings and documentation.
  */
 
 import fs from 'fs-extra'
 import globby from 'globby'
 import path from 'path'
 import toposort from 'toposort'
-import Schema from '../schema-interface'
-export { default as Schema } from '../schema-interface'
+import Schema from './schema-interface'
+export { default as Schema } from './schema-interface'
 
 /**
  * Read the schemas from `public/*.schema.json`.
  */
-export async function read(
-  glob: string = path.join(__dirname, '..', '..', 'public', '*.schema.json')
+export async function readSchemas(
+  glob: string = path.join(__dirname, '..', 'public', '*.schema.json')
 ): Promise<Schema[]> {
   // Read in the schemas
   const files = await globby(glob)
@@ -29,7 +30,7 @@ export async function read(
  * Types are sorted topologically so that schemas come before
  * any of their descendants.
  */
-export function types(schemas: Schema[]): Schema[] {
+export function filterTypeSchemas(schemas: Schema[]): Schema[] {
   const types = schemas.filter(schema => schema.properties !== undefined)
   const map = new Map(schemas.map(schema => [schema.title, schema]))
 
@@ -45,6 +46,13 @@ export function types(schemas: Schema[]): Schema[] {
       throw new Error(`Holy smokes, "${title}" aint in da map @#!&??!`)
     return schema
   })
+}
+
+/**
+ * Get the union types from the schemas
+ */
+export function filterUnionSchemas(schemas: Schema[]): Schema[] {
+  return schemas.filter(schema => schema.anyOf !== undefined)
 }
 
 /**
@@ -65,7 +73,7 @@ interface Property {
  * Properties are arranged in groups according to required (or not)
  * and inherited (or not).
  */
-export function props(
+export function getSchemaProperties(
   schema: Schema
 ): {
   all: Property[]
@@ -104,13 +112,6 @@ export function props(
     required: props.filter(prop => !prop.optional),
     optional: props.filter(prop => prop.optional)
   }
-}
-
-/**
- * Get the union types from the schemas
- */
-export function unions(schemas: Schema[]): Schema[] {
-  return schemas.filter(schema => schema.anyOf !== undefined)
 }
 
 /**
