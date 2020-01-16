@@ -26,7 +26,7 @@ const validateSchema = ajv.compile(metaSchema)
 /**
  * Generate `public/*.schema.json` files from `schema/*.schema.yaml` files.
  */
-export const build = async (cleanup: boolean = true): Promise<void> => {
+export const build = async (cleanup = true): Promise<void> => {
   // Clean up old files
   if (cleanup) await del('*.schema.json', { cwd: SCHEMA_DEST_DIR })
 
@@ -155,9 +155,7 @@ const checkSchema = (
     else {
       if (allIds[id] !== undefined && allIds[id] !== title)
         error(
-          `@id "${id}" is associated with more than one name "${
-            allIds[id]
-          }", "${title}"`
+          `@id "${id}" is associated with more than one name "${allIds[id]}", "${title}"`
         )
       else allIds[id] = title
     }
@@ -174,9 +172,7 @@ const checkSchema = (
       else {
         if (allIds[id] !== undefined && allIds[id] !== name)
           error(
-            `@id "${id}" is associated with more than one name "${
-              allIds[id]
-            }", "${name}"`
+            `@id "${id}" is associated with more than one name "${allIds[id]}", "${name}"`
           )
         else allIds[id] = name
       }
@@ -184,9 +180,7 @@ const checkSchema = (
       if (allProperties[name] !== undefined) {
         if (allProperties[name] !== id)
           error(
-            `Property "${name}" is associated with more than one @id "${id}", "${
-              allProperties[name]
-            }"`
+            `Property "${name}" is associated with more than one @id "${id}", "${allProperties[name]}"`
           )
       } else if (id !== undefined) {
         allProperties[name] = id

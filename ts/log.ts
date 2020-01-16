@@ -10,15 +10,13 @@
 
 import * as logga from '@stencila/logga'
 
-logga.replaceHandlers(
-  (data: logga.LogData): void => {
-    if (data.level <= (process.env.DEBUG !== undefined ? 3 : 2)) {
-      // Don't print noisy stack traces
-      data.stack = ''
-      logga.defaultHandler(data)
-    }
+logga.replaceHandlers((data: logga.LogData): void => {
+  if (data.level <= (process.env.DEBUG !== undefined ? 3 : 2)) {
+    // Don't print noisy stack traces
+    data.stack = ''
+    logga.defaultHandler(data)
   }
-)
+})
 
 const log = logga.getLogger('schema')
 export default log
