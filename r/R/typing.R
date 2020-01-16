@@ -3,6 +3,7 @@
 # not available natively in R.
 
 #' Any type
+#' @export
 Any <- function() {
   self <- list()
   class(self) <- "Any"
@@ -21,14 +22,17 @@ print.Any <- function(x) { # nolint
 #' Array type
 #'
 #' @param items The type that items in the array should be
+#' @export
 Array <- function(items) {
-  self <- list(items = items)
+  self <- list(
+    items = if (is.function(items)) deparse(substitute(items)) else items
+  )
   class(self) <- "Array"
   self
 }
 
 format.Array <- function(type) { # nolint
-  paste0("Array(", paste(format(type$items), collapse = ", "), ")")
+  paste0("Array(", format(type$items), ")")
 }
 
 print.Array <- function(x) { # nolint
@@ -38,14 +42,21 @@ print.Array <- function(x) { # nolint
 #' Union type
 #'
 #' @param ... The types in the union
+#' @export
 Union <- function(...) {
-  self <- list(types = as.character(c(...)))
+  args <- as.list(match.call())[-1]
+  types <- lapply(args, function(arg) {
+    # For functions, get the function name, otherwise return the value e.g. a Union
+    value <- eval(arg)
+    if (is.function(value)) as.character(arg) else value
+  })
+  self <- list(types = types)
   class(self) <- "Union"
   self
 }
 
 format.Union <- function(type) { # nolint
-  paste0("Union(", paste(sapply(type$types, format), collapse = ", "), ")")
+  paste0("Union(", paste(lapply(type$types, format), collapse = ", "), ")")
 }
 
 print.Union <- function(x) { # nolint
@@ -54,6 +65,7 @@ print.Union <- function(x) { # nolint
 
 
 #' An enumeration
+#' @export
 Enum <- function(...) {
   self <- list(values = c(...))
   class(self) <- "Enum"
@@ -92,19 +104,23 @@ is_entity <- function(node) {
 }
 
 #' Does a value conform to the type?
-is_type <- function(value, type) { # nolint TODO: Reduce cyclometric complexity of this function
+is_type <- function(value, type) { # nolint
   type_class <- last_class(type)
-  if (type_class == "Any") {
-    TRUE
+  if (type_class == "function") {
+    # Capture the function name and call this function with that
+    func_name <- deparse(substitute(type))
+    is_type(value, func_name)
   } else if (type_class == "character") {
     if (type == "NULL") return(is.null(value))
-    type_obj <- get(type)
-    if (last_class(type_obj) %in% c("Any", "Array", "Union")) is_type(value, type_obj)
-    else node_type(value) == type
+    else inherits(value, type)
+  } else if (type_class == "Any") {
+    TRUE
   } else if (type_class == "Array") {
     if (is.null(value) || is_entity(value)) {
+      # Not array-like
       FALSE
     } else if (is.list(value)) {
+      # Check all items in list are of type
       for (item in value) {
         if (!is_type(item, type$items)) return(FALSE)
       }
@@ -121,7 +137,10 @@ is_type <- function(value, type) { # nolint TODO: Reduce cyclometric complexity 
       stop(paste("Unhandled value type", class(value)))
     }
   } else if (type_class == "Union") {
-    node_type(value) %in% type$types
+    for (subtype in type$types) {
+      if (is_type(value, subtype)) return(TRUE)
+    }
+    FALSE
   } else if (type_class == "Enum") {
     mode(value) == mode(type$values) && value %in% type$values
   } else {
