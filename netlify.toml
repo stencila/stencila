@@ -3,7 +3,7 @@
   from = "/latest/*"
   to = "/:splat"
 
-# The recommented way to serve JSON-LD is with "Cool URIs"
+# The recommended way to serve JSON-LD is with "Cool URIs"
 # and content negotiation. eg. this is how schema.org does it:
 #   curl http://schema.org/Person -H "Accept:application/ld+json" -i
 # Netlify does not support content negotiation
@@ -21,11 +21,11 @@
 # (i.e. using `v:number`; placeholders must come after a slash).
 
 [[redirects]]
-  from = "/v0/*"
-  to = "https://unpkg.com/@stencila/schema@0/dist/:splat"
+  from = "/v0/jsonld/*"
+  to = "https://unpkg.com/@stencila/schema@0/dist/:splat.jsonld"
   force = true
 
 [[redirects]]
-  from = "/v0/jsonld/*"
-  to = "https://unpkg.com/@stencila/schema@0/dist/:splat.jsonld"
+  from = "/v0/*"
+  to = "https://unpkg.com/@stencila/schema@0/dist/:splat"
   force = true
