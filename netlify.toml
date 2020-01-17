@@ -13,23 +13,29 @@
 [[redirects]]
   from = "/v0/*"
   to = "https://unpkg.com/@stencila/schema@0/dist/:splat"
+  force = true
 
 [[redirects]]
   from = "/v1/*"
   to = "https://unpkg.com/@stencila/schema@1/dist/:splat"
+  force = true
 
 [[redirects]]
   from = "/v2/*"
   to = "https://unpkg.com/@stencila/schema@2/dist/:splat"
+  force = true
 
 [[redirects]]
   from = "/v3/*"
   to = "https://unpkg.com/@stencila/schema@3/dist/:splat"
+  force = true
 
 [[redirects]]
   from = "/v4/*"
   to = "https://unpkg.com/@stencila/schema@4/dist/:splat"
+  force = true
 
 [[redirects]]
   from = "/v5/*"
   to = "https://unpkg.com/@stencila/schema@5/dist/:splat"
+  force = true
