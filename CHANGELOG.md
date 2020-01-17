@@ -1,3 +1,10 @@
+## [0.32.2](https://github.com/stencila/schema/compare/v0.32.1...v0.32.2) (2020-01-17)
+
+
+### Bug Fixes
+
+* **JSON-LD:** Use versioned URL for context ([8b0e153](https://github.com/stencila/schema/commit/8b0e15317b362629354d26434eb8c10bf5ccfdc4))
+
 ## [0.32.1](https://github.com/stencila/schema/compare/v0.32.0...v0.32.1) (2020-01-16)
 
 
