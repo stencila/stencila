@@ -3,12 +3,22 @@
   from = "/latest/*"
   to = "/:splat"
 
+# The recommented way to serve JSON-LD is with "Cool URIs"
+# and content negotiation. eg. this is how schema.org does it:
+#   curl http://schema.org/Person -H "Accept:application/ld+json" -i
+# Netlify does not support content negotiation
+# (i.e. redirects based on the Accept header)
+# Therefore, to provide a URL that fits with
+# the norms for for JSON-LD (no file extensions),
+# we need to provide a specific route.
+[[redirects]]
+  from = "/jsonld/*"
+  to = "/:splat.jsonld"
+
 # Version redirects
 # Unfortunately, given the current URL pattern `v1` etc,
 # we can't make this work using placeholders
 # (i.e. using `v:number`; placeholders must come after a slash).
-# The redirects below for non-existent versions is done
-# to avoid a 404 if this setup is forgotten about in the future.
 
 [[redirects]]
   from = "/v0/*"
@@ -16,26 +26,6 @@
   force = true
 
 [[redirects]]
-  from = "/v1/*"
-  to = "https://unpkg.com/@stencila/schema@1/dist/:splat"
-  force = true
-
-[[redirects]]
-  from = "/v2/*"
-  to = "https://unpkg.com/@stencila/schema@2/dist/:splat"
-  force = true
-
-[[redirects]]
-  from = "/v3/*"
-  to = "https://unpkg.com/@stencila/schema@3/dist/:splat"
-  force = true
-
-[[redirects]]
-  from = "/v4/*"
-  to = "https://unpkg.com/@stencila/schema@4/dist/:splat"
-  force = true
-
-[[redirects]]
-  from = "/v5/*"
-  to = "https://unpkg.com/@stencila/schema@5/dist/:splat"
+  from = "/v0/jsonld/*"
+  to = "https://unpkg.com/@stencila/schema@0/dist/:splat.jsonld"
   force = true
