@@ -1,6 +1,6 @@
 {
   "name": "@stencila/schema",
-  "version": "0.32.3",
+  "version": "0.32.4",
   "description": "Stencila schema and other specifications",
   "files": [
     "dist"

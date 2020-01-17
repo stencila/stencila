@@ -1,3 +1,10 @@
+## [0.32.4](https://github.com/stencila/schema/compare/v0.32.3...v0.32.4) (2020-01-17)
+
+
+### Bug Fixes
+
+* **JSON Schema:** Use versioned URL for $id ([9e9ac85](https://github.com/stencila/schema/commit/9e9ac85ff81e9e148a10e82808a491b3b0742705))
+
 ## [0.32.3](https://github.com/stencila/schema/compare/v0.32.2...v0.32.3) (2020-01-17)
 
 
