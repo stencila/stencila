@@ -3,16 +3,33 @@
   from = "/latest/*"
   to = "/:splat"
 
-# Rewrite (using code 200) from v0 to Unpkg
+# Version redirects
+# Unfortunately, given the current URL pattern `v1` etc,
+# we can't make this work using placeholders
+# (i.e. using `v:number`; placeholders must come after a slash).
+# The redirects below for non-existent versions is done
+# to avoid a 404 if this setup is forgotten about in the future.
+
 [[redirects]]
   from = "/v0/*"
   to = "https://unpkg.com/@stencila/schema@0/dist/:splat"
-  status = 200
 
-# Rewrite (using code 200) from a versioned URL to Unpkg
-# This is currently just a test to see if placeholder will work after
-# anything other than a slash (I expect it won't)
 [[redirects]]
-  from = "/u:version/*"
-  to = "https://unpkg.com/@stencila/schema@:version/dist/:splat"
-  status = 200
+  from = "/v1/*"
+  to = "https://unpkg.com/@stencila/schema@1/dist/:splat"
+
+[[redirects]]
+  from = "/v2/*"
+  to = "https://unpkg.com/@stencila/schema@2/dist/:splat"
+
+[[redirects]]
+  from = "/v3/*"
+  to = "https://unpkg.com/@stencila/schema@3/dist/:splat"
+
+[[redirects]]
+  from = "/v4/*"
+  to = "https://unpkg.com/@stencila/schema@4/dist/:splat"
+
+[[redirects]]
+  from = "/v5/*"
+  to = "https://unpkg.com/@stencila/schema@5/dist/:splat"
