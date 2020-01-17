@@ -1,3 +1,10 @@
+## [0.32.3](https://github.com/stencila/schema/compare/v0.32.2...v0.32.3) (2020-01-17)
+
+
+### Bug Fixes
+
+* **Docs:** Substantially refactors and fixes docs generation ([b6c1775](https://github.com/stencila/schema/commit/b6c1775005253fbc0ce26aabd6c95ad28cd41a62))
+
 ## [0.32.2](https://github.com/stencila/schema/compare/v0.32.1...v0.32.2) (2020-01-17)
 
 
