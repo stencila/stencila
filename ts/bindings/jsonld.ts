@@ -12,6 +12,26 @@ import fromEntries from 'object.fromentries'
 import path from 'path'
 import { readSchemas } from '../helpers'
 
+/**
+ * Get the Schema major version for use in generated URLs
+ */
+const VERSION_MAJOR = fs
+  .readJSONSync(path.join(__dirname, '..', '..', 'package.json'))
+  .version.split('.')[0]
+
+/**
+ * The base URL for the Stencila JSON-LD context.
+ *
+ * This gets prefixed to all keys during JSON-LD expansion
+ * so the trailing slash is important so that for e.g.
+ * `CodeChunk` gets expanded to `http://schema.stenci.la/v0/jsonld/CodeChunk`
+ * (which in gets redirected to `https://unpkg.com/@stencila/schema@0.32.1/dist/CodeChunk.jsonld`)
+ */
+const STENCILA_CONTEXT_URL = `http://schema.stenci.la/v${VERSION_MAJOR}/jsonld/`
+
+/**
+ * The destination directory for generated JSON-LD files
+ */
 const DEST_DIR = path.join(__dirname, '..', '..', 'public')
 
 export const build = async (): Promise<void> => {
@@ -102,11 +122,11 @@ export const build = async (): Promise<void> => {
     schema: 'http://schema.org/',
     bioschemas: 'http://bioschemas.org',
     codemeta: 'http://doi.org/10.5063/schema/codemeta-2.0',
-    stencila: 'http://schema.stenci.la/',
+    stencila: STENCILA_CONTEXT_URL,
 
     // Define that in this context all terms derive from this vocabulary
     // (and so do not need prefixing)
-    '@vocab': 'http://schema.stenci.la/',
+    '@vocab': STENCILA_CONTEXT_URL,
 
     // Types and properties added in alphabetical order after this e.g
     //   "schema:AudioObject": {"@id": "schema:AudioObject"},
@@ -140,7 +160,7 @@ export const build = async (): Promise<void> => {
           {
             '@context': {
               schema: 'http://schema.org/',
-              stencila: 'http://schema.stenci.la/'
+              stencila: STENCILA_CONTEXT_URL
             },
             ...entry
           },
