@@ -301,8 +301,9 @@ function schema2SummaryArticle(schema: Schema): Article {
     content: [
       heading(['Description'], 2),
       paragraph([description]),
-      heading(['Properties'], 2),
-      table([tableHeader, ...tableData])
+      ...(properties.length > 0
+        ? [heading(['Properties'], 2), table([tableHeader, ...tableData])]
+        : [])
     ]
   })
 }
