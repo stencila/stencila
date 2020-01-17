@@ -1,30 +1,55 @@
 /**
  * Generate documentation
+ *
+ * Note that this script requires `public/*.schema.json`
+ * and `./types.ts` files. To generate those:
+ *
+ *     npm run build:jsonschema
+ *     npm run build:ts
  */
 
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
-
 import * as encoda from '@stencila/encoda'
-import encodaProcess from '@stencila/encoda/dist/process'
 import fs from 'fs-extra'
 import globby from 'globby'
 import flatten from 'lodash.flatten'
 import path from 'path'
-// The main reason this is imported is to configure the log handling
+import { readSchemas } from './helpers'
 import log from './log'
+import Schema from './schema-interface'
 import {
   Article,
-  CodeFragment,
+  article,
   codeFragment,
+  emphasis,
+  heading,
+  InlineContent,
   Link,
   link,
-  Node,
-  Strong
+  list,
+  ListItem,
+  listItem,
+  paragraph,
+  strong,
+  table,
+  tableCell,
+  tableRow
 } from './types'
-import { isArticle } from './util/guards'
 
+/**
+ * Run `build()` when this file is run as a Node script
+ */
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-docs()
+if (module.parent === null) build()
+
+/**
+ * The source directory for docs e.g. `*.md` files
+ */
+const DOCS_SOURCE_DIR = path.join(__dirname, '..', 'schema')
+
+/**
+ * The destination directory for docs e.g. `*.html` and `*.md` files
+ */
+const DOCS_DEST_DIR = path.join(__dirname, '..', 'public')
 
 /**
  * Generate docs for each `public/*.schema.json` file and
@@ -33,72 +58,51 @@ docs()
  * The generated `public/*.schema.md` file should normally
  * in `include`d into the `schema/*.md` file for the type.
  */
-async function docs(): Promise<void> {
+async function build(): Promise<void> {
   log.info('Building docs')
 
-  const schemas = await globby('public/*.schema.json')
+  // Read in all the schemas
+  const schemas = await readSchemas()
 
+  // For each schema...
   await Promise.all(
-    schemas.map(async jsonFile => {
-      try {
-        const schema = await fs.readJSON(jsonFile)
-        const { title } = schema
+    schemas.map(async schema => {
+      const { title } = schema
 
-        const articleMd = schema2Article(schema)
-        const schemaMdFile = path.join('public', `${title}.schema.md`)
-        await encoda.write(articleMd, schemaMdFile)
+      // 1. Generate a summary article for the schema and write it
+      // to disk so that it can be transcluded in manually written
+      // Markdown files if desired.
+      const summaryArticle = schema2SummaryArticle(schema)
+      await encoda.write(
+        summaryArticle,
+        path.join(DOCS_DEST_DIR, `${title}.schema.md`)
+      )
 
-        const mdFile = path.join('schema', `${title}.md`)
-        if (await fs.pathExists(mdFile)) {
-          const article = await encoda.read(mdFile)
+      // 2. If the schema has a manually main Article then use
+      // that, otherwise generate it
+      const mdFile = path.join(DOCS_SOURCE_DIR, `${title}.md`)
+      const mainArticle = (await fs.pathExists(mdFile))
+        ? await encoda.read(mdFile)
+        : schema2MainArticle(schema, summaryArticle)
 
-          // Don't output an HTML file if the Markdown document cannot be decoded into an article
-          if (!isArticle(article)) {
-            return
-          }
-
-          const processed = await encodaProcess(
-            {
-              ...article,
-              title,
-              content: [
-                {
-                  type: 'Heading',
-                  depth: 2,
-                  content: [
-                    'Status: ',
-                    schema.status,
-                    ', ',
-                    'Role: ',
-                    schema.role
-                  ]
-                },
-                ...(article.content || [])
-              ]
-            },
-            path.dirname(mdFile)
-          )
-
-          const htmlFile = path.join('public', `${title}.html`)
-          await encoda.write(processed, htmlFile, {
-            isBundle: false, // Set isBundle to true to work locally with NPM linked Thema style changes
-            theme: 'stencila'
-          })
-        }
-      } catch (error) {
-        console.error(error)
-      }
+      // 3. Write the main article as HTML
+      await encoda.write(mainArticle, path.join(DOCS_DEST_DIR, `${title}.html`))
     })
   )
 
-  // Cover over any files generated during processing
-  // so that links in HTML files work
-  const outs = await globby('schema/*.out.*')
+  // Copy over any output files that may have been generated
+  // when running `encoda compile` on the main Article so that
+  // links to those files in HTML files are not broken
+  const outputs = await globby('schema/*.out.*')
   await Promise.all(
-    outs.map(async file => {
-      return fs.copy(file, path.join('public', path.basename(file)))
+    outputs.map(async file => {
+      return fs.copy(file, path.join(DOCS_DEST_DIR, path.basename(file)))
     })
   )
+
+  // Generate the index page list of links
+  const schemaList = list(schemas.map(schema2ListItem))
+  await encoda.write(schemaList, path.join(DOCS_DEST_DIR, `index.html`))
 }
 
 /**
@@ -135,20 +139,19 @@ const requiredPropsFirst = (requiredProps: string[]) => (
  *
  * @template T
  * @template S
- * @param {T[]} arr Array of items to separate
+ * @param {T[]} array Array of items to separate
  * @param {S} separator value to insert between elements of the array
  * @returns {((T | S)[])}
  */
-const intersperse = <T, S extends T>(arr: T[], separator: S): (T | S)[] =>
-  arr.reduce((a: T[], v: T): (T | S)[] => [...a, v, separator], []).slice(0, -1)
+const intersperse = <T, S>(array: T[], separator: S): (T | S)[] =>
+  array
+    .reduce((a: (T | S)[], v: T): (T | S)[] => [...a, v, separator], [])
+    .slice(0, -1)
 
 const linkifyReference = (ref: string): Link => {
   const value = ref.replace('.schema.json', '')
   return link([codeFragment(value)], `./${value}.html`)
 }
-
-const formattedType = (type: string, format: string): CodeFragment =>
-  codeFragment(`${type}<${format}>`)
 
 /**
  * Formats a sub-schema inside with the correct formatting. Primarily used for
@@ -159,7 +162,11 @@ const formattedType = (type: string, format: string): CodeFragment =>
  * @param {string} suffix
  * @returns {Node[]} Stencila Node tree
  */
-const subType = (prefix: string, subTypes: Node[], suffix: string): Node[] => [
+const subType = (
+  prefix: string,
+  subTypes: InlineContent[],
+  suffix: string
+): InlineContent[] => [
   codeFragment(prefix),
   '​', // These quotes are not empty, they contain a zero-width space character to prevent Markdown decoding errors
   ...subTypes,
@@ -171,123 +178,139 @@ const orSeparator = ' | '
 const andSeparator = ' & '
 
 /**
- * Parse and convert JSON Schema to a Stencila Node tree representation to be rendered for the documentation website
+ * Create a short `InlineContent[]` representation for a JSON Schema.
+ * e.g. to be used within a table cell
  *
  * @param {JSON Schema object} content
- * @returns {(Node)[]} Stencila Node tree
+ * @returns {(InlineContent)[]} An array of InlineContent
  */
-const encodeContents = (content: any): Node[] => {
-  if (typeof content.format === 'string') {
-    return [formattedType(content.type, content.format)]
-  }
+const schema2Inlines = (schema: Schema): InlineContent[] => {
+  const {
+    type = '',
+    format,
+    items,
+    enum: enumeration,
+    anyOf,
+    allOf,
+    $ref,
+    codec
+  } = schema
 
-  if (content.type === 'array' && content.items) {
-    // Items of an `array` type can either be a single schema object or an array of schemas to validate each item against
-    const items: Node[] = Array.isArray(content.items)
-      ? flatten(content.items.map(encodeContents))
-      : encodeContents(content.items)
-
-    return subType('array<', items, '>')
-  }
-
-  if (content.enum) {
+  if (format !== undefined) return [codeFragment(`${type}<${format}>`)]
+  if (type === 'array' && items !== undefined)
+    // Items of an `array` type can either be a single schema object or an
+    // array of schemas to validate each item against
     return subType(
-      'enum<',
-      intersperse<Node, string>(content.enum.map(codeFragment), orSeparator),
+      'array<',
+      Array.isArray(items)
+        ? flatten(items.map(schema2Inlines))
+        : schema2Inlines(items),
       '>'
     )
-  }
-
-  if (content.anyOf) {
-    return flatten(intersperse(content.anyOf.map(encodeContents), orSeparator))
-  }
-
-  if (content.allOf) {
-    return flatten(intersperse(content.allOf.map(encodeContents), andSeparator))
-  }
-
-  if (content.$ref) {
-    return [linkifyReference(content.$ref)]
-  }
-
-  if (content.codec) {
-    return [codeFragment(`codec<${content.codec}>`)]
-  }
-
-  return [codeFragment(content.type)]
+  if (enumeration !== undefined)
+    return subType(
+      'enum<',
+      intersperse(
+        enumeration.map(value => codeFragment(`${value}`)),
+        orSeparator
+      ),
+      '>'
+    )
+  if (anyOf !== undefined)
+    return intersperse(flatten(anyOf.map(schema2Inlines)), orSeparator)
+  if (allOf !== undefined)
+    return intersperse(flatten(allOf.map(schema2Inlines)), andSeparator)
+  if ($ref !== undefined) return [linkifyReference($ref)]
+  if (codec !== undefined) return [codeFragment(`codec<${codec}>`)]
+  return [codeFragment(`${type}`)]
 }
 
 /**
- * Create an article from a JSON schema object using
- * properties like `description`, `parent` etc.
+ * Create a  main documentation `Article` for a JSON Schema.
+ *
+ * Ideally these articles will be written manually, but this functions provides
+ * for the cases in which it has not.
+ *
+ * As well as the generated summary we could automatically insert examples here as
+ * @100ideas did in https://github.com/stencila/schema/pull/142
  */
-function schema2Article(schema: { [key: string]: any }): Article {
-  const { title = 'Untitled', properties = {} } = schema
+function schema2MainArticle(schema: Schema, summaryArticle?: Article): Article {
+  const { title = 'Untitled' } = schema
+  const { content: summary = [] } =
+    summaryArticle !== undefined
+      ? summaryArticle
+      : schema2SummaryArticle(schema)
 
-  const requiredProps = schema.required || []
-
-  // Differentiate required properties by bolding them and adding a `(required)` suffix
-  const requiredWrapper = (name: string): Strong | string =>
-    requiredProps.includes(name)
-      ? {
-          type: 'Strong',
-          content: [name, ' ', { type: 'Emphasis', content: ['(required)'] }]
-        }
-      : name
-
-  const propertiesTable = {
-    type: 'Table',
-    rows: Object.entries(properties)
-      .sort(([a], [b]) => requiredPropsFirst(requiredProps)(a, b))
-      .map(([name, prop]: [string, any]) => {
-        const { description = '', from = '' } = prop
-        return {
-          type: 'TableRow',
-          cells: [
-            {
-              type: 'TableCell',
-              content: [requiredWrapper(name)]
-            },
-            {
-              type: 'TableCell',
-              content: encodeContents(prop)
-            },
-            {
-              type: 'TableCell',
-              content: [description]
-            },
-            {
-              type: 'TableCell',
-              content: [
-                {
-                  type: 'Link',
-                  target: `./${from}.html`,
-                  content: [from]
-                }
-              ]
-            }
-          ]
-        }
-      })
-  }
-
-  const article: Article = {
-    type: 'Article',
-    title,
-    authors: [],
+  return article([], title, {
     content: [
-      {
-        type: 'Paragraph',
-        content: [schema.description || '']
-      },
-      {
-        type: 'Heading',
-        depth: 2,
-        content: ['Properties']
-      },
-      propertiesTable
+      ...summary,
+      paragraph([
+        strong(['Note:']),
+        ' This documentation was autogenerated from ',
+        codeFragment(`${title}.schema.json`),
+        '. ',
+        'Please help improve these docs (and show how we humans 💁 can do better than bots 🤖!) by ',
+        link(
+          ['creating a new documentation file'],
+          'https://github.com/stencila/schema/blob/master/docs/writing-schema-docs.md'
+        ),
+        '🙏'
+      ])
     ]
-  }
+  })
+}
 
-  return article
+/**
+ * Create a summary documentation `Article` for a JSON Schema.
+ */
+function schema2SummaryArticle(schema: Schema): Article {
+  const {
+    title = 'Untitled',
+    description = '',
+    properties = {},
+    required = []
+  } = schema
+
+  const tableHeader = tableRow(
+    [
+      tableCell(['Name']),
+      tableCell(['Type']),
+      tableCell(['Description']),
+      tableCell(['Inherited from'])
+    ],
+    { rowType: 'header' }
+  )
+
+  const tableData = Object.entries(properties)
+    .sort(([a], [b]) => requiredPropsFirst(required)(a, b))
+    .map(([name, propSchema]) => {
+      const { description = '', from = '' } = propSchema
+      return tableRow([
+        tableCell([
+          required.includes(name)
+            ? strong([name, ' ', emphasis(['(required)'])])
+            : name
+        ]),
+        tableCell(schema2Inlines(propSchema)),
+        tableCell([description]),
+        tableCell([link([from], `./${from}.html`)])
+      ])
+    })
+
+  return article([], title, {
+    content: [
+      heading(['Description'], 2),
+      paragraph([description]),
+      heading(['Properties'], 2),
+      table([tableHeader, ...tableData])
+    ]
+  })
+}
+
+/**
+ * Create a list item for a schema to be used in a list of links.
+ */
+function schema2ListItem(schema: Schema): ListItem {
+  const { title = 'Untitled' } = schema
+  return listItem([link([title], `${title}.html`)])
 }
