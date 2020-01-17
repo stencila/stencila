@@ -101,8 +101,24 @@ async function build(): Promise<void> {
   )
 
   // Generate the index page list of links
-  const schemaList = list(schemas.map(schema2ListItem))
-  await encoda.write(schemaList, path.join(DOCS_DEST_DIR, `index.html`))
+  const schemaList = list(schemas.map(schema2ListItem), {
+    order: 'unordered'
+  })
+
+  const readme = (await encoda.read(
+    path.join(__dirname, '..', 'README.md')
+  )) as Article
+
+  let indexPage: Article = {
+    ...readme,
+    content: [
+      heading(['Available Schemas'], 2),
+      schemaList,
+      ...(readme.content || [])
+    ]
+  }
+
+  await encoda.write(indexPage, path.join(DOCS_DEST_DIR, `index.html`))
 }
 
 /**
