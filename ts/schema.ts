@@ -17,6 +17,23 @@ import del from 'del'
 const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
 const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'public')
 
+/**
+ * Get the Schema major version for use in generated URLs
+ */
+const VERSION_MAJOR = fs
+  .readJSONSync(path.join(__dirname, '..', 'package.json'))
+  .version.split('.')[0]
+
+/**
+ * The base URL for JSON Schema `$id`s.
+ */
+const ID_BASE_URL = `http://schema.stenci.la/v${VERSION_MAJOR}`
+
+/**
+ * The base URL for source files.
+ */
+const SOURCE_BASE_URL = `https://github.com/stencila/schema/blob/master`
+
 // Create a validation function for JSON Schema for use in `checkSchema`
 const ajv = new Ajv({ jsonPointers: true })
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -24,9 +41,15 @@ const metaSchema = require('ajv/lib/refs/json-schema-draft-07.json')
 const validateSchema = ajv.compile(metaSchema)
 
 /**
+ * Run `build()` when this file is run as a Node script
+ */
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+if (module.parent === null) build()
+
+/**
  * Generate `public/*.schema.json` files from `schema/*.schema.yaml` files.
  */
-export const build = async (cleanup = true): Promise<void> => {
+export async function build(cleanup = true): Promise<void> {
   // Clean up old files
   if (cleanup) await del('*.schema.json', { cwd: SCHEMA_DEST_DIR })
 
@@ -78,12 +101,6 @@ export const build = async (cleanup = true): Promise<void> => {
 }
 
 /**
- * Run `build()` when this file is run as a Node script
- */
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-if (module.parent === null) build()
-
-/**
  * Read a generated schema file
  */
 export const readSchema = async (type: string): Promise<Schema> => {
@@ -101,6 +118,7 @@ export const readSchema = async (type: string): Promise<Schema> => {
  * - all property schemas (those that define a property) have a `@id` and `description`
  * - each property name is associated with only one `@id`
  * - each `@id` is associated with only one property name or type `title`
+ * - no duplicate `stencila:` `@ids` (case insensitive)
  * - that other schemas that are referred to in `extends` or `$ref` exist
  *
  * @param schemas A map of all the schemas
@@ -227,11 +245,9 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
   if ($schema === undefined)
     schema.$schema = `http://json-schema.org/draft-07/schema#`
 
-  if ($id === undefined)
-    schema.$id = `https://stencila.github.com/schema/${title}.schema.json`
+  if ($id === undefined) schema.$id = `${ID_BASE_URL}/${title}.schema.json`
 
-  if (source === undefined)
-    schema.source = `https://github.com/stencila/schema/blob/master/schema/${file}`
+  if (source === undefined) schema.source = `${SOURCE_BASE_URL}/${file}`
 
   try {
     const parent = parentSchema(schemas, schema)
