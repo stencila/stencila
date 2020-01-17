@@ -1,14 +1,22 @@
+import { Code, CodeBlock, CreativeWork } from '../types'
 import {
   isA,
   isInlineContent,
   isInlineEntity,
+  isInstanceOf,
   isPrimitive,
   isType,
   nodeIs,
   typeIs
 } from './guards'
 import { TypeMap } from './type-map'
-import { blockContentTypes, inlineContentTypes } from './type-maps'
+import {
+  blockContentTypes,
+  codeBlockTypes,
+  codeTypes,
+  creativeWorkTypes,
+  inlineContentTypes
+} from './type-maps'
 
 const primitives = [null, true, false, NaN, 2, 'string']
 
@@ -154,3 +162,32 @@ describe('isInlineContent', () => {
   )
 })
 
+describe('handle descendant type matching', () => {
+  test('it matches the descendent schema', () => {
+    expect(
+      isInstanceOf<Code>(codeTypes, { type: 'Code' })
+    ).toBe(true)
+
+    expect(
+      isInstanceOf<Code>(codeTypes, { type: 'CodeFragment' })
+    ).toBe(true)
+  })
+
+  test('it does not match against parent schema', () => {
+    expect(
+      isInstanceOf<CodeBlock>(codeBlockTypes, { type: 'Code' })
+    ).toBe(false)
+
+    expect(
+      isInstanceOf<CodeBlock>(codeBlockTypes, { type: 'Code' })
+    ).toBe(false)
+  })
+
+  test('it does not match across schemas', () => {
+    expect(
+      isInstanceOf<CreativeWork>(creativeWorkTypes, {
+        type: 'CodeFragment'
+      })
+    ).toBe(false)
+  })
+})

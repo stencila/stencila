@@ -2981,10 +2981,34 @@ VolumeMount <- function(
 BlockContent <- Union(CodeBlock, CodeChunk, Heading, List, ListItem, Paragraph, QuoteBlock, Table, ThematicBreak)
 
 
-#' Union type for call CreativeWork types.
+#' All type schemas that are derived from CodeBlock
+#'
+#' @export
+CodeBlockTypes <- Union(CodeBlock, CodeChunk)
+
+
+#' All type schemas that are derived from CodeFragment
+#'
+#' @export
+CodeFragmentTypes <- Union(CodeFragment, CodeExpression)
+
+
+#' All type schemas that are derived from Code
+#'
+#' @export
+CodeTypes <- Union(Code, CodeBlock, CodeChunk, CodeExpression, CodeFragment)
+
+
+#' All type schemas that are derived from CreativeWork
 #'
 #' @export
 CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datatable, Figure, ImageObject, MediaObject, Periodical, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
+
+
+#' All type schemas that are derived from Entity
+#'
+#' @export
+EntityTypes <- Union(Entity, ArraySchema, Article, AudioObject, BooleanSchema, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantSchema, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumSchema, Figure, Function, Heading, ImageObject, Include, IntegerSchema, Link, List, ListItem, Mark, MediaObject, NumberSchema, Organization, Paragraph, Parameter, Periodical, Person, Product, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringSchema, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleSchema, Variable, VideoObject, VolumeMount)
 
 
 #' Union type for valid inline content.
@@ -2993,15 +3017,45 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datat
 InlineContent <- Union("NULL", "logical", "numeric", "character", CodeFragment, CodeExpression, Delete, Emphasis, ImageObject, Link, Quote, Strong, Subscript, Superscript, Cite, CiteGroup)
 
 
+#' All type schemas that are derived from Mark
+#'
+#' @export
+MarkTypes <- Union(Mark, Delete, Emphasis, Quote, Strong, Subscript, Superscript)
+
+
+#' All type schemas that are derived from MediaObject
+#'
+#' @export
+MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
+
+
 #' Union type for all valid nodes.
 #'
 #' @export
 Node <- Union("NULL", "logical", "numeric", "character", Array(Any()), "list", Entity)
 
 
+#' All type schemas that are derived from NumberSchema
+#'
+#' @export
+NumberSchemaTypes <- Union(NumberSchema, IntegerSchema)
+
+
 #' Union type for all data schemas.
 #'
 #' @export
 SchemaTypes <- Union(ConstantSchema, EnumSchema, BooleanSchema, NumberSchema, IntegerSchema, StringSchema, ArraySchema, TupleSchema)
+
+
+#' All type schemas that are derived from Thing
+#'
+#' @export
+ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, Figure, ImageObject, MediaObject, Organization, Periodical, Person, Product, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
+
+
+#' All type schemas that are derived from Variable
+#'
+#' @export
+VariableTypes <- Union(Variable, Parameter)
 
 

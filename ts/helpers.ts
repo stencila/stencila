@@ -14,7 +14,12 @@ export { default as Schema } from './schema-interface'
  * Read the schemas from `public/*.schema.json`.
  */
 export async function readSchemas(
-  glob: string = path.join(__dirname, '..', 'public', '*.schema.json')
+  glob: string | string[] = path.join(
+    __dirname,
+    '..',
+    'public',
+    '*.schema.json'
+  )
 ): Promise<Schema[]> {
   // Read in the schemas
   const files = await globby(glob)

@@ -6,5 +6,6 @@
 /node_modules
 /public
 /ts/types.ts
+/ts/util/type-maps.ts
 engine/node_modules
 .Rproj.user
