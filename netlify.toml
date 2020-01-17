@@ -21,30 +21,38 @@
   from = "/jsonld/*"
   to = "/:splat.jsonld"
 
-# Version redirects
-# These redirect intentionally use http, instead of https,
-# because that causes unpkg to redirect with a full URL,
-# rather than a path, which then does not confuse Netlify.
-# Compare these:
+# Redirect to unpkg
+# Why? Because for the version redirects below
+# unpkg redirects to an expanded, but relative, URL
+# which Netlify thinks it should serve e.g:
 #   > curl --silent --head https://unpkg.com/@stencila/schema@0/dist/CodeChunk.schema.json | grep Location
 #   Location: /@stencila/schema@0.32.3/dist/CodeChunk.schema.json
-#   > curl --silent --head http://unpkg.com/@stencila/schema@0/dist/CodeChunk.schema.json | grep Location
-#   Location: https://unpkg.com/@stencila/schema@0/dist/CodeChunk.schema.json
+# So this redirects back to unpkg:
+[[redirects]]
+  from = "/@stencila/*"
+  to = "https://unpkg.com/@stencila/:splat"
+  force = true
+
+# Version redirects
+# These redirect intentionally use http, instead of https,
+# because that causes
 # Unfortunately, given the current URL pattern `v1` etc,
 # we can't make this work using placeholders
 # (i.e. using `v:number`; placeholders must come after a slash).
+# So more redirects for new versions will need to be added in
+# the future.
 
 [[redirects]]
   from = "/v0/jsonld"
-  to = "http://unpkg.com/@stencila/schema@0/dist/stencila.jsonld"
+  to = "https://unpkg.com/@stencila/schema@0/dist/stencila.jsonld"
   force = true
 
 [[redirects]]
   from = "/v0/jsonld/*"
-  to = "http://unpkg.com/@stencila/schema@0/dist/:splat.jsonld"
+  to = "https://unpkg.com/@stencila/schema@0/dist/:splat.jsonld"
   force = true
 
 [[redirects]]
   from = "/v0/*"
-  to = "http://unpkg.com/@stencila/schema@0/dist/:splat"
+  to = "https://unpkg.com/@stencila/schema@0/dist/:splat"
   force = true
