@@ -139,6 +139,9 @@
   "renovate": {
     "extends": [
       "@stencila"
+    ],
+    "schedule": [
+      "before 1am on Monday"
     ]
   }
 }
