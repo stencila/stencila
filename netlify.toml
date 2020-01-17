@@ -1,0 +1,18 @@
+# Redirect from /latest to root
+[[redirects]]
+  from = "/latest/*"
+  to = "/:splat"
+
+# Rewrite (using code 200) from v0 to Unpkg
+[[redirects]]
+  from = "/v0/*"
+  to = "https://unpkg.com/@stencila/schema@0/dist/:splat"
+  status = 200
+
+# Rewrite (using code 200) from a versioned URL to Unpkg
+# This is currently just a test to see if placeholder will work after
+# anything other than a slash (I expect it won't)
+[[redirects]]
+  from = "/u:version/*"
+  to = "https://unpkg.com/@stencila/schema@:version/dist/:splat"
+  status = 200
