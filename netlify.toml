@@ -1,4 +1,5 @@
 # Redirect from /latest to root
+
 [[redirects]]
   from = "/latest/*"
   to = "/:splat"
@@ -9,23 +10,41 @@
 # Netlify does not support content negotiation
 # (i.e. redirects based on the Accept header)
 # Therefore, to provide a URL that fits with
-# the norms for for JSON-LD (no file extensions),
+# the norms for JSON-LD (no file extensions),
 # we need to provide a specific route.
+
+[[redirects]]
+  from = "/jsonld"
+  to = "/stencila.jsonld"
+
 [[redirects]]
   from = "/jsonld/*"
   to = "/:splat.jsonld"
 
 # Version redirects
+# These redirect intentionally use http, instead of https,
+# because that causes unpkg to redirect with a full URL,
+# rather than a path, which then does not confuse Netlify.
+# Compare these:
+#   > curl --silent --head https://unpkg.com/@stencila/schema@0/dist/CodeChunk.schema.json | grep Location
+#   Location: /@stencila/schema@0.32.3/dist/CodeChunk.schema.json
+#   > curl --silent --head http://unpkg.com/@stencila/schema@0/dist/CodeChunk.schema.json | grep Location
+#   Location: https://unpkg.com/@stencila/schema@0/dist/CodeChunk.schema.json
 # Unfortunately, given the current URL pattern `v1` etc,
 # we can't make this work using placeholders
 # (i.e. using `v:number`; placeholders must come after a slash).
 
 [[redirects]]
+  from = "/v0/jsonld"
+  to = "http://unpkg.com/@stencila/schema@0/dist/stencila.jsonld"
+  force = true
+
+[[redirects]]
   from = "/v0/jsonld/*"
-  to = "https://unpkg.com/@stencila/schema@0/dist/:splat.jsonld"
+  to = "http://unpkg.com/@stencila/schema@0/dist/:splat.jsonld"
   force = true
 
 [[redirects]]
   from = "/v0/*"
-  to = "https://unpkg.com/@stencila/schema@0/dist/:splat"
+  to = "http://unpkg.com/@stencila/schema@0/dist/:splat"
   force = true
