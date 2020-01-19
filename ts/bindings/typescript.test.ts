@@ -10,8 +10,12 @@
  */
 
 import * as typescript from 'typescript'
-import { build, typeGenerator, unionGenerator } from './typescript'
 import { schema, snapshot } from '../__tests__/helpers'
+import {
+  generateTypeDefinitions,
+  typeGenerator,
+  unionGenerator
+} from './typescript'
 
 test('generators', async () => {
   expect(typeGenerator(await schema('Thing.schema.json'))).toMatchFile(
@@ -31,7 +35,7 @@ test('generators', async () => {
  * check that there are no errors.
  */
 test('build', async () => {
-  const file = await build()
+  const file = await generateTypeDefinitions()
   const program = typescript.createProgram([file], {})
   const diagnostics = typescript
     .getPreEmitDiagnostics(program)

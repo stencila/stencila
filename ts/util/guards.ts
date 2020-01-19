@@ -12,8 +12,7 @@ import {
   blockContentTypes,
   codeTypes,
   creativeWorkTypes,
-  inlineContentTypes,
-  InlineNodesWithType
+  inlineContentTypes
 } from './type-maps'
 
 type ExtractGeneric<Type> = Type extends TypeMap<infer X>
@@ -80,6 +79,16 @@ export const isA = <K extends keyof Types>(
   return isEntity(node) && node.type === type
 }
 
+export const isInstanceOf = <
+  E = never,
+  TM = TypeMap<E extends Entity ? E : never>
+>(
+  typeMap: E extends never ? never : TM,
+  node?: Node
+): node is E => {
+  return isEntity(node) && Object.keys(typeMap).includes(node.type)
+}
+
 /**
  * Returns a type guard to determine whether a node is of a specific type.
  * Returns a boolean value and narrows the TypeScript inferred type to
@@ -129,9 +138,9 @@ export const isEntity = (node?: Node): node is Entity => {
  * and an `Entity`.
  *
  * @param {Node} node The node to get the type for
- * @returns {(node is InlineNodesWithType)}
+ * @returns {(node is InlineContent)}
  */
-export const isInlineEntity = (node?: Node): node is InlineNodesWithType => {
+export const isInlineEntity = (node?: Node): node is InlineContent => {
   return typeof node === 'object' && isEntity(node)
     ? typeIs(inlineContentTypes)(node.type)
     : false

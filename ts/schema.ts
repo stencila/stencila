@@ -5,6 +5,7 @@
 
 import Ajv from 'ajv'
 import betterAjvErrors from 'better-ajv-errors'
+import del from 'del'
 import fs from 'fs-extra'
 import globby from 'globby'
 import yaml from 'js-yaml'
@@ -12,7 +13,6 @@ import cloneDeep from 'lodash.clonedeep'
 import path from 'path'
 import log from './log'
 import Schema from './schema-interface'
-import del from 'del'
 
 const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
 const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'public')
@@ -27,7 +27,8 @@ const VERSION_MAJOR = fs
 /**
  * The base URL for JSON Schema `$id`s.
  */
-const ID_BASE_URL = `http://schema.stenci.la/v${VERSION_MAJOR}`
+const SCHEMA_DEST_URL = 'https://schema.stenci.la'
+const ID_BASE_URL = `${SCHEMA_DEST_URL}/v${VERSION_MAJOR}`
 
 /**
  * The base URL for source files.
@@ -89,6 +90,9 @@ export async function build(cleanup = true): Promise<void> {
 
   // Process each of the schemas
   schemata.forEach(schema => processSchema(schemas, schema))
+
+  // Generate additional schemas
+  addTypesSchemas(schemas)
 
   // Write to destination
   await fs.ensureDir('public')
@@ -211,11 +215,17 @@ const checkSchema = (
     }
   }
 
-  // Check $refs are valid
+  // Check $refs are valid, noting that `*Types.schema.json` files
+  // are generated after this check.
   const walk = (node: Schema): void => {
     if (typeof node !== 'object') return
     for (const [key, child] of Object.entries(node)) {
-      if (key === '$ref' && typeof child === 'string' && !schemas.has(child)) {
+      if (
+        key === '$ref' &&
+        typeof child === 'string' &&
+        !child.endsWith('Types') &&
+        !schemas.has(child)
+      ) {
         error(`${title} has a $ref to unknown type "${child}"`)
       }
       walk(child)
@@ -394,4 +404,26 @@ const parentSchema = (
     throw new Error(`Unknown schema used in "extends": "${schema.extends}"`)
 
   return parent
+}
+
+/**
+ * Add `*Types` schemas to the map of schemas which
+ * are the union (`anyOf`) of any descendant types
+ */
+const addTypesSchemas = (schemas: Map<string, Schema>): void => {
+  for (const [title, schema] of schemas.entries()) {
+    const { descendants } = schema
+    if (descendants !== undefined && descendants.length > 0) {
+      const typesTitle = title + 'Types'
+      schemas.set(typesTitle, {
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        $id: `${SCHEMA_DEST_URL}/${typesTitle}.schema.json`,
+        title: typesTitle,
+        description: `All type schemas that are derived from ${title}`,
+        anyOf: [title, ...descendants].map(descendant => ({
+          $ref: `${descendant}.schema.json`
+        }))
+      })
+    }
+  }
 }

@@ -1,14 +1,22 @@
+import { Code, CodeBlock, CreativeWork } from '../types'
 import {
   isA,
   isInlineContent,
   isInlineEntity,
+  isInstanceOf,
   isPrimitive,
   isType,
   nodeIs,
   typeIs
 } from './guards'
 import { TypeMap } from './type-map'
-import { blockContentTypes, inlineContentTypes } from './type-maps'
+import {
+  blockContentTypes,
+  codeBlockTypes,
+  codeTypes,
+  creativeWorkTypes,
+  inlineContentTypes
+} from './type-maps'
 
 const primitives = [null, true, false, NaN, 2, 'string']
 
@@ -33,9 +41,8 @@ describe('nodeIs', () => {
     // @ts-ignore
     expect(nodeIs(typeMap)(undefined)).toBe(false))
 
-  test('returns false for primitive values', () => {
-    primitives.map(node => expect(nodeIs(typeMap)(node)).toBe(false))
-    expect.assertions(primitives.length)
+  test.each(primitives)('returns false for primitive value of "%s"', node => {
+    expect(nodeIs(typeMap)(node)).toBe(false)
   })
 
   test('it returns false for empty Arrays', () =>
@@ -100,9 +107,8 @@ describe('isType', () => {
 })
 
 describe('isPrimitive', () => {
-  test('returns true for primitive values', () => {
-    primitives.map(node => expect(isPrimitive(node)).toBe(true))
-    expect.assertions(primitives.length)
+  test.each(primitives)('returns true for primitive value of "%s"', node => {
+    expect(isPrimitive(node)).toBe(true)
   })
 
   test('it returns false for empty Arrays', () =>
@@ -116,9 +122,8 @@ describe('isPrimitive', () => {
 })
 
 describe('isInlineEntity', () => {
-  test('returns false for primitive values', () => {
-    primitives.map(node => expect(isInlineEntity(node)).toBe(false))
-    expect.assertions(primitives.length)
+  test.each(primitives)('returns false for primitive value of "%s"', node => {
+    expect(isInlineEntity(node)).toBe(false)
   })
 
   test('it returns false for empty Arrays', () =>
@@ -138,23 +143,51 @@ describe('isInlineEntity', () => {
 })
 
 describe('isInlineContent', () => {
-  test('returns true for primitive types', () => {
-    primitives.map(type => expect(isInlineContent(type)).toBe(true))
+  test.each(primitives)('returns true for primitive value of "%s"', type => {
+    expect(isInlineContent(type)).toBe(true)
   })
 
-  test('returns false for BlockContent types ', () => {
-    Object.values(blockContentTypes).map(type => {
+  test.each(Object.values(blockContentTypes))(
+    'returns false for BlockContent type of "%s"',
+    type => {
       expect(isInlineContent({ type })).toBe(false)
-    })
+    }
+  )
 
-    expect.assertions(Object.values(blockContentTypes).length)
+  test.each(Object.values(inlineContentTypes))(
+    'returns true for InlineContent type of "%s"',
+    type => {
+      expect(isInlineContent({ type })).toBe(true)
+    }
+  )
+})
+
+describe('handle descendant type matching', () => {
+  test('it matches the descendent schema', () => {
+    expect(
+      isInstanceOf<Code>(codeTypes, { type: 'Code' })
+    ).toBe(true)
+
+    expect(
+      isInstanceOf<Code>(codeTypes, { type: 'CodeFragment' })
+    ).toBe(true)
   })
 
-  test('returns true for InlineContent types ', () => {
-    Object.values(inlineContentTypes).map(type => {
-      expect(isInlineContent({ type })).toBe(true)
-    })
+  test('it does not match against parent schema', () => {
+    expect(
+      isInstanceOf<CodeBlock>(codeBlockTypes, { type: 'Code' })
+    ).toBe(false)
 
-    expect.assertions(Object.values(inlineContentTypes).length)
+    expect(
+      isInstanceOf<CodeBlock>(codeBlockTypes, { type: 'Code' })
+    ).toBe(false)
+  })
+
+  test('it does not match across schemas', () => {
+    expect(
+      isInstanceOf<CreativeWork>(creativeWorkTypes, {
+        type: 'CodeFragment'
+      })
+    ).toBe(false)
   })
 })

@@ -2497,9 +2497,33 @@ BlockContent = Union["CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "P
 
 
 """
-Union type for call CreativeWork types.
+All type schemas that are derived from CodeBlock
+"""
+CodeBlockTypes = Union["CodeBlock", "CodeChunk"]
+
+
+"""
+All type schemas that are derived from CodeFragment
+"""
+CodeFragmentTypes = Union["CodeFragment", "CodeExpression"]
+
+
+"""
+All type schemas that are derived from Code
+"""
+CodeTypes = Union["Code", "CodeBlock", "CodeChunk", "CodeExpression", "CodeFragment"]
+
+
+"""
+All type schemas that are derived from CreativeWork
 """
 CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
+
+
+"""
+All type schemas that are derived from Entity
+"""
+EntityTypes = Union["Entity", "ArraySchema", "Article", "AudioObject", "BooleanSchema", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantSchema", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumSchema", "Figure", "Function", "Heading", "ImageObject", "Include", "IntegerSchema", "Link", "List", "ListItem", "Mark", "MediaObject", "NumberSchema", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringSchema", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleSchema", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -2509,13 +2533,43 @@ InlineContent = Union[None, bool, int, float, str, "CodeFragment", "CodeExpressi
 
 
 """
+All type schemas that are derived from Mark
+"""
+MarkTypes = Union["Mark", "Delete", "Emphasis", "Quote", "Strong", "Subscript", "Superscript"]
+
+
+"""
+All type schemas that are derived from MediaObject
+"""
+MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObject"]
+
+
+"""
 Union type for all valid nodes.
 """
 Node = Union[None, bool, float, int, str, Array[Any], Dict[str, Any], "Entity"]
 
 
 """
+All type schemas that are derived from NumberSchema
+"""
+NumberSchemaTypes = Union["NumberSchema", "IntegerSchema"]
+
+
+"""
 Union type for all data schemas.
 """
 SchemaTypes = Union["ConstantSchema", "EnumSchema", "BooleanSchema", "NumberSchema", "IntegerSchema", "StringSchema", "ArraySchema", "TupleSchema"]
+
+
+"""
+All type schemas that are derived from Thing
+"""
+ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Figure", "ImageObject", "MediaObject", "Organization", "Periodical", "Person", "Product", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
+
+
+"""
+All type schemas that are derived from Variable
+"""
+VariableTypes = Union["Variable", "Parameter"]
 
