@@ -70,7 +70,7 @@ imports:
 
 ### `declares`
 
-The `declares` property lists the variables that a `CodeChunk` declares. It is used by the compiler to build a graph of the dependencies among `CodeChunk`s and `CodeExpressions`. This in turn allows for reactivity. When a user changes a chunk containing a declaration, all of the other chunks or expressions that use that variable will be rexecuted.
+The `declares` property lists the variables that a `CodeChunk` declares. It is used by the compiler to build a graph of the dependencies among `CodeChunk`s and `CodeExpressions`. This in turn allows for reactivity. When a user changes a chunk containing a declaration, all of the other chunks or expressions that use that variable will be re-executed.
 
 ```yaml import=pythonFunction
 type: CodeChunk

@@ -77,6 +77,16 @@ or ODF) you should instead export to a standalone file, like this:
 
 The file `link-ex1.out.odt` will be created.
 
+### Markdown Examples
+
+When writing Markdown examples within a Markdown file, a sequence of three (n) backticks can be escaped by enclosing it four (n+1) backticks e.g.
+
+    ````
+    ```py
+    a + 6 * b
+    ```
+    ````
+
 ## Example Metadata
 
 Each example should include a little bit about what the element has been converted to. It is also good to include a
