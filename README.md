@@ -1,7 +1,3 @@
----
-title: Stencila schemas, protocols and other specs
----
-
 # Stencila schemas, protocols and other specs
 
 ![Status](https://img.shields.io/badge/status-draft-orange.svg)

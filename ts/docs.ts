@@ -106,17 +106,13 @@ async function build(): Promise<void> {
   })
 
   const readme = (await encoda.read(
-    path.join(__dirname, '..', 'README.md')
+    path.join(DOCS_SOURCE_DIR, '..', 'README.md')
   )) as Article
+  const readmeContent = readme.content !== undefined ? readme.content : []
 
-  let indexPage: Article = {
-    ...readme,
-    content: [
-      heading(['Available Schemas'], 2),
-      schemaList,
-      ...(readme.content || [])
-    ]
-  }
+  const indexPage = article([], 'Stencila Schema', {
+    content: [...readmeContent, heading(['Available types'], 2), schemaList]
+  })
 
   await encoda.write(indexPage, path.join(DOCS_DEST_DIR, `index.html`))
 }
