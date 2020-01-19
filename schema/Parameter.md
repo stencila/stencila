@@ -6,7 +6,7 @@ title: Parameter
 
 ### Name
 
-Parameters must have a `name`.  This allows them to be referred to by other executable nodes in a document and for callers to specify which parameter of a document or function that they are referring to. So, the simplest parameter would look like this:
+Parameters must have a `name`. This allows them to be referred to by other executable nodes in a document and for callers to specify which parameter of a document or function that they are referring to. So, the simplest parameter would look like this:
 
 ```json
 {
@@ -35,11 +35,9 @@ For example,
 }
 ```
 
-
 ### Default
 
 A parameter can have a default value. Of course if you have specified a `schema` for the parameter, then the...
-
 
 ## Usage
 
@@ -64,8 +62,6 @@ Put a parameter in the `parameters` property when you want it to be invisible to
 
 ```
 
-
-
 ### Within `content`
 
 When a parameter is placed in the content of the document it becomes readable, and modifiable by the end user. This allows them to alter the parameter to see how it's value affects other content nodes in the document (e.g. a calculated value, a table, or a plot).
@@ -79,5 +75,5 @@ When defining a parameter within the content of a document it is strongly recomm
 > Discuss how different schema types are encoded as different HTML [`<input>` types](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#Form_%3Cinput%3E_types)
 
 ```html
-<input id="alpha" type="number" min="0">
+<input id="alpha" type="number" min="0" />
 ```

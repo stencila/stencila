@@ -10,7 +10,7 @@ A `CodeChunk` has two 'source' properties, `text` and `language`, from which it'
 
 ### `text` and `language`
 
-All `CodeChunk`s are required to have a `text` property, containing the actual code, and most will also specify the programming `language`. If `language` is not specified then it defaults to the language of the previous `CodeChunk` or `CodeExpression` in the document. So, if you are writing a document that only uses one language, you only need to  `For more on these properties see [`Code`](./Code.html).
+All `CodeChunk`s are required to have a `text` property, containing the actual code, and most will also specify the programming `language`. If `language` is not specified then it defaults to the language of the previous `CodeChunk` or `CodeExpression` in the document. So, if you are writing a document that only uses one language, you only need to `For more on these properties see [`Code`](./Code.html).
 
 An example of a simple `CodeChunk`,
 
@@ -116,7 +116,6 @@ Another situation is where you have a function that reads files from the file sy
 #' @reads ./data/all.csv, ./data/categories.csv
 all_data <- special_read_csv('./data/all.csv', './data/categories.csv')
 ```
-
 
 ## Execution properties
 

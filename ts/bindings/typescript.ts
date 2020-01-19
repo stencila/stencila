@@ -270,7 +270,7 @@ export const enumToType = (enu: (string | number)[]): string => {
 /**
  * Generate Type Maps for TypeScript type guards and runtime validation
  */
-export const generateTypeMaps = async () => {
+export const generateTypeMaps = async (): Promise<string> => {
   const files = await readSchemas([
     path.join(__dirname, '..', '..', 'public', '*Types.schema.json'),
     path.join(__dirname, '..', '..', 'public', 'BlockContent.schema.json'),
