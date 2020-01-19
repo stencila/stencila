@@ -1,3 +1,11 @@
+# [0.33.0](https://github.com/stencila/schema/compare/v0.32.4...v0.33.0) (2020-01-19)
+
+
+### Features
+
+* **JSON Schema:** Generate union type for descendant types ([3376d73](https://github.com/stencila/schema/commit/3376d7351f296f7ed1a4d1bfe0562bec247c6a7d))
+* **Type Guards:** Add isInstanceOf guard for matching descendant types ([9985936](https://github.com/stencila/schema/commit/9985936cdd588c30c4ae856f24b019ba6262db56)), closes [#135](https://github.com/stencila/schema/issues/135)
+
 ## [0.32.4](https://github.com/stencila/schema/compare/v0.32.3...v0.32.4) (2020-01-17)
 
 
