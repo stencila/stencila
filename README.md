@@ -5,7 +5,7 @@
 [![Netlify](https://img.shields.io/netlify/b0e0d714-29f1-4ad1-8a7d-1af7799fb85b)](https://app.netlify.com/sites/stencila-schema/deploys)
 [![Code coverage](https://codecov.io/gh/stencila/schema/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/schema)
 [![NPM](https://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema)
-[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/)
+[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://schema.stenci.la/)
 [![Community](https://img.shields.io/badge/join-community-green.svg)](https://community.stenci.la)
 [![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
 
