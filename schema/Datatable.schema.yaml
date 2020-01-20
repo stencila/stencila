@@ -2,7 +2,7 @@ title: Datatable
 '@id': stencila:Datatable
 extends: CreativeWork
 role: primary
-status: experimental
+status: unstable
 category: data
 description: A table of data.
 properties:

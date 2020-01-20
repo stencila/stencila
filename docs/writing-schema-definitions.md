@@ -76,9 +76,15 @@ A RECOMMENDED custom keyword to indicate the role of the type schema:
 
 A RECOMMENDED custom keyword to indicate the development status of a type schema e.g.
 
-- `experimental`: new types (i.e. not defined on schema.org or elsewhere) that are still under development
-- `unstable`: types that are defined elsewhere (e.g. on http://bioschemas.org) but for which the schema is still being developed
-- `stable`: types for which the schema definition can be considered stable
+- `experimental`: extension types (i.e. not defined on schema.org or elsewhere) that are still under development and for which the likelihood of breaking changes is relatively high
+- `unstable`: types that are defined elsewhere (e.g. on http://bioschemas.org) but for which the schema definition is still being developed; breaking changes are possible but less likely than `experimental` types
+- `stable`: types for which the schema definition can be considered stable and any breaking changes unlikely.
+
+If a type schema is marked as `experimental` it will not be published as being part of the schema. This is to avoid breaking changes, and thus new major version numbers, to the schema as a whole.
+
+When a type is promoted from `experimental` to `unstable` or `stable`, the change should be associated with a `feat` commit to increment the minor version number.
+
+Expansion of type schemas with new properties and other non-breaking changes is allowed. Renaming or removal of schema classes or any of their properties is considered a breaking change and should be done with careful consideration. If any such changes need to be made,they must first be marked as deprecated but not removed. Once a major version is to be released, properties and helpers marked as deprecated should be removed all at once.
 
 ## The `description` keyword
 

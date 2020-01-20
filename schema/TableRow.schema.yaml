@@ -2,7 +2,7 @@ title: TableRow
 '@id': stencila:TableRow
 extends: Entity
 role: secondary
-status: experimental
+status: unstable
 category: prose
 description: A row within a Table.
 properties:

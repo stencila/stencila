@@ -2,7 +2,7 @@ title: Figure
 '@id': stencila:Figure
 extends: CreativeWork
 role: primary
-status: experimental
+status: unstable
 category: prose
 description: Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 properties:

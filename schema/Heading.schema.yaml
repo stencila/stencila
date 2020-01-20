@@ -2,7 +2,7 @@ title: Heading
 '@id': stencila:Heading
 extends: Entity
 role: secondary
-status: experimental
+status: stable
 category: prose
 description: Heading
 properties:
