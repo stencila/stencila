@@ -10,6 +10,7 @@ properties:
     '@id': stencila:depth
     description: The depth of the heading.
     type: number
+    default: 1
     minimum: 1
     maximum: 6
   content:
@@ -19,5 +20,4 @@ properties:
     items:
       $ref: InlineContent
 required:
-  - depth
   - content
