@@ -1,3 +1,18 @@
+# [0.34.0](https://github.com/stencila/schema/compare/v0.33.0...v0.34.0) (2020-01-20)
+
+
+### Bug Fixes
+
+* **Build:** Remove internal links to experimental schemas ([b85f570](https://github.com/stencila/schema/commit/b85f570773e8f92820ea134dd0b4f2d99c2780ff))
+* **R package:** Update NAMESPACE file ([94beb2a](https://github.com/stencila/schema/commit/94beb2a24fe1567b8c445385908edee00d7d3310))
+
+
+### Features
+
+* Promote several types from experimental ([c5941e5](https://github.com/stencila/schema/commit/c5941e55bd15c197b1dd752014e6fff2e35895da))
+* **Entity, Thing:** Promote to stable ([234e320](https://github.com/stencila/schema/commit/234e32009b8319e668688f5dc4336b05282918f0))
+* **Math:** Add Math, MathFragment and MathBlock nodes ([74f4b55](https://github.com/stencila/schema/commit/74f4b55084042eb63dac0827514b6fffbc5d5e94))
+
 # [0.33.0](https://github.com/stencila/schema/compare/v0.32.4...v0.33.0) (2020-01-19)
 
 
