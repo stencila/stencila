@@ -6,9 +6,8 @@ status: unstable
 category: code
 description: An error that occured when parsing, compiling or executing some Code.
 properties:
-  kind:
-    # not called `type` because this is a conflict or not supported by Python
-    '@id': stencila:errorKind
+  errorType:
+    '@id': stencila:errorType
     description: The type of error.
     type: string
   message:
@@ -20,4 +19,4 @@ properties:
     description: Stack trace leading up to the error.
     type: string
 required:
-  - kind
+  - message
