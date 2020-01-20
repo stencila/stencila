@@ -1,0 +1,24 @@
+title: Math
+'@id': stencila:Math
+extends: Entity
+role: base
+status: unstable
+category: prose
+description: A mathematical variable or equation.
+$comment: |
+  This is a base type for `MathFragment` and `MathBlock` and should not
+  normally be instantiated.
+  This type has a similar structure and purpose to `Code` which is a base type
+  for `CodeFragment`, `CodeBlock` etc.
+properties:
+  mathLanguage:
+    '@id': schema:mathLanguage
+    description: The language used for the equation e.g tex, mathml, asciimath.
+    type: string
+    default: 'tex'
+  text:
+    '@id': schema:text
+    description: The text of the equation in the language.
+    type: string
+required:
+  - text
