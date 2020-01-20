@@ -2,7 +2,7 @@ title: TableCell
 '@id': stencila:TableCell
 extends: Entity
 role: secondary
-status: experimental
+status: unstable
 category: prose
 description: |
   A cell within a `Table`.

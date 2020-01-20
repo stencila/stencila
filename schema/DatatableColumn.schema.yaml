@@ -2,7 +2,7 @@ title: DatatableColumn
 '@id': stencila:DatatableColumn
 extends: Thing
 role: secondary
-status: experimental
+status: unstable
 category: data
 description: A column of data within a Datatable.
 properties:

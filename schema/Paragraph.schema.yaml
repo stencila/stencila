@@ -2,7 +2,7 @@ title: Paragraph
 '@id': stencila:Paragraph
 extends: Entity
 role: secondary
-status: experimental
+status: stable
 category: prose
 description: Paragraph
 properties:
