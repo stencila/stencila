@@ -1,5 +1,6 @@
 .DS_Store
 .idea
+.Rproj.user
 *.out.*
 /coverage
 /dist
@@ -7,5 +8,3 @@
 /public
 /ts/types.ts
 /ts/util/type-maps.ts
-engine/node_modules
-.Rproj.user
