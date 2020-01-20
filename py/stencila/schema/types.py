@@ -1361,6 +1361,69 @@ class ListItem(Entity):
             self.checked = checked
 
 
+class Math(Entity):
+    """A mathematical variable or equation."""
+
+    text: str
+    mathLanguage: Optional[str] = None
+
+    def __init__(
+        self,
+        text: str,
+        id: Optional[str] = None,
+        mathLanguage: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if text is not None:
+            self.text = text
+        if mathLanguage is not None:
+            self.mathLanguage = mathLanguage
+
+
+class MathBlock(Math):
+    """A block of math, e.g an equation, to be treated as block content."""
+
+    def __init__(
+        self,
+        text: str,
+        id: Optional[str] = None,
+        mathLanguage: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            text=text,
+            id=id,
+            mathLanguage=mathLanguage,
+            meta=meta
+        )
+
+
+
+class MathFragment(Math):
+    """
+    A fragment of math, e.g a variable name, to be treated as inline content.
+    """
+
+    def __init__(
+        self,
+        text: str,
+        id: Optional[str] = None,
+        mathLanguage: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            text=text,
+            id=id,
+            mathLanguage=mathLanguage,
+            meta=meta
+        )
+
+
+
 class Organization(Thing):
     """An organization such as a school, NGO, corporation, club, etc."""
 
@@ -2493,7 +2556,7 @@ class VolumeMount(Thing):
 """
 Union type for valid block content.
 """
-BlockContent = Union["CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
+BlockContent = Union["CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
 
 
 """
@@ -2523,19 +2586,25 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection"
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArraySchema", "Article", "AudioObject", "BooleanSchema", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantSchema", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumSchema", "Figure", "Function", "Heading", "ImageObject", "Include", "IntegerSchema", "Link", "List", "ListItem", "Mark", "MediaObject", "NumberSchema", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringSchema", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleSchema", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArraySchema", "Article", "AudioObject", "BooleanSchema", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantSchema", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumSchema", "Figure", "Function", "Heading", "ImageObject", "Include", "IntegerSchema", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "NumberSchema", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringSchema", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleSchema", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
 Union type for valid inline content.
 """
-InlineContent = Union[None, bool, int, float, str, "CodeFragment", "CodeExpression", "Delete", "Emphasis", "ImageObject", "Link", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup"]
+InlineContent = Union[None, bool, int, float, str, "CodeFragment", "CodeExpression", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup"]
 
 
 """
 All type schemas that are derived from Mark
 """
 MarkTypes = Union["Mark", "Delete", "Emphasis", "Quote", "Strong", "Subscript", "Superscript"]
+
+
+"""
+All type schemas that are derived from Math
+"""
+MathTypes = Union["Math", "MathBlock", "MathFragment"]
 
 
 """

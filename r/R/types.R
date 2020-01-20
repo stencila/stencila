@@ -1622,6 +1622,89 @@ ListItem <- function(
 }
 
 
+#' A mathematical variable or equation.
+#'
+#' @name Math
+#' @param text The text of the equation in the language. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param mathLanguage The language used for the equation e.g tex, mathml, asciimath.
+#' @param meta Metadata associated with this item.
+#' @seealso \code{\link{Entity}}
+#' @export
+Math <- function(
+  text,
+  id,
+  mathLanguage,
+  meta
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Math")
+  self[["text"]] <- check_property("Math", "text", TRUE, missing(text), "character", text)
+  self[["mathLanguage"]] <- check_property("Math", "mathLanguage", FALSE, missing(mathLanguage), "character", mathLanguage)
+  class(self) <- c(class(self), "Math")
+  self
+}
+
+
+#' A block of math, e.g an equation, to be treated as block content.
+#'
+#' @name MathBlock
+#' @param text The text of the equation in the language. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param mathLanguage The language used for the equation e.g tex, mathml, asciimath.
+#' @param meta Metadata associated with this item.
+#' @seealso \code{\link{Math}}
+#' @export
+MathBlock <- function(
+  text,
+  id,
+  mathLanguage,
+  meta
+){
+  self <- Math(
+    text = text,
+    id = id,
+    mathLanguage = mathLanguage,
+    meta = meta
+  )
+  self$type <- as_scalar("MathBlock")
+
+  class(self) <- c(class(self), "MathBlock")
+  self
+}
+
+
+#' A fragment of math, e.g a variable name, to be treated as inline content.
+#'
+#' @name MathFragment
+#' @param text The text of the equation in the language. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param mathLanguage The language used for the equation e.g tex, mathml, asciimath.
+#' @param meta Metadata associated with this item.
+#' @seealso \code{\link{Math}}
+#' @export
+MathFragment <- function(
+  text,
+  id,
+  mathLanguage,
+  meta
+){
+  self <- Math(
+    text = text,
+    id = id,
+    mathLanguage = mathLanguage,
+    meta = meta
+  )
+  self$type <- as_scalar("MathFragment")
+
+  class(self) <- c(class(self), "MathFragment")
+  self
+}
+
+
 #' An organization such as a school, NGO, corporation, club, etc.
 #'
 #' @name Organization
@@ -2978,7 +3061,7 @@ VolumeMount <- function(
 #' Union type for valid block content.
 #'
 #' @export
-BlockContent <- Union(CodeBlock, CodeChunk, Heading, List, ListItem, Paragraph, QuoteBlock, Table, ThematicBreak)
+BlockContent <- Union(CodeBlock, CodeChunk, Heading, List, ListItem, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
 
 
 #' All type schemas that are derived from CodeBlock
@@ -3008,19 +3091,25 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datat
 #' All type schemas that are derived from Entity
 #'
 #' @export
-EntityTypes <- Union(Entity, ArraySchema, Article, AudioObject, BooleanSchema, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantSchema, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumSchema, Figure, Function, Heading, ImageObject, Include, IntegerSchema, Link, List, ListItem, Mark, MediaObject, NumberSchema, Organization, Paragraph, Parameter, Periodical, Person, Product, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringSchema, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleSchema, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArraySchema, Article, AudioObject, BooleanSchema, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantSchema, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumSchema, Figure, Function, Heading, ImageObject, Include, IntegerSchema, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, NumberSchema, Organization, Paragraph, Parameter, Periodical, Person, Product, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringSchema, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleSchema, Variable, VideoObject, VolumeMount)
 
 
 #' Union type for valid inline content.
 #'
 #' @export
-InlineContent <- Union("NULL", "logical", "numeric", "character", CodeFragment, CodeExpression, Delete, Emphasis, ImageObject, Link, Quote, Strong, Subscript, Superscript, Cite, CiteGroup)
+InlineContent <- Union("NULL", "logical", "numeric", "character", CodeFragment, CodeExpression, Delete, Emphasis, ImageObject, Link, MathFragment, Quote, Strong, Subscript, Superscript, Cite, CiteGroup)
 
 
 #' All type schemas that are derived from Mark
 #'
 #' @export
 MarkTypes <- Union(Mark, Delete, Emphasis, Quote, Strong, Subscript, Superscript)
+
+
+#' All type schemas that are derived from Math
+#'
+#' @export
+MathTypes <- Union(Math, MathBlock, MathFragment)
 
 
 #' All type schemas that are derived from MediaObject
