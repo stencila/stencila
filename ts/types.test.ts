@@ -6,7 +6,9 @@ describe('Schema factory functions', () => {
   })
 
   test('one required property', () => {
-    expect(paragraph(['The content of the paragraph'])).toMatchObject({
+    expect(
+      paragraph({ content: ['The content of the paragraph'] })
+    ).toMatchObject({
       type: 'Paragraph',
       content: ['The content of the paragraph']
     })
@@ -14,7 +16,10 @@ describe('Schema factory functions', () => {
 
   test('more than one required property', () => {
     expect(
-      link(['The content of the link'], { target: 'https://example.org' })
+      link({
+        content: ['The content of the link'],
+        target: 'https://example.org'
+      })
     ).toMatchObject({
       type: 'Link',
       content: ['The content of the link'],

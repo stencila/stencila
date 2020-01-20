@@ -18,11 +18,11 @@ export interface Person extends Thing {
 
 /**
  * Create a `Person` node
- * @param other Other properties
- * @returns {Person}
+ * @param props Object containing Person schema properties as key/value pairs
+ * @returns {Person} Person schema node
  */
 export const person = (
-  props: OptionalProps<Person> = {}
+  props: Omit<Person, 'type'> = {}
 ): Person => ({
   ...compact(props),
   type: 'Person'

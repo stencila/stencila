@@ -2883,7 +2883,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datat
 #' All type schemas that are derived from Entity
 #'
 #' @export
-EntityTypes <- Union(Entity, ArraySchema, Article, AudioObject, BooleanSchema, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantSchema, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumSchema, Figure, Function, Heading, ImageObject, IntegerSchema, Link, List, ListItem, Mark, MediaObject, NumberSchema, Organization, Paragraph, Parameter, Periodical, Person, Product, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareSourceCode, StringSchema, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleSchema, Variable, VideoObject)
+EntityTypes <- Union(Entity, ArraySchema, Article, AudioObject, BooleanSchema, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantSchema, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumSchema, Figure, Function, Heading, ImageObject, IntegerSchema, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, NumberSchema, Organization, Paragraph, Parameter, Periodical, Person, Product, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareSourceCode, StringSchema, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleSchema, Variable, VideoObject)
 
 
 #' Union type for valid inline content.
