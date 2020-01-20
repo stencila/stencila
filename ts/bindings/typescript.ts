@@ -135,17 +135,27 @@ export const typeGenerator = (schema: Schema): string => {
       ({ name, schema }) =>
         `@param ${name} {${schemaToType(schema)}} ${schema.description}`
     ),
-    `@param options Optional properties`,
+    `@param other Other properties`,
     `@returns {${title}}`
   ])
   code += `export const ${funcName(title)} = (\n`
-  code += required
-    .map(({ name, schema }) => `  ${name}: ${schemaToType(schema)},\n`)
-    .join('')
-  code += `  options: OptionalProps<${title}> = {}\n`
+  const firstRequired = required[0]
+  if (firstRequired !== undefined)
+    code += `  ${firstRequired.name}: ${schemaToType(firstRequired.schema)},\n`
+  const propsType =
+    (required.length > 1
+      ? '{' +
+        required
+          .slice(1)
+          .map(({ name, schema }) => `${name}: ${schemaToType(schema)}`)
+          .join('; ') +
+        '} &'
+      : '') + `OptionalProps<${title}>`
+  const propsDefault = required.length < 2 ? ' = {}' : ''
+  code += `  props: ${propsType}${propsDefault}\n`
   code += `): ${title} => ({\n`
-  code += required.map(({ name }) => `  ${name},\n`).join('')
-  code += `  ...(compact(options)),\n`
+  if (firstRequired !== undefined) code += `  ${firstRequired.name},\n`
+  code += `  ...compact(props),\n`
   code += `  type: '${title}'\n`
   code += '})\n\n'
 

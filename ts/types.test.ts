@@ -1,22 +1,24 @@
-import { article, organization, person } from './types'
+import { person, paragraph, link } from './types'
 
 describe('Schema factory functions', () => {
-  test('it creates a valid Person node', () => {
+  test('no required properties', () => {
     expect(person()).toMatchObject({ type: 'Person' })
   })
 
-  test('it creates a valid Article node', () => {
+  test('one required property', () => {
+    expect(paragraph(['The content of the paragraph'])).toMatchObject({
+      type: 'Paragraph',
+      content: ['The content of the paragraph']
+    })
+  })
+
+  test('more than one required property', () => {
     expect(
-      article([organization({ name: 'Stencila' })], 'Testing')
+      link(['The content of the link'], { target: 'https://example.org' })
     ).toMatchObject({
-      type: 'Article',
-      title: 'Testing',
-      authors: [
-        {
-          name: 'Stencila',
-          type: 'Organization'
-        }
-      ]
+      type: 'Link',
+      content: ['The content of the link'],
+      target: 'https://example.org'
     })
   })
 

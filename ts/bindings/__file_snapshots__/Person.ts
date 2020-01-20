@@ -18,13 +18,13 @@ export interface Person extends Thing {
 
 /**
  * Create a `Person` node
- * @param options Optional properties
+ * @param other Other properties
  * @returns {Person}
  */
 export const person = (
-  options: OptionalProps<Person> = {}
+  props: OptionalProps<Person> = {}
 ): Person => ({
-  ...(compact(options)),
+  ...compact(props),
   type: 'Person'
 })
 
