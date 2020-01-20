@@ -1,7 +1,8 @@
 title: Thing
 '@id': schema:Thing
 extends: Entity
-status: unstable
+status: stable
+role: base
 category: metadata
 description: The most generic type of item.
 properties:
