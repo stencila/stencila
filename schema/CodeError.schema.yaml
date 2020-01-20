@@ -1,21 +1,30 @@
 title: CodeError
 '@id': stencila:CodeError
 extends: Entity
-role: secondary
+role: tertiary
 status: unstable
 category: code
-description: An error that occured when parsing, compiling or executing some Code.
+description: An error that occurred when parsing, compiling or executing a Code node.
 properties:
   errorType:
     '@id': stencila:errorType
-    description: The type of error.
+    description: The type of error e.g. "SyntaxError", "ZeroDivisionError".
+    $comment: |
+      Many languages have the concept of alternative types of errors.
+      For example, Python has various [classes of exceptions](https://docs.python.org/3/tutorial/errors.html).
+      This property is intended to be used for storing these type names as additional
+      information that maybe useful to the user attempting to resolve the error.
     type: string
-  message:
+  errorMessage:
     '@id': stencila:errorMessage
+    aliases:
+      - message
     description: The error message or brief description of the error.
     type: string
-  trace:
-    '@id': stencila:trace
+  stackTrace:
+    '@id': stencila:stackTrace
+    aliases:
+      - trace
     description: Stack trace leading up to the error.
     type: string
 required:
