@@ -5,13 +5,6 @@ role: primary
 status: unstable
 category: metadata
 description: An article, including news and scholarly articles.
-properties:
-  environment:
-    '@id': stencila:environment
-    description: |
-      The computational environment in which the document should be executed.
-    allOf:
-      - $ref: SoftwareEnvironment
 
 required:
   # See Google's list of required properties at

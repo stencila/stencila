@@ -351,6 +351,10 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
         }
       }
 
+      // Do not affect parent or other ancestors if this
+      // schema is experimental
+      if (schema.status === 'experimental') return
+
       // Add to parent's children
       parent.children =
         parent.children === undefined
