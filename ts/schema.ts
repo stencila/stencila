@@ -103,7 +103,7 @@ export async function build(cleanup = true): Promise<void> {
   await Promise.all(
     Array.from(schemas.entries()).map(async ([title, schema]) => {
       if (schema.status === 'experimental') {
-        log.warn(
+        log.info(
           `Schema "${title}" is marked as status experimental so will not be published`
         )
         return
