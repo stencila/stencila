@@ -68,13 +68,13 @@ export const is = <Ts extends Entity>(type: keyof TypeMap<Ts>) => {
  * Returns a boolean value and narrows the TypeScript inferred type to
  * the type.
  *
- * e.g. `isA(node, 'Paragraph')`
+ * e.g. `isA('Paragraph', node)`
  *
  * @param type The type to test for
  */
 export const isA = <K extends keyof Types>(
   type: K,
-  node?: Node
+  node: Node
 ): node is Types[K] => {
   return isEntity(node) && node.type === type
 }
