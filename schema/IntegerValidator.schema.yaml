@@ -1,0 +1,13 @@
+title: IntegerValidator
+'@id': stencila:IntegerValidator
+extends: NumberValidator
+role: validation
+status: unstable
+category: data
+description: A validator specifying the constraints on an integer node.
+$comment: |
+  A node will be valid if it is a number with no
+  fractional part and meets any additional constraints, such as `multipleOf`,
+  specified in the validator.
+  Analogous to the JSON Schema `integer` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
+properties: {}

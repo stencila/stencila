@@ -6,11 +6,11 @@ status: unstable
 category: data
 description: A column of data within a Datatable.
 properties:
-  schema:
-    '@id': stencila:schema
-    description: The schema to use to validate data in the column.
+  validator:
+    '@id': stencila:validator
+    description: The validator to use to validate data in the column.
     allOf:
-      - $ref: ArraySchema
+      - $ref: ArrayValidator
   values:
     '@id': stencila:values
     description: The data values of the column.

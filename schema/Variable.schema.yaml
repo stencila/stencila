@@ -14,11 +14,11 @@ properties:
     $comment: |
       This regex allows for snake_case and camelCase names but excludes
       PascalCase for parameter names.
-  schema:
-    '@id': stencila:schema
-    description: The schema that the value of the parameter will be validated against.
+  validator:
+    '@id': stencila:validator
+    description: The validator that the value of the parameter will be validated against.
     allOf:
-      - $ref: SchemaTypes
+      - $ref: ValidatorTypes
   default:
     '@id': stencila:value
     description: The default value of the parameter.

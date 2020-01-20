@@ -1,0 +1,44 @@
+title: NumberValidator
+'@id': stencila:NumberValidator
+extends: Entity
+role: validation
+status: unstable
+category: data
+description: A validator specifying the constraints on a numeric node.
+$comment: |
+  A node will be valid if it is a number that meets the `maximum`, `multipleOf` etc properties.
+  Analogous to the JSON Schema `number` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
+  Note that the `IntegerValidator` type extends this validator with the additional
+  constraint that the number have no fractional part.
+properties:
+  minimum:
+    '@id': stencila:minimum
+    type: number
+    description: The inclusive lower limit for a numeric node.
+    $comment: |
+      A number is valid if it is greater than, or exactly equal to, `minimum`.
+  exclusiveMinimum:
+    '@id': stencila:exclusiveMinimum
+    type: number
+    description: The exclusive lower limit for a numeric node.
+    $comment: |
+      A number is valid only if it has a value greater than (not equal to) `exclusiveMinimum`.
+  maximum:
+    '@id': stencila:maximum
+    type: number
+    description: The inclusive upper limit for a numeric node.
+    $comment: |
+      A number is valid if it is less than, or exactly equal to, `maximum`.
+  exclusiveMaximum:
+    '@id': stencila:exclusiveMaximum
+    type: number
+    description: The exclusive upper limit for a numeric node.
+    $comment: |
+      A number is valid only if it has a value less than (not equal to) `exclusiveMaximum`.
+  multipleOf:
+    '@id': stencila:multipleOf
+    type: number
+    exclusiveMinimum: 0
+    description: A number that a numeric node must be a multiple of.
+    $comment: |
+      A number is valid only if division by this value results in an integer.

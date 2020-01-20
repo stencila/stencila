@@ -1,11 +1,11 @@
-title: EnumSchema
-'@id': stencila:EnumSchema
+title: EnumValidator
+'@id': stencila:EnumValidator
 extends: Entity
 role: validation
 status: unstable
 category: data
 description: A schema specifying that a node must be one of several values.
-$comment: Analogous to the JSON Schema `enum` keyword.
+$comment: Analogous to the JSON Schema [`enum` keyword](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.2).
 properties:
   values:
     '@id': stencila:values

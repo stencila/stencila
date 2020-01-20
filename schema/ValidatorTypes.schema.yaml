@@ -1,0 +1,12 @@
+title: ValidatorTypes
+category: validation
+description: Union type for all validator types.
+anyOf:
+  - $ref: ConstantValidator
+  - $ref: EnumValidator
+  - $ref: BooleanValidator
+  - $ref: NumberValidator
+  - $ref: IntegerValidator
+  - $ref: StringValidator
+  - $ref: ArrayValidator
+  - $ref: TupleValidator

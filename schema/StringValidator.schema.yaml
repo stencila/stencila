@@ -1,5 +1,5 @@
-title: StringSchema
-'@id': stencila:StringSchema
+title: StringValidator
+'@id': stencila:StringValidator
 extends: Entity
 role: validation
 status: unstable
@@ -8,7 +8,7 @@ description: A schema specifying constraints on a string node.
 $comment: |
   A node will be valid against the schema if it is a string that
   meets the schemas `minLength`, `maxLength` and `pattern` properties.
-  Analogous to the JSON Schema `string` type.
+  Analogous to the JSON Schema `string` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
 properties:
   minLength:
     '@id': stencila:minLength
@@ -16,19 +16,17 @@ properties:
     minimum: 0
     description: The minimum length for a string node.
     $comment: |
-      A string is valid against the schema if its length is greater than,
-      or exactly equal to, `minLength`.
+      A string is valid if its length is greater than, or exactly equal to, `minLength`.
   maxLength:
     '@id': stencila:maxLength
     type: number
     minimum: 0
     description: The maximum length for a string node.
     $comment: |
-      A string is valid against the schema if its length is less than,
-      or exactly equal to, `maxLength`.
+      A string is valid if its length is less than, or exactly equal to, `maxLength`.
   pattern:
     '@id': stencila:pattern
     type: string
     description: A regular expression that a string node must match.
     $comment: |
-      A string is valid against the schema if it is matched by the regular expression.
+      A string is valid if it is matched by the regular expression.
