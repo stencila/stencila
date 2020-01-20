@@ -49,6 +49,10 @@ if (module.parent === null) build()
 
 /**
  * Generate `public/*.schema.json` files from `schema/*.schema.yaml` files.
+ *
+ * Does NOT write out `status: experimental` schemas, since
+ * they are likely to cause more breaking changes than `stable`, or `unstable`
+ * schemas.
  */
 export async function build(cleanup = true): Promise<void> {
   // Clean up old files
@@ -98,6 +102,12 @@ export async function build(cleanup = true): Promise<void> {
   await fs.ensureDir('public')
   await Promise.all(
     Array.from(schemas.entries()).map(async ([title, schema]) => {
+      if (schema.status === 'experimental') {
+        log.warn(
+          `Schema "${title}" is marked as status experimental so will not be published`
+        )
+        return
+      }
       const destPath = path.join(SCHEMA_DEST_DIR, title + '.schema.json')
       await fs.writeJSON(destPath, schema, { spaces: 2 })
     })
