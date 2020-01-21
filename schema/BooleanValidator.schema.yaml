@@ -1,5 +1,5 @@
-title: BooleanSchema
-'@id': stencila:BooleanSchema
+title: BooleanValidator
+'@id': stencila:BooleanValidator
 extends: Entity
 role: validation
 status: unstable
@@ -7,5 +7,5 @@ category: data
 description: A schema specifying that a node must be a boolean value.
 $comment: |
   A node will be valid against this schema if it is either `true` or `false.
-  Analagous to the JSON Schema `boolean` type.
+  Analogous to the JSON Schema `boolean` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
 properties: {}

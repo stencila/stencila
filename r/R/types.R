@@ -24,19 +24,19 @@ Entity <- function(
 }
 
 
-#' A schema specifying constraints on an array node.
+#' A validator specifying constraints on an array node.
 #'
-#' @name ArraySchema
+#' @name ArrayValidator
 #' @param contains An array node is valid if at least one of its items is valid against the `contains` schema.
 #' @param id The identifier for this item.
-#' @param items Another data schema node specifying the constraints on all items in the array.
+#' @param items Another validator node specifying the constraints on all items in the array.
 #' @param maxItems An array node is valid if its size is less than, or equal to, this value.
 #' @param meta Metadata associated with this item.
 #' @param minItems An array node is valid if its size is greater than, or equal to, this value.
 #' @param uniqueItems A flag to indicate that each value in the array should be unique.
 #' @seealso \code{\link{Entity}}
 #' @export
-ArraySchema <- function(
+ArrayValidator <- function(
   contains,
   id,
   items,
@@ -49,25 +49,25 @@ ArraySchema <- function(
     id = id,
     meta = meta
   )
-  self$type <- as_scalar("ArraySchema")
-  self[["contains"]] <- check_property("ArraySchema", "contains", FALSE, missing(contains), SchemaTypes, contains)
-  self[["items"]] <- check_property("ArraySchema", "items", FALSE, missing(items), SchemaTypes, items)
-  self[["maxItems"]] <- check_property("ArraySchema", "maxItems", FALSE, missing(maxItems), "numeric", maxItems)
-  self[["minItems"]] <- check_property("ArraySchema", "minItems", FALSE, missing(minItems), "numeric", minItems)
-  self[["uniqueItems"]] <- check_property("ArraySchema", "uniqueItems", FALSE, missing(uniqueItems), "logical", uniqueItems)
-  class(self) <- c(class(self), "ArraySchema")
+  self$type <- as_scalar("ArrayValidator")
+  self[["contains"]] <- check_property("ArrayValidator", "contains", FALSE, missing(contains), ValidatorTypes, contains)
+  self[["items"]] <- check_property("ArrayValidator", "items", FALSE, missing(items), ValidatorTypes, items)
+  self[["maxItems"]] <- check_property("ArrayValidator", "maxItems", FALSE, missing(maxItems), "numeric", maxItems)
+  self[["minItems"]] <- check_property("ArrayValidator", "minItems", FALSE, missing(minItems), "numeric", minItems)
+  self[["uniqueItems"]] <- check_property("ArrayValidator", "uniqueItems", FALSE, missing(uniqueItems), "logical", uniqueItems)
+  class(self) <- c(class(self), "ArrayValidator")
   self
 }
 
 
 #' A schema specifying that a node must be a boolean value.
 #'
-#' @name BooleanSchema
+#' @name BooleanValidator
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Entity}}
 #' @export
-BooleanSchema <- function(
+BooleanValidator <- function(
   id,
   meta
 ){
@@ -75,9 +75,9 @@ BooleanSchema <- function(
     id = id,
     meta = meta
   )
-  self$type <- as_scalar("BooleanSchema")
+  self$type <- as_scalar("BooleanValidator")
 
-  class(self) <- c(class(self), "BooleanSchema")
+  class(self) <- c(class(self), "BooleanValidator")
   self
 }
 
@@ -351,15 +351,15 @@ CodeError <- function(
 }
 
 
-#' A schema specifying a constant value that a node must have.
+#' A validator specifying a constant value that a node must have.
 #'
-#' @name ConstantSchema
+#' @name ConstantValidator
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param value The value that the node must have.
 #' @seealso \code{\link{Entity}}
 #' @export
-ConstantSchema <- function(
+ConstantValidator <- function(
   id,
   meta,
   value
@@ -368,9 +368,9 @@ ConstantSchema <- function(
     id = id,
     meta = meta
   )
-  self$type <- as_scalar("ConstantSchema")
-  self[["value"]] <- check_property("ConstantSchema", "value", FALSE, missing(value), Node, value)
-  class(self) <- c(class(self), "ConstantSchema")
+  self$type <- as_scalar("ConstantValidator")
+  self[["value"]] <- check_property("ConstantValidator", "value", FALSE, missing(value), Node, value)
+  class(self) <- c(class(self), "ConstantValidator")
   self
 }
 
@@ -1125,8 +1125,8 @@ AudioObject <- function(
 #' @param description A description of the item.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
-#' @param schema The schema to use to validate data in the column.
 #' @param url The URL of the item.
+#' @param validator The validator to use to validate data in the column.
 #' @seealso \code{\link{Thing}}
 #' @export
 DatatableColumn <- function(
@@ -1136,8 +1136,8 @@ DatatableColumn <- function(
   description,
   id,
   meta,
-  schema,
-  url
+  url,
+  validator
 ){
   self <- Thing(
     name = name,
@@ -1150,7 +1150,7 @@ DatatableColumn <- function(
   self$type <- as_scalar("DatatableColumn")
   self[["name"]] <- check_property("DatatableColumn", "name", TRUE, missing(name), "character", name)
   self[["values"]] <- check_property("DatatableColumn", "values", TRUE, missing(values), Array(Any()), values)
-  self[["schema"]] <- check_property("DatatableColumn", "schema", FALSE, missing(schema), ArraySchema, schema)
+  self[["validator"]] <- check_property("DatatableColumn", "validator", FALSE, missing(validator), ArrayValidator, validator)
   class(self) <- c(class(self), "DatatableColumn")
   self
 }
@@ -1158,13 +1158,13 @@ DatatableColumn <- function(
 
 #' A schema specifying that a node must be one of several values.
 #'
-#' @name EnumSchema
+#' @name EnumValidator
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param values A node is valid if it is equal to any of these values.
 #' @seealso \code{\link{Entity}}
 #' @export
-EnumSchema <- function(
+EnumValidator <- function(
   id,
   meta,
   values
@@ -1173,9 +1173,9 @@ EnumSchema <- function(
     id = id,
     meta = meta
   )
-  self$type <- as_scalar("EnumSchema")
-  self[["values"]] <- check_property("EnumSchema", "values", FALSE, missing(values), Array(Node), values)
-  class(self) <- c(class(self), "EnumSchema")
+  self$type <- as_scalar("EnumValidator")
+  self[["values"]] <- check_property("EnumValidator", "values", FALSE, missing(values), Array(Node), values)
+  class(self) <- c(class(self), "EnumValidator")
   self
 }
 
@@ -1291,7 +1291,7 @@ Function <- function(
   self$type <- as_scalar("Function")
   self[["name"]] <- check_property("Function", "name", TRUE, missing(name), "character", name)
   self[["parameters"]] <- check_property("Function", "parameters", FALSE, missing(parameters), Array(Parameter), parameters)
-  self[["returns"]] <- check_property("Function", "returns", FALSE, missing(returns), SchemaTypes, returns)
+  self[["returns"]] <- check_property("Function", "returns", FALSE, missing(returns), ValidatorTypes, returns)
   class(self) <- c(class(self), "Function")
   self
 }
@@ -1426,9 +1426,9 @@ ImageObject <- function(
 }
 
 
-#' A schema specifying the constraints on a numeric node.
+#' A validator specifying the constraints on a numeric node.
 #'
-#' @name NumberSchema
+#' @name NumberValidator
 #' @param exclusiveMaximum The exclusive upper limit for a numeric node.
 #' @param exclusiveMinimum The exclusive lower limit for a numeric node.
 #' @param id The identifier for this item.
@@ -1438,7 +1438,7 @@ ImageObject <- function(
 #' @param multipleOf A number that a numeric node must be a multiple of.
 #' @seealso \code{\link{Entity}}
 #' @export
-NumberSchema <- function(
+NumberValidator <- function(
   exclusiveMaximum,
   exclusiveMinimum,
   id,
@@ -1451,20 +1451,20 @@ NumberSchema <- function(
     id = id,
     meta = meta
   )
-  self$type <- as_scalar("NumberSchema")
-  self[["exclusiveMaximum"]] <- check_property("NumberSchema", "exclusiveMaximum", FALSE, missing(exclusiveMaximum), "numeric", exclusiveMaximum)
-  self[["exclusiveMinimum"]] <- check_property("NumberSchema", "exclusiveMinimum", FALSE, missing(exclusiveMinimum), "numeric", exclusiveMinimum)
-  self[["maximum"]] <- check_property("NumberSchema", "maximum", FALSE, missing(maximum), "numeric", maximum)
-  self[["minimum"]] <- check_property("NumberSchema", "minimum", FALSE, missing(minimum), "numeric", minimum)
-  self[["multipleOf"]] <- check_property("NumberSchema", "multipleOf", FALSE, missing(multipleOf), "numeric", multipleOf)
-  class(self) <- c(class(self), "NumberSchema")
+  self$type <- as_scalar("NumberValidator")
+  self[["exclusiveMaximum"]] <- check_property("NumberValidator", "exclusiveMaximum", FALSE, missing(exclusiveMaximum), "numeric", exclusiveMaximum)
+  self[["exclusiveMinimum"]] <- check_property("NumberValidator", "exclusiveMinimum", FALSE, missing(exclusiveMinimum), "numeric", exclusiveMinimum)
+  self[["maximum"]] <- check_property("NumberValidator", "maximum", FALSE, missing(maximum), "numeric", maximum)
+  self[["minimum"]] <- check_property("NumberValidator", "minimum", FALSE, missing(minimum), "numeric", minimum)
+  self[["multipleOf"]] <- check_property("NumberValidator", "multipleOf", FALSE, missing(multipleOf), "numeric", multipleOf)
+  class(self) <- c(class(self), "NumberValidator")
   self
 }
 
 
-#' A schema specifying the constraints on an integer node.
+#' A validator specifying the constraints on an integer node.
 #'
-#' @name IntegerSchema
+#' @name IntegerValidator
 #' @param exclusiveMaximum The exclusive upper limit for a numeric node.
 #' @param exclusiveMinimum The exclusive lower limit for a numeric node.
 #' @param id The identifier for this item.
@@ -1472,9 +1472,9 @@ NumberSchema <- function(
 #' @param meta Metadata associated with this item.
 #' @param minimum The inclusive lower limit for a numeric node.
 #' @param multipleOf A number that a numeric node must be a multiple of.
-#' @seealso \code{\link{NumberSchema}}
+#' @seealso \code{\link{NumberValidator}}
 #' @export
-IntegerSchema <- function(
+IntegerValidator <- function(
   exclusiveMaximum,
   exclusiveMinimum,
   id,
@@ -1483,7 +1483,7 @@ IntegerSchema <- function(
   minimum,
   multipleOf
 ){
-  self <- NumberSchema(
+  self <- NumberValidator(
     exclusiveMaximum = exclusiveMaximum,
     exclusiveMinimum = exclusiveMinimum,
     id = id,
@@ -1492,9 +1492,9 @@ IntegerSchema <- function(
     minimum = minimum,
     multipleOf = multipleOf
   )
-  self$type <- as_scalar("IntegerSchema")
+  self$type <- as_scalar("IntegerValidator")
 
-  class(self) <- c(class(self), "IntegerSchema")
+  class(self) <- c(class(self), "IntegerValidator")
   self
 }
 
@@ -1755,7 +1755,7 @@ Paragraph <- function(
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param required Is this parameter required, if not it should have a default or default is assumed to be null.
-#' @param schema The schema that the value of the parameter will be validated against.
+#' @param validator The validator that the value of the parameter will be validated against.
 #' @seealso \code{\link{Entity}}
 #' @export
 Variable <- function(
@@ -1764,7 +1764,7 @@ Variable <- function(
   id,
   meta,
   required,
-  schema
+  validator
 ){
   self <- Entity(
     id = id,
@@ -1774,7 +1774,7 @@ Variable <- function(
   self[["name"]] <- check_property("Variable", "name", TRUE, missing(name), "character", name)
   self[["default"]] <- check_property("Variable", "default", FALSE, missing(default), Node, default)
   self[["required"]] <- check_property("Variable", "required", FALSE, missing(required), "logical", required)
-  self[["schema"]] <- check_property("Variable", "schema", FALSE, missing(schema), SchemaTypes, schema)
+  self[["validator"]] <- check_property("Variable", "validator", FALSE, missing(validator), ValidatorTypes, validator)
   class(self) <- c(class(self), "Variable")
   self
 }
@@ -1790,7 +1790,7 @@ Variable <- function(
 #' @param meta Metadata associated with this item.
 #' @param repeats Indicates that this parameter is variadic and can accept multiple arguments.
 #' @param required Is this parameter required, if not it should have a default or default is assumed to be null.
-#' @param schema The schema that the value of the parameter will be validated against.
+#' @param validator The validator that the value of the parameter will be validated against.
 #' @seealso \code{\link{Variable}}
 #' @export
 Parameter <- function(
@@ -1801,13 +1801,13 @@ Parameter <- function(
   meta,
   repeats,
   required,
-  schema
+  validator
 ){
   self <- Variable(
     name = name,
     id = id,
     meta = meta,
-    schema = schema
+    validator = validator
   )
   self$type <- as_scalar("Parameter")
   self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), Node, default)
@@ -2448,7 +2448,7 @@ SoftwareSourceCode <- function(
 
 #' A schema specifying constraints on a string node.
 #'
-#' @name StringSchema
+#' @name StringValidator
 #' @param id The identifier for this item.
 #' @param maxLength The maximum length for a string node.
 #' @param meta Metadata associated with this item.
@@ -2456,7 +2456,7 @@ SoftwareSourceCode <- function(
 #' @param pattern A regular expression that a string node must match.
 #' @seealso \code{\link{Entity}}
 #' @export
-StringSchema <- function(
+StringValidator <- function(
   id,
   maxLength,
   meta,
@@ -2467,11 +2467,11 @@ StringSchema <- function(
     id = id,
     meta = meta
   )
-  self$type <- as_scalar("StringSchema")
-  self[["maxLength"]] <- check_property("StringSchema", "maxLength", FALSE, missing(maxLength), "numeric", maxLength)
-  self[["minLength"]] <- check_property("StringSchema", "minLength", FALSE, missing(minLength), "numeric", minLength)
-  self[["pattern"]] <- check_property("StringSchema", "pattern", FALSE, missing(pattern), "character", pattern)
-  class(self) <- c(class(self), "StringSchema")
+  self$type <- as_scalar("StringValidator")
+  self[["maxLength"]] <- check_property("StringValidator", "maxLength", FALSE, missing(maxLength), "numeric", maxLength)
+  self[["minLength"]] <- check_property("StringValidator", "minLength", FALSE, missing(minLength), "numeric", minLength)
+  self[["pattern"]] <- check_property("StringValidator", "pattern", FALSE, missing(pattern), "character", pattern)
+  class(self) <- c(class(self), "StringValidator")
   self
 }
 
@@ -2720,15 +2720,15 @@ ThematicBreak <- function(
 }
 
 
-#' A schema specifying constraints on an array of heterogeneous items.
+#' A validator specifying constraints on an array of heterogeneous items.
 #'
-#' @name TupleSchema
+#' @name TupleValidator
 #' @param id The identifier for this item.
-#' @param items An array of schemas specifying the constraints on each successive item in the array.
+#' @param items An array of validators specifying the constraints on each successive item in the array.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Entity}}
 #' @export
-TupleSchema <- function(
+TupleValidator <- function(
   id,
   items,
   meta
@@ -2737,9 +2737,9 @@ TupleSchema <- function(
     id = id,
     meta = meta
   )
-  self$type <- as_scalar("TupleSchema")
-  self[["items"]] <- check_property("TupleSchema", "items", FALSE, missing(items), Array(SchemaTypes), items)
-  class(self) <- c(class(self), "TupleSchema")
+  self$type <- as_scalar("TupleValidator")
+  self[["items"]] <- check_property("TupleValidator", "items", FALSE, missing(items), Array(ValidatorTypes), items)
+  class(self) <- c(class(self), "TupleValidator")
   self
 }
 
@@ -2883,7 +2883,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datat
 #' All type schemas that are derived from Entity
 #'
 #' @export
-EntityTypes <- Union(Entity, ArraySchema, Article, AudioObject, BooleanSchema, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantSchema, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumSchema, Figure, Function, Heading, ImageObject, IntegerSchema, Link, List, ListItem, Mark, MediaObject, NumberSchema, Organization, Paragraph, Parameter, Periodical, Person, Product, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareSourceCode, StringSchema, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleSchema, Variable, VideoObject)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Heading, ImageObject, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, Product, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject)
 
 
 #' Union type for valid inline content.
@@ -2916,22 +2916,22 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 Node <- Union("NULL", "logical", "numeric", "character", Array(Any()), "list", Entity)
 
 
-#' All type schemas that are derived from NumberSchema
+#' All type schemas that are derived from NumberValidator
 #'
 #' @export
-NumberSchemaTypes <- Union(NumberSchema, IntegerSchema)
-
-
-#' Union type for all data schemas.
-#'
-#' @export
-SchemaTypes <- Union(ConstantSchema, EnumSchema, BooleanSchema, NumberSchema, IntegerSchema, StringSchema, ArraySchema, TupleSchema)
+NumberValidatorTypes <- Union(NumberValidator, IntegerValidator)
 
 
 #' All type schemas that are derived from Thing
 #'
 #' @export
 ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, Figure, ImageObject, MediaObject, Organization, Periodical, Person, Product, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
+
+
+#' Union type for all validator types.
+#'
+#' @export
+ValidatorTypes <- Union(ConstantValidator, EnumValidator, BooleanValidator, NumberValidator, IntegerValidator, StringValidator, ArrayValidator, TupleValidator)
 
 
 #' All type schemas that are derived from Variable

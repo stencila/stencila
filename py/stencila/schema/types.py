@@ -36,20 +36,20 @@ class Entity:
             self.meta = meta
 
 
-class ArraySchema(Entity):
-    """A schema specifying constraints on an array node."""
+class ArrayValidator(Entity):
+    """A validator specifying constraints on an array node."""
 
-    contains: Optional["SchemaTypes"] = None
-    items: Optional["SchemaTypes"] = None
+    contains: Optional["ValidatorTypes"] = None
+    items: Optional["ValidatorTypes"] = None
     maxItems: Optional[float] = None
     minItems: Optional[float] = None
     uniqueItems: Optional[bool] = None
 
     def __init__(
         self,
-        contains: Optional["SchemaTypes"] = None,
+        contains: Optional["ValidatorTypes"] = None,
         id: Optional[str] = None,
-        items: Optional["SchemaTypes"] = None,
+        items: Optional["ValidatorTypes"] = None,
         maxItems: Optional[float] = None,
         meta: Optional[Dict[str, Any]] = None,
         minItems: Optional[float] = None,
@@ -71,7 +71,7 @@ class ArraySchema(Entity):
             self.uniqueItems = uniqueItems
 
 
-class BooleanSchema(Entity):
+class BooleanValidator(Entity):
     """A schema specifying that a node must be a boolean value."""
 
     def __init__(
@@ -322,8 +322,8 @@ class CodeError(Entity):
             self.trace = trace
 
 
-class ConstantSchema(Entity):
-    """A schema specifying a constant value that a node must have."""
+class ConstantValidator(Entity):
+    """A validator specifying a constant value that a node must have."""
 
     value: Optional["Node"] = None
 
@@ -943,7 +943,7 @@ class DatatableColumn(Thing):
 
     name: str
     values: Array[Any]
-    schema: Optional["ArraySchema"] = None
+    validator: Optional["ArrayValidator"] = None
 
     def __init__(
         self,
@@ -953,8 +953,8 @@ class DatatableColumn(Thing):
         description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        schema: Optional["ArraySchema"] = None,
-        url: Optional[str] = None
+        url: Optional[str] = None,
+        validator: Optional["ArrayValidator"] = None
     ) -> None:
         super().__init__(
             name=name,
@@ -968,11 +968,11 @@ class DatatableColumn(Thing):
             self.name = name
         if values is not None:
             self.values = values
-        if schema is not None:
-            self.schema = schema
+        if validator is not None:
+            self.validator = validator
 
 
-class EnumSchema(Entity):
+class EnumValidator(Entity):
     """A schema specifying that a node must be one of several values."""
 
     values: Optional[Array["Node"]] = None
@@ -1065,7 +1065,7 @@ class Function(Entity):
 
     name: str
     parameters: Optional[Array["Parameter"]] = None
-    returns: Optional["SchemaTypes"] = None
+    returns: Optional["ValidatorTypes"] = None
 
     def __init__(
         self,
@@ -1073,7 +1073,7 @@ class Function(Entity):
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         parameters: Optional[Array["Parameter"]] = None,
-        returns: Optional["SchemaTypes"] = None
+        returns: Optional["ValidatorTypes"] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1183,8 +1183,8 @@ class ImageObject(MediaObject):
             self.thumbnail = thumbnail
 
 
-class NumberSchema(Entity):
-    """A schema specifying the constraints on a numeric node."""
+class NumberValidator(Entity):
+    """A validator specifying the constraints on a numeric node."""
 
     exclusiveMaximum: Optional[float] = None
     exclusiveMinimum: Optional[float] = None
@@ -1218,8 +1218,8 @@ class NumberSchema(Entity):
             self.multipleOf = multipleOf
 
 
-class IntegerSchema(NumberSchema):
-    """A schema specifying the constraints on an integer node."""
+class IntegerValidator(NumberValidator):
+    """A validator specifying the constraints on an integer node."""
 
     def __init__(
         self,
@@ -1462,7 +1462,7 @@ class Variable(Entity):
     name: str
     default: Optional["Node"] = None
     required: Optional[bool] = None
-    schema: Optional["SchemaTypes"] = None
+    validator: Optional["ValidatorTypes"] = None
 
     def __init__(
         self,
@@ -1471,7 +1471,7 @@ class Variable(Entity):
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         required: Optional[bool] = None,
-        schema: Optional["SchemaTypes"] = None
+        validator: Optional["ValidatorTypes"] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1483,8 +1483,8 @@ class Variable(Entity):
             self.default = default
         if required is not None:
             self.required = required
-        if schema is not None:
-            self.schema = schema
+        if validator is not None:
+            self.validator = validator
 
 
 class Parameter(Variable):
@@ -1504,13 +1504,13 @@ class Parameter(Variable):
         meta: Optional[Dict[str, Any]] = None,
         repeats: Optional[bool] = None,
         required: Optional[bool] = None,
-        schema: Optional["SchemaTypes"] = None
+        validator: Optional["ValidatorTypes"] = None
     ) -> None:
         super().__init__(
             name=name,
             id=id,
             meta=meta,
-            schema=schema
+            validator=validator
         )
         if default is not None:
             self.default = default
@@ -2035,7 +2035,7 @@ class SoftwareSourceCode(CreativeWork):
             self.targetProducts = targetProducts
 
 
-class StringSchema(Entity):
+class StringValidator(Entity):
     """A schema specifying constraints on a string node."""
 
     maxLength: Optional[float] = None
@@ -2248,15 +2248,17 @@ class ThematicBreak(Entity):
 
 
 
-class TupleSchema(Entity):
-    """A schema specifying constraints on an array of heterogeneous items."""
+class TupleValidator(Entity):
+    """
+    A validator specifying constraints on an array of heterogeneous items.
+    """
 
-    items: Optional[Array["SchemaTypes"]] = None
+    items: Optional[Array["ValidatorTypes"]] = None
 
     def __init__(
         self,
         id: Optional[str] = None,
-        items: Optional[Array["SchemaTypes"]] = None,
+        items: Optional[Array["ValidatorTypes"]] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
@@ -2377,7 +2379,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection"
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArraySchema", "Article", "AudioObject", "BooleanSchema", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantSchema", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumSchema", "Figure", "Function", "Heading", "ImageObject", "IntegerSchema", "Link", "List", "ListItem", "Mark", "MediaObject", "NumberSchema", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareSourceCode", "StringSchema", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleSchema", "Variable", "VideoObject"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Heading", "ImageObject", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject"]
 
 
 """
@@ -2411,21 +2413,21 @@ Node = Union[None, bool, float, int, str, Array[Any], Dict[str, Any], "Entity"]
 
 
 """
-All type schemas that are derived from NumberSchema
+All type schemas that are derived from NumberValidator
 """
-NumberSchemaTypes = Union["NumberSchema", "IntegerSchema"]
-
-
-"""
-Union type for all data schemas.
-"""
-SchemaTypes = Union["ConstantSchema", "EnumSchema", "BooleanSchema", "NumberSchema", "IntegerSchema", "StringSchema", "ArraySchema", "TupleSchema"]
+NumberValidatorTypes = Union["NumberValidator", "IntegerValidator"]
 
 
 """
 All type schemas that are derived from Thing
 """
 ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Figure", "ImageObject", "MediaObject", "Organization", "Periodical", "Person", "Product", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
+
+
+"""
+Union type for all validator types.
+"""
+ValidatorTypes = Union["ConstantValidator", "EnumValidator", "BooleanValidator", "NumberValidator", "IntegerValidator", "StringValidator", "ArrayValidator", "TupleValidator"]
 
 
 """
