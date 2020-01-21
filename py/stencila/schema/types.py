@@ -2237,7 +2237,7 @@ class Table(CreativeWork):
 class TableCell(Entity):
     """A cell within a `Table`."""
 
-    content: Array["BlockContent"]
+    content: Array["Node"]
     cellType: Optional["ECellType"] = None
     colspan: Optional[int] = None
     name: Optional[str] = None
@@ -2245,7 +2245,7 @@ class TableCell(Entity):
 
     def __init__(
         self,
-        content: Array["BlockContent"],
+        content: Array["Node"],
         cellType: Optional["ECellType"] = None,
         colspan: Optional[int] = None,
         id: Optional[str] = None,

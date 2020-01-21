@@ -48,6 +48,6 @@ properties:
     description: Contents of the table cell.
     type: array
     items:
-      $ref: BlockContent
+      $ref: Node
 required:
   - content
