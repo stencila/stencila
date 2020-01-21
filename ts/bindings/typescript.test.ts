@@ -18,9 +18,6 @@ import {
 } from './typescript'
 
 test('generators', async () => {
-  expect(typeGenerator(await schema('Thing.schema.json'))).toMatchFile(
-    snapshot(__dirname, 'Thing.ts')
-  )
   expect(typeGenerator(await schema('Person.schema.json'))).toMatchFile(
     snapshot(__dirname, 'Person.ts')
   )

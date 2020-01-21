@@ -55,20 +55,6 @@ const compact = <O extends object>(o: O): O =>
     {} as O
   )
 
-// Create a type consisting of just the optional property keys
-type OptionalKeys<T extends object> = Exclude<{
-  [K in keyof T]: T extends Record<K, T[K]>
-    ? never
-    : K
-}[keyof T], undefined>
-
-// Extract just the optional properties of a Schema.
-// This is used for the options argument in the factory functions
-type OptionalProps<T extends object> = Partial<{
-  [K in OptionalKeys<T>]: T[K]
-}>
-
-
 ${typesInterface(schemas)}
 
 ${typesCode}
@@ -131,21 +117,15 @@ export const typeGenerator = (schema: Schema): string => {
 
   // Factory function
   code += docComment(`Create a \`${title}\` node`, [
-    ...required.map(
-      ({ name, schema }) =>
-        `@param ${name} {${schemaToType(schema)}} ${schema.description}`
-    ),
-    `@param options Optional properties`,
-    `@returns {${title}}`
+    `@param props Object containing ${title} schema properties as key/value pairs`,
+    `@returns {${title}} ${title} schema node`
   ])
   code += `export const ${funcName(title)} = (\n`
-  code += required
-    .map(({ name, schema }) => `  ${name}: ${schemaToType(schema)},\n`)
-    .join('')
-  code += `  options: OptionalProps<${title}> = {}\n`
+  const propsType = `Omit<${title}, 'type'>`
+  const propsDefault = required.length <= 0 ? ' = {}' : ''
+  code += `  props: ${propsType}${propsDefault}\n`
   code += `): ${title} => ({\n`
-  code += required.map(({ name }) => `  ${name},\n`).join('')
-  code += `  ...(compact(options)),\n`
+  code += `  ...compact(props),\n`
   code += `  type: '${title}'\n`
   code += '})\n\n'
 
