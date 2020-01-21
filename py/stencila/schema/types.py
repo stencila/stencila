@@ -296,30 +296,32 @@ class CodeExpression(CodeFragment):
 
 
 class CodeError(Entity):
-    """An error that occured when parsing, compiling or executing some Code."""
+    """
+    An error that occurred when parsing, compiling or executing a Code node.
+    """
 
-    kind: str
-    message: Optional[str] = None
-    trace: Optional[str] = None
+    errorMessage: Optional[str] = None
+    errorType: Optional[str] = None
+    stackTrace: Optional[str] = None
 
     def __init__(
         self,
-        kind: str,
+        errorMessage: Optional[str] = None,
+        errorType: Optional[str] = None,
         id: Optional[str] = None,
-        message: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        trace: Optional[str] = None
+        stackTrace: Optional[str] = None
     ) -> None:
         super().__init__(
             id=id,
             meta=meta
         )
-        if kind is not None:
-            self.kind = kind
-        if message is not None:
-            self.message = message
-        if trace is not None:
-            self.trace = trace
+        if errorMessage is not None:
+            self.errorMessage = errorMessage
+        if errorType is not None:
+            self.errorType = errorType
+        if stackTrace is not None:
+            self.stackTrace = stackTrace
 
 
 class ConstantValidator(Entity):
@@ -612,14 +614,10 @@ class CreativeWork(Thing):
 class Article(CreativeWork):
     """An article, including news and scholarly articles."""
 
-    authors: Array[Union["Person", "Organization"]]
-    title: Union[str, Array["Node"]]
-
     def __init__(
         self,
-        authors: Array[Union["Person", "Organization"]],
-        title: Union[str, Array["Node"]],
         alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
@@ -637,13 +635,13 @@ class Article(CreativeWork):
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         text: Optional[str] = None,
+        title: Optional[Union[str, Array["Node"]]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
         super().__init__(
-            authors=authors,
-            title=title,
             alternateNames=alternateNames,
+            authors=authors,
             content=content,
             dateCreated=dateCreated,
             dateModified=dateModified,
@@ -661,13 +659,11 @@ class Article(CreativeWork):
             publisher=publisher,
             references=references,
             text=text,
+            title=title,
             url=url,
             version=version
         )
-        if authors is not None:
-            self.authors = authors
-        if title is not None:
-            self.title = title
+
 
 
 class Collection(CreativeWork):
@@ -1063,15 +1059,15 @@ class Function(Entity):
     certain type.
     """
 
-    name: str
+    name: Optional[str] = None
     parameters: Optional[Array["Parameter"]] = None
     returns: Optional["ValidatorTypes"] = None
 
     def __init__(
         self,
-        name: str,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
         parameters: Optional[Array["Parameter"]] = None,
         returns: Optional["ValidatorTypes"] = None
     ) -> None:
@@ -1091,12 +1087,12 @@ class Heading(Entity):
     """Heading"""
 
     content: Array["InlineContent"]
-    depth: float
+    depth: Optional[float] = None
 
     def __init__(
         self,
         content: Array["InlineContent"],
-        depth: float,
+        depth: Optional[float] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
@@ -2379,7 +2375,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection"
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArraySchema", "Article", "AudioObject", "BooleanSchema", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantSchema", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumSchema", "Figure", "Function", "Heading", "ImageObject", "IntegerSchema", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "NumberSchema", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareSourceCode", "StringSchema", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleSchema", "Variable", "VideoObject"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Heading", "ImageObject", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject"]
 
 
 """
