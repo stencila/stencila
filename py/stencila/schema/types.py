@@ -182,16 +182,16 @@ class Code(Entity):
 class CodeBlock(Code):
     """A code block."""
 
-    export: Optional[str] = None
-    import: Optional[str] = None
+    exportFrom: Optional[str] = None
+    importTo: Optional[str] = None
 
     def __init__(
         self,
         text: str,
-        export: Optional[str] = None,
+        exportFrom: Optional[str] = None,
         format: Optional[str] = None,
         id: Optional[str] = None,
-        import: Optional[str] = None,
+        importTo: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         programmingLanguage: Optional[str] = None
     ) -> None:
@@ -202,10 +202,10 @@ class CodeBlock(Code):
             meta=meta,
             programmingLanguage=programmingLanguage
         )
-        if export is not None:
-            self.export = export
-        if import is not None:
-            self.import = import
+        if exportFrom is not None:
+            self.exportFrom = exportFrom
+        if importTo is not None:
+            self.importTo = importTo
 
 
 class CodeChunk(CodeBlock):
@@ -229,10 +229,10 @@ class CodeChunk(CodeBlock):
         declares: Optional[Array[Union[str, "Variable", "Function"]]] = None,
         duration: Optional[float] = None,
         errors: Optional[Array["CodeError"]] = None,
-        export: Optional[str] = None,
+        exportFrom: Optional[str] = None,
         format: Optional[str] = None,
         id: Optional[str] = None,
-        import: Optional[str] = None,
+        importTo: Optional[str] = None,
         imports: Optional[Array[Union[str, "SoftwareSourceCode", "SoftwareApplication"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         outputs: Optional[Array["Node"]] = None,
@@ -242,10 +242,10 @@ class CodeChunk(CodeBlock):
     ) -> None:
         super().__init__(
             text=text,
-            export=export,
+            exportFrom=exportFrom,
             format=format,
             id=id,
-            import=import,
+            importTo=importTo,
             meta=meta,
             programmingLanguage=programmingLanguage
         )
@@ -1301,8 +1301,8 @@ class Link(Entity):
 
     content: Array["InlineContent"]
     target: str
-    export: Optional[str] = None
-    import: Optional[str] = None
+    exportFrom: Optional[str] = None
+    importTo: Optional[str] = None
     relation: Optional[str] = None
     title: Optional[str] = None
 
@@ -1310,9 +1310,9 @@ class Link(Entity):
         self,
         content: Array["InlineContent"],
         target: str,
-        export: Optional[str] = None,
+        exportFrom: Optional[str] = None,
         id: Optional[str] = None,
-        import: Optional[str] = None,
+        importTo: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         relation: Optional[str] = None,
         title: Optional[str] = None
@@ -1325,10 +1325,10 @@ class Link(Entity):
             self.content = content
         if target is not None:
             self.target = target
-        if export is not None:
-            self.export = export
-        if import is not None:
-            self.import = import
+        if exportFrom is not None:
+            self.exportFrom = exportFrom
+        if importTo is not None:
+            self.importTo = importTo
         if relation is not None:
             self.relation = relation
         if title is not None:

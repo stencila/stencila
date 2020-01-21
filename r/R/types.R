@@ -185,20 +185,20 @@ Code <- function(
 #'
 #' @name CodeBlock
 #' @param text The text of the code. \bold{Required}.
-#' @param export A compilation directive giving the name of the variable to export into the content of the code block.
+#' @param exportFrom A compilation directive giving the name of the variable to export into the content of the code block.
 #' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
-#' @param import A compilation directive giving the name of the variable to import the content of the code block as.
+#' @param importTo A compilation directive giving the name of the variable to import the content of the code block as.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
 #' @seealso \code{\link{Code}}
 #' @export
 CodeBlock <- function(
   text,
-  export,
+  exportFrom,
   format,
   id,
-  import,
+  importTo,
   meta,
   programmingLanguage
 ){
@@ -210,8 +210,8 @@ CodeBlock <- function(
     programmingLanguage = programmingLanguage
   )
   self$type <- as_scalar("CodeBlock")
-  self[["export"]] <- check_property("CodeBlock", "export", FALSE, missing(export), "character", export)
-  self[["import"]] <- check_property("CodeBlock", "import", FALSE, missing(import), "character", import)
+  self[["exportFrom"]] <- check_property("CodeBlock", "exportFrom", FALSE, missing(exportFrom), "character", exportFrom)
+  self[["importTo"]] <- check_property("CodeBlock", "importTo", FALSE, missing(importTo), "character", importTo)
   class(self) <- c(class(self), "CodeBlock")
   self
 }
@@ -226,10 +226,10 @@ CodeBlock <- function(
 #' @param declares Variables that the code chunk declares.
 #' @param duration Duration in seconds of the last execution of the chunk.
 #' @param errors Errors when compiling or executing the chunk.
-#' @param export A compilation directive giving the name of the variable to export into the content of the code block.
+#' @param exportFrom A compilation directive giving the name of the variable to export into the content of the code block.
 #' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
-#' @param import A compilation directive giving the name of the variable to import the content of the code block as.
+#' @param importTo A compilation directive giving the name of the variable to import the content of the code block as.
 #' @param imports Software packages that the code chunk imports
 #' @param meta Metadata associated with this item.
 #' @param outputs Outputs from executing the chunk.
@@ -245,10 +245,10 @@ CodeChunk <- function(
   declares,
   duration,
   errors,
-  export,
+  exportFrom,
   format,
   id,
-  import,
+  importTo,
   imports,
   meta,
   outputs,
@@ -258,10 +258,10 @@ CodeChunk <- function(
 ){
   self <- CodeBlock(
     text = text,
-    export = export,
+    exportFrom = exportFrom,
     format = format,
     id = id,
-    import = import,
+    importTo = importTo,
     meta = meta,
     programmingLanguage = programmingLanguage
   )
@@ -1559,9 +1559,9 @@ IntegerValidator <- function(
 #' @name Link
 #' @param content The textual content of the link. \bold{Required}.
 #' @param target The target of the link. \bold{Required}.
-#' @param export A compilation directive giving the name of the variable to export to the link target.
+#' @param exportFrom A compilation directive giving the name of the variable to export to the link target.
 #' @param id The identifier for this item.
-#' @param import A compilation directive giving the name of the variable to import the link target as.
+#' @param importTo A compilation directive giving the name of the variable to import the link target as.
 #' @param meta Metadata associated with this item.
 #' @param relation The relation between the target and the current thing.
 #' @param title A title for the link.
@@ -1570,9 +1570,9 @@ IntegerValidator <- function(
 Link <- function(
   content,
   target,
-  export,
+  exportFrom,
   id,
-  import,
+  importTo,
   meta,
   relation,
   title
@@ -1584,8 +1584,8 @@ Link <- function(
   self$type <- as_scalar("Link")
   self[["content"]] <- check_property("Link", "content", TRUE, missing(content), Array(InlineContent), content)
   self[["target"]] <- check_property("Link", "target", TRUE, missing(target), "character", target)
-  self[["export"]] <- check_property("Link", "export", FALSE, missing(export), "character", export)
-  self[["import"]] <- check_property("Link", "import", FALSE, missing(import), "character", import)
+  self[["exportFrom"]] <- check_property("Link", "exportFrom", FALSE, missing(exportFrom), "character", exportFrom)
+  self[["importTo"]] <- check_property("Link", "importTo", FALSE, missing(importTo), "character", importTo)
   self[["relation"]] <- check_property("Link", "relation", FALSE, missing(relation), "character", relation)
   self[["title"]] <- check_property("Link", "title", FALSE, missing(title), "character", title)
   class(self) <- c(class(self), "Link")
