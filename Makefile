@@ -1,35 +1,39 @@
 # What? A Makefile for running high level development tasks. For finer
-# grained tasks see `package.json` and use `npm run <task>`.
-#
-# Why? Because Makefiles provide a common entry point for developers
-# that are independent of the language and tooling used. In just
-# about all our repos you can run `make setup` to get a dev setup
-# and `cat Makefile` to quickly understand what to do next. Regardless
-# or whether it's a Typescript, Python or R project.
+# grained tasks see `package.json` and use `npm run <task>`, or the
+# `Makefiles` for each language folder e.g. `py/Makefile`.
 
 all: lint test build docs
 
 setup:
 	npm install
+	make -C py setup
+	make -C r setup
 
 lint:
 	npm run lint
+	make -C py lint
+	make -C r lint
 
 test:
 	npm test
+	make -C py test
+	make -C r test
 
 build:
 	npm run build
+	make -C py build
+	make -C r build
 
-.PHONY: docs
 docs:
 	npm run docs
-
-watch:
-	npm run watch
+	make -C py docs
+	make -C r docs
+.PHONY: docs
 
 clean:
 	npm run clean
+	make -C py clean
+	make -C r clean
 
 PYBINDINGS := 'py/stencila/schema/types.py'
 RBINDINGS := 'r/R/types.R'
