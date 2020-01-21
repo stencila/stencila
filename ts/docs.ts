@@ -11,6 +11,7 @@
 import * as encoda from '@stencila/encoda'
 import fs from 'fs-extra'
 import globby from 'globby'
+import { groupBy, orderBy, startCase } from 'lodash'
 import flatten from 'lodash.flatten'
 import path from 'path'
 import { readSchemas } from './helpers'
@@ -102,7 +103,22 @@ async function build(): Promise<void> {
 
   // Generate the index page list of links
   const schemaList = list({
-    items: schemas.map(schema2ListItem),
+    items: Object.entries(
+      groupBy(schemas, schema => schema.category || 'Miscellaneous')
+    ).map(([group, items]) => {
+      const sortedItems = orderBy(items, ['status', 'name'])
+      return listItem({
+        content: [
+          strong({
+            content: [startCase(group)]
+          }),
+          list({
+            items: sortedItems.map(schema2ListItem),
+            order: 'unordered'
+          })
+        ]
+      })
+    }),
     order: 'unordered'
   })
 
@@ -357,7 +373,16 @@ function schema2SummaryArticle(schema: Schema): Article {
  */
 function schema2ListItem(schema: Schema): ListItem {
   const { title = 'Untitled' } = schema
+  const status = schema.status
+    ? [' (', codeFragment({ text: schema.status || '' }), ')']
+    : []
+
   return listItem({
-    content: [link({ content: [title], target: `${title}.html` })]
+    content: [
+      link({
+        content: [startCase(title), ...status],
+        target: `${title}.html`
+      })
+    ]
   })
 }
