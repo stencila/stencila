@@ -70,11 +70,12 @@ export const is = <Ts extends Entity>(type: keyof TypeMap<Ts>) => {
  *
  * e.g. `isA('Paragraph', node)`
  *
- * @param type The type to test for
+ * @param type The name of the type to test for
+ * @param node The node being tested
  */
 export const isA = <K extends keyof Types>(
   type: K,
-  node: Node
+  node: Node | undefined
 ): node is Types[K] => {
   return isEntity(node) && node.type === type
 }
