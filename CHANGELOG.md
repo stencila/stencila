@@ -1,3 +1,24 @@
+# [0.35.0](https://github.com/stencila/schema/compare/v0.34.0...v0.35.0) (2020-01-21)
+
+
+### Bug Fixes
+
+* **Article:** Do not require authors and title ([17cbe10](https://github.com/stencila/schema/commit/17cbe10f95f7746497d37de461db9f7cca07a492))
+* **CodeError:** Message required; rename kind to errorType ([0ab58c0](https://github.com/stencila/schema/commit/0ab58c06e2ba88dfae7fcd68cb94fcf2df1bb013))
+* **CodeError:** Modify prop names; errorType comment ([e53d56b](https://github.com/stencila/schema/commit/e53d56bb5164d985abd43aa3d71930fdeeaded44))
+* **Function:** Make name optional ([9237114](https://github.com/stencila/schema/commit/9237114c956c751ac44cb614436e852088d38da0))
+* **Heading:** Make depth optional, defaulting to 1 ([97c3b7d](https://github.com/stencila/schema/commit/97c3b7d338b7a08366282a98d41d8f738e4a92ac))
+* **TableCell:** Relax content to allow any Node ([f048dbb](https://github.com/stencila/schema/commit/f048dbb6236d027202ac617314c6e57c0ee8d55e))
+* **Typescript guards:** Allow isA to take a possibly undefined node ([2e5dc24](https://github.com/stencila/schema/commit/2e5dc24d14ce7d7c42885075fc7ee99b15c00621))
+* **Variable import and export:** Avoid use of common keywords ([8812e01](https://github.com/stencila/schema/commit/8812e018dfd0ead25319e5253ec2f40a3bd5f7cd))
+
+
+### Features
+
+* **Compiled nodes:** Refine types used when compiling a doc ([2da8d60](https://github.com/stencila/schema/commit/2da8d606dc7da4e807ac6f5306dcf2db278d5063))
+* **TableCell:** Change content to array of BlockContent ([c71681c](https://github.com/stencila/schema/commit/c71681c349553dff927536ceefb55dea1562f13c)), closes [#136](https://github.com/stencila/schema/issues/136)
+* **Typescript factory functions:** Only first required prop is unnamed ([02b3483](https://github.com/stencila/schema/commit/02b34831cb2634fab63a91a8ec86fbd11a3efc78))
+
 # [0.34.0](https://github.com/stencila/schema/compare/v0.33.0...v0.34.0) (2020-01-20)
 
 
