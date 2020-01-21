@@ -12,11 +12,13 @@ properties:
     type: string
     pattern: '[a-z_][A-z0-9_]*'
     $comment: |
-      This regex allows for snake_case and camelCase names but excludes
+      The name property is not required; this allows for anonymous functions
+      (although these are not yet implemented in Stencila interpreters).
+      The regex allows for snake_case and camelCase names but excludes
       PascalCase for parameter names.
   parameters:
     '@id': schema:parameters
-    description: An array of parameters the function exsists.
+    description: An array of parameters the function exists.
     type: array
     items:
       - $ref: Parameter
@@ -25,5 +27,3 @@ properties:
     description: The return type of the function.
     allOf:
       - $ref: ValidatorTypes
-required:
-  - name
