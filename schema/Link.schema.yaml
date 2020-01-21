@@ -12,14 +12,18 @@ properties:
     type: array
     items:
       $ref: InlineContent
-  export:
-    '@id': stencila:export
+  exportFrom:
+    '@id': stencila:exportFrom
+    aliases:
+      - export
     description: |
       A compilation directive giving the name of the variable to export
       to the link target.
     type: string
-  import:
-    '@id': stencila:import
+  importTo:
+    '@id': stencila:importTo
+    aliases:
+      - import
     description: |
       A compilation directive giving the name of the variable to import
       the link target as.
