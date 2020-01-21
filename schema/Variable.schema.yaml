@@ -4,29 +4,33 @@ extends: Entity
 role: secondary
 status: unstable
 category: code
-description: A variable that can be set and used in code.
+description: A variable representing a name / value pair.
 properties:
   name:
     '@id': schema:name
-    description: The name the parameter is referred to in code.
+    description: The name of the variable.
     type: string
     pattern: '[a-z_][A-z0-9_]*'
     $comment: |
       This regex allows for snake_case and camelCase names but excludes
-      PascalCase for parameter names.
+      PascalCase for names.
+  readonly:
+    '@id': schema:readonlyValue
+    description: Whether or not a property is mutable. Default is false.
+    $comment: |
+      If `readonly` is `true` and `value` is defined then changes to `value`
+      should not be allowed.
+    type: boolean
+    default: false
   validator:
     '@id': stencila:validator
-    description: The validator that the value of the parameter will be validated against.
-    allOf:
+    description: The validator that the value is validated against.
+    anyOf:
       - $ref: ValidatorTypes
-  default:
-    '@id': stencila:value
-    description: The default value of the parameter.
+  value:
+    '@id': schema:value
+    description: The value of the variable.
     allOf:
       - $ref: Node
-  required:
-    '@id': stencila:required
-    description: Is this parameter required, if not it should have a default or default is assumed to be null.
-    type: boolean
 required:
   - name

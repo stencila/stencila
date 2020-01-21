@@ -153,14 +153,16 @@ class CiteGroup(Entity):
 
 
 class Code(Entity):
-    """Inline code."""
+    """Base type for code nodes e.g. `CodeBlock`, `CodeExpression`."""
 
     text: str
+    format: Optional[str] = None
     programmingLanguage: Optional[str] = None
 
     def __init__(
         self,
         text: str,
+        format: Optional[str] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         programmingLanguage: Optional[str] = None
@@ -171,6 +173,8 @@ class Code(Entity):
         )
         if text is not None:
             self.text = text
+        if format is not None:
+            self.format = format
         if programmingLanguage is not None:
             self.programmingLanguage = programmingLanguage
 
@@ -178,20 +182,30 @@ class Code(Entity):
 class CodeBlock(Code):
     """A code block."""
 
+    exportNode: Optional[str] = None
+    importNode: Optional[str] = None
+
     def __init__(
         self,
         text: str,
+        exportNode: Optional[str] = None,
+        format: Optional[str] = None,
         id: Optional[str] = None,
+        importNode: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         programmingLanguage: Optional[str] = None
     ) -> None:
         super().__init__(
             text=text,
+            format=format,
             id=id,
             meta=meta,
             programmingLanguage=programmingLanguage
         )
-
+        if exportNode is not None:
+            self.exportNode = exportNode
+        if importNode is not None:
+            self.importNode = importNode
 
 
 class CodeChunk(CodeBlock):
@@ -215,7 +229,10 @@ class CodeChunk(CodeBlock):
         declares: Optional[Array[Union[str, "Variable", "Function"]]] = None,
         duration: Optional[float] = None,
         errors: Optional[Array["CodeError"]] = None,
+        exportNode: Optional[str] = None,
+        format: Optional[str] = None,
         id: Optional[str] = None,
+        importNode: Optional[str] = None,
         imports: Optional[Array[Union[str, "SoftwareSourceCode", "SoftwareApplication"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         outputs: Optional[Array["Node"]] = None,
@@ -225,7 +242,10 @@ class CodeChunk(CodeBlock):
     ) -> None:
         super().__init__(
             text=text,
+            exportNode=exportNode,
+            format=format,
             id=id,
+            importNode=importNode,
             meta=meta,
             programmingLanguage=programmingLanguage
         )
@@ -255,12 +275,14 @@ class CodeFragment(Code):
     def __init__(
         self,
         text: str,
+        format: Optional[str] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         programmingLanguage: Optional[str] = None
     ) -> None:
         super().__init__(
             text=text,
+            format=format,
             id=id,
             meta=meta,
             programmingLanguage=programmingLanguage
@@ -278,6 +300,7 @@ class CodeExpression(CodeFragment):
         self,
         text: str,
         errors: Optional[Array["CodeError"]] = None,
+        format: Optional[str] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         output: Optional["Node"] = None,
@@ -285,6 +308,7 @@ class CodeExpression(CodeFragment):
     ) -> None:
         super().__init__(
             text=text,
+            format=format,
             id=id,
             meta=meta,
             programmingLanguage=programmingLanguage
@@ -1179,6 +1203,36 @@ class ImageObject(MediaObject):
             self.thumbnail = thumbnail
 
 
+class Include(Entity):
+    """
+    A directive to include content from an external source (e.g. file, URL) or
+    content.
+    """
+
+    source: str
+    content: Optional[Array["BlockContent"]] = None
+    format: Optional[str] = None
+
+    def __init__(
+        self,
+        source: str,
+        content: Optional[Array["BlockContent"]] = None,
+        format: Optional[str] = None,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if source is not None:
+            self.source = source
+        if content is not None:
+            self.content = content
+        if format is not None:
+            self.format = format
+
+
 class NumberValidator(Entity):
     """A validator specifying the constraints on a numeric node."""
 
@@ -1247,6 +1301,8 @@ class Link(Entity):
 
     content: Array["InlineContent"]
     target: str
+    exportNode: Optional[str] = None
+    importNode: Optional[str] = None
     relation: Optional[str] = None
     title: Optional[str] = None
 
@@ -1254,7 +1310,9 @@ class Link(Entity):
         self,
         content: Array["InlineContent"],
         target: str,
+        exportNode: Optional[str] = None,
         id: Optional[str] = None,
+        importNode: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         relation: Optional[str] = None,
         title: Optional[str] = None
@@ -1267,6 +1325,10 @@ class Link(Entity):
             self.content = content
         if target is not None:
             self.target = target
+        if exportNode is not None:
+            self.exportNode = exportNode
+        if importNode is not None:
+            self.importNode = importNode
         if relation is not None:
             self.relation = relation
         if title is not None:
@@ -1453,21 +1515,21 @@ class Paragraph(Entity):
 
 
 class Variable(Entity):
-    """A variable that can be set and used in code."""
+    """A variable representing a name / value pair."""
 
     name: str
-    default: Optional["Node"] = None
-    required: Optional[bool] = None
+    readonly: Optional[bool] = None
     validator: Optional["ValidatorTypes"] = None
+    value: Optional["Node"] = None
 
     def __init__(
         self,
         name: str,
-        default: Optional["Node"] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        required: Optional[bool] = None,
-        validator: Optional["ValidatorTypes"] = None
+        readonly: Optional[bool] = None,
+        validator: Optional["ValidatorTypes"] = None,
+        value: Optional["Node"] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -1475,12 +1537,12 @@ class Variable(Entity):
         )
         if name is not None:
             self.name = name
-        if default is not None:
-            self.default = default
-        if required is not None:
-            self.required = required
+        if readonly is not None:
+            self.readonly = readonly
         if validator is not None:
             self.validator = validator
+        if value is not None:
+            self.value = value
 
 
 class Parameter(Variable):
@@ -1498,15 +1560,19 @@ class Parameter(Variable):
         extends: Optional[bool] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
+        readonly: Optional[bool] = None,
         repeats: Optional[bool] = None,
         required: Optional[bool] = None,
-        validator: Optional["ValidatorTypes"] = None
+        validator: Optional["ValidatorTypes"] = None,
+        value: Optional["Node"] = None
     ) -> None:
         super().__init__(
             name=name,
             id=id,
             meta=meta,
-            validator=validator
+            readonly=readonly,
+            validator=validator,
+            value=value
         )
         if default is not None:
             self.default = default
@@ -2375,7 +2441,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection"
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Heading", "ImageObject", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject"]
 
 
 """

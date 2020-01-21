@@ -1,14 +1,26 @@
 title: Code
 '@id': stencila:Code
 extends: Entity
-role: secondary
+role: base
 status: stable
 category: code
-description: Inline code.
+description: Base type for code nodes e.g. `CodeBlock`, `CodeExpression`.
 properties:
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
+    type: string
+  format:
+    # See MediaObject for not on use of format vs encodingFormat.
+    '@id': schema:encodingFormat
+    aliases:
+      - encoding
+      - encodingFormat
+    description: Media type, typically expressed using a MIME format, of the code.
+    $comment: |
+      This property allows the differentiation of formats using the same programming language
+      or variants of a programming language. An example is using `programmingLanguage` "json" and
+      `encodingFormat` "application/ld+json" for JSON-LD code examples.
     type: string
   text:
     '@id': schema:text

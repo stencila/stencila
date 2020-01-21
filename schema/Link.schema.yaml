@@ -12,6 +12,18 @@ properties:
     type: array
     items:
       $ref: InlineContent
+  export:
+    '@id': stencila:export
+    description: |
+      A compilation directive giving the name of the variable to export
+      to the link target.
+    type: string
+  import:
+    '@id': stencila:import
+    description: |
+      A compilation directive giving the name of the variable to import
+      the link target as.
+    type: string
   target:
     '@id': stencila:target
     description: The target of the link.
@@ -21,7 +33,7 @@ properties:
     '@id': schema:headline
     description: A title for the link.
     $comment: |
-      This property is analagous to the HTML `title` global attribute which
+      This property is analogous to the HTML `title` global attribute which
       represents ["advisory information related to the element"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)
     type: string
   relation:

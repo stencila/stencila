@@ -4,26 +4,30 @@ category: metadata
 description: |
   A directive to include content from an external source (e.g. file, URL) or content.
 role: secondary
-status: experimental
+status: unstable
 extends: Entity
 properties:
   source:
     '@id': stencila:source
-    description: The source of the content.
+    description: The source of the content, a URL or file path, or the content itself.
     type: string
-  mediaType:
-    '@id': stencila:mediaType
-    description: The media type of the source content.
-    type: string
-  hash:
-    '@id': stencila:hash
-    description: A SHA256 hash of the source content and media type the last time that the source was decoded.
+  format:
+    # See MediaObject for not on use of format vs encodingFormat.
+    '@id': schema:encodingFormat
+    aliases:
+      - encoding
+      - encodingFormat
+    description: Media type, typically expressed using a MIME format, of the source content.
     type: string
   content:
     '@id': stencila:content
     description: The content to be included.
+    $comment: |
+      Currently assumes that included content will be block content.
+      This presumes that there will be limited instance where a user would
+      want to use an `Include` node to transclude inline content.
     type: array
     items:
-      $ref: Node
+      $ref: BlockContent
 required:
   - source

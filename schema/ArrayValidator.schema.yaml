@@ -9,12 +9,12 @@ properties:
   items:
     '@id': schema:itemListElement
     description: Another validator node specifying the constraints on all items in the array.
-    allOf:
+    anyOf:
       - $ref: ValidatorTypes
   contains:
     '@id': stencila:contains
     description: An array node is valid if at least one of its items is valid against the `contains` schema.
-    allOf:
+    anyOf:
       - $ref: ValidatorTypes
   minItems:
     '@id': stencila:minItems

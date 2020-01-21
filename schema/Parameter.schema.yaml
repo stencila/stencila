@@ -7,12 +7,12 @@ category: code
 description: A parameter that can be set and used in evaluated code.
 properties:
   default:
-    '@id': stencila:value
+    '@id': schema:defaultValue
     description: The default value of the parameter.
     allOf:
       - $ref: Node
   required:
-    '@id': stencila:required
+    '@id': schema:valueRequired
     description: Is this parameter required, if not it should have a default or default is assumed to be null.
     type: boolean
   repeats:

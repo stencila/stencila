@@ -151,10 +151,11 @@ CiteGroup <- function(
 }
 
 
-#' Inline code.
+#' Base type for code nodes e.g. `CodeBlock`, `CodeExpression`.
 #'
 #' @name Code
 #' @param text The text of the code. \bold{Required}.
+#' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
@@ -162,6 +163,7 @@ CiteGroup <- function(
 #' @export
 Code <- function(
   text,
+  format,
   id,
   meta,
   programmingLanguage
@@ -172,6 +174,7 @@ Code <- function(
   )
   self$type <- as_scalar("Code")
   self[["text"]] <- check_property("Code", "text", TRUE, missing(text), "character", text)
+  self[["format"]] <- check_property("Code", "format", FALSE, missing(format), "character", format)
   self[["programmingLanguage"]] <- check_property("Code", "programmingLanguage", FALSE, missing(programmingLanguage), "character", programmingLanguage)
   class(self) <- c(class(self), "Code")
   self
@@ -182,25 +185,33 @@ Code <- function(
 #'
 #' @name CodeBlock
 #' @param text The text of the code. \bold{Required}.
+#' @param exportNode A compilation directive giving the name of the document node to export into the content of the code block.
+#' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
+#' @param importNode A compilation directive giving the name of the document node to import the content of the code block as.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
 #' @seealso \code{\link{Code}}
 #' @export
 CodeBlock <- function(
   text,
+  exportNode,
+  format,
   id,
+  importNode,
   meta,
   programmingLanguage
 ){
   self <- Code(
     text = text,
+    format = format,
     id = id,
     meta = meta,
     programmingLanguage = programmingLanguage
   )
   self$type <- as_scalar("CodeBlock")
-
+  self[["exportNode"]] <- check_property("CodeBlock", "exportNode", FALSE, missing(exportNode), "character", exportNode)
+  self[["importNode"]] <- check_property("CodeBlock", "importNode", FALSE, missing(importNode), "character", importNode)
   class(self) <- c(class(self), "CodeBlock")
   self
 }
@@ -215,7 +226,10 @@ CodeBlock <- function(
 #' @param declares Variables that the code chunk declares.
 #' @param duration Duration in seconds of the last execution of the chunk.
 #' @param errors Errors when compiling or executing the chunk.
+#' @param exportNode A compilation directive giving the name of the document node to export into the content of the code block.
+#' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
+#' @param importNode A compilation directive giving the name of the document node to import the content of the code block as.
 #' @param imports Software packages that the code chunk imports
 #' @param meta Metadata associated with this item.
 #' @param outputs Outputs from executing the chunk.
@@ -231,7 +245,10 @@ CodeChunk <- function(
   declares,
   duration,
   errors,
+  exportNode,
+  format,
   id,
+  importNode,
   imports,
   meta,
   outputs,
@@ -241,7 +258,10 @@ CodeChunk <- function(
 ){
   self <- CodeBlock(
     text = text,
+    exportNode = exportNode,
+    format = format,
     id = id,
+    importNode = importNode,
     meta = meta,
     programmingLanguage = programmingLanguage
   )
@@ -264,6 +284,7 @@ CodeChunk <- function(
 #'
 #' @name CodeFragment
 #' @param text The text of the code. \bold{Required}.
+#' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
@@ -271,12 +292,14 @@ CodeChunk <- function(
 #' @export
 CodeFragment <- function(
   text,
+  format,
   id,
   meta,
   programmingLanguage
 ){
   self <- Code(
     text = text,
+    format = format,
     id = id,
     meta = meta,
     programmingLanguage = programmingLanguage
@@ -293,6 +316,7 @@ CodeFragment <- function(
 #' @name CodeExpression
 #' @param text The text of the code. \bold{Required}.
 #' @param errors Errors when compiling or executing the chunk.
+#' @param format Media type, typically expressed using a MIME format, of the code.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param output The value of the expression when it was last evaluated.
@@ -302,6 +326,7 @@ CodeFragment <- function(
 CodeExpression <- function(
   text,
   errors,
+  format,
   id,
   meta,
   output,
@@ -309,6 +334,7 @@ CodeExpression <- function(
 ){
   self <- CodeFragment(
     text = text,
+    format = format,
     id = id,
     meta = meta,
     programmingLanguage = programmingLanguage
@@ -1425,6 +1451,36 @@ ImageObject <- function(
 }
 
 
+#' A directive to include content from an external source (e.g. file, URL) or content.
+#'
+#' @name Include
+#' @param source The source of the content, a URL or file path, or the content itself. \bold{Required}.
+#' @param content The content to be included.
+#' @param format Media type, typically expressed using a MIME format, of the source content.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @seealso \code{\link{Entity}}
+#' @export
+Include <- function(
+  source,
+  content,
+  format,
+  id,
+  meta
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Include")
+  self[["source"]] <- check_property("Include", "source", TRUE, missing(source), "character", source)
+  self[["content"]] <- check_property("Include", "content", FALSE, missing(content), Array(BlockContent), content)
+  self[["format"]] <- check_property("Include", "format", FALSE, missing(format), "character", format)
+  class(self) <- c(class(self), "Include")
+  self
+}
+
+
 #' A validator specifying the constraints on a numeric node.
 #'
 #' @name NumberValidator
@@ -1503,7 +1559,9 @@ IntegerValidator <- function(
 #' @name Link
 #' @param content The textual content of the link. \bold{Required}.
 #' @param target The target of the link. \bold{Required}.
+#' @param exportNode A compilation directive giving the name of the document node to export to the link target.
 #' @param id The identifier for this item.
+#' @param importNode A compilation directive giving the name of the document node to import the link target as.
 #' @param meta Metadata associated with this item.
 #' @param relation The relation between the target and the current thing.
 #' @param title A title for the link.
@@ -1512,7 +1570,9 @@ IntegerValidator <- function(
 Link <- function(
   content,
   target,
+  exportNode,
   id,
+  importNode,
   meta,
   relation,
   title
@@ -1524,6 +1584,8 @@ Link <- function(
   self$type <- as_scalar("Link")
   self[["content"]] <- check_property("Link", "content", TRUE, missing(content), Array(InlineContent), content)
   self[["target"]] <- check_property("Link", "target", TRUE, missing(target), "character", target)
+  self[["exportNode"]] <- check_property("Link", "exportNode", FALSE, missing(exportNode), "character", exportNode)
+  self[["importNode"]] <- check_property("Link", "importNode", FALSE, missing(importNode), "character", importNode)
   self[["relation"]] <- check_property("Link", "relation", FALSE, missing(relation), "character", relation)
   self[["title"]] <- check_property("Link", "title", FALSE, missing(title), "character", title)
   class(self) <- c(class(self), "Link")
@@ -1746,24 +1808,24 @@ Paragraph <- function(
 }
 
 
-#' A variable that can be set and used in code.
+#' A variable representing a name / value pair.
 #'
 #' @name Variable
-#' @param name The name the parameter is referred to in code. \bold{Required}.
-#' @param default The default value of the parameter.
+#' @param name The name of the variable. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
-#' @param required Is this parameter required, if not it should have a default or default is assumed to be null.
-#' @param validator The validator that the value of the parameter will be validated against.
+#' @param readonly Whether or not a property is mutable. Default is false.
+#' @param validator The validator that the value is validated against.
+#' @param value The value of the variable.
 #' @seealso \code{\link{Entity}}
 #' @export
 Variable <- function(
   name,
-  default,
   id,
   meta,
-  required,
-  validator
+  readonly,
+  validator,
+  value
 ){
   self <- Entity(
     id = id,
@@ -1771,9 +1833,9 @@ Variable <- function(
   )
   self$type <- as_scalar("Variable")
   self[["name"]] <- check_property("Variable", "name", TRUE, missing(name), "character", name)
-  self[["default"]] <- check_property("Variable", "default", FALSE, missing(default), Node, default)
-  self[["required"]] <- check_property("Variable", "required", FALSE, missing(required), "logical", required)
+  self[["readonly"]] <- check_property("Variable", "readonly", FALSE, missing(readonly), "logical", readonly)
   self[["validator"]] <- check_property("Variable", "validator", FALSE, missing(validator), ValidatorTypes, validator)
+  self[["value"]] <- check_property("Variable", "value", FALSE, missing(value), Node, value)
   class(self) <- c(class(self), "Variable")
   self
 }
@@ -1782,14 +1844,16 @@ Variable <- function(
 #' A parameter that can be set and used in evaluated code.
 #'
 #' @name Parameter
-#' @param name The name the parameter is referred to in code. \bold{Required}.
+#' @param name The name of the variable. \bold{Required}.
 #' @param default The default value of the parameter.
 #' @param extends Indicates that this parameter is variadic and can accept multiple named arguments.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @param readonly Whether or not a property is mutable. Default is false.
 #' @param repeats Indicates that this parameter is variadic and can accept multiple arguments.
 #' @param required Is this parameter required, if not it should have a default or default is assumed to be null.
-#' @param validator The validator that the value of the parameter will be validated against.
+#' @param validator The validator that the value is validated against.
+#' @param value The value of the variable.
 #' @seealso \code{\link{Variable}}
 #' @export
 Parameter <- function(
@@ -1798,15 +1862,19 @@ Parameter <- function(
   extends,
   id,
   meta,
+  readonly,
   repeats,
   required,
-  validator
+  validator,
+  value
 ){
   self <- Variable(
     name = name,
     id = id,
     meta = meta,
-    validator = validator
+    readonly = readonly,
+    validator = validator,
+    value = value
   )
   self$type <- as_scalar("Parameter")
   self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), Node, default)
@@ -2882,7 +2950,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datat
 #' All type schemas that are derived from Entity
 #'
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Heading, ImageObject, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, Product, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, Product, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject)
 
 
 #' Union type for valid inline content.

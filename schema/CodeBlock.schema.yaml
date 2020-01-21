@@ -5,4 +5,16 @@ role: secondary
 status: stable
 category: code
 description: A code block.
-properties: {}
+properties:
+  export:
+    '@id': stencila:export
+    description: |
+      A compilation directive giving the name of the variable to export
+      into the content of the code block.
+    type: string
+  import:
+    '@id': stencila:import
+    description: |
+      A compilation directive giving the name of the variable to import
+      the content of the code block as.
+    type: string
