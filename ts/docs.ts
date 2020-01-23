@@ -11,6 +11,7 @@
 import * as encoda from '@stencila/encoda'
 import fs from 'fs-extra'
 import globby from 'globby'
+import { flow, groupBy, sortBy, startCase, uniq } from 'lodash'
 import flatten from 'lodash.flatten'
 import path from 'path'
 import { readSchemas } from './helpers'
@@ -30,6 +31,7 @@ import {
   listItem,
   paragraph,
   strong,
+  superscript,
   table,
   tableCell,
   tableRow
@@ -50,6 +52,12 @@ const DOCS_SOURCE_DIR = path.join(__dirname, '..', 'schema')
  * The destination directory for docs e.g. `*.html` and `*.md` files
  */
 const DOCS_DEST_DIR = path.join(__dirname, '..', 'public')
+
+/**
+ * String marker appended to Schema links in the documentation to indicate
+ * Unstable status, and that the underlying schema may change at any time.
+ */
+const unstableMarker = superscript({ content: ['U'] })
 
 /**
  * Generate docs for each `public/*.schema.json` file and
@@ -100,9 +108,52 @@ async function build(): Promise<void> {
     })
   )
 
+  // This determines the order in which Schema categories are listed in the Table of Contents
+  const orderedCategories = uniq([
+    'Prose',
+    'Code',
+    'Data',
+    'Validation',
+    'Metadata',
+    'Miscellaneous',
+    // Any other categories should be listed at the end
+    ...Object.values(schemas).map(schema => startCase(schema.category))
+  ])
+
+  // Group schemas by category, and within each group sort schemas by `status`, and then `name`.
+  const groupedSchemas: { [category: string]: Schema[] } = flow([
+    (_schemas: Schema[]) =>
+      groupBy(_schemas, schema =>
+        startCase(schema.category ?? 'Miscellaneous')
+      ),
+    (_schemas: typeof groupedSchemas) =>
+      orderedCategories.reduce(
+        (categories: typeof groupedSchemas, category) =>
+          _schemas[category] !== undefined
+            ? {
+                ...categories,
+                [category]: sortBy(_schemas[category], ['status', 'name'])
+              }
+            : categories,
+        {}
+      )
+  ])(schemas)
+
   // Generate the index page list of links
   const schemaList = list({
-    items: schemas.map(schema2ListItem),
+    items: Object.entries(groupedSchemas).map(([group, items]) =>
+      listItem({
+        content: [
+          strong({
+            content: [group]
+          }),
+          list({
+            items: items.map(schema2ListItem),
+            order: 'unordered'
+          })
+        ]
+      })
+    ),
     order: 'unordered'
   })
 
@@ -117,6 +168,17 @@ async function build(): Promise<void> {
     content: [
       ...readmeContent,
       heading({ content: ['Available types'], depth: 2 }),
+      paragraph({
+        content: [
+          emphasis({
+            content: [
+              'Schemas marked with “',
+              unstableMarker,
+              '” are considered unstable and have a higher likelihood of changes.'
+            ]
+          })
+        ]
+      }),
       schemaList
     ]
   })
@@ -357,7 +419,14 @@ function schema2SummaryArticle(schema: Schema): Article {
  */
 function schema2ListItem(schema: Schema): ListItem {
   const { title = 'Untitled' } = schema
+  const status = schema.status === 'unstable' ? [unstableMarker] : []
+
   return listItem({
-    content: [link({ content: [title], target: `${title}.html` })]
+    content: [
+      link({
+        content: [startCase(title), ...status],
+        target: `${title}.html`
+      })
+    ]
   })
 }
