@@ -53,22 +53,22 @@ test('inheritance', async () => {
 
   // All `Thing` properties are in `Person` properties
   expect(
-    Object.keys(thing.properties || {}).some(
-      name => !Object.keys(person.properties || {}).includes(name)
+    Object.keys(thing.properties ?? {}).some(
+      name => !Object.keys(person.properties ?? {}).includes(name)
     )
   ).toBe(false)
 
   // All `Thing` required properties in `Person` required properties
   expect(
-    (thing.required || []).some(
-      (name: string) => !(person.required || []).includes(name)
+    (thing.required ?? []).some(
+      (name: string) => !(person.required ?? []).includes(name)
     )
   ).toBe(false)
 
   // All `Thing` property aliases in `Person` property aliases
   expect(
-    Object.keys(thing.propertyAliases || {}).some(
-      name => !Object.keys(person.propertyAliases || {}).includes(name)
+    Object.keys(thing.propertyAliases ?? {}).some(
+      name => !Object.keys(person.propertyAliases ?? {}).includes(name)
     )
   ).toBe(false)
 })
