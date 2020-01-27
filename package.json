@@ -38,8 +38,8 @@
   },
   "homepage": "https://stencila.github.io/schema",
   "devDependencies": {
-    "@stencila/dev-config": "^1.4.10",
-    "@stencila/encoda": "^0.83.2",
+    "@stencila/dev-config": "1.4.10",
+    "@stencila/encoda": "0.83.2",
     "@stencila/logga": "2.1.0",
     "@types/fs-extra": "8.0.1",
     "@types/jest": "24.9.0",
@@ -54,7 +54,7 @@
     "del": "5.1.0",
     "fs-extra": "8.1.0",
     "globby": "11.0.0",
-    "jest": "^25.1.0",
+    "jest": "25.1.0",
     "jest-file-snapshot": "0.3.8",
     "js-yaml": "3.13.1",
     "json-schema": "0.2.5",
@@ -65,7 +65,7 @@
     "object.fromentries": "2.0.2",
     "rimraf": "3.0.0",
     "toposort": "2.0.2",
-    "ts-jest": "^25.0.0",
+    "ts-jest": "25.0.0",
     "ts-node": "8.6.2",
     "typescript": "3.7.5"
   },
