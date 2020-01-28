@@ -1,9 +1,30 @@
 /**
- * Custom, semantic, CSS selectors
+*
+* THIS FILE IS AUTO-GENERATED. DO NOT MODIFY MANUALLY.
+*
+* Custom, semantic, CSS selectors
+*
+* In Thema the approach to CSS naming is, as much as possible, to
+* use custom selectors for the type of entities being styled and
+* their properties.
+*/
+
+/**
+ * To tweak or adjust an existing theme, you may override some common CSS variables found in the themes.
+
+ * Available CSS variables are:
+ * --color-accent: Color for accent elements, primarily used to add a brand highlights to the theme.
+ * --color-key: Color for body text, and other elements using the inherited body text color.
+ * --color-neutral: Subtle color, usually shades of gray, for element borders and other subtle details.
+ * --color-stock: Article/Page background color, but also used for other elements.
+ * --font-family-body: Font-family for paragraphs and other non-headline elements
+ * --font-family-heading: Font-family for paragraphs and other non-headline elements
+ * --font-family-mono: Font-family for monospaced text elements such as `pre` and `code`.
+ * --max-width-media: Maximum width for media content, including images and interactive Code Chunks.
+ * --max-width: Max width for textual elements and other non-media content.
  *
- * In Thema the approach to CSS naming is, as much as possible, to
- * use custom selectors for the type of entities being styled and
- * their properties.
+ * Note that not all themes make use of all available variables, and that some may expose additional options.
+ * Please refer to the specific theme documentation.
  */
 
 /**
@@ -17,16 +38,70 @@
  * - use the same upper camel case as in the schema the type is defined in
  * - use a `[itemtype=...]` selector if possible (i.e. if Encoda encodes it in HTML)
  */
+@custom-selector :--ArrayValidator [itemtype='https://schema.stenci.la/ArrayValidator'];
 @custom-selector :--Article [itemtype='https://schema.org/Article'];
-@custom-selector :--Cite [itemtype='https://schema.stenci.la/Cite'];
-@custom-selector :--CiteGroup [itemtype='https://schema.stenci.la/CiteGroup'];
-@custom-selector :--CodeChunk stencila-code-chunk;
+@custom-selector :--AudioObject [itemtype='https://schema.org/AudioObject'];
+@custom-selector :--BooleanValidator [itemtype='https://schema.stenci.la/BooleanValidator'];
+@custom-selector :--Brand [itemtype='https://schema.org/Brand'];
+@custom-selector :--Cite [itemtype='https://schema.org/Cite'];
+@custom-selector :--CiteGroup [itemtype='https://schema.org/CiteGroup'];
+@custom-selector :--Code [itemtype='https://schema.org/Code'];
+@custom-selector :--CodeBlock [itemtype='https://schema.stenci.la/CodeBlock'];
+@custom-selector :--CodeChunk [itemtype='https://schema.stenci.la/CodeChunk'];
+@custom-selector :--CodeError [itemtype='https://schema.stenci.la/CodeError'];
+@custom-selector :--CodeExpression [itemtype='https://schema.stenci.la/CodeExpression'];
+@custom-selector :--CodeFragment [itemtype='https://schema.stenci.la/CodeFragment'];
+@custom-selector :--Collection [itemtype='https://schema.org/Collection'];
+@custom-selector :--ConstantValidator [itemtype='https://schema.stenci.la/ConstantValidator'];
+@custom-selector :--ContactPoint [itemtype='https://schema.org/ContactPoint'];
 @custom-selector :--CreativeWork [itemtype='https://schema.org/CreativeWork'];
+@custom-selector :--Datatable [itemtype='https://schema.stenci.la/Datatable'];
+@custom-selector :--DatatableColumn [itemtype='https://schema.stenci.la/DatatableColumn'];
+@custom-selector :--Date [itemtype='https://schema.org/Date'];
+@custom-selector :--Delete [itemtype='https://schema.stenci.la/Delete'];
+@custom-selector :--Emphasis [itemtype='https://schema.stenci.la/Emphasis'];
 @custom-selector :--Entity [itemtype='https://schema.stenci.la/Entity'];
+@custom-selector :--EnumValidator [itemtype='https://schema.stenci.la/EnumValidator'];
+@custom-selector :--Figure [itemtype='https://schema.org/Figure'];
+@custom-selector :--Function [itemtype='https://schema.stenci.la/Function'];
+@custom-selector :--Heading [itemtype='https://schema.org/Heading'];
+@custom-selector :--ImageObject [itemtype='https://schema.org/ImageObject'];
+@custom-selector :--Include [itemtype='https://schema.stenci.la/Include'];
+@custom-selector :--IntegerValidator [itemtype='https://schema.stenci.la/IntegerValidator'];
+@custom-selector :--Link [itemtype='https://schema.org/Link'];
+@custom-selector :--List [itemtype='https://schema.stenci.la/List'];
+@custom-selector :--ListItem [itemtype='https://schema.stenci.la/ListItem'];
+@custom-selector :--Mark [itemtype='https://schema.stenci.la/Mark'];
+@custom-selector :--Math [itemtype='https://schema.org/Math'];
+@custom-selector :--MathBlock [itemtype='https://schema.org/MathBlock'];
+@custom-selector :--MathFragment [itemtype='https://schema.org/MathFragment'];
+@custom-selector :--MediaObject [itemtype='https://schema.org/MediaObject'];
+@custom-selector :--NumberValidator [itemtype='https://schema.stenci.la/NumberValidator'];
 @custom-selector :--Organization [itemtype='https://schema.org/Organization'];
+@custom-selector :--Paragraph [itemtype='https://schema.org/Paragraph'];
+@custom-selector :--Parameter [itemtype='https://schema.org/Parameter'];
+@custom-selector :--Periodical [itemtype='https://schema.org/Periodical'];
 @custom-selector :--Person [itemtype='https://schema.org/Person'];
+@custom-selector :--Product [itemtype='https://schema.org/Product'];
 @custom-selector :--PublicationIssue [itemtype='https://schema.org/PublicationIssue'];
+@custom-selector :--PublicationVolume [itemtype='https://schema.org/PublicationVolume'];
+@custom-selector :--Quote [itemtype='https://schema.org/Quote'];
+@custom-selector :--QuoteBlock [itemtype='https://schema.org/QuoteBlock'];
+@custom-selector :--SoftwareApplication [itemtype='https://schema.stenci.la/SoftwareApplication'];
+@custom-selector :--SoftwareSourceCode [itemtype='https://schema.stenci.la/SoftwareSourceCode'];
+@custom-selector :--StringValidator [itemtype='https://schema.stenci.la/StringValidator'];
+@custom-selector :--Strong [itemtype='https://schema.stenci.la/Strong'];
+@custom-selector :--Subscript [itemtype='https://schema.stenci.la/Subscript'];
+@custom-selector :--Superscript [itemtype='https://schema.stenci.la/Superscript'];
+@custom-selector :--Table [itemtype='https://schema.org/Table'];
+@custom-selector :--TableCell [itemtype='https://schema.org/TableCell'];
+@custom-selector :--TableRow [itemtype='https://schema.org/TableRow'];
+@custom-selector :--ThematicBreak [itemtype='https://schema.stenci.la/ThematicBreak'];
 @custom-selector :--Thing [itemtype='https://schema.org/Thing'];
+@custom-selector :--TupleValidator [itemtype='https://schema.stenci.la/TupleValidator'];
+@custom-selector :--Variable [itemtype='https://schema.stenci.la/Variable'];
+@custom-selector :--VideoObject [itemtype='https://schema.org/VideoObject'];
+
 
 /**
  * Property selectors
@@ -43,21 +118,127 @@
  * - use a `[itemprop=...]` selector for singular properties, or items of container properties
  */
 @custom-selector :--address [itemprop='address'];
-@custom-selector :--affiliation [itemprop='affiliation'];
-@custom-selector :--affiliations .affiliations;
-@custom-selector :--author [itemprop='author'];
-@custom-selector :--authors .authors;
-@custom-selector :--citation [itemprop='citation'];
+@custom-selector :--affiliations [itemprop='affiliations'];
+@custom-selector :--alternateNames [itemprop='alternateNames'];
+@custom-selector :--alters [itemprop='alters'];
+@custom-selector :--assigns [itemprop='assigns'];
+@custom-selector :--authors [itemprop='authors'];
+@custom-selector :--availableLanguages [itemprop='availableLanguages'];
+@custom-selector :--bitrate [itemprop='bitrate'];
+@custom-selector :--brands [itemprop='brands'];
+@custom-selector :--caption [itemprop='caption'];
+@custom-selector :--cellType [itemprop='cellType'];
+@custom-selector :--cells [itemprop='cells'];
+@custom-selector :--checked [itemprop='checked'];
+@custom-selector :--citationMode [itemprop='citationMode'];
+@custom-selector :--cite [itemprop='cite'];
+@custom-selector :--codeRepository [itemprop='codeRepository'];
+@custom-selector :--codeSampleType [itemprop='codeSampleType'];
+@custom-selector :--colspan [itemprop='colspan'];
+@custom-selector :--columns [itemprop='columns'];
+@custom-selector :--contactPoints [itemprop='contactPoints'];
+@custom-selector :--contains [itemprop='contains'];
+@custom-selector :--content [itemprop='content'];
+@custom-selector :--contentSize [itemprop='contentSize'];
+@custom-selector :--contentUrl [itemprop='contentUrl'];
+@custom-selector :--dateCreated [itemprop='dateCreated'];
+@custom-selector :--dateEnd [itemprop='dateEnd'];
+@custom-selector :--dateModified [itemprop='dateModified'];
 @custom-selector :--datePublished [itemprop='datePublished'];
+@custom-selector :--dateStart [itemprop='dateStart'];
+@custom-selector :--declares [itemprop='declares'];
+@custom-selector :--default [itemprop='default'];
+@custom-selector :--departments [itemprop='departments'];
+@custom-selector :--depth [itemprop='depth'];
 @custom-selector :--description [itemprop='description'];
-@custom-selector :--email [itemprop='email'];
-@custom-selector :--emails .emails;
-@custom-selector :--familyName [itemprop='familyName'];
-@custom-selector :--givenName [itemprop='givenName'];
-@custom-selector :--headline [itemprop='headline'];
+@custom-selector :--duration [itemprop='duration'];
+@custom-selector :--editors [itemprop='editors'];
+@custom-selector :--emails [itemprop='emails'];
+@custom-selector :--embedUrl [itemprop='embedUrl'];
+@custom-selector :--errorMessage [itemprop='errorMessage'];
+@custom-selector :--errorType [itemprop='errorType'];
+@custom-selector :--errors [itemprop='errors'];
+@custom-selector :--exclusiveMaximum [itemprop='exclusiveMaximum'];
+@custom-selector :--exclusiveMinimum [itemprop='exclusiveMinimum'];
+@custom-selector :--exportFrom [itemprop='exportFrom'];
+@custom-selector :--extends [itemprop='extends'];
+@custom-selector :--familyNames [itemprop='familyNames'];
+@custom-selector :--format [itemprop='format'];
+@custom-selector :--funders [itemprop='funders'];
+@custom-selector :--givenNames [itemprop='givenNames'];
+@custom-selector :--honorificPrefix [itemprop='honorificPrefix'];
+@custom-selector :--honorificSuffix [itemprop='honorificSuffix'];
+@custom-selector :--id [itemprop='id'];
+@custom-selector :--importTo [itemprop='importTo'];
+@custom-selector :--imports [itemprop='imports'];
+@custom-selector :--isPartOf [itemprop='isPartOf'];
+@custom-selector :--issn [itemprop='issn'];
 @custom-selector :--issueNumber [itemprop='issueNumber'];
+@custom-selector :--items [itemprop='items'];
+@custom-selector :--jobTitle [itemprop='jobTitle'];
+@custom-selector :--keywords [itemprop='keywords'];
+@custom-selector :--label [itemprop='label'];
+@custom-selector :--legalName [itemprop='legalName'];
+@custom-selector :--licenses [itemprop='licenses'];
+@custom-selector :--logo [itemprop='logo'];
+@custom-selector :--maintainers [itemprop='maintainers'];
+@custom-selector :--mathLanguage [itemprop='mathLanguage'];
+@custom-selector :--maxItems [itemprop='maxItems'];
+@custom-selector :--maxLength [itemprop='maxLength'];
+@custom-selector :--maximum [itemprop='maximum'];
+@custom-selector :--memberOf [itemprop='memberOf'];
+@custom-selector :--meta [itemprop='meta'];
+@custom-selector :--minItems [itemprop='minItems'];
+@custom-selector :--minLength [itemprop='minLength'];
+@custom-selector :--minimum [itemprop='minimum'];
+@custom-selector :--multipleOf [itemprop='multipleOf'];
 @custom-selector :--name [itemprop='name'];
-@custom-selector :--organizations .organizations;
+@custom-selector :--order [itemprop='order'];
+@custom-selector :--output [itemprop='output'];
+@custom-selector :--outputs [itemprop='outputs'];
+@custom-selector :--pageEnd [itemprop='pageEnd'];
+@custom-selector :--pageStart [itemprop='pageStart'];
 @custom-selector :--pagination [itemprop='pagination'];
-@custom-selector :--references .references;
+@custom-selector :--parameters [itemprop='parameters'];
+@custom-selector :--parentOrganization [itemprop='parentOrganization'];
+@custom-selector :--parts [itemprop='parts'];
+@custom-selector :--pattern [itemprop='pattern'];
+@custom-selector :--prefix [itemprop='prefix'];
+@custom-selector :--productID [itemprop='productID'];
+@custom-selector :--programmingLanguage [itemprop='programmingLanguage'];
+@custom-selector :--publisher [itemprop='publisher'];
+@custom-selector :--readonly [itemprop='readonly'];
+@custom-selector :--reads [itemprop='reads'];
+@custom-selector :--references [itemprop='references'];
+@custom-selector :--relation [itemprop='relation'];
+@custom-selector :--repeats [itemprop='repeats'];
+@custom-selector :--required [itemprop='required'];
+@custom-selector :--returns [itemprop='returns'];
+@custom-selector :--reviews [itemprop='reviews'];
+@custom-selector :--rowType [itemprop='rowType'];
+@custom-selector :--rows [itemprop='rows'];
+@custom-selector :--rowspan [itemprop='rowspan'];
+@custom-selector :--runtimePlatform [itemprop='runtimePlatform'];
+@custom-selector :--softwareRequirements [itemprop='softwareRequirements'];
+@custom-selector :--softwareVersion [itemprop='softwareVersion'];
+@custom-selector :--source [itemprop='source'];
+@custom-selector :--stackTrace [itemprop='stackTrace'];
+@custom-selector :--suffix [itemprop='suffix'];
+@custom-selector :--target [itemprop='target'];
+@custom-selector :--targetProducts [itemprop='targetProducts'];
+@custom-selector :--telephoneNumbers [itemprop='telephoneNumbers'];
+@custom-selector :--text [itemprop='text'];
+@custom-selector :--thumbnail [itemprop='thumbnail'];
+@custom-selector :--title [itemprop='title'];
+@custom-selector :--transcript [itemprop='transcript'];
+@custom-selector :--type [itemprop='type'];
+@custom-selector :--uniqueItems [itemprop='uniqueItems'];
 @custom-selector :--url [itemprop='url'];
+@custom-selector :--uses [itemprop='uses'];
+@custom-selector :--validator [itemprop='validator'];
+@custom-selector :--value [itemprop='value'];
+@custom-selector :--values [itemprop='values'];
+@custom-selector :--version [itemprop='version'];
+@custom-selector :--volumeNumber [itemprop='volumeNumber'];
+
+  
