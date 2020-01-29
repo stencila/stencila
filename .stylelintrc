@@ -1,0 +1,30 @@
+{
+  "extends": "stylelint-config-standard",
+  "plugins": [
+    "stylelint-selector-pattern",
+    "stylelint-declaration-block-no-ignored-properties",
+    "stylelint-declaration-strict-value",
+    "stylelint-selector-tag-no-without-class"
+  ],
+  "rules": {
+    "selector-pseudo-class-case": null,
+    "no-descending-specificity": null,
+    "plugin/declaration-block-no-ignored-properties": true,
+    "plugin/selector-tag-no-without-class": "tag",
+    "scale-unlimited/declaration-strict-value": [
+      ["/color/", "font-size", "fill", "stroke"], {
+      ignoreKeywords: ["currentColor", "inherit"],
+    }],
+    "xi/selector-pattern": [
+      "^(?:(?:{element}{pseudo}?)*{combinator}?(?:{element}{pseudo}?)?)+$",
+      {
+        "subpatterns": {
+          "semantic": ":--[A-z][A-z0-9]+",
+          "element": "(?:\\w*:--[A-z][A-z0-9]+|:root)",
+          "pseudo": "(?::{1,2}(?:\\w|-)+)",
+          "combinator": "(:?\\s*(?:>|\\+|~|\\s+|\\|\\|)\\s*)"
+        }
+      }
+    ],
+  }
+}
