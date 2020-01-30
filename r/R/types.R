@@ -505,6 +505,7 @@ Emphasis <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param url The URL of the item.
@@ -514,6 +515,7 @@ Thing <- function(
   alternateNames,
   description,
   id,
+  identifiers,
   meta,
   name,
   url
@@ -525,6 +527,7 @@ Thing <- function(
   self$type <- as_scalar("Thing")
   self[["alternateNames"]] <- check_property("Thing", "alternateNames", FALSE, missing(alternateNames), Array("character"), alternateNames)
   self[["description"]] <- check_property("Thing", "description", FALSE, missing(description), Union("character", Array(Node)), description)
+  self[["identifiers"]] <- check_property("Thing", "identifiers", FALSE, missing(identifiers), Array(Union("character", PropertyValue)), identifiers)
   self[["name"]] <- check_property("Thing", "name", FALSE, missing(name), "character", name)
   self[["url"]] <- check_property("Thing", "url", FALSE, missing(url), "character", url)
   class(self) <- c(class(self), "Thing")
@@ -539,6 +542,7 @@ Thing <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param logo A logo associated with the brand.
 #' @param meta Metadata associated with this item.
 #' @param reviews Reviews of the brand.
@@ -550,6 +554,7 @@ Brand <- function(
   alternateNames,
   description,
   id,
+  identifiers,
   logo,
   meta,
   reviews,
@@ -560,6 +565,7 @@ Brand <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     url = url
   )
@@ -580,6 +586,7 @@ Brand <- function(
 #' @param description A description of the item.
 #' @param emails Email address for correspondence.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param telephoneNumbers Telephone numbers for the contact point.
@@ -592,6 +599,7 @@ ContactPoint <- function(
   description,
   emails,
   id,
+  identifiers,
   meta,
   name,
   telephoneNumbers,
@@ -601,6 +609,7 @@ ContactPoint <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     name = name,
     url = url
@@ -627,6 +636,7 @@ ContactPoint <- function(
 #' @param editors Persons who edited the CreativeWork.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -652,6 +662,7 @@ CreativeWork <- function(
   editors,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -669,6 +680,7 @@ CreativeWork <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     name = name,
     url = url
@@ -708,6 +720,7 @@ CreativeWork <- function(
 #' @param editors Persons who edited the CreativeWork.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -733,6 +746,7 @@ Article <- function(
   editors,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -757,6 +771,7 @@ Article <- function(
     editors = editors,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -791,6 +806,7 @@ Article <- function(
 #' @param editors Persons who edited the CreativeWork.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -816,6 +832,7 @@ Collection <- function(
   editors,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -840,6 +857,7 @@ Collection <- function(
     editors = editors,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -873,6 +891,7 @@ Collection <- function(
 #' @param editors Persons who edited the CreativeWork.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -899,6 +918,7 @@ Datatable <- function(
   editors,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -923,6 +943,7 @@ Datatable <- function(
     editors = editors,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -961,6 +982,7 @@ Datatable <- function(
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -991,6 +1013,7 @@ MediaObject <- function(
   format,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -1015,6 +1038,7 @@ MediaObject <- function(
     editors = editors,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -1058,6 +1082,7 @@ MediaObject <- function(
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -1090,6 +1115,7 @@ AudioObject <- function(
   format,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -1120,6 +1146,7 @@ AudioObject <- function(
     format = format,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -1149,6 +1176,7 @@ AudioObject <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param meta Metadata associated with this item.
 #' @param url The URL of the item.
 #' @param validator The validator to use to validate data in the column.
@@ -1160,6 +1188,7 @@ DatatableColumn <- function(
   alternateNames,
   description,
   id,
+  identifiers,
   meta,
   url,
   validator
@@ -1169,6 +1198,7 @@ DatatableColumn <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     url = url
   )
@@ -1219,6 +1249,7 @@ EnumValidator <- function(
 #' @param editors Persons who edited the CreativeWork.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param label A short label for the figure.
@@ -1246,6 +1277,7 @@ Figure <- function(
   editors,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   label,
@@ -1271,6 +1303,7 @@ Figure <- function(
     editors = editors,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -1368,6 +1401,7 @@ Heading <- function(
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -1400,6 +1434,7 @@ ImageObject <- function(
   format,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -1430,6 +1465,7 @@ ImageObject <- function(
     format = format,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -1741,6 +1777,7 @@ MathFragment <- function(
 #' @param description A description of the item.
 #' @param funders Organization(s) or person(s) funding the organization.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param legalName Legal name for the Organization. Should only include letters and spaces.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -1757,6 +1794,7 @@ Organization <- function(
   description,
   funders,
   id,
+  identifiers,
   legalName,
   meta,
   name,
@@ -1767,6 +1805,7 @@ Organization <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     name = name,
     url = url
@@ -1901,8 +1940,9 @@ Parameter <- function(
 #' @param editors Persons who edited the CreativeWork.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param issn The International Standard Serial Number (ISSN) that identifies this serial publication.
+#' @param issns The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
@@ -1929,8 +1969,9 @@ Periodical <- function(
   editors,
   funders,
   id,
+  identifiers,
   isPartOf,
-  issn,
+  issns,
   keywords,
   licenses,
   meta,
@@ -1954,6 +1995,7 @@ Periodical <- function(
     editors = editors,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -1970,7 +2012,7 @@ Periodical <- function(
   self$type <- as_scalar("Periodical")
   self[["dateEnd"]] <- check_property("Periodical", "dateEnd", FALSE, missing(dateEnd), Union(Date, "character"), dateEnd)
   self[["dateStart"]] <- check_property("Periodical", "dateStart", FALSE, missing(dateStart), Union(Date, "character"), dateStart)
-  self[["issn"]] <- check_property("Periodical", "issn", FALSE, missing(issn), Array("character"), issn)
+  self[["issns"]] <- check_property("Periodical", "issns", FALSE, missing(issns), Array("character"), issns)
   class(self) <- c(class(self), "Periodical")
   self
 }
@@ -1990,6 +2032,7 @@ Periodical <- function(
 #' @param honorificPrefix An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
 #' @param honorificSuffix An honorific suffix after a person's name such as MD/PhD/MSCSW.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param jobTitle The job title of the person (for example, Financial Manager).
 #' @param memberOf An organization (or program membership) to which this person belongs.
 #' @param meta Metadata associated with this item.
@@ -2010,6 +2053,7 @@ Person <- function(
   honorificPrefix,
   honorificSuffix,
   id,
+  identifiers,
   jobTitle,
   memberOf,
   meta,
@@ -2021,6 +2065,7 @@ Person <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     name = name,
     url = url
@@ -2049,6 +2094,7 @@ Person <- function(
 #' @param brands Brands that the product is labelled with.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param logo The logo of the product.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -2061,6 +2107,7 @@ Product <- function(
   brands,
   description,
   id,
+  identifiers,
   logo,
   meta,
   name,
@@ -2071,6 +2118,7 @@ Product <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     name = name,
     url = url
@@ -2080,6 +2128,48 @@ Product <- function(
   self[["logo"]] <- check_property("Product", "logo", FALSE, missing(logo), Union("character", ImageObject), logo)
   self[["productID"]] <- check_property("Product", "productID", FALSE, missing(productID), "character", productID)
   class(self) <- c(class(self), "Product")
+  self
+}
+
+
+#' A property-value pair.
+#'
+#' @name PropertyValue
+#' @param value The value of the property. \bold{Required}.
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param description A description of the item.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param propertyID A commonly used identifier for the characteristic represented by the property.
+#' @param url The URL of the item.
+#' @seealso \code{\link{Thing}}
+#' @export
+PropertyValue <- function(
+  value,
+  alternateNames,
+  description,
+  id,
+  identifiers,
+  meta,
+  name,
+  propertyID,
+  url
+){
+  self <- Thing(
+    alternateNames = alternateNames,
+    description = description,
+    id = id,
+    identifiers = identifiers,
+    meta = meta,
+    name = name,
+    url = url
+  )
+  self$type <- as_scalar("PropertyValue")
+  self[["value"]] <- check_property("PropertyValue", "value", TRUE, missing(value), Node, value)
+  self[["propertyID"]] <- check_property("PropertyValue", "propertyID", FALSE, missing(propertyID), "character", propertyID)
+  class(self) <- c(class(self), "PropertyValue")
   self
 }
 
@@ -2097,6 +2187,7 @@ Product <- function(
 #' @param editors Persons who edited the CreativeWork.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param issueNumber Identifies the issue of publication; for example, "iii" or "2".
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -2126,6 +2217,7 @@ PublicationIssue <- function(
   editors,
   funders,
   id,
+  identifiers,
   isPartOf,
   issueNumber,
   keywords,
@@ -2154,6 +2246,7 @@ PublicationIssue <- function(
     editors = editors,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2190,6 +2283,7 @@ PublicationIssue <- function(
 #' @param editors Persons who edited the CreativeWork.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -2219,6 +2313,7 @@ PublicationVolume <- function(
   editors,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -2247,6 +2342,7 @@ PublicationVolume <- function(
     editors = editors,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2337,6 +2433,7 @@ QuoteBlock <- function(
 #' @param editors Persons who edited the CreativeWork.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -2364,6 +2461,7 @@ SoftwareApplication <- function(
   editors,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -2390,6 +2488,7 @@ SoftwareApplication <- function(
     editors = editors,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2426,6 +2525,7 @@ SoftwareApplication <- function(
 #' @param editors Persons who edited the CreativeWork.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -2458,6 +2558,7 @@ SoftwareSourceCode <- function(
   editors,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -2487,6 +2588,7 @@ SoftwareSourceCode <- function(
     editors = editors,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2632,6 +2734,7 @@ Superscript <- function(
 #' @param editors Persons who edited the CreativeWork.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -2658,6 +2761,7 @@ Table <- function(
   editors,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -2682,6 +2786,7 @@ Table <- function(
     editors = editors,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2830,6 +2935,7 @@ TupleValidator <- function(
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param funders Person or organisation that funded the CreativeWork.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -2863,6 +2969,7 @@ VideoObject <- function(
   format,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -2894,6 +3001,7 @@ VideoObject <- function(
     format = format,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2950,7 +3058,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datat
 #' All type schemas that are derived from Entity
 #'
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, Product, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject)
 
 
 #' Union type for valid inline content.
@@ -2992,7 +3100,7 @@ NumberValidatorTypes <- Union(NumberValidator, IntegerValidator)
 #' All type schemas that are derived from Thing
 #'
 #' @export
-ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, Figure, ImageObject, MediaObject, Organization, Periodical, Person, Product, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
+ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, Figure, ImageObject, MediaObject, Organization, Periodical, Person, Product, PropertyValue, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
 
 
 #' Union type for all validator types.

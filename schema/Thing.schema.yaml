@@ -20,6 +20,21 @@ properties:
       - type: array
         items:
           $ref: Node
+  identifiers:
+    '@id': schema:identifier
+    description: Any kind of identifier for any kind of Thing.
+    $comment: |
+      Some identifiers have specific properties e.g the `issn` property for
+      the `Periodical` type. These should be used in preference to this
+      property which is intended for identifiers that do not yet have a
+      specific property. Identifiers can be represented as strings, but
+      using a `PropertyValue` will usually be better because it allows
+      for `propertyID` (i.e. the type of identifier).
+    type: array
+    items:
+      - anyOf:
+        - type: string
+        - $ref: PropertyValue
   name:
     '@id': schema:name
     description: The name of the item.
