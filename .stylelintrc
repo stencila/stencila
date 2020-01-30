@@ -14,6 +14,7 @@
     "scale-unlimited/declaration-strict-value": [
       ["/color/", "font-size", "fill", "stroke"], {
       ignoreKeywords: ["currentColor", "inherit"],
+      disableFix: true
     }],
     "xi/selector-pattern": [
       "^(?:(?:{element}{pseudo}?)*{combinator}?(?:{element}{pseudo}?)?)+$",

@@ -37,6 +37,7 @@
 
     :--organizations {
       @mixin list-separated '; ';
+
       margin-top: 1.25rem;
       display: block;
 

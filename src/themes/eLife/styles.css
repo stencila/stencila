@@ -326,12 +326,14 @@ blockquote {
 
     :--authors {
       @mixin list-separated;
+
       display: block;
       margin: 0 auto;
     }
 
     :--organizations {
       @mixin list-separated '; ';
+
       font-size: 14px;
 
       :--Organization > * {
@@ -377,7 +379,7 @@ blockquote {
     }
 
     > :--headline + div {
-      /* 
+      /*
         Allow datePublished and authors to be listed
         on the same line.
       */
