@@ -50,6 +50,7 @@ const generateItemTypes = (): [string, string][] => {
       case 'Entity':
       case 'EnumValidator':
       case 'Function':
+      case 'Heading':
       case 'Include':
       case 'InlineContent':
       case 'IntegerValidator':
@@ -81,7 +82,7 @@ const generateSelectors = async (): Promise<void> => {
 
   generateItemTypes().map(
     ([type, schemaURL]) =>
-      (selectors += `@custom-selector :--${type} [itemtype='${schemaURL}'];\n`)
+      (selectors += `@custom-selector :--${type} [itemtype=*'${schemaURL}'];\n`)
   )
 
   let props = ''
