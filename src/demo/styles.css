@@ -2,17 +2,17 @@ header {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
   z-index: 100;
   background: white;
   opacity: 0.95;
   border-bottom: 1px solid #dedede;
   height: 3rem;
   padding: 0.5rem 1rem 1rem 1rem;
-
+  box-sizing: border-box;
   color: #777;
   font-size: 0.9rem;
   font-family: sans-serif;
+  width: 100vw;
 
   * {
     vertical-align: middle;
@@ -31,4 +31,8 @@ header {
     float: right;
     margin: 0.2rem;
   }
+}
+
+header + main {
+  margin-top: 3rem;
 }
