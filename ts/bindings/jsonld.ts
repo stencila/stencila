@@ -69,8 +69,7 @@ export const build = async (): Promise<void> => {
         if (
           pid === undefined ||
           name === 'id' ||
-          name === 'type' ||
-          name === 'value'
+          name === 'type'
         )
           continue
         // The `schema` property clashes with the schema.org alias. So rename it...
