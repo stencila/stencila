@@ -62,20 +62,31 @@ properties:
       - $ref: '#/definitions/dateProperty'
   editors:
     '@id': schema:editor
-    description: |
-      Persons who edited the CreativeWork.
+    description: People who edited the `CreativeWork`.
     type: array
     items:
       $ref: Person
   funders:
     '@id': schema:funder
-    description: |
-      Person or organisation that funded the CreativeWork.
+    description: People or organizations that funded the `CreativeWork`.
     type: array
     items:
       anyOf:
         - $ref: Person
         - $ref: Organization
+  fundedBy:
+    '@id': stencila:fundedBy
+    description: Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+    $comment: |
+      This follows the proposal [here](https://github.com/schemaorg/schemaorg/issues/2258)
+      for a property that is the reverse of `fundedItems`.
+      It is an any because a `CreativeWork` may have been funded through more than
+      one `Grant`.
+    type: array
+    items:
+      anyOf:
+        - $ref: Grant
+        - $ref: MonetaryGrant
   keywords:
     '@id': schema:keywords
     description: |

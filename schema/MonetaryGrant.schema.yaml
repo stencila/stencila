@@ -1,0 +1,27 @@
+title: MonetaryGrant
+'@id': schema:MonetaryGrant
+extends: Grant
+role: tertiary
+status: unstable
+category: metadata
+description: A monetary grant.
+properties:
+  amounts:
+    '@id': schema:amount
+    description: The amount of money.
+    $comment: |
+      This property is an array, to allow for multiple amounts, possibly, but not necessarily,
+      from multiple `funders`.
+    type: number
+  funders:
+    '@id': schema:funder
+    description: |
+      A person or organization that supports (sponsors) something through some kind of financial contribution.
+    $comment:
+      Often a `MonetaryGrant` will have a single funder.
+      This property is an array to be consistent with `funders` on other types e.g. `CreativeWork`.
+    type: array
+    items:
+      anyOf:
+      - $ref: Person
+      - $ref: Organization

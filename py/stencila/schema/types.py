@@ -561,10 +561,13 @@ class CreativeWork(Thing):
 
     authors: Optional[Array[Union["Person", "Organization"]]] = None
     content: Optional[Array["Node"]] = None
+    dateAccepted: Optional[Union["Date", str]] = None
     dateCreated: Optional[Union["Date", str]] = None
     dateModified: Optional[Union["Date", str]] = None
     datePublished: Optional[Union["Date", str]] = None
+    dateReceived: Optional[Union["Date", str]] = None
     editors: Optional[Array["Person"]] = None
+    fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None
     funders: Optional[Array[Union["Person", "Organization"]]] = None
     isPartOf: Optional["CreativeWorkTypes"] = None
     keywords: Optional[Array[str]] = None
@@ -581,11 +584,14 @@ class CreativeWork(Thing):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -615,14 +621,20 @@ class CreativeWork(Thing):
             self.authors = authors
         if content is not None:
             self.content = content
+        if dateAccepted is not None:
+            self.dateAccepted = dateAccepted
         if dateCreated is not None:
             self.dateCreated = dateCreated
         if dateModified is not None:
             self.dateModified = dateModified
         if datePublished is not None:
             self.datePublished = datePublished
+        if dateReceived is not None:
+            self.dateReceived = dateReceived
         if editors is not None:
             self.editors = editors
+        if fundedBy is not None:
+            self.fundedBy = fundedBy
         if funders is not None:
             self.funders = funders
         if isPartOf is not None:
@@ -653,11 +665,14 @@ class Article(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -678,11 +693,14 @@ class Article(CreativeWork):
             alternateNames=alternateNames,
             authors=authors,
             content=content,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -713,11 +731,14 @@ class Collection(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -738,11 +759,14 @@ class Collection(CreativeWork):
             alternateNames=alternateNames,
             authors=authors,
             content=content,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -773,11 +797,14 @@ class Datatable(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -798,11 +825,14 @@ class Datatable(CreativeWork):
             alternateNames=alternateNames,
             authors=authors,
             content=content,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -843,13 +873,16 @@ class MediaObject(CreativeWork):
         bitrate: Optional[float] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -870,11 +903,14 @@ class MediaObject(CreativeWork):
             alternateNames=alternateNames,
             authors=authors,
             content=content,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -918,13 +954,16 @@ class AudioObject(MediaObject):
         caption: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -949,13 +988,16 @@ class AudioObject(MediaObject):
             bitrate=bitrate,
             content=content,
             contentSize=contentSize,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
             embedUrl=embedUrl,
             format=format,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -1048,11 +1090,14 @@ class Figure(CreativeWork):
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         caption: Optional[Array["Node"]] = None,
         content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -1074,11 +1119,14 @@ class Figure(CreativeWork):
             alternateNames=alternateNames,
             authors=authors,
             content=content,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -1131,6 +1179,39 @@ class Function(Entity):
             self.returns = returns
 
 
+class Grant(Thing):
+    """A grant, typically financial or otherwise quantifiable, of resources."""
+
+    fundedItems: Optional[Array["Thing"]] = None
+    sponsors: Optional[Array[Union["Person", "Organization"]]] = None
+
+    def __init__(
+        self,
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
+        fundedItems: Optional[Array["Thing"]] = None,
+        id: Optional[str] = None,
+        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        sponsors: Optional[Array[Union["Person", "Organization"]]] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            identifiers=identifiers,
+            meta=meta,
+            name=name,
+            url=url
+        )
+        if fundedItems is not None:
+            self.fundedItems = fundedItems
+        if sponsors is not None:
+            self.sponsors = sponsors
+
+
 class Heading(Entity):
     """Heading"""
 
@@ -1169,13 +1250,16 @@ class ImageObject(MediaObject):
         caption: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -1200,13 +1284,16 @@ class ImageObject(MediaObject):
             bitrate=bitrate,
             content=content,
             contentSize=contentSize,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
             embedUrl=embedUrl,
             format=format,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -1470,6 +1557,43 @@ class MathFragment(Math):
 
 
 
+class MonetaryGrant(Grant):
+    """A monetary grant."""
+
+    amounts: Optional[float] = None
+    funders: Optional[Array[Union["Person", "Organization"]]] = None
+
+    def __init__(
+        self,
+        alternateNames: Optional[Array[str]] = None,
+        amounts: Optional[float] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
+        fundedItems: Optional[Array["Thing"]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        id: Optional[str] = None,
+        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        sponsors: Optional[Array[Union["Person", "Organization"]]] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            description=description,
+            fundedItems=fundedItems,
+            id=id,
+            identifiers=identifiers,
+            meta=meta,
+            name=name,
+            sponsors=sponsors,
+            url=url
+        )
+        if amounts is not None:
+            self.amounts = amounts
+        if funders is not None:
+            self.funders = funders
+
+
 class Organization(Thing):
     """An organization such as a school, NGO, corporation, club, etc."""
 
@@ -1624,13 +1748,16 @@ class Periodical(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateEnd: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         dateStart: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -1652,11 +1779,14 @@ class Periodical(CreativeWork):
             alternateNames=alternateNames,
             authors=authors,
             content=content,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -1839,11 +1969,14 @@ class PublicationIssue(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -1868,11 +2001,14 @@ class PublicationIssue(CreativeWork):
             alternateNames=alternateNames,
             authors=authors,
             content=content,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -1915,11 +2051,14 @@ class PublicationVolume(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -1944,11 +2083,14 @@ class PublicationVolume(CreativeWork):
             alternateNames=alternateNames,
             authors=authors,
             content=content,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -2030,11 +2172,14 @@ class SoftwareApplication(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -2057,11 +2202,14 @@ class SoftwareApplication(CreativeWork):
             alternateNames=alternateNames,
             authors=authors,
             content=content,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -2105,11 +2253,14 @@ class SoftwareSourceCode(CreativeWork):
         codeRepository: Optional[str] = None,
         codeSampleType: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -2135,11 +2286,14 @@ class SoftwareSourceCode(CreativeWork):
             alternateNames=alternateNames,
             authors=authors,
             content=content,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -2261,11 +2415,14 @@ class Table(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -2286,11 +2443,14 @@ class Table(CreativeWork):
             alternateNames=alternateNames,
             authors=authors,
             content=content,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -2424,13 +2584,16 @@ class VideoObject(MediaObject):
         caption: Optional[str] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
         description: Optional[Union[str, Array["Node"]]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
@@ -2456,13 +2619,16 @@ class VideoObject(MediaObject):
             bitrate=bitrate,
             content=content,
             contentSize=contentSize,
+            dateAccepted=dateAccepted,
             dateCreated=dateCreated,
             dateModified=dateModified,
             datePublished=datePublished,
+            dateReceived=dateReceived,
             description=description,
             editors=editors,
             embedUrl=embedUrl,
             format=format,
+            fundedBy=fundedBy,
             funders=funders,
             id=id,
             identifiers=identifiers,
@@ -2520,7 +2686,13 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection"
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject"]
+
+
+"""
+All type schemas that are derived from Grant
+"""
+GrantTypes = Union["Grant", "MonetaryGrant"]
 
 
 """
@@ -2562,7 +2734,7 @@ NumberValidatorTypes = Union["NumberValidator", "IntegerValidator"]
 """
 All type schemas that are derived from Thing
 """
-ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Figure", "ImageObject", "MediaObject", "Organization", "Periodical", "Person", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
+ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Figure", "Grant", "ImageObject", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
 
 
 """
