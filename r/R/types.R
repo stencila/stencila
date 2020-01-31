@@ -1941,6 +1941,7 @@ MonetaryGrant <- function(
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param legalName Legal name for the Organization. Should only include letters and spaces.
+#' @param logo The logo of the organization.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param parentOrganization Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
@@ -1958,6 +1959,7 @@ Organization <- function(
   id,
   identifiers,
   legalName,
+  logo,
   meta,
   name,
   parentOrganization,
@@ -1979,6 +1981,7 @@ Organization <- function(
   self[["departments"]] <- check_property("Organization", "departments", FALSE, missing(departments), Array(Organization), departments)
   self[["funders"]] <- check_property("Organization", "funders", FALSE, missing(funders), Array(Union(Organization, Person)), funders)
   self[["legalName"]] <- check_property("Organization", "legalName", FALSE, missing(legalName), "character", legalName)
+  self[["logo"]] <- check_property("Organization", "logo", FALSE, missing(logo), Union("character", ImageObject), logo)
   self[["parentOrganization"]] <- check_property("Organization", "parentOrganization", FALSE, missing(parentOrganization), Organization, parentOrganization)
   class(self) <- c(class(self), "Organization")
   self

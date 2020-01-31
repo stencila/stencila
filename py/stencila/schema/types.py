@@ -1603,6 +1603,7 @@ class Organization(Thing):
     departments: Optional[Array["Organization"]] = None
     funders: Optional[Array[Union["Organization", "Person"]]] = None
     legalName: Optional[str] = None
+    logo: Optional[Union[str, "ImageObject"]] = None
     parentOrganization: Optional["Organization"] = None
 
     def __init__(
@@ -1617,6 +1618,7 @@ class Organization(Thing):
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         legalName: Optional[str] = None,
+        logo: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parentOrganization: Optional["Organization"] = None,
@@ -1643,6 +1645,8 @@ class Organization(Thing):
             self.funders = funders
         if legalName is not None:
             self.legalName = legalName
+        if logo is not None:
+            self.logo = logo
         if parentOrganization is not None:
             self.parentOrganization = parentOrganization
 
