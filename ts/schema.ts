@@ -323,9 +323,11 @@ const processSchema = (schemas: Map<string, Schema>, schema: Schema): void => {
 
       // Extend `definitions` (these may be required for inline $refs
       // in inherited properties to work)
-      schema.definitions = {
-        ...cloneDeep(parent.definitions),
-        ...(schema.definitions ?? {})
+      if (parent.definitions !== undefined) {
+        schema.definitions = {
+          ...cloneDeep(parent.definitions),
+          ...(schema.definitions ?? {})
+        }
       }
 
       // Flag inherited, but newly required properties, as overrides
