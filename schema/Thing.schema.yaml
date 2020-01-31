@@ -32,7 +32,7 @@ properties:
       for `propertyID` (i.e. the type of identifier).
     type: array
     items:
-      - anyOf:
+      anyOf:
         - type: string
         - $ref: PropertyValue
   name:
