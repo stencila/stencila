@@ -176,7 +176,7 @@ const docComment = (description?: string, tags: string[] = []): string => {
 const schemaToType = (schema: Schema): string => {
   const { type, anyOf, allOf, $ref } = schema
 
-  if ($ref !== undefined) return `${$ref.replace('.schema.json', '')}`
+  if ($ref !== undefined) return $refToType($ref)
   if (anyOf !== undefined) return anyOfToType(anyOf)
   if (allOf !== undefined) return allOfToType(allOf)
   if (schema.enum !== undefined) return enumToType(schema.enum)
@@ -190,6 +190,15 @@ const schemaToType = (schema: Schema): string => {
   if (type === 'object') return '{[key: string]: any}'
 
   throw new Error(`Unhandled schema: ${JSON.stringify(schema)}`)
+}
+
+/**
+ * Convert a schema `$ref` (reference) to a Typescript type
+ *
+ * Assume that any `$ref`s refer to a type defined in the file.
+ */
+const $refToType = ($ref: string): string => {
+  return $ref.replace('.schema.json', '')
 }
 
 /**

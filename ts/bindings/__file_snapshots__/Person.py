@@ -26,6 +26,7 @@ class Person(Thing):
         honorificPrefix: Optional[str] = None,
         honorificSuffix: Optional[str] = None,
         id: Optional[str] = None,
+        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         jobTitle: Optional[str] = None,
         memberOf: Optional[Array["Organization"]] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -37,6 +38,7 @@ class Person(Thing):
             alternateNames=alternateNames,
             description=description,
             id=id,
+            identifiers=identifiers,
             meta=meta,
             name=name,
             url=url

@@ -26,9 +26,13 @@ properties:
         format: date
       - type: string
         format: date-time
-  issn:
+  issns:
     '@id': schema:issn
-    description: The International Standard Serial Number (ISSN) that identifies this serial publication.
+    description: The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
+    $comment: |
+      A periodical may have multiple ISSN (e.g. for online and print versions).
+      See [issn.org](https://www.issn.org/understanding-the-issn/assignment-rules/the-issn-for-electronic-media/)
+      for more details.
     type: array
     items:
       - type: string

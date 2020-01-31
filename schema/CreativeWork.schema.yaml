@@ -31,21 +31,26 @@ properties:
   dateCreated:
     '@id': schema:dateCreated
     description: Date/time of creation.
-    anyOf:
-      - $ref: Date
-      - type: string
-        format: date
-      - type: string
-        format: date-time
+    allOf:
+      - $ref: '#/definitions/dateProperty'
+  dateReceived:
+    '@id': schema:dateReceived
+    description: Date/time that work was received.
+    allOf:
+      - $ref: '#/definitions/dateProperty'
+  dateAccepted:
+    '@id': stencila:dateAccepted
+    description: Date/time of acceptance.
+    $comment: |
+      This is not yet a schema.org property but the term is used
+      [in Dublin Core](http://purl.org/dc/terms/dateAccepted).
+    allOf:
+      - $ref: '#/definitions/dateProperty'
   dateModified:
     '@id': schema:dateModified
     description: Date/time of most recent modification.
-    anyOf:
-      - $ref: Date
-      - type: string
-        format: date
-      - type: string
-        format: date-time
+    allOf:
+      - $ref: '#/definitions/dateProperty'
   datePublished:
     '@id': schema:datePublished
     aliases:
@@ -53,31 +58,35 @@ properties:
       # and not the date modified or created.
       - date
     description: Date of first publication.
-    anyOf:
-      # Although schema.org says expected values are `Date`, for
-      # consistency with `dateCreated` and `dateModified` we allow
-      # for `DateTime` as well.
-      - $ref: Date
-      - type: string
-        format: date
-      - type: string
-        format: date-time
+    allOf:
+      - $ref: '#/definitions/dateProperty'
   editors:
     '@id': schema:editor
-    description: |
-      Persons who edited the CreativeWork.
+    description: People who edited the `CreativeWork`.
     type: array
     items:
       $ref: Person
   funders:
     '@id': schema:funder
-    description: |
-      Person or organisation that funded the CreativeWork.
+    description: People or organizations that funded the `CreativeWork`.
     type: array
     items:
       anyOf:
         - $ref: Person
         - $ref: Organization
+  fundedBy:
+    '@id': stencila:fundedBy
+    description: Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+    $comment: |
+      This follows the proposal [here](https://github.com/schemaorg/schemaorg/issues/2258)
+      for a property that is the reverse of `fundedItems`.
+      It is an any because a `CreativeWork` may have been funded through more than
+      one `Grant`.
+    type: array
+    items:
+      anyOf:
+        - $ref: Grant
+        - $ref: MonetaryGrant
   keywords:
     '@id': schema:keywords
     description: |
@@ -159,3 +168,15 @@ properties:
     anyOf:
       - type: string
       - type: number
+definitions:
+  dateProperty:
+    # Schema for data properties
+    # Although schema.org says expected values are `Date`, for
+    # consistency with `dateCreated` and `dateModified` we allow
+    # for `DateTime` as well.
+    anyOf:
+      - $ref: Date
+      - type: string
+        format: date
+      - type: string
+        format: date-time

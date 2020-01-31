@@ -1,0 +1,29 @@
+title: PropertyValue
+'@id': schema:PropertyValue
+extends: Thing
+status: stable
+role: secondary
+category: metadata
+description: A property-value pair.
+$comment: |
+  Always use specific properties when they exist and you can populate them.
+  Using `PropertyValue` as a substitute will typically not convey as much semantic
+  information as using the specific property.
+
+  Most of the time a `PropertyValue` node will need a `value` property
+  (e.g. most of the examples on https://schema.org/PropertyValue have one)
+  so this schema make that property required.
+
+  This type is mainly provided for use in `Thing.identifiers` (see the notes there).
+properties:
+  propertyID:
+    '@id': schema:propertyID
+    description: A commonly used identifier for the characteristic represented by the property.
+    type: string
+  value:
+    '@id': schema:value
+    description: The value of the property.
+    anyOf:
+      - $ref: Node
+required:
+  - value

@@ -1,0 +1,26 @@
+title: Grant
+'@id': schema:Grant
+extends: Thing
+role: tertiary
+status: unstable
+category: metadata
+description: A grant, typically financial or otherwise quantifiable, of resources.
+properties:
+  fundedItems:
+    '@id': schema:fundedItem
+    description: Indicates an item funded or sponsored through a Grant.
+    $comment: |
+      An array because a grant may have more than one funded item.
+    type: array
+    items:
+      $ref: Thing
+  sponsors:
+    '@id': schema:sponsor
+    description: A person or organization that supports a thing through a pledge, promise, or financial contribution.
+    $comment: |
+      An array because a grant may have more than one sponsor.
+    type: array
+    items:
+      anyOf:
+        - $ref: Person
+        - $ref: Organization

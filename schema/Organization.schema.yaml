@@ -47,6 +47,16 @@ properties:
       Legal name for the Organization. Should only include letters and spaces.
     type: string
     pattern: '[a-zA-Z]'
+  logo:
+    '@id': schema:logo
+    description: The logo of the organization.
+    $comment: |
+      This is a singleton property because, at any one time, an organization
+      will usually only have one logo.
+    anyOf:
+      - type: string
+        format: uri
+      - $ref: ImageObject
   parentOrganization:
     '@id': schema:parentOrganization
     description: |

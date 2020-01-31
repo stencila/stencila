@@ -505,6 +505,7 @@ Emphasis <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param url The URL of the item.
@@ -514,6 +515,7 @@ Thing <- function(
   alternateNames,
   description,
   id,
+  identifiers,
   meta,
   name,
   url
@@ -525,6 +527,7 @@ Thing <- function(
   self$type <- as_scalar("Thing")
   self[["alternateNames"]] <- check_property("Thing", "alternateNames", FALSE, missing(alternateNames), Array("character"), alternateNames)
   self[["description"]] <- check_property("Thing", "description", FALSE, missing(description), Union("character", Array(Node)), description)
+  self[["identifiers"]] <- check_property("Thing", "identifiers", FALSE, missing(identifiers), Array(Union("character", PropertyValue)), identifiers)
   self[["name"]] <- check_property("Thing", "name", FALSE, missing(name), "character", name)
   self[["url"]] <- check_property("Thing", "url", FALSE, missing(url), "character", url)
   class(self) <- c(class(self), "Thing")
@@ -539,6 +542,7 @@ Thing <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param logo A logo associated with the brand.
 #' @param meta Metadata associated with this item.
 #' @param reviews Reviews of the brand.
@@ -550,6 +554,7 @@ Brand <- function(
   alternateNames,
   description,
   id,
+  identifiers,
   logo,
   meta,
   reviews,
@@ -560,6 +565,7 @@ Brand <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     url = url
   )
@@ -580,6 +586,7 @@ Brand <- function(
 #' @param description A description of the item.
 #' @param emails Email address for correspondence.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param telephoneNumbers Telephone numbers for the contact point.
@@ -592,6 +599,7 @@ ContactPoint <- function(
   description,
   emails,
   id,
+  identifiers,
   meta,
   name,
   telephoneNumbers,
@@ -601,6 +609,7 @@ ContactPoint <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     name = name,
     url = url
@@ -620,13 +629,17 @@ ContactPoint <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -645,13 +658,17 @@ CreativeWork <- function(
   alternateNames,
   authors,
   content,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -669,6 +686,7 @@ CreativeWork <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     name = name,
     url = url
@@ -676,10 +694,13 @@ CreativeWork <- function(
   self$type <- as_scalar("CreativeWork")
   self[["authors"]] <- check_property("CreativeWork", "authors", FALSE, missing(authors), Array(Union(Person, Organization)), authors)
   self[["content"]] <- check_property("CreativeWork", "content", FALSE, missing(content), Array(Node), content)
+  self[["dateAccepted"]] <- check_property("CreativeWork", "dateAccepted", FALSE, missing(dateAccepted), Union(Date, "character"), dateAccepted)
   self[["dateCreated"]] <- check_property("CreativeWork", "dateCreated", FALSE, missing(dateCreated), Union(Date, "character"), dateCreated)
   self[["dateModified"]] <- check_property("CreativeWork", "dateModified", FALSE, missing(dateModified), Union(Date, "character"), dateModified)
   self[["datePublished"]] <- check_property("CreativeWork", "datePublished", FALSE, missing(datePublished), Union(Date, "character"), datePublished)
+  self[["dateReceived"]] <- check_property("CreativeWork", "dateReceived", FALSE, missing(dateReceived), Union(Date, "character"), dateReceived)
   self[["editors"]] <- check_property("CreativeWork", "editors", FALSE, missing(editors), Array(Person), editors)
+  self[["fundedBy"]] <- check_property("CreativeWork", "fundedBy", FALSE, missing(fundedBy), Array(Union(Grant, MonetaryGrant)), fundedBy)
   self[["funders"]] <- check_property("CreativeWork", "funders", FALSE, missing(funders), Array(Union(Person, Organization)), funders)
   self[["isPartOf"]] <- check_property("CreativeWork", "isPartOf", FALSE, missing(isPartOf), CreativeWorkTypes, isPartOf)
   self[["keywords"]] <- check_property("CreativeWork", "keywords", FALSE, missing(keywords), Array("character"), keywords)
@@ -701,13 +722,17 @@ CreativeWork <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -726,13 +751,17 @@ Article <- function(
   alternateNames,
   authors,
   content,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -750,13 +779,17 @@ Article <- function(
     alternateNames = alternateNames,
     authors = authors,
     content = content,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -784,13 +817,17 @@ Article <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -809,13 +846,17 @@ Collection <- function(
   alternateNames,
   authors,
   content,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -833,13 +874,17 @@ Collection <- function(
     alternateNames = alternateNames,
     authors = authors,
     content = content,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -866,13 +911,17 @@ Collection <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -892,13 +941,17 @@ Datatable <- function(
   alternateNames,
   authors,
   content,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -916,13 +969,17 @@ Datatable <- function(
     alternateNames = alternateNames,
     authors = authors,
     content = content,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -952,15 +1009,19 @@ Datatable <- function(
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param contentSize File size in megabits (Mbit, Mb).
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
 #' @param embedUrl URL that can be used to embed the media on a web page via a specific media player.
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -982,15 +1043,19 @@ MediaObject <- function(
   bitrate,
   content,
   contentSize,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
   embedUrl,
   format,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -1008,13 +1073,17 @@ MediaObject <- function(
     alternateNames = alternateNames,
     authors = authors,
     content = content,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -1049,15 +1118,19 @@ MediaObject <- function(
 #' @param caption The caption for this audio recording.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param contentSize File size in megabits (Mbit, Mb).
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
 #' @param embedUrl URL that can be used to embed the media on a web page via a specific media player.
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -1081,15 +1154,19 @@ AudioObject <- function(
   caption,
   content,
   contentSize,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
   embedUrl,
   format,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -1111,15 +1188,19 @@ AudioObject <- function(
     bitrate = bitrate,
     content = content,
     contentSize = contentSize,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
     embedUrl = embedUrl,
     format = format,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -1149,6 +1230,7 @@ AudioObject <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param meta Metadata associated with this item.
 #' @param url The URL of the item.
 #' @param validator The validator to use to validate data in the column.
@@ -1160,6 +1242,7 @@ DatatableColumn <- function(
   alternateNames,
   description,
   id,
+  identifiers,
   meta,
   url,
   validator
@@ -1169,6 +1252,7 @@ DatatableColumn <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     url = url
   )
@@ -1212,13 +1296,17 @@ EnumValidator <- function(
 #' @param authors The authors of this creative work.
 #' @param caption A caption to display for the figure.
 #' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param label A short label for the figure.
@@ -1239,13 +1327,17 @@ Figure <- function(
   authors,
   caption,
   content,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   label,
@@ -1264,13 +1356,17 @@ Figure <- function(
     alternateNames = alternateNames,
     authors = authors,
     content = content,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -1322,6 +1418,48 @@ Function <- function(
 }
 
 
+#' A grant, typically financial or otherwise quantifiable, of resources.
+#'
+#' @name Grant
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param description A description of the item.
+#' @param fundedItems Indicates an item funded or sponsored through a Grant.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param sponsors A person or organization that supports a thing through a pledge, promise, or financial contribution.
+#' @param url The URL of the item.
+#' @seealso \code{\link{Thing}}
+#' @export
+Grant <- function(
+  alternateNames,
+  description,
+  fundedItems,
+  id,
+  identifiers,
+  meta,
+  name,
+  sponsors,
+  url
+){
+  self <- Thing(
+    alternateNames = alternateNames,
+    description = description,
+    id = id,
+    identifiers = identifiers,
+    meta = meta,
+    name = name,
+    url = url
+  )
+  self$type <- as_scalar("Grant")
+  self[["fundedItems"]] <- check_property("Grant", "fundedItems", FALSE, missing(fundedItems), Array(Thing), fundedItems)
+  self[["sponsors"]] <- check_property("Grant", "sponsors", FALSE, missing(sponsors), Array(Union(Person, Organization)), sponsors)
+  class(self) <- c(class(self), "Grant")
+  self
+}
+
+
 #' Heading
 #'
 #' @name Heading
@@ -1359,15 +1497,19 @@ Heading <- function(
 #' @param caption The caption for this image.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param contentSize File size in megabits (Mbit, Mb).
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
 #' @param embedUrl URL that can be used to embed the media on a web page via a specific media player.
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -1391,15 +1533,19 @@ ImageObject <- function(
   caption,
   content,
   contentSize,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
   embedUrl,
   format,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -1421,15 +1567,19 @@ ImageObject <- function(
     bitrate = bitrate,
     content = content,
     contentSize = contentSize,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
     embedUrl = embedUrl,
     format = format,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -1730,6 +1880,54 @@ MathFragment <- function(
 }
 
 
+#' A monetary grant.
+#'
+#' @name MonetaryGrant
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param amounts The amount of money.
+#' @param description A description of the item.
+#' @param fundedItems Indicates an item funded or sponsored through a Grant.
+#' @param funders A person or organization that supports (sponsors) something through some kind of financial contribution.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param sponsors A person or organization that supports a thing through a pledge, promise, or financial contribution.
+#' @param url The URL of the item.
+#' @seealso \code{\link{Grant}}
+#' @export
+MonetaryGrant <- function(
+  alternateNames,
+  amounts,
+  description,
+  fundedItems,
+  funders,
+  id,
+  identifiers,
+  meta,
+  name,
+  sponsors,
+  url
+){
+  self <- Grant(
+    alternateNames = alternateNames,
+    description = description,
+    fundedItems = fundedItems,
+    id = id,
+    identifiers = identifiers,
+    meta = meta,
+    name = name,
+    sponsors = sponsors,
+    url = url
+  )
+  self$type <- as_scalar("MonetaryGrant")
+  self[["amounts"]] <- check_property("MonetaryGrant", "amounts", FALSE, missing(amounts), "numeric", amounts)
+  self[["funders"]] <- check_property("MonetaryGrant", "funders", FALSE, missing(funders), Array(Union(Person, Organization)), funders)
+  class(self) <- c(class(self), "MonetaryGrant")
+  self
+}
+
+
 #' An organization such as a school, NGO, corporation, club, etc.
 #'
 #' @name Organization
@@ -1741,7 +1939,9 @@ MathFragment <- function(
 #' @param description A description of the item.
 #' @param funders Organization(s) or person(s) funding the organization.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param legalName Legal name for the Organization. Should only include letters and spaces.
+#' @param logo The logo of the organization.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param parentOrganization Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
@@ -1757,7 +1957,9 @@ Organization <- function(
   description,
   funders,
   id,
+  identifiers,
   legalName,
+  logo,
   meta,
   name,
   parentOrganization,
@@ -1767,6 +1969,7 @@ Organization <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     name = name,
     url = url
@@ -1778,6 +1981,7 @@ Organization <- function(
   self[["departments"]] <- check_property("Organization", "departments", FALSE, missing(departments), Array(Organization), departments)
   self[["funders"]] <- check_property("Organization", "funders", FALSE, missing(funders), Array(Union(Organization, Person)), funders)
   self[["legalName"]] <- check_property("Organization", "legalName", FALSE, missing(legalName), "character", legalName)
+  self[["logo"]] <- check_property("Organization", "logo", FALSE, missing(logo), Union("character", ImageObject), logo)
   self[["parentOrganization"]] <- check_property("Organization", "parentOrganization", FALSE, missing(parentOrganization), Organization, parentOrganization)
   class(self) <- c(class(self), "Organization")
   self
@@ -1892,17 +2096,21 @@ Parameter <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateEnd The date this Periodical ceased publication.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param dateStart The date this Periodical was first published.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
-#' @param issn The International Standard Serial Number (ISSN) that identifies this serial publication.
+#' @param issns The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
@@ -1920,17 +2128,21 @@ Periodical <- function(
   alternateNames,
   authors,
   content,
+  dateAccepted,
   dateCreated,
   dateEnd,
   dateModified,
   datePublished,
+  dateReceived,
   dateStart,
   description,
   editors,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
-  issn,
+  issns,
   keywords,
   licenses,
   meta,
@@ -1947,13 +2159,17 @@ Periodical <- function(
     alternateNames = alternateNames,
     authors = authors,
     content = content,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -1970,7 +2186,7 @@ Periodical <- function(
   self$type <- as_scalar("Periodical")
   self[["dateEnd"]] <- check_property("Periodical", "dateEnd", FALSE, missing(dateEnd), Union(Date, "character"), dateEnd)
   self[["dateStart"]] <- check_property("Periodical", "dateStart", FALSE, missing(dateStart), Union(Date, "character"), dateStart)
-  self[["issn"]] <- check_property("Periodical", "issn", FALSE, missing(issn), Array("character"), issn)
+  self[["issns"]] <- check_property("Periodical", "issns", FALSE, missing(issns), Array("character"), issns)
   class(self) <- c(class(self), "Periodical")
   self
 }
@@ -1990,6 +2206,7 @@ Periodical <- function(
 #' @param honorificPrefix An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
 #' @param honorificSuffix An honorific suffix after a person's name such as MD/PhD/MSCSW.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param jobTitle The job title of the person (for example, Financial Manager).
 #' @param memberOf An organization (or program membership) to which this person belongs.
 #' @param meta Metadata associated with this item.
@@ -2010,6 +2227,7 @@ Person <- function(
   honorificPrefix,
   honorificSuffix,
   id,
+  identifiers,
   jobTitle,
   memberOf,
   meta,
@@ -2021,6 +2239,7 @@ Person <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     name = name,
     url = url
@@ -2049,6 +2268,7 @@ Person <- function(
 #' @param brands Brands that the product is labelled with.
 #' @param description A description of the item.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param logo The logo of the product.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -2061,6 +2281,7 @@ Product <- function(
   brands,
   description,
   id,
+  identifiers,
   logo,
   meta,
   name,
@@ -2071,6 +2292,7 @@ Product <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     name = name,
     url = url
@@ -2084,19 +2306,65 @@ Product <- function(
 }
 
 
+#' A property-value pair.
+#'
+#' @name PropertyValue
+#' @param value The value of the property. \bold{Required}.
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param description A description of the item.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param propertyID A commonly used identifier for the characteristic represented by the property.
+#' @param url The URL of the item.
+#' @seealso \code{\link{Thing}}
+#' @export
+PropertyValue <- function(
+  value,
+  alternateNames,
+  description,
+  id,
+  identifiers,
+  meta,
+  name,
+  propertyID,
+  url
+){
+  self <- Thing(
+    alternateNames = alternateNames,
+    description = description,
+    id = id,
+    identifiers = identifiers,
+    meta = meta,
+    name = name,
+    url = url
+  )
+  self$type <- as_scalar("PropertyValue")
+  self[["value"]] <- check_property("PropertyValue", "value", TRUE, missing(value), Node, value)
+  self[["propertyID"]] <- check_property("PropertyValue", "propertyID", FALSE, missing(propertyID), "character", propertyID)
+  class(self) <- c(class(self), "PropertyValue")
+  self
+}
+
+
 #' A part of a successively published publication such as a periodical or publication volume, often numbered.
 #'
 #' @name PublicationIssue
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param issueNumber Identifies the issue of publication; for example, "iii" or "2".
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
@@ -2119,13 +2387,17 @@ PublicationIssue <- function(
   alternateNames,
   authors,
   content,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   issueNumber,
   keywords,
@@ -2147,13 +2419,17 @@ PublicationIssue <- function(
     alternateNames = alternateNames,
     authors = authors,
     content = content,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2183,13 +2459,17 @@ PublicationIssue <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -2212,13 +2492,17 @@ PublicationVolume <- function(
   alternateNames,
   authors,
   content,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -2240,13 +2524,17 @@ PublicationVolume <- function(
     alternateNames = alternateNames,
     authors = authors,
     content = content,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2330,13 +2618,17 @@ QuoteBlock <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -2357,13 +2649,17 @@ SoftwareApplication <- function(
   alternateNames,
   authors,
   content,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -2383,13 +2679,17 @@ SoftwareApplication <- function(
     alternateNames = alternateNames,
     authors = authors,
     content = content,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2419,13 +2719,17 @@ SoftwareApplication <- function(
 #' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
 #' @param codeSampleType What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
 #' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -2451,13 +2755,17 @@ SoftwareSourceCode <- function(
   codeRepository,
   codeSampleType,
   content,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -2480,13 +2788,17 @@ SoftwareSourceCode <- function(
     alternateNames = alternateNames,
     authors = authors,
     content = content,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2625,13 +2937,17 @@ Superscript <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -2651,13 +2967,17 @@ Table <- function(
   alternateNames,
   authors,
   content,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -2675,13 +2995,17 @@ Table <- function(
     alternateNames = alternateNames,
     authors = authors,
     content = content,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2821,15 +3145,19 @@ TupleValidator <- function(
 #' @param caption The caption for this video recording.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param contentSize File size in megabits (Mbit, Mb).
+#' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
 #' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
 #' @param description A description of the item.
-#' @param editors Persons who edited the CreativeWork.
+#' @param editors People who edited the `CreativeWork`.
 #' @param embedUrl URL that can be used to embed the media on a web page via a specific media player.
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-#' @param funders Person or organisation that funded the CreativeWork.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
@@ -2854,15 +3182,19 @@ VideoObject <- function(
   caption,
   content,
   contentSize,
+  dateAccepted,
   dateCreated,
   dateModified,
   datePublished,
+  dateReceived,
   description,
   editors,
   embedUrl,
   format,
+  fundedBy,
   funders,
   id,
+  identifiers,
   isPartOf,
   keywords,
   licenses,
@@ -2885,15 +3217,19 @@ VideoObject <- function(
     bitrate = bitrate,
     content = content,
     contentSize = contentSize,
+    dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
     datePublished = datePublished,
+    dateReceived = dateReceived,
     description = description,
     editors = editors,
     embedUrl = embedUrl,
     format = format,
+    fundedBy = fundedBy,
     funders = funders,
     id = id,
+    identifiers = identifiers,
     isPartOf = isPartOf,
     keywords = keywords,
     licenses = licenses,
@@ -2950,7 +3286,13 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datat
 #' All type schemas that are derived from Entity
 #'
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, Product, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject)
+
+
+#' All type schemas that are derived from Grant
+#'
+#' @export
+GrantTypes <- Union(Grant, MonetaryGrant)
 
 
 #' Union type for valid inline content.
@@ -2992,7 +3334,7 @@ NumberValidatorTypes <- Union(NumberValidator, IntegerValidator)
 #' All type schemas that are derived from Thing
 #'
 #' @export
-ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, Figure, ImageObject, MediaObject, Organization, Periodical, Person, Product, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
+ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, Figure, Grant, ImageObject, MediaObject, MonetaryGrant, Organization, Periodical, Person, Product, PropertyValue, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
 
 
 #' Union type for all validator types.

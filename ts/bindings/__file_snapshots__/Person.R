@@ -12,6 +12,7 @@
 #' @param honorificPrefix An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
 #' @param honorificSuffix An honorific suffix after a person's name such as MD/PhD/MSCSW.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param jobTitle The job title of the person (for example, Financial Manager).
 #' @param memberOf An organization (or program membership) to which this person belongs.
 #' @param meta Metadata associated with this item.
@@ -32,6 +33,7 @@ Person <- function(
   honorificPrefix,
   honorificSuffix,
   id,
+  identifiers,
   jobTitle,
   memberOf,
   meta,
@@ -43,6 +45,7 @@ Person <- function(
     alternateNames = alternateNames,
     description = description,
     id = id,
+    identifiers = identifiers,
     meta = meta,
     name = name,
     url = url

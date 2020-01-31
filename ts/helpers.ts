@@ -3,6 +3,7 @@
  * generating languages bindings and documentation.
  */
 
+import { Resolver } from '@stoplight/json-ref-resolver'
 import fs from 'fs-extra'
 import globby from 'globby'
 import path from 'path'
@@ -11,7 +12,8 @@ import Schema from './schema-interface'
 export { default as Schema } from './schema-interface'
 
 /**
- * Read the schemas from `public/*.schema.json`.
+ * Read the schemas from `public/*.schema.json` and dereference
+ * any inline references.
  */
 export async function readSchemas(
   glob: string | string[] = path.join(
@@ -21,10 +23,13 @@ export async function readSchemas(
     '*.schema.json'
   )
 ): Promise<Schema[]> {
-  // Read in the schemas
   const files = await globby(glob)
   return Promise.all(
-    files.map(async (file: string): Promise<Schema> => fs.readJSON(file))
+    files.map(async (file: string) => {
+      const resolver = new Resolver()
+      const resolved = await resolver.resolve(await fs.readJSON(file))
+      return resolved.result
+    })
   )
 }
 
