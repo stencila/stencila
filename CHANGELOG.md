@@ -1,3 +1,24 @@
+# [0.36.0](https://github.com/stencila/schema/compare/v0.35.0...v0.36.0) (2020-01-31)
+
+
+### Bug Fixes
+
+* **JSON Schema:** Ensure defintions are inherited ([5de74e1](https://github.com/stencila/schema/commit/5de74e14a181caeabd09825c763981e02fb5aad5))
+* **JSON Schema:** Only add definitions if necessary ([dfa59cb](https://github.com/stencila/schema/commit/dfa59cb9572df7ebe55908a9ea4202c3fac04bb2))
+* **JSON-LD:** Do not alias [@value](https://github.com/value) to avoid conflict with schema.org/value ([a59ca2e](https://github.com/stencila/schema/commit/a59ca2e580dc7c1d1923afa59bc02892bf3a6ebe))
+* **JSON-LD:** Do not filter out value ([10249e3](https://github.com/stencila/schema/commit/10249e389a43b3c128839df0ff7616e45f1aafa8))
+* **Periodical:** Rename issn to issns for pluralization consistency ([4eba6ea](https://github.com/stencila/schema/commit/4eba6ea99368266a857dc3077ce95fa03e777182))
+* **Thing.identifiers:** Apply anyOf to all items in the array ([3e7e81d](https://github.com/stencila/schema/commit/3e7e81d77a636ed4ee863461e034fb7c998d7ed3))
+
+
+### Features
+
+* **CreativeWork:** Add dateReceived and dateAccepted properties ([788f0bf](https://github.com/stencila/schema/commit/788f0bf460425f828911efb63b86bb1050d4e7ec))
+* **Grant & MonetaryGrant:** Add types and properties for representing funding grants ([1c92adf](https://github.com/stencila/schema/commit/1c92adf6f77329633c6f75831f676dcc0c8cd471))
+* **JSON Schema:** Allow for inline $refs ([e426380](https://github.com/stencila/schema/commit/e4263805c3725c12eb8a8532fc57dbc90c8bc864))
+* **Organization:** Add logo property ([f03d04c](https://github.com/stencila/schema/commit/f03d04c19f1493b23982cefed5199c47521fc31c))
+* **PropertyValue, Thing.identifers:** Add ([00ec60f](https://github.com/stencila/schema/commit/00ec60faa9227c537bf01a7d44464ee427299b9d))
+
 # [0.35.0](https://github.com/stencila/schema/compare/v0.34.0...v0.35.0) (2020-01-21)
 
 
