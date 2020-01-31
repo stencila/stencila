@@ -115,7 +115,8 @@ export const build = async (): Promise<void> => {
     //    https://datalanguage.com/news/publishing-json-ld-for-developers
     type: '@type',
     id: '@id',
-    value: '@value',
+    // @value is a keyword but do not alias that as `value` because that will
+    // conflict with https://schema.org/value.
 
     // Other contexts referred to, including this one
     // Note that http vs https is important!
