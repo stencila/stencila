@@ -43,7 +43,7 @@
     "@stencila/logga": "2.1.0",
     "@stoplight/json-ref-resolver": "3.0.8",
     "@types/fs-extra": "8.0.1",
-    "@types/jest": "24.9.1",
+    "@types/jest": "25.1.1",
     "@types/js-yaml": "3.12.2",
     "@types/lodash.clonedeep": "4.5.6",
     "@types/lodash.flatten": "4.4.6",
