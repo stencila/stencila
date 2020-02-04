@@ -66,12 +66,7 @@ export const build = async (): Promise<void> => {
       for (let [name, property] of Object.entries(typeProperties)) {
         let pid = property['@id']
         // Do not add terms that are aliases with JSON-LD keywords: @id, @type etc
-        if (
-          pid === undefined ||
-          name === 'id' ||
-          name === 'type'
-        )
-          continue
+        if (pid === undefined || name === 'id' || name === 'type') continue
         // The `schema` property clashes with the schema.org alias. So rename it...
         if (name === 'schema') {
           name = 'scheme'
