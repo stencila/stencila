@@ -1,3 +1,10 @@
+# [0.37.0](https://github.com/stencila/schema/compare/v0.36.0...v0.37.0) (2020-02-04)
+
+
+### Features
+
+* **SoftwareSession et al:** Promote to status unstable ([74da849](https://github.com/stencila/schema/commit/74da849e7772649642be465f1b9e4e963e3d321d))
+
 # [0.36.0](https://github.com/stencila/schema/compare/v0.35.0...v0.36.0) (2020-01-31)
 
 
