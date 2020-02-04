@@ -9,6 +9,8 @@ ECitationMode = Enum("CitationMode", ["normal", "suppressAuthor"])
 
 EItemListOrder = Enum("ItemListOrder", ["ascending", "descending", "unordered"])
 
+ESessionStatus = Enum("SessionStatus", ["unknown", "starting", "started", "stopping", "stopped", "failed"])
+
 ECellType = Enum("CellType", ["data", "header"])
 
 ERowType = Enum("RowType", ["header", "footer"])
@@ -2236,6 +2238,142 @@ class SoftwareApplication(CreativeWork):
             self.softwareVersion = softwareVersion
 
 
+class SoftwareEnvironment(Thing):
+    """A computational environment."""
+
+    name: str
+    adds: Optional[Array["SoftwareSourceCode"]] = None
+    extends: Optional[Array["SoftwareEnvironment"]] = None
+    removes: Optional[Array["SoftwareSourceCode"]] = None
+
+    def __init__(
+        self,
+        name: str,
+        adds: Optional[Array["SoftwareSourceCode"]] = None,
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
+        extends: Optional[Array["SoftwareEnvironment"]] = None,
+        id: Optional[str] = None,
+        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        removes: Optional[Array["SoftwareSourceCode"]] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            name=name,
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            identifiers=identifiers,
+            meta=meta,
+            url=url
+        )
+        if name is not None:
+            self.name = name
+        if adds is not None:
+            self.adds = adds
+        if extends is not None:
+            self.extends = extends
+        if removes is not None:
+            self.removes = removes
+
+
+class SoftwareSession(Thing):
+    """
+    Definition of a compute session, including its software and compute
+    resource requirements and status.
+    """
+
+    clientsLimit: Optional[float] = None
+    clientsRequest: Optional[float] = None
+    cpuLimit: Optional[float] = None
+    cpuRequest: Optional[float] = None
+    dateEnd: Optional[Union["Date", str]] = None
+    dateStart: Optional[Union["Date", str]] = None
+    durationLimit: Optional[float] = None
+    durationRequest: Optional[float] = None
+    environment: Optional["SoftwareEnvironment"] = None
+    memoryLimit: Optional[float] = None
+    memoryRequest: Optional[float] = None
+    networkTransferLimit: Optional[float] = None
+    networkTransferRequest: Optional[float] = None
+    status: Optional["ESessionStatus"] = None
+    timeoutLimit: Optional[float] = None
+    timeoutRequest: Optional[float] = None
+    volumeMounts: Optional[Array["VolumeMount"]] = None
+
+    def __init__(
+        self,
+        alternateNames: Optional[Array[str]] = None,
+        clientsLimit: Optional[float] = None,
+        clientsRequest: Optional[float] = None,
+        cpuLimit: Optional[float] = None,
+        cpuRequest: Optional[float] = None,
+        dateEnd: Optional[Union["Date", str]] = None,
+        dateStart: Optional[Union["Date", str]] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
+        durationLimit: Optional[float] = None,
+        durationRequest: Optional[float] = None,
+        environment: Optional["SoftwareEnvironment"] = None,
+        id: Optional[str] = None,
+        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        memoryLimit: Optional[float] = None,
+        memoryRequest: Optional[float] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        networkTransferLimit: Optional[float] = None,
+        networkTransferRequest: Optional[float] = None,
+        status: Optional["ESessionStatus"] = None,
+        timeoutLimit: Optional[float] = None,
+        timeoutRequest: Optional[float] = None,
+        url: Optional[str] = None,
+        volumeMounts: Optional[Array["VolumeMount"]] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            identifiers=identifiers,
+            meta=meta,
+            name=name,
+            url=url
+        )
+        if clientsLimit is not None:
+            self.clientsLimit = clientsLimit
+        if clientsRequest is not None:
+            self.clientsRequest = clientsRequest
+        if cpuLimit is not None:
+            self.cpuLimit = cpuLimit
+        if cpuRequest is not None:
+            self.cpuRequest = cpuRequest
+        if dateEnd is not None:
+            self.dateEnd = dateEnd
+        if dateStart is not None:
+            self.dateStart = dateStart
+        if durationLimit is not None:
+            self.durationLimit = durationLimit
+        if durationRequest is not None:
+            self.durationRequest = durationRequest
+        if environment is not None:
+            self.environment = environment
+        if memoryLimit is not None:
+            self.memoryLimit = memoryLimit
+        if memoryRequest is not None:
+            self.memoryRequest = memoryRequest
+        if networkTransferLimit is not None:
+            self.networkTransferLimit = networkTransferLimit
+        if networkTransferRequest is not None:
+            self.networkTransferRequest = networkTransferRequest
+        if status is not None:
+            self.status = status
+        if timeoutLimit is not None:
+            self.timeoutLimit = timeoutLimit
+        if timeoutRequest is not None:
+            self.timeoutRequest = timeoutRequest
+        if volumeMounts is not None:
+            self.volumeMounts = volumeMounts
+
+
 class SoftwareSourceCode(CreativeWork):
     """
     Computer programming source code. Example: Full (compile ready) solutions,
@@ -2657,6 +2795,47 @@ class VideoObject(MediaObject):
             self.transcript = transcript
 
 
+class VolumeMount(Thing):
+    """Describes a volume mount from a host to container."""
+
+    mountDestination: str
+    mountOptions: Optional[Array[str]] = None
+    mountSource: Optional[str] = None
+    mountType: Optional[str] = None
+
+    def __init__(
+        self,
+        mountDestination: str,
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
+        id: Optional[str] = None,
+        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        mountOptions: Optional[Array[str]] = None,
+        mountSource: Optional[str] = None,
+        mountType: Optional[str] = None,
+        name: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            identifiers=identifiers,
+            meta=meta,
+            name=name,
+            url=url
+        )
+        if mountDestination is not None:
+            self.mountDestination = mountDestination
+        if mountOptions is not None:
+            self.mountOptions = mountOptions
+        if mountSource is not None:
+            self.mountSource = mountSource
+        if mountType is not None:
+            self.mountType = mountType
+
+
 """
 Union type for valid block content.
 """
@@ -2690,7 +2869,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection"
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -2738,7 +2917,7 @@ NumberValidatorTypes = Union["NumberValidator", "IntegerValidator"]
 """
 All type schemas that are derived from Thing
 """
-ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Figure", "Grant", "ImageObject", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
+ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Figure", "Grant", "ImageObject", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
 
 
 """

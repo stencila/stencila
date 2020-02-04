@@ -2711,6 +2711,139 @@ SoftwareApplication <- function(
 }
 
 
+#' A computational environment.
+#'
+#' @name SoftwareEnvironment
+#' @param name The name of the item. \bold{Required}.
+#' @param adds The packages that this environment adds to the base environments listed under `extends` (if any).,
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param description A description of the item.
+#' @param extends Other environments that this environment extends by adding or removing packages.,
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param meta Metadata associated with this item.
+#' @param removes The packages that this environment removes from the base environments listed under `extends` (if any).,
+#' @param url The URL of the item.
+#' @seealso \code{\link{Thing}}
+#' @export
+SoftwareEnvironment <- function(
+  name,
+  adds,
+  alternateNames,
+  description,
+  extends,
+  id,
+  identifiers,
+  meta,
+  removes,
+  url
+){
+  self <- Thing(
+    name = name,
+    alternateNames = alternateNames,
+    description = description,
+    id = id,
+    identifiers = identifiers,
+    meta = meta,
+    url = url
+  )
+  self$type <- as_scalar("SoftwareEnvironment")
+  self[["name"]] <- check_property("SoftwareEnvironment", "name", TRUE, missing(name), "character", name)
+  self[["adds"]] <- check_property("SoftwareEnvironment", "adds", FALSE, missing(adds), Array(SoftwareSourceCode), adds)
+  self[["extends"]] <- check_property("SoftwareEnvironment", "extends", FALSE, missing(extends), Array(SoftwareEnvironment), extends)
+  self[["removes"]] <- check_property("SoftwareEnvironment", "removes", FALSE, missing(removes), Array(SoftwareSourceCode), removes)
+  class(self) <- c(class(self), "SoftwareEnvironment")
+  self
+}
+
+
+#' Definition of a compute session, including its software and compute resource requirements and status.
+#'
+#' @name SoftwareSession
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param clientsLimit The maximum number of concurrent clients the session is limited to.
+#' @param clientsRequest The maximum number of concurrent clients requested for the session.
+#' @param cpuLimit The amount of CPU the session is limited to.
+#' @param cpuRequest The amount of CPU requested for the session.
+#' @param dateEnd The date-time that the session ended.
+#' @param dateStart The date-time that the session began.
+#' @param description A description of the item.
+#' @param durationLimit The maximum duration (seconds) the session is limited to.
+#' @param durationRequest The maximum duration (seconds) requested for the session.
+#' @param environment The software environment to execute this session in.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param memoryLimit The amount of memory that the session is limited to.
+#' @param memoryRequest The amount of memory requested for the session.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param networkTransferLimit The amount of network data transfer (GiB) that the session is limited to.
+#' @param networkTransferRequest The amount of network data transfer (GiB) requested for the session.
+#' @param status The status of the session (starting, stopped, etc).
+#' @param timeoutLimit The inactivity timeout (seconds) the session is limited to.
+#' @param timeoutRequest The inactivity timeout (seconds) requested for the session.
+#' @param url The URL of the item.
+#' @param volumeMounts Volumes to mount in the session.
+#' @seealso \code{\link{Thing}}
+#' @export
+SoftwareSession <- function(
+  alternateNames,
+  clientsLimit,
+  clientsRequest,
+  cpuLimit,
+  cpuRequest,
+  dateEnd,
+  dateStart,
+  description,
+  durationLimit,
+  durationRequest,
+  environment,
+  id,
+  identifiers,
+  memoryLimit,
+  memoryRequest,
+  meta,
+  name,
+  networkTransferLimit,
+  networkTransferRequest,
+  status,
+  timeoutLimit,
+  timeoutRequest,
+  url,
+  volumeMounts
+){
+  self <- Thing(
+    alternateNames = alternateNames,
+    description = description,
+    id = id,
+    identifiers = identifiers,
+    meta = meta,
+    name = name,
+    url = url
+  )
+  self$type <- as_scalar("SoftwareSession")
+  self[["clientsLimit"]] <- check_property("SoftwareSession", "clientsLimit", FALSE, missing(clientsLimit), "numeric", clientsLimit)
+  self[["clientsRequest"]] <- check_property("SoftwareSession", "clientsRequest", FALSE, missing(clientsRequest), "numeric", clientsRequest)
+  self[["cpuLimit"]] <- check_property("SoftwareSession", "cpuLimit", FALSE, missing(cpuLimit), "numeric", cpuLimit)
+  self[["cpuRequest"]] <- check_property("SoftwareSession", "cpuRequest", FALSE, missing(cpuRequest), "numeric", cpuRequest)
+  self[["dateEnd"]] <- check_property("SoftwareSession", "dateEnd", FALSE, missing(dateEnd), Union(Date, "character"), dateEnd)
+  self[["dateStart"]] <- check_property("SoftwareSession", "dateStart", FALSE, missing(dateStart), Union(Date, "character"), dateStart)
+  self[["durationLimit"]] <- check_property("SoftwareSession", "durationLimit", FALSE, missing(durationLimit), "numeric", durationLimit)
+  self[["durationRequest"]] <- check_property("SoftwareSession", "durationRequest", FALSE, missing(durationRequest), "numeric", durationRequest)
+  self[["environment"]] <- check_property("SoftwareSession", "environment", FALSE, missing(environment), SoftwareEnvironment, environment)
+  self[["memoryLimit"]] <- check_property("SoftwareSession", "memoryLimit", FALSE, missing(memoryLimit), "numeric", memoryLimit)
+  self[["memoryRequest"]] <- check_property("SoftwareSession", "memoryRequest", FALSE, missing(memoryRequest), "numeric", memoryRequest)
+  self[["networkTransferLimit"]] <- check_property("SoftwareSession", "networkTransferLimit", FALSE, missing(networkTransferLimit), "numeric", networkTransferLimit)
+  self[["networkTransferRequest"]] <- check_property("SoftwareSession", "networkTransferRequest", FALSE, missing(networkTransferRequest), "numeric", networkTransferRequest)
+  self[["status"]] <- check_property("SoftwareSession", "status", FALSE, missing(status), Enum("unknown", "starting", "started", "stopping", "stopped", "failed"), status)
+  self[["timeoutLimit"]] <- check_property("SoftwareSession", "timeoutLimit", FALSE, missing(timeoutLimit), "numeric", timeoutLimit)
+  self[["timeoutRequest"]] <- check_property("SoftwareSession", "timeoutRequest", FALSE, missing(timeoutRequest), "numeric", timeoutRequest)
+  self[["volumeMounts"]] <- check_property("SoftwareSession", "volumeMounts", FALSE, missing(volumeMounts), Array(VolumeMount), volumeMounts)
+  class(self) <- c(class(self), "SoftwareSession")
+  self
+}
+
+
 #' Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
 #'
 #' @name SoftwareSourceCode
@@ -3252,6 +3385,54 @@ VideoObject <- function(
 }
 
 
+#' Describes a volume mount from a host to container.
+#'
+#' @name VolumeMount
+#' @param mountDestination The mount location inside the container. \bold{Required}.
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param description A description of the item.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param meta Metadata associated with this item.
+#' @param mountOptions A list of options to use when applying the mount.
+#' @param mountSource The mount source directory on the host.
+#' @param mountType The type of mount.
+#' @param name The name of the item.
+#' @param url The URL of the item.
+#' @seealso \code{\link{Thing}}
+#' @export
+VolumeMount <- function(
+  mountDestination,
+  alternateNames,
+  description,
+  id,
+  identifiers,
+  meta,
+  mountOptions,
+  mountSource,
+  mountType,
+  name,
+  url
+){
+  self <- Thing(
+    alternateNames = alternateNames,
+    description = description,
+    id = id,
+    identifiers = identifiers,
+    meta = meta,
+    name = name,
+    url = url
+  )
+  self$type <- as_scalar("VolumeMount")
+  self[["mountDestination"]] <- check_property("VolumeMount", "mountDestination", TRUE, missing(mountDestination), "character", mountDestination)
+  self[["mountOptions"]] <- check_property("VolumeMount", "mountOptions", FALSE, missing(mountOptions), Array("character"), mountOptions)
+  self[["mountSource"]] <- check_property("VolumeMount", "mountSource", FALSE, missing(mountSource), "character", mountSource)
+  self[["mountType"]] <- check_property("VolumeMount", "mountType", FALSE, missing(mountType), "character", mountType)
+  class(self) <- c(class(self), "VolumeMount")
+  self
+}
+
+
 
 #' Union type for valid block content.
 #'
@@ -3286,7 +3467,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datat
 #' All type schemas that are derived from Entity
 #'
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Grant
@@ -3334,7 +3515,7 @@ NumberValidatorTypes <- Union(NumberValidator, IntegerValidator)
 #' All type schemas that are derived from Thing
 #'
 #' @export
-ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, Figure, Grant, ImageObject, MediaObject, MonetaryGrant, Organization, Periodical, Person, Product, PropertyValue, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
+ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, Figure, Grant, ImageObject, MediaObject, MonetaryGrant, Organization, Periodical, Person, Product, PropertyValue, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
 
 
 #' Union type for all validator types.
