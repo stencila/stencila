@@ -4,10 +4,10 @@ This package provides R bindings for [Stencila Schema](https://stencila.github.i
 
 ## Install
 
-This package isn't on CRAN yet, but you can install it directly from this repository using the [`devtools`](https://github.com/hadley/devtools) package,
+This package isn't on CRAN yet, but you can install it directly from this repository using the [`remotes`](https://github.com/r-lib/remotes) package,
 
 ```r
-devtools::install_github("stencila/schema", subdir = "r", upgrade = "ask")
+remotes::install_github("stencila/schema", subdir = "r", upgrade = "ask")
 ```
 
 ## Use
