@@ -63,7 +63,6 @@ print.Union <- function(x) { # nolint
   print(format(x)) # nocov
 }
 
-
 #' An enumeration
 #' @export
 Enum <- function(...) {
@@ -92,17 +91,6 @@ is_class <- function(value, clas) {
   last_class(value) == clas
 }
 
-#' Get the type of a node
-node_type <- function(node) {
-  if (inherits(node, "Entity")) node$type
-  else last_class(node)
-}
-
-#' Is the node an `Entity`?
-is_entity <- function(node) {
-  inherits(node, "Entity")
-}
-
 #' Does a value conform to the type?
 is_type <- function(value, type) { # nolint
   type_class <- last_class(type)
@@ -116,7 +104,7 @@ is_type <- function(value, type) { # nolint
   } else if (type_class == "Any") {
     TRUE
   } else if (type_class == "Array") {
-    if (is.null(value) || is_entity(value)) {
+    if (is.null(value) || inherits(value, "Entity")) {
       # Not array-like
       FALSE
     } else if (is.list(value)) {
@@ -134,7 +122,7 @@ is_type <- function(value, type) { # nolint
       # Factors are valid Array("character")
       is_type(character(), type$items)
     } else {
-      stop(paste("Unhandled value type", class(value)))
+      FALSE
     }
   } else if (type_class == "Union") {
     for (subtype in type$types) {
@@ -146,42 +134,6 @@ is_type <- function(value, type) { # nolint
   } else {
     FALSE
   }
-}
-
-#' Assert that a value conforms to a type.
-assert_type <- function(value, type) {
-  if (!is_type(value, type)) {
-    stop(
-      paste0(
-        "value is type ", node_type(value),
-        ", expected type ", format(type)
-      ),
-      call. = FALSE
-    )
-  }
-  value
-}
-
-#' Convert between R \code{mode} and JSON primitive type name.
-mode_to_schema_type <- function(mode) {
-  switch(
-    mode,
-    logical = "boolean",
-    numeric = "number",
-    character = "string",
-    list = "object"
-  )
-}
-
-#' Convert between JSON primitive type name and R \code{mode}.
-schema_type_to_mode <- function(mode) {
-  switch(
-    mode,
-    boolean = "logical",
-    number = "numeric",
-    string = "character",
-    object = "list"
-  )
 }
 
 #' Declare that a node is scalar
@@ -206,12 +158,15 @@ check_property <- function(type_name, property_name, is_required, is_missing, ty
 
   if (is_class(type, "Array")) {
     # Flatten lists to vectors where possible
-    if (is.list(value) && type$items %in% c("logical", "numeric", "character")) {
+    if (is.list(value) && is.character(type$items) && type$items %in% c("logical", "numeric", "character")) {
       value <- unlist(value)
     }
   } else {
     value <- as_scalar(value)
   }
+
+  # Convert functions to function names before passing to is_type
+  if (is.function(type)) type <- deparse(substitute(type))
 
   if (!is_type(value, type)) {
     stop(

@@ -50,7 +50,6 @@ test_that("Union", {
   expect_false(is_type(Person(), Union(numeric)))
 })
 
-
 test_that("Enum", {
   enum <- Enum("a", "b", "c")
 
@@ -67,20 +66,6 @@ test_that("Enum", {
   expect_false(is_type(Person(), enum))
 })
 
-test_that("mode_to_schema_type", {
-  expect_equal(mode_to_schema_type("logical"), "boolean")
-  expect_equal(mode_to_schema_type("numeric"), "number")
-  expect_equal(mode_to_schema_type("character"), "string")
-  expect_equal(mode_to_schema_type("list"), "object")
-})
-
-test_that("schema_type_to_mode", {
-  expect_equal(schema_type_to_mode("boolean"), "logical")
-  expect_equal(schema_type_to_mode("number"), "numeric")
-  expect_equal(schema_type_to_mode("string"), "character")
-  expect_equal(schema_type_to_mode("object"), "list")
-})
-
 test_that("is_type", {
   expect_false(is_type(list(1, 2, 3), Array("character")))
   expect_true(is_type(list(1, 2, 3), Array("numeric")))
@@ -95,15 +80,6 @@ test_that("is_type", {
   expect_true(is_type(p, BlockContent))
   expect_false(is_type(p, InlineContent))
   expect_true(is_type(p, Union(InlineContent, BlockContent)))
-})
-
-test_that("assert_type", {
-  assert_type(NULL, "NULL")
-  assert_type(1, "numeric")
-  assert_type("string", "character")
-  assert_type(Person(), "Person")
-
-  expect_error(assert_type(Person(), "numeric"), "value is type Person, expected type numeric")
 })
 
 test_that("check_property", {
