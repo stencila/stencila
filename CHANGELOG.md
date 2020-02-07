@@ -1,3 +1,10 @@
+## [0.37.1](https://github.com/stencila/schema/compare/v0.37.0...v0.37.1) (2020-02-07)
+
+
+### Bug Fixes
+
+* **R:** Fix checking of  property types ([0b19165](https://github.com/stencila/schema/commit/0b191655161628bde17525e88ec12a0b709ab15d))
+
 # [0.37.0](https://github.com/stencila/schema/compare/v0.36.0...v0.37.0) (2020-02-04)
 
 
