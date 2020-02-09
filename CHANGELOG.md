@@ -1,3 +1,10 @@
+## [0.37.2](https://github.com/stencila/schema/compare/v0.37.1...v0.37.2) (2020-02-09)
+
+
+### Bug Fixes
+
+* **Package:** Add custom release message to trigger Python release ([efea733](https://github.com/stencila/schema/commit/efea733c9bf7e5707356121397796b9dd5399ec5))
+
 ## [0.37.1](https://github.com/stencila/schema/compare/v0.37.0...v0.37.1) (2020-02-07)
 
 
