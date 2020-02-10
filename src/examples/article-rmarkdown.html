@@ -17,139 +17,137 @@
   </head>
 
   <body>
-    <article itemtype="https://schema.org/Article" itemscope="true">
+    <article itemscope="" itemtype="http://schema.org/Article">
+      <div
+        itemscope=""
+        itemtype="http://schema.org/Organization"
+        itemprop="publisher"
+      >
+        <span itemprop="name">Unknown</span>
+        <div
+          itemscope=""
+          itemtype="http://schema.org/ImageObject"
+          itemprop="logo"
+        >
+          <img
+            itemprop="url"
+            content="https://via.placeholder.com/600x60/dbdbdb/4a4a4a.png?text="
+            src="https://via.placeholder.com/600x60/dbdbdb/4a4a4a.png?text="
+          />
+        </div>
+      </div>
       <h1 itemprop="headline">
         Writing reproducible articles with R Markdown and Stencila
       </h1>
-      <div>
-        <ol class="authors">
-          <li
-            itemtype="https://schema.org/Person"
-            itemscope="true"
-            itemprop="author"
-          >
-            <span itemprop="name" content="Nokome Bentley"
-              ><span itemprop="givenName">Nokome</span
-              ><span itemprop="familyName">Bentley</span></span
-            >
-            <ol class="affiliations">
-              <li>
-                <a itemprop="affiliation" href="#author-organization-1">1</a>
-              </li>
-            </ol>
-          </li>
-          <li
-            itemtype="https://schema.org/Person"
-            itemscope="true"
-            itemprop="author"
-          >
-            <a
-              itemprop="url"
-              href="http://library.brown.edu/about/hay/carberry.php"
-              ><span itemprop="name" content="Josiah Carberry"
-                ><span itemprop="givenName">Josiah</span
-                ><span itemprop="familyName">Carberry</span></span
-              ></a
-            >
-            <ol class="affiliations">
-              <li>
-                <a itemprop="affiliation" href="#author-organization-2">2</a>
-              </li>
-              <li>
-                <a itemprop="affiliation" href="#author-organization-3">3</a>
-              </li>
-            </ol>
-          </li>
-        </ol>
-        <ol class="organizations">
-          <li
-            id="author-organization-1"
-            itemtype="https://schema.org/Organization"
-            itemscope="true"
-            itemid="#author-organization-1"
-          >
-            <a itemprop="url" href="https://stenci.la"
-              ><span itemprop="name">Stencila</span></a
-            >
-            <address itemprop="address">Kaikoura, New Zealand</address>
-          </li>
-          <li
-            id="author-organization-2"
-            itemtype="https://schema.org/Organization"
-            itemscope="true"
-            itemid="#author-organization-2"
-          >
-            <span itemprop="name">Wesleyan University</span>
-          </li>
-          <li
-            id="author-organization-3"
-            itemtype="https://schema.org/Organization"
-            itemscope="true"
-            itemid="#author-organization-3"
-          >
-            <span itemprop="name">Brown University</span>
-          </li>
-        </ol>
-      </div>
+      <meta
+        itemprop="image"
+        content="https://via.placeholder.com/1200x714/dbdbdb/4a4a4a.png?text=Writing%20reproducible%20articles%20with%20R%20Markdown%20and%20Stencila"
+      />
+      <ol data-itemprop="authors">
+        <li itemscope="" itemtype="http://schema.org/Person" itemprop="author">
+          <span itemprop="name" content="Anonymous">Anonymous</span>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/Text" itemprop="author">
+          <span itemprop="name"></span>
+        </li>
+      </ol>
       <section>
         <h2>Abstract</h2>
-        <div itemprop="description">
-          R Markdown is a popular format for reproducible research. This article
-          provides a guide to how to write, and collaborate on, a reproducible
-          research article using R Markdown and Stencila. As well as describing
-          the basics of embedding R code in your article, it covers how to
-          include meta-data (such as author names and affiliations), citations
-          and references. Finally, we discuss how you can preview your article
-          and convert it to other formats using Stencila.
-        </div>
+        <meta
+          itemprop="description"
+          content="R Markdown is a popular format for reproducible research. This article provides a guide to how to write, and collaborate on, a reproducible research article using R Markdown and Stencila. As well as describing the basics of embedding R code in your article, it covers how to include meta-data (such as author names and affiliations), citations and references. Finally, we discuss how you can preview your article and convert it to other formats using Stencila. 
+"
+        />R Markdown is a popular format for reproducible research. This article
+        provides a guide to how to write, and collaborate on, a reproducible
+        research article using R Markdown and Stencila. As well as describing
+        the basics of embedding R code in your article, it covers how to include
+        meta-data (such as author names and affiliations), citations and
+        references. Finally, we discuss how you can preview your article and
+        convert it to other formats using Stencila.
       </section>
-      <h1 id="preface">Preface</h1>
-      <p>
+      <h1 itemscope="" itemtype="http://schema.stenci.la/Heading" id="preface">
+        Preface
+      </h1>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">
         This is part of a series of “self-documenting” example articles, each
         written in a particular format, describing how to author reproducible
         articles in that format. The canonical source for this article is
         <a
           href="https://github.com/stencila/examples/tree/master/rmarkdown/rmarkdown.Rmd"
-          ><code>rmarkdown.Rmd</code></a
+          itemscope=""
+          itemtype="http://schema.stenci.la/Link"
+          ><code itemscope="" itemtype="http://schema.stenci.la/CodeFragment"
+            >rmarkdown.Rmd</code
+          ></a
         >
         on Github where there is also a rendered version as a R Notebook,
         <a
           href="https://github.com/stencila/examples/tree/master/rmarkdown/rmarkdown.nb.html"
-          ><code>rmarkdown.nb.html</code></a
+          itemscope=""
+          itemtype="http://schema.stenci.la/Link"
+          ><code itemscope="" itemtype="http://schema.stenci.la/CodeFragment"
+            >rmarkdown.nb.html</code
+          ></a
         >. If you are not already, you can open this R Notebook on Stencila
         using
         <a
           href="https://hub.stenci.la/open/https://github.com/stencila/examples/tree/master/rmarkdown/rmarkdown.nb.html"
+          itemscope=""
+          itemtype="http://schema.stenci.la/Link"
           >this link</a
         >.
       </p>
-      <p>Other articles in this series for other formats / sites:</p>
-      <ul>
-        <li>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">
+        Other articles in this series for other formats / sites:
+      </p>
+      <ul itemscope="" itemtype="http://schema.org/ItemList">
+        <li itemscope="" itemtype="http://schema.org/ListItem">
           <a
             href="https://hub.stenci.la/open/https://github.com/stencila/examples/tree/master/jupyter/jupyter.ipynb"
+            itemscope=""
+            itemtype="http://schema.stenci.la/Link"
             >Jupyter Notebooks</a
           >
         </li>
-        <li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
           <a
             href="https://hub.stenci.la/open/https://docs.google.com/document/d/1BW6MubIyDirCGW9Wq-tSqCma8pioxBI6VpeLyXn5mZA"
+            itemscope=""
+            itemtype="http://schema.stenci.la/Link"
             >Google Docs</a
           >
         </li>
-        <li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
           <a
             href="https://hub.stenci.la/open/https://hackmd.io/RaFYCFoyTlODFxz5hPevLw"
+            itemscope=""
+            itemtype="http://schema.stenci.la/Link"
             >HackMD</a
           >
         </li>
       </ul>
-      <p>Please note that this example is a work in progress.</p>
-      <h1 id="introduction">Introduction</h1>
-      <p>
-        <a href="https://rmarkdown.rstudio.com/">R Markdown</a> is a popular
-        format for writing reprodubile documents.
-        <a href="https://daringfireball.net/projects/markdown/syntax"
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">
+        Please note that this example is a work in progress.
+      </p>
+      <h1
+        itemscope=""
+        itemtype="http://schema.stenci.la/Heading"
+        id="introduction"
+      >
+        Introduction
+      </h1>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">
+        <a
+          href="https://rmarkdown.rstudio.com/"
+          itemscope=""
+          itemtype="http://schema.stenci.la/Link"
+          >R Markdown</a
+        >
+        is a popular format for writing reprodubile documents.
+        <a
+          href="https://daringfireball.net/projects/markdown/syntax"
+          itemscope=""
+          itemtype="http://schema.stenci.la/Link"
           >Markdown</a
         >
         is a simple text format, which, in the words of it’s creator, is
@@ -157,81 +155,137 @@
         Markdown extends Markdown with some custom syntax for embedding
         executable R code.
       </p>
-      <p>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">
         There are many resources available for how to use R Markdown for
         reproducible research, inlcuding:
       </p>
-      <ul>
-        <li>
-          <p>
+      <ul itemscope="" itemtype="http://schema.org/ItemList">
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">
             Chris Hartgerink (2017)
-            <em>Composing reproducible manuscripts using R Markdown</em>
+            <em itemscope="" itemtype="http://schema.stenci.la/Emphasis"
+              >Composing reproducible manuscripts using R Markdown</em
+            >
             <a
               href="https://elifesciences.org/labs/cad57bcf/composing-reproducible-manuscripts-using-r-markdown"
+              itemscope=""
+              itemtype="http://schema.stenci.la/Link"
               >https://elifesciences.org/labs/cad57bcf/composing-reproducible-manuscripts-using-r-markdown</a
             >
           </p>
         </li>
-        <li>
-          <p>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">
             Daniel Nüst, Vicky Steeves, Rémi Rampin, Markus Konkol, Edzer
             Pebesma (2018)<em
+              itemscope=""
+              itemtype="http://schema.stenci.la/Emphasis"
               >Writing reprocible geoscience papers using R Markdown, Docker,
               and GitLab</em
             >
-            <a href="https://vickysteeves.gitlab.io/repro-papers/index.html"
+            <a
+              href="https://vickysteeves.gitlab.io/repro-papers/index.html"
+              itemscope=""
+              itemtype="http://schema.stenci.la/Link"
               >https://vickysteeves.gitlab.io/repro-papers/index.html</a
             >
           </p>
         </li>
-        <li>
-          <p>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">
             Paul Bauer (2018)
-            <em>Writing a Reproducible Paper in R Markdown</em>
+            <em itemscope="" itemtype="http://schema.stenci.la/Emphasis"
+              >Writing a Reproducible Paper in R Markdown</em
+            >
             <a
               href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3175518"
+              itemscope=""
+              itemtype="http://schema.stenci.la/Link"
               >https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3175518</a
             >
           </p>
         </li>
       </ul>
-      <h1 id="code-chunks">Code chunks</h1>
-      <p>
+      <h1
+        itemscope=""
+        itemtype="http://schema.stenci.la/Heading"
+        id="code-chunks"
+      >
+        Code chunks
+      </h1>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">
         At the heart of R Markdown are “code chunks”. Code chunks can produce
         outputs, or they can be used to execute arbitrary R code. For example,
-        here we assign a variable called <code>randoms</code> which will be an
-        array of 1000 random numbers sampled from a normal distribution:
+        here we assign a variable called
+        <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment"
+          >randoms</code
+        >
+        which will be an array of 1000 random numbers sampled from a normal
+        distribution:
       </p>
-      <stencila-code-chunk>
-        <pre slot="text"><code class="language-r">randoms &lt;- rnorm(1000)
+      <stencila-code-chunk
+        itemscope=""
+        itemtype="http://schema.stenci.la/CodeChunk"
+      >
+        <pre
+          itemscope=""
+          itemtype="http://schema.stenci.la/CodeBlock"
+          slot="text"
+        ><code class="language-r" itemscope="" itemtype="http://schema.stenci.la/CodeFragment">randoms &lt;- rnorm(1000)
 </code></pre>
       </stencila-code-chunk>
-      <p>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">
         When you assign a variable in a code chunk you can reuse it in another
         chunk, later in the document. For example, we can plot the frequency
         distribution of the random numbers we assigned to the
-        <code>randoms</code> variable earlier:
+        <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment"
+          >randoms</code
+        >
+        variable earlier:
       </p>
-      <stencila-code-chunk>
+      <stencila-code-chunk
+        itemscope=""
+        itemtype="http://schema.stenci.la/CodeChunk"
+      >
         <pre
+          itemscope=""
+          itemtype="http://schema.stenci.la/CodeBlock"
           slot="text"
-        ><code class="language-r">hist(randoms, breaks=30, col=&quot;grey&quot;, main=&quot;&quot;)
+        ><code class="language-r" itemscope="" itemtype="http://schema.stenci.la/CodeFragment">hist(randoms, breaks=30, col=&quot;grey&quot;, main=&quot;&quot;)
 </code></pre>
         <figure slot="outputs">
-          <img src="article-rmarkdown.html.media/0" itemprop="image" />
+          <img
+            src="article-rmarkdown.html.media/0"
+            itemscope=""
+            itemtype="http://schema.org/ImageObject"
+          />
         </figure>
       </stencila-code-chunk>
-      <h1 id="inline-code-chunks">Inline code chunks</h1>
-      <p>
+      <h1
+        itemscope=""
+        itemtype="http://schema.stenci.la/Heading"
+        id="inline-code-chunks"
+      >
+        Inline code chunks
+      </h1>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">
         In R Markdown you can also inline “inline” code chunks within paragraphs
         and other text content. For example, here is the mean of the
-        <code>randoms</code> variable that we assigned earlier:
-        <stencila-code-expression programming-language="r"
+        <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment"
+          >randoms</code
+        >
+        variable that we assigned earlier:
+        <stencila-code-expression
+          programming-language="r"
+          itemscope=""
+          itemtype="http://schema.stenci.la/CodeExpression"
           ><code class="r" slot="text">mean(randoms)</code
           ><output slot="output">-0.002458</output> </stencila-code-expression
-        >. In Stencila, we call these <code>CodeExpression</code>s, because they
-        are intended to display a calculated value, and shouldn’t be used for
-        statements, such as assigning a variable.
+        >. In Stencila, we call these
+        <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment"
+          >CodeExpression</code
+        >s, because they are intended to display a calculated value, and
+        shouldn’t be used for statements, such as assigning a variable.
       </p>
     </article>
   </body>
