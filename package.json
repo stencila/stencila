@@ -11,6 +11,8 @@
     "build:selectors": "npx ts-node src/generateSelectors.ts",
     "clean": "rm -rf .cache dist pages test/examples",
     "dev": "parcel ./src/index.html ./src/examples/*.html --open",
+    "lint": "stylelint \"./src/**/*.css\"",
+    "lint:fix": "npm run lint -- --fix",
     "pages": "parcel build ./src/index.html ./src/examples/*.html -d pages --public-url .",
     "pages:test": "parcel build ./src/examples/*.html -d test/examples --public-url .",
     "postinstall": "npm run build:selectors",
