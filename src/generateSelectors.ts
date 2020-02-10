@@ -49,6 +49,7 @@ const generateItemTypes = (): [string, string][] => {
       case 'Emphasis':
       case 'Entity':
       case 'EnumValidator':
+      case 'Figure':
       case 'Function':
       case 'Heading':
       case 'Include':
@@ -59,6 +60,7 @@ const generateItemTypes = (): [string, string][] => {
       case 'Mark':
       case 'Node':
       case 'NumberValidator':
+      case 'Paragraph':
       case 'SoftwareApplication':
       case 'SoftwareSourceCode':
       case 'StringValidator':
@@ -68,9 +70,9 @@ const generateItemTypes = (): [string, string][] => {
       case 'ThematicBreak':
       case 'TupleValidator':
       case 'Variable':
-        return { ...types, [type]: `https://schema.stenci.la/${type}` }
+        return { ...types, [type]: `http://schema.stenci.la/${type}` }
       default:
-        return { ...types, [type]: `https://schema.org/${type}` }
+        return { ...types, [type]: `http://schema.org/${type}` }
     }
   }, {} as { [key in keyof Types]: string })
 
@@ -82,15 +84,37 @@ const generateSelectors = async (): Promise<void> => {
 
   generateItemTypes().map(
     ([type, schemaURL]) =>
-      (selectors += `@custom-selector :--${type} [itemtype=*'${schemaURL}'];\n`)
+      (selectors += `@custom-selector :--${type} [itemtype~='${schemaURL}'];\n`)
   )
 
   let props = ''
 
   const itemProps = await generateItemProps()
 
-  itemProps.map(p => {
-    props += `@custom-selector :--${p} [itemprop='${p}'];\n`
+  const customProps = [
+    'affiliations',
+    'authors',
+    'emails',
+    'organizations',
+    'references'
+  ]
+
+  const extraProps = [
+    'affiliation',
+    'author',
+    'email',
+    'familyName',
+    'givenName',
+    'headline',
+    'organizations'
+  ]
+
+  const ps = [...itemProps, ...extraProps].sort()
+
+  ps.map(p => {
+    props += `@custom-selector :--${p} [${
+      customProps.includes(p) ? 'data-' : ''
+    }itemprop~='${p}'];\n`
   })
 
   const doc = `/**
@@ -134,7 +158,6 @@ const generateSelectors = async (): Promise<void> => {
  * - use a \`[itemtype=...]\` selector if possible (i.e. if Encoda encodes it in HTML)
  */
 ${selectors}
-
 /**
  * Property selectors
  *
@@ -150,7 +173,7 @@ ${selectors}
  * - use a \`[itemprop=...]\` selector for singular properties, or items of container properties
  */
 ${props}
-  `
+`
 
   return fs.writeFile(outputPath, doc, () => doc)
 }
