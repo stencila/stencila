@@ -116,5 +116,9 @@
     "extends": [
       "@stencila"
     ]
+  },
+  "dependencies": {
+    "@stencila/components": "^0.9.0",
+    "stencila": "^0.33.5"
   }
 }

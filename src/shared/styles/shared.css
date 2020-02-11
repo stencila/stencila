@@ -1,5 +1,2 @@
-/* TODO: Add @stencila/components as a dependency and import from there */
-@import 'https://unpkg.com/@stencila/components@0.2.0/dist/stencila-components-styles.css';
-
-
+@import '@stencila/components/dist/stencila-components/stencila-components.css';
 @import './citations.css';
