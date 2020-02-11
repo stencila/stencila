@@ -4,7 +4,7 @@ import { Types, entityTypes } from '@stencila/schema'
 import globby from 'globby'
 
 // Target output path for the file containing generated custom selector definitions
-const outputPath = path.join(__dirname, 'common', 'styles', 'selectors.css')
+const outputPath = path.join(__dirname, 'selectors.css')
 
 const readSchemas = async (): Promise<string[]> => {
   const paths = path.join(
@@ -55,7 +55,6 @@ const generateItemTypes = (): [string, string][] => {
       case 'Include':
       case 'InlineContent':
       case 'IntegerValidator':
-      case 'List':
       case 'ListItem':
       case 'Mark':
       case 'Node':
@@ -71,6 +70,8 @@ const generateItemTypes = (): [string, string][] => {
       case 'TupleValidator':
       case 'Variable':
         return { ...types, [type]: `http://schema.stenci.la/${type}` }
+      case 'List':
+        return { ...types, [type]: `http://schema.org/Item${type}` }
       default:
         return { ...types, [type]: `http://schema.org/${type}` }
     }
@@ -84,20 +85,12 @@ const generateSelectors = async (): Promise<void> => {
 
   generateItemTypes().map(
     ([type, schemaURL]) =>
-      (selectors += `@custom-selector :--${type} [itemtype~='${schemaURL}'];\n`)
+      (selectors += `@custom-selector :--${type} [itemtype~='${schemaURL}'], [data-itemtype~='${schemaURL}'];\n`)
   )
 
   let props = ''
 
   const itemProps = await generateItemProps()
-
-  const customProps = [
-    'affiliations',
-    'authors',
-    'emails',
-    'organizations',
-    'references'
-  ]
 
   const extraProps = [
     'affiliation',
@@ -112,9 +105,7 @@ const generateSelectors = async (): Promise<void> => {
   const ps = [...itemProps, ...extraProps].sort()
 
   ps.map(p => {
-    props += `@custom-selector :--${p} [${
-      customProps.includes(p) ? 'data-' : ''
-    }itemprop~='${p}'];\n`
+    props += `@custom-selector :--${p} [itemprop~='${p}'], [data-itemprop~='${p}'];\n`
   })
 
   const doc = `/**
