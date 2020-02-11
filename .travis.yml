@@ -8,8 +8,8 @@ script:
   - npm run build
   # The `--no-cache` flag disables ParcelJS's cache as it can cause errors with building
   # same entries targetting different destinations.
-  - npm run pages -- --no-cache
-  - npm run pages:test -- --no-cache
+  - npm run docs -- --no-cache
+  - npm run docs:test -- --no-cache
   - travis_wait npm run test -- --no-cache
 
 after_success:
@@ -27,6 +27,6 @@ deploy:
     skip-cleanup: true
     github-token: $GITHUB_TOKEN
     keep_history: true
-    local-dir: ./pages
+    local-dir: ./docs
     on:
       branch: master
