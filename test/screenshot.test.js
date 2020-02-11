@@ -38,7 +38,7 @@ describe('visual regressions: ', () => {
       req.end()
     })
 
-    it.skip(`${file}: screenshots have not changed`, async () => {
+    it(`${file}: screenshots have not changed`, async () => {
       await browser.url('/' + file)
       const results = await browser.checkDocument()
 
