@@ -7,7 +7,7 @@ const screenshotDir = path.join(__dirname, 'screenshots')
 
 const env = {
   baseUrl: process.env.BASE_URL || 'http://localhost:3000',
-  staticDir: path.join(__dirname, 'examples'),
+  staticDir: path.join(__dirname, '..', 'src', 'examples'),
   screenshotDir,
   errors: path.join(screenshotDir, 'error'),
   examples: path.resolve(__dirname, '..', 'src', 'examples'),
