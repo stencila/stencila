@@ -6,8 +6,8 @@
 
 /* Ensure fonts still resolve when not viewed on ELife website */
 /* This could potentially be extracted into a separate file, for more granular imports */
-@import '../../common/fonts/notoSerif/notoSerif.css';
-@import '../../common/fonts/notoSans/notoSans.css';
+@import '../../shared/fonts/notoSerif/notoSerif.css';
+@import '../../shared/fonts/notoSans/notoSans.css';
 
 main {
   @extend .wrapper;
@@ -23,7 +23,7 @@ main {
   @extend .grid-column;
 }
 
-:--Article :--authors-prop {
+:--Article :--authors {
   @extend .content-header__author_list;
 
   :--Person {
@@ -32,7 +32,7 @@ main {
 }
 
 /* Chain custom MicroData selectors for style adjustments as needed */
-:--Article :--affiliations-prop {
+:--Article :--affiliations {
   display: inline;
   padding: 0;
   margin: 0;
