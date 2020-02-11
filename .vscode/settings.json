@@ -54,5 +54,11 @@
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.suggest.completeFunctionCalls": true,
   "typescript.updateImportsOnFileMove.enabled": "prompt",
-  "workbench.editor.highlightModifiedTabs": true
+  "workbench.editor.highlightModifiedTabs": true,
+  "json.schemas": [
+    {
+      "fileMatch": ["article-*.json"],
+      "url": "https://schema.stenci.la/Article.schema.json"
+    }
+  ],
 }

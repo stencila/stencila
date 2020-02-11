@@ -1,0 +1,935 @@
+{
+  "type": "Article",
+  "title": "Title of the article",
+  "authors": [
+    {
+      "type": "Person",
+      "givenNames": ["Felicity", "Francis"],
+      "familyNames": ["Fredrickson"],
+      "honorificPrefix": "Dr",
+      "honorificSuffix": "PhD"
+    },
+    {
+      "type": "Person",
+      "givenNames": ["Jacob", "J"],
+      "familyNames": ["Jacobson"],
+      "emails": ["jacob@example.org"],
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Example Org"
+        }
+      ]
+    }
+  ],
+  "description": [
+    "A short description of the article. Also known as an ",
+    {
+      "type": "Emphasis",
+      "content": ["abstract"]
+    },
+    ". This description includes not just string content, but other content nodes as well, for example, a inline math fragment: ",
+    {
+      "type": "MathFragment",
+      "mathLanguage": "tex",
+      "text": "E = m c^2"
+    },
+    ". Some of the article meta-data for this example is taken from ",
+    {
+      "type":"Link",
+      "target": "https://elifesciences.org/articles/49574.",
+      "content": ["this article"]
+    }
+  ],
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2019-08-07"
+  },
+  "datePublished": {
+    "type": "Date",
+    "value": "2019-08-12"
+  },
+  "dateReceived": {
+    "type": "Date",
+    "value": "2019-06-21"
+  },
+  "identifiers": [
+    {
+      "type": "PropertyValue",
+      "name": "publisher-id",
+      "propertyID": "https://registry.identifiers.org/registry/publisher-id",
+      "value": "49574"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "doi",
+      "propertyID": "https://registry.identifiers.org/registry/doi",
+      "value": "10.7554/eLife.49574"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "elocation-id",
+      "propertyID": "https://registry.identifiers.org/registry/elocation-id",
+      "value": "e49574"
+    }
+  ],
+  "isPartOf": {
+    "type": "PublicationVolume",
+    "isPartOf": {
+      "type": "Periodical",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "nlm-ta",
+          "propertyID": "https://registry.identifiers.org/registry/nlm-ta",
+          "value": "elife"
+        },
+        {
+          "type": "PropertyValue",
+          "name": "publisher-id",
+          "propertyID": "https://registry.identifiers.org/registry/publisher-id",
+          "value": "eLife"
+        }
+      ],
+      "issns": [
+        "2050-084X"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "eLife Sciences Publications, Ltd"
+      },
+      "title": "eLife"
+    },
+    "volumeNumber": "8"
+  },
+  "keywords": [
+    "courtship",
+    "NPF",
+    "sex drive",
+    "male",
+    "fruitless",
+    "behavior",
+    "D. melanogaster"
+  ],
+  "licenses": [
+    {
+      "type": "CreativeWork",
+      "url": "http://creativecommons.org/licenses/by/4.0/",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "This article is distributed under the terms of the ",
+            {
+              "type": "Link",
+              "target": "http://creativecommons.org/licenses/by/4.0/",
+              "content": [
+                "Creative Commons Attribution License"
+              ]
+            },
+            ", which permits unrestricted use and redistribution provided that the original author and source are credited."
+          ]
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "type": "Article",
+      "id": "bib1",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Alvarez"
+          ],
+          "givenNames": [
+            "FJ"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fyffe"
+          ],
+          "givenNames": [
+            "REW"
+          ]
+        }
+      ],
+      "datePublished": "2007",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "pageEnd": 45,
+        "pageStart": 31,
+        "title": "The Journal of Physiology",
+        "volumeNumber": 584
+      },
+      "title": "The continuing case for the Renshaw cell"
+    },
+    {
+      "type": "Article",
+      "id": "bib2",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Asahina"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Watanabe"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Duistermars"
+          ],
+          "givenNames": [
+            "BJ"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hoopfer"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "González"
+          ],
+          "givenNames": [
+            "CR"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eyjólfsdóttir"
+          ],
+          "givenNames": [
+            "EA"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Perona"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Anderson"
+          ],
+          "givenNames": [
+            "DJ"
+          ]
+        }
+      ],
+      "datePublished": "2014",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "pageEnd": 235,
+        "pageStart": 221,
+        "title": "Cell",
+        "volumeNumber": 156
+      },
+      "title": "Tachykinin-expressing neurons control male-specific aggressive arousal in Drosophila"
+    },
+    {
+      "type": "Article",
+      "id": "bib3",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Baines"
+          ],
+          "givenNames": [
+            "RA"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Uhler"
+          ],
+          "givenNames": [
+            "JP"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Thompson"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sweeney"
+          ],
+          "givenNames": [
+            "ST"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bate"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
+      "datePublished": "2001",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "pageEnd": 1531,
+        "pageStart": 1523,
+        "title": "The Journal of Neuroscience",
+        "volumeNumber": 21
+      },
+      "title": "Altered electrical properties in Drosophila neurons developing without synaptic transmission. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aut molestiae quo, numquam tempora veniam iusto sit nobis repudiandae eum deleniti laboriosam ipsa quasi id vitae velit perferendis quas perspiciatis corrupti."
+    }
+  ],
+  "content": [
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": ["Paragraphs"]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "The first paragraph. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aut molestiae quo, numquam tempora veniam iusto sit nobis repudiandae eum deleniti laboriosam ipsa quasi id vitae velit perferendis quas perspiciatis corrupti."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "The second paragraph. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aut molestiae quo, numquam tempora veniam iusto sit nobis repudiandae eum deleniti laboriosam ipsa quasi id vitae velit perferendis quas perspiciatis corrupti. Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aut molestiae quo, numquam tempora veniam iusto sit nobis repudiandae eum deleniti laboriosam ipsa quasi id vitae velit perferendis quas perspiciatis corrupti."
+      ]
+    },
+
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": ["Inline content"]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Mark types"]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "The are several types of mark: ",
+        { "type": "Emphasis", "content": ["emphasis"] },
+        " and ",
+        { "type": "Strong", "content": ["strong emphasis"] },
+        " and ",
+        { "type": "Delete", "content": ["deleted content"] },
+        " and ",
+        { "type": "Quote", "content": ["quoted content"] },
+        " and ",
+        { "type": "Subscript", "content": ["subscripted"] },
+        " content and ",
+        { "type": "Superscript", "content": ["superscripted"] },
+        " content."
+      ]
+    },
+
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Other types"]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Other inline content includes: links ",
+        {
+          "type": "Link",
+          "target": "https://stencila.github.io/thema/",
+          "content": ["link"]
+        },
+        " and images ",
+        {
+          "type": "ImageObject",
+          "contentUrl": "https://via.placeholder.com/10x10"
+        },
+        ", ",
+        {
+          "type": "ImageObject",
+          "contentUrl": "https://via.placeholder.com/20x20"
+        },
+        " and math fragments ",
+        {
+          "type": "MathFragment",
+          "mathLanguage": "tex",
+          "text": "\\pi"
+        },
+        ", ",
+        {
+          "type": "MathFragment",
+          "mathLanguage": "mathml",
+          "text": "<math><mrow><msup><mfenced><mrow><mi>a</mi><mo>+</mo><mi>b</mi></mrow></mfenced><mn>2</mn></msup></mrow></math>"
+        },
+        "."
+      ]
+    },
+
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Primitive types"]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "The JSON primitives are valid inline content. This includes: ",
+        null,
+        " and ",
+        true,
+        " and ",
+        false,
+        " and numbers like ",
+        42,
+        " and ",
+        3.14,
+        ", as well as plain old strings like this one."
+      ]
+    },
+
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": ["Headings"]
+    },
+    {
+      "type": "Paragraph",
+      "content": ["Headings with depth 1 to 6:"]
+    },
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": ["Heading one"]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Heading two"]
+    },
+    {
+      "type": "Heading",
+      "depth": 3,
+      "content": ["Heading three"]
+    },
+    {
+      "type": "Heading",
+      "depth": 4,
+      "content": ["Heading four"]
+    },
+    {
+      "type": "Heading",
+      "depth": 5,
+      "content": ["Heading five"]
+    },
+    {
+      "type": "Heading",
+      "depth": 6,
+      "content": ["Heading six"]
+    },
+
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": ["Lists"]
+    },
+
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Unordered"]
+    },
+    {
+      "type": "List",
+      "order": "unordered",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": ["Hearts"]
+        },
+        {
+          "type": "ListItem",
+          "content": ["Spades"]
+        },
+        {
+          "type": "ListItem",
+          "content": ["Diamonds"]
+        },
+        {
+          "type": "ListItem",
+          "content": ["Clubs"]
+        }
+      ]
+    },
+
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Ordered"]
+    },
+    {
+      "type": "List",
+      "order": "ascending",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": ["First"]
+        },
+        {
+          "type": "ListItem",
+          "content": ["Second"]
+        },
+        {
+          "type": "ListItem",
+          "content": ["Third"]
+        },
+        {
+          "type": "ListItem",
+          "content": ["Forth"]
+        }
+      ]
+    },
+
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Checked"]
+    },
+    {
+      "type": "Paragraph",
+      "content": ["List items can be checked or not."]
+    },
+    {
+      "type": "List",
+      "order": "unordered",
+      "items": [
+        {
+          "type": "ListItem",
+          "checked": "true",
+          "content": ["Done"]
+        },
+        {
+          "type": "ListItem",
+          "checked": "false",
+          "content": ["Not yet"]
+        },
+        {
+          "type": "ListItem",
+          "checked": "true",
+          "content": ["Complete!"]
+        },
+        {
+          "type": "ListItem",
+          "checked": "false",
+          "content": ["Almost"]
+        }
+      ]
+    },
+
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Nested"]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Lists can be nested and contain alternative types of content."
+      ]
+    },
+    {
+      "type": "List",
+      "order": "ascending",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": ["A"]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            "B",
+            {
+              "type": "List",
+              "order": "unordered",
+              "items": [
+                {
+                  "type": "ListItem",
+                  "content": [
+                    "B1",
+                    {
+                      "type": "List",
+                      "order": "ascending",
+                      "items": [
+                        {
+                          "type": "ListItem",
+                          "content": ["B1a"]
+                        },
+                        {
+                          "type": "ListItem",
+                          "content": ["B1b"]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    "B2",
+                    {
+                      "type": "List",
+                      "order": "unordered",
+                      "items": [
+                        {
+                          "type": "ListItem",
+                          "content": ["B2a"]
+                        },
+                        {
+                          "type": "ListItem",
+                          "content": ["B2b"]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": ["B3"]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aut molestiae quo, numquam tempora veniam iusto sit nobis repudiandae eum deleniti laboriosam ipsa quasi id vitae velit perferendis quas perspiciatis corrupti."
+          ]
+        },
+        {
+          "type": "List",
+          "order": "unordered",
+          "items": [
+            {
+              "type": "ListItem",
+              "checked": "true",
+              "content": ["Checked"]
+            },
+            {
+              "type": "ListItem",
+              "checked": "false",
+              "content": ["Unchecked"]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": ["Code types"]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "There are two inline code types: code fragments (static) and code expressions (executable)",
+        "; and two block code types: code blocks (static) and code chunks (executable)."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Code fragments"]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        " A code fragment can have no language defined, e.g. ",
+        { "type": "CodeFragment", "text": "some code" },
+        ". Or, it can have a language, in which case it should be syntax highlighted: ",
+        {
+          "type": "CodeFragment",
+          "programmingLanguage": "python",
+          "text": "func(arg=\"foo\")"
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Code expressions"]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        " A code expression, may or may not have a language (at time of writing at least).",
+        " It may have output e.g. ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "javascript",
+          "text": "2 * 2",
+          "output": 4
+        },
+        "; it may have errors but no output e.g. ",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "python",
+          "text": "foo",
+          "errors": [
+            {
+              "type": "CodeError",
+              "errorMessage": "This is an error message"
+            }
+          ]
+        },
+        "Sometimes the expression and output may be really long",
+        {
+          "type": "CodeExpression",
+          "programmingLanguage": "r",
+          "text": "a_function_with_a_really_long_name(what = a_variable_that_also_has_a_really_long_name)",
+          "output": "wow, this is a long string that a_function_with_a_really_long_name outputted when called with a_variable_that_also_has_a_really_long_name "
+        },
+        "."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Code blocks"]
+    },
+    {
+      "type": "Paragraph",
+      "content": ["A code block will usually have a language specified e.g."]
+    },
+    {
+      "type": "CodeBlock",
+      "programmingLanguage": "javascript",
+      "text": "// Some Javascript\nfunction beep() {\n  console.log('boop')\n}\n"
+    },
+    {
+      "type": "Paragraph",
+      "content": ["But it may not e.g."]
+    },
+    {
+      "type": "CodeBlock",
+      "text": "# Some Python\ndef beep():\n  print('boop')\n"
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Code chunks"]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A code chunk can have varying number and types of outputs e.g."
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "javascript",
+      "text": "// No output\nconst x = 42"
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# String output\n'Hello world'",
+      "outputs": ["Hello world"]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r",
+      "text": "# Datatable output\nhead(mtcars)",
+      "duration": 0.092,
+      "outputs": [
+        {
+          "columns": [
+            {
+              "name": "mpg",
+              "type": "DatatableColumn",
+              "validator": {
+                "items": {
+                  "type": "NumberValidator"
+                },
+                "type": "ArrayValidator"
+              },
+              "values": [21, 21, 22.8, 21.4, 18.7, 18.1]
+            },
+            {
+              "name": "cyl",
+              "type": "DatatableColumn",
+              "validator": {
+                "items": {
+                  "type": "NumberValidator"
+                },
+                "type": "ArrayValidator"
+              },
+              "values": [6, 6, 4, 6, 8, 6]
+            },
+            {
+              "name": "disp",
+              "type": "DatatableColumn",
+              "validator": {
+                "items": {
+                  "type": "NumberValidator"
+                },
+                "type": "ArrayValidator"
+              },
+              "values": [160, 160, 108, 258, 360, 225]
+            },
+            {
+              "name": "hp",
+              "type": "DatatableColumn",
+              "validator": {
+                "items": {
+                  "type": "NumberValidator"
+                },
+                "type": "ArrayValidator"
+              },
+              "values": [110, 110, 93, 110, 175, 105]
+            },
+            {
+              "name": "drat",
+              "type": "DatatableColumn",
+              "validator": {
+                "items": {
+                  "type": "NumberValidator"
+                },
+                "type": "ArrayValidator"
+              },
+              "values": [3.9, 3.9, 3.85, 3.08, 3.15, 2.76]
+            },
+            {
+              "name": "wt",
+              "type": "DatatableColumn",
+              "validator": {
+                "items": {
+                  "type": "NumberValidator"
+                },
+                "type": "ArrayValidator"
+              },
+              "values": [2.62, 2.875, 2.32, 3.215, 3.44, 3.46]
+            },
+            {
+              "name": "qsec",
+              "type": "DatatableColumn",
+              "validator": {
+                "items": {
+                  "type": "NumberValidator"
+                },
+                "type": "ArrayValidator"
+              },
+              "values": [16.46, 17.02, 18.61, 19.44, 17.02, 20.22]
+            },
+            {
+              "name": "vs",
+              "type": "DatatableColumn",
+              "validator": {
+                "items": {
+                  "type": "NumberValidator"
+                },
+                "type": "ArrayValidator"
+              },
+              "values": [0, 0, 1, 1, 0, 1]
+            },
+            {
+              "name": "am",
+              "type": "DatatableColumn",
+              "validator": {
+                "items": {
+                  "type": "NumberValidator"
+                },
+                "type": "ArrayValidator"
+              },
+              "values": [1, 1, 1, 0, 0, 0]
+            },
+            {
+              "name": "gear",
+              "type": "DatatableColumn",
+              "validator": {
+                "items": {
+                  "type": "NumberValidator"
+                },
+                "type": "ArrayValidator"
+              },
+              "values": [4, 4, 4, 3, 3, 3]
+            },
+            {
+              "name": "carb",
+              "type": "DatatableColumn",
+              "validator": {
+                "items": {
+                  "type": "NumberValidator"
+                },
+                "type": "ArrayValidator"
+              },
+              "values": [4, 4, 1, 1, 2, 1]
+            }
+          ],
+          "type": "Datatable"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "r",
+      "text": "# ImageObject output\n plot(sin(seq(0,4, 0.01)))",
+      "duration": 0.02,
+      "outputs": [
+        {
+          "contentUrl": "data:image/png;base64,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",
+          "type": "ImageObject"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "text": "# A number, a string, an array\n42\n'Hello'\n[1, 2, 3]\n",
+      "outputs": [
+        42,
+        "Hello",
+        [1, 2, 3]
+      ]
+    }
+  ]
+}
