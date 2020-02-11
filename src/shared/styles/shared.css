@@ -1,2 +1,3 @@
 @import '@stencila/components/dist/stencila-components/stencila-components.css';
+@import './variables.css';
 @import './citations.css';
