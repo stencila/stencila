@@ -1,0 +1,211 @@
+/* Theme: Skeleton
+* This is a bare-bones, starter theme to be used as a starting point for creating new themes.
+* Do not edit these files to create your own theme.
+* Duplicate this directory, and rename it to your theme‘s name instead.
+*
+* This theme lists all the avaialble custom selectors you can use to target various semantic HTML elements.
+*
+* Thre are a few key rules enforced by Stylelint:
+* - All slectors must be descendants of a custom semantic selector. This reduces risks of a theme interfering with
+*   exsitng stylesheets on a website.
+* - Avoid hard-coded values for things such as font-sizes, colors, and fonts. Instead, use CSS variables, as these will
+*   allow simple theme overrides within the browser without having to rebuild the theme.
+* - Design your themes using a mobile-first approach, adding overrides to refine styles on larger screens.
+    At the same time, it is highly recommended to also include print media overrides with your theme.
+* - These themes are primarily intended for rendering interactive articles and other relatively long forms of prose.
+*   As such, good typography is paramount. Reading Matthew Butterick‘s [Typography in Ten
+*   Minutes](https://practicaltypography.com/typography-in-ten-minutes.html) will give you a solid foundation and a
+*   reference for crafting your own themes.
+*/
+
+@import '../../shared/styles/shared.css';
+
+:--ArrayValidator {
+}
+
+:--Article {
+  /* Declare and overried default variables here */
+}
+
+:--AudioObject {
+}
+
+:--BooleanValidator {
+}
+
+:--Brand {
+}
+
+:--Cite {
+}
+
+:--CiteGroup {
+}
+
+:--Code {
+}
+
+:--CodeBlock {
+}
+
+:--CodeChunk {
+}
+
+:--CodeError {
+}
+
+:--CodeExpression {
+}
+
+:--CodeFragment {
+}
+
+:--Collection {
+}
+
+:--ConstantValidator {
+}
+
+:--ContactPoint {
+}
+
+:--CreativeWork {
+}
+
+:--Datatable {
+}
+
+:--DatatableColumn {
+}
+
+:--Date {
+}
+
+:--Delete {
+}
+
+:--Emphasis {
+}
+
+:--Entity {
+}
+
+:--EnumValidator {
+}
+
+:--Figure {
+}
+
+:--Function {
+}
+
+:--Heading {
+}
+
+:--ImageObject {
+}
+
+:--Include {
+}
+
+:--IntegerValidator {
+}
+
+:--Link {
+}
+
+:--List {
+}
+
+:--ListItem {
+}
+
+:--Mark {
+}
+
+:--Math {
+}
+
+:--MathBlock {
+}
+
+:--MathFragment {
+}
+
+:--MediaObject {
+}
+
+:--NumberValidator {
+}
+
+:--Organization {
+}
+
+:--Paragraph {
+}
+
+:--Parameter {
+}
+
+:--Periodical {
+}
+
+:--Person {
+}
+
+:--Product {
+}
+
+:--PublicationIssue {
+}
+
+:--PublicationVolume {
+}
+
+:--Quote {
+}
+
+:--QuoteBlock {
+}
+
+:--SoftwareApplication {
+}
+
+:--SoftwareSourceCode {
+}
+
+:--StringValidator {
+}
+
+:--Strong {
+}
+
+:--Subscript {
+}
+
+:--Superscript {
+}
+
+:--Table {
+}
+
+:--TableCell {
+}
+
+:--TableRow {
+}
+
+:--ThematicBreak {
+}
+
+:--Thing {
+}
+
+:--TupleValidator {
+}
+
+:--Variable {
+}
+
+:--VideoObject {
+}

@@ -1,0 +1,39 @@
+/* Ideally use import as below, but currently encounters build issues, */
+/* and inability to install as NPM package due to missing package version number. */
+/* @import 'eLife-pattern-library/assets/sass/build.scss'; */
+/* due to the above issues we import and inline the built CSS file from the web */
+@import 'https://elifesciences.org/assets/patterns/css/all.0565330b.css';
+
+/* Ensure fonts still resolve when not viewed on ELife website */
+/* This could potentially be extracted into a separate file, for more granular imports */
+@import '../../shared/fonts/notoSerif/notoSerif.css';
+@import '../../shared/fonts/notoSans/notoSans.css';
+
+main {
+  @extend .wrapper;
+}
+
+:--Article {
+  @extend .wrapper;
+  @extend .content-container;
+  @extend .grid__item;
+  @extend .one-whole;
+  @extend .large--eight-twelfths;
+  @extend .x-large--seven-twelfths;
+  @extend .grid-column;
+}
+
+:--Article :--authors {
+  @extend .content-header__author_list;
+
+  :--Person {
+    @extend .content-header__author_list_item;
+  }
+}
+
+/* Chain custom MicroData selectors for style adjustments as needed */
+:--Article :--affiliations {
+  display: inline;
+  padding: 0;
+  margin: 0;
+}

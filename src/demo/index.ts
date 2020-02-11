@@ -75,7 +75,7 @@ if (themeSelect !== null) {
 
 // Initial content...
 const content = window.sessionStorage.getItem(sessionKey.ARTICLE)
-contentSet(content === null ? 'article-drosophila' : content)
+contentSet(content === null ? 'article-kitchen-sink' : content)
 if (contentSelect !== null) {
   contentSelect.value = content === null ? contentSelect.value : content
 }

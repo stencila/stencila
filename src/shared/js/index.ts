@@ -2,23 +2,22 @@
  * This file is imported by all themes, allowing for shared configurations among themes.
  */
 
-import { codeHighlight } from './syntaxHighlight'
-
 export const formatReferences = (): void => {
-  const referenceListItemSel = '.references > li'
-  const titleSel = 'span[itemprop="headline"]'
+  const referenceListItemSel =
+    '[data-itemprop="references"] > [itemprop="citation"]'
+  const titleSel = '[itemprop="headline"]'
   const datePublishedSel = '[itemprop="datePublished"]'
   const publicationIssueSel = '[itemtype="https://schema.org/PublicationIssue"]'
 
   document.querySelectorAll(referenceListItemSel).forEach(node => {
-    const datePublished = node.querySelector(datePublishedSel) as HTMLElement
-    const title = node.querySelector(titleSel) as HTMLElement
+    const datePublished = node.querySelector(datePublishedSel)
+    const title = node.querySelector(titleSel)
 
-    if (title) {
-      const titleCopy = title.cloneNode(true) as HTMLElement
+    if (title !== null) {
+      const titleCopy = title.cloneNode(true)
 
       // Add title node after original datePublished node
-      if (datePublished && datePublished.parentNode) {
+      if (datePublished !== null && datePublished.parentNode !== null) {
         datePublished.parentNode.insertBefore(
           titleCopy,
           datePublished.nextSibling
@@ -26,19 +25,21 @@ export const formatReferences = (): void => {
       }
 
       // Add datePublished node after PublicationIssue node (if exists)
-      const publicationIssue = node.querySelector(
-        publicationIssueSel
-      ) as HTMLElement
-      const datePublishedCopy = datePublished.cloneNode(true) as HTMLElement
+      const publicationIssue = node.querySelector(publicationIssueSel)
+      const datePublishedCopy = datePublished?.cloneNode(true)
 
-      if (publicationIssue && publicationIssue.parentNode) {
+      if (
+        datePublishedCopy !== undefined &&
+        publicationIssue !== null &&
+        publicationIssue.parentNode !== null
+      ) {
         publicationIssue.parentNode.insertBefore(
           datePublishedCopy,
           publicationIssue.nextSibling
         )
-      } else {
+      } else if (datePublishedCopy !== undefined) {
         // Otherwise, add node after titleCopy
-        if (titleCopy && titleCopy.parentNode) {
+        if (titleCopy !== null && titleCopy.parentNode !== null) {
           titleCopy.parentNode.insertBefore(
             datePublishedCopy,
             titleCopy.nextSibling
@@ -50,7 +51,6 @@ export const formatReferences = (): void => {
 }
 
 const onReadyHandler = (): void => {
-  codeHighlight()
   // Use setTimeout to queue formatReferences until
   // the current call stack gets executed (allow DOM elements
   // to load before rearranging references for theme styles)

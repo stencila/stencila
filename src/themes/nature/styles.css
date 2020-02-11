@@ -1,14 +1,14 @@
-@import '../../common/styles/common.css';
+@import '../../shared/styles/shared.css';
 @import 'prismjs/themes/prism.css';
-@import '../../common/fonts/lora/lora.css';
-@import '../../common/fonts/sourceSansPro/sourceSansPro.css';
+@import '../../shared/fonts/lora/lora.css';
+@import '../../shared/fonts/sourceSansPro/sourceSansPro.css';
 
 :root {
   --max-width: 680px;
   --max-width-media: 980px;
   --body-font: 'Lora', Palatino, Times, 'Times New Roman', serif;
   --secondary-font: 'Source Sans Pro', Helvetica, Arial, sans-serif;
-  --heading-color: #eeeeee;
+  --heading-color: #eee;
 }
 
 html,
@@ -58,16 +58,19 @@ h1:--headline {
 
 h1:not(:--headline) {
   position: relative; /* child absolute */
+
   /* negative offset = section padding */
   margin: 0 -30px;
+
   /* add back section padding value */
   padding: 1.25rem 30px 0.275rem;
   background: var(--heading-color);
 }
 
-h1:not(:--headline):before {
+h1:not(:--headline)::before {
   content: '';
   position: absolute;
+
   /* fill vertically */
   top: 0;
   bottom: 0;
@@ -81,7 +84,7 @@ h1:not(:--headline):before {
     padding: 1.25rem 0 0.275rem;
   }
 
-  h1:not(:--headline):before {
+  h1:not(:--headline)::before {
     z-index: -1;
     right: -16px;
   }
@@ -230,7 +233,7 @@ a:link,
 a:visited {
   position: relative;
   text-decoration: none;
-  color: #006699;
+  color: #069;
   font-style: italic;
 }
 
@@ -389,7 +392,7 @@ tbody:first-child tr:first-child {
   font-weight: 900;
   padding: 0.5em 1em;
   border-right: solid 1px #f1f1f2;
-  background-color: #eeeeee;
+  background-color: #eee;
 }
 
 td {
@@ -401,7 +404,7 @@ td {
 blockquote {
   max-width: calc(var(--max-width) - 50px); /* desktop+ */
   margin: 1.25rem auto;
-  color: #222222;
+  color: #222;
   position: relative;
   border-left: 5px solid #dadada;
 
@@ -438,6 +441,7 @@ blockquote {
     :--authors,
     :--organizations {
       @mixin list-separated;
+
       display: block;
     }
 

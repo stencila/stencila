@@ -8,12 +8,13 @@
       "mixinsDir": "src/designa/mixins"
     },
     "postcss-custom-selectors": {
-      "importFrom": "src/common/styles/selectors.css"
+      "importFrom": "src/selectors.css"
     },
     "postcss-custom-properties": {
       "preserve": true
     },
     "postcss-nested": true,
-    "autoprefixer": true
+    "autoprefixer": true,
+    "postcss-extend": true
   }
 }
