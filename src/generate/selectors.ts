@@ -4,7 +4,7 @@ import { Types, entityTypes } from '@stencila/schema'
 import globby from 'globby'
 
 // Target output path for the file containing generated custom selector definitions
-const outputPath = path.join(__dirname, 'selectors.css')
+const outputPath = path.join(__dirname, '..', 'selectors.css')
 
 const readSchemas = async (): Promise<string[]> => {
   const paths = path.join(
