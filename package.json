@@ -13,6 +13,7 @@
     "dev": "parcel ./src/index.html ./src/examples/*.html --open",
     "lint": "stylelint \"./src/**/*.css\"",
     "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --write './**/*.{js,json,md,ts,yaml}'",
     "pages": "parcel build ./src/index.html ./src/examples/*.html -d pages --public-url .",
     "pages:test": "parcel build ./src/examples/*.html -d test/examples --public-url .",
     "postinstall": "npm run build:selectors",
