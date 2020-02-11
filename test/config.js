@@ -4,13 +4,11 @@ const VisualRegressionCompare = require('wdio-novus-visual-regression-service/co
 
 // Declare configuration variables and paths for storing screenshots
 const screenshotDir = path.join(__dirname, 'screenshots')
-
 const env = {
   baseUrl: process.env.BASE_URL || 'http://localhost:3000',
-  staticDir: path.join(__dirname, '..', 'src'),
+  staticDir: path.join(__dirname, 'build'),
   screenshotDir,
   errors: path.join(screenshotDir, 'error'),
-  examples: path.resolve(__dirname, '..', 'src', 'examples'),
   reference: path.join(screenshotDir, 'reference'),
   local: path.join(screenshotDir, 'local'),
   diff: path.join(screenshotDir, 'diff')
