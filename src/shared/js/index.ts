@@ -2,8 +2,6 @@
  * This file is imported by all themes, allowing for shared configurations among themes.
  */
 
-import { codeHighlight } from './syntaxHighlight'
-
 export const formatReferences = (): void => {
   const referenceListItemSel = '.references > li'
   const titleSel = 'span[itemprop="headline"]'
@@ -50,7 +48,6 @@ export const formatReferences = (): void => {
 }
 
 const onReadyHandler = (): void => {
-  codeHighlight()
   // Use setTimeout to queue formatReferences until
   // the current call stack gets executed (allow DOM elements
   // to load before rearranging references for theme styles)

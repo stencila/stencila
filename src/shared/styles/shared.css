@@ -1,52 +1,5 @@
 /* TODO: Add @stencila/components as a dependency and import from there */
 @import 'https://unpkg.com/@stencila/components@0.2.0/dist/stencila-components-styles.css';
-@import 'normalize.css';
-@import 'prismjs/plugins/line-highlight/prism-line-highlight.css';
 
-/* NOTE: Add the following line to a theme stylesheet to enable Line Numbers */
-
-/* @import 'prismjs/plugins/line-numbers/prism-line-numbers.css'; */
 
 @import './citations.css';
-
-:--CodeChunk {
-  pre,
-  pre[class*='language-'] {
-    background-color: transparent;
-  }
-
-  .codeContainer {
-    pre {
-      overflow-x: auto;
-
-      output {
-        white-space: pre-line;
-      }
-    }
-  }
-}
-
-/*
-  `description` property: a `div` or `div > p` abstract or description.
-*/
-:--description {
-  margin: 0 auto 1.25rem;
-  max-width: var(--max-width);
-}
-
-html {
-  font-size: 16px;
-  box-sizing: border-box;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: inherit;
-}
-
-@media screen and (max-width: 380px) {
-  figure {
-    max-height: 90vh;
-  }
-}
