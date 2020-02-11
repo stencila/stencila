@@ -1,5 +1,5 @@
 export const themes = {
-  elife: 'eLife' as const,
+  elife: 'elife' as const,
   nature: 'nature' as const,
   plos: 'plos' as const,
   stencila: 'stencila' as const
