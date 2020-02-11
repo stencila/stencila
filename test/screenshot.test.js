@@ -24,22 +24,25 @@ const allScreenshotsPass = results =>
 
 describe('visual regressions: ', () => {
   files.forEach(file => {
+    const path = `/examples/${file}`
+
     it(`${file}: can be got`, () => {
-      const req = http.get({
-        hostname,
-        port,
-        path: '/' + file
-      }, res => {
+      const req = http.get({ hostname, port, path }, res => {
         assert.equal(res.statusCode, '200')
       })
-      req.on('error', error => {
-        assert.fail(error)
-      })
+      req.on('error', error => assert.fail(error))
       req.end()
     })
 
+    // A pseudo-test that is helpful for debugging the page
+    // that the screen-shotting actually sees. To use it unskip it.
+    it.skip(`${file}: can be browsed`, async () => {
+      console.log(`Browse for 60s before the robots 🤖 take control: ${baseUrl}${path}`)
+      await new Promise(resolve => setTimeout(resolve, 60000))
+    })
+
     it(`${file}: screenshots have not changed`, async () => {
-      await browser.url('/' + file)
+      await browser.url(path)
       const results = await browser.checkDocument()
 
       assert.ok(
