@@ -8,7 +8,7 @@
       "mixinsDir": "src/designa/mixins"
     },
     "postcss-custom-selectors": {
-      "importFrom": "src/shared/styles/selectors.css"
+      "importFrom": "src/selectors.css"
     },
     "postcss-custom-properties": {
       "preserve": true
