@@ -7,7 +7,7 @@ interface PrivateThemes {
 export const modules: {
   [key in keyof Themes & PrivateThemes]: Promise<any>
 } = {
-  elife: import('./eLife'),
+  elife: import('./elife'),
   nature: import('./nature'),
   plos: import('./plos'),
   stencila: import('./stencila'),
