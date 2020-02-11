@@ -185,7 +185,7 @@ exports.config = {
   // Framework you want to run your specs with.
   framework: 'mocha',
   // Test reporter for stdout.
-  reporters: ['dot'],
+  reporters: ['dot', 'concise'],
   // Options to be passed to Mocha.
   // See the full list at http://mochajs.org/
   mochaOpts: {
