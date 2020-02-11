@@ -1,7 +1,7 @@
-@import '../../common/styles/common.css';
+@import '../../shared/styles/shared.css';
 @import 'prismjs/themes/prism.css';
-@import '../../common/fonts/lora/lora.css';
-@import '../../common/fonts/sourceSansPro/sourceSansPro.css';
+@import '../../shared/fonts/lora/lora.css';
+@import '../../shared/fonts/sourceSansPro/sourceSansPro.css';
 
 :root {
   --max-width: 680px;

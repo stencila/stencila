@@ -1,3 +1,3 @@
-import { load } from '../../common/js'
+import { load } from '../../shared/js'
 
 load()

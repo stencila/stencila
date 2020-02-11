@@ -1,4 +1,4 @@
-import { load } from '../../common/js'
-export { load } from '../../common/js'
+import { load } from '../../shared/js'
+export { load } from '../../shared/js'
 
 load()

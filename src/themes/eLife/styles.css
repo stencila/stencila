@@ -1,7 +1,7 @@
-@import '../../common/styles/common.css';
+@import '../../shared/styles/shared.css';
 @import 'prismjs/themes/prism.css';
-@import '../../common/fonts/notoSerif/notoSerif.css';
-@import '../../common/fonts/notoSans/notoSans.css';
+@import '../../shared/fonts/notoSerif/notoSerif.css';
+@import '../../shared/fonts/notoSans/notoSans.css';
 
 :root {
   --max-width: 650px;

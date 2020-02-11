@@ -1,6 +1,6 @@
-@import '../../common/styles/common.css';
+@import '../../shared/styles/shared.css';
 @import 'prismjs/themes/prism.css';
-@import '../../common/fonts/openSans/openSans.css';
+@import '../../shared/fonts/openSans/openSans.css';
 
 :root {
   --max-width: 650px;
