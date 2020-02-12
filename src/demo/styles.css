@@ -27,9 +27,21 @@ header {
     height: 2rem;
   }
 
-  label {
+  .tools {
     float: right;
-    margin: 0.2rem;
+
+    label {
+      margin: 0.2rem;
+    }
+
+    .github {
+      img {
+        margin: 0 0.5rem;
+        height: 24px;
+        width: 24px;
+        opacity: 0.4;
+      }
+    }
   }
 }
 

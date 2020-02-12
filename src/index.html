@@ -6,72 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="stylesheet" href="./demo/styles.css" />
-    <link
-      class="theme"
-      id="elife"
-      rel="stylesheet"
-      href="./themes/elife/styles.css"
-      disabled
-    />
-    <link
-      class="theme"
-      id="nature"
-      rel="stylesheet"
-      href="./themes/nature/styles.css"
-      disabled
-    />
-    <link
-      class="theme"
-      id="plos"
-      rel="stylesheet"
-      href="./themes/plos/styles.css"
-      disabled
-    />
-    <link
-      class="theme"
-      id="stencila"
-      rel="stylesheet"
-      href="./themes/stencila/styles.css"
-    />
-    <link
-      class="theme"
-      id="skeleton"
-      rel="stylesheet"
-      href="./themes/skeleton/styles.css"
-    />
-    <script
-      src="https://unpkg.com/@stencila/components@&lt;=1/dist/stencila-components/stencila-components.esm.js"
-      type="module"
-    ></script>
-    <script
-      src="https://unpkg.com/@stencila/components@&lt;=1/dist/stencila-components/stencila-components.js"
-      type="text/javascript"
-    ></script>
+    <!-- GENERATED-THEME-LINKS-BEGIN -->
+    <link id="elife" class="theme" rel="stylesheet" href="themes/elife/styles.css" disabled />
+    <link id="nature" class="theme" rel="stylesheet" href="themes/nature/styles.css" disabled />
+    <link id="plos" class="theme" rel="stylesheet" href="themes/plos/styles.css" disabled />
+    <link id="skeleton" class="theme" rel="stylesheet" href="themes/skeleton/styles.css" disabled />
+    <link id="stencila" class="theme" rel="stylesheet" href="themes/stencila/styles.css" disabled />
+    <!-- GENERATED-THEME-LINKS-END -->
   </head>
   <body>
-    <header>
+    <header id="header">
       <img src="https://stenci.la/img/stencila-logo.svg" />
       <span class="name">Thema</span>
-      <label>
-        Content
-        <select id="content-select">
-          <option value="article-kitchen-sink">Kitchen sink article</option>
-          <option value="article-drosophila">Drosophila article</option>
-          <option value="article-antibodies" selected
-            >Antibodies article</option
-          >
-        </select>
-      </label>
-      <label>
-        Theme
-        <select id="theme-select">
-          <option value="stencila" selected>Stencila</option>
-          <option value="elife">eLife</option>
-          <option value="nature">Nature</option>
-          <option value="plos">PLoS</option>
-          <option value="skeleton">Skeleton</option>
-        </select>
-      </label>
+      <div class="tools">
+        <label>
+          Example
+          <select id="example-select"></select>
+        </label>
+        <label>
+          Theme
+          <select id="theme-select"></select>
+        </label>
+        <a class="github" href="https://github.com/stencila/thema">
+          <img src="https://unpkg.com/simple-icons@latest/icons/github.svg" />
+        </a>
+      </div>
     </header>
     <main></main>
     <script src="./demo/index.ts"></script>

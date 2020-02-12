@@ -1,3 +1,11 @@
+import { load } from '../../shared/js'
+
+load()
+
+/*
+This is old code, currently commented out with the view to
+consolidating in shared.
+
 export const init = (): void => {
   const referenceListItemSel = '[itemprop="references"] > li'
   const datePublishedSel = '[itemprop="datePublished"]'
@@ -22,3 +30,4 @@ export const init = (): void => {
 }
 
 document.addEventListener('DOMContentLoaded', init)
+*/

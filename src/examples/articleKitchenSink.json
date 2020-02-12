@@ -36,7 +36,7 @@
     },
     ". Some of the article meta-data for this example is taken from ",
     {
-      "type":"Link",
+      "type": "Link",
       "target": "https://elifesciences.org/articles/49574.",
       "content": ["this article"]
     }
@@ -91,9 +91,7 @@
           "value": "eLife"
         }
       ],
-      "issns": [
-        "2050-084X"
-      ],
+      "issns": ["2050-084X"],
       "publisher": {
         "type": "Organization",
         "name": "eLife Sciences Publications, Ltd"
@@ -123,9 +121,7 @@
             {
               "type": "Link",
               "target": "http://creativecommons.org/licenses/by/4.0/",
-              "content": [
-                "Creative Commons Attribution License"
-              ]
+              "content": ["Creative Commons Attribution License"]
             },
             ", which permits unrestricted use and redistribution provided that the original author and source are credited."
           ]
@@ -140,21 +136,13 @@
       "authors": [
         {
           "type": "Person",
-          "familyNames": [
-            "Alvarez"
-          ],
-          "givenNames": [
-            "FJ"
-          ]
+          "familyNames": ["Alvarez"],
+          "givenNames": ["FJ"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "Fyffe"
-          ],
-          "givenNames": [
-            "REW"
-          ]
+          "familyNames": ["Fyffe"],
+          "givenNames": ["REW"]
         }
       ],
       "datePublished": "2007",
@@ -173,75 +161,43 @@
       "authors": [
         {
           "type": "Person",
-          "familyNames": [
-            "Asahina"
-          ],
-          "givenNames": [
-            "K"
-          ]
+          "familyNames": ["Asahina"],
+          "givenNames": ["K"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "Watanabe"
-          ],
-          "givenNames": [
-            "K"
-          ]
+          "familyNames": ["Watanabe"],
+          "givenNames": ["K"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "Duistermars"
-          ],
-          "givenNames": [
-            "BJ"
-          ]
+          "familyNames": ["Duistermars"],
+          "givenNames": ["BJ"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "Hoopfer"
-          ],
-          "givenNames": [
-            "E"
-          ]
+          "familyNames": ["Hoopfer"],
+          "givenNames": ["E"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "González"
-          ],
-          "givenNames": [
-            "CR"
-          ]
+          "familyNames": ["González"],
+          "givenNames": ["CR"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "Eyjólfsdóttir"
-          ],
-          "givenNames": [
-            "EA"
-          ]
+          "familyNames": ["Eyjólfsdóttir"],
+          "givenNames": ["EA"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "Perona"
-          ],
-          "givenNames": [
-            "P"
-          ]
+          "familyNames": ["Perona"],
+          "givenNames": ["P"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "Anderson"
-          ],
-          "givenNames": [
-            "DJ"
-          ]
+          "familyNames": ["Anderson"],
+          "givenNames": ["DJ"]
         }
       ],
       "datePublished": "2014",
@@ -260,48 +216,28 @@
       "authors": [
         {
           "type": "Person",
-          "familyNames": [
-            "Baines"
-          ],
-          "givenNames": [
-            "RA"
-          ]
+          "familyNames": ["Baines"],
+          "givenNames": ["RA"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "Uhler"
-          ],
-          "givenNames": [
-            "JP"
-          ]
+          "familyNames": ["Uhler"],
+          "givenNames": ["JP"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "Thompson"
-          ],
-          "givenNames": [
-            "A"
-          ]
+          "familyNames": ["Thompson"],
+          "givenNames": ["A"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "Sweeney"
-          ],
-          "givenNames": [
-            "ST"
-          ]
+          "familyNames": ["Sweeney"],
+          "givenNames": ["ST"]
         },
         {
           "type": "Person",
-          "familyNames": [
-            "Bate"
-          ],
-          "givenNames": [
-            "M"
-          ]
+          "familyNames": ["Bate"],
+          "givenNames": ["M"]
         }
       ],
       "datePublished": "2001",
@@ -925,11 +861,7 @@
       "type": "CodeChunk",
       "programmingLanguage": "python",
       "text": "# A number, a string, an array\n42\n'Hello'\n[1, 2, 3]\n",
-      "outputs": [
-        42,
-        "Hello",
-        [1, 2, 3]
-      ]
+      "outputs": [42, "Hello", [1, 2, 3]]
     }
   ]
 }

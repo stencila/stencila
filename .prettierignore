@@ -1,1 +1,8 @@
+.cache
+CHANGELOG.md
+dist
+docs
+examples
 src/selectors.css
+src/shared/styles/mathjax.css
+test/build
