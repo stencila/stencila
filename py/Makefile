@@ -1,4 +1,4 @@
-all: regen lint test build docs
+all: regen lint format test build docs
 
 setup:
 	pip3 install -r requirements-dev.txt
@@ -14,7 +14,7 @@ lint:
 	mypy stencila/schema --ignore-missing-imports
 
 format:
-	black .
+	black --exclude stencila/schema/types.py ./stencila ./*.py
 
 test:
 	tox
