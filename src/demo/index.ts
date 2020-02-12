@@ -49,7 +49,7 @@ const exampleSet = async (example: string): Promise<void> => {
 
   // Load the HTML content
   const req = new XMLHttpRequest()
-  req.open('GET', `./${examples[example]}`, false)
+  req.open('GET', examples[example], false)
   req.send(null)
   const html = req.responseText
 

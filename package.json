@@ -19,7 +19,7 @@
     "postinstall": "npm run build:selectors",
     "semantic-release": "semantic-release",
     "test": "npm run test:build && npm run test:run",
-    "test:build": "parcel build ./src/examples/article-kitchen-sink.html -d test/build --public-url .",
+    "test:build": "parcel build ./src/index.html ./src/examples/*.html -d test/build --public-url .",
     "test:run": "SAUCE_API_HOST=eu-central-1.saucelabs.com wdio",
     "watch": "parcel watch ./src/**/*.css ./src/**/*.ts"
   },

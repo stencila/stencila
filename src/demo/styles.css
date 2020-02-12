@@ -36,10 +36,10 @@ header {
 
     .github {
       img {
-        margin-left: 1rem;
+        margin: 0 0.5rem;
         height: 24px;
         width: 24px;
-        color: #777;
+        opacity: 0.4;
       }
     }
   }
