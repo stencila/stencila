@@ -60,7 +60,9 @@ const exampleSet = async (example: string): Promise<void> => {
 }
 
 // Set an example when it is selected from the example selector
-const exampleSelect = document.querySelector<HTMLInputElement>('#example-select')
+const exampleSelect = document.querySelector<HTMLInputElement>(
+  '#example-select'
+)
 if (exampleSelect !== null) {
   exampleSelect.addEventListener('change', event => {
     const target = event.currentTarget as HTMLSelectElement
@@ -70,9 +72,10 @@ if (exampleSelect !== null) {
 
 // Set the initial example
 exampleSet(
-  url.searchParams.get(keys.EXAMPLE) ?? sessionStorage.getItem(keys.EXAMPLE) ?? defaults.EXAMPLE
+  url.searchParams.get(keys.EXAMPLE) ??
+    sessionStorage.getItem(keys.EXAMPLE) ??
+    defaults.EXAMPLE
 )
-
 
 // Set a theme
 const themeSet = async (theme: string): Promise<void> => {
@@ -104,12 +107,14 @@ if (themeSelect !== null) {
 
 // Set the initial theme
 themeSet(
-  url.searchParams.get(keys.THEME) ?? sessionStorage.getItem(keys.THEME) ?? defaults.THEME
+  url.searchParams.get(keys.THEME) ??
+    sessionStorage.getItem(keys.THEME) ??
+    defaults.THEME
 )
-
 
 // Set display of header
 const header = document.querySelector<HTMLInputElement>('#header')
 if (header !== null) {
-  header.style.display = url.searchParams.get(keys.HEADER) === 'false' ? 'none' : 'block'
+  header.style.display =
+    url.searchParams.get(keys.HEADER) === 'false' ? 'none' : 'block'
 }

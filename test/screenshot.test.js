@@ -9,7 +9,9 @@
 const assert = require('assert')
 const fs = require('fs')
 const http = require('http')
-const { env: {staticDir, baseUrl, examples, diff} } = require('./config.js')
+const {
+  env: { staticDir, baseUrl, examples, diff }
+} = require('./config.js')
 
 // The examples to use for visual regression tests
 // It's generally better to only use small examples, as
@@ -20,7 +22,7 @@ const EXAMPLES = ['article-kitchen-sink']
 const THEMES = ['stencila', 'elife', 'nature', 'plos', 'skeleton']
 
 // Get hostname and port for doing connectivity tests
-const {hostname, port} = new URL(baseUrl)
+const { hostname, port } = new URL(baseUrl)
 
 describe('visual regressions: ', () => {
   it(`needs the build folder`, () => {
@@ -46,7 +48,9 @@ describe('visual regressions: ', () => {
         // A pseudo-test that is helpful for debugging the page
         // that the screen-shotting actually sees. To use it un-skip it.
         it.skip(`${path}: can be browsed`, async () => {
-          console.log(`Browse for 60s before the robots 🤖 take control: ${baseUrl}${path}`)
+          console.log(
+            `Browse for 60s before the robots 🤖 take control: ${baseUrl}${path}`
+          )
           await new Promise(resolve => setTimeout(resolve, 60000))
         })
 
@@ -60,7 +64,8 @@ describe('visual regressions: ', () => {
            */
           const allScreenshotsPass = results =>
             results.reduce(
-              (pass, result) => pass && result.isWithinMisMatchTolerance === true,
+              (pass, result) =>
+                pass && result.isWithinMisMatchTolerance === true,
               true
             )
           assert.ok(
