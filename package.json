@@ -127,7 +127,6 @@
   },
   "dependencies": {
     "@stencila/components": "^0.9.0",
-    "@stencila/encoda": "^0.85.2",
-    "stencila": "^0.33.5"
+    "@stencila/encoda": "^0.85.2"
   }
 }
