@@ -6,26 +6,21 @@
  * HTML, compiled CSS and JS used for visual regression testing in it.
  */
 
+const assert = require('assert')
 const fs = require('fs')
 const http = require('http')
 const { env: {staticDir, baseUrl, examples, diff} } = require('./config.js')
-const assert = require('assert')
+
+// The examples to use for visual regression tests
+// It's generally better to only use small examples, as
+// larger ones take up time and space
+const EXAMPLES = ['article-kitchen-sink']
+
+// The themes to be tested. Defaults to all
+const THEMES = ['stencila', 'elife', 'nature', 'plos', 'skeleton']
 
 // Get hostname and port for doing connectivity tests
 const {hostname, port} = new URL(baseUrl)
-
-/**
- * Takes an array of visual regression comparison results, and checks if all
- * are within difference tolerances.
- *
- * @param {array {isWithinMisMatchTolerance: boolean}} results
- * @returns boolean
- */
-const allScreenshotsPass = results =>
-  results.reduce(
-    (pass, result) => pass && result.isWithinMisMatchTolerance === true,
-    true
-  )
 
 describe('visual regressions: ', () => {
   it(`needs the build folder`, () => {
@@ -35,34 +30,44 @@ describe('visual regressions: ', () => {
     )
   })
 
-  describe(`runs on each HTML file`, () => {
-    const files = fs.readdirSync(staticDir).filter(file => file.endsWith('.html'))
-    files.forEach(file => {
-      const path = `/${file}`
+  it(`demo page can be got`, () => {
+    const req = http.get({ hostname, port }, res => {
+      assert.equal(res.statusCode, '200')
+    })
+    req.on('error', error => assert.fail(error))
+    req.end()
+  })
 
-      it(`${file}: can be got`, () => {
-        const req = http.get({ hostname, port, path }, res => {
-          assert.equal(res.statusCode, '200')
+  describe(`runs over examples and themes: `, () => {
+    EXAMPLES.forEach(example => {
+      THEMES.forEach(theme => {
+        const path = `?example=${example}&theme=${theme}&header=false`
+
+        // A pseudo-test that is helpful for debugging the page
+        // that the screen-shotting actually sees. To use it un-skip it.
+        it.skip(`${path}: can be browsed`, async () => {
+          console.log(`Browse for 60s before the robots 🤖 take control: ${baseUrl}${path}`)
+          await new Promise(resolve => setTimeout(resolve, 60000))
         })
-        req.on('error', error => assert.fail(error))
-        req.end()
-      })
 
-      // A pseudo-test that is helpful for debugging the page
-      // that the screen-shotting actually sees. To use it un-skip it.
-      it.skip(`${file}: can be browsed`, async () => {
-        console.log(`Browse for 60s before the robots 🤖 take control: ${baseUrl}${path}`)
-        await new Promise(resolve => setTimeout(resolve, 60000))
-      })
+        it(`${path}: screenshots have not changed`, async () => {
+          await browser.url(path)
+          const results = await browser.checkDocument()
 
-      it(`${file}: screenshots have not changed`, async () => {
-        await browser.url(path)
-        const results = await browser.checkDocument()
-
-        assert.ok(
-          allScreenshotsPass(results),
-          `Styles differ from current references. Please see ${diff} for differences`
-        )
+          /**
+           * Takes an array of visual regression comparison results, and checks if all
+           * are within difference tolerances.
+           */
+          const allScreenshotsPass = results =>
+            results.reduce(
+              (pass, result) => pass && result.isWithinMisMatchTolerance === true,
+              true
+            )
+          assert.ok(
+            allScreenshotsPass(results),
+            `Styles differ from current references. Please see ${diff} for differences`
+          )
+        })
       })
     })
   })
