@@ -1,15 +1,27 @@
-import { Themes } from '..'
+import { themes } from './themes'
 
-interface PrivateThemes {
-  skeleton: 'skeleton'
-}
+export { themes }
 
-export const modules: {
-  [key in keyof Themes & PrivateThemes]: Promise<any>
-} = {
-  elife: import('./elife'),
-  nature: import('./nature'),
-  plos: import('./plos'),
-  stencila: import('./stencila'),
-  skeleton: import('./skeleton')
+/**
+ * The path to a theme in this package
+ */
+export const themePath = 'dist/themes'
+
+/**
+ * Is the string a theme name?
+ *
+ * @param {string} name Name of the theme
+ */
+export const isTheme = (name: string): name is keyof typeof themes =>
+  name in themes
+
+/**
+ * Given a string, will return a matching theme,
+ * falling back to the first in if none matches.
+ *
+ * @param {string} name Name of the theme to look for
+ */
+export const resolveTheme = (name?: string): string => {
+  const theme = name === undefined ? '' : name.toLowerCase().trim()
+  return theme !== 'skeleton' && isTheme(theme) ? theme : 'stencila'
 }

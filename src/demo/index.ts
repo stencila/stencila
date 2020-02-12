@@ -16,7 +16,7 @@
  */
 
 import { examples, resolveExample } from '../examples'
-import { modules } from '../themes'
+import { themes } from '../themes'
 
 const url = new URL(window.location.href)
 
@@ -68,13 +68,15 @@ const exampleSelect = document.querySelector<HTMLInputElement>(
   '#example-select'
 )
 if (exampleSelect !== null) {
-  exampleSelect.innerHTML = Object.keys(examples).map(
-    ex =>
-      `<option value="${ex}">${ex.replace(
-        /^([a-z]+)([A-Z][a-z])*/g,
-        '$1: $2'
-      )}</option>`
-  ).join('')
+  exampleSelect.innerHTML = Object.keys(examples)
+    .map(
+      ex =>
+        `<option value="${ex}">${ex.replace(
+          /^([a-z]+)([A-Z][a-z])*/g,
+          '$1: $2'
+        )}</option>`
+    )
+    .join('')
   exampleSelect.addEventListener('change', event => {
     const target = event.currentTarget as HTMLSelectElement
     if (target !== null) exampleSet(target.value)
@@ -98,7 +100,7 @@ const themeSet = async (theme: string): Promise<void> => {
 
   // Load the theme's Javascript module and run it's `init()` function
   // @ts-ignore
-  const mod = await modules[theme]
+  const mod = await themes[theme]
   if (mod !== undefined && 'init' in mod) mod.init()
 
   // Enable the theme's CSS
@@ -110,6 +112,15 @@ const themeSet = async (theme: string): Promise<void> => {
 // Set a theme when it is selected from the theme selector
 const themeSelect = document.querySelector<HTMLInputElement>('#theme-select')
 if (themeSelect !== null) {
+  themeSelect.innerHTML = Object.keys(themes)
+    .map(
+      theme =>
+        `<option value="${theme}">${theme.replace(
+          /^([a-z])([A-Z][a-z])*/g,
+          '$1$2'
+        )}</option>`
+    )
+    .join('')
   themeSelect.addEventListener('change', event => {
     const target = event.currentTarget as HTMLSelectElement
     if (target !== null) themeSet(target.value)

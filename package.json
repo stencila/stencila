@@ -10,6 +10,7 @@
     "build": "parcel build ./src/*.ts ./src/{common,themes}/**/*.{css,ts} && tsc --emitDeclarationOnly",
     "build:examples": "npx ts-node src/generate/examples.ts",
     "build:selectors": "npx ts-node src/generate/selectors.ts",
+    "build:themes": "npx ts-node src/generate/themes.ts",
     "build:mathjax": "npx ts-node src/generate/mathjax.ts",
     "clean": "rm -rf .cache dist docs test/build",
     "dev": "parcel ./src/index.html ./src/examples/*.html --open",
