@@ -21,7 +21,7 @@
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write './**/*.{css,js,json,md,ts,yaml}'",
     "test": "npm run test:build && npm run test:run",
-    "test:build": "parcel build ./src/index.html ./src/examples/*.html -d test/build --public-url .",
+    "test:build": "parcel build ./src/index.html ./src/examples/*.html -d test/build --public-url . && tsc --outDir test/build",
     "test:run": "SAUCE_API_HOST=eu-central-1.saucelabs.com wdio",
     "watch": "parcel watch ./src/**/*.css ./src/**/*.ts"
   },

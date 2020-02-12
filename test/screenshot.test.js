@@ -10,16 +10,18 @@ const assert = require('assert')
 const fs = require('fs')
 const http = require('http')
 const {
-  env: { staticDir, baseUrl, examples, diff }
+  env: { staticDir, baseUrl, diff }
 } = require('./config.js')
+const { examples } = require('./build/examples')
+const { themes } = require('./build/themes')
 
 // The examples to use for visual regression tests
 // It's generally better to only use small examples, as
 // larger ones take up time and space
-const EXAMPLES = ['article-kitchen-sink']
+const EXAMPLES = [examples.articleKitchenSink]
 
 // The themes to be tested. Defaults to all
-const THEMES = ['stencila', 'elife', 'nature', 'plos', 'skeleton']
+const THEMES = Object.keys(themes)
 
 // Get hostname and port for doing connectivity tests
 const { hostname, port } = new URL(baseUrl)
