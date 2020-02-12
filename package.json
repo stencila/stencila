@@ -8,13 +8,14 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "parcel build ./src/*.ts ./src/{common,themes}/**/*.{css,ts} && tsc --emitDeclarationOnly",
+    "build:examples": "npx ts-node src/generate/examples.ts",
     "build:selectors": "npx ts-node src/generate/selectors.ts",
     "build:mathjax": "npx ts-node src/generate/mathjax.ts",
     "clean": "rm -rf .cache dist docs test/build",
     "dev": "parcel ./src/index.html ./src/examples/*.html --open",
     "lint": "stylelint \"./src/**/*.css\"",
     "lint:fix": "npm run lint -- --fix",
-    "format": "prettier --write './**/*.{js,json,md,ts,yaml}'",
+    "format": "prettier --write './**/*.{css,js,json,md,ts,yaml}'",
     "docs": "parcel build ./src/index.html ./src/examples/*.html -d docs --public-url .",
     "postinstall": "npm run build:selectors",
     "semantic-release": "semantic-release",
@@ -77,6 +78,7 @@
     "stylelint-declaration-strict-value": "^1.1.8",
     "stylelint-selector-pattern": "0.0.2",
     "stylelint-selector-tag-no-without-class": "^2.0.2",
+    "ts-node": "^8.6.2",
     "typescript": "^3.7.4",
     "wdio-chromedriver-service": "^5.0.2",
     "wdio-geckodriver-service": "^1.0.3",
@@ -124,6 +126,7 @@
   },
   "dependencies": {
     "@stencila/components": "^0.9.0",
+    "@stencila/encoda": "^0.85.2",
     "stencila": "^0.33.5"
   }
 }

@@ -15,7 +15,7 @@
  * enabling/disabling `<link>` elements.
  */
 
-import { examples } from '../examples'
+import { examples, resolveExample } from '../examples'
 import { modules } from '../themes'
 
 const url = new URL(window.location.href)
@@ -33,10 +33,14 @@ const enum keys {
 /**
  * Default values for options.
  */
-const enum defaults {
-  EXAMPLE = 'article-kitchen-sink',
-  THEME = 'stencila',
-  HEADER = 'true'
+const defaults: {
+  EXAMPLE: string
+  THEME: string
+  HEADER: 'true' | 'false'
+} = {
+  EXAMPLE: examples.articleKitchenSink,
+  THEME: 'stencila',
+  HEADER: 'true'
 }
 
 // Set an example
@@ -49,7 +53,7 @@ const exampleSet = async (example: string): Promise<void> => {
 
   // Load the HTML content
   const req = new XMLHttpRequest()
-  req.open('GET', examples[example], false)
+  req.open('GET', `examples/${resolveExample(example)}.html`, false)
   req.send(null)
   const html = req.responseText
 
@@ -59,11 +63,18 @@ const exampleSet = async (example: string): Promise<void> => {
   main.innerHTML = dom.body.innerHTML
 }
 
-// Set an example when it is selected from the example selector
+// Initialize the example selector
 const exampleSelect = document.querySelector<HTMLInputElement>(
   '#example-select'
 )
 if (exampleSelect !== null) {
+  exampleSelect.innerHTML = Object.keys(examples).map(
+    ex =>
+      `<option value="${ex}">${ex.replace(
+        /^([a-z]+)([A-Z][a-z])*/g,
+        '$1: $2'
+      )}</option>`
+  ).join('')
   exampleSelect.addEventListener('change', event => {
     const target = event.currentTarget as HTMLSelectElement
     if (target !== null) exampleSet(target.value)
