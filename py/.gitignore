@@ -8,5 +8,6 @@ __pycache__
 build
 coverage.xml
 dist
+docs
 htmlcov
 version
