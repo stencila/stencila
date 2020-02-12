@@ -3,7 +3,7 @@ matrix:
     # Test Typescript package
     - stage: test
       language: node_js
-      node_js: '10'
+      node_js: '12'
 
       script:
         - npm run lint
@@ -20,13 +20,17 @@ matrix:
       python: '3.7'
       dist: xenial
 
+      before_install:
+        - cd py
+
       install:
-        - make -C py setup
-        - make -C py install
+        - make setup
 
       script:
-        - make -C py lint
-        - make -C py test
+        - make lint
+        - make test
+        - make build
+        - make docs
 
       after_success:
         - bash <(curl -s https://codecov.io/bash) -cF py
@@ -54,7 +58,7 @@ matrix:
     # Deploy NPM package and create a release
     - stage: deploy
       language: node_js
-      node_js: '10'
+      node_js: '12'
 
       script:
         - npm run build
@@ -68,33 +72,20 @@ matrix:
           skip_cleanup: true
           script: npx semantic-release
 
-        # Deploy documentation to Github Pages
-        # See https://docs.travis-ci.com/user/deployment/pages/
-        - provider: pages
-          skip_cleanup: true
-          github_token: $GITHUB_TOKEN
-          local_dir: public
-          on:
-            branch: master
-
     # Deploy Python package
     - stage: deploy
       language: python
       python: '3.7'
       dist: xenial
 
+      before_install:
+        - cd py
+
       install:
-        - make -C py setup
+        - make setup
 
       script:
         - echo "Nothing to do; just deploying"
-
-      after_success:
-        # Clear package.json overrides made when installing @stencila/dev-config
-        - git checkout package.json
-
-      before_deploy:
-        - cd py
 
       deploy:
         provider: pypi
