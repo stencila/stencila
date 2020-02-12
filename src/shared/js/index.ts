@@ -58,6 +58,10 @@ const onReadyHandler = (): void => {
 }
 
 export const load = (): void => {
+  // Do not do anything if not in the browser
+  // (e.g. when loading themes in Node.js)
+  if (typeof window === 'undefined') return
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', onReadyHandler)
   } else {
