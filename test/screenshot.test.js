@@ -27,6 +27,7 @@ const THEMES = Object.keys(themes)
 const { hostname, port } = new URL(baseUrl)
 
 describe('visual regressions: ', () => {
+  // Test that the test/build folder has been already built
   it(`needs the build folder`, () => {
     assert.ok(
       fs.existsSync(staticDir),
@@ -34,8 +35,11 @@ describe('visual regressions: ', () => {
     )
   })
 
-  it(`demo page can be got`, () => {
-    const req = http.get({ hostname, port }, res => {
+  // Test that /index.html is available. We could check that
+  // full paths are available e.g. ?example=...&theme=...
+  // but that doesn't help since examples and themese are loaded dynamically
+  it(`needs index.html`, () => {
+    const req = http.get({ hostname, port, path: '/index.html' }, res => {
       assert.equal(res.statusCode, '200')
     })
     req.on('error', error => assert.fail(error))
