@@ -70,7 +70,7 @@ function articleAntibodies(): Promise<string | undefined> {
 }
 
 // Run each function
-EXAMPLES.forEach(ex => ex())
+Promise.all(EXAMPLES).catch(err => console.error(err))
 
 // Generate `../examples/examples.ts`
 fs.writeFileSync(
