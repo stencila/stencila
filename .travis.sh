@@ -8,7 +8,7 @@
 checkout_pages() {
   git config --global user.email $GIT_AUTHOR_EMAIL
   git config --global user.name $GIT_AUTHOR_NAME
-  git checkout gh-pages
+  git checkout -b gh-pages
 }
 
 push_pages() {
