@@ -23,7 +23,7 @@ MathJax.typeset(
   (result: Result) => {
     const { errors, css } = result
     if (typeof errors !== 'undefined' && typeof errors.length !== 'undefined') {
-      errors.map(console.error)
+      errors.map(err => console.error(err))
     }
     fs.writeFileSync(
       dest,
