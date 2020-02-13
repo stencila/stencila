@@ -88,10 +88,15 @@ async function build(): Promise<void> {
 
       // 2. If the schema has a manually main Article then use
       // that, otherwise generate it
+      // TODO: Reinstate this when manually written docs can be
+      // better converted by Encoda
+      /*
       const mdFile = path.join(DOCS_SOURCE_DIR, `${title}.md`)
       const mainArticle = (await fs.pathExists(mdFile))
         ? await encoda.read(mdFile)
         : schema2MainArticle(schema, summaryArticle)
+      */
+      const mainArticle = schema2MainArticle(schema, summaryArticle)
 
       // 3. Write the main article as HTML
       await encoda.write(mainArticle, path.join(DOCS_DEST_DIR, `${title}.html`))
@@ -289,33 +294,32 @@ const schema2Inlines = (schema: Schema): InlineContent[] => {
     codec
   } = schema
 
-  if (format !== undefined)
-    return [codeFragment({ text: `${type}<${format}>` })]
+  if (format !== undefined) return [codeFragment({ text: `${type}:${format}` })]
   if (type === 'array' && items !== undefined)
     // Items of an `array` type can either be a single schema object or an
     // array of schemas to validate each item against
     return subType(
-      'array<',
+      'array[',
       Array.isArray(items)
         ? flatten(items.map(schema2Inlines))
         : schema2Inlines(items),
-      '>'
+      ']'
     )
   if (enumeration !== undefined)
     return subType(
-      'enum<',
+      'enum{',
       intersperse(
         enumeration.map(value => codeFragment({ text: `${value}` })),
-        orSeparator
+        ', '
       ),
-      '>'
+      '}'
     )
   if (anyOf !== undefined)
     return intersperse(flatten(anyOf.map(schema2Inlines)), orSeparator)
   if (allOf !== undefined)
     return intersperse(flatten(allOf.map(schema2Inlines)), andSeparator)
   if ($ref !== undefined) return [linkifyReference($ref)]
-  if (codec !== undefined) return [codeFragment({ text: `codec<${codec}>` })]
+  if (codec !== undefined) return [codeFragment({ text: `codec:${codec}` })]
   return [codeFragment({ text: `${type}` })]
 }
 
@@ -368,14 +372,18 @@ function schema2MainArticle(schema: Schema, summaryArticle?: Article): Article {
 function schema2SummaryArticle(schema: Schema): Article {
   const {
     title = 'Untitled',
+    '@id': id = '',
     description = '',
     properties = {},
-    required = []
+    required = [],
+    extends: parent,
+    descendants = []
   } = schema
 
   const tableHeader = tableRow({
     cells: [
       tableCell({ content: ['Name'] }),
+      tableCell({ content: ['@id'] }),
       tableCell({ content: ['Type'] }),
       tableCell({ content: ['Description'] }),
       tableCell({ content: ['Inherited from'] })
@@ -386,7 +394,7 @@ function schema2SummaryArticle(schema: Schema): Article {
   const tableData = Object.entries(properties)
     .sort(([a], [b]) => requiredPropsFirst(required)(a, b))
     .map(([name, propSchema]) => {
-      const { description = '', from = '' } = propSchema
+      const { '@id': id = '', description = '', from = '' } = propSchema
       return tableRow({
         cells: [
           tableCell({
@@ -398,6 +406,7 @@ function schema2SummaryArticle(schema: Schema): Article {
                 : name
             ]
           }),
+          tableCell({ content: [propertyId2Link(id)] }),
           tableCell({ content: schema2Inlines(propSchema) }),
           tableCell({ content: [description] }),
           tableCell({
@@ -411,15 +420,66 @@ function schema2SummaryArticle(schema: Schema): Article {
     authors: [],
     title,
     content: [
-      heading({ content: ['Description'], depth: 2 }),
       paragraph({ content: [description] }),
-      ...(properties.length > 0
+      paragraph({
+        content: [strong({ content: ['@id'] }), ': ', typeId2Link(id)]
+      }),
+      parent !== undefined
+        ? paragraph({
+            content: [
+              strong({ content: ['Parent'] }),
+              ': ',
+              typeName2Link(parent)
+            ]
+          })
+        : '',
+      descendants.length !== 0
+        ? paragraph({
+            content: [
+              strong({ content: ['Descendants'] }),
+              ': ',
+              ...intersperse(descendants.map(typeName2Link), ', ')
+            ]
+          })
+        : '',
+      ...(Object.keys(properties).length > 0
         ? [
             heading({ content: ['Properties'], depth: 2 }),
             table({ rows: [tableHeader, ...tableData] })
           ]
         : [])
     ]
+  })
+}
+
+function typeId2Link(id: string): Link {
+  const [context, name] = id.split(':')
+  const target =
+    context === 'schema'
+      ? `https://schema.org/${name}`
+      : `https://schema.stenci.la/jsonld/${name}`
+  return link({
+    content: [id],
+    target
+  })
+}
+
+function typeName2Link(name: string): Link {
+  return link({
+    content: [name],
+    target: `./${name}.html`
+  })
+}
+
+function propertyId2Link(id: string): Link {
+  const [context, name] = id.split(':')
+  const target =
+    context === 'schema'
+      ? `https://schema.org/${name}`
+      : `https://schema.stenci.la/jsonld/${name}`
+  return link({
+    content: [id],
+    target
   })
 }
 
