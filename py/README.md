@@ -1,11 +1,17 @@
 # Stencila Schema for Python
 
+[![Build Status](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
+[![Code coverage](https://badger.nokome.now.sh/codecov-folder/stencila/schema/py)](https://codecov.io/gh/stencila/schema/tree/master/py)
+[![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PyPI](https://img.shields.io/pypi/v/stencila-schema.svg)](https://pypi.org/project/stencila-schema)
+[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/py/docs)
+
 This package provides Python bindings for the [Stencila Schema](https://schema.stenci.la).
 It is primarily aimed at Python developers wanting to programmatically generate, or modify, executable documents. For example, it is used in [`pyla`](https://github.com/stencila/pyla), an interpreter for executable documents containing Python code.
 
 ## Install
 
-```r
+```python
 pip3 install stencila-schema
 ```
 
