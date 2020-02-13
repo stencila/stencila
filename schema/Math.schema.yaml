@@ -12,7 +12,7 @@ $comment: |
   for `CodeFragment`, `CodeBlock` etc.
 properties:
   mathLanguage:
-    '@id': schema:mathLanguage
+    '@id': stencila:mathLanguage
     description: The language used for the equation e.g tex, mathml, asciimath.
     type: string
     default: 'tex'
