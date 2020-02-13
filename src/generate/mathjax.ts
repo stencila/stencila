@@ -11,11 +11,16 @@ import path from 'path'
 
 const dest = path.join(__dirname, '..', 'shared', 'styles', 'mathjax.css')
 
+interface Result {
+  css?: string
+  errors?: string[]
+}
+
 MathJax.typeset(
   {
     css: true
   },
-  (result: any) => {
+  (result: Result) => {
     const { errors, css } = result
     if (errors) errors.map(console.error)
     fs.writeFileSync(
