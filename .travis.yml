@@ -76,8 +76,8 @@ matrix:
         # Main documentation is deployed using Netlify
         - provider: script
           skip-cleanup: true
-          #on:
-            #tags: true
+          on:
+            tags: true
           script: bash .travis.sh deploy_typescript_docs_to_pages
 
     # Deploy Python package
@@ -104,8 +104,8 @@ matrix:
 
         - provider: script
           skip-cleanup: true
-          #on:
-            #tags: true
+          on:
+            tags: true
           script: bash ../.travis.sh deploy_python_docs_to_pages
 
     # Deploy R package
@@ -122,6 +122,6 @@ matrix:
       deploy:
         - provider: script
           skip-cleanup: true
-          #on:
-            #tags: true
+          on:
+            tags: true
           script: bash ../.travis.sh deploy_r_docs_to_pages
