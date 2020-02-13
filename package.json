@@ -87,10 +87,10 @@
     "collectCoverageFrom": [
       "ts/**/*.ts",
       "!ts/**/*.d.ts",
-      "!node_modules/**",
       "!ts/types.ts",
       "!ts/docs.ts",
       "!ts/log.ts",
+      "!ts/bindings/**.ts",
       "!ts/**/__file_snapshots__/**",
       "!ts/**/__tests__/**"
     ],
