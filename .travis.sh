@@ -13,7 +13,10 @@ checkout_pages() {
 
 push_pages() {
   git remote add origin-pages https://${GITHUB_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git > /dev/null 2>&1
-  git push --quiet --set-upstream origin-pages gh-pages
+  git fetch origin-pages
+  git branch --set-upstream-to origin-pages/gh-pages
+  git pull --rebase --autostash
+  git push --quiet
 }
 
 commit_new_docs() {
