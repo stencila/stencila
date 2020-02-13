@@ -1,6 +1,12 @@
 # Stencila Schema for R
 
-This package provides R bindings for [Stencila Schema](https://stencila.github.io/schema/).
+[![Build Status](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
+[![Code coverage](https://badger.nokome.now.sh/codecov-folder/stencila/schema/r)](https://codecov.io/gh/stencila/schema/tree/master/r)
+[![CRAN](https://www.r-pkg.org/badges/version-last-release/schema)](https://cran.r-project.org/web/packages/stencilaschema/)
+[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/r/docs)
+
+
+This package provides R bindings for the [Stencila Schema](https://schema.stenci.la). It is primarily aimed at R developers wanting to programmatically generate, or modify, executable documents. For example, it is used in [`rasta`](https://github.com/stencila/rasta), an interpreter for executable documents containing R code.
 
 ## Install
 
@@ -12,7 +18,7 @@ remotes::install_github("stencila/schema", subdir = "r", upgrade = "ask")
 
 ## Use
 
-This package is primarily aimed at R developers wanting to programmatically generate, or modify, executable documents. It exports a constructor function for each type of document node in the Stencila Schema e.g. `Article`, `Paragraph`, `CodeChunk`.
+This package exports a factory function for each type of document node in the Stencila Schema e.g. `Article`, `Paragraph`, `CodeChunk`.
 
 For example,
 
