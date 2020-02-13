@@ -78,20 +78,7 @@ matrix:
           skip-cleanup: true
           #on:
             #tags: true
-          script: |
-            . .travis/funcs.sh
-            checkout_pages
-
-            # Main index page
-            cp public/packages-index.html index.html
-            # Typescript API docs
-            cd ts
-            mv docs docs-new
-            git rm -rf docs
-            mv docs-new docs
-            git add --all docs
-
-            commit_and_push_pages "docs(Typescript): Update"
+          script: bash .travis.sh deploy_typescript_docs_to_pages
 
     # Deploy Python package
     - stage: deploy
@@ -119,16 +106,7 @@ matrix:
           skip-cleanup: true
           #on:
             #tags: true
-          script: |
-            . .travis/funcs.sh
-            checkout_pages
-
-            mv docs docs-new
-            git rm -rf docs
-            mv docs-new docs
-            git add --all docs
-
-            commit_and_push_pages "docs(Python): Update"
+          script: bash .travis.sh deploy_python_docs_to_pages
 
     # Deploy R package
     - stage: deploy
@@ -146,13 +124,4 @@ matrix:
           skip-cleanup: true
           #on:
             #tags: true
-          script: |
-            . .travis/funcs.sh
-            checkout_pages
-
-            mv docs docs-new
-            git rm -rf docs
-            mv docs-new docs
-            git add --all docs
-
-            commit_and_push_pages "docs(R): Update"
+          script: bash .travis.sh deploy_r_docs_to_pages
