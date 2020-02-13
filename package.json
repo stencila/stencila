@@ -117,7 +117,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run build:selectors && pretty-quick --staged",
+      "pre-commit": "npm run generate:selectors && pretty-quick --staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
