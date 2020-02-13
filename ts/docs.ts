@@ -184,6 +184,15 @@ async function build(): Promise<void> {
   })
 
   await encoda.write(indexPage, path.join(DOCS_DEST_DIR, `index.html`))
+
+  // Convert other documentation to HTML
+  const others = await globby('docs/*')
+  await Promise.all(
+    others.map(async file => {
+      const { name } = path.parse(file)
+      return encoda.convert(file, path.join(DOCS_DEST_DIR, `${name}.html`))
+    })
+  )
 }
 
 /**
