@@ -11,7 +11,7 @@ checkout_pages() {
 
   git remote add origin-pages https://${GITHUB_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git > /dev/null 2>&1
   git fetch --all
-  git checkout gh-pages
+  git checkout --force gh-pages
   git branch --set-upstream-to origin-pages/gh-pages
   git reset --hard
 }
@@ -20,10 +20,7 @@ push_pages() {
   git push --quiet
 }
 
-commit_new_docs() {
-  mv docs docs-new
-  git rm -rf docs
-  mv docs-new docs
+commit_docs() {
   git add -f --all docs
   git commit --message "$1"
 }
@@ -36,20 +33,20 @@ deploy_typescript_docs_to_pages() {
   git commit --message "docs(Package index): Update"
 
   cd ts
-  commit_new_docs "docs(Typescript): Update"
+  commit_docs "docs(Typescript): Update"
 
   push_pages
 }
 
 deploy_python_docs_to_pages() {
   checkout_pages
-  commit_new_docs "docs(Python): Update"
+  commit_docs "docs(Python): Update"
   push_pages
 }
 
 deploy_r_docs_to_pages() {
   checkout_pages
-  commit_new_docs "docs(R): Update"
+  commit_docs "docs(R): Update"
   push_pages
 }
 
