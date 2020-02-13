@@ -5,7 +5,7 @@ authors: []
 
 include: ../public/ImageObject.schema.md
 :::
-An image file. https&#x3A;//schema.org/ImageObject
+An image file.
 
 | Entity       | type           | The name of the type and all descendant types.                                | string |
 | ------------ | -------------- | ----------------------------------------------------------------------------- | ------ |
