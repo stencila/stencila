@@ -4,6 +4,11 @@ node_js: '10'
 os:
   - linux
 
+branches:
+  only:
+    - 'master'
+    - 'next'
+
 script:
   - npm run build
   # The `--no-cache` flag disables Parcel's cache as it can cause errors with building
@@ -17,15 +22,13 @@ after_success:
 
 deploy:
   - provider: script
-    skip_cleanup: true
     script: npx semantic-release
     on:
       branch: master
 
   - provider: pages
-    skip-cleanup: true
-    github-token: $GITHUB_TOKEN
+    github_token: $GITHUB_TOKEN
     keep_history: true
-    local-dir: ./docs
+    local_dir: ./docs
     on:
       branch: master
