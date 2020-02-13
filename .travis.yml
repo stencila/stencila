@@ -72,6 +72,28 @@ matrix:
           skip_cleanup: true
           script: npx semantic-release
 
+        # Commit package documentation to gh-pages
+        # Main documentation is deployed using Netlify
+        - provider: script
+          skip-cleanup: true
+          script: |
+            . .travis/funcs.sh
+            checkout_pages
+
+            # Main index page
+            cp public/packages-index.html index.html
+            # Typescript API docs
+            cd ts
+            mv docs docs-new
+            git rm -rf docs
+            mv docs-new docs
+            git add --all docs
+
+            commit_and_push_pages "docs(Typescript): Update"
+          on:
+            branch: master
+            tags: true
+
     # Deploy Python package
     - stage: deploy
       language: python
@@ -85,11 +107,55 @@ matrix:
         - make setup
 
       script:
-        - echo "Nothing to do; just deploying"
+        - make docs
 
       deploy:
-        provider: pypi
-        username: $PYPI_USERNAME
-        password: $PYPI_PASSWORD
-        on:
-          tags: true
+        - provider: pypi
+          username: $PYPI_USERNAME
+          password: $PYPI_PASSWORD
+          on:
+            tags: true
+
+        - provider: script
+          skip-cleanup: true
+          script: |
+            . .travis/funcs.sh
+            checkout_pages
+
+            mv docs docs-new
+            git rm -rf docs
+            mv docs-new docs
+            git add --all docs
+
+            commit_and_push_pages "docs(Python): Update"
+          on:
+            branch: master
+            tags: true
+
+    # Deploy R package
+    - stage: deploy
+      language: r
+      r: release
+
+      before_install:
+        - cd r
+
+      script:
+        - make docs
+
+      deploy:
+        - provider: script
+          skip-cleanup: true
+          script: |
+            . .travis/funcs.sh
+            checkout_pages
+
+            mv docs docs-new
+            git rm -rf docs
+            mv docs-new docs
+            git add --all docs
+
+            commit_and_push_pages "docs(R): Update"
+          on:
+            branch: master
+            tags: true

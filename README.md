@@ -1,26 +1,20 @@
 # Stencila schemas, protocols and other specs
 
-![Status](https://img.shields.io/badge/status-draft-orange.svg)
 [![Build](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
-[![Netlify](https://img.shields.io/netlify/b0e0d714-29f1-4ad1-8a7d-1af7799fb85b)](https://app.netlify.com/sites/stencila-schema/deploys)
 [![Code coverage](https://codecov.io/gh/stencila/schema/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/schema)
-[![NPM](https://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema)
+[![Netlify](https://img.shields.io/netlify/b0e0d714-29f1-4ad1-8a7d-1af7799fb85b)](https://app.netlify.com/sites/stencila-schema/deploys)
 [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://schema.stenci.la/)
 [![Community](https://img.shields.io/badge/join-community-green.svg)](https://community.stenci.la)
-[![Chat](https://badges.gitter.im/stencila/stencila.svg)](https://gitter.im/stencila/stencila)
-
-> :sparkles:
-> This is a **work in progress**. But comments, suggestions, and pull requests are very much appreciated
-> :sparkles:
 
 <!-- Automatically generated TOC. Don't edit, `make docs` instead -->
 
 <!-- toc -->
 
-- [Documentation](#documentation)
-- [JSON Schema definitions](#json-schema-definitions)
-- [JSON-LD context](#json-ld-context)
-- [Typescript type definitions](#typescript-type-definitions)
+- [Stencila schemas, protocols and other specs](#stencila-schemas-protocols-and-other-specs)
+  - [Documentation](#documentation)
+  - [JSON Schema definitions](#json-schema-definitions)
+  - [JSON-LD context](#json-ld-context)
+  - [Typescript type definitions](#typescript-type-definitions)
 
 <!-- tocstop -->
 
