@@ -19,6 +19,7 @@
     "docs": "parcel build ./src/index.html ./src/examples/*.html -d docs --public-url .",
     "lint": "stylelint \"./src/**/*.css\"",
     "lint:fix": "npm run lint -- --fix",
+    "lint:js": "eslint --ext ./src/**/*.ts",
     "format": "prettier --write './**/*.{css,js,json,md,ts,yaml}'",
     "test": "npm run test:build && npm run test:run",
     "test:build": "parcel build ./src/index.html ./src/examples/*.html -d test/build --public-url . && tsc --outDir test/build",
