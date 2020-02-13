@@ -4,6 +4,11 @@ node_js: '10'
 os:
   - linux
 
+branches:
+  only:
+    - 'master'
+    - 'next'
+
 script:
   - npm run build
   # The `--no-cache` flag disables Parcel's cache as it can cause errors with building
