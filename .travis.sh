@@ -20,8 +20,8 @@ commit_new_docs() {
   mv docs docs-new
   git rm -rf docs
   mv docs-new docs
-  git add --all docs
-  git commit --message $1
+  git add -f --all docs
+  git commit --message "$1"
 }
 
 deploy_typescript_docs_to_pages() {

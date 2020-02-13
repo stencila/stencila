@@ -106,7 +106,7 @@ matrix:
           skip-cleanup: true
           #on:
             #tags: true
-          script: bash .travis.sh deploy_python_docs_to_pages
+          script: bash ../.travis.sh deploy_python_docs_to_pages
 
     # Deploy R package
     - stage: deploy
@@ -124,4 +124,4 @@ matrix:
           skip-cleanup: true
           #on:
             #tags: true
-          script: bash .travis.sh deploy_r_docs_to_pages
+          script: bash ../.travis.sh deploy_r_docs_to_pages
