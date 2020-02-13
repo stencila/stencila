@@ -76,6 +76,8 @@ matrix:
         # Main documentation is deployed using Netlify
         - provider: script
           skip-cleanup: true
+          #on:
+            #tags: true
           script: |
             . .travis/funcs.sh
             checkout_pages
@@ -90,9 +92,6 @@ matrix:
             git add --all docs
 
             commit_and_push_pages "docs(Typescript): Update"
-          on:
-            branch: master
-            tags: true
 
     # Deploy Python package
     - stage: deploy
@@ -118,6 +117,8 @@ matrix:
 
         - provider: script
           skip-cleanup: true
+          #on:
+            #tags: true
           script: |
             . .travis/funcs.sh
             checkout_pages
@@ -128,9 +129,6 @@ matrix:
             git add --all docs
 
             commit_and_push_pages "docs(Python): Update"
-          on:
-            branch: master
-            tags: true
 
     # Deploy R package
     - stage: deploy
@@ -146,6 +144,8 @@ matrix:
       deploy:
         - provider: script
           skip-cleanup: true
+          #on:
+            #tags: true
           script: |
             . .travis/funcs.sh
             checkout_pages
@@ -156,6 +156,3 @@ matrix:
             git add --all docs
 
             commit_and_push_pages "docs(R): Update"
-          on:
-            branch: master
-            tags: true
