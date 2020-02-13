@@ -8,14 +8,15 @@
 checkout_pages() {
   git config --global user.email $GIT_AUTHOR_EMAIL
   git config --global user.name $GIT_AUTHOR_NAME
-  git checkout -b gh-pages
+
+  git remote add origin-pages https://${GITHUB_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git > /dev/null 2>&1
+  git fetch --all
+  git checkout gh-pages
+  git branch --set-upstream-to origin-pages/gh-pages
+  git reset --hard
 }
 
 push_pages() {
-  git remote add origin-pages https://${GITHUB_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git > /dev/null 2>&1
-  git fetch origin-pages
-  git branch --set-upstream-to origin-pages/gh-pages
-  git pull --rebase --autostash
   git push --quiet
 }
 
