@@ -1,7 +1,7 @@
 # Stencila Schema for R
 
 [![Build Status](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
-[![Code coverage](https://badger.nokome.now.sh/codecov-folder/stencila/schema/r)](https://codecov.io/gh/stencila/schema/tree/master/r)
+[![Code coverage](https://badger.nokome.now.sh/codecov-folder/stencila/schema/R)](https://codecov.io/gh/stencila/schema/tree/master/R)
 [![CRAN](https://www.r-pkg.org/badges/version-last-release/schema)](https://cran.r-project.org/web/packages/stencilaschema/)
 [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/r/docs)
 
