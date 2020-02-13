@@ -11,6 +11,17 @@ $comment: |
   This type has a similar structure and purpose to `Code` which is a base type
   for `CodeFragment`, `CodeBlock` etc.
 properties:
+  errors:
+    '@id': stencila:errors
+    description: Errors that occurred when parsing the math equation.
+    $comment: |
+      This property is an array of strings. Compare this to `CodeChunk.errors`
+      which is an array of `CodeError` nodes. Strings are considered to
+      be sufficient for math parsing errors which usually won't have stack traces,
+      line numbers etc.
+    type: array
+    items:
+      type: string
   mathLanguage:
     '@id': stencila:mathLanguage
     description: The language used for the equation e.g tex, mathml, asciimath.

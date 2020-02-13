@@ -1501,11 +1501,13 @@ class Math(Entity):
     """A mathematical variable or equation."""
 
     text: str
+    errors: Optional[Array[str]] = None
     mathLanguage: Optional[str] = None
 
     def __init__(
         self,
         text: str,
+        errors: Optional[Array[str]] = None,
         id: Optional[str] = None,
         mathLanguage: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None
@@ -1516,6 +1518,8 @@ class Math(Entity):
         )
         if text is not None:
             self.text = text
+        if errors is not None:
+            self.errors = errors
         if mathLanguage is not None:
             self.mathLanguage = mathLanguage
 
@@ -1526,12 +1530,14 @@ class MathBlock(Math):
     def __init__(
         self,
         text: str,
+        errors: Optional[Array[str]] = None,
         id: Optional[str] = None,
         mathLanguage: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
             text=text,
+            errors=errors,
             id=id,
             mathLanguage=mathLanguage,
             meta=meta
@@ -1547,12 +1553,14 @@ class MathFragment(Math):
     def __init__(
         self,
         text: str,
+        errors: Optional[Array[str]] = None,
         id: Optional[str] = None,
         mathLanguage: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
             text=text,
+            errors=errors,
             id=id,
             mathLanguage=mathLanguage,
             meta=meta

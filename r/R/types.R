@@ -1801,6 +1801,7 @@ ListItem <- function(
 #'
 #' @name Math
 #' @param text The text of the equation in the language. \bold{Required}.
+#' @param errors Errors that occurred when parsing the math equation.
 #' @param id The identifier for this item.
 #' @param mathLanguage The language used for the equation e.g tex, mathml, asciimath.
 #' @param meta Metadata associated with this item.
@@ -1808,6 +1809,7 @@ ListItem <- function(
 #' @export
 Math <- function(
   text,
+  errors,
   id,
   mathLanguage,
   meta
@@ -1818,6 +1820,7 @@ Math <- function(
   )
   self$type <- as_scalar("Math")
   self[["text"]] <- check_property("Math", "text", TRUE, missing(text), "character", text)
+  self[["errors"]] <- check_property("Math", "errors", FALSE, missing(errors), Array("character"), errors)
   self[["mathLanguage"]] <- check_property("Math", "mathLanguage", FALSE, missing(mathLanguage), "character", mathLanguage)
   class(self) <- c(class(self), "Math")
   self
@@ -1828,6 +1831,7 @@ Math <- function(
 #'
 #' @name MathBlock
 #' @param text The text of the equation in the language. \bold{Required}.
+#' @param errors Errors that occurred when parsing the math equation.
 #' @param id The identifier for this item.
 #' @param mathLanguage The language used for the equation e.g tex, mathml, asciimath.
 #' @param meta Metadata associated with this item.
@@ -1835,12 +1839,14 @@ Math <- function(
 #' @export
 MathBlock <- function(
   text,
+  errors,
   id,
   mathLanguage,
   meta
 ){
   self <- Math(
     text = text,
+    errors = errors,
     id = id,
     mathLanguage = mathLanguage,
     meta = meta
@@ -1856,6 +1862,7 @@ MathBlock <- function(
 #'
 #' @name MathFragment
 #' @param text The text of the equation in the language. \bold{Required}.
+#' @param errors Errors that occurred when parsing the math equation.
 #' @param id The identifier for this item.
 #' @param mathLanguage The language used for the equation e.g tex, mathml, asciimath.
 #' @param meta Metadata associated with this item.
@@ -1863,12 +1870,14 @@ MathBlock <- function(
 #' @export
 MathFragment <- function(
   text,
+  errors,
   id,
   mathLanguage,
   meta
 ){
   self <- Math(
     text = text,
+    errors = errors,
     id = id,
     mathLanguage = mathLanguage,
     meta = meta
