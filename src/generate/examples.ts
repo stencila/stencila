@@ -29,27 +29,30 @@ const EXAMPLES = [articleKitchenSink, articleDrosophila, articleAntibodies]
 /**
  * Given a filename, return its path within the examples folder.
  */
-const ex = (filename: string) =>
+const ex = (filename: string): string =>
   path.join(__dirname, '..', 'examples', filename)
 
 /**
  * Call Encoda `convert` with options required for the HTML used by this repo.
  */
-const build = (input: string, outputs: string | string[]) =>
+const build = (
+  input: string,
+  outputs: string | string[]
+): Promise<string | undefined> =>
   convert(input, outputs, { encodeOptions: { isStandalone: false, theme: '' } })
 
 /**
  * A kitchen sink article intended to have at
  * least one of every node type.
  */
-function articleKitchenSink() {
+function articleKitchenSink(): Promise<string | undefined> {
   return build(ex('articleKitchenSink.json'), ex('articleKitchenSink.html'))
 }
 
 /**
  * An eLife article.
  */
-function articleDrosophila() {
+function articleDrosophila(): Promise<string | undefined> {
   return build('https://elifesciences.org/articles/49574v2', [
     ex('articleDrosophila.html'),
     ex('articleDrosophila.yaml')
@@ -59,7 +62,7 @@ function articleDrosophila() {
 /**
  * A PLoS article.
  */
-function articleAntibodies() {
+function articleAntibodies(): Promise<string | undefined> {
   return build(
     'https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1007207',
     [ex('articleAntibodies.html'), ex('articleAntibodies.yaml')]
