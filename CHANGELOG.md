@@ -1,3 +1,10 @@
+## [0.37.3](https://github.com/stencila/schema/compare/v0.37.2...v0.37.3) (2020-02-13)
+
+
+### Bug Fixes
+
+* **Math:** mathLanguage is not a schema.org id ([0e2cc61](https://github.com/stencila/schema/commit/0e2cc61858efdb99470f50dd56030e6e363eb236))
+
 ## [0.37.2](https://github.com/stencila/schema/compare/v0.37.1...v0.37.2) (2020-02-09)
 
 
