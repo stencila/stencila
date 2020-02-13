@@ -123,7 +123,8 @@ export function classGenerator(schema: Schema): string {
     .map(({ name, schema, optional }) => {
       const type = schemaToType(schema)
       const attrType = optional ? `Optional[${type}] = None` : type
-      return `    ${name}: ${attrType}`
+      const { description } = schema
+      return `    ${name}: ${attrType}\n    """${description}"""\n`
     })
     .join('\n')
 

@@ -23,7 +23,11 @@ class Entity:
     """
 
     id: Optional[str] = None
+    """The identifier for this item."""
+
     meta: Optional[Dict[str, Any]] = None
+    """Metadata associated with this item."""
+
 
     def __init__(
         self,
@@ -43,10 +47,20 @@ class ArrayValidator(Entity):
     """A validator specifying constraints on an array node."""
 
     contains: Optional["ValidatorTypes"] = None
+    """An array node is valid if at least one of its items is valid against the `contains` schema."""
+
     items: Optional["ValidatorTypes"] = None
+    """Another validator node specifying the constraints on all items in the array."""
+
     maxItems: Optional[float] = None
+    """An array node is valid if its size is less than, or equal to, this value."""
+
     minItems: Optional[float] = None
+    """An array node is valid if its size is greater than, or equal to, this value."""
+
     uniqueItems: Optional[bool] = None
+    """A flag to indicate that each value in the array should be unique."""
+
 
     def __init__(
         self,
@@ -93,13 +107,31 @@ class Cite(Entity):
     """A reference to a CreativeWork that is cited in another CreativeWork."""
 
     target: str
+    """The target of the citation (URL or reference ID)."""
+
     citationMode: Optional["ECitationMode"] = None
+    """How the cite is rendered in the surrounding text."""
+
     content: Optional[Array["InlineContent"]] = None
+    """Optional structured content/text of this citation."""
+
     pageEnd: Optional[Union[str, int]] = None
+    """The page on which the work ends; for example "138" or "xvi"."""
+
     pageStart: Optional[Union[str, int]] = None
+    """The page on which the work starts; for example "135" or "xiii"."""
+
     pagination: Optional[str] = None
+    """Any description of pages that is not separated into pageStart and pageEnd;
+for example, "1-6, 9, 55".
+"""
+
     prefix: Optional[str] = None
+    """A prefix to show before the citation."""
+
     suffix: Optional[str] = None
+    """A suffix to show after the citation."""
+
 
     def __init__(
         self,
@@ -140,6 +172,8 @@ class CiteGroup(Entity):
     """A group of `Cite` nodes"""
 
     items: Array["Cite"]
+    """One or more `Cite`s to be referenced in the same surrounding text."""
+
 
     def __init__(
         self,
@@ -159,8 +193,14 @@ class Code(Entity):
     """Base type for code nodes e.g. `CodeBlock`, `CodeExpression`."""
 
     text: str
+    """The text of the code."""
+
     format: Optional[str] = None
+    """Media type, typically expressed using a MIME format, of the code."""
+
     programmingLanguage: Optional[str] = None
+    """The programming language of the code."""
+
 
     def __init__(
         self,
@@ -186,7 +226,15 @@ class CodeBlock(Code):
     """A code block."""
 
     exportFrom: Optional[str] = None
+    """A compilation directive giving the name of the variable to export
+into the content of the code block.
+"""
+
     importTo: Optional[str] = None
+    """A compilation directive giving the name of the variable to import
+the content of the code block as.
+"""
+
 
     def __init__(
         self,
@@ -215,14 +263,32 @@ class CodeChunk(CodeBlock):
     """A executable chunk of code."""
 
     alters: Optional[Array[str]] = None
+    """Names of variables that the code chunk alters."""
+
     assigns: Optional[Array[Union[str, "Variable"]]] = None
+    """Variables that the code chunk assigns to."""
+
     declares: Optional[Array[Union[str, "Variable", "Function"]]] = None
+    """Variables that the code chunk declares."""
+
     duration: Optional[float] = None
+    """Duration in seconds of the last execution of the chunk."""
+
     errors: Optional[Array["CodeError"]] = None
+    """Errors when compiling or executing the chunk."""
+
     imports: Optional[Array[Union[str, "SoftwareSourceCode", "SoftwareApplication"]]] = None
+    """Software packages that the code chunk imports"""
+
     outputs: Optional[Array["Node"]] = None
+    """Outputs from executing the chunk."""
+
     reads: Optional[Array[str]] = None
+    """Filesystem paths that this code chunk reads from."""
+
     uses: Optional[Array[Union[str, "Variable"]]] = None
+    """Names of variables that the code chunk uses (but does not alter)."""
+
 
     def __init__(
         self,
@@ -297,7 +363,11 @@ class CodeExpression(CodeFragment):
     """An expression defined in programming language source code."""
 
     errors: Optional[Array["CodeError"]] = None
+    """Errors when compiling or executing the chunk."""
+
     output: Optional["Node"] = None
+    """The value of the expression when it was last evaluated."""
+
 
     def __init__(
         self,
@@ -328,8 +398,14 @@ class CodeError(Entity):
     """
 
     errorMessage: Optional[str] = None
+    """The error message or brief description of the error."""
+
     errorType: Optional[str] = None
+    """The type of error e.g. "SyntaxError", "ZeroDivisionError"."""
+
     stackTrace: Optional[str] = None
+    """Stack trace leading up to the error."""
+
 
     def __init__(
         self,
@@ -355,6 +431,8 @@ class ConstantValidator(Entity):
     """A validator specifying a constant value that a node must have."""
 
     value: Optional["Node"] = None
+    """The value that the node must have."""
+
 
     def __init__(
         self,
@@ -374,6 +452,8 @@ class Date(Entity):
     """A date encoded as a ISO 8601 string."""
 
     value: str
+    """The date as an ISO 8601 string."""
+
 
     def __init__(
         self,
@@ -396,6 +476,8 @@ class Mark(Entity):
     """
 
     content: Array["InlineContent"]
+    """The content that is marked."""
+
 
     def __init__(
         self,
@@ -449,10 +531,20 @@ class Thing(Entity):
     """The most generic type of item."""
 
     alternateNames: Optional[Array[str]] = None
+    """Alternate names (aliases) for the item."""
+
     description: Optional[Union[str, Array["Node"]]] = None
+    """A description of the item."""
+
     identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None
+    """Any kind of identifier for any kind of Thing."""
+
     name: Optional[str] = None
+    """The name of the item."""
+
     url: Optional[str] = None
+    """The URL of the item."""
+
 
     def __init__(
         self,
@@ -487,8 +579,14 @@ class Brand(Thing):
     """
 
     name: str
+    """The name of the item."""
+
     logo: Optional[Union[str, "ImageObject"]] = None
+    """A logo associated with the brand."""
+
     reviews: Optional[Array[str]] = None
+    """Reviews of the brand."""
+
 
     def __init__(
         self,
@@ -523,8 +621,16 @@ class ContactPoint(Thing):
     """A contact point, for example, a R&D department."""
 
     availableLanguages: Optional[Array[str]] = None
+    """Languages (human not programming) in which it is possible to communicate
+with the organization/department etc.
+"""
+
     emails: Optional[Array[str]] = None
+    """Email address for correspondence."""
+
     telephoneNumbers: Optional[Array[str]] = None
+    """Telephone numbers for the contact point."""
+
 
     def __init__(
         self,
@@ -563,24 +669,71 @@ class CreativeWork(Thing):
     """
 
     authors: Optional[Array[Union["Person", "Organization"]]] = None
+    """The authors of this creative work."""
+
     content: Optional[Array["Node"]] = None
+    """The structured content of this creative work c.f. property `text`."""
+
     dateAccepted: Optional[Union["Date", str]] = None
+    """Date/time of acceptance."""
+
     dateCreated: Optional[Union["Date", str]] = None
+    """Date/time of creation."""
+
     dateModified: Optional[Union["Date", str]] = None
+    """Date/time of most recent modification."""
+
     datePublished: Optional[Union["Date", str]] = None
+    """Date of first publication."""
+
     dateReceived: Optional[Union["Date", str]] = None
+    """Date/time that work was received."""
+
     editors: Optional[Array["Person"]] = None
+    """People who edited the `CreativeWork`."""
+
     fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None
+    """Grants that funded the `CreativeWork`; reverse of `fundedItems`."""
+
     funders: Optional[Array[Union["Person", "Organization"]]] = None
+    """People or organizations that funded the `CreativeWork`."""
+
     isPartOf: Optional["CreativeWorkTypes"] = None
+    """An item or other CreativeWork that this CreativeWork is a part of.
+"""
+
     keywords: Optional[Array[str]] = None
+    """Keywords or tags used to describe this content.
+Multiple entries in a keywords list are typically delimited by commas.
+"""
+
     licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None
+    """License documents that applies to this content, typically indicated by URL.
+"""
+
     parts: Optional[Array["CreativeWorkTypes"]] = None
+    """Elements of the collection which can be a variety of different elements,
+such as Articles, Datatables, Tables and more.
+"""
+
     publisher: Optional[Union["Person", "Organization"]] = None
+    """A publisher of the CreativeWork.
+"""
+
     references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None
+    """References to other creative works, such as another publication,
+web page, scholarly article, etc.
+"""
+
     text: Optional[str] = None
+    """The textual content of this creative work."""
+
     title: Optional[Union[str, Array["Node"]]] = None
+    """The title of the creative work."""
+
     version: Optional[Union[str, float]] = None
+    """The version of the creative work."""
+
 
     def __init__(
         self,
@@ -727,6 +880,10 @@ class Collection(CreativeWork):
     """A created collection of CreativeWorks or other artefacts."""
 
     parts: Array["CreativeWorkTypes"]
+    """Elements of the collection which can be a variety of different elements,
+such as Articles, Datatables, Tables and more.
+"""
+
 
     def __init__(
         self,
@@ -793,6 +950,8 @@ class Datatable(CreativeWork):
     """A table of data."""
 
     columns: Array["DatatableColumn"]
+    """The columns of data."""
+
 
     def __init__(
         self,
@@ -863,10 +1022,25 @@ class MediaObject(CreativeWork):
     """
 
     contentUrl: str
+    """URL for the actual bytes of the media object, for example the image file or video file.
+"""
+
     bitrate: Optional[float] = None
+    """Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
+"""
+
     contentSize: Optional[float] = None
+    """File size in megabits (Mbit, Mb).
+"""
+
     embedUrl: Optional[str] = None
+    """URL that can be used to embed the media on a web page via a specific media player.
+"""
+
     format: Optional[str] = None
+    """Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
+"""
+
 
     def __init__(
         self,
@@ -946,7 +1120,11 @@ class AudioObject(MediaObject):
     """An audio file"""
 
     caption: Optional[str] = None
+    """The caption for this audio recording."""
+
     transcript: Optional[str] = None
+    """The transcript of this audio recording."""
+
 
     def __init__(
         self,
@@ -1027,8 +1205,14 @@ class DatatableColumn(Thing):
     """A column of data within a Datatable."""
 
     name: str
+    """The name of the item."""
+
     values: Array[Any]
+    """The data values of the column."""
+
     validator: Optional["ArrayValidator"] = None
+    """The validator to use to validate data in the column."""
+
 
     def __init__(
         self,
@@ -1063,6 +1247,8 @@ class EnumValidator(Entity):
     """A schema specifying that a node must be one of several values."""
 
     values: Optional[Array["Node"]] = None
+    """A node is valid if it is equal to any of these values."""
+
 
     def __init__(
         self,
@@ -1085,7 +1271,11 @@ class Figure(CreativeWork):
     """
 
     caption: Optional[Array["Node"]] = None
+    """A caption to display for the figure."""
+
     label: Optional[str] = None
+    """A short label for the figure."""
+
 
     def __init__(
         self,
@@ -1159,8 +1349,14 @@ class Function(Entity):
     """
 
     name: Optional[str] = None
+    """The name of the function."""
+
     parameters: Optional[Array["Parameter"]] = None
+    """An array of parameters the function exists."""
+
     returns: Optional["ValidatorTypes"] = None
+    """The return type of the function."""
+
 
     def __init__(
         self,
@@ -1186,7 +1382,11 @@ class Grant(Thing):
     """A grant, typically financial or otherwise quantifiable, of resources."""
 
     fundedItems: Optional[Array["Thing"]] = None
+    """Indicates an item funded or sponsored through a Grant."""
+
     sponsors: Optional[Array[Union["Person", "Organization"]]] = None
+    """A person or organization that supports a thing through a pledge, promise, or financial contribution."""
+
 
     def __init__(
         self,
@@ -1219,7 +1419,11 @@ class Heading(Entity):
     """Heading"""
 
     content: Array["InlineContent"]
+    """Content of the heading."""
+
     depth: Optional[float] = None
+    """The depth of the heading."""
+
 
     def __init__(
         self,
@@ -1242,7 +1446,11 @@ class ImageObject(MediaObject):
     """An image file."""
 
     caption: Optional[str] = None
+    """The caption for this image."""
+
     thumbnail: Optional["ImageObject"] = None
+    """Thumbnail image of this image."""
+
 
     def __init__(
         self,
@@ -1326,8 +1534,14 @@ class Include(Entity):
     """
 
     source: str
+    """The source of the content, a URL or file path, or the content itself."""
+
     content: Optional[Array["BlockContent"]] = None
+    """The content to be included."""
+
     format: Optional[str] = None
+    """Media type, typically expressed using a MIME format, of the source content."""
+
 
     def __init__(
         self,
@@ -1353,10 +1567,20 @@ class NumberValidator(Entity):
     """A validator specifying the constraints on a numeric node."""
 
     exclusiveMaximum: Optional[float] = None
+    """The exclusive upper limit for a numeric node."""
+
     exclusiveMinimum: Optional[float] = None
+    """The exclusive lower limit for a numeric node."""
+
     maximum: Optional[float] = None
+    """The inclusive upper limit for a numeric node."""
+
     minimum: Optional[float] = None
+    """The inclusive lower limit for a numeric node."""
+
     multipleOf: Optional[float] = None
+    """A number that a numeric node must be a multiple of."""
+
 
     def __init__(
         self,
@@ -1416,11 +1640,27 @@ class Link(Entity):
     """
 
     content: Array["InlineContent"]
+    """The textual content of the link."""
+
     target: str
+    """The target of the link."""
+
     exportFrom: Optional[str] = None
+    """A compilation directive giving the name of the variable to export
+to the link target.
+"""
+
     importTo: Optional[str] = None
+    """A compilation directive giving the name of the variable to import
+the link target as.
+"""
+
     relation: Optional[str] = None
+    """The relation between the target and the current thing."""
+
     title: Optional[str] = None
+    """A title for the link."""
+
 
     def __init__(
         self,
@@ -1455,7 +1695,11 @@ class List(Entity):
     """A list of items."""
 
     items: Array["ListItem"]
+    """The items in the list"""
+
     order: Optional["EItemListOrder"] = None
+    """Type of ordering."""
+
 
     def __init__(
         self,
@@ -1478,7 +1722,11 @@ class ListItem(Entity):
     """A single item in a list."""
 
     content: Array["Node"]
+    """The content of the list item."""
+
     checked: Optional[bool] = None
+    """A flag to indicate if this list item is checked."""
+
 
     def __init__(
         self,
@@ -1501,8 +1749,14 @@ class Math(Entity):
     """A mathematical variable or equation."""
 
     text: str
+    """The text of the equation in the language."""
+
     errors: Optional[Array[str]] = None
+    """Errors that occurred when parsing the math equation."""
+
     mathLanguage: Optional[str] = None
+    """The language used for the equation e.g tex, mathml, asciimath."""
+
 
     def __init__(
         self,
@@ -1572,7 +1826,12 @@ class MonetaryGrant(Grant):
     """A monetary grant."""
 
     amounts: Optional[float] = None
+    """The amount of money."""
+
     funders: Optional[Array[Union["Person", "Organization"]]] = None
+    """A person or organization that supports (sponsors) something through some kind of financial contribution.
+"""
+
 
     def __init__(
         self,
@@ -1609,13 +1868,36 @@ class Organization(Thing):
     """An organization such as a school, NGO, corporation, club, etc."""
 
     address: Optional[str] = None
+    """Postal address for the organization.
+"""
+
     brands: Optional[Array["Brand"]] = None
+    """Brands that the organization is connected with.
+"""
+
     contactPoints: Optional[Array["ContactPoint"]] = None
+    """Correspondence/Contact points for the organization.
+"""
+
     departments: Optional[Array["Organization"]] = None
+    """Departments within the organization. For example, Department of Computer Science, Research & Development etc.
+"""
+
     funders: Optional[Array[Union["Organization", "Person"]]] = None
+    """Organization(s) or person(s) funding the organization.
+"""
+
     legalName: Optional[str] = None
+    """Legal name for the Organization. Should only include letters and spaces.
+"""
+
     logo: Optional[Union[str, "ImageObject"]] = None
+    """The logo of the organization."""
+
     parentOrganization: Optional["Organization"] = None
+    """Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
+"""
+
 
     def __init__(
         self,
@@ -1666,6 +1948,8 @@ class Paragraph(Entity):
     """Paragraph"""
 
     content: Array["InlineContent"]
+    """The contents of the paragraph."""
+
 
     def __init__(
         self,
@@ -1685,9 +1969,17 @@ class Variable(Entity):
     """A variable representing a name / value pair."""
 
     name: str
+    """The name of the variable."""
+
     readonly: Optional[bool] = None
+    """Whether or not a property is mutable. Default is false."""
+
     validator: Optional["ValidatorTypes"] = None
+    """The validator that the value is validated against."""
+
     value: Optional["Node"] = None
+    """The value of the variable."""
+
 
     def __init__(
         self,
@@ -1716,9 +2008,17 @@ class Parameter(Variable):
     """A parameter that can be set and used in evaluated code."""
 
     default: Optional["Node"] = None
+    """The default value of the parameter."""
+
     extends: Optional[bool] = None
+    """Indicates that this parameter is variadic and can accept multiple named arguments."""
+
     repeats: Optional[bool] = None
+    """Indicates that this parameter is variadic and can accept multiple arguments."""
+
     required: Optional[bool] = None
+    """Is this parameter required, if not it should have a default or default is assumed to be null."""
+
 
     def __init__(
         self,
@@ -1755,8 +2055,14 @@ class Periodical(CreativeWork):
     """A periodical publication."""
 
     dateEnd: Optional[Union["Date", str]] = None
+    """The date this Periodical ceased publication."""
+
     dateStart: Optional[Union["Date", str]] = None
+    """The date this Periodical was first published."""
+
     issns: Optional[Array[str]] = None
+    """The International Standard Serial Number(s) (ISSN) that identifies this serial publication."""
+
 
     def __init__(
         self,
@@ -1830,16 +2136,40 @@ class Person(Thing):
     """A person (alive, dead, undead, or fictional)."""
 
     address: Optional[str] = None
+    """Postal address for the person."""
+
     affiliations: Optional[Array["Organization"]] = None
+    """Organizations that the person is affiliated with."""
+
     emails: Optional[Array[str]] = None
+    """Email addresses for the person."""
+
     familyNames: Optional[Array[str]] = None
+    """Family name. In the U.S., the last name of a person."""
+
     funders: Optional[Array[Union["Organization", "Person"]]] = None
+    """A person or organization that supports (sponsors) something through
+some kind of financial contribution.
+"""
+
     givenNames: Optional[Array[str]] = None
+    """Given name. In the U.S., the first name of a person."""
+
     honorificPrefix: Optional[str] = None
+    """An honorific prefix preceding a person's name such as Dr/Mrs/Mr."""
+
     honorificSuffix: Optional[str] = None
+    """An honorific suffix after a person's name such as MD/PhD/MSCSW."""
+
     jobTitle: Optional[str] = None
+    """The job title of the person (for example, Financial Manager)."""
+
     memberOf: Optional[Array["Organization"]] = None
+    """An organization (or program membership) to which this person belongs."""
+
     telephoneNumbers: Optional[Array[str]] = None
+    """Telephone numbers for the person."""
+
 
     def __init__(
         self,
@@ -1902,8 +2232,14 @@ class Product(Thing):
     """
 
     brands: Optional[Array["Brand"]] = None
+    """Brands that the product is labelled with."""
+
     logo: Optional[Union[str, "ImageObject"]] = None
+    """The logo of the product."""
+
     productID: Optional[str] = None
+    """Product identification code."""
+
 
     def __init__(
         self,
@@ -1939,7 +2275,11 @@ class PropertyValue(Thing):
     """A property-value pair."""
 
     value: "Node"
+    """The value of the property."""
+
     propertyID: Optional[str] = None
+    """A commonly used identifier for the characteristic represented by the property."""
+
 
     def __init__(
         self,
@@ -1975,9 +2315,19 @@ class PublicationIssue(CreativeWork):
     """
 
     issueNumber: Optional[Union[str, int]] = None
+    """Identifies the issue of publication; for example, "iii" or "2"."""
+
     pageEnd: Optional[Union[str, int]] = None
+    """The page on which the work ends; for example "138" or "xvi"."""
+
     pageStart: Optional[Union[str, int]] = None
+    """The page on which the work starts; for example "135" or "xiii"."""
+
     pagination: Optional[str] = None
+    """Any description of pages that is not separated into pageStart and pageEnd;
+for example, "1-6, 9, 55".
+"""
+
 
     def __init__(
         self,
@@ -2057,9 +2407,20 @@ class PublicationVolume(CreativeWork):
     """
 
     pageEnd: Optional[Union[str, int]] = None
+    """The page on which the work ends; for example "138" or "xvi"."""
+
     pageStart: Optional[Union[str, int]] = None
+    """The page on which the work starts; for example "135" or "xiii"."""
+
     pagination: Optional[str] = None
+    """Any description of pages that is not separated into pageStart and pageEnd;
+for example, "1-6, 9, 55".
+"""
+
     volumeNumber: Optional[Union[str, int]] = None
+    """Identifies the volume of publication or multi-part work; for example, "iii" or "2".
+"""
+
 
     def __init__(
         self,
@@ -2136,6 +2497,8 @@ class Quote(Mark):
     """Inline, quoted content."""
 
     cite: Optional[Union["Cite", str]] = None
+    """The source of the quote."""
+
 
     def __init__(
         self,
@@ -2157,7 +2520,11 @@ class QuoteBlock(Entity):
     """A section quoted from somewhere else."""
 
     content: Array["BlockContent"]
+    """The content of the quote."""
+
     cite: Optional[Union["Cite", str]] = None
+    """The source of the quote."""
+
 
     def __init__(
         self,
@@ -2180,7 +2547,13 @@ class SoftwareApplication(CreativeWork):
     """A software application."""
 
     softwareRequirements: Optional[Array["SoftwareApplication"]] = None
+    """Requirements for application, including shared libraries that
+are not included in the application distribution.
+"""
+
     softwareVersion: Optional[str] = None
+    """Version of the software."""
+
 
     def __init__(
         self,
@@ -2251,9 +2624,17 @@ class SoftwareEnvironment(Thing):
     """A computational environment."""
 
     name: str
+    """The name of the item."""
+
     adds: Optional[Array["SoftwareSourceCode"]] = None
+    """The packages that this environment adds to the base environments listed under `extends` (if any).,"""
+
     extends: Optional[Array["SoftwareEnvironment"]] = None
+    """Other environments that this environment extends by adding or removing packages.,"""
+
     removes: Optional[Array["SoftwareSourceCode"]] = None
+    """The packages that this environment removes from the base environments listed under `extends` (if any).,"""
+
 
     def __init__(
         self,
@@ -2294,22 +2675,56 @@ class SoftwareSession(Thing):
     """
 
     clientsLimit: Optional[float] = None
+    """The maximum number of concurrent clients the session is limited to."""
+
     clientsRequest: Optional[float] = None
+    """The maximum number of concurrent clients requested for the session."""
+
     cpuLimit: Optional[float] = None
+    """The amount of CPU the session is limited to."""
+
     cpuRequest: Optional[float] = None
+    """The amount of CPU requested for the session."""
+
     dateEnd: Optional[Union["Date", str]] = None
+    """The date-time that the session ended."""
+
     dateStart: Optional[Union["Date", str]] = None
+    """The date-time that the session began."""
+
     durationLimit: Optional[float] = None
+    """The maximum duration (seconds) the session is limited to."""
+
     durationRequest: Optional[float] = None
+    """The maximum duration (seconds) requested for the session."""
+
     environment: Optional["SoftwareEnvironment"] = None
+    """The software environment to execute this session in."""
+
     memoryLimit: Optional[float] = None
+    """The amount of memory that the session is limited to."""
+
     memoryRequest: Optional[float] = None
+    """The amount of memory requested for the session."""
+
     networkTransferLimit: Optional[float] = None
+    """The amount of network data transfer (GiB) that the session is limited to."""
+
     networkTransferRequest: Optional[float] = None
+    """The amount of network data transfer (GiB) requested for the session."""
+
     status: Optional["ESessionStatus"] = None
+    """The status of the session (starting, stopped, etc)."""
+
     timeoutLimit: Optional[float] = None
+    """The inactivity timeout (seconds) the session is limited to."""
+
     timeoutRequest: Optional[float] = None
+    """The inactivity timeout (seconds) requested for the session."""
+
     volumeMounts: Optional[Array["VolumeMount"]] = None
+    """Volumes to mount in the session."""
+
 
     def __init__(
         self,
@@ -2390,12 +2805,34 @@ class SoftwareSourceCode(CreativeWork):
     """
 
     codeRepository: Optional[str] = None
+    """Link to the repository where the un-compiled, human readable code and related
+code is located.
+"""
+
     codeSampleType: Optional[str] = None
+    """What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
+"""
+
     maintainers: Optional[Array[Union["Organization", "Person"]]] = None
+    """The people or organizations who maintain the software.
+"""
+
     programmingLanguage: Optional[str] = None
+    """The computer programming language.
+"""
+
     runtimePlatform: Optional[Array[str]] = None
+    """Runtime platform or script interpreter dependencies (Example - Java v1,
+Python2.3, .Net Framework 3.0).
+"""
+
     softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None
+    """Dependency requirements for the software."""
+
     targetProducts: Optional[Array["SoftwareApplication"]] = None
+    """Target operating system or product to which the code applies.
+"""
+
 
     def __init__(
         self,
@@ -2481,8 +2918,14 @@ class StringValidator(Entity):
     """A schema specifying constraints on a string node."""
 
     maxLength: Optional[float] = None
+    """The maximum length for a string node."""
+
     minLength: Optional[float] = None
+    """The minimum length for a string node."""
+
     pattern: Optional[str] = None
+    """A regular expression that a string node must match."""
+
 
     def __init__(
         self,
@@ -2559,6 +3002,9 @@ class Table(CreativeWork):
     """A table."""
 
     rows: Array["TableRow"]
+    """Rows of cells in the table.
+"""
+
 
     def __init__(
         self,
@@ -2626,10 +3072,21 @@ class TableCell(Entity):
     """A cell within a `Table`."""
 
     content: Array["Node"]
+    """Contents of the table cell."""
+
     cellType: Optional["ECellType"] = None
+    """Indicates whether the cell is a header or data."""
+
     colspan: Optional[int] = None
+    """How many columns the cell extends.
+"""
+
     name: Optional[str] = None
+    """The name of the cell."""
+
     rowspan: Optional[int] = None
+    """How many columns the cell extends."""
+
 
     def __init__(
         self,
@@ -2661,7 +3118,12 @@ class TableRow(Entity):
     """A row within a Table."""
 
     cells: Array["TableCell"]
+    """An array of cells in the row."""
+
     rowType: Optional["ERowType"] = None
+    """If present, indicates that all cells in this row should be treated as header cells.
+"""
+
 
     def __init__(
         self,
@@ -2704,6 +3166,8 @@ class TupleValidator(Entity):
     """
 
     items: Optional[Array["ValidatorTypes"]] = None
+    """An array of validators specifying the constraints on each successive item in the array."""
+
 
     def __init__(
         self,
@@ -2723,8 +3187,14 @@ class VideoObject(MediaObject):
     """A video file."""
 
     caption: Optional[str] = None
+    """The caption for this video recording."""
+
     thumbnail: Optional["ImageObject"] = None
+    """Thumbnail image of this video recording."""
+
     transcript: Optional[str] = None
+    """The transcript of this video recording."""
+
 
     def __init__(
         self,
@@ -2808,9 +3278,17 @@ class VolumeMount(Thing):
     """Describes a volume mount from a host to container."""
 
     mountDestination: str
+    """The mount location inside the container."""
+
     mountOptions: Optional[Array[str]] = None
+    """A list of options to use when applying the mount."""
+
     mountSource: Optional[str] = None
+    """The mount source directory on the host."""
+
     mountType: Optional[str] = None
+    """The type of mount."""
+
 
     def __init__(
         self,
