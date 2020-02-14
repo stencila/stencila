@@ -10,11 +10,14 @@
     "postcss-custom-selectors": {
       "importFrom": "src/selectors.css"
     },
+    "postcss-custom-media": true,
     "postcss-custom-properties": {
       "preserve": true
     },
     "postcss-nested": true,
     "autoprefixer": true,
-    "postcss-extend": true
+    "postcss-extend": true,
+    "postcss-combine-media-query": true,
+    "postcss-sort-media-queries": true,
   }
 }
