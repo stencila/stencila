@@ -4,11 +4,11 @@
  * Map of theme Javascript modules
  */
 export const themes: {
-  elife: Promise<any>
-  nature: Promise<any>
-  plos: Promise<any>
-  skeleton: Promise<any>
-  stencila: Promise<any>
+  elife: Promise<unknown>
+  nature: Promise<unknown>
+  plos: Promise<unknown>
+  skeleton: Promise<unknown>
+  stencila: Promise<unknown>
 } = {
   elife: import('./elife'),
   nature: import('./nature'),

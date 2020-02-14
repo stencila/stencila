@@ -14,6 +14,7 @@ script:
   # The `--no-cache` flag disables Parcel's cache as it can cause errors with building
   # same entries targeting different destinations.
   - npm run docs -- --no-cache
+  - npm run lint:scripts -- --no-cache
   - npm run test:build --no-cache
   - travis_wait npm run test:run
 
