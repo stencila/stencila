@@ -5,22 +5,16 @@
  */
 
 import fs from 'fs'
-// @ts-ignore
 import MathJax from 'mathjax-node'
 import path from 'path'
 
 const dest = path.join(__dirname, '..', 'shared', 'styles', 'mathjax.css')
 
-interface Result {
-  css?: string
-  errors?: string[]
-}
-
 MathJax.typeset(
   {
     css: true
   },
-  (result: Result) => {
+  result => {
     const { errors, css } = result
     if (errors !== undefined) errors.map(err => console.error(err))
     fs.writeFileSync(
