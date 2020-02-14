@@ -9,12 +9,11 @@
   "scripts": {
     "postinstall": "npm run generate",
     "generate": "npm run generate:selectors && npm run generate:mathjax && npm run generate:examples && npm run generate:themes",
-    "generate:selectors": "ts-node src/generate/selectors.ts",
+    "generate:selectors": "ts-node --files src/generate/selectors.ts",
     "generate:mathjax": "ts-node --files src/generate/mathjax.ts",
-    "generate:examples": "ts-node src/generate/examples.ts",
-    "generate:themes": "ts-node src/generate/themes.ts",
+    "generate:examples": "ts-node --files src/generate/examples.ts",
+    "generate:themes": "ts-node --files src/generate/themes.ts",
     "build": "parcel build ./src/*.ts ./src/{common,themes}/**/*.{css,ts} && tsc --emitDeclarationOnly",
-    "clean": "rm -rf .cache dist docs test/build",
     "dev": "parcel ./src/index.html ./src/examples/*.html --open",
     "docs": "parcel build ./src/index.html ./src/examples/*.html -d docs --public-url .",
     "lint": "stylelint \"./src/**/*.css\"",
@@ -24,7 +23,8 @@
     "test": "npm run test:build && npm run test:run",
     "test:build": "parcel build ./src/index.html ./src/examples/*.html -d test/build --public-url . && tsc --outDir test/build",
     "test:run": "SAUCE_API_HOST=eu-central-1.saucelabs.com wdio",
-    "watch": "parcel watch ./src/**/*.css ./src/**/*.ts"
+    "watch": "parcel watch ./src/**/*.css ./src/**/*.ts",
+    "clean": "rm -rf .cache dist docs test/build"
   },
   "repository": {
     "type": "git",
