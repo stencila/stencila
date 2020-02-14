@@ -10,7 +10,7 @@
     "postinstall": "npm run generate",
     "generate": "npm run generate:selectors && npm run generate:mathjax && npm run generate:examples && npm run generate:themes",
     "generate:selectors": "ts-node src/generate/selectors.ts",
-    "generate:mathjax": "ts-node src/generate/mathjax.ts",
+    "generate:mathjax": "ts-node --files src/generate/mathjax.ts",
     "generate:examples": "ts-node src/generate/examples.ts",
     "generate:themes": "ts-node src/generate/themes.ts",
     "build": "parcel build ./src/*.ts ./src/{common,themes}/**/*.{css,ts} && tsc --emitDeclarationOnly",
