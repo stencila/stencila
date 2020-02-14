@@ -6,5 +6,5 @@
     "outDir": "dist",
     "lib": ["dom", "es2017"]
   },
-  "typeRoots": ["src/generate", "./node_modules/@types"]
+  "typeRoots": ["./src", "./node_modules/@types"]
 }
