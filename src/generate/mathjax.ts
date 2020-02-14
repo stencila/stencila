@@ -1,7 +1,7 @@
 /**
  * A script to generate `../shared/styles/mathjax.css`.
  *
- * Run using `npm run build:mathjax`.
+ * Run using `npm run generate:mathjax`.
  */
 
 import fs from 'fs'
