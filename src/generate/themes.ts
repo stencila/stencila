@@ -24,7 +24,7 @@ fs.writeFileSync(
  * Map of theme Javascript modules
  */
 export const themes: {
-  ${themes.map(theme => `${theme}: Promise<any>`).join('\n  ')}
+  ${themes.map(theme => `${theme}: Promise<unknown>`).join('\n  ')}
 } = {
   ${themes.map(theme => `${theme}: import('./${theme}')`).join(',\n  ')}
 }
