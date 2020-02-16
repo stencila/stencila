@@ -45,9 +45,10 @@ const env = process.env
 
 // When running in CI, use SauceLabs if SAUCE_USERNAME and SAUCE_ACCESS_KEY is set,
 // otherwise the browser specific driver
+const useSauce = env.CI && env.SAUCE_USERNAME && env.SAUCE_ACCESS_KEY
 const services = [
   ...baseServices,
-  env.CI && env.SAUCE_USERNAME && env.SAUCE_ACCESS_KEY
+  useSauce
     ? 'sauce'
     : browserServices[testBrowser]
 ]
@@ -191,8 +192,8 @@ export const config = {
     orientations: ['landscape', 'portrait']
   },
   // Sauce Labs configuration
-  user: env.SAUCE_USERNAME,
-  key: env.SAUCE_ACCESS_KEY,
+  user: useSauce && env.SAUCE_USERNAME,
+  key: useSauce && env.SAUCE_ACCESS_KEY,
   region: 'eu',
   sauceConnect: true,
   headless: false,
