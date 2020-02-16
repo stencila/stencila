@@ -13,8 +13,6 @@ import { staticDir, baseUrl } from './wdio.config'
 import { examples } from './build/examples'
 import { themes } from './build/themes'
 
-/* global browser */
-
 // The examples to use for visual regression tests
 // It's generally better to only use small examples, as
 // larger ones take up time and space
