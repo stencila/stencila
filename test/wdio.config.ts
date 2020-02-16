@@ -1,23 +1,20 @@
-const path = require('path')
+import path from 'path'
 const WdioScreenshot = require('wdio-screenshot-v5')
 const VisualRegressionCompare = require('wdio-novus-visual-regression-service/compare')
 
-// Declare configuration variables and paths for storing screenshots
-const screenshotDir = path.join(__dirname, 'screenshots')
-const env = {
-  baseUrl: process.env.BASE_URL || 'http://localhost:3000',
-  staticDir: path.join(__dirname, 'build'),
-  screenshotDir,
-  errors: path.join(screenshotDir, 'error'),
-  reference: path.join(screenshotDir, 'reference'),
-  local: path.join(screenshotDir, 'local'),
-  diff: path.join(screenshotDir, 'diff')
+export const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
+
+export const staticDir = path.join(__dirname, 'build')
+
+enum Browser {
+  chrome = 'chrome',
+  filefox = 'firefox'
 }
 
-// Read browser to be tested with from the environment, falling back to Crhome
-const testBrowser = process.env.TEST_BROWSER
+// Read browser to be tested with from the environment, falling back to Chrome
+const testBrowser = (process.env.TEST_BROWSER
   ? process.env.TEST_BROWSER
-  : 'chrome'
+  : 'chrome') as Browser
 
 // Test runner services
 // Services take over a specific job you don't want to take care of. They enhance
@@ -51,7 +48,7 @@ const services = [
 ]
 
 // Standardizes screenshot name for visual regression testing
-const normalizeName = (testName, browserName, width, height) => {
+const normalizeName = (testName: string, browserName: string, width: string, height: string): string => {
   const test = testName.replace(/ /g, '_').replace('.html', '')
   const browser = browserName.toLocaleLowerCase().replace(/ /g, '_')
 
@@ -59,31 +56,46 @@ const normalizeName = (testName, browserName, width, height) => {
 }
 
 // Given a test page URL will extract the final part of the pathname, without the html extension
-const nameFromUrl = url =>
-  url
+const nameFromUrl = (url: string): string =>
+  (url
     .split('/')
-    .pop()
+    .pop() ?? '')
     .replace('.html', '')
+
+// Declare configuration variables and paths for storing screenshots
+const screenshotDir = path.join(__dirname, 'screenshots')
+
+const screenshotDirs: {
+  errors: string
+  reference: string
+  local: string
+  diff: string
+} = {
+  errors:  path.join(screenshotDir, 'errors'),
+  reference: path.join(screenshotDir, 'reference'),
+  local: path.join(screenshotDir, 'local'),
+  diff: path.join(screenshotDir, 'diff')
+}
 
 /**
  * Given a `screenshotType`, returns a function expecting a VisualRegressionCompare context
  * @see https://github.com/Jnegrier/wdio-novus-visual-regression-service#visualregressioncomparelocalcompare
- * @param {'reference' | 'local' | 'diff' } screenshotType
+ * @param {ScreenshotType} screenshotType
  */
-const getScreenshotName = screenshotType => context => {
+const getScreenshotName = (screenshotType: keyof typeof screenshotDirs) => (context:any) => {
   const testName = nameFromUrl(context.meta.url)
   const browserName = context.browser.name
   const { width, height } = context.meta.viewport
 
   return path.join(
-    env[screenshotType],
+    screenshotDirs[screenshotType],
     normalizeName(testName, browserName, width, height)
   )
 }
 
 // When running on CI, don't compare images, as we'll be using Argos to compare them
 const compareStrategy =
-  process.env.CI === true
+  process.env.CI !== undefined
     ? new VisualRegressionCompare.SaveScreenshot({
         screenshotName: getScreenshotName('local')
       })
@@ -94,19 +106,18 @@ const compareStrategy =
         misMatchTolerance: 0.01
       })
 
-exports.config = {
+export const config = {
   // Will bre prefixed to all relative test URLs. https://webdriver.io/docs/options.html#baseurl
-  baseUrl: env.baseUrl,
+  baseUrl,
   // Required for resolving test sessions
   path: process.env.CI ? undefined : '/',
   // Level of logging verbosity: trace | debug | info | warn | error | silent
   logLevel: 'warn',
-  connectionRetryTimeout: 600000,
   // Define which test specs should run. The pattern is relative to the directory
   // from which `wdio` was called. Notice that, if you are calling `wdio` from an
   // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
   // directory is where your package.json resides, so `wdio` will be called from there.
-  specs: ['test/**/*.test.js'],
+  specs: ['test/**/*.test.ts'],
   // ============
   // Capabilities
   // ============
@@ -129,7 +140,7 @@ exports.config = {
     Object.assign(
       {},
       browserCapabilities[testBrowser],
-      env.CI
+      process.env.CI !== undefined
         ? {
             // When using Open Sauce (https://saucelabs.com/opensauce/),
             // capabilities must be tagged as "public" for the jobs's status
@@ -146,7 +157,7 @@ exports.config = {
   // e.g. using promises you can set the sync option to false.
   sync: false,
   // Saves a screenshot to a given path if a command fails.
-  screenshotPath: env.errors,
+  screenshotPath: screenshotDirs['errors'],
   coloredLogs: true,
   // Default timeout for all waitFor* commands.
   waitforTimeout: 10000,
@@ -178,7 +189,7 @@ exports.config = {
   headless: false,
   // Static Server configuration
   staticServerPort: 3000,
-  staticServerFolders: [{ mount: '/', path: env.staticDir }],
+  staticServerFolders: [{ mount: '/', path: staticDir }],
   // Options for selenium-standalone
   // Path where all logs from the Selenium server should be stored.
   seleniumLogs: './logs/',
@@ -192,6 +203,3 @@ exports.config = {
     timeout: 0
   }
 }
-
-exports.env = env
-exports.normalizeName = normalizeName
