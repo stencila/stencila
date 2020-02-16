@@ -6,14 +6,14 @@
  * HTML, compiled CSS and JS used for visual regression testing in it.
  */
 
-const assert = require('assert')
-const fs = require('fs')
-const http = require('http')
-const {
-  env: { staticDir, baseUrl, diff }
-} = require('./config.js')
-const { examples } = require('./build/examples')
-const { themes } = require('./build/themes')
+import assert from 'assert'
+import fs from 'fs'
+import http from 'http'
+import { staticDir, baseUrl } from './wdio.config'
+import { examples } from './build/examples'
+import { themes } from './build/themes'
+
+/* global browser */
 
 // The examples to use for visual regression tests
 // It's generally better to only use small examples, as
@@ -61,22 +61,24 @@ describe('visual regressions: ', () => {
         })
 
         it(`${path}: screenshots have not changed`, async () => {
+          // @ts-ignore
           await browser.url(path)
+          // @ts-ignore
           const results = await browser.checkDocument()
 
           /**
            * Takes an array of visual regression comparison results, and checks if all
            * are within difference tolerances.
            */
-          const allScreenshotsPass = results =>
+          const allScreenshotsPass = (results: any[]) =>
             results.reduce(
-              (pass, result) =>
+              (pass: boolean, result: any) =>
                 pass && result.isWithinMisMatchTolerance === true,
               true
             )
           assert.ok(
             allScreenshotsPass(results),
-            `Styles differ from current references. Please see ${diff} for differences`
+            `Styles differ from current references.`
           )
         })
       })

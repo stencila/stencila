@@ -1,2 +1,2 @@
-require('babel-register')
-exports.config = require('./test/config').config
+require('ts-node/register')
+exports.config = require('./test/wdio.config').config
