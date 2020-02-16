@@ -16,7 +16,7 @@ script:
   - npm run docs -- --no-cache
   - npm run lint:scripts -- --no-cache
   - npm run test:build --no-cache
-  - travis_wait npm run test:run
+  - '[[! -z $SAUCE_ACCESS_KEY ]] && travis_wait npm run test:run'
 
 after_success:
   # Upload screenshots to Argos
