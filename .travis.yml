@@ -16,11 +16,11 @@ script:
   - npm run docs -- --no-cache
   - npm run lint:scripts -- --no-cache
   - npm run test:build --no-cache
-  - '[[! -z $SAUCE_ACCESS_KEY ]] && travis_wait npm run test:run'
+  - '[[ ! -z "$SAUCE_ACCESS_KEY" ]] && travis_wait npm run test:run || true'
 
 after_success:
   # Upload screenshots to Argos
-  - '[[ ! -z $ARGOS_TOKEN ]] && argos upload test/screenshots/local -C $TRAVIS_COMMIT -B $TRAVIS_BRANCH -T $ARGOS_TOKEN || true'
+  - '[[ ! -z "$ARGOS_TOKEN" ]] && argos upload test/screenshots/local -C $TRAVIS_COMMIT -B $TRAVIS_BRANCH -T $ARGOS_TOKEN || true'
 
 deploy:
   - provider: script
