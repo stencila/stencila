@@ -41,14 +41,24 @@ const browserServices = {
   firefox: 'geckodriver'
 }
 
-// When running in CI, use SauceLabs, otherwise the browser specific driver
+const env = process.env
+
+// When running in CI, use SauceLabs if SAUCE_USERNAME and SAUCE_ACCESS_KEY is set,
+// otherwise the browser specific driver
 const services = [
   ...baseServices,
-  process.env.CI ? 'sauce' : browserServices[testBrowser]
+  env.CI && env.SAUCE_USERNAME && env.SAUCE_ACCESS_KEY
+    ? 'sauce'
+    : browserServices[testBrowser]
 ]
 
 // Standardizes screenshot name for visual regression testing
-const normalizeName = (testName: string, browserName: string, width: string, height: string): string => {
+const normalizeName = (
+  testName: string,
+  browserName: string,
+  width: string,
+  height: string
+): string => {
   const test = testName.replace(/ /g, '_').replace('.html', '')
   const browser = browserName.toLocaleLowerCase().replace(/ /g, '_')
 
@@ -57,10 +67,7 @@ const normalizeName = (testName: string, browserName: string, width: string, hei
 
 // Given a test page URL will extract the final part of the pathname, without the html extension
 const nameFromUrl = (url: string): string =>
-  (url
-    .split('/')
-    .pop() ?? '')
-    .replace('.html', '')
+  (url.split('/').pop() ?? '').replace('.html', '')
 
 // Declare configuration variables and paths for storing screenshots
 const screenshotDir = path.join(__dirname, 'screenshots')
@@ -71,7 +78,7 @@ const screenshotDirs: {
   local: string
   diff: string
 } = {
-  errors:  path.join(screenshotDir, 'errors'),
+  errors: path.join(screenshotDir, 'errors'),
   reference: path.join(screenshotDir, 'reference'),
   local: path.join(screenshotDir, 'local'),
   diff: path.join(screenshotDir, 'diff')
@@ -82,7 +89,9 @@ const screenshotDirs: {
  * @see https://github.com/Jnegrier/wdio-novus-visual-regression-service#visualregressioncomparelocalcompare
  * @param {ScreenshotType} screenshotType
  */
-const getScreenshotName = (screenshotType: keyof typeof screenshotDirs) => (context:any) => {
+const getScreenshotName = (screenshotType: keyof typeof screenshotDirs) => (
+  context: any
+) => {
   const testName = nameFromUrl(context.meta.url)
   const browserName = context.browser.name
   const { width, height } = context.meta.viewport
@@ -95,7 +104,7 @@ const getScreenshotName = (screenshotType: keyof typeof screenshotDirs) => (cont
 
 // When running on CI, don't compare images, as we'll be using Argos to compare them
 const compareStrategy =
-  process.env.CI !== undefined
+  env.CI !== undefined
     ? new VisualRegressionCompare.SaveScreenshot({
         screenshotName: getScreenshotName('local')
       })
@@ -110,7 +119,7 @@ export const config = {
   // Will bre prefixed to all relative test URLs. https://webdriver.io/docs/options.html#baseurl
   baseUrl,
   // Required for resolving test sessions
-  path: process.env.CI ? undefined : '/',
+  path: env.CI ? undefined : '/',
   // Level of logging verbosity: trace | debug | info | warn | error | silent
   logLevel: 'warn',
   // Define which test specs should run. The pattern is relative to the directory
@@ -140,7 +149,7 @@ export const config = {
     Object.assign(
       {},
       browserCapabilities[testBrowser],
-      process.env.CI !== undefined
+      env.CI !== undefined
         ? {
             // When using Open Sauce (https://saucelabs.com/opensauce/),
             // capabilities must be tagged as "public" for the jobs's status
@@ -182,8 +191,8 @@ export const config = {
     orientations: ['landscape', 'portrait']
   },
   // Sauce Labs configuration
-  user: process.env.SAUCE_USERNAME,
-  key: process.env.SAUCE_ACCESS_KEY,
+  user: env.SAUCE_USERNAME,
+  key: env.SAUCE_ACCESS_KEY,
   region: 'eu',
   sauceConnect: true,
   headless: false,

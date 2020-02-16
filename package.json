@@ -22,7 +22,7 @@
     "format": "prettier --write './**/*.{css,js,json,md,ts,yaml}'",
     "test": "npm run test:build && npm run test:run",
     "test:build": "parcel build ./src/index.html ./src/examples/*.html -d test/build --public-url . && tsc --outDir test/build",
-    "test:run": "SAUCE_API_HOST=eu-central-1.saucelabs.com wdio",
+    "test:run": "wdio",
     "watch": "parcel watch ./src/**/*.css ./src/**/*.ts",
     "clean": "rm -rf .cache dist docs test/build"
   },

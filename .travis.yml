@@ -19,7 +19,8 @@ script:
   - travis_wait npm run test:run
 
 after_success:
-  - argos upload test/screenshots/local -C $TRAVIS_COMMIT -B $TRAVIS_BRANCH -T $ARGOS_TOKEN || true
+  # Upload screenshots to Argos
+  - 'if [[ -z "$ARGOS_TOKEN" ]]; then argos upload test/screenshots/local -C $TRAVIS_COMMIT -B $TRAVIS_BRANCH -T $ARGOS_TOKEN || true; fi'
 
 deploy:
   - provider: script
