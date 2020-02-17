@@ -15,8 +15,8 @@ script:
   # same entries targeting different destinations.
   - npm run docs -- --no-cache
   - npm run lint:scripts -- --no-cache
-  - npm run test:build --no-cache
-  - '[[ ! -z "$SAUCE_ACCESS_KEY" ]] && travis_wait npm run test:run || true'
+  - npm run test:unit
+  - '[[ ! -z "$SAUCE_ACCESS_KEY" ]] && travis_wait npm run test:visual || true'
 
 after_success:
   # Upload screenshots to Argos
