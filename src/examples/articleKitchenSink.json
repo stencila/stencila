@@ -23,22 +23,27 @@
     }
   ],
   "description": [
-    "A short description of the article. Also known as an ",
     {
-      "type": "Emphasis",
-      "content": ["abstract"]
-    },
-    ". This description includes not just string content, but other content nodes as well, for example, a inline math fragment: ",
-    {
-      "type": "MathFragment",
-      "mathLanguage": "tex",
-      "text": "E = m c^2"
-    },
-    ". Some of the article meta-data for this example is taken from ",
-    {
-      "type": "Link",
-      "target": "https://elifesciences.org/articles/49574.",
-      "content": ["this article"]
+      "type": "Paragraph",
+      "content": [
+        "A short description of the article. Also known as an ",
+        {
+          "type": "Emphasis",
+          "content": ["abstract"]
+        },
+        ". This description includes not just string content, but other content nodes as well, for example, a inline math fragment: ",
+        {
+          "type": "MathFragment",
+          "mathLanguage": "tex",
+          "text": "E = m c^2"
+        },
+        ". Some of the article meta-data for this example is taken from ",
+        {
+          "type": "Link",
+          "target": "https://elifesciences.org/articles/49574.",
+          "content": ["this article"]
+        }
+      ]
     }
   ],
   "dateAccepted": {
