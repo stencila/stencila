@@ -12,6 +12,9 @@
   - [Prerequisites](#prerequisites)
   - [Getting started](#getting-started)
   - [Creating a new theme](#creating-a-new-theme)
+    - [Scripted creation](#scripted-creation)
+    - [Manual creation](#manual-creation)
+    - [Approaches](#approaches)
   - [Contributing to `shared` styles and scripts](#contributing-to-shared-styles-and-scripts)
   - [Generated code](#generated-code)
   - [Testing](#testing)
@@ -92,23 +95,39 @@ Then open http://localhost:1234/index.html in your browser to view the demo.
 
 ### Creating a new theme
 
-To add a theme, create a new folder in `src/themes` having the name of your theme. Theme names should be all lower case, and start with a letter. Each theme should have at least:
+#### Scripted creation
 
-- a `README.md` providing a description of the theme and notes to contributors,
+The easiest way to create a new theme is:
+
+```bash
+npm run create:theme -- mytheme
+```
+
+Theme names should be all lower case, and start with a letter. This creates a new folder in `src/themes` and the following files:
+
+- a `README.md` providing a description of the theme and notes for contributors,
 - a `styles.css` file for the theme's CSS,
-- a `index.js` or `index.ts` for any Javascript that the style may need
+- a `index.ts` for any Typescript that the style may need
 
-After adding your theme run `npm run generate:themes`.
+#### Manual creation
+
+You can create this folder structure for your theme manually. If you prefer to use Javascript instead of Typescript, use a `index.js` file instead of `index.ts`. Then update the list of themes in `themes/themes.ts` and elsewhere using:
+
+```bash
+npm run generate:themes
+```
+
+#### Approaches
 
 There are three broad approaches to developing a new theme, each epitomized in three of the themes in this repository:
 
-- the `skeleton` approach: flesh things out yourself; start from scratch with nothing but be unaffected from changes to `shared` styles and scripts
+- the [`skeleton`](./src/themes/skeleton/README.md) approach: flesh things out yourself; start from scratch with nothing but be unaffected from changes to `shared` styles and scripts
 
-- the `zombie` approach: leverage existing styles and scripts in `shared` but be affected by any changes to them
+- the [`zombie`](./src/themes/zombie/README.md) approach: leverage existing styles and scripts in `shared` but be affected by any changes to them
 
-- the `bootstrap` approach: reuse existing stylesheets from elsewhere by mapping between Thema's semantic selectors and existing selectors in those stylesheets
+- the [`bootstrap`](./src/themes/bootstrap/README.md) approach: reuse existing stylesheets from elsewhere by mapping between Thema's semantic selectors and existing selectors in those stylesheets
 
-It is important to note that the `skeleton`, `zombie` and `bootstrap` themes are extremes of each of the approaches - they apply their approach to _all_ node types. Depending on your theme, the best approach is probably some combination of these approaches for different node types e.g. starting from scratch for some nodes and using `shared` styles for others.
+It is important to note that the `skeleton`, `zombie` and `bootstrap` themes are extremes of each of the approaches - they apply their approach to _all_ document node types. Depending on your theme, the best approach is probably some combination of these approaches for different node types e.g. starting from scratch for some nodes and using `shared` styles for others.
 
 There are a few key rules enforced by Stylelint:
 
