@@ -1,7 +1,7 @@
 /**
  * A script to generate example `*.html` files and `../examples/examples.ts`.
  *
- * Run using `npm run build:examples`.
+ * Run using `npm run generate:examples`.
  *
  * To add an example,
  *
@@ -70,7 +70,7 @@ function articleAntibodies(): Promise<string | undefined> {
 }
 
 // Run each function
-Promise.all(EXAMPLES).catch(err => console.error(err))
+Promise.all(EXAMPLES.map(example => example())).catch(err => console.error(err))
 
 // Generate `../examples/examples.ts`
 fs.writeFileSync(
