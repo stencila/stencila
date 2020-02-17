@@ -31,17 +31,17 @@
     /* For each author... */
     :--author {
       /* Separate authors using a comma */
-      &:after {
+      &::after {
         content: ', ';
       }
 
-      &:last-child:after {
+      &:last-child::after {
         content: normal;
       }
 
       /* Place a space after each given name */
       :--givenName {
-        &:after {
+        &::after {
           content: '\00a0';
         }
       }
