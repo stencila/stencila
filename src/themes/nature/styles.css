@@ -1,3 +1,10 @@
+/*
+  Note: While this theme is being refactored
+  some linting rules are disabled.
+*/
+
+/* stylelint-disable xi/selector-pattern,scale-unlimited/declaration-strict-value,no-duplicate-selectors */
+
 @import '../../shared/styles/shared.css';
 @import '../../shared/fonts/biolinum/biolinum.css';
 

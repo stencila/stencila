@@ -15,6 +15,7 @@
 :--Article {
   /* Use Bootstrap's `container` class but with a maximum width for readability */
   @extend .container;
+
   max-width: 70rem;
 
   :--authors {
@@ -56,8 +57,10 @@
    * Use Bootstrap's `list-group` class for organizations list
    */
   :--organizations {
-    margin-top: 2em;
     @extend .list-group;
+
+    margin-top: 2em;
+
     :--Organization {
       @extend .list-group-item;
     }
@@ -71,6 +74,7 @@
   :--description {
     @extend .panel;
     @extend .panel-info;
+
     h2 {
       @extend .panel-title;
     }
