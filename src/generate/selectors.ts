@@ -162,8 +162,7 @@ ${selectors}
  * - use a \`.class\` selector for container properties
  * - use a \`[itemprop=...]\` selector for singular properties, or items of container properties
  */
-${props}
-`
+${props}`
 
   return fs.writeFile(outputPath, doc, () => doc)
 }

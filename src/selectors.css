@@ -246,4 +246,3 @@
 @custom-selector :--values [itemprop~='values'], [data-itemprop~='values'];
 @custom-selector :--version [itemprop~='version'], [data-itemprop~='version'];
 @custom-selector :--volumeNumber [itemprop~='volumeNumber'], [data-itemprop~='volumeNumber'];
-
