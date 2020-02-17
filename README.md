@@ -11,9 +11,11 @@
 - [Develop](#develop)
   - [Prerequisites](#prerequisites)
   - [Getting started](#getting-started)
+  - [Creating a new theme](#creating-a-new-theme)
+  - [Contributing to `shared` styles and scripts](#contributing-to-shared-styles-and-scripts)
   - [Generated code](#generated-code)
   - [Testing](#testing)
-- [Technical Notes](#technical-notes)
+  - [Notes](#notes)
 - [Acknowledgments](#acknowledgments)
 
 ## Quick Start
@@ -88,6 +90,41 @@ npm run dev
 
 Then open http://localhost:1234/index.html in your browser to view the demo.
 
+### Creating a new theme
+
+To add a theme, create a new folder in `src/themes` having the name of your theme. Theme names should be all lower case, and start with a letter. Each theme should have at least:
+
+- a `README.md` providing a description of the theme and notes to contributors,
+- a `styles.css` file for the theme's CSS,
+- a `index.js` or `index.ts` for any Javascript that the style may need
+
+After adding your theme run `npm run generate:themes`.
+
+There are three broad approaches to developing a new theme, each epitomized in three of the themes in this repository:
+
+- the `skeleton` approach: flesh things out yourself; start from scratch with nothing but be unaffected from changes to `shared` styles and scripts
+
+- the `zombie` approach: leverage existing styles and scripts in `shared` but be affected by any changes to them
+
+- the `bootstrap` approach: reuse existing stylesheets from elsewhere by mapping between Thema's semantic selectors and existing selectors in those stylesheets
+
+It is important to note that the `skeleton`, `zombie` and `bootstrap` themes are extremes of each of the approaches - they apply their approach to _all_ node types. Depending on your theme, the best approach is probably some combination of these approaches for different node types e.g. starting from scratch for some nodes and using `shared` styles for others.
+
+There are a few key rules enforced by Stylelint:
+
+- All slectors must be descendants of a custom semantic selector. This reduces risks of a theme interfering with
+- exsitng stylesheets on a website.
+- Avoid hard-coded values for things such as font-sizes, colors, and fonts. Instead, use CSS variables, as these will
+- allow simple theme overrides within the browser without having to rebuild the theme.
+- Design your themes using a mobile-first approach, adding overrides to refine styles on larger screens.
+    At the same time, it is highly recommended to also include print media overrides with your theme.
+- These themes are primarily intended for rendering interactive articles and other relatively long forms of prose.
+    - As such, good typography is paramount. Reading Matthew Butterick‘s [Typography in Ten
+    - Minutes](https://practicaltypography.com/typography-in-ten-minutes.html) will give you a solid foundation and a
+    - reference for crafting your own themes.
+
+### Contributing to `shared` styles and scripts
+
 ### Generated code
 
 Some files in the `src` directory are auto-generated and should not be edited manually. Generated files include:
@@ -121,7 +158,7 @@ When testing locally, there are three screenshot folders to be aware of inside t
 
 There is a pseudo-test in `test/screenshot.test.js` which can be un-skipped to help with debugging the automated running of tests.
 
-## Technical Notes
+### Notes
 
 We use [Parcel](https://parceljs.org) to compile this module. One of the
 plugins we utilize to generate transportable and offline-viewable documents
