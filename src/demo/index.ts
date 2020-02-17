@@ -61,6 +61,9 @@ const exampleSet = async (example: string): Promise<void> => {
   const dom = new DOMParser().parseFromString(html, 'text/html')
   const main = document.getElementsByTagName('main')[0]
   main.innerHTML = dom.body.innerHTML
+
+  // Run the `init` function of the current theme
+  if (themeInit !== undefined) themeInit()
 }
 
 // Initialize the example selector
@@ -90,6 +93,9 @@ exampleSet(
     defaults.EXAMPLE
 )
 
+// The `init` function of the current theme
+let themeInit: () => void
+
 // Set a theme
 const themeSet = async (theme: string): Promise<void> => {
   // Update all the places that theme is set
@@ -99,9 +105,11 @@ const themeSet = async (theme: string): Promise<void> => {
   if (themeSelect !== null) themeSelect.value = theme
 
   // Load the theme's Javascript module and run it's `init()` function
-  // @ts-ignore
-  const mod = await themes[theme]
-  if (mod !== undefined && 'init' in mod) mod.init()
+  const mod = (await themes[theme as keyof typeof themes]) as any
+  if (mod !== undefined && 'init' in mod) {
+    themeInit = mod.init
+    themeInit()
+  }
 
   // Enable the theme's CSS
   document
