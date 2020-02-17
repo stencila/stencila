@@ -1,8 +1,7 @@
-@import './Entity.css';
-@import './Person.css';
+@import './CreativeWork.css';
 
 :--Article {
-  @extend: --CreativeWork;
+  @extend :--CreativeWork;
 
   max-width: var(--article-content-max-width);
   margin-left: auto;

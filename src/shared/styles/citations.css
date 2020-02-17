@@ -1,5 +1,7 @@
 /* Citation Styles */
 
+/* stylelint-disable scale-unlimited/declaration-strict-value */
+
 @custom-selector :--citation-style-MLA [data-citation-style='MLA'];
 @custom-selector :--citation-style-APA [data-citation-style='APA'];
 

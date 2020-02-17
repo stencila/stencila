@@ -1,3 +1,5 @@
+/* stylelint-disable xi/selector-pattern */
+
 /*
   Display a `<ol>` or `<ul>` as an inline list of items
   separated by some content `$separator`
