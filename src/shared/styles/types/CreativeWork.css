@@ -1,12 +1,9 @@
-/*
-  A mixin for nodes that extend `CreativeWork` (e.g. `Article`, `Figure`).
-*/
-@define-mixin CreativeWork {
+:--CreativeWork {
   /*
    `authors` property: a comma separated list of authors
   */
   :--authors {
-    @mixin list-separated;
+    @mixin list-inline;
   }
 
   :--references > :--CreativeWork {

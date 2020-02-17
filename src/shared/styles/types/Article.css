@@ -2,7 +2,7 @@
 @import './Person.css';
 
 :--Article {
-  @mixin CreativeWork;
+  @extend: --CreativeWork;
 
   max-width: var(--article-content-max-width);
   margin-left: auto;

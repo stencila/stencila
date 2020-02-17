@@ -2,7 +2,7 @@
   Display a `<ol>` or `<ul>` as an inline list of items
   separated by some content `$separator`
 */
-@define-mixin list-separated $separator: ', ' {
+@define-mixin list-inline $separator: ', ' {
   display: inline;
   list-style: none;
   margin: 0;

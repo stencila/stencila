@@ -35,7 +35,7 @@
     the email address/es (leave that to web component).
   */
   :--emails {
-    @mixin list-separated;
+    @mixin list-inline;
 
     order: 2;
 
@@ -56,7 +56,7 @@
     of integer links.
   */
   :--affiliations {
-    @mixin list-separated;
+    @mixin list-inline;
 
     order: 3;
 

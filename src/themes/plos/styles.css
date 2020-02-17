@@ -1,6 +1,7 @@
 @import '../../shared/styles/shared.css';
 @import 'prismjs/themes/prism.css';
 @import '../../shared/fonts/openSans/openSans.css';
+@import '../../shared/styles/types/Person.css';
 
 /* Microdata-based Styles */
 @import '../../designa/Entity.css';
