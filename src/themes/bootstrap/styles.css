@@ -1,4 +1,10 @@
 /**
+ * This theme is designed as an illustration of deriving a theme entirely
+ * from an existing stylesheet. It does not use an styles or mixins from
+ * the `shared` folder. See README.md for more.
+ */
+
+/**
  * Import the Bootstrap CSS, from their CDN, pinned to a specific version
  *
  * Many of Bootstrap's typographic styles target semantic HTML elements
@@ -19,21 +25,33 @@
   max-width: 70rem;
 
   :--authors {
-    /* Use a Thema mixin to make authors a comma separated, inline list */
-    @mixin list-inline ', ';
+    /* Use Bootstrap's `list-inline` class  */
+    @extend .list-inline;
 
     /* For each author... */
     :--author {
+      /* Separate authors using a comma */
+      &:after {
+        content: ', ';
+      }
+
+      &:last-child:after {
+        content: normal;
+      }
+
       /* Place a space after each given name */
       :--givenName {
-        &::after {
+        &:after {
           content: '\00a0';
         }
       }
 
       /* Display affiliations as a space separated list of Use Bootstrap label */
       :--affiliations {
-        @mixin list-inline ' ';
+        @extend .list-inline;
+
+        display: inline-block;
+        margin: -5px;
 
         :--affiliation {
           @extend .label;
@@ -43,7 +61,9 @@
 
       /* Display emails with an icon */
       :--emails {
-        @mixin list-inline ', ';
+        @extend .list-inline;
+
+        display: inline-block;
 
         :--email {
           @extend .glyphicon;
