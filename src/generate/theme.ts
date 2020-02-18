@@ -8,11 +8,11 @@
 
 import fs from 'fs'
 import path from 'path'
-import {generateThemes} from './themes'
+import { generateThemes } from './themes'
 
 if (module.parent === null) addTheme(process.argv[2])
 
-export function addTheme(name?: string) {
+export function addTheme(name?: string): void {
   // Check that a name has been supplied
   if (name === undefined) {
     console.log(`You must supply a theme name`)
@@ -30,15 +30,24 @@ export function addTheme(name?: string) {
   }
 
   // Create necessary files
-  fs.writeFileSync(path.join(themeDir, 'README.md'), `# ${name[0].toUpperCase()}${name.slice(1)}
+  fs.writeFileSync(
+    path.join(themeDir, 'README.md'),
+    `# ${name[0].toUpperCase()}${name.slice(1)}
 
-<!-- Add a description of your theme and notes for contributors. -->\n`)
+<!-- Add a description of your theme and notes for contributors. -->\n`
+  )
 
-  fs.writeFileSync(path.join(themeDir, 'index.ts'), `export function init() {
+  fs.writeFileSync(
+    path.join(themeDir, 'index.ts'),
+    `export function init() {
   // Do any DOM manipulation that your theme needs here
-}\n`)
+}\n`
+  )
 
-  fs.writeFileSync(path.join(themeDir, 'styles.css'), `/* Add your theme's styles to this file */\n`)
+  fs.writeFileSync(
+    path.join(themeDir, 'styles.css'),
+    `/* Add your theme's styles to this file */\n`
+  )
 
   // Update `themes.ts` etc
   generateThemes()
