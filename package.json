@@ -80,6 +80,7 @@
     "postcss-url": "8.0.0",
     "prismjs": "1.19.0",
     "stylelint": "13.0.0",
+    "stylelint-config-prettier": "^8.0.1",
     "stylelint-config-standard": "19.0.0",
     "stylelint-declaration-block-no-ignored-properties": "2.2.0",
     "stylelint-declaration-strict-value": "1.1.8",
