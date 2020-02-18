@@ -32,11 +32,11 @@ export function select(...args: (string | Document | Element)[]): Element[] {
  * @param {...Element[]} children Additional child elements to add
  * @returns {Element}
  */
-export function create(spec = 'div', ...children: Element[]): Element {
-  if (spec.startsWith('<')) {
+export function create(spec = 'div', ...children: (string | number | Element)[]): Element {
+  if (/^\s*</.test(spec)) {
     const wrapper = document.createElement('div')
     wrapper.innerHTML = spec
-    return wrapper.firstChild as Element
+    return wrapper.firstElementChild as Element
   }
 
   const tag = spec.match(/^[a-z0-9]+/i)?.[0] ?? 'div'
@@ -66,6 +66,24 @@ export function create(spec = 'div', ...children: Element[]): Element {
   )
 
   return elem
+}
+
+export function before(target: Element, insert: Element) {
+  target?.parentNode?.insertBefore(insert, target)
+}
+
+export function after(target: Element, ...insert: Element[]) {
+  const parent = target.parentNode
+  if (parent) {
+    insert.reverse().forEach(elem => parent.insertBefore(elem, target.nextSibling))
+  }
+}
+
+export function replace(target: string | Element, replacement: string | Element): void {
+ if (typeof target === 'string') target = select(target)[0]
+ if (typeof replacement === 'string') replacement = create(replacement)
+
+ target.parentNode?.replaceChild(replacement, target)
 }
 
 /**
