@@ -55,7 +55,6 @@ const generateItemTypes = (): [string, string][] => {
       case 'Include':
       case 'InlineContent':
       case 'IntegerValidator':
-      case 'ListItem':
       case 'Mark':
       case 'Node':
       case 'NumberValidator':
