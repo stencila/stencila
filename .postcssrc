@@ -17,6 +17,9 @@
     "postcss-nested": true,
     "autoprefixer": true,
     "postcss-extend": true,
+    "cssnano": {
+      "preset": "default"
+    },
     "postcss-combine-media-query": true,
     "postcss-sort-media-queries": true,
   }
