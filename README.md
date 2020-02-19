@@ -123,11 +123,9 @@ There are three broad approaches to developing a new theme, each epitomized in t
 
 - the [`skeleton`](./src/themes/skeleton/README.md) approach: flesh things out yourself; start from scratch with nothing but be unaffected from changes to `shared` styles and scripts
 
-- the [`zombie`](./src/themes/zombie/README.md) approach: leverage existing styles and scripts in `shared` but be affected by any changes to them
-
 - the [`bootstrap`](./src/themes/bootstrap/README.md) approach: reuse existing stylesheets from elsewhere by mapping between Thema's semantic selectors and existing selectors in those stylesheets
 
-It is important to note that the `skeleton`, `zombie` and `bootstrap` themes are extremes of each of the approaches - they apply their approach to _all_ document node types. Depending on your theme, the best approach is probably some combination of these approaches for different node types e.g. starting from scratch for some nodes and using `shared` styles for others.
+It is important to note that the `skeleton` and `bootstrap` themes are extremes of each of the approaches - they apply their approach to _all_ document node types. Depending on your theme, the best approach is probably some combination of these approaches for different node types e.g. starting from scratch for some nodes and using `shared` styles for others.
 
 There are a few key rules enforced by Stylelint:
 
