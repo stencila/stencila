@@ -2,7 +2,7 @@
  * Convenience functions for modifying the elements in the DOM.
  */
 
-import { semanticToAttributeSelectors } from '../../selectors'
+import { semanticToAttributeSelectors } from '../selectors'
 
 /**
  * Select all DOM elements matching a CSS selector
@@ -21,6 +21,13 @@ export function select(...args: (string | Document | Element)[]): Element[] {
     elem.querySelectorAll(semanticToAttributeSelectors(selector))
   )
 }
+
+/**
+ * Type definition for something that can be used as a wrapper for
+ * HTML elements: an existing element, HTML for an element, a function
+ * that creates an element.
+ */
+type Creator = string | Element | ((elems?: Element[]) => Element)
 
 /**
  * Create a DOM element using a fragment of HTML or a CSS selector
@@ -87,22 +94,15 @@ export function replace(target: string | Element, replacement: string | Element)
 }
 
 /**
- * Type definition for something that can be used as a wrapper for
- * HTML elements: an existing element, HTML for an element, a function
- * that creates an element.
- */
-type Wrapper = Element | string | ((elems: Element[]) => Element)
-
-/**
  * Wrap a DOM element in a wrapper.
  *
  * @param {string} within CSS selector for the elements within which wrapping happens
  * @param {string} target CSS selector for the elements to be wrapped
- * @param {Wrapper} wrapper The wrapper to create
+ * @param {Creator} wrapper The wrapper to create
  */
-export function wrap(target: string, wrapper: Wrapper): void
-export function wrap(within: string, target: string, wrapper: Wrapper): void
-export function wrap(...args: (string | Wrapper | undefined)[]): void {
+export function wrap(target: string, wrapper: Creator): void
+export function wrap(within: string, target: string, wrapper: Creator): void
+export function wrap(...args: (string | Creator | undefined)[]): void {
   const wrapper = args.pop() ?? 'div'
   const target = args.pop() as string
   if (target === undefined)
