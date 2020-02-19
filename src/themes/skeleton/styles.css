@@ -2,9 +2,10 @@
 
 @import '../../selectors.css';
 
-@import '../../addons/mathjax/styles.css';
-@import '../../addons/prism/styles.css';
-@import '../../addons/stencilaComponents/styles.css';
+@import '../../components/default/styles.css';
+@import '../../components/math/styles.css';
+@import '../../components/code/styles.css';
+@import '../../components/person/styles.css';
 
 :--ArrayValidator {
 }

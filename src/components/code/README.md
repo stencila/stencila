@@ -1,6 +1,6 @@
-# Prism addon
+# `CodeFragment` and `CodeBlock` pseudo-components
 
-Syntax highlighting for `CodeFragment` and `CodeBlock` nodes using [Prism](https://prismjs.com/). You can also use this addon to style executable node types like `CodeExpression` and `CodeChunk` if you do not use the `stencila-components` addon.
+Syntax highlighting for `CodeFragment` and `CodeBlock` nodes using [Prism](https://prismjs.com/). Will also style executable node types like `CodeExpression` and `CodeChunk` if you do not use the `default` components.
 
 ## Notes
 

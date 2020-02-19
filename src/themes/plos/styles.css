@@ -5,8 +5,9 @@
 
 /* stylelint-disable xi/selector-pattern,scale-unlimited/declaration-strict-value,no-duplicate-selectors */
 
-@import '../../addons/mathjax/styles.css';
-@import '../../addons/prism/styles.css';
+@import '../../components/math/styles.css';
+@import '../../components/code/styles.css';
+@import '../../components/person/styles.css';
 
 @import '../../fonts/openSans/openSans.css';
 

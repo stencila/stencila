@@ -1,7 +1,7 @@
 /**
  * A script to generate `./styles.css`.
  *
- * Run using `npx ts-node --files src/addons/mathjax/update.ts`.
+ * Run using `npx ts-node --files src/components/math/update.ts`.
  */
 
 import fs from 'fs'
