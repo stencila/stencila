@@ -1,19 +1,72 @@
+import fs from 'fs'
+import globby from 'globby'
+import path from 'path'
+
+if (module.parent === null) {
+  const [func, arg1] = process.argv.slice(2)
+  if (func === 'create') create(arg1)
+  else if (func === 'update') update()
+  else console.error(`Unrecognised function: ${func}`)
+}
+
 /**
- * A script to generate `../themes/themes.ts`
+ * Create a new theme folder in `../themes/`.
+ *
+ * Run using `npm run create:theme -- <name-of-theme>`.
+ *
+ * Creates the folder and populates with the necessary files
+ * containing placeholder content.
+ */
+function create(name?: string): void {
+  // Check that a name has been supplied
+  if (name === undefined) {
+    console.log(`You must supply a theme name`)
+    process.exit(1)
+  }
+
+  const themeDir = path.join(__dirname, '..', 'themes', name)
+
+  // Check that the theme does not already exist
+  if (fs.existsSync(themeDir)) {
+    console.log(`Theme "${name}" already exists: ${themeDir}`)
+    process.exit(1)
+  } else {
+    fs.mkdirSync(themeDir)
+  }
+
+  // Create necessary files
+  fs.writeFileSync(
+    path.join(themeDir, 'README.md'),
+    `# ${name[0].toUpperCase()}${name.slice(1)}
+
+<!-- Add a description of your theme and notes for contributors. -->\n`
+  )
+
+  fs.writeFileSync(
+    path.join(themeDir, 'index.ts'),
+    `export function init() {
+  // Do any DOM manipulation that your theme needs here
+}\n`
+  )
+
+  fs.writeFileSync(
+    path.join(themeDir, 'styles.css'),
+    `/* Add your theme's styles to this file */\n`
+  )
+
+  // Update `themes.ts` etc
+  update()
+}
+
+/**
+ * Generate `../themes/themes.ts`.
  *
  * Run using `npm run generate:themes`.
  *
  * This doesn't actually build any themes, it just checks that
  * they have the necessary files and makes an index of them.
  */
-
-import fs from 'fs'
-import globby from 'globby'
-import path from 'path'
-
-if (module.parent === null) generateThemes()
-
-export function generateThemes(): void {
+function update(): void {
   const themesDir = path.join(__dirname, '..', 'themes')
 
   // Get the list of themes
