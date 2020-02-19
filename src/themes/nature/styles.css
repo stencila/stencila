@@ -26,10 +26,10 @@
   --heading-color: #eee;
 
   /* Font Families */
-  --font-family-body: Harding, Biolinum, Palatino, Times, 'Times New Roman',
+  --font-family-body: harding, biolinum, palatino, times, 'Times New Roman',
     serif;
-  --font-family-secondary: -apple-system, system-ui, 'Segoe UI', Roboto,
-    Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  --font-family-secondary: -apple-system, system-ui, 'Segoe UI', roboto,
+    oxygen-sans, ubuntu, cantarell, 'Helvetica Neue', sans-serif;
   --font-family-mono: 'IBM Plex Mono', 'Fira Code', 'monospace';
 
   /* Font Sizes */

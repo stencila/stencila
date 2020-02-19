@@ -35,7 +35,6 @@
   */
   :--emails {
     order: 2;
-
     display: inline;
     list-style: none;
     margin: 0;
@@ -62,7 +61,6 @@
   */
   :--affiliations {
     order: 3;
-
     display: inline;
     list-style: none;
     margin: 0;
@@ -75,7 +73,7 @@
     :--affiliation {
       display: inline;
       vertical-align: super;
-      font-size: small;
+      font-size: var(--font-size-80);
     }
   }
 }

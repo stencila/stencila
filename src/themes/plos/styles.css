@@ -15,7 +15,7 @@
   --bg-color: #fff;
   --body-font-size: var(--font-size-body);
   --body-font-weight: 400;
-  --body-font: Helvetica, Arial, sans-serif;
+  --body-font: helvetica, arial, sans-serif;
   --border-color: #e0e0e0;
   --figure-bg-color: #efefef;
   --font-size-body: 13px;
@@ -28,7 +28,7 @@
   --max-width-media: 980px;
   --max-width: 650px;
   --secondary-font-weight: 600;
-  --secondary-font: 'Open Sans', Helvetica, Arial, sans-serif;
+  --secondary-font: 'Open Sans', helvetica, arial, sans-serif;
   --text-color: #202020;
 
   * {
