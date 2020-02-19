@@ -1,11 +1,58 @@
 /**
  * Convenience functions for modifying the elements in the DOM.
+ *
+ * Most of the names of these functions mirror their analogs in https://api.jquery.com.
  */
 
 import { semanticToAttributeSelectors } from '../selectors'
 
 /**
- * Select all DOM elements matching a CSS selector
+ * Register a function to be executed when the DOM is fully loaded.
+ *
+ * Like https://api.jquery.com/ready/.
+ * Logic from https://stackoverflow.com/questions/9899372/pure-javascript-equivalent-of-jquerys-ready-how-to-call-a-function-when-t
+ *
+ * @param func Function to register
+ */
+export function ready(func: () => unknown): void {
+  if (readyFired) {
+    // Run the function asynchronously, but right away
+    setTimeout(func, 1)
+    return
+  } else {
+    // Add to the list of functions to run when the DOM is ready
+    readyList.push(func)
+  }
+
+  if (document.readyState !== 'complete') {
+    // Document is ready so run whenReady asynchronously, but right away
+    setTimeout(whenReady, 1)
+  } else if (!readyListening) {
+    // Add a listener to run whenReady when the DOM is ready
+    document.addEventListener('DOMContentLoaded', whenReady)
+    readyListening = true
+  }
+}
+
+let readyList: (() => unknown)[] = []
+let readyListening = false
+let readyFired = false
+
+/**
+ * When the DOM is ready, call all of the functions registered
+ * using `ready()`.
+ *
+ * Clears `readyList` to allow for garbage collection of closures.
+ */
+function whenReady(): void {
+  if (readyFired) return
+  readyFired = true
+  readyList.forEach(func => func())
+  readyList = []
+}
+
+/**
+ * Select all elements matching a CSS selector
  *
  * @param {string} selector The selector to match
  * @param {Element} elem The element to query (defaults to the `window.document`)
@@ -30,7 +77,7 @@ export function select(...args: (string | Document | Element)[]): Element[] {
 type Creator = string | Element | ((elems?: Element[]) => Element)
 
 /**
- * Create a DOM element using a fragment of HTML or a CSS selector
+ * Create an element using a fragment of HTML or a CSS selector
  *
  * Credit to [dom-create-element-query-selector](https://github.com/hekigan/dom-create-element-query-selector)
  * for the regexes.
@@ -78,6 +125,14 @@ export function create(
   return elem
 }
 
+/**
+ * Insert a new element before an element.
+ *
+ * Like https://api.jquery.com/before/.
+ *
+ * @param target
+ * @param insert
+ */
 export function before(target: Element, insert: Element): void {
   const parent = target.parentNode
   if (parent !== null) {
@@ -85,6 +140,14 @@ export function before(target: Element, insert: Element): void {
   }
 }
 
+/**
+ * Insert a new element after an element.
+ *
+ * Like https://api.jquery.com/after/.
+ *
+ * @param target
+ * @param insert
+ */
 export function after(target: Element, ...insert: Element[]): void {
   const parent = target.parentNode
   if (parent !== null) {
@@ -94,6 +157,14 @@ export function after(target: Element, ...insert: Element[]): void {
   }
 }
 
+/**
+ * Replace an element with a new element.
+ *
+ * Like https://api.jquery.com/replaceWith/.
+ *
+ * @param {(string | Element)} target
+ * @param {(string | Element)} replacement
+ */
 export function replace(
   target: string | Element,
   replacement: string | Element
@@ -108,7 +179,9 @@ export function replace(
 }
 
 /**
- * Wrap a DOM element in a wrapper.
+ * Wrap an element with a new element.
+ *
+ * Like https://api.jquery.com/wrap/.
  *
  * @param {string} within CSS selector for the elements within which wrapping happens
  * @param {string} target CSS selector for the elements to be wrapped

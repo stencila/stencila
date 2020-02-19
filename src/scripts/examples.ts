@@ -1,7 +1,7 @@
 /**
  * A script to generate example `*.html` files and `../examples/examples.ts`.
  *
- * Run using `npm run generate:examples`.
+ * Run using `npm run update:examples`.
  *
  * To add an example,
  *
