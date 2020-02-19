@@ -1,4 +1,4 @@
-import { create, select, wrap } from './dom'
+import { create } from './dom'
 
 describe('create', () => {
   it('works with HTML', () => {
@@ -40,7 +40,7 @@ describe('create', () => {
   })
 
   it('works with a combination of selectors', () => {
-    let elem = create('span#foo.bar[attr="baz"]')
+    const elem = create('span#foo.bar[attr="baz"]')
 
     expect(elem.tagName).toEqual('SPAN')
     expect(elem.id).toEqual('foo')

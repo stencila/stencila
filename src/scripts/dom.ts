@@ -14,7 +14,7 @@ import { semanticToAttributeSelectors } from '../selectors'
 export function select(selector: string): Element[]
 export function select(elem: Document | Element, selector: string): Element[]
 export function select(...args: (string | Document | Element)[]): Element[] {
-  const [elem, selector] = (args.length == 1
+  const [elem, selector] = (args.length === 1
     ? [document, args[0]]
     : args.slice(0, 2)) as [Element, string]
   return Array.from(
@@ -39,14 +39,17 @@ type Creator = string | Element | ((elems?: Element[]) => Element)
  * @param {...Element[]} children Additional child elements to add
  * @returns {Element}
  */
-export function create(spec = 'div', ...children: (string | number | Element)[]): Element {
+export function create(
+  spec = 'div',
+  ...children: (string | number | Element)[]
+): Element {
   if (/^\s*</.test(spec)) {
     const wrapper = document.createElement('div')
     wrapper.innerHTML = spec
     return wrapper.firstElementChild as Element
   }
 
-  const tag = spec.match(/^[a-z0-9]+/i)?.[0] ?? 'div'
+  const tag = /^[a-z0-9]+/i.exec(spec)?.[0] ?? 'div'
   const id = spec.match(/#([a-z]+[a-z0-9-]*)/gi) ?? []
   const classes = spec.match(/\.([a-z]+[a-z0-9-]*)/gi) ?? []
   const attrs = spec.match(/\[([a-z][a-z-]+)(=['|"]?([^\]]*)['|"]?)?\]/gi) ?? []
@@ -63,7 +66,7 @@ export function create(spec = 'div', ...children: (string | number | Element)[])
   attrs.forEach(item => {
     let [label, value] = item.slice(1, -1).split('=')
     if (value !== undefined) value = value.replace(/^['"](.*)['"]$/, '$1')
-    elem.setAttribute(label, value || '')
+    elem.setAttribute(label, value ?? '')
   })
 
   children.forEach(item =>
@@ -75,22 +78,33 @@ export function create(spec = 'div', ...children: (string | number | Element)[])
   return elem
 }
 
-export function before(target: Element, insert: Element) {
-  target?.parentNode?.insertBefore(insert, target)
-}
-
-export function after(target: Element, ...insert: Element[]) {
+export function before(target: Element, insert: Element): void {
   const parent = target.parentNode
-  if (parent) {
-    insert.reverse().forEach(elem => parent.insertBefore(elem, target.nextSibling))
+  if (parent !== null) {
+    parent.insertBefore(insert, target)
   }
 }
 
-export function replace(target: string | Element, replacement: string | Element): void {
- if (typeof target === 'string') target = select(target)[0]
- if (typeof replacement === 'string') replacement = create(replacement)
+export function after(target: Element, ...insert: Element[]): void {
+  const parent = target.parentNode
+  if (parent !== null) {
+    insert
+      .reverse()
+      .forEach(elem => parent.insertBefore(elem, target.nextSibling))
+  }
+}
 
- target.parentNode?.replaceChild(replacement, target)
+export function replace(
+  target: string | Element,
+  replacement: string | Element
+): void {
+  if (typeof target === 'string') target = select(target)[0]
+  if (typeof replacement === 'string') replacement = create(replacement)
+
+  const parent = target.parentNode
+  if (parent !== null) {
+    parent.replaceChild(replacement, target)
+  }
 }
 
 /**
@@ -121,7 +135,10 @@ export function wrap(...args: (string | Creator | undefined)[]): void {
 
     if (wrapees.length > 0) {
       const first = wrapees[0]
-      first?.parentNode?.insertBefore(wrapperElem, wrapees[0])
+      const parent = first.parentNode
+      if (parent !== null) {
+        parent.insertBefore(wrapperElem, wrapees[0])
+      }
     }
     wrapees.forEach(wrapee => wrapperElem.appendChild(wrapee))
   })

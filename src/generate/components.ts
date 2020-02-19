@@ -73,10 +73,10 @@ function update(all = true): void {
     cwd: componentsDir
   })
 
-  components.forEach(async component => {
+  components.forEach(component => {
     const componentDir = path.join(componentsDir, component)
 
-    // Check each component has the necessary files
+      // Check each component has the necessary files
     ;['README.md', 'styles.css', ['index.js', 'index.ts']].forEach(file => {
       const files = globby.sync(file, {
         onlyFiles: true,
@@ -90,14 +90,12 @@ function update(all = true): void {
 
     // Run the update script if it is present
     if (all) {
-      try {
-        await import(path.join(componentDir, 'update'))
-      } catch (error) {
-        if (!/^Cannot find module/.test(error.message)) {
+      import(path.join(componentDir, 'update')).catch((error: Error) => {
+        if (!error.message.startsWith('Cannot find module')) {
           console.error(error)
           process.exit(1)
         }
-      }
+      })
     }
   })
 
@@ -112,7 +110,9 @@ function update(all = true): void {
 export const components: {
   ${components.map(component => `${component}: Promise<unknown>`).join('\n  ')}
 } = {
-  ${components.map(component => `${component}: import('./${component}')`).join(',\n  ')}
+  ${components
+    .map(component => `${component}: import('./${component}')`)
+    .join(',\n  ')}
 }\n`
   )
 }
