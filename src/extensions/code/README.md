@@ -1,6 +1,6 @@
-# `CodeFragment` and `CodeBlock` pseudo-components
+# Code nodes extension
 
-Syntax highlighting for `CodeFragment` and `CodeBlock` nodes using [Prism](https://prismjs.com/). Will also style executable node types like `CodeExpression` and `CodeChunk` if you do not use the `default` components.
+Provides syntax highlighting for `CodeFragment` and `CodeBlock` nodes using [Prism](https://prismjs.com/). Will not style executable node types like `CodeExpression` and `CodeChunk` which are styled by the base Stencila Web Components.
 
 ## Notes
 

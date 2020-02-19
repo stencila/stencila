@@ -1,4 +1,4 @@
-# `MathFragment` and `MathBlock` pseudo-components
+# Math styling extension.
 
 Provides styling of math nodes using MathJax fonts and styles. Use this if there is any likely to be math content, i.e. `MathFragment` and/or `MathBlock` nodes, in documents that your theme targets.
 

@@ -28,6 +28,8 @@ import { after, create, replace, select, ready } from '../../scripts/dom'
  * ```
  */
 ready(() => {
+  // This is a proposal, but due to conflicts with existing styles, is currently
+  // not enabled.
   return
   select('[itemtype="http://schema.org/Person"] span[itemprop=name]').forEach(
     span => {
