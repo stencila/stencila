@@ -5,12 +5,7 @@
 
 /* stylelint-disable xi/selector-pattern,scale-unlimited/declaration-strict-value,no-duplicate-selectors */
 
-@import '../../shared/styles/shared.css';
 @import '../../shared/fonts/biolinum/biolinum.css';
-
-/* Microdata-based Styles */
-@import '../../designa/Entity.css';
-@import '../../designa/Person.css';
 
 /* Media Query sizes */
 @custom-media --mq-sm (min-width: 640px);

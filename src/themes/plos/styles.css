@@ -5,14 +5,8 @@
 
 /* stylelint-disable xi/selector-pattern,scale-unlimited/declaration-strict-value,no-duplicate-selectors */
 
-@import '../../shared/styles/shared.css';
 @import 'prismjs/themes/prism.css';
 @import '../../shared/fonts/openSans/openSans.css';
-@import '../../shared/styles/types/Person.css';
-
-/* Microdata-based Styles */
-@import '../../designa/Entity.css';
-@import '../../designa/Person.css';
 
 :--Article {
   --bg-color: #fff;
