@@ -61,7 +61,7 @@ function create(name?: string): void {
 /**
  * Generate `../themes/themes.ts`.
  *
- * Run using `npm run generate:themes`.
+ * Run using `npm run update:themes`.
  *
  * This doesn't actually build any themes, it just checks that
  * they have the necessary files and makes an index of them.
