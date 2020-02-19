@@ -2,6 +2,10 @@
 
 @import '../../selectors.css';
 
+@import '../../addons/mathjax/styles.css';
+@import '../../addons/prism/styles.css';
+@import '../../addons/stencilaComponents/styles.css';
+
 :--ArrayValidator {
 }
 
