@@ -5,7 +5,10 @@
 
 /* stylelint-disable xi/selector-pattern,scale-unlimited/declaration-strict-value,no-duplicate-selectors */
 
-@import '../../shared/fonts/biolinum/biolinum.css';
+@import '../../addons/mathjax/styles.css';
+@import '../../addons/prism/styles.css';
+
+@import '../../fonts/biolinum/biolinum.css';
 
 /* Media Query sizes */
 @custom-media --mq-sm (min-width: 640px);

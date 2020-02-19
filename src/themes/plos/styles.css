@@ -5,8 +5,10 @@
 
 /* stylelint-disable xi/selector-pattern,scale-unlimited/declaration-strict-value,no-duplicate-selectors */
 
-@import 'prismjs/themes/prism.css';
-@import '../../shared/fonts/openSans/openSans.css';
+@import '../../addons/mathjax/styles.css';
+@import '../../addons/prism/styles.css';
+
+@import '../../fonts/openSans/openSans.css';
 
 :--Article {
   --bg-color: #fff;
