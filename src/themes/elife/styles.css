@@ -10,8 +10,8 @@
  * Ensure fonts still resolve when not viewed on ELife website
  * This could potentially be extracted into a separate file, for more granular imports
  */
-@import '../../shared/fonts/notoSerif/notoSerif.css';
-@import '../../shared/fonts/notoSans/notoSans.css';
+@import '../../fonts/notoSerif/notoSerif.css';
+@import '../../fonts/notoSans/notoSans.css';
 
 /* stylelint-disable xi/selector-pattern */
 main {

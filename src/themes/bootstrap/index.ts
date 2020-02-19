@@ -1,4 +1,4 @@
-import { wrap } from '../../shared/js/dom'
+import { wrap } from '../../scripts/dom'
 
 export function init() {
   // Add wrappers around elements in the abstract to be able to use
