@@ -55,7 +55,7 @@
     "@stencila/dev-config": "1.4.11",
     "@stencila/encoda": "0.85.3",
     "@stencila/schema": "0.37.3",
-    "@types/mocha": "7.0.1",
+    "@types/jest": "25.1.2",
     "@types/prismjs": "1.16.0",
     "@wdio/cli": "5.18.7",
     "@wdio/concise-reporter": "5.18.7",

@@ -105,10 +105,11 @@ const themeSet = async (theme: string): Promise<void> => {
   if (themeSelect !== null) themeSelect.value = theme
 
   // Load the theme's Javascript module and run it's `init()` function
-  const mod = (await themes[theme as keyof typeof themes]) as object
-  if (mod !== undefined && 'init' in mod) {
-    themeInit = mod.init
-    themeInit()
+  const mod = (await themes[theme as keyof typeof themes]) as {
+    init?: () => void
+  }
+  if (mod?.init !== undefined) {
+    mod.init()
   }
 
   // Enable the theme's CSS
