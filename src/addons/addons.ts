@@ -6,7 +6,9 @@
 export const addons: {
   mathjax: Promise<unknown>
   prism: Promise<unknown>
+  stencilaComponents: Promise<unknown>
 } = {
   mathjax: import('./mathjax'),
-  prism: import('./prism')
+  prism: import('./prism'),
+  stencilaComponents: import('./stencilaComponents')
 }
