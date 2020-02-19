@@ -1,4 +1,4 @@
-import '../../components/code'
-//import '../../components/default'
-import '../../components/math'
-import '../../components/person'
+import '../../extensions/code'
+import '../../extensions/math'
+import '../../extensions/person'
+import '../../extensions/cite-apa'

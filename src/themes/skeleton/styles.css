@@ -2,10 +2,10 @@
 
 @import '../../selectors.css';
 
-@import '../../components/default/styles.css';
-@import '../../components/math/styles.css';
-@import '../../components/code/styles.css';
-@import '../../components/person/styles.css';
+@import '../../extensions/cite-apa/styles.css';
+@import '../../extensions/code/styles.css';
+@import '../../extensions/math/styles.css';
+@import '../../extensions/person/styles.css';
 
 :--ArrayValidator {
 }
