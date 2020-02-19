@@ -15,10 +15,11 @@
     - [Scripted creation](#scripted-creation)
     - [Manual creation](#manual-creation)
     - [Approaches](#approaches)
-  - [Contributing to `shared` styles and scripts](#contributing-to-shared-styles-and-scripts)
+  - [Extensions](#extensions)
+- [Notes](#notes)
   - [Generated code](#generated-code)
   - [Testing](#testing)
-  - [Notes](#notes)
+  - [Notes](#notes-1)
 - [Acknowledgments](#acknowledgments)
 
 ## Quick Start
@@ -134,13 +135,29 @@ There are a few key rules enforced by Stylelint:
 - Avoid hard-coded values for things such as font-sizes, colors, and fonts. Instead, use CSS variables, as these will
 - allow simple theme overrides within the browser without having to rebuild the theme.
 - Design your themes using a mobile-first approach, adding overrides to refine styles on larger screens.
-    At the same time, it is highly recommended to also include print media overrides with your theme.
+  At the same time, it is highly recommended to also include print media overrides with your theme.
 - These themes are primarily intended for rendering interactive articles and other relatively long forms of prose.
-    - As such, good typography is paramount. Reading Matthew Butterick‘s [Typography in Ten
-    - Minutes](https://practicaltypography.com/typography-in-ten-minutes.html) will give you a solid foundation and a
-    - reference for crafting your own themes.
+  - As such, good typography is paramount. Reading Matthew Butterick‘s [Typography in Ten
+  - Minutes](https://practicaltypography.com/typography-in-ten-minutes.html) will give you a solid foundation and a
+  - reference for crafting your own themes.
 
-### Contributing to `shared` styles and scripts
+### Extensions
+
+The [default set of Web Components](https://github.com/stencila/designa/tree/master/packages/components) to provide interactivity to document nodes.
+
+Currently, the following node types have Web Components. Encoda will encode these nodes types as custom HTML elements that get hydrated into these components.
+
+| Node type        | Custom element               |
+| ---------------- | ---------------------------- |
+| `CodeChunk`      | `<stencila-code-chunk>`      |
+| `CodeExpression` | `<stencila-code-expression>` |
+
+More components will be added over time. In the meantime, the "pseudo-components" in sibling folders to this one, provide styling for some other node types.
+
+## Notes
+
+- Theme authors should be able to override the styles of the web components as part of their theme.
+
 
 ### Generated code
 
