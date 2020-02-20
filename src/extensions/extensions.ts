@@ -4,17 +4,17 @@
  * Map of extension Javascript modules
  */
 export const extensions: {
-  'cite': Promise<unknown>
+  cite: Promise<unknown>
   'cite-apa': Promise<unknown>
   'cite-mla': Promise<unknown>
-  'code': Promise<unknown>
-  'math': Promise<unknown>
-  'person': Promise<unknown>
+  code: Promise<unknown>
+  math: Promise<unknown>
+  person: Promise<unknown>
 } = {
-  'cite': import('./cite'),
+  cite: import('./cite'),
   'cite-apa': import('./cite-apa'),
   'cite-mla': import('./cite-mla'),
-  'code': import('./code'),
-  'math': import('./math'),
-  'person': import('./person')
+  code: import('./code'),
+  math: import('./math'),
+  person: import('./person')
 }

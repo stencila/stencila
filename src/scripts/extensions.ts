@@ -109,11 +109,21 @@ function update(all = true): void {
  */
 export const extensions: {
   ${extensions
-    .map(extension => `'${extension}': Promise<unknown>`)
+    .map(
+      extension =>
+        `${
+          /^\w+$/.test(extension) ? extension : `'${extension}'`
+        }: Promise<unknown>`
+    )
     .join('\n  ')}
 } = {
   ${extensions
-    .map(extension => `'${extension}': import('./${extension}')`)
+    .map(
+      extension =>
+        `${
+          /^\w+$/.test(extension) ? extension : `'${extension}'`
+        }: import('./${extension}')`
+    )
     .join(',\n  ')}
 }\n`
   )
