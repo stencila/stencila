@@ -24,7 +24,7 @@ const url = new URL(window.location.href)
  * The keys used to refer to which example and
  * which theme the user wants to see.
  */
-const enum keys {
+enum keys {
   EXAMPLE = 'example',
   THEME = 'theme',
   HEADER = 'header'
@@ -42,6 +42,9 @@ const defaults: {
   THEME: 'stencila',
   HEADER: 'true'
 }
+
+// The `init` function of the current theme
+let themeInit: () => void
 
 // Set an example
 const exampleSet = (example: string): void => {
@@ -92,9 +95,6 @@ exampleSet(
     sessionStorage.getItem(keys.EXAMPLE) ??
     defaults.EXAMPLE
 )
-
-// The `init` function of the current theme
-let themeInit: () => void
 
 // Set a theme
 const themeSet = async (theme: string): Promise<void> => {
