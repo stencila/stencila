@@ -112,7 +112,7 @@ export const themes: {
       `$1\n    ${themes
         .map(
           theme =>
-            `<link id="${theme}" class="theme" rel="stylesheet" href="themes/${theme}/styles.css" disabled />`
+            `<link id="${theme}" class="theme" rel="stylesheet" href="./themes/${theme}/styles.css" disabled />`
         )
         .join('\n    ')}\n    $2`
     )
