@@ -44,9 +44,7 @@ function create(name?: string): void {
 
   fs.writeFileSync(
     path.join(themeDir, 'index.ts'),
-    `
-// Import any extensions and do any DOM manipulation that your theme needs in this file
-`
+    `// Import any extensions and do any DOM manipulation that your theme needs in this file\n`
   )
 
   fs.writeFileSync(
