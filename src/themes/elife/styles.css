@@ -4,7 +4,7 @@
  * @import 'eLife-pattern-library/assets/sass/build.scss';
  * due to the above issues we import and inline the built CSS file from the web
  */
-@import 'https://elifesciences.org/assets/patterns/css/all.d21534c9.css';
+@import 'https://elifesciences.org/assets/patterns/css/all.c3524e0d.css';
 
 /**
  * Ensure fonts still resolve when not viewed on ELife website
