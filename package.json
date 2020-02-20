@@ -7,22 +7,27 @@
   ],
   "main": "./dist/index.js",
   "scripts": {
-    "postinstall": "npm run generate",
-    "generate": "npm run generate:selectors && npm run generate:mathjax && npm run generate:examples && npm run generate:themes",
-    "generate:selectors": "ts-node --files src/generate/selectors.ts",
-    "generate:mathjax": "ts-node --files src/generate/mathjax.ts",
-    "generate:examples": "ts-node --files src/generate/examples.ts",
-    "generate:themes": "ts-node --files src/generate/themes.ts",
+    "postinstall": "npm run update",
+    "update": "npm run update:selectors && npm run update:examples && npm run update:themes && npm run update:extensions",
+    "update:selectors": "ts-node --files src/scripts/selectors.ts",
+    "update:examples": "ts-node --files src/scripts/examples.ts",
+    "create:theme": "ts-node --files src/scripts/themes.ts create",
+    "update:themes": "ts-node --files src/scripts/themes.ts update",
+    "create:extension": "ts-node --files src/scripts/extensions.ts create",
+    "update:extensions": "ts-node --files src/scripts/extensions.ts update",
     "build": "parcel build ./src/index.ts ./src/{common,themes}/**/*.{css,ts} && tsc --emitDeclarationOnly",
     "dev": "parcel ./src/index.html ./src/examples/*.html --open",
     "docs": "parcel build ./src/index.html ./src/examples/*.html -d docs --public-url .",
-    "lint": "stylelint \"./src/**/*.css\"",
-    "lint:fix": "npm run lint -- --fix",
+    "lint": "npm run lint:styles && npm run lint:scripts",
+    "lint:fix": "npm run lint:styles -- --fix && npm run lint:scripts -- --fix",
+    "lint:styles": "stylelint \"./src/**/*.css\"",
     "lint:scripts": "eslint --ext ./src/**/*.ts",
     "format": "prettier --write './**/*.{css,js,json,md,ts,yaml}'",
-    "test": "npm run test:build && npm run test:run",
-    "test:build": "parcel build ./src/index.html ./src/examples/*.html -d test/build --public-url . && tsc --outDir test/build",
-    "test:run": "wdio",
+    "test": "npm run test:unit && npm run test:visual",
+    "test:unit": "jest",
+    "test:visual": "npm run test:visual:build && npm run test:visual:run",
+    "test:visual:build": "parcel build ./src/index.html ./src/examples/*.html -d test/build --public-url . && tsc --outDir test/build",
+    "test:visual:run": "wdio",
     "watch": "parcel watch ./src/**/*.css ./src/**/*.ts",
     "clean": "rm -rf .cache dist docs test/build"
   },
@@ -42,12 +47,15 @@
     "url": "https://github.com/stencila/thema/issues"
   },
   "homepage": "https://github.com/stencila/thema#readme",
+  "dependencies": {
+    "@stencila/components": "^0.9.0"
+  },
   "devDependencies": {
     "@abide-community/parcel-plugin-clean-out-dir": "1.0.0",
     "@stencila/dev-config": "1.4.11",
     "@stencila/encoda": "0.85.3",
     "@stencila/schema": "0.37.3",
-    "@types/mocha": "7.0.1",
+    "@types/jest": "25.1.2",
     "@types/prismjs": "1.16.0",
     "@wdio/cli": "5.18.7",
     "@wdio/concise-reporter": "5.18.7",
@@ -63,6 +71,7 @@
     "cssnano-preset-default": "4.0.7",
     "geckodriver": "1.19.1",
     "globby": "11.0.0",
+    "jest": "25.1.0",
     "mathjax-node": "2.1.1",
     "normalize.css": "8.0.1",
     "parcel-bundler": "1.12.4",
@@ -86,6 +95,7 @@
     "stylelint-declaration-strict-value": "1.1.8",
     "stylelint-selector-pattern": "0.0.2",
     "stylelint-selector-tag-no-without-class": "2.0.2",
+    "ts-jest": "25.2.0",
     "ts-node": "8.6.2",
     "typescript": "3.7.5",
     "wdio-chromedriver-service": "5.0.2",
@@ -119,7 +129,19 @@
     }
   },
   "eslintConfig": {
-    "extends": "@stencila/eslint-config"
+    "extends": "@stencila/eslint-config",
+    "env": {
+      "es6": true,
+      "node": true,
+      "browser": true,
+      "jest": true
+    }
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testMatch": [
+      "<rootDir>/src/**/*.test.[jt]s"
+    ]
   },
   "husky": {
     "hooks": {
@@ -131,8 +153,5 @@
     "extends": [
       "@stencila"
     ]
-  },
-  "dependencies": {
-    "@stencila/components": "^0.9.0"
   }
 }

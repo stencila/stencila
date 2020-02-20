@@ -44,7 +44,7 @@ const defaults: {
 }
 
 // Set an example
-const exampleSet = async (example: string): Promise<void> => {
+const exampleSet = (example: string): void => {
   // Update all the places that theme is set
   url.searchParams.set(keys.EXAMPLE, example)
   history.pushState(null, 'none', url.toString())
@@ -61,6 +61,9 @@ const exampleSet = async (example: string): Promise<void> => {
   const dom = new DOMParser().parseFromString(html, 'text/html')
   const main = document.getElementsByTagName('main')[0]
   main.innerHTML = dom.body.innerHTML
+
+  // Run the `init` function of the current theme
+  if (themeInit !== undefined) themeInit()
 }
 
 // Initialize the example selector
@@ -90,6 +93,9 @@ exampleSet(
     defaults.EXAMPLE
 )
 
+// The `init` function of the current theme
+let themeInit: () => void
+
 // Set a theme
 const themeSet = async (theme: string): Promise<void> => {
   // Update all the places that theme is set
@@ -99,9 +105,12 @@ const themeSet = async (theme: string): Promise<void> => {
   if (themeSelect !== null) themeSelect.value = theme
 
   // Load the theme's Javascript module and run it's `init()` function
-  // @ts-ignore
-  const mod = await themes[theme]
-  if (mod !== undefined && 'init' in mod) mod.init()
+  const mod = (await themes[theme as keyof typeof themes]) as {
+    init?: () => void
+  }
+  if (mod?.init !== undefined) {
+    mod.init()
+  }
 
   // Enable the theme's CSS
   document
@@ -123,7 +132,7 @@ if (themeSelect !== null) {
     .join('')
   themeSelect.addEventListener('change', event => {
     const target = event.currentTarget as HTMLSelectElement
-    if (target !== null) themeSet(target.value)
+    if (target !== null) themeSet(target.value).catch(console.error)
   })
 }
 
@@ -132,7 +141,7 @@ themeSet(
   url.searchParams.get(keys.THEME) ??
     sessionStorage.getItem(keys.THEME) ??
     defaults.THEME
-)
+).catch(console.error)
 
 // Set display of header
 const header = document.querySelector<HTMLInputElement>('#header')

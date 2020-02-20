@@ -1,9 +1,13 @@
-@import '../../shared/styles/shared.css';
-@import '../../shared/fonts/biolinum/biolinum.css';
+/*
+  Note: While this theme is being refactored
+  some linting rules are disabled.
+*/
 
-/* Microdata-based Styles */
-@import '../../designa/Entity.css';
-@import '../../designa/Person.css';
+@import '../../extensions/math/styles.css';
+@import '../../extensions/code/styles.css';
+@import '../../extensions/person/styles.css';
+
+@import '../../fonts/biolinum/biolinum.css';
 
 /* Media Query sizes */
 @custom-media --mq-sm (min-width: 640px);
@@ -20,10 +24,10 @@
   --heading-color: #eee;
 
   /* Font Families */
-  --font-family-body: Harding, Biolinum, Palatino, Times, 'Times New Roman',
+  --font-family-body: harding, biolinum, palatino, times, 'Times New Roman',
     serif;
-  --font-family-secondary: -apple-system, system-ui, 'Segoe UI', Roboto,
-    Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  --font-family-secondary: -apple-system, system-ui, 'Segoe UI', roboto,
+    oxygen-sans, ubuntu, cantarell, 'Helvetica Neue', sans-serif;
   --font-family-mono: 'IBM Plex Mono', 'Fira Code', 'monospace';
 
   /* Font Sizes */

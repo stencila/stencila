@@ -48,9 +48,7 @@ const env = process.env
 const useSauce = env.CI && env.SAUCE_USERNAME && env.SAUCE_ACCESS_KEY
 const services = [
   ...baseServices,
-  useSauce
-    ? 'sauce'
-    : browserServices[testBrowser]
+  useSauce ? 'sauce' : browserServices[testBrowser]
 ]
 
 // Standardizes screenshot name for visual regression testing

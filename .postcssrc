@@ -5,7 +5,7 @@
     "postcss-import-url": { "modernBrowser": true },
     "postcss-url": { "url": "rebase" },
     "postcss-mixins": {
-      "mixinsDir": "src/designa/mixins"
+      "mixinsDir": "src/shared/styles/mixins"
     },
     "postcss-custom-selectors": {
       "importFrom": "src/selectors.css"

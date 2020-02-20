@@ -1,0 +1,73 @@
+@import '../cite/styles.css';
+
+:--references :--citation {
+  :--headline {
+    &::after {
+      content: '.';
+    }
+  }
+
+  :--authors {
+    :--Person {
+      :--familyName {
+        order: 1;
+
+        &::after {
+          content: ', ';
+          white-space: pre;
+        }
+      }
+
+      :--givenName {
+        order: 2;
+
+        &::after {
+          content: '.,';
+        }
+      }
+
+      &:last-child {
+        &::before {
+          content: '& ';
+          white-space: pre;
+        }
+
+        :--givenName {
+          &::after {
+            content: '. ';
+          }
+        }
+      }
+    }
+  }
+
+  :--datePublished {
+    &::after {
+      content: '.';
+    }
+  }
+
+  :--PublicationIssue {
+    display: inline;
+
+    :--headline {
+      &::after {
+        content: ', ';
+        font-style: normal;
+      }
+    }
+
+    :--issueNumber {
+      &::after {
+        content: ', ';
+        font-weight: normal;
+      }
+    }
+
+    :--pagination {
+      &::before {
+        content: normal;
+      }
+    }
+  }
+}

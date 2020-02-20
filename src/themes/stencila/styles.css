@@ -1,5 +1,4 @@
-@import '../../shared/styles/shared.css';
-@import '../../shared/fonts/merriweather/merriweather.css';
+@import '../../fonts/merriweather/merriweather.css';
 
 :--Article {
   --max-width-media: 980px;
@@ -7,7 +6,7 @@
 
   /* Font Families */
   --font-family-display: 'Montserrat', 'sans-serif';
-  --font-family-body: Merriweather, serif;
+  --font-family-body: merriweather, serif;
   --font-family-mono: 'IBM Plex Mono', 'Frra Code', 'monospace';
 
   /* Font Sizes */
@@ -67,7 +66,6 @@
     padding: 0;
   }
 
-  /* stylelint-disable-next-line xi/selector-pattern */
   & > *:not(figure, table) {
     width: 100%;
   }

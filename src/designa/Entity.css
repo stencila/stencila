@@ -1,8 +1,0 @@
-:--Entity {
-  /*
-    Do not display `Entity` elements. These are a fallback
-    encoding for `Node` types which have no explicit HTML encoding yet
-    and contain only a JSON representation of the node.
-  */
-  display: none;
-}
