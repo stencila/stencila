@@ -26,7 +26,7 @@ deploy:
   - provider: script
     script: npx semantic-release
     on:
-      branch: master
+      all_branches: true
 
   - provider: pages
     github_token: $GITHUB_TOKEN
