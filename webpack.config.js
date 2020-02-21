@@ -5,6 +5,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const FileManagerPlugin = require('filemanager-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
+const contentSource = 'src'
+
 // Convert absolute filepaths to project relative ones to use as
 // output destinations.
 const makeRelativePath = filepath =>
@@ -23,8 +25,6 @@ const fileLoaderOutputPath = (url, resourcePath, context) => {
 module.exports = (env = {}, { mode }) => {
   const isDocs = env.docs === 'true'
   const isDevelopment = mode === 'development'
-
-  const contentSource = 'src'
   const contentBase = isDocs ? 'docs' : 'dist'
 
   const entries = [
