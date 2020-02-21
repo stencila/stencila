@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/stencila/thema/compare/v1.6.0...v1.6.1) (2020-02-21)
+
+
+### Bug Fixes
+
+* **Package:** Use prepare instead of postinstall ([1be7091](https://github.com/stencila/thema/commit/1be70914be65c9e3ace8be16b3e3e17f778f9d23))
+
 # [1.6.0](https://github.com/stencila/thema/compare/v1.5.6...v1.6.0) (2020-02-21)
 
 
