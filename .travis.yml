@@ -21,6 +21,9 @@ after_success:
 before_deploy:
   - npm run build
   - npm run docs
+  
+  # To avoid this: https://travis-ci.org/stencila/thema/jobs/653293745#L1932
+  - npm install @stencila/semantic-release-config
 
 deploy:
   - provider: script
