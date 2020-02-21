@@ -101,20 +101,4 @@ export const themes: {
   ${themes.map(theme => `${theme}: import('./${theme}')`).join(',\n  ')}
 }\n`
   )
-
-  // Insert all themes as <link> elements in the demo HTML
-  const indexPath = path.join(__dirname, '..', 'index.html')
-  const index = fs.readFileSync(indexPath, 'utf8')
-  fs.writeFileSync(
-    indexPath,
-    index.replace(
-      /(<!-- GENERATED-THEME-LINKS-BEGIN -->)[\s\S]*?(<!-- GENERATED-THEME-LINKS-END -->)/gm,
-      `$1\n    ${themes
-        .map(
-          theme =>
-            `<link id="${theme}" class="theme" rel="stylesheet" href="./themes/${theme}/styles.css" disabled />`
-        )
-        .join('\n    ')}\n    $2`
-    )
-  )
 }

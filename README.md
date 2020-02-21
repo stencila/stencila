@@ -158,7 +158,6 @@ More components will be added over time. In the meantime, the "pseudo-components
 
 - Theme authors should be able to override the styles of the web components as part of their theme.
 
-
 ### Generated code
 
 Some files in the `src` directory are auto-generated and should not be edited manually. Generated files include:
@@ -190,15 +189,6 @@ When testing locally, there are three screenshot folders to be aware of inside t
 - `diff`: If any discrepancies are found between the `reference` and `local` screenshots, the differences will be highlighted and saved to this directory.
 
 There is a pseudo-test in `test/screenshot.test.js` which can be un-skipped to help with debugging the automated running of tests.
-
-### Notes
-
-We use [Parcel](https://parceljs.org) to compile this module. One of the
-plugins we utilize to generate transportable and offline-viewable documents
-is [`parcel-plugin-url-loader`](https://github.com/stencila/parcel-plugin-url-loader)
-to base64 encode and inline binary assets found in the CSS. This has the
-tradeoff that it leads to much larger page sizes, but the ability to generate
-stylesheets without inlining assets is on the roadmap.
 
 ## Acknowledgments
 
