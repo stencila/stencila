@@ -1,5 +1,5 @@
 /**
- * Functions related to CSS selectors, in particular custome semantic selectors.
+ * Functions related to CSS selectors, in particular custom semantic selectors.
  *
  * Designed to be used, as needed, in theme scripts
  * to allow theme authors to use DOM functions like `querySelectorAll`

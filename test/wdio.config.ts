@@ -4,7 +4,7 @@ const VisualRegressionCompare = require('wdio-novus-visual-regression-service/co
 
 export const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
 
-export const staticDir = path.join(__dirname, 'build')
+export const staticDir = path.join(__dirname, '..', 'docs')
 
 enum Browser {
   chrome = 'chrome',
