@@ -15,6 +15,7 @@
   }
 
   /* Elements not to display */
+  /* stylelint-disable xi/selector-pattern, selector-type-no-unknown */
   stencila-action-menu {
     display: none;
   }
