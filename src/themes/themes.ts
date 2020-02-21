@@ -8,6 +8,7 @@ export const themes: {
   elife: Promise<unknown>
   nature: Promise<unknown>
   plos: Promise<unknown>
+  rpng: Promise<unknown>
   skeleton: Promise<unknown>
   stencila: Promise<unknown>
 } = {
@@ -15,6 +16,7 @@ export const themes: {
   elife: import('./elife'),
   nature: import('./nature'),
   plos: import('./plos'),
+  rpng: import('./rpng'),
   skeleton: import('./skeleton'),
   stencila: import('./stencila')
 }
