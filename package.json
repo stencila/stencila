@@ -114,7 +114,8 @@
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "release": {
-    "extends": "@stencila/semantic-release-config"
+    "extends": "@stencila/semantic-release-config",
+    "branches": ["master", "next"]
   },
   "publishConfig": {
     "access": "public"
