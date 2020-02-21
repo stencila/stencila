@@ -28,7 +28,9 @@ ready(() => {
    *
    * This removes the inner `itemscope` and `itemtype`, pending a fix in Encoda.
    */
-  select('pre[itemtype="http://schema.stenci.la/CodeBlock"] > code[itemtype="http://schema.stenci.la/CodeFragment"]').forEach(element => {
+  select(
+    'pre[itemtype="http://schema.stenci.la/CodeBlock"] > code[itemtype="http://schema.stenci.la/CodeFragment"]'
+  ).forEach(element => {
     element.removeAttribute('itemscope')
     element.removeAttribute('itemtype')
   })
@@ -38,8 +40,11 @@ ready(() => {
    * `CodeChunk` and `CodeFragment` nodes without a `programmingLanguage` specified
    * to be styled differently. So add these to the list of elements that Prism highlights.
    */
-  select('pre[itemtype="http://schema.stenci.la/CodeBlock"] > code, code[itemtype="http://schema.stenci.la/CodeFragment"]').forEach(element => {
-    if (!element.className.includes('language-')) element.classList.add('language-text')
+  select(
+    'pre[itemtype="http://schema.stenci.la/CodeBlock"] > code, code[itemtype="http://schema.stenci.la/CodeFragment"]'
+  ).forEach(element => {
+    if (!element.className.includes('language-'))
+      element.classList.add('language-text')
   })
 
   /**
@@ -48,12 +53,17 @@ ready(() => {
    * `CodeBlock` nodes (highlighting of `CodeExpression` and `CodeChunks` nodes
    * is handled by the Web Components for those nodes).
    */
-  Prism.plugins.filterHighlightAll.reject.add((code: {element: Element, language: string}) => {
-    const {element} = code
-    const itemtype = element.getAttribute('itemtype')
-    if (itemtype === 'http://schema.stenci.la/CodeFragment') return false
-    if (element.parentElement?.getAttribute('itemtype') === 'http://schema.stenci.la/CodeBlock') return false
-    return true
-  })
+  Prism.plugins.filterHighlightAll.reject.add(
+    (code: { element: Element; language: string }) => {
+      const { element } = code
+      const itemtype = element.getAttribute('itemtype')
+      if (itemtype === 'http://schema.stenci.la/CodeFragment') return false
+      if (
+        element.parentElement?.getAttribute('itemtype') ===
+        'http://schema.stenci.la/CodeBlock'
+      )
+        return false
+      return true
+    }
+  )
 })
-

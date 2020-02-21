@@ -10,7 +10,6 @@ Provides a [`@media print` CSS at-rule](https://developer.mozilla.org/en-US/docs
 
 - That might allow theme authors to specify additonal things to go in printed pages e.g. headers and footers, for their theme.
 
-
 ## Resources
 
 - https://www.smashingmagazine.com/2018/05/print-stylesheets-in-2018/
