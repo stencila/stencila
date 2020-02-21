@@ -5,7 +5,9 @@
   "files": [
     "/dist"
   ],
-  "main": "./dist/index.js",
+  "browser": "./dist/browser/index.js",
+  "main": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
   "scripts": {
     "prepare": "npm run update",
     "update": "npm run update:selectors && npm run update:examples && npm run update:themes && npm run update:extensions",
@@ -15,7 +17,9 @@
     "update:themes": "ts-node --files src/scripts/themes.ts update",
     "create:extension": "ts-node --files src/scripts/extensions.ts create",
     "update:extensions": "ts-node --files src/scripts/extensions.ts update",
-    "build": "webpack --mode production && tsc --emitDeclarationOnly",
+    "build": "npm run build:browser && npm run build:lib",
+    "build:browser": "webpack --mode production",
+    "build:lib": "tsc --project tsconfig-lib.json",
     "dev": "webpack-dev-server --mode development --hot --open",
     "docs": "webpack --mode production --env.docs=true",
     "lint": "npm run lint:styles && npm run lint:scripts",

@@ -4,19 +4,19 @@
  * Map of theme Javascript modules
  */
 export const themes: {
-  bootstrap: Promise<unknown>
-  elife: Promise<unknown>
-  nature: Promise<unknown>
-  plos: Promise<unknown>
-  rpng: Promise<unknown>
-  skeleton: Promise<unknown>
-  stencila: Promise<unknown>
+  bootstrap: string
+  elife: string
+  nature: string
+  plos: string
+  rpng: string
+  skeleton: string
+  stencila: string
 } = {
-  bootstrap: import('./bootstrap'),
-  elife: import('./elife'),
-  nature: import('./nature'),
-  plos: import('./plos'),
-  rpng: import('./rpng'),
-  skeleton: import('./skeleton'),
-  stencila: import('./stencila')
+  bootstrap: 'bootstrap',
+  elife: 'elife',
+  nature: 'nature',
+  plos: 'plos',
+  rpng: 'rpng',
+  skeleton: 'skeleton',
+  stencila: 'stencila'
 }

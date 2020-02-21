@@ -17,11 +17,11 @@ export const isTheme = (name: string): name is keyof typeof themes =>
 
 /**
  * Given a string, will return a matching theme,
- * falling back to the first in if none matches.
+ * falling back to `stencila` if none matches.
  *
  * @param {string} name Name of the theme to look for
  */
 export const resolveTheme = (name?: string): string => {
   const theme = name === undefined ? '' : name.toLowerCase().trim()
-  return theme !== 'skeleton' && isTheme(theme) ? theme : 'stencila'
+  return isTheme(theme) ? theme : 'stencila'
 }
