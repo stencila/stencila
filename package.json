@@ -25,10 +25,8 @@
     "format": "prettier --write './**/*.{css,js,json,md,ts,yaml}'",
     "test": "npm run test:unit && npm run test:visual",
     "test:unit": "jest",
-    "test:visual": "npm run test:visual:build && npm run test:visual:run",
-    "test:visual:build": "parcel build ./src/index.html ./src/examples/*.html -d test/build --public-url . && tsc --outDir test/build",
-    "test:visual:run": "wdio",
-    "clean": "rm -rf .cache dist docs test/build"
+    "test:visual": "npm run docs && wdio",
+    "clean": "rm -rf .cache dist docs"
   },
   "repository": {
     "type": "git",
