@@ -9,6 +9,7 @@ export const extensions: {
   'cite-mla': Promise<unknown>
   code: Promise<unknown>
   math: Promise<unknown>
+  pages: Promise<unknown>
   person: Promise<unknown>
 } = {
   cite: import('./cite'),
@@ -16,5 +17,6 @@ export const extensions: {
   'cite-mla': import('./cite-mla'),
   code: import('./code'),
   math: import('./math'),
+  pages: import('./pages'),
   person: import('./person')
 }

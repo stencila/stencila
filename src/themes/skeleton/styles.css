@@ -5,6 +5,7 @@
 @import '../../extensions/cite-apa/styles.css';
 @import '../../extensions/code/styles.css';
 @import '../../extensions/math/styles.css';
+@import '../../extensions/pages/styles.css';
 @import '../../extensions/person/styles.css';
 
 :--ArrayValidator {
