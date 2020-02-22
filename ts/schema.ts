@@ -13,22 +13,16 @@ import cloneDeep from 'lodash.clonedeep'
 import path from 'path'
 import log from './log'
 import Schema from './schema-interface'
+import { versionMajor } from './util/version'
 
 const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')
 const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'public')
 
 /**
- * Get the Schema major version for use in generated URLs
- */
-const VERSION_MAJOR = fs
-  .readJSONSync(path.join(__dirname, '..', 'package.json'))
-  .version.split('.')[0]
-
-/**
  * The base URL for JSON Schema `$id`s.
  */
 const SCHEMA_DEST_URL = 'https://schema.stenci.la'
-const ID_BASE_URL = `${SCHEMA_DEST_URL}/v${VERSION_MAJOR}`
+const ID_BASE_URL = `${SCHEMA_DEST_URL}/v${versionMajor()}`
 
 /**
  * The base URL for source files.

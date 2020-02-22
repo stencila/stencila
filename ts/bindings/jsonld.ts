@@ -11,23 +11,9 @@ import fs from 'fs-extra'
 import fromEntries from 'object.fromentries'
 import path from 'path'
 import { readSchemas } from '../helpers'
+import { jsonLdUrl } from '../util'
 
-/**
- * Get the Schema major version for use in generated URLs
- */
-const VERSION_MAJOR = fs
-  .readJSONSync(path.join(__dirname, '..', '..', 'package.json'))
-  .version.split('.')[0]
-
-/**
- * The base URL for the Stencila JSON-LD context.
- *
- * This gets prefixed to all keys during JSON-LD expansion
- * so the trailing slash is important so that for e.g.
- * `CodeChunk` gets expanded to `http://schema.stenci.la/v0/jsonld/CodeChunk`
- * (which in gets redirected to `https://unpkg.com/@stencila/schema@0.32.1/dist/CodeChunk.jsonld`)
- */
-const STENCILA_CONTEXT_URL = `http://schema.stenci.la/v${VERSION_MAJOR}/jsonld/`
+const STENCILA_CONTEXT_URL = jsonLdUrl()
 
 /**
  * The destination directory for generated JSON-LD files
