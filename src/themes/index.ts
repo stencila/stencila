@@ -13,7 +13,7 @@ const themaMajor = themaVersion.split('.')[0]
 /**
  * The path to a theme in this package
  */
-const themePath = 'dist/themes'
+const themePath = `dist/browser/themes`
 
 /**
  * The conventional name for theme stylesheets
@@ -55,7 +55,7 @@ export const generateCDNUrl = (asset: string): string => {
 
 export const resolveTheme = (
   theme: string,
-  asCDNUrl = false
+  asCDNUrl: boolean | undefined = false
 ): ThemaAssets | undefined => {
   if (!isTheme(theme)) return undefined
 
