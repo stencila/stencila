@@ -1,0 +1,4 @@
+title: Array
+'@id': stencila:Array
+description: A value comprised of several other values.
+type: array

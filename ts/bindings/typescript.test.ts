@@ -13,12 +13,12 @@ import * as typescript from 'typescript'
 import { schema, snapshot } from '../__tests__/helpers'
 import {
   generateTypeDefinitions,
-  typeGenerator,
+  interfaceGenerator,
   unionGenerator
 } from './typescript'
 
 test('generators', async () => {
-  expect(typeGenerator(await schema('Person.schema.json'))).toMatchFile(
+  expect(interfaceGenerator(await schema('Person.schema.json'))).toMatchFile(
     snapshot(__dirname, 'Person.ts')
   )
 

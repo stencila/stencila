@@ -34,13 +34,27 @@ export async function readSchemas(
 }
 
 /**
- * Get the 'type' schemas (i.e. not union schema, not property schemas) which are
- * usually translated into classes or similar for the language.
+ * Is a schema for a primitive type.
+ */
+export function isPrimitiveSchema(schema: Schema): boolean {
+  return schema.properties === undefined && schema.anyOf === undefined
+}
+
+/**
+ * Get the 'primitive' schemas
+ */
+export function filterPrimitiveSchemas(schemas: Schema[]): Schema[] {
+  return schemas.filter(isPrimitiveSchema)
+}
+
+/**
+ * Get the 'interface' schemas (i.e. not union schema, not property schemas) which are
+ * usually translated into `interface`s, `class`es or similar for the language.
  *
  * Types are sorted topologically so that schemas come before
  * any of their descendants.
  */
-export function filterTypeSchemas(schemas: Schema[]): Schema[] {
+export function filterInterfaceSchemas(schemas: Schema[]): Schema[] {
   const types = schemas.filter(schema => schema.properties !== undefined)
   const map = new Map(schemas.map(schema => [schema.title, schema]))
 

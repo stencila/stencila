@@ -1,0 +1,4 @@
+title: Text
+'@id': schema:Text
+description: A value comprised of a string of characters
+type: string
