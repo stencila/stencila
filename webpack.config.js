@@ -1,12 +1,13 @@
 const globby = require('globby')
 const path = require('path')
+const pkgJson = require('./package.json')
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const FileManagerPlugin = require('filemanager-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
-const { HotModuleReplacementPlugin } = require('webpack')
+const { DefinePlugin, HotModuleReplacementPlugin } = require('webpack')
 
 // TODO: Explore converting Webpack configuration to TypeScipt, to allow importing of theme names
 const themes = [
@@ -48,7 +49,7 @@ const fileLoaderOutputPath = (url, resourcePath, context) => {
 module.exports = (env = {}, { mode }) => {
   const isDocs = env.docs === 'true'
   const isDevelopment = mode === 'development'
-  const contentBase = isDocs ? 'docs' : 'dist'
+  const contentBase = isDocs ? 'docs' : 'dist/browser'
 
   const entries = [
     './src/**/*.{css,ts,html,ttf,woff,woff2}',
@@ -118,6 +119,12 @@ module.exports = (env = {}, { mode }) => {
     },
     plugins: [
       new CleanWebpackPlugin(),
+      new DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+        'process.env.VERSION': JSON.stringify(
+          process.env.VERSION || pkgJson.version
+        )
+      }),
       new MiniCssExtractPlugin(),
       ...devPlugins,
       ...docsPlugins,
