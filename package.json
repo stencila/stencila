@@ -86,14 +86,8 @@
       "<rootDir>/ts/__tests__/matchers.ts"
     ],
     "collectCoverageFrom": [
-      "ts/**/*.ts",
-      "!ts/**/*.d.ts",
-      "!ts/types.ts",
-      "!ts/docs.ts",
-      "!ts/log.ts",
-      "!ts/bindings/**.ts",
-      "!ts/**/__file_snapshots__/**",
-      "!ts/**/__tests__/**"
+      "ts/util/*.ts",
+      "!ts/util/index.ts"
     ],
     "watchPathIgnorePatterns": [
       "__file_snapshots__",

@@ -101,8 +101,8 @@ export const build = async (): Promise<void> => {
     // Other contexts referred to, including this one
     // Note that http vs https is important!
     schema: 'http://schema.org/',
-    bioschemas: 'http://bioschemas.org',
-    codemeta: 'http://doi.org/10.5063/schema/codemeta-2.0',
+    bioschemas: 'http://bioschemas.org/',
+    codemeta: 'http://doi.org/10.5063/schema/codemeta-2.0#',
     stencila: STENCILA_CONTEXT_URL,
 
     // Define that in this context all terms derive from this vocabulary
