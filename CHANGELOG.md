@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/stencila/thema/compare/v1.6.1...v1.6.2) (2020-02-22)
+
+
+### Bug Fixes
+
+* **Build:** Fix production build failure due to missing plugin ([5aed49f](https://github.com/stencila/thema/commit/5aed49f1b8e8e0af4e7fb5a37db83d1bbae67572))
+
 ## [1.6.1](https://github.com/stencila/thema/compare/v1.6.0...v1.6.1) (2020-02-21)
 
 
