@@ -1,19 +1,18 @@
 import {
   Article,
-  Entity,
-  InlineContent,
-  ListItem,
-  Node,
-  Paragraph,
-  Types
-} from '../types'
-import { TypeMap, TypeMapGeneric } from './type-map'
-import {
   blockContentTypes,
   codeTypes,
   creativeWorkTypes,
-  inlineContentTypes
-} from './type-maps'
+  Entity,
+  InlineContent,
+  inlineContentTypes,
+  ListItem,
+  Node,
+  Paragraph,
+  TypeMap,
+  TypeMapGeneric,
+  Types
+} from '../types'
 
 type ExtractGeneric<Type> = Type extends TypeMap<infer X>
   ? X

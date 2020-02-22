@@ -60,6 +60,8 @@ ${typesInterface(schemas)}
 ${interfacesCode}
 
 ${unionsCode}
+
+${await generateTypeMaps()}
 `
 
   const file = path.join(__dirname, '..', 'types.ts')
@@ -285,8 +287,11 @@ export const generateTypeMaps = async (): Promise<string> => {
   ])
 
   let typeMaps = `
-  import * as types from '../types'
-  import { TypeMap } from './type-map'
+  export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }
+
+  export type TypeMapGeneric<
+    T extends { type: string } & object = { type: string }
+  > = { [key in T['type']]: key }
 
   type Primitives = undefined | null | boolean | string | number;
   `
@@ -299,7 +304,7 @@ export const generateTypeMaps = async (): Promise<string> => {
       : `${file.title}Types`
 
     typeMaps += `
-      export const ${camelCase(schemaClass)}: TypeMap<Exclude<types.${
+      export const ${camelCase(schemaClass)}: TypeMap<Exclude<${
       file.title
     }, Primitives>> = {
         ${file.anyOf
@@ -316,16 +321,12 @@ export const generateTypeMaps = async (): Promise<string> => {
       `
   })
 
-  const file = path.join(__dirname, '..', 'util', 'type-maps.ts')
-  await fs.writeFile(file, await prettify(typeMaps))
-
-  return file
+  return typeMaps
 }
 
 /** Generate Type Definitions and Type Maps files */
 export const build = async (): Promise<void> => {
   await generateTypeDefinitions()
-  await generateTypeMaps()
 }
 
 /**

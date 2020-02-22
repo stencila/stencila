@@ -30,7 +30,9 @@ export function microdataType(itemtype: string): keyof Types | undefined {
  *
  * @see {@link https://www.w3.org/TR/microdata/#dfn-attr-itemprop}
  */
-export function microdataItemprop(property: string): [string|undefined, string|undefined] {
+export function microdataItemprop(
+  property: string
+): [string | undefined, string | undefined] {
   const context = jsonLdContext()
   const mapping = context[property]
   if (mapping === undefined) return [undefined, undefined]

@@ -1,4 +1,14 @@
-import { Code, CodeBlock, CreativeWork } from '../types'
+import {
+  blockContentTypes,
+  Code,
+  CodeBlock,
+  codeBlockTypes,
+  codeTypes,
+  CreativeWork,
+  creativeWorkTypes,
+  inlineContentTypes,
+  TypeMap
+} from '../types'
 import {
   isA,
   isInlineContent,
@@ -9,14 +19,6 @@ import {
   nodeIs,
   typeIs
 } from './guards'
-import { TypeMap } from './type-map'
-import {
-  blockContentTypes,
-  codeBlockTypes,
-  codeTypes,
-  creativeWorkTypes,
-  inlineContentTypes
-} from './type-maps'
 
 const primitives = [null, true, false, NaN, 2, 'string']
 

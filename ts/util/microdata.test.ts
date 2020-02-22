@@ -1,4 +1,8 @@
-import { microdataItemtype, microdataItemprop, microdataType } from './microdata'
+import {
+  microdataItemtype,
+  microdataItemprop,
+  microdataType
+} from './microdata'
 import { jsonLdUrl } from './jsonld'
 
 test('microdataItemtype', () => {
