@@ -18,7 +18,7 @@
     "create:extension": "ts-node --files src/scripts/extensions.ts create",
     "update:extensions": "ts-node --files src/scripts/extensions.ts update",
     "build": "npm run build:browser && npm run build:lib",
-    "build:browser": "webpack --mode production",
+    "build:browser": "webpack --mode production && tsc --emitDeclarationOnly",
     "build:lib": "tsc --project tsconfig-lib.json",
     "dev": "webpack-dev-server --mode development --hot --open",
     "docs": "webpack --mode production --env.docs=true",

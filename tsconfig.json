@@ -3,7 +3,8 @@
   "include": ["src"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "lib": ["dom", "es2017"]
+    "lib": ["dom", "es2017"],
+    "outDir": "dist/browser"
   },
   "typeRoots": ["./src", "./node_modules/@types"]
 }
