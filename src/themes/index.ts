@@ -45,13 +45,17 @@ export const generateCDNUrl = (asset: string): string => {
 
 /**
  * Given a string, will return a matching theme assets, relative to the project root,
- * falling back to `stencila` if none matches.
+ * returns undefined if a theme cannot be found.
  *
- * @param {string} name Name of the theme to look for
+ * @param {string} theme - Name of the theme to look for
+ * @param {boolean | undefined} asCDNUrl - If true, returns the assets as URLs pointing to UNPKG hosted files.
+ * @return {ThemaAssets|undefined} Object containing two arrays, one of all the themes stylesheets, and one of all
+ * scripts.
  */
+
 export const resolveTheme = (
   theme: string,
-  asCDNUrl: boolean
+  asCDNUrl = false
 ): ThemaAssets | undefined => {
   if (!isTheme(theme)) return undefined
 
