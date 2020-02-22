@@ -1,5 +1,58 @@
-import { Types } from '../types'
-import { jsonLdTermUrl, jsonLdContext, jsonLdTermName } from './jsonld'
+import { Node, Types } from '../types'
+import { jsonLdContext, jsonLdTermName, jsonLdTermUrl, jsonLdUrl } from './jsonld'
+import { nodeType } from './node-type'
+import { isEntity } from './guards'
+
+/**
+ * Get the URL used in Microdata attributes.
+ *
+ * This is used to normalize the versioned URL from the
+ * JSON-LD context.
+ */
+export function microdataUrl(type: string = '') {
+  return `http://schema.stenci.la/${type}`
+}
+
+export type Microdata = MicrodataItem & MicrodataProperty
+
+/**
+ * Create all Microdata attributes for a Stencila `Node`.
+ *
+ * @param node The node e.g. a `Person` node
+ * @param property The name of the property that this node is part of e.g `'author'`
+ */
+export function microdata(
+  node: Node,
+  property?: string,
+  id?: string
+): Microdata {
+  return {
+    ...microdataItem(node, property === undefined ? id : undefined),
+    ...(property !== undefined ? microdataProperty(property, id) : {})
+  }
+}
+
+/**
+ * Attributes for Microdata ["items"](https://www.w3.org/TR/microdata/#items)
+ *
+ * "The itemtype attribute must not be specified on elements that do not have
+ *  an itemscope attribute specified."
+ */
+export interface MicrodataItem {
+  itemscope: ''
+  itemtype: string
+  itemid?: string
+}
+
+export function microdataItem(node: Node, id?: string): MicrodataItem {
+  const itemtype = microdataItemtype(nodeType(node)) ?? 'Thing'
+  const itemid = id !== undefined ? { itemid: `#${id}` } : {}
+  return {
+    itemscope: '',
+    itemtype,
+    ...itemid
+  }
+}
 
 /**
  * Get the HTML Microdata `itemtype` for a Stencila Schema type
@@ -7,7 +60,7 @@ import { jsonLdTermUrl, jsonLdContext, jsonLdTermName } from './jsonld'
  * @see {@link https://www.w3.org/TR/microdata/#dfn-itemtype}
  */
 export function microdataItemtype(type: keyof Types): string | undefined {
-  return jsonLdTermUrl(type)
+  return jsonLdTermUrl(type)?.replace(jsonLdUrl(), microdataUrl())
 }
 
 /**
@@ -16,7 +69,33 @@ export function microdataItemtype(type: keyof Types): string | undefined {
  * This is the inverse of `microdataItemtype`.
  */
 export function microdataType(itemtype: string): keyof Types | undefined {
-  return jsonLdTermName(itemtype) as keyof Types
+  return jsonLdTermName(itemtype.replace(microdataUrl(), jsonLdUrl())) as keyof Types
+}
+
+/**
+ * Attributes for Microdata ["properties"](https://www.w3.org/TR/microdata/#names:-the-itemprop-attribute)
+ *
+ * The `data-itemprop` attribute is not part of the Microdata standard.
+ * It is used for properties that are not defined in schema.org and which validators
+ * like Google Structured Data Testing Tool throw errors about.
+ */
+export interface MicrodataProperty {
+  itemprop?: string
+  'data-itemprop'?: string
+  itemref?: string
+}
+
+/**
+ * Create `MicrodataProperty` attributes for a node property.
+ */
+export function microdataProperty(
+  property: string,
+  id?: string
+): MicrodataProperty {
+  const [prefix, name = ''] = microdataItemprop(property)
+  const key = prefix === 'schema' ? 'itemprop' : 'data-itemprop'
+  const itemref = id !== undefined ? { itemref: id } : {}
+  return { [key]: name, ...itemref }
 }
 
 /**
