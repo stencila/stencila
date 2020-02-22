@@ -1,3 +1,11 @@
+# [0.38.0](https://github.com/stencila/schema/compare/v0.37.3...v0.38.0) (2020-02-22)
+
+
+### Features
+
+* **Primitive types:** Add schemas for primitive types ([e402847](https://github.com/stencila/schema/commit/e4028479abea3fb86243559b709b53f5fe81f378)), closes [/github.com/stencila/encoda/blob/356b8e08f71880f12236bac7b0bcb2c272f4f60b/src/codecs/html/microdata.ts#L148](https://github.com//github.com/stencila/encoda/blob/356b8e08f71880f12236bac7b0bcb2c272f4f60b/src/codecs/html/microdata.ts/issues/L148)
+* **Util:** Add version and URL utility functions ([274dd52](https://github.com/stencila/schema/commit/274dd52e0a7361517e28d17f335c1ed5cab7b6a6))
+
 ## [0.37.3](https://github.com/stencila/schema/compare/v0.37.2...v0.37.3) (2020-02-13)
 
 
