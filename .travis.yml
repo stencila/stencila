@@ -1,4 +1,6 @@
-matrix:
+os: linux
+language: node_js
+jobs:
   include:
     # Test Typescript package
     - stage: test
@@ -75,7 +77,7 @@ matrix:
         # Commit package documentation to gh-pages
         # Main documentation is deployed using Netlify
         - provider: script
-          skip-cleanup: true
+          skip_cleanup: true
           on:
             tags: true
           script: bash .travis.sh deploy_typescript_docs_to_pages
@@ -103,7 +105,7 @@ matrix:
             tags: true
 
         - provider: script
-          skip-cleanup: true
+          skip_cleanup: true
           on:
             tags: true
           script: bash ../.travis.sh deploy_python_docs_to_pages
@@ -121,7 +123,7 @@ matrix:
 
       deploy:
         - provider: script
-          skip-cleanup: true
+          skip_cleanup: true
           on:
             tags: true
           script: bash ../.travis.sh deploy_r_docs_to_pages
