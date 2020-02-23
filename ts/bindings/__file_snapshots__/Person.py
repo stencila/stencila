@@ -51,6 +51,7 @@ some kind of financial contribution.
         honorificSuffix: Optional[str] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         jobTitle: Optional[str] = None,
         memberOf: Optional[Array["Organization"]] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -63,6 +64,7 @@ some kind of financial contribution.
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             name=name,
             url=url
