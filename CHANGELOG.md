@@ -1,3 +1,11 @@
+## [1.6.3](https://github.com/stencila/thema/compare/v1.6.2...v1.6.3) (2020-02-23)
+
+
+### Bug Fixes
+
+* **Docs:** Re-evaluate theme JavaScript when switching themes ([befaa76](https://github.com/stencila/thema/commit/befaa7635bed00953ee182d8a2b1c7675e6417e5))
+* **Package:** Setup for sepearate browser and lib distributions ([2ba3594](https://github.com/stencila/thema/commit/2ba35944b40f48188d8c646ddbca44307a32136a))
+
 ## [1.6.2](https://github.com/stencila/thema/compare/v1.6.1...v1.6.2) (2020-02-22)
 
 
