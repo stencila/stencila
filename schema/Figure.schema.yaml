@@ -13,6 +13,11 @@ properties:
   caption:
     '@id': schema:caption
     description: A caption to display for the figure.
-    type: array
-    items:
-      $ref: Node
+    $comment: |
+      To be compatible with https://schema.org/caption,
+      can be a string.
+    anyOf:
+      - type: string
+      - type: array
+        items:
+          $ref: Node
