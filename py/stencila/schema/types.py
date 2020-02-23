@@ -539,6 +539,9 @@ class Thing(Entity):
     identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None
     """Any kind of identifier for any kind of Thing."""
 
+    images: Optional[Union[str, "ImageObject"]] = None
+    """Images of the item."""
+
     name: Optional[str] = None
     """The name of the item."""
 
@@ -552,6 +555,7 @@ class Thing(Entity):
         description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         url: Optional[str] = None
@@ -566,6 +570,8 @@ class Thing(Entity):
             self.description = description
         if identifiers is not None:
             self.identifiers = identifiers
+        if images is not None:
+            self.images = images
         if name is not None:
             self.name = name
         if url is not None:
@@ -595,6 +601,7 @@ class Brand(Thing):
         description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         logo: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         reviews: Optional[Array[str]] = None,
@@ -606,6 +613,7 @@ class Brand(Thing):
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             url=url
         )
@@ -640,6 +648,7 @@ with the organization/department etc.
         emails: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         telephoneNumbers: Optional[Array[str]] = None,
@@ -650,6 +659,7 @@ with the organization/department etc.
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             name=name,
             url=url
@@ -751,6 +761,7 @@ web page, scholarly article, etc.
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -769,6 +780,7 @@ web page, scholarly article, etc.
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             name=name,
             url=url
@@ -832,6 +844,7 @@ class Article(CreativeWork):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -860,6 +873,7 @@ class Article(CreativeWork):
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -902,6 +916,7 @@ such as Articles, Datatables, Tables and more.
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -930,6 +945,7 @@ such as Articles, Datatables, Tables and more.
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -970,6 +986,7 @@ class Datatable(CreativeWork):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -998,6 +1015,7 @@ class Datatable(CreativeWork):
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -1063,6 +1081,7 @@ class MediaObject(CreativeWork):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -1091,6 +1110,7 @@ class MediaObject(CreativeWork):
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -1148,6 +1168,7 @@ class AudioObject(MediaObject):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -1182,6 +1203,7 @@ class AudioObject(MediaObject):
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -1222,6 +1244,7 @@ class DatatableColumn(Thing):
         description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         url: Optional[str] = None,
         validator: Optional["ArrayValidator"] = None
@@ -1232,6 +1255,7 @@ class DatatableColumn(Thing):
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             url=url
         )
@@ -1294,6 +1318,7 @@ class Figure(CreativeWork):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         label: Optional[str] = None,
@@ -1323,6 +1348,7 @@ class Figure(CreativeWork):
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -1395,6 +1421,7 @@ class Grant(Thing):
         fundedItems: Optional[Array["Thing"]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         sponsors: Optional[Array[Union["Person", "Organization"]]] = None,
@@ -1405,6 +1432,7 @@ class Grant(Thing):
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             name=name,
             url=url
@@ -1474,6 +1502,7 @@ class ImageObject(MediaObject):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -1508,6 +1537,7 @@ class ImageObject(MediaObject):
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -1842,6 +1872,7 @@ class MonetaryGrant(Grant):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         sponsors: Optional[Array[Union["Person", "Organization"]]] = None,
@@ -1853,6 +1884,7 @@ class MonetaryGrant(Grant):
             fundedItems=fundedItems,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             name=name,
             sponsors=sponsors,
@@ -1910,6 +1942,7 @@ class Organization(Thing):
         funders: Optional[Array[Union["Organization", "Person"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         legalName: Optional[str] = None,
         logo: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -1922,6 +1955,7 @@ class Organization(Thing):
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             name=name,
             url=url
@@ -2082,6 +2116,7 @@ class Periodical(CreativeWork):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         issns: Optional[Array[str]] = None,
         keywords: Optional[Array[str]] = None,
@@ -2111,6 +2146,7 @@ class Periodical(CreativeWork):
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -2185,6 +2221,7 @@ some kind of financial contribution.
         honorificSuffix: Optional[str] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         jobTitle: Optional[str] = None,
         memberOf: Optional[Array["Organization"]] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -2197,6 +2234,7 @@ some kind of financial contribution.
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             name=name,
             url=url
@@ -2248,6 +2286,7 @@ class Product(Thing):
         description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         logo: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -2259,6 +2298,7 @@ class Product(Thing):
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             name=name,
             url=url
@@ -2288,6 +2328,7 @@ class PropertyValue(Thing):
         description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         propertyID: Optional[str] = None,
@@ -2298,6 +2339,7 @@ class PropertyValue(Thing):
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             name=name,
             url=url
@@ -2345,6 +2387,7 @@ for example, "1-6, 9, 55".
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         issueNumber: Optional[Union[str, int]] = None,
         keywords: Optional[Array[str]] = None,
@@ -2377,6 +2420,7 @@ for example, "1-6, 9, 55".
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -2438,6 +2482,7 @@ for example, "1-6, 9, 55".
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -2470,6 +2515,7 @@ for example, "1-6, 9, 55".
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -2571,6 +2617,7 @@ are not included in the application distribution.
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -2601,6 +2648,7 @@ are not included in the application distribution.
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -2645,6 +2693,7 @@ class SoftwareEnvironment(Thing):
         extends: Optional[Array["SoftwareEnvironment"]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         removes: Optional[Array["SoftwareSourceCode"]] = None,
         url: Optional[str] = None
@@ -2655,6 +2704,7 @@ class SoftwareEnvironment(Thing):
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             url=url
         )
@@ -2741,6 +2791,7 @@ class SoftwareSession(Thing):
         environment: Optional["SoftwareEnvironment"] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         memoryLimit: Optional[float] = None,
         memoryRequest: Optional[float] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -2758,6 +2809,7 @@ class SoftwareSession(Thing):
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             name=name,
             url=url
@@ -2852,6 +2904,7 @@ Python2.3, .Net Framework 3.0).
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -2885,6 +2938,7 @@ Python2.3, .Net Framework 3.0).
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -3023,6 +3077,7 @@ class Table(CreativeWork):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -3051,6 +3106,7 @@ class Table(CreativeWork):
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -3218,6 +3274,7 @@ class VideoObject(MediaObject):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -3253,6 +3310,7 @@ class VideoObject(MediaObject):
             funders=funders,
             id=id,
             identifiers=identifiers,
+            images=images,
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
@@ -3297,6 +3355,7 @@ class VolumeMount(Thing):
         description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         mountOptions: Optional[Array[str]] = None,
         mountSource: Optional[str] = None,
@@ -3309,6 +3368,7 @@ class VolumeMount(Thing):
             description=description,
             id=id,
             identifiers=identifiers,
+            images=images,
             meta=meta,
             name=name,
             url=url
