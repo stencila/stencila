@@ -1,8 +1,9 @@
 .cache
 CHANGELOG.md
+coverage
 dist
 docs
-examples
+src/examples
+src/extensions/math/styles.css
+src/fonts
 src/selectors.css
-src/shared/styles/mathjax.css
-test/build

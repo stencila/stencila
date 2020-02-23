@@ -96,9 +96,9 @@ function update(): void {
  * Map of theme Javascript modules
  */
 export const themes: {
-  ${themes.map(theme => `${theme}: Promise<unknown>`).join('\n  ')}
+  ${themes.map(theme => `${theme}: string`).join('\n  ')}
 } = {
-  ${themes.map(theme => `${theme}: import('./${theme}')`).join(',\n  ')}
+  ${themes.map(theme => `${theme}: '${theme}'`).join(',\n  ')}
 }\n`
   )
 }

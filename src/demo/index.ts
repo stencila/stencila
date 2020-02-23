@@ -97,25 +97,41 @@ exampleSet(
 )
 
 // Set a theme
-const themeSet = async (theme: string): Promise<void> => {
+const themeSet = (theme: string): void => {
   // Update all the places that theme is set
   url.searchParams.set(keys.THEME, theme)
   history.pushState(null, 'none', url.toString())
   sessionStorage.setItem(keys.THEME, theme)
   if (themeSelect !== null) themeSelect.value = theme
 
-  // Load the theme's Javascript module and run it's `init()` function
-  const mod = (await themes[theme as keyof typeof themes]) as {
-    init?: () => void
-  }
-  if (mod?.init !== undefined) {
-    mod.init()
-  }
-
   // Enable the theme's CSS
   document
     .querySelectorAll('link.theme[rel="stylesheet"]')
     .forEach(node => ((node as HTMLInputElement).disabled = node.id !== theme))
+
+  // Append remove all theme scripts, and re-append chosen theme’s script
+  // This causes the browser to re-evaluate the script
+  document.querySelectorAll('script.themeScript').forEach(node => {
+    document.body.removeChild(node)
+  })
+
+  const themeScript = document.createElement('script')
+  themeScript.type = 'text/javascript'
+  themeScript.src = `themes/${theme}/index.js`
+  themeScript.classList.add('themeScript')
+
+  document.body.appendChild(themeScript)
+
+  // Add delay before dispatching ready event, giving newly added theme script time to be parsed
+  // This causes the dom/ready() helper function to perform any scheduled functions.
+  setTimeout(() => {
+    document.dispatchEvent(
+      new Event('DOMContentLoaded', {
+        bubbles: true,
+        cancelable: true
+      })
+    )
+  }, 300)
 }
 
 // Set a theme when it is selected from the theme selector
@@ -130,9 +146,10 @@ if (themeSelect !== null) {
         )}</option>`
     )
     .join('')
+
   themeSelect.addEventListener('change', event => {
     const target = event.currentTarget as HTMLSelectElement
-    if (target !== null) themeSet(target.value).catch(console.error)
+    if (target !== null) themeSet(target.value)
   })
 }
 
@@ -141,7 +158,7 @@ themeSet(
   url.searchParams.get(keys.THEME) ??
     sessionStorage.getItem(keys.THEME) ??
     defaults.THEME
-).catch(console.error)
+)
 
 // Set display of header
 const header = document.querySelector<HTMLInputElement>('#header')

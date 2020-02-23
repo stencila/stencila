@@ -6,6 +6,10 @@
 
 import { semanticToAttributeSelectors } from '../selectors'
 
+let readyList: (() => unknown)[] = []
+let readyListening = false
+let readyFired = false
+
 /**
  * Register a function to be executed when the DOM is fully loaded.
  *
@@ -34,10 +38,6 @@ export function ready(func: () => unknown): void {
   }
 }
 
-let readyList: (() => unknown)[] = []
-let readyListening = false
-let readyFired = false
-
 /**
  * When the DOM is ready, call all of the functions registered
  * using `ready()`.
@@ -49,6 +49,7 @@ function whenReady(): void {
   readyFired = true
   readyList.forEach(func => func())
   readyList = []
+  document.removeEventListener('DOMContentLoaded', whenReady)
 }
 
 /**
