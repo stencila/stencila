@@ -26,16 +26,16 @@ def test_encode():
                     "This contains two lists.",
                     List(
                         items=[
-                            ListItem(content=["Item One"], checked=True),
-                            ListItem(content=["Item Two"], checked=True),
-                            ListItem(content=["Item Three"], checked=True),
+                            ListItem(content=["Item One"], isChecked=True),
+                            ListItem(content=["Item Two"], isChecked=True),
+                            ListItem(content=["Item Three"], isChecked=True),
                         ]
                     ),
                     List(
                         items=[
-                            ListItem(content=["Item One"], checked=True),
-                            ListItem(content=["Item Two"], checked=True),
-                            ListItem(content=["Item Three"], checked=True),
+                            ListItem(content=["Item One"], isChecked=True),
+                            ListItem(content=["Item Two"], isChecked=True),
+                            ListItem(content=["Item Three"], isChecked=True),
                         ]
                     ),
                 ]
@@ -61,17 +61,17 @@ def test_encode():
                             {
                                 "type": "ListItem",
                                 "content": ["Item One"],
-                                "checked": True,
+                                "isChecked": True,
                             },
                             {
                                 "type": "ListItem",
                                 "content": ["Item Two"],
-                                "checked": True,
+                                "isChecked": True,
                             },
                             {
                                 "type": "ListItem",
                                 "content": ["Item Three"],
-                                "checked": True,
+                                "isChecked": True,
                             },
                         ],
                     },
@@ -81,17 +81,17 @@ def test_encode():
                             {
                                 "type": "ListItem",
                                 "content": ["Item One"],
-                                "checked": True,
+                                "isChecked": True,
                             },
                             {
                                 "type": "ListItem",
                                 "content": ["Item Two"],
-                                "checked": True,
+                                "isChecked": True,
                             },
                             {
                                 "type": "ListItem",
                                 "content": ["Item Three"],
-                                "checked": True,
+                                "isChecked": True,
                             },
                         ],
                     },
