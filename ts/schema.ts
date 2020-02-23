@@ -289,7 +289,10 @@ const processSchema = (
       for (const [name, property] of Object.entries(schema.properties)) {
         property.from = title
         // Mark if this is an array property
-        const isArray = property.type === 'array' || (property.allOf?.filter(item => item.type === 'array').length ?? 0 > 0)
+        const isArray =
+          property.type === 'array' ||
+          (property.allOf?.filter(item => item.type === 'array').length ?? 0) >
+            0
         if (isArray) property.isArray = true
         const isPlural = isArray && name.endsWith('s')
         if (isPlural) property.isPlural = true

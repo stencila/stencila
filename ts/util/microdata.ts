@@ -13,7 +13,7 @@ import { nodeType } from './nodeType'
  * This is used to normalize the versioned URL from the
  * JSON-LD context.
  */
-export function microdataUrl(type = '') {
+export function microdataUrl(type = ''): string {
   return `http://schema.stenci.la/${type}`
 }
 

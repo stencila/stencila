@@ -9,7 +9,7 @@
 
 import fs from 'fs'
 import path from 'path'
-import {promisify} from 'util'
+import { promisify } from 'util'
 import JsonSchema from '../jsonSchema'
 
 // Lazily loaded set of JSON-Schema's
@@ -24,11 +24,10 @@ export async function jsonSchemas(): Promise<typeof SCHEMAS> {
       __dirname,
       ...(__filename.endsWith('.ts') ? ['..', '..', 'public'] : [])
     )
-    const files = await promisify(fs.readdir)(
-      dir,
-      'utf8'
+    const files = await promisify(fs.readdir)(dir, 'utf8')
+    const schemaFiles = files.filter(filename =>
+      filename.endsWith('.schema.json')
     )
-    const schemaFiles = files.filter(filename => filename.endsWith('.schema.json'))
     const promises = schemaFiles.map(async file => {
       const json = await promisify(fs.readFile)(path.join(dir, file), 'utf8')
       return JSON.parse(json) as JsonSchema
@@ -36,7 +35,7 @@ export async function jsonSchemas(): Promise<typeof SCHEMAS> {
     const schemas = await Promise.all(promises)
     SCHEMAS = schemas.reduce((prev: typeof SCHEMAS, schema) => {
       const { title } = schema
-      return title === undefined ? prev : {...prev, [title]: schema}
+      return title === undefined ? prev : { ...prev, [title]: schema }
     }, {})
   }
   return SCHEMAS
@@ -56,10 +55,11 @@ export async function jsonSchemaTypes(): Promise<string[]> {
 export async function jsonSchemaProperties(): Promise<string[]> {
   const schemas = await jsonSchemas()
   const props = Object.values(schemas).reduce(
-      (properties: string[], schema) => [
-        ...properties, ...Object.keys(schema.properties ?? {})
-      ],
-      []
-    )
+    (properties: string[], schema) => [
+      ...properties,
+      ...Object.keys(schema.properties ?? {})
+    ],
+    []
+  )
   return Array.from(new Set(props)).sort()
 }

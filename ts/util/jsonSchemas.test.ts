@@ -1,4 +1,8 @@
-import {jsonSchemas, jsonSchemaTypes, jsonSchemaProperties} from './jsonSchemas'
+import {
+  jsonSchemas,
+  jsonSchemaTypes,
+  jsonSchemaProperties
+} from './jsonSchemas'
 
 test('jsonSchemas', async () => {
   const types = await jsonSchemas()

@@ -13,7 +13,7 @@ const termToId: Record<string, string> = {}
 const idToTerm: Record<string, string> = {}
 
 // Initialize maps. Called once, lazily.
-function initMaps() {
+function initMaps(): void {
   const context = jsonLdContext()
   for (const [term, value] of Object.entries(context)) {
     if (typeof value === 'string' && !term.startsWith('@')) {
