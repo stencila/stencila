@@ -38,10 +38,12 @@ properties:
   images:
     '@id': schema:image
     description: Images of the item.
-    anyOf:
-      - type: string
-        format: uri
-      - $ref: ImageObject
+    type: array
+    items:
+      anyOf:
+        - type: string
+          format: uri
+        - $ref: ImageObject
   name:
     '@id': schema:name
     description: The name of the item.

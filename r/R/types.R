@@ -530,7 +530,7 @@ Thing <- function(
   self[["alternateNames"]] <- check_property("Thing", "alternateNames", FALSE, missing(alternateNames), Array("character"), alternateNames)
   self[["description"]] <- check_property("Thing", "description", FALSE, missing(description), Union("character", Array(Node)), description)
   self[["identifiers"]] <- check_property("Thing", "identifiers", FALSE, missing(identifiers), Array(Union("character", PropertyValue)), identifiers)
-  self[["images"]] <- check_property("Thing", "images", FALSE, missing(images), Union("character", ImageObject), images)
+  self[["images"]] <- check_property("Thing", "images", FALSE, missing(images), Array(Union("character", ImageObject)), images)
   self[["name"]] <- check_property("Thing", "name", FALSE, missing(name), "character", name)
   self[["url"]] <- check_property("Thing", "url", FALSE, missing(url), "character", url)
   class(self) <- c(class(self), "Thing")
