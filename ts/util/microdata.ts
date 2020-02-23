@@ -1,7 +1,11 @@
 import { Node, Types } from '../types'
-import { jsonLdContext, jsonLdTermName, jsonLdTermUrl, jsonLdUrl } from './jsonld'
-import { nodeType } from './node-type'
-import { isEntity } from './guards'
+import {
+  jsonLdContext,
+  jsonLdTermName,
+  jsonLdTermUrl,
+  jsonLdUrl
+} from './jsonld'
+import { nodeType } from './nodeType'
 
 /**
  * Get the URL used in Microdata attributes.
@@ -9,7 +13,7 @@ import { isEntity } from './guards'
  * This is used to normalize the versioned URL from the
  * JSON-LD context.
  */
-export function microdataUrl(type: string = '') {
+export function microdataUrl(type = '') {
   return `http://schema.stenci.la/${type}`
 }
 
@@ -69,7 +73,9 @@ export function microdataItemtype(type: keyof Types): string | undefined {
  * This is the inverse of `microdataItemtype`.
  */
 export function microdataType(itemtype: string): keyof Types | undefined {
-  return jsonLdTermName(itemtype.replace(microdataUrl(), jsonLdUrl())) as keyof Types
+  return jsonLdTermName(
+    itemtype.replace(microdataUrl(), jsonLdUrl())
+  ) as keyof Types
 }
 
 /**

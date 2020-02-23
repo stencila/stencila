@@ -10,7 +10,7 @@ import { codeChunk, article, person, thing, organization } from '../types'
 
 test('microdata', () => {
   // A Stencila type
-  expect(microdata(codeChunk({text: ''}))).toEqual({
+  expect(microdata(codeChunk({ text: '' }))).toEqual({
     itemscope: '',
     itemtype: 'http://schema.stenci.la/CodeChunk'
   })
@@ -69,14 +69,18 @@ test('microdataProperty', () => {
 })
 
 test('microdataItemtype', () => {
-  expect(microdataItemtype('CodeChunk')).toMatch('http://schema.stenci.la/CodeChunk')
+  expect(microdataItemtype('CodeChunk')).toMatch(
+    'http://schema.stenci.la/CodeChunk'
+  )
   expect(microdataItemtype('Article')).toMatch('http://schema.org/Article')
   // @ts-ignore that Foo is not a type
   expect(microdataItemtype('Foo')).toBeUndefined()
 })
 
 test('microdataType', () => {
-  expect(microdataType('http://schema.stenci.la/CodeChunk')).toMatch('CodeChunk')
+  expect(microdataType('http://schema.stenci.la/CodeChunk')).toMatch(
+    'CodeChunk'
+  )
   expect('http://schema.org/Article').toMatch('Article')
   expect(microdataType('http://example.com')).toBeUndefined()
 })
