@@ -11,15 +11,15 @@ properties:
     description: The default value of the parameter.
     allOf:
       - $ref: Node
-  required:
+  isRequired:
     '@id': schema:valueRequired
     description: Is this parameter required, if not it should have a default or default is assumed to be null.
     type: boolean
-  repeats:
-    '@id': stencila:repeats
+  isVariadic:
+    '@id': stencila:isVariadic
     description: Indicates that this parameter is variadic and can accept multiple arguments.
     type: boolean
-  extends:
-    '@id': stencila:extends
+  isExtensible:
+    '@id': stencila:isExtensible
     description: Indicates that this parameter is variadic and can accept multiple named arguments.
     type: boolean

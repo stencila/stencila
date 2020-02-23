@@ -12,8 +12,8 @@ properties:
     type: array
     items:
       $ref: Node
-  checked:
-    '@id': stencila:checked
+  isChecked:
+    '@id': stencila:isChecked
     description: A flag to indicate if this list item is checked.
     type: boolean
     default: false

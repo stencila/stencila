@@ -14,11 +14,11 @@ properties:
     $comment: |
       This regex allows for snake_case and camelCase names but excludes
       PascalCase for names.
-  readonly:
+  isReadonly:
     '@id': schema:readonlyValue
     description: Whether or not a property is mutable. Default is false.
     $comment: |
-      If `readonly` is `true` and `value` is defined then changes to `value`
+      If `isReadonly` is `true` and `value` is defined then changes to `value`
       should not be allowed.
     type: boolean
     default: false
