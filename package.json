@@ -9,7 +9,7 @@
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "unpkg": "dist/index.umd.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/ts/index.d.ts",
   "scripts": {
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
     "lint": "npx eslint 'ts/**/*.{js,ts}' --fix",

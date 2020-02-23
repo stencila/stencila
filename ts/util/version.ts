@@ -12,7 +12,12 @@ let VERSION: string
 export function version(): string {
   if (VERSION === undefined) {
     const json = fs.readFileSync(
-      path.join(__dirname, '..', '..', 'package.json'),
+      path.join(
+        __dirname,
+        '..',
+        ...(__filename.endsWith('.ts') ? ['..'] : []),
+        'package.json'
+      ),
       'utf8'
     )
     const pkg = JSON.parse(json)

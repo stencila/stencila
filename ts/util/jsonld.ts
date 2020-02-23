@@ -52,8 +52,7 @@ export function jsonLdContext(): typeof CONTEXT {
     const json = fs.readFileSync(
       path.join(
         __dirname,
-        '..',
-        ...(__filename.endsWith('ts') ? ['..', 'public'] : []),
+        ...(__filename.endsWith('.ts') ? ['..', '..', 'public'] : []),
         'stencila.jsonld'
       ),
       'utf8'

@@ -1,5 +1,5 @@
 {
-  "extends": "@stencila/dev-config/tsconfig.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
     "module": "esnext"
@@ -8,7 +8,6 @@
   "exclude": [
     "*.test.ts",
     "ts/__tests__",
-    "ts/bindings/__file_snapshots__",
-    "node-modules"
+    "ts/bindings/__file_snapshots__"
   ]
 }
