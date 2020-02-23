@@ -69,7 +69,17 @@ export default interface JsonSchema extends JSONSchema7 {
    * from an ancestor. Examples of overrides include making an
    * optional property required, or changing the schema of the property.
    */
-  override?: boolean
+  isOverride?: boolean
+
+  /**
+   * Is the property an array?
+   */
+  isArray?: boolean
+
+  /**
+   * Is the property an array and have a pluralized name e.g. authors
+   */
+  isPlural?: boolean
 
   /**
    * Aliases for this property schema.
@@ -104,8 +114,8 @@ export default interface JsonSchema extends JSONSchema7 {
 
   // The following are type specializations of the
   // properties in `JSONSchema7` to match our usage
-  // e.g. this `Schema` is used to define `properties`
-  // of this `Schema`
+  // e.g. this `JsonSchema` is used to define `properties`
+  // of this `JsonSchema`
 
   properties?: { [key: string]: JsonSchema }
   allOf?: JsonSchema[]

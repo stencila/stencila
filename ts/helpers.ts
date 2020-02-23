@@ -113,7 +113,7 @@ export function getSchemaProperties(
     .filter(([name, _]) => name !== 'type')
     .map(
       ([name, schema]): Property => {
-        const { from, override = false } = schema
+        const { from, isOverride: override = false } = schema
         const inherited = from !== title
         const optional = required === undefined || !required.includes(name)
         return { name, schema, inherited, override, optional }

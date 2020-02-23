@@ -287,20 +287,25 @@ const processSchema = (
 
       const propertyAliases: { [key: string]: string } = {}
       for (const [name, property] of Object.entries(schema.properties)) {
-        schema.properties[name].from = title
+        property.from = title
+        // Mark if this is an array property
+        const isArray = property.type === 'array' || (property.allOf?.filter(item => item.type === 'array').length ?? 0 > 0)
+        if (isArray) property.isArray = true
+        const isPlural = isArray && name.endsWith('s')
+        if (isPlural) property.isPlural = true
         // Registered declared aliases
         if (property.aliases !== undefined) {
           for (const alias of property.aliases) propertyAliases[alias] = name
         }
         // Add aliases for array properties (if not yet registered)
-        if (property.type === 'array' && name.endsWith('s')) {
+        if (isPlural) {
           const alias = name.slice(0, -1)
           if (property.aliases === undefined) property.aliases = []
           if (!property.aliases.includes(alias)) property.aliases.push(alias)
           propertyAliases[alias] = name
         }
         // Is this an override of a property schema in parent?
-        if (name in parentProperties) property.override = true
+        if (name in parentProperties) property.isOverride = true
       }
 
       if (Object.keys(propertyAliases).length > 0)
@@ -334,7 +339,7 @@ const processSchema = (
           schema.required !== undefined &&
           schema.required.includes(name)
         )
-          property.override = true
+          property.isOverride = true
       }
 
       // Having done that, now we can extend `required`
