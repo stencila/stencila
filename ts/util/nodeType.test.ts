@@ -1,4 +1,4 @@
-import { nodeType } from './node-type'
+import { nodeType } from './nodeType'
 
 test('nodeType', () => {
   expect(nodeType(null)).toBe('Null')
