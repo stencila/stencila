@@ -1,4 +1,5 @@
 export * from './jsonld'
+export * from './jsonSchemas'
 export * from './guards'
 export * from './nodeType'
 export * from './microdata'
