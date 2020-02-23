@@ -6,8 +6,8 @@ status: unstable
 category: data
 description: A validator specifying constraints on an array node.
 properties:
-  items:
-    '@id': schema:itemListElement
+  itemsValidator:
+    '@id': stencila:itemsValidator
     description: Another validator node specifying the constraints on all items in the array.
     anyOf:
       - $ref: ValidatorTypes
