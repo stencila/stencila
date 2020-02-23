@@ -17,8 +17,8 @@ properties:
       The regex allows for snake_case and camelCase names but excludes
       PascalCase for parameter names.
   parameters:
-    '@id': schema:parameters
-    description: An array of parameters the function exists.
+    '@id': stencila:parameters
+    description: The parameters of the function.
     type: array
     items:
       - $ref: Parameter
