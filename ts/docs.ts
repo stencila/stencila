@@ -16,7 +16,7 @@ import flatten from 'lodash.flatten'
 import path from 'path'
 import { readSchemas } from './helpers'
 import log from './log'
-import Schema from './schema-interface'
+import JsonSchema from './jsonSchema'
 import {
   Article,
   article,
@@ -126,8 +126,8 @@ async function build(): Promise<void> {
   ])
 
   // Group schemas by category, and within each group sort schemas by `status`, and then `name`.
-  const groupedSchemas: { [category: string]: Schema[] } = flow([
-    (_schemas: Schema[]) =>
+  const groupedSchemas: { [category: string]: JsonSchema[] } = flow([
+    (_schemas: JsonSchema[]) =>
       groupBy(_schemas, schema =>
         startCase(schema.category ?? 'Miscellaneous')
       ),
@@ -282,7 +282,7 @@ const andSeparator = ' & '
  * @param {JSON Schema object} content
  * @returns {(InlineContent)[]} An array of InlineContent
  */
-const schema2Inlines = (schema: Schema): InlineContent[] => {
+const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
   const {
     type = '',
     format,
@@ -332,7 +332,10 @@ const schema2Inlines = (schema: Schema): InlineContent[] => {
  * As well as the generated summary we could automatically insert examples here as
  * @100ideas did in https://github.com/stencila/schema/pull/142
  */
-function schema2MainArticle(schema: Schema, summaryArticle?: Article): Article {
+function schema2MainArticle(
+  schema: JsonSchema,
+  summaryArticle?: Article
+): Article {
   const { title = 'Untitled' } = schema
   const { content: summary = [] } =
     summaryArticle !== undefined
@@ -369,7 +372,7 @@ function schema2MainArticle(schema: Schema, summaryArticle?: Article): Article {
 /**
  * Create a summary documentation `Article` for a JSON Schema.
  */
-function schema2SummaryArticle(schema: Schema): Article {
+function schema2SummaryArticle(schema: JsonSchema): Article {
   const {
     title = 'Untitled',
     '@id': id = '',
@@ -486,7 +489,7 @@ function propertyId2Link(id: string): Link {
 /**
  * Create a list item for a schema to be used in a list of links.
  */
-function schema2ListItem(schema: Schema): ListItem {
+function schema2ListItem(schema: JsonSchema): ListItem {
   const { title = 'Untitled' } = schema
   const status = schema.status === 'unstable' ? [unstableMarker] : []
 

@@ -1,14 +1,14 @@
 /**
- * Module for defining a `Schema` interface for use by other modules
+ * Module for defining a `JsonSchema` interface for use by other modules
  * in this repository e.g. generation of `*.json.schema` files by `./schema.ts`.
  */
 
 import { JSONSchema7 } from 'json-schema'
 
 /**
- * Interface for Stencila `Schema` instances.
+ * Interface for Stencila `JsonSchema` instances.
  *
- * The `Schema` interface extends JSON Schema
+ * The `JsonSchema` interface extends JSON Schema
  * with additional properties for:
  *
  *   - defining inheritance,
@@ -18,7 +18,7 @@ import { JSONSchema7 } from 'json-schema'
  *
  * For more details see the guidelines for authoring schemas.
  */
-export default interface Schema extends JSONSchema7 {
+export default interface JsonSchema extends JSONSchema7 {
   /**
    * The id for the type or property schema to be used
    * when generating JSON-LD.
@@ -107,9 +107,9 @@ export default interface Schema extends JSONSchema7 {
   // e.g. this `Schema` is used to define `properties`
   // of this `Schema`
 
-  properties?: { [key: string]: Schema }
-  allOf?: Schema[]
-  anyOf?: Schema[]
-  items?: Schema[]
+  properties?: { [key: string]: JsonSchema }
+  allOf?: JsonSchema[]
+  anyOf?: JsonSchema[]
+  items?: JsonSchema[]
   enum?: (string | number)[]
 }

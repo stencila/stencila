@@ -8,8 +8,8 @@ import fs from 'fs-extra'
 import globby from 'globby'
 import path from 'path'
 import toposort from 'toposort'
-import Schema from './schema-interface'
-export { default as Schema } from './schema-interface'
+import JsonSchema from './jsonSchema'
+export { default as Schema } from './jsonSchema'
 
 /**
  * Read the schemas from `public/*.schema.json` and dereference
@@ -22,7 +22,7 @@ export async function readSchemas(
     'public',
     '*.schema.json'
   )
-): Promise<Schema[]> {
+): Promise<JsonSchema[]> {
   const files = await globby(glob)
   return Promise.all(
     files.map(async (file: string) => {
@@ -36,14 +36,14 @@ export async function readSchemas(
 /**
  * Is a schema for a primitive type.
  */
-export function isPrimitiveSchema(schema: Schema): boolean {
+export function isPrimitiveSchema(schema: JsonSchema): boolean {
   return schema.properties === undefined && schema.anyOf === undefined
 }
 
 /**
  * Get the 'primitive' schemas
  */
-export function filterPrimitiveSchemas(schemas: Schema[]): Schema[] {
+export function filterPrimitiveSchemas(schemas: JsonSchema[]): JsonSchema[] {
   return schemas.filter(isPrimitiveSchema)
 }
 
@@ -54,7 +54,7 @@ export function filterPrimitiveSchemas(schemas: Schema[]): Schema[] {
  * Types are sorted topologically so that schemas come before
  * any of their descendants.
  */
-export function filterInterfaceSchemas(schemas: Schema[]): Schema[] {
+export function filterInterfaceSchemas(schemas: JsonSchema[]): JsonSchema[] {
   const types = schemas.filter(schema => schema.properties !== undefined)
   const map = new Map(schemas.map(schema => [schema.title, schema]))
 
@@ -75,7 +75,7 @@ export function filterInterfaceSchemas(schemas: Schema[]): Schema[] {
 /**
  * Get the union types from the schemas
  */
-export function filterUnionSchemas(schemas: Schema[]): Schema[] {
+export function filterUnionSchemas(schemas: JsonSchema[]): JsonSchema[] {
   return schemas.filter(schema => schema.anyOf !== undefined)
 }
 
@@ -85,7 +85,7 @@ export function filterUnionSchemas(schemas: Schema[]): Schema[] {
  */
 interface Property {
   name: string
-  schema: Schema
+  schema: JsonSchema
   inherited: boolean
   override: boolean
   optional: boolean
@@ -98,7 +98,7 @@ interface Property {
  * and inherited (or not).
  */
 export function getSchemaProperties(
-  schema: Schema
+  schema: JsonSchema
 ): {
   all: Property[]
   inherited: Property[]

@@ -1,3 +1,3 @@
-export { default as Schema } from './schema-interface'
+export * from './jsonSchema'
 export * from './types'
 export * from './util'
