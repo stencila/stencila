@@ -17,7 +17,7 @@
   --border-color: #e0e0e0;
   --figure-bg-color: #efefef;
   --font-size-body: 13px;
-  --font-size-headline: 26px;
+  --font-size-title: 26px;
   --font-size-heading: 20px;
   --font-size-80: 80%;
   --hover-color: #202020;
@@ -77,7 +77,7 @@
 
 :--Paragraph,
 :--Heading,
-:--headline,
+:--title,
 :--List,
 :--Collection,
 :--ThematicBreak,
@@ -92,7 +92,7 @@
 }
 
 :--Heading,
-:--headline {
+:--title {
   line-height: 1.125rem;
   font-weight: var(--body-font-weight);
   font-family: var(--body-font);
@@ -104,16 +104,16 @@
 }
 
 h1:--Heading {
-  font-size: var(--font-size-headline);
+  font-size: var(--font-size-title);
   line-height: 1.24138;
   margin-bottom: 1.5rem;
   padding-top: 3rem;
 }
 
-:--Article > :--headline {
+:--Article > :--title {
   font-family: var(--secondary-font);
   font-weight: var(--secondary-font-weight);
-  font-size: var(--font-size-headline);
+  font-size: var(--font-size-title);
   line-height: 27px;
 }
 
@@ -209,7 +209,7 @@ h6:--Heading {
   padding: 0 1.125rem 1.125rem;
 
   :--Heading,
-  :--headline {
+  :--title {
     font-weight: var(--secondary-font-weight);
     line-height: 1.84615;
   }
@@ -256,7 +256,7 @@ h6:--Heading {
 }
 
 :--authors,
-:--organizations {
+:--affiliations {
   color: var(--light-text-color);
   font-size: var(--body-font-size);
   line-height: normal;
@@ -276,7 +276,7 @@ h6:--Heading {
   }
 }
 
-:--organizations {
+:--affiliations {
   margin-top: 1.25rem;
   display: block;
 
@@ -311,7 +311,7 @@ h6:--Heading {
     }
   }
 
-  :--headline {
+  :--title {
     color: inherit;
     display: inline;
     font-size: inherit;
@@ -330,7 +330,7 @@ h6:--Heading {
   }
 
   :--authors,
-  :--organizations {
+  :--affiliations {
     color: var(--text-color);
   }
 
@@ -338,7 +338,7 @@ h6:--Heading {
     display: none;
   }
 
-  :--datePublished + :--headline {
+  :--datePublished + :--title {
     display: inline;
 
     &::after {
@@ -348,14 +348,14 @@ h6:--Heading {
   }
 
   :--PublicationIssue {
-    :--headline {
+    :--title {
       &::after {
         content: '. ';
         white-space: pre;
       }
     }
 
-    :--headline + :--datePublished {
+    :--title + :--datePublished {
       &:not(:last-child)::after {
         content: ';';
         white-space: pre;
