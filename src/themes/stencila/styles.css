@@ -11,7 +11,7 @@
 
   /* Font Sizes */
   --font-size-body: 18px;
-  --font-size-headline: 1.953rem;
+  --font-size-title: 1.953rem;
   --font-size-blockquote: 5rem;
   --font-size-h1: 1.2rem;
   --font-size-h2: 1.563rem;
@@ -85,7 +85,7 @@
   :--Organization,
   :--authors,
   :--description,
-  :--organizations,
+  :--affiliations,
   :--references {
     margin-left: auto;
     margin-right: auto;
@@ -179,7 +179,7 @@ h6:--Heading {
 
 :--Article > h1:--Heading,
 :--Article > h1:first-of-type {
-  font-size: var(--font-size-headline);
+  font-size: var(--font-size-title);
 }
 
 :--Paragraph {
@@ -215,7 +215,7 @@ h6:--Heading {
 
 :--List,
 :--Collection,
-:--organizations {
+:--affiliations {
   list-style-position: inside;
   padding: 0 0 0 1.25rem;
 
@@ -381,7 +381,7 @@ h6:--Heading {
 }
 
 :--Table,
-:--DataTable {
+:--Datatable {
   text-align: left;
   border-collapse: collapse;
   font-size: var(--font-size-80);
@@ -481,7 +481,7 @@ h6:--Heading {
   :--CreativeWork {
     margin-bottom: 1rem;
 
-    > :--headline:first-of-type {
+    > :--title:first-of-type {
       display: block;
       font-size: var(--font-size-h4);
       line-height: 1.5;
@@ -490,7 +490,7 @@ h6:--Heading {
     }
   }
 
-  :--headline + :--datePublished {
+  :--title + :--datePublished {
     display: none;
   }
 }
@@ -511,7 +511,7 @@ h6:--Heading {
 }
 
 :--authors,
-:--organizations {
+:--affiliations {
   padding-left: 0;
 }
 
@@ -555,12 +555,12 @@ h6:--Heading {
     }
   }
 
-  :--headline {
+  :--title {
     font-weight: bold;
   }
 }
 
-:--Author :--Figure > :--ImageObject {
+:--Article :--Figure > :--ImageObject {
   max-width: 100%;
 }
 

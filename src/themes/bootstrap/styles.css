@@ -74,9 +74,9 @@
   }
 
   /**
-   * Use Bootstrap's `list-group` class for organizations list
+   * Use Bootstrap's `list-group` class for affiliations list
    */
-  :--organizations {
+  :--affiliations {
     @extend .list-group;
 
     margin-top: 2em;

@@ -1,168 +1,107 @@
+import {
+  jsonSchemaProperties,
+  jsonSchemaTypes,
+  microdataItemtype,
+  microdataProperty,
+  Types
+} from '@stencila/schema'
 import fs from 'fs'
 import path from 'path'
-import { Types, entityTypes } from '@stencila/schema'
-import globby from 'globby'
 
 // Target output path for the file containing generated custom selector definitions
 const outputPath = path.join(__dirname, '..', 'selectors.css')
 
-const readSchemas = async (): Promise<string[]> => {
-  const paths = path.join(
-    path.dirname(require.resolve('@stencila/schema')),
-    '*.schema.json'
-  )
-
-  return globby([paths]).then(schemaFilePath =>
-    schemaFilePath.map(schemaFile => fs.readFileSync(schemaFile).toString())
-  )
-}
-
-const generateItemProps = async (): Promise<string[]> => {
-  const schemas = await readSchemas()
-
-  return schemas
-    .reduce(
-      (ss: string[], schema) => [
-        ...new Set([...ss, ...Object.keys(JSON.parse(schema).properties ?? {})])
-      ],
-      []
-    )
-    .sort()
-}
-
-const generateItemTypes = (): [string, string][] => {
-  const itemTypes: Array<keyof Types> = Object.values(entityTypes).sort()
-
-  const schemaURLs = itemTypes.reduce((types, type) => {
-    switch (type) {
-      case 'ArrayValidator':
-      case 'BooleanValidator':
-      case 'CodeBlock':
-      case 'CodeChunk':
-      case 'CodeError':
-      case 'CodeExpression':
-      case 'CodeFragment':
-      case 'ConstantValidator':
-      case 'Datatable':
-      case 'DatatableColumn':
-      case 'Delete':
-      case 'Emphasis':
-      case 'Entity':
-      case 'EnumValidator':
-      case 'Figure':
-      case 'Function':
-      case 'Heading':
-      case 'Include':
-      case 'InlineContent':
-      case 'IntegerValidator':
-      case 'Mark':
-      case 'Node':
-      case 'NumberValidator':
-      case 'Paragraph':
-      case 'SoftwareApplication':
-      case 'SoftwareSourceCode':
-      case 'StringValidator':
-      case 'Strong':
-      case 'Subscript':
-      case 'Superscript':
-      case 'ThematicBreak':
-      case 'TupleValidator':
-      case 'Variable':
-        return { ...types, [type]: `http://schema.stenci.la/${type}` }
-      case 'List':
-        return { ...types, [type]: `http://schema.org/Item${type}` }
-      default:
-        return { ...types, [type]: `http://schema.org/${type}` }
-    }
-  }, {} as { [key in keyof Types]: string })
-
-  return Object.entries(schemaURLs)
-}
-
-const generateSelectors = async (): Promise<void> => {
-  let selectors = ''
-
-  generateItemTypes().map(
-    ([type, schemaURL]) =>
-      (selectors += `@custom-selector :--${type} [itemtype~='${schemaURL}'], [data-itemtype~='${schemaURL}'];\n`)
-  )
-
-  let props = ''
-
-  const itemProps = await generateItemProps()
-
-  const extraProps = [
-    'affiliation',
-    'author',
-    'email',
-    'familyName',
-    'givenName',
-    'headline',
-    'organizations'
-  ]
-
-  const ps = [...itemProps, ...extraProps].sort()
-
-  ps.map(p => {
-    props += `@custom-selector :--${p} [itemprop~='${p}'], [data-itemprop~='${p}'];\n`
-  })
-
-  const doc = `/**
-*
-* THIS FILE IS AUTO-GENERATED. DO NOT MODIFY MANUALLY.
-*
-* Custom, semantic, CSS selectors
-*
-* In Thema the approach to CSS naming is, as much as possible, to
-* use custom selectors for the type of entities being styled and
-* their properties.
-*/
-
 /**
- * To tweak or adjust an existing theme, you may override some common CSS variables found in the themes.
-
- * Available CSS variables are:
- * --color-accent: Color for accent elements, primarily used to add a brand highlights to the theme.
- * --color-key: Color for body text, and other elements using the inherited body text color.
- * --color-neutral: Subtle color, usually shades of gray, for element borders and other subtle details.
- * --color-stock: Article/Page background color, but also used for other elements.
- * --font-family-body: Font-family for paragraphs and other non-headline elements
- * --font-family-heading: Font-family for paragraphs and other non-headline elements
- * --font-family-mono: Font-family for monospaced text elements such as \`pre\` and \`code\`.
- * --max-width-media: Maximum width for media content, including images and interactive Code Chunks.
- * --max-width: Max width for textual elements and other non-media content.
+ * Generate custom CSS selectors for types and properties
+ * in the Stencila Schema.
  *
- * Note that not all themes make use of all available variables, and that some may expose additional options.
- * Please refer to the specific theme documentation.
+ * For types, there is only one selector, having the name of the type, and
+ * using the `itemtype` attribute eg.
+ *
+ * ```css
+ * :--Article [itemtype~="http://schema.org/Article]
+ * :--List [itemtype~="http://schema.org/ItemList]
+ * :--CodeChunk [itemtype~="http://schema.stenci.la/CodeChunk]
+ * ```
+ *
+ * For array properties, there are two selectors, for different
+ * HTML element roles: `array` and `item`. For example,
+ * for the `CreativeWork.authors` property there is...
+ *
+ * Selector for the property's root element (usually a <ol>)
+ *
+ * ```css
+ * :--authors [data-itemprop~="authors"]
+ * ```
+ *
+ * Selector for the property's item elements (usually <li>s)
+ *
+ * ```css
+ * :--author [itemprop~="author"]
+ * ```
+ *
+ * For other properties, there is just one selector, e.g.
+ *
+ * ```css
+ * :--text [itemprop~="text"]
+ * ```
  */
+const generateSelectors = async (): Promise<void> => {
+  const types = await jsonSchemaTypes()
+  const typeSelectorsCss = types
+    .map(type => {
+      const itemtype = microdataItemtype(type as keyof Types)
+      return itemtype !== undefined
+        ? `@custom-selector :--${type} [itemtype~='${itemtype}'];\n`
+        : ''
+    })
+    .join('')
+
+  const props = await jsonSchemaProperties()
+  const propSelectors = Object.entries(props)
+    .map(
+      ([name, prop]): Record<string, string> => {
+        if (prop.isPlural) {
+          const [[arrayAttr, arrayValue]] = Object.entries(
+            microdataProperty(name, 'array')
+          )
+          const [[itemAttr, itemValue]] = Object.entries(
+            microdataProperty(name, 'item')
+          )
+          return {
+            [name]: `[${arrayAttr}~='${arrayValue}']`,
+            [name.slice(0, -1)]: `[${itemAttr}~='${itemValue}']`
+          }
+        } else {
+          const [[attr, value]] = Object.entries(microdataProperty(name))
+          return {
+            [name]: `[${attr}~='${value}']`
+          }
+        }
+      }
+    )
+    .reduce((prev, curr) => {
+      for (const [key, value] of Object.entries(curr)) {
+        if (key in prev && !prev[key].includes(value)) prev[key] += `, ${value}`
+        else prev[key] = value
+      }
+      return prev
+    }, {})
+  const propSelectorsCss = Object.entries(propSelectors)
+    .map(([name, selectors]) => `@custom-selector :--${name} ${selectors}`)
+    .join('\n')
+
+  const doc = `/* Generated by ${path.basename(__filename)}. Do not edit. */
 
 /**
  * Type selectors
- *
- * For types defined in http://schema.org (e.g. \`Article\`), or extensions such as,
- * http://schema.stenci.la (e.g. \`CodeChunk\`), http://bioschemas.org (e.g. \`Taxon\`) etc.
- *
- * Conventions:
- *
- * - use the same upper camel case as in the schema the type is defined in
- * - use a \`[itemtype=...]\` selector if possible (i.e. if Encoda encodes it in HTML)
  */
-${selectors}
+${typeSelectorsCss}
+
 /**
  * Property selectors
- *
- * For properties of types defined in schemas. Note that
- * some of these select an entire container property e.g. \`authors\` and
- * selector for a class, and some select items in those properties
- * e.g. \`author\` and select for a \`itemprop\`.
- *
- * Conventions:
- *
- * - use the same lower camel case as in the schema the property is defined in
- * - use a \`.class\` selector for container properties
- * - use a \`[itemprop=...]\` selector for singular properties, or items of container properties
  */
-${props}`
+${propSelectorsCss}`
 
   return fs.writeFile(outputPath, doc, () => doc)
 }

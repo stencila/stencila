@@ -88,7 +88,7 @@
 
 :--Collection,
 :--Heading,
-:--headline,
+:--title,
 :--List,
 :--Paragraph,
 :--ThematicBreak {
@@ -100,7 +100,7 @@
 
 /* Typography */
 :--Heading,
-:--headline {
+:--title {
   font-family: var(--font-family-body);
   font-weight: bold;
   margin: 2.75rem auto 0;
@@ -118,7 +118,7 @@
 }
 
 h1:--Heading,
-:--headline {
+:--title {
   font-size: var(--font-size-h1);
   line-height: 1.2;
   letter-spacing: -1.5px;
@@ -132,7 +132,7 @@ h1:--Heading,
   }
 }
 
-h1:--Heading:not(:--headline) {
+h1:--Heading:not(:--title) {
   font-size: var(--font-size-h2);
 }
 
@@ -189,7 +189,7 @@ h5:--Heading {
   }
 
   & + :--Heading,
-  & + :--headline {
+  & + :--title {
     margin-top: 1.75rem;
   }
 }
@@ -257,7 +257,7 @@ h5:--Heading {
   width: 100%;
 
   :--Heading,
-  :--headline {
+  :--title {
     font-family: var(--font-family-body);
     font-size: var(--font-size-body);
     margin-top: var(--space-md);
@@ -400,7 +400,7 @@ h5:--Heading {
   }
 }
 
-:--organizations {
+:--affiliations {
   list-style-position: inside;
   padding: 0;
   font-size: var(--font-size-h6);
@@ -456,7 +456,7 @@ h5:--Heading {
     display: inline;
   }
 
-  :--headline,
+  :--title,
   :--author,
   :--Person {
     color: var(--color-key);
@@ -488,7 +488,7 @@ h5:--Heading {
   }
 
   /* MLA Citation Styles */
-  :--CreativeWork > :--headline {
+  :--CreativeWork > :--title {
     &:first-of-type {
       display: none;
     }
@@ -557,7 +557,7 @@ h5:--Heading {
   }
 
   :--datePublished {
-    + :--headline {
+    + :--title {
       display: inline;
     }
 
