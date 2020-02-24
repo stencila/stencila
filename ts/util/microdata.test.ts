@@ -38,17 +38,32 @@ test('microdata', () => {
     'data-itemprop': 'depth'
   })
 
-  // Generate microdata for a property who's node
-  // is encoded as a free-standing element. Use id
-  // for this.
-  const org1 = organization()
-  expect(microdata(org1, 'affiliations', 'org1')).toEqual({
+  // Use case: generating a list of authors.
+  const authors = [person()]
+  // <ol data-itemprop="authors">
+  expect(microdata(authors, 'authors', 'array')).toEqual({
+    'data-itemprop': 'authors'
+  })
+  // <li itemscope itemtype="http://schema.org/Person" itemprop="author">
+  expect(microdata(authors[0], 'authors', 'item')).toEqual({
+    itemscope: '',
+    itemtype: 'http://schema.org/Person',
+    itemprop: 'author'
+  })
+
+  // Use case: generating a list of organizational affiliations
+  // for an author where each org is a free-standing element.
+  const orgs = [organization()]
+  expect(microdata(orgs, 'affiliations', 'array')).toEqual({
+    'data-itemprop': 'affiliations'
+  })
+  expect(microdata(orgs[0], 'affiliations', 'item', 'org1')).toEqual({
     itemscope: '',
     itemtype: 'http://schema.org/Organization',
     itemprop: 'affiliation',
     itemref: 'org1'
   })
-  expect(microdata(org1, undefined, 'org1')).toEqual({
+  expect(microdata(orgs[0], undefined, undefined, 'org1')).toEqual({
     itemscope: '',
     itemtype: 'http://schema.org/Organization',
     itemid: '#org1'
@@ -64,7 +79,19 @@ test('microdataItem', () => {
 })
 
 test('microdataProperty', () => {
-  expect(microdataProperty('affiliations', 'org1')).toEqual({
+  // A root element for the `affiliations` property e.g. <ol>
+  expect(microdataProperty('affiliations', 'array')).toEqual({
+    'data-itemprop': 'affiliations'
+  })
+
+  // A child element for an item in the `affiliations` property e.g. <li>
+  expect(microdataProperty('affiliations', 'item')).toEqual({
+    itemprop: 'affiliation'
+  })
+
+  // A child element for an `affiliations` property that is linked to
+  // another element
+  expect(microdataProperty('affiliations', 'item', 'org1')).toEqual({
     itemprop: 'affiliation',
     itemref: 'org1'
   })

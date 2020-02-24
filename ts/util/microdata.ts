@@ -19,20 +19,27 @@ export function microdataUrl(type = ''): string {
 
 export type Microdata = MicrodataItem & MicrodataProperty
 
+type Role = 'array' | 'item'
+
 /**
  * Create all Microdata attributes for a Stencila `Node`.
  *
  * @param node The node e.g. a `Person` node
- * @param property The name of the property that this node is part of e.g `'author'`
+ * @param property The name of the property that this node is part of e.g `authors`
+ * @param role Is this an item within an array property e.g a `Person` within `authors`
+ * @param id The id used to link to / from this Microdata item
  */
 export function microdata(
   node: Node,
   property?: string,
+  role?: Role,
   id?: string
 ): Microdata {
   return {
-    ...microdataItem(node, property === undefined ? id : undefined),
-    ...(property !== undefined ? microdataProperty(property, id) : {})
+    ...(role !== 'array'
+      ? microdataItem(node, property === undefined ? id : undefined)
+      : {}),
+    ...(property !== undefined ? microdataProperty(property, role, id) : {})
   }
 }
 
@@ -43,18 +50,24 @@ export function microdata(
  *  an itemscope attribute specified."
  */
 export interface MicrodataItem {
-  itemscope: ''
-  itemtype: string
+  itemscope?: ''
+  itemtype?: string
   itemid?: string
 }
 
+/**
+ * Create `MicrodataItem` attributes for a node.
+ *
+ * @param node The node to create Microdata attributes for
+ * @param id Id of the Microdata item. Used to link to this node using the `itemref` property.
+ */
 export function microdataItem(node: Node, id?: string): MicrodataItem {
   const itemtype = microdataItemtype(nodeType(node)) ?? 'Thing'
-  const itemid = id !== undefined ? { itemid: `#${id}` } : {}
+  const itemidAttr = id !== undefined ? { itemid: `#${id}` } : {}
   return {
     itemscope: '',
     itemtype,
-    ...itemid
+    ...itemidAttr
   }
 }
 
@@ -93,15 +106,21 @@ export interface MicrodataProperty {
 
 /**
  * Create `MicrodataProperty` attributes for a node property.
+ *
+ * @param property The name of the property
+ * @param isItem Is the node for which attributes are being generated
+ *                    an item within an array property? e.g. a `Person` in `authors`.
+ * @param id Id of another Microdata item to link to using the `itemref` property.
  */
 export function microdataProperty(
   property: string,
+  role?: Role,
   id?: string
 ): MicrodataProperty {
-  const [prefix, name = ''] = microdataItemprop(property)
+  const [prefix, name = ''] = microdataItemprop(property, role)
   const key = prefix === 'schema' ? 'itemprop' : 'data-itemprop'
-  const itemref = id !== undefined ? { itemref: id } : {}
-  return { [key]: name, ...itemref }
+  const itemrefAttr = id !== undefined ? { itemref: id } : {}
+  return { [key]: name, ...itemrefAttr }
 }
 
 /**
@@ -114,16 +133,32 @@ export function microdataProperty(
  * `itemprop`s for well known schemas e.g. schema.org
  *
  * @see {@link https://www.w3.org/TR/microdata/#dfn-attr-itemprop}
+ *
+ * @param property The name of the property
+ * @param role Is the node for which attributes are being generated
+ *               an item within an array property? e.g. a `Person` in `authors`.
  */
 export function microdataItemprop(
-  property: string
+  property: string,
+  role?: Role
 ): [string | undefined, string | undefined] {
+  if (role === 'array') return ['stencila', property]
+
   const context = jsonLdContext()
   const mapping = context[property]
   if (mapping === undefined) return [undefined, undefined]
   if (typeof mapping === 'string') return [undefined, mapping]
 
   const id = mapping['@id']
-  const parts = id.split(':')
-  return parts.length === 1 ? [undefined, parts[0]] : [parts[0], parts[1]]
+  let [prefix, name] = id.split(':')
+
+  // If this is an item in an array property and the
+  // name is a plural, then return a singular name.
+  // For external vocabs the `@id` is usually a singular already e.g.
+  //   schema:author
+  //   codemeta:maintainer
+  if (role === 'item' && prefix === 'stencila' && name.endsWith('s'))
+    name = name.slice(0, -1)
+
+  return [prefix, name]
 }
