@@ -224,7 +224,7 @@
 @custom-selector :--pageStart [itemprop~='pageStart']
 @custom-selector :--pagination [itemprop~='pagination']
 @custom-selector :--parameters [data-itemprop~='parameters']
-@custom-selector :--parameter [itemprop~='parameters']
+@custom-selector :--parameter [data-itemprop~='parameter']
 @custom-selector :--parentOrganization [itemprop~='parentOrganization']
 @custom-selector :--parts [data-itemprop~='parts']
 @custom-selector :--part [itemprop~='hasParts']
