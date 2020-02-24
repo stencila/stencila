@@ -1,3 +1,21 @@
+# [0.39.0](https://github.com/stencila/schema/compare/v0.38.0...v0.39.0) (2020-02-24)
+
+
+### Bug Fixes
+
+* **ArrayValidator:** Use more specific name to avoid clash with items ([a27039f](https://github.com/stencila/schema/commit/a27039f4fbf105f6ed29a5be7a639f8b6b12b1d9))
+* **Figure:** Allow caption to be a string for compatability with caption on other types ([1380fd2](https://github.com/stencila/schema/commit/1380fd2e1ea11b38ba53777ef88574189865ac75))
+* **Function:** Property parameters has local id ([314dce8](https://github.com/stencila/schema/commit/314dce81225dff0a414920f406422a89bd7d10d4))
+* **Thing:** IMages property should be an array ([83fe1ba](https://github.com/stencila/schema/commit/83fe1ba6c5c58bc228311574b8bdcca81de4c9a5))
+
+
+### Features
+
+* **Microdata:** Add higher level HTML Microdata functions ([67b850e](https://github.com/stencila/schema/commit/67b850edd0493f60167e170cfabf8df24617f226))
+* **Microdata:** Consider `role` when generating itemprop ([65c3772](https://github.com/stencila/schema/commit/65c37722db3043c9d381cd0588bd147c519c004f))
+* **Thing:** Add images property ([45eeba0](https://github.com/stencila/schema/commit/45eeba0bb94cb00c14a89e5d2e0f789d744ed35c))
+* **Util:** Add Typescript utility functions for inspecting JSON Schemas at runtime ([d5475f9](https://github.com/stencila/schema/commit/d5475f9407b75b5f9b3f8447e3d8a9fee085f492))
+
 # [0.38.0](https://github.com/stencila/schema/compare/v0.37.3...v0.38.0) (2020-02-22)
 
 
