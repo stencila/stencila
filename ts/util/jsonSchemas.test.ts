@@ -21,8 +21,8 @@ test('jsonSchemaTypes', async () => {
 
 test('jsonSchemaProperties', async () => {
   const props = await jsonSchemaProperties()
-  expect(props).toBeInstanceOf(Array)
-  expect(props.length).toBeGreaterThan(0)
-  expect(props.includes('authors')).toBeTruthy()
-  expect(props.includes('honorificSuffix')).toBeTruthy()
+  expect(props).toBeInstanceOf(Object)
+  expect(Object.keys(props).length).toBeGreaterThan(0)
+  expect(props).toHaveProperty('authors')
+  expect(props).toHaveProperty('honorificSuffix')
 })
