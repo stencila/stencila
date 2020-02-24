@@ -19,7 +19,6 @@
 - [Notes](#notes)
   - [Generated code](#generated-code)
   - [Testing](#testing)
-  - [Notes](#notes-1)
 - [Acknowledgments](#acknowledgments)
 
 ## Quick Start
@@ -140,6 +139,45 @@ There are a few key rules enforced by Stylelint:
   - As such, good typography is paramount. Reading Matthew Butterick‘s [Typography in Ten
   - Minutes](https://practicaltypography.com/typography-in-ten-minutes.html) will give you a solid foundation and a
   - reference for crafting your own themes.
+
+To tweak or adjust an existing theme, you may override some common CSS variables found in the themes.
+
+Available CSS variables are:
+--color-accent: Color for accent elements, primarily used to add a brand highlights to the theme.
+--color-key: Color for body text, and other elements using the inherited body text color.
+--color-neutral: Subtle color, usually shades of gray, for element borders and other subtle details.
+--color-stock: Article/Page background color, but also used for other elements.
+--font-family-body: Font-family for paragraphs and other non-headline elements
+--font-family-heading: Font-family for paragraphs and other non-headline elements
+--font-family-mono: Font-family for monospaced text elements such as \`pre\` and \`code\`.
+--max-width-media: Maximum width for media content, including images and interactive Code Chunks.
+--max-width: Max width for textual elements and other non-media content.
+
+Note that not all themes make use of all available variables, and that some may expose additional options.
+Please refer to the specific theme documentation.
+
+Type selectors
+
+For types defined in http://schema.org (e.g. \`Article\`), or extensions such as,
+http://schema.stenci.la (e.g. \`CodeChunk\`), http://bioschemas.org (e.g. \`Taxon\`) etc.
+
+Conventions:
+
+- use the same upper camel case as in the schema the type is defined in
+- use a \`[itemtype=...]\` selector if possible (i.e. if Encoda encodes it in HTML)
+
+Property selectors
+
+For properties of types defined in schemas. Note that
+some of these select an entire container property e.g. \`authors\` and
+selector for a class, and some select items in those properties
+e.g. \`author\` and select for a \`itemprop\`.
+
+Conventions:
+
+- use the same lower camel case as in the schema the property is defined in
+- use a \`.class\` selector for container properties
+- use a \`[itemprop=...]\` selector for singular properties, or items of container properties
 
 ### Extensions
 
