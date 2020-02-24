@@ -38,7 +38,7 @@ const defaults: {
   THEME: string
   HEADER: 'true' | 'false'
 } = {
-  EXAMPLE: examples.articleKitchenSink,
+  EXAMPLE: examples.articleReadme,
   THEME: 'stencila',
   HEADER: 'true'
 }

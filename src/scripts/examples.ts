@@ -24,7 +24,7 @@ import { convert } from '@stencila/encoda'
 import fs from 'fs'
 import path from 'path'
 
-const EXAMPLES = [articleKitchenSink, articleDrosophila, articleAntibodies]
+const EXAMPLES = [articleReadme, articleKitchenSink, articleDrosophila, articleAntibodies]
 
 /**
  * Given a filename, return its path within the examples folder.
@@ -42,6 +42,14 @@ const build = (
   convert(input, outputs, { encodeOptions: { isStandalone: false, theme: '' } })
 
 /**
+ * The README of this repo to be used as the default page of the demo
+ * at https://stencila.github.io/thema.
+ */
+function articleReadme(): Promise<string | undefined> {
+  return build(path.join(__dirname, '..', '..', 'README.md'), ex('articleReadme.html'))
+}
+
+/**
  * A kitchen sink article intended to have at
  * least one of every node type.
  */
@@ -53,10 +61,9 @@ function articleKitchenSink(): Promise<string | undefined> {
  * An eLife article.
  */
 function articleDrosophila(): Promise<string | undefined> {
-  return build('https://elifesciences.org/articles/49574v2', [
-    ex('articleDrosophila.html'),
-    ex('articleDrosophila.yaml')
-  ])
+  return build('https://elifesciences.org/articles/49574v2',
+    ex('articleDrosophila.html')
+  )
 }
 
 /**
@@ -65,7 +72,7 @@ function articleDrosophila(): Promise<string | undefined> {
 function articleAntibodies(): Promise<string | undefined> {
   return build(
     'https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1007207',
-    [ex('articleAntibodies.html'), ex('articleAntibodies.yaml')]
+    ex('articleAntibodies.html')
   )
 }
 

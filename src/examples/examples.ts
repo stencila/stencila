@@ -4,10 +4,12 @@
  * Map of example names
  */
 export const examples: {
+  articleReadme: string
   articleKitchenSink: string
   articleDrosophila: string
   articleAntibodies: string
 } = {
+  articleReadme: 'articleReadme',
   articleKitchenSink: 'articleKitchenSink',
   articleDrosophila: 'articleDrosophila',
   articleAntibodies: 'articleAntibodies'
