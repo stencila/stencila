@@ -90,10 +90,6 @@
           <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#testing"
               itemscope="" itemtype="http://schema.stenci.la/Link">Testing</a></p>
         </li>
-        <li itemscope="" itemtype="http://schema.org/ListItem">
-          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#notes-1"
-              itemscope="" itemtype="http://schema.stenci.la/Link">Notes</a></p>
-        </li>
       </ul>
     </li>
     <li itemscope="" itemtype="http://schema.org/ListItem">
@@ -293,6 +289,62 @@ cd thema</code></pre>
             own themes.</p>
         </li>
       </ul>
+    </li>
+  </ul>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">To tweak or adjust an existing theme,
+    you may override some common CSS variables found in the themes.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Available CSS variables are:
+    --color-accent: Color for accent elements, primarily used to add a brand highlights to the
+    theme. --color-key: Color for body text, and other elements using the inherited body text color.
+    --color-neutral: Subtle color, usually shades of gray, for element borders and other subtle
+    details. --color-stock: Article/Page background color, but also used for other elements.
+    --font-family-body: Font-family for paragraphs and other non-headline elements
+    --font-family-heading: Font-family for paragraphs and other non-headline elements
+    --font-family-mono: Font-family for monospaced text elements such as `pre` and `code`.
+    --max-width-media: Maximum width for media content, including images and interactive Code
+    Chunks. --max-width: Max width for textual elements and other non-media content.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Note that not all themes make use of
+    all available variables, and that some may expose additional options. Please refer to the
+    specific theme documentation.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Type selectors</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">For types defined in <a
+      href="http://schema.org" itemscope=""
+      itemtype="http://schema.stenci.la/Link">http://schema.org</a> (e.g. `Article`), or extensions
+    such as, <a href="http://schema.stenci.la" itemscope=""
+      itemtype="http://schema.stenci.la/Link">http://schema.stenci.la</a> (e.g. `CodeChunk`), <a
+      href="http://bioschemas.org" itemscope=""
+      itemtype="http://schema.stenci.la/Link">http://bioschemas.org</a> (e.g. `Taxon`) etc.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Conventions:</p>
+  <ul itemscope="" itemtype="http://schema.org/ItemList">
+    <li itemscope="" itemtype="http://schema.org/ListItem">
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">use the same upper camel case as
+        in the schema the type is defined in</p>
+    </li>
+    <li itemscope="" itemtype="http://schema.org/ListItem">
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">use a `<a href="" itemscope=""
+          itemtype="http://schema.stenci.la/Link">itemtype=...</a>` selector if possible (i.e. if
+        Encoda encodes it in HTML)</p>
+    </li>
+  </ul>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Property selectors</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">For properties of types defined in
+    schemas. Note that some of these select an entire container property e.g. `authors` and selector
+    for a class, and some select items in those properties e.g. `author` and select for a
+    `itemprop`.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Conventions:</p>
+  <ul itemscope="" itemtype="http://schema.org/ItemList">
+    <li itemscope="" itemtype="http://schema.org/ListItem">
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">use the same lower camel case as
+        in the schema the property is defined in</p>
+    </li>
+    <li itemscope="" itemtype="http://schema.org/ListItem">
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">use a `.class` selector for
+        container properties</p>
+    </li>
+    <li itemscope="" itemtype="http://schema.org/ListItem">
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">use a `<a href="" itemscope=""
+          itemtype="http://schema.stenci.la/Link">itemprop=...</a>` selector for singular
+        properties, or items of container properties</p>
     </li>
   </ul>
   <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="extensions">Extensions</h3>

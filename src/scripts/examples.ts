@@ -24,7 +24,12 @@ import { convert } from '@stencila/encoda'
 import fs from 'fs'
 import path from 'path'
 
-const EXAMPLES = [articleReadme, articleKitchenSink, articleDrosophila, articleAntibodies]
+const EXAMPLES = [
+  articleReadme,
+  articleKitchenSink,
+  articleDrosophila,
+  articleAntibodies
+]
 
 /**
  * Given a filename, return its path within the examples folder.
@@ -46,7 +51,10 @@ const build = (
  * at https://stencila.github.io/thema.
  */
 function articleReadme(): Promise<string | undefined> {
-  return build(path.join(__dirname, '..', '..', 'README.md'), ex('articleReadme.html'))
+  return build(
+    path.join(__dirname, '..', '..', 'README.md'),
+    ex('articleReadme.html')
+  )
 }
 
 /**
@@ -61,7 +69,8 @@ function articleKitchenSink(): Promise<string | undefined> {
  * An eLife article.
  */
 function articleDrosophila(): Promise<string | undefined> {
-  return build('https://elifesciences.org/articles/49574v2',
+  return build(
+    'https://elifesciences.org/articles/49574v2',
     ex('articleDrosophila.html')
   )
 }
