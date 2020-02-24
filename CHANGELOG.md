@@ -1,3 +1,11 @@
+## [1.6.4](https://github.com/stencila/thema/compare/v1.6.3...v1.6.4) (2020-02-24)
+
+
+### Bug Fixes
+
+* **Selectors:** Upgrade Schema version and regenerate selectors ([9eb59da](https://github.com/stencila/thema/commit/9eb59dab7b5232f02b2c320b933cf0e9746cc77f))
+* **Themes:** Fix invalid custom selectors ([c972fcd](https://github.com/stencila/thema/commit/c972fcd89c01342c7fd50e11c351628eed173aba))
+
 ## [1.6.3](https://github.com/stencila/thema/compare/v1.6.2...v1.6.3) (2020-02-23)
 
 
