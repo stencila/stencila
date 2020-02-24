@@ -49,7 +49,7 @@ class ArrayValidator(Entity):
     contains: Optional["ValidatorTypes"] = None
     """An array node is valid if at least one of its items is valid against the `contains` schema."""
 
-    items: Optional["ValidatorTypes"] = None
+    itemsValidator: Optional["ValidatorTypes"] = None
     """Another validator node specifying the constraints on all items in the array."""
 
     maxItems: Optional[float] = None
@@ -66,7 +66,7 @@ class ArrayValidator(Entity):
         self,
         contains: Optional["ValidatorTypes"] = None,
         id: Optional[str] = None,
-        items: Optional["ValidatorTypes"] = None,
+        itemsValidator: Optional["ValidatorTypes"] = None,
         maxItems: Optional[float] = None,
         meta: Optional[Dict[str, Any]] = None,
         minItems: Optional[float] = None,
@@ -78,8 +78,8 @@ class ArrayValidator(Entity):
         )
         if contains is not None:
             self.contains = contains
-        if items is not None:
-            self.items = items
+        if itemsValidator is not None:
+            self.itemsValidator = itemsValidator
         if maxItems is not None:
             self.maxItems = maxItems
         if minItems is not None:
@@ -1294,7 +1294,7 @@ class Figure(CreativeWork):
     and labels for them.
     """
 
-    caption: Optional[Array["Node"]] = None
+    caption: Optional[Union[str, Array["Node"]]] = None
     """A caption to display for the figure."""
 
     label: Optional[str] = None
@@ -1305,7 +1305,7 @@ class Figure(CreativeWork):
         self,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        caption: Optional[Array["Node"]] = None,
+        caption: Optional[Union[str, Array["Node"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -1378,7 +1378,7 @@ class Function(Entity):
     """The name of the function."""
 
     parameters: Optional[Array["Parameter"]] = None
-    """An array of parameters the function exists."""
+    """The parameters of the function."""
 
     returns: Optional["ValidatorTypes"] = None
     """The return type of the function."""
@@ -1754,15 +1754,15 @@ class ListItem(Entity):
     content: Array["Node"]
     """The content of the list item."""
 
-    checked: Optional[bool] = None
+    isChecked: Optional[bool] = None
     """A flag to indicate if this list item is checked."""
 
 
     def __init__(
         self,
         content: Array["Node"],
-        checked: Optional[bool] = None,
         id: Optional[str] = None,
+        isChecked: Optional[bool] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
@@ -1771,8 +1771,8 @@ class ListItem(Entity):
         )
         if content is not None:
             self.content = content
-        if checked is not None:
-            self.checked = checked
+        if isChecked is not None:
+            self.isChecked = isChecked
 
 
 class Math(Entity):
@@ -2005,7 +2005,7 @@ class Variable(Entity):
     name: str
     """The name of the variable."""
 
-    readonly: Optional[bool] = None
+    isReadonly: Optional[bool] = None
     """Whether or not a property is mutable. Default is false."""
 
     validator: Optional["ValidatorTypes"] = None
@@ -2019,8 +2019,8 @@ class Variable(Entity):
         self,
         name: str,
         id: Optional[str] = None,
+        isReadonly: Optional[bool] = None,
         meta: Optional[Dict[str, Any]] = None,
-        readonly: Optional[bool] = None,
         validator: Optional["ValidatorTypes"] = None,
         value: Optional["Node"] = None
     ) -> None:
@@ -2030,8 +2030,8 @@ class Variable(Entity):
         )
         if name is not None:
             self.name = name
-        if readonly is not None:
-            self.readonly = readonly
+        if isReadonly is not None:
+            self.isReadonly = isReadonly
         if validator is not None:
             self.validator = validator
         if value is not None:
@@ -2044,45 +2044,45 @@ class Parameter(Variable):
     default: Optional["Node"] = None
     """The default value of the parameter."""
 
-    extends: Optional[bool] = None
+    isExtensible: Optional[bool] = None
     """Indicates that this parameter is variadic and can accept multiple named arguments."""
 
-    repeats: Optional[bool] = None
-    """Indicates that this parameter is variadic and can accept multiple arguments."""
-
-    required: Optional[bool] = None
+    isRequired: Optional[bool] = None
     """Is this parameter required, if not it should have a default or default is assumed to be null."""
+
+    isVariadic: Optional[bool] = None
+    """Indicates that this parameter is variadic and can accept multiple arguments."""
 
 
     def __init__(
         self,
         name: str,
         default: Optional["Node"] = None,
-        extends: Optional[bool] = None,
         id: Optional[str] = None,
+        isExtensible: Optional[bool] = None,
+        isReadonly: Optional[bool] = None,
+        isRequired: Optional[bool] = None,
+        isVariadic: Optional[bool] = None,
         meta: Optional[Dict[str, Any]] = None,
-        readonly: Optional[bool] = None,
-        repeats: Optional[bool] = None,
-        required: Optional[bool] = None,
         validator: Optional["ValidatorTypes"] = None,
         value: Optional["Node"] = None
     ) -> None:
         super().__init__(
             name=name,
             id=id,
+            isReadonly=isReadonly,
             meta=meta,
-            readonly=readonly,
             validator=validator,
             value=value
         )
         if default is not None:
             self.default = default
-        if extends is not None:
-            self.extends = extends
-        if repeats is not None:
-            self.repeats = repeats
-        if required is not None:
-            self.required = required
+        if isExtensible is not None:
+            self.isExtensible = isExtensible
+        if isRequired is not None:
+            self.isRequired = isRequired
+        if isVariadic is not None:
+            self.isVariadic = isVariadic
 
 
 class Periodical(CreativeWork):

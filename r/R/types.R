@@ -29,7 +29,7 @@ Entity <- function(
 #' @name ArrayValidator
 #' @param contains An array node is valid if at least one of its items is valid against the `contains` schema.
 #' @param id The identifier for this item.
-#' @param items Another validator node specifying the constraints on all items in the array.
+#' @param itemsValidator Another validator node specifying the constraints on all items in the array.
 #' @param maxItems An array node is valid if its size is less than, or equal to, this value.
 #' @param meta Metadata associated with this item.
 #' @param minItems An array node is valid if its size is greater than, or equal to, this value.
@@ -39,7 +39,7 @@ Entity <- function(
 ArrayValidator <- function(
   contains,
   id,
-  items,
+  itemsValidator,
   maxItems,
   meta,
   minItems,
@@ -51,7 +51,7 @@ ArrayValidator <- function(
   )
   self$type <- as_scalar("ArrayValidator")
   self[["contains"]] <- check_property("ArrayValidator", "contains", FALSE, missing(contains), ValidatorTypes, contains)
-  self[["items"]] <- check_property("ArrayValidator", "items", FALSE, missing(items), ValidatorTypes, items)
+  self[["itemsValidator"]] <- check_property("ArrayValidator", "itemsValidator", FALSE, missing(itemsValidator), ValidatorTypes, itemsValidator)
   self[["maxItems"]] <- check_property("ArrayValidator", "maxItems", FALSE, missing(maxItems), "numeric", maxItems)
   self[["minItems"]] <- check_property("ArrayValidator", "minItems", FALSE, missing(minItems), "numeric", minItems)
   self[["uniqueItems"]] <- check_property("ArrayValidator", "uniqueItems", FALSE, missing(uniqueItems), "logical", uniqueItems)
@@ -1414,7 +1414,7 @@ Figure <- function(
     version = version
   )
   self$type <- as_scalar("Figure")
-  self[["caption"]] <- check_property("Figure", "caption", FALSE, missing(caption), Array(Node), caption)
+  self[["caption"]] <- check_property("Figure", "caption", FALSE, missing(caption), Union("character", Array(Node)), caption)
   self[["label"]] <- check_property("Figure", "label", FALSE, missing(label), "character", label)
   class(self) <- c(class(self), "Figure")
   self
@@ -1427,7 +1427,7 @@ Figure <- function(
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the function.
-#' @param parameters An array of parameters the function exists.
+#' @param parameters The parameters of the function.
 #' @param returns The return type of the function.
 #' @seealso \code{\link{Entity}}
 #' @export
@@ -1813,15 +1813,15 @@ List <- function(
 #'
 #' @name ListItem
 #' @param content The content of the list item. \bold{Required}.
-#' @param checked A flag to indicate if this list item is checked.
 #' @param id The identifier for this item.
+#' @param isChecked A flag to indicate if this list item is checked.
 #' @param meta Metadata associated with this item.
 #' @seealso \code{\link{Entity}}
 #' @export
 ListItem <- function(
   content,
-  checked,
   id,
+  isChecked,
   meta
 ){
   self <- Entity(
@@ -1830,7 +1830,7 @@ ListItem <- function(
   )
   self$type <- as_scalar("ListItem")
   self[["content"]] <- check_property("ListItem", "content", TRUE, missing(content), Array(Node), content)
-  self[["checked"]] <- check_property("ListItem", "checked", FALSE, missing(checked), "logical", checked)
+  self[["isChecked"]] <- check_property("ListItem", "isChecked", FALSE, missing(isChecked), "logical", isChecked)
   class(self) <- c(class(self), "ListItem")
   self
 }
@@ -2071,8 +2071,8 @@ Paragraph <- function(
 #' @name Variable
 #' @param name The name of the variable. \bold{Required}.
 #' @param id The identifier for this item.
+#' @param isReadonly Whether or not a property is mutable. Default is false.
 #' @param meta Metadata associated with this item.
-#' @param readonly Whether or not a property is mutable. Default is false.
 #' @param validator The validator that the value is validated against.
 #' @param value The value of the variable.
 #' @seealso \code{\link{Entity}}
@@ -2080,8 +2080,8 @@ Paragraph <- function(
 Variable <- function(
   name,
   id,
+  isReadonly,
   meta,
-  readonly,
   validator,
   value
 ){
@@ -2091,7 +2091,7 @@ Variable <- function(
   )
   self$type <- as_scalar("Variable")
   self[["name"]] <- check_property("Variable", "name", TRUE, missing(name), "character", name)
-  self[["readonly"]] <- check_property("Variable", "readonly", FALSE, missing(readonly), "logical", readonly)
+  self[["isReadonly"]] <- check_property("Variable", "isReadonly", FALSE, missing(isReadonly), "logical", isReadonly)
   self[["validator"]] <- check_property("Variable", "validator", FALSE, missing(validator), ValidatorTypes, validator)
   self[["value"]] <- check_property("Variable", "value", FALSE, missing(value), Node, value)
   class(self) <- c(class(self), "Variable")
@@ -2104,12 +2104,12 @@ Variable <- function(
 #' @name Parameter
 #' @param name The name of the variable. \bold{Required}.
 #' @param default The default value of the parameter.
-#' @param extends Indicates that this parameter is variadic and can accept multiple named arguments.
 #' @param id The identifier for this item.
+#' @param isExtensible Indicates that this parameter is variadic and can accept multiple named arguments.
+#' @param isReadonly Whether or not a property is mutable. Default is false.
+#' @param isRequired Is this parameter required, if not it should have a default or default is assumed to be null.
+#' @param isVariadic Indicates that this parameter is variadic and can accept multiple arguments.
 #' @param meta Metadata associated with this item.
-#' @param readonly Whether or not a property is mutable. Default is false.
-#' @param repeats Indicates that this parameter is variadic and can accept multiple arguments.
-#' @param required Is this parameter required, if not it should have a default or default is assumed to be null.
 #' @param validator The validator that the value is validated against.
 #' @param value The value of the variable.
 #' @seealso \code{\link{Variable}}
@@ -2117,28 +2117,28 @@ Variable <- function(
 Parameter <- function(
   name,
   default,
-  extends,
   id,
+  isExtensible,
+  isReadonly,
+  isRequired,
+  isVariadic,
   meta,
-  readonly,
-  repeats,
-  required,
   validator,
   value
 ){
   self <- Variable(
     name = name,
     id = id,
+    isReadonly = isReadonly,
     meta = meta,
-    readonly = readonly,
     validator = validator,
     value = value
   )
   self$type <- as_scalar("Parameter")
   self[["default"]] <- check_property("Parameter", "default", FALSE, missing(default), Node, default)
-  self[["extends"]] <- check_property("Parameter", "extends", FALSE, missing(extends), "logical", extends)
-  self[["repeats"]] <- check_property("Parameter", "repeats", FALSE, missing(repeats), "logical", repeats)
-  self[["required"]] <- check_property("Parameter", "required", FALSE, missing(required), "logical", required)
+  self[["isExtensible"]] <- check_property("Parameter", "isExtensible", FALSE, missing(isExtensible), "logical", isExtensible)
+  self[["isRequired"]] <- check_property("Parameter", "isRequired", FALSE, missing(isRequired), "logical", isRequired)
+  self[["isVariadic"]] <- check_property("Parameter", "isVariadic", FALSE, missing(isVariadic), "logical", isVariadic)
   class(self) <- c(class(self), "Parameter")
   self
 }
