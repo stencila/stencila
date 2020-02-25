@@ -1,4 +1,4 @@
-import { create } from './dom'
+import { create } from '.'
 
 describe('create', () => {
   it('works with HTML', () => {

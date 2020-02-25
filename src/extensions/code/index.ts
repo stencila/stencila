@@ -2,7 +2,7 @@ import Prism from 'prismjs'
 import 'prismjs/plugins/filter-highlight-all/prism-filter-highlight-all'
 import 'prismjs/components/prism-python'
 import 'prismjs/components/prism-r'
-import { ready, select } from '../../scripts/dom'
+import { ready, select } from '../../util'
 
 ready(() => {
   /**

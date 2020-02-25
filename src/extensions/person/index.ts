@@ -1,4 +1,4 @@
-import { after, create, replace, select, ready } from '../../scripts/dom'
+import { after, create, replace, select, ready } from '../../util'
 
 /**
  * Currently, Encoda encodes the names of a `Person` within a `span` e.g.

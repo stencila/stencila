@@ -1,14 +1,8 @@
 /**
- * Convenience functions for modifying the elements in the DOM.
+ * Convenience functions for manipulating the DOM.
  *
  * Most of the names of these functions mirror their analogs in https://api.jquery.com.
  */
-
-import { semanticToAttributeSelectors } from '../selectors'
-
-let readyList: (() => unknown)[] = []
-let readyListening = false
-let readyFired = false
 
 /**
  * Register a function to be executed when the DOM is fully loaded.
@@ -16,7 +10,15 @@ let readyFired = false
  * Like https://api.jquery.com/ready/.
  * Logic from https://stackoverflow.com/questions/9899372/pure-javascript-equivalent-of-jquerys-ready-how-to-call-a-function-when-t
  *
- * @param func Function to register
+ * @example
+ *
+ * ```ts
+ * ready(() => {
+ *   // Use other DOM manipulation functions here
+ * })
+ * ```
+ *
+ * @param {Function} func Function to register
  */
 export function ready(func: () => unknown): void {
   if (readyFired) {
@@ -37,6 +39,11 @@ export function ready(func: () => unknown): void {
     readyListening = true
   }
 }
+
+// Module global variables used in the `ready` function
+let readyList: (() => unknown)[] = []
+let readyListening = false
+let readyFired = false
 
 /**
  * When the DOM is ready, call all of the functions registered
@@ -66,7 +73,7 @@ export function select(...args: (string | Document | Element)[]): Element[] {
     ? [document, args[0]]
     : args.slice(0, 2)) as [Element, string]
   return Array.from(
-    elem.querySelectorAll(semanticToAttributeSelectors(selector))
+    elem.querySelectorAll(selector)
   )
 }
 
@@ -127,32 +134,32 @@ export function create(
 }
 
 /**
- * Insert a new element before an element.
+ * Insert new elements before a DOM element.
  *
  * Like https://api.jquery.com/before/.
  *
- * @param target
- * @param insert
+ * @param {Element} target The element before which the elements are to be inserted
+ * @param {Element[]} elems The elements to insert
  */
-export function before(target: Element, insert: Element): void {
+export function before(target: Element, ...elems: Element[]): void {
   const parent = target.parentNode
   if (parent !== null) {
-    parent.insertBefore(insert, target)
+    elems.reverse().forEach(elem => parent.insertBefore(elem, target))
   }
 }
 
 /**
- * Insert a new element after an element.
+ * Insert new elements after a DOM element.
  *
  * Like https://api.jquery.com/after/.
  *
- * @param target
- * @param insert
+ * @param {Element} target The element after which the elements are to be inserted
+ * @param {Element[]} elems The elements to insert
  */
-export function after(target: Element, ...insert: Element[]): void {
+export function after(target: Element, ...elems: Element[]): void {
   const parent = target.parentNode
   if (parent !== null) {
-    insert
+    elems
       .reverse()
       .forEach(elem => parent.insertBefore(elem, target.nextSibling))
   }

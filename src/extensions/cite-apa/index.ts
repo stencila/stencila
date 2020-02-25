@@ -1,5 +1,5 @@
 import '../cite'
-import { ready, select } from '../../scripts/dom'
+import { ready, select } from '../../util'
 
 /**
  * APA style uses author initials (rather than complete given names).

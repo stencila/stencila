@@ -1,4 +1,4 @@
-import { ready, wrap } from '../../scripts/dom'
+import { ready, wrap } from '../../util'
 
 ready(() => {
   // Add wrappers around elements in the abstract to be able to use

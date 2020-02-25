@@ -1,4 +1,4 @@
-import { ready, create, replace, select } from '../../scripts/dom'
+import { ready, create, replace, select } from '../../util'
 
 /**
  * Currently, Encoda encodes a `CreativeWork.datePublished` as
