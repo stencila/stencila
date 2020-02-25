@@ -20,6 +20,22 @@
   - [Generated code](#generated-code)
   - [Testing](#testing)
 - [Acknowledgments](#acknowledgments)
+- [Utilities API](#utilities-api)
+- [Members](#members)
+- [Functions](#functions)
+- [\_\_spreadArrays](#spreadarrays)
+- [ready(func)](#readyfunc)
+- [first(elem, selector) ⇒ <code>Element</code> \| <code>null</code>](#firstelem-selector-%e2%87%92-codeelementcode--codenullcode)
+- [select(elem, selector) ⇒ <code>Array.&lt;Element&gt;</code>](#selectelem-selector-%e2%87%92-codearrayltelementgtcode)
+- [create(spec, ...children) ⇒ <code>Element</code>](#createspec-children-%e2%87%92-codeelementcode)
+- [attr(target, name, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>](#attrtarget-name-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode)
+- [text(target, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>](#texttarget-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode)
+- [append(target, ...elems)](#appendtarget-elems)
+- [prepend(target, ...elems)](#prependtarget-elems)
+- [before(target, ...elems)](#beforetarget-elems)
+- [after(target, ...elems)](#aftertarget-elems)
+- [replace(target, ...elems)](#replacetarget-elems)
+- [wrap(target, elem)](#wraptarget-elem)
 
 ## Quick Start
 
@@ -237,3 +253,270 @@ We rely on many tools and services for which we are grateful ❤ to their develo
 |    <a href="https://saucelabs.com"><img src="./.github/PoweredBySauceLabs.svg" width="150" /></a>    | Cross-browser testing platform       |
 | <a href="https://webdriver.io/"><img src="https://webdriver.io/img/webdriverio.png" width="50"/></a> | WebDriver test framework for Node.js |
 |        <a href="https://www.argos-ci.com/"><img src="./.github/ArgosCI.svg" width="150"/></a>        | Visual regression system             |
+
+## Utilities API
+
+Documentation for functions provided in the [`util`](./src/util) module.
+
+<!-- prettier-ignore-start -->
+<!-- UTIL-API -->
+## Functions
+
+<dl>
+<dt><a href="#ready">ready(func)</a></dt>
+<dd><p>Register a function to be executed when the DOM is fully loaded.</p>
+</dd>
+<dt><a href="#first">first(elem, selector)</a> ⇒ <code>Element</code> | <code>null</code></dt>
+<dd><p>Select the first element matching a CSS selector.</p>
+</dd>
+<dt><a href="#select">select(elem, selector)</a> ⇒ <code>Array.&lt;Element&gt;</code></dt>
+<dd><p>Select all elements matching a CSS selector.</p>
+</dd>
+<dt><a href="#create">create(spec, ...children)</a> ⇒ <code>Element</code></dt>
+<dd><p>Create a new element.</p>
+</dd>
+<dt><a href="#attr">attr(target, name, value)</a> ⇒ <code>string</code> | <code>null</code> | <code>undefined</code></dt>
+<dd><p>Get or set the value of an attribute on an element.</p>
+</dd>
+<dt><a href="#text">text(target, value)</a> ⇒ <code>string</code> | <code>null</code> | <code>undefined</code></dt>
+<dd><p>Get or set the text content of an element.</p>
+</dd>
+<dt><a href="#append">append(target, ...elems)</a></dt>
+<dd><p>Append new child elements to an element.</p>
+</dd>
+<dt><a href="#prepend">prepend(target, ...elems)</a></dt>
+<dd><p>Prepend new child elements to an element.</p>
+</dd>
+<dt><a href="#before">before(target, ...elems)</a></dt>
+<dd><p>Insert new elements before an element.</p>
+</dd>
+<dt><a href="#after">after(target, ...elems)</a></dt>
+<dd><p>Insert new elements after an element.</p>
+</dd>
+<dt><a href="#replace">replace(target, ...elems)</a></dt>
+<dd><p>Replace an element with a new element.</p>
+</dd>
+<dt><a href="#wrap">wrap(target, elem)</a></dt>
+<dd><p>Wrap an element with a new element.</p>
+</dd>
+</dl>
+
+<a name="ready"></a>
+
+## ready(func)
+Register a function to be executed when the DOM is fully loaded.
+
+**Kind**: global function  
+**Detail**: Use this to wrap calls to the DOM selection and manipulation functions
+to be sure that the DOM is ready before working on it.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| func | <code>function</code> | Function to register |
+
+**Example**  
+```js
+ready(() => {
+  // Use other DOM manipulation functions here
+})
+```
+<a name="first"></a>
+
+## first(elem, selector) ⇒ <code>Element</code> \| <code>null</code>
+Select the first element matching a CSS selector.
+
+**Kind**: global function  
+**Returns**: <code>Element</code> \| <code>null</code> - An `Element` or `null` if no match  
+**Detail**: This function provides a short hand for `querySelector` but
+also allowing for the use of semantic selectors.
+You can use it for the whole document, or scoped to a particular element.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| elem | <code>Element</code> | The element to query (defaults to the `window.document`) |
+| selector | <code>string</code> | The selector to match |
+
+**Example** *(Select the first element from the document matching selector)*  
+```js
+
+first(':--CodeChunk')
+```
+**Example** *(Select the first element within an element matching the selector)*  
+```js
+
+first(elem, ':--author')
+```
+<a name="select"></a>
+
+## select(elem, selector) ⇒ <code>Array.&lt;Element&gt;</code>
+Select all elements matching a CSS selector.
+
+**Kind**: global function  
+**Returns**: <code>Array.&lt;Element&gt;</code> - An array of elements  
+**Detail**: Provides a short hand for using `querySelectorAll` but
+also allowing for the use of semantic selectors. You can use it for
+the whole document, or scoped to a particular element.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| elem | <code>Element</code> | The element to query (defaults to the `window.document`) |
+| selector | <code>string</code> | The selector to match |
+
+**Example** *(Select all elements from the document matching selector)*  
+```js
+
+select(':--CodeChunk')
+```
+**Example** *(Select all elements within an element matching the selector)*  
+```js
+
+select(elem, ':--author')
+```
+<a name="create"></a>
+
+## create(spec, ...children) ⇒ <code>Element</code>
+Create a new element.
+
+**Kind**: global function  
+**Detail**: This function allows creation of new elements  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| spec | <code>string</code> \| <code>Element</code> | Specification of element to create. |
+| ...children | <code>object</code> \| <code>string</code> \| <code>number</code> \| <code>Element</code> | Additional child elements to add |
+
+<a name="attr"></a>
+
+## attr(target, name, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>
+Get or set the value of an attribute on an element.
+
+**Kind**: global function  
+**Returns**: <code>string</code> \| <code>null</code> \| <code>undefined</code> - `null` if the attribute does not exist,
+                                     `undefined` when setting  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | <code>Element</code> | The element to get or set the attribute |
+| name | <code>string</code> | The name of the attribute |
+| value | <code>string</code> | The value of the attribute (when setting) |
+
+**Example** *(Get an attribute)*  
+```js
+
+attr(elem, "attr")
+```
+**Example** *(Set an attribute value)*  
+```js
+
+attr(elem, "attr", "value")
+```
+<a name="text"></a>
+
+## text(target, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>
+Get or set the text content of an element.
+
+**Kind**: global function  
+**Returns**: <code>string</code> \| <code>null</code> \| <code>undefined</code> - `null` if there is no text content,
+                                     `undefined` when setting  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | <code>Element</code> | The element to get or set the text content |
+| value | <code>string</code> | The value of the text content (when setting) |
+
+**Example** *(Get the text content)*  
+```js
+
+text(elem)
+```
+**Example** *(Set the text content)*  
+```js
+
+text(elem, "text content")
+```
+<a name="append"></a>
+
+## append(target, ...elems)
+Append new child elements to an element.
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | <code>Element</code> | The element to append to |
+| ...elems | <code>Element</code> | The elements to append |
+
+<a name="prepend"></a>
+
+## prepend(target, ...elems)
+Prepend new child elements to an element.
+
+**Kind**: global function  
+**Detail**: When called with multiple elements to prepend
+will maintain the order of those elements (at the top
+of the target element).  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | <code>Element</code> | The element to prepend to |
+| ...elems | <code>Element</code> | The elements to prepend |
+
+<a name="before"></a>
+
+## before(target, ...elems)
+Insert new elements before an element.
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | <code>Element</code> | The element before which the elements are to be inserted |
+| ...elems | <code>Element</code> | The elements to insert |
+
+<a name="after"></a>
+
+## after(target, ...elems)
+Insert new elements after an element.
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | <code>Element</code> | The element after which the elements are to be inserted |
+| ...elems | <code>Element</code> | The elements to insert |
+
+<a name="replace"></a>
+
+## replace(target, ...elems)
+Replace an element with a new element.
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | <code>Element</code> | The element to replace |
+| ...elems | <code>Element</code> | The elements to replace it with |
+
+<a name="wrap"></a>
+
+## wrap(target, elem)
+Wrap an element with a new element.
+
+**Kind**: global function  
+**Detail**: This function can be useful if you need
+to create a container element to more easily style
+a type of element.  
+
+| Param | Description |
+| --- | --- |
+| target | The element to wrap |
+| elem | The element to wrap it in |
+
+**Example** *(Wrap all figure captions in a &lt;div&gt;)*  
+```js
+
+select(':--Figure :--caption')
+  .forEach(caption => wrap(caption, create('div')))
+```
+<!-- UTIL-API-END -->
+<!-- prettier-ignore-end -->

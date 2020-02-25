@@ -21,7 +21,9 @@
     "build:browser": "webpack --mode production && tsc --emitDeclarationOnly",
     "build:lib": "tsc --project tsconfig-lib.json",
     "dev": "webpack-dev-server --mode development --hot --open",
-    "docs": "webpack --mode production --env.docs=true",
+    "docs": "npm run docs:readme && npm run:app",
+    "docs:ts": "ts-node --files src/scripts/docs.ts",
+    "docs:app": "webpack --mode production --env.docs=true",
     "lint": "npm run lint:styles && npm run lint:scripts",
     "lint:fix": "npm run lint:styles -- --fix && npm run lint:scripts -- --fix",
     "lint:styles": "stylelint \"./src/**/*.css\"",
@@ -79,6 +81,7 @@
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
     "jest": "25.1.0",
+    "jsdoc-to-markdown": "5.0.3",
     "mathjax-node": "2.1.1",
     "mini-css-extract-plugin": "^0.9.0",
     "normalize.css": "8.0.1",
@@ -158,11 +161,14 @@
   "jest": {
     "preset": "ts-jest",
     "testMatch": [
-      "<rootDir>/**/*.test.[jt]s"
+      "<rootDir>/(src|test)/**/*.test.[jt]s"
     ],
     "testPathIgnorePatterns": [
       "node_modules",
       "test/screenshot.test.ts"
+    ],
+    "coveragePathIgnorePatterns": [
+      "src/selectors.ts"
     ]
   },
   "husky": {
