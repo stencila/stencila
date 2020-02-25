@@ -21,7 +21,7 @@
     "build:browser": "webpack --mode production && tsc --emitDeclarationOnly",
     "build:lib": "tsc --project tsconfig-lib.json",
     "dev": "webpack-dev-server --mode development --hot --open",
-    "docs": "npm run docs:readme && npm run:app",
+    "docs": "npm run docs:ts && npm run docs:app",
     "docs:ts": "ts-node --files src/scripts/docs.ts",
     "docs:app": "webpack --mode production --env.docs=true",
     "lint": "npm run lint:styles && npm run lint:scripts",
