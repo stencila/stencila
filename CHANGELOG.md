@@ -1,3 +1,15 @@
+# [1.7.0](https://github.com/stencila/thema/compare/v1.6.4...v1.7.0) (2020-02-25)
+
+
+### Bug Fixes
+
+* **Utility functions:** Require spaces between attributes; better support for custom selectors ([f45abb9](https://github.com/stencila/thema/commit/f45abb901c0e9f271be3fcfd70669dde4094a2c1))
+
+
+### Features
+
+* **Utility functions:** Add more, test and document ([8b8abb8](https://github.com/stencila/thema/commit/8b8abb81dcc93b4063e637415c1d14ddefff4405))
+
 ## [1.6.4](https://github.com/stencila/thema/compare/v1.6.3...v1.6.4) (2020-02-24)
 
 
