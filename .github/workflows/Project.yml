@@ -15,4 +15,4 @@ jobs:
         with:
           project: Stencila Roadmap
           column: Backlog
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.STENCILA_BOT_TOKEN }}
