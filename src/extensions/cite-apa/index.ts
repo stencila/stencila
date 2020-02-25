@@ -1,5 +1,5 @@
 import '../cite'
-import { ready, select } from '../../scripts/dom'
+import { ready, select, text } from '../../util'
 
 /**
  * APA style uses author initials (rather than complete given names).
@@ -7,6 +7,6 @@ import { ready, select } from '../../scripts/dom'
  */
 ready(() =>
   select(':--references :--givenName').forEach(elem => {
-    elem.innerHTML = elem.textContent?.[0] ?? ''
+    elem.innerHTML = text(elem)?.[0] ?? ''
   })
 )

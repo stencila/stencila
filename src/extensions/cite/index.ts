@@ -1,4 +1,4 @@
-import { ready, create, replace, select } from '../../scripts/dom'
+import { ready, create, replace, select, attr } from '../../util'
 
 /**
  * Currently, Encoda encodes a `CreativeWork.datePublished` as
@@ -20,13 +20,13 @@ import { ready, create, replace, select } from '../../scripts/dom'
  * https://www.w3.org/TR/microdata/#values
  */
 ready(() =>
-  select('span > meta[itemprop="datePublished"]').forEach(meta => {
-    const date = meta.getAttribute('content')
+  select('span > :--datePublished').forEach(meta => {
+    const date = attr(meta, 'content') as string
     replace(
       meta.parentElement as Element,
       create(
-        `time[datetime=${date}][itemscope][itemtype="http://schema.org/Date"][itemprop=datePublished]`,
-        date as string
+        `time [datetime=${date}] [itemscope] :--Date :--datePublished`,
+        date
       )
     )
   })

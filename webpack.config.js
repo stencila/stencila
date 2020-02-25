@@ -57,8 +57,8 @@ module.exports = (env = {}, { mode }) => {
     '!./src/template.html',
     // Don’t compile test files for package distribution
     '!**/*.{d,test}.ts',
-    // These files make use of Node APIs, and cannot easily be packaged for Browser targets
-    '!**/scripts/{examples,extensions,selectors,themes}.ts',
+    // These files make use of Node APIs, and do not need to be packaged for Browser targets
+    '!**/scripts/*.ts',
     '!**/extensions/math/update.ts',
     // Don’t build HTML demo files for package distribution
     ...(isDocs || isDevelopment

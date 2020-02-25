@@ -1,9 +1,12 @@
-import { ready, wrap } from '../../scripts/dom'
+import { create, first, ready, select, wrap } from '../../util'
 
 ready(() => {
   // Add wrappers around elements in the abstract to be able to use
   // Bootstrap's `panel` class
-  const abstract = ':--Article > [data-itemprop="description"]'
-  wrap(abstract, 'h2', 'div.panel-heading')
-  wrap(abstract, 'p', 'div.panel-body')
+  select(':--Article :--description').forEach(desc => {
+    const h2 = first(desc, 'h2')
+    if (h2 !== null) wrap(h2, create('div .panel-heading'))
+    const p = first(desc, 'p')
+    if (p !== null) wrap(p, create('div .panel-body'))
+  })
 })
