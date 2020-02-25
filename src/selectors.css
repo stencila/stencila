@@ -79,7 +79,6 @@
 @custom-selector :--VideoObject [itemtype~='http://schema.org/VideoObject'];
 @custom-selector :--VolumeMount [itemtype~='http://schema.stenci.la/VolumeMount'];
 
-
 /**
  * Property selectors
  */

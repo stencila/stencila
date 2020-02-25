@@ -29,7 +29,7 @@ ready(() => {
    * This removes the inner `itemscope` and `itemtype`, pending a fix in Encoda.
    */
   select(
-    'pre[itemtype="http://schema.stenci.la/CodeBlock"] > code[itemtype="http://schema.stenci.la/CodeFragment"]'
+    'pre:--CodeBlock > code:--CodeFragment'
   ).forEach(element => {
     element.removeAttribute('itemscope')
     element.removeAttribute('itemtype')
@@ -41,7 +41,7 @@ ready(() => {
    * to be styled differently. So add these to the list of elements that Prism highlights.
    */
   select(
-    'pre[itemtype="http://schema.stenci.la/CodeBlock"] > code, code[itemtype="http://schema.stenci.la/CodeFragment"]'
+    'pre:--CodeBlock > code, code:--CodeFragment'
   ).forEach(element => {
     if (!element.className.includes('language-'))
       element.classList.add('language-text')

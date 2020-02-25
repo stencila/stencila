@@ -1,4 +1,4 @@
-import { after, create, replace, select, ready } from '../../util'
+import { after, create, replace, select, ready, attr } from '../../util'
 
 /**
  * Currently, Encoda encodes the names of a `Person` within a `span` e.g.
@@ -31,32 +31,30 @@ ready(() => {
   // This is a proposal, but due to conflicts with existing styles, is currently
   // not enabled.
   return
-  select('[itemtype="http://schema.org/Person"] span[itemprop=name]').forEach(
-    span => {
-      const name = span.getAttribute('content')
-      const givenNames = select(span, '[itemprop=givenName]')
+  select(':--Person :--name').forEach(span => {
+      const name = attr(span, 'content')
+      const givenNames = select(span, ':--givenName')
         .map(item => item.textContent)
         .join(' ')
-      const familyNames = select(span, '[itemprop=familyName]')
+      const familyNames = select(span, ':--familyName')
         .map(item => item.textContent)
         .join(' ')
 
-      after(
+      replace(
         span,
+        create(`meta :--name [content=${name}]`),
         create(
-          'ol[data-itemprop=givenNames]',
+          'ol:-givenNames',
           ...givenNames
             .split(/\s+/)
-            .map(givenName => create('li[itemprop=givenName]', givenName))
+            .map(givenName => create('li:--givenName', givenName))
         ),
         create(
-          'ol[data-itemprop=familyNames]',
+          'ol:-familyNames',
           ...familyNames
             .split(/\s+/)
-            .map(familyName => create('li[itemprop=familyName]', familyName))
+            .map(familyName => create('li:--familyName', familyName))
         )
       )
-      replace(span, `meta[itemprop=name][content=${name}]`)
-    }
-  )
+  })
 })
