@@ -113,7 +113,7 @@ export const extensions: {
       extension =>
         `${
           /^\w+$/.test(extension) ? extension : `'${extension}'`
-        }: Promise<unknown>`
+        }: '${extension}'`
     )
     .join('\n  ')}
 } = {
@@ -122,7 +122,7 @@ export const extensions: {
       extension =>
         `${
           /^\w+$/.test(extension) ? extension : `'${extension}'`
-        }: import('./${extension}')`
+        }: '${extension}'`
     )
     .join(',\n  ')}
 }\n`
