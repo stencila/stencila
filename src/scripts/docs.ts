@@ -25,7 +25,8 @@ async function update(): Promise<void> {
   )
   const js = typescript.transpileModule(ts, {}).outputText
   const md = await jsdoc2md.render({
-    source: js
+    source: js,
+    'heading-depth': 3
   })
   const readme = path.join(__dirname, '..', '..', 'README.md')
   const content = await readFile(readme, 'utf8')

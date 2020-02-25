@@ -22,19 +22,19 @@
   - [Testing](#testing)
 - [Acknowledgments](#acknowledgments)
 - [Utilities API](#utilities-api)
-- [Functions](#functions)
-- [ready(func)](#readyfunc)
-- [first(elem, selector) ⇒ <code>Element</code> \| <code>null</code>](#firstelem-selector-%e2%87%92-codeelementcode--codenullcode)
-- [select(elem, selector) ⇒ <code>Array.&lt;Element&gt;</code>](#selectelem-selector-%e2%87%92-codearrayltelementgtcode)
-- [create(spec, ...children) ⇒ <code>Element</code>](#createspec-children-%e2%87%92-codeelementcode)
-- [attr(target, name, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>](#attrtarget-name-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode)
-- [text(target, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>](#texttarget-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode)
-- [append(target, ...elems)](#appendtarget-elems)
-- [prepend(target, ...elems)](#prependtarget-elems)
-- [before(target, ...elems)](#beforetarget-elems)
-- [after(target, ...elems)](#aftertarget-elems)
-- [replace(target, ...elems)](#replacetarget-elems)
-- [wrap(target, elem)](#wraptarget-elem)
+  - [Functions](#functions)
+  - [ready(func)](#readyfunc)
+  - [first(elem, selector) ⇒ <code>Element</code> \| <code>null</code>](#firstelem-selector-%e2%87%92-codeelementcode--codenullcode)
+  - [select(elem, selector) ⇒ <code>Array.&lt;Element&gt;</code>](#selectelem-selector-%e2%87%92-codearrayltelementgtcode)
+  - [create(spec, ...children) ⇒ <code>Element</code>](#createspec-children-%e2%87%92-codeelementcode)
+  - [attr(target, name, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>](#attrtarget-name-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode)
+  - [text(target, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>](#texttarget-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode)
+  - [append(target, ...elems)](#appendtarget-elems)
+  - [prepend(target, ...elems)](#prependtarget-elems)
+  - [before(target, ...elems)](#beforetarget-elems)
+  - [after(target, ...elems)](#aftertarget-elems)
+  - [replace(target, ...elems)](#replacetarget-elems)
+  - [wrap(target, elem)](#wraptarget-elem)
 
 ## Quick Start
 
@@ -255,11 +255,11 @@ We rely on many tools and services for which we are grateful ❤ to their develo
 
 ## Utilities API
 
-Documentation for functions provided in the [`util`](./src/util) module.
+Several utility functions are provided in the [`util`](./src/util) module for traversing and manipulating the DOM. These may be useful for theme and extension authors when there is a need to modify the HTML structure of the document (e.g. adding additional purely presentational elements such as social sharing buttons). Caution should be taken to not overly modify the content. Only use these functions for things that are not possible with CSS alone.
 
 <!-- prettier-ignore-start -->
 <!-- UTIL-API -->
-## Functions
+### Functions
 
 <dl>
 <dt><a href="#ready">ready(func)</a></dt>
@@ -302,7 +302,7 @@ Documentation for functions provided in the [`util`](./src/util) module.
 
 <a name="ready"></a>
 
-## ready(func)
+### ready(func)
 Register a function to be executed when the DOM is fully loaded.
 
 **Kind**: global function
@@ -321,7 +321,7 @@ ready(() => {
 ```
 <a name="first"></a>
 
-## first(elem, selector) ⇒ <code>Element</code> \| <code>null</code>
+### first(elem, selector) ⇒ <code>Element</code> \| <code>null</code>
 Select the first element matching a CSS selector.
 
 **Kind**: global function
@@ -347,7 +347,7 @@ first(elem, ':--author')
 ```
 <a name="select"></a>
 
-## select(elem, selector) ⇒ <code>Array.&lt;Element&gt;</code>
+### select(elem, selector) ⇒ <code>Array.&lt;Element&gt;</code>
 Select all elements matching a CSS selector.
 
 **Kind**: global function
@@ -373,20 +373,50 @@ select(elem, ':--author')
 ```
 <a name="create"></a>
 
-## create(spec, ...children) ⇒ <code>Element</code>
+### create(spec, ...children) ⇒ <code>Element</code>
 Create a new element.
 
 **Kind**: global function
-**Detail**: This function allows creation of new elements
+**Detail**: This function allows creation of new elements using either a
+(a) HTML string (b) CSS selector like string, or (c) an `Element`.
+CSS selectors are are convenient way to create elements with attributes,
+particularly Microdata elements. They can be prone to syntax errors however.
+Alternatively, the second argument can
+be an object of attribute name:value pairs.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | spec | <code>string</code> \| <code>Element</code> | Specification of element to create. |
-| ...children | <code>object</code> \| <code>string</code> \| <code>number</code> \| <code>Element</code> | Additional child elements to add |
+| ...children | <code>object</code> \| <code>string</code> \| <code>number</code> \| <code>Element</code> | Additional child elements to add.        If the first is an object then it is used to set the element's attributes. |
 
+**Example** *(Create a &lt;figure&gt; with id, class and itemtype attributes)*
+```js
+
+create('figure #fig1 .fig :--Figure')
+// <figure id="fig1" class="fig" itemscope="" itemtype="http://schema.stenci.la/Figure">
+// </figure>
+```
+**Example** *(As above but using an object to specify attributes)*
+```js
+
+create('figure', {
+  id: 'fig1',
+  class: 'fig',
+  itemscope: '',
+  itemtype: translate(':--Figure')
+})
+```
+**Example** *(Create a Person with a name property)*
+```js
+
+create(':--Person', create('span :--name', 'John Doe'))
+// <div itemscope="" itemtype="http://schema.org/Person">
+//   <span itemprop="name">John Doe</span>
+// </div>
+```
 <a name="attr"></a>
 
-## attr(target, name, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>
+### attr(target, name, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>
 Get or set the value of an attribute on an element.
 
 **Kind**: global function
@@ -399,19 +429,19 @@ Get or set the value of an attribute on an element.
 | name | <code>string</code> | The name of the attribute |
 | value | <code>string</code> | The value of the attribute (when setting) |
 
-**Example** *(Get an attribute)*
-```js
-
-attr(elem, "attr")
-```
 **Example** *(Set an attribute value)*
 ```js
 
 attr(elem, "attr", "value")
 ```
+**Example** *(Get an attribute)*
+```js
+
+attr(elem, "attr") // "value"
+```
 <a name="text"></a>
 
-## text(target, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>
+### text(target, value) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>
 Get or set the text content of an element.
 
 **Kind**: global function
@@ -423,19 +453,19 @@ Get or set the text content of an element.
 | target | <code>Element</code> | The element to get or set the text content |
 | value | <code>string</code> | The value of the text content (when setting) |
 
-**Example** *(Get the text content)*
-```js
-
-text(elem)
-```
 **Example** *(Set the text content)*
 ```js
 
 text(elem, "text content")
 ```
+**Example** *(Get the text content)*
+```js
+
+text(elem) // "text content"
+```
 <a name="append"></a>
 
-## append(target, ...elems)
+### append(target, ...elems)
 Append new child elements to an element.
 
 **Kind**: global function
@@ -447,7 +477,7 @@ Append new child elements to an element.
 
 <a name="prepend"></a>
 
-## prepend(target, ...elems)
+### prepend(target, ...elems)
 Prepend new child elements to an element.
 
 **Kind**: global function
@@ -462,7 +492,7 @@ of the target element).
 
 <a name="before"></a>
 
-## before(target, ...elems)
+### before(target, ...elems)
 Insert new elements before an element.
 
 **Kind**: global function
@@ -474,7 +504,7 @@ Insert new elements before an element.
 
 <a name="after"></a>
 
-## after(target, ...elems)
+### after(target, ...elems)
 Insert new elements after an element.
 
 **Kind**: global function
@@ -486,7 +516,7 @@ Insert new elements after an element.
 
 <a name="replace"></a>
 
-## replace(target, ...elems)
+### replace(target, ...elems)
 Replace an element with a new element.
 
 **Kind**: global function
@@ -498,7 +528,7 @@ Replace an element with a new element.
 
 <a name="wrap"></a>
 
-## wrap(target, elem)
+### wrap(target, elem)
 Wrap an element with a new element.
 
 **Kind**: global function
