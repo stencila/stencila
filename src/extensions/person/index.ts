@@ -47,13 +47,13 @@ ready(() => {
           'ol:-givenNames',
           ...givenNames
             .split(/\s+/)
-            .map(givenName => create('li:--givenName', givenName))
+            .map(givenName => create('li :--givenName', givenName))
         ),
         create(
           'ol:-familyNames',
           ...familyNames
             .split(/\s+/)
-            .map(familyName => create('li:--familyName', familyName))
+            .map(familyName => create('li :--familyName', familyName))
         )
       )
   })

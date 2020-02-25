@@ -5,8 +5,8 @@ ready(() => {
   // Bootstrap's `panel` class
   select(':--Article :--description').forEach(desc => {
     const h2 = first(desc, 'h2')
-    if (h2 !== null) wrap(h2, create('div.panel-heading'))
+    if (h2 !== null) wrap(h2, create('div .panel-heading'))
     const p = first(desc, 'p')
-    if (p !== null) wrap(p, create('div.panel-body'))
+    if (p !== null) wrap(p, create('div .panel-body'))
   })
 })

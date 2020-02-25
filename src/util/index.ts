@@ -131,10 +131,38 @@ export function select(...args: (string | Document | Element)[]): Element[] {
 /**
  * Create a new element.
  *
- * @detail This function allows creation of new elements
+ * @detail This function allows creation of new elements using either a
+ * (a) HTML string (b) CSS selector like string, or (c) an `Element`.
+ * CSS selectors are are convenient way to create elements with attributes,
+ * particularly Microdata elements. They can be prone to syntax errors however.
+ * Alternatively, the second argument can
+ * be an object of attribute name:value pairs.
+ *
+ * @example <caption>Create a <figure> with id, class and itemtype attributes</caption>
+ *
+ * create('figure #fig1 .fig :--Figure')
+ * // <figure id="fig1" class="fig" itemscope="" itemtype="http://schema.stenci.la/Figure">
+ * // </figure>
+ *
+ * @example <caption>As above but using an object to specify attributes</caption>
+ *
+ * create('figure', {
+ *   id: 'fig1',
+ *   class: 'fig',
+ *   itemscope: '',
+ *   itemtype: translate(':--Figure')
+ * })
+ *
+ * @example <caption>Create a Person with a name property</caption>
+ *
+ * create(':--Person', create('span :--name', 'John Doe'))
+ * // <div itemscope="" itemtype="http://schema.org/Person">
+ * //   <span itemprop="name">John Doe</span>
+ * // </div>
  *
  * @param {string | Element} spec Specification of element to create.
- * @param {...(object | string | number | Element)} children Additional child elements to add
+ * @param {...(object | string | number | Element)} children Additional child elements to add.
+ *        If the first is an object then it is used to set the element's attributes.
  * @returns {Element}
  */
 export function create(
@@ -152,26 +180,38 @@ export function create(
     elem = wrapper.firstElementChild as Element
   } else {
     // Create from CSS selector
+    // Translate semantic selectors to attribute selectors
+    spec = spec.replace(
+      /:--[A-Z][a-z]+/g,
+      typeSelector => `[itemscope] ${translate(typeSelector)}`
+    )
+    spec = spec.replace(/:--[a-z]+/g, translate)
     // Credit to https://github.com/hekigan/dom-create-element-query-selector
     // for the regexes (with some modifications).
-    spec = translate(spec)
     const tag = /^[a-z0-9]+/i.exec(spec)?.[0] ?? 'div'
-    const id = spec.match(/#([a-z]+[a-z0-9-]*)/gi) ?? []
-    const classes = spec.match(/\.([a-z]+[a-z0-9-]*)/gi) ?? []
+    const id = spec.match(/(?:^|\s)#([a-z]+[a-z0-9-]*)/gi) ?? []
+    const classes = spec.match(/(?:^|\s)\.([a-z]+[a-z0-9-]*)/gi) ?? []
     const attrs =
-      spec.match(/\[([a-z][a-z0-9-]+)(~?=['|"]?([^\]]*)['|"]?)?\]/gi) ?? []
+      spec.match(/(?:^|\s)\[([a-z][a-z0-9-]+)(~?=['|"]?([^\]]*)['|"]?)?\]/gi) ??
+      []
 
     elem = document.createElement(tag)
 
-    if (id.length >= 1) elem.id = id[0].slice(1)
+    if (id.length >= 1) elem.id = id[0].split('#')[1]
     if (id.length > 1)
       console.warn(`Got more than one id; ignoring all but first`)
 
     if (classes.length > 0)
-      elem.setAttribute('class', classes.map(item => item.slice(1)).join(' '))
+      elem.setAttribute(
+        'class',
+        classes.map(item => item.split('.')[1]).join(' ')
+      )
 
     attrs.forEach(item => {
-      let [label, value] = item.slice(1, -1).split(/~?=/)
+      let [label, value] = item
+        .split('[')[1]
+        .slice(0, -1)
+        .split(/~?=/)
       if (value !== undefined) value = value.replace(/^['"](.*)['"]$/, '$1')
       elem.setAttribute(label, value ?? '')
     })
@@ -184,6 +224,7 @@ export function create(
     Object.entries(first).forEach(([key, value]) => {
       if (value !== undefined) elem.setAttribute(key, value)
     })
+    children = children.slice(1)
   }
 
   // Append children as elements or text
@@ -201,13 +242,13 @@ export function attr(target: Element, name: string, value: string): undefined
 /**
  * Get or set the value of an attribute on an element.
  *
- * @example <caption>Get an attribute</caption>
- *
- * attr(elem, "attr")
- *
  * @example <caption>Set an attribute value</caption>
  *
  * attr(elem, "attr", "value")
+ *
+ * @example <caption>Get an attribute</caption>
+ *
+ * attr(elem, "attr") // "value"
  *
  * @param {Element} target The element to get or set the attribute
  * @param {string} name The name of the attribute
@@ -229,13 +270,13 @@ export function text(target: Element, value: string): undefined
 /**
  * Get or set the text content of an element.
  *
- * @example <caption>Get the text content</caption>
- *
- * text(elem)
- *
  * @example <caption>Set the text content</caption>
  *
  * text(elem, "text content")
+ *
+ * @example <caption>Get the text content</caption>
+ *
+ * text(elem) // "text content"
  *
  * @param {Element} target The element to get or set the text content
  * @param {string} value The value of the text content (when setting)

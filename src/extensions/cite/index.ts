@@ -25,7 +25,7 @@ ready(() =>
     replace(
       meta.parentElement as Element,
       create(
-        `time[datetime=${date}][itemscope]:--Date:--datePublished`,
+        `time [datetime=${date}] [itemscope] :--Date :--datePublished`,
         date
       )
     )

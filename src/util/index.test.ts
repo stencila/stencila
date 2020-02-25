@@ -171,15 +171,20 @@ describe('create', () => {
   })
 
   it('works with semantic selectors', () => {
-    expect(create(':--Article').getAttribute('itemtype')).toEqual('http://schema.org/Article')
-    expect(create(':--authors').getAttribute('data-itemprop')).toEqual('authors')
+    expect(create(':--Article').getAttribute('itemscope')).toEqual('')
+    expect(create(':--Article').getAttribute('itemtype')).toEqual(
+      'http://schema.org/Article'
+    )
+    expect(create(':--authors').getAttribute('data-itemprop')).toEqual(
+      'authors'
+    )
     expect(create(':--author').getAttribute('itemprop')).toEqual('author')
   })
 
   test.each([
-    'span#foo.bar[attr="baz"]',
-    'span #foo .bar [attr="baz"]',
-    'span .bar [attr="baz"] #foo'
+    'span #foo .bar [attr="baz"] :--author',
+    'span .bar :--author [attr="baz"] #foo',
+    'span .bar [itemprop~="author"] [attr="baz"] #foo'
   ])('works with a combination of selectors', selectors => {
     const elem = create(selectors)
 
@@ -187,6 +192,7 @@ describe('create', () => {
     expect(elem.id).toEqual('foo')
     expect(elem.className).toEqual('bar')
     expect(elem.getAttribute('attr')).toEqual('baz')
+    expect(elem.getAttribute('itemprop')).toEqual('author')
   })
 
   it('creates a clone of provided element', () => {
@@ -344,16 +350,27 @@ describe('wrap', () => {
   })
 })
 
-test('examples in docs do not error', () => {
+test('examples in docs do not error; print outputs', () => {
   const elem = create()
 
   select(':--CodeChunk')
 
   select(elem, ':--author')
 
-  text(elem)
+  const alt1 = create('figure #fig1 .fig :--Figure')
+  const alt2 = create('figure', {
+    id: 'fig1',
+    class: 'fig',
+    itemscope: '',
+    itemtype: 'http://schema.stenci.la/Figure'
+  })
+  expect(alt1.outerHTML).toBe(alt2.outerHTML)
+  console.log(alt1.outerHTML)
+
+  console.log(create(':--Person', create('span :--name', 'John Doe')).outerHTML)
 
   text(elem, 'content')
+  console.log(text(elem))
 
   select(':--Figure :--caption').forEach(caption =>
     wrap(caption, create('div'))
