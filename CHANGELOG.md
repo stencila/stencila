@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/stencila/thema/compare/v1.7.0...v1.7.1) (2020-02-25)
+
+
+### Bug Fixes
+
+* **Semantic Selector:** Fix CSS syntax when generating selectors ([4963cc6](https://github.com/stencila/thema/commit/4963cc6739fa40352dc7d93f626d226b9b60fad6))
+
 # [1.7.0](https://github.com/stencila/thema/compare/v1.6.4...v1.7.0) (2020-02-25)
 
 
