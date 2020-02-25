@@ -87,7 +87,7 @@ export function first(
  *
  * first(elem, ':--author')
  *
- * @param {Element} elem The element to query (defaults to the `window.document`)
+ * @param {Element} [elem] The element to query (defaults to the `window.document`)
  * @param {string} selector The selector to match
  * @returns {Element | null} An `Element` or `null` if no match
  */
@@ -117,7 +117,7 @@ export function select(elem: Document | Element, selector: string): Element[]
  *
  * select(elem, ':--author')
  *
- * @param {Element} elem The element to query (defaults to the `window.document`)
+ * @param {Element} [elem] The element to query (defaults to the `window.document`)
  * @param {string} selector The selector to match
  * @returns {Element[]} An array of elements
  */
@@ -160,7 +160,7 @@ export function select(...args: (string | Document | Element)[]): Element[] {
  * //   <span itemprop="name">John Doe</span>
  * // </div>
  *
- * @param {string | Element} spec Specification of element to create.
+ * @param {string | Element} [spec] Specification of element to create.
  * @param {...(object | string | number | Element)} children Additional child elements to add.
  *        If the first is an object then it is used to set the element's attributes.
  * @returns {Element}
@@ -252,7 +252,7 @@ export function attr(target: Element, name: string, value: string): undefined
  *
  * @param {Element} target The element to get or set the attribute
  * @param {string} name The name of the attribute
- * @param {string} value The value of the attribute (when setting)
+ * @param {string} [value] The value of the attribute (when setting)
  * @returns {string | null | undefined} `null` if the attribute does not exist,
  *                                      `undefined` when setting
  */
@@ -279,7 +279,7 @@ export function text(target: Element, value: string): undefined
  * text(elem) // "text content"
  *
  * @param {Element} target The element to get or set the text content
- * @param {string} value The value of the text content (when setting)
+ * @param {string} [value] The value of the text content (when setting)
  * @returns {string | null | undefined} `null` if there is no text content,
  *                                      `undefined` when setting
  */
