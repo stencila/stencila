@@ -104,7 +104,7 @@ const generateSelectors = async (): Promise<void> => {
       return prev
     }, {})
   const propSelectorsCss = Object.entries(propSelectors).map(
-    ([name, selectors]) => `@custom-selector :--${name} ${selectors}`
+    ([name, selectors]) => `@custom-selector :--${name} ${selectors};`
   )
   const propSelectorsJs = Object.entries(propSelectors).map(
     ([name, selectors]) => `case ":--${name}": return "${selectors}"`

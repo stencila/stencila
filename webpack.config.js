@@ -49,7 +49,7 @@ const fileLoaderOutputPath = (url, resourcePath, context) => {
 module.exports = (env = {}, { mode }) => {
   const isDocs = env.docs === 'true'
   const isDevelopment = mode === 'development'
-  const contentBase = isDocs ? 'docs' : 'dist/browser'
+  const contentBase = isDocs ? 'docs' : 'dist'
 
   const entries = [
     './src/**/*.{css,ts,html,ttf,woff,woff2}',
@@ -59,11 +59,13 @@ module.exports = (env = {}, { mode }) => {
     '!**/*.{d,test}.ts',
     // These files make use of Node APIs, and do not need to be packaged for Browser targets
     '!**/scripts/*.ts',
+    '!**/lib/**/*.ts',
     '!**/extensions/math/update.ts',
+    '!**/extensions/extensions.ts',
     // Don’t build HTML demo files for package distribution
     ...(isDocs || isDevelopment
       ? []
-      : ['!**/*.html', '!**/demo/*', '!**/examples/*.html'])
+      : ['!**/*.html', '!**/demo/*', '!**/examples/*'])
   ]
 
   const entry = globby.sync(entries).reduce(
@@ -148,6 +150,7 @@ module.exports = (env = {}, { mode }) => {
           use: {
             loader: 'ts-loader',
             options: {
+              configFile: 'tsconfig.browser.json',
               experimentalWatchApi: true
             }
           }
