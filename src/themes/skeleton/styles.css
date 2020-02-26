@@ -1,6 +1,7 @@
-/* stylelint-disable block-no-empty */
-
-@import '../../selectors.css';
+/* Skeleton theme
+* Designed to be used as a starting point for creating new themes, and tries to be as unopinionated as possible
+* It demonstrates how to use the custom semantic selectors, but the theme only styles a handful of them.
+* For a full and up to date list of all available selectors, please see `../../selectors.css` */
 
 @import '../../extensions/cite-apa/styles.css';
 @import '../../extensions/code/styles.css';
@@ -8,192 +9,270 @@
 @import '../../extensions/pages/styles.css';
 @import '../../extensions/person/styles.css';
 
-:--ArrayValidator {
+/* Mobile first breakpoint variables. To use:
+* @media (--mq-sm) { … } */
+@custom-media --mq-sm screen and (min-width: 576px);
+@custom-media --mq-md screen and (min-width: 768px);
+@custom-media --mq-lg screen and (min-width: 992px);
+@custom-media --mq-xl screen and (min-width: 1200px);
+
+/* Note that this is not the same as `:root`. This selects the `[data-itemscope='root']` element */
+:--root {
+  /* Declare and override default variables here
+  * Maximum element width for text based block elements (paragraphs, lists, headings, etc.) */
+  --max-width: 600px;
+
+  /* Maximum element width for media elements such as Figures, CodeChunks, and Tables */
+  --max-width-media: 980px;
+
+  /* Spacing blocks */
+  --spacer-sm: 8px;
+  --spacer-md: 16px;
+  --spacer-lg: 32px;
+  --spacer-xl: 64px;
+
+  /* Font Families */
+  --font-family-display: serif;
+  --font-family-body: serif;
+  --font-family-mono: monospace;
+
+  /* Font Sizes
+  * We use `calc` to emulate REM values. This is because we do not modify the `:root/html` element, but instead
+  * we set variables on the `[data-itemscope='root']` element. */
+  --font-size-body: 19px;
+  --font-size-title: calc(var(--font-size-body) * 1.953 * 1px);
+  --font-size-h1: calc(var(--font-size-body) * 1.953 * 1px);
+  --font-size-h2: calc(var(--font-size-body) * 1.563 * 1px);
+  --font-size-h3: calc(var(--font-size-body) * 1.25 * 1px);
+  --font-size-h4: calc(var(--font-size-body) * 1 * 1px);
+  --font-size-h5: calc(var(--font-size-body) * 0.8 * 1px);
+  --font-size-h6: calc(var(--font-size-body) * 0.725 * 1px);
+  --font-size-90: 90%;
+  --font-size-80: 80%;
+  --font-size-75: 75%;
+  --line-height: 1.35;
+
+  /* Theme Colors */
+  --color-stock: #fff;
+  --color-key: #363636;
+
+  /* Primary: Used for primary tone of the theme, for buttons, links, and other elements */
+  --color-primary-100: var(--color-key);
+  --color-primary-500: var(--color-key);
+  --color-primary-700: var(--color-key);
+
+  /* Neutral: For backgrounds and borders.
+  * Note that there are 5 variables, instead of the usual 3. */
+  --color-neutral-100: #ededed;
+  --color-neutral-200: #e1e1e1;
+  --color-neutral-300: #d3d3d3;
+  --color-neutral-400: #c4c4c4;
+  --color-neutral-500: #b3b3b3;
+  --color-neutral-600: #a0a0a0;
+  --color-neutral-700: #898989;
+  --color-neutral-800: #6c6c6c;
+  --color-neutral-900: #3f3f3f;
+
+  color: var(--color-key);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height);
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
+
+  @media (--mq-md) {
+    width: 100%;
+  }
+
+  /* Provide a more intuitive sizing behaviour
+  * https://www.paulirish.com/2012/box-sizing-border-box-ftw/ */
+  box-sizing: border-box;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: inherit;
+  }
+
+  /* To allow media elements to break out of the article width constraints, we first constrain all elements to the
+  * `--max-width-media` size, and then limit non-Media types to the smaller `--max-width` limit */
+  & > *,
+  & > :--MediaTypes,
+  & > :--CodeTypes {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+    width: auto;
+
+    @media (--mq-md) {
+      max-width: var(--max-width-media);
+    }
+  }
+
+  & > *:not(:--MediaTypes) {
+    @media (--mq-md) {
+      max-width: var(--max-width);
+    }
+  }
+
+  & > span {
+    display: block;
+  }
+
+  & > :--MediaTypes {
+    margin-bottom: var(--spacer-lg);
+    margin-top: var(--spacer-lg);
+  }
+
+  a,
+  :--Link {
+    &,
+    &:visited {
+      color: inherit;
+    }
+
+    &:hover,
+    &:active {
+      color: var(--color-primary);
+    }
+  }
+
+  ::selection {
+    background-color: var(--color-neutral-300);
+  }
 }
 
-:--Article {
-  /* Declare and overried default variables here */
+/* This is a top level article, as opposed to Articles which can often be found, amongst other places, in list of refences */
+:--Article:--root {
+  padding: var(--spacer-lg) 0;
+
+  & > :--authors,
+  & > :--affiliations {
+    padding-left: 0;
+    list-style-position: inside;
+
+    @media (--mq-md) {
+      list-style-position: outside;
+    }
+  }
 }
 
-:--AudioObject {
+:--root > :--CodeBlock:not(stencila-code-chunk),
+:--root > :--CodeChunk:not(stencila-code-chunk) {
+  padding: var(--spacer-md);
+  border-radius: 4px;
 }
 
-:--BooleanValidator {
+:--CodeTypes {
+  /* These are code elements, targeting both inline and block elements */
+  background-color: var(--color-stock);
+  font-size: var(--font-size-80);
 }
 
-:--Brand {
-}
-
-:--Cite {
-}
-
-:--CiteGroup {
-}
-
-:--Code {
-}
-
-:--CodeBlock {
-}
-
-:--CodeChunk {
-}
-
-:--CodeError {
-}
-
-:--CodeExpression {
-}
-
-:--CodeFragment {
-}
-
-:--Collection {
-}
-
-:--ConstantValidator {
-}
-
-:--ContactPoint {
-}
-
-:--CreativeWork {
-}
-
-:--Datatable {
-}
-
-:--DatatableColumn {
-}
-
-:--Date {
-}
-
-:--Delete {
-}
-
-:--Emphasis {
-}
-
-:--Entity {
-}
-
-:--EnumValidator {
+:--CodeBlockTypes {
+  border: 1px solid var(--color-neutral-300);
 }
 
 :--Figure {
+  border: 1px solid var(--color-neutral-300);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+
+  & > :--ImageObject {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
-:--Function {
+:--Figure figcaption,
+:--caption {
+  font-size: var(--font-size-90);
+  padding: var(--spacer-md);
+
+  :--Heading {
+    font-size: var(--font-size-h6);
+  }
+
+  & > :first-child {
+    /* As the caption element already has `padding-top`, remove margin to avoid double spacing issue */
+    margin-top: 0;
+  }
+
+  & > * {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: var(--max-width);
+  }
 }
 
 :--Heading {
+  font-family: var(--font-family-title);
+  line-height: 1.25;
+  margin-bottom: var(--spacer-sm);
+  margin-top: var(--spacer-lg);
+
+  & + & {
+    margin-top: var(--spacer-sm);
+  }
+}
+
+h1:--Heading,
+h2:--Heading {
+  margin-top: var(--spacer-lg);
 }
 
 :--ImageObject {
+  max-width: 100%;
+  height: auto;
 }
 
-:--Include {
-}
+:--ListTypes {
+  padding-left: 0;
+  list-style-position: inside;
 
-:--IntegerValidator {
-}
+  :--ListTypes {
+    padding-left: var(--spacer-md);
+  }
 
-:--Link {
-}
+  li > * {
+    width: 100%;
+  }
 
-:--List {
-}
+  /* This logic allows us to more naturally position the list number/bullet marker
+  * and avoid it overlapping over the image */
+  li > :--MediaTypes:first-child {
+    display: inline-block;
+    margin-top: 0;
+    vertical-align: text-top;
+  }
 
-:--ListItem {
-}
-
-:--Mark {
-}
-
-:--Math {
-}
-
-:--MathBlock {
-}
-
-:--MathFragment {
-}
-
-:--MediaObject {
-}
-
-:--NumberValidator {
-}
-
-:--Organization {
+  @media (--mq-md) {
+    list-style-position: outside;
+  }
 }
 
 :--Paragraph {
+  margin-bottom: 1em;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 1em;
+  max-width: var(--max-width);
+
+  & + & {
+    margin-top: 1em;
+  }
 }
 
-:--Parameter {
-}
+:--references {
+  li:--Article {
+    margin-bottom: 1em;
 
-:--Periodical {
-}
-
-:--Person {
-}
-
-:--Product {
-}
-
-:--PublicationIssue {
-}
-
-:--PublicationVolume {
-}
-
-:--Quote {
-}
-
-:--QuoteBlock {
-}
-
-:--SoftwareApplication {
-}
-
-:--SoftwareSourceCode {
-}
-
-:--StringValidator {
-}
-
-:--Strong {
-}
-
-:--Subscript {
-}
-
-:--Superscript {
-}
-
-:--Table {
-}
-
-:--TableCell {
-}
-
-:--TableRow {
-}
-
-:--ThematicBreak {
-}
-
-:--Thing {
-}
-
-:--TupleValidator {
-}
-
-:--Variable {
-}
-
-:--VideoObject {
+    :--title {
+      display: block;
+      font-weight: bold;
+    }
+  }
 }
