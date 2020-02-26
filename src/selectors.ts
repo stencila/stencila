@@ -12,6 +12,7 @@
 export function translate(selectors: string) {
   return selectors.replace(/:--\w+/g, selector => {
     switch (selector) {
+      case ":--root": return "[data-itemscope='root']"
       case ":--Array": return "[itemtype~='http://schema.stenci.la/Array']"
       case ":--ArrayValidator": return "[itemtype~='http://schema.stenci.la/ArrayValidator']"
       case ":--Article": return "[itemtype~='http://schema.org/Article']"

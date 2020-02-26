@@ -3,6 +3,7 @@ import {
   jsonSchemaTypes,
   microdataItemtype,
   microdataProperty,
+  microdataRoot,
   Types
 } from '@stencila/schema'
 import fs from 'fs'
@@ -17,6 +18,9 @@ const tsPath = path.join(__dirname, '..', 'selectors.ts')
 /**
  * Generate custom CSS selectors for types and properties
  * in the Stencila Schema.
+ *
+ * For the root node, use the exact matcher (`=`), for others
+ * use the "container the word" matcher (`~=`).
  *
  * For types, there is only one selector, having the name of the type, and
  * using the `itemtype` attribute eg.
@@ -50,6 +54,11 @@ const tsPath = path.join(__dirname, '..', 'selectors.ts')
  * ```
  */
 const generateSelectors = async (): Promise<void> => {
+
+  const [attr, value] = Object.entries(microdataRoot())[0]
+  const rootSelectorCss = `@custom-selector :--root [${attr}='${value}'];`
+  const rootSelectorJs = `case ":--root": return "[${attr}='${value}']"`
+
   const types = await jsonSchemaTypes()
   const [typeSelectorsCss, typeSelectorsJs] = types
     .map(type => {
@@ -115,6 +124,11 @@ const generateSelectors = async (): Promise<void> => {
   const css = `${header}
 
 /**
+ * Root selector
+ */
+${rootSelectorCss}
+
+/**
  * Type selectors
  */
 ${typeSelectorsCss.join('\n')}
@@ -140,6 +154,7 @@ ${propSelectorsCss.join('\n')}
 export function translate(selectors: string) {
   return selectors.replace(/:--\\w+/g, selector => {
     switch (selector) {
+      ${rootSelectorJs}
       ${typeSelectorsJs.join('\n      ')}
       ${propSelectorsJs.join('\n      ')}
       default:
