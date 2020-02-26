@@ -26,18 +26,16 @@ import { themes } from '../themes'
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
-/* eslint-disable-next-line */
 if (module.parent === null) update()
 
-async function update(): Promise<void> {
+function update(): void {
   const readmePath = path.join(__dirname, '..', '..', 'README.md')
-  let readme = await readFile(readmePath, 'utf8')
-
-  readme = await themeDocs(readme)
-  readme = await extsDocs(readme)
-  readme = await apiDocs(readme)
-
-  await writeFile(readmePath, readme)
+  readFile(readmePath, 'utf8')
+    .then(generateThemeDocs)
+    .then(generateExtsDocs)
+    .then(generateApiDocs)
+    .then(readme => writeFile(readmePath, readme))
+    .catch(console.error)
 }
 
 /**
@@ -46,7 +44,7 @@ async function update(): Promise<void> {
  * @param {string} readme The contents of the README
  * @returns {Promise<string>}
  */
-async function themeDocs(readme: string): Promise<string> {
+async function generateThemeDocs(readme: string): Promise<string> {
   const md = await readmesToTable(
     path.join(__dirname, '..', 'themes'),
     Object.keys(themes)
@@ -63,7 +61,7 @@ async function themeDocs(readme: string): Promise<string> {
  * @param {string} readme The contents of the README
  * @returns {Promise<string>}
  */
-async function extsDocs(readme: string): Promise<string> {
+async function generateExtsDocs(readme: string): Promise<string> {
   const md = await readmesToTable(
     path.join(__dirname, '..', 'extensions'),
     Object.keys(extensions)
@@ -117,7 +115,7 @@ async function readmesToTable(dir: string, subdirs: string[]): Promise<string> {
  * @param {string} readme The contents of the README
  * @returns {Promise<string>}
  */
-async function apiDocs(readme: string): Promise<string> {
+async function generateApiDocs(readme: string): Promise<string> {
   const ts = await readFile(
     path.join(__dirname, '..', 'util', 'index.ts'),
     'utf8'
