@@ -167,7 +167,10 @@ export function select(...args: (string | Document | Element)[]): Element[] {
  */
 export function create(
   spec: string | Element = 'div',
-  ...children: (object | string | number | Element)[]
+  attrs?:
+    | Record<string, undefined | boolean | number | string>
+    | (undefined | boolean | number | string | Element),
+  ...children: (undefined | boolean | number | string | Element)[]
 ): Element {
   let elem: Element
   if (spec instanceof Element) {
@@ -220,22 +223,17 @@ export function create(
     })
   }
 
-  // If the first child is an object then use it to
-  // set attributes.
-  const first = children[0]
-  if (typeof first === 'object' && !(first instanceof Element)) {
-    Object.entries(first).forEach(([key, value]) => {
-      if (value !== undefined) elem.setAttribute(key, value)
+  // If the attrs arg is a Record then use it, otherwise add it to children
+  if (typeof attrs === 'object' && !(attrs instanceof Element)) {
+    Object.entries(attrs).forEach(([key, value]) => {
+      if (value !== undefined) elem.setAttribute(key, `${value}`)
     })
-    children = children.slice(1)
+  } else if (attrs !== undefined) {
+    children = [attrs as typeof children[0], ...children]
   }
 
   // Append children as elements or text
-  children.forEach(item =>
-    elem.appendChild(
-      item instanceof Element ? item : document.createTextNode(`${item}`)
-    )
-  )
+  children.forEach(item => append(elem, item))
 
   return elem
 }
@@ -300,8 +298,17 @@ export function text(
  * @param {Element} target The element to append to
  * @param {...Element} elems The elements to append
  */
-export function append(target: Element, ...elems: Element[]): void {
-  elems.forEach(elem => target.appendChild(elem))
+export function append(
+  target: Element,
+  ...elems: (undefined | boolean | number | string | Element)[]
+): void {
+  elems.forEach(elem =>
+    elem !== undefined
+      ? target.appendChild(
+          elem instanceof Element ? elem : document.createTextNode(`${elem}`)
+        )
+      : undefined
+  )
 }
 
 /**

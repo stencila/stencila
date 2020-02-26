@@ -208,7 +208,9 @@ describe('create', () => {
       class: 'bar',
       attr1: 'baz',
       attr2: 42,
-      attr3: undefined
+      attr3: undefined,
+      attr4: true,
+      attr5: false
     })
 
     expect(elem.id).toEqual('foo')
@@ -216,6 +218,8 @@ describe('create', () => {
     expect(elem.getAttribute('attr1')).toEqual('baz')
     expect(elem.getAttribute('attr2')).toEqual('42')
     expect(elem.getAttribute('attr3')).toEqual(null)
+    expect(elem.getAttribute('attr4')).toEqual('true')
+    expect(elem.getAttribute('attr5')).toEqual('false')
   })
 
   it.each([
@@ -230,8 +234,14 @@ describe('create', () => {
     expect(elem.getAttribute('attr2')).toEqual('zot')
   })
 
-  it('can be passed child elements', () => {
-    const elem = create('div', create('span'), create('img'))
+  it('can be passed child elements; undefineds ignored', () => {
+    const elem = create(
+      'div',
+      undefined,
+      create('span'),
+      undefined,
+      create('img')
+    )
     expect(elem.outerHTML).toEqual('<div><span></span><img></div>')
   })
 })
