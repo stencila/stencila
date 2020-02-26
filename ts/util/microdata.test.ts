@@ -96,6 +96,12 @@ test('microdataProperty', () => {
     itemprop: 'affiliation',
     itemref: 'org1'
   })
+
+  // A property that is a plural but which aliases another vocab
+  // using a different word
+  expect(microdataProperty('references', 'item')).toEqual({
+    itemprop: 'citation'
+  })
 })
 
 test('microdataItemtype', () => {
