@@ -158,23 +158,23 @@ h1:--Heading {
 }
 
 h2:--Heading {
-  font-size: --var(font-size-h3);
+  font-size: var(--font-size-h3);
 }
 
 h3:--Heading {
-  font-size: --var(font-size-h4);
+  font-size: var(--font-size-h4);
 }
 
 h4:--Heading {
-  font-size: --var(font-size-h5);
+  font-size: var(--font-size-h5);
 }
 
 h5:--Heading {
-  font-size: --var(font-size-h6);
+  font-size: var(--font-size-h6);
 }
 
 h6:--Heading {
-  font-size: --var(font-size-h5);
+  font-size: var(--font-size-h5);
 }
 
 :--Article > h1:--Heading,
