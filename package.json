@@ -22,7 +22,7 @@
     "build:lib": "tsc --project tsconfig.lib.json",
     "dev": "webpack-dev-server --mode development --hot --open",
     "docs": "npm run docs:readme && npm run docs:app",
-    "docs:readme": "ts-node --files src/scripts/docs.ts",
+    "docs:readme": "ts-node --files src/scripts/readme.ts",
     "docs:app": "webpack --mode production --env.docs=true",
     "lint": "npm run lint:styles && npm run lint:scripts",
     "lint:fix": "npm run lint:styles -- --fix && npm run lint:scripts -- --fix",

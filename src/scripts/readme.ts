@@ -1,7 +1,7 @@
 /**
- * A script to update API docs for utility functions in `../README.md`
+ * A script to update `../README.md`
  *
- * Run using `npm run docs:ts`.
+ * Run using `npm run docs:readme`.
  */
 
 import { dump, read } from '@stencila/encoda'
