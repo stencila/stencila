@@ -8,6 +8,7 @@ export const extensions: {
   'cite-apa': 'cite-apa'
   'cite-mla': 'cite-mla'
   code: 'code'
+  headings: 'headings'
   math: 'math'
   pages: 'pages'
   person: 'person'
@@ -16,6 +17,7 @@ export const extensions: {
   'cite-apa': 'cite-apa',
   'cite-mla': 'cite-mla',
   code: 'code',
+  headings: 'headings',
   math: 'math',
   pages: 'pages',
   person: 'person'
