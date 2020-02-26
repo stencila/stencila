@@ -54,7 +54,6 @@ const tsPath = path.join(__dirname, '..', 'selectors.ts')
  * ```
  */
 const generateSelectors = async (): Promise<void> => {
-
   const [attr, value] = Object.entries(microdataRoot())[0]
   const rootSelectorCss = `@custom-selector :--root [${attr}='${value}'];`
   const rootSelectorJs = `case ":--root": return "[${attr}='${value}']"`
