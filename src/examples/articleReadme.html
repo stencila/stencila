@@ -21,7 +21,10 @@
       href="https://travis-ci.org/stencila/thema" itemscope=""
       itemtype="http://schema.stenci.la/Link"><img
         src="https://travis-ci.org/stencila/thema.svg?branch=master" alt="Build Status" itemscope=""
-        itemtype="http://schema.org/ImageObject"></a> <a
+        itemtype="http://schema.org/ImageObject"></a> <a href="https://codecov.io/gh/stencila/thema"
+      itemscope="" itemtype="http://schema.stenci.la/Link"><img
+        src="https://codecov.io/gh/stencila/thema/branch/master/graph/badge.svg" alt="Code coverage"
+        itemscope="" itemtype="http://schema.org/ImageObject"></a> <a
       href="https://www.argos-ci.com/stencila/thema/builds" itemscope=""
       itemtype="http://schema.stenci.la/Link"><img
         src="https://img.shields.io/badge/Argos%20CI-Visual%20Regression%20tests-informational?style=flat"
@@ -32,12 +35,42 @@
           itemscope="" itemtype="http://schema.stenci.la/Link">Quick Start</a></p>
     </li>
     <li itemscope="" itemtype="http://schema.org/ListItem">
-      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#available-themes"
-          itemscope="" itemtype="http://schema.stenci.la/Link">Available Themes</a></p>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#themes" itemscope=""
+          itemtype="http://schema.stenci.la/Link">Themes</a></p>
+      <ul itemscope="" itemtype="http://schema.org/ItemList">
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#current-themes"
+              itemscope="" itemtype="http://schema.stenci.la/Link">Current themes</a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a
+              href="#structure-of-themes" itemscope=""
+              itemtype="http://schema.stenci.la/Link">Structure of themes</a></p>
+        </li>
+      </ul>
     </li>
     <li itemscope="" itemtype="http://schema.org/ListItem">
-      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#theme-structure"
-          itemscope="" itemtype="http://schema.stenci.la/Link">Theme Structure</a></p>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#web-components"
+          itemscope="" itemtype="http://schema.stenci.la/Link">Web Components</a></p>
+    </li>
+    <li itemscope="" itemtype="http://schema.org/ListItem">
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#extensions"
+          itemscope="" itemtype="http://schema.stenci.la/Link">Extensions</a></p>
+      <ul itemscope="" itemtype="http://schema.org/ItemList">
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#current-extensions"
+              itemscope="" itemtype="http://schema.stenci.la/Link">Current extensions</a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#use-an-extension"
+              itemscope="" itemtype="http://schema.stenci.la/Link">Use an extension</a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a
+              href="#develop-an-extension" itemscope=""
+              itemtype="http://schema.stenci.la/Link">Develop an extension</a></p>
+        </li>
+      </ul>
     </li>
     <li itemscope="" itemtype="http://schema.org/ListItem">
       <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#develop" itemscope=""
@@ -72,10 +105,6 @@
             </li>
           </ul>
         </li>
-        <li itemscope="" itemtype="http://schema.org/ListItem">
-          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#extensions"
-              itemscope="" itemtype="http://schema.stenci.la/Link">Extensions</a></p>
-        </li>
       </ul>
     </li>
     <li itemscope="" itemtype="http://schema.org/ListItem">
@@ -96,6 +125,85 @@
       <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#acknowledgments"
           itemscope="" itemtype="http://schema.stenci.la/Link">Acknowledgments</a></p>
     </li>
+    <li itemscope="" itemtype="http://schema.org/ListItem">
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#utilities-api"
+          itemscope="" itemtype="http://schema.stenci.la/Link">Utilities API</a></p>
+      <ul itemscope="" itemtype="http://schema.org/ItemList">
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#functions"
+              itemscope="" itemtype="http://schema.stenci.la/Link">Functions</a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#readyfunc"
+              itemscope="" itemtype="http://schema.stenci.la/Link">ready(func)</a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a
+              href="#firstelem-selector-%e2%87%92-codeelementcode--codenullcode" itemscope=""
+              itemtype="http://schema.stenci.la/Link">first([elem], selector) ⇒ <code itemscope=""
+                itemtype="http://schema.stenci.la/CodeFragment">Element</code> | <code itemscope=""
+                itemtype="http://schema.stenci.la/CodeFragment">null</code></a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a
+              href="#selectelem-selector-%e2%87%92-codearrayltelementgtcode" itemscope=""
+              itemtype="http://schema.stenci.la/Link">select([elem], selector) ⇒ <code itemscope=""
+                itemtype="http://schema.stenci.la/CodeFragment">Array.</code></a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a
+              href="#createspec-children-%e2%87%92-codeelementcode" itemscope=""
+              itemtype="http://schema.stenci.la/Link">create([spec], ...children) ⇒ <code
+                itemscope="" itemtype="http://schema.stenci.la/CodeFragment">Element</code></a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a
+              href="#attrtarget-name-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode"
+              itemscope="" itemtype="http://schema.stenci.la/Link">attr(target, name, [value]) ⇒
+              <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">string</code> |
+              <span itemscope=""
+                itemtype="http://schema.stenci.la/Array">[{text:'null',type:'CodeFragment'},' |
+                ',{text:'undefined',type:'CodeFragment'}]</span> | <code itemscope=""
+                itemtype="http://schema.stenci.la/CodeFragment">undefined</code></a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a
+              href="#texttarget-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode"
+              itemscope="" itemtype="http://schema.stenci.la/Link">text(target, [value]) ⇒ <code
+                itemscope="" itemtype="http://schema.stenci.la/CodeFragment">string</code> | <span
+                itemscope=""
+                itemtype="http://schema.stenci.la/Array">[{text:'null',type:'CodeFragment'},' |
+                ',{text:'undefined',type:'CodeFragment'}]</span> | <code itemscope=""
+                itemtype="http://schema.stenci.la/CodeFragment">undefined</code></a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#appendtarget-elems"
+              itemscope="" itemtype="http://schema.stenci.la/Link">append(target, ...elems)</a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a
+              href="#prependtarget-elems" itemscope=""
+              itemtype="http://schema.stenci.la/Link">prepend(target, ...elems)</a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#beforetarget-elems"
+              itemscope="" itemtype="http://schema.stenci.la/Link">before(target, ...elems)</a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#aftertarget-elems"
+              itemscope="" itemtype="http://schema.stenci.la/Link">after(target, ...elems)</a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a
+              href="#replacetarget-elems" itemscope=""
+              itemtype="http://schema.stenci.la/Link">replace(target, ...elems)</a></p>
+        </li>
+        <li itemscope="" itemtype="http://schema.org/ListItem">
+          <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#wraptarget-elem"
+              itemscope="" itemtype="http://schema.stenci.la/Link">wrap(target, elem)</a></p>
+        </li>
+      </ul>
+    </li>
   </ul>
   <h2 itemscope="" itemtype="http://schema.stenci.la/Heading" id="quick-start">Quick Start</h2>
   <pre itemscope=""
@@ -104,25 +212,64 @@
 @import &#39;@stencila/thema/dist/stencila/styles.css&#39;;</code></pre>
   <pre itemscope="" itemtype="http://schema.stenci.la/CodeBlock"><code class="language-js" itemscope="" itemtype="http://schema.stenci.la/CodeFragment">/* myJavaScript.js */
 @import &#39;@stencila/thema/dist/stencila&#39;;</code></pre>
-  <h2 itemscope="" itemtype="http://schema.stenci.la/Heading" id="available-themes">Available Themes
-  </h2>
-  <ul itemscope="" itemtype="http://schema.org/ItemList">
-    <li itemscope="" itemtype="http://schema.org/ListItem">
-      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><code itemscope=""
-          itemtype="http://schema.stenci.la/CodeFragment">stencila</code>: A custom designed theme
-        suited for long-form reading, specifically research papers. It strives to deliver an optimal
-        reading experience whilst giving figures and other media objects as much room as possible.
-      </p>
-    </li>
-    <li itemscope="" itemtype="http://schema.org/ListItem">
-      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><code itemscope=""
-          itemtype="http://schema.stenci.la/CodeFragment">eLife</code>: Inspired by the eLife
-        website, this theme provides as close of an approximation as possible for solely
-        semantically structured documents such as Markdown.</p>
-    </li>
-  </ul>
-  <h2 itemscope="" itemtype="http://schema.stenci.la/Heading" id="theme-structure">Theme Structure
-  </h2>
+  <h2 itemscope="" itemtype="http://schema.stenci.la/Heading" id="themes">Themes</h2>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="current-themes">Current themes
+  </h3>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Name</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/bootstrap"
+            itemscope="" itemtype="http://schema.stenci.la/Link">bootstrap</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">A theme that pulls itself up
+          using Twitter&#39;s <a href="https://getbootstrap.com/" itemscope=""
+            itemtype="http://schema.stenci.la/Link">Bootstrap</a> toolkit.</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/elife"
+            itemscope="" itemtype="http://schema.stenci.la/Link">elife</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">A theme for the journal eLife.
+        </td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/nature"
+            itemscope="" itemtype="http://schema.stenci.la/Link">nature</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">A theme for the journal
+          Nature.</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/plos"
+            itemscope="" itemtype="http://schema.stenci.la/Link">plos</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">A theme for the journal PLoS.
+        </td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/rpng"
+            itemscope="" itemtype="http://schema.stenci.la/Link">rpng</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">A theme for reproducible PNGs
+          (rPNGs). This theme is used in Encoda when generating rPNGs.</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/skeleton"
+            itemscope="" itemtype="http://schema.stenci.la/Link">skeleton</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">A theme with lots of bones but
+          no flesh. Designed to be used as a starting point for creating new themes, it only has
+          empty stubs for each semantic selector e.g.</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/stencila"
+            itemscope="" itemtype="http://schema.stenci.la/Link">stencila</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">A theme reflecting
+          Stencila&#39;s brand and <a href="https://github.com/stencila/designa" itemscope=""
+            itemtype="http://schema.stenci.la/Link">design system</a>.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="structure-of-themes">Structure of
+    themes</h3>
   <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">There are two primary files inside
     each theme folder. The naming of these two files is important, and they must not be changed
     since they are referred to from <code itemscope=""
@@ -141,6 +288,192 @@
         things like syntax highlighting of code blocks.</p>
     </li>
   </ul>
+  <h2 itemscope="" itemtype="http://schema.stenci.la/Heading" id="web-components">Web Components
+  </h2>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">The <a
+      href="https://github.com/stencila/designa/tree/master/packages/components" itemscope=""
+      itemtype="http://schema.stenci.la/Link">default set of Web Components</a> to provide
+    interactivity to document nodes.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Currently, the following node types
+    have Web Components. Encoda will encode these nodes types as custom HTML elements that get
+    hydrated into these components.</p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Node type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Custom element</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">CodeChunk</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">&lt;stencila-code-chunk&gt;</code></td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">CodeExpression</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">&lt;stencila-code-expression&gt;</code>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">More components will be added over
+    time. In the meantime, the &quot;pseudo-components&quot; in sibling folders to this one, provide
+    styling for some other node types.</p>
+  <h2 itemscope="" itemtype="http://schema.stenci.la/Heading" id="extensions">Extensions</h2>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Extensions provide styling, and
+    potentially interactivity, for node types that do not yet have corresponding web components.
+    They are like fledgling web components, each with it&#39;s own CSS and/or Javascript, that you
+    can import into your own theme. Over time we expect extensions to be promoted to the Stencila
+    components library, thereby obviating the need to import them explicitly.</p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="current-extensions">Current
+    extensions</h3>@import &#39;../../extensions/cite-apa/styles.css&#39;;import
+  &#39;../../extensions/cite-apa&#39;npm run create:extension -- myextsrc/extensions/myext ├──
+  index.ts ├── README.md └── styles.css@import &#39;../../extensions/cite-apa/styles.css&#39;;import
+  &#39;../../extensions/cite-apa&#39;npm run create:extension -- myextsrc/extensions/myext ├──
+  index.ts ├── README.md └── styles.cssgit clone git@github.com:stencila/thema.git cd thema<table
+    itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Name</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/cite"
+            itemscope="" itemtype="http://schema.stenci.la/Link">cite</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Provides styling for in-text
+          citations (i.e. <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Cite</code> and <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">CiteGroup</code> nodes) and
+          bibliographies (i.e. <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">CreativeWork</code> nodes in the <code
+            itemscope="" itemtype="http://schema.stenci.la/CodeFragment">references</code> property
+          of another <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">CreativeWork</code>).</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/cite-apa"
+            itemscope="" itemtype="http://schema.stenci.la/Link">cite-apa</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Provides styling for in-text
+          citations and bibliographies in accordance with the <a
+            href="https://en.wikipedia.org/wiki/APA_style" itemscope=""
+            itemtype="http://schema.stenci.la/Link">American Psychological Association (APA)
+            style</a>.</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/cite-mla"
+            itemscope="" itemtype="http://schema.stenci.la/Link">cite-mla</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Provides styling for in-text
+          citations and bibliographies in accordance with the <a href="https://style.mla.org/"
+            itemscope="" itemtype="http://schema.stenci.la/Link">Modern Language Association (MLA)
+            style</a>.</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/code"
+            itemscope="" itemtype="http://schema.stenci.la/Link">code</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Provides syntax highlighting
+          for <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">CodeFragment</code>
+          and <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">CodeBlock</code>
+          nodes using <a href="https://prismjs.com/" itemscope=""
+            itemtype="http://schema.stenci.la/Link">Prism</a>. Will not style executable node types
+          like <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">CodeExpression</code> and <code
+            itemscope="" itemtype="http://schema.stenci.la/CodeFragment">CodeChunk</code> which are
+          styled by the base Stencila Web Components.</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/math"
+            itemscope="" itemtype="http://schema.stenci.la/Link">math</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Provides styling of math nodes
+          using MathJax fonts and styles. Use this if there is any likely to be math content, i.e.
+          <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">MathFragment</code>
+          and/or <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">MathBlock</code>
+          nodes, in documents that your theme targets.</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/pages"
+            itemscope="" itemtype="http://schema.stenci.la/Link">pages</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Provides a <a
+            href="https://developer.mozilla.org/en-US/docs/Web/CSS/@page" itemscope=""
+            itemtype="http://schema.stenci.la/Link"><code itemscope=""
+              itemtype="http://schema.stenci.la/CodeFragment">@media print</code> CSS at-rule</a> to
+          modify properties when printing a document e.g. to PDF.</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/person"
+            itemscope="" itemtype="http://schema.stenci.la/Link">person</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Provides styling of <code
+            itemscope="" itemtype="http://schema.stenci.la/CodeFragment">Person</code> nodes e.g the
+          <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">authors</code> of an
+          article, or authors for each <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">citation</code> in it&#39;s <code
+            itemscope="" itemtype="http://schema.stenci.la/CodeFragment">references</code>.</td>
+      </tr>
+    </tbody>
+  </table>@import &#39;../../extensions/cite-apa/styles.css&#39;;import
+  &#39;../../extensions/cite-apa&#39;npm run create:extension -- myextsrc/extensions/myext ├──
+  index.ts ├── README.md └── styles.cssgit clone git@github.com:stencila/thema.git cd themanpm
+  installnpm run dev@import &#39;../../extensions/cite-apa/styles.css&#39;;import
+  &#39;../../extensions/cite-apa&#39;npm run create:extension -- myextsrc/extensions/myext ├──
+  index.ts ├── README.md └── styles.cssgit clone git@github.com:stencila/thema.git cd themanpm
+  installnpm run dev<h3 itemscope="" itemtype="http://schema.stenci.la/Heading"
+    id="use-an-extension">Use an extension</h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">To add an extension to your theme,
+    you simply have to import it&#39;s CSS and Javascript.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">First import it&#39;s <code
+      itemscope="" itemtype="http://schema.stenci.la/CodeFragment">styles.css</code> file into your
+    theme&#39;s <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">styles.css</code>
+    file e.g.</p>
+  <pre itemscope=""
+    itemtype="http://schema.stenci.la/CodeBlock"><code class="language-css" itemscope="" itemtype="http://schema.stenci.la/CodeFragment">@import &#39;../../extensions/cite-apa/styles.css&#39;;</code></pre>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Then, import it&#39;s <code
+      itemscope="" itemtype="http://schema.stenci.la/CodeFragment">index.ts</code> file into your
+    theme&#39;s <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">index.ts</code>
+    file e.g.</p>
+  <pre itemscope=""
+    itemtype="http://schema.stenci.la/CodeBlock"><code class="language-ts" itemscope="" itemtype="http://schema.stenci.la/CodeFragment">import &#39;../../extensions/cite-apa&#39;</code></pre>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="develop-an-extension">Develop an
+    extension</h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">The first question to ask when
+    developing a new extension is: should I? Extensions are best suited for styling / features that
+    are:</p>
+  <ul itemscope="" itemtype="http://schema.org/ItemList">
+    <li itemscope="" itemtype="http://schema.org/ListItem">
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">likely to be used in several
+        themes, and</p>
+    </li>
+    <li itemscope="" itemtype="http://schema.org/ListItem">
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">needed in a hurry</p>
+    </li>
+  </ul>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">If it&#39;s not likely to be used in
+    more than one or two themes then it&#39;s probably not worth creating an extension. If it&#39;s
+    not needed in a hurry, then it is probably better to put the effort into contributing a web
+    component to <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">@stencila/components</code>. Having said that,
+    if your more comfortable writing a simple extension here, to try out some ideas for something
+    that may become a fully fledged web component, we are grateful for <em itemscope=""
+      itemtype="http://schema.stenci.la/Emphasis">any</em> contributions.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">The easiest way to create a new
+    extension is using:</p>
+  <pre itemscope=""
+    itemtype="http://schema.stenci.la/CodeBlock"><code class="language-bash" itemscope="" itemtype="http://schema.stenci.la/CodeFragment">npm run create:extension -- myext</code></pre>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">That will update the <code
+      itemscope="" itemtype="http://schema.stenci.la/CodeFragment">src/extensions/index.ts</code>
+    file with a new entry for your extension and create a new folder in the <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">src/extensions</code> folder with the
+    necessary files:</p>
+  <pre itemscope="" itemtype="http://schema.stenci.la/CodeBlock"><code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">src/extensions/myext
+├── index.ts
+├── README.md
+└── styles.css</code></pre>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">You can create the folder and files
+    yourself if you prefer. Just remember to run <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">npm run update:extensions</code> afterwards to
+    add your extension to the index.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">See the other extensions for
+    approaches to writing the CSS and Javascript / Typescript for your extension.</p>
   <h2 itemscope="" itemtype="http://schema.stenci.la/Heading" id="develop">Develop</h2>
   <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="prerequisites">Prerequisites</h3>
   <ul itemscope="" itemtype="http://schema.org/ItemList">
@@ -347,38 +680,6 @@ cd thema</code></pre>
         properties, or items of container properties</p>
     </li>
   </ul>
-  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="extensions">Extensions</h3>
-  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">The <a
-      href="https://github.com/stencila/designa/tree/master/packages/components" itemscope=""
-      itemtype="http://schema.stenci.la/Link">default set of Web Components</a> to provide
-    interactivity to document nodes.</p>
-  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Currently, the following node types
-    have Web Components. Encoda will encode these nodes types as custom HTML elements that get
-    hydrated into these components.</p>
-  <table itemscope="" itemtype="http://schema.org/Table">
-    <tbody>
-      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
-        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Node type</td>
-        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Custom element</td>
-      </tr>
-      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
-        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
-            itemtype="http://schema.stenci.la/CodeFragment">CodeChunk</code></td>
-        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
-            itemtype="http://schema.stenci.la/CodeFragment">&lt;stencila-code-chunk&gt;</code></td>
-      </tr>
-      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
-        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
-            itemtype="http://schema.stenci.la/CodeFragment">CodeExpression</code></td>
-        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
-            itemtype="http://schema.stenci.la/CodeFragment">&lt;stencila-code-expression&gt;</code>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">More components will be added over
-    time. In the meantime, the &quot;pseudo-components&quot; in sibling folders to this one, provide
-    styling for some other node types.</p>
   <h2 itemscope="" itemtype="http://schema.stenci.la/Heading" id="notes">Notes</h2>
   <ul itemscope="" itemtype="http://schema.org/ItemList">
     <li itemscope="" itemtype="http://schema.org/ListItem">
@@ -518,4 +819,503 @@ cd thema</code></pre>
       </tr>
     </tbody>
   </table>
+  <h2 itemscope="" itemtype="http://schema.stenci.la/Heading" id="utilities-api">Utilities API</h2>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Several utility functions are
+    provided in the <a href="./src/util" itemscope="" itemtype="http://schema.stenci.la/Link"><code
+        itemscope="" itemtype="http://schema.stenci.la/CodeFragment">util</code></a> module for
+    traversing and manipulating the DOM. These may be useful for theme and extension authors when
+    there is a need to modify the HTML structure of the document (e.g. adding additional purely
+    presentational elements such as social sharing buttons). Caution should be taken to not overly
+    modify the content. Only use these functions for things that are not possible with CSS alone.
+  </p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="functions">Functions</h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#" itemscope=""
+      itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="readyfunc">ready(func)</h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Register a function to be executed
+    when the DOM is fully loaded.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function<strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Detail</strong>: Use this to wrap calls to the DOM
+    selection and manipulation functions to be sure that the DOM is ready before working on it. </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">func</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">function</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Function to register</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Example</strong><code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">js ready(() =&gt; { // Use other DOM
+      manipulation functions here }) </code> <a href="#" itemscope=""
+      itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading"
+    id="firstelem-selector-⇒-elementcodefragment---nullcodefragment">first(<a href="" itemscope=""
+      itemtype="http://schema.stenci.la/Link">elem</a>, selector) ⇒ <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'Element',type:'CodeFragment'},' |']</span> |
+    <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">null</code></h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Select the first element matching a
+    CSS selector.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function<strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Returns</strong>: <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'Element',type:'CodeFragment'},'
+      |',{text:'',type:'CodeFragment'}]</span> | <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'null',type:'CodeFragment'},' - An Element or
+      null if no match: This function provides a short hand for querySelector but also allowing for
+      the use of semantic selectors. You can use it for the whole document, or scoped to a
+      particular element.']</span> - An <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">Element</code> or <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">null</code> if no match<strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Detail</strong>: This function provides a short hand
+    for <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">querySelector</code> but
+    also allowing for the use of semantic selectors. You can use it for the whole document, or
+    scoped to a particular element. </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="" itemscope=""
+            itemtype="http://schema.stenci.la/Link">elem</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The element to query (defaults
+          to the <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">window.document</code>)</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">selector</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">string</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The selector to match</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Example</strong> <em itemscope=""
+      itemtype="http://schema.stenci.la/Emphasis">(Select the first element from the document
+      matching selector)</em>```js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">first(&#39;:--CodeChunk&#39;) <code
+      itemscope="" itemtype="http://schema.stenci.la/CodeFragment">**Example** *(Select the first
+      element within an element matching the selector)* </code>js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">first(elem, &#39;:--author&#39;) ```
+    <a href="#" itemscope="" itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading"
+    id="selectelem-selector-⇒-arraycodefragment">select(<a href="" itemscope=""
+      itemtype="http://schema.stenci.la/Link">elem</a>, selector) ⇒ <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">Array.</code></h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Select all elements matching a CSS
+    selector.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function<strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Returns</strong>: <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'Array.',type:'CodeFragment'},' - An array of
+      elements: Provides a short hand for using']</span> - An array of elements<strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Detail</strong>: Provides a short hand for using
+    <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">querySelectorAll</code> but
+    also allowing for the use of semantic selectors. You can use it for the whole document, or
+    scoped to a particular element. </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="" itemscope=""
+            itemtype="http://schema.stenci.la/Link">elem</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The element to query (defaults
+          to the <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">window.document</code>)</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">selector</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">string</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The selector to match</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Example</strong> <em itemscope=""
+      itemtype="http://schema.stenci.la/Emphasis">(Select all elements from the document matching
+      selector)</em>```js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">select(&#39;:--CodeChunk&#39;) <code
+      itemscope="" itemtype="http://schema.stenci.la/CodeFragment">**Example** *(Select all elements
+      within an element matching the selector)* </code>js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">select(elem, &#39;:--author&#39;) ```
+    <a href="#" itemscope="" itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading"
+    id="createspec-children-⇒-elementcodefragment">create(<a href="" itemscope=""
+      itemtype="http://schema.stenci.la/Link">spec</a>, ...children) ⇒ <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">Element</code></h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Create a new element.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function<strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Detail</strong>: This function allows creation of
+    new elements using either a (a) HTML string (b) CSS selector like string, or (c) an <code
+      itemscope="" itemtype="http://schema.stenci.la/CodeFragment">Element</code>. CSS selectors are
+    are convenient way to create elements with attributes, particularly Microdata elements. They can
+    be prone to syntax errors however. Alternatively, the second argument can be an object of
+    attribute name:value pairs. </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="" itemscope=""
+            itemtype="http://schema.stenci.la/Link">spec</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">string</code> | <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Specification of element to
+          create.</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">...children</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">object</code> | <span itemscope=""
+            itemtype="http://schema.stenci.la/Array">[{text:'string',type:'CodeFragment'},' |
+            ',{text:'number',type:'CodeFragment'}]</span> | <span itemscope=""
+            itemtype="http://schema.stenci.la/Array">[{text:'number',type:'CodeFragment'},' |
+            ',{text:'Element',type:'CodeFragment'}]</span> | <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Additional child elements to
+          add. If the first is an object then it is used to set the element&#39;s attributes.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Example</strong> <em itemscope=""
+      itemtype="http://schema.stenci.la/Emphasis">(Create a &lt;figure&gt; with id, class and
+      itemtype attributes)</em>```js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">create(&#39;figure #fig1 .fig
+    :--Figure&#39;) // <figure itemscope="" itemtype="http://schema.stenci.la/Figure" id="fig1">//
+    </figure> <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">**Example** *(As
+      above but using an object to specify attributes)* </code>js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">create(&#39;figure&#39;, { id:
+    &#39;fig1&#39;, class: &#39;fig&#39;, itemscope: &#39;&#39;, itemtype:
+    translate(&#39;:--Figure&#39;) }) <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">**Example** *(Create a Person with a name
+      property)* </code>js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">create(&#39;:--Person&#39;,
+    create(&#39;span :--name&#39;, &#39;John Doe&#39;)) // <span itemscope=""
+      itemtype="http://schema.org/Person" itemprop="author"><span itemprop="name"
+        content=""></span></span> ``` <a href="#" itemscope=""
+      itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading"
+    id="attrtarget-name-value-⇒-stringcodefragment---nullcodefragment--undefinedcodefragment--undefinedcodefragment">
+    attr(target, name, <a href="" itemscope="" itemtype="http://schema.stenci.la/Link">value</a>) ⇒
+    <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'string',type:'CodeFragment'},' |']</span> |
+    <span itemscope="" itemtype="http://schema.stenci.la/Array">[{text:'null',type:'CodeFragment'},'
+      | ',{text:'undefined',type:'CodeFragment'}]</span> | <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">undefined</code></h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Get or set the value of an attribute
+    on an element.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function<strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Returns</strong>: <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'string',type:'CodeFragment'},'
+      |',{text:'',type:'CodeFragment'}]</span> | <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'null',type:'CodeFragment'},' |
+      ',{text:'undefined',type:'CodeFragment'},' - null if the attribute does not exist,
+      undefined']</span> | <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'undefined',type:'CodeFragment'},' - null if
+      the attribute does not exist, undefined when setting']</span> - <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">null</code> if the attribute does not exist,
+    <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">undefined</code> when setting
+  </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">target</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The element to get or set the
+          attribute</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">name</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">string</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The name of the attribute</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="" itemscope=""
+            itemtype="http://schema.stenci.la/Link">value</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">string</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The value of the attribute
+          (when setting)</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Example</strong> <em itemscope=""
+      itemtype="http://schema.stenci.la/Emphasis">(Set an attribute value)</em>```js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">attr(elem, &quot;attr&quot;,
+    &quot;value&quot;) <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">**Example** *(Get an attribute)* </code>js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">attr(elem, &quot;attr&quot;) //
+    &quot;value&quot; ``` <a href="#" itemscope="" itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading"
+    id="texttarget-value-⇒-stringcodefragment---nullcodefragment--undefinedcodefragment--undefinedcodefragment">
+    text(target, <a href="" itemscope="" itemtype="http://schema.stenci.la/Link">value</a>) ⇒ <span
+      itemscope="" itemtype="http://schema.stenci.la/Array">[{text:'string',type:'CodeFragment'},'
+      |']</span> | <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'null',type:'CodeFragment'},' |
+      ',{text:'undefined',type:'CodeFragment'}]</span> | <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">undefined</code></h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Get or set the text content of an
+    element.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function<strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Returns</strong>: <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'string',type:'CodeFragment'},'
+      |',{text:'',type:'CodeFragment'}]</span> | <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'null',type:'CodeFragment'},' |
+      ',{text:'undefined',type:'CodeFragment'},' - null if there is no text content,
+      undefined']</span> | <span itemscope=""
+      itemtype="http://schema.stenci.la/Array">[{text:'undefined',type:'CodeFragment'},' - null if
+      there is no text content, undefined when setting']</span> - <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">null</code> if there is no text content, <code
+      itemscope="" itemtype="http://schema.stenci.la/CodeFragment">undefined</code> when setting
+  </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">target</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The element to get or set the
+          text content</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="" itemscope=""
+            itemtype="http://schema.stenci.la/Link">value</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">string</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The value of the text content
+          (when setting)</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Example</strong> <em itemscope=""
+      itemtype="http://schema.stenci.la/Emphasis">(Set the text content)</em>```js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">text(elem, &quot;text content&quot;)
+    <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">**Example** *(Get the text
+      content)* </code>js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">text(elem) // &quot;text
+    content&quot; ``` <a href="#" itemscope="" itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="appendtarget-elems">append(target,
+    ...elems)</h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Append new child elements to an
+    element.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">target</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The element to append to</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">...elems</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The elements to append</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#" itemscope=""
+      itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="prependtarget-elems">
+    prepend(target, ...elems)</h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Prepend new child elements to an
+    element.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function<strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Detail</strong>: When called with multiple elements
+    to prepend will maintain the order of those elements (at the top of the target element). </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">target</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The element to prepend to</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">...elems</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The elements to prepend</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#" itemscope=""
+      itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="beforetarget-elems">before(target,
+    ...elems)</h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Insert new elements before an
+    element.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">target</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The element before which the
+          elements are to be inserted</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">...elems</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The elements to insert</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#" itemscope=""
+      itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="aftertarget-elems">after(target,
+    ...elems)</h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Insert new elements after an element.
+  </p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">target</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The element after which the
+          elements are to be inserted</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">...elems</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The elements to insert</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#" itemscope=""
+      itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="replacetarget-elems">
+    replace(target, ...elems)</h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Replace an element with a new
+    element.</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Type</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">target</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The element to replace</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">...elems</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">Element</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The elements to replace it
+          with</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><a href="#" itemscope=""
+      itemtype="http://schema.stenci.la/Link"></a></p>
+  <h3 itemscope="" itemtype="http://schema.stenci.la/Heading" id="wraptarget-elem">wrap(target,
+    elem)</h3>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Wrap an element with a new element.
+  </p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Kind</strong>: global function<strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Detail</strong>: This function can be useful if you
+    need to create a container element to more easily style a type of element. </p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Param</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">target</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The element to wrap</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">elem</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">The element to wrap it in</td>
+      </tr>
+    </tbody>
+  </table>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph"><strong itemscope=""
+      itemtype="http://schema.stenci.la/Strong">Example</strong> <em itemscope=""
+      itemtype="http://schema.stenci.la/Emphasis">(Wrap all figure captions in a
+      &lt;div&gt;)</em>```js</p>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">select(&#39;:--Figure
+    :--caption&#39;) .forEach(caption =&gt; wrap(caption, create(&#39;div&#39;))) ```</p>
 </article>
