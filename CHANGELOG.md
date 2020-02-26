@@ -1,3 +1,10 @@
+# [0.40.0](https://github.com/stencila/schema/compare/v0.39.0...v0.40.0) (2020-02-26)
+
+
+### Features
+
+* **Microdata:** Add microdataRoot function ([a9b1989](https://github.com/stencila/schema/commit/a9b1989ac07767dc90b091fa6b95ce92d9ac8a3d)), closes [#175](https://github.com/stencila/schema/issues/175)
+
 # [0.39.0](https://github.com/stencila/schema/compare/v0.38.0...v0.39.0) (2020-02-24)
 
 
