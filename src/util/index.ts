@@ -59,7 +59,7 @@ let readyFired = false
  *
  * @private
  */
-function whenReady(): void {
+export function whenReady(): void {
   if (readyFired) return
   readyFired = true
   readyList.forEach(func => func())
