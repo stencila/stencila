@@ -181,11 +181,14 @@ export function create(
   } else {
     // Create from CSS selector
     // Translate semantic selectors to attribute selectors
+    // 1. Type selectors (need itemscope attr too)
     spec = spec.replace(
       /:--[A-Z][a-z]+/g,
       typeSelector => `[itemscope] ${translate(typeSelector)}`
     )
-    spec = spec.replace(/:--[a-z]+/g, translate)
+    // 2. Prop selectors
+    spec = spec.replace(/:--[a-zA-Z]+/g, translate)
+
     // Credit to https://github.com/hekigan/dom-create-element-query-selector
     // for the regexes (with some modifications).
     const tag = /^[a-z0-9]+/i.exec(spec)?.[0] ?? 'div'
