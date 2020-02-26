@@ -28,7 +28,7 @@
     serif;
   --font-family-secondary: -apple-system, system-ui, 'Segoe UI', roboto,
     oxygen-sans, ubuntu, cantarell, 'Helvetica Neue', sans-serif;
-  --font-family-mono: 'IBM Plex Mono', 'Fira Code', 'monospace';
+  --font-family-mono: 'IBM Plex Mono', 'Fira Code', monospace;
 
   /* Font Sizes */
   --font-size-body: 17px;
