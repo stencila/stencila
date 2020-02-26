@@ -6,7 +6,8 @@ import {
   microdataType,
   microdata,
   microdataItem,
-  microdataProperty
+  microdataProperty,
+  microdataRoot
 } from './microdata'
 import { codeChunk, article, person, thing, organization } from '../types'
 
@@ -95,6 +96,12 @@ test('microdataProperty', () => {
     itemprop: 'affiliation',
     itemref: 'org1'
   })
+
+  // A property that is a plural but which aliases another vocab
+  // using a different word
+  expect(microdataProperty('references', 'item')).toEqual({
+    itemprop: 'citation'
+  })
 })
 
 test('microdataItemtype', () => {
@@ -123,4 +130,8 @@ test('microdataItemprop', () => {
   expect(microdataItemprop('maintainers')).toEqual(['codemeta', 'maintainer'])
 
   expect(microdataItemprop('foo')).toEqual([undefined, undefined])
+})
+
+test('microdataRoot', () => {
+  expect(microdataRoot()).toEqual({'data-itemscope': 'root'})
 })
