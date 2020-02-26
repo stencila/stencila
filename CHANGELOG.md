@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/stencila/thema/compare/v1.7.1...v1.7.2) (2020-02-26)
+
+
+### Bug Fixes
+
+* **CSS:** Malformed custom property usage ([e69dcd5](https://github.com/stencila/thema/commit/e69dcd5cec2c798b9192403e063e58774fa95a0f))
+
 ## [1.7.1](https://github.com/stencila/thema/compare/v1.7.0...v1.7.1) (2020-02-25)
 
 
