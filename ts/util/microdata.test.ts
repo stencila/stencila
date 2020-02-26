@@ -6,7 +6,8 @@ import {
   microdataType,
   microdata,
   microdataItem,
-  microdataProperty
+  microdataProperty,
+  microdataRoot
 } from './microdata'
 import { codeChunk, article, person, thing, organization } from '../types'
 
@@ -123,4 +124,8 @@ test('microdataItemprop', () => {
   expect(microdataItemprop('maintainers')).toEqual(['codemeta', 'maintainer'])
 
   expect(microdataItemprop('foo')).toEqual([undefined, undefined])
+})
+
+test('microdataRoot', () => {
+  expect(microdataRoot()).toEqual({'data-itemscope': 'root'})
 })

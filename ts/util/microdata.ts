@@ -162,3 +162,18 @@ export function microdataItemprop(
 
   return [prefix, name]
 }
+
+/**
+ * Get the 'pseudo' HTML Microdata attribute for the root element.
+ *
+ * This attribute name / value pair is used to scope CSS variables to
+ * the root Stencila node in an HML document. It is used by Encoda when
+ * encoding to HTML, it is in Thema to scope CSS variable thereby
+ * avoiding variable name clashes from using the CSS `:root` pseudo-class.
+ *
+ * Although not directly related to Microdata, given it is used in both
+ * of those projects, this appears to be the best place for it.
+ */
+export function microdataRoot(): {'data-itemscope': 'root'} {
+  return {'data-itemscope': 'root'}
+}
