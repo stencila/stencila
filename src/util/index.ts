@@ -67,11 +67,11 @@ export function whenReady(): void {
   document.removeEventListener('DOMContentLoaded', whenReady)
 }
 
-export function first(selector: string): Element | null
+export function first(selector: string): Element | undefined
 export function first(
   elem: Document | Element,
   selector: string
-): Element | null
+): Element | undefined
 /**
  * Select the first element matching a CSS selector.
  *
@@ -89,15 +89,15 @@ export function first(
  *
  * @param {Element} [elem] The element to query (defaults to the `window.document`)
  * @param {string} selector The selector to match
- * @returns {Element | null} An `Element` or `null` if no match
+ * @returns {Element | undefined} An `Element` or `undefined` if no match
  */
 export function first(
   ...args: (string | Document | Element)[]
-): Element | null {
+): Element | undefined {
   const [elem, selector] = (args.length === 1
     ? [document, args[0]]
     : args.slice(0, 2)) as [Element, string]
-  return elem.querySelector(translate(selector))
+  return elem.querySelector(translate(selector)) ?? undefined
 }
 
 export function select(selector: string): Element[]
@@ -238,7 +238,55 @@ export function create(
   return elem
 }
 
-export function attr(target: Element, name: string): string | null
+export function tag(target: Element): string
+export function tag(target: Element, value: string): undefined
+/**
+ * Get or set the tag name of an element.
+ *
+ * @example <caption>Set the tag</caption>
+ *
+ * tag(elem, "h3")
+ *
+ * @example <caption>Get the tag</caption>
+ *
+ * tag(elem) // "h3"
+ *
+ * @param {Element} target The element to get or set the tag
+ * @param {string} [value] The value of the tag (when setting)
+ * @returns {string | undefined} `undefined` when setting
+ */
+export function tag(target: Element, value?: string): string | undefined {
+  if (value === undefined) return target.tagName
+
+  const replacement = create(value, attrs(target))
+  replacement.innerHTML = target.innerHTML
+  replace(target, replacement)
+}
+
+export function attrs(target: Element): Record<string, string>
+export function attrs(target: Element, value: object): undefined
+/**
+ * Get or set the attributes of an element
+ *
+ * @param {Element} target The element to get or set the attributes
+ * @param {object} [value] The name/value pairs of the attributes
+ * @returns {object | undefined} `undefined` if the attribute does not exist, or when setting
+ */
+export function attrs(
+  target: Element,
+  value?: object
+): Record<string, string> | undefined {
+  if (value === undefined)
+    return Object.assign(
+      {},
+      ...Array.from(target.attributes, ({ name, value }) => ({ [name]: value }))
+    )
+  Object.entries(value).forEach(([name, value]) =>
+    target.setAttribute(name, value)
+  )
+}
+
+export function attr(target: Element, name: string): string
 export function attr(target: Element, name: string, value: string): undefined
 /**
  * Get or set the value of an attribute on an element.
@@ -254,15 +302,14 @@ export function attr(target: Element, name: string, value: string): undefined
  * @param {Element} target The element to get or set the attribute
  * @param {string} name The name of the attribute
  * @param {string} [value] The value of the attribute (when setting)
- * @returns {string | null | undefined} `null` if the attribute does not exist,
- *                                      `undefined` when setting
+ * @returns {string | undefined} `undefined` if the attribute does not exist, or when setting
  */
 export function attr(
   target: Element,
   name: string,
   value?: string
-): string | null | undefined {
-  if (value === undefined) return target.getAttribute(name)
+): string | undefined {
+  if (value === undefined) return target.getAttribute(name) ?? undefined
   target.setAttribute(name, value)
 }
 

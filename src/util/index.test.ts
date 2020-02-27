@@ -250,7 +250,7 @@ describe('attr', () => {
   it('gets attributes of an element', () => {
     const elem = create('<img foo="bar">')
     expect(attr(elem, 'foo')).toEqual('bar')
-    expect(attr(elem, 'baz')).toEqual(null)
+    expect(attr(elem, 'baz')).toEqual(undefined)
   })
 
   it('sets attributes of an element', () => {

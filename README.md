@@ -343,7 +343,7 @@ Several utility functions are provided in the [`util`](./src/util) module for tr
 <dt><a href="#ready">ready(func)</a></dt>
 <dd><p>Register a function to be executed when the DOM is fully loaded.</p>
 </dd>
-<dt><a href="#first">first([elem], selector)</a> ⇒ <code>Element</code> | <code>null</code></dt>
+<dt><a href="#first">first([elem], selector)</a> ⇒ <code>Element</code> | <code>undefined</code></dt>
 <dd><p>Select the first element matching a CSS selector.</p>
 </dd>
 <dt><a href="#select">select([elem], selector)</a> ⇒ <code>Array.&lt;Element&gt;</code></dt>
@@ -352,7 +352,13 @@ Several utility functions are provided in the [`util`](./src/util) module for tr
 <dt><a href="#create">create([spec], ...children)</a> ⇒ <code>Element</code></dt>
 <dd><p>Create a new element.</p>
 </dd>
-<dt><a href="#attr">attr(target, name, [value])</a> ⇒ <code>string</code> | <code>null</code> | <code>undefined</code></dt>
+<dt><a href="#tag">tag(target, [value])</a> ⇒ <code>string</code> | <code>undefined</code></dt>
+<dd><p>Get or set the tag name of an element.</p>
+</dd>
+<dt><a href="#attrs">attrs(target, [value])</a> ⇒ <code>object</code> | <code>undefined</code></dt>
+<dd><p>Get or set the attributes of an element</p>
+</dd>
+<dt><a href="#attr">attr(target, name, [value])</a> ⇒ <code>string</code> | <code>undefined</code></dt>
 <dd><p>Get or set the value of an attribute on an element.</p>
 </dd>
 <dt><a href="#text">text(target, [value])</a> ⇒ <code>string</code> | <code>null</code> | <code>undefined</code></dt>
@@ -399,11 +405,11 @@ ready(() => {
 ```
 <a name="first"></a>
 
-### first([elem], selector) ⇒ <code>Element</code> \| <code>null</code>
+### first([elem], selector) ⇒ <code>Element</code> \| <code>undefined</code>
 Select the first element matching a CSS selector.
 
 **Kind**: global function  
-**Returns**: <code>Element</code> \| <code>null</code> - An `Element` or `null` if no match  
+**Returns**: <code>Element</code> \| <code>undefined</code> - An `Element` or `undefined` if no match  
 **Detail**: This function provides a short hand for `querySelector` but
 also allowing for the use of semantic selectors.
 You can use it for the whole document, or scoped to a particular element.  
@@ -492,14 +498,49 @@ create(':--Person', create('span :--name', 'John Doe'))
 //   <span itemprop="name">John Doe</span>
 // </div>
 ```
+<a name="tag"></a>
+
+### tag(target, [value]) ⇒ <code>string</code> \| <code>undefined</code>
+Get or set the tag name of an element.
+
+**Kind**: global function  
+**Returns**: <code>string</code> \| <code>undefined</code> - `undefined` when setting  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | <code>Element</code> | The element to get or set the tag |
+| [value] | <code>string</code> | The value of the tag (when setting) |
+
+**Example** *(Set the tag)*  
+```js
+
+tag(elem, "h3")
+```
+**Example** *(Get the tag)*  
+```js
+
+tag(elem) // "h3"
+```
+<a name="attrs"></a>
+
+### attrs(target, [value]) ⇒ <code>object</code> \| <code>undefined</code>
+Get or set the attributes of an element
+
+**Kind**: global function  
+**Returns**: <code>object</code> \| <code>undefined</code> - `undefined` if the attribute does not exist, or when setting  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | <code>Element</code> | The element to get or set the attributes |
+| [value] | <code>object</code> | The name/value pairs of the attributes |
+
 <a name="attr"></a>
 
-### attr(target, name, [value]) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>
+### attr(target, name, [value]) ⇒ <code>string</code> \| <code>undefined</code>
 Get or set the value of an attribute on an element.
 
 **Kind**: global function  
-**Returns**: <code>string</code> \| <code>null</code> \| <code>undefined</code> - `null` if the attribute does not exist,
-                                     `undefined` when setting  
+**Returns**: <code>string</code> \| <code>undefined</code> - `undefined` if the attribute does not exist, or when setting  
 
 | Param | Type | Description |
 | --- | --- | --- |
