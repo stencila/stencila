@@ -13,6 +13,14 @@
 @import '../../fonts/notoSerif/notoSerif.css';
 @import '../../fonts/notoSans/notoSans.css';
 
+@font-face {
+  font-display: fallback;
+  font-family: "Noto Sans";
+  src: url("./fonts/NotoSans-SemiBold-webfont-custom-2-subsetting.woff2") format("woff2");
+  font-weight: bold;
+}
+
+
 /* stylelint-disable xi/selector-pattern */
 main {
   @extend .wrapper;
