@@ -17,7 +17,8 @@ const themes = [
   'plos',
   'rpng',
   'skeleton',
-  'stencila'
+  'stencila',
+  'wilmore'
 ]
 
 // Generate configurations for ScriptExtHtmlWebpackPlugin to add theme ID and class attributes
