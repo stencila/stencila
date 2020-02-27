@@ -51,7 +51,7 @@ async function generateThemeDocs(readme: string): Promise<string> {
   )
   return readme.replace(
     /<!-- THEMES-START -->[\s\S]*?<!-- THEMES-END -->/gm,
-    `<!-- THEMES-START -->\n${md}\n<!-- THEMES-END -->`
+    `<!-- THEMES-START -->\n\n${md}\n\n<!-- THEMES-END -->`
   )
 }
 
@@ -68,7 +68,7 @@ async function generateExtsDocs(readme: string): Promise<string> {
   )
   return readme.replace(
     /<!-- EXTS-START -->[\s\S]*?<!-- EXTS-END -->/gm,
-    `<!-- EXTS-START -->\n${md}\n<!-- EXTS-END -->`
+    `<!-- EXTS-START -->\n\n${md}\n\n<!-- EXTS-END -->`
   )
 }
 

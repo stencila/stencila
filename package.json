@@ -10,7 +10,7 @@
   "types": "./dist/lib/index.d.ts",
   "scripts": {
     "prepare": "npm run update",
-    "update": "npm run update:selectors && npm run update:examples && npm run update:themes && npm run update:extensions",
+    "update": "npm run update:selectors && npm run update:examples && npm run update:themes && npm run update:extensions && npm run docs",
     "update:selectors": "ts-node --files src/scripts/selectors.ts",
     "update:examples": "ts-node --files src/scripts/examples.ts",
     "create:theme": "ts-node --files src/scripts/themes.ts create",
