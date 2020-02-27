@@ -18,7 +18,7 @@
 /* Import semantic selectors so that we can map Bootstrap styles to them */
 @import '../../selectors.css';
 
-:--Article {
+:--root {
   /* Use Bootstrap's `container` class but with a maximum width for readability */
   @extend .container;
 

@@ -1,6 +1,6 @@
 @import '../../fonts/merriweather/merriweather.css';
 
-:--Article {
+:--root {
   --max-width: 600px;
   --max-width-media: 980px;
 
@@ -25,18 +25,18 @@
 
   /* Theme Colors */
   --color-stock: #fcfcfc;
-  --color-key: #1D202A;
+  --color-key: #1d202a;
   --color-white: #fff;
 
   /* Primary: Used for primary tone of the theme, for buttons, links, and other elements */
-  --color-primary-100: #E2E0E6;
-  --color-primary-200: #CCC9D9;
-  --color-primary-300: #B2B2CC;
-  --color-primary-400: #757A9C;
-  --color-primary-500: #3B4053;
-  --color-primary-600: #2F3343;
+  --color-primary-100: #e2e0e6;
+  --color-primary-200: #ccc9d9;
+  --color-primary-300: #b2b2cc;
+  --color-primary-400: #757a9c;
+  --color-primary-500: #3b4053;
+  --color-primary-600: #2f3343;
   --color-primary-700: #232632;
-  --color-primary-800: #1D202A;
+  --color-primary-800: #1d202a;
   --color-primary-900: #171921;
 
   /* Neutral: For backgrounds and borders */

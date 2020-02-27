@@ -9,7 +9,7 @@
 
 @import '../../fonts/openSans/openSans.css';
 
-:--Article {
+:--root {
   --bg-color: #fff;
   --body-font-size: var(--font-size-body);
   --body-font-weight: 400;

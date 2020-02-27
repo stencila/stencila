@@ -19,7 +19,7 @@ main {
 }
 /* stylelint-enable */
 
-:--Article {
+:--root {
   @extend .wrapper;
   @extend .content-container;
   @extend .grid__item;
