@@ -256,15 +256,25 @@
         <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/skeleton"
             itemscope="" itemtype="http://schema.stenci.la/Link">skeleton</a></td>
         <td itemscope="" itemtype="http://schema.stenci.la/TableCell">A theme with lots of bones but
-          no flesh. Designed to be used as a starting point for creating new themes, it only has
-          empty stubs for each semantic selector e.g.</td>
+          no flesh.Designed to be used as a starting point for creating new themes, it tries to be
+          as unopinionated as possible.</td>
       </tr>
       <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
         <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/stencila"
             itemscope="" itemtype="http://schema.stenci.la/Link">stencila</a></td>
         <td itemscope="" itemtype="http://schema.stenci.la/TableCell">A theme reflecting
           Stencila&#39;s brand and <a href="https://github.com/stencila/designa" itemscope=""
-            itemtype="http://schema.stenci.la/Link">design system</a>.</td>
+            itemtype="http://schema.stenci.la/Link">design system</a>. It is based on the Skeleton
+          theme, and demonstrates how to customize a theme using CSS variables.</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><a href="./themes/wilmore"
+            itemscope="" itemtype="http://schema.stenci.la/Link">wilmore</a></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">A theme well suited for
+          consuming long-form manuscripts and prose. Named after Edmond Dantés&#39; alias, <a
+            href="https://en.wikipedia.org/wiki/The_Count_of_Monte_Cristo#Edmond_Dantès_and_his_aliases"
+            itemscope="" itemtype="http://schema.stenci.la/Link">“Lord Wilmore: An Englishman, and
+            the persona in which Dantès performs random acts of generosity.“</a></td>
       </tr>
     </tbody>
   </table>
@@ -583,20 +593,14 @@ cd thema</code></pre>
     Stylelint:</p>
   <ul itemscope="" itemtype="http://schema.org/ItemList">
     <li itemscope="" itemtype="http://schema.org/ListItem">
-      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">All slectors must be descendants
-        of a custom semantic selector. This reduces risks of a theme interfering with</p>
-    </li>
-    <li itemscope="" itemtype="http://schema.org/ListItem">
-      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">exsitng stylesheets on a website.
-      </p>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">All selectors must be descendants
+        of a custom semantic selector. This reduces risks of a theme interfering with exsitng
+        stylesheets on a website.</p>
     </li>
     <li itemscope="" itemtype="http://schema.org/ListItem">
       <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Avoid hard-coded values for
-        things such as font-sizes, colors, and fonts. Instead, use CSS variables, as these will</p>
-    </li>
-    <li itemscope="" itemtype="http://schema.org/ListItem">
-      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">allow simple theme overrides
-        within the browser without having to rebuild the theme.</p>
+        things such as font-sizes, colors, and fonts. Instead, use CSS variables, as these will
+        allow simple theme overrides within the browser without having to rebuild the theme.</p>
     </li>
     <li itemscope="" itemtype="http://schema.org/ListItem">
       <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Design your themes using a
@@ -625,28 +629,19 @@ cd thema</code></pre>
     </li>
   </ul>
   <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">To tweak or adjust an existing theme,
-    you may override some common CSS variables found in the themes.</p>
-  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Available CSS variables are:
-    --color-accent: Color for accent elements, primarily used to add a brand highlights to the
-    theme. --color-key: Color for body text, and other elements using the inherited body text color.
-    --color-neutral: Subtle color, usually shades of gray, for element borders and other subtle
-    details. --color-stock: Article/Page background color, but also used for other elements.
-    --font-family-body: Font-family for paragraphs and other non-headline elements
-    --font-family-heading: Font-family for paragraphs and other non-headline elements
-    --font-family-mono: Font-family for monospaced text elements such as `pre` and `code`.
-    --max-width-media: Maximum width for media content, including images and interactive Code
-    Chunks. --max-width: Max width for textual elements and other non-media content.</p>
-  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Note that not all themes make use of
-    all available variables, and that some may expose additional options. Please refer to the
-    specific theme documentation.</p>
+    you may override some common CSS variables found in the themes. Please refer to the specific
+    theme documentation for available variables.</p>
   <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Type selectors</p>
   <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">For types defined in <a
       href="http://schema.org" itemscope=""
-      itemtype="http://schema.stenci.la/Link">http://schema.org</a> (e.g. `Article`), or extensions
-    such as, <a href="http://schema.stenci.la" itemscope=""
-      itemtype="http://schema.stenci.la/Link">http://schema.stenci.la</a> (e.g. `CodeChunk`), <a
+      itemtype="http://schema.stenci.la/Link">http://schema.org</a> (e.g. <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">Article</code>), or extensions such as, <a
+      href="http://schema.stenci.la" itemscope=""
+      itemtype="http://schema.stenci.la/Link">http://schema.stenci.la</a> (e.g. <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">CodeChunk</code>), <a
       href="http://bioschemas.org" itemscope=""
-      itemtype="http://schema.stenci.la/Link">http://bioschemas.org</a> (e.g. `Taxon`) etc.</p>
+      itemtype="http://schema.stenci.la/Link">http://bioschemas.org</a> (e.g. <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">Taxon</code>) etc.</p>
   <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Conventions:</p>
   <ul itemscope="" itemtype="http://schema.org/ItemList">
     <li itemscope="" itemtype="http://schema.org/ListItem">
@@ -654,16 +649,18 @@ cd thema</code></pre>
         in the schema the type is defined in</p>
     </li>
     <li itemscope="" itemtype="http://schema.org/ListItem">
-      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">use a `<a href="" itemscope=""
-          itemtype="http://schema.stenci.la/Link">itemtype=...</a>` selector if possible (i.e. if
-        Encoda encodes it in HTML)</p>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">use a <code itemscope=""
+          itemtype="http://schema.stenci.la/CodeFragment">[itemtype=...]</code> selector if possible
+        (i.e. if Encoda encodes it in HTML)</p>
     </li>
   </ul>
   <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Property selectors</p>
   <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">For properties of types defined in
-    schemas. Note that some of these select an entire container property e.g. `authors` and selector
-    for a class, and some select items in those properties e.g. `author` and select for a
-    `itemprop`.</p>
+    schemas. Note that some of these select an entire container property e.g. <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">authors</code> and selector for a class, and
+    some select items in those properties e.g. <code itemscope=""
+      itemtype="http://schema.stenci.la/CodeFragment">author</code> and select for a <code
+      itemscope="" itemtype="http://schema.stenci.la/CodeFragment">itemprop</code>.</p>
   <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">Conventions:</p>
   <ul itemscope="" itemtype="http://schema.org/ItemList">
     <li itemscope="" itemtype="http://schema.org/ListItem">
@@ -671,15 +668,88 @@ cd thema</code></pre>
         in the schema the property is defined in</p>
     </li>
     <li itemscope="" itemtype="http://schema.org/ListItem">
-      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">use a `.class` selector for
-        container properties</p>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">use a <code itemscope=""
+          itemtype="http://schema.stenci.la/CodeFragment">.class</code> selector for container
+        properties</p>
     </li>
     <li itemscope="" itemtype="http://schema.org/ListItem">
-      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">use a `<a href="" itemscope=""
-          itemtype="http://schema.stenci.la/Link">itemprop=...</a>` selector for singular
-        properties, or items of container properties</p>
+      <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">use a <code itemscope=""
+          itemtype="http://schema.stenci.la/CodeFragment">[itemprop=...]</code> selector for
+        singular properties, or items of container properties</p>
     </li>
   </ul>
+  <p itemscope="" itemtype="http://schema.stenci.la/Paragraph">There are several additional
+    selectors which are not found as the Stencila Schema definitions. These are:</p>
+  <table itemscope="" itemtype="http://schema.org/Table">
+    <tbody>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Selector</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Description</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Target</td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--root</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">It maps to the root element
+          generated by Encoda. This is done to avoid potential clashes with external stylesheets,
+          and to ensure that Thema only styles semantically annotated content.</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">[data-itemscope=root]</code></td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--CodeBlockTypes</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Block level code elements</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--CodeBlock</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--CodeChunk</code></td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--CodeTypes</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">Inline level code elements
+        </td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--CodeBlock</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--CodeChunk</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--Code</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--CodeError</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--CodeExpression</code>, <code
+            itemscope="" itemtype="http://schema.stenci.la/CodeFragment">:--CodeFragment</code>,
+          <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--SoftwareSourceCode</code></td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--ListTypes</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">List elements, both ordered
+          and unordered, as well as other lists such as author affiliations and article references
+        </td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--Article:--root &gt;
+            :--affiliations</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--Collection</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--List</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--references &gt; ol</code></td>
+      </tr>
+      <tr itemscope="" itemtype="http://schema.stenci.la/TableRow">
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--MediaTypes</code></td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell">These are elements which
+          usually benefit from taking up a wider screen area. Elements such as images, video
+          elements, code blocks</td>
+        <td itemscope="" itemtype="http://schema.stenci.la/TableCell"><code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--CodeBlock</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--CodeChunk</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--Datatable</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--Figure</code>, <code itemscope=""
+            itemtype="http://schema.stenci.la/CodeFragment">:--ImageObject</code>, <code
+            itemscope="" itemtype="http://schema.stenci.la/CodeFragment">:--MediaObject</code>,
+          <code itemscope="" itemtype="http://schema.stenci.la/CodeFragment">:--Table</code>, <code
+            itemscope="" itemtype="http://schema.stenci.la/CodeFragment">:--VideoObject</code></td>
+      </tr>
+    </tbody>
+  </table>
   <h2 itemscope="" itemtype="http://schema.stenci.la/Heading" id="notes">Notes</h2>
   <ul itemscope="" itemtype="http://schema.org/ItemList">
     <li itemscope="" itemtype="http://schema.org/ListItem">
