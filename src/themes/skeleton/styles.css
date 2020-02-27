@@ -143,7 +143,7 @@
   }
 }
 
-/* This is a top level article, as opposed to Articles which can often be found, amongst other places, in list of refences */
+/* This is a top level article, as opposed to Articles which can often be found, amongst other places, in list of references */
 :--Article:--root {
   padding: var(--spacer-lg) 0;
 

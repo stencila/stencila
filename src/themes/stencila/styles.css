@@ -81,6 +81,6 @@ h4:--Heading {
   font-size: var(--font-size-h4);
 }
 
-:--refences ol li {
+:--references ol li {
   list-style-type: number;
 }
