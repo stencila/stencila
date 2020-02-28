@@ -1,7 +1,8 @@
 import {whenReady, select, attr, text, first} from '../../util'
 
+const body = document.body
+
 test('DOM manipulations', async () => {
-  const body = document.body
   body.innerHTML = `
     <h1>The title</h1>
     <h2 data-itemtype="http://schema.stenci.la/Heading">Abstract</h2>

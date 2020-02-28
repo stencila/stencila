@@ -1,7 +1,8 @@
 import { whenReady, select, tag, attr } from '../../util'
 
+const body = document.body
+
 test('DOM manipulations', async () => {
-  const body = document.body
   body.innerHTML = `
 <section data-itemprop="references">
   <ol>

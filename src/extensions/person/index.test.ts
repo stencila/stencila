@@ -1,7 +1,9 @@
 import {whenReady, select, attr} from '../../util'
 
+const body = document.body
+
 test('DOM manipulations', async () => {
-  document.body.innerHTML = `
+  body.innerHTML = `
     <li itemscope="" itemtype="http://schema.org/Person" itemprop="author">
       <span itemprop="name" content="Sarel J. Fleishman">
         <span itemprop="givenName">Sarel J.</span>
@@ -13,7 +15,7 @@ test('DOM manipulations', async () => {
   await import('.')
   whenReady()
 
-  expect(document.body.innerHTML).toEqual(`
+  expect(body.innerHTML).toEqual(`
     <li itemscope="" itemtype="http://schema.org/Person" itemprop="author">
       <meta itemprop="name" content="Sarel J. Fleishman"><span data-itemprop="givenNames"><span itemprop="givenName">Sarel</span><span itemprop="givenName">J.</span></span><span data-itemprop="familyNames"><span itemprop="familyName">Fleishman</span></span>
     </li>

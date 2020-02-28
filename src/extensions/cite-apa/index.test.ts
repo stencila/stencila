@@ -1,7 +1,9 @@
 import { select, text, whenReady } from '../../util'
 
+const body = document.body
+
 test('DOM manipulations', async () => {
-  document.body.innerHTML = `
+  body.innerHTML = `
   <section data-itemprop="references">
     <li itemscope="" itemtype="http://schema.org/Person" itemprop="author">
        <span itemprop="name" content="Sarel J. Fleishman">

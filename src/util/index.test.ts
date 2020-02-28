@@ -14,6 +14,8 @@ import {
   attr
 } from '.'
 
+const body = document.body
+
 describe('ready', () => {
   it('runs the functions, in order, when the DOM is ready', done => {
     // Monkey patch jsdom to be able to toggle the document's ready state property
@@ -22,18 +24,18 @@ describe('ready', () => {
       get: () => readyState
     })
 
-    document.body.innerHTML = `<img>`
+    body.innerHTML = `<img>`
 
     ready(() => {
-      document.body.innerHTML += '<br>'
+      body.innerHTML += '<br>'
     })
 
     ready(() => {
-      document.body.innerHTML += '<meta>'
+      body.innerHTML += '<meta>'
     })
 
     ready(() => {
-      expect(document.body.innerHTML).toBe('<img><br><meta>')
+      expect(body.innerHTML).toBe('<img><br><meta>')
     })
 
     // This should trigger a call to all the above
@@ -83,7 +85,7 @@ describe('translate', () => {
 
 describe('first & select', () => {
   beforeAll(() => {
-    document.body.innerHTML = `
+    body.innerHTML = `
       <div id="div1" itemscope="" itemtype="http://schema.org/Article">
         <span itemprop="author">Jane</span>
         <span itemprop="author">Joe</span>
@@ -101,8 +103,6 @@ describe('first & select', () => {
   })
 
   it('scope is an element if desired', () => {
-    const body = document.body
-
     expect(first(body, 'span')?.textContent).toBe('Jane')
     expect(select(body, 'span').length).toBe(3)
 
@@ -234,7 +234,16 @@ describe('create', () => {
     expect(elem.getAttribute('attr2')).toEqual('zot')
   })
 
-  it('can be passed child elements; undefineds ignored', () => {
+  it('can be passed child elements', () => {
+    const elem = create(
+      'div',
+      create('span'),
+      create('img')
+    )
+    expect(elem.outerHTML).toEqual('<div><span></span><img></div>')
+  })
+
+  it('undefined child elements are ignored', () => {
     const elem = create(
       'div',
       undefined,
@@ -282,7 +291,6 @@ describe('text', () => {
 
 describe('append', () => {
   it('appends elements to a target', () => {
-    const body = document.body
     body.innerHTML = ``
 
     append(body, create('<img>'))
@@ -298,7 +306,6 @@ describe('append', () => {
 
 describe('prepend', () => {
   it('prepends elements to a target', () => {
-    const body = document.body
     body.innerHTML = ``
 
     prepend(body, create('<img>'))
@@ -314,7 +321,6 @@ describe('prepend', () => {
 
 describe('before', () => {
   it('inserts elements before an element', () => {
-    const body = document.body
     body.innerHTML = `<div><img></div>`
 
     before(first('img') ?? body, create('<param>'), create('<source>'))
@@ -324,7 +330,6 @@ describe('before', () => {
 
 describe('after', () => {
   it('inserts elements after an element', () => {
-    const body = document.body
     body.innerHTML = `<div><img></div>`
 
     after(first('img') ?? body, create('<param>'), create('<source>'))
@@ -334,7 +339,6 @@ describe('after', () => {
 
 describe('replace', () => {
   it('replace an element with another', () => {
-    const body = document.body
     body.innerHTML = `<img>`
 
     replace(first('img') ?? body, create('<param>'))
@@ -342,7 +346,6 @@ describe('replace', () => {
   })
 
   it('replace an element with several others', () => {
-    const body = document.body
     body.innerHTML = `<div><img></div>`
 
     replace(first('img') ?? body, create('<param>'), create('<source>'))
@@ -352,7 +355,6 @@ describe('replace', () => {
 
 describe('wrap', () => {
   it('wrap an element with another', () => {
-    const body = document.body
     body.innerHTML = `<img>`
 
     wrap(first('img') ?? body, create('<div>'))
