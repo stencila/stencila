@@ -49,6 +49,11 @@ main {
         content: '';
       }
     }
+
+    :--emails::after {
+      /* TODO: update to local dependency once eLife assets are available as npm module */
+      content: url('https://elifesciences.org/assets/patterns/img/icons/corresponding-author@1x.89247d49.png');
+    }
   }
 
   /* Temporarily hide until work out what's required here  */
