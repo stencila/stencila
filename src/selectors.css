@@ -5,6 +5,7 @@
  */
 @custom-selector :--root [data-itemscope='root'];
 
+
 /**
  * Type selectors
  */
@@ -285,3 +286,13 @@
 @custom-selector :--volumeMounts [data-itemprop~='volumeMounts'];
 @custom-selector :--volumeMount [data-itemprop~='volumeMount'];
 @custom-selector :--volumeNumber [itemprop~='volumeNumber'];
+
+
+/**
+ * Group element selectors
+ */
+@custom-selector :--ListTypes :--Article:--root > :--affiliations,:--Collection,:--List,:--references > ol;
+@custom-selector :--CodeBlockTypes :--CodeBlock,:--CodeChunk;
+@custom-selector :--CodeTypes :--CodeBlock,:--CodeChunk,:--Code,:--CodeError,:--CodeExpression,:--CodeFragment,:--SoftwareSourceCode;
+@custom-selector :--MediaTypes :--CodeBlock,:--CodeChunk,:--Datatable,:--Figure,:--ImageObject,:--MediaObject,:--Table,:--VideoObject;
+

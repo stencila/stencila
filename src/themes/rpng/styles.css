@@ -1,8 +1,8 @@
 @import '../../extensions/math/styles.css';
 
-/* stylelint-disable xi/selector-pattern, scale-unlimited/declaration-strict-value */
+/* stylelint-disable scale-unlimited/declaration-strict-value */
 
-[itemscope='root'] {
+:--root {
   --color-neutral-100: #f7fafc;
   --color-neutral-300: #e2e8f0;
   --color-neutral-600: #666;

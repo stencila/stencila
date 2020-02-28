@@ -14,7 +14,7 @@
 @custom-media --mq-md (min-width: 720px);
 @custom-media --mq-lg (min-width: 960px);
 
-:--Article {
+:--root {
   * {
     box-sizing: border-box;
   }
@@ -28,7 +28,7 @@
     serif;
   --font-family-secondary: -apple-system, system-ui, 'Segoe UI', roboto,
     oxygen-sans, ubuntu, cantarell, 'Helvetica Neue', sans-serif;
-  --font-family-mono: 'IBM Plex Mono', 'Fira Code', 'monospace';
+  --font-family-mono: monospace;
 
   /* Font Sizes */
   --font-size-body: 17px;

@@ -63,15 +63,18 @@ npm install @stencila/thema
 
 <!-- prettier-ignore-start -->
 <!-- THEMES-START -->
-| Name                            | Description                                                                                                                                                       |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [bootstrap](./themes/bootstrap) | A theme that pulls itself up using Twitter's [Bootstrap](https://getbootstrap.com/) toolkit.                                                                      |
-| [elife](./themes/elife)         | A theme for the journal eLife.                                                                                                                                    |
-| [nature](./themes/nature)       | A theme for the journal Nature.                                                                                                                                   |
-| [plos](./themes/plos)           | A theme for the journal PLoS.                                                                                                                                     |
-| [rpng](./themes/rpng)           | A theme for reproducible PNGs (rPNGs). This theme is used in Encoda when generating rPNGs.                                                                        |
-| [skeleton](./themes/skeleton)   | A theme with lots of bones but no flesh. Designed to be used as a starting point for creating new themes, it only has empty stubs for each semantic selector e.g. |
-| [stencila](./themes/stencila)   | A theme reflecting Stencila's brand and [design system](https://github.com/stencila/designa).                                                                     |
+
+| Name                            | Description                                                                                                                                                                                                                                                                                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [bootstrap](./themes/bootstrap) | A theme that pulls itself up using Twitter's [Bootstrap](https://getbootstrap.com/) toolkit.                                                                                                                                                                                                     |
+| [elife](./themes/elife)         | A theme for the journal eLife.                                                                                                                                                                                                                                                                   |
+| [nature](./themes/nature)       | A theme for the journal Nature.                                                                                                                                                                                                                                                                  |
+| [plos](./themes/plos)           | A theme for the journal PLoS.                                                                                                                                                                                                                                                                    |
+| [rpng](./themes/rpng)           | A theme for reproducible PNGs (rPNGs). This theme is used in Encoda when generating rPNGs.                                                                                                                                                                                                       |
+| [skeleton](./themes/skeleton)   | A theme with lots of bones but no flesh. Designed to be used as a starting point for creating new themes, it tries to be as unopinionated as possible.                                                                                                                                           |
+| [stencila](./themes/stencila)   | A theme reflecting Stencila's brand and [design system](https://github.com/stencila/designa). It is based on the Skeleton theme, and demonstrates how to customize a theme using CSS variables.                                                                                                  |
+| [wilmore](./themes/wilmore)     | A theme well suited for consuming long-form manuscripts and prose. Named after Edmond Dantés' alias, [“Lord Wilmore: An Englishman, and the persona in which Dantès performs random acts of generosity.“](https://en.wikipedia.org/wiki/The_Count_of_Monte_Cristo#Edmond_Dantès_and_his_aliases) |
+
 <!-- THEMES-END -->
 <!-- prettier-ignore-end -->
 
@@ -109,6 +112,7 @@ Extensions provide styling, and potentially interactivity, for node types that d
 
 <!-- prettier-ignore-start -->
 <!-- EXTS-START -->
+
 | Name                          | Description                                                                                                                                                                                                                                 |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [cite](./themes/cite)         | Provides styling for in-text citations (i.e. `Cite` and `CiteGroup` nodes) and bibliographies (i.e. `CreativeWork` nodes in the `references` property of another `CreativeWork`).                                                           |
@@ -118,6 +122,7 @@ Extensions provide styling, and potentially interactivity, for node types that d
 | [math](./themes/math)         | Provides styling of math nodes using MathJax fonts and styles. Use this if there is any likely to be math content, i.e. `MathFragment` and/or `MathBlock` nodes, in documents that your theme targets.                                      |
 | [pages](./themes/pages)       | Provides a [`@media print` CSS at-rule](https://developer.mozilla.org/en-US/docs/Web/CSS/@page) to modify properties when printing a document e.g. to PDF.                                                                                  |
 | [person](./themes/person)     | Provides styling of `Person` nodes e.g the `authors` of an article, or authors for each `citation` in it's `references`.                                                                                                                    |
+
 <!-- EXTS-END -->
 <!-- prettier-ignore-end -->
 
@@ -234,55 +239,52 @@ It is important to note that the `skeleton` and `bootstrap` themes are extremes 
 
 There are a few key rules enforced by Stylelint:
 
-- All slectors must be descendants of a custom semantic selector. This reduces risks of a theme interfering with
-- exsitng stylesheets on a website.
+- All selectors must be descendants of a custom semantic selector. This reduces risks of a theme interfering with exsitng
+  stylesheets on a website.
 - Avoid hard-coded values for things such as font-sizes, colors, and fonts. Instead, use CSS variables, as these will
-- allow simple theme overrides within the browser without having to rebuild the theme.
-- Design your themes using a mobile-first approach, adding overrides to refine styles on larger screens.
-  At the same time, it is highly recommended to also include print media overrides with your theme.
+  allow simple theme overrides within the browser without having to rebuild the theme.
+- Design your themes using a mobile-first approach, adding overrides to refine styles on larger screens. At the same
+  time, it is highly recommended to also include print media overrides with your theme.
 - These themes are primarily intended for rendering interactive articles and other relatively long forms of prose.
   - As such, good typography is paramount. Reading Matthew Butterick‘s [Typography in Ten
   - Minutes](https://practicaltypography.com/typography-in-ten-minutes.html) will give you a solid foundation and a
   - reference for crafting your own themes.
 
 To tweak or adjust an existing theme, you may override some common CSS variables found in the themes.
-
-Available CSS variables are:
---color-accent: Color for accent elements, primarily used to add a brand highlights to the theme.
---color-key: Color for body text, and other elements using the inherited body text color.
---color-neutral: Subtle color, usually shades of gray, for element borders and other subtle details.
---color-stock: Article/Page background color, but also used for other elements.
---font-family-body: Font-family for paragraphs and other non-headline elements
---font-family-heading: Font-family for paragraphs and other non-headline elements
---font-family-mono: Font-family for monospaced text elements such as \`pre\` and \`code\`.
---max-width-media: Maximum width for media content, including images and interactive Code Chunks.
---max-width: Max width for textual elements and other non-media content.
-
-Note that not all themes make use of all available variables, and that some may expose additional options.
-Please refer to the specific theme documentation.
+Please refer to the specific theme documentation for available variables.
 
 Type selectors
 
-For types defined in http://schema.org (e.g. \`Article\`), or extensions such as,
-http://schema.stenci.la (e.g. \`CodeChunk\`), http://bioschemas.org (e.g. \`Taxon\`) etc.
+For types defined in http://schema.org (e.g. `Article`), or extensions such as,
+http://schema.stenci.la (e.g. `CodeChunk`), http://bioschemas.org (e.g. `Taxon`) etc.
 
 Conventions:
 
 - use the same upper camel case as in the schema the type is defined in
-- use a \`[itemtype=...]\` selector if possible (i.e. if Encoda encodes it in HTML)
+- use a `[itemtype=...]` selector if possible (i.e. if Encoda encodes it in HTML)
 
 Property selectors
 
 For properties of types defined in schemas. Note that
-some of these select an entire container property e.g. \`authors\` and
+some of these select an entire container property e.g. `authors` and
 selector for a class, and some select items in those properties
-e.g. \`author\` and select for a \`itemprop\`.
+e.g. `author` and select for a `itemprop`.
 
 Conventions:
 
 - use the same lower camel case as in the schema the property is defined in
-- use a \`.class\` selector for container properties
-- use a \`[itemprop=...]\` selector for singular properties, or items of container properties
+- use a `.class` selector for container properties
+- use a `[itemprop=...]` selector for singular properties, or items of container properties
+
+There are several additional selectors which are not found as the Stencila Schema definitions. These are:
+
+| Selector            | Description                                                                                                                                                                                                                                                                                                                                                                                | Target                                                                                                                        |
+| :------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| `:--root`           | Used in place of the [`:root` CSS pseudo selector](https://developer.mozilla.org/en-US/docs/Web/CSS/:root). It maps to the root element [generated by Encoda](https://github.com/stencila/encoda/commit/2859e329345b6d0b6f572d64f8bd8cacf3637fc4). This is done to avoid potential clashes with external stylesheets, and to ensure that Thema only styles semantically annotated content. | `[data-itemscope=root]`                                                                                                       |
+| `:--CodeBlockTypes` | Block level code elements                                                                                                                                                                                                                                                                                                                                                                  | `:--CodeBlock`, `:--CodeChunk`                                                                                                |
+| `:--CodeTypes`      | Inline level code elements                                                                                                                                                                                                                                                                                                                                                                 | `:--CodeBlock`, `:--CodeChunk`, `:--Code`, `:--CodeError`, `:--CodeExpression`, `:--CodeFragment`, `:--SoftwareSourceCode`    |
+| `:--ListTypes`      | List elements, both ordered and unordered, as well as other lists such as author affiliations and article references                                                                                                                                                                                                                                                                       | `:--Article:--root > :--affiliations`, `:--Collection`, `:--List`, `:--references > ol`                                       |
+| `:--MediaTypes`     | These are elements which usually benefit from taking up a wider screen area. Elements such as images, video elements, code blocks                                                                                                                                                                                                                                                          | `:--CodeBlock`, `:--CodeChunk`, `:--Datatable`, `:--Figure`, `:--ImageObject`, `:--MediaObject`, `:--Table`, `:--VideoObject` |
 
 ## Notes
 
@@ -382,15 +384,15 @@ Several utility functions are provided in the [`util`](./src/util) module for tr
 ### ready(func)
 Register a function to be executed when the DOM is fully loaded.
 
-**Kind**: global function  
+**Kind**: global function
 **Detail**: Use this to wrap calls to the DOM selection and manipulation functions
-to be sure that the DOM is ready before working on it.  
+to be sure that the DOM is ready before working on it.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | func | <code>function</code> | Function to register |
 
-**Example**  
+**Example**
 ```js
 ready(() => {
   // Use other DOM manipulation functions here
@@ -401,23 +403,23 @@ ready(() => {
 ### first([elem], selector) ⇒ <code>Element</code> \| <code>null</code>
 Select the first element matching a CSS selector.
 
-**Kind**: global function  
-**Returns**: <code>Element</code> \| <code>null</code> - An `Element` or `null` if no match  
+**Kind**: global function
+**Returns**: <code>Element</code> \| <code>null</code> - An `Element` or `null` if no match
 **Detail**: This function provides a short hand for `querySelector` but
 also allowing for the use of semantic selectors.
-You can use it for the whole document, or scoped to a particular element.  
+You can use it for the whole document, or scoped to a particular element.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | [elem] | <code>Element</code> | The element to query (defaults to the `window.document`) |
 | selector | <code>string</code> | The selector to match |
 
-**Example** *(Select the first element from the document matching selector)*  
+**Example** *(Select the first element from the document matching selector)*
 ```js
 
 first(':--CodeChunk')
 ```
-**Example** *(Select the first element within an element matching the selector)*  
+**Example** *(Select the first element within an element matching the selector)*
 ```js
 
 first(elem, ':--author')
@@ -427,23 +429,23 @@ first(elem, ':--author')
 ### select([elem], selector) ⇒ <code>Array.&lt;Element&gt;</code>
 Select all elements matching a CSS selector.
 
-**Kind**: global function  
-**Returns**: <code>Array.&lt;Element&gt;</code> - An array of elements  
+**Kind**: global function
+**Returns**: <code>Array.&lt;Element&gt;</code> - An array of elements
 **Detail**: Provides a short hand for using `querySelectorAll` but
 also allowing for the use of semantic selectors. You can use it for
-the whole document, or scoped to a particular element.  
+the whole document, or scoped to a particular element.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | [elem] | <code>Element</code> | The element to query (defaults to the `window.document`) |
 | selector | <code>string</code> | The selector to match |
 
-**Example** *(Select all elements from the document matching selector)*  
+**Example** *(Select all elements from the document matching selector)*
 ```js
 
 select(':--CodeChunk')
 ```
-**Example** *(Select all elements within an element matching the selector)*  
+**Example** *(Select all elements within an element matching the selector)*
 ```js
 
 select(elem, ':--author')
@@ -453,27 +455,27 @@ select(elem, ':--author')
 ### create([spec], ...children) ⇒ <code>Element</code>
 Create a new element.
 
-**Kind**: global function  
+**Kind**: global function
 **Detail**: This function allows creation of new elements using either a
 (a) HTML string (b) CSS selector like string, or (c) an `Element`.
 CSS selectors are are convenient way to create elements with attributes,
 particularly Microdata elements. They can be prone to syntax errors however.
 Alternatively, the second argument can
-be an object of attribute name:value pairs.  
+be an object of attribute name:value pairs.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | [spec] | <code>string</code> \| <code>Element</code> | Specification of element to create. |
 | ...children | <code>object</code> \| <code>string</code> \| <code>number</code> \| <code>Element</code> | Additional child elements to add.        If the first is an object then it is used to set the element's attributes. |
 
-**Example** *(Create a &lt;figure&gt; with id, class and itemtype attributes)*  
+**Example** *(Create a &lt;figure&gt; with id, class and itemtype attributes)*
 ```js
 
 create('figure #fig1 .fig :--Figure')
 // <figure id="fig1" class="fig" itemscope="" itemtype="http://schema.stenci.la/Figure">
 // </figure>
 ```
-**Example** *(As above but using an object to specify attributes)*  
+**Example** *(As above but using an object to specify attributes)*
 ```js
 
 create('figure', {
@@ -483,7 +485,7 @@ create('figure', {
   itemtype: translate(':--Figure')
 })
 ```
-**Example** *(Create a Person with a name property)*  
+**Example** *(Create a Person with a name property)*
 ```js
 
 create(':--Person', create('span :--name', 'John Doe'))
@@ -496,9 +498,9 @@ create(':--Person', create('span :--name', 'John Doe'))
 ### attr(target, name, [value]) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>
 Get or set the value of an attribute on an element.
 
-**Kind**: global function  
+**Kind**: global function
 **Returns**: <code>string</code> \| <code>null</code> \| <code>undefined</code> - `null` if the attribute does not exist,
-                                     `undefined` when setting  
+                                     `undefined` when setting
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -506,12 +508,12 @@ Get or set the value of an attribute on an element.
 | name | <code>string</code> | The name of the attribute |
 | [value] | <code>string</code> | The value of the attribute (when setting) |
 
-**Example** *(Set an attribute value)*  
+**Example** *(Set an attribute value)*
 ```js
 
 attr(elem, "attr", "value")
 ```
-**Example** *(Get an attribute)*  
+**Example** *(Get an attribute)*
 ```js
 
 attr(elem, "attr") // "value"
@@ -521,21 +523,21 @@ attr(elem, "attr") // "value"
 ### text(target, [value]) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>
 Get or set the text content of an element.
 
-**Kind**: global function  
+**Kind**: global function
 **Returns**: <code>string</code> \| <code>null</code> \| <code>undefined</code> - `null` if there is no text content,
-                                     `undefined` when setting  
+                                     `undefined` when setting
 
 | Param | Type | Description |
 | --- | --- | --- |
 | target | <code>Element</code> | The element to get or set the text content |
 | [value] | <code>string</code> | The value of the text content (when setting) |
 
-**Example** *(Set the text content)*  
+**Example** *(Set the text content)*
 ```js
 
 text(elem, "text content")
 ```
-**Example** *(Get the text content)*  
+**Example** *(Get the text content)*
 ```js
 
 text(elem) // "text content"
@@ -545,7 +547,7 @@ text(elem) // "text content"
 ### append(target, ...elems)
 Append new child elements to an element.
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -557,10 +559,10 @@ Append new child elements to an element.
 ### prepend(target, ...elems)
 Prepend new child elements to an element.
 
-**Kind**: global function  
+**Kind**: global function
 **Detail**: When called with multiple elements to prepend
 will maintain the order of those elements (at the top
-of the target element).  
+of the target element).
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -572,7 +574,7 @@ of the target element).
 ### before(target, ...elems)
 Insert new elements before an element.
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -584,7 +586,7 @@ Insert new elements before an element.
 ### after(target, ...elems)
 Insert new elements after an element.
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -596,7 +598,7 @@ Insert new elements after an element.
 ### replace(target, ...elems)
 Replace an element with a new element.
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -608,17 +610,17 @@ Replace an element with a new element.
 ### wrap(target, elem)
 Wrap an element with a new element.
 
-**Kind**: global function  
+**Kind**: global function
 **Detail**: This function can be useful if you need
 to create a container element to more easily style
-a type of element.  
+a type of element.
 
 | Param | Description |
 | --- | --- |
 | target | The element to wrap |
 | elem | The element to wrap it in |
 
-**Example** *(Wrap all figure captions in a &lt;div&gt;)*  
+**Example** *(Wrap all figure captions in a &lt;div&gt;)*
 ```js
 
 select(':--Figure :--caption')

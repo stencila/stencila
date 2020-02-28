@@ -11,6 +11,7 @@ export const themes: {
   rpng: 'rpng'
   skeleton: 'skeleton'
   stencila: 'stencila'
+  wilmore: 'wilmore'
 } = {
   bootstrap: 'bootstrap',
   elife: 'elife',
@@ -18,5 +19,6 @@ export const themes: {
   plos: 'plos',
   rpng: 'rpng',
   skeleton: 'skeleton',
-  stencila: 'stencila'
+  stencila: 'stencila',
+  wilmore: 'wilmore'
 }
