@@ -13,6 +13,8 @@
 @import '../../fonts/notoSerif/notoSerif.css';
 @import '../../fonts/notoSans/notoSans.css';
 
+@import '../../extensions/person/styles.css';
+
 /* stylelint-disable xi/selector-pattern */
 main {
   @extend .wrapper;
