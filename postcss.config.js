@@ -6,7 +6,12 @@ module.exports = {
     require('postcss-url')({
       url: 'rebase'
     }),
-    require('postcss-custom-selectors')({ importFrom: 'src/selectors.css' }),
+    require('postcss-custom-selectors')({
+      importFrom: [
+        'src/selectors.css',
+        'src/extensions/code/styles.css'
+      ]
+    }),
     require('postcss-custom-media'),
     require('postcss-custom-properties')({ preserve: true }),
     require('postcss-nested'),

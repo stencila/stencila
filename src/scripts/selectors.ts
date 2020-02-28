@@ -58,23 +58,14 @@ const generateSelectors = async (): Promise<void> => {
   const rootSelectorCss = `@custom-selector :--root [${attr}='${value}'];`
   const rootSelectorJs = `case ":--root": return "[${attr}='${value}']"`
 
-  // Add an additional `[class*=language-]` qualified selector to Code nodes, to math PrismJS’s CSS specificity and
-  // allow styling tokenized elements.
-  const prismCompatSelector = (itemtype: string, schemaURL: string): string => {
-    const selector = `[itemtype~='${schemaURL}']`
-
-    return itemtype.toLowerCase().includes('code')
-      ? `@custom-selector :--${itemtype} ${selector}, ${selector}[class*=language-];`
-      : `@custom-selector :--${itemtype} ${selector};`
-  }
-
   const types = await jsonSchemaTypes()
+
   const [typeSelectorsCss, typeSelectorsJs] = types
     .map(type => {
       const itemtype = microdataItemtype(type as keyof Types)
       return itemtype !== undefined
         ? [
-            prismCompatSelector(type, itemtype),
+            `@custom-selector :--${type} [itemtype~='${itemtype}'];`,
             `case ":--${type}": return "[itemtype~='${itemtype}']"`
           ]
         : undefined

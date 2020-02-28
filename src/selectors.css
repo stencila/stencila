@@ -18,12 +18,12 @@
 @custom-selector :--Brand [itemtype~='http://schema.org/Brand'];
 @custom-selector :--Cite [itemtype~='http://schema.stenci.la/Cite'];
 @custom-selector :--CiteGroup [itemtype~='http://schema.stenci.la/CiteGroup'];
-@custom-selector :--Code [itemtype~='http://schema.stenci.la/Code'], [itemtype~='http://schema.stenci.la/Code'][class*=language-];
-@custom-selector :--CodeBlock [itemtype~='http://schema.stenci.la/CodeBlock'], [itemtype~='http://schema.stenci.la/CodeBlock'][class*=language-];
-@custom-selector :--CodeChunk [itemtype~='http://schema.stenci.la/CodeChunk'], [itemtype~='http://schema.stenci.la/CodeChunk'][class*=language-];
-@custom-selector :--CodeError [itemtype~='http://schema.stenci.la/CodeError'], [itemtype~='http://schema.stenci.la/CodeError'][class*=language-];
-@custom-selector :--CodeExpression [itemtype~='http://schema.stenci.la/CodeExpression'], [itemtype~='http://schema.stenci.la/CodeExpression'][class*=language-];
-@custom-selector :--CodeFragment [itemtype~='http://schema.stenci.la/CodeFragment'], [itemtype~='http://schema.stenci.la/CodeFragment'][class*=language-];
+@custom-selector :--Code [itemtype~='http://schema.stenci.la/Code'];
+@custom-selector :--CodeBlock [itemtype~='http://schema.stenci.la/CodeBlock'];
+@custom-selector :--CodeChunk [itemtype~='http://schema.stenci.la/CodeChunk'];
+@custom-selector :--CodeError [itemtype~='http://schema.stenci.la/CodeError'];
+@custom-selector :--CodeExpression [itemtype~='http://schema.stenci.la/CodeExpression'];
+@custom-selector :--CodeFragment [itemtype~='http://schema.stenci.la/CodeFragment'];
 @custom-selector :--Collection [itemtype~='http://schema.org/Collection'];
 @custom-selector :--ConstantValidator [itemtype~='http://schema.stenci.la/ConstantValidator'];
 @custom-selector :--ContactPoint [itemtype~='http://schema.org/ContactPoint'];
@@ -69,7 +69,7 @@
 @custom-selector :--SoftwareApplication [itemtype~='http://schema.org/SoftwareApplication'];
 @custom-selector :--SoftwareEnvironment [itemtype~='http://schema.stenci.la/SoftwareEnvironment'];
 @custom-selector :--SoftwareSession [itemtype~='http://schema.stenci.la/SoftwareSession'];
-@custom-selector :--SoftwareSourceCode [itemtype~='http://schema.org/SoftwareSourceCode'], [itemtype~='http://schema.org/SoftwareSourceCode'][class*=language-];
+@custom-selector :--SoftwareSourceCode [itemtype~='http://schema.org/SoftwareSourceCode'];
 @custom-selector :--StringValidator [itemtype~='http://schema.stenci.la/StringValidator'];
 @custom-selector :--Strong [itemtype~='http://schema.stenci.la/Strong'];
 @custom-selector :--Subscript [itemtype~='http://schema.stenci.la/Subscript'];
