@@ -1,3 +1,22 @@
+# [1.10.0](https://github.com/stencila/thema/compare/v1.9.0...v1.10.0) (2020-02-28)
+
+
+### Bug Fixes
+
+* **Browser support:** Transform CSS4 :not() usage to CSS3 spec ([1317b7c](https://github.com/stencila/thema/commit/1317b7ca52e37b954a92ce8930335ff8ab6cdd1e))
+* **HMR:** Fix stack overflow due to double HMR instances ([190a891](https://github.com/stencila/thema/commit/190a891e9cad4f7285e55c4f2daeac1bce5d1128))
+* **Nature:** Fix monospace font-family name ([97f92ae](https://github.com/stencila/thema/commit/97f92ae797286a78c5b66b891dc15940fb08f754))
+* **README:** Fix generation of MD table for list of Themes and Extension ([5039e41](https://github.com/stencila/thema/commit/5039e411aa5b6749b11ee64db64f2bfac6dc3f7d))
+
+
+### Features
+
+* **Selectors:** Generate PrismJS compatible code selectors ([5f34f55](https://github.com/stencila/thema/commit/5f34f55e1e419068a2f06a12b22802163cae06af))
+* **Selectors:** Generate utility selectors for selecting element groups ([49f3d38](https://github.com/stencila/thema/commit/49f3d389f2d4547dbbcfd7efd50cd8969b532c79))
+* **Skeleton:** Add basic styling to Skeleton theme ([afffdbd](https://github.com/stencila/thema/commit/afffdbd6811ff6a2cc6a5951beac33712d848923))
+* **Stencila/Wilmore:** Fork and replace existing Stencila theme ([5bd5162](https://github.com/stencila/thema/commit/5bd5162744a76eee86e146524b2f4c4338aaf02e)), closes [#70](https://github.com/stencila/thema/issues/70)
+* **Stylelint:** Allow targeting Stencila WebComponents ([4d4e079](https://github.com/stencila/thema/commit/4d4e0793c2b36afe8374922492b55a93bc403d3c))
+
 # [1.9.0](https://github.com/stencila/thema/compare/v1.8.0...v1.9.0) (2020-02-28)
 
 
