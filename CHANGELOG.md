@@ -1,3 +1,15 @@
+# [1.8.0](https://github.com/stencila/thema/compare/v1.7.2...v1.8.0) (2020-02-28)
+
+
+### Bug Fixes
+
+* **Elife:** Don't duplicate font blocks ([f7ba6ec](https://github.com/stencila/thema/commit/f7ba6eccb4a96ac1f43359aa78a17d9f95564f3b))
+
+
+### Features
+
+* **Fonts:** Use Noto Sans SemiBold for eLife headings ([bd38d09](https://github.com/stencila/thema/commit/bd38d096f2466ee17d26c651d12229675a2548dd))
+
 ## [1.7.2](https://github.com/stencila/thema/compare/v1.7.1...v1.7.2) (2020-02-26)
 
 
