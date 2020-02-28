@@ -135,13 +135,6 @@ if (exampleSelect !== null) {
   })
 }
 
-// Set the initial example
-exampleSet(
-  url.searchParams.get(keys.EXAMPLE) ??
-    sessionStorage.getItem(keys.EXAMPLE) ??
-    defaults.EXAMPLE
-)
-
 // Set a theme
 const themeSet = (theme: string): void => {
   // Update all the places that theme is set
@@ -258,6 +251,13 @@ ready(() => {
   if (desktopButton !== null) {
     desktopButton.addEventListener('mouseup', desktopView)
   }
+
+  // Set the initial example
+  exampleSet(
+    url.searchParams.get(keys.EXAMPLE) ??
+      sessionStorage.getItem(keys.EXAMPLE) ??
+      defaults.EXAMPLE
+  )
 
   preview.addEventListener('load', function() {
     // Set the initial theme
