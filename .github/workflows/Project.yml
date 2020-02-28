@@ -11,8 +11,17 @@ jobs:
   automate-project-columns:
     runs-on: ubuntu-latest
     steps:
-      - uses: alex-page/github-project-automation-plus@v0.1.2
+      - uses: stencila/github-project-automation-plus@9c5d80a
+        if: github.event_name == 'issue'
         with:
           project: Stencila Roadmap
           column: Backlog
+          on-new: true
+          repo-token: ${{ secrets.STENCILA_BOT_TOKEN }}
+      - uses: stencila/github-project-automation-plus@9c5d80a
+        if: github.event_name == 'pull_request'
+        with:
+          project: Stencila Roadmap
+          column: In progress
+          on-new: true
           repo-token: ${{ secrets.STENCILA_BOT_TOKEN }}
