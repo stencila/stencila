@@ -67,11 +67,11 @@ export function whenReady(): void {
   document.removeEventListener('DOMContentLoaded', whenReady)
 }
 
-export function first(selector: string): Element | undefined
+export function first(selector: string): Element | null
 export function first(
   elem: Document | Element,
   selector: string
-): Element | undefined
+): Element | null
 /**
  * Select the first element matching a CSS selector.
  *
@@ -89,15 +89,15 @@ export function first(
  *
  * @param {Element} [elem] The element to query (defaults to the `window.document`)
  * @param {string} selector The selector to match
- * @returns {Element | undefined} An `Element` or `undefined` if no match
+ * @returns {Element | null} An `Element` or `null` if no match
  */
 export function first(
   ...args: (string | Document | Element)[]
-): Element | undefined {
+): Element | null {
   const [elem, selector] = (args.length === 1
     ? [document, args[0]]
     : args.slice(0, 2)) as [Element, string]
-  return elem.querySelector(translate(selector)) ?? undefined
+  return elem.querySelector(translate(selector))
 }
 
 export function select(selector: string): Element[]
@@ -161,16 +161,16 @@ export function select(...args: (string | Document | Element)[]): Element[] {
  * // </div>
  *
  * @param {string | Element} [spec] Specification of element to create.
- * @param {...(object | string | number | Element)} children Additional child elements to add.
- *        If the first is an object then it is used to set the element's attributes.
+ * @param {(object | undefined | null | boolean | number | string | Element)} [attrs] Attributes for the element.
+ * @param {...(undefined | null | boolean | number | string | Element)} children Child nodes to to add as text content or elements.
  * @returns {Element}
  */
 export function create(
   spec: string | Element = 'div',
   attrs?:
-    | Record<string, undefined | boolean | number | string>
-    | (undefined | boolean | number | string | Element),
-  ...children: (undefined | boolean | number | string | Element)[]
+    | Record<string, undefined | null | boolean | number | string>
+    | (object | undefined | null | boolean | number | string | Element),
+  ...children: (undefined | null | boolean | number | string | Element)[]
 ): Element {
   let elem: Element
   if (spec instanceof Element) {
@@ -224,7 +224,7 @@ export function create(
   }
 
   // If the attrs arg is a Record then use it, otherwise add it to children
-  if (typeof attrs === 'object' && !(attrs instanceof Element)) {
+  if (attrs !== null && typeof attrs === 'object' && !(attrs instanceof Element)) {
     Object.entries(attrs).forEach(([key, value]) => {
       if (value !== undefined) elem.setAttribute(key, `${value}`)
     })
@@ -239,28 +239,39 @@ export function create(
 }
 
 export function tag(target: Element): string
-export function tag(target: Element, value: string): undefined
+export function tag(target: Element, value: string): Element
 /**
  * Get or set the tag name of an element.
  *
- * @example <caption>Set the tag</caption>
+ * @detail Caution must be used when setting the tag. This function
+ * does not actually change the tag of the element (that is not possible)
+ * but instead returns a new `Element` that is a clone of the original apart
+ * from having the new tag name. Use the `replace` function where necessary
+ * i association with this function.
  *
- * tag(elem, "h3")
- *
- * @example <caption>Get the tag</caption>
+ * @example <caption>Get the tag name as a lowercase string</caption>
  *
  * tag(elem) // "h3"
  *
+ * @example <caption>Setting the tag actually returns a new element</caption>
+ *
+ * tag(tag(elem, 'h2')) // "h2"
+ *
+ * @example <caption>Change the tag name of an element</caption>
+ *
+ * replace(elem, tag(elem, 'h2'))
+ *
  * @param {Element} target The element to get or set the tag
  * @param {string} [value] The value of the tag (when setting)
- * @returns {string | undefined} `undefined` when setting
+ * @returns {string | Element} The lowercase tag name when getting,
+ *                             a new element when setting.
  */
-export function tag(target: Element, value?: string): string | undefined {
-  if (value === undefined) return target.tagName
+export function tag(target: Element, value?: string): string | Element {
+  if (value === undefined) return target.tagName.toLowerCase()
 
   const replacement = create(value, attrs(target))
   replacement.innerHTML = target.innerHTML
-  replace(target, replacement)
+  return replacement
 }
 
 export function attrs(target: Element): Record<string, string>
@@ -270,7 +281,7 @@ export function attrs(target: Element, value: object): undefined
  *
  * @param {Element} target The element to get or set the attributes
  * @param {object} [value] The name/value pairs of the attributes
- * @returns {object | undefined} `undefined` if the attribute does not exist, or when setting
+ * @returns {object | undefined} The attributes of the element when getting, `undefined` when setting
  */
 export function attrs(
   target: Element,
@@ -281,13 +292,13 @@ export function attrs(
       {},
       ...Array.from(target.attributes, ({ name, value }) => ({ [name]: value }))
     )
-  Object.entries(value).forEach(([name, value]) =>
-    target.setAttribute(name, value)
-  )
+  Object.entries(value).forEach(([name, value]) => {
+    if (value != undefined && value !== null) target.setAttribute(name, value)
+  })
 }
 
 export function attr(target: Element, name: string): string
-export function attr(target: Element, name: string, value: string): undefined
+export function attr(target: Element, name: string, value: string): null
 /**
  * Get or set the value of an attribute on an element.
  *
@@ -302,15 +313,16 @@ export function attr(target: Element, name: string, value: string): undefined
  * @param {Element} target The element to get or set the attribute
  * @param {string} name The name of the attribute
  * @param {string} [value] The value of the attribute (when setting)
- * @returns {string | undefined} `undefined` if the attribute does not exist, or when setting
+ * @returns {string | null} a `string` if the attribute exists, `null` if does not exist, or when setting
  */
 export function attr(
   target: Element,
   name: string,
   value?: string
-): string | undefined {
-  if (value === undefined) return target.getAttribute(name) ?? undefined
+): string | null {
+  if (value === undefined && value !== null) return target.getAttribute(name)
   target.setAttribute(name, value)
+  return null
 }
 
 export function text(target: Element): string | null
@@ -347,10 +359,10 @@ export function text(
  */
 export function append(
   target: Element,
-  ...elems: (undefined | boolean | number | string | Element)[]
+  ...elems: (undefined | null | boolean | number | string | Element)[]
 ): void {
   elems.forEach(elem =>
-    elem !== undefined
+    elem !== undefined && elem !== null
       ? target.appendChild(
           elem instanceof Element ? elem : document.createTextNode(`${elem}`)
         )

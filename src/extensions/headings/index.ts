@@ -1,4 +1,4 @@
-import { select, ready, tag } from '../../util'
+import { select, ready, tag, replace } from '../../util'
 
 /**
  * Find all heading nodes and change their depth to depth +1
@@ -11,6 +11,6 @@ ready(() => {
   select(':--Heading').forEach(heading => {
     const level = parseFloat(/^H([1-6])$/.exec(heading.tagName)?.[1] ?? '0')
     const newLevel = Math.min(level + 1, 6)
-    tag(heading,`h${newLevel}`)
+    replace(heading, tag(heading,`h${newLevel}`))
   })
 })

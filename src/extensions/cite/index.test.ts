@@ -35,7 +35,7 @@ test('DOM manipulations', async () => {
 
   expect(
     select(':--reference > *').map(elem => [
-      tag(elem).toLowerCase(),
+      tag(elem),
       attr(elem, 'itemprop') ?? attr(elem, 'data-itemprop')
     ])
   ).toEqual([

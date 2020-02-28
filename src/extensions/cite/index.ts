@@ -75,8 +75,8 @@ ready(() =>
   select(':--references :--reference').forEach(reference => {
     // Change `authors` property from list to nested spans
     select(reference, 'ol:--authors').forEach(elem => {
-      select(reference, 'li:--author').forEach(elem => tag(elem, 'span'))
-      return tag(elem, 'span')
+      select(reference, 'li:--author').forEach(elem => replace(elem, tag(elem, 'span')))
+      return replace(elem, tag(elem, 'span'))
     })
 
     // If `datePublished` is inside a span then un-wrap it
@@ -89,7 +89,7 @@ ready(() =>
     })
 
     // If `publisher` is a div make it a span
-    select(reference, 'div:--publisher').forEach(elem => tag(elem, 'span'))
+    select(reference, 'div:--publisher').forEach(elem => replace(elem, tag(elem, 'span')))
 
     replace(
       reference,

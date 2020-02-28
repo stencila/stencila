@@ -11,7 +11,9 @@ import {
   first,
   ready,
   text,
-  attr
+  attr,
+  attrs,
+  tag
 } from '.'
 
 const body = document.body
@@ -243,15 +245,37 @@ describe('create', () => {
     expect(elem.outerHTML).toEqual('<div><span></span><img></div>')
   })
 
-  it('undefined child elements are ignored', () => {
+  it('undefined or null child elements are ignored', () => {
     const elem = create(
       'div',
       undefined,
       create('span'),
+      null,
+      create('img'),
+      null,
       undefined,
-      create('img')
+      first(body, 'foo')
     )
     expect(elem.outerHTML).toEqual('<div><span></span><img></div>')
+  })
+})
+
+describe('tag', () => {
+  it('gets the tag of a element', () => {
+    const elem = create('<img>')
+    expect(tag(elem)).toEqual('img')
+    expect(tag(elem)).toEqual(elem.tagName.toLowerCase())
+  })
+
+  it('sets the tag of an element', () => {
+    const elem = create('<div><img></div>')
+    const child = first(elem, 'img')
+    expect(child).toBeInstanceOf(Element)
+    if (child !== null) {
+      expect(tag(tag(child, 'span'))).toBe('span')
+      // We don't actually change the tag of the element..
+      expect(tag(child)).toEqual('img')
+    }
   })
 })
 
@@ -259,13 +283,30 @@ describe('attr', () => {
   it('gets attributes of an element', () => {
     const elem = create('<img foo="bar">')
     expect(attr(elem, 'foo')).toEqual('bar')
-    expect(attr(elem, 'baz')).toEqual(undefined)
+    expect(attr(elem, 'baz')).toEqual(null)
   })
 
   it('sets attributes of an element', () => {
     const elem = create('<img>')
     attr(elem, 'foo', 'bar')
     expect(elem.getAttribute('foo')).toEqual('bar')
+  })
+})
+
+describe('attrs', () => {
+  it('gets attributes of an element', () => {
+    const elem = create('<img foo="bar" baz="quax">')
+    expect(attrs(elem)).toEqual({foo:'bar', baz:'quax'})
+  })
+
+  it('sets attributes of an element', () => {
+    const elem = create('<img>')
+    attrs(elem, {foo:'bar', baz:'quax', beep: null, boop: undefined})
+    expect(elem.getAttributeNames()).toEqual(['foo', 'baz'])
+    expect(elem.getAttribute('foo')).toEqual('bar')
+    expect(elem.getAttribute('baz')).toEqual('quax')
+    expect(elem.getAttribute('beep')).toEqual(null)
+    expect(elem.getAttribute('boop')).toEqual(null)
   })
 })
 
