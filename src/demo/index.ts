@@ -20,6 +20,7 @@ import { themes } from '../themes'
 import { create, append, ready } from '../util'
 import { styleEntry } from '../browser'
 import { getCssVariables } from './parseCss'
+import { handleVariableChange, updateTheme } from './sidebar'
 
 const url = new URL(window.location.href)
 let preview: HTMLIFrameElement | null | undefined
@@ -27,7 +28,9 @@ const getPreviewDoc = (): Document | null =>
   preview != null ? preview.contentDocument : null
 
 const themeName = document.getElementById('themeName')
-const themeVariables = document.getElementById('themeVariables')
+const themeVariables = document.getElementById(
+  'themeVariables'
+) as HTMLFormElement | null
 
 /**
  * The keys used to refer to which example and
@@ -70,9 +73,17 @@ const parseTheme = (theme: string): void => {
     (els: Element[], [name, value]) => {
       const label = create('label')
       label.textContent = name
+      label.setAttribute('for', name)
 
       const input = create('input') as HTMLInputElement
-      input.value = value
+      input.setAttribute('value', value)
+      input.setAttribute('name', name)
+      input.setAttribute('id', name)
+
+      if (themeVariables !== null) {
+        const cb = (): void => updateTheme(themeVariables, vars)
+        handleVariableChange(input, cb)
+      }
 
       return [...els, label, input]
     },
@@ -171,7 +182,7 @@ const themeSet = (theme: string): void => {
 
     const themeScript = previewDoc.createElement('script')
     themeScript.type = 'text/javascript'
-    themeScript.src = `themes/${theme}/index.js`
+    themeScript.src = `/themes/${theme}/index.js`
     themeScript.classList.add('themeScript')
 
     previewDoc.body.appendChild(themeScript)
