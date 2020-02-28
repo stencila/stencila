@@ -39,6 +39,16 @@ main {
 
   :--Person {
     @extend .content-header__author_list_item;
+
+    :--familyName::after {
+      content: ', ';
+    }
+  }
+
+  :--Person:last-child {
+    :--familyName::after {
+      content: '';
+    }
   }
 }
 
