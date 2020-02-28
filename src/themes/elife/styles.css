@@ -50,6 +50,11 @@ main {
       content: '';
     }
   }
+
+  /* Temporarily hide until work out what's required here  */
+  :--affiliations {
+    display: none;
+  }
 }
 
 /* Chain custom MicroData selectors for style adjustments as needed */
