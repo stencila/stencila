@@ -43,11 +43,11 @@ main {
     :--familyName::after {
       content: ', ';
     }
-  }
 
-  :--Person:last-child {
-    :--familyName::after {
-      content: '';
+    &:last-child {
+      :--familyName::after {
+        content: '';
+      }
     }
   }
 
