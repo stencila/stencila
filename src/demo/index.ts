@@ -55,6 +55,23 @@ const defaults: {
   HEADER: 'true'
 }
 
+/**
+ * Manually trigger a `DOMContentLoaded` event for a given `Document`
+ *
+ * @function forceReady
+ * @param {Document|null} doc - A reference to a browser Document
+ */
+const forceReady = (doc?: Document | null): void => {
+  if (doc === null || doc === undefined) return
+
+  doc.dispatchEvent(
+    new Event('DOMContentLoaded', {
+      bubbles: true,
+      cancelable: true
+    })
+  )
+}
+
 const getThemeCSS = (theme: string): string => {
   const req = new XMLHttpRequest()
   req.open('GET', `themes/${theme}/styles.css`, false)
@@ -115,6 +132,40 @@ const exampleSet = (example: string): void => {
   }
 }
 
+/**
+ * Inject necessary stylesheets and scripts to fully render a document
+ * Currently this function inject the scripts for Stencila Components. Note that you will need to trigger the
+ * `DOMContentLoaded` event manually by callign `forceReady()` after invoking this funcion.
+ *
+ * @function injectPreviewAssets
+ */
+const injectPreviewAssets = (): void => {
+  if (preview != null) {
+    const previewDoc = getPreviewDoc()
+    const previewHead = previewDoc?.getElementsByTagName('head')[0]
+
+    if (previewHead != null) {
+      const stencilaComponentsES6 = create('script')
+      stencilaComponentsES6.setAttribute('type', 'module')
+      stencilaComponentsES6.setAttribute(
+        'src',
+        `https://unpkg.com/@stencila/components@latest/dist/stencila-components/stencila-components.esm.js`
+      )
+
+      const stencilaComponents = create('script')
+      stencilaComponents.setAttribute('type', 'text/javascript')
+      stencilaComponents.setAttribute('nomodule', 'true')
+      stencilaComponents.setAttribute(
+        'src',
+        `https://unpkg.com/@stencila/components@latest/dist/stencila-components/stencila-components.js`
+      )
+
+      append(previewHead, stencilaComponentsES6)
+      append(previewHead, stencilaComponents)
+    }
+  }
+}
+
 // Initialize the example selector
 const exampleSelect = document.querySelector<HTMLInputElement>(
   '#example-select'
@@ -165,7 +216,6 @@ const themeSet = (theme: string): void => {
 
   // Remove all appended theme scripts, and re-append chosen theme’s script
   // This causes the browser to re-evaluate the script
-  // TODO: Check if this is still needed now that content is in an iframe
   if (previewDoc != null) {
     previewDoc.querySelectorAll('script.themeScript').forEach(node => {
       if (previewDoc != null) {
@@ -183,14 +233,7 @@ const themeSet = (theme: string): void => {
     // Add delay before dispatching ready event, giving newly added theme script time to be parsed
     // This causes the dom/ready() helper function to perform any scheduled functions.
     setTimeout(() => {
-      if (previewDoc != null) {
-        previewDoc.dispatchEvent(
-          new Event('DOMContentLoaded', {
-            bubbles: true,
-            cancelable: true
-          })
-        )
-      }
+      forceReady(previewDoc)
     }, 300)
   }
 }
@@ -266,5 +309,8 @@ ready(() => {
         sessionStorage.getItem(keys.THEME) ??
         defaults.THEME
     )
+
+    injectPreviewAssets()
+    forceReady(getPreviewDoc())
   })
 })
