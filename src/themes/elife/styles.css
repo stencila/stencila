@@ -13,6 +13,8 @@
 @import '../../fonts/notoSerif/notoSerif.css';
 @import '../../fonts/notoSans/notoSans.css';
 
+@import '../../extensions/person/styles.css';
+
 /* stylelint-disable xi/selector-pattern */
 main {
   @extend .wrapper;
@@ -37,6 +39,26 @@ main {
 
   :--Person {
     @extend .content-header__author_list_item;
+
+    :--familyName::after {
+      content: ', ';
+    }
+
+    &:last-child {
+      :--familyName::after {
+        content: '';
+      }
+    }
+
+    :--emails::after {
+      /* TODO: update to local dependency once eLife assets are available as npm module */
+      content: url('https://elifesciences.org/assets/patterns/img/icons/corresponding-author@1x.89247d49.png');
+    }
+  }
+
+  /* Temporarily hide until work out what's required here  */
+  :--affiliations {
+    display: none;
   }
 }
 
