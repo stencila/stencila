@@ -1,3 +1,13 @@
+# [1.9.0](https://github.com/stencila/thema/compare/v1.8.0...v1.9.0) (2020-02-28)
+
+
+### Features
+
+* **Elife:** Add author separator ([f1be75d](https://github.com/stencila/thema/commit/f1be75dd999587dc05d5c8cce3d19ef8e8928b2c))
+* **Elife:** Temporarily remove author afflilation indicator ([1f75003](https://github.com/stencila/thema/commit/1f75003e057f122affd9ed4a0b14c84fe57b6bbb))
+* **Elife:** Use eLife corresponding author envelope icon ([0a72a90](https://github.com/stencila/thema/commit/0a72a9005d880808b2fd733258c215873d1c5064))
+* **Elife:** Use Person extension to style authors ([a2a9ba6](https://github.com/stencila/thema/commit/a2a9ba6b711561e223cdbc4f9d966ea419f18235))
+
 # [1.8.0](https://github.com/stencila/thema/compare/v1.7.2...v1.8.0) (2020-02-28)
 
 
