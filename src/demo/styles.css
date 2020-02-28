@@ -1,3 +1,4 @@
+/* stylelint-disable scale-unlimited/declaration-strict-value */
 /* stylelint-disable xi/selector-pattern */
 
 :root {
@@ -61,6 +62,82 @@ header {
   }
 }
 
-header + main {
-  margin-top: 3rem;
+html {
+  box-sizing: border-box;
+  height: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  display: flex;
+  flex-wrap: wrap;
+  height: 100%;
+  margin: 0;
+  padding: 3rem 0 0;
+}
+
+body > * {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 30ch;
+}
+
+main {
+  background-color: var(--color-neutral-100);
+}
+
+iframe {
+  background-color: white;
+  border: 1px solid var(--color-neutral-300);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.035), 0 0 80px rgba(0, 0, 0, 0.07);
+  display: block;
+  height: calc(100vh - 6rem);
+  margin: 1.5rem auto;
+  transition: width 175ms ease-out;
+  width: 90%;
+}
+
+iframe.mobile {
+  width: 320px;
+}
+
+menu {
+  background-color: var(--color-neutral-300);
+  border-right: 1px solid var(--color-neutral-400);
+  flex-basis: 300px;
+  flex-grow: 0;
+  font-family: sans-serif;
+  margin: 0;
+  overflow: auto;
+  padding: 1rem;
+}
+
+menu h2 {
+  margin: 0;
+}
+
+#themeVariables label,
+#themeVariables input {
+  display: block;
+  font-family: monospace;
+  width: 100%;
+}
+
+#themeVariables label {
+  color: var(--color-neutral-800);
+  font-size: 12px;
+}
+
+#themeVariables input {
+  background-color: white;
+  border-radius: 2px;
+  border: 1px solid var(--color-neutral-400);
+  font-size: 16px;
+  margin-bottom: 1rem;
+  padding: 0.25rem;
 }
