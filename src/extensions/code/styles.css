@@ -5,5 +5,9 @@
  * `CodeFragment` and `CodeBlock` semantic selectors,
  * to match PrismJS’s CSS specificity, thereby allow styling of Prism tokenized elements.
  */
+
+/* prettier-ignore */
 @custom-selector :--CodeFragment [itemtype~='http://schema.stenci.la/CodeFragment'], [itemtype~='http://schema.stenci.la/CodeFragment'][class*=language-];
-@custom-selector :--CodeBlock [itemtype~='http://schema.stenci.la/CodeBlock'], [itemtype~='http://schema.stenci.la/CodeBlock'] > [class*=language-];
+
+/* prettier-ignore */
+@custom-selector :--CodeBlock [itemtype~='http://schema.stenci.la/CodeBlock'], [itemtype~='http://schema.stenci.la/CodeBlock'][class*=language-];
