@@ -1,9 +1,0 @@
-/*
-Bar
-*/
-
-@import "../stencila/styles.css";
-
-:--root {
-  --color-primary-900: red;
-}
