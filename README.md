@@ -25,14 +25,18 @@
 - [Notes](#notes)
   - [Generated code](#generated-code)
   - [Testing](#testing)
+    - [DOM traversal and manipulation](#dom-traversal-and-manipulation)
+    - [Visual regressions](#visual-regressions)
 - [Acknowledgments](#acknowledgments)
 - [Utilities API](#utilities-api)
   - [Functions](#functions)
   - [ready(func)](#readyfunc)
-  - [first([elem], selector) ⇒ <code>Element</code> \| <code>null</code>](#firstelem-selector-%e2%87%92-codeelementcode--codenullcode)
+  - [first([elem], selector) ⇒ <code>Element</code> \| <code>undefined</code>](#firstelem-selector-%e2%87%92-codeelementcode--codeundefinedcode)
   - [select([elem], selector) ⇒ <code>Array.&lt;Element&gt;</code>](#selectelem-selector-%e2%87%92-codearrayltelementgtcode)
   - [create([spec], ...children) ⇒ <code>Element</code>](#createspec-children-%e2%87%92-codeelementcode)
-  - [attr(target, name, [value]) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>](#attrtarget-name-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode)
+  - [tag(target, [value]) ⇒ <code>string</code> \| <code>undefined</code>](#tagtarget-value-%e2%87%92-codestringcode--codeundefinedcode)
+  - [attrs(target, [value]) ⇒ <code>object</code> \| <code>undefined</code>](#attrstarget-value-%e2%87%92-codeobjectcode--codeundefinedcode)
+  - [attr(target, name, [value]) ⇒ <code>string</code> \| <code>undefined</code>](#attrtarget-name-value-%e2%87%92-codestringcode--codeundefinedcode)
   - [text(target, [value]) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>](#texttarget-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode)
   - [append(target, ...elems)](#appendtarget-elems)
   - [prepend(target, ...elems)](#prependtarget-elems)
@@ -302,6 +306,12 @@ Run `npm run update` when you add new themes, addons, or examples, or upgrade on
 
 ### Testing
 
+#### DOM traversal and manipulation
+
+Authors of themes and extensions, and contributors to the utility functions are encouraged to add tests. We use [Jest](https://jestjs.io/) as a testing framework. Jest ships with [`jsdom`](https://github.com/jsdom/jsdom) which simulates a DOM environment in Node.js, thereby allowing testing as though running in the browser. See existing `*.test.ts` files for examples of how to do that.
+
+#### Visual regressions
+
 We use visual regression testing powered by [Sauce Labs](https://saucelabs.com), [Argos](https://www.argos-ci.com), and [WebdriverIO](https://webdriver.io).
 
 As part of the continuous integration for this repository, for each push,
@@ -389,15 +399,15 @@ Several utility functions are provided in the [`util`](./src/util) module for tr
 ### ready(func)
 Register a function to be executed when the DOM is fully loaded.
 
-**Kind**: global function  
+**Kind**: global function
 **Detail**: Use this to wrap calls to the DOM selection and manipulation functions
-to be sure that the DOM is ready before working on it.  
+to be sure that the DOM is ready before working on it.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | func | <code>function</code> | Function to register |
 
-**Example**  
+**Example**
 ```js
 ready(() => {
   // Use other DOM manipulation functions here
@@ -408,23 +418,23 @@ ready(() => {
 ### first([elem], selector) ⇒ <code>Element</code> \| <code>undefined</code>
 Select the first element matching a CSS selector.
 
-**Kind**: global function  
-**Returns**: <code>Element</code> \| <code>undefined</code> - An `Element` or `undefined` if no match  
+**Kind**: global function
+**Returns**: <code>Element</code> \| <code>undefined</code> - An `Element` or `undefined` if no match
 **Detail**: This function provides a short hand for `querySelector` but
 also allowing for the use of semantic selectors.
-You can use it for the whole document, or scoped to a particular element.  
+You can use it for the whole document, or scoped to a particular element.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | [elem] | <code>Element</code> | The element to query (defaults to the `window.document`) |
 | selector | <code>string</code> | The selector to match |
 
-**Example** *(Select the first element from the document matching selector)*  
+**Example** *(Select the first element from the document matching selector)*
 ```js
 
 first(':--CodeChunk')
 ```
-**Example** *(Select the first element within an element matching the selector)*  
+**Example** *(Select the first element within an element matching the selector)*
 ```js
 
 first(elem, ':--author')
@@ -434,23 +444,23 @@ first(elem, ':--author')
 ### select([elem], selector) ⇒ <code>Array.&lt;Element&gt;</code>
 Select all elements matching a CSS selector.
 
-**Kind**: global function  
-**Returns**: <code>Array.&lt;Element&gt;</code> - An array of elements  
+**Kind**: global function
+**Returns**: <code>Array.&lt;Element&gt;</code> - An array of elements
 **Detail**: Provides a short hand for using `querySelectorAll` but
 also allowing for the use of semantic selectors. You can use it for
-the whole document, or scoped to a particular element.  
+the whole document, or scoped to a particular element.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | [elem] | <code>Element</code> | The element to query (defaults to the `window.document`) |
 | selector | <code>string</code> | The selector to match |
 
-**Example** *(Select all elements from the document matching selector)*  
+**Example** *(Select all elements from the document matching selector)*
 ```js
 
 select(':--CodeChunk')
 ```
-**Example** *(Select all elements within an element matching the selector)*  
+**Example** *(Select all elements within an element matching the selector)*
 ```js
 
 select(elem, ':--author')
@@ -460,27 +470,27 @@ select(elem, ':--author')
 ### create([spec], ...children) ⇒ <code>Element</code>
 Create a new element.
 
-**Kind**: global function  
+**Kind**: global function
 **Detail**: This function allows creation of new elements using either a
 (a) HTML string (b) CSS selector like string, or (c) an `Element`.
 CSS selectors are are convenient way to create elements with attributes,
 particularly Microdata elements. They can be prone to syntax errors however.
 Alternatively, the second argument can
-be an object of attribute name:value pairs.  
+be an object of attribute name:value pairs.
 
 | Param | Type | Description |
 | --- | --- | --- |
 | [spec] | <code>string</code> \| <code>Element</code> | Specification of element to create. |
 | ...children | <code>object</code> \| <code>string</code> \| <code>number</code> \| <code>Element</code> | Additional child elements to add.        If the first is an object then it is used to set the element's attributes. |
 
-**Example** *(Create a &lt;figure&gt; with id, class and itemtype attributes)*  
+**Example** *(Create a &lt;figure&gt; with id, class and itemtype attributes)*
 ```js
 
 create('figure #fig1 .fig :--Figure')
 // <figure id="fig1" class="fig" itemscope="" itemtype="http://schema.stenci.la/Figure">
 // </figure>
 ```
-**Example** *(As above but using an object to specify attributes)*  
+**Example** *(As above but using an object to specify attributes)*
 ```js
 
 create('figure', {
@@ -490,7 +500,7 @@ create('figure', {
   itemtype: translate(':--Figure')
 })
 ```
-**Example** *(Create a Person with a name property)*  
+**Example** *(Create a Person with a name property)*
 ```js
 
 create(':--Person', create('span :--name', 'John Doe'))
@@ -503,20 +513,20 @@ create(':--Person', create('span :--name', 'John Doe'))
 ### tag(target, [value]) ⇒ <code>string</code> \| <code>undefined</code>
 Get or set the tag name of an element.
 
-**Kind**: global function  
-**Returns**: <code>string</code> \| <code>undefined</code> - `undefined` when setting  
+**Kind**: global function
+**Returns**: <code>string</code> \| <code>undefined</code> - `undefined` when setting
 
 | Param | Type | Description |
 | --- | --- | --- |
 | target | <code>Element</code> | The element to get or set the tag |
 | [value] | <code>string</code> | The value of the tag (when setting) |
 
-**Example** *(Set the tag)*  
+**Example** *(Set the tag)*
 ```js
 
 tag(elem, "h3")
 ```
-**Example** *(Get the tag)*  
+**Example** *(Get the tag)*
 ```js
 
 tag(elem) // "h3"
@@ -526,8 +536,8 @@ tag(elem) // "h3"
 ### attrs(target, [value]) ⇒ <code>object</code> \| <code>undefined</code>
 Get or set the attributes of an element
 
-**Kind**: global function  
-**Returns**: <code>object</code> \| <code>undefined</code> - `undefined` if the attribute does not exist, or when setting  
+**Kind**: global function
+**Returns**: <code>object</code> \| <code>undefined</code> - `undefined` if the attribute does not exist, or when setting
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -539,8 +549,8 @@ Get or set the attributes of an element
 ### attr(target, name, [value]) ⇒ <code>string</code> \| <code>undefined</code>
 Get or set the value of an attribute on an element.
 
-**Kind**: global function  
-**Returns**: <code>string</code> \| <code>undefined</code> - `undefined` if the attribute does not exist, or when setting  
+**Kind**: global function
+**Returns**: <code>string</code> \| <code>undefined</code> - `undefined` if the attribute does not exist, or when setting
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -548,12 +558,12 @@ Get or set the value of an attribute on an element.
 | name | <code>string</code> | The name of the attribute |
 | [value] | <code>string</code> | The value of the attribute (when setting) |
 
-**Example** *(Set an attribute value)*  
+**Example** *(Set an attribute value)*
 ```js
 
 attr(elem, "attr", "value")
 ```
-**Example** *(Get an attribute)*  
+**Example** *(Get an attribute)*
 ```js
 
 attr(elem, "attr") // "value"
@@ -563,21 +573,21 @@ attr(elem, "attr") // "value"
 ### text(target, [value]) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>
 Get or set the text content of an element.
 
-**Kind**: global function  
+**Kind**: global function
 **Returns**: <code>string</code> \| <code>null</code> \| <code>undefined</code> - `null` if there is no text content,
-                                     `undefined` when setting  
+                                     `undefined` when setting
 
 | Param | Type | Description |
 | --- | --- | --- |
 | target | <code>Element</code> | The element to get or set the text content |
 | [value] | <code>string</code> | The value of the text content (when setting) |
 
-**Example** *(Set the text content)*  
+**Example** *(Set the text content)*
 ```js
 
 text(elem, "text content")
 ```
-**Example** *(Get the text content)*  
+**Example** *(Get the text content)*
 ```js
 
 text(elem) // "text content"
@@ -587,7 +597,7 @@ text(elem) // "text content"
 ### append(target, ...elems)
 Append new child elements to an element.
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -599,10 +609,10 @@ Append new child elements to an element.
 ### prepend(target, ...elems)
 Prepend new child elements to an element.
 
-**Kind**: global function  
+**Kind**: global function
 **Detail**: When called with multiple elements to prepend
 will maintain the order of those elements (at the top
-of the target element).  
+of the target element).
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -614,7 +624,7 @@ of the target element).
 ### before(target, ...elems)
 Insert new elements before an element.
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -626,7 +636,7 @@ Insert new elements before an element.
 ### after(target, ...elems)
 Insert new elements after an element.
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -638,7 +648,7 @@ Insert new elements after an element.
 ### replace(target, ...elems)
 Replace an element with a new element.
 
-**Kind**: global function  
+**Kind**: global function
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -650,17 +660,17 @@ Replace an element with a new element.
 ### wrap(target, elem)
 Wrap an element with a new element.
 
-**Kind**: global function  
+**Kind**: global function
 **Detail**: This function can be useful if you need
 to create a container element to more easily style
-a type of element.  
+a type of element.
 
 | Param | Description |
 | --- | --- |
 | target | The element to wrap |
 | elem | The element to wrap it in |
 
-**Example** *(Wrap all figure captions in a &lt;div&gt;)*  
+**Example** *(Wrap all figure captions in a &lt;div&gt;)*
 ```js
 
 select(':--Figure :--caption')
