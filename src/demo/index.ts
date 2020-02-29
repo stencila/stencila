@@ -20,7 +20,7 @@ import { themes } from '../themes'
 import { create, append, ready } from '../util'
 import { styleEntry } from '../browser'
 import { getCssVariables } from './parseCss'
-import { handleVariableChange, updateTheme } from './sidebar'
+import { handleVariableChange, updateTheme, submitPR } from './sidebar'
 
 const url = new URL(window.location.href)
 let preview: HTMLIFrameElement | null | undefined
@@ -293,6 +293,23 @@ ready(() => {
   const desktopButton = document.getElementById('desktopView')
   if (desktopButton !== null) {
     desktopButton.addEventListener('mouseup', desktopView)
+  }
+
+  const prButton = document.getElementById('prButton')
+  if (prButton !== null) {
+    prButton.addEventListener('mouseup', () => {
+      const baseName = themeName?.textContent ?? 'skeleton'
+      const newName = document.getElementById(
+        'prName'
+      ) as HTMLInputElement | null
+      const desc = document.getElementById(
+        'prDesc'
+      ) as HTMLTextAreaElement | null
+      const vars = getCssVariables(getThemeCSS(baseName))
+      if (newName !== null && desc !== null && themeVariables !== null) {
+        submitPR(newName.value, desc.value, themeVariables, baseName, vars)
+      }
+    })
   }
 
   // Set the initial example

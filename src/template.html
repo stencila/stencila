@@ -36,6 +36,21 @@
       <form id="themeVariables" name="themeBuilder">
         <label>No variables exposed</label>
       </form>
+
+      <h3>Save</h3>
+      <h4>Pull Request</h4>
+      <p>Contribute your customization as a new theme to the Thema project so that other's can use it!</p>
+      <form onsubmit="event.preventDefault();">
+        <label>
+          Name
+          <input id="prName" type="text" pattern="[a-z]{3,24}"  placeholder="A name for your theme" aria-label="Lowercase theme name"/>
+        </label>
+        <label>
+          Description
+          <textarea id="prDesc" placeholder="Describe your theme" ></textarea>
+        </label>
+        <button id="prButton">Create PR</button>
+      </form>
     </menu>
 
     <main>
