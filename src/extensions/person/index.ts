@@ -1,4 +1,4 @@
-import { after, create, replace, select, ready, attr } from '../../util'
+import { create, replace, select, ready, attr } from '../../util'
 
 /**
  * Temporary DOM restructuring for `Person` nodes. Associated issue
@@ -37,31 +37,31 @@ import { after, create, replace, select, ready, attr } from '../../util'
  */
 ready(() => {
   select(':--Person :--name').forEach(span => {
-      const name = attr(span, 'content')
-      // Aggregate text content of all name elements
-      // and then split by spaces
-      const givenNames = select(span, ':--givenName')
-        .map(item => item.textContent)
-        .join(' ')
-        .split(/\s+/)
-      const familyNames = select(span, ':--familyName')
-        .map(item => item.textContent)
-        .join(' ')
-        .split(/\s+/)
+    const name = attr(span, 'content')
+    // Aggregate text content of all name elements
+    // and then split by spaces
+    const givenNames = select(span, ':--givenName')
+      .map(item => item.textContent)
+      .join(' ')
+      .split(/\s+/)
+    const familyNames = select(span, ':--familyName')
+      .map(item => item.textContent)
+      .join(' ')
+      .split(/\s+/)
 
-      replace(
-        span,
-        create(`meta :--name [content=${name}]`),
-        create(
-          'span :--givenNames',
-          ...givenNames
-            .map(givenName => create('span :--givenName', givenName))
-        ),
-        create(
-          'span :--familyNames',
-          ...familyNames
-            .map(familyName => create('span :--familyName', familyName))
+    replace(
+      span,
+      create(`meta :--name [content=${name}]`),
+      create(
+        'span :--givenNames',
+        ...givenNames.map(givenName => create('span :--givenName', givenName))
+      ),
+      create(
+        'span :--familyNames',
+        ...familyNames.map(familyName =>
+          create('span :--familyName', familyName)
         )
       )
+    )
   })
 })

@@ -1,4 +1,13 @@
-import { ready, create, replace, select, attr, first, tag, attrs } from '../../util'
+import {
+  ready,
+  create,
+  replace,
+  select,
+  attr,
+  first,
+  tag,
+  attrs
+} from '../../util'
 
 // Import the `person` extension for improved structure of a Person's name
 import '../person'
@@ -74,14 +83,16 @@ import '../person'
 ready(() =>
   select(':--references :--reference').forEach(reference => {
     // Change `authors` property from list to nested spans
-    select(reference, 'ol:--authors').forEach(elem => {
-      select(reference, 'li:--author').forEach(elem => replace(elem, tag(elem, 'span')))
-      return replace(elem, tag(elem, 'span'))
+    select(reference, 'ol:--authors').forEach(authors => {
+      select(authors, 'li:--author').forEach(author =>
+        replace(author, tag(author, 'span'))
+      )
+      return replace(authors, tag(authors, 'span'))
     })
 
     // If `datePublished` is inside a span then un-wrap it
     select(reference, 'span > :--datePublished').forEach(elem => {
-      const date = attr(elem, 'content') as string
+      const date = attr(elem, 'content')
       replace(
         elem.parentElement as Element,
         create(`time [datetime=${date}] :--datePublished`, date)
@@ -89,7 +100,9 @@ ready(() =>
     })
 
     // If `publisher` is a div make it a span
-    select(reference, 'div:--publisher').forEach(elem => replace(elem, tag(elem, 'span')))
+    select(reference, 'div:--publisher').forEach(elem =>
+      replace(elem, tag(elem, 'span'))
+    )
 
     replace(
       reference,

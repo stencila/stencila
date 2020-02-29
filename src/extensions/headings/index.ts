@@ -11,6 +11,6 @@ ready(() => {
   select(':--Heading').forEach(heading => {
     const level = parseFloat(/^H([1-6])$/.exec(heading.tagName)?.[1] ?? '0')
     const newLevel = Math.min(level + 1, 6)
-    replace(heading, tag(heading,`h${newLevel}`))
+    replace(heading, tag(heading, `h${newLevel}`))
   })
 })

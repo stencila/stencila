@@ -161,13 +161,13 @@ export function select(...args: (string | Document | Element)[]): Element[] {
  * // </div>
  *
  * @param {string | Element} [spec] Specification of element to create.
- * @param {(object | undefined | null | boolean | number | string | Element)} [attrs] Attributes for the element.
+ * @param {(object | undefined | null | boolean | number | string | Element)} [attributes] Attributes for the element.
  * @param {...(undefined | null | boolean | number | string | Element)} children Child nodes to to add as text content or elements.
  * @returns {Element}
  */
 export function create(
   spec: string | Element = 'div',
-  attrs?:
+  attributes?:
     | Record<string, undefined | null | boolean | number | string>
     | (object | undefined | null | boolean | number | string | Element),
   ...children: (undefined | null | boolean | number | string | Element)[]
@@ -194,14 +194,14 @@ export function create(
 
     // Credit to https://github.com/hekigan/dom-create-element-query-selector
     // for the regexes (with some modifications).
-    const tag = /^[a-z0-9]+/i.exec(spec)?.[0] ?? 'div'
+    const tagName = /^[a-z0-9]+/i.exec(spec)?.[0] ?? 'div'
     const id = spec.match(/(?:^|\s)#([a-z]+[a-z0-9-]*)/gi) ?? []
     const classes = spec.match(/(?:^|\s)\.([a-z]+[a-z0-9-]*)/gi) ?? []
-    const attrs =
+    const attribs =
       spec.match(/(?:^|\s)\[([a-z][a-z0-9-]+)(~?=['|"]?([^\]]*)['|"]?)?\]/gi) ??
       []
 
-    elem = document.createElement(tag)
+    elem = document.createElement(tagName)
 
     if (id.length >= 1) elem.id = id[0].split('#')[1]
     if (id.length > 1)
@@ -213,7 +213,7 @@ export function create(
         classes.map(item => item.split('.')[1]).join(' ')
       )
 
-    attrs.forEach(item => {
+    attribs.forEach(item => {
       let [label, value] = item
         .split('[')[1]
         .slice(0, -1)
@@ -224,12 +224,16 @@ export function create(
   }
 
   // If the attrs arg is a Record then use it, otherwise add it to children
-  if (attrs !== null && typeof attrs === 'object' && !(attrs instanceof Element)) {
-    Object.entries(attrs).forEach(([key, value]) => {
+  if (
+    attributes !== null &&
+    typeof attributes === 'object' &&
+    !(attributes instanceof Element)
+  ) {
+    Object.entries(attributes).forEach(([key, value]) => {
       if (value !== undefined) elem.setAttribute(key, `${value}`)
     })
-  } else if (attrs !== undefined) {
-    children = [attrs as typeof children[0], ...children]
+  } else if (attributes !== undefined) {
+    children = [attributes as typeof children[0], ...children]
   }
 
   // Append children as elements or text
@@ -280,20 +284,20 @@ export function attrs(target: Element, value: object): undefined
  * Get or set the attributes of an element
  *
  * @param {Element} target The element to get or set the attributes
- * @param {object} [value] The name/value pairs of the attributes
+ * @param {object} [attributes] The name/value pairs of the attributes
  * @returns {object | undefined} The attributes of the element when getting, `undefined` when setting
  */
 export function attrs(
   target: Element,
-  value?: object
+  attributes?: object
 ): Record<string, string> | undefined {
-  if (value === undefined)
+  if (attributes === undefined)
     return Object.assign(
       {},
       ...Array.from(target.attributes, ({ name, value }) => ({ [name]: value }))
     )
-  Object.entries(value).forEach(([name, value]) => {
-    if (value != undefined && value !== null) target.setAttribute(name, value)
+  Object.entries(attributes).forEach(([name, value]) => {
+    if (value !== undefined && value !== null) target.setAttribute(name, value)
   })
 }
 
@@ -423,9 +427,9 @@ export function after(target: Element, ...elems: Element[]): void {
 export function replace(target: Element, ...elems: Element[]): void {
   const parent = target.parentNode
   if (parent !== null) {
-    const first = elems[0]
-    parent.replaceChild(first, target)
-    after(first, ...elems.slice(1))
+    const firstReplacement = elems[0]
+    parent.replaceChild(firstReplacement, target)
+    after(firstReplacement, ...elems.slice(1))
   }
 }
 

@@ -9,7 +9,7 @@
  *
  * This does the inverse of the mapping defined in `./selectors.css`.
  */
-export function translate(selectors: string) {
+export function translate(selectors: string): string {
   return selectors.replace(/:--\w+/g, selector => {
     switch (selector) {
       case ":--root": return "[data-itemscope='root']"

@@ -1,4 +1,4 @@
-import {whenReady, select, attr} from '../../util'
+import { whenReady, select, attr } from '../../util'
 
 const body = document.body
 
@@ -21,10 +21,11 @@ test('DOM manipulations', async () => {
     </li>
   `)
 
-  expect(attr(select(':--Person meta:--name')[0], 'content')).toBe(`Sarel J. Fleishman`)
+  expect(attr(select(':--Person meta:--name')[0], 'content')).toBe(
+    `Sarel J. Fleishman`
+  )
   expect(select(':--Person :--givenNames').length).toBe(1)
   expect(select(':--Person :--givenNames :--givenName').length).toBe(2)
   expect(select(':--Person :--familyNames').length).toBe(1)
   expect(select(':--Person :--familyNames :--familyName').length).toBe(1)
-
 })

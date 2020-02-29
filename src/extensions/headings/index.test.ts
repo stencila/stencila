@@ -1,4 +1,4 @@
-import {whenReady, select, attr, text, first} from '../../util'
+import { whenReady, select, text, first } from '../../util'
 
 const body = document.body
 

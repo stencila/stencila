@@ -28,9 +28,7 @@ ready(() => {
    *
    * This removes the inner `itemscope` and `itemtype`, pending a fix in Encoda.
    */
-  select(
-    'pre:--CodeBlock > code:--CodeFragment'
-  ).forEach(element => {
+  select('pre:--CodeBlock > code:--CodeFragment').forEach(element => {
     element.removeAttribute('itemscope')
     element.removeAttribute('itemtype')
   })
@@ -40,9 +38,7 @@ ready(() => {
    * `CodeChunk` and `CodeFragment` nodes without a `programmingLanguage` specified
    * to be styled differently. So add these to the list of elements that Prism highlights.
    */
-  select(
-    'pre:--CodeBlock > code, code:--CodeFragment'
-  ).forEach(element => {
+  select('pre:--CodeBlock > code, code:--CodeFragment').forEach(element => {
     if (!element.className.includes('language-'))
       element.classList.add('language-text')
   })

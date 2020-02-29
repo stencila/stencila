@@ -237,11 +237,7 @@ describe('create', () => {
   })
 
   it('can be passed child elements', () => {
-    const elem = create(
-      'div',
-      create('span'),
-      create('img')
-    )
+    const elem = create('div', create('span'), create('img'))
     expect(elem.outerHTML).toEqual('<div><span></span><img></div>')
   })
 
@@ -296,12 +292,12 @@ describe('attr', () => {
 describe('attrs', () => {
   it('gets attributes of an element', () => {
     const elem = create('<img foo="bar" baz="quax">')
-    expect(attrs(elem)).toEqual({foo:'bar', baz:'quax'})
+    expect(attrs(elem)).toEqual({ foo: 'bar', baz: 'quax' })
   })
 
   it('sets attributes of an element', () => {
     const elem = create('<img>')
-    attrs(elem, {foo:'bar', baz:'quax', beep: null, boop: undefined})
+    attrs(elem, { foo: 'bar', baz: 'quax', beep: null, boop: undefined })
     expect(elem.getAttributeNames()).toEqual(['foo', 'baz'])
     expect(elem.getAttribute('foo')).toEqual('bar')
     expect(elem.getAttribute('baz')).toEqual('quax')

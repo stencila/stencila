@@ -26,8 +26,8 @@
     "docs:app": "webpack --mode production --env.docs=true",
     "lint": "npm run lint:styles && npm run lint:scripts",
     "lint:fix": "npm run lint:styles -- --fix && npm run lint:scripts -- --fix",
-    "lint:styles": "stylelint \"./src/**/*.css\"",
-    "lint:scripts": "eslint --ext ./src/**/*.ts",
+    "lint:styles": "stylelint './src/**/*.css'",
+    "lint:scripts": "eslint './src/**/*.ts'",
     "format": "prettier --write './**/*.{css,js,json,md,ts,yaml}'",
     "test": "npm run test:unit && npm run test:visual",
     "test:unit": "jest",
@@ -156,6 +156,9 @@
       "node": true,
       "browser": true,
       "jest": true
+    },
+    "rules": {
+      "no-shadow": 2
     }
   },
   "jest": {
