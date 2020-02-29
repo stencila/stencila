@@ -233,7 +233,7 @@ export function create(
       if (value !== undefined) elem.setAttribute(key, `${value}`)
     })
   } else if (attributes !== undefined) {
-    children = [attributes as typeof children[0], ...children]
+    children = [attributes, ...children]
   }
 
   // Append children as elements or text
