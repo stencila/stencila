@@ -1,1 +1,1 @@
-export {}
+import '../../extensions/person'
