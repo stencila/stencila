@@ -36,7 +36,7 @@ export function ready(func: () => unknown): void {
     readyList.push(func)
   }
 
-  if (document.readyState === 'complete') {
+  if (document.readyState !== 'loading') {
     // Document is ready so run whenReady asynchronously, but right away
     setTimeout(whenReady, 1)
   } else if (!readyListening) {
