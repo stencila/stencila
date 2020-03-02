@@ -84,7 +84,7 @@ async function readmesToTable(dir: string, subdirs: string[]): Promise<string> {
   const rows = await Promise.all(
     subdirs.map(async theme => {
       const readme = (await read(path.join(dir, theme, 'README.md'))) as Article
-      const firstParaContent = (readme.content?.[1] as Paragraph)?.content ?? []
+      const firstParaContent = (readme.content?.[0] as Paragraph)?.content ?? []
       return tableRow({
         cells: [
           tableCell({
