@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: stencila/github-project-automation-plus@9c5d80a
-        if: github.event_name == 'issue'
+        if: github.event_name == 'issues'
         with:
           project: Stencila Roadmap
           column: Backlog
