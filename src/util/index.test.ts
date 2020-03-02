@@ -11,8 +11,12 @@ import {
   first,
   ready,
   text,
-  attr
+  attr,
+  attrs,
+  tag
 } from '.'
+
+const body = document.body
 
 describe('ready', () => {
   it('runs the functions, in order, when the DOM is ready', done => {
@@ -22,18 +26,18 @@ describe('ready', () => {
       get: () => readyState
     })
 
-    document.body.innerHTML = `<img>`
+    body.innerHTML = `<img>`
 
     ready(() => {
-      document.body.innerHTML += '<br>'
+      body.innerHTML += '<br>'
     })
 
     ready(() => {
-      document.body.innerHTML += '<meta>'
+      body.innerHTML += '<meta>'
     })
 
     ready(() => {
-      expect(document.body.innerHTML).toBe('<img><br><meta>')
+      expect(body.innerHTML).toBe('<img><br><meta>')
     })
 
     // This should trigger a call to all the above
@@ -83,7 +87,7 @@ describe('translate', () => {
 
 describe('first & select', () => {
   beforeAll(() => {
-    document.body.innerHTML = `
+    body.innerHTML = `
       <div id="div1" itemscope="" itemtype="http://schema.org/Article">
         <span itemprop="author">Jane</span>
         <span itemprop="author">Joe</span>
@@ -101,8 +105,6 @@ describe('first & select', () => {
   })
 
   it('scope is an element if desired', () => {
-    const body = document.body
-
     expect(first(body, 'span')?.textContent).toBe('Jane')
     expect(select(body, 'span').length).toBe(3)
 
@@ -208,7 +210,9 @@ describe('create', () => {
       class: 'bar',
       attr1: 'baz',
       attr2: 42,
-      attr3: undefined
+      attr3: undefined,
+      attr4: true,
+      attr5: false
     })
 
     expect(elem.id).toEqual('foo')
@@ -216,6 +220,8 @@ describe('create', () => {
     expect(elem.getAttribute('attr1')).toEqual('baz')
     expect(elem.getAttribute('attr2')).toEqual('42')
     expect(elem.getAttribute('attr3')).toEqual(null)
+    expect(elem.getAttribute('attr4')).toEqual('true')
+    expect(elem.getAttribute('attr5')).toEqual('false')
   })
 
   it.each([
@@ -234,6 +240,39 @@ describe('create', () => {
     const elem = create('div', create('span'), create('img'))
     expect(elem.outerHTML).toEqual('<div><span></span><img></div>')
   })
+
+  it('undefined or null child elements are ignored', () => {
+    const elem = create(
+      'div',
+      undefined,
+      create('span'),
+      null,
+      create('img'),
+      null,
+      undefined,
+      first(body, 'foo')
+    )
+    expect(elem.outerHTML).toEqual('<div><span></span><img></div>')
+  })
+})
+
+describe('tag', () => {
+  it('gets the tag of a element', () => {
+    const elem = create('<img>')
+    expect(tag(elem)).toEqual('img')
+    expect(tag(elem)).toEqual(elem.tagName.toLowerCase())
+  })
+
+  it('sets the tag of an element', () => {
+    const elem = create('<div><img></div>')
+    const child = first(elem, 'img')
+    expect(child).toBeInstanceOf(Element)
+    if (child !== null) {
+      expect(tag(tag(child, 'span'))).toBe('span')
+      // We don't actually change the tag of the element..
+      expect(tag(child)).toEqual('img')
+    }
+  })
 })
 
 describe('attr', () => {
@@ -247,6 +286,23 @@ describe('attr', () => {
     const elem = create('<img>')
     attr(elem, 'foo', 'bar')
     expect(elem.getAttribute('foo')).toEqual('bar')
+  })
+})
+
+describe('attrs', () => {
+  it('gets attributes of an element', () => {
+    const elem = create('<img foo="bar" baz="quax">')
+    expect(attrs(elem)).toEqual({ foo: 'bar', baz: 'quax' })
+  })
+
+  it('sets attributes of an element', () => {
+    const elem = create('<img>')
+    attrs(elem, { foo: 'bar', baz: 'quax', beep: null, boop: undefined })
+    expect(elem.getAttributeNames()).toEqual(['foo', 'baz'])
+    expect(elem.getAttribute('foo')).toEqual('bar')
+    expect(elem.getAttribute('baz')).toEqual('quax')
+    expect(elem.getAttribute('beep')).toEqual(null)
+    expect(elem.getAttribute('boop')).toEqual(null)
   })
 })
 
@@ -272,7 +328,6 @@ describe('text', () => {
 
 describe('append', () => {
   it('appends elements to a target', () => {
-    const body = document.body
     body.innerHTML = ``
 
     append(body, create('<img>'))
@@ -288,7 +343,6 @@ describe('append', () => {
 
 describe('prepend', () => {
   it('prepends elements to a target', () => {
-    const body = document.body
     body.innerHTML = ``
 
     prepend(body, create('<img>'))
@@ -304,7 +358,6 @@ describe('prepend', () => {
 
 describe('before', () => {
   it('inserts elements before an element', () => {
-    const body = document.body
     body.innerHTML = `<div><img></div>`
 
     before(first('img') ?? body, create('<param>'), create('<source>'))
@@ -314,7 +367,6 @@ describe('before', () => {
 
 describe('after', () => {
   it('inserts elements after an element', () => {
-    const body = document.body
     body.innerHTML = `<div><img></div>`
 
     after(first('img') ?? body, create('<param>'), create('<source>'))
@@ -324,7 +376,6 @@ describe('after', () => {
 
 describe('replace', () => {
   it('replace an element with another', () => {
-    const body = document.body
     body.innerHTML = `<img>`
 
     replace(first('img') ?? body, create('<param>'))
@@ -332,7 +383,6 @@ describe('replace', () => {
   })
 
   it('replace an element with several others', () => {
-    const body = document.body
     body.innerHTML = `<div><img></div>`
 
     replace(first('img') ?? body, create('<param>'), create('<source>'))
@@ -342,7 +392,6 @@ describe('replace', () => {
 
 describe('wrap', () => {
   it('wrap an element with another', () => {
-    const body = document.body
     body.innerHTML = `<img>`
 
     wrap(first('img') ?? body, create('<div>'))

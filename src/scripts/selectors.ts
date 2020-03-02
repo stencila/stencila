@@ -54,9 +54,9 @@ const tsPath = path.join(__dirname, '..', 'selectors.ts')
  * ```
  */
 const generateSelectors = async (): Promise<void> => {
-  const [attr, value] = Object.entries(microdataRoot())[0]
-  const rootSelectorCss = `@custom-selector :--root [${attr}='${value}'];`
-  const rootSelectorJs = `case ":--root": return "[${attr}='${value}']"`
+  const [attrRoot, valueRoot] = Object.entries(microdataRoot())[0]
+  const rootSelectorCss = `@custom-selector :--root [${attrRoot}='${valueRoot}'];`
+  const rootSelectorJs = `case ":--root": return "[${attrRoot}='${valueRoot}']"`
 
   const types = await jsonSchemaTypes()
 
@@ -195,7 +195,7 @@ ${propSelectorsCss.join('\n')}
  *
  * This does the inverse of the mapping defined in \`./selectors.css\`.
  */
-export function translate(selectors: string) {
+export function translate(selectors: string): string {
   return selectors.replace(/:--\\w+/g, selector => {
     switch (selector) {
       ${rootSelectorJs}

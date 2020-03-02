@@ -36,7 +36,7 @@ export function ready(func: () => unknown): void {
     readyList.push(func)
   }
 
-  if (document.readyState === 'complete') {
+  if (document.readyState !== 'loading') {
     // Document is ready so run whenReady asynchronously, but right away
     setTimeout(whenReady, 1)
   } else if (!readyListening) {
@@ -161,13 +161,16 @@ export function select(...args: (string | Document | Element)[]): Element[] {
  * // </div>
  *
  * @param {string | Element} [spec] Specification of element to create.
- * @param {...(object | string | number | Element)} children Additional child elements to add.
- *        If the first is an object then it is used to set the element's attributes.
+ * @param {(object | undefined | null | boolean | number | string | Element)} [attributes] Attributes for the element.
+ * @param {...(undefined | null | boolean | number | string | Element)} children Child nodes to to add as text content or elements.
  * @returns {Element}
  */
 export function create(
   spec: string | Element = 'div',
-  ...children: (object | string | number | Element)[]
+  attributes?:
+    | Record<string, undefined | null | boolean | number | string>
+    | (object | undefined | null | boolean | number | string | Element),
+  ...children: (undefined | null | boolean | number | string | Element)[]
 ): Element {
   let elem: Element
   if (spec instanceof Element) {
@@ -181,21 +184,24 @@ export function create(
   } else {
     // Create from CSS selector
     // Translate semantic selectors to attribute selectors
+    // 1. Type selectors (need itemscope attr too)
     spec = spec.replace(
       /:--[A-Z][a-z]+/g,
       typeSelector => `[itemscope] ${translate(typeSelector)}`
     )
-    spec = spec.replace(/:--[a-z]+/g, translate)
+    // 2. Prop selectors
+    spec = spec.replace(/:--[a-zA-Z]+/g, translate)
+
     // Credit to https://github.com/hekigan/dom-create-element-query-selector
     // for the regexes (with some modifications).
-    const tag = /^[a-z0-9]+/i.exec(spec)?.[0] ?? 'div'
+    const tagName = /^[a-z0-9]+/i.exec(spec)?.[0] ?? 'div'
     const id = spec.match(/(?:^|\s)#([a-z]+[a-z0-9-]*)/gi) ?? []
     const classes = spec.match(/(?:^|\s)\.([a-z]+[a-z0-9-]*)/gi) ?? []
-    const attrs =
+    const attribs =
       spec.match(/(?:^|\s)\[([a-z][a-z0-9-]+)(~?=['|"]?([^\]]*)['|"]?)?\]/gi) ??
       []
 
-    elem = document.createElement(tag)
+    elem = document.createElement(tagName)
 
     if (id.length >= 1) elem.id = id[0].split('#')[1]
     if (id.length > 1)
@@ -207,7 +213,7 @@ export function create(
         classes.map(item => item.split('.')[1]).join(' ')
       )
 
-    attrs.forEach(item => {
+    attribs.forEach(item => {
       let [label, value] = item
         .split('[')[1]
         .slice(0, -1)
@@ -217,28 +223,86 @@ export function create(
     })
   }
 
-  // If the first child is an object then use it to
-  // set attributes.
-  const first = children[0]
-  if (typeof first === 'object' && !(first instanceof Element)) {
-    Object.entries(first).forEach(([key, value]) => {
-      if (value !== undefined) elem.setAttribute(key, value)
+  // If the attrs arg is a Record then use it, otherwise add it to children
+  if (
+    attributes !== null &&
+    typeof attributes === 'object' &&
+    !(attributes instanceof Element)
+  ) {
+    Object.entries(attributes).forEach(([key, value]) => {
+      if (value !== undefined) elem.setAttribute(key, `${value}`)
     })
-    children = children.slice(1)
+  } else if (attributes !== undefined) {
+    children = [attributes, ...children]
   }
 
   // Append children as elements or text
-  children.forEach(item =>
-    elem.appendChild(
-      item instanceof Element ? item : document.createTextNode(`${item}`)
-    )
-  )
+  children.forEach(item => append(elem, item))
 
   return elem
 }
 
-export function attr(target: Element, name: string): string | null
-export function attr(target: Element, name: string, value: string): undefined
+export function tag(target: Element): string
+export function tag(target: Element, value: string): Element
+/**
+ * Get or set the tag name of an element.
+ *
+ * @detail Caution must be used when setting the tag. This function
+ * does not actually change the tag of the element (that is not possible)
+ * but instead returns a new `Element` that is a clone of the original apart
+ * from having the new tag name. Use the `replace` function where necessary
+ * in association with this function.
+ *
+ * @example <caption>Get the tag name as a lowercase string</caption>
+ *
+ * tag(elem) // "h3"
+ *
+ * @example <caption>Setting the tag actually returns a new element</caption>
+ *
+ * tag(tag(elem, 'h2')) // "h2"
+ *
+ * @example <caption>Change the tag name of an element</caption>
+ *
+ * replace(elem, tag(elem, 'h2'))
+ *
+ * @param {Element} target The element to get or set the tag
+ * @param {string} [value] The value of the tag (when setting)
+ * @returns {string | Element} The lowercase tag name when getting,
+ *                             a new element when setting.
+ */
+export function tag(target: Element, value?: string): string | Element {
+  if (value === undefined) return target.tagName.toLowerCase()
+
+  const replacement = create(value, attrs(target))
+  replacement.innerHTML = target.innerHTML
+  return replacement
+}
+
+export function attrs(target: Element): Record<string, string>
+export function attrs(target: Element, value: object): undefined
+/**
+ * Get or set the attributes of an element
+ *
+ * @param {Element} target The element to get or set the attributes
+ * @param {object} [attributes] The name/value pairs of the attributes
+ * @returns {object | undefined} The attributes of the element when getting, `undefined` when setting
+ */
+export function attrs(
+  target: Element,
+  attributes?: object
+): Record<string, string> | undefined {
+  if (attributes === undefined)
+    return Object.assign(
+      {},
+      ...Array.from(target.attributes, ({ name, value }) => ({ [name]: value }))
+    )
+  Object.entries(attributes).forEach(([name, value]) => {
+    if (value !== undefined && value !== null) target.setAttribute(name, value)
+  })
+}
+
+export function attr(target: Element, name: string): string
+export function attr(target: Element, name: string, value: string): null
 /**
  * Get or set the value of an attribute on an element.
  *
@@ -253,16 +317,16 @@ export function attr(target: Element, name: string, value: string): undefined
  * @param {Element} target The element to get or set the attribute
  * @param {string} name The name of the attribute
  * @param {string} [value] The value of the attribute (when setting)
- * @returns {string | null | undefined} `null` if the attribute does not exist,
- *                                      `undefined` when setting
+ * @returns {string | null} a `string` if the attribute exists, `null` if does not exist, or when setting
  */
 export function attr(
   target: Element,
   name: string,
   value?: string
-): string | null | undefined {
-  if (value === undefined) return target.getAttribute(name)
+): string | null {
+  if (value === undefined && value !== null) return target.getAttribute(name)
   target.setAttribute(name, value)
+  return null
 }
 
 export function text(target: Element): string | null
@@ -297,8 +361,17 @@ export function text(
  * @param {Element} target The element to append to
  * @param {...Element} elems The elements to append
  */
-export function append(target: Element, ...elems: Element[]): void {
-  elems.forEach(elem => target.appendChild(elem))
+export function append(
+  target: Element,
+  ...elems: (undefined | null | boolean | number | string | Element)[]
+): void {
+  elems.forEach(elem =>
+    elem !== undefined && elem !== null
+      ? target.appendChild(
+          elem instanceof Element ? elem : document.createTextNode(`${elem}`)
+        )
+      : undefined
+  )
 }
 
 /**
@@ -354,9 +427,9 @@ export function after(target: Element, ...elems: Element[]): void {
 export function replace(target: Element, ...elems: Element[]): void {
   const parent = target.parentNode
   if (parent !== null) {
-    const first = elems[0]
-    parent.replaceChild(first, target)
-    after(first, ...elems.slice(1))
+    const firstReplacement = elems[0]
+    parent.replaceChild(firstReplacement, target)
+    after(firstReplacement, ...elems.slice(1))
   }
 }
 

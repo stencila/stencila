@@ -25,14 +25,18 @@
 - [Notes](#notes)
   - [Generated code](#generated-code)
   - [Testing](#testing)
+    - [DOM traversal and manipulation](#dom-traversal-and-manipulation)
+    - [Visual regressions](#visual-regressions)
 - [Acknowledgments](#acknowledgments)
 - [Utilities API](#utilities-api)
   - [Functions](#functions)
   - [ready(func)](#readyfunc)
-  - [first([elem], selector) ⇒ <code>Element</code> \| <code>null</code>](#firstelem-selector-%e2%87%92-codeelementcode--codenullcode)
+  - [first([elem], selector) ⇒ <code>Element</code> \| <code>undefined</code>](#firstelem-selector-%e2%87%92-codeelementcode--codeundefinedcode)
   - [select([elem], selector) ⇒ <code>Array.&lt;Element&gt;</code>](#selectelem-selector-%e2%87%92-codearrayltelementgtcode)
   - [create([spec], ...children) ⇒ <code>Element</code>](#createspec-children-%e2%87%92-codeelementcode)
-  - [attr(target, name, [value]) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>](#attrtarget-name-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode)
+  - [tag(target, [value]) ⇒ <code>string</code> \| <code>undefined</code>](#tagtarget-value-%e2%87%92-codestringcode--codeundefinedcode)
+  - [attrs(target, [value]) ⇒ <code>object</code> \| <code>undefined</code>](#attrstarget-value-%e2%87%92-codeobjectcode--codeundefinedcode)
+  - [attr(target, name, [value]) ⇒ <code>string</code> \| <code>undefined</code>](#attrtarget-name-value-%e2%87%92-codestringcode--codeundefinedcode)
   - [text(target, [value]) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>](#texttarget-value-%e2%87%92-codestringcode--codenullcode--codeundefinedcode)
   - [append(target, ...elems)](#appendtarget-elems)
   - [prepend(target, ...elems)](#prependtarget-elems)
@@ -119,6 +123,7 @@ Extensions provide styling, and potentially interactivity, for node types that d
 | [cite-apa](./themes/cite-apa) | Provides styling for in-text citations and bibliographies in accordance with the [American Psychological Association (APA) style](https://en.wikipedia.org/wiki/APA_style).                                                                 |
 | [cite-mla](./themes/cite-mla) | Provides styling for in-text citations and bibliographies in accordance with the [Modern Language Association (MLA) style](https://style.mla.org/).                                                                                         |
 | [code](./themes/code)         | Provides syntax highlighting for `CodeFragment` and `CodeBlock` nodes using [Prism](https://prismjs.com/). Will not style executable node types like `CodeExpression` and `CodeChunk` which are styled by the base Stencila Web Components. |
+| [headings](./themes/headings) | A temporary extensions that changes the way that `Heading` nodes are represented. Ensures that there is only one `<h1>` tag (for the `title` property) and that `Heading` nodes are represented as `<h${depth+1}>`.                         |
 | [math](./themes/math)         | Provides styling of math nodes using MathJax fonts and styles. Use this if there is any likely to be math content, i.e. `MathFragment` and/or `MathBlock` nodes, in documents that your theme targets.                                      |
 | [pages](./themes/pages)       | Provides a [`@media print` CSS at-rule](https://developer.mozilla.org/en-US/docs/Web/CSS/@page) to modify properties when printing a document e.g. to PDF.                                                                                  |
 | [person](./themes/person)     | Provides styling of `Person` nodes e.g the `authors` of an article, or authors for each `citation` in it's `references`.                                                                                                                    |
@@ -166,9 +171,9 @@ src/extensions/myext
 └── styles.css
 ```
 
-You can create the folder and files yourself if you prefer. Just remember to run `npm run update:extensions` afterwards to add your extension to the index.
+You can create the folder and files yourself if you prefer. Just remember to run `npm run update:extensions` afterwards to add your extension to the index. See the other extensions for approaches to writing the CSS and Javascript / Typescript for your extension.
 
-See the other extensions for approaches to writing the CSS and Javascript / Typescript for your extension.
+Some extensions perform manipulation of the DOM to make it more amenable to achieving a particular CSS styling e.g. adding a wrapping `<div>`s. For performance reasons these manipulations should be kept to a minimum. In some cases, it may be better to make the necessary changes to Encoda's HTML codec. In those cases the DOM manipulations in the extension should be commented as being temporary, and be [linked to an issue in Encoda](https://github.com/stencila/encoda/issues) to make those changes permanent.
 
 ## Develop
 
@@ -303,6 +308,12 @@ Run `npm run update` when you add new themes, addons, or examples, or upgrade on
 
 ### Testing
 
+#### DOM traversal and manipulation
+
+Authors of themes and extensions, and contributors to the utility functions are encouraged to add tests. We use [Jest](https://jestjs.io/) as a testing framework. Jest ships with [`jsdom`](https://github.com/jsdom/jsdom) which simulates a DOM environment in Node.js, thereby allowing testing as though running in the browser. See existing `*.test.ts` files for examples of how to do that.
+
+#### Visual regressions
+
 We use visual regression testing powered by [Sauce Labs](https://saucelabs.com), [Argos](https://www.argos-ci.com), and [WebdriverIO](https://webdriver.io).
 
 As part of the continuous integration for this repository, for each push,
@@ -344,7 +355,7 @@ Several utility functions are provided in the [`util`](./src/util) module for tr
 <dt><a href="#ready">ready(func)</a></dt>
 <dd><p>Register a function to be executed when the DOM is fully loaded.</p>
 </dd>
-<dt><a href="#first">first([elem], selector)</a> ⇒ <code>Element</code> | <code>null</code></dt>
+<dt><a href="#first">first([elem], selector)</a> ⇒ <code>Element</code> | <code>undefined</code></dt>
 <dd><p>Select the first element matching a CSS selector.</p>
 </dd>
 <dt><a href="#select">select([elem], selector)</a> ⇒ <code>Array.&lt;Element&gt;</code></dt>
@@ -353,7 +364,13 @@ Several utility functions are provided in the [`util`](./src/util) module for tr
 <dt><a href="#create">create([spec], ...children)</a> ⇒ <code>Element</code></dt>
 <dd><p>Create a new element.</p>
 </dd>
-<dt><a href="#attr">attr(target, name, [value])</a> ⇒ <code>string</code> | <code>null</code> | <code>undefined</code></dt>
+<dt><a href="#tag">tag(target, [value])</a> ⇒ <code>string</code> | <code>undefined</code></dt>
+<dd><p>Get or set the tag name of an element.</p>
+</dd>
+<dt><a href="#attrs">attrs(target, [value])</a> ⇒ <code>object</code> | <code>undefined</code></dt>
+<dd><p>Get or set the attributes of an element</p>
+</dd>
+<dt><a href="#attr">attr(target, name, [value])</a> ⇒ <code>string</code> | <code>undefined</code></dt>
 <dd><p>Get or set the value of an attribute on an element.</p>
 </dd>
 <dt><a href="#text">text(target, [value])</a> ⇒ <code>string</code> | <code>null</code> | <code>undefined</code></dt>
@@ -400,11 +417,11 @@ ready(() => {
 ```
 <a name="first"></a>
 
-### first([elem], selector) ⇒ <code>Element</code> \| <code>null</code>
+### first([elem], selector) ⇒ <code>Element</code> \| <code>undefined</code>
 Select the first element matching a CSS selector.
 
 **Kind**: global function
-**Returns**: <code>Element</code> \| <code>null</code> - An `Element` or `null` if no match
+**Returns**: <code>Element</code> \| <code>undefined</code> - An `Element` or `undefined` if no match
 **Detail**: This function provides a short hand for `querySelector` but
 also allowing for the use of semantic selectors.
 You can use it for the whole document, or scoped to a particular element.
@@ -493,14 +510,49 @@ create(':--Person', create('span :--name', 'John Doe'))
 //   <span itemprop="name">John Doe</span>
 // </div>
 ```
+<a name="tag"></a>
+
+### tag(target, [value]) ⇒ <code>string</code> \| <code>undefined</code>
+Get or set the tag name of an element.
+
+**Kind**: global function
+**Returns**: <code>string</code> \| <code>undefined</code> - `undefined` when setting
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | <code>Element</code> | The element to get or set the tag |
+| [value] | <code>string</code> | The value of the tag (when setting) |
+
+**Example** *(Set the tag)*
+```js
+
+tag(elem, "h3")
+```
+**Example** *(Get the tag)*
+```js
+
+tag(elem) // "h3"
+```
+<a name="attrs"></a>
+
+### attrs(target, [value]) ⇒ <code>object</code> \| <code>undefined</code>
+Get or set the attributes of an element
+
+**Kind**: global function
+**Returns**: <code>object</code> \| <code>undefined</code> - `undefined` if the attribute does not exist, or when setting
+
+| Param | Type | Description |
+| --- | --- | --- |
+| target | <code>Element</code> | The element to get or set the attributes |
+| [value] | <code>object</code> | The name/value pairs of the attributes |
+
 <a name="attr"></a>
 
-### attr(target, name, [value]) ⇒ <code>string</code> \| <code>null</code> \| <code>undefined</code>
+### attr(target, name, [value]) ⇒ <code>string</code> \| <code>undefined</code>
 Get or set the value of an attribute on an element.
 
 **Kind**: global function
-**Returns**: <code>string</code> \| <code>null</code> \| <code>undefined</code> - `null` if the attribute does not exist,
-                                     `undefined` when setting
+**Returns**: <code>string</code> \| <code>undefined</code> - `undefined` if the attribute does not exist, or when setting
 
 | Param | Type | Description |
 | --- | --- | --- |

@@ -98,9 +98,9 @@ fs.writeFileSync(
  * Map of example names
  */
 export const examples: {
-  ${EXAMPLES.map(ex => `${ex.name}: string`).join('\n  ')}
+  ${EXAMPLES.map(example => `${example.name}: string`).join('\n  ')}
 } = {
-  ${EXAMPLES.map(ex => `${ex.name}: '${ex.name}'`).join(',\n  ')}
+  ${EXAMPLES.map(example => `${example.name}: '${example.name}'`).join(',\n  ')}
 }
 `.trimLeft()
 )

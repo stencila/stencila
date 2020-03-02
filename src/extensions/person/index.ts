@@ -1,13 +1,19 @@
-import { after, create, replace, select, ready, attr } from '../../util'
+import { create, replace, select, ready, attr } from '../../util'
 
 /**
- * Currently, Encoda encodes the names of a `Person` within a `span` e.g.
+ * Temporary DOM restructuring for `Person` nodes. Associated issue
+ * in Encoda: https://github.com/stencila/encoda/issues/454
+ *
+ * Currently, Encoda encodes the names of a `Person` within a `span` e.g. an author
+ * of an `Article`:
  *
  * ```html
- * <span itemprop="name" content="Sarel J. Fleishman">
- *   <span itemprop="givenName">Sarel J.</span>
- *   <span itemprop="familyName">Fleishman</span>
- * </span>
+ * <li itemscope="" itemtype="http://schema.org/Person" itemprop="author">
+ *    <span itemprop="name" content="Sarel J. Fleishman">
+ *      <span itemprop="givenName">Sarel J.</span>
+ *      <span itemprop="familyName">Fleishman</span>
+ *    </span>
+ * </li>
  * ```
  *
  * Note: the `itemprop` name with `content` ensures
@@ -17,44 +23,45 @@ import { after, create, replace, select, ready, attr } from '../../util'
  * and consistent with other array properties, a better encoding would be:
  *
  * ```html
- * <meta itemprop="name" content="Sarel J. Fleishman">
- * <ol data-itemprop="givenNames">
- *   <li itemprop="givenName">Sarel</li>
- *   <li itemprop="givenName">J.</li>
- * </ol>
- * <ol data-itemprop="familyNames">
- *   <li itemprop="familyName">Fleishman</li>
- * </ol>
+ * <li itemscope="" itemtype="http://schema.org/Person" itemprop="author">
+ *   <meta itemprop="name" content="Sarel J. Fleishman">
+ *   <span data-itemprop="givenNames">
+ *     <span itemprop="givenName">Sarel</span>
+ *     <span itemprop="givenName">J.</span>
+ *   </span>
+ *   <span data-itemprop="familyNames">
+ *     <span itemprop="familyName">Fleishman</span>
+ *   </span>
+ * </li>
  * ```
  */
 ready(() => {
-  // This is a proposal, but due to conflicts with existing styles, is currently
-  // not enabled.
-  return
   select(':--Person :--name').forEach(span => {
-      const name = attr(span, 'content')
-      const givenNames = select(span, ':--givenName')
-        .map(item => item.textContent)
-        .join(' ')
-      const familyNames = select(span, ':--familyName')
-        .map(item => item.textContent)
-        .join(' ')
+    const name = attr(span, 'content')
+    // Aggregate text content of all name elements
+    // and then split by spaces
+    const givenNames = select(span, ':--givenName')
+      .map(item => item.textContent)
+      .join(' ')
+      .split(/\s+/)
+    const familyNames = select(span, ':--familyName')
+      .map(item => item.textContent)
+      .join(' ')
+      .split(/\s+/)
 
-      replace(
-        span,
-        create(`meta :--name [content=${name}]`),
-        create(
-          'ol:-givenNames',
-          ...givenNames
-            .split(/\s+/)
-            .map(givenName => create('li :--givenName', givenName))
-        ),
-        create(
-          'ol:-familyNames',
-          ...familyNames
-            .split(/\s+/)
-            .map(familyName => create('li :--familyName', familyName))
+    replace(
+      span,
+      create(`meta :--name [content=${name}]`),
+      create(
+        'span :--givenNames',
+        ...givenNames.map(givenName => create('span :--givenName', givenName))
+      ),
+      create(
+        'span :--familyNames',
+        ...familyNames.map(familyName =>
+          create('span :--familyName', familyName)
         )
       )
+    )
   })
 })
