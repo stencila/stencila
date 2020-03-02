@@ -251,7 +251,7 @@ export function tag(target: Element, value: string): Element
  * does not actually change the tag of the element (that is not possible)
  * but instead returns a new `Element` that is a clone of the original apart
  * from having the new tag name. Use the `replace` function where necessary
- * i association with this function.
+ * in association with this function.
  *
  * @example <caption>Get the tag name as a lowercase string</caption>
  *
