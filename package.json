@@ -10,7 +10,7 @@
   "types": "./dist/lib/index.d.ts",
   "scripts": {
     "prepare": "npm run update",
-    "update": "npm run update:selectors && npm run update:examples && npm run update:themes && npm run update:extensions && npm run docs",
+    "update": "npm run update:selectors && npm run update:examples && npm run update:themes && npm run update:extensions",
     "update:selectors": "ts-node --files src/scripts/selectors.ts",
     "update:examples": "ts-node --files src/scripts/examples.ts",
     "create:theme": "ts-node --files src/scripts/themes.ts create",
@@ -21,8 +21,9 @@
     "build:browser": "webpack --mode production && tsc --emitDeclarationOnly --project tsconfig.browser.json",
     "build:lib": "tsc --project tsconfig.lib.json",
     "dev": "webpack-dev-server --mode development --hot --open",
-    "docs": "npm run docs:readme && npm run docs:app",
+    "docs": "npm run docs:readme && npm run docs:gallery && npm run docs:app",
     "docs:readme": "ts-node --files src/scripts/readme.ts",
+    "docs:gallery": "ts-node --files src/scripts/gallery.ts",
     "docs:app": "webpack --mode production --env.docs=true",
     "lint": "npm run lint:styles && npm run lint:scripts",
     "lint:fix": "npm run lint:styles -- --fix && npm run lint:scripts -- --fix",
@@ -55,7 +56,7 @@
   },
   "devDependencies": {
     "@stencila/dev-config": "1.4.19",
-    "@stencila/encoda": "0.87.0",
+    "@stencila/encoda": "0.88.0",
     "@stencila/schema": "0.40.0",
     "@types/jest": "25.1.3",
     "@types/prismjs": "1.16.0",

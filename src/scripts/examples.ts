@@ -44,7 +44,7 @@ const build = (
   input: string,
   outputs: string | string[]
 ): Promise<string | undefined> =>
-  convert(input, outputs, { encodeOptions: { isStandalone: false, theme: '' } })
+  convert(input, outputs, { encodeOptions: { isStandalone: false } })
 
 /**
  * The README of this repo to be used as the default page of the demo
