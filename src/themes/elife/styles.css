@@ -74,4 +74,21 @@ main {
 :--Article :--affiliations {
   @mixin inline-list;
   @extend .content-header__institution_list;
+
+  :--Organization {
+    display: inline;
+
+    :--name,
+    :--address {
+      @extend .content-header__institution_list_item;
+    }
+
+    & :--address::after {
+      content: '; ';
+    }
+
+    &:last-child :--address::after {
+      content: '';
+    }
+  }
 }
