@@ -1,29 +1,32 @@
-import 'formdata-polyfill'
-import { create, translate, append } from '../util'
+import { translate } from '../../util'
 
-interface O {
+export interface ThemeObject {
   [key: string]: string
 }
 
-export const parseForm = (form: HTMLFormElement): O => {
-  const data = new FormData(form)
-
-  return [...data].reduce(
-    (data, [name, value]) => ({ ...data, [name]: value }),
-    {}
-  )
+/**
+ * The keys used to refer to which example and
+ * which theme the user wants to see.
+ */
+export enum keys {
+  EXAMPLE = 'example',
+  THEME = 'theme',
+  HEADER = 'header'
 }
 
 /**
  * Create an object consisting only of changed values
  *
  * @function diff
- * @param {O} original - Source object to compare against
- * @param {O} updated - New object with partially updated values
- * @return {O} Object containing keys with changed values
+ * @param {ThemeObject} original - Source object to compare against
+ * @param {ThemeObject} updated - New object with partially updated values
+ * @return {ThemeObject} Object containing keys with changed values
  */
-const diff = (original: O, updated: O): O => {
-  return Object.entries(updated).reduce((_diff: O, [name, value]) => {
+export const diff = (
+  original: ThemeObject,
+  updated: ThemeObject
+): ThemeObject => {
+  return Object.entries(updated).reduce((_diff: ThemeObject, [name, value]) => {
     return value === original[name]
       ? _diff
       : { ..._diff, [name]: value === '' ? original[name] : value }
@@ -33,7 +36,7 @@ const diff = (original: O, updated: O): O => {
 /**
  * Convert a JS object to a stringified CSS rule, using object keys as variable names.
  */
-const objToVars = (obj: O): string => {
+export const objToVars = (obj: ThemeObject): string => {
   const vars = Object.entries(obj).reduce(
     (vars: string, [name, value]) => vars + `--${name}: ${value};\n`,
     ''
@@ -41,39 +44,6 @@ const objToVars = (obj: O): string => {
 
   return `${translate(':--root')} {
 ${vars}}`
-}
-
-export const updateTheme = (form: HTMLFormElement, originalTheme: O): void => {
-  // Get values from sidebar, find changed values, and convert to CSS rule definition
-  const vars = parseForm(form)
-  const cssVars = objToVars(diff(originalTheme, vars))
-
-  // Inject updated rules into preview `head` element
-  const preview = document.getElementsByTagName('iframe')[0]
-  const head = preview.contentDocument?.getElementsByTagName('head')[0]
-
-  if (head != null) {
-    // Remove old updated styles if they exist
-    const oldStyles = head.querySelector('.varOverrides')
-    if (oldStyles !== null) {
-      oldStyles.remove()
-    }
-
-    const style = create('style', cssVars)
-    style.classList.add('varOverrides')
-
-    append(head, style)
-  }
-}
-
-export const handleVariableChange = (
-  input: HTMLInputElement,
-  cb: () => unknown
-): void => {
-  input.addEventListener('keyup', e => {
-    e.preventDefault()
-    cb()
-  })
 }
 
 /**
@@ -97,16 +67,15 @@ export const handleVariableChange = (
 export const submitPR = (
   name: string,
   desc: string,
-  form: HTMLFormElement,
+  theme: ThemeObject,
   baseName: string,
-  baseTheme: O
+  baseTheme: ThemeObject
 ): void => {
   // Provide default values where user did not provide any
   name = name.length > 0 ? name : 'randomname'
   desc = desc.length > 0 ? desc : 'Please provide a description of your theme'
 
-  const vars = parseForm(form)
-  const diffs = diff(baseTheme, vars)
+  const diffs = diff(baseTheme, theme)
   const customisations =
     Object.keys(diffs).length === 0
       ? '  /* No changes were made to variables in the base theme but you can set them here if you like :) */\n'

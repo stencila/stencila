@@ -112,6 +112,7 @@ menu {
   flex-basis: 300px;
   flex-grow: 0;
   font-family: sans-serif;
+  height: calc(100vh - 3rem);
   margin: 0;
   overflow: auto;
   padding: 1rem;
@@ -121,16 +122,62 @@ menu h2 {
   margin: 0;
 }
 
+menu p {
+  line-height: 1.35;
+}
+
+#sidebar > button {
+  border: none;
+  background-color: #1d64f3;
+  border-radius: 2px;
+  color: white;
+  padding: 0.5rem;
+  margin: 1rem 0;
+  transition: background-color 200ms ease-out;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  width: 100%;
+  font-weight: bold;
+}
+
+#sidebar > button:hover {
+  background-color: #164ebf;
+}
+
+#themeVariables fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-flow: row wrap;
+}
+
+#themeVariables .labelWrapper {
+  flex-basis: 100%;
+  font-size: 12px;
+}
+
 #themeVariables label,
 #themeVariables input {
-  display: block;
   font-family: monospace;
-  width: 100%;
 }
 
 #themeVariables label {
   color: var(--color-neutral-800);
-  font-size: 12px;
+}
+
+#themeVariables label.modified {
+  color: #066860;
+  cursor: help;
+  font-weight: bold;
+}
+
+#themeVariables label.modified::before {
+  content: '(';
+}
+
+#themeVariables label.modified::after {
+  content: ')';
 }
 
 #themeVariables input {
@@ -140,4 +187,30 @@ menu h2 {
   font-size: 16px;
   margin-bottom: 1rem;
   padding: 0.25rem;
+  height: 1.75em;
+  flex-grow: 1;
+}
+
+#themeVariables .pickr button {
+  font-size: 16px;
+  height: 1.75em;
+  width: 1.75em;
+}
+
+#themeVariables .pickr .pcr-button::before {
+  border-radius: 2px;
+}
+
+#themeVariables .pickr .pcr-button::after {
+  border: 1px solid var(--color-neutral-500);
+}
+
+.pcr-app .pcr-interaction .pcr-result {
+  flex-basis: 100%;
+}
+
+.pcr-type,
+.pcr-save,
+.pcr-cancel {
+  flex-basis: calc(50% - 0.5em);
 }
