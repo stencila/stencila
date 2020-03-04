@@ -3,6 +3,7 @@ import { getCssVariables } from '../../parseCss'
 import { upsertThemeOverrides } from '../../utils/theme'
 import { parseQueries, removeQuery, upsertQuery } from '../../utils/url'
 import { VariableInput } from './input'
+import { submitPR } from '../../utils'
 
 interface Props {
   theme: string
@@ -64,23 +65,44 @@ export const VariableKnobs = ({ theme }: Props): JSX.Element => {
   const onChange = React.useCallback(updateVar, [themeVars, userVars])
 
   // Build up a form label/input pairs for each variable
-  const formEls = Object.entries(themeVars[theme] ?? {}).reduce(
-    (els: JSX.Element[], [name, value]) => [
-      ...els,
-      <VariableInput
-        key={name}
-        name={name}
-        onChange={onChange}
-        value={value}
-        valueOverride={userVars[theme][name]}
-      />
-    ],
-    []
-  )
+  const formEls = Object.entries(themeVars[theme] ?? {})
+    .sort()
+    .reduce(
+      (els: JSX.Element[], [name, value]) => [
+        ...els,
+        <VariableInput
+          key={name}
+          name={name}
+          onChange={onChange}
+          value={value}
+          valueOverride={userVars[theme][name]}
+        />
+      ],
+      []
+    )
 
   return (
-    <form id="themeVariables" name="themeBuilder">
-      {formEls.length === 0 ? <label>No variables exposed</label> : formEls}
-    </form>
+    <div id="themeVariables">
+      <form name="themeBuilder">
+        {formEls.length === 0 ? <label>No variables exposed</label> : formEls}
+      </form>
+
+      {userVars[theme] !== undefined &&
+        Object.keys(userVars[theme]).length > 0 && (
+          <a
+            className="button"
+            href="#"
+            id="contribute"
+            target="_blank"
+            title="Submit your changes as a new theme to Thema"
+            onClick={e => {
+              e.preventDefault()
+              submitPR('', '', userVars[theme], theme, themeVars[theme])
+            }}
+          >
+            Contribute changes
+          </a>
+        )}
+    </div>
   )
 }
