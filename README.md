@@ -68,16 +68,16 @@ npm install @stencila/thema
 <!-- prettier-ignore-start -->
 <!-- THEMES-START -->
 
-| Name                            | Description                                                                                                                                                                                                                                                                                      |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [bootstrap](./themes/bootstrap) | A theme that pulls itself up using Twitter's [Bootstrap](https://getbootstrap.com/) toolkit.                                                                                                                                                                                                     |
-| [elife](./themes/elife)         | A theme for the journal eLife.                                                                                                                                                                                                                                                                   |
-| [nature](./themes/nature)       | A theme for the journal Nature.                                                                                                                                                                                                                                                                  |
-| [plos](./themes/plos)           | A theme for the journal PLoS.                                                                                                                                                                                                                                                                    |
-| [rpng](./themes/rpng)           | A theme for reproducible PNGs (rPNGs). This theme is used in Encoda when generating rPNGs.                                                                                                                                                                                                       |
-| [skeleton](./themes/skeleton)   | A theme with lots of bones but no flesh. Designed to be used as a starting point for creating new themes, it tries to be as unopinionated as possible.                                                                                                                                           |
-| [stencila](./themes/stencila)   | A theme reflecting Stencila's brand and [design system](https://github.com/stencila/designa). It is based on the Skeleton theme, and demonstrates how to customize a theme using CSS variables.                                                                                                  |
-| [wilmore](./themes/wilmore)     | A theme well suited for consuming long-form manuscripts and prose. Named after Edmond Dantés' alias, [“Lord Wilmore: An Englishman, and the persona in which Dantès performs random acts of generosity.“](https://en.wikipedia.org/wiki/The_Count_of_Monte_Cristo#Edmond_Dantès_and_his_aliases) |
+| Name                            | Description |
+| ------------------------------- | ----------- |
+| [bootstrap](./themes/bootstrap) | Bootstrap   |
+| [elife](./themes/elife)         | eLife       |
+| [nature](./themes/nature)       | Nature      |
+| [plos](./themes/plos)           | PLoS        |
+| [rpng](./themes/rpng)           | RPNG        |
+| [skeleton](./themes/skeleton)   | Skeleton    |
+| [stencila](./themes/stencila)   | Stencila    |
+| [wilmore](./themes/wilmore)     | Wilmore     |
 
 <!-- THEMES-END -->
 <!-- prettier-ignore-end -->
@@ -117,16 +117,16 @@ Extensions provide styling, and potentially interactivity, for node types that d
 <!-- prettier-ignore-start -->
 <!-- EXTS-START -->
 
-| Name                          | Description                                                                                                                                                                                                                                 |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [cite](./themes/cite)         | Provides styling for in-text citations (i.e. `Cite` and `CiteGroup` nodes) and bibliographies (i.e. `CreativeWork` nodes in the `references` property of another `CreativeWork`).                                                           |
-| [cite-apa](./themes/cite-apa) | Provides styling for in-text citations and bibliographies in accordance with the [American Psychological Association (APA) style](https://en.wikipedia.org/wiki/APA_style).                                                                 |
-| [cite-mla](./themes/cite-mla) | Provides styling for in-text citations and bibliographies in accordance with the [Modern Language Association (MLA) style](https://style.mla.org/).                                                                                         |
-| [code](./themes/code)         | Provides syntax highlighting for `CodeFragment` and `CodeBlock` nodes using [Prism](https://prismjs.com/). Will not style executable node types like `CodeExpression` and `CodeChunk` which are styled by the base Stencila Web Components. |
-| [headings](./themes/headings) | A temporary extensions that changes the way that `Heading` nodes are represented. Ensures that there is only one `<h1>` tag (for the `title` property) and that `Heading` nodes are represented as `<h${depth+1}>`.                         |
-| [math](./themes/math)         | Provides styling of math nodes using MathJax fonts and styles. Use this if there is any likely to be math content, i.e. `MathFragment` and/or `MathBlock` nodes, in documents that your theme targets.                                      |
-| [pages](./themes/pages)       | Provides a [`@media print` CSS at-rule](https://developer.mozilla.org/en-US/docs/Web/CSS/@page) to modify properties when printing a document e.g. to PDF.                                                                                  |
-| [person](./themes/person)     | Provides styling of `Person` nodes e.g the `authors` of an article, or authors for each `citation` in it's `references`.                                                                                                                    |
+| Name                          | Description                  |
+| ----------------------------- | ---------------------------- |
+| [cite](./themes/cite)         | Citation extension           |
+| [cite-apa](./themes/cite-apa) | APA citation style extension |
+| [cite-mla](./themes/cite-mla) | MLA citation style extension |
+| [code](./themes/code)         | Code nodes extension         |
+| [headings](./themes/headings) | Headings extension           |
+| [math](./themes/math)         | Math styling extension.      |
+| [pages](./themes/pages)       | Pages extension              |
+| [person](./themes/person)     | Person extension             |
 
 <!-- EXTS-END -->
 <!-- prettier-ignore-end -->

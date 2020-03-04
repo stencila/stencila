@@ -38,7 +38,7 @@ export const diff = (
  */
 export const objToVars = (obj: ThemeObject): string => {
   const vars = Object.entries(obj).reduce(
-    (vars: string, [name, value]) => vars + `--${name}: ${value};\n`,
+    (vs: string, [name, value]) => vs + `--${name}: ${value};\n`,
     ''
   )
 
@@ -79,10 +79,8 @@ export const submitPR = (
   const customisations =
     Object.keys(diffs).length === 0
       ? '  /* No changes were made to variables in the base theme but you can set them here if you like :) */\n'
-      : Object.entries(diffs).reduce(
-          (vars: string, [name, value]) => vars + `  --${name}: ${value};\n`,
-          ''
-        )
+      : objToVars(diffs)
+
   const css = `/*\n${desc}\n*/\n\n@import "../${baseName}/styles.css";\n\n:--root {\n${customisations}}\n`
   const value = encodeURIComponent(css)
   const url = `https://github.com/stencila/thema/new/master?filename=src/themes/${name}/styles.css&value=${value}`
