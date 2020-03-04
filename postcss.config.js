@@ -22,6 +22,7 @@ module.exports = {
     }),
     require('autoprefixer'),
     require('postcss-extend'),
+    require('postcss-mixins'),
     require('cssnano')({ preset: 'default' }),
     require('postcss-combine-media-query'),
     require('postcss-sort-media-queries')
