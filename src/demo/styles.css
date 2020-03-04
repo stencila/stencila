@@ -48,7 +48,15 @@ header {
     float: right;
 
     label {
-      margin: 0.2rem;
+      margin: 0.25rem;
+
+      select {
+        margin-left: 0.25rem;
+      }
+    }
+
+    .viewportToggle {
+      margin-right: 0.5rem;
     }
 
     .github {

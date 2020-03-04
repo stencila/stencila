@@ -10,14 +10,14 @@ interface Props {
 }
 
 const HeaderComponent = ({ examples }: Props): JSX.Element => (
-  <header id="header">
+  <>
     <img src="https://stenci.la/img/stencila-logo.svg" />
 
     <span className="name"> Thema</span>
 
-    <ViewportToggle />
-
     <div className="tools">
+      <ViewportToggle />
+
       <label>
         Example
         <select id="example-select">
@@ -31,7 +31,7 @@ const HeaderComponent = ({ examples }: Props): JSX.Element => (
         <img src="https://unpkg.com/simple-icons@latest/icons/github.svg" />
       </a>
     </div>
-  </header>
+  </>
 )
 
 export class Header extends React.Component {

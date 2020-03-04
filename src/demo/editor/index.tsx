@@ -12,12 +12,15 @@ export const ThemeEditor = (): JSX.Element => {
       <Header />
 
       <h2 id="themeName">
-        Theme:
+        <span>Current Theme</span>
+
         <ThemeSwitcher
           activeTheme={activeTheme}
           onChangeTheme={theme => setTheme(theme)}
         />
       </h2>
+
+      <hr />
 
       <p>
         Themes are designed to be customizable, if you’d like to make extensive
@@ -26,15 +29,9 @@ export const ThemeEditor = (): JSX.Element => {
         to learn how.
       </p>
 
-      <hr />
-
       <h3>Customize</h3>
 
-      <button>Contribute new Theme</button>
-
       <VariableKnobs theme={activeTheme} />
-
-      <button>Contribute new Theme</button>
     </>
   )
 }

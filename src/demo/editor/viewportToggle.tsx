@@ -20,8 +20,9 @@ const desktopView = (e: React.MouseEvent<HTMLButtonElement>): void => {
 }
 
 export const ViewportToggle = (): JSX.Element => (
-  <>
+  <span className="viewportToggle">
+    <label>Preview Size</label>
     <button onClick={mobileView}>Mobile</button>
     <button onClick={desktopView}>Desktop</button>
-  </>
+  </span>
 )
