@@ -1,13 +1,24 @@
 import { diff, objToVars, ThemeObject } from '.'
 import { keys } from './index'
-import { styleEntry } from '../../browser'
+import { styleEntry, themes } from '../../browser'
 import { append, create, prepend } from '../../util'
 import { forceReady, getPreviewDoc, getPreviewHead } from './preview'
+
+export const getTheme = (): string => {
+  return (
+    new URL(window.location.href).searchParams.get(keys.THEME) ??
+    sessionStorage.getItem(keys.THEME) ??
+    themes.stencila
+  )
+}
 
 export const themeSet = (theme: string): void => {
   // Update all the places that theme is set
   const url = new URL(window.location.href)
 
+  const example = url.searchParams.get(keys.EXAMPLE)
+  url.search = ''
+  url.searchParams.set(keys.EXAMPLE, example ?? '')
   url.searchParams.set(keys.THEME, theme)
   history.pushState(null, 'none', url.toString())
   sessionStorage.setItem(keys.THEME, theme)

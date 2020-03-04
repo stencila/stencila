@@ -40,16 +40,18 @@ export const VariableKnobs = ({ theme }: Props): JSX.Element => {
   const updateVar = (variable: string, value: string, commit = false): void => {
     const customizations = { ...(userVars[theme] ?? {}) }
 
-    if (commit === true) {
-      if (
-        (themeVars[theme] !== undefined &&
-          themeVars[theme][variable]?.toLowerCase() === value.toLowerCase()) ||
-        value === ''
-      ) {
-        delete customizations[variable]
+    if (
+      (themeVars[theme] !== undefined &&
+        themeVars[theme][variable]?.toLowerCase() === value.toLowerCase()) ||
+      value === ''
+    ) {
+      delete customizations[variable]
+      if (commit === true) {
         removeQuery(variable)
-      } else {
-        customizations[variable] = value
+      }
+    } else {
+      customizations[variable] = value
+      if (commit === true) {
         upsertQuery(variable, value)
       }
     }

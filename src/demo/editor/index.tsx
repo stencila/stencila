@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { themes } from '../../themes'
+import { getTheme } from '../utils/theme'
 import { Header } from './header'
 import { ThemeSwitcher } from './themeSwitcher'
 import { VariableKnobs } from './variables/form'
 
 export const ThemeEditor = (): JSX.Element => {
-  const [activeTheme, setTheme] = useState<string>(themes.stencila)
+  const [activeTheme, setTheme] = useState<string>(getTheme())
 
   return (
     <>

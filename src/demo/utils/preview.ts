@@ -1,4 +1,26 @@
 import { append, create } from '../../util'
+import { keys } from '.'
+import { examples, resolveExample } from '../../examples'
+
+export const getExample = (): string => {
+  return (
+    new URL(window.location.href).searchParams.get(keys.EXAMPLE) ??
+    sessionStorage.getItem(keys.EXAMPLE) ??
+    examples.articleReadme
+  )
+}
+
+export const setExample = (example: string): void => {
+  const url = new URL(window.location.href)
+  url.searchParams.set(keys.EXAMPLE, example)
+  history.pushState(null, 'none', url.toString())
+  sessionStorage.setItem(keys.EXAMPLE, example)
+
+  const preview = getPreview()
+  if (preview !== null) {
+    preview.setAttribute('src', `examples/${resolveExample(example)}.html`)
+  }
+}
 
 export const forceReady = (doc?: Document | null): void => {
   if (doc === null || doc === undefined) return
