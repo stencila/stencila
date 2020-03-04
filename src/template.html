@@ -5,33 +5,49 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <script
-      src="https://unpkg.com/@stencila/components@latest/dist/stencila-components/stencila-components.esm.js"
-      type="module"
-    ></script>
-    <script
-      src="https://unpkg.com/@stencila/components@latest/dist/stencila-components/stencila-components.js"
-      type="text/javascript"
-    ></script>
   </head>
   <body>
-    <header id="header">
-      <img src="https://stenci.la/img/stencila-logo.svg" />
-      <span class="name">Thema</span>
-      <div class="tools">
+    <header id="header"></header>
+
+    <menu id="sidebar">
+      <h2 id="themeName">Theme</h2>
+
+      <button id="mobileView">Mobile</button>
+      <button id="desktopView">Desktop</button>
+
+      <h3>Variables</h3>
+
+      <form id="themeVariables" name="themeBuilder">
+        <label>No variables exposed</label>
+      </form>
+
+      <h3>Save</h3>
+      <h4>Pull Request</h4>
+      <p>
+        Contribute your customization as a new theme to the Thema project so
+        that other's can use it!
+      </p>
+      <form onsubmit="event.preventDefault();">
         <label>
-          Example
-          <select id="example-select"></select>
+          Name
+          <input
+            id="prName"
+            type="text"
+            pattern="[a-z]{3,24}"
+            placeholder="A name for your theme"
+            aria-label="Lowercase theme name"
+          />
         </label>
         <label>
-          Theme
-          <select id="theme-select"></select>
+          Description
+          <textarea id="prDesc" placeholder="Describe your theme"></textarea>
         </label>
-        <a class="github" href="https://github.com/stencila/thema">
-          <img src="https://unpkg.com/simple-icons@latest/icons/github.svg" />
-        </a>
-      </div>
-    </header>
-    <main></main>
+        <button id="prButton">Create PR</button>
+      </form>
+    </menu>
+
+    <main>
+      <iframe id="preview" src="./examples/articleReadme.html"></iframe>
+    </main>
   </body>
 </html>

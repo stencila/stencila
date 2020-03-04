@@ -1,3 +1,20 @@
+# [1.11.0](https://github.com/stencila/thema/compare/v1.10.0...v1.11.0) (2020-03-02)
+
+
+### Bug Fixes
+
+* **Cite extension:** Restructure and reorder reference properties ([0d6e918](https://github.com/stencila/thema/commit/0d6e91857c062fca6c66016ad4e61e144f8fdf09))
+* **Person extension:** DOM manipulations for more style-able names ([cbdc70a](https://github.com/stencila/thema/commit/cbdc70a000148e26473a6bcaa15199cc13862677))
+* **Ready function:** Use not loading, instead of complete ([b61ceb1](https://github.com/stencila/thema/commit/b61ceb1a8d98f4ccbd15fee5a1242b6512abd954))
+* **Utility function:** Better type safety and more flexibility for create and append ([7ef4cdd](https://github.com/stencila/thema/commit/7ef4cdd0f1fe9660b108bc058596a7edde7affda))
+* **Utility functions:** Allow for camelCase property names ([e7a673b](https://github.com/stencila/thema/commit/e7a673beae7634648870b1d5a92fd9daa6dee3b8))
+
+
+### Features
+
+* **Heading extension:** Add in leiu of longer tem fix in Encoda ([56619ee](https://github.com/stencila/thema/commit/56619eeb342c12a988f1ab4c7c08cdb2304adc23))
+* **Utility functions:** Add tag() and attrs(); return undefineds ([71820f7](https://github.com/stencila/thema/commit/71820f77fe9ed6665279f09b5262db1c088fe14e))
+
 # [1.10.0](https://github.com/stencila/thema/compare/v1.9.0...v1.10.0) (2020-02-28)
 
 

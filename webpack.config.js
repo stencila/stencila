@@ -53,7 +53,7 @@ module.exports = (env = {}, { mode }) => {
   const contentBase = isDocs ? 'docs' : 'dist'
 
   const entries = [
-    './src/**/*.{css,ts,html,ttf,woff,woff2}',
+    './src/**/*.{css,ts,tsx,html,ttf,woff,woff2}',
     // template.html is used as a basis for HtmlWebpackPlugin, and should not be used as an entry point
     '!./src/template.html',
     // Don’t compile test files for package distribution
@@ -85,7 +85,7 @@ module.exports = (env = {}, { mode }) => {
       ? [
           new HtmlWebpackPlugin({
             template: './src/template.html',
-            chunks: ['demo/index', 'demo/styles', ...themePaths]
+            chunks: ['demo/styles', 'demo/app.tsx']
           }),
           new ScriptExtHtmlWebpackPlugin({
             custom: [
@@ -143,7 +143,7 @@ module.exports = (env = {}, { mode }) => {
     module: {
       rules: [
         {
-          test: /\.tsx?$/,
+          test: /\.ts(x?)$/,
           use: {
             loader: 'ts-loader',
             options: {

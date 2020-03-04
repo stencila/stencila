@@ -10,6 +10,7 @@ branches:
     - 'next'
 
 script:
+  - npr run check:themes
   - npm run lint
   - npm run test:unit -- --coverage
   - '[[ ! -z "$SAUCE_ACCESS_KEY" ]] && travis_wait npm run test:visual || true'

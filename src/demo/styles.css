@@ -1,4 +1,30 @@
+/* stylelint-disable scale-unlimited/declaration-strict-value */
 /* stylelint-disable xi/selector-pattern */
+
+html {
+  box-sizing: border-box;
+  height: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  display: flex;
+  flex-wrap: wrap;
+  height: 100%;
+  margin: 0;
+  padding: 3rem 0 0;
+}
+
+body > * {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 30ch;
+}
 
 :root {
   --color-neutral-100: #f7fafc;
@@ -47,7 +73,15 @@ header {
     float: right;
 
     label {
-      margin: 0.2rem;
+      margin: 0.25rem;
+
+      select {
+        margin-left: 0.25rem;
+      }
+    }
+
+    .viewportToggle {
+      margin-right: 0.5rem;
     }
 
     .github {
@@ -61,6 +95,229 @@ header {
   }
 }
 
-header + main {
-  margin-top: 3rem;
+main {
+  background-color: var(--color-neutral-100);
+}
+
+iframe {
+  background-color: white;
+  border: 1px solid var(--color-neutral-300);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.035), 0 0 80px rgba(0, 0, 0, 0.07);
+  display: block;
+  height: calc(100vh - 6rem);
+  margin: 1.5rem auto;
+  transition: width 175ms ease-out;
+  width: 90%;
+}
+
+iframe.mobile {
+  width: 320px;
+}
+
+menu {
+  background-color: var(--color-neutral-300);
+  border-right: 1px solid var(--color-neutral-400);
+  flex-basis: 300px;
+  flex-grow: 0;
+  font-family: sans-serif;
+  height: calc(100vh - 3rem);
+  margin: 0;
+  overflow: auto;
+  padding: 1rem;
+}
+
+menu h2 {
+  margin: 0;
+}
+
+menu p {
+  line-height: 1.25;
+}
+
+#contribute:link,
+#sidebar > a.button:link {
+  font-size: 13px;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
+#contribute:link,
+#sidebar > a.button,
+#sidebar > button {
+  background-color: #1d64f3;
+  border-radius: 2px;
+  border: none;
+  color: white;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin: 1rem 0;
+  padding: 0.5rem;
+  text-transform: uppercase;
+  transition: background-color 200ms ease-out;
+  width: 100%;
+}
+
+#contribute:hover,
+#sidebar > a.button:hover,
+#sidebar > button:hover {
+  background-color: #164ebf;
+}
+
+#themeName {
+  /* display: flex; */
+}
+
+#themeName span {
+  /* text-align: center; */
+  margin-bottom: 0.25rem;
+  display: block;
+  width: 100%;
+}
+
+#themeName select {
+  flex-grow: 2;
+  font-size: 16px;
+  font-weight: bold;
+  width: 100%;
+}
+
+h2,
+h3 {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--color-neutral-700);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+}
+
+h3::after {
+  content: '';
+  position: absolute;
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-0.85em);
+  width: 68%;
+  right: 0;
+}
+
+hr,
+h3::after {
+  background-color: var(--color-neutral-500);
+  border: none;
+  height: 1px;
+  margin: 1rem 0;
+}
+
+#themeVariables {
+  position: relative;
+  padding-bottom: 3rem;
+}
+
+#themeVariables fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-flow: row wrap;
+}
+
+#themeVariables .labelWrapper {
+  display: flex;
+  flex-basis: 100%;
+  flex-flow: row nowrap;
+  font-size: 12px;
+  justify-content: space-between;
+}
+
+#themeVariables label,
+#themeVariables input {
+  font-family: monospace;
+}
+
+#themeVariables label {
+  color: var(--color-neutral-800);
+}
+
+#themeVariables label.modified {
+  color: #066860;
+  cursor: help;
+  font-style: italic;
+  font-weight: bold;
+  padding: 1px 0;
+}
+
+#themeVariables label.modified::after {
+  content: '*';
+}
+
+#themeVariables .labelWrapper button {
+  background-color: var(--color-neutral-100);
+  border: 1px solid var(--color-neutral-400);
+  border-radius: 2px;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 200ms ease-out, background-color 200ms ease-out,
+    border-color 200ms ease-out;
+}
+
+#themeVariables .labelWrapper button:hover {
+  background-color: #ff345d;
+  border-color: #d1284a;
+  color: white;
+}
+
+#themeVariables input {
+  background-color: white;
+  border-radius: 2px;
+  border: 1px solid var(--color-neutral-400);
+  font-size: 16px;
+  margin-bottom: 1rem;
+  padding: 0.25rem;
+  height: 1.75em;
+  flex-grow: 1;
+}
+
+.pickr + input {
+  margin-left: 0.25rem;
+}
+
+#themeVariables .pickr button {
+  font-size: 16px;
+  height: 1.75em;
+  width: 1.75em;
+}
+
+#themeVariables .pickr .pcr-button::before {
+  border-radius: 2px;
+}
+
+#themeVariables .pickr .pcr-button::after {
+  border: 1px solid var(--color-neutral-500);
+}
+
+#themeVariables form {
+  margin-bottom: 2rem;
+}
+
+#contribute:link {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  margin: 0;
+  width: calc(300px - 2rem);
+}
+
+.pcr-app .pcr-interaction .pcr-result {
+  flex-basis: 100%;
+}
+
+.pcr-type,
+.pcr-save,
+.pcr-cancel {
+  flex-basis: calc(50% - 0.5em);
 }

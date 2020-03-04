@@ -4,3 +4,6 @@ declare module 'mathjax-node' {
     callback: (result: { css?: string; errors?: string[] }) => unknown
   ): unknown
 }
+
+// https://www.npmjs.com/package/formdata-polyfill
+declare module 'formdata-polyfill' {}
