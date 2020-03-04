@@ -1,0 +1,11 @@
+@import '../stencila/styles.css';
+
+:--root > :--List {
+  list-style: none;
+  & > :--ListItem {
+    border: 1px solid #777;
+    border-radius: 3px;
+    padding: 1rem;
+    margin: 1rem;
+  }
+}

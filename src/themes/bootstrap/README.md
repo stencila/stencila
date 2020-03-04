@@ -1,3 +1,12 @@
+---
+authors:
+  - type: Person
+    name: Nokome Bentley
+keywords:
+  - articles
+  - simple
+---
+
 # Bootstrap
 
 A theme that pulls itself up using Twitter's [Bootstrap](https://getbootstrap.com/) toolkit.
