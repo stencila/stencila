@@ -9,18 +9,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
 const { DefinePlugin, HotModuleReplacementPlugin } = require('webpack')
 
-// TODO: Explore converting Webpack configuration to TypeScipt, to allow importing of theme names
-const themes = [
-  'bootstrap',
-  'elife',
-  'nature',
-  'plos',
-  'rpng',
-  'skeleton',
-  'stencila',
-  'wilmore'
-]
-
 const contentSource = 'src'
 
 // Convert absolute filepaths to project relative ones to use as
