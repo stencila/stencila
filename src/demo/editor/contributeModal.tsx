@@ -10,6 +10,7 @@ interface Props {
   baseTheme: ThemeObject
   baseThemeName: string
   themeOverrides: ThemeObject
+  onClose: () => void
 }
 
 interface State {
@@ -60,8 +61,8 @@ export class ContributeForm extends React.Component<Props, State> {
     return this.el === null
       ? null
       : ReactDOM.createPortal(
-          <div id="contributeModal">
-            <div className="modalContents">
+          <div id="contributeModal" onClick={this.props.onClose}>
+            <div className="modalContents" onClick={e => e.stopPropagation()}>
               <p>
                 Name your theme, and submit as a GitHub pull request to share
                 your theme with others.

@@ -3,10 +3,10 @@ import { getCssVariables } from '../../parseCss'
 import { upsertThemeOverrides } from '../../utils/theme'
 import { parseQueries, removeQuery, upsertQuery } from '../../utils/url'
 import { VariableInput } from './input'
-import { submitPR } from '../../utils'
 
 interface Props {
   theme: string
+  onContribute: () => void
 }
 
 type ThemeSettings = Record<string, ReturnType<typeof getCssVariables>>
@@ -100,7 +100,7 @@ export const VariableKnobs = ({ theme }: Props): JSX.Element => {
               title="Submit your changes as a new theme to Thema"
               onClick={e => {
                 e.preventDefault()
-                submitPR('', '', userVars[theme], theme, themeVars[theme])
+                onContribute()
               }}
             >
               Contribute changes

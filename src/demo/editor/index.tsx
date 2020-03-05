@@ -9,9 +9,22 @@ import { ThemeObject } from '../utils'
 export const ThemeEditor = (): JSX.Element => {
   const [activeTheme, setTheme] = useState<string>(getTheme())
   const [contributeModalIsOpen, toggleContributeModal] = useState<boolean>(true)
+  const [contributeModalIsOpen, setContributeModal] = useState<boolean>(false)
   const [themeOverrides, setThemeOverrides] = useState<
     Record<string, ThemeObject>
   >({})
+
+  const openContributeModal = React.useCallback(
+    () => setContributeModal(true),
+    []
+  )
+
+  const closeContributeModal = React.useCallback(
+    () => setContributeModal(false),
+    []
+  )
+
+  console.log('rendering editor')
 
   return (
     <>
@@ -30,13 +43,14 @@ export const ThemeEditor = (): JSX.Element => {
 
       <h3>Customize</h3>
 
-      <VariableKnobs theme={activeTheme} />
+      <VariableKnobs theme={activeTheme} onContribute={openContributeModal} />
 
       {contributeModalIsOpen && (
         <ContributeForm
           themeOverrides={themeOverrides[activeTheme] ?? {}}
           baseTheme={themeOverrides[activeTheme] ?? {}}
           baseThemeName={activeTheme}
+          onClose={closeContributeModal}
         />
       )}
     </>
