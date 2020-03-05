@@ -3,6 +3,7 @@ import { getCssVariables } from '../../parseCss'
 import { upsertThemeOverrides } from '../../utils/theme'
 import { parseQueries, removeQuery, upsertQuery } from '../../utils/url'
 import { VariableInput } from './input'
+import { ThemeObject } from '../../utils'
 
 interface Props {
   theme: string
@@ -18,7 +19,29 @@ const getThemeCSS = (theme: string): string => {
   return req.responseText
 }
 
-export const VariableKnobs = ({ theme }: Props): JSX.Element => {
+// Build up a form label/input pairs for each variable
+const formEls = (
+  theme: ThemeObject,
+  onChange: (variable: string, value: string, commit?: boolean) => void,
+  userTheme: ThemeObject
+): JSX.Element[] =>
+  Object.entries(theme)
+    .sort()
+    .reduce(
+      (els: JSX.Element[], [name, value]) => [
+        ...els,
+        <VariableInput
+          key={name}
+          name={name}
+          onChange={onChange}
+          value={value}
+          valueOverride={userTheme[name]}
+        />
+      ],
+      []
+    )
+
+export const VariableKnobs = ({ theme, onContribute }: Props): JSX.Element => {
   const [themeVars, updateThemeVars] = React.useState<ThemeSettings>({})
 
   const [userVars, updateUserVars] = React.useState<ThemeSettings>({})
@@ -64,29 +87,19 @@ export const VariableKnobs = ({ theme }: Props): JSX.Element => {
     upsertThemeOverrides(themeVars[theme], customizations)
   }
 
-  const onChange = React.useCallback(updateVar, [themeVars, userVars])
-
-  // Build up a form label/input pairs for each variable
-  const formEls = Object.entries(themeVars[theme] ?? {})
-    .sort()
-    .reduce(
-      (els: JSX.Element[], [name, value]) => [
-        ...els,
-        <VariableInput
-          key={name}
-          name={name}
-          onChange={onChange}
-          value={value}
-          valueOverride={userVars[theme][name]}
-        />
-      ],
-      []
-    )
+  const buildForm = React.useCallback(
+    () => formEls(themeVars[theme] ?? {}, updateVar, userVars[theme] ?? {}),
+    [themeVars, userVars]
+  )
 
   return (
     <div id="themeVariables">
       <form name="themeBuilder">
-        {formEls.length === 0 ? <label>No variables exposed</label> : formEls}
+        {buildForm().length === 0 ? (
+          <label>No variables exposed</label>
+        ) : (
+          buildForm()
+        )}
       </form>
 
       {userVars[theme] !== undefined &&

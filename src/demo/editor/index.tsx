@@ -6,9 +6,10 @@ import { VariableKnobs } from './variables/form'
 import { ContributeForm } from './contributeModal'
 import { ThemeObject } from '../utils'
 
+const theme = getTheme()
+
 export const ThemeEditor = (): JSX.Element => {
-  const [activeTheme, setTheme] = useState<string>(getTheme())
-  const [contributeModalIsOpen, toggleContributeModal] = useState<boolean>(true)
+  const [activeTheme, setTheme] = useState<string>(theme)
   const [contributeModalIsOpen, setContributeModal] = useState<boolean>(false)
   const [themeOverrides, setThemeOverrides] = useState<
     Record<string, ThemeObject>
@@ -33,10 +34,7 @@ export const ThemeEditor = (): JSX.Element => {
       <h2 id="themeName">
         <span>Theme</span>
 
-        <ThemeSwitcher
-          activeTheme={activeTheme}
-          onChangeTheme={theme => setTheme(theme)}
-        />
+        <ThemeSwitcher activeTheme={activeTheme} onChangeTheme={setTheme} />
       </h2>
 
       <hr />

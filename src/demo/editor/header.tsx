@@ -14,6 +14,12 @@ interface Props {
 const HeaderComponent = ({ exampleContent }: Props): JSX.Element => {
   const [example, updateExample] = React.useState<string>(getExample())
 
+  const onChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+    e.preventDefault()
+    updateExample(e.currentTarget.value)
+    setExample(e.currentTarget.value)
+  }
+
   return (
     <>
       <HeaderBase />
@@ -26,11 +32,7 @@ const HeaderComponent = ({ exampleContent }: Props): JSX.Element => {
           <select
             id="example-select"
             defaultValue={example}
-            onChange={e => {
-              e.preventDefault()
-              updateExample(e.currentTarget.value)
-              setExample(e.currentTarget.value)
-            }}
+            onChange={onChange}
           >
             {exampleContent.map(ex => (
               <option key={ex}>{ex}</option>
@@ -45,6 +47,8 @@ const HeaderComponent = ({ exampleContent }: Props): JSX.Element => {
     </>
   )
 }
+
+const exampleContent = Object.keys(examples)
 
 export class Header extends React.Component {
   private el: HTMLElement | null
@@ -62,7 +66,7 @@ export class Header extends React.Component {
     return this.el === null
       ? null
       : ReactDOM.createPortal(
-          <HeaderComponent exampleContent={Object.keys(examples)} />,
+          <HeaderComponent exampleContent={exampleContent} />,
           this.el
         )
   }
