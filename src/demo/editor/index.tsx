@@ -25,8 +25,6 @@ export const ThemeEditor = (): JSX.Element => {
     []
   )
 
-  console.log('rendering editor')
-
   return (
     <>
       <Header />
