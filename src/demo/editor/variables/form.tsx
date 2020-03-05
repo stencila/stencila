@@ -91,19 +91,22 @@ export const VariableKnobs = ({ theme }: Props): JSX.Element => {
 
       {userVars[theme] !== undefined &&
         Object.keys(userVars[theme]).length > 0 && (
-          <a
-            className="button"
-            href="#"
-            id="contribute"
-            target="_blank"
-            title="Submit your changes as a new theme to Thema"
-            onClick={e => {
-              e.preventDefault()
-              submitPR('', '', userVars[theme], theme, themeVars[theme])
-            }}
-          >
-            Contribute changes
-          </a>
+          <>
+            <a
+              className="button"
+              href="#"
+              id="contribute"
+              target="_blank"
+              title="Submit your changes as a new theme to Thema"
+              onClick={e => {
+                e.preventDefault()
+                submitPR('', '', userVars[theme], theme, themeVars[theme])
+              }}
+            >
+              Contribute changes
+            </a>
+            <div id="contributeCover"></div>
+          </>
         )}
     </div>
   )

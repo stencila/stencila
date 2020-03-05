@@ -73,15 +73,15 @@ export const submitPR = (
 ): void => {
   // Provide default values where user did not provide any
   name = name.length > 0 ? name : 'randomname'
-  desc = desc.length > 0 ? desc : 'Please provide a description of your theme'
+  // desc = desc.length > 0 ? desc : 'Please provide a description of your theme'
 
   const diffs = diff(baseTheme, theme)
   const customisations =
     Object.keys(diffs).length === 0
-      ? '  /* No changes were made to variables in the base theme but you can set them here if you like :) */\n'
+      ? '/* No changes were made to variables in the base theme but you can set them here if you like :) */\n'
       : objToVars(diffs)
 
-  const css = `/*\n${desc}\n*/\n\n@import "../${baseName}/styles.css";\n\n:--root {\n${customisations}}\n`
+  const css = `@import "../${baseName}/styles.css";\n\n${customisations}\n`
   const value = encodeURIComponent(css)
   const url = `https://github.com/stencila/thema/new/master?filename=src/themes/${name}/styles.css&value=${value}`
   const win = window.open(url, '_blank')

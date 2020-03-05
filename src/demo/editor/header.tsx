@@ -7,11 +7,11 @@ import { HeaderBase } from './headerBase'
 
 interface Props {
   /* onExampleChange: (e: React.ChangeEvent<HTMLSelectElement>) => string */
-  examples: string[]
+  exampleContent: string[]
   /* themes: string[] */
 }
 
-const HeaderComponent = ({ examples }: Props): JSX.Element => {
+const HeaderComponent = ({ exampleContent }: Props): JSX.Element => {
   const [example, updateExample] = React.useState<string>(getExample())
 
   return (
@@ -32,8 +32,8 @@ const HeaderComponent = ({ examples }: Props): JSX.Element => {
               setExample(e.currentTarget.value)
             }}
           >
-            {examples.map(example => (
-              <option key={example}>{example}</option>
+            {exampleContent.map(ex => (
+              <option key={ex}>{ex}</option>
             ))}
           </select>
         </label>
@@ -62,7 +62,7 @@ export class Header extends React.Component {
     return this.el === null
       ? null
       : ReactDOM.createPortal(
-          <HeaderComponent examples={Object.keys(examples)} />,
+          <HeaderComponent exampleContent={Object.keys(examples)} />,
           this.el
         )
   }
