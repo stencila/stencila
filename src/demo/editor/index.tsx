@@ -12,7 +12,7 @@ export const ThemeEditor = (): JSX.Element => {
       <Header />
 
       <h2 id="themeName">
-        <span>Current Theme</span>
+        <span>Theme</span>
 
         <ThemeSwitcher
           activeTheme={activeTheme}
@@ -21,13 +21,6 @@ export const ThemeEditor = (): JSX.Element => {
       </h2>
 
       <hr />
-
-      <p>
-        Themes are designed to be customizable, if you’d like to make extensive
-        changes you can extend a theme, or make one from scratch.{' '}
-        <a href="https://github.com/stencila/thema/">Read the documentation</a>{' '}
-        to learn how.
-      </p>
 
       <h3>Customize</h3>
 

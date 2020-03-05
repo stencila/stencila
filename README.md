@@ -118,16 +118,16 @@ Extensions provide styling, and potentially interactivity, for node types that d
 <!-- prettier-ignore-start -->
 <!-- EXTS-START -->
 
-| Name                          | Description                  |
-| ----------------------------- | ---------------------------- |
-| [cite](./themes/cite)         | Citation extension           |
-| [cite-apa](./themes/cite-apa) | APA citation style extension |
-| [cite-mla](./themes/cite-mla) | MLA citation style extension |
-| [code](./themes/code)         | Code nodes extension         |
-| [headings](./themes/headings) | Headings extension           |
-| [math](./themes/math)         | Math styling extension.      |
-| [pages](./themes/pages)       | Pages extension              |
-| [person](./themes/person)     | Person extension             |
+| Name                          | Description                                                                                                                                                                                                                                 |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [cite](./themes/cite)         | Provides styling for in-text citations (i.e. `Cite` and `CiteGroup` nodes) and bibliographies (i.e. `CreativeWork` nodes in the `references` property of another `CreativeWork`).                                                           |
+| [cite-apa](./themes/cite-apa) | Provides styling for in-text citations and bibliographies in accordance with the [American Psychological Association (APA) style](https://en.wikipedia.org/wiki/APA_style).                                                                 |
+| [cite-mla](./themes/cite-mla) | Provides styling for in-text citations and bibliographies in accordance with the [Modern Language Association (MLA) style](https://style.mla.org/).                                                                                         |
+| [code](./themes/code)         | Provides syntax highlighting for `CodeFragment` and `CodeBlock` nodes using [Prism](https://prismjs.com/). Will not style executable node types like `CodeExpression` and `CodeChunk` which are styled by the base Stencila Web Components. |
+| [headings](./themes/headings) | A temporary extensions that changes the way that `Heading` nodes are represented. Ensures that there is only one `<h1>` tag (for the `title` property) and that `Heading` nodes are represented as `<h${depth+1}>`.                         |
+| [math](./themes/math)         | Provides styling of math nodes using MathJax fonts and styles. Use this if there is any likely to be math content, i.e. `MathFragment` and/or `MathBlock` nodes, in documents that your theme targets.                                      |
+| [pages](./themes/pages)       | Provides a [`@media print` CSS at-rule](https://developer.mozilla.org/en-US/docs/Web/CSS/@page) to modify properties when printing a document e.g. to PDF.                                                                                  |
+| [person](./themes/person)     | Provides styling of `Person` nodes e.g the `authors` of an article, or authors for each `citation` in it's `references`.                                                                                                                    |
 
 <!-- EXTS-END -->
 <!-- prettier-ignore-end -->

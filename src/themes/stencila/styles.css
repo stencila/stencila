@@ -57,6 +57,10 @@
 
 :--Heading {
   font-weight: 600;
+
+  & + :--Paragraph {
+    margin-top: 0;
+  }
 }
 
 h2:--Heading:not(:--Heading + h2:--Heading):not(figcaption h2) {

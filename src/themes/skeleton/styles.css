@@ -261,7 +261,7 @@ h2:--Heading {
   max-width: var(--max-width);
 
   & + & {
-    margin-top: 1em;
+    margin-top: 0;
   }
 }
 

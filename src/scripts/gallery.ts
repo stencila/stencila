@@ -1,29 +1,31 @@
 /**
- * A script to generate `../docs/gallery.html`
  *
  * Run using `npm run docs:gallery`. Noting that this
  * uses built themes in `docs/themes` so `npm run docs:app`
  * needs to be done first.
  */
 
-import { read, write, dump, shutdown } from '@stencila/encoda'
+import { dump, read, shutdown, write } from '@stencila/encoda'
 import {
   Article,
   article,
   CreativeWork,
   creativeWork,
+  heading,
   imageObject,
   link,
   list,
   listItem,
-  organization
+  organization,
+  paragraph
 } from '@stencila/schema'
 import { tmpdir } from 'os'
 import path from 'path'
-import { themes } from '../themes'
+import { themes } from '../themes/index'
 
 const themesDir = path.join(__dirname, '..', 'themes')
 const examplesDir = path.join(__dirname, '..', 'examples')
+const srcDir = path.join(__dirname, '..')
 const docsDir = path.join(__dirname, '..', '..', 'docs')
 
 const stencila = organization({
@@ -52,7 +54,11 @@ async function generateGallery(): Promise<void> {
       Object.keys(themes).map(
         async (theme): Promise<[string, CreativeWork]> => [
           theme,
-          await generateSummary(theme, `?theme=${theme}`, example as Article)
+          await generateSummary(
+            theme,
+            `/editor?theme=${theme}`,
+            example as Article
+          )
         ]
       )
     )
@@ -64,7 +70,7 @@ async function generateGallery(): Promise<void> {
     {}
   )
 
-  await write(summaries, path.join(docsDir, 'themes.json'))
+  await write(summaries, path.join(srcDir, 'themes.json'))
 
   const gallery = article({
     title: 'Thema Gallery',
@@ -72,6 +78,21 @@ async function generateGallery(): Promise<void> {
     publisher: stencila,
     datePublished: new Date().toISOString(),
     content: [
+      paragraph({
+        content: [
+          'Thema provides semantic themes for use with ',
+          link({
+            target: 'https://github.com/stencila/encoda/',
+            content: ['Stencila’s Encoda']
+          }),
+          '. Themes are designed to be customizable, or you can ',
+          link({
+            target: 'https://github.com/stencila/thema/',
+            content: ['make one from scratch']
+          }),
+          '.'
+        ]
+      }),
       list({
         items: Object.entries(summaries).map(([theme, summary]) => {
           return listItem({
@@ -85,9 +106,10 @@ async function generateGallery(): Promise<void> {
     ]
   })
 
-  await write(gallery, path.join(docsDir, 'gallery.html'), {
-    isStandalone: true,
-    theme: path.join(docsDir, 'themes', 'galleria')
+  await write(gallery, path.join(srcDir, 'gallery.ejs'), {
+    isStandalone: false,
+    format: 'html',
+    theme: path.join(srcDir, 'themes', 'galleria')
   })
 
   await shutdown()
@@ -113,6 +135,7 @@ async function generateSummary(
 
   // Generate a screenshot using the local build of the theme
   const screenshot = path.join(tmpdir(), 'screenshots', `${theme}.png`)
+
   await write(example, screenshot, {
     theme: path.join(docsDir, 'themes', theme),
     size: { height: 500, width: 800 }
@@ -124,13 +147,22 @@ async function generateSummary(
     publisher,
     // New content includes the screenshot
     content: [
-      ...content,
       link({
         target: url,
         content: [imageObject({ contentUrl: screenshot })]
+      }),
+      heading({ depth: 3, content: [theme] }),
+      ...content,
+      paragraph({
+        content: [
+          link({
+            target: url,
+            content: ['View demo & customize']
+          })
+        ]
       })
     ],
-    // If their is not a description in the YAML meta data of the
+    // If there is not a description in the YAML meta data of the
     // README, then make it the plain text version of the original content
     description:
       description !== undefined ? description : await dump(content, 'txt'),

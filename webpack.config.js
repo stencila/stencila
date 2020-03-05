@@ -21,15 +21,6 @@ const themes = [
   'wilmore'
 ]
 
-// Generate configurations for ScriptExtHtmlWebpackPlugin to add theme ID and class attributes
-// to Stylesheet imports for documentation site. This is needed for the Theme switcher to function.
-const themePaths = themes.map(theme => `themes/${theme}/styles`)
-const themeIds = themes.map(theme => ({
-  test: `themes/${theme}/styles`,
-  attribute: 'id',
-  value: theme
-}))
-
 const contentSource = 'src'
 
 // Convert absolute filepaths to project relative ones to use as
@@ -55,7 +46,7 @@ module.exports = (env = {}, { mode }) => {
   const entries = [
     './src/**/*.{css,ts,tsx,html,ttf,woff,woff2}',
     // template.html is used as a basis for HtmlWebpackPlugin, and should not be used as an entry point
-    '!./src/template.html',
+    '!./src/{gallery,template}.html',
     // Don’t compile test files for package distribution
     '!**/*.{d,test}.ts',
     // These files make use of Node APIs, and do not need to be packaged for Browser targets
@@ -65,7 +56,7 @@ module.exports = (env = {}, { mode }) => {
     '!**/extensions/extensions.ts',
     // Don’t build HTML demo files for package distribution
     ...(isDocs || isDevelopment
-      ? []
+      ? ['./src/**/*.{jpg,png,gif}']
       : ['!**/*.html', '!**/demo/*', '!**/examples/*'])
   ]
 
@@ -84,21 +75,17 @@ module.exports = (env = {}, { mode }) => {
     isDocs || isDevelopment
       ? [
           new HtmlWebpackPlugin({
+            filename: 'editor.html',
             template: './src/template.html',
-            chunks: ['demo/styles', 'demo/app.tsx']
+            chunks: ['demo/styles', 'themes/stencila/styles', 'demo/app.tsx']
           }),
-          new ScriptExtHtmlWebpackPlugin({
-            custom: [
-              {
-                test: 'themes/',
-                attribute: 'disabled'
-              },
-              {
-                test: 'themes/',
-                attribute: 'class',
-                value: 'theme'
-              },
-              ...themeIds
+          new HtmlWebpackPlugin({
+            filename: 'index.html',
+            template: './src/galleryTemplate.ejs',
+            chunks: [
+              'demo/styles',
+              'demo/gallery.tsx',
+              'themes/galleria/styles'
             ]
           })
         ]
@@ -115,7 +102,28 @@ module.exports = (env = {}, { mode }) => {
       filename: '[name].js'
     },
     devServer: {
-      contentBase: `./${contentBase}`
+      contentBase: path.join(__dirname, contentBase),
+      overlay: true,
+      staticOptions: {
+        extensions: ['.html', '.htm']
+      },
+      // Resolve URLS without explicit file extensions
+      // the above `devServer.staticOptions.extensions` seems to have no effect
+      before: function(app, server, compiler) {
+        app.use(function(req, res, next) {
+          if (req.path !== '/' && req.path.indexOf('.') === -1) {
+            let url = req.url.split('?')
+            let [reqPath, ...rest] = url
+
+            if (url.length > 1) {
+              req.url = [reqPath, '.html', '?', ...rest].join('')
+            } else {
+              req.url = `${reqPath}.html`
+            }
+            next()
+          } else next()
+        })
+      }
     },
     plugins: [
       new CleanWebpackPlugin(),
@@ -152,6 +160,7 @@ module.exports = (env = {}, { mode }) => {
             }
           }
         },
+        { test: /\.ejs$/, loader: 'ejs-loader' },
         {
           test: /\.html$/i,
           // Don't transform HtmlWebpackPlugin generated file

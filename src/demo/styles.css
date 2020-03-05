@@ -13,11 +13,14 @@ html {
 }
 
 body {
-  display: flex;
-  flex-wrap: wrap;
   height: 100%;
   margin: 0;
   padding: 3rem 0 0;
+
+  &.editor {
+    display: flex;
+    flex-wrap: wrap;
+  }
 }
 
 body > * {
@@ -65,6 +68,11 @@ header {
     color: var(--color-neutral-700);
   }
 
+  a:link,
+  a:visited {
+    text-decoration: none;
+  }
+
   img {
     height: 2rem;
   }
@@ -97,6 +105,81 @@ header {
 
 main {
   background-color: var(--color-neutral-100);
+}
+
+:--root > :--List > :--ListItem {
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.035), 0 0 40px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  transition: box-shadow 200ms ease-out;
+  padding-bottom: var(--spacer-sm);
+
+  &:hover {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.045), 0 0 40px rgba(0, 0, 0, 0.17);
+  }
+}
+
+/* Gallery page */
+
+:--root > :--List > :--ListItem > :--CreativeWork {
+  :--title {
+    display: none;
+  }
+
+  :--Heading {
+    font-size: var(--font-size-h1);
+    color: var(--color-key);
+    order: -1;
+    margin-top: var(--spacer-md);
+    margin-bottom: var(--spacer-md);
+    text-transform: capitalize;
+  }
+
+  & > a[href^='/editor?'] {
+    order: -1;
+    display: block;
+    border-bottom: 1px solid var(--color-neutral-400);
+    margin-bottom: var(--spacer-md);
+  }
+
+  & > :--Organization {
+    display: none;
+  }
+
+  & > :--Paragraph:last-of-type > a {
+    background-color: var(--color-neutral-300);
+    border-radius: 4px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.035), 0 0 40px rgba(0, 0, 0, 0.07);
+    border: 1px solid var(--color-neutral-400);
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 0.25rem 0.5rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 200ms ease-out, background-color 200ms ease-out,
+      border-color 200ms ease-out;
+
+    &:hover {
+      background-color: var(--color-neutral-400);
+    }
+
+    &::after {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24' stroke='#363636' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round' class='css-i6dzq1'%3E%3Cpolyline points='9 18 15 12 9 6'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: contain;
+      color: red;
+      content: '';
+      display: inline-block;
+      height: 16px;
+      transition: transform 125ms ease-out;
+      vertical-align: middle;
+      width: 14px;
+    }
+
+    &:hover::after {
+      transform: translateX(0.25rem);
+    }
+  }
 }
 
 iframe {
@@ -145,10 +228,11 @@ menu p {
 #contribute:link,
 #sidebar > a.button,
 #sidebar > button {
-  background-color: #1d64f3;
+  background-color: var(--color-neutral-400);
   border-radius: 2px;
-  border: none;
-  color: white;
+  border: 1px solid var(--color-neutral-500);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.035), 0 0 40px rgba(0, 0, 0, 0.07);
+  color: var(--color-key);
   font-weight: bold;
   letter-spacing: 1px;
   margin: 1rem 0;
@@ -161,6 +245,7 @@ menu p {
 #contribute:hover,
 #sidebar > a.button:hover,
 #sidebar > button:hover {
+  color: white;
   background-color: #164ebf;
 }
 
@@ -182,8 +267,8 @@ menu p {
   width: 100%;
 }
 
-h2,
-h3 {
+#sidebar h2,
+#sidebar h3 {
   font-size: 12px;
   font-weight: bold;
   color: var(--color-neutral-700);
@@ -192,7 +277,7 @@ h3 {
   position: relative;
 }
 
-h3::after {
+#sidebar h3::after {
   content: '';
   position: absolute;
   -webkit-transform: translateY(-50%);
@@ -202,7 +287,7 @@ h3::after {
 }
 
 hr,
-h3::after {
+#sidebar h3::after {
   background-color: var(--color-neutral-500);
   border: none;
   height: 1px;
@@ -240,15 +325,10 @@ h3::after {
 }
 
 #themeVariables label.modified {
-  color: #066860;
   cursor: help;
   font-style: italic;
   font-weight: bold;
   padding: 1px 0;
-}
-
-#themeVariables label.modified::after {
-  content: '*';
 }
 
 #themeVariables .labelWrapper button {
