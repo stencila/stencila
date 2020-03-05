@@ -19,7 +19,7 @@ export const upsertQuery = (query: string, value: string): string => {
 
   if (queries.includes(query)) {
     url.search = queries.replace(regex(query), `$1=${value}`)
-    history.pushState(null, 'none', url.toString())
+    history.replaceState(null, 'none', url.toString())
     return url.toString()
   }
 
@@ -29,11 +29,11 @@ export const upsertQuery = (query: string, value: string): string => {
 
   url.search = queries + q
 
-  history.pushState(null, 'none', url.toString())
+  history.replaceState(null, 'none', url.toString())
   return url.toString()
 }
 
 export const removeQuery = (query: string): void => {
   const url = window.location.href.replace(regex(query), '')
-  history.pushState(null, 'none', url)
+  history.replaceState(null, 'none', url)
 }

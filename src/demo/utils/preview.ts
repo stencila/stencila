@@ -13,7 +13,7 @@ export const getExample = (): string => {
 export const setExample = (example: string): void => {
   const url = new URL(window.location.href)
   url.searchParams.set(keys.EXAMPLE, example)
-  history.pushState(null, 'none', url.toString())
+  history.replaceState(null, 'none', url.toString())
   sessionStorage.setItem(keys.EXAMPLE, example)
 
   const preview = getPreview()

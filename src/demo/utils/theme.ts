@@ -20,7 +20,7 @@ export const themeSet = (theme: string): void => {
   url.search = ''
   url.searchParams.set(keys.EXAMPLE, example ?? '')
   url.searchParams.set(keys.THEME, theme)
-  history.pushState(null, 'none', url.toString())
+  history.replaceState(null, 'none', url.toString())
   sessionStorage.setItem(keys.THEME, theme)
 
   const themeStyles = create('link')
