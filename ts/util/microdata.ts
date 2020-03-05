@@ -174,6 +174,6 @@ export function microdataItemprop(
  * Although not directly related to Microdata, given it is used in both
  * of those projects, this appears to be the best place for it.
  */
-export function microdataRoot(): {'data-itemscope': 'root'} {
-  return {'data-itemscope': 'root'}
+export function microdataRoot(): { 'data-itemscope': 'root' } {
+  return { 'data-itemscope': 'root' }
 }

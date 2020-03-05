@@ -133,5 +133,5 @@ test('microdataItemprop', () => {
 })
 
 test('microdataRoot', () => {
-  expect(microdataRoot()).toEqual({'data-itemscope': 'root'})
+  expect(microdataRoot()).toEqual({ 'data-itemscope': 'root' })
 })
