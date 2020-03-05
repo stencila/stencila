@@ -17,14 +17,14 @@
 
   /* Font Sizes */
   --font-size-body: 16px;
-  --font-size-title: calc(var(--font-size-body) * 1.953 * 1px);
-  --font-size-blockquote: calc(var(--font-size-body) * 5 * 1px);
-  --font-size-h1: calc(var(--font-size-body) * 1.5 * 1px);
-  --font-size-h2: calc(var(--font-size-body) * 1.25 * 1px);
-  --font-size-h3: calc(var(--font-size-body) * 1.25 * 1px);
-  --font-size-h4: calc(var(--font-size-body) * 1 * 1px);
-  --font-size-h5: calc(var(--font-size-body) * 0.8 * 1px);
-  --font-size-h6: calc(var(--font-size-body) * 0.725 * 1px);
+  --font-size-title: calc(16 * 1.953 * 1px);
+  --font-size-blockquote: calc(16 * 5 * 1px);
+  --font-size-h1: calc(16 * 1.5 * 1px);
+  --font-size-h2: calc(16 * 1.25 * 1px);
+  --font-size-h3: calc(16 * 1.25 * 1px);
+  --font-size-h4: calc(16 * 1 * 1px);
+  --font-size-h5: calc(16 * 0.8 * 1px);
+  --font-size-h6: calc(16 * 0.725 * 1px);
   --line-height: 1.45;
 
   /* Theme Colors */
