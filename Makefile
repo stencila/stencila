@@ -37,6 +37,7 @@ clean:
 
 PYBINDINGS := 'py/stencila/schema/types.py'
 RBINDINGS := 'r/R/types.R'
+RNAMESPACE := 'r/NAMESPACE'
 
 # Build schema bindings for Python and R. If the bindings have changed, this script
 # will commit the updated bindings. This script is run automatically as a git pre-push hook.
@@ -56,4 +57,4 @@ checkBindings:
 
 ## Commits just the updated schema bindings
 commitBindings:
-	git commit --only $(PYBINDINGS) $(RBINDINGS) -m "chore(Type Bindings): Generate updated bindings"
+	git commit --only $(PYBINDINGS) $(RBINDINGS) $(RNAMESPACE) -m "chore(Language bindings): Update type bindings"
