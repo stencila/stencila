@@ -18,31 +18,36 @@ export enum keys {
  * Create an object consisting only of changed values
  *
  * @function diff
- * @param {ThemeObject} original - Source object to compare against
- * @param {ThemeObject} updated - New object with partially updated values
- * @return {ThemeObject} Object containing keys with changed values
+ * @param {Object} original - Source object to compare against
+ * @param {Object} updated - New object with partially updated values
+ * @return {Object} Object containing keys with changed values
  */
-export const diff = (
-  original: ThemeObject,
-  updated: ThemeObject
-): ThemeObject => {
-  return Object.entries(updated).reduce((_diff: ThemeObject, [name, value]) => {
+export const diff = <O extends Record<string, unknown>>(
+  original: O,
+  updated: O
+): O => {
+  return Object.entries(updated).reduce((_diff: O, [name, value]) => {
     return value === original[name]
       ? _diff
       : { ..._diff, [name]: value === '' ? original[name] : value }
-  }, {})
+  }, {} as O)
 }
 
 /**
  * Convert a JS object to a stringified CSS rule, using object keys as variable names.
+ *
+ * @function objToVars
+ * @param {Object} obj - JS Object, where the keys are variable names (without leading `--` dashes)
+ * @param {boolean} [compile] - If true, translates Stencila's Custom `:--root` Selector into `[data-itemscope='root']`
+ * @return {string} Stringified CSS styleesheet containing variable declarations
  */
-export const objToVars = (obj: ThemeObject): string => {
+export const objToVars = (obj: ThemeObject, compile = false): string => {
   const vars = Object.entries(obj).reduce(
-    (vs: string, [name, value]) => vs + `--${name}: ${value};\n`,
+    (vs: string, [name, value]) => vs + `  --${name}: ${value};\n`,
     ''
   )
 
-  return `${translate(':--root')} {
+  return `${compile ? ':--root' : translate(':--root')} {
 ${vars}}`
 }
 
@@ -79,7 +84,7 @@ export const submitPR = (
   const customisations =
     Object.keys(diffs).length === 0
       ? '/* No changes were made to variables in the base theme but you can set them here if you like :) */\n'
-      : objToVars(diffs)
+      : objToVars(diffs, false)
 
   const css = `@import "../${baseName}/styles.css";\n\n${customisations}\n`
   const value = encodeURIComponent(css)
