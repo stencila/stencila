@@ -34,8 +34,7 @@ test('microdata', () => {
 
   // A schema.org type as a Stencila custom property
   expect(microdata(2, 'depth')).toEqual({
-    itemscope: '',
-    itemtype: 'http://schema.org/Number',
+    'data-itemtype': 'http://schema.org/Number',
     'data-itemprop': 'depth'
   })
 

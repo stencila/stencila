@@ -6,6 +6,7 @@ import {
   jsonLdUrl
 } from './jsonld'
 import { nodeType } from './nodeType'
+import { isPrimitive } from './guards'
 
 /**
  * Get the URL used in Microdata attributes.
@@ -52,23 +53,36 @@ export function microdata(
 export interface MicrodataItem {
   itemscope?: ''
   itemtype?: string
+  'data-itemtype'?: string
   itemid?: string
 }
 
 /**
  * Create `MicrodataItem` attributes for a node.
  *
+ * Does not create the `itemscope` and `itemtype` attributes for nodes that
+ * are primitive (and therefore which do not represent a "scope" having
+ * `itemprop`s nested within it). Instead, for primitive nodes, other than `Text`
+ * add the `data-itemtype` attribute, do they can be styled if so desired.
+ *
  * @param node The node to create Microdata attributes for
  * @param id Id of the Microdata item. Used to link to this node using the `itemref` property.
  */
 export function microdataItem(node: Node, id?: string): MicrodataItem {
-  const itemtype = microdataItemtype(nodeType(node)) ?? 'Thing'
+  const itemtype = microdataItemtype(nodeType(node))
   const itemidAttr = id !== undefined ? { itemid: `#${id}` } : {}
-  return {
-    itemscope: '',
-    itemtype,
-    ...itemidAttr
-  }
+  if (itemtype !== undefined && !isPrimitive(node))
+    return {
+      itemscope: '',
+      itemtype,
+      ...itemidAttr
+    }
+  else if (typeof node !== 'string')
+    return {
+      'data-itemtype': itemtype,
+      ...itemidAttr
+    }
+  else return itemidAttr
 }
 
 /**
