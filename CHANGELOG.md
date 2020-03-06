@@ -1,3 +1,11 @@
+# [0.41.0](https://github.com/stencila/schema/compare/v0.40.0...v0.41.0) (2020-03-06)
+
+
+### Features
+
+* **ListItem:** Add item and position properties ([2da1545](https://github.com/stencila/schema/commit/2da15458968b5633d37e609d8ce97ecd7f0be24a)), closes [/github.com/stencila/encoda/blob/9190db9fbc77510c73359b4a53fca9b1977e23a0/src/codecs/html/index.ts#L1606](https://github.com//github.com/stencila/encoda/blob/9190db9fbc77510c73359b4a53fca9b1977e23a0/src/codecs/html/index.ts/issues/L1606)
+* **PostalAddress:** Add post address schema type ([8a0de66](https://github.com/stencila/schema/commit/8a0de6645fef7d0c60225034cca0a44f13d2f275)), closes [/github.com/stencila/encoda/issues/458#issuecomment-593746231](https://github.com//github.com/stencila/encoda/issues/458/issues/issuecomment-593746231)
+
 # [0.40.0](https://github.com/stencila/schema/compare/v0.39.0...v0.40.0) (2020-02-26)
 
 
