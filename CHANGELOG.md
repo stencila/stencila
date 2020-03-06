@@ -1,3 +1,12 @@
+## [0.41.1](https://github.com/stencila/schema/compare/v0.41.0...v0.41.1) (2020-03-06)
+
+
+### Bug Fixes
+
+* **Microdata:** Do not use itemscope for primitive nodes ([a598921](https://github.com/stencila/schema/commit/a598921368805e0bea42c6d0af7d13fdc89c9b2a))
+* **Organization, Person:** Allow PostalAddress for address property ([9a01142](https://github.com/stencila/schema/commit/9a011422b96f331eda54149c119c96aea93e2c74))
+* **PostalAddress:** Add schema: prefix; add checks for this ([0291760](https://github.com/stencila/schema/commit/029176086380fc174c572deb439739b57f5c0ada))
+
 # [0.41.0](https://github.com/stencila/schema/compare/v0.40.0...v0.41.0) (2020-03-06)
 
 
