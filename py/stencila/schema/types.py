@@ -1748,31 +1748,55 @@ class List(Entity):
             self.order = order
 
 
-class ListItem(Entity):
+class ListItem(Thing):
     """A single item in a list."""
 
-    content: Array["Node"]
+    content: Optional[Array["Node"]] = None
     """The content of the list item."""
 
     isChecked: Optional[bool] = None
     """A flag to indicate if this list item is checked."""
 
+    item: Optional["Node"] = None
+    """The item represented by this list item."""
+
+    position: Optional[float] = None
+    """The position of the item in a series or sequence of items."""
+
 
     def __init__(
         self,
-        content: Array["Node"],
+        alternateNames: Optional[Array[str]] = None,
+        content: Optional[Array["Node"]] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
         id: Optional[str] = None,
+        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Array[Union[str, "ImageObject"]]] = None,
         isChecked: Optional[bool] = None,
-        meta: Optional[Dict[str, Any]] = None
+        item: Optional["Node"] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        position: Optional[float] = None,
+        url: Optional[str] = None
     ) -> None:
         super().__init__(
+            alternateNames=alternateNames,
+            description=description,
             id=id,
-            meta=meta
+            identifiers=identifiers,
+            images=images,
+            meta=meta,
+            name=name,
+            url=url
         )
         if content is not None:
             self.content = content
         if isChecked is not None:
             self.isChecked = isChecked
+        if item is not None:
+            self.item = item
+        if position is not None:
+            self.position = position
 
 
 class Math(Entity):
@@ -2261,6 +2285,75 @@ some kind of financial contribution.
             self.memberOf = memberOf
         if telephoneNumbers is not None:
             self.telephoneNumbers = telephoneNumbers
+
+
+class PostalAddress(ContactPoint):
+    """A physical mailing address."""
+
+    addressCountry: Optional[str] = None
+    """The country."""
+
+    addressLocality: Optional[str] = None
+    """The locality in which the street address is, and which is in the region."""
+
+    addressRegion: Optional[str] = None
+    """The region in which the locality is, and which is in the country."""
+
+    postOfficeBoxNumber: Optional[str] = None
+    """The post office box number."""
+
+    postalCode: Optional[str] = None
+    """The postal code."""
+
+    streetAddress: Optional[str] = None
+    """The street address."""
+
+
+    def __init__(
+        self,
+        addressCountry: Optional[str] = None,
+        addressLocality: Optional[str] = None,
+        addressRegion: Optional[str] = None,
+        alternateNames: Optional[Array[str]] = None,
+        availableLanguages: Optional[Array[str]] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
+        emails: Optional[Array[str]] = None,
+        id: Optional[str] = None,
+        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        postOfficeBoxNumber: Optional[str] = None,
+        postalCode: Optional[str] = None,
+        streetAddress: Optional[str] = None,
+        telephoneNumbers: Optional[Array[str]] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            availableLanguages=availableLanguages,
+            description=description,
+            emails=emails,
+            id=id,
+            identifiers=identifiers,
+            images=images,
+            meta=meta,
+            name=name,
+            telephoneNumbers=telephoneNumbers,
+            url=url
+        )
+        if addressCountry is not None:
+            self.addressCountry = addressCountry
+        if addressLocality is not None:
+            self.addressLocality = addressLocality
+        if addressRegion is not None:
+            self.addressRegion = addressRegion
+        if postOfficeBoxNumber is not None:
+            self.postOfficeBoxNumber = postOfficeBoxNumber
+        if postalCode is not None:
+            self.postalCode = postalCode
+        if streetAddress is not None:
+            self.streetAddress = streetAddress
 
 
 class Product(Thing):
@@ -3408,6 +3501,12 @@ CodeTypes = Union["Code", "CodeBlock", "CodeChunk", "CodeExpression", "CodeFragm
 
 
 """
+All type schemas that are derived from ContactPoint
+"""
+ContactPointTypes = Union["ContactPoint", "PostalAddress"]
+
+
+"""
 All type schemas that are derived from CreativeWork
 """
 CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
@@ -3416,7 +3515,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection"
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -3464,7 +3563,7 @@ NumberValidatorTypes = Union["NumberValidator", "IntegerValidator"]
 """
 All type schemas that are derived from Thing
 """
-ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Figure", "Grant", "ImageObject", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
+ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
 
 
 """

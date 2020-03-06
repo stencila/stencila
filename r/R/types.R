@@ -1812,25 +1812,49 @@ List <- function(
 #' A single item in a list.
 #'
 #' @name ListItem
-#' @param content The content of the list item. \bold{Required}.
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param content The content of the list item.
+#' @param description A description of the item.
 #' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param images Images of the item.
 #' @param isChecked A flag to indicate if this list item is checked.
+#' @param item The item represented by this list item.
 #' @param meta Metadata associated with this item.
-#' @seealso \code{\link{Entity}}
+#' @param name The name of the item.
+#' @param position The position of the item in a series or sequence of items.
+#' @param url The URL of the item.
+#' @seealso \code{\link{Thing}}
 #' @export
 ListItem <- function(
+  alternateNames,
   content,
+  description,
   id,
+  identifiers,
+  images,
   isChecked,
-  meta
+  item,
+  meta,
+  name,
+  position,
+  url
 ){
-  self <- Entity(
+  self <- Thing(
+    alternateNames = alternateNames,
+    description = description,
     id = id,
-    meta = meta
+    identifiers = identifiers,
+    images = images,
+    meta = meta,
+    name = name,
+    url = url
   )
   self$type <- as_scalar("ListItem")
-  self[["content"]] <- check_property("ListItem", "content", TRUE, missing(content), Array(Node), content)
+  self[["content"]] <- check_property("ListItem", "content", FALSE, missing(content), Array(Node), content)
   self[["isChecked"]] <- check_property("ListItem", "isChecked", FALSE, missing(isChecked), "logical", isChecked)
+  self[["item"]] <- check_property("ListItem", "item", FALSE, missing(item), Node, item)
+  self[["position"]] <- check_property("ListItem", "position", FALSE, missing(position), "numeric", position)
   class(self) <- c(class(self), "ListItem")
   self
 }
@@ -2317,6 +2341,72 @@ Person <- function(
   self[["memberOf"]] <- check_property("Person", "memberOf", FALSE, missing(memberOf), Array(Organization), memberOf)
   self[["telephoneNumbers"]] <- check_property("Person", "telephoneNumbers", FALSE, missing(telephoneNumbers), Array("character"), telephoneNumbers)
   class(self) <- c(class(self), "Person")
+  self
+}
+
+
+#' A physical mailing address.
+#'
+#' @name PostalAddress
+#' @param addressCountry The country.
+#' @param addressLocality The locality in which the street address is, and which is in the region.
+#' @param addressRegion The region in which the locality is, and which is in the country.
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param availableLanguages Languages (human not programming) in which it is possible to communicate with the organization/department etc.
+#' @param description A description of the item.
+#' @param emails Email address for correspondence.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param images Images of the item.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param postOfficeBoxNumber The post office box number.
+#' @param postalCode The postal code.
+#' @param streetAddress The street address.
+#' @param telephoneNumbers Telephone numbers for the contact point.
+#' @param url The URL of the item.
+#' @seealso \code{\link{ContactPoint}}
+#' @export
+PostalAddress <- function(
+  addressCountry,
+  addressLocality,
+  addressRegion,
+  alternateNames,
+  availableLanguages,
+  description,
+  emails,
+  id,
+  identifiers,
+  images,
+  meta,
+  name,
+  postOfficeBoxNumber,
+  postalCode,
+  streetAddress,
+  telephoneNumbers,
+  url
+){
+  self <- ContactPoint(
+    alternateNames = alternateNames,
+    availableLanguages = availableLanguages,
+    description = description,
+    emails = emails,
+    id = id,
+    identifiers = identifiers,
+    images = images,
+    meta = meta,
+    name = name,
+    telephoneNumbers = telephoneNumbers,
+    url = url
+  )
+  self$type <- as_scalar("PostalAddress")
+  self[["addressCountry"]] <- check_property("PostalAddress", "addressCountry", FALSE, missing(addressCountry), "character", addressCountry)
+  self[["addressLocality"]] <- check_property("PostalAddress", "addressLocality", FALSE, missing(addressLocality), "character", addressLocality)
+  self[["addressRegion"]] <- check_property("PostalAddress", "addressRegion", FALSE, missing(addressRegion), "character", addressRegion)
+  self[["postOfficeBoxNumber"]] <- check_property("PostalAddress", "postOfficeBoxNumber", FALSE, missing(postOfficeBoxNumber), "character", postOfficeBoxNumber)
+  self[["postalCode"]] <- check_property("PostalAddress", "postalCode", FALSE, missing(postalCode), "character", postalCode)
+  self[["streetAddress"]] <- check_property("PostalAddress", "streetAddress", FALSE, missing(streetAddress), "character", streetAddress)
+  class(self) <- c(class(self), "PostalAddress")
   self
 }
 
@@ -3551,6 +3641,12 @@ CodeFragmentTypes <- Union(CodeFragment, CodeExpression)
 CodeTypes <- Union(Code, CodeBlock, CodeChunk, CodeExpression, CodeFragment)
 
 
+#' All type schemas that are derived from ContactPoint
+#'
+#' @export
+ContactPointTypes <- Union(ContactPoint, PostalAddress)
+
+
 #' All type schemas that are derived from CreativeWork
 #'
 #' @export
@@ -3560,7 +3656,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datat
 #' All type schemas that are derived from Entity
 #'
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Grant
@@ -3608,7 +3704,7 @@ NumberValidatorTypes <- Union(NumberValidator, IntegerValidator)
 #' All type schemas that are derived from Thing
 #'
 #' @export
-ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, Figure, Grant, ImageObject, MediaObject, MonetaryGrant, Organization, Periodical, Person, Product, PropertyValue, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
+ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, Figure, Grant, ImageObject, ListItem, MediaObject, MonetaryGrant, Organization, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
 
 
 #' Union type for all validator types.
