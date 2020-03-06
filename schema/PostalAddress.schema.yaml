@@ -1,0 +1,37 @@
+title: PostalAddress
+'@id': schema:PostalAddress
+extends: ContactPoint
+role: tertiary
+status: stable
+category: metadata
+description: A physical mailing address.
+properties:
+  streetAddress:
+    '@id': streetAddress
+    description: The street address.
+    $comment: For example, 10 Downing Street.
+    type: string
+  postOfficeBoxNumber:
+    '@id': postOfficeBoxNumber
+    description: The post office box number.
+    type: string
+  addressLocality:
+    '@id': addressLocality
+    description: The locality in which the street address is, and which is in the region.
+    $comment: For example, London.
+    type: string
+  addressRegion:
+    '@id': addressRegion
+    description: The region in which the locality is, and which is in the country.
+    $comment: For example, California or another appropriate first-level Administrative division
+    type: string
+  postalCode:
+    '@id': postalCode
+    description: The postal code.
+    $comment: For example, 94043.
+    type: string
+  addressCountry:
+    '@id': schema:addressCountry
+    description:  The country.
+    $comment: For example, United Kingdom. You can also provide the two-letter ISO 3166-1 alpha-2 country code.
+    type: string
