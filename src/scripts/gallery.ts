@@ -48,10 +48,21 @@ if (module.parent === null)
  */
 async function generateGallery(): Promise<void> {
   const example = await read(path.join(examplesDir, 'articleKitchenSink.json'))
+  const sortedThemes = [
+    ...new Set([
+      themes.stencila,
+      themes.elife,
+      themes.nature,
+      themes.wilmore,
+      themes.plos,
+      themes.skeleton,
+      ...Object.keys(themes)
+    ])
+  ]
 
   const summaries = (
     await Promise.all(
-      Object.keys(themes).map(
+      sortedThemes.map(
         async (theme): Promise<[string, CreativeWork]> => [
           theme,
           await generateSummary(
@@ -87,7 +98,7 @@ async function generateGallery(): Promise<void> {
           }),
           '. Themes are designed to be customizable, or you can ',
           link({
-            target: 'https://github.com/stencila/thema/',
+            target: 'https://github.com/stencila/thema/#creating-a-new-theme',
             content: ['make one from scratch']
           }),
           '.'
