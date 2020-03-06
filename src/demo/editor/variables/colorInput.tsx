@@ -91,13 +91,13 @@ export class ColorInput extends React.Component<Props, State> {
           this.props.onChange(this.props.name, colorValue(color), true)
           instance.hide()
         })
-        /* .on('hide', (instance: Pickr) => { */
-        /*   this.props.onChange( */
-        /*     this.props.name, */
-        /*     colorValue(instance.getColor()), */
-        /*     true */
-        /*   ) */
-        /* }) */
+        .on('hide', (instance: Pickr) => {
+          this.props.onChange(
+            this.props.name,
+            colorValue(instance.getColor()),
+            true
+          )
+        })
         .on('cancel', (instance: Pickr) => {
           instance.setColor(this.originalColor)
           this.props.onChange(this.props.name, this.originalColor)
@@ -117,7 +117,11 @@ export class ColorInput extends React.Component<Props, State> {
   }
 
   getSnapshotBeforeUpdate(prevProps: Props): Snapshot {
-    if (this.props.value !== prevProps.value && this.state.pickr !== null) {
+    if (
+      this.props.value !== prevProps.value &&
+      this.state.pickr !== null &&
+      !this.state.pickr.isOpen()
+    ) {
       return { valueChanged: true }
     }
 
