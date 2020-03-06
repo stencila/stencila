@@ -17,7 +17,7 @@ type Snapshot = null | {
   valueChanged: boolean
 }
 
-export class ColorInput extends React.Component<Props, State> {
+export class ColorInput extends React.PureComponent<Props, State> {
   pickrEl: React.MutableRefObject<HTMLButtonElement | null>
   originalColor: Props['value']
 

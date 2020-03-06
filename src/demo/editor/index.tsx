@@ -1,54 +1,45 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { getTheme } from '../utils/theme'
 import { Header } from './header'
+import { ThemeVariables } from './theme'
 import { ThemeSwitcher } from './themeSwitcher'
-import { VariableKnobs } from './variables/form'
-import { ContributeForm } from './contributeModal'
-import { ThemeObject } from '../utils'
 
-const theme = getTheme()
+type Props = {}
 
-export const ThemeEditor = (): JSX.Element => {
-  const [activeTheme, setTheme] = useState<string>(theme)
-  const [contributeModalIsOpen, setContributeModal] = useState<boolean>(false)
-  const [themeOverrides, setThemeOverrides] = useState<
-    Record<string, ThemeObject>
-  >({})
+interface State {
+  activeTheme: string
+}
 
-  const openContributeModal = React.useCallback(
-    () => setContributeModal(true),
-    []
-  )
+export class ThemeEditor extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      activeTheme: getTheme()
+    }
+  }
 
-  const closeContributeModal = React.useCallback(
-    () => setContributeModal(false),
-    []
-  )
+  setTheme = (theme: string): void => {
+    this.setState({ activeTheme: theme })
+  }
 
-  return (
-    <>
-      <Header />
+  render(): JSX.Element {
+    return (
+      <>
+        <Header />
 
-      <h2 id="themeName">
-        <span>Theme</span>
+        <h2 id="themeName">
+          <span>Theme</span>
 
-        <ThemeSwitcher activeTheme={activeTheme} onChangeTheme={setTheme} />
-      </h2>
+          <ThemeSwitcher
+            activeTheme={this.state.activeTheme}
+            onChangeTheme={this.setTheme}
+          />
+        </h2>
 
-      <hr />
+        <h3>Customize</h3>
 
-      <h3>Customize</h3>
-
-      <VariableKnobs theme={activeTheme} onContribute={openContributeModal} />
-
-      {contributeModalIsOpen && (
-        <ContributeForm
-          themeOverrides={themeOverrides[activeTheme] ?? {}}
-          baseTheme={themeOverrides[activeTheme] ?? {}}
-          baseThemeName={activeTheme}
-          onClose={closeContributeModal}
-        />
-      )}
-    </>
-  )
+        <ThemeVariables activeTheme={this.state.activeTheme} />
+      </>
+    )
+  }
 }

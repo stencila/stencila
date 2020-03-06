@@ -9,6 +9,13 @@ import {
   getPreviewHead
 } from './preview'
 
+export const getThemeCSS = (theme: string): string => {
+  const req = new XMLHttpRequest()
+  req.open('GET', `themes/${theme}/styles.css`, false)
+  req.send(null)
+  return req.responseText
+}
+
 export const getTheme = (): string => {
   return (
     new URL(window.location.href).searchParams.get(keys.THEME) ??
