@@ -1,6 +1,6 @@
 title: ListItem
 '@id': schema:ListItem
-extends: Entity
+extends: Thing
 role: tertiary
 status: stable
 category: prose
@@ -9,6 +9,7 @@ properties:
   content:
     '@id': stencila:content
     description: The content of the list item.
+    $comment: Use either `content` or `item`, not both.
     type: array
     items:
       $ref: Node
@@ -17,5 +18,13 @@ properties:
     description: A flag to indicate if this list item is checked.
     type: boolean
     default: false
-required:
-  - content
+  item:
+    '@id': schema:item
+    description: The item represented by this list item.
+    $comment: Use either `item` or `content`, not both.
+    allOf:
+      - $ref: Node
+  position:
+    '@id': schema:position
+    description: The position of the item in a series or sequence of items.
+    type: number
