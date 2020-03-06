@@ -3,12 +3,19 @@ import ReactDOM from 'react-dom'
 import { examples } from '../../examples'
 import { ViewportToggle } from './viewportToggle'
 import { getExample, setExample } from '../utils/preview'
-import { HeaderBase } from './headerBase'
 
 interface Props {
-  /* onExampleChange: (e: React.ChangeEvent<HTMLSelectElement>) => string */
   exampleContent: string[]
-  /* themes: string[] */
+}
+
+export const HeaderBase = (): JSX.Element => {
+  return (
+    <a href="/">
+      <img src="https://stenci.la/img/stencila-logo.svg" />
+
+      <span className="name"> Thema</span>
+    </a>
+  )
 }
 
 const HeaderComponent = ({ exampleContent }: Props): JSX.Element => {

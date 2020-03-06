@@ -17,22 +17,24 @@ interface State {
   projectName: string
 }
 
-export class ContributeForm extends React.Component<Props, State> {
+export class ContributeForm extends React.PureComponent<Props, State> {
   private el: HTMLElement | null
 
   constructor(props: Props) {
     super(props)
 
-    this.el = document.getElementById('modalTarget')
+    this.el = this.getModalTarget()
 
     this.state = {
       projectName: randomName()
     }
   }
 
+  getModalTarget = (): HTMLElement | null =>
+    document.getElementById('modalTarget')
+
   setProjectName = (projectName: string): void => {
     this.setState({ projectName })
-    this.el = document.getElementById('modal')
   }
 
   onNameChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
