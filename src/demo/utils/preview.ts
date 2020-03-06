@@ -12,12 +12,15 @@ export const getExample = (): string => {
 
 export const setExample = (example: string): void => {
   const url = new URL(window.location.href)
-  url.searchParams.set(keys.EXAMPLE, example)
-  history.replaceState(null, 'none', url.toString())
   sessionStorage.setItem(keys.EXAMPLE, example)
 
+  if (url.searchParams.get(keys.EXAMPLE) !== example) {
+    url.searchParams.set(keys.EXAMPLE, example)
+    history.replaceState(null, 'none', url.toString())
+  }
+
   const preview = getPreview()
-  if (preview !== null) {
+  if (preview !== null && !preview.getAttribute('src')?.includes(example)) {
     preview.setAttribute('src', `examples/${resolveExample(example)}.html`)
   }
 }
