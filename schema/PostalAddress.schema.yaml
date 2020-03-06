@@ -7,26 +7,26 @@ category: metadata
 description: A physical mailing address.
 properties:
   streetAddress:
-    '@id': streetAddress
+    '@id': schema:streetAddress
     description: The street address.
     $comment: For example, 10 Downing Street.
     type: string
   postOfficeBoxNumber:
-    '@id': postOfficeBoxNumber
+    '@id': schema:postOfficeBoxNumber
     description: The post office box number.
     type: string
   addressLocality:
-    '@id': addressLocality
+    '@id': schema:addressLocality
     description: The locality in which the street address is, and which is in the region.
     $comment: For example, London.
     type: string
   addressRegion:
-    '@id': addressRegion
+    '@id': schema:addressRegion
     description: The region in which the locality is, and which is in the country.
     $comment: For example, California or another appropriate first-level Administrative division
     type: string
   postalCode:
-    '@id': postalCode
+    '@id': schema:postalCode
     description: The postal code.
     $comment: For example, 94043.
     type: string

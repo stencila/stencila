@@ -179,6 +179,8 @@ const checkSchema = (
     const id = schema['@id']
     if (id === undefined) error(`${title} is missing @id`)
     else {
+      if (!/^[a-z]+:/.test(id))
+        error(`@id "${id}" is not prefixed witha vocabulary e.g. "schema:"`)
       if (allIds[id] !== undefined && allIds[id] !== title)
         error(
           `@id "${id}" is associated with more than one name "${allIds[id]}", "${title}"`
@@ -196,6 +198,8 @@ const checkSchema = (
       const id = property['@id']
       if (id === undefined) error(`${title}.${name} is missing @id`)
       else {
+        if (!/^[a-z]+:/.test(id))
+          error(`@id "${id}" is not prefixed witha vocabulary e.g. "schema:"`)
         if (allIds[id] !== undefined && allIds[id] !== name)
           error(
             `@id "${id}" is associated with more than one name "${allIds[id]}", "${name}"`
