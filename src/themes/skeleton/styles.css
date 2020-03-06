@@ -253,6 +253,18 @@ h2:--Heading {
   }
 }
 
+:--ListItem {
+  margin-bottom: var(--spacer-sm);
+
+  & > :not(meta):first-of-type {
+    margin-top: 0;
+  }
+
+  & > :last-child {
+    margin-bottom: 0;
+  }
+}
+
 :--Paragraph {
   margin-bottom: 1em;
   margin-left: auto;

@@ -35,18 +35,6 @@
     @media (--mq-lg) {
       flex-basis: calc(50% - var(--spacer-md) * 2);
     }
-
-    :--Heading,
-    :--Paragraph {
-      margin-left: 0;
-      margin-right: 0;
-      padding-left: var(--spacer-md);
-      padding-right: var(--spacer-md);
-    }
-
-    :--ListTypes {
-      list-style-position: inside;
-    }
   }
 
   img {
@@ -74,5 +62,33 @@
         width: auto;
       }
     }
+  }
+
+  & > {
+    :--ListTypes,
+    :--Heading,
+    :--Paragraph {
+      margin-left: 0;
+      margin-right: 0;
+      padding-left: var(--spacer-md);
+      padding-right: var(--spacer-md);
+    }
+
+    :--ListTypes {
+      padding-left: var(--spacer-lg);
+    }
+  }
+
+  :--ListItem {
+    :--Paragraph {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  h2:--Heading {
+    border-top: none !important;
+    font-size: var(--font-size-h3);
+    padding-top: 0;
   }
 }
