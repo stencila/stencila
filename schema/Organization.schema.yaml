@@ -10,7 +10,9 @@ properties:
     '@id': schema:address
     description: |
       Postal address for the organization.
-    type: string
+    anyOf:
+      - type: string
+      - $ref: PostalAddress
   brands:
     '@id': schema:brand
     description: |

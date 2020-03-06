@@ -2053,7 +2053,7 @@ Organization <- function(
     url = url
   )
   self$type <- as_scalar("Organization")
-  self[["address"]] <- check_property("Organization", "address", FALSE, missing(address), "character", address)
+  self[["address"]] <- check_property("Organization", "address", FALSE, missing(address), Union("character", PostalAddress), address)
   self[["brands"]] <- check_property("Organization", "brands", FALSE, missing(brands), Array(Brand), brands)
   self[["contactPoints"]] <- check_property("Organization", "contactPoints", FALSE, missing(contactPoints), Array(ContactPoint), contactPoints)
   self[["departments"]] <- check_property("Organization", "departments", FALSE, missing(departments), Array(Organization), departments)
@@ -2329,7 +2329,7 @@ Person <- function(
     url = url
   )
   self$type <- as_scalar("Person")
-  self[["address"]] <- check_property("Person", "address", FALSE, missing(address), "character", address)
+  self[["address"]] <- check_property("Person", "address", FALSE, missing(address), Union("character", PostalAddress), address)
   self[["affiliations"]] <- check_property("Person", "affiliations", FALSE, missing(affiliations), Array(Organization), affiliations)
   self[["emails"]] <- check_property("Person", "emails", FALSE, missing(emails), Array("character"), emails)
   self[["familyNames"]] <- check_property("Person", "familyNames", FALSE, missing(familyNames), Array("character"), familyNames)
