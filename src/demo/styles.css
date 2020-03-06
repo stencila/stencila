@@ -139,6 +139,51 @@ main {
     display: block;
     border-bottom: 1px solid var(--color-neutral-400);
     margin-bottom: var(--spacer-md);
+    padding: 0;
+    position: relative;
+
+    &::before {
+      content: '';
+      background: var(--color-neutral-400);
+      display: block;
+      height: 100%;
+      left: 0;
+      opacity: 0;
+      mix-blend-mode: multiply;
+      position: absolute;
+      top: 0;
+      transition: opacity 200ms ease-out;
+      width: 100%;
+    }
+
+    &:hover::before {
+      opacity: 0.4;
+    }
+
+    &::after {
+      background-color: white;
+      border-radius: 4px;
+      border: 1px solid var(--color-neutral-500);
+      color: var(--color-key);
+      content: 'View Demo';
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      left: 50%;
+      letter-spacing: 1px;
+      opacity: 0;
+      padding: 0.25rem 1rem;
+      position: absolute;
+      text-transform: uppercase;
+      top: 50%;
+      transform: translateX(-50%) translateY(-40%);
+      transition: opacity 200ms ease-out, transform 250ms ease-out;
+    }
+
+    &:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-50%);
+    }
   }
 
   & > :--Organization {
