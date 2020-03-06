@@ -7,6 +7,7 @@
  */
 
 import fs from 'fs-extra'
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
 // @ts-ignore
 import fromEntries from 'object.fromentries'
 import path from 'path'
@@ -23,10 +24,10 @@ const DEST_DIR = path.join(__dirname, '..', '..', 'public')
 export const build = async (): Promise<void> => {
   await fs.ensureDir(DEST_DIR)
 
-  const types: { [key: string]: {} } = {}
-  const properties: {
-    [key: string]: { '@id': string } & { [key: string]: unknown }
-  } = {}
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const types: Record<string, Record<string, any>> = {}
+  const properties: Record<string, Record<string, any>> = {}
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   const schemas = await readSchemas()
   for (const schema of schemas.values()) {
@@ -115,10 +116,7 @@ export const build = async (): Promise<void> => {
       [
         ...[...Object.entries(types)].sort(),
         ...[...Object.entries(properties)].sort()
-      ].map(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ([name, entry]: [string, any]) => [name, { '@id': entry['@id'] }]
-      )
+      ].map(([name, entry]) => [name, { '@id': entry['@id'] }])
     )
   }
 
@@ -129,27 +127,23 @@ export const build = async (): Promise<void> => {
   )
 
   await Promise.all(
-    Object.entries({ ...types, ...properties })
-      .filter(
-        // @ts-ignore
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ([name, entry]) => entry['@id'].startsWith('stencila:')
-      )
-      .map(([name, entry]) =>
-        fs.writeJSON(
-          path.join(DEST_DIR, `${name}.jsonld`),
-          {
-            '@context': {
-              schema: 'http://schema.org/',
-              stencila: STENCILA_CONTEXT_URL
+    Object.entries({ ...types, ...properties }).map(([name, entry]) =>
+      entry['@id'].startsWith('stencila:') === true
+        ? fs.writeJSON(
+            path.join(DEST_DIR, `${name}.jsonld`),
+            {
+              '@context': {
+                schema: 'http://schema.org/',
+                stencila: STENCILA_CONTEXT_URL
+              },
+              ...entry
             },
-            ...entry
-          },
-          {
-            spaces: 2
-          }
-        )
-      )
+            {
+              spaces: 2
+            }
+          )
+        : Promise.resolve()
+    )
   )
 }
 
