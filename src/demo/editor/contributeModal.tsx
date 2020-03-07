@@ -39,7 +39,7 @@ export class ContributeForm extends React.PureComponent<Props, State> {
 
   onNameChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     e.preventDefault()
-    this.setProjectName(e.currentTarget.value)
+    this.setProjectName(e.currentTarget.value.replace(/\s/g, '-'))
   }
 
   onRandomizeName = (e: React.MouseEvent<HTMLButtonElement>): void => {
@@ -75,6 +75,7 @@ export class ContributeForm extends React.PureComponent<Props, State> {
 
                 <div className="labelWrapper">
                   <input
+                    autoFocus={true}
                     value={this.state.projectName}
                     onChange={this.onNameChange}
                   />
