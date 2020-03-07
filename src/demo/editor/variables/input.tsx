@@ -8,7 +8,24 @@ interface Props {
   onChange: (variable: string, value: string, commit?: boolean) => void
 }
 
+interface State {
+  hasError: boolean
+}
+
 export class VariableInput extends React.PureComponent<Props, {}> {
+  constructor(props: Props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(): State {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: unknown, errorInfo: unknown): void {
+    console.error(error, errorInfo)
+  }
+
   clear = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.preventDefault()
     this.props.onChange(this.props.name, this.props.value, true)
@@ -24,7 +41,7 @@ export class VariableInput extends React.PureComponent<Props, {}> {
 
     let input: JSX.Element
 
-    if (this.props.name.includes('color')) {
+    if (this.props.name.includes('color') && !_value.includes('var')) {
       input = (
         <ColorInput
           name={this.props.name}
