@@ -42,7 +42,7 @@ export class ThemeVariables extends React.Component<Props, State> {
       (this.state.themes[this.props.activeTheme] !== undefined &&
         this.state.themes[this.props.activeTheme][variable]?.toLowerCase() ===
           value.toLowerCase()) ||
-      value === ''
+      (value === '' && commit === true)
     ) {
       delete customizations[variable]
 

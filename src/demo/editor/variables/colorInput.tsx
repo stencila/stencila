@@ -1,7 +1,6 @@
-import React from 'react'
-import '@simonwep/pickr/dist/themes/monolith.min.css' // 'monolith' theme
-
 import Pickr from '@simonwep/pickr'
+import '@simonwep/pickr/dist/themes/monolith.min.css' // 'monolith' theme
+import React from 'react'
 
 interface Props {
   name: string
@@ -29,6 +28,45 @@ export class ColorInput extends React.PureComponent<Props, State> {
 
     this.state = {
       pickr: null
+    }
+  }
+
+  setColor = (value: string, commit = false): void => {
+    this.props.onChange(this.props.name, value, commit)
+  }
+
+  setPickrColor = (value: string): void => {
+    if (this.state.pickr !== null) {
+      this.state.pickr.setColor(value)
+    }
+  }
+
+  showPickr = (): void => {
+    if (this.state.pickr !== null) {
+      this.state.pickr.show()
+    }
+  }
+
+  hidePickr = (): void => {
+    if (this.state.pickr !== null) {
+      this.state.pickr.hide()
+    }
+  }
+
+  onChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    e.preventDefault()
+    this.setColor(e.currentTarget.value)
+  }
+
+  onBlur = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    this.setPickrColor(e.currentTarget.value)
+    this.setColor(e.currentTarget.value)
+  }
+
+  onKeyUp = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === 'Enter') {
+      this.setPickrColor(e.currentTarget.value)
+      this.setColor(e.currentTarget.value)
     }
   }
 
@@ -88,31 +126,36 @@ export class ColorInput extends React.PureComponent<Props, State> {
           this.originalColor = this.props.value
         })
         .on('save', (color: Pickr.HSVaColor, instance: Pickr) => {
-          this.props.onChange(this.props.name, colorValue(color), true)
+          this.setColor(colorValue(color), true)
           instance.hide()
         })
         .on('hide', (instance: Pickr) => {
-          this.props.onChange(
-            this.props.name,
-            colorValue(instance.getColor()),
-            true
-          )
+          this.setColor(this.props.value, true)
         })
         .on('cancel', (instance: Pickr) => {
           instance.setColor(this.originalColor)
-          this.props.onChange(this.props.name, this.originalColor)
+          this.setColor(this.originalColor)
           instance.hide()
         })
+        // TODO: Evaluate performance of live color updates
+        // .on('change', (color: Pickr.HSVaColor) => {
+        //   this.setColor(colorValue(color))
+        // })
         .on('changestop', (instance: Pickr) => {
-          this.props.onChange(this.props.name, colorValue(instance.getColor()))
+          this.setColor(colorValue(instance.getColor()))
         })
         .on('swatchselect', (color: Pickr.HSVaColor) => {
-          this.props.onChange(this.props.name, colorValue(color))
+          this.setColor(colorValue(color))
         })
 
       this.setState({
         pickr
       })
+
+      // Remove keyboard focus from the Swatch button, as the input field opens the swatch
+      // @ts-ignore
+      const pickrEl: HTMLDivElement = pickr.getRoot().button
+      pickrEl.setAttribute('tabIndex', '-1')
     }
   }
 
@@ -151,20 +194,15 @@ export class ColorInput extends React.PureComponent<Props, State> {
   render(): JSX.Element {
     return (
       <>
-        <button ref={this.pickrEl} />
+        <button ref={this.pickrEl} tabIndex={-1} />
         <input
-          value={this.props.value}
-          name={this.props.name}
           id={this.props.name}
-          onChange={e => {
-            e.preventDefault()
-            this.props.onChange(this.props.name, e.currentTarget.value)
-          }}
-          onFocus={() => {
-            if (this.state.pickr !== null) {
-              this.state.pickr.show()
-            }
-          }}
+          name={this.props.name}
+          onBlur={this.onBlur}
+          onChange={this.onChange}
+          onFocus={this.showPickr}
+          onKeyUp={this.onKeyUp}
+          value={this.props.value}
         />
       </>
     )
