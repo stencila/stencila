@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { examples } from '../../examples'
-import { ViewportToggle } from './viewportToggle'
 import { getExample, setExample } from '../utils/preview'
+import { ViewportToggle } from './viewportToggle'
 
 interface Props {
   exampleContent: string[]
@@ -57,7 +57,7 @@ const HeaderComponent = ({ exampleContent }: Props): JSX.Element => {
 
 const exampleContent = Object.keys(examples)
 
-export class Header extends React.Component {
+export class Header extends React.PureComponent {
   private el: HTMLElement | null
 
   constructor(props: {}) {
