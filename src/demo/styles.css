@@ -333,7 +333,20 @@ menu p {
   right: 0;
 }
 
-hr,
+.themeInfo {
+  a {
+    &:link,
+    &:visited {
+      color: inherit;
+    }
+  }
+
+  ul,
+  ol {
+    padding-left: 1rem;
+  }
+}
+
 #sidebar h3::after {
   background-color: var(--color-neutral-500);
   border: none;

@@ -25,7 +25,7 @@ export const styleEntry = 'styles.css'
  */
 export const scriptEntry = 'index.js'
 
-type ThemeNames = keyof typeof themes
+export type ThemeNames = keyof typeof themes
 
 /**
  * Tests whether a given string is a valid Thema theme or not.

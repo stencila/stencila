@@ -2,6 +2,7 @@ import React from 'react'
 import { getTheme } from '../utils/theme'
 import { Header } from './header'
 import { ThemeVariables } from './theme'
+import { ThemeInfo } from './themeInfo'
 import { ThemeSwitcher } from './themeSwitcher'
 
 type Props = {}
@@ -35,6 +36,8 @@ export class ThemeEditor extends React.PureComponent<Props, State> {
             onChangeTheme={this.setTheme}
           />
         </h2>
+
+        <ThemeInfo activeTheme={this.state.activeTheme} />
 
         <h3>Customize</h3>
 
