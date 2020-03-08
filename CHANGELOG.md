@@ -1,3 +1,10 @@
+## [0.41.2](https://github.com/stencila/schema/compare/v0.41.1...v0.41.2) (2020-03-08)
+
+
+### Bug Fixes
+
+* **Build:** Avoid use of promisify ([7dd52a5](https://github.com/stencila/schema/commit/7dd52a583300ab32db983f669ac637a1c979a7e5)), closes [/travis-ci.org/stencila/executa/jobs/659007810#L684](https://github.com//travis-ci.org/stencila/executa/jobs/659007810/issues/L684)
+
 ## [0.41.1](https://github.com/stencila/schema/compare/v0.41.0...v0.41.1) (2020-03-06)
 
 
