@@ -9,7 +9,6 @@
 
 import fs from 'fs'
 import path from 'path'
-import { promisify } from 'util'
 import JsonSchema from '../jsonSchema'
 
 // Lazily loaded set of JSON Schemas
@@ -56,12 +55,20 @@ export async function jsonSchemas(): Promise<typeof SCHEMAS> {
       __dirname,
       ...(__filename.endsWith('.ts') ? ['..', '..', 'public'] : [])
     )
-    const files = await promisify(fs.readdir)(dir, 'utf8')
+    const files = await new Promise<string[]>((resolve, reject) =>
+      fs.readdir(dir, 'utf8', (error, files) =>
+        error !== null ? reject(error) : resolve(files)
+      )
+    )
     const schemaFiles = files.filter(filename =>
       filename.endsWith('.schema.json')
     )
     const promises = schemaFiles.map(async file => {
-      const json = await promisify(fs.readFile)(path.join(dir, file), 'utf8')
+      const json = await new Promise<string>((resolve, reject) =>
+        fs.readFile(path.join(dir, file), 'utf8', (error, content) =>
+          error !== null ? reject(error) : resolve(content)
+        )
+      )
       return JSON.parse(json) as JsonSchema
     })
     const schemas = await Promise.all(promises)
