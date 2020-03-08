@@ -331,6 +331,10 @@ menu p {
   transform: translateY(-0.85em);
   width: 68%;
   right: 0;
+  background-color: var(--color-neutral-500);
+  border: none;
+  height: 1px;
+  margin: 1rem 0;
 }
 
 .themeInfo {
@@ -345,13 +349,6 @@ menu p {
   ol {
     padding-left: 1rem;
   }
-}
-
-#sidebar h3::after {
-  background-color: var(--color-neutral-500);
-  border: none;
-  height: 1px;
-  margin: 1rem 0;
 }
 
 #themeVariables {
