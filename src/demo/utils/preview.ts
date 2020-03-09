@@ -6,7 +6,7 @@ export const getExample = (): string => {
   return (
     new URL(window.location.href).searchParams.get(keys.EXAMPLE) ??
     sessionStorage.getItem(keys.EXAMPLE) ??
-    examples.articleReadme
+    examples.articleKitchenSink
   )
 }
 
