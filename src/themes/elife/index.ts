@@ -10,10 +10,10 @@ function elifeFormatDate(date: Date): string {
   return formatter.format(date)
 }
 
-ready(() => {
+ready((): void => {
   const dateEl: Element | null = first(':--Date')
   if (!(dateEl instanceof Element)) return
-  const date = new Date(dateEl.innerHTML)
+  const date: Date = new Date(dateEl.innerHTML)
   const formattedDate: string = elifeFormatDate(date)
   dateEl.innerHTML = formattedDate
 })
