@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/stencila/thema/compare/v1.12.0...v1.13.0) (2020-03-09)
+
+
+### Features
+
+* **Date:** Format eLife's publication date correctly ([d0603a2](https://github.com/stencila/thema/commit/d0603a2f7ac0e7a66e779ba5dea09d3b81f760a3))
+
 # [1.12.0](https://github.com/stencila/thema/compare/v1.11.0...v1.12.0) (2020-03-04)
 
 
