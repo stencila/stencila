@@ -52,7 +52,6 @@ export class ContributeForm extends React.PureComponent<Props, State> {
 
     submitPR(
       this.state.projectName,
-      '',
       this.props.themeOverrides,
       this.props.baseThemeName,
       this.props.baseTheme
