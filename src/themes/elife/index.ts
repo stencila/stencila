@@ -2,7 +2,7 @@ import { first, ready } from '../../util'
 import DateTimeFormat = Intl.DateTimeFormat
 
 function elifeFormatDate(date: Date): string {
-  const formatter: DateTimeFormat = new Intl.DateTimeFormat('en-US', {
+  const formatter = new DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric'
@@ -11,8 +11,8 @@ function elifeFormatDate(date: Date): string {
 }
 
 ready((): void => {
-  const dateEl: Element | null = first(':--Date')
+  const dateEl = first(':--Date')
   if (!(dateEl instanceof Element)) return
-  const date: Date = new Date(dateEl.innerHTML)
+  const date = new Date(dateEl.innerHTML)
   dateEl.innerHTML = elifeFormatDate(date)
 })
