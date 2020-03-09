@@ -14,6 +14,5 @@ ready((): void => {
   const dateEl: Element | null = first(':--Date')
   if (!(dateEl instanceof Element)) return
   const date: Date = new Date(dateEl.innerHTML)
-  const formattedDate: string = elifeFormatDate(date)
-  dateEl.innerHTML = formattedDate
+  dateEl.innerHTML = elifeFormatDate(date)
 })
