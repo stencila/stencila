@@ -8,3 +8,6 @@ src/extensions/index.ts
 src/themes/index.ts
 src/selectors.ts
 src/selectors.css
+src/gallery.ejs
+src/gallery.ejs.media
+src/themes.json

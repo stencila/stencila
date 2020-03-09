@@ -44,7 +44,7 @@ const build = (
   input: string,
   outputs: string | string[]
 ): Promise<string | undefined> =>
-  convert(input, outputs, { encodeOptions: { isStandalone: false, theme: '' } })
+  convert(input, outputs, { encodeOptions: { isStandalone: false } })
 
 /**
  * The README of this repo to be used as the default page of the demo
@@ -85,8 +85,29 @@ function articleAntibodies(): Promise<string | undefined> {
   )
 }
 
+/**
+ * Transforms implicit relative URLs (`somePath.jpg`) found in the generated example HTML documents, into
+ * explicitly relative paths ('./somePath.jpg'). This allows the assets to be discovered inside the Theme Editor iframe.
+ */
+const qualifyRelativeUrls = (): void => {
+  EXAMPLES.map(example => {
+    const filePath = `${ex(example.name)}.html`
+    const contents = fs
+      .readFileSync(filePath)
+      .toString()
+      .replace(
+        /((?:src|href)=["'])(?!(?:https?)?:\/\/)([^/#.][^'"]+)/gm,
+        '$1./$2'
+      )
+
+    fs.writeFileSync(filePath, contents)
+  })
+}
+
 // Run each function
-Promise.all(EXAMPLES.map(example => example())).catch(err => console.error(err))
+Promise.all(EXAMPLES.map(example => example()))
+  .then(() => qualifyRelativeUrls())
+  .catch(err => console.error(err))
 
 // Generate `../examples/examples.ts`
 fs.writeFileSync(

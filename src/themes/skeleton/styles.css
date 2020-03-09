@@ -40,13 +40,13 @@
   * We use `calc` to emulate REM values. This is because we do not modify the `:root/html` element, but instead
   * we set variables on the `[data-itemscope='root']` element. */
   --font-size-body: 19px;
-  --font-size-title: calc(var(--font-size-body) * 1.953 * 1px);
-  --font-size-h1: calc(var(--font-size-body) * 1.953 * 1px);
-  --font-size-h2: calc(var(--font-size-body) * 1.563 * 1px);
-  --font-size-h3: calc(var(--font-size-body) * 1.25 * 1px);
-  --font-size-h4: calc(var(--font-size-body) * 1 * 1px);
-  --font-size-h5: calc(var(--font-size-body) * 0.8 * 1px);
-  --font-size-h6: calc(var(--font-size-body) * 0.725 * 1px);
+  --font-size-title: calc(19 * 1.953 * 1px);
+  --font-size-h1: calc(19 * 1.953 * 1px);
+  --font-size-h2: calc(19 * 1.563 * 1px);
+  --font-size-h3: calc(19 * 1.25 * 1px);
+  --font-size-h4: calc(19 * 1 * 1px);
+  --font-size-h5: calc(19 * 0.8 * 1px);
+  --font-size-h6: calc(19 * 0.725 * 1px);
   --font-size-90: 90%;
   --font-size-80: 80%;
   --font-size-75: 75%;
@@ -253,6 +253,18 @@ h2:--Heading {
   }
 }
 
+:--ListItem {
+  margin-bottom: var(--spacer-sm);
+
+  & > :not(meta):first-of-type {
+    margin-top: 0;
+  }
+
+  & > :last-child {
+    margin-bottom: 0;
+  }
+}
+
 :--Paragraph {
   margin-bottom: 1em;
   margin-left: auto;
@@ -261,7 +273,7 @@ h2:--Heading {
   max-width: var(--max-width);
 
   & + & {
-    margin-top: 1em;
+    margin-top: 0;
   }
 }
 
