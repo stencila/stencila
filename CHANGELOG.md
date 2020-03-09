@@ -1,3 +1,19 @@
+# [1.13.0](https://github.com/stencila/thema/compare/v1.12.0...v1.13.0) (2020-03-09)
+
+
+### Features
+
+* **Date:** Format eLife's publication date correctly ([d0603a2](https://github.com/stencila/thema/commit/d0603a2f7ac0e7a66e779ba5dea09d3b81f760a3))
+
+# [1.12.0](https://github.com/stencila/thema/compare/v1.11.0...v1.12.0) (2020-03-04)
+
+
+### Features
+
+* **CSS:** Reintroduce postcss mixins to build ([53088da](https://github.com/stencila/thema/commit/53088daccfccbb23b2665a460b639fd4a5fb5e7b))
+* **Elife:** Style affiliations ([d18f1f4](https://github.com/stencila/thema/commit/d18f1f48f9911481c9ac2d987acc9df03ff1ec3f))
+* **Elife:** Style affiliations list ([eaccd12](https://github.com/stencila/thema/commit/eaccd12fe3fc78d1432b1d9624c576cc3cad35bf))
+
 # [1.11.0](https://github.com/stencila/thema/compare/v1.10.0...v1.11.0) (2020-03-02)
 
 

@@ -15,6 +15,14 @@
 
 @import '../../extensions/person/styles.css';
 
+/* @extend-ing eLife's CSS may not take into account the cascade of styles
+ * applied to an element upstream of the extended style. Add @mixins here for such styles
+ * that apply to more than one element, that would otherwise be missed. */
+@define-mixin inline-list {
+  list-style: none;
+  padding: 0;
+}
+
 /* stylelint-disable xi/selector-pattern */
 main {
   @extend .wrapper;
@@ -64,6 +72,23 @@ main {
 
 /* Chain custom MicroData selectors for style adjustments as needed */
 :--Article :--affiliations {
-  display: inline;
-  padding: 0;
+  @mixin inline-list;
+  @extend .content-header__institution_list;
+
+  :--Organization {
+    display: inline;
+
+    :--name,
+    :--address {
+      @extend .content-header__institution_list_item;
+    }
+
+    & :--address::after {
+      content: '; ';
+    }
+
+    &:last-child :--address::after {
+      content: '';
+    }
+  }
 }
