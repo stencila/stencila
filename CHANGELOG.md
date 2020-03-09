@@ -1,3 +1,38 @@
+# [1.14.0](https://github.com/stencila/thema/compare/v1.13.0...v1.14.0) (2020-03-09)
+
+
+### Bug Fixes
+
+* **Editor:** Catch color picker errors ([3f0607a](https://github.com/stencila/thema/commit/3f0607aea835cb9ad92d1c7cc6d57fc5da915b96))
+* **Editor:** Commit chosen colour when closing colour picker ([e2173b0](https://github.com/stencila/thema/commit/e2173b0436cd145f0bbaca08c3a98c9f844bb382))
+* **Editor:** Don't discard parameters from URL when changing themes ([2479846](https://github.com/stencila/thema/commit/24798464b501f08fb89524f30604d23e7b5a38c6))
+* **Editor:** Fix asset resolution for example articles ([160c892](https://github.com/stencila/thema/commit/160c89283fe8f6d2865047e4fb0d537b0140ccd9))
+* **Editor:** Fix manual color entry conflicts with Color Picker ([20f216d](https://github.com/stencila/thema/commit/20f216d4e62aa9db8b233f205eb1adecd197e0c4))
+* **Skeleton, Stencila:** Fix nested CSS variables not being evaluated ([a49a4f8](https://github.com/stencila/thema/commit/a49a4f8fee42b74235f7206656a4b08316786f6d))
+* **Theme Contribution:** Fix generation of contributed CSS variable ([d31909e](https://github.com/stencila/thema/commit/d31909e4150e3b6fd91dd69866e219cb5d72fc1d))
+
+
+### Features
+
+* **Demo:** Add & style theme gallery landing page ([edc9653](https://github.com/stencila/thema/commit/edc9653ac25e0fedc5feb912fb288a04f943b139))
+* **Demo:** Add theme contribution modal ([9bae762](https://github.com/stencila/thema/commit/9bae7625a6a1d57f95a1362b95a94bd8503c4474))
+* **Editor:** Add hover state for gallery thumbnails ([f08f194](https://github.com/stencila/thema/commit/f08f1946abd356ba38ba1539891ff4a0b154632d))
+* **Editor:** Add theme info above customization settings ([50f096a](https://github.com/stencila/thema/commit/50f096a43e35e91b41a0dd24fb4fa0a907109ab6))
+* **Editor:** Auto focus & format theme name when contributing ([c060c6e](https://github.com/stencila/thema/commit/c060c6e03bbbe8c884f28eae08b1056b5efba5ad))
+* **Galleria theme:** Add theme for styling gallery pages ([ad87a7a](https://github.com/stencila/thema/commit/ad87a7a9d9ba26a087a9dc8398384f98a0848d1b))
+* **Gallery:** Add script to generate docs/gallery ([da500b3](https://github.com/stencila/thema/commit/da500b3927871ff64dbc363c4e94e16ac9a9111b))
+* **Theme Builder:** Inject Stencila Components scripts into preview ([31726e1](https://github.com/stencila/thema/commit/31726e165323cf8c01634ad199e6d5a74c981a81))
+* **Theme Builder:** Inject user updated variables into preview ([4096bb2](https://github.com/stencila/thema/commit/4096bb221679d1c3b782f745532e0b7ba03b9c6c))
+* **Theme Builder:** User can save new theme as a Github PR ([e80e2e7](https://github.com/stencila/thema/commit/e80e2e703420f5718b3b905851c281df5d4fde45))
+* **Themes:** Checking and fixing of themes ([cc4f4c1](https://github.com/stencila/thema/commit/cc4f4c19dcafe43b772519d19f72d5ef1a800e7d))
+
+
+### Performance Improvements
+
+* **Demo:** Reduce number of needless re-renders ([15910f1](https://github.com/stencila/thema/commit/15910f1ac5cafd424f8e69936f86241bd05eb271))
+* **Editor:** Don't reload iframe if already on chosen example content ([3250c8b](https://github.com/stencila/thema/commit/3250c8b1356c967a76ff3beb2eb6fc7dcf716e10))
+* **Editor:** Prevent needlessly re-rendering page header ([743a66d](https://github.com/stencila/thema/commit/743a66dfe54a8f17b22051f788ae8305ded7b5cf))
+
 # [1.13.0](https://github.com/stencila/thema/compare/v1.12.0...v1.13.0) (2020-03-09)
 
 
