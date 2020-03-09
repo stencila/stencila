@@ -1,7 +1,7 @@
 /**
  *
  * Run using `npm run docs:gallery`. Noting that this
- * uses built themes in `docs/themes` so `npm run docs:app`
+ * uses built themes in `dist/themes` so `npm run build:lib`
  * needs to be done first.
  */
 
@@ -26,7 +26,7 @@ import { themes } from '../themes/index'
 const themesDir = path.join(__dirname, '..', 'themes')
 const examplesDir = path.join(__dirname, '..', 'examples')
 const srcDir = path.join(__dirname, '..')
-const docsDir = path.join(__dirname, '..', '..', 'docs')
+const distDir = path.join(__dirname, '..', '..', 'dist')
 
 const stencila = organization({
   name: 'Stencila',
@@ -120,7 +120,7 @@ async function generateGallery(): Promise<void> {
   await write(gallery, path.join(srcDir, 'gallery.ejs'), {
     isStandalone: false,
     format: 'html',
-    theme: path.join(srcDir, 'themes', 'galleria')
+    theme: path.join(distDir, 'themes', 'galleria')
   })
 
   await shutdown()
@@ -148,7 +148,7 @@ async function generateSummary(
   const screenshot = path.join(tmpdir(), 'screenshots', `${theme}.png`)
 
   await write(example, screenshot, {
-    theme: path.join(docsDir, 'themes', theme),
+    theme: path.join(distDir, 'themes', theme),
     size: { height: 500, width: 800 }
   })
 

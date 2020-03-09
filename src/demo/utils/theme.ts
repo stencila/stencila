@@ -11,7 +11,7 @@ import {
 
 export const getThemeCSS = (theme: string): string => {
   const req = new XMLHttpRequest()
-  req.open('GET', `themes/${theme}/styles.css`, false)
+  req.open('GET', `/themes/${theme}/styles.css`, false)
   req.send(null)
   return req.responseText
 }

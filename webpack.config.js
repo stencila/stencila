@@ -32,9 +32,7 @@ module.exports = (env = {}, { mode }) => {
   const contentBase = isDocs ? 'docs' : 'dist'
 
   const entries = [
-    './src/**/*.{css,ts,tsx,html,ttf,woff,woff2}',
-    // template.html is used as a basis for HtmlWebpackPlugin, and should not be used as an entry point
-    '!./src/{gallery,template}.html',
+    './src/**/*.{css,ts,tsx,ttf,woff,woff2}',
     // Don’t compile test files for package distribution
     '!**/*.{d,test}.ts',
     // These files make use of Node APIs, and do not need to be packaged for Browser targets
@@ -45,7 +43,7 @@ module.exports = (env = {}, { mode }) => {
     // Don’t build HTML demo files for package distribution
     ...(isDocs || isDevelopment
       ? ['./src/**/*.{jpg,png,gif}']
-      : ['!**/*.html', '!**/demo/*', '!**/examples/*'])
+      : ['!**/demo/*', '!**/examples/*'])
   ]
 
   const entry = globby.sync(entries).reduce(
@@ -63,13 +61,13 @@ module.exports = (env = {}, { mode }) => {
     isDocs || isDevelopment
       ? [
           new HtmlWebpackPlugin({
-            filename: 'editor.html',
-            template: './src/template.html',
+            filename: 'editor/index.html',
+            template: './src/demo/templates/template.html',
             chunks: ['demo/styles', 'themes/stencila/styles', 'demo/app.tsx']
           }),
           new HtmlWebpackPlugin({
             filename: 'index.html',
-            template: './src/galleryTemplate.ejs',
+            template: './src/demo/templates/gallery.ejs',
             chunks: [
               'demo/styles',
               'demo/gallery.tsx',
@@ -82,7 +80,7 @@ module.exports = (env = {}, { mode }) => {
   return {
     entry,
     resolve: {
-      extensions: ['.ts', '.tsx', '.js', '.css', '.html']
+      extensions: ['.ts', '.tsx', '.js', '.css']
     },
     mode: mode || 'development',
     output: {
@@ -91,27 +89,7 @@ module.exports = (env = {}, { mode }) => {
     },
     devServer: {
       contentBase: path.join(__dirname, contentBase),
-      overlay: true,
-      staticOptions: {
-        extensions: ['.html', '.htm']
-      },
-      // Resolve URLS without explicit file extensions
-      // the above `devServer.staticOptions.extensions` seems to have no effect
-      before: function(app, server, compiler) {
-        app.use(function(req, res, next) {
-          if (req.path !== '/' && req.path.indexOf('.') === -1) {
-            let url = req.url.split('?')
-            let [reqPath, ...rest] = url
-
-            if (url.length > 1) {
-              req.url = [reqPath, '.html', '?', ...rest].join('')
-            } else {
-              req.url = `${reqPath}.html`
-            }
-            next()
-          } else next()
-        })
-      }
+      overlay: true
     },
     plugins: [
       new CleanWebpackPlugin(),
@@ -127,7 +105,14 @@ module.exports = (env = {}, { mode }) => {
       // non TypeScript/JavaScript files (i.e. for font and CSS files).
       new FileManagerPlugin({
         onEnd: {
+          copy: [
+            {
+              source: 'src/examples/*.{html,html.media}',
+              destination: `${contentBase}/examples/`
+            }
+          ],
           delete: [
+            `${contentBase}/**/styles.js`,
             `${contentBase}/**/styles.js`,
             `${contentBase}/fonts/**/*.js`,
             `${contentBase}/generate`,
@@ -149,22 +134,6 @@ module.exports = (env = {}, { mode }) => {
           }
         },
         { test: /\.ejs$/, loader: 'ejs-loader' },
-        {
-          test: /\.html$/i,
-          // Don't transform HtmlWebpackPlugin generated file
-          exclude: /template\.html$/i,
-          use: [
-            {
-              loader: 'file-loader',
-              options: {
-                name: '[name].[ext]',
-                outputPath: fileLoaderOutputPath
-              }
-            },
-            'extract-loader',
-            'html-loader'
-          ]
-        },
         {
           test: /\.(css)$/,
           use: [

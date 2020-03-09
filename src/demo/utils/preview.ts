@@ -1,6 +1,6 @@
-import { append, create } from '../../util'
 import { keys } from '.'
 import { examples, resolveExample } from '../../examples'
+import { append, create } from '../../util'
 
 export const getExample = (): string => {
   return (
@@ -21,7 +21,7 @@ export const setExample = (example: string): void => {
 
   const preview = getPreview()
   if (preview !== null && !preview.getAttribute('src')?.includes(example)) {
-    preview.setAttribute('src', `examples/${resolveExample(example)}.html`)
+    preview.setAttribute('src', `/examples/${resolveExample(example)}.html`)
   }
 }
 
