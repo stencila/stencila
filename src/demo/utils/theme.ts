@@ -1,4 +1,4 @@
-import { diff, objToVars, ThemeObject } from '.'
+import { diff, objToVars, ThemeObject, ASSET_PATH } from '.'
 import { styleEntry, themes } from '../../browser'
 import { append, create, prepend } from '../../util'
 import { keys } from './index'
@@ -11,7 +11,7 @@ import {
 
 export const getThemeCSS = (theme: string): string => {
   const req = new XMLHttpRequest()
-  req.open('GET', `/themes/${theme}/styles.css`, false)
+  req.open('GET', `${ASSET_PATH}themes/${theme}/styles.css`, false)
   req.send(null)
   return req.responseText
 }
@@ -35,7 +35,7 @@ export const themeSet = (theme: string): void => {
 
   const themeStyles = create('link')
   themeStyles.setAttribute('rel', 'stylesheet')
-  themeStyles.setAttribute('href', `/themes/${theme}/${styleEntry}`)
+  themeStyles.setAttribute('href', `${ASSET_PATH}themes/${theme}/${styleEntry}`)
   themeStyles.setAttribute('id', 'themaStyles')
 
   const previewDoc = getPreviewDoc()
@@ -62,7 +62,7 @@ export const themeSet = (theme: string): void => {
 
     const themeScript = previewDoc.createElement('script')
     themeScript.type = 'text/javascript'
-    themeScript.src = `/themes/${theme}/index.js`
+    themeScript.src = `${ASSET_PATH}themes/${theme}/index.js`
     themeScript.classList.add('themeScript')
 
     previewDoc.body.appendChild(themeScript)

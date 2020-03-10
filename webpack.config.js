@@ -10,6 +10,7 @@ const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
 const { DefinePlugin, HotModuleReplacementPlugin } = require('webpack')
 
 const contentSource = 'src'
+const ASSET_PATH = process.env.ASSET_PATH || '/'
 
 // Convert absolute filepaths to project relative ones to use as
 // output destinations.
@@ -32,7 +33,9 @@ module.exports = (env = {}, { mode }) => {
   const contentBase = isDocs ? 'docs' : 'dist'
 
   const entries = [
-    './src/**/*.{css,ts,tsx,ttf,woff,woff2}',
+    './src/**/*.{css,ts,tsx,html,ttf,woff,woff2}',
+    // Template are used as basis for HtmlWebpackPlugin, and should not be used as an entry points
+    '!./src/demo/templates/*',
     // Don’t compile test files for package distribution
     '!**/*.{d,test}.ts',
     // These files make use of Node APIs, and do not need to be packaged for Browser targets
@@ -43,7 +46,7 @@ module.exports = (env = {}, { mode }) => {
     // Don’t build HTML demo files for package distribution
     ...(isDocs || isDevelopment
       ? ['./src/**/*.{jpg,png,gif}']
-      : ['!**/demo/*', '!**/examples/*'])
+      : ['!**/*.html', '!**/demo/*', '!**/examples/*'])
   ]
 
   const entry = globby.sync(entries).reduce(
@@ -63,7 +66,10 @@ module.exports = (env = {}, { mode }) => {
           new HtmlWebpackPlugin({
             filename: 'editor/index.html',
             template: './src/demo/templates/template.html',
-            chunks: ['demo/styles', 'themes/stencila/styles', 'demo/app.tsx']
+            chunks: ['demo/styles', 'themes/stencila/styles', 'demo/app.tsx'],
+            templateParameters: {
+              ASSET_PATH
+            }
           }),
           new HtmlWebpackPlugin({
             filename: 'index.html',
@@ -80,11 +86,12 @@ module.exports = (env = {}, { mode }) => {
   return {
     entry,
     resolve: {
-      extensions: ['.ts', '.tsx', '.js', '.css']
+      extensions: ['.ts', '.tsx', '.js', '.css', '.html']
     },
     mode: mode || 'development',
     output: {
       path: path.resolve(__dirname, contentBase),
+      publicPath: ASSET_PATH,
       filename: '[name].js'
     },
     devServer: {
@@ -94,6 +101,7 @@ module.exports = (env = {}, { mode }) => {
     plugins: [
       new CleanWebpackPlugin(),
       new DefinePlugin({
+        'process.env.ASSET_PATH': JSON.stringify(ASSET_PATH),
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         'process.env.VERSION': JSON.stringify(
           process.env.VERSION || pkgJson.version
@@ -105,12 +113,6 @@ module.exports = (env = {}, { mode }) => {
       // non TypeScript/JavaScript files (i.e. for font and CSS files).
       new FileManagerPlugin({
         onEnd: {
-          copy: [
-            {
-              source: 'src/examples/*.{html,html.media}',
-              destination: `${contentBase}/examples/`
-            }
-          ],
           delete: [
             `${contentBase}/**/styles.js`,
             `${contentBase}/**/styles.js`,
@@ -134,6 +136,22 @@ module.exports = (env = {}, { mode }) => {
           }
         },
         { test: /\.ejs$/, loader: 'ejs-loader' },
+        {
+          test: /\.html$/i,
+          // Don't transform HtmlWebpackPlugin generated file
+          exclude: /template\.html$/i,
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: '[name].[ext]',
+                outputPath: fileLoaderOutputPath
+              }
+            },
+            'extract-loader',
+            'html-loader'
+          ]
+        },
         {
           test: /\.(css)$/,
           use: [

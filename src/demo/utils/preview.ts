@@ -1,4 +1,4 @@
-import { keys } from '.'
+import { keys, ASSET_PATH } from '.'
 import { examples, resolveExample } from '../../examples'
 import { append, create } from '../../util'
 
@@ -21,7 +21,10 @@ export const setExample = (example: string): void => {
 
   const preview = getPreview()
   if (preview !== null && !preview.getAttribute('src')?.includes(example)) {
-    preview.setAttribute('src', `/examples/${resolveExample(example)}.html`)
+    preview.setAttribute(
+      'src',
+      `${ASSET_PATH}examples/${resolveExample(example)}.html`
+    )
   }
 }
 

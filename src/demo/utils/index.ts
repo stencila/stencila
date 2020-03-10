@@ -1,5 +1,7 @@
 import { translate } from '../../util'
 
+export const ASSET_PATH = process.env.ASSET_PATH ?? '/'
+
 export interface ThemeObject {
   [key: string]: string
 }

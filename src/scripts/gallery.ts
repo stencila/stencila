@@ -67,7 +67,7 @@ async function generateGallery(): Promise<void> {
           theme,
           await generateSummary(
             theme,
-            `/editor?theme=${theme}`,
+            `./editor?theme=${theme}`,
             example as Article
           )
         ]

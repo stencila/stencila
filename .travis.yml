@@ -23,7 +23,7 @@ after_success:
 
 before_deploy:
   - npm run build
-  - npm run docs
+  - ASSET_PATH=/thema/ npm run docs
 
 deploy:
   - provider: script

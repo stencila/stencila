@@ -23,7 +23,7 @@
     "build:browser": "webpack --mode production && tsc --emitDeclarationOnly --project tsconfig.browser.json",
     "build:lib": "tsc --project tsconfig.lib.json",
     "dev": "webpack-dev-server --mode development --hot --open",
-    "docs": "npm run build:lib && npm run docs:readme && npm run docs:gallery && npm run docs:app",
+    "docs": "npm run build:browser && npm run docs:readme && npm run docs:gallery && npm run docs:app",
     "docs:readme": "ts-node --files src/scripts/readme.ts",
     "docs:gallery": "ts-node --files src/scripts/gallery.ts",
     "docs:app": "webpack --mode production --env.docs=true",

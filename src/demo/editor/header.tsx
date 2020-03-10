@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { examples } from '../../examples'
 import { getExample, setExample } from '../utils/preview'
 import { ViewportToggle } from './viewportToggle'
+import { ASSET_PATH } from '../utils'
 
 interface Props {
   exampleContent: string[]
@@ -10,7 +11,7 @@ interface Props {
 
 export const HeaderBase = (): JSX.Element => {
   return (
-    <a href="/">
+    <a href={ASSET_PATH}>
       <img src="https://stenci.la/img/stencila-logo.svg" />
 
       <span className="name"> Thema</span>
