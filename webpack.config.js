@@ -33,9 +33,7 @@ module.exports = (env = {}, { mode }) => {
   const contentBase = isDocs ? 'docs' : 'dist'
 
   const entries = [
-    './src/**/*.{css,ts,tsx,html,ttf,woff,woff2}',
-    // Template are used as basis for HtmlWebpackPlugin, and should not be used as an entry points
-    '!./src/demo/templates/*',
+    './src/**/*.{css,ts,ttf,woff,woff2}',
     // Don’t compile test files for package distribution
     '!**/*.{d,test}.ts',
     // These files make use of Node APIs, and do not need to be packaged for Browser targets
@@ -45,8 +43,12 @@ module.exports = (env = {}, { mode }) => {
     '!**/extensions/extensions.ts',
     // Don’t build HTML demo files for package distribution
     ...(isDocs || isDevelopment
-      ? ['./src/**/*.{jpg,png,gif}']
-      : ['!**/*.html', '!**/demo/*', '!**/examples/*'])
+      ? [
+          './src/**/*.{jpg,png,gif,tsx,html}',
+          // Template are used as basis for HtmlWebpackPlugin, and should not be used as an entry points
+          '!./src/demo/templates/*'
+        ]
+      : ['!**/*.html', '!./src/demo/**/*', '!./src/examples/*'])
   ]
 
   const entry = globby.sync(entries).reduce(
