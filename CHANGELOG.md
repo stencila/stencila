@@ -1,3 +1,11 @@
+## [1.14.1](https://github.com/stencila/thema/compare/v1.14.0...v1.14.1) (2020-03-10)
+
+
+### Bug Fixes
+
+* **Theme Editor:** Allow serving from sub-dir by setting env.ASSET_PATH ([363ab07](https://github.com/stencila/thema/commit/363ab0783d40927c585e56d104dd93eff7edd6d3))
+* **Theme Editor:** Fix file globs for Demo build ([9c7dd64](https://github.com/stencila/thema/commit/9c7dd6496f48cb493cd674bad694b77cfca2a798))
+
 # [1.14.0](https://github.com/stencila/thema/compare/v1.13.0...v1.14.0) (2020-03-09)
 
 
