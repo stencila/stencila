@@ -1,3 +1,10 @@
+## [1.14.2](https://github.com/stencila/thema/compare/v1.14.1...v1.14.2) (2020-03-11)
+
+
+### Bug Fixes
+
+* **Build:** Avoid discarding lib due to running Build:browser twice ([8f0c05d](https://github.com/stencila/thema/commit/8f0c05dcbabe2dc3d1d56f1b5eb85e9f46c67b64))
+
 ## [1.14.1](https://github.com/stencila/thema/compare/v1.14.0...v1.14.1) (2020-03-10)
 
 
