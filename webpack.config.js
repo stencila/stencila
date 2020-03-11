@@ -6,8 +6,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const FileManagerPlugin = require('filemanager-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
-const { DefinePlugin, HotModuleReplacementPlugin } = require('webpack')
+const { DefinePlugin } = require('webpack')
 
 const contentSource = 'src'
 const ASSET_PATH = process.env.ASSET_PATH || '/'
@@ -119,8 +118,7 @@ module.exports = (env = {}, { mode }) => {
             `${contentBase}/**/styles.js`,
             `${contentBase}/**/styles.js`,
             `${contentBase}/fonts/**/*.js`,
-            `${contentBase}/generate`,
-            ...(isDocs ? [] : [`${contentBase}/demo/`, `${contentBase}/share/`])
+            `${contentBase}/generate`
           ]
         }
       })
