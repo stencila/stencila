@@ -9,6 +9,7 @@
   "main": "./dist/lib/index.js",
   "types": "./dist/lib/index.d.ts",
   "scripts": {
+    "bootstrap": "npm run build && npm run docs:gallery",
     "prepare": "npm run update",
     "update": "npm run update:selectors && npm run update:examples && npm run update:themes && npm run update:extensions",
     "update:selectors": "ts-node --files src/scripts/selectors.ts",

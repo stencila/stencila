@@ -201,6 +201,12 @@ Install dependencies,
 npm install
 ```
 
+Build auto-generated files necessary for theme functionality and development,
+
+```sh
+npm run bootstrap
+```
+
 Run the development server,
 
 ```sh
