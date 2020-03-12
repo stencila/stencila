@@ -1,4 +1,4 @@
-import { whenReady, select, tag, attr } from '../../util'
+import { whenReady, select } from '../../util'
 
 const body = document.body
 
@@ -32,17 +32,4 @@ test('DOM manipulations', async () => {
 
   expect(select('li:--author').length).toBe(0)
   expect(select('span:--author').length).toBe(2)
-
-  expect(
-    select(':--reference > *').map(elem => [
-      tag(elem),
-      attr(elem, 'itemprop') ?? attr(elem, 'data-itemprop')
-    ])
-  ).toEqual([
-    ['span', 'authors'],
-    ['time', 'datePublished'],
-    ['span', 'headline'],
-    ['span', 'publisher'],
-    ['meta', 'image']
-  ])
 })

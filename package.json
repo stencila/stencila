@@ -63,7 +63,7 @@
   },
   "devDependencies": {
     "@stencila/dev-config": "1.4.20",
-    "@stencila/encoda": "0.88.0",
+    "@stencila/encoda": "^0.90.3",
     "@stencila/schema": "0.41.2",
     "@types/jest": "25.1.4",
     "@types/prismjs": "1.16.0",
