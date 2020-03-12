@@ -13,6 +13,7 @@ html {
 }
 
 body {
+  background-color: var(--color-neutral-100);
   font-family: var(--font-family-body, sans-serif);
   height: 100%;
   margin: 0;
@@ -21,6 +22,28 @@ body {
   &.editor {
     display: flex;
     flex-wrap: wrap;
+  }
+
+  &.headerHidden {
+    padding-top: 0;
+
+    header {
+      display: none;
+    }
+
+    iframe {
+      height: calc(100vh - 3rem);
+    }
+  }
+
+  &.sideBarHidden {
+    #sidebar {
+      display: none;
+    }
+
+    iframe {
+      width: calc(100% - 3rem);
+    }
   }
 }
 
@@ -101,10 +124,6 @@ header {
       }
     }
   }
-}
-
-main {
-  background-color: var(--color-neutral-100);
 }
 
 :--root > :--List > :--ListItem {

@@ -4,6 +4,7 @@ import { Header } from './header'
 import { ThemeVariables } from './theme'
 import { ThemeInfo } from './themeInfo'
 import { ThemeSwitcher } from './themeSwitcher'
+import { initUiVisibility } from '../utils/preview'
 
 type Props = {}
 
@@ -21,6 +22,10 @@ export class ThemeEditor extends React.PureComponent<Props, State> {
 
   setTheme = (theme: string): void => {
     this.setState({ activeTheme: theme })
+  }
+
+  componentDidMount(): void {
+    initUiVisibility()
   }
 
   render(): JSX.Element {
