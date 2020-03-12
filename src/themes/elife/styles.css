@@ -13,6 +13,7 @@
 @import '../../fonts/notoSerif/notoSerif.css';
 @import '../../fonts/notoSans/notoSans.css';
 
+@import '../../extensions/headings/styles.css';
 @import '../../extensions/person/styles.css';
 
 /* @extend-ing eLife's CSS may not take into account the cascade of styles
