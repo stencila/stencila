@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/stencila/thema/compare/v1.14.2...v1.15.0) (2020-03-12)
+
+
+### Features
+
+* **Theme Editor:** Add ability to hide UI elements from the preview ([3d9c182](https://github.com/stencila/thema/commit/3d9c1821d9847ce524b77dabbe5e751044f4ff11))
+
 ## [1.14.2](https://github.com/stencila/thema/compare/v1.14.1...v1.14.2) (2020-03-11)
 
 
