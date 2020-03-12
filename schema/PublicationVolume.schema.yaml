@@ -9,13 +9,13 @@ description: |
 properties:
   pageStart:
     '@id': schema:pageStart
-    description: The page on which the work starts; for example "135" or "xiii".
+    description: The page on which the volume starts; for example "135" or "xiii".
     anyOf:
       - type: string
       - type: integer
   pageEnd:
     '@id': schema:pageEnd
-    description: The page on which the work ends; for example "138" or "xvi".
+    description: The page on which the volume ends; for example "138" or "xvi".
     anyOf:
       - type: string
       - type: integer

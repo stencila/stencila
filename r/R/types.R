@@ -751,6 +751,9 @@ CreativeWork <- function(
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
+#' @param pageEnd The page on which the article ends; for example "138" or "xvi".
+#' @param pageStart The page on which the article starts; for example "135" or "xiii".
+#' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
 #' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
@@ -781,6 +784,9 @@ Article <- function(
   licenses,
   meta,
   name,
+  pageEnd,
+  pageStart,
+  pagination,
   parts,
   publisher,
   references,
@@ -819,7 +825,9 @@ Article <- function(
     version = version
   )
   self$type <- as_scalar("Article")
-
+  self[["pageEnd"]] <- check_property("Article", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
+  self[["pageStart"]] <- check_property("Article", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
+  self[["pagination"]] <- check_property("Article", "pagination", FALSE, missing(pagination), "character", pagination)
   class(self) <- c(class(self), "Article")
   self
 }
@@ -2528,8 +2536,8 @@ PropertyValue <- function(
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
-#' @param pageEnd The page on which the work ends; for example "138" or "xvi".
-#' @param pageStart The page on which the work starts; for example "135" or "xiii".
+#' @param pageEnd The page on which the issue ends; for example "138" or "xvi".
+#' @param pageStart The page on which the issue starts; for example "135" or "xiii".
 #' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.
@@ -2635,8 +2643,8 @@ PublicationIssue <- function(
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
-#' @param pageEnd The page on which the work ends; for example "138" or "xvi".
-#' @param pageStart The page on which the work starts; for example "135" or "xiii".
+#' @param pageEnd The page on which the volume ends; for example "138" or "xvi".
+#' @param pageStart The page on which the volume starts; for example "135" or "xiii".
 #' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
 #' @param publisher A publisher of the CreativeWork.

@@ -5,3 +5,22 @@ role: primary
 status: unstable
 category: metadata
 description: An article, including news and scholarly articles.
+properties:
+  pageStart:
+    '@id': schema:pageStart
+    description: The page on which the article starts; for example "135" or "xiii".
+    anyOf:
+      - type: string
+      - type: integer
+  pageEnd:
+    '@id': schema:pageEnd
+    description: The page on which the article ends; for example "138" or "xvi".
+    anyOf:
+      - type: string
+      - type: integer
+  pagination:
+    '@id': schema:pagination
+    description: |
+      Any description of pages that is not separated into pageStart and pageEnd;
+      for example, "1-6, 9, 55".
+    type: string

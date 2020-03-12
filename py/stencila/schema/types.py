@@ -828,6 +828,18 @@ web page, scholarly article, etc.
 class Article(CreativeWork):
     """An article, including news and scholarly articles."""
 
+    pageEnd: Optional[Union[str, int]] = None
+    """The page on which the article ends; for example "138" or "xvi"."""
+
+    pageStart: Optional[Union[str, int]] = None
+    """The page on which the article starts; for example "135" or "xiii"."""
+
+    pagination: Optional[str] = None
+    """Any description of pages that is not separated into pageStart and pageEnd;
+for example, "1-6, 9, 55".
+"""
+
+
     def __init__(
         self,
         alternateNames: Optional[Array[str]] = None,
@@ -850,6 +862,9 @@ class Article(CreativeWork):
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
+        pageEnd: Optional[Union[str, int]] = None,
+        pageStart: Optional[Union[str, int]] = None,
+        pagination: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
@@ -887,7 +902,12 @@ class Article(CreativeWork):
             url=url,
             version=version
         )
-
+        if pageEnd is not None:
+            self.pageEnd = pageEnd
+        if pageStart is not None:
+            self.pageStart = pageStart
+        if pagination is not None:
+            self.pagination = pagination
 
 
 class Collection(CreativeWork):
@@ -2453,10 +2473,10 @@ class PublicationIssue(CreativeWork):
     """Identifies the issue of publication; for example, "iii" or "2"."""
 
     pageEnd: Optional[Union[str, int]] = None
-    """The page on which the work ends; for example "138" or "xvi"."""
+    """The page on which the issue ends; for example "138" or "xvi"."""
 
     pageStart: Optional[Union[str, int]] = None
-    """The page on which the work starts; for example "135" or "xiii"."""
+    """The page on which the issue starts; for example "135" or "xiii"."""
 
     pagination: Optional[str] = None
     """Any description of pages that is not separated into pageStart and pageEnd;
@@ -2544,10 +2564,10 @@ class PublicationVolume(CreativeWork):
     """
 
     pageEnd: Optional[Union[str, int]] = None
-    """The page on which the work ends; for example "138" or "xvi"."""
+    """The page on which the volume ends; for example "138" or "xvi"."""
 
     pageStart: Optional[Union[str, int]] = None
-    """The page on which the work starts; for example "135" or "xiii"."""
+    """The page on which the volume starts; for example "135" or "xiii"."""
 
     pagination: Optional[str] = None
     """Any description of pages that is not separated into pageStart and pageEnd;
