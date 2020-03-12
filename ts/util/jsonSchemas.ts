@@ -14,7 +14,7 @@ import JsonSchema from '../jsonSchema'
 // Lazily loaded set of JSON Schemas
 let SCHEMAS: Record<string, JsonSchema> = {}
 
-interface Property {
+export interface Property {
   /**
    * Name of the property
    */
