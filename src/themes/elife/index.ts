@@ -1,3 +1,4 @@
+import '../../extensions/person'
 import { first, ready } from '../../util'
 import DateTimeFormat = Intl.DateTimeFormat
 
