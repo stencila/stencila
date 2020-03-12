@@ -2,30 +2,45 @@
   display: inline-flex;
 
   /*
-    The `name` property acts as a container for `honorificPrefix`, `givenNames`
-    etc. So turn on display.
+    The `name` property will either be a `<meta>` tag for
+    machines, or a `<span>` for humans as well. The `span`
+    is only used if there are no `givenNames` or `familyNames`.
   */
-  :--name {
+  meta:--name {
+    display: none;
+  }
+  span:--name {
     order: 1;
-    display: inline-flex;
 
-    /*
-      Currently, `givenNames` and `familyNames` are concatenated text content
-      (not a list of given names etc). So just display each and
-      put space after given names.
-    */
+    &::after {
+      content: '\00a0';
+    }
+  }
+
+  /*
+   Given and family names as space separated lists
+  */
+  :--givenNames {
+    order: 1;
+
     :--givenName {
-      order: 1;
-      display: inline;
-
       &::after {
         content: '\00a0';
       }
     }
+  }
+
+  :--familyNames {
+    order: 2;
 
     :--familyName {
-      order: 2;
-      display: inline;
+      &::after {
+        content: '\00a0';
+      }
+
+      &:last-of-type::after {
+        content: normal;
+      }
     }
   }
 
@@ -34,7 +49,7 @@
     the email address/es (leave that to web component).
   */
   :--emails {
-    order: 2;
+    order: 3;
     display: inline;
     list-style: none;
     margin: 0;
@@ -56,11 +71,11 @@
   }
 
   /*
-    `affiliations` property as a comma separated list
+    The `affiliations` property as a comma separated list
     of integer links.
   */
   :--affiliations {
-    order: 3;
+    order: 4;
     display: inline;
     list-style: none;
     margin: 0;
@@ -72,6 +87,7 @@
 
     :--affiliation {
       display: inline;
+      margin-left: 0.2em;
       vertical-align: super;
       font-size: var(--font-size-80);
     }

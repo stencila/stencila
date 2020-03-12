@@ -1,73 +1,119 @@
-@import '../cite/styles.css';
+/* @import '../cite/styles.css'; */
 
-:--references :--citation {
-  :--headline {
-    &::after {
-      content: '.';
-    }
+:--references {
+
+  ol {
+    padding-left: 0;
+    list-style: none;
   }
 
   :--authors {
-    :--Person {
-      :--familyName {
+    :--author {
+      display: inline-flex;
+
+      :--familyNames {
         order: 1;
 
+        :--familyName {
+          &::after {
+            content: '\00a0';
+          }
+
+          &:last-of-type::after {
+            content: normal;
+          }
+        }
+
         &::after {
-          content: ', ';
-          white-space: pre;
+          content: ',\00a0';
         }
       }
 
-      :--givenName {
+      :--givenNames {
         order: 2;
-
-        &::after {
-          content: '.,';
-        }
-      }
-
-      &:last-child {
-        &::before {
-          content: '& ';
-          white-space: pre;
-        }
 
         :--givenName {
           &::after {
-            content: '. ';
+            content: '.\00a0';
+          }
+
+          &:last-of-type::after {
+            content: '.';
           }
         }
+      }
+
+      &::after {
+        order: 3;
+        content: ',\00a0';
+      }
+      &:last-of-type::before {
+        content: '&\00a0';
+      }
+      &:last-of-type::after {
+        content: normal;
       }
     }
   }
 
   :--datePublished {
+    &::before {
+      content: '\00a0(';
+    }
+
     &::after {
-      content: '.';
+      content: ').\00a0';
     }
   }
 
-  :--PublicationIssue {
-    display: inline;
+  :--title::after {
+    content: '.\00a0';
+  }
 
-    :--headline {
-      &::after {
-        content: ', ';
-        font-style: normal;
+  :--isPartOf:--PublicationVolume {
+    display: inline-flex;
+
+    :--isPartOf:--Periodical {
+      order: 1;
+
+      :--name {
+        font-style: italic;
       }
+
+      &::after {
+        content: ',\00a0';
+      }
+    }
+
+    :--volumeNumber {
+      order: 2;
+      font-style: italic;
+    }
+  }
+
+  :--isPartOf:--PublicationIssue {
+    display: inline-flex;
+
+    :--isPartOf:--PublicationVolume {
+      order: 1;
     }
 
     :--issueNumber {
+      order: 2;
+
+      &::before {
+        content: '(';
+      }
+
       &::after {
-        content: ', ';
-        font-weight: normal;
+        content: ')\00a0';
       }
     }
+  }
 
-    :--pagination {
-      &::before {
-        content: normal;
-      }
+  :--pagination {
+    &::before {
+      content: normal;
     }
   }
 }

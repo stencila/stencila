@@ -156,6 +156,24 @@
       list-style-position: outside;
     }
   }
+
+  /* Comma separate authors */
+  & > :--authors :--author {
+    &::after {
+      content: ',\00a0';
+      order: 100;
+    }
+    &:last-of-type::after {
+      content: normal;
+    }
+  }
+
+  & > :--datePublished {
+    display: block;
+    &::before {
+      content: 'Published:\00a0';
+    }
+  }
 }
 
 :--root > :--CodeBlock {
@@ -278,12 +296,7 @@ h2:--Heading {
 }
 
 :--references {
-  li:--Article {
+  :--reference {
     margin-bottom: 1em;
-
-    :--title {
-      display: block;
-      font-weight: bold;
-    }
   }
 }
