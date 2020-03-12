@@ -153,7 +153,12 @@ function check(name?: string, fix = false): number {
           `^import\\s+'\\.\\.\\/\\.\\.\\/extensions\\/${extension}'`,
           'm'
         )
-        if (!scriptRegex.test(script)) {
+        if (
+          !scriptRegex.test(script) &&
+          globby.sync('index.{js,ts}', {
+            cwd: path.join(__dirname, '..', 'extensions', extension)
+          }).length > 0
+        ) {
           if (fix) imports.push(`import '../../extensions/${extension}'`)
           else
             error(
