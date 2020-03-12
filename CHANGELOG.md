@@ -1,3 +1,10 @@
+# [0.42.0](https://github.com/stencila/schema/compare/v0.41.2...v0.42.0) (2020-03-12)
+
+
+### Features
+
+* **Article:** Add pagination, pageStart, pageEnd properties ([276e0b9](https://github.com/stencila/schema/commit/276e0b92fdd5b56376288b4bff8b5289e112aaff))
+
 ## [0.41.2](https://github.com/stencila/schema/compare/v0.41.1...v0.41.2) (2020-03-08)
 
 
