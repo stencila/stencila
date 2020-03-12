@@ -201,6 +201,12 @@ Install dependencies,
 npm install
 ```
 
+Build auto-generated files necessary for theme functionality and development,
+
+```sh
+npm run bootstrap
+```
+
 Run the development server,
 
 ```sh
@@ -208,6 +214,16 @@ npm run dev
 ```
 
 Then open http://localhost:1234/index.html in your browser to view the demo.
+
+There are a few URL query parameters which can be used to control the UI of the theme preview.
+
+| Parameter | Default Value        | Description                                                                                |
+| :-------- | :------------------- | :----------------------------------------------------------------------------------------- |
+| `theme`   | `stencila`           | Sets the active theme for the preview                                                      |
+| `example` | `articleKitchenSink` | Sets the content for the preview                                                           |
+| `ui`      | `true`               | When set to `false` hides the header and theme customization sidebar from the preview page |
+| `header`  | `true`               | When set to `false` hides only the header from the preview page                            |
+| `sidebar` | `true`               | When set to `false` hides only the theme customization sidebar from the preview page       |
 
 ### Creating a new theme
 

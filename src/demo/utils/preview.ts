@@ -2,6 +2,22 @@ import { keys, ASSET_PATH } from '.'
 import { examples, resolveExample } from '../../examples'
 import { append, create } from '../../util'
 
+/**
+ * Read query parameters from the URL, and conditionally hide the Theme Editor UI components
+ */
+export const initUiVisibility = (): void => {
+  const query = window.location.search
+  const hideUi: boolean = query.includes('ui=false')
+
+  if (hideUi || query.includes('header=false')) {
+    document.body.classList.add('headerHidden')
+  }
+
+  if (hideUi || query.includes('sidebar=false')) {
+    document.body.classList.add('sideBarHidden')
+  }
+}
+
 export const getExample = (): string => {
   return (
     new URL(window.location.href).searchParams.get(keys.EXAMPLE) ??
