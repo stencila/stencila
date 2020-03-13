@@ -1,4 +1,4 @@
-import { append, create, select } from '../../util';
+import { append, create, select } from '../../util'
 
 const getUrl = (type: string, id: string, title = ''): string => {
   switch (type) {
@@ -14,10 +14,6 @@ const getUrl = (type: string, id: string, title = ''): string => {
       return `papers2://url/https%3A%2F%2Felifesciences.org%2Farticles%2F46206?title=${encodeURIComponent(
         title
       )}`
-    case 'citeulike':
-      return `http://www.citeulike.org/posturl?url=https%3A%2F%2Felifesciences.org%2Farticles%2F${id}&title=${encodeURIComponent(
-        title
-      )}&doi=10.7554/eLife.${id}`
   }
   return ''
 }
@@ -65,15 +61,10 @@ export const build = (articleId: string, articleTitle: string): void => {
       create(
         'li',
         null,
-        create('a', { href: `${getUrl('papers', articleId)}` }, 'Papers')
-      ),
-      create(
-        'li',
-        null,
         create(
           'a',
-          { href: `${getUrl('citeulike', articleId, articleTitle)}` },
-          'CiteULike'
+          { href: `${getUrl('papers', articleId, articleTitle)}` },
+          'Papers'
         )
       )
     )

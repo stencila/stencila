@@ -20,5 +20,8 @@ ready((): void => {
   const date = new Date(dateEl.innerHTML)
   dateEl.innerHTML = formatDate(date)
 
-  downloads.build('TheArticleId', 'The Article Title')
+  downloads.build(
+    'TheArticleId',
+    first(':--title')?.getAttribute('content') ?? ''
+  )
 })
