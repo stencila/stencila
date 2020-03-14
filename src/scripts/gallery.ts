@@ -107,10 +107,8 @@ async function generateGallery(): Promise<void> {
       list({
         items: Object.entries(summaries).map(([theme, summary]) => {
           return listItem({
-            // TODO: change this from `meta.url` to `url` after refactoring `ListItem` schema
-            meta: { url: `?theme=${theme}` },
-            // TODO: change this from `content` to `item` after refactoring `ListItem` schema
-            content: [summary]
+            url: `?theme=${theme}`,
+            item: summary
           })
         })
       })
