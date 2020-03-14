@@ -108,7 +108,7 @@ async function generateGallery(): Promise<void> {
         items: Object.entries(summaries).map(([theme, summary]) => {
           return listItem({
             url: `?theme=${theme}`,
-            item: summary
+            content: [summary]
           })
         })
       })
@@ -146,6 +146,7 @@ async function generateSummary(
   const screenshot = path.join(tmpdir(), 'screenshots', `${theme}.png`)
 
   await write(example, screenshot, {
+    isStandalone: true,
     theme: path.join(distDir, 'themes', theme),
     size: { height: 500, width: 800 }
   })
