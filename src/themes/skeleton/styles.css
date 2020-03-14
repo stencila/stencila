@@ -297,6 +297,10 @@ h2:--Heading {
 
 :--references {
   :--reference {
+    /* Override the width: 100% applied above on :--ListTypes */
+    > * {
+      width: inherit;
+    }
     margin-bottom: 1em;
   }
 }
