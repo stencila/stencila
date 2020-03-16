@@ -306,6 +306,6 @@ h2:--Heading {
       width: inherit;
     }
 
-    margin-bottom: 1em;
+    margin-bottom: var(--spacer-md);
   }
 }
