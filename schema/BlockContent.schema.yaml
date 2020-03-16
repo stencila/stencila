@@ -4,6 +4,8 @@ description: Union type for valid block content.
 anyOf:
   - $ref: CodeBlock
   - $ref: CodeChunk
+  - $ref: Collection
+  - $ref: Figure
   - $ref: Heading
   - $ref: List
   - $ref: ListItem
