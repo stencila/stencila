@@ -1,3 +1,11 @@
+## [0.42.1](https://github.com/stencila/schema/compare/v0.42.0...v0.42.1) (2020-03-16)
+
+
+### Bug Fixes
+
+* **BlockContent:** Add Figure and Collection as valid types ([2e0d0bb](https://github.com/stencila/schema/commit/2e0d0bb4f1adcc22c4b8ae83d0e40c9f12baef90))
+* **Figure, Table:** Add or update caption and label properties ([34858db](https://github.com/stencila/schema/commit/34858db2e351fa093cbdb49211cd821a21808e4b))
+
 # [0.42.0](https://github.com/stencila/schema/compare/v0.41.2...v0.42.0) (2020-03-12)
 
 
