@@ -6,6 +6,21 @@ status: unstable
 category: prose
 description: A table.
 properties:
+  caption:
+    '@id': schema:caption
+    description: A caption for the table.
+    $comment: |
+      An array of nodes or, to be compatible with https://schema.org/caption,
+      a string.
+    anyOf:
+      - type: string
+      - type: array
+        items:
+          $ref: Node
+  label:
+    '@id': stencila:label
+    description: A short label for the table.
+    type: string
   rows:
     '@id': stencila:rows
     description: |

@@ -6,18 +6,18 @@ status: unstable
 category: prose
 description: Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 properties:
-  label:
-    '@id': stencila:label
-    description: A short label for the figure.
-    type: string
   caption:
     '@id': schema:caption
-    description: A caption to display for the figure.
+    description: A caption for the figure.
     $comment: |
-      To be compatible with https://schema.org/caption,
-      can be a string.
+      An array of nodes or, to be compatible with https://schema.org/caption,
+      a string.
     anyOf:
       - type: string
       - type: array
         items:
           $ref: Node
+  label:
+    '@id': stencila:label
+    description: A short label for the figure.
+    type: string
