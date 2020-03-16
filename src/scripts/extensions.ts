@@ -77,7 +77,7 @@ function update(all = true): void {
     const extensionDir = path.join(extensionsDir, extension)
 
       // Check each extension has the necessary files
-    ;['README.md', 'styles.css', ['index.js', 'index.ts']].forEach(file => {
+    ;['README.md', 'styles.css'].forEach(file => {
       const files = globby.sync(file, {
         onlyFiles: true,
         cwd: extensionDir

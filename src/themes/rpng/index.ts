@@ -1,1 +1,1 @@
-import '../../extensions/math'
+export {}

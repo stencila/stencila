@@ -17,6 +17,7 @@
 
       :--familyName {
         order: 2;
+        white-space: nowrap;
 
         &::after {
           content: ', ';
@@ -26,6 +27,7 @@
 
       :--givenName {
         order: 1;
+        white-space: nowrap;
 
         &::after {
           content: ' ';
