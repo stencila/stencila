@@ -1,3 +1,7 @@
+@import '../../extensions/cite-apa/styles.css';
+@import '../../extensions/math/styles.css';
+@import '../../extensions/pages/styles.css';
+@import '../../extensions/person/styles.css';
 @import '../../fonts/merriweather/merriweather.css';
 
 :--root {
@@ -40,19 +44,6 @@
   --color-primary-900: #171921;
 
   /* Neutral: For backgrounds and borders */
-
-  /*
-  --color-neutral-100: #fdf9f3;
-  --color-neutral-200: #fcf7ef;
-  --color-neutral-300: #fbf4eb;
-  --color-neutral-400: #f5ede1;
-  --color-neutral-500: #ece2d5;
-  --color-neutral-600: #dfd4c6;
-  --color-neutral-700: #cbc0b3;
-  --color-neutral-800: #b2a89c;
-  --color-neutral-900: #544F4A;
-  */
-
   --color-neutral-100: #fffbf5;
   --color-neutral-200: #f7f3ef;
   --color-neutral-300: #f1eae1;
@@ -91,6 +82,7 @@
   }
 
   :--Date,
+  :--datePublished,
   :--Heading,
   h1,
   h2,
@@ -98,6 +90,7 @@
   :--Paragraph,
   :--Collection,
   :--List,
+  :--MathBlock,
   :--Organization,
   :--authors,
   :--description,
@@ -122,6 +115,10 @@
     & > * {
       max-width: 100%;
     }
+  }
+
+  & > :--datePublished {
+    display: block;
   }
 }
 
@@ -484,6 +481,10 @@ h6:--Heading {
 }
 
 :--references {
+  > ol {
+    list-style-type: decimal;
+  }
+
   :--CreativeWork {
     margin-bottom: 1rem;
 
