@@ -1,3 +1,18 @@
+## [1.15.1](https://github.com/stencila/thema/compare/v1.15.0...v1.15.1) (2020-03-16)
+
+
+### Bug Fixes
+
+* **Cite-APA Extension:** Add styling for pageStart, pageEnd, and pagination ([544b8d6](https://github.com/stencila/thema/commit/544b8d6ac9132462ed078c7102215956b06e506b))
+* **Dependencies:** Upgrade Encoda and remove DOM manipulations no longer needed ([ea70ac2](https://github.com/stencila/thema/commit/ea70ac20160df9c70d91de1e784af3b7262077f5))
+* **Extensions:** Upgrade Encoda and remove redundant scripts ([75dcbbf](https://github.com/stencila/thema/commit/75dcbbfb7f41cc50603b67f09fae57deb849050f))
+* **Extensions, Skeleton theme:** Changes related to upgrading Encoda ([40694a2](https://github.com/stencila/thema/commit/40694a24616e8488cb6e474c0e5384e57a011e02))
+* **Gallery:** Hide datePublished and update to  new schema for list items ([56fe408](https://github.com/stencila/thema/commit/56fe408bcffc41ae4b72d46b3156c13f60d50c0c))
+* **Gallery:** Use isStandalone and content ([7f1ae28](https://github.com/stencila/thema/commit/7f1ae28455e7cb43a36c7a5da8ada1e0a0aef706))
+* **References:** Fix irregular spacing for Author references ([ddece32](https://github.com/stencila/thema/commit/ddece32435eb047c27006ff12e056898c0f04a76))
+* **Skeleton:** Fix Headings inside non-root elements being too wide ([f775d96](https://github.com/stencila/thema/commit/f775d96cbdf8a63b65eb999f6ecd34796eb7eb64))
+* **Wilmore:** Fix Code, Math, DataPublished node formatting & styles ([1a9f528](https://github.com/stencila/thema/commit/1a9f528ba95265266edbdc96074348159249b2f2))
+
 # [1.15.0](https://github.com/stencila/thema/compare/v1.14.2...v1.15.0) (2020-03-12)
 
 
