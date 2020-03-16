@@ -1315,7 +1315,7 @@ class Figure(CreativeWork):
     """
 
     caption: Optional[Union[str, Array["Node"]]] = None
-    """A caption to display for the figure."""
+    """A caption for the figure."""
 
     label: Optional[str] = None
     """A short label for the figure."""
@@ -3172,12 +3172,19 @@ class Table(CreativeWork):
     """Rows of cells in the table.
 """
 
+    caption: Optional[Union[str, Array["Node"]]] = None
+    """A caption for the table."""
+
+    label: Optional[str] = None
+    """A short label for the table."""
+
 
     def __init__(
         self,
         rows: Array["TableRow"],
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        caption: Optional[Union[str, Array["Node"]]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -3193,6 +3200,7 @@ class Table(CreativeWork):
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
+        label: Optional[str] = None,
         licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -3235,6 +3243,10 @@ class Table(CreativeWork):
         )
         if rows is not None:
             self.rows = rows
+        if caption is not None:
+            self.caption = caption
+        if label is not None:
+            self.label = label
 
 
 class TableCell(Entity):
@@ -3499,7 +3511,7 @@ class VolumeMount(Thing):
 """
 Union type for valid block content.
 """
-BlockContent = Union["CodeBlock", "CodeChunk", "Heading", "List", "ListItem", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
+BlockContent = Union["CodeBlock", "CodeChunk", "Collection", "Figure", "Heading", "List", "ListItem", "MathBlock", "Paragraph", "QuoteBlock", "Table", "ThematicBreak"]
 
 
 """

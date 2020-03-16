@@ -1332,7 +1332,7 @@ EnumValidator <- function(
 #' @name Figure
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
-#' @param caption A caption to display for the figure.
+#' @param caption A caption for the figure.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
@@ -3251,6 +3251,7 @@ Superscript <- function(
 #' @param rows Rows of cells in the table.  \bold{Required}.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
+#' @param caption A caption for the table.
 #' @param content The structured content of this creative work c.f. property `text`.
 #' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
@@ -3266,6 +3267,7 @@ Superscript <- function(
 #' @param images Images of the item.
 #' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
 #' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+#' @param label A short label for the table.
 #' @param licenses License documents that applies to this content, typically indicated by URL.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
@@ -3282,6 +3284,7 @@ Table <- function(
   rows,
   alternateNames,
   authors,
+  caption,
   content,
   dateAccepted,
   dateCreated,
@@ -3297,6 +3300,7 @@ Table <- function(
   images,
   isPartOf,
   keywords,
+  label,
   licenses,
   meta,
   name,
@@ -3339,6 +3343,8 @@ Table <- function(
   )
   self$type <- as_scalar("Table")
   self[["rows"]] <- check_property("Table", "rows", TRUE, missing(rows), Array(TableRow), rows)
+  self[["caption"]] <- check_property("Table", "caption", FALSE, missing(caption), Union("character", Array(Node)), caption)
+  self[["label"]] <- check_property("Table", "label", FALSE, missing(label), "character", label)
   class(self) <- c(class(self), "Table")
   self
 }
@@ -3628,7 +3634,7 @@ VolumeMount <- function(
 #' Union type for valid block content.
 #'
 #' @export
-BlockContent <- Union(CodeBlock, CodeChunk, Heading, List, ListItem, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
+BlockContent <- Union(CodeBlock, CodeChunk, Collection, Figure, Heading, List, ListItem, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
 
 
 #' All type schemas that are derived from CodeBlock
