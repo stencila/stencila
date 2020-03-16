@@ -1,1 +1,1 @@
-export {}
+import '../../extensions/cite-apa'
