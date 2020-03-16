@@ -170,6 +170,7 @@
 
   & > :--datePublished {
     display: block;
+
     &::before {
       content: 'Published:\00a0';
     }
@@ -229,7 +230,10 @@
   font-family: var(--font-family-title);
   line-height: 1.25;
   margin-bottom: var(--spacer-sm);
+  margin-left: auto;
+  margin-right: auto;
   margin-top: var(--spacer-lg);
+  max-width: var(--max-width);
 
   & + & {
     margin-top: var(--spacer-sm);
