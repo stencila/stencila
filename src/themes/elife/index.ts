@@ -1,5 +1,3 @@
-import '../../extensions/headings'
-import '../../extensions/person'
 import { first, ready } from '../../util'
 import * as downloads from './downloads'
 import DateTimeFormat = Intl.DateTimeFormat
