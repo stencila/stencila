@@ -1,4 +1,3 @@
-import '../cite'
 import { ready, select, text } from '../../util'
 
 /**

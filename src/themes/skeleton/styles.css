@@ -156,6 +156,25 @@
       list-style-position: outside;
     }
   }
+
+  /* Comma separate authors */
+  & > :--authors :--author {
+    &::after {
+      content: ',\00a0';
+      order: 100;
+    }
+    &:last-of-type::after {
+      content: normal;
+    }
+  }
+
+  & > :--datePublished {
+    display: block;
+
+    &::before {
+      content: 'Published:\00a0';
+    }
+  }
 }
 
 :--root > :--CodeBlock {
@@ -211,7 +230,10 @@
   font-family: var(--font-family-title);
   line-height: 1.25;
   margin-bottom: var(--spacer-sm);
+  margin-left: auto;
+  margin-right: auto;
   margin-top: var(--spacer-lg);
+  max-width: var(--max-width);
 
   & + & {
     margin-top: var(--spacer-sm);
@@ -278,12 +300,12 @@ h2:--Heading {
 }
 
 :--references {
-  li:--Article {
-    margin-bottom: 1em;
-
-    :--title {
-      display: block;
-      font-weight: bold;
+  :--reference {
+    /* Override the width: 100% applied above on :--ListTypes */
+    > * {
+      width: inherit;
     }
+
+    margin-bottom: var(--spacer-md);
   }
 }

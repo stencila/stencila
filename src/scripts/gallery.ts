@@ -107,9 +107,7 @@ async function generateGallery(): Promise<void> {
       list({
         items: Object.entries(summaries).map(([theme, summary]) => {
           return listItem({
-            // TODO: change this from `meta.url` to `url` after refactoring `ListItem` schema
-            meta: { url: `?theme=${theme}` },
-            // TODO: change this from `content` to `item` after refactoring `ListItem` schema
+            url: `?theme=${theme}`,
             content: [summary]
           })
         })
@@ -148,6 +146,7 @@ async function generateSummary(
   const screenshot = path.join(tmpdir(), 'screenshots', `${theme}.png`)
 
   await write(example, screenshot, {
+    isStandalone: true,
     theme: path.join(distDir, 'themes', theme),
     size: { height: 500, width: 800 }
   })
