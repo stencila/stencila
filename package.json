@@ -56,7 +56,7 @@
   "homepage": "https://github.com/stencila/thema#readme",
   "dependencies": {
     "@simonwep/pickr": "^1.5.1",
-    "@stencila/components": "^0.9.0",
+    "@stencila/components": "^0.10.0",
     "project-name-generator": "^2.1.7",
     "react": "^16.13.0",
     "react-dom": "^16.13.0"
