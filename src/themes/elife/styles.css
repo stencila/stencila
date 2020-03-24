@@ -13,6 +13,8 @@
 @import '../../fonts/notoSerif/notoSerif.css';
 @import '../../fonts/notoSans/notoSans.css';
 
+@import 'custom-properties.css';
+
 @import '../../extensions/person/styles.css';
 
 /* @extend-ing eLife's CSS may not take into account the cascade of styles
@@ -91,4 +93,13 @@ main {
       content: '';
     }
   }
+}
+
+:--datePublished {
+  font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+  font-size: calc(var(--text-size-small) * 1rem);
+  line-height: calc(1.5rem / var(--text-size-small));
+  letter-spacing: 0.5px;
+  text-align: center;
+  text-transform: capitalize;
 }
