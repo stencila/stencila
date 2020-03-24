@@ -23,9 +23,15 @@
   border-radius: 0.25rem;
   min-width: 1em;
   min-height: 1em;
+  width: auto !important;
 
+  stencila-action-menu,
   [slot='text'] {
     display: none;
+  }
+
+  stencila-node-list {
+    width: 100%;
   }
 
   &::before {
@@ -52,9 +58,14 @@
 }
 
 :--CodeChunk::before {
-  top: 0.5em;
-  left: 1em;
+  top: 0.5rem;
+  left: 0.5rem;
   padding-right: 0.5rem;
+}
+
+:--CodeExpression .source,
+:--CodeExpression .divider {
+  display: none !important;
 }
 
 :--CodeExpression [slot='output'] {
