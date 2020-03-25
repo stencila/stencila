@@ -13,9 +13,10 @@
 @import '../../fonts/notoSerif/notoSerif.css';
 @import '../../fonts/notoSans/notoSans.css';
 
-@import 'custom-properties.css';
-
 @import '../../extensions/person/styles.css';
+
+/* Custom Properties */
+@import 'custom-properties.css';
 
 /* @extend-ing eLife's CSS may not take into account the cascade of styles
  * applied to an element upstream of the extended style. Add @mixins here for such styles
@@ -97,9 +98,9 @@ main {
 
 :--datePublished {
   font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
-  font-size: calc(var(--text-size-small) * 1rem);
-  line-height: calc(1.5rem / var(--text-size-small));
-  letter-spacing: 0.5px;
+  font-size: calc(var(--text-size-rem-small) * 1rem);
+  line-height: calc(1.5rem / var(--text-size-rem-small));
+  letter-spacing: var(--letter-spacing);
   text-align: center;
   text-transform: capitalize;
 }

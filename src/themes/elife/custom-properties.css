@@ -1,3 +1,4 @@
-:root {
-  --text-size-small: 0.6875;
+:--root {
+  --text-size-rem-small: 0.6875;
+  --letter-spacing: 0.5px;
 }
