@@ -21,7 +21,7 @@
   padding: 0;
   width: 100% !important;
 
-  @media (--mq-lg) {
+  @media (--mq-md) {
     align-items: flex-start;
     display: flex;
     flex-flow: row wrap;
@@ -34,7 +34,7 @@
     border-radius: 4px;
     margin: var(--spacer-md);
 
-    @media (--mq-lg) {
+    @media (--mq-md) {
       flex-basis: calc(50% - var(--spacer-md) * 2);
     }
   }
