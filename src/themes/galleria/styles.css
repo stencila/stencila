@@ -8,6 +8,7 @@
 
 :--root > :--title,
 :--root > :--authors,
+:--root > :--identifiers,
 :--Article:--root > :--datePublished,
 :--root > span,
 :--root > :--Organization {

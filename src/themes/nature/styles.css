@@ -86,6 +86,11 @@
   width: 100%;
 }
 
+/* Hide article metadata */
+:--identifiers {
+  display: none;
+}
+
 :--Collection,
 :--Heading,
 :--title,
