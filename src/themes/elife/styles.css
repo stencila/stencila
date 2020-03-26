@@ -42,6 +42,11 @@ main {
   @extend .grid-column;
 }
 
+/* Hide article metadata */
+:--identifiers {
+  display: none;
+}
+
 :--Article :--authors {
   @extend .content-header__author_list;
 
