@@ -1,3 +1,10 @@
+## [1.16.1](https://github.com/stencila/thema/compare/v1.16.0...v1.16.1) (2020-03-26)
+
+
+### Bug Fixes
+
+* **Elife:** Match Encoda date semantics & be defensive ([09707f6](https://github.com/stencila/thema/commit/09707f62dbdd0088491e52d7c7d44a8e7931f86d))
+
 # [1.16.0](https://github.com/stencila/thema/compare/v1.15.2...v1.16.0) (2020-03-26)
 
 
