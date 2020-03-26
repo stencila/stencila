@@ -1,3 +1,16 @@
+# [1.16.0](https://github.com/stencila/thema/compare/v1.15.2...v1.16.0) (2020-03-26)
+
+
+### Bug Fixes
+
+* **Galleria:** Fix grid layout at medium breakpoints ([3228bc0](https://github.com/stencila/thema/commit/3228bc0cdef3a667085bb2e8505f6cc23c1af0f4))
+
+
+### Features
+
+* Hide article identifiers section ([cc54727](https://github.com/stencila/thema/commit/cc54727d241a49e6e6d86288137c0a4e291cdc2e))
+* **Elife:** Hide article identifiers section ([0bfc95f](https://github.com/stencila/thema/commit/0bfc95f6d593b0206e86ae353ffe358e0aba95b4))
+
 ## [1.15.2](https://github.com/stencila/thema/compare/v1.15.1...v1.15.2) (2020-03-26)
 
 
