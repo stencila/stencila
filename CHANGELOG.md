@@ -1,3 +1,11 @@
+## [1.15.2](https://github.com/stencila/thema/compare/v1.15.1...v1.15.2) (2020-03-26)
+
+
+### Bug Fixes
+
+* **Demo:** Add missing Stencila Components JS files to preview documents ([9ef8939](https://github.com/stencila/thema/commit/9ef8939860343de592372bdde78fb7c0d44c34dd))
+* **RPNG:** Collapse source code panels in RPNG theme ([a15e6d5](https://github.com/stencila/thema/commit/a15e6d5e65f0a448fbc6860e143c0666898a5d2c))
+
 ## [1.15.1](https://github.com/stencila/thema/compare/v1.15.0...v1.15.1) (2020-03-16)
 
 
