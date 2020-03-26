@@ -6,7 +6,8 @@ import {
   forceReady,
   getExample,
   getPreviewDoc,
-  getPreviewHead
+  getPreviewHead,
+  injectPreviewAssets
 } from './preview'
 
 export const getThemeCSS = (theme: string): string => {
@@ -49,6 +50,7 @@ export const themeSet = (theme: string): void => {
     }
 
     prepend(previewHead, themeStyles)
+    injectPreviewAssets()
   }
 
   // Remove all appended theme scripts, and re-append chosen theme’s script

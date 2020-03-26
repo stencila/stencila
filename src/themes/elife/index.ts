@@ -8,15 +8,15 @@ const dateFormatter = new DateTimeFormat('en-US', {
   year: 'numeric'
 })
 
-const formatDate = (date: Date): string => {
-  return dateFormatter.format(date)
+const formatDate = (dateEl: Element | null): void => {
+  if (dateEl instanceof Element) {
+    const date = new Date(dateEl.innerHTML)
+    dateEl.innerHTML = dateFormatter.format(date)
+  }
 }
 
 ready((): void => {
-  const dateEl = first(':--Date')
-  if (!(dateEl instanceof Element)) return
-  const date = new Date(dateEl.innerHTML)
-  dateEl.innerHTML = formatDate(date)
+  formatDate(first(':--datePublished'))
 
   downloads.build(
     'TheArticleId',
