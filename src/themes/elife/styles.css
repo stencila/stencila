@@ -37,7 +37,6 @@ main {
   float: none;
 
   @extend .one-whole;
-  @extend .large--eight-twelfths;
   @extend .x-large--seven-twelfths;
   @extend .grid-column;
 }
