@@ -99,7 +99,7 @@ main {
 :--datePublished {
   font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
   font-size: calc(var(--text-size-rem-small) * 1rem);
-  line-height: calc(1.5rem / var(--text-size-rem-small));
+  line-height: calc(var(--line-height-calc) / var(--text-size-rem-small));
   letter-spacing: var(--letter-spacing);
   text-align: center;
   text-transform: capitalize;
