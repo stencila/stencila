@@ -15,7 +15,6 @@
 
 @import '../../extensions/person/styles.css';
 
-/* Custom Properties */
 @import 'custom-properties.css';
 
 /* @extend-ing eLife's CSS may not take into account the cascade of styles
