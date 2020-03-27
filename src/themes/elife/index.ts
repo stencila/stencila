@@ -1,4 +1,4 @@
-import { first, ready } from '../../util'
+import {first, ready, select} from '../../util'
 import * as downloads from './downloads'
 import DateTimeFormat = Intl.DateTimeFormat
 
@@ -15,11 +15,17 @@ const formatDate = (dateEl: Element | null): void => {
   }
 }
 
+const getArticleId = (): string => {
+  const selector =
+    ':--identifier meta[content="https://registry.identifiers.org/registry/publisher-id"] ~ [itemprop="value"]'
+  return first(selector)?.innerHTML ?? ''
+}
+
 ready((): void => {
   formatDate(first(':--datePublished'))
 
   downloads.build(
-    'TheArticleId',
+    getArticleId(),
     first(':--title')?.getAttribute('content') ?? ''
   )
 })
