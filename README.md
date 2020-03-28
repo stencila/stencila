@@ -18,15 +18,16 @@
 - [Develop](#develop)
   - [Prerequisites](#prerequisites)
   - [Getting started](#getting-started)
+    - [Gallery UI parameters](#gallery-ui-parameters)
   - [Creating a new theme](#creating-a-new-theme)
     - [Scripted creation](#scripted-creation)
     - [Manual creation](#manual-creation)
     - [Approaches](#approaches)
-- [Notes](#notes)
   - [Generated code](#generated-code)
   - [Testing](#testing)
     - [DOM traversal and manipulation](#dom-traversal-and-manipulation)
     - [Visual regressions](#visual-regressions)
+  - [Committing](#committing)
 - [Acknowledgments](#acknowledgments)
 - [Utilities API](#utilities-api)
   - [Functions](#functions)
@@ -356,6 +357,15 @@ When testing locally, there are three screenshot folders to be aware of inside t
 - `diff`: If any discrepancies are found between the `reference` and `local` screenshots, the differences will be highlighted and saved to this directory.
 
 There is a pseudo-test in `test/screenshot.test.js` which can be un-skipped to help with debugging the automated running of tests.
+
+### Committing
+
+Commit messages should follow the [conventional commits](https://www.conventionalcommits.org/) specification. This is useful (but not essential) because commit messages are used to determine the semantic version of releases and to generate the project's [CHANGELOG.md](https://github.com/stencila/thema/blob/next/CHANGELOG.md). If appropriate, use the sentence case theme name as the scope (to help make both `git log` and the CHANGELOG more readable). Some examples,
+
+- `fix(Wilmore): Fix Code, Math, DataPublished node formatting & styles`
+- `feat(Elife): Use eLife corresponding author envelope icon`
+- `docs(README): Add some notes on testing`
+- `ci(Travis): Fix command to check themes`
 
 ## Acknowledgments
 
