@@ -18,15 +18,16 @@
 - [Develop](#develop)
   - [Prerequisites](#prerequisites)
   - [Getting started](#getting-started)
+    - [Gallery UI parameters](#gallery-ui-parameters)
   - [Creating a new theme](#creating-a-new-theme)
     - [Scripted creation](#scripted-creation)
     - [Manual creation](#manual-creation)
     - [Approaches](#approaches)
-- [Notes](#notes)
   - [Generated code](#generated-code)
   - [Testing](#testing)
     - [DOM traversal and manipulation](#dom-traversal-and-manipulation)
     - [Visual regressions](#visual-regressions)
+  - [Committing](#committing)
 - [Acknowledgments](#acknowledgments)
 - [Utilities API](#utilities-api)
   - [Functions](#functions)
@@ -53,15 +54,18 @@ npm install @stencila/thema
 
 ```css
 /* myStyleSheet.css */
-@import '@stencila/thema/dist/stencila/styles.css';
+@import '@stencila/thema/dist/themes/stencila/styles.css';
 ```
 
 ```js
 /* myJavaScript.js */
-@import '@stencila/thema/dist/stencila';
+@import '@stencila/thema/dist/themes/stencila';
 ```
 
 ## Themes
+
+Thema comes with several premade themes. Preview and customize the themes [in the
+gallery](https://stencila.github.io/thema/), or learn how to [make one from scratch](#creating-a-new-theme).
 
 ### Current themes
 
@@ -85,29 +89,33 @@ npm install @stencila/thema
 
 ### Structure of themes
 
-There are two primary files inside each theme folder. The naming of these two
+There are two primary files inside each theme folder. The naming convention of these two
 files is important, and they must not be changed since they are referred to
 from `encoda`.
 
-- `styles.css`: CSS and visual styles specific to the theme. We use PostCSS
-  to compile the CSS, this is done to utilize PostCSS utilities such as
+- `styles.css`: CSS and visual styles specific to the theme. We use [PostCSS](https://postcss.org)
+  to compile the CSS. This is done to utilize PostCSS utilities such as
   autoprefixing vendor flags to selectors, and writing nested selectors.
-- `index.ts`: Written in TypeScript, this file is loaded asynchronously. It is
+- `index.ts`: Written in [TypeScript](https://www.typescriptlang.org), this file is loaded asynchronously. It is
   used to progressively enhance the theme with things like syntax highlighting
   of code blocks.
 
 ## Web Components
 
-The [default set of Web Components](https://github.com/stencila/designa/tree/master/packages/components) to provide interactivity to document nodes.
+[Stencila Web Components](https://github.com/stencila/designa/tree/master/packages/components) are used to provide
+interactivity and enhancement to several document nodes.
 
-Currently, the following node types have Web Components. Encoda will encode these nodes types as custom HTML elements that get hydrated into these components.
+[Encoda](https://github.com/stencila/encoda) will output several [Schema nodes](https://github.com/stencila/schema) as custom HTML elements.
+Currently, the following node types have Web Components:
 
 | Node type        | Custom element               |
 | ---------------- | ---------------------------- |
 | `CodeChunk`      | `<stencila-code-chunk>`      |
 | `CodeExpression` | `<stencila-code-expression>` |
 
-More components will be added over time. In the meantime, the "pseudo-components" in sibling folders to this one, provide styling for some other node types.
+More components will be added over time. In the meantime, the "pseudo-component" [folders in
+`src/extensions`](./src/extensions), provide styling for some other node types.
+See the [Extensions section](#extensions) for more details.
 
 ## Extensions
 
@@ -155,15 +163,19 @@ The first question to ask when developing a new extension is: should I? Extensio
 - likely to be used in several themes, and
 - needed in a hurry
 
-If it's not likely to be used in more than one or two themes then it's probably not worth creating an extension. If it's not needed in a hurry, then it is probably better to put the effort into contributing a web component to `@stencila/components`. Having said that, if your more comfortable writing a simple extension here, to try out some ideas for something that may become a fully fledged web component, we are grateful for _any_ contributions.
+If it's not likely to be used in more than one or two themes then it's probably not worth creating an extension. If it's
+not needed in a hurry, then it is probably better to put the effort into contributing a web component to
+`@stencila/components`. Having said that, if you are more comfortable writing a simple extension here, to try out some
+ideas for something that may become a fully fledged web component, we are grateful for _any_ contributions.
 
 The easiest way to create a new extension is using:
 
 ```bash
-npm run create:extension -- myext
+npm run create:extension -- myextensionname
 ```
 
-That will update the `src/extensions/index.ts` file with a new entry for your extension and create a new folder in the `src/extensions` folder with the necessary files:
+That will update the `src/extensions/index.ts` file with a new entry for your extension and create a new folder in the
+`src/extensions` folder with the necessary files:
 
 ```
 src/extensions/myext
@@ -171,9 +183,15 @@ src/extensions/myext
 └── styles.css
 ```
 
-You can create the folder and files yourself if you prefer. Just remember to run `npm run update:extensions` afterwards to add your extension to the index. See the other extensions for approaches to writing the CSS and Javascript / Typescript for your extension.
+You can create the folder and files yourself if you prefer. Just remember to run `npm run update:extensions` afterwards
+to add your extension to the index. See the other extensions for approaches to writing the CSS and Javascript /
+Typescript for your extension.
 
-Some extensions perform manipulation of the DOM to make it more amenable to achieving a particular CSS styling e.g. adding a wrapping `<div>`s. For performance reasons these manipulations should be kept to a minimum. In some cases, it may be better to make the necessary changes to Encoda's HTML codec. In those cases the DOM manipulations in the extension should be commented as being temporary, and be [linked to an issue in Encoda](https://github.com/stencila/encoda/issues) to make those changes permanent.
+Some extensions perform manipulation of the DOM to make it more amenable to achieving a particular CSS styling e.g.
+adding a wrapping `<div>`s. For performance reasons these manipulations should be kept to a minimum. In some cases, it
+may be better to make the necessary changes to Encoda's HTML codec. In those cases the DOM manipulations in the
+extension should be commented as being temporary, and be [linked to an issue in
+Encoda](https://github.com/stencila/encoda/issues) to make those changes permanent.
 
 ## Develop
 
@@ -187,32 +205,25 @@ Some extensions perform manipulation of the DOM to make it more amenable to achi
 
 The best way to get started is to develop CSS and JS for a theme with the live updating demo running.
 
-Clone this repository,
-
 ```sh
+# Clone this repository
 git clone git@github.com:stencila/thema.git
 cd thema
-```
 
-Install dependencies,
-
-```sh
+# Install dependencies
 npm install
-```
 
-Build auto-generated files necessary for theme functionality and development,
-
-```sh
+# Build auto-generated files necessary for theme functionality and development
 npm run bootstrap
-```
 
-Run the development server,
-
-```sh
+# Run the development server
 npm run dev
 ```
 
-Then open http://localhost:1234/index.html in your browser to view the demo.
+Your browser should automatically open (http://localhost:8081)[http://localhost:8081] with the theme gallery view.
+Any changes to the stylesheets and code will be automatically recompiled and reflected in the browser.
+
+#### Gallery UI parameters
 
 There are a few URL query parameters which can be used to control the UI of the theme preview.
 
@@ -238,7 +249,7 @@ Theme names should be all lower case, and start with a letter. This creates a ne
 
 - a `README.md` providing a description of the theme and notes for contributors,
 - a `styles.css` file for the theme's CSS,
-- a `index.ts` for any Typescript that the style may need
+- a `index.ts` for any Typescript that the theme may need
 
 #### Manual creation
 
@@ -252,13 +263,19 @@ npm run update:themes
 
 There are three broad approaches to developing a new theme, each epitomized in three of the themes in this repository:
 
-- the [`skeleton`](./src/themes/skeleton/README.md) approach: flesh things out yourself; start from scratch with nothing but be unaffected from changes to `shared` styles and scripts
+- the [`skeleton`](./src/themes/skeleton/README.md) approach: define all styles yourself, importing only the `extensions` needed for the theme
+- the [`stencila`](./src/themes/stencila/README.md) approach: leverage [`skeleton`
+  theme](./src/themes/skeleton/README.md) as a foundation, overriding CSS variables and nodes as needed start from a
+  relatively
+- the [`bootstrap`](./src/themes/bootstrap/README.md) approach: reuse existing stylesheets from elsewhere by creating a mapping
+  between Thema's semantic selectors and existing selectors in those stylesheets
 
-- the [`bootstrap`](./src/themes/bootstrap/README.md) approach: reuse existing stylesheets from elsewhere by mapping between Thema's semantic selectors and existing selectors in those stylesheets
+It is important to note that the `skeleton` and `bootstrap` themes are extremes of each of the approaches - they apply
+their approach to _all_ document node types. Depending on your theme, the best approach is probably some combination of
+these approaches for different node types e.g. starting from scratch for some nodes and using `shared` styles for
+others.
 
-It is important to note that the `skeleton` and `bootstrap` themes are extremes of each of the approaches - they apply their approach to _all_ document node types. Depending on your theme, the best approach is probably some combination of these approaches for different node types e.g. starting from scratch for some nodes and using `shared` styles for others.
-
-There are a few key rules enforced by Stylelint:
+There are a few key rules enforced by [Stylelint](https://stylelint.io):
 
 - All selectors must be descendants of a custom semantic selector. This reduces risks of a theme interfering with exsitng
   stylesheets on a website.
@@ -266,35 +283,31 @@ There are a few key rules enforced by Stylelint:
   allow simple theme overrides within the browser without having to rebuild the theme.
 - Design your themes using a mobile-first approach, adding overrides to refine styles on larger screens. At the same
   time, it is highly recommended to also include print media overrides with your theme.
-- These themes are primarily intended for rendering interactive articles and other relatively long forms of prose.
-  - As such, good typography is paramount. Reading Matthew Butterick‘s [Typography in Ten
-  - Minutes](https://practicaltypography.com/typography-in-ten-minutes.html) will give you a solid foundation and a
-  - reference for crafting your own themes.
+- These themes are primarily intended for rendering interactive articles and other relatively long forms of prose. As
+  such, good typography is paramount. Reading [Matthew Butterick’s Typography in Ten
+  Minutes](https://practicaltypography.com/typography-in-ten-minutes.html) will give you a solid foundation and a
+  reference for crafting your own themes.
 
 To tweak or adjust an existing theme, you may override some common CSS variables found in the themes.
 Please refer to the specific theme documentation for available variables.
 
-Type selectors
+##### Type selectors
 
-For types defined in http://schema.org (e.g. `Article`), or extensions such as,
-http://schema.stenci.la (e.g. `CodeChunk`), http://bioschemas.org (e.g. `Taxon`) etc.
+For types defined by [Schema.org](http://schema.org) (e.g. `Article`), or extensions such as,
+[schema.stenci.la](http://schema.stenci.la) (e.g. `CodeChunk`), [Bioschemas](http://bioschemas.org) (e.g. `Taxon`) etc.
 
-Conventions:
+###### Conventions:
 
 - use the same upper camel case as in the schema the type is defined in
 - use a `[itemtype=...]` selector if possible (i.e. if Encoda encodes it in HTML)
 
-Property selectors
+##### Property selectors
 
-For properties of types defined in schemas. Note that
-some of these select an entire container property e.g. `authors` and
-selector for a class, and some select items in those properties
-e.g. `author` and select for a `itemprop`.
+For properties of types defined in schemas.
 
-Conventions:
+###### Conventions:
 
 - use the same lower camel case as in the schema the property is defined in
-- use a `.class` selector for container properties
 - use a `[itemprop=...]` selector for singular properties, or items of container properties
 
 There are several additional selectors which are not found as the Stencila Schema definitions. These are:
@@ -306,10 +319,6 @@ There are several additional selectors which are not found as the Stencila Schem
 | `:--CodeTypes`      | Inline level code elements                                                                                                                                                                                                                                                                                                                                                                 | `:--CodeBlock`, `:--CodeChunk`, `:--Code`, `:--CodeError`, `:--CodeExpression`, `:--CodeFragment`, `:--SoftwareSourceCode`    |
 | `:--ListTypes`      | List elements, both ordered and unordered, as well as other lists such as author affiliations and article references                                                                                                                                                                                                                                                                       | `:--Article:--root > :--affiliations`, `:--Collection`, `:--List`, `:--references > ol`                                       |
 | `:--MediaTypes`     | These are elements which usually benefit from taking up a wider screen area. Elements such as images, video elements, code blocks                                                                                                                                                                                                                                                          | `:--CodeBlock`, `:--CodeChunk`, `:--Datatable`, `:--Figure`, `:--ImageObject`, `:--MediaObject`, `:--Table`, `:--VideoObject` |
-
-## Notes
-
-- Theme authors should be able to override the styles of the web components as part of their theme.
 
 ### Generated code
 
@@ -348,6 +357,15 @@ When testing locally, there are three screenshot folders to be aware of inside t
 - `diff`: If any discrepancies are found between the `reference` and `local` screenshots, the differences will be highlighted and saved to this directory.
 
 There is a pseudo-test in `test/screenshot.test.js` which can be un-skipped to help with debugging the automated running of tests.
+
+### Committing
+
+Commit messages should follow the [conventional commits](https://www.conventionalcommits.org/) specification. This is useful (but not essential) because commit messages are used to determine the semantic version of releases and to generate the project's [CHANGELOG.md](https://github.com/stencila/thema/blob/next/CHANGELOG.md). If appropriate, use the sentence case theme name as the scope (to help make both `git log` and the CHANGELOG more readable). Some examples,
+
+- `fix(Wilmore): Fix Code, Math, DataPublished node formatting & styles`
+- `feat(Elife): Use eLife corresponding author envelope icon`
+- `docs(README): Add some notes on testing`
+- `ci(Travis): Fix command to check themes`
 
 ## Acknowledgments
 
