@@ -1,4 +1,4 @@
-import {first, ready, select} from '../../util'
+import { first, ready } from '../../util'
 import * as downloads from './downloads'
 import DateTimeFormat = Intl.DateTimeFormat
 
