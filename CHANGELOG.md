@@ -1,3 +1,13 @@
+# [2.0.0](https://github.com/stencila/thema/compare/v1.16.1...v2.0.0) (2020-03-31)
+
+
+* Merge pull request #122 from stencila/next ([bdf95b8](https://github.com/stencila/thema/commit/bdf95b83c55f63549eed79044b166531a02fa84b)), closes [#122](https://github.com/stencila/thema/issues/122)
+
+
+### BREAKING CHANGES
+
+* Return to master and release `v2.0.0`
+
 ## [1.16.1](https://github.com/stencila/thema/compare/v1.16.0...v1.16.1) (2020-03-26)
 
 
