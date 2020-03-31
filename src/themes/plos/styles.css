@@ -1,76 +1,77 @@
-@import '../../shared/styles/shared.css';
-@import 'prismjs/themes/prism.css';
-@import '../../shared/fonts/openSans/openSans.css';
+/*
+  Note: While this theme is being refactored
+  some linting rules are disabled.
+*/
 
-:root {
-  --max-width: 650px;
-  --max-width-media: 980px;
-  --body-font: Helvetica, Arial, sans-serif;
-  --body-font-size: 0.8125rem;
+@import '../../extensions/math/styles.css';
+@import '../../extensions/code/styles.css';
+@import '../../extensions/person/styles.css';
+
+@import '../../fonts/openSans/openSans.css';
+
+:--root {
+  --bg-color: #fff;
+  --body-font-size: var(--font-size-body);
   --body-font-weight: 400;
-  --secondary-font: 'Open Sans', Helvetica, Arial, sans-serif;
-  --secondary-font-weight: 600;
-  --text-color: #202020;
-  --light-text-color: #606060;
-  --link-color: #16a127;
-  --hover-color: #202020;
+  --body-font: helvetica, arial, sans-serif;
   --border-color: #e0e0e0;
   --figure-bg-color: #efefef;
-  --bg-color: #fff;
-}
+  --font-size-body: 13px;
+  --font-size-title: 26px;
+  --font-size-heading: 20px;
+  --font-size-80: 80%;
+  --hover-color: #202020;
+  --light-text-color: #606060;
+  --link-color: #16a127;
+  --max-width-media: 980px;
+  --max-width: 650px;
+  --secondary-font-weight: 600;
+  --secondary-font: 'Open Sans', helvetica, arial, sans-serif;
+  --text-color: #202020;
 
-/* Microdata-based Styles */
-@import '../../designa/Entity.css';
-@import '../../designa/Person.css';
+  * {
+    box-sizing: border-box;
+  }
 
-:--Article {
-  > :--headline + div {
-    max-width: var(--max-width);
-    margin: 0 auto 1.25rem;
-    font-size: var(--body-font-size);
-    color: var(--light-text-color);
-    line-height: normal;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--body-font);
+  font-size: var(--font-size-body);
+  line-height: 120%;
+  margin: 0 auto 4rem auto;
+  max-width: 69.625rem;
+  padding: 0 7%;
 
-    :--authors {
-      @mixin list-separated;
+  @media only screen and (min-width: 45.625em) {
+    padding-left: 14%;
+    padding-right: 14%;
+  }
+
+  a,
+  :--Link {
+    &:link,
+    &:visited {
+      color: var(--link-color);
     }
 
-    :--organizations {
-      @mixin list-separated '; ';
-
-      margin-top: 1.25rem;
-      display: block;
-
-      :--Organization > * {
-        display: inline;
-      }
+    &:hover {
+      color: var(--hover-color);
     }
   }
 }
 
-html,
-body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
+/* Hide article metadata */
+:--identifiers {
+  display: none;
 }
 
-body {
-  font-family: var(--body-font);
-  line-height: 120%;
-  margin: auto;
-  max-width: 69.625rem;
-  padding: 0 7%;
+/* `margin: auto` has no effect on non-block elements. This is used to center the following elements */
+:--datePublished,
+:--root > span {
+  display: block;
 }
 
-article {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-}
-
-article > * {
-  width: 100%;
-
+:--root > * {
   /*
     Align miscelaneous nodes (text, math, etc) with
     the rest of article.
@@ -78,154 +79,118 @@ article > * {
   max-width: var(--max-width);
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
 }
 
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-ul,
-ol,
-hr,
-blockquote,
-a,
-figure,
-table,
-article > pre,
-article > pre[class*='language-'],
+:--Paragraph,
+:--Heading,
+:--title,
+:--List,
+:--Collection,
+:--ThematicBreak,
+:--QuoteBlock,
+:--Figure,
+:--Table,
+:--CodeBlock,
 :--CodeChunk {
   max-width: var(--max-width);
   margin-left: auto;
   margin-right: auto;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+:--Heading,
+:--title {
   line-height: 1.125rem;
   font-weight: var(--body-font-weight);
   font-family: var(--body-font);
   margin: 2rem auto 1.125rem;
+
+  & + & {
+    margin-top: 0;
+  }
 }
 
-h1 {
-  font-size: 1.25rem;
+h1:--Heading {
+  font-size: var(--font-size-title);
   line-height: 1.24138;
   margin-bottom: 1.5rem;
   padding-top: 3rem;
 }
 
-article > h1:--headline {
+:--Article > :--title {
   font-family: var(--secondary-font);
   font-weight: var(--secondary-font-weight);
-  font-size: 1.625rem;
+  font-size: var(--font-size-title);
   line-height: 27px;
 }
 
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-size: 1rem;
+h2:--Heading,
+h3:--Heading,
+h4:--Heading,
+h5:--Heading {
+  font-size: var(--font-size-heading);
+  line-height: 0.9;
 }
 
-h2,
-h3 {
-  font-weight: var(--secondary-font-weight);
-}
-
-h2 {
-  line-height: 1.15385;
+h2:--Heading {
   padding: 1.3125rem 0;
 }
 
-h3 {
-  line-height: 1.09091;
+h3:--Heading {
   padding: 0.75rem 0;
 }
 
-h6,
-small,
-.text_small {
-  font-size: 0.8125rem;
+h6:--Heading {
+  font-size: var(--font-size-body);
   line-height: 1.84615;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  & + h1,
-  & + h2,
-  & + h3,
-  & + h4,
-  & + h5,
-  & + h6 {
-    margin-top: 0;
-  }
-}
-
-p {
+:--Paragraph {
   margin: 0 auto 1.25rem;
   font-size: var(--body-font-size);
   line-height: 1.125rem;
 
-  & + h1,
-  & + h2 {
+  & + h1:--Heading,
+  & + h2:--Heading {
     margin-top: 2.25rem;
   }
 
-  & + h3,
-  & + h4,
-  & + h5,
-  & + h6 {
+  & + h3:--Heading,
+  & + h4:--Heading,
+  & + h5:--Heading,
+  & + h6:--Heading {
     margin-top: 3.75rem;
     position: relative;
   }
 }
 
-a:link,
-a:visited {
-  color: var(--link-color);
-}
+:--List,
+:--Collection {
+  padding-left: 1.25rem;
 
-a:hover {
-  color: var(--hover-color);
-}
+  @media screen and (min-width: 380px) {
+    padding: 0;
+  }
 
-ol,
-ul {
-  padding: 0;
-
-  & ul,
-  & ol {
+  & & {
     padding-left: 1rem;
   }
 
-  & + h3,
-  & + h4,
-  & + h5,
-  & + h6 {
+  & + h3:--Heading,
+  & + h4:--Heading,
+  & + h5:--Heading,
+  & + h6:--Heading {
     margin-top: 1.75rem;
   }
 }
 
-li {
+:--ListItem {
   > *:first-child {
     margin-top: 0;
   }
 }
 
-figure,
+:--Figure,
 :--CodeChunk {
   font-family: var(--body-font);
   margin: 1.25rem auto;
@@ -244,17 +209,14 @@ figure,
   }
 }
 
-figcaption {
-  font-size: 0.8125rem;
+:--caption,
+:--Figure figcaption {
+  font-size: var(--font-size-body);
   width: 100%;
   padding: 0 1.125rem 1.125rem;
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  :--Heading,
+  :--title {
     font-weight: var(--secondary-font-weight);
     line-height: 1.84615;
   }
@@ -268,54 +230,70 @@ figcaption {
   }
 }
 
-table {
+:--Table {
   border-collapse: collapse;
-  font-size: 80%;
+  font-size: var(--font-size-80);
   overflow-x: auto;
   margin-bottom: 1.5rem;
+
+  thead,
+  tbody:first-child tr:first-child {
+    font-weight: bold;
+    font-size: var(--font-size-body);
+    line-height: 1.38462;
+    vertical-align: top;
+  }
+
+  th,
+  tbody:first-child tr:first-child {
+    background-color: var(--figure-bg-color);
+  }
+
+  th,
+  td {
+    vertical-align: top;
+    border: 1px solid var(--border-color);
+    padding: 0.375rem;
+  }
 }
 
-thead,
-tbody:first-child tr:first-child {
-  font-weight: bold;
-  font-size: 0.8125rem;
-  line-height: 1.38462;
-  vertical-align: top;
-}
-
-th,
-tbody:first-child tr:first-child {
-  background-color: #f7f7f7;
-}
-
-th,
-td {
-  vertical-align: top;
-  border: 1px solid var(--border-color);
-  padding: 0.375rem;
-}
-
-blockquote {
+:--QuoteBlock {
   font-style: italic;
   margin-bottom: 1.5rem;
 }
 
-@media screen and (max-width: 380px) {
-  ul,
-  ol {
-    padding-left: 1.25rem;
+:--authors,
+:--affiliations {
+  color: var(--light-text-color);
+  font-size: var(--body-font-size);
+  line-height: normal;
+  list-style: none;
+  margin: 0 auto 1.25rem;
+  max-width: var(--max-width);
+  padding: 0;
+
+  & > li {
+    display: inline;
   }
 }
 
-@media only all and (min-width: 45.625em) {
-  body {
-    padding-left: 14%;
-    padding-right: 14%;
+:--authors {
+  li:--author:not(:last-child) {
+    content: ', ';
+  }
+}
+
+:--affiliations {
+  margin-top: 1.25rem;
+  display: block;
+
+  :--Organization > * {
+    display: inline;
   }
 }
 
 /* Microdata-based Styles */
-:--references {
+:--references > ol {
   /* PLoS Citation Styles */
   list-style: none;
   counter-reset: reference-counter;
@@ -340,7 +318,11 @@ blockquote {
     }
   }
 
-  :--CreativeWork > :--headline {
+  :--title {
+    color: inherit;
+    display: inline;
+    font-size: inherit;
+
     &:first-of-type {
       display: none;
     }
@@ -354,11 +336,16 @@ blockquote {
     }
   }
 
+  :--authors,
+  :--affiliations {
+    color: var(--text-color);
+  }
+
   :--authors + :--datePublished {
     display: none;
   }
 
-  :--datePublished + :--headline {
+  :--datePublished + :--title {
     display: inline;
 
     &::after {
@@ -368,14 +355,14 @@ blockquote {
   }
 
   :--PublicationIssue {
-    :--headline {
+    :--title {
       &::after {
         content: '. ';
         white-space: pre;
       }
     }
 
-    :--headline + :--datePublished {
+    :--title + :--datePublished {
       &:not(:last-child)::after {
         content: ';';
         white-space: pre;

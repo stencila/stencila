@@ -1,0 +1,95 @@
+:--Person {
+  display: inline-flex;
+
+  /*
+    The `name` property will either be a `<meta>` tag for
+    machines, or a `<span>` for humans as well. The `span`
+    is only used if there are no `givenNames` or `familyNames`.
+  */
+  meta:--name {
+    display: none;
+  }
+  span:--name {
+    order: 1;
+
+    &::after {
+      content: '\00a0';
+    }
+  }
+
+  /*
+   Given and family names as space separated lists
+  */
+  :--givenNames {
+    order: 1;
+
+    :--givenName {
+      &::after {
+        content: '\00a0';
+      }
+    }
+  }
+
+  :--familyNames {
+    order: 2;
+
+    :--familyName {
+      &::after {
+        content: '\00a0';
+      }
+
+      &:last-of-type::after {
+        content: normal;
+      }
+    }
+  }
+
+  /*
+    If any `emails`, indicate that with an emoji, but don't display
+    the email address/es (leave that to web component).
+  */
+  :--emails {
+    order: 3;
+    display: inline;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    & > li {
+      display: inline;
+    }
+
+    :--email {
+      display: none;
+    }
+
+    &::after {
+      content: '\00a0📧';
+      vertical-align: super;
+      color: var(--color-primary-100);
+    }
+  }
+
+  /*
+    The `affiliations` property as a comma separated list
+    of integer links.
+  */
+  :--affiliations {
+    order: 4;
+    display: inline;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    & > li {
+      display: inline;
+    }
+
+    :--affiliation {
+      display: inline;
+      margin-left: 0.2em;
+      vertical-align: super;
+      font-size: var(--font-size-80);
+    }
+  }
+}

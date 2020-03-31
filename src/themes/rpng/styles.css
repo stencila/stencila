@@ -1,0 +1,90 @@
+@import '../../extensions/math/styles.css';
+
+/* stylelint-disable scale-unlimited/declaration-strict-value */
+
+:--root {
+  --color-neutral-100: #f7fafc;
+  --color-neutral-300: #e2e8f0;
+  --color-neutral-600: #666;
+
+  display: inline-block;
+  font-family: monospace;
+  font-size: 11pt;
+  line-height: 150%;
+  color: #333;
+  padding: 1px;
+}
+
+:--CodeChunk,
+:--CodeExpression {
+  display: inline-block;
+  background: var(--color-neutral-100);
+  border: 1px solid var(--color-neutral-300);
+  border-radius: 0.25rem;
+  min-width: 1em;
+  min-height: 1em;
+  width: auto !important;
+
+  stencila-action-menu,
+  [slot='text'] {
+    display: none;
+  }
+
+  stencila-node-list {
+    width: 100%;
+  }
+
+  &::before {
+    content: 'code';
+    color: transparent;
+    height: 2em;
+    position: relative;
+    left: 0.5em;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    text-transform: uppercase;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(29, 100, 243)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-code'%3E%3Cpolyline points='16 18 22 12 16 6'/%3E%3Cpolyline points='8 6 2 12 8 18'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+}
+
+:--CodeChunk [slot='outputs'] {
+  margin: 1em;
+}
+
+:--CodeChunk [slot='outputs'] * {
+  margin: 1em auto;
+}
+
+:--CodeChunk::before {
+  top: 0.5rem;
+  left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+:--CodeExpression .source,
+:--CodeExpression .divider {
+  display: none !important;
+}
+
+:--CodeExpression [slot='output'] {
+  display: inline-block;
+  margin: 0.1em 0.5em 0.1em auto;
+}
+
+:--Datatable {
+  border: 1px solid grey;
+  border-collapse: collapse;
+
+  th {
+    color: var(--color-neutral-600);
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  th,
+  td {
+    padding: 0.5em;
+    border: 1px solid lightgrey;
+  }
+}

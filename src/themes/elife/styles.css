@@ -1,26 +1,50 @@
-/* Ideally use import as below, but currently encounters build issues, */
-/* and inability to install as NPM package due to missing package version number. */
-/* @import 'eLife-pattern-library/assets/sass/build.scss'; */
-/* due to the above issues we import and inline the built CSS file from the web */
-@import 'https://elifesciences.org/assets/patterns/css/all.d21534c9.css';
+/**
+ * Ideally use import as below, but currently encounters build issues,
+ * and inability to install as NPM package due to missing package version number.
+ * @import 'eLife-pattern-library/assets/sass/build.scss';
+ * due to the above issues we import and inline the built CSS file from the web
+ */
+@import 'https://elifesciences.org/assets/patterns/css/all.02fbc2c8.css';
 
-/* Ensure fonts still resolve when not viewed on ELife website */
-/* This could potentially be extracted into a separate file, for more granular imports */
-@import '../../shared/fonts/notoSerif/notoSerif.css';
-@import '../../shared/fonts/notoSans/notoSans.css';
+/**
+ * Ensure fonts still resolve when not viewed on ELife website
+ * This could potentially be extracted into a separate file, for more granular imports
+ */
+@import '../../fonts/notoSerif/notoSerif.css';
+@import '../../fonts/notoSans/notoSans.css';
 
+@import '../../extensions/person/styles.css';
+
+/* @extend-ing eLife's CSS may not take into account the cascade of styles
+ * applied to an element upstream of the extended style. Add @mixins here for such styles
+ * that apply to more than one element, that would otherwise be missed. */
+@define-mixin inline-list {
+  list-style: none;
+  padding: 0;
+}
+
+/* stylelint-disable xi/selector-pattern */
 main {
   @extend .wrapper;
 }
+/* stylelint-enable */
 
-:--Article {
+:--root {
   @extend .wrapper;
   @extend .content-container;
   @extend .grid__item;
+
+  float: none;
+
   @extend .one-whole;
   @extend .large--eight-twelfths;
   @extend .x-large--seven-twelfths;
   @extend .grid-column;
+}
+
+/* Hide article metadata */
+:--identifiers {
+  display: none;
 }
 
 :--Article :--authors {
@@ -28,12 +52,48 @@ main {
 
   :--Person {
     @extend .content-header__author_list_item;
+
+    :--familyName::after {
+      content: ', ';
+    }
+
+    &:last-child {
+      :--familyName::after {
+        content: '';
+      }
+    }
+
+    :--emails::after {
+      /* TODO: update to local dependency once eLife assets are available as npm module */
+      content: url('https://elifesciences.org/assets/patterns/img/icons/corresponding-author@1x.89247d49.png');
+    }
+  }
+
+  /* Temporarily hide until work out what's required here  */
+  :--affiliations {
+    display: none;
   }
 }
 
 /* Chain custom MicroData selectors for style adjustments as needed */
 :--Article :--affiliations {
-  display: inline;
-  padding: 0;
-  margin: 0;
+  @mixin inline-list;
+  @extend .content-header__institution_list;
+
+  :--Organization {
+    display: inline;
+
+    :--name,
+    :--address {
+      @extend .content-header__institution_list_item;
+    }
+
+    & :--address::after {
+      content: '; ';
+    }
+
+    &:last-child :--address::after {
+      content: '';
+    }
+  }
 }

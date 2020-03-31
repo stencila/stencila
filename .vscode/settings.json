@@ -60,5 +60,5 @@
       "fileMatch": ["article-*.json"],
       "url": "https://schema.stenci.la/Article.schema.json"
     }
-  ],
+  ]
 }

@@ -3,7 +3,7 @@
   "include": ["src"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "outDir": "dist",
-    "lib": ["dom", "es2017"]
+    "lib": ["dom", "dom.iterable", "es2017"],
+    "outDir": "dist"
   }
 }

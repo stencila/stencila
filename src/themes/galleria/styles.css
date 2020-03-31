@@ -1,0 +1,96 @@
+@import '../stencila/styles.css';
+
+:--root {
+  --max-width-media: 1024px;
+
+  max-width: var(--max-width-media);
+}
+
+:--root > :--title,
+:--root > :--authors,
+:--root > :--identifiers,
+:--Article:--root > :--datePublished,
+:--root > span,
+:--root > :--Organization {
+  display: none;
+}
+
+:--root > :--ListTypes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100% !important;
+
+  @media (--mq-md) {
+    align-items: flex-start;
+    display: flex;
+    flex-flow: row wrap;
+    max-width: none !important;
+  }
+
+  & > :--ListItem {
+    border: 1px solid var(--color-neutral-400);
+    background-color: var(--color-stock);
+    border-radius: 4px;
+    margin: var(--spacer-md);
+
+    @media (--mq-md) {
+      flex-basis: calc(50% - var(--spacer-md) * 2);
+    }
+  }
+
+  img {
+    max-width: 100%;
+  }
+}
+
+:--root > :--List > :--ListItem > :--CreativeWork {
+  display: flex;
+  flex-flow: column;
+
+  :--Organization {
+    padding: 0 var(--spacer-md);
+
+    /* Only show organization name if logo is not present */
+    span:not(:only-child) {
+      display: none;
+    }
+
+    :--ImageObject {
+      display: inline-block;
+
+      img {
+        max-height: 32px;
+        width: auto;
+      }
+    }
+  }
+
+  & > {
+    :--ListTypes,
+    :--Heading,
+    :--Paragraph {
+      margin-left: 0;
+      margin-right: 0;
+      padding-left: var(--spacer-md);
+      padding-right: var(--spacer-md);
+    }
+
+    :--ListTypes {
+      padding-left: var(--spacer-lg);
+    }
+  }
+
+  :--ListItem {
+    :--Paragraph {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  h2:--Heading {
+    border-top: none !important;
+    font-size: var(--font-size-h3);
+    padding-top: 0;
+  }
+}

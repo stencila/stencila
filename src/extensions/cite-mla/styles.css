@@ -1,0 +1,84 @@
+@import '../cite/styles.css';
+
+:--references :--citation {
+  :--headline {
+    &:first-of-type {
+      display: none;
+    }
+
+    &::before {
+      content: '"';
+    }
+
+    &::after {
+      content: '."';
+    }
+  }
+
+  :--authors + :--datePublished {
+    display: none;
+  }
+
+  :--issueNumber + :--datePublished {
+    &::before {
+      content: ' (';
+    }
+
+    + :--pagination {
+      &::after {
+        content: '.';
+      }
+    }
+  }
+
+  :--authors {
+    :--author {
+      &:nth-of-type(n + 2) {
+        display: none;
+      }
+
+      &:nth-of-type(1) {
+        &::after {
+          content: ', et al.';
+          font-style: italic;
+        }
+
+        :--givenName::after {
+          content: normal;
+        }
+      }
+    }
+  }
+
+  :--datePublished {
+    + :--headline {
+      display: inline;
+    }
+  }
+
+  :--PublicationIssue {
+    display: inline;
+
+    + :--datePublished {
+      display: inline;
+
+      &::after {
+        content: ').';
+      }
+    }
+  }
+
+  :--pagination {
+    &::before {
+      content: ': ';
+    }
+
+    &::after {
+      content: normal;
+    }
+  }
+
+  :--url {
+    display: block;
+  }
+}

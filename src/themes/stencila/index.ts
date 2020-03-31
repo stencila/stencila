@@ -1,3 +1,1 @@
-import { load } from '../../shared/js'
-
-load()
+import '../skeleton'

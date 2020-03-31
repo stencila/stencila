@@ -1,25 +1,42 @@
 {
   "name": "@stencila/thema",
-  "version": "1.5.6",
+  "version": "1.16.1",
   "description": "Semantic themes for use with encoda (https://github.com/stencila/encoda)",
   "files": [
     "/dist"
   ],
-  "main": "./dist/index.js",
+  "browser": "./dist/browser/index.js",
+  "main": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
   "scripts": {
-    "build": "parcel build ./src/*.ts ./src/{common,themes}/**/*.{css,ts} && tsc --emitDeclarationOnly",
-    "build:selectors": "npx ts-node src/generateSelectors.ts",
-    "clean": "rm -rf .cache dist pages test/examples",
-    "dev": "parcel ./src/index.html ./src/examples/*.html --open",
-    "lint": "stylelint \"./src/**/*.css\"",
-    "lint:fix": "npm run lint -- --fix",
-    "format": "prettier --write './**/*.{js,json,md,ts,yaml}'",
-    "pages": "parcel build ./src/index.html ./src/examples/*.html -d pages --public-url .",
-    "pages:test": "parcel build ./src/examples/*.html -d test/examples --public-url .",
-    "postinstall": "npm run build:selectors",
-    "semantic-release": "semantic-release",
-    "test": "SAUCE_API_HOST=eu-central-1.saucelabs.com wdio",
-    "watch": "parcel watch ./src/**/*.css ./src/**/*.ts"
+    "bootstrap": "npm run build && npm run docs:gallery",
+    "prepare": "npm run update",
+    "update": "npm run update:selectors && npm run update:examples && npm run update:themes && npm run update:extensions",
+    "update:selectors": "ts-node --files src/scripts/selectors.ts",
+    "update:examples": "ts-node --files src/scripts/examples.ts",
+    "update:extensions": "ts-node --files src/scripts/extensions.ts update",
+    "update:themes": "ts-node --files src/scripts/themes.ts update",
+    "create:extension": "ts-node --files src/scripts/extensions.ts create",
+    "create:theme": "ts-node --files src/scripts/themes.ts create",
+    "check:theme": "ts-node --files src/scripts/themes.ts check",
+    "check:themes": "ts-node --files src/scripts/themes.ts check '*'",
+    "build": "npm run build:browser && npm run build:lib",
+    "build:browser": "webpack --mode production && tsc --emitDeclarationOnly --project tsconfig.browser.json",
+    "build:lib": "tsc --project tsconfig.lib.json",
+    "dev": "webpack-dev-server --mode development --hot --open",
+    "docs": "npm run docs:readme && npm run docs:gallery && npm run docs:app",
+    "docs:readme": "ts-node --files src/scripts/readme.ts",
+    "docs:gallery": "ts-node --files src/scripts/gallery.ts",
+    "docs:app": "webpack --mode production --env.docs=true",
+    "lint": "npm run lint:styles && npm run lint:scripts",
+    "lint:fix": "npm run lint:styles -- --fix && npm run lint:scripts -- --fix",
+    "lint:styles": "stylelint './src/**/*.css'",
+    "lint:scripts": "eslint './src/**/*.ts'",
+    "format": "prettier --write './**/*.{css,js,json,md,ts,yaml}'",
+    "test": "npm run test:unit && npm run test:visual",
+    "test:unit": "jest",
+    "test:visual": "npm run docs && wdio",
+    "clean": "rm -rf .cache dist docs"
   },
   "repository": {
     "type": "git",
@@ -37,52 +54,92 @@
     "url": "https://github.com/stencila/thema/issues"
   },
   "homepage": "https://github.com/stencila/thema#readme",
+  "dependencies": {
+    "@simonwep/pickr": "^1.5.1",
+    "@stencila/components": "^0.10.0",
+    "project-name-generator": "^2.1.7",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0"
+  },
   "devDependencies": {
-    "@abide-community/parcel-plugin-clean-out-dir": "^1.0.0",
-    "@babel/core": "^7.8.0",
-    "@stencila/dev-config": "^1.4.5",
-    "@stencila/schema": "^0.35.0",
-    "@types/prismjs": "^1.16.0",
-    "@wdio/cli": "^5.18.5",
-    "@wdio/dot-reporter": "^5.18.6",
-    "@wdio/local-runner": "^5.18.5",
-    "@wdio/mocha-framework": "^5.16.15",
-    "@wdio/sauce-service": "^5.16.10",
-    "@wdio/static-server-service": "^5.16.10",
-    "argos-cli": "^0.1.3",
-    "autoprefixer": "^9.7.4",
-    "babel-register": "^6.26.0",
-    "chromedriver": "^79.0.0",
-    "geckodriver": "^1.19.1",
-    "globby": "^11.0.0",
-    "normalize.css": "^8.0.1",
-    "parcel-bundler": "^1.12.4",
-    "parcel-plugin-url-loader": "git+https://github.com/stencila/parcel-plugin-url-loader.git",
-    "postcss-custom-properties": "^9.0.2",
-    "postcss-custom-selectors": "^5.1.2",
-    "postcss-extend": "^1.0.5",
-    "postcss-import": "^12.0.1",
-    "postcss-import-url": "^4.0.0",
-    "postcss-mixins": "^6.2.3",
-    "postcss-nested": "^4.2.1",
-    "postcss-url": "^8.0.0",
-    "prismjs": "^1.19.0",
-    "stylelint": "^13.0.0",
-    "stylelint-config-standard": "^19.0.0",
-    "stylelint-declaration-block-no-ignored-properties": "^2.2.0",
-    "stylelint-declaration-strict-value": "^1.1.8",
+    "@stencila/dev-config": "1.4.20",
+    "@stencila/encoda": "0.93.0",
+    "@stencila/schema": "0.41.2",
+    "@types/jest": "25.1.4",
+    "@types/prismjs": "1.16.0",
+    "@types/react": "16.9.23",
+    "@types/react-dom": "16.9.5",
+    "@wdio/cli": "5.19.0",
+    "@wdio/concise-reporter": "5.18.7",
+    "@wdio/dot-reporter": "5.18.6",
+    "@wdio/local-runner": "5.19.0",
+    "@wdio/mocha-framework": "5.18.7",
+    "@wdio/sauce-service": "5.16.10",
+    "@wdio/static-server-service": "5.16.10",
+    "argos-cli": "0.1.3",
+    "autoprefixer": "9.7.4",
+    "chromedriver": "80.0.1",
+    "clean-webpack-plugin": "3.0.0",
+    "css-loader": "3.4.2",
+    "cssnano": "4.1.10",
+    "cssnano-preset-default": "4.0.7",
+    "ejs-loader": "0.3.5",
+    "eslint-plugin-react": "7.19.0",
+    "extract-loader": "5.0.1",
+    "file-loader": "5.1.0",
+    "filemanager-webpack-plugin": "2.0.5",
+    "geckodriver": "1.19.1",
+    "globby": "11.0.0",
+    "html-loader": "0.5.5",
+    "html-webpack-plugin": "3.2.0",
+    "jest": "25.1.0",
+    "jsdoc-to-markdown": "5.0.3",
+    "mathjax-node": "2.1.1",
+    "mini-css-extract-plugin": "0.9.0",
+    "normalize.css": "8.0.1",
+    "postcss-combine-media-query": "1.0.1",
+    "postcss-custom-media": "7.0.8",
+    "postcss-custom-properties": "9.1.1",
+    "postcss-custom-selectors": "5.1.2",
+    "postcss-extend": "1.0.5",
+    "postcss-import": "12.0.1",
+    "postcss-import-url": "git+https://github.com/stencila/postcss-import-url.git",
+    "postcss-loader": "3.0.0",
+    "postcss-mixins": "6.2.3",
+    "postcss-nested": "4.2.1",
+    "postcss-selector-not": "4.0.0",
+    "postcss-selector-replace": "1.0.2",
+    "postcss-sort-media-queries": "1.31.21",
+    "postcss-url": "8.0.0",
+    "prismjs": "1.19.0",
+    "style-loader": "1.1.3",
+    "stylelint": "13.2.1",
+    "stylelint-config-prettier": "8.0.1",
+    "stylelint-config-standard": "20.0.0",
+    "stylelint-declaration-block-no-ignored-properties": "2.3.0",
+    "stylelint-declaration-strict-value": "1.1.8",
     "stylelint-selector-pattern": "0.0.2",
-    "stylelint-selector-tag-no-without-class": "^2.0.2",
-    "typescript": "^3.7.4",
-    "wdio-chromedriver-service": "^5.0.2",
-    "wdio-geckodriver-service": "^1.0.3",
-    "wdio-novus-visual-regression-service": "^0.3.0",
-    "wdio-screenshot-v5": "^1.0.0",
-    "webdriverio": "^5.18.5"
+    "stylelint-selector-tag-no-without-class": "2.0.3",
+    "ts-jest": "25.2.1",
+    "ts-loader": "6.2.1",
+    "ts-node": "8.6.2",
+    "typescript": "3.8.3",
+    "wdio-chromedriver-service": "5.0.2",
+    "wdio-geckodriver-service": "1.0.3",
+    "wdio-novus-visual-regression-service": "0.1.1",
+    "wdio-screenshot-v5": "1.0.0",
+    "webdriverio": "5.19.0",
+    "webpack": "4.42.0",
+    "webpack-cli": "3.3.11",
+    "webpack-dev-server": "3.10.3"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "release": {
-    "extends": "@stencila/semantic-release-config"
+    "extends": "@stencila/semantic-release-config",
+    "branches": [
+      "master",
+      "next"
+    ]
   },
   "publishConfig": {
     "access": "public"
@@ -105,11 +162,52 @@
     }
   },
   "eslintConfig": {
-    "extends": "@stencila/eslint-config"
+    "extends": [
+      "@stencila/eslint-config",
+      "plugin:react/recommended"
+    ],
+    "env": {
+      "es6": true,
+      "node": true,
+      "browser": true,
+      "jest": true
+    },
+    "rules": {
+      "no-shadow": 2
+    },
+    "overrides": [
+      {
+        "files": [
+          "./src/**/*.tsx"
+        ],
+        "rules": {
+          "@typescript-eslint/strict-boolean-expressions": [
+            "error",
+            {
+              "allowNullable": true,
+              "ignoreRhs": true
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testMatch": [
+      "<rootDir>/(src|test)/**/*.test.[jt]s"
+    ],
+    "testPathIgnorePatterns": [
+      "node_modules",
+      "test/screenshot.test.ts"
+    ],
+    "coveragePathIgnorePatterns": [
+      "src/selectors.ts"
+    ]
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run build:selectors && pretty-quick --staged",
+      "pre-commit": "npm run update:selectors && npm run lint:scripts && pretty-quick --staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
@@ -117,9 +215,5 @@
     "extends": [
       "@stencila"
     ]
-  },
-  "dependencies": {
-    "@stencila/components": "^0.9.0",
-    "stencila": "^0.33.5"
   }
 }
