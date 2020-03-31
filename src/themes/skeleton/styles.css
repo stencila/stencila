@@ -182,6 +182,11 @@
   border-radius: 4px;
 }
 
+/* Hide article metadata */
+:--identifiers {
+  display: none;
+}
+
 :--CodeTypes {
   /* These are code elements, targeting both inline and block elements */
   background-color: var(--color-stock);
