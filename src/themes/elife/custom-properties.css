@@ -1,4 +1,8 @@
 :--root {
+  /*Colors */
+  --color-text-secondary: #888;
+
+  /* Typography */
   --text-size-rem-small: 0.6875;
   --letter-spacing: 0.5px;
   --baseline-measure-rem: 1.5rem;

@@ -96,10 +96,12 @@ main {
 }
 
 :--datePublished {
+  color: var(--color-text-secondary);
+  display: block;
   font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
   font-size: calc(var(--text-size-rem-small) * 1rem);
-  line-height: calc(var(--baseline-measure-rem) / var(--text-size-rem-small));
   letter-spacing: var(--letter-spacing);
+  line-height: calc(var(--baseline-measure-rem) / var(--text-size-rem-small));
   text-align: center;
   text-transform: capitalize;
 }
