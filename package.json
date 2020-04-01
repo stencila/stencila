@@ -58,8 +58,8 @@
     "@simonwep/pickr": "^1.5.1",
     "@stencila/components": "^0.10.0",
     "project-name-generator": "^2.1.7",
-    "react": "^16.13.0",
-    "react-dom": "^16.13.0"
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
     "@stencila/dev-config": "1.4.20",
