@@ -11,8 +11,8 @@ describe('eLife Data Provider ', () => {
         Promise.resolve({ status: 200 })
       return dataProvider
         .query('validArticleId', fetchMock)
-        .then(data => {
-          expect(data.status).toBe(200)
+        .then(response => {
+          expect(response.status).toBe(200)
           done()
         })
         .catch((err: Error) => {
