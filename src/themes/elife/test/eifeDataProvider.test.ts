@@ -26,6 +26,14 @@ describe('eLife Data Provider ', () => {
   })
 
   describe('being given an invalid article id', () => {
-    test.todo('throws an ReferenceError')
+    it('throws an ReferenceError', async () => {
+      const fetchMock = (): Promise<ArticleData> =>
+        Promise.resolve({ status: 404 })
+      await expect(
+        dataProvider.query('invalidArticleId', fetchMock)
+      ).rejects.toThrow(
+        new ReferenceError('Invalid eLife article id: invalidArticleId')
+      )
+    })
   })
 })
