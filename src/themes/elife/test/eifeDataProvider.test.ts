@@ -1,18 +1,17 @@
 import dataProvider from '../eLifeDataProvider'
 
 interface Response {
-  status: number
+  ok: boolean
 }
 
 describe('eLife Data Provider ', () => {
-  describe('being given a valid article id', () => {
-    it('returns a 200 status code', (done: Function) => {
-      const fetchMock = (): Promise<Response> =>
-        Promise.resolve({ status: 200 })
+  describe('successfully querying a valid article id', () => {
+    it('does not throw', (done: Function) => {
+      const fetchMock = (): Promise<Response> => Promise.resolve({ ok: true })
       return dataProvider
         .query('validArticleId', fetchMock)
         .then(response => {
-          expect(response.status).toBe(200)
+          expect(response.ok).toBe(true)
           done()
         })
         .catch((err: Error) => {
@@ -27,8 +26,7 @@ describe('eLife Data Provider ', () => {
 
   describe('being given an invalid article id', () => {
     it('throws an ReferenceError', async () => {
-      const fetchMock = (): Promise<Response> =>
-        Promise.resolve({ status: 404 })
+      const fetchMock = (): Promise<Response> => Promise.resolve({ ok: false })
       await expect(
         dataProvider.query('invalidArticleId', fetchMock)
       ).rejects.toThrow(

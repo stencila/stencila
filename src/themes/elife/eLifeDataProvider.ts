@@ -1,5 +1,5 @@
 interface Response {
-  status: number
+  ok: boolean
 }
 
 export default {
@@ -7,9 +7,9 @@ export default {
     const response = await fetcher(
       `https://api.elifesciences.org/articles/${id}`
     )
-    if (response.status === 404) {
+    if (response.ok === false) {
       throw new ReferenceError(`Invalid eLife article id: ${id}`)
     }
-    return Promise.resolve({ status: response.status })
+    return Promise.resolve({ ok: response.ok })
   }
 }
