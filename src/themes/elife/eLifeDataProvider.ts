@@ -1,5 +1,6 @@
 interface Response {
   ok: boolean
+  articleData: { pdf: string }
 }
 
 export default {
@@ -10,6 +11,7 @@ export default {
     if (response.ok === false) {
       throw new Error(`There was a problem getting article data for ${id}`)
     }
-    return Promise.resolve({ ok: response.ok })
+    const articleData = await response.json()
+    return Promise.resolve({ ok: response.ok, articleData })
   }
 }
