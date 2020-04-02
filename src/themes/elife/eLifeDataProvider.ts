@@ -1,13 +1,15 @@
-interface ArticleData {
+interface Response {
   status: number
 }
 
 export default {
-  query: async (id: string, fetcher: Function): Promise<ArticleData> => {
-    const data = await fetcher(`https://api.elifesciences.org/articles/${id}`)
-    if (data.status === 404) {
+  query: async (id: string, fetcher: Function): Promise<Response> => {
+    const response = await fetcher(
+      `https://api.elifesciences.org/articles/${id}`
+    )
+    if (response.status === 404) {
       throw new ReferenceError(`Invalid eLife article id: ${id}`)
     }
-    return Promise.resolve({ status: data.status })
+    return Promise.resolve({ status: response.status })
   }
 }

@@ -1,13 +1,13 @@
 import dataProvider from '../eLifeDataProvider'
 
-interface ArticleData {
+interface Response {
   status: number
 }
 
 describe('eLife Data Provider ', () => {
   describe('being given a valid article id', () => {
     it('returns a 200 status code', (done: Function) => {
-      const fetchMock = (): Promise<ArticleData> =>
+      const fetchMock = (): Promise<Response> =>
         Promise.resolve({ status: 200 })
       return dataProvider
         .query('validArticleId', fetchMock)
@@ -27,7 +27,7 @@ describe('eLife Data Provider ', () => {
 
   describe('being given an invalid article id', () => {
     it('throws an ReferenceError', async () => {
-      const fetchMock = (): Promise<ArticleData> =>
+      const fetchMock = (): Promise<Response> =>
         Promise.resolve({ status: 404 })
       await expect(
         dataProvider.query('invalidArticleId', fetchMock)
