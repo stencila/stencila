@@ -35,7 +35,8 @@ const baseServices = [
 
 const browserCapabilities = {
   chrome: {
-    browserName: 'chrome'
+    browserName: 'chrome',
+    browserVersion: '80.0'
   },
   firefox: {
     browserName: 'firefox'
@@ -56,16 +57,18 @@ const useSauce =
 
 const services = [
   ...baseServices,
-  [
-    'sauce',
-    {
-      sauceConnect: true,
-      sauceConnectOpts: {
-        // Connect to SauceLabs EU service https://github.com/bermi/sauce-connect-launcher/issues/141
-        x: 'https://eu-central-1.saucelabs.com/rest/v1'
-      }
-    }
-  ]
+  useSauce
+    ? [
+        'sauce',
+        {
+          sauceConnect: true,
+          sauceConnectOpts: {
+            // Connect to SauceLabs EU service https://github.com/bermi/sauce-connect-launcher/issues/141
+            x: 'https://eu-central-1.saucelabs.com/rest/v1'
+          }
+        }
+      ]
+    : browserServices[testBrowser]
 ]
 
 // Standardizes screenshot name for visual regression testing
@@ -129,11 +132,11 @@ const compareStrategy =
         misMatchTolerance: 0.01
       })
 
-export const config = {
+const baseConfig = {
   // Will bre prefixed to all relative test URLs. https://webdriver.io/docs/options.html#baseurl
   baseUrl,
   // Required for resolving test sessions
-  path: env.CI ? undefined : '/',
+  path: env.CI ? '/wd/hub' : '/',
   // Level of logging verbosity: trace | debug | info | warn | error | silent
   logLevel: 'warn',
   // Define which test specs should run. The pattern is relative to the directory
@@ -169,8 +172,10 @@ export const config = {
             // capabilities must be tagged as "public" for the jobs's status
             // to update (failed/passed). If omitted on Open Sauce, the job's
             // status will only be marked "Finished."
-            public: true,
-            recordScreenshots: false
+            'sauce:options': {
+              public: true,
+              recordScreenshots: false
+            }
           }
         : {}
     )
@@ -204,10 +209,6 @@ export const config = {
     ],
     orientations: ['landscape', 'portrait']
   },
-  // Sauce Labs configuration
-  user: useSauce && env.SAUCE_USERNAME,
-  key: useSauce && env.SAUCE_ACCESS_KEY,
-  region: 'eu',
   headless: false,
   // Options for selenium-standalone
   // Path where all logs from the Selenium server should be stored.
@@ -222,3 +223,16 @@ export const config = {
     timeout: 0
   }
 }
+
+export const config = Object.assign(
+  {},
+  baseConfig,
+  // Sauce Labs configuration
+  useSauce
+    ? {
+        user: useSauce && env.SAUCE_USERNAME,
+        key: useSauce && env.SAUCE_ACCESS_KEY,
+        region: 'eu'
+      }
+    : {}
+)
