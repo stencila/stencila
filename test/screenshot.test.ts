@@ -47,7 +47,7 @@ describe('visual regressions: ', () => {
   describe(`runs over examples and themes: `, () => {
     EXAMPLES.forEach(example => {
       THEMES.forEach(theme => {
-        const path = `?example=${example}&theme=${theme}&header=false`
+        const path = `/editor?example=${example}&theme=${theme}&ui=false`
 
         // A pseudo-test that is helpful for debugging the page
         // that the screen-shotting actually sees. To use it un-skip it.
@@ -61,6 +61,12 @@ describe('visual regressions: ', () => {
         it(`${theme}/${example}: screenshots have not changed`, async () => {
           // @ts-ignore
           await browser.url(path)
+          // Tell WDIO to take control of preview iframe content, instead of Theme Editor
+          // @ts-ignore
+          const frame = await browser.$('#preview')
+          // @ts-ignore
+          await browser.switchToFrame(frame)
+
           // @ts-ignore
           const results = await browser.checkDocument()
 
