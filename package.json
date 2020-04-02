@@ -35,7 +35,7 @@
     "format": "prettier --write './**/*.{css,js,json,md,ts,yaml}'",
     "test": "npm run test:unit && npm run test:visual",
     "test:unit": "jest",
-    "test:visual": "npm run docs && wdio",
+    "test:visual": "wdio",
     "clean": "rm -rf .cache dist docs"
   },
   "repository": {
