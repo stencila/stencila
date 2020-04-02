@@ -8,7 +8,7 @@ export default {
       `https://api.elifesciences.org/articles/${id}`
     )
     if (response.ok === false) {
-      throw new ReferenceError(`Invalid eLife article id: ${id}`)
+      throw new Error(`There was a problem getting article data for ${id}`)
     }
     return Promise.resolve({ ok: response.ok })
   }

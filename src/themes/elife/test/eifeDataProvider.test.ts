@@ -24,7 +24,9 @@ describe('eLife Data Provider ', () => {
       await expect(
         dataProvider.query('invalidArticleId', fetchMock)
       ).rejects.toThrow(
-        new ReferenceError('Invalid eLife article id: invalidArticleId')
+        new Error(
+          `There was a problem getting article data for invalidArticleId`
+        )
       )
     })
   })
