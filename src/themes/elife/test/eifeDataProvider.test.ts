@@ -15,7 +15,7 @@ describe('eLife Data Provider ', () => {
       ).resolves.not.toThrow()
     })
 
-    it('it exposes the URI of the article PDF', async () => {
+    it('it exposes the url of the article PDF', async () => {
       const fetchMock = (): Promise<Response> =>
         Promise.resolve({
           ok: true,
@@ -27,7 +27,7 @@ describe('eLife Data Provider ', () => {
       })
     })
 
-    it('it exposes the URI of the figures PDF', async () => {
+    it('it exposes the url of the figures PDF', async () => {
       const fetchMock = (): Promise<Response> =>
         Promise.resolve({
           ok: true,
