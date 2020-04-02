@@ -1,6 +1,6 @@
 interface Response {
   ok: boolean
-  articleData: { pdf: string }
+  articleData: { pdf: string; figuresPdf: string }
 }
 
 export default {

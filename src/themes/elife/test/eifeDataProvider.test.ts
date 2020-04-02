@@ -27,7 +27,20 @@ describe('eLife Data Provider ', () => {
       })
     })
 
-    test.todo('it exposes the URI of the figures PDF')
+    it('it exposes the URI of the figures PDF', async () => {
+      const fetchMock = (): Promise<Response> =>
+        Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              figuresPdf: 'path-to-the-figures.pdf'
+            })
+        })
+      await expect(dataProvider.query('someId', fetchMock)).resolves.toEqual({
+        articleData: { figuresPdf: 'path-to-the-figures.pdf' },
+        ok: true
+      })
+    })
   })
 
   describe('being given an invalid article id', () => {
