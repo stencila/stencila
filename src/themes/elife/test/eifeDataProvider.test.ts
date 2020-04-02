@@ -6,17 +6,11 @@ interface Response {
 
 describe('eLife Data Provider ', () => {
   describe('successfully querying a valid article id', () => {
-    it('does not throw', (done: Function) => {
+    it('does not throw', async () => {
       const fetchMock = (): Promise<Response> => Promise.resolve({ ok: true })
-      return dataProvider
-        .query('validArticleId', fetchMock)
-        .then(response => {
-          expect(response.ok).toBe(true)
-          done()
-        })
-        .catch((err: Error) => {
-          throw err
-        })
+      await expect(
+        dataProvider.query('validArticleId', fetchMock)
+      ).resolves.not.toThrow()
     })
 
     test.todo('it exposes the URI of the article PDF')
