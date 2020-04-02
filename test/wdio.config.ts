@@ -51,21 +51,21 @@ const env = process.env
 
 // When running in CI, use SauceLabs if SAUCE_USERNAME and SAUCE_ACCESS_KEY is set,
 // otherwise the browser specific driver
-const useSauce = env.CI && env.SAUCE_USERNAME && env.SAUCE_ACCESS_KEY
+const useSauce =
+  env.CI && env.SAUCE_USERNAME && env.SAUCE_ACCESS_KEY ? true : false
+
 const services = [
   ...baseServices,
-  useSauce
-    ? [
-        'sauce',
-        {
-          // Sauce Labs configuration
-          user: useSauce && env.SAUCE_USERNAME,
-          key: useSauce && env.SAUCE_ACCESS_KEY,
-          region: 'eu',
-          sauceConnect: true
-        }
-      ]
-    : browserServices[testBrowser]
+  [
+    'sauce',
+    {
+      sauceConnect: true,
+      sauceConnectOpts: {
+        // Connect to SauceLabs EU service https://github.com/bermi/sauce-connect-launcher/issues/141
+        x: 'https://eu-central-1.saucelabs.com/rest/v1'
+      }
+    }
+  ]
 ]
 
 // Standardizes screenshot name for visual regression testing
@@ -204,6 +204,10 @@ export const config = {
     ],
     orientations: ['landscape', 'portrait']
   },
+  // Sauce Labs configuration
+  user: useSauce && env.SAUCE_USERNAME,
+  key: useSauce && env.SAUCE_ACCESS_KEY,
+  region: 'eu',
   headless: false,
   // Options for selenium-standalone
   // Path where all logs from the Selenium server should be stored.
