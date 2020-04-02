@@ -8,7 +8,7 @@ export const staticDir = path.join(__dirname, '..', 'docs')
 
 enum Browser {
   chrome = 'chrome',
-  filefox = 'firefox'
+  firefox = 'firefox'
 }
 
 // Read browser to be tested with from the environment, falling back to Chrome
@@ -22,7 +22,13 @@ const testBrowser = (process.env.TEST_BROWSER
 // commands. Instead, they hook themselves up into the test process.
 // https://webdriver.io/docs/options.html#services
 const baseServices = [
-  'static-server',
+  [
+    'static-server',
+    {
+      port: 3000,
+      folders: [{ mount: '/', path: staticDir }]
+    }
+  ],
   'novus-visual-regression',
   [WdioScreenshot]
 ]
@@ -48,7 +54,18 @@ const env = process.env
 const useSauce = env.CI && env.SAUCE_USERNAME && env.SAUCE_ACCESS_KEY
 const services = [
   ...baseServices,
-  useSauce ? 'sauce' : browserServices[testBrowser]
+  useSauce
+    ? [
+        'sauce',
+        {
+          // Sauce Labs configuration
+          user: useSauce && env.SAUCE_USERNAME,
+          key: useSauce && env.SAUCE_ACCESS_KEY,
+          region: 'eu',
+          sauceConnect: true
+        }
+      ]
+    : browserServices[testBrowser]
 ]
 
 // Standardizes screenshot name for visual regression testing
@@ -58,15 +75,10 @@ const normalizeName = (
   width: string,
   height: string
 ): string => {
-  const test = testName.replace(/ /g, '_').replace('.html', '')
   const browser = browserName.toLocaleLowerCase().replace(/ /g, '_')
 
-  return `${test}_${browser}_${width}x${height}.png`
+  return `${testName}_${browser}_${width}x${height}.png`
 }
-
-// Given a test page URL will extract the final part of the pathname, without the html extension
-const nameFromUrl = (url: string): string =>
-  (url.split('/').pop() ?? '').replace('.html', '')
 
 // Declare configuration variables and paths for storing screenshots
 const screenshotDir = path.join(__dirname, 'screenshots')
@@ -125,7 +137,7 @@ export const config = {
   // from which `wdio` was called. Notice that, if you are calling `wdio` from an
   // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
   // directory is where your package.json resides, so `wdio` will be called from there.
-  specs: ['test/**/*.test.ts'],
+  specs: ['test/**/screenshot.test.ts'],
   // ============
   // Capabilities
   // ============
@@ -189,15 +201,7 @@ export const config = {
     ],
     orientations: ['landscape', 'portrait']
   },
-  // Sauce Labs configuration
-  user: useSauce && env.SAUCE_USERNAME,
-  key: useSauce && env.SAUCE_ACCESS_KEY,
-  region: 'eu',
-  sauceConnect: true,
   headless: false,
-  // Static Server configuration
-  staticServerPort: 3000,
-  staticServerFolders: [{ mount: '/', path: staticDir }],
   // Options for selenium-standalone
   // Path where all logs from the Selenium server should be stored.
   seleniumLogs: './logs/',

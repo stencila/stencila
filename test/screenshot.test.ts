@@ -11,7 +11,7 @@ import fs from 'fs'
 import http from 'http'
 import { staticDir, baseUrl } from './wdio.config'
 import { examples } from '../src/examples'
-import { themes } from '../src/themes'
+import { themes } from '../src/themes/index'
 
 // The examples to use for visual regression tests
 // It's generally better to only use small examples, as
