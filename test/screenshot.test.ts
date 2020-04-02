@@ -51,14 +51,14 @@ describe('visual regressions: ', () => {
 
         // A pseudo-test that is helpful for debugging the page
         // that the screen-shotting actually sees. To use it un-skip it.
-        it.skip(`${path}: can be browsed`, async () => {
+        it.skip(`${theme}/${example}: can be browsed`, async () => {
           console.log(
             `Browse for 60s before the robots 🤖 take control: ${baseUrl}${path}`
           )
           await new Promise(resolve => setTimeout(resolve, 60000))
         })
 
-        it(`${path}: screenshots have not changed`, async () => {
+        it(`${theme}/${example}: screenshots have not changed`, async () => {
           // @ts-ignore
           await browser.url(path)
           // @ts-ignore

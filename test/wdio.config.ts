@@ -103,7 +103,10 @@ const screenshotDirs: {
 const getScreenshotName = (screenshotType: keyof typeof screenshotDirs) => (
   context: any
 ) => {
-  const testName = nameFromUrl(context.meta.url)
+  const [_, example, theme] = context.meta.url.match(
+    /example=(\w+)&theme=(\w+)/
+  )
+  const testName = theme + '_' + example
   const browserName = context.browser.name
   const { width, height } = context.meta.viewport
 
