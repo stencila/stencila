@@ -1,3 +1,16 @@
+# [2.1.0](https://github.com/stencila/thema/compare/v2.0.1...v2.1.0) (2020-04-03)
+
+
+### Bug Fixes
+
+* **Elife:** Add space to pass lint test ([2d6a694](https://github.com/stencila/thema/commit/2d6a694bfa83366767477f7cdb2e0a800019edc8))
+* Add letter-spacing as custom property ([2ca8c44](https://github.com/stencila/thema/commit/2ca8c443c1662be525db5c93735aee6e6f628b6b))
+
+
+### Features
+
+* Add styling for date publication ([0587dd6](https://github.com/stencila/thema/commit/0587dd624040c546df87cc77a485b8a35f8f8bdb))
+
 ## [2.0.1](https://github.com/stencila/thema/compare/v2.0.0...v2.0.1) (2020-04-01)
 
 
