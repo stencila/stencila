@@ -2,7 +2,6 @@ import { after, append, create, select } from '../../util'
 import eLifeDataProvider from './eLifeDataProvider'
 
 const getPdfUrl = async (id: string, pdfType: string): Promise<string> => {
-  // Would generics help here?
   const allowedPdfTypes = ['article', 'figures']
   if (!allowedPdfTypes.includes(pdfType)) {
     return ''
@@ -33,7 +32,7 @@ const getUrl = (type: string, id: string, title = ''): string => {
     case 'readcube':
       return `https://www.readcube.com/articles/10.7554/eLife.${id}`
     case 'papers':
-      return `papers2://url/https%3A%2F%2Felifesciences.org%2Farticles%2F46206?title=${encodeURIComponent(
+      return `papers2://url/https%3A%2F%2Felifesciences.org%2Farticles%2F${id}?title=${encodeURIComponent(
         title
       )}`
   }
