@@ -82,6 +82,8 @@ main {
   @mixin inline-list;
   @extend .content-header__institution_list;
 
+  margin-bottom: var(--baseline-measure-rem);
+
   :--Organization {
     display: inline;
 

@@ -1,3 +1,21 @@
+## [2.0.1](https://github.com/stencila/thema/compare/v2.0.0...v2.0.1) (2020-04-01)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/components to ^0.10.1 ([7ccdc58](https://github.com/stencila/thema/commit/7ccdc58f3588ce88ebab04135ed3a2cde4a54a76))
+* **dependencies:** update react monorepo to ^16.13.1 ([f7d911e](https://github.com/stencila/thema/commit/f7d911e08ff3fdc64cb6016d2e812b6e79c960e3))
+
+# [2.0.0](https://github.com/stencila/thema/compare/v1.16.1...v2.0.0) (2020-03-31)
+
+
+* Merge pull request #122 from stencila/next ([bdf95b8](https://github.com/stencila/thema/commit/bdf95b83c55f63549eed79044b166531a02fa84b)), closes [#122](https://github.com/stencila/thema/issues/122)
+
+
+### BREAKING CHANGES
+
+* Return to master and release `v2.0.0`
+
 ## [1.16.1](https://github.com/stencila/thema/compare/v1.16.0...v1.16.1) (2020-03-26)
 
 
