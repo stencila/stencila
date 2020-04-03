@@ -1,4 +1,26 @@
-import { append, create, select } from '../../util'
+import { after, append, create, select } from '../../util'
+import eLifeDataProvider from './eLifeDataProvider'
+
+const getPdfUrl = async (id: string, pdfType: string): Promise<string> => {
+  // Would generics help here?
+  const allowedPdfTypes = ['article', 'figures']
+  if (!allowedPdfTypes.includes(pdfType)) {
+    return ''
+  }
+  const response = await eLifeDataProvider.query(id, window.fetch)
+  if (pdfType === 'figures') {
+    return Promise.resolve(response.articleData.figuresPdf)
+  }
+  return Promise.resolve(response.articleData.pdf)
+}
+
+const getArticlePdfUrl = async (id: string): Promise<string> => {
+  return getPdfUrl(id, 'article')
+}
+
+const getFiguresPdfUrl = async (id: string): Promise<string> => {
+  return getPdfUrl(id, 'figures')
+}
 
 const getUrl = (type: string, id: string, title = ''): string => {
   switch (type) {
@@ -18,7 +40,18 @@ const getUrl = (type: string, id: string, title = ''): string => {
   return ''
 }
 
-export const build = (articleId: string, articleTitle: string): void => {
+const addFiguresPdfUrl = (url: string): void => {
+  after(
+    select('[data-is-download-pdf-link]')[0],
+    create('li', null, create('a', { href: url }, 'Figures PDF'))
+  )
+}
+
+const buildMenu = (
+  articleId: string,
+  articleTitle: string,
+  pdfUrl: string
+): void => {
   append(
     select(':--references')[0],
     create('h2', null, 'Download links'),
@@ -26,8 +59,15 @@ export const build = (articleId: string, articleTitle: string): void => {
     create(
       'ul',
       null,
-      create('li', null, create('a', { href: '#' }, 'Article PDF')),
-      create('li', null, create('a', { href: '#' }, 'Figures PDF'))
+      create(
+        'li',
+        null,
+        create(
+          'a',
+          { href: pdfUrl, 'data-is-download-pdf-link': true },
+          'Article PDF'
+        )
+      )
     ),
     create('h3', null, 'Download citations'),
     create(
@@ -69,4 +109,18 @@ export const build = (articleId: string, articleTitle: string): void => {
       )
     )
   )
+}
+
+export const build = (articleId: string, articleTitle: string): void => {
+  try {
+    getArticlePdfUrl(articleId)
+      .then(pdfUri => buildMenu(articleId, articleTitle, pdfUri))
+      .then(() => getFiguresPdfUrl(articleId))
+      .then((figuresPdfUrl: string) => addFiguresPdfUrl(figuresPdfUrl))
+      .catch((err: Error) => {
+        throw err
+      })
+  } catch (err) {
+    console.error(err)
+  }
 }
