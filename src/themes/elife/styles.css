@@ -36,8 +36,6 @@ main {
 
   float: none;
 
-  @extend .one-whole;
-  @extend .x-large--seven-twelfths;
   @extend .grid-column;
 }
 
@@ -89,5 +87,12 @@ main {
     &:last-child :--address::after {
       content: '';
     }
+  }
+}
+
+@media only screen and (min-width: 45.625em) {
+  :--root {
+    padding-left: 3%;
+    padding-right: 3%;
   }
 }
