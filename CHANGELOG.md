@@ -1,3 +1,27 @@
+# [2.2.0](https://github.com/stencila/thema/compare/v2.1.0...v2.2.0) (2020-04-03)
+
+
+### Bug Fixes
+
+* **Elife:** Make build complete after merging from upstream ([b35092f](https://github.com/stencila/thema/commit/b35092ff1a7f7a575f22e0521389376fac3abe66))
+* **Elife:** Typo in papers url; strip comment ([a98610b](https://github.com/stencila/thema/commit/a98610bad5fe7b22f595393efac2637260f30bba))
+* **Extension:** Add missing import ([daf0959](https://github.com/stencila/thema/commit/daf0959d64157748424d3ecb1e5e6699aea7a345))
+
+
+### Features
+
+* **Elife:** Add data provider to report status of API request ([65a1627](https://github.com/stencila/thema/commit/65a1627a1e5f1f1ecb949d555fe92e45d65c738d))
+* **Elife:** Add PDF download links ([f839fb8](https://github.com/stencila/thema/commit/f839fb8f2e8e06bd1c37b200435dc62d0f42c8ae))
+* **Elife:** Begin download list skeleton ([d802289](https://github.com/stencila/thema/commit/d802289fc210269ccf37062f8215827d74862ee2))
+* **Elife:** Build more of the downloads list ([7e540e3](https://github.com/stencila/thema/commit/7e540e3a62535a76860142d2d359bb17610d0b14))
+* **Elife:** Data provider throws on invalid eLife article id ([0b445a5](https://github.com/stencila/thema/commit/0b445a52f3585cf5f6ee719fddfe17859a9ab4be))
+* **Elife:** Expose the article PDF URI ([4d0f766](https://github.com/stencila/thema/commit/4d0f766e176d7324768bc67290a308c50b883afe))
+* **Elife:** Expose the figures PDF URI ([8a1b1db](https://github.com/stencila/thema/commit/8a1b1db95de8c4af3234ad0b31f88733a898b48c))
+* **Elife:** Obtain article id & use in download menu links ([87df483](https://github.com/stencila/thema/commit/87df483f8b334913349f24a2a6ad567d5800e790))
+* **Elife:** Only one h1 per page ([b8d2267](https://github.com/stencila/thema/commit/b8d226726a8d9773ca3f13836e3850450c5a8f92))
+* **Elife:** Remove obsolete CiteULike ref ([746eace](https://github.com/stencila/thema/commit/746eaceedaf5a029dcabf81172bdb5c045d15cc1))
+* **Elife:** Use Response's ok property in place of status ([b785399](https://github.com/stencila/thema/commit/b7853998caf78a7964ce6cf17d9a456c15d5ec0e))
+
 # [2.1.0](https://github.com/stencila/thema/compare/v2.0.1...v2.1.0) (2020-04-03)
 
 
