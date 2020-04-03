@@ -15,6 +15,8 @@
 
 @import '../../extensions/person/styles.css';
 
+@import 'custom-properties.css';
+
 /* @extend-ing eLife's CSS may not take into account the cascade of styles
  * applied to an element upstream of the extended style. Add @mixins here for such styles
  * that apply to more than one element, that would otherwise be missed. */
@@ -39,6 +41,11 @@ main {
   padding-right: 7%;
 
   @extend .grid-column;
+}
+
+/* Hide article metadata */
+:--identifiers {
+  display: none;
 }
 
 :--Article :--authors {
@@ -74,6 +81,8 @@ main {
   @mixin inline-list;
   @extend .content-header__institution_list;
 
+  margin-bottom: var(--baseline-measure-rem);
+
   :--Organization {
     display: inline;
 
@@ -97,4 +106,15 @@ main {
     padding-left: 3%;
     padding-right: 3%;
   }
+}
+
+:--datePublished {
+  color: var(--color-text-secondary);
+  display: block;
+  font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+  font-size: calc(var(--text-size-rem-small) * 1rem);
+  letter-spacing: var(--letter-spacing);
+  line-height: calc(var(--baseline-measure-rem) / var(--text-size-rem-small));
+  text-align: center;
+  text-transform: capitalize;
 }

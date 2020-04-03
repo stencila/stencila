@@ -60,11 +60,18 @@
   }
 }
 
-:--Article > span {
+/* Hide article metadata */
+:--identifiers {
+  display: none;
+}
+
+/* `margin: auto` has no effect on non-block elements. This is used to center the following elements */
+:--datePublished,
+:--root > span {
   display: block;
 }
 
-:--Article > * {
+:--root > * {
   /*
     Align miscelaneous nodes (text, math, etc) with
     the rest of article.

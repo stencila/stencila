@@ -1,3 +1,62 @@
+# [2.1.0](https://github.com/stencila/thema/compare/v2.0.1...v2.1.0) (2020-04-03)
+
+
+### Bug Fixes
+
+* **Elife:** Add space to pass lint test ([2d6a694](https://github.com/stencila/thema/commit/2d6a694bfa83366767477f7cdb2e0a800019edc8))
+* Add letter-spacing as custom property ([2ca8c44](https://github.com/stencila/thema/commit/2ca8c443c1662be525db5c93735aee6e6f628b6b))
+
+
+### Features
+
+* Add styling for date publication ([0587dd6](https://github.com/stencila/thema/commit/0587dd624040c546df87cc77a485b8a35f8f8bdb))
+
+## [2.0.1](https://github.com/stencila/thema/compare/v2.0.0...v2.0.1) (2020-04-01)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/components to ^0.10.1 ([7ccdc58](https://github.com/stencila/thema/commit/7ccdc58f3588ce88ebab04135ed3a2cde4a54a76))
+* **dependencies:** update react monorepo to ^16.13.1 ([f7d911e](https://github.com/stencila/thema/commit/f7d911e08ff3fdc64cb6016d2e812b6e79c960e3))
+
+# [2.0.0](https://github.com/stencila/thema/compare/v1.16.1...v2.0.0) (2020-03-31)
+
+
+* Merge pull request #122 from stencila/next ([bdf95b8](https://github.com/stencila/thema/commit/bdf95b83c55f63549eed79044b166531a02fa84b)), closes [#122](https://github.com/stencila/thema/issues/122)
+
+
+### BREAKING CHANGES
+
+* Return to master and release `v2.0.0`
+
+## [1.16.1](https://github.com/stencila/thema/compare/v1.16.0...v1.16.1) (2020-03-26)
+
+
+### Bug Fixes
+
+* **Elife:** Match Encoda date semantics & be defensive ([09707f6](https://github.com/stencila/thema/commit/09707f62dbdd0088491e52d7c7d44a8e7931f86d))
+
+# [1.16.0](https://github.com/stencila/thema/compare/v1.15.2...v1.16.0) (2020-03-26)
+
+
+### Bug Fixes
+
+* **Galleria:** Fix grid layout at medium breakpoints ([3228bc0](https://github.com/stencila/thema/commit/3228bc0cdef3a667085bb2e8505f6cc23c1af0f4))
+
+
+### Features
+
+* Hide article identifiers section ([cc54727](https://github.com/stencila/thema/commit/cc54727d241a49e6e6d86288137c0a4e291cdc2e))
+* **Elife:** Hide article identifiers section ([0bfc95f](https://github.com/stencila/thema/commit/0bfc95f6d593b0206e86ae353ffe358e0aba95b4))
+
+## [1.15.2](https://github.com/stencila/thema/compare/v1.15.1...v1.15.2) (2020-03-26)
+
+
+### Bug Fixes
+
+* **Demo:** Add missing Stencila Components JS files to preview documents ([9ef8939](https://github.com/stencila/thema/commit/9ef8939860343de592372bdde78fb7c0d44c34dd))
+* **RPNG:** Collapse source code panels in RPNG theme ([a15e6d5](https://github.com/stencila/thema/commit/a15e6d5e65f0a448fbc6860e143c0666898a5d2c))
+
 ## [1.15.1](https://github.com/stencila/thema/compare/v1.15.0...v1.15.1) (2020-03-16)
 
 

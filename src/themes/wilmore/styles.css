@@ -122,6 +122,11 @@
   }
 }
 
+/* Hide article metadata */
+:--identifiers {
+  display: none;
+}
+
 :--Code,
 :--CodeBlock,
 :--CodeChunk {
