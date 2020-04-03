@@ -35,6 +35,8 @@ main {
   @extend .grid__item;
 
   float: none;
+  padding-left: 7%;
+  padding-right: 7%;
 
   @extend .grid-column;
 }
