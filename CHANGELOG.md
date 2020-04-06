@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/stencila/thema/compare/v2.2.0...v2.2.1) (2020-04-06)
+
+
+### Bug Fixes
+
+* **WDIO:** Fix visual regression tests to work with updated Theme Editor ([c08ed62](https://github.com/stencila/thema/commit/c08ed62a35ded1e71ab2a03d312b5c5c4a981f60))
+
 # [2.2.0](https://github.com/stencila/thema/compare/v2.1.0...v2.2.0) (2020-04-03)
 
 
