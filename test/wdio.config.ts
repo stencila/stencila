@@ -8,7 +8,7 @@ export const staticDir = path.join(__dirname, '..', 'docs')
 
 enum Browser {
   chrome = 'chrome',
-  filefox = 'firefox'
+  firefox = 'firefox'
 }
 
 // Read browser to be tested with from the environment, falling back to Chrome
@@ -22,14 +22,21 @@ const testBrowser = (process.env.TEST_BROWSER
 // commands. Instead, they hook themselves up into the test process.
 // https://webdriver.io/docs/options.html#services
 const baseServices = [
-  'static-server',
+  [
+    'static-server',
+    {
+      port: 3000,
+      folders: [{ mount: '/', path: staticDir }]
+    }
+  ],
   'novus-visual-regression',
   [WdioScreenshot]
 ]
 
 const browserCapabilities = {
   chrome: {
-    browserName: 'chrome'
+    browserName: 'chrome',
+    browserVersion: '80.0'
   },
   firefox: {
     browserName: 'firefox'
@@ -45,10 +52,23 @@ const env = process.env
 
 // When running in CI, use SauceLabs if SAUCE_USERNAME and SAUCE_ACCESS_KEY is set,
 // otherwise the browser specific driver
-const useSauce = env.CI && env.SAUCE_USERNAME && env.SAUCE_ACCESS_KEY
+const useSauce =
+  env.CI && env.SAUCE_USERNAME && env.SAUCE_ACCESS_KEY ? true : false
+
 const services = [
   ...baseServices,
-  useSauce ? 'sauce' : browserServices[testBrowser]
+  useSauce
+    ? [
+        'sauce',
+        {
+          sauceConnect: true,
+          sauceConnectOpts: {
+            // Connect to SauceLabs EU service https://github.com/bermi/sauce-connect-launcher/issues/141
+            x: 'https://eu-central-1.saucelabs.com/rest/v1'
+          }
+        }
+      ]
+    : browserServices[testBrowser]
 ]
 
 // Standardizes screenshot name for visual regression testing
@@ -58,15 +78,10 @@ const normalizeName = (
   width: string,
   height: string
 ): string => {
-  const test = testName.replace(/ /g, '_').replace('.html', '')
   const browser = browserName.toLocaleLowerCase().replace(/ /g, '_')
 
-  return `${test}_${browser}_${width}x${height}.png`
+  return `${testName}_${browser}_${width}x${height}.png`
 }
-
-// Given a test page URL will extract the final part of the pathname, without the html extension
-const nameFromUrl = (url: string): string =>
-  (url.split('/').pop() ?? '').replace('.html', '')
 
 // Declare configuration variables and paths for storing screenshots
 const screenshotDir = path.join(__dirname, 'screenshots')
@@ -91,7 +106,10 @@ const screenshotDirs: {
 const getScreenshotName = (screenshotType: keyof typeof screenshotDirs) => (
   context: any
 ) => {
-  const testName = nameFromUrl(context.meta.url)
+  const [_, example, theme] = context.meta.url.match(
+    /example=(\w+)&theme=(\w+)/
+  )
+  const testName = theme + '_' + example
   const browserName = context.browser.name
   const { width, height } = context.meta.viewport
 
@@ -114,18 +132,18 @@ const compareStrategy =
         misMatchTolerance: 0.01
       })
 
-export const config = {
+const baseConfig = {
   // Will bre prefixed to all relative test URLs. https://webdriver.io/docs/options.html#baseurl
   baseUrl,
   // Required for resolving test sessions
-  path: env.CI ? undefined : '/',
+  path: env.CI ? '/wd/hub' : '/',
   // Level of logging verbosity: trace | debug | info | warn | error | silent
   logLevel: 'warn',
   // Define which test specs should run. The pattern is relative to the directory
   // from which `wdio` was called. Notice that, if you are calling `wdio` from an
   // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
   // directory is where your package.json resides, so `wdio` will be called from there.
-  specs: ['test/**/*.test.ts'],
+  specs: ['test/**/screenshot.test.ts'],
   // ============
   // Capabilities
   // ============
@@ -154,8 +172,10 @@ export const config = {
             // capabilities must be tagged as "public" for the jobs's status
             // to update (failed/passed). If omitted on Open Sauce, the job's
             // status will only be marked "Finished."
-            public: true,
-            recordScreenshots: false
+            'sauce:options': {
+              public: true,
+              recordScreenshots: false
+            }
           }
         : {}
     )
@@ -189,15 +209,7 @@ export const config = {
     ],
     orientations: ['landscape', 'portrait']
   },
-  // Sauce Labs configuration
-  user: useSauce && env.SAUCE_USERNAME,
-  key: useSauce && env.SAUCE_ACCESS_KEY,
-  region: 'eu',
-  sauceConnect: true,
   headless: false,
-  // Static Server configuration
-  staticServerPort: 3000,
-  staticServerFolders: [{ mount: '/', path: staticDir }],
   // Options for selenium-standalone
   // Path where all logs from the Selenium server should be stored.
   seleniumLogs: './logs/',
@@ -211,3 +223,16 @@ export const config = {
     timeout: 0
   }
 }
+
+export const config = Object.assign(
+  {},
+  baseConfig,
+  // Sauce Labs configuration
+  useSauce
+    ? {
+        user: useSauce && env.SAUCE_USERNAME,
+        key: useSauce && env.SAUCE_ACCESS_KEY,
+        region: 'eu'
+      }
+    : {}
+)

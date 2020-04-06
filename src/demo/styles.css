@@ -45,6 +45,15 @@ body {
       width: calc(100% - 3rem);
     }
   }
+
+  &.headerHidden.sideBarHidden iframe {
+    border: none;
+    box-shadow: none;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
 }
 
 body > * {
