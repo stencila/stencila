@@ -21,7 +21,7 @@ after_success:
   # Upload code coverage to Codecov
   - bash <(curl -s https://codecov.io/bash)
   # Upload screenshots to Argos
-  - 'if [ -z "$ARGOS_TOKEN" ]; then true; else argos upload test/screenshots/local -c "$travis_commit" -b "$travis_branch" -t "$ARGOS_TOKEN"; fi'
+  - 'if [ -z "$ARGOS_TOKEN" ]; then true; else argos upload test/screenshots/local -C "$TRAVIS_COMMIT" -B "$TRAVIS_BRANCH" -T "$ARGOS_TOKEN"; fi'
 
 before_deploy:
   - npm run build
