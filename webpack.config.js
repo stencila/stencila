@@ -1,6 +1,5 @@
 const globby = require('globby')
 const path = require('path')
-const pkgJson = require('./package.json')
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const FileManagerPlugin = require('filemanager-webpack-plugin')
@@ -103,10 +102,7 @@ module.exports = (env = {}, { mode }) => {
       new CleanWebpackPlugin(),
       new DefinePlugin({
         'process.env.ASSET_PATH': JSON.stringify(ASSET_PATH),
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-        'process.env.VERSION': JSON.stringify(
-          process.env.VERSION || pkgJson.version
-        )
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
       }),
       new MiniCssExtractPlugin(),
       ...docsPlugins,
