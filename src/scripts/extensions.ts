@@ -122,9 +122,9 @@ export const extensions: {
       (extension) =>
         `${
           /^\w+$/.test(extension) ? extension : `'${extension}'`
-        }: '${extension}'`
+        }: '${extension}',`
     )
-    .join(',\n  ')}
+    .join('\n  ')}
 }\n`
   )
 }

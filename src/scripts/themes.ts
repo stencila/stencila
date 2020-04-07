@@ -208,7 +208,7 @@ function update(): void {
 export const themes: {
   ${themes.map((theme) => `${theme}: '${theme}'`).join('\n  ')}
 } = {
-  ${themes.map((theme) => `${theme}: '${theme}'`).join(',\n  ')}
+  ${themes.map((theme) => `${theme}: '${theme}',`).join('\n  ')}
 }\n`
   )
 }
