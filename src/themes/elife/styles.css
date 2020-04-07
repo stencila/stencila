@@ -77,6 +77,17 @@ main {
   }
 }
 
+:--datePublished {
+  color: var(--color-text-secondary);
+  display: block;
+  font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+  font-size: calc(var(--text-size-rem-small) * 1rem);
+  letter-spacing: var(--letter-spacing);
+  line-height: calc(var(--baseline-measure-rem) / var(--text-size-rem-small));
+  text-align: center;
+  text-transform: capitalize;
+}
+
 /* Chain custom MicroData selectors for style adjustments as needed */
 :--Article :--affiliations {
   @mixin inline-list;
@@ -102,13 +113,28 @@ main {
   }
 }
 
-:--datePublished {
-  color: var(--color-text-secondary);
+:--references :--authors {
+  display: inline;
+}
+
+:--references :--datePublished {
+  color: inherit;
+  display: inline;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: initial;
+  line-height: initial;
+  text-transform: initial;
+
+  &:before {
+    content: ' (';
+  }
+
+  &:after {
+    content: ')';
+  }
+}
+
+span[itemprop='headline'] {
   display: block;
-  font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
-  font-size: calc(var(--text-size-rem-small) * 1rem);
-  letter-spacing: var(--letter-spacing);
-  line-height: calc(var(--baseline-measure-rem) / var(--text-size-rem-small));
-  text-align: center;
-  text-transform: capitalize;
 }
