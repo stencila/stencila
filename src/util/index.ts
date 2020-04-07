@@ -62,7 +62,7 @@ let readyFired = false
 export function whenReady(): void {
   if (readyFired) return
   readyFired = true
-  readyList.forEach(func => func())
+  readyList.forEach((func) => func())
   readyList = []
   document.removeEventListener('DOMContentLoaded', whenReady)
 }
@@ -187,7 +187,7 @@ export function create(
     // 1. Type selectors (need itemscope attr too)
     spec = spec.replace(
       /:--[A-Z][a-z]+/g,
-      typeSelector => `[itemscope] ${translate(typeSelector)}`
+      (typeSelector) => `[itemscope] ${translate(typeSelector)}`
     )
     // 2. Prop selectors
     spec = spec.replace(/:--[a-zA-Z]+/g, translate)
@@ -210,14 +210,11 @@ export function create(
     if (classes.length > 0)
       elem.setAttribute(
         'class',
-        classes.map(item => item.split('.')[1]).join(' ')
+        classes.map((item) => item.split('.')[1]).join(' ')
       )
 
-    attribs.forEach(item => {
-      let [label, value] = item
-        .split('[')[1]
-        .slice(0, -1)
-        .split(/~?=/)
+    attribs.forEach((item) => {
+      let [label, value] = item.split('[')[1].slice(0, -1).split(/~?=/)
       if (value !== undefined) value = value.replace(/^['"](.*)['"]$/, '$1')
       elem.setAttribute(label, value ?? '')
     })
@@ -237,7 +234,7 @@ export function create(
   }
 
   // Append children as elements or text
-  children.forEach(item => append(elem, item))
+  children.forEach((item) => append(elem, item))
 
   return elem
 }
@@ -365,7 +362,7 @@ export function append(
   target: Element,
   ...elems: (undefined | null | boolean | number | string | Element)[]
 ): void {
-  elems.forEach(elem =>
+  elems.forEach((elem) =>
     elem !== undefined && elem !== null
       ? target.appendChild(
           elem instanceof Element ? elem : document.createTextNode(`${elem}`)
@@ -387,7 +384,7 @@ export function append(
 export function prepend(target: Element, ...elems: Element[]): void {
   elems
     .reverse()
-    .forEach(elem => target.insertBefore(elem, target.childNodes[0] ?? null))
+    .forEach((elem) => target.insertBefore(elem, target.childNodes[0] ?? null))
 }
 
 /**
@@ -399,7 +396,7 @@ export function prepend(target: Element, ...elems: Element[]): void {
 export function before(target: Element, ...elems: Element[]): void {
   const parent = target.parentNode
   if (parent !== null) {
-    elems.forEach(elem => parent.insertBefore(elem, target))
+    elems.forEach((elem) => parent.insertBefore(elem, target))
   }
 }
 
@@ -414,7 +411,7 @@ export function after(target: Element, ...elems: Element[]): void {
   if (parent !== null) {
     elems
       .reverse()
-      .forEach(elem => parent.insertBefore(elem, target.nextSibling))
+      .forEach((elem) => parent.insertBefore(elem, target.nextSibling))
   }
 }
 

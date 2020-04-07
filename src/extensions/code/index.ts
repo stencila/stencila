@@ -10,7 +10,7 @@ ready(() => {
    * `CodeChunk` and `CodeFragment` nodes without a `programmingLanguage` specified
    * to be styled differently. So add these to the list of elements that Prism highlights.
    */
-  select('pre:--CodeBlock > code, code:--CodeFragment').forEach(element => {
+  select('pre:--CodeBlock > code, code:--CodeFragment').forEach((element) => {
     if (!element.className.includes('language-'))
       element.classList.add('language-text')
   })

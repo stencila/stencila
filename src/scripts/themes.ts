@@ -58,7 +58,7 @@ function check(name?: string, fix = false): number {
     return globby
       .sync('*', {
         onlyDirectories: true,
-        cwd: themesDir
+        cwd: themesDir,
       })
       .reduce((sum, theme) => sum + check(theme, fix), 0)
   }
@@ -156,7 +156,7 @@ function check(name?: string, fix = false): number {
         if (
           !scriptRegex.test(script) &&
           globby.sync('index.{js,ts}', {
-            cwd: path.join(__dirname, '..', 'extensions', extension)
+            cwd: path.join(__dirname, '..', 'extensions', extension),
           }).length > 0
         ) {
           if (fix) imports.push(`import '../../extensions/${extension}'`)
@@ -173,7 +173,7 @@ function check(name?: string, fix = false): number {
     }
   }
 
-  messages.forEach(message => console.error(message))
+  messages.forEach((message) => console.error(message))
   return messages.length
 }
 
@@ -191,11 +191,11 @@ function update(): void {
   // Get the list of themes
   const themes = globby.sync('*', {
     onlyDirectories: true,
-    cwd: themesDir
+    cwd: themesDir,
   })
 
   // Lint each theme
-  themes.forEach(theme => check(theme, true))
+  themes.forEach((theme) => check(theme, true))
 
   // Write list
   fs.writeFileSync(
@@ -206,9 +206,9 @@ function update(): void {
  * Map of available theme names
  */
 export const themes: {
-  ${themes.map(theme => `${theme}: '${theme}'`).join('\n  ')}
+  ${themes.map((theme) => `${theme}: '${theme}'`).join('\n  ')}
 } = {
-  ${themes.map(theme => `${theme}: '${theme}'`).join(',\n  ')}
+  ${themes.map((theme) => `${theme}: '${theme}'`).join(',\n  ')}
 }\n`
   )
 }

@@ -2,7 +2,7 @@ import { themes } from '../themes/index'
 import { isTheme } from '.'
 
 describe('Check if `theme` is a Thema theme', () => {
-  test.each(Object.keys(themes))('Thema themes - %s', themeKey => {
+  test.each(Object.keys(themes))('Thema themes - %s', (themeKey) => {
     expect(isTheme(themeKey)).toBe(true)
   })
 

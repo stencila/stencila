@@ -62,7 +62,7 @@
     "react-dom": "^16.13.1"
   },
   "devDependencies": {
-    "@stencila/dev-config": "1.4.20",
+    "@stencila/dev-config": "^1.4.23",
     "@stencila/encoda": "0.93.0",
     "@stencila/schema": "0.41.2",
     "@types/jest": "25.1.4",
