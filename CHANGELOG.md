@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/stencila/thema/compare/v2.2.1...v2.2.2) (2020-04-07)
+
+
+### Bug Fixes
+
+* **Thema:** Simplify Thema version resolution logic ([31ce7d0](https://github.com/stencila/thema/commit/31ce7d0d6bee37527cb2f32270ce5845d7c983b7))
+
 ## [2.2.1](https://github.com/stencila/thema/compare/v2.2.0...v2.2.1) (2020-04-06)
 
 
