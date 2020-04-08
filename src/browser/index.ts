@@ -1,4 +1,5 @@
 import { themes } from '../themes'
+import { version } from '../../package.json'
 
 export { themes }
 
@@ -7,8 +8,7 @@ export interface ThemaAssets {
   scripts: string[]
 }
 
-const themaVersion = process.env.VERSION ?? '1'
-const themaMajor = themaVersion.split('.')[0]
+const themaMajor = version.split('.')[0]
 
 /**
  * The path to a theme in this package

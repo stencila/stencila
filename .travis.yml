@@ -13,13 +13,15 @@ script:
   - npm run check:themes
   - npm run lint
   - npm run test:unit -- --coverage
-  - '[[ ! -z "$SAUCE_ACCESS_KEY" ]] && travis_wait npm run test:visual || true'
+  # if SauceLabs variables are defined, build docs and run visual regression tests
+  - 'if [ -z "$SAUCE_ACCESS_KEY" ]; then true; else npm run docs; fi'
+  - 'if [ -z "$SAUCE_ACCESS_KEY" ]; then true; else npm run test:visual; fi'
 
 after_success:
   # Upload code coverage to Codecov
   - bash <(curl -s https://codecov.io/bash)
   # Upload screenshots to Argos
-  - '[[ ! -z "$ARGOS_TOKEN" ]] && argos upload test/screenshots/local -C $TRAVIS_COMMIT -B $TRAVIS_BRANCH -T $ARGOS_TOKEN || true'
+  - 'if [ -z "$ARGOS_TOKEN" ]; then true; else argos upload test/screenshots/local -C "$TRAVIS_COMMIT" -B "${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}" -T "$ARGOS_TOKEN"; fi'
 
 before_deploy:
   - npm run build
