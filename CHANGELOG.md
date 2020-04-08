@@ -1,3 +1,10 @@
+## [2.2.3](https://github.com/stencila/thema/compare/v2.2.2...v2.2.3) (2020-04-08)
+
+
+### Bug Fixes
+
+* **Build:** Fix ts-node theme import failing package genereation ([2981366](https://github.com/stencila/thema/commit/2981366704b4fb4c348cd88d740be42d4c73df41))
+
 ## [2.2.2](https://github.com/stencila/thema/compare/v2.2.1...v2.2.2) (2020-04-07)
 
 
