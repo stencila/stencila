@@ -21,7 +21,7 @@ import path from 'path'
 import * as typescript from 'typescript'
 import { promisify } from 'util'
 import { extensions } from '../extensions'
-import { themes } from '../themes'
+import { themes } from '../themes/index'
 
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
