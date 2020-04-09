@@ -1,3 +1,10 @@
+## [2.2.4](https://github.com/stencila/thema/compare/v2.2.3...v2.2.4) (2020-04-09)
+
+
+### Bug Fixes
+
+* **Build:** Use Webpack for all build targets for consistency ([99606f9](https://github.com/stencila/thema/commit/99606f965ce264566800b644eb1331e3c0b72251))
+
 ## [2.2.3](https://github.com/stencila/thema/compare/v2.2.2...v2.2.3) (2020-04-08)
 
 
