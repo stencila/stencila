@@ -96,7 +96,13 @@ module.exports = (env = {}, { mode }) => {
     output: {
       path: path.resolve(__dirname, contentBase),
       publicPath: ASSET_PATH,
-      filename: '[name].js'
+      filename: '[name].js',
+      library: 'thema',
+      libraryTarget: 'umd',
+      umdNamedDefine: true
+    },
+    node: {
+      __dirname: false
     },
     devServer: {
       contentBase: path.join(__dirname, contentBase),
