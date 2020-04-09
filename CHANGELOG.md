@@ -1,3 +1,10 @@
+## [2.2.5](https://github.com/stencila/thema/compare/v2.2.4...v2.2.5) (2020-04-09)
+
+
+### Bug Fixes
+
+* **Build:** Fix `lib` module generation from Webpack ([ae460a6](https://github.com/stencila/thema/commit/ae460a6666248ca46ac9edf91bcf6cefa3ff1095))
+
 ## [2.2.4](https://github.com/stencila/thema/compare/v2.2.3...v2.2.4) (2020-04-09)
 
 
