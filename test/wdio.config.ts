@@ -8,7 +8,7 @@ export const staticDir = path.join(__dirname, '..', 'docs')
 
 enum Browser {
   chrome = 'chrome',
-  firefox = 'firefox'
+  firefox = 'firefox',
 }
 
 // Read browser to be tested with from the environment, falling back to Chrome
@@ -26,26 +26,26 @@ const baseServices = [
     'static-server',
     {
       port: 3000,
-      folders: [{ mount: '/', path: staticDir }]
-    }
+      folders: [{ mount: '/', path: staticDir }],
+    },
   ],
   'novus-visual-regression',
-  [WdioScreenshot]
+  [WdioScreenshot],
 ]
 
 const browserCapabilities = {
   chrome: {
     browserName: 'chrome',
-    browserVersion: '80.0'
+    browserVersion: '81.0',
   },
   firefox: {
-    browserName: 'firefox'
-  }
+    browserName: 'firefox',
+  },
 }
 
 const browserServices = {
   chrome: 'chromedriver',
-  firefox: 'geckodriver'
+  firefox: 'geckodriver',
 }
 
 const env = process.env
@@ -64,11 +64,11 @@ const services = [
           sauceConnect: true,
           sauceConnectOpts: {
             // Connect to SauceLabs EU service https://github.com/bermi/sauce-connect-launcher/issues/141
-            x: 'https://eu-central-1.saucelabs.com/rest/v1'
-          }
-        }
+            x: 'https://eu-central-1.saucelabs.com/rest/v1',
+          },
+        },
       ]
-    : browserServices[testBrowser]
+    : browserServices[testBrowser],
 ]
 
 // Standardizes screenshot name for visual regression testing
@@ -95,7 +95,7 @@ const screenshotDirs: {
   errors: path.join(screenshotDir, 'errors'),
   reference: path.join(screenshotDir, 'reference'),
   local: path.join(screenshotDir, 'local'),
-  diff: path.join(screenshotDir, 'diff')
+  diff: path.join(screenshotDir, 'diff'),
 }
 
 /**
@@ -123,13 +123,13 @@ const getScreenshotName = (screenshotType: keyof typeof screenshotDirs) => (
 const compareStrategy =
   env.CI !== undefined
     ? new VisualRegressionCompare.SaveScreenshot({
-        screenshotName: getScreenshotName('local')
+        screenshotName: getScreenshotName('local'),
       })
     : new VisualRegressionCompare.LocalCompare({
         referenceName: getScreenshotName('reference'),
         screenshotName: getScreenshotName('local'),
         diffName: getScreenshotName('diff'),
-        misMatchTolerance: 0.01
+        misMatchTolerance: 0.01,
       })
 
 const baseConfig = {
@@ -174,11 +174,11 @@ const baseConfig = {
             // status will only be marked "Finished."
             'sauce:options': {
               public: true,
-              recordScreenshots: false
-            }
+              recordScreenshots: false,
+            },
           }
         : {}
-    )
+    ),
   ],
   // By default WebdriverIO commands are executed in a synchronous way using
   // the wdio-sync package. If you still want to run your tests in an async way
@@ -205,9 +205,9 @@ const baseConfig = {
     viewportChangePause: 400,
     viewports: [
       { width: 320, height: 568 },
-      { width: 1440, height: 900 }
+      { width: 1440, height: 900 },
     ],
-    orientations: ['landscape', 'portrait']
+    orientations: ['landscape', 'portrait'],
   },
   headless: false,
   // Options for selenium-standalone
@@ -220,8 +220,8 @@ const baseConfig = {
   // Options to be passed to Mocha.
   // See the full list at http://mochajs.org/
   mochaOpts: {
-    timeout: 0
-  }
+    timeout: 0,
+  },
 }
 
 export const config = Object.assign(
@@ -232,7 +232,7 @@ export const config = Object.assign(
     ? {
         user: useSauce && env.SAUCE_USERNAME,
         key: useSauce && env.SAUCE_ACCESS_KEY,
-        region: 'eu'
+        region: 'eu',
       }
     : {}
 )
