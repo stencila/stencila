@@ -21,5 +21,5 @@ test('DOM manipulations', async () => {
   await import('.')
   whenReady()
 
-  expect(select(':--givenName').map(elem => text(elem))).toEqual(['S', 'J'])
+  expect(select(':--givenName').map((elem) => text(elem))).toEqual(['S', 'J'])
 })

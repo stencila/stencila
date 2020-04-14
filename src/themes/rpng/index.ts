@@ -18,7 +18,7 @@ ready(() => {
         new CustomEvent('collapseAllCode', {
           bubbles: true,
           cancelable: true,
-          detail: { isCollapsed: true }
+          detail: { isCollapsed: true },
         })
       )
     }

@@ -1,9 +1,7 @@
 const globby = require('globby')
 const path = require('path')
-
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const FileManagerPlugin = require('filemanager-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { DefinePlugin } = require('webpack')
 
@@ -25,18 +23,23 @@ const fileLoaderOutputPath = (url, resourcePath, context) => {
   return `${relativePath}`
 }
 
+const browserEntries = ['./src/**/*.{css,ts,ttf,woff,woff2}', '!**/lib/**/*.ts']
+
+const libEntries = ['./src/lib/**/*.ts']
+
 module.exports = (env = {}, { mode }) => {
-  const isDocs = env.docs === 'true'
+  // Build target, can be one of: [`browser` | 'lib' | 'docs']
+  const target = env.target || 'browser'
+  const isDocs = env.target === 'docs'
   const isDevelopment = mode === 'development'
   const contentBase = isDocs ? 'docs' : 'dist'
 
   const entries = [
-    './src/**/*.{css,ts,ttf,woff,woff2}',
+    ...(target === 'lib' ? libEntries : browserEntries),
     // Don’t compile test files for package distribution
     '!**/*.{d,test}.ts',
     // These files make use of Node APIs, and do not need to be packaged for Browser targets
     '!**/scripts/*.ts',
-    '!**/lib/**/*.ts',
     '!**/extensions/math/update.ts',
     '!**/extensions/extensions.ts',
     // Don’t build HTML demo files for package distribution
@@ -89,20 +92,29 @@ module.exports = (env = {}, { mode }) => {
       extensions: ['.ts', '.tsx', '.js', '.css', '.html']
     },
     mode: mode || 'development',
+    target: target === 'lib' ? 'node' : 'web',
     output: {
       path: path.resolve(__dirname, contentBase),
       publicPath: ASSET_PATH,
-      filename: '[name].js'
+      filename: '[name].js',
+      library: 'thema',
+      libraryTarget: 'umd',
+      umdNamedDefine: true
+    },
+    node: {
+      __dirname: false
     },
     devServer: {
       contentBase: path.join(__dirname, contentBase),
       overlay: true
     },
     plugins: [
-      new CleanWebpackPlugin(),
       new DefinePlugin({
         'process.env.ASSET_PATH': JSON.stringify(ASSET_PATH),
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+        'process.env.npm_package_version': JSON.stringify(
+          process.env.npm_package_version
+        )
       }),
       new MiniCssExtractPlugin(),
       ...docsPlugins,
@@ -126,7 +138,9 @@ module.exports = (env = {}, { mode }) => {
           use: {
             loader: 'ts-loader',
             options: {
-              configFile: 'tsconfig.browser.json',
+              configFile: `tsconfig.${
+                target === 'lib' ? 'lib' : 'browser'
+              }.json`,
               experimentalWatchApi: true
             }
           }

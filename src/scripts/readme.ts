@@ -11,7 +11,7 @@ import {
   Paragraph,
   table,
   tableCell,
-  tableRow
+  tableRow,
 } from '@stencila/schema'
 import fs from 'fs'
 /* eslint-disable-next-line */
@@ -21,7 +21,7 @@ import path from 'path'
 import * as typescript from 'typescript'
 import { promisify } from 'util'
 import { extensions } from '../extensions'
-import { themes } from '../themes'
+import { themes } from '../themes/index'
 
 const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
@@ -34,7 +34,7 @@ function update(): void {
     .then(generateThemeDocs)
     .then(generateExtsDocs)
     .then(generateApiDocs)
-    .then(readme => writeFile(readmePath, readme))
+    .then((readme) => writeFile(readmePath, readme))
     .catch(console.error)
 }
 
@@ -82,16 +82,16 @@ async function generateExtsDocs(readme: string): Promise<string> {
  */
 async function readmesToTable(dir: string, subdirs: string[]): Promise<string> {
   const rows = await Promise.all(
-    subdirs.map(async theme => {
+    subdirs.map(async (theme) => {
       const readme = (await read(path.join(dir, theme, 'README.md'))) as Article
       const firstParaContent = (readme.content?.[0] as Paragraph)?.content ?? []
       return tableRow({
         cells: [
           tableCell({
-            content: [link({ target: `./themes/${theme}`, content: [theme] })]
+            content: [link({ target: `./themes/${theme}`, content: [theme] })],
           }),
-          tableCell({ content: firstParaContent })
-        ]
+          tableCell({ content: firstParaContent }),
+        ],
       })
     })
   )
@@ -100,11 +100,11 @@ async function readmesToTable(dir: string, subdirs: string[]): Promise<string> {
       tableRow({
         cells: [
           tableCell({ content: ['Name'] }),
-          tableCell({ content: ['Description'] })
-        ]
+          tableCell({ content: ['Description'] }),
+        ],
       }),
-      ...rows
-    ]
+      ...rows,
+    ],
   })
   return dump(tab, 'md')
 }
@@ -123,7 +123,7 @@ async function generateApiDocs(readme: string): Promise<string> {
   const js = typescript.transpileModule(ts, {}).outputText
   const md = await jsdoc2md.render({
     source: js,
-    'heading-depth': 3
+    'heading-depth': 3,
   })
   return readme.replace(
     /<!-- API-START -->[\s\S]*?<!-- API-END -->/gm,

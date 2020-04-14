@@ -1,3 +1,24 @@
+## [2.2.5](https://github.com/stencila/thema/compare/v2.2.4...v2.2.5) (2020-04-09)
+
+
+### Bug Fixes
+
+* **Build:** Fix `lib` module generation from Webpack ([ae460a6](https://github.com/stencila/thema/commit/ae460a6666248ca46ac9edf91bcf6cefa3ff1095))
+
+## [2.2.4](https://github.com/stencila/thema/compare/v2.2.3...v2.2.4) (2020-04-09)
+
+
+### Bug Fixes
+
+* **Build:** Use Webpack for all build targets for consistency ([99606f9](https://github.com/stencila/thema/commit/99606f965ce264566800b644eb1331e3c0b72251))
+
+## [2.2.3](https://github.com/stencila/thema/compare/v2.2.2...v2.2.3) (2020-04-08)
+
+
+### Bug Fixes
+
+* **Build:** Fix ts-node theme import failing package genereation ([2981366](https://github.com/stencila/thema/commit/2981366704b4fb4c348cd88d740be42d4c73df41))
+
 ## [2.2.2](https://github.com/stencila/thema/compare/v2.2.1...v2.2.2) (2020-04-07)
 
 

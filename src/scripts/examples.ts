@@ -28,7 +28,7 @@ const EXAMPLES = [
   articleReadme,
   articleKitchenSink,
   articleDrosophila,
-  articleAntibodies
+  articleAntibodies,
 ]
 
 /**
@@ -86,7 +86,9 @@ function articleAntibodies(): Promise<string | undefined> {
 }
 
 // Run each function
-Promise.all(EXAMPLES.map(example => example())).catch(err => console.error(err))
+Promise.all(EXAMPLES.map((example) => example())).catch((err) =>
+  console.error(err)
+)
 
 // Generate `../examples/examples.ts`
 fs.writeFileSync(
@@ -98,9 +100,11 @@ fs.writeFileSync(
  * Map of example names
  */
 export const examples: {
-  ${EXAMPLES.map(example => `${example.name}: string`).join('\n  ')}
+  ${EXAMPLES.map((example) => `${example.name}: string`).join('\n  ')}
 } = {
-  ${EXAMPLES.map(example => `${example.name}: '${example.name}'`).join(',\n  ')}
+  ${EXAMPLES.map((example) => `${example.name}: '${example.name}'`).join(
+    ',\n  '
+  )}
 }
 `.trimLeft()
 )

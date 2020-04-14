@@ -5,7 +5,7 @@ import { ready, select, text } from '../../util'
  * This is difficult to achieve using CSS alone, so truncate given names here.
  */
 ready(() =>
-  select(':--references :--givenName').forEach(elem => {
+  select(':--references :--givenName').forEach((elem) => {
     elem.innerHTML = text(elem)?.[0] ?? ''
   })
 )

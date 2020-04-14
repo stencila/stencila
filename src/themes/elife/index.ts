@@ -5,7 +5,7 @@ import DateTimeFormat = Intl.DateTimeFormat
 const dateFormatter = new DateTimeFormat('en-US', {
   month: 'short',
   day: 'numeric',
-  year: 'numeric'
+  year: 'numeric',
 })
 
 const formatDate = (dateEl: Element | null): void => {
