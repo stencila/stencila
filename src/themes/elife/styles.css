@@ -113,6 +113,7 @@ main {
   text-transform: capitalize;
 }
 
+/* Download List without JS */
 :--references {
   ul {
     margin-top: 0;
@@ -122,7 +123,7 @@ main {
       font-size: 1rem;
 
       a {
-        background-color: #fff;
+        background-color: #ffffff;
         color: var(--color-text);
       }
     }
