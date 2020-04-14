@@ -2,9 +2,11 @@
   /* Colors */
   --color-text: #212121;
   --color-text-secondary: #888;
+  --color-text-ui-background: #fff;
 
   /* Typography */
   --text-size-rem-small: 0.6875;
+  --text-size-rem-normal: 1;
   --letter-spacing: 0.5px;
 
   /* Spacing */

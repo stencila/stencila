@@ -120,10 +120,10 @@ main {
     margin-bottom: var(--baseline-measure-rem);
 
     li {
-      font-size: 1rem;
+      font-size: calc(var(--text-size-rem-normal) * 1rem);
 
       a {
-        background-color: #ffffff;
+        background-color: var(--color-text-ui-background);
         color: var(--color-text);
       }
     }
