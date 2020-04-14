@@ -50,7 +50,7 @@ export const forceReady = (doc?: Document | null): void => {
   doc.dispatchEvent(
     new Event('DOMContentLoaded', {
       bubbles: true,
-      cancelable: true
+      cancelable: true,
     })
   )
 }

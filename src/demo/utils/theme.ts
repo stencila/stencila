@@ -7,7 +7,7 @@ import {
   getExample,
   getPreviewDoc,
   getPreviewHead,
-  injectPreviewAssets
+  injectPreviewAssets,
 } from './preview'
 
 export const getThemeCSS = (theme: string): string => {
@@ -56,7 +56,7 @@ export const themeSet = (theme: string): void => {
   // Remove all appended theme scripts, and re-append chosen theme’s script
   // This causes the browser to re-evaluate the script
   if (previewDoc !== null) {
-    previewDoc.querySelectorAll('script.themeScript').forEach(node => {
+    previewDoc.querySelectorAll('script.themeScript').forEach((node) => {
       if (previewDoc != null) {
         previewDoc.body.removeChild(node)
       }

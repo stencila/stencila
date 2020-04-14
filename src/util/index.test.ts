@@ -13,17 +13,17 @@ import {
   text,
   attr,
   attrs,
-  tag
+  tag,
 } from '.'
 
 const body = document.body
 
 describe('ready', () => {
-  it('runs the functions, in order, when the DOM is ready', done => {
+  it('runs the functions, in order, when the DOM is ready', (done) => {
     // Monkey patch jsdom to be able to toggle the document's ready state property
     let readyState = 'loading'
     Object.defineProperty(document, 'readyState', {
-      get: () => readyState
+      get: () => readyState,
     })
 
     body.innerHTML = `<img>`
@@ -168,7 +168,7 @@ describe('create', () => {
     expect(create('[one="a"]').getAttribute('one')).toEqual('a')
     expect(create('[one="a"] [two="b"]').getAttributeNames()).toEqual([
       'one',
-      'two'
+      'two',
     ])
   })
 
@@ -186,8 +186,8 @@ describe('create', () => {
   test.each([
     'span #foo .bar [attr="baz"] :--author',
     'span .bar :--author [attr="baz"] #foo',
-    'span .bar [itemprop~="author"] [attr="baz"] #foo'
-  ])('works with a combination of selectors', selectors => {
+    'span .bar [itemprop~="author"] [attr="baz"] #foo',
+  ])('works with a combination of selectors', (selectors) => {
     const elem = create(selectors)
 
     expect(elem.tagName).toEqual('SPAN')
@@ -212,7 +212,7 @@ describe('create', () => {
       attr2: 42,
       attr3: undefined,
       attr4: true,
-      attr5: false
+      attr5: false,
     })
 
     expect(elem.id).toEqual('foo')
@@ -226,8 +226,8 @@ describe('create', () => {
 
   it.each([
     '<span id="quax" class="wix" attr1="xox" attr2="zot">',
-    'span #quax .wix [attr1="xox"] [attr2="zot"]'
-  ])('attributes as an object override HTML or CSS', spec => {
+    'span #quax .wix [attr1="xox"] [attr2="zot"]',
+  ])('attributes as an object override HTML or CSS', (spec) => {
     const elem = create(spec, { id: 'foo', class: 'bar', attr1: 'baz' })
 
     expect(elem.id).toEqual('foo')
@@ -411,7 +411,7 @@ test('examples in docs do not error; print outputs', () => {
     id: 'fig1',
     class: 'fig',
     itemscope: '',
-    itemtype: 'http://schema.stenci.la/Figure'
+    itemtype: 'http://schema.stenci.la/Figure',
   })
   expect(alt1.outerHTML).toBe(alt2.outerHTML)
   console.log(alt1.outerHTML)
@@ -421,7 +421,7 @@ test('examples in docs do not error; print outputs', () => {
   text(elem, 'content')
   console.log(text(elem))
 
-  select(':--Figure :--caption').forEach(caption =>
+  select(':--Figure :--caption').forEach((caption) =>
     wrap(caption, create('div'))
   )
 })

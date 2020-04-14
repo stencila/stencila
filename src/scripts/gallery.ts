@@ -17,7 +17,7 @@ import {
   list,
   listItem,
   organization,
-  paragraph
+  paragraph,
 } from '@stencila/schema'
 import { tmpdir } from 'os'
 import path from 'path'
@@ -30,11 +30,11 @@ const distDir = path.join(__dirname, '..', '..', 'dist')
 
 const stencila = organization({
   name: 'Stencila',
-  logo: 'https://stenci.la/img/logo-name.png'
+  logo: 'https://stenci.la/img/logo-name.png',
 })
 
 if (module.parent === null)
-  generateGallery().catch(error => {
+  generateGallery().catch((error) => {
     console.log(error)
     process.exit(1)
   })
@@ -56,8 +56,8 @@ async function generateGallery(): Promise<void> {
       themes.wilmore,
       themes.plos,
       themes.skeleton,
-      ...Object.keys(themes)
-    ])
+      ...Object.keys(themes),
+    ]),
   ]
 
   const summaries = (
@@ -69,14 +69,14 @@ async function generateGallery(): Promise<void> {
             theme,
             `./editor?theme=${theme}`,
             example as Article
-          )
+          ),
         ]
       )
     )
   ).reduce(
     (prev: Record<string, CreativeWork>, [key, value]) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }),
     {}
   )
@@ -94,31 +94,31 @@ async function generateGallery(): Promise<void> {
           'Thema provides semantic themes for use with ',
           link({
             target: 'https://github.com/stencila/encoda/',
-            content: ['Stencila’s Encoda']
+            content: ['Stencila’s Encoda'],
           }),
           '. Themes are designed to be customizable, or you can ',
           link({
             target: 'https://github.com/stencila/thema/#creating-a-new-theme',
-            content: ['make one from scratch']
+            content: ['make one from scratch'],
           }),
-          '.'
-        ]
+          '.',
+        ],
       }),
       list({
         items: Object.entries(summaries).map(([theme, summary]) => {
           return listItem({
             url: `?theme=${theme}`,
-            content: [summary]
+            content: [summary],
           })
-        })
-      })
-    ]
+        }),
+      }),
+    ],
   })
 
   await write(gallery, path.join(srcDir, 'gallery.ejs'), {
     isStandalone: false,
     format: 'html',
-    theme: path.join(distDir, 'themes', 'galleria')
+    theme: path.join(distDir, 'themes', 'galleria'),
   })
 
   await shutdown()
@@ -148,7 +148,7 @@ async function generateSummary(
   await write(example, screenshot, {
     isStandalone: true,
     theme: path.join(distDir, 'themes', theme),
-    size: { height: 500, width: 800 }
+    size: { height: 500, width: 800 },
   })
 
   // Make the creative work
@@ -159,7 +159,7 @@ async function generateSummary(
     content: [
       link({
         target: url,
-        content: [imageObject({ contentUrl: screenshot })]
+        content: [imageObject({ contentUrl: screenshot })],
       }),
       heading({ depth: 3, content: [theme] }),
       ...content,
@@ -167,16 +167,16 @@ async function generateSummary(
         content: [
           link({
             target: url,
-            content: ['View demo & customize']
-          })
-        ]
-      })
+            content: ['View demo & customize'],
+          }),
+        ],
+      }),
     ],
     // If there is not a description in the YAML meta data of the
     // README, then make it the plain text version of the original content
     description:
       description !== undefined ? description : await dump(content, 'txt'),
     // HTML version of the original content
-    text: await dump(content, 'html')
+    text: await dump(content, 'html'),
   })
 }

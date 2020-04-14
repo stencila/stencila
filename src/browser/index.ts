@@ -71,6 +71,6 @@ export const getTheme = (
 
   return {
     styles: resolve([style]),
-    scripts: resolve([script])
+    scripts: resolve([script]),
   }
 }

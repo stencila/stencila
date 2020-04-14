@@ -70,17 +70,17 @@ function update(all = true): void {
   // Get the list of extensions
   const extensions = globby.sync('*', {
     onlyDirectories: true,
-    cwd: extensionsDir
+    cwd: extensionsDir,
   })
 
-  extensions.forEach(extension => {
+  extensions.forEach((extension) => {
     const extensionDir = path.join(extensionsDir, extension)
 
-      // Check each extension has the necessary files
-    ;['README.md', 'styles.css'].forEach(file => {
+    // Check each extension has the necessary files
+    ;['README.md', 'styles.css'].forEach((file) => {
       const files = globby.sync(file, {
         onlyFiles: true,
-        cwd: extensionDir
+        cwd: extensionDir,
       })
       if (files.length !== 1) {
         console.error(`Extension "${extension}" must have one "${file}" file`)
@@ -110,7 +110,7 @@ function update(all = true): void {
 export const extensions: {
   ${extensions
     .map(
-      extension =>
+      (extension) =>
         `${
           /^\w+$/.test(extension) ? extension : `'${extension}'`
         }: '${extension}'`
@@ -119,12 +119,12 @@ export const extensions: {
 } = {
   ${extensions
     .map(
-      extension =>
+      (extension) =>
         `${
           /^\w+$/.test(extension) ? extension : `'${extension}'`
-        }: '${extension}'`
+        }: '${extension}',`
     )
-    .join(',\n  ')}
+    .join('\n  ')}
 }\n`
   )
 }
