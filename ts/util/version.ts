@@ -13,6 +13,4 @@ export const versionMajor: string = version.split('.')[0]
 /**
  * Get the minor version string (e.g "1.2") for this package
  */
-export function versionMinor(): string {
-  return version().split('.').slice(0, 2).join('.')
-}
+export const versionMinor: string = version.split('.').slice(0, 2).join('.')
