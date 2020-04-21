@@ -22,7 +22,7 @@ const SCHEMA_DEST_DIR = path.join(__dirname, '..', 'public')
  * The base URL for JSON Schema `$id`s.
  */
 const SCHEMA_DEST_URL = 'https://schema.stenci.la'
-const ID_BASE_URL = `${SCHEMA_DEST_URL}/v${versionMajor()}`
+const ID_BASE_URL = `${SCHEMA_DEST_URL}/v${versionMajor}`
 
 /**
  * The base URL for source files.

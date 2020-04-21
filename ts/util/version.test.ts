@@ -2,11 +2,11 @@ import pkg from '../../package.json'
 import { version, versionMajor, versionMinor } from './version'
 
 test('version', () => {
-  expect(version()).toEqual(pkg.version)
+  expect(version).toEqual(pkg.version)
 })
 
 test('versionMajor', () => {
-  expect(versionMajor()).toEqual(pkg.version.split('.')[0])
+  expect(versionMajor).toEqual(pkg.version.split('.')[0])
 })
 
 test('versionMinor', () => {

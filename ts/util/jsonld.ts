@@ -40,8 +40,7 @@ function initMaps(): void {
  *             URL for. Defaults to empty string i.e. the context.
  */
 export function jsonLdUrl(term = ''): string {
-  const version = versionMajor()
-  return `http://schema.stenci.la/v${version}/jsonld/${term}`
+  return `http://schema.stenci.la/v${versionMajor}/jsonld/${term}`
 }
 
 /**
