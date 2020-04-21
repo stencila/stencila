@@ -1,3 +1,10 @@
+# [0.43.0](https://github.com/stencila/schema/compare/v0.42.1...v0.43.0) (2020-04-21)
+
+
+### Features
+
+* **Python bindings:** Add node_type utility function ([e4a448a](https://github.com/stencila/schema/commit/e4a448a4ee3d6af848ce8b26a4604550c66bf923))
+
 ## [0.42.1](https://github.com/stencila/schema/compare/v0.42.0...v0.42.1) (2020-03-16)
 
 
