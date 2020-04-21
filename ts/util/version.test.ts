@@ -10,10 +10,5 @@ test('versionMajor', () => {
 })
 
 test('versionMinor', () => {
-  expect(versionMinor()).toEqual(
-    pkg.version
-      .split('.')
-      .slice(0, 2)
-      .join('.')
-  )
+  expect(versionMinor()).toEqual(pkg.version.split('.').slice(0, 2).join('.'))
 })

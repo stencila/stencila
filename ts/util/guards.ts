@@ -11,7 +11,7 @@ import {
   Paragraph,
   TypeMap,
   TypeMapGeneric,
-  Types
+  Types,
 } from '../types'
 
 type ExtractGeneric<Type> = Type extends TypeMap<infer X>
@@ -58,7 +58,7 @@ export const is = <Ts extends Entity>(type: keyof TypeMap<Ts>) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
   const typeMap: TypeMap<Ts> = {
-    [type]: type
+    [type]: type,
   }
   return nodeIs(typeMap)
 }

@@ -37,8 +37,5 @@ export function versionMajor(): string {
  * Get the minor version string (e.g "1.2") for this package
  */
 export function versionMinor(): string {
-  return version()
-    .split('.')
-    .slice(0, 2)
-    .join('.')
+  return version().split('.').slice(0, 2).join('.')
 }

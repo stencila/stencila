@@ -60,10 +60,10 @@ export async function jsonSchemas(): Promise<typeof SCHEMAS> {
         error !== null ? reject(error) : resolve(files)
       )
     )
-    const schemaFiles = files.filter(filename =>
+    const schemaFiles = files.filter((filename) =>
       filename.endsWith('.schema.json')
     )
-    const promises = schemaFiles.map(async file => {
+    const promises = schemaFiles.map(async (file) => {
       const json = await new Promise<string>((resolve, reject) =>
         fs.readFile(path.join(dir, file), 'utf8', (error, content) =>
           error !== null ? reject(error) : resolve(content)
@@ -113,7 +113,7 @@ export async function jsonSchemaProperties(): Promise<
               id,
               domainIncludes: [title],
               isArray,
-              isPlural
+              isPlural,
             }
           } else {
             // Check that there is consistency in the property

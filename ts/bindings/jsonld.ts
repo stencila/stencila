@@ -43,7 +43,7 @@ export const build = async (): Promise<void> => {
         '@id': typeId,
         '@type': 'schema:Class',
         'schema:name': title,
-        'schema:description': schema.description
+        'schema:description': schema.description,
       }
     } else {
       types[title] = { '@id': typeId }
@@ -67,7 +67,7 @@ export const build = async (): Promise<void> => {
               '@type': 'schema:Property',
               'schema:name': name,
               'schema:description': property.description,
-              'schema:domainIncludes': [{ '@id': typeId }]
+              'schema:domainIncludes': [{ '@id': typeId }],
             }
           } else {
             const domainIncludes = properties[name]['schema:domainIncludes']
@@ -77,7 +77,7 @@ export const build = async (): Promise<void> => {
           }
         } else {
           properties[name] = {
-            '@id': pid
+            '@id': pid,
           }
         }
       }
@@ -115,9 +115,9 @@ export const build = async (): Promise<void> => {
     ...fromEntries(
       [
         ...[...Object.entries(types)].sort(),
-        ...[...Object.entries(properties)].sort()
+        ...[...Object.entries(properties)].sort(),
       ].map(([name, entry]) => [name, { '@id': entry['@id'] }])
-    )
+    ),
   }
 
   await fs.writeJSON(
@@ -134,12 +134,12 @@ export const build = async (): Promise<void> => {
             {
               '@context': {
                 schema: 'http://schema.org/',
-                stencila: STENCILA_CONTEXT_URL
+                stencila: STENCILA_CONTEXT_URL,
               },
-              ...entry
+              ...entry,
             },
             {
-              spaces: 2
+              spaces: 2,
             }
           )
         : Promise.resolve()

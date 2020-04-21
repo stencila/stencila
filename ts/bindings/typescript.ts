@@ -12,7 +12,7 @@ import {
   filterUnionSchemas,
   getSchemaProperties,
   readSchemas,
-  Schema
+  Schema,
 } from '../helpers'
 
 /**
@@ -21,7 +21,7 @@ import {
 const prettify = async (contents: string): Promise<string> => {
   const config = await prettier
     .resolveConfigFile()
-    .then(path => (path !== null ? prettier.resolveConfig(path) : undefined))
+    .then((path) => (path !== null ? prettier.resolveConfig(path) : undefined))
 
   return prettier.format(
     contents,
@@ -39,9 +39,7 @@ export const generateTypeDefinitions = async (): Promise<string> => {
     .map(interfaceGenerator)
     .join('')
 
-  const unionsCode = filterUnionSchemas(schemas)
-    .map(unionGenerator)
-    .join('')
+  const unionsCode = filterUnionSchemas(schemas).map(unionGenerator).join('')
 
   const code = `/* eslint-disable */
 
@@ -106,7 +104,7 @@ export const interfaceGenerator = (schema: Schema): string => {
     title = 'Undefined',
     extends: parent,
     properties,
-    description
+    description,
   } = schema
   const { own, required } = getSchemaProperties(schema)
 
@@ -114,7 +112,7 @@ export const interfaceGenerator = (schema: Schema): string => {
     properties !== undefined
       ? properties.type !== undefined
         ? properties.type.enum !== undefined
-          ? properties.type.enum.map(type => `'${type}'`).join(' | ')
+          ? properties.type.enum.map((type) => `'${type}'`).join(' | ')
           : ''
         : ''
       : ''
@@ -138,7 +136,7 @@ export const interfaceGenerator = (schema: Schema): string => {
   // Factory function
   code += docComment(`Create a \`${title}\` node`, [
     `@param props Object containing ${title} schema properties as key/value pairs`,
-    `@returns {${title}} ${title} schema node`
+    `@returns {${title}} ${title} schema node`,
   ])
   code += `export const ${funcName(title)} = (\n`
   const propsType = `Omit<${title}, 'type'>`
@@ -169,7 +167,7 @@ const funcName = (name: string): string => {
   const func = `${name.substring(0, 1).toLowerCase() + name.substring(1)}`
   const reserved: { [key: string]: string } = {
     delete: 'del',
-    function: 'function_'
+    function: 'function_',
   }
   if (reserved[func] !== undefined) return reserved[func]
   else return func
@@ -185,7 +183,7 @@ const docComment = (description?: string, tags: string[] = []): string => {
     ' * ' +
     description.trim().replace('\n', '\n * ') +
     '\n' +
-    tags.map(tag => ' * ' + tag.trim().replace('\n', ' ') + '\n').join('') +
+    tags.map((tag) => ' * ' + tag.trim().replace('\n', ' ') + '\n').join('') +
     ' */\n'
   )
 }
@@ -226,7 +224,7 @@ const $refToType = ($ref: string): string => {
  */
 const anyOfToType = (anyOf: Schema[]): string => {
   const types = anyOf
-    .map(schema => schemaToType(schema))
+    .map((schema) => schemaToType(schema))
     .reduce(
       (prev: string[], curr) => (prev.includes(curr) ? prev : [...prev, curr]),
       []
@@ -270,7 +268,7 @@ const arrayToType = (schema: Schema): string => {
  */
 export const enumToType = (enu: (string | number)[]): string => {
   return enu
-    .map(schema => {
+    .map((schema) => {
       return JSON.stringify(schema)
     })
     .join(' | ')
@@ -283,7 +281,7 @@ export const generateTypeMaps = async (): Promise<string> => {
   const files = await readSchemas([
     path.join(__dirname, '..', '..', 'public', '*Types.schema.json'),
     path.join(__dirname, '..', '..', 'public', 'BlockContent.schema.json'),
-    path.join(__dirname, '..', '..', 'public', 'InlineContent.schema.json')
+    path.join(__dirname, '..', '..', 'public', 'InlineContent.schema.json'),
   ])
 
   let typeMaps = `
@@ -296,7 +294,7 @@ export const generateTypeMaps = async (): Promise<string> => {
   type Primitives = undefined | null | boolean | string | number;
   `
 
-  files.map(file => {
+  files.map((file) => {
     // `BlockContent` & `InlineContent` schema dont have a `*Types.schema.json` file
     // This standardizes the TypeMap names so that they all end with `Types`.
     const schemaClass = file.title?.endsWith('Types')

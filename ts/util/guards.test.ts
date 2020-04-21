@@ -9,7 +9,7 @@ import {
   CreativeWork,
   creativeWorkTypes,
   inlineContentTypes,
-  TypeMap
+  TypeMap,
 } from '../types'
 import {
   isA,
@@ -19,14 +19,14 @@ import {
   isPrimitive,
   isType,
   nodeIs,
-  typeIs
+  typeIs,
 } from './guards'
 
 const primitives = [null, true, false, NaN, 2, 'string']
 
 const typeMap = ({
   someType: 'someType',
-  myCustomType: 'myCustomType'
+  myCustomType: 'myCustomType',
 } as unknown) as TypeMap
 
 describe('typeIs', () => {
@@ -45,7 +45,7 @@ describe('nodeIs', () => {
     // @ts-ignore
     expect(nodeIs(typeMap)(undefined)).toBe(false))
 
-  test.each(primitives)('returns false for primitive value of "%s"', node => {
+  test.each(primitives)('returns false for primitive value of "%s"', (node) => {
     expect(nodeIs(typeMap)(node)).toBe(false)
   })
 
@@ -111,7 +111,7 @@ describe('isType', () => {
 })
 
 describe('isPrimitive', () => {
-  test.each(primitives)('returns true for primitive value of "%s"', node => {
+  test.each(primitives)('returns true for primitive value of "%s"', (node) => {
     expect(isPrimitive(node)).toBe(true)
   })
 
@@ -126,7 +126,7 @@ describe('isPrimitive', () => {
 })
 
 describe('isInlineEntity', () => {
-  test.each(primitives)('returns false for primitive value of "%s"', node => {
+  test.each(primitives)('returns false for primitive value of "%s"', (node) => {
     expect(isInlineEntity(node)).toBe(false)
   })
 
@@ -147,20 +147,20 @@ describe('isInlineEntity', () => {
 })
 
 describe('isInlineContent', () => {
-  test.each(primitives)('returns true for primitive value of "%s"', type => {
+  test.each(primitives)('returns true for primitive value of "%s"', (type) => {
     expect(isInlineContent(type)).toBe(true)
   })
 
   test.each(Object.values(blockContentTypes))(
     'returns false for BlockContent type of "%s"',
-    type => {
+    (type) => {
       expect(isInlineContent({ type })).toBe(false)
     }
   )
 
   test.each(Object.values(inlineContentTypes))(
     'returns true for InlineContent type of "%s"',
-    type => {
+    (type) => {
       expect(isInlineContent({ type })).toBe(true)
     }
   )
@@ -190,7 +190,7 @@ describe('handle descendant type matching', () => {
   test('it does not match across schemas', () => {
     expect(
       isInstanceOf<CreativeWork>(creativeWorkTypes, {
-        type: 'CodeFragment'
+        type: 'CodeFragment',
       })
     ).toBe(false)
   })

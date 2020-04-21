@@ -10,7 +10,7 @@ describe('Schema factory functions', () => {
       paragraph({ content: ['The content of the paragraph'] })
     ).toMatchObject({
       type: 'Paragraph',
-      content: ['The content of the paragraph']
+      content: ['The content of the paragraph'],
     })
   })
 
@@ -18,12 +18,12 @@ describe('Schema factory functions', () => {
     expect(
       link({
         content: ['The content of the link'],
-        target: 'https://example.org'
+        target: 'https://example.org',
       })
     ).toMatchObject({
       type: 'Link',
       content: ['The content of the link'],
-      target: 'https://example.org'
+      target: 'https://example.org',
     })
   })
 
@@ -33,14 +33,14 @@ describe('Schema factory functions', () => {
       honorificSuffix: undefined,
       givenNames: ['Isaac'],
       familyNames: ['Newton'],
-      memberOf: undefined
+      memberOf: undefined,
     })
 
     expect(actual).toMatchObject({
       type: 'Person',
       familyNames: ['Newton'],
       givenNames: ['Isaac'],
-      honorificPrefix: 'Sir'
+      honorificPrefix: 'Sir',
     })
   })
 })

@@ -3,7 +3,7 @@ import {
   jsonLdContext,
   jsonLdTermName,
   jsonLdTermUrl,
-  jsonLdUrl
+  jsonLdUrl,
 } from './jsonld'
 import { nodeType } from './nodeType'
 import { isPrimitive } from './guards'
@@ -40,7 +40,7 @@ export function microdata(
     ...(role !== 'array'
       ? microdataItem(node, property === undefined ? id : undefined)
       : {}),
-    ...(property !== undefined ? microdataProperty(property, role, id) : {})
+    ...(property !== undefined ? microdataProperty(property, role, id) : {}),
   }
 }
 
@@ -75,12 +75,12 @@ export function microdataItem(node: Node, id?: string): MicrodataItem {
     return {
       itemscope: '',
       itemtype,
-      ...itemidAttr
+      ...itemidAttr,
     }
   else if (typeof node !== 'string')
     return {
       'data-itemtype': itemtype,
-      ...itemidAttr
+      ...itemidAttr,
     }
   else return itemidAttr
 }

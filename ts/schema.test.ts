@@ -34,7 +34,7 @@ test('schemas are valid', async () => {
     if (validate(schema) !== true) {
       const message = betterAjvErrors(metaSchema, schema, validate.errors, {
         format: 'cli',
-        indent: 2
+        indent: 2,
       })
       console.log(message)
       throw new Error(`💣  Oh, oh, ${file} is invalid`)
@@ -54,7 +54,7 @@ test('inheritance', async () => {
   // All `Thing` properties are in `Person` properties
   expect(
     Object.keys(thing.properties ?? {}).some(
-      name => !Object.keys(person.properties ?? {}).includes(name)
+      (name) => !Object.keys(person.properties ?? {}).includes(name)
     )
   ).toBe(false)
 
@@ -68,7 +68,7 @@ test('inheritance', async () => {
   // All `Thing` property aliases in `Person` property aliases
   expect(
     Object.keys(thing.propertyAliases ?? {}).some(
-      name => !Object.keys(person.propertyAliases ?? {}).includes(name)
+      (name) => !Object.keys(person.propertyAliases ?? {}).includes(name)
     )
   ).toBe(false)
 })

@@ -1,7 +1,7 @@
 import {
   jsonSchemas,
   jsonSchemaTypes,
-  jsonSchemaProperties
+  jsonSchemaProperties,
 } from './jsonSchemas'
 
 test('jsonSchemas', async () => {

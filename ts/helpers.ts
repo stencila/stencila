@@ -55,16 +55,16 @@ export function filterPrimitiveSchemas(schemas: JsonSchema[]): JsonSchema[] {
  * any of their descendants.
  */
 export function filterInterfaceSchemas(schemas: JsonSchema[]): JsonSchema[] {
-  const types = schemas.filter(schema => schema.properties !== undefined)
-  const map = new Map(schemas.map(schema => [schema.title, schema]))
+  const types = schemas.filter((schema) => schema.properties !== undefined)
+  const map = new Map(schemas.map((schema) => [schema.title, schema]))
 
   const edges = types.map((schema): [string, string] => [
     schema.extends !== undefined ? schema.extends : '',
-    schema.title !== undefined ? schema.title : ''
+    schema.title !== undefined ? schema.title : '',
   ])
-  const ordered = toposort(edges).filter(title => title !== '')
+  const ordered = toposort(edges).filter((title) => title !== '')
 
-  return ordered.map(title => {
+  return ordered.map((title) => {
     const schema = map.get(title)
     if (schema === undefined)
       throw new Error(`Holy smokes, "${title}" aint in da map @#!&??!`)
@@ -76,7 +76,7 @@ export function filterInterfaceSchemas(schemas: JsonSchema[]): JsonSchema[] {
  * Get the union types from the schemas
  */
 export function filterUnionSchemas(schemas: JsonSchema[]): JsonSchema[] {
-  return schemas.filter(schema => schema.anyOf !== undefined)
+  return schemas.filter((schema) => schema.anyOf !== undefined)
 }
 
 /**
@@ -131,10 +131,10 @@ export function getSchemaProperties(
 
   return {
     all: props,
-    inherited: props.filter(prop => prop.inherited),
-    own: props.filter(prop => !prop.inherited || prop.override),
-    required: props.filter(prop => !prop.optional),
-    optional: props.filter(prop => prop.optional)
+    inherited: props.filter((prop) => prop.inherited),
+    own: props.filter((prop) => !prop.inherited || prop.override),
+    required: props.filter((prop) => !prop.optional),
+    optional: props.filter((prop) => prop.optional),
   }
 }
 

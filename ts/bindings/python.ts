@@ -11,7 +11,7 @@ import {
   filterUnionSchemas,
   getSchemaProperties,
   readSchemas,
-  Schema
+  Schema,
 } from '../helpers'
 
 const MAX_LINE_LENGTH = 75 // Desired max length - 4 to allow for indent
@@ -138,7 +138,7 @@ export function classGenerator(schema: Schema): string {
       ...optional.map(
         ({ name, schema }) =>
           `        ${name}: Optional[${schemaToType(schema)}] = None`
-      )
+      ),
     ].join(',\n') +
     '\n    '
 
@@ -200,7 +200,7 @@ function schemaToType(schema: Schema): string {
  */
 function anyOfToType(anyOf: Schema[]): string {
   const types = anyOf
-    .map(schema => schemaToType(schema))
+    .map((schema) => schemaToType(schema))
     .reduce(
       (prev: string[], curr) => (prev.includes(curr) ? prev : [...prev, curr]),
       []
@@ -248,14 +248,11 @@ export function enumToType(
   enumName = enumName.charAt(0).toUpperCase() + enumName.slice(1)
 
   const values = enu
-    .map(schema => {
+    .map((schema) => {
       return JSON.stringify(schema)
     })
     .join(', ')
-  const signature = crypto
-    .createHash('md5')
-    .update(values)
-    .digest('hex')
+  const signature = crypto.createHash('md5').update(values).digest('hex')
 
   const enumIndex = Object.keys(enumSignatures).length
   let enumExists = false

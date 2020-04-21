@@ -78,7 +78,7 @@ export async function build(cleanup = true): Promise<void> {
   const properties: { [key: string]: string } = {}
   const ids: { [key: string]: string } = {}
   const fails = schemata
-    .map(schema => checkSchema(schemas, schema, types, properties, ids))
+    .map((schema) => checkSchema(schemas, schema, types, properties, ids))
     .reduce((fails, ok) => (!ok ? fails + 1 : fails), 0)
   if (fails > 0) {
     log.error(`Errors in ${fails} schemas, please see messages above`)
@@ -87,7 +87,7 @@ export async function build(cleanup = true): Promise<void> {
   }
 
   // Process each of the schemas
-  schemata.forEach(schema => processSchema(schemas, schema))
+  schemata.forEach((schema) => processSchema(schemas, schema))
 
   // Generate additional schemas
   addTypesSchemas(schemas)
@@ -161,7 +161,7 @@ const checkSchema = (
       validateSchema.errors,
       {
         format: 'cli',
-        indent: 2
+        indent: 2,
       }
     ) as unknown) as string
     error(`${title} is not a valid JSON Schema:\n${message}`)
@@ -295,8 +295,8 @@ const processSchema = (
         // Mark if this is an array property
         const isArray =
           property.type === 'array' ||
-          (property.allOf?.filter(item => item.type === 'array').length ?? 0) >
-            0
+          (property.allOf?.filter((item) => item.type === 'array').length ??
+            0) > 0
         if (isArray) property.isArray = true
         const isPlural = isArray && name.endsWith('s')
         if (isPlural) property.isPlural = true
@@ -327,7 +327,7 @@ const processSchema = (
       // Extend `properties`
       schema.properties = {
         ...cloneDeep(parentProperties),
-        ...(schema.properties ?? {})
+        ...(schema.properties ?? {}),
       }
 
       // Extend `definitions` (these may be required for inline $refs
@@ -335,7 +335,7 @@ const processSchema = (
       if (parent.definitions !== undefined) {
         schema.definitions = {
           ...cloneDeep(parent.definitions),
-          ...(schema.definitions ?? {})
+          ...(schema.definitions ?? {}),
         }
       }
 
@@ -352,13 +352,13 @@ const processSchema = (
       // Having done that, now we can extend `required`
       schema.required = [
         ...parentRequired,
-        ...(schema.required !== undefined ? schema.required : [])
+        ...(schema.required !== undefined ? schema.required : []),
       ]
 
       // Extend `propertyAliases`
       schema.propertyAliases = {
         ...parentPropertyAliases,
-        ...(schema.propertyAliases !== undefined ? schema.propertyAliases : {})
+        ...(schema.propertyAliases !== undefined ? schema.propertyAliases : {}),
       }
 
       // Initialize the `type` property
@@ -366,7 +366,7 @@ const processSchema = (
         schema.properties.type = {
           ...schema.properties.type,
           enum: [title],
-          default: title
+          default: title,
         }
       }
 
@@ -395,7 +395,7 @@ const processSchema = (
         ) {
           ancestor.properties.type.enum = [
             ancestor.title,
-            ...ancestor.descendants
+            ...ancestor.descendants,
           ]
         }
         ancestor = parentSchema(schemas, ancestor)
@@ -455,9 +455,9 @@ const addTypesSchemas = (schemas: Map<string, JsonSchema>): void => {
         $id: `${SCHEMA_DEST_URL}/${typesTitle}.schema.json`,
         title: typesTitle,
         description: `All type schemas that are derived from ${title}`,
-        anyOf: [title, ...descendants].map(descendant => ({
-          $ref: `${descendant}.schema.json`
-        }))
+        anyOf: [title, ...descendants].map((descendant) => ({
+          $ref: `${descendant}.schema.json`,
+        })),
       })
     }
   }

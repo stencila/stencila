@@ -14,7 +14,7 @@ import { schema, snapshot } from '../__tests__/helpers'
 import {
   generateTypeDefinitions,
   interfaceGenerator,
-  unionGenerator
+  unionGenerator,
 } from './typescript'
 
 test('generators', async () => {
@@ -36,7 +36,7 @@ test('build', async () => {
   const program = typescript.createProgram([file], {})
   const diagnostics = typescript
     .getPreEmitDiagnostics(program)
-    .map(diagnostic => {
+    .map((diagnostic) => {
       return diagnostic.messageText
     })
   expect(diagnostics).toEqual([])

@@ -3,7 +3,7 @@ import {
   jsonLdUrl,
   jsonLdContext,
   jsonLdTermUrl,
-  jsonLdTermName
+  jsonLdTermName,
 } from './jsonld'
 
 test('jsonLdUrl', () => {
