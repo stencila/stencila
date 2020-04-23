@@ -28,6 +28,7 @@ const EXAMPLES = [
   articleReadme,
   articleKitchenSink,
   articleDrosophila,
+  articleReplication,
   articleAntibodies,
 ]
 
@@ -66,12 +67,22 @@ function articleKitchenSink(): Promise<string | undefined> {
 }
 
 /**
- * An eLife article.
+ * An eLife article on fruit fly.
  */
 function articleDrosophila(): Promise<string | undefined> {
   return build(
     'https://elifesciences.org/articles/49574v2',
     ex('articleDrosophila.html')
+  )
+}
+
+/**
+ * An eLife article on a replication study
+ */
+function articleReplication(): Promise<string | undefined> {
+  return build(
+    'https://elifesciences.org/articles/30274v2',
+    ex('articleReplication.html')
   )
 }
 
