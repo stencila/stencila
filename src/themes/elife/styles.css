@@ -54,8 +54,7 @@ main {
 
   :--Person {
     @extend .content-header__author_list_item;
-
-    font-size: var(--text-size-rem-medium);
+    font-size: 0.875rem;
 
     :--familyName::after {
       content: ', ';
@@ -120,11 +119,15 @@ main {
     display: inline;
   }
 
+  :--citation {
+    margin-bottom: 0.75rem;
+  }
+
   :--datePublished {
     color: inherit;
-    display: inline;
+    display: inline-block;
     font-family: inherit;
-    font-size: var(--text-size-rem-medium);
+    font-size: 0.875rem;
     letter-spacing: initial;
     line-height: initial;
     text-transform: initial;
@@ -138,8 +141,36 @@ main {
     }
   }
 
-  span[itemprop='headline'] {
-    display: block;
+  :--title {
+    display: inline-block;
     font-weight: bold;
+  }
+
+  :--volumeNumber {
+    display: inline;
+    font-size: 0.875rem;
+    font-weight: bold;
+  }
+
+  :--name {
+    display: block;
+    font-size: 0.875rem;
+    font-style: italic;
+  }
+
+  :--pageStart {
+    font-size: 0.875rem;
+
+    &:before {
+      content: ':';
+    }
+  }
+
+  :--pageEnd {
+    font-size: 0.875rem;
+
+    &:before {
+      content: '-';
+    }
   }
 }
