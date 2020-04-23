@@ -9,3 +9,7 @@
   /* Spacing */
   --baseline-measure-rem: 1.5rem;
 }
+
+/* PostCSS Custom Media Queries */
+
+@custom-media --large-viewport (min-width: 45.625em);
