@@ -49,6 +49,15 @@ main {
   display: none;
 }
 
+:--Article:not(:--reference) {
+  & > :--title,
+  & > :--authors,
+  & > :--affiliations,
+  & > :--datePublished {
+    text-align: center;
+  }
+}
+
 :--Article :--authors {
   @extend .content-header__author_list;
 
@@ -109,6 +118,5 @@ main {
   font-size: calc(var(--text-size-rem-small) * 1rem);
   letter-spacing: var(--letter-spacing);
   line-height: calc(var(--baseline-measure-rem) / var(--text-size-rem-small));
-  text-align: center;
   text-transform: capitalize;
 }
