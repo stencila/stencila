@@ -54,7 +54,8 @@ main {
 
   :--Person {
     @extend .content-header__author_list_item;
-    font-size: 0.875rem;
+
+    font-size: var(--text-size-rem-medium);
 
     :--familyName::after {
       content: ', ';
@@ -127,7 +128,7 @@ main {
     color: inherit;
     display: inline-block;
     font-family: inherit;
-    font-size: 0.875rem;
+    font-size: var(--text-size-rem-medium);
     letter-spacing: initial;
     line-height: initial;
     text-transform: initial;
@@ -148,28 +149,32 @@ main {
 
   :--volumeNumber {
     display: inline;
-    font-size: 0.875rem;
+    font-size: var(--text-size-rem-medium);
     font-weight: bold;
   }
 
   :--name {
-    display: block;
-    font-size: 0.875rem;
+    font-size: var(--text-size-rem-medium);
     font-style: italic;
+
+    &::before {
+      content: '\A';
+      white-space: pre;
+    }
   }
 
   :--pageStart {
-    font-size: 0.875rem;
+    font-size: var(--text-size-rem-medium);
 
-    &:before {
+    &::before {
       content: ':';
     }
   }
 
   :--pageEnd {
-    font-size: 0.875rem;
+    font-size: var(--text-size-rem-medium);
 
-    &:before {
+    &::before {
       content: '-';
     }
   }
