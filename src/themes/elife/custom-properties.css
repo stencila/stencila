@@ -12,4 +12,4 @@
 
 /* PostCSS Custom Media Queries */
 
-@custom-media --large-viewport (min-width: 45.625em);
+@custom-media --medium-viewport (min-width: 45.625em);
