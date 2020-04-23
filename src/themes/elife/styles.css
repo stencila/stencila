@@ -112,7 +112,7 @@ main {
   text-transform: capitalize;
 }
 
-@media only screen and (min-width: 45.625em) {
+@media only screen and (min-width: wide) {
   :--root {
     padding-left: 3%;
     padding-right: 3%;
