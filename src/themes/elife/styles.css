@@ -55,7 +55,7 @@ main {
   :--Person {
     @extend .content-header__author_list_item;
 
-    font-size: var(--text-size-rem-medium);
+    font-size: calc(var(--text-size-rem-medium) * 1rem);
 
     :--familyName::after {
       content: ', ';
@@ -128,7 +128,7 @@ main {
     color: inherit;
     display: inline-block;
     font-family: inherit;
-    font-size: var(--text-size-rem-medium);
+    font-size: calc(var(--text-size-rem-medium) * 1rem);
     letter-spacing: initial;
     line-height: initial;
     text-transform: initial;
@@ -149,12 +149,12 @@ main {
 
   :--volumeNumber {
     display: inline;
-    font-size: var(--text-size-rem-medium);
+    font-size: calc(var(--text-size-rem-medium) * 1rem);
     font-weight: bold;
   }
 
   :--name {
-    font-size: var(--text-size-rem-medium);
+    font-size: calc(var(--text-size-rem-medium) * 1rem);
     font-style: italic;
 
     &::before {
@@ -164,7 +164,7 @@ main {
   }
 
   :--pageStart {
-    font-size: var(--text-size-rem-medium);
+    font-size: calc(var(--text-size-rem-medium) * 1rem);
 
     &::before {
       content: ':';
@@ -172,7 +172,7 @@ main {
   }
 
   :--pageEnd {
-    font-size: var(--text-size-rem-medium);
+    font-size: calc(var(--text-size-rem-medium) * 1rem);
 
     &::before {
       content: '-';
