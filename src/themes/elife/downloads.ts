@@ -113,7 +113,7 @@ const buildMenu = (
 export const build = (articleId: string, articleTitle: string): void => {
   try {
     getArticlePdfUrl(articleId)
-      .then(pdfUri => buildMenu(articleId, articleTitle, pdfUri))
+      .then((pdfUri) => buildMenu(articleId, articleTitle, pdfUri))
       .then(() => getFiguresPdfUrl(articleId))
       .then((figuresPdfUrl: string) => addFiguresPdfUrl(figuresPdfUrl))
       .catch((err: Error) => {

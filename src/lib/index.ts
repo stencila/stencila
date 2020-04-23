@@ -8,7 +8,7 @@ import {
   styleEntry,
   scriptEntry,
   ThemaAssets,
-  getTheme as getThemeBrowser
+  getTheme as getThemeBrowser,
 } from '../browser'
 
 export { themes }
@@ -18,7 +18,7 @@ export {
   themePath,
   styleEntry,
   scriptEntry,
-  ThemaAssets
+  ThemaAssets,
 }
 
 /**
@@ -45,7 +45,7 @@ export const getTheme = (
 
   // Otherwise return file contents
   const readThemeFiles = (assets: string[]): string[] =>
-    assets.map(asset =>
+    assets.map((asset) =>
       fs
         .readFileSync(
           path.join(__dirname, '..', '..', asset.replace('/', path.sep))
@@ -55,6 +55,6 @@ export const getTheme = (
 
   return {
     styles: readThemeFiles(resolvedTheme.styles),
-    scripts: readThemeFiles(resolvedTheme.scripts)
+    scripts: readThemeFiles(resolvedTheme.scripts),
   }
 }

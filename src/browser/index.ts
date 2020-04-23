@@ -1,5 +1,4 @@
 import { themes } from '../themes'
-import { version } from '../../package.json'
 
 export { themes }
 
@@ -8,7 +7,7 @@ export interface ThemaAssets {
   scripts: string[]
 }
 
-const themaMajor = version.split('.')[0]
+const themaMajor = process.env.npm_package_version?.split('.')[0]
 
 /**
  * The path to a theme in this package
@@ -72,6 +71,6 @@ export const getTheme = (
 
   return {
     styles: resolve([style]),
-    scripts: resolve([script])
+    scripts: resolve([script]),
   }
 }
