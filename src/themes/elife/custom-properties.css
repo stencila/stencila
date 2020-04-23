@@ -7,5 +7,6 @@
   --letter-spacing: 0.5px;
 
   /* Spacing */
+  --baseline-measure: 1.5;
   --baseline-measure-rem: 1.5rem;
 }

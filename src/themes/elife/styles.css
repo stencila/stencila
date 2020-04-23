@@ -117,6 +117,6 @@ main {
   font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
   font-size: calc(var(--text-size-rem-small) * 1rem);
   letter-spacing: var(--letter-spacing);
-  line-height: calc(var(--baseline-measure-rem) / var(--text-size-rem-small));
+  line-height: calc(var(--baseline-measure) / var(--text-size-rem-small));
   text-transform: capitalize;
 }
