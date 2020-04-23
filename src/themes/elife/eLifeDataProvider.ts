@@ -13,5 +13,5 @@ export default {
     }
     const articleData = await response.json()
     return Promise.resolve({ ok: response.ok, articleData })
-  }
+  },
 }

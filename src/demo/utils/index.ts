@@ -13,7 +13,7 @@ export interface ThemeObject {
 export enum keys {
   EXAMPLE = 'example',
   THEME = 'theme',
-  HEADER = 'header'
+  HEADER = 'header',
 }
 
 /**

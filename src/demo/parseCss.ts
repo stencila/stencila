@@ -37,7 +37,7 @@ export const getCssVariables = (css: string): Record<string, string> => {
   const root = postcss.parse(css)
 
   const variables: Record<string, string> = {}
-  root.walkRules(rule => {
+  root.walkRules((rule) => {
     if (isOutsideRootNode(rule)) {
       return
     }

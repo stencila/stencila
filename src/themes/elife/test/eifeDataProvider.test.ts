@@ -19,11 +19,11 @@ describe('eLife Data Provider ', () => {
       const fetchMock = (): Promise<Response> =>
         Promise.resolve({
           ok: true,
-          json: () => Promise.resolve({ pdf: 'path-to-the.pdf' })
+          json: () => Promise.resolve({ pdf: 'path-to-the.pdf' }),
         })
       await expect(dataProvider.query('someId', fetchMock)).resolves.toEqual({
         articleData: { pdf: 'path-to-the.pdf' },
-        ok: true
+        ok: true,
       })
     })
 
@@ -33,12 +33,12 @@ describe('eLife Data Provider ', () => {
           ok: true,
           json: () =>
             Promise.resolve({
-              figuresPdf: 'path-to-the-figures.pdf'
-            })
+              figuresPdf: 'path-to-the-figures.pdf',
+            }),
         })
       await expect(dataProvider.query('someId', fetchMock)).resolves.toEqual({
         articleData: { figuresPdf: 'path-to-the-figures.pdf' },
-        ok: true
+        ok: true,
       })
     })
   })
