@@ -1,4 +1,4 @@
-import { after, append, create, select } from '../../util'
+import { after, create, select } from '../../util'
 import eLifeDataProvider from './eLifeDataProvider'
 
 const getPdfUrl = async (id: string, pdfType: string): Promise<string> => {
@@ -51,59 +51,63 @@ const buildMenu = (
   articleTitle: string,
   pdfUrl: string
 ): void => {
-  append(
+  after(
     select(':--references')[0],
-    create('h2', null, 'Download links'),
-    create('h3', null, 'Downloads'),
     create(
-      'ul',
+      'section',
       null,
+      create('h2', null, 'Download links'),
+      create('h3', null, 'Downloads'),
       create(
-        'li',
+        'ul',
         null,
         create(
-          'a',
-          { href: pdfUrl, 'data-is-download-pdf-link': true },
-          'Article PDF'
+          'li',
+          null,
+          create(
+            'a',
+            { href: pdfUrl, 'data-is-download-pdf-link': true },
+            'Article PDF'
+          )
         )
-      )
-    ),
-    create('h3', null, 'Download citations'),
-    create(
-      'ul',
-      null,
-      create(
-        'li',
-        null,
-        create('a', { href: `${getUrl('bibtex', articleId)}` }, 'BibTeX')
       ),
+      create('h3', null, 'Download citations'),
       create(
-        'li',
-        null,
-        create('a', { href: `${getUrl('ris', articleId)}` }, 'RIS')
-      )
-    ),
-    create('h3', null, 'Open citations'),
-    create(
-      'ul',
-      null,
-      create(
-        'li',
-        null,
-        create('a', { href: `${getUrl('mendeley', articleId)}` }, 'Mendeley')
-      ),
-      create(
-        'li',
-        null,
-        create('a', { href: `${getUrl('readcube', articleId)}` }, 'ReadCube')
-      ),
-      create(
-        'li',
+        'ul',
         null,
         create(
-          'a',
-          { href: `${getUrl('papers', articleId, articleTitle)}` },
-          'Papers'
+          'li',
+          null,
+          create('a', { href: `${getUrl('bibtex', articleId)}` }, 'BibTeX')
+        ),
+        create(
+          'li',
+          null,
+          create('a', { href: `${getUrl('ris', articleId)}` }, 'RIS')
+        )
+      ),
+      create('h3', null, 'Open citations'),
+      create(
+        'ul',
+        null,
+        create(
+          'li',
+          null,
+          create('a', { href: `${getUrl('mendeley', articleId)}` }, 'Mendeley')
+        ),
+        create(
+          'li',
+          null,
+          create('a', { href: `${getUrl('readcube', articleId)}` }, 'ReadCube')
+        ),
+        create(
+          'li',
+          null,
+          create(
+            'a',
+            { href: `${getUrl('papers', articleId, articleTitle)}` },
+            'Papers'
+          )
         )
       )
     )
