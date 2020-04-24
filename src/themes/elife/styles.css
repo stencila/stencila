@@ -14,6 +14,7 @@
 @import '../../fonts/notoSans/notoSans.css';
 
 @import '../../extensions/person/styles.css';
+@import '../../extensions/math/styles.css';
 
 @import 'custom-properties.css';
 
