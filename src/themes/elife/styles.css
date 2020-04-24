@@ -25,6 +25,18 @@
   padding: 0;
 }
 
+@define-mixin visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  user-select: none;
+}
+
 /* stylelint-disable xi/selector-pattern */
 main {
   @extend .wrapper;
@@ -55,6 +67,16 @@ main {
   & > :--affiliations,
   & > :--datePublished {
     text-align: center;
+  }
+}
+
+/* Visually hide affiliations at narrower viewports, maintaining vertical whitespace */
+@media screen and (--medium-viewport-max) {
+  :--Article:not(:--reference) > :--authors {
+    margin-bottom: var(--baseline-measure-rem);
+  }
+  :--Article:not(:--reference) > :--affiliations {
+    @mixin visuallyhidden;
   }
 }
 
