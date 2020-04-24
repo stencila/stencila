@@ -125,6 +125,8 @@ main {
         color: var(--color-text);
       }
     }
+  }
+}
 
 @media only screen and (--medium-viewport) {
   :--root {
