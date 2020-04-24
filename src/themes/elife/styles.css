@@ -53,6 +53,8 @@ main {
   padding-right: 7%;
 
   @extend .grid-column;
+
+  --h1-font-size: var(--text-size-h1-rem--narrower--viewports);
 }
 
 /* Hide article metadata */
@@ -70,14 +72,15 @@ main {
   }
 
   & > :--title {
-    font-size: var(--text-size-h1--narrow-rem);
+    font-size: var(--h1-font-size);
     line-height: calc(36 / 29);
   }
 }
 
 @media all and (--medium-viewport) {
   :--Article:not(:--reference) > :--title {
-    font-size: var(--text-size-h1--normal-rem);
+    --h1-font-size: var(--text-size-h1-rem--wider-viewports);
+
     line-height: calc(48 / 36);
   }
 }
