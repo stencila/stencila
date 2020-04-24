@@ -10,3 +10,7 @@
   --baseline-measure: 1.5;
   --baseline-measure-rem: 1.5rem;
 }
+
+/* PostCSS Custom Media Queries */
+
+@custom-media --medium-viewport (min-width: 45.625em);
