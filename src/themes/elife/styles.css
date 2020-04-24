@@ -37,10 +37,9 @@ main {
   @extend .grid__item;
 
   float: none;
+  padding-left: 7%;
+  padding-right: 7%;
 
-  @extend .one-whole;
-  @extend .large--eight-twelfths;
-  @extend .x-large--seven-twelfths;
   @extend .grid-column;
 }
 
@@ -177,5 +176,12 @@ main {
     &::before {
       content: '-';
     }
+  }
+}
+
+@media only screen and (--medium-viewport) {
+  :--root {
+    padding-left: 3%;
+    padding-right: 3%;
   }
 }
