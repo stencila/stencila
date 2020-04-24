@@ -37,10 +37,9 @@ main {
   @extend .grid__item;
 
   float: none;
+  padding-left: 7%;
+  padding-right: 7%;
 
-  @extend .one-whole;
-  @extend .large--eight-twelfths;
-  @extend .x-large--seven-twelfths;
   @extend .grid-column;
 }
 
@@ -113,7 +112,6 @@ main {
   text-transform: capitalize;
 }
 
-/* Download List without JS */
 :--references {
   ul {
     margin-top: 0;
@@ -127,5 +125,10 @@ main {
         color: var(--color-text);
       }
     }
+
+@media only screen and (--medium-viewport) {
+  :--root {
+    padding-left: 3%;
+    padding-right: 3%;
   }
 }

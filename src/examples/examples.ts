@@ -7,10 +7,12 @@ export const examples: {
   articleReadme: string
   articleKitchenSink: string
   articleDrosophila: string
+  articleReplication: string
   articleAntibodies: string
 } = {
   articleReadme: 'articleReadme',
   articleKitchenSink: 'articleKitchenSink',
   articleDrosophila: 'articleDrosophila',
+  articleReplication: 'articleReplication',
   articleAntibodies: 'articleAntibodies'
 }

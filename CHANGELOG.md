@@ -1,3 +1,17 @@
+## [2.2.9](https://github.com/stencila/thema/compare/v2.2.8...v2.2.9) (2020-04-23)
+
+
+### Bug Fixes
+
+* Remove .large--eight-twelfths ([76f43d7](https://github.com/stencila/thema/commit/76f43d7e76d11a9150bf59783cbe0f17bcf954ee))
+
+## [2.2.8](https://github.com/stencila/thema/compare/v2.2.7...v2.2.8) (2020-04-23)
+
+
+### Bug Fixes
+
+* **Elife:** Move downloads into own section ([d2dc565](https://github.com/stencila/thema/commit/d2dc56523c0384cc48fd46d123f176817c108388))
+
 ## [2.2.7](https://github.com/stencila/thema/compare/v2.2.6...v2.2.7) (2020-04-15)
 
 
