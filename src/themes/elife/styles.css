@@ -49,6 +49,7 @@ main {
   display: none;
 }
 
+/* Intent is to target the 'content header' at the top of the article */
 :--Article:not(:--reference) {
   & > :--title,
   & > :--authors,
