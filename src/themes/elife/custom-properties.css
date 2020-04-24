@@ -4,6 +4,8 @@
 
   /* Typography */
   --text-size-rem-small: 0.6875;
+  --text-size-h1--narrow-rem: 1.8125rem; /* 29px */
+  --text-size-h1--normal-rem: 2.25rem; /* 36px */
   --letter-spacing: 0.5px;
 
   /* Spacing */

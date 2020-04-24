@@ -68,6 +68,18 @@ main {
   & > :--datePublished {
     text-align: center;
   }
+
+  & > :--title {
+    font-size: var(--text-size-h1--narrow-rem);
+    line-height: calc(36 / 29);
+  }
+}
+
+@media all and (--medium-viewport) {
+  :--Article:not(:--reference) > :--title {
+    font-size: var(--text-size-h1--normal-rem);
+    line-height: calc(48 / 36);
+  }
 }
 
 /* Visually hide affiliations at narrower viewports, maintaining vertical whitespace */
