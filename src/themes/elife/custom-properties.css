@@ -4,12 +4,16 @@
 
   /* Typography */
   --text-size-rem-small: 0.6875;
+  --text-size-h1-rem--narrower--viewports: 1.8125rem; /* 29px assuming base font size of 16px */
+  --text-size-h1-rem--wider-viewports: 2.25rem; /* 36px assuming base font size of 16px */
   --letter-spacing: 0.5px;
 
   /* Spacing */
+  --baseline-measure: 1.5;
   --baseline-measure-rem: 1.5rem;
 }
 
 /* PostCSS Custom Media Queries */
 
 @custom-media --medium-viewport (min-width: 45.625em);
+@custom-media --medium-viewport-max (max-width: 45.625em);
