@@ -148,6 +148,12 @@ main {
   }
 }
 
+:--Article .download-link-wrapper {
+  display: flex;
+  flex-direction: row-reverse;
+  margin-bottom: calc(var(--baseline-measure-rem) / 2);
+}
+
 :--datePublished {
   color: var(--color-text-secondary);
   display: block;
