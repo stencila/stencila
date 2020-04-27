@@ -4,7 +4,7 @@
  * @import 'eLife-pattern-library/assets/sass/build.scss';
  * due to the above issues we import and inline the built CSS file from the web
  */
-@import 'https://elifesciences.org/assets/patterns/css/all.02fbc2c8.css';
+@import 'https://elifesciences.org/assets/patterns/css/all.502a7c3d.css';
 
 /**
  * Ensure fonts still resolve when not viewed on ELife website
@@ -26,6 +26,18 @@
   padding: 0;
 }
 
+@define-mixin visuallyhidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  user-select: none;
+}
+
 /* stylelint-disable xi/selector-pattern */
 main {
   @extend .wrapper;
@@ -42,11 +54,46 @@ main {
   padding-right: 7%;
 
   @extend .grid-column;
+
+  --h1-font-size: var(--text-size-h1-rem--narrower--viewports);
 }
 
 /* Hide article metadata */
 :--identifiers {
   display: none;
+}
+
+/* Intent is to target the 'content header' at the top of the article */
+:--Article:not(:--reference) {
+  & > :--title,
+  & > :--authors,
+  & > :--affiliations,
+  & > :--datePublished {
+    text-align: center;
+  }
+
+  & > :--title {
+    font-size: var(--h1-font-size);
+    line-height: calc(36 / 29);
+  }
+}
+
+@media all and (--medium-viewport) {
+  :--Article:not(:--reference) > :--title {
+    --h1-font-size: var(--text-size-h1-rem--wider-viewports);
+
+    line-height: calc(48 / 36);
+  }
+}
+
+/* Visually hide affiliations at narrower viewports, maintaining vertical whitespace */
+@media screen and (--medium-viewport-max) {
+  :--Article:not(:--reference) > :--authors {
+    margin-bottom: var(--baseline-measure-rem);
+  }
+  :--Article:not(:--reference) > :--affiliations {
+    @mixin visuallyhidden;
+  }
 }
 
 :--Article :--authors {
@@ -108,8 +155,7 @@ main {
   font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
   font-size: calc(var(--text-size-rem-small) * 1rem);
   letter-spacing: var(--letter-spacing);
-  line-height: calc(var(--baseline-measure-rem) / var(--text-size-rem-small));
-  text-align: center;
+  line-height: calc(var(--baseline-measure) / var(--text-size-rem-small));
   text-transform: capitalize;
 }
 
