@@ -159,6 +159,7 @@ main {
 }
 
 :--Article .downloads {
+  --link-color: var(--color-text);
   ul {
     margin-top: 0;
     margin-bottom: var(--baseline-measure-rem);
@@ -168,7 +169,11 @@ main {
 
       a {
         background-color: var(--color-text-ui-background);
-        color: var(--color-text);
+        color: var(--link-color);
+
+        &:hover {
+          --link-color: var(--color-primary);
+        }
       }
     }
   }
