@@ -164,12 +164,21 @@ main {
 :--references {
   font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
 
+  :--authors {
+    display: inline;
+
+    :--author {
+      font-weight: normal;
+    }
+  }
+
   ol {
     counter-reset: item;
     list-style-type: none;
 
     li {
-      display: block;
+      display: inline-block;
+      font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
       font-weight: bold;
       padding-left: 0.8rem;
 
