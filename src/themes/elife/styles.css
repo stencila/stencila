@@ -75,6 +75,17 @@ main {
     font-size: var(--h1-font-size);
     line-height: calc(36 / 29);
   }
+
+  & > :--datePublished {
+    color: var(--color-text-secondary);
+    display: block;
+    font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+    font-size: calc(var(--text-size-rem-small) * 1rem);
+    letter-spacing: var(--letter-spacing);
+    line-height: calc(var(--baseline-measure) / var(--text-size-rem-small));
+    text-align: center;
+    text-transform: capitalize;
+  }
 }
 
 @media all and (--medium-viewport) {
@@ -125,17 +136,6 @@ main {
   }
 }
 
-:--datePublished {
-  color: var(--color-text-secondary);
-  display: block;
-  font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
-  font-size: calc(var(--text-size-rem-small) * 1rem);
-  letter-spacing: var(--letter-spacing);
-  line-height: calc(var(--baseline-measure-rem) / var(--text-size-rem-small));
-  text-align: center;
-  text-transform: capitalize;
-}
-
 /* Chain custom MicroData selectors for style adjustments as needed */
 :--Article :--affiliations {
   @mixin inline-list;
@@ -162,8 +162,22 @@ main {
 }
 
 :--references {
-  :--authors {
-    display: inline;
+  font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+
+  ol {
+    counter-reset: item;
+    list-style-type: none;
+
+    li {
+      display: block;
+      font-weight: bold;
+      padding-left: 0.8rem;
+
+      &::before {
+        content: counter(item) ' ';
+        counter-increment: item;
+      }
+    }
   }
 
   :--reference {
@@ -171,13 +185,9 @@ main {
   }
 
   :--datePublished {
-    color: inherit;
     display: inline-block;
-    font-family: inherit;
     font-size: calc(var(--text-size-rem-medium) * 1rem);
-    letter-spacing: initial;
-    line-height: initial;
-    text-transform: initial;
+    font-weight: normal;
 
     &::before {
       content: ' (';
@@ -189,19 +199,23 @@ main {
   }
 
   :--title {
-    display: inline-block;
-    font-weight: bold;
+    display: block;
   }
 
   :--volumeNumber {
     display: inline;
     font-size: calc(var(--text-size-rem-medium) * 1rem);
     font-weight: bold;
+
+    &::after {
+      content: ':';
+    }
   }
 
   :--name {
     font-size: calc(var(--text-size-rem-medium) * 1rem);
     font-style: italic;
+    font-weight: normal;
 
     &::before {
       content: '\A';
@@ -211,14 +225,12 @@ main {
 
   :--pageStart {
     font-size: calc(var(--text-size-rem-medium) * 1rem);
-
-    &::before {
-      content: ':';
-    }
+    font-weight: normal;
   }
 
   :--pageEnd {
     font-size: calc(var(--text-size-rem-medium) * 1rem);
+    font-weight: normal;
 
     &::before {
       content: '-';
