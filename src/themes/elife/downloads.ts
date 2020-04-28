@@ -128,7 +128,11 @@ const buildLinkToMenu = (menuId: string): Promise<unknown> => {
     create(
       'div',
       { class: 'download-link-wrapper' },
-      create('a', { href: url, class: 'download-link' }, 'Downloads')
+      create(
+        'a',
+        { href: url, class: 'download-link' },
+        create('span', { class: 'download-link-text' }, 'Downloads')
+      )
     )
   )
   return Promise.resolve()
