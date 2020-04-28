@@ -117,6 +117,8 @@ const buildMenu = (
 
 const buildLinkToMenu = (menuId: string): Promise<unknown> => {
   const url = `#${menuId}`
+  const text =
+    'A two-part list of links to download the article, or parts of the article, in various formats.'
   const articleTitle = first(':--Article > :--title')
   if (articleTitle === null) {
     return Promise.reject(
@@ -131,7 +133,7 @@ const buildLinkToMenu = (menuId: string): Promise<unknown> => {
       create(
         'a',
         { href: url, class: 'download-link' },
-        create('span', { class: 'download-link-text' }, 'Downloads')
+        create('span', { class: 'download-link-text' }, text)
       )
     )
   )
