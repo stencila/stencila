@@ -21,42 +21,51 @@ const getArticleId = (): string => {
   return first(selector)?.innerHTML ?? ''
 }
 
-const getReferences = (): Element[] => {
-  return select(':--reference')
-}
-
-const moveReferenceTitles = (references: Element[]): void => {
-  references.forEach((reference: Element) => {
-    const headline: Element | null = first(reference, ':--title')
+const moveReferenceTitles = (references: Element[]): Element[] => {
+  references.forEach((reference: Element): void => {
+    const headline = first(reference, ':--title')
     if (headline !== null) {
       prepend(reference, headline)
     }
   })
+  return references
 }
 
-const moveVolumeNumber = (references: Element[]): void => {
-  references.forEach((reference: Element) => {
-    const volumeNumber: Element | null = first(reference, ':--volumeNumber')
-    if (volumeNumber !== null) {
-      append(reference, volumeNumber)
+const movePeriodicalNames = (references: Element[]): Element[] => {
+  references.forEach((reference: Element): void => {
+    const PeriodicalNames = first(reference, ':--isPartOf:--name')
+    if (PeriodicalNames !== null) {
+      prepend(reference, PeriodicalNames)
     }
   })
+  return references
 }
 
-const movePageStart = (references: Element[]): void => {
-  references.forEach((reference: Element) => {
-    const pageStart: Element | null = first(reference, ':--pageStart')
-    if (pageStart !== null) {
-      append(reference, pageStart)
+const moveVolumeNumbers = (references: Element[]): Element[] => {
+  references.forEach((reference: Element): void => {
+    const volumeNumbers = first(reference, ':--volumeNumber')
+    if (volumeNumbers !== null) {
+      append(reference, volumeNumbers)
     }
   })
+  return references
 }
 
-const movePageEnd = (references: Element[]): void => {
-  references.forEach((reference: Element) => {
-    const pageEnd: Element | null = first(reference, ':--pageEnd')
-    if (pageEnd !== null) {
-      append(reference, pageEnd)
+const movePagesStart = (references: Element[]): Element[] => {
+  references.forEach((reference: Element): void => {
+    const pagesStart = first(reference, ':--pageStart')
+    if (pagesStart !== null) {
+      append(reference, pagesStart)
+    }
+  })
+  return references
+}
+
+const movePagesEnd = (references: Element[]): void => {
+  references.forEach((reference: Element): void => {
+    const pagesEnd = first(reference, ':--pageEnd')
+    if (pagesEnd !== null) {
+      append(reference, pagesEnd)
     }
   })
 }
@@ -69,9 +78,11 @@ ready((): void => {
     first(':--title')?.getAttribute('content') ?? ''
   )
 
-  const references = getReferences()
-  moveReferenceTitles(references)
-  moveVolumeNumber(references)
-  movePageStart(references)
-  movePageEnd(references)
+  movePagesEnd(
+    movePagesStart(
+      movePeriodicalNames(
+        moveVolumeNumbers(moveReferenceTitles(select(':--reference')))
+      )
+    )
+  )
 })
