@@ -165,6 +165,14 @@ main {
   }
 }
 
+@media screen and (--medium-viewport) {
+  :--Article .download-link-wrapper .download-link {
+    flex-basis: 44px;
+    height: 44px;
+    background-image: url('https://elifesciences.org/assets/patterns/img/icons/download-full.6691999e.svg');
+  }
+}
+
 :--datePublished {
   color: var(--color-text-secondary);
   display: block;
