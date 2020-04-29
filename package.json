@@ -1,6 +1,6 @@
 {
   "name": "@stencila/thema",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Semantic themes for use with encoda (https://github.com/stencila/encoda)",
   "files": [
     "/dist"

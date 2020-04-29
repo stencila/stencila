@@ -1,3 +1,18 @@
+# [2.5.0](https://github.com/stencila/thema/compare/v2.4.0...v2.5.0) (2020-04-29)
+
+
+### Bug Fixes
+
+* **Elife:** Match update ([deb655b](https://github.com/stencila/thema/commit/deb655ba1ecc0d03b826ed929e92dee04d384487))
+* **Elife:** Target downloads section, now its targetable ([fa65315](https://github.com/stencila/thema/commit/fa653155d099ec3f90b4d5d4387e646093218595))
+
+
+### Features
+
+* **Elife:** Dotted underline per download link ([ba1932b](https://github.com/stencila/thema/commit/ba1932b83d0a4e1c973ebca2007b576b4a04dee9))
+* **Elife:** Download list hover color ([92b6c1b](https://github.com/stencila/thema/commit/92b6c1b342c196b66e94a2d4ac967795ee7a0b22))
+* **Elife:** Downloads link targetable by CSS ([ebeca8c](https://github.com/stencila/thema/commit/ebeca8c7060a288edbbe43bb6c88af84e3e3f370))
+
 # [2.4.0](https://github.com/stencila/thema/compare/v2.3.0...v2.4.0) (2020-04-29)
 
 
