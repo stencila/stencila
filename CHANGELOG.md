@@ -1,3 +1,14 @@
+# [2.6.0](https://github.com/stencila/thema/compare/v2.5.0...v2.6.0) (2020-04-29)
+
+
+### Features
+
+* **Elife:** Add basic link to downloads menu ([8977cde](https://github.com/stencila/thema/commit/8977cdee491300dfcf39c2f3377da9768dcbd4e3))
+* **Elife:** Add download icon for narrower viewports ([26a4aa6](https://github.com/stencila/thema/commit/26a4aa6cd56114822a5399e8f1d31b6d51bde945))
+* **Elife:** Add download icon for wider viewports ([43b4c1e](https://github.com/stencila/thema/commit/43b4c1e00ffa79c1d9fc79311e1e6e935d880c35))
+* **Elife:** Match eLife's download link text ([3aac9fe](https://github.com/stencila/thema/commit/3aac9feaa19299a0e1f22e38940d4e3c8843b640))
+* **Elife:** Right align download menu link, & spacing ([b49c2d2](https://github.com/stencila/thema/commit/b49c2d21574345076c3c9424b97b5944266893f7))
+
 # [2.5.0](https://github.com/stencila/thema/compare/v2.4.0...v2.5.0) (2020-04-29)
 
 
