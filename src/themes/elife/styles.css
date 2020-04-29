@@ -164,28 +164,32 @@ main {
 :--references {
   font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
 
+  ol {
+    counter-reset: item;
+    list-style-type: none;
+    margin-left: 1.5rem;
+
+    li[itemprop='citation'] {
+      display: block;
+      font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+      font-weight: bold;
+      margin-right: 2.5rem;
+
+      &::before {
+        content: counter(item) ' ';
+        counter-increment: item;
+        float: left;
+        margin-left: -2.5rem;
+        text-align: center;
+      }
+    }
+  }
+
   :--authors {
     display: inline;
 
     :--author {
       font-weight: normal;
-    }
-  }
-
-  ol {
-    counter-reset: item;
-    list-style-type: none;
-
-    li {
-      display: inline-block;
-      font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
-      font-weight: bold;
-      padding-left: 0.8rem;
-
-      &::before {
-        content: counter(item) ' ';
-        counter-increment: item;
-      }
     }
   }
 
