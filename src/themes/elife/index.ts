@@ -1,5 +1,6 @@
-import { first, ready } from '../../util'
+import { first, ready, select } from '../../util'
 import * as downloads from './downloads'
+import * as references from './references'
 import DateTimeFormat = Intl.DateTimeFormat
 
 const dateFormatter = new DateTimeFormat('en-US', {
@@ -27,5 +28,15 @@ ready((): void => {
   downloads.build(
     getArticleId(),
     first(':--title')?.getAttribute('content') ?? ''
+  )
+
+  references.movePagesEnd(
+    references.movePagesStart(
+      references.movePeriodicalNames(
+        references.moveVolumeNumbers(
+          references.moveTitles(select(':--reference'))
+        )
+      )
+    )
   )
 })
