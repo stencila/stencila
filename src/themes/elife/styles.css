@@ -237,6 +237,32 @@ main {
   }
 }
 
+:--Article .downloads {
+  --link-color: var(--color-text);
+
+  ul {
+    margin-top: 0;
+    margin-bottom: var(--baseline-measure-rem);
+
+    li {
+      font-size: calc(var(--text-size-rem-default) * 1rem);
+
+      a {
+        background-color: var(--color-text-ui-background);
+        color: var(--link-color);
+        border-bottom: 1px dotted var(--color-text);
+        text-decoration: none;
+
+        &:hover {
+          --link-color: var(--color-primary);
+
+          border-bottom-color: var(--color-primary);
+        }
+      }
+    }
+  }
+}
+
 @media only screen and (--medium-viewport) {
   :--root {
     padding-left: 3%;

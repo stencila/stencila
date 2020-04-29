@@ -1,6 +1,9 @@
 :--root {
   /* Colors */
+  --color-primary: #0288d1;
+  --color-text: #212121;
   --color-text-secondary: #888;
+  --color-text-ui-background: #fff;
 
   /* Typography */
   --text-size-rem-small: 0.6875; /* 11px assuming base font size of 16px */

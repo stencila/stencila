@@ -55,7 +55,7 @@ const buildMenu = (
     select(':--references')[0],
     create(
       'section',
-      null,
+      { class: 'downloads' },
       create('h2', null, 'Download links'),
       create('h3', null, 'Downloads'),
       create(
