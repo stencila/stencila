@@ -169,28 +169,25 @@ main {
     list-style-type: none;
     margin-left: 1.5rem;
 
-    li[itemprop='citation'] {
+    li:--reference {
       display: block;
       font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
-      font-weight: bold;
+      font-size: calc(var(--text-size-rem-medium) * 1rem);
       margin-right: 2.5rem;
 
       &::before {
         content: counter(item) ' ';
         counter-increment: item;
+        font-weight: bold;
         float: left;
         margin-left: -2.5rem;
-        text-align: center;
+        text-align: right;
       }
     }
   }
 
   :--authors {
     display: inline;
-
-    :--author {
-      font-weight: normal;
-    }
   }
 
   :--reference {
@@ -199,8 +196,6 @@ main {
 
   :--datePublished {
     display: inline-block;
-    font-size: calc(var(--text-size-rem-medium) * 1rem);
-    font-weight: normal;
 
     &::before {
       content: ' (';
@@ -213,11 +208,11 @@ main {
 
   :--title {
     display: block;
+    font-size: calc(var(--text-size-rem-default) * 1rem);
+    font-weight: bold;
   }
 
   :--volumeNumber {
-    display: inline;
-    font-size: calc(var(--text-size-rem-medium) * 1rem);
     font-weight: bold;
 
     &::after {
@@ -226,9 +221,7 @@ main {
   }
 
   :--name {
-    font-size: calc(var(--text-size-rem-medium) * 1rem);
     font-style: italic;
-    font-weight: normal;
 
     &::before {
       content: '\A';
@@ -236,15 +229,7 @@ main {
     }
   }
 
-  :--pageStart {
-    font-size: calc(var(--text-size-rem-medium) * 1rem);
-    font-weight: normal;
-  }
-
   :--pageEnd {
-    font-size: calc(var(--text-size-rem-medium) * 1rem);
-    font-weight: normal;
-
     &::before {
       content: '-';
     }
