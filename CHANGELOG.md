@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/stencila/thema/compare/v2.3.0...v2.4.0) (2020-04-29)
+
+
+### Features
+
+* **Elife:** Style references ([f0a4fe4](https://github.com/stencila/thema/commit/f0a4fe4ff432d6d2e65a9e5680beb12edc6b135c))
+
 # [2.3.0](https://github.com/stencila/thema/compare/v2.2.9...v2.3.0) (2020-04-27)
 
 
