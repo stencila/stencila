@@ -1,3 +1,24 @@
+# [2.4.0](https://github.com/stencila/thema/compare/v2.3.0...v2.4.0) (2020-04-29)
+
+
+### Features
+
+* **Elife:** Style references ([f0a4fe4](https://github.com/stencila/thema/commit/f0a4fe4ff432d6d2e65a9e5680beb12edc6b135c))
+
+# [2.3.0](https://github.com/stencila/thema/compare/v2.2.9...v2.3.0) (2020-04-27)
+
+
+### Bug Fixes
+
+* **Elife:** Article date line-height ([fba0ff8](https://github.com/stencila/thema/commit/fba0ff83ffb3151c46c7850e49c0226344c91365))
+
+
+### Features
+
+* **Elife:** Centre 'content header' elements, ignore references ([3554232](https://github.com/stencila/thema/commit/35542320b73a28320df31ce84134c4b2ba89b129))
+* **Elife:** No affiliations at narrower viewports ([268dd32](https://github.com/stencila/thema/commit/268dd32afeb6539a843e80f0cd109f4c04ddcc1d))
+* **Elife:** Responsive title typography ([d01c883](https://github.com/stencila/thema/commit/d01c883ce463ce3b10f40f9eb6dc1c6b204f0ed2))
+
 ## [2.2.9](https://github.com/stencila/thema/compare/v2.2.8...v2.2.9) (2020-04-23)
 
 
