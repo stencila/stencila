@@ -22,6 +22,12 @@ const getArticleId = (): string => {
   return first(selector)?.innerHTML ?? ''
 }
 
+const getArticleDoi = (): string => {
+  const selector =
+    ':--identifier meta[content="https://registry.identifiers.org/registry/doi"] ~ [itemprop="value"]'
+  return first(selector)?.innerHTML ?? ''
+}
+
 ready((): void => {
   formatDate(first(':--datePublished'))
 
