@@ -76,6 +76,17 @@ main {
     font-size: var(--h1-font-size);
     line-height: calc(36 / 29);
   }
+
+  & > :--datePublished {
+    color: var(--color-text-secondary);
+    display: block;
+    font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+    font-size: calc(var(--text-size-rem-small) * 1rem);
+    letter-spacing: var(--letter-spacing);
+    line-height: calc(var(--baseline-measure) / var(--text-size-rem-small));
+    text-align: center;
+    text-transform: capitalize;
+  }
 }
 
 @media all and (--medium-viewport) {
@@ -101,6 +112,8 @@ main {
 
   :--Person {
     @extend .content-header__author_list_item;
+
+    font-size: calc(var(--text-size-rem-medium) * 1rem);
 
     :--familyName::after {
       content: ', ';
@@ -149,14 +162,79 @@ main {
   }
 }
 
-:--datePublished {
-  color: var(--color-text-secondary);
-  display: block;
+:--references {
   font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
-  font-size: calc(var(--text-size-rem-small) * 1rem);
-  letter-spacing: var(--letter-spacing);
-  line-height: calc(var(--baseline-measure) / var(--text-size-rem-small));
-  text-transform: capitalize;
+
+  ol {
+    counter-reset: item;
+    list-style-type: none;
+    margin-left: 1.5rem;
+
+    li:--reference {
+      display: block;
+      font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+      font-size: calc(var(--text-size-rem-medium) * 1rem);
+      margin-right: 2.5rem;
+
+      &::before {
+        content: counter(item) ' ';
+        counter-increment: item;
+        font-weight: bold;
+        float: left;
+        margin-left: -2.5rem;
+        text-align: right;
+      }
+    }
+  }
+
+  :--authors {
+    display: inline;
+  }
+
+  :--reference {
+    margin-bottom: 0.75rem;
+  }
+
+  :--datePublished {
+    display: inline-block;
+
+    &::before {
+      content: ' (';
+    }
+
+    &::after {
+      content: ')';
+    }
+  }
+
+  :--title {
+    display: block;
+    font-size: calc(var(--text-size-rem-default) * 1rem);
+    font-weight: bold;
+  }
+
+  :--volumeNumber {
+    font-weight: bold;
+
+    &::after {
+      content: ':';
+    }
+  }
+
+  :--name {
+    font-style: italic;
+
+    &::before {
+      content: '\A';
+      white-space: pre;
+    }
+  }
+
+  :--pageEnd {
+    &::before {
+      content: '-';
+    }
+  }
 }
 
 @media only screen and (--medium-viewport) {
