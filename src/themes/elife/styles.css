@@ -162,6 +162,31 @@ main {
   }
 }
 
+:--Article .download-link-wrapper {
+  display: flex;
+  flex-direction: row-reverse;
+  margin-bottom: calc(var(--baseline-measure-rem) / 2);
+
+  & > .download-link {
+    flex: 0 0 20px;
+    height: 20px;
+    background: url('https://elifesciences.org/assets/patterns/img/icons/download.ecfa2d98.svg')
+      transparent no-repeat;
+
+    & > .download-link-text {
+      @mixin visuallyhidden;
+    }
+  }
+}
+
+@media screen and (--medium-viewport) {
+  :--Article .download-link-wrapper .download-link {
+    flex-basis: 44px;
+    height: 44px;
+    background-image: url('https://elifesciences.org/assets/patterns/img/icons/download-full.6691999e.svg');
+  }
+}
+
 :--references {
   font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
 

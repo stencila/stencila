@@ -1,4 +1,4 @@
-import { after, create, select } from '../../util'
+import { after, before, create, first, select } from '../../util'
 import eLifeDataProvider from './eLifeDataProvider'
 
 const getPdfUrl = async (id: string, pdfType: string): Promise<string> => {
@@ -49,13 +49,15 @@ const addFiguresPdfUrl = (url: string): void => {
 const buildMenu = (
   articleId: string,
   articleTitle: string,
-  pdfUrl: string
+  pdfUrl: string,
+  menuId: string
 ): void => {
   after(
     select(':--references')[0],
     create(
       'section',
-      { class: 'downloads' },
+      { id: menuId, class: 'downloads' },
+
       create('h2', null, 'Download links'),
       create('h3', null, 'Downloads'),
       create(
@@ -114,12 +116,39 @@ const buildMenu = (
   )
 }
 
+const buildLinkToMenu = (menuId: string): Promise<unknown> => {
+  const url = `#${menuId}`
+  const text =
+    'A two-part list of links to download the article, or parts of the article, in various formats.'
+  const articleTitle = first(':--Article > :--title')
+  if (articleTitle === null) {
+    return Promise.reject(
+      new Error("Can't find element to bolt the download link on top of")
+    )
+  }
+  before(
+    articleTitle,
+    create(
+      'div',
+      { class: 'download-link-wrapper' },
+      create(
+        'a',
+        { href: url, class: 'download-link' },
+        create('span', { class: 'download-link-text' }, text)
+      )
+    )
+  )
+  return Promise.resolve()
+}
+
 export const build = (articleId: string, articleTitle: string): void => {
+  const menuId = 'downloadMenu'
   try {
     getArticlePdfUrl(articleId)
-      .then((pdfUri) => buildMenu(articleId, articleTitle, pdfUri))
+      .then((pdfUri) => buildMenu(articleId, articleTitle, pdfUri, menuId))
       .then(() => getFiguresPdfUrl(articleId))
       .then((figuresPdfUrl: string) => addFiguresPdfUrl(figuresPdfUrl))
+      .then(() => buildLinkToMenu(menuId))
       .catch((err: Error) => {
         throw err
       })
