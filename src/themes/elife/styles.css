@@ -160,6 +160,10 @@ main {
       content: '';
     }
   }
+
+  :--addressCountry::before {
+    content: ' ';
+  }
 }
 
 :--Article .download-link-wrapper {
