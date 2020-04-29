@@ -1,3 +1,10 @@
+## [2.6.1](https://github.com/stencila/thema/compare/v2.6.0...v2.6.1) (2020-04-29)
+
+
+### Bug Fixes
+
+* **Elife:** Affiliations styling regression ([9f99518](https://github.com/stencila/thema/commit/9f995184f1dbdaea688e5394038eb96fed3ca2a1))
+
 # [2.6.0](https://github.com/stencila/thema/compare/v2.5.0...v2.6.0) (2020-04-29)
 
 
