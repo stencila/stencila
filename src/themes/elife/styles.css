@@ -245,7 +245,7 @@ main {
     margin-bottom: var(--baseline-measure-rem);
 
     li {
-      font-size: calc(var(--text-size-rem-normal) * 1rem);
+      font-size: calc(var(--text-size-rem-default) * 1rem);
 
       a {
         background-color: var(--color-text-ui-background);
