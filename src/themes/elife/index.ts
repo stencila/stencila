@@ -21,7 +21,7 @@ const normaliseWhitespace = (txt: string): string => {
   return txt.replace(/\n/, ' ').replace(/ \s+|\n+/g, ' ')
 }
 
-const getTextFromElementBySelector = (selector: string): string => {
+const getNormalisedTextFromElement = (selector: string): string => {
   const target = first(selector)
   if (target !== null) {
     const sourceText = text(target)
@@ -33,19 +33,19 @@ const getTextFromElementBySelector = (selector: string): string => {
 }
 
 const getArticleId = (): string => {
-  return getTextFromElementBySelector(
+  return getNormalisedTextFromElement(
     ':--identifier meta[content="https://registry.identifiers.org/registry/publisher-id"] ~ [itemprop="value"]'
   )
 }
 
 const getArticleDoi = (): string => {
-  return getTextFromElementBySelector(
+  return getNormalisedTextFromElement(
     ':--identifier meta[content="https://registry.identifiers.org/registry/doi"] ~ [itemprop="value"]'
   )
 }
 
 const getArticleTitle = (): string => {
-  return getTextFromElementBySelector(':--title')
+  return getNormalisedTextFromElement(':--title')
 }
 
 ready((): void => {
