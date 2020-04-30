@@ -58,7 +58,6 @@ const buildSharer = (
 export const build = (title: string, doi: string): void => {
   const attachPoint = first(':--Article :--title')
   if (attachPoint === null) {
-    // TODO: catch this error
     throw new Error("Can't find element to bolt the social sharers beneath")
   }
 

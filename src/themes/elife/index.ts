@@ -51,5 +51,9 @@ ready((): void => {
     )
   )
 
-  socialSharers.build(getArticleTitle(), getArticleDoi())
+  try {
+    socialSharers.build(getArticleTitle(), getArticleDoi())
+  } catch (e) {
+    console.error(e)
+  }
 })
