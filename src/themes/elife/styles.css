@@ -108,6 +108,36 @@ main {
   }
 }
 
+:--Article .social-sharers {
+  height: 20px;
+  text-align: center;
+
+  /* Added 4px because height of social sharer link is 20px instead of 24px; */
+  margin-bottom: calc(var(--baseline-measure-rem) + 4px);
+
+  .social-sharer-link {
+    display: inline-block;
+    margin: 0 8px;
+    padding: 3px 0 1px;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    border-radius: 3px;
+    background-color: rgb(33, 33, 33);
+    fill: var(--color-text-ui-background);
+
+    /* stylelint-disable scale-unlimited/declaration-strict-value */
+    stroke: none;
+
+    /* stylelint-enable scale-unlimited/declaration-strict-value */
+
+    & > svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
 :--Article :--authors {
   @extend .content-header__author_list;
 
@@ -189,31 +219,6 @@ main {
     flex-basis: 44px;
     height: 44px;
     background-image: url('https://elifesciences.org/assets/patterns/img/icons/download-full.6691999e.svg');
-  }
-}
-
-.social-sharers {
-  height: 20px;
-  text-align: center;
-  /* Added 4px because height of social sharer link is 20px instead of 24px; */
-  margin-bottom: calc(var(--baseline-measure-rem) + 4px);
-}
-
-.social-sharer-link {
-  display: inline-block;
-  margin: 0 8px;
-  padding: 3px 0 1px;
-  width: 24px;
-  height: 24px;
-  text-align: center;
-  border-radius: 3px;
-  background-color: rgb(33, 33, 33);
-  fill: #fff;
-  stroke: none;
-
-  & > svg {
-    width: 16px;
-    height: 16px;
   }
 }
 
