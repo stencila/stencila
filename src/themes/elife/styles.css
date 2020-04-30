@@ -191,6 +191,35 @@ main {
   }
 }
 
+.social-sharers {
+  display: flex;
+  justify-content: center;
+  height: 20px;
+}
+
+.social-sharer-link {
+  border-radius: 3px;
+  display: inline-block;
+  flex-grow: 0;
+  flex-shrink: 0;
+  margin-left: 8px;
+  margin-right: 8px;
+  fill: #fff;
+  stroke: none;
+  background-color: rgb(33, 33, 33);
+  text-align: center;
+
+  width: 24px;
+  height: 24px;
+  padding-top: 3px;
+  padding-bottom: 1px;
+
+  & > svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 :--references {
   font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
 
