@@ -21,9 +21,7 @@ const normaliseWhitespace = (txt: string): string => {
   return txt.replace(/\n/, ' ').replace(/ \s+|\n+/g, ' ')
 }
 
-const getArticleId = (): string => {
-  const selector =
-    ':--identifier meta[content="https://registry.identifiers.org/registry/publisher-id"] ~ [itemprop="value"]'
+const getTextFromElementBySelector = (selector: string): string => {
   const target = first(selector)
   if (target !== null) {
     const sourceText = text(target)
@@ -32,31 +30,22 @@ const getArticleId = (): string => {
     }
   }
   return ''
+}
+
+const getArticleId = (): string => {
+  return getTextFromElementBySelector(
+    ':--identifier meta[content="https://registry.identifiers.org/registry/publisher-id"] ~ [itemprop="value"]'
+  )
 }
 
 const getArticleDoi = (): string => {
-  const selector =
+  return getTextFromElementBySelector(
     ':--identifier meta[content="https://registry.identifiers.org/registry/doi"] ~ [itemprop="value"]'
-  const target = first(selector)
-  if (target !== null) {
-    const sourceText = text(target)
-    if (sourceText !== null) {
-      return normaliseWhitespace(sourceText)
-    }
-  }
-  return ''
+  )
 }
 
 const getArticleTitle = (): string => {
-  const selector = ':--title'
-  const target = first(selector)
-  if (target !== null) {
-    const sourceText = text(target)
-    if (sourceText !== null) {
-      return normaliseWhitespace(sourceText)
-    }
-  }
-  return ''
+  return getTextFromElementBySelector(':--title')
 }
 
 ready((): void => {
