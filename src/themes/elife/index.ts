@@ -1,4 +1,4 @@
-import { first, ready, select } from '../../util'
+import { first, ready, select, text } from '../../util'
 import * as downloads from './downloads'
 import * as socialSharers from './social-sharers'
 import * as references from './references'
@@ -17,20 +17,46 @@ const formatDate = (dateEl: Element | null): void => {
   }
 }
 
+const normaliseWhitespace = (txt: string): string => {
+  return txt.replace(/\n/, ' ').replace(/ \s+|\n+/g, ' ')
+}
+
 const getArticleId = (): string => {
   const selector =
     ':--identifier meta[content="https://registry.identifiers.org/registry/publisher-id"] ~ [itemprop="value"]'
-  return first(selector)?.innerHTML ?? ''
+  const target = first(selector)
+  if (target !== null) {
+    const sourceText = text(target)
+    if (sourceText !== null) {
+      return normaliseWhitespace(sourceText)
+    }
+  }
+  return ''
 }
 
 const getArticleDoi = (): string => {
   const selector =
     ':--identifier meta[content="https://registry.identifiers.org/registry/doi"] ~ [itemprop="value"]'
-  return first(selector)?.innerHTML ?? ''
+  const target = first(selector)
+  if (target !== null) {
+    const sourceText = text(target)
+    if (sourceText !== null) {
+      return normaliseWhitespace(sourceText)
+    }
+  }
+  return ''
 }
 
 const getArticleTitle = (): string => {
-  return first(':--title')?.innerHTML ?? ''
+  const selector = ':--title'
+  const target = first(selector)
+  if (target !== null) {
+    const sourceText = text(target)
+    if (sourceText !== null) {
+      return normaliseWhitespace(sourceText)
+    }
+  }
+  return ''
 }
 
 ready((): void => {
