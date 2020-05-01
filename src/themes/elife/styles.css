@@ -131,6 +131,12 @@ main {
 
     /* stylelint-enable scale-unlimited/declaration-strict-value */
 
+    transition: 25ms ease-in-out;
+
+    &:hover {
+      background-color: var(--color-primary);
+    }
+
     & > svg {
       width: 16px;
       height: 16px;
