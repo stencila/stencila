@@ -1,3 +1,23 @@
+# [2.7.0](https://github.com/stencila/thema/compare/v2.6.1...v2.7.0) (2020-05-01)
+
+
+### Bug Fixes
+
+* **Elife:** More appropriate array method ([67912e5](https://github.com/stencila/thema/commit/67912e58face2ab5f8c51060c1aa3713742cea6d))
+* **Elife:** Style lint fixes ([30db12f](https://github.com/stencila/thema/commit/30db12f1f5d024199c81fe1d69b15d49c193a655))
+
+
+### Features
+
+* **Elife:** Add vertical space around social icons ([762e984](https://github.com/stencila/thema/commit/762e98461b7a3baad84e9d9275a9122ee80f2f0e))
+* **Elife:** First pass social sharers DOM ([35900de](https://github.com/stencila/thema/commit/35900dee4787aade08819a30a31d46fc0a360d8e))
+* **Elife:** Get the article DOI ([63a9571](https://github.com/stencila/thema/commit/63a9571645203f1d8d81c46c78b69603db3079b6))
+* **Elife:** Get the article title ([370e68f](https://github.com/stencila/thema/commit/370e68f48d9e16124eff3e6cbabded96af034a64))
+* **Elife:** Handle error from social tools build ([28d010f](https://github.com/stencila/thema/commit/28d010f7319c4ecb73ed5a669848504ef00627be))
+* **Elife:** In-article text retrieval & whitespace normalisation ([483bcbf](https://github.com/stencila/thema/commit/483bcbf55e5aecc4fdd3a15f5dc96f474f784cf8))
+* **Elife:** Social sharers hover state ([5206921](https://github.com/stencila/thema/commit/5206921e8ba7df1f0aa77b3962d08ad435c02fbd))
+* **Elife:** Style social sharing icons ([de13cd0](https://github.com/stencila/thema/commit/de13cd0de358fb1ba0ffa6447527c37e7e20cb02))
+
 ## [2.6.1](https://github.com/stencila/thema/compare/v2.6.0...v2.6.1) (2020-04-29)
 
 
