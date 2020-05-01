@@ -75,6 +75,7 @@ main {
   & > :--title {
     font-size: var(--h1-font-size);
     line-height: calc(36 / 29);
+    margin-bottom: var(--baseline-measure-rem);
   }
 
   & > :--datePublished {
@@ -104,6 +105,42 @@ main {
   }
   :--Article:not(:--reference) > :--affiliations {
     @mixin visuallyhidden;
+  }
+}
+
+:--Article .social-sharers {
+  height: 20px;
+  text-align: center;
+
+  /* Added 4px because height of social sharer link is 20px instead of 24px; */
+  margin-bottom: calc(var(--baseline-measure-rem) + 4px);
+
+  .social-sharer-link {
+    display: inline-block;
+    margin: 0 8px;
+    padding: 3px 0 1px;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    border-radius: 3px;
+    background-color: rgb(33, 33, 33);
+    fill: var(--color-text-ui-background);
+
+    /* stylelint-disable scale-unlimited/declaration-strict-value */
+    stroke: none;
+
+    /* stylelint-enable scale-unlimited/declaration-strict-value */
+
+    transition: 25ms ease-in-out;
+
+    &:hover {
+      background-color: var(--color-primary);
+    }
+
+    & > svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 
