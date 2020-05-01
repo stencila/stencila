@@ -131,9 +131,9 @@ export function select(...args: (string | Document | Element)[]): Element[] {
 /**
  * Create a new element.
  *
- * @detail This function allows creation of new elements using either a
- * (a) HTML string (b) CSS selector like string, or (c) an `Element`.
- * CSS selectors are are convenient way to create elements with attributes,
+ * @detail This function allows creation of new elements using either
+ * (a) a HTML (or SVG) string (b) a CSS selector like string, or (c) an `Element`.
+ * CSS selectors are a convenient way to create elements with attributes,
  * particularly Microdata elements. They can be prone to syntax errors however.
  * Alternatively, the second argument can
  * be an object of attribute name:value pairs.
@@ -159,6 +159,13 @@ export function select(...args: (string | Document | Element)[]): Element[] {
  * // <div itemscope="" itemtype="http://schema.org/Person">
  * //   <span itemprop="name">John Doe</span>
  * // </div>
+ *
+ * @example <caption>Create a link around an SVG image</caption>
+ *
+ * create('a', {href: 'https://example.com'}, create(imageSVG))
+ * // <a href="https://example.com">
+ * //   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="....
+ * // </a>
  *
  * @param {string | Element} [spec] Specification of element to create.
  * @param {(object | undefined | null | boolean | number | string | Element)} [attributes] Attributes for the element.
