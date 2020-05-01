@@ -20,7 +20,9 @@
  * format e.g. JATS, but not being encoded to HTML (ie. missing from example pages).
  */
 
-import { convert } from '@stencila/encoda'
+import { convert, read, write } from '@stencila/encoda'
+import { transformSync } from '@stencila/encoda/dist/util/transform'
+import schema from '@stencila/schema'
 import fs from 'fs'
 import path from 'path'
 
@@ -77,13 +79,99 @@ function articleDrosophila(): Promise<string | undefined> {
 }
 
 /**
- * An eLife article on a replication study
+ * An eLife Executable Research Article.
+ *
+ * This function fetches the JATS XML of an existing
+ * eLife article, converts it to JSON, and "enriches" it by
+ * replacing some of the figures and inline numbers with
+ * `CodeChunk`s and `CodeExpression`s. It then encodes
+ * the example as HTML.
+ *
+ * The primary purpose of this example is to be able to
+ * test the styling of those elements within a complete
+ * example.
  */
-function articleReplication(): Promise<string | undefined> {
-  return build(
-    'https://elifesciences.org/articles/30274v2',
-    ex('articleReplication.html')
-  )
+async function articleReplication(): Promise<string | undefined> {
+  const article = await read('https://elifesciences.org/articles/30274v2')
+
+  // Outputting to JSON can be useful to see what to replace
+  // await write(article, ex('articleReplication.json'))
+
+  const era = transformSync(article, (node) => {
+    if (schema.isA('Figure', node)) {
+      const { id } = node
+      if (id === 'fig2' || id === 'fig3') {
+        // Make the static `content` of the `Figure` (an `ImageObject`)
+        // the `outputs` of a `CodeChunk` that also includes the R source code
+        node.content = [
+          schema.codeChunk({
+            programmingLanguage: 'r',
+            text: fs.readFileSync(
+              ex(`articleReplicationFigure${id.slice(-1)}.R`),
+              'utf8'
+            ),
+            outputs: node.content,
+          }),
+        ]
+      }
+    } else if (schema.isA('Paragraph', node)) {
+      // For one paragaph, insert some `CodeExpression`s using R source
+      // from the RMarkdown at https://raw.githubusercontent.com/stencila/examples/master/elife-30274/sources/Replication_Study_48.Rmd
+      if (
+        node.content[0]
+          ?.toString()
+          .startsWith('To test whether c-Myc expression')
+      ) {
+        node.content = node.content.reduce(
+          (prev: schema.InlineContent[], child) => {
+            if (
+              typeof child === 'string' &&
+              child.startsWith(
+                '). For silent genes, 74% of the genes increased'
+              )
+            ) {
+              return [
+                ...prev,
+                '). For silent genes, ',
+                schema.codeExpression({
+                  programmingLanguage: 'r',
+                  text:
+                    'round(length(which((silent_1hr_l1-silent_0hr_l1)>0))/length(silent_0hr_l1)*100)',
+                  output: 74,
+                }),
+                '% of the genes increased from 0 hr to 1 hr, ',
+                schema.codeExpression({
+                  programmingLanguage: 'r',
+                  text:
+                    'round(length(which((silent_1hr_l1-silent_0hr_l1)>0))/length(silent_0hr_l1)*100)',
+                  output: 66,
+                }),
+                '% increased from 0 hr to 24 hr, and 50% increased from 1 hr to 24 hr, corresponding to a ',
+                schema.codeExpression({
+                  programmingLanguage: 'r',
+                  text: 'round(median(silent_1hr_l1)/median(silent_0hr_l1),2)',
+                  output: 1.1,
+                }),
+                ' and ',
+                schema.codeExpression({
+                  programmingLanguage: 'r',
+                  text: 'round(median(silent_24hr_l1)/median(silent_0hr_l1),2)',
+                  output: 1.5,
+                }),
+                ' times increase, and a 0.05 times decrease in median expression, respectively (',
+              ]
+            }
+            return [...prev, child]
+          },
+          []
+        )
+      }
+    }
+    return node
+  })
+
+  await write(era, ex('articleReplication.html'), { isStandalone: false })
+  return Promise.resolve(undefined)
 }
 
 /**
