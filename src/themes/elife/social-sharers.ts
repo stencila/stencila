@@ -43,15 +43,17 @@ const buildSharer = (
   url: string,
   wrapper: Element
 ): void => {
-  const link = create('a', {
-    href: url,
-    class: 'social-sharer-link',
-    'aria-label': description,
-    target: '_blank',
-    rel: 'noopener noreferrer',
-  })
-  // Using DOM method innerHTML, not a Thema util method, as a way to get inline SVG text incorporated as an Element
-  link.innerHTML = imageMarkup
+  const link = create(
+    'a',
+    {
+      href: url,
+      class: 'social-sharer-link',
+      'aria-label': description,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+    },
+    create(imageMarkup)
+  )
   append(wrapper, link)
 }
 
