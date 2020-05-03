@@ -506,9 +506,9 @@ select(elem, ':--author')
 Create a new element.
 
 **Kind**: global function  
-**Detail**: This function allows creation of new elements using either a
-(a) HTML string (b) CSS selector like string, or (c) an `Element`.
-CSS selectors are are convenient way to create elements with attributes,
+**Detail**: This function allows creation of new elements using either
+(a) a HTML (or SVG) string (b) a CSS selector like string, or (c) an `Element`.
+CSS selectors are a convenient way to create elements with attributes,
 particularly Microdata elements. They can be prone to syntax errors however.
 Alternatively, the second argument can
 be an object of attribute name:value pairs.  
@@ -543,6 +543,14 @@ create(':--Person', create('span :--name', 'John Doe'))
 // <div itemscope="" itemtype="http://schema.org/Person">
 //   <span itemprop="name">John Doe</span>
 // </div>
+```
+**Example** *(Create a link around an SVG image)*  
+```js
+
+create('a', {href: 'https://example.com'}, create(imageSVG))
+// <a href="https://example.com">
+//   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="....
+// </a>
 ```
 <a name="tag"></a>
 
