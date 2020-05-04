@@ -1,21 +1,8 @@
 import { first, ready, select, text } from '../../util'
+import * as dateFormatter from './lib/dateFormatter'
 import * as downloads from './lib/downloads'
 import * as socialSharers from './lib/socialSharers'
 import * as references from './lib/references'
-import DateTimeFormat = Intl.DateTimeFormat
-
-const dateFormatter = new DateTimeFormat('en-US', {
-  month: 'short',
-  day: 'numeric',
-  year: 'numeric',
-})
-
-const formatDate = (dateEl: Element | null): void => {
-  if (dateEl instanceof Element) {
-    const date = new Date(dateEl.innerHTML)
-    dateEl.innerHTML = dateFormatter.format(date)
-  }
-}
 
 const normaliseWhitespace = (txt: string): string => {
   return txt.replace(/\n/, ' ').replace(/ \s+|\n+/g, ' ')
@@ -49,7 +36,7 @@ const getArticleTitle = (): string => {
 }
 
 ready((): void => {
-  formatDate(first(':--datePublished'))
+  dateFormatter.format(first(':--datePublished'))
 
   downloads.build(
     getArticleId(),
