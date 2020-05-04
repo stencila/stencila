@@ -1,4 +1,4 @@
-import dataProvider from '../eLifeDataProvider'
+import dataProvider from '../lib/eLifeDataProvider'
 
 interface Response {
   ok: boolean

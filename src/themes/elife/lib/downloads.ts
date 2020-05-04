@@ -1,4 +1,4 @@
-import { after, before, create, first, select } from '../../util'
+import { after, before, create, first, select } from '../../../util'
 import eLifeDataProvider from './eLifeDataProvider'
 
 const getPdfUrl = async (id: string, pdfType: string): Promise<string> => {

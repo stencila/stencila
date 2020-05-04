@@ -1,4 +1,4 @@
-import { prepend, append, first } from '../../util'
+import { prepend, append, first } from '../../../util'
 
 export const moveTitles = (references: Element[]): Element[] => {
   references.forEach((reference: Element): void => {

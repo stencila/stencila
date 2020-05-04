@@ -1,7 +1,7 @@
 import { first, ready, select, text } from '../../util'
-import * as downloads from './downloads'
-import * as socialSharers from './socialSharers'
-import * as references from './references'
+import * as downloads from './lib/downloads'
+import * as socialSharers from './lib/socialSharers'
+import * as references from './lib/references'
 import DateTimeFormat = Intl.DateTimeFormat
 
 const dateFormatter = new DateTimeFormat('en-US', {

@@ -1,4 +1,4 @@
-import { after, append, create, first } from '../../util'
+import { after, append, create, first } from '../../../util'
 
 const getSharerData = (
   encodedTitle: string,
