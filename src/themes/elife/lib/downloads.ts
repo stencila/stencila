@@ -1,7 +1,7 @@
 import { after, before, create, first, select } from '../../../util'
 import { getArticlePdfUrl, getFiguresPdfUrl } from './eLifeDataProvider'
 
-const getUrl = (type: string, id: string, title = ''): string => {
+const deriveUrlFor = (type: string, id: string, title = ''): string => {
   switch (type) {
     case 'bibtex':
       return `https://elifesciences.org/articles/${id}.bib`
@@ -19,7 +19,7 @@ const getUrl = (type: string, id: string, title = ''): string => {
   return ''
 }
 
-const addFiguresPdfUrl = (url: string): void => {
+const buildLinkToFiguresPdf = (url: string): void => {
   after(
     select('[data-is-download-pdf-link]')[0],
     create('li', null, create('a', { href: url }, 'Figures PDF'))
@@ -60,12 +60,16 @@ const buildMenu = (
         create(
           'li',
           null,
-          create('a', { href: `${getUrl('bibtex', articleId)}` }, 'BibTeX')
+          create(
+            'a',
+            { href: `${deriveUrlFor('bibtex', articleId)}` },
+            'BibTeX'
+          )
         ),
         create(
           'li',
           null,
-          create('a', { href: `${getUrl('ris', articleId)}` }, 'RIS')
+          create('a', { href: `${deriveUrlFor('ris', articleId)}` }, 'RIS')
         )
       ),
       create('h3', null, 'Open citations'),
@@ -75,19 +79,27 @@ const buildMenu = (
         create(
           'li',
           null,
-          create('a', { href: `${getUrl('mendeley', articleId)}` }, 'Mendeley')
-        ),
-        create(
-          'li',
-          null,
-          create('a', { href: `${getUrl('readcube', articleId)}` }, 'ReadCube')
+          create(
+            'a',
+            { href: `${deriveUrlFor('mendeley', articleId)}` },
+            'Mendeley'
+          )
         ),
         create(
           'li',
           null,
           create(
             'a',
-            { href: `${getUrl('papers', articleId, articleTitle)}` },
+            { href: `${deriveUrlFor('readcube', articleId)}` },
+            'ReadCube'
+          )
+        ),
+        create(
+          'li',
+          null,
+          create(
+            'a',
+            { href: `${deriveUrlFor('papers', articleId, articleTitle)}` },
             'Papers'
           )
         )
@@ -127,7 +139,7 @@ export const build = (articleId: string, articleTitle: string): void => {
     getArticlePdfUrl(articleId)
       .then((pdfUri) => buildMenu(articleId, articleTitle, pdfUri, menuId))
       .then(() => getFiguresPdfUrl(articleId))
-      .then((figuresPdfUrl: string) => addFiguresPdfUrl(figuresPdfUrl))
+      .then((figuresPdfUrl: string) => buildLinkToFiguresPdf(figuresPdfUrl))
       .then(() => buildLinkToMenu(menuId))
       .catch((err: Error) => {
         throw err
