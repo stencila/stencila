@@ -43,15 +43,7 @@ ready((): void => {
     first(':--title')?.getAttribute('content') ?? ''
   )
 
-  references.movePagesEnd(
-    references.movePagesStart(
-      references.movePeriodicalNames(
-        references.moveVolumeNumbers(
-          references.moveTitles(select(':--reference'))
-        )
-      )
-    )
-  )
+  references.transform(select(':--reference'))
 
   try {
     socialSharers.build(getArticleTitle(), getArticleDoi())

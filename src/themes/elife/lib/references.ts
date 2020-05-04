@@ -1,6 +1,6 @@
 import { prepend, append, first } from '../../../util'
 
-export const moveTitles = (references: Element[]): Element[] => {
+const moveTitles = (references: Element[]): Element[] => {
   references.forEach((reference: Element): void => {
     const headline = first(reference, ':--title')
     if (headline !== null) {
@@ -10,7 +10,7 @@ export const moveTitles = (references: Element[]): Element[] => {
   return references
 }
 
-export const movePeriodicalNames = (references: Element[]): Element[] => {
+const movePeriodicalNames = (references: Element[]): Element[] => {
   references.forEach((reference: Element): void => {
     const PeriodicalNames = first(reference, ':--isPartOf:--name')
     if (PeriodicalNames !== null) {
@@ -20,7 +20,7 @@ export const movePeriodicalNames = (references: Element[]): Element[] => {
   return references
 }
 
-export const moveVolumeNumbers = (references: Element[]): Element[] => {
+const moveVolumeNumbers = (references: Element[]): Element[] => {
   references.forEach((reference: Element): void => {
     const volumeNumbers = first(reference, ':--volumeNumber')
     if (volumeNumbers !== null) {
@@ -30,7 +30,7 @@ export const moveVolumeNumbers = (references: Element[]): Element[] => {
   return references
 }
 
-export const movePagesStart = (references: Element[]): Element[] => {
+const movePagesStart = (references: Element[]): Element[] => {
   references.forEach((reference: Element): void => {
     const pagesStart = first(reference, ':--pageStart')
     if (pagesStart !== null) {
@@ -40,11 +40,19 @@ export const movePagesStart = (references: Element[]): Element[] => {
   return references
 }
 
-export const movePagesEnd = (references: Element[]): void => {
+const movePagesEnd = (references: Element[]): void => {
   references.forEach((reference: Element): void => {
     const pagesEnd = first(reference, ':--pageEnd')
     if (pagesEnd !== null) {
       append(reference, pagesEnd)
     }
   })
+}
+
+export const transform = (references: Element[]): void => {
+  movePagesEnd(
+    movePagesStart(
+      movePeriodicalNames(moveVolumeNumbers(moveTitles(references)))
+    )
+  )
 }
