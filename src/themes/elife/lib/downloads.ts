@@ -1,25 +1,5 @@
 import { after, before, create, first, select } from '../../../util'
-import eLifeDataProvider from './eLifeDataProvider'
-
-const getPdfUrl = async (id: string, pdfType: string): Promise<string> => {
-  const allowedPdfTypes = ['article', 'figures']
-  if (!allowedPdfTypes.includes(pdfType)) {
-    return ''
-  }
-  const response = await eLifeDataProvider.query(id, window.fetch)
-  if (pdfType === 'figures') {
-    return Promise.resolve(response.articleData.figuresPdf)
-  }
-  return Promise.resolve(response.articleData.pdf)
-}
-
-const getArticlePdfUrl = async (id: string): Promise<string> => {
-  return getPdfUrl(id, 'article')
-}
-
-const getFiguresPdfUrl = async (id: string): Promise<string> => {
-  return getPdfUrl(id, 'figures')
-}
+import * as dataProvider from './eLifeDataProvider'
 
 const getUrl = (type: string, id: string, title = ''): string => {
   switch (type) {
@@ -144,9 +124,10 @@ const buildLinkToMenu = (menuId: string): Promise<unknown> => {
 export const build = (articleId: string, articleTitle: string): void => {
   const menuId = 'downloadMenu'
   try {
-    getArticlePdfUrl(articleId)
+    dataProvider
+      .getArticlePdfUrl(articleId)
       .then((pdfUri) => buildMenu(articleId, articleTitle, pdfUri, menuId))
-      .then(() => getFiguresPdfUrl(articleId))
+      .then(() => dataProvider.getFiguresPdfUrl(articleId))
       .then((figuresPdfUrl: string) => addFiguresPdfUrl(figuresPdfUrl))
       .then(() => buildLinkToMenu(menuId))
       .catch((err: Error) => {
