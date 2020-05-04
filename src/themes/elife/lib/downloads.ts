@@ -1,5 +1,5 @@
 import { after, before, create, first, select } from '../../../util'
-import * as dataProvider from './eLifeDataProvider'
+import { getArticlePdfUrl, getFiguresPdfUrl } from './eLifeDataProvider'
 
 const getUrl = (type: string, id: string, title = ''): string => {
   switch (type) {
@@ -124,10 +124,9 @@ const buildLinkToMenu = (menuId: string): Promise<unknown> => {
 export const build = (articleId: string, articleTitle: string): void => {
   const menuId = 'downloadMenu'
   try {
-    dataProvider
-      .getArticlePdfUrl(articleId)
+    getArticlePdfUrl(articleId)
       .then((pdfUri) => buildMenu(articleId, articleTitle, pdfUri, menuId))
-      .then(() => dataProvider.getFiguresPdfUrl(articleId))
+      .then(() => getFiguresPdfUrl(articleId))
       .then((figuresPdfUrl: string) => addFiguresPdfUrl(figuresPdfUrl))
       .then(() => buildLinkToMenu(menuId))
       .catch((err: Error) => {

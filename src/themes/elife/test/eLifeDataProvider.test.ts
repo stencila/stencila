@@ -1,4 +1,4 @@
-import dataProvider from '../lib/eLifeDataProvider'
+import * as eLifeDataProvider from '../lib/eLifeDataProvider'
 
 interface Response {
   ok: boolean
@@ -11,7 +11,7 @@ describe('eLife Data Provider ', () => {
       const fetchMock = (): Promise<Response> =>
         Promise.resolve({ ok: true, json: () => Promise.resolve() })
       await expect(
-        dataProvider.query('validArticleId', fetchMock)
+        eLifeDataProvider.query('validArticleId', fetchMock)
       ).resolves.not.toThrow()
     })
 
@@ -21,7 +21,9 @@ describe('eLife Data Provider ', () => {
           ok: true,
           json: () => Promise.resolve({ pdf: 'path-to-the.pdf' }),
         })
-      await expect(dataProvider.query('someId', fetchMock)).resolves.toEqual({
+      await expect(
+        eLifeDataProvider.query('someId', fetchMock)
+      ).resolves.toEqual({
         articleData: { pdf: 'path-to-the.pdf' },
         ok: true,
       })
@@ -36,7 +38,9 @@ describe('eLife Data Provider ', () => {
               figuresPdf: 'path-to-the-figures.pdf',
             }),
         })
-      await expect(dataProvider.query('someId', fetchMock)).resolves.toEqual({
+      await expect(
+        eLifeDataProvider.query('someId', fetchMock)
+      ).resolves.toEqual({
         articleData: { figuresPdf: 'path-to-the-figures.pdf' },
         ok: true,
       })
@@ -48,7 +52,7 @@ describe('eLife Data Provider ', () => {
       const fetchMock = (): Promise<Response> =>
         Promise.resolve({ ok: false, json: () => Promise.resolve() })
       await expect(
-        dataProvider.query('invalidArticleId', fetchMock)
+        eLifeDataProvider.query('invalidArticleId', fetchMock)
       ).rejects.toThrow(
         new Error(
           `There was a problem getting article data for invalidArticleId`
