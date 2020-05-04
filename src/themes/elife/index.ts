@@ -1,6 +1,6 @@
 import { first, ready, select, text } from '../../util'
 import * as downloads from './downloads'
-import * as socialSharers from './social-sharers'
+import * as socialSharers from './socialSharers'
 import * as references from './references'
 import DateTimeFormat = Intl.DateTimeFormat
 

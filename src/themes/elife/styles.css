@@ -16,7 +16,7 @@
 @import '../../extensions/person/styles.css';
 @import '../../extensions/math/styles.css';
 
-@import 'custom-properties.css';
+@import 'customProperties.css';
 
 /* @extend-ing eLife's CSS may not take into account the cascade of styles
  * applied to an element upstream of the extended style. Add @mixins here for such styles
