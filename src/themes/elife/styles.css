@@ -130,69 +130,66 @@
     ol {
       counter-reset: item;
       list-style-type: none;
-
-      li:--reference {
-        display: block;
-        font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
-        font-size: calc(var(--text-size-rem-medium) * 1rem);
-        margin-right: 2.5rem;
-
-        &::before {
-          content: counter(item) ' ';
-          counter-increment: item;
-          font-weight: bold;
-          float: left;
-          margin-left: -2.5rem;
-          text-align: right;
-        }
-      }
-    }
-
-    :--authors {
-      display: inline;
     }
 
     :--reference {
-      margin-bottom: 0.75rem;
-    }
-
-    :--datePublished {
-      display: inline-block;
-
-      &::before {
-        content: ' (';
-      }
-
-      &::after {
-        content: ')';
-      }
-    }
-
-    :--title {
       display: block;
-      font-size: calc(var(--text-size-rem-default) * 1rem);
-      font-weight: bold;
-    }
-
-    :--volumeNumber {
-      font-weight: bold;
-
-      &::after {
-        content: ':';
-      }
-    }
-
-    :--name {
-      font-style: italic;
+      font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+      font-size: calc(var(--text-size-rem-medium) * 1rem);
+      margin-right: 2.5rem;
+      margin-bottom: 0.75rem;
 
       &::before {
-        content: '\A';
-        white-space: pre;
+        content: counter(item) ' ';
+        counter-increment: item;
+        font-weight: bold;
+        float: left;
+        margin-left: -2.5rem;
+        text-align: right;
       }
-    }
 
-    :--pageEnd::before {
-      content: '-';
+      :--title {
+        display: block;
+        font-size: calc(var(--text-size-rem-default) * 1rem);
+        font-weight: bold;
+      }
+
+      :--authors {
+        display: inline;
+      }
+
+      :--datePublished {
+        display: inline-block;
+
+        &::before {
+          content: ' (';
+        }
+
+        &::after {
+          content: ')';
+        }
+      }
+
+      :--name {
+        font-style: italic;
+
+        &::before {
+          content: '\A';
+          white-space: pre;
+        }
+      }
+
+      :--volumeNumber {
+        font-weight: bold;
+
+        &::after {
+          content: ':';
+        }
+      }
+
+      :--pageEnd::before {
+        content: '-';
+      }
     }
   }
 
