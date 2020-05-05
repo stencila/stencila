@@ -111,11 +111,10 @@
       &:last-child :--address::after {
         content: '';
       }
-    }
 
-    /* TODO: Check if moving inside :--Organization covers all relavent use cases */
-    :--addressCountry::before {
-      content: ' ';
+      :--addressCountry::before {
+        content: ' ';
+      }
     }
   }
 
