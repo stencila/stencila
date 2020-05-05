@@ -1,4 +1,7 @@
 :--root {
+  /* Names are generally based on those in https://github.com/elifesciences/pattern-library/blob/develop/assets/sass/_variables.scss
+     A name may be used for equivalent quantities, e.g. 16px in pattern-library, 1rem here. */
+
   /* Colors */
   --color-primary: #0288d1;
   --color-text: #212121;
