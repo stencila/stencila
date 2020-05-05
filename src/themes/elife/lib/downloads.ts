@@ -1,5 +1,5 @@
 import { after, before, create, first, select } from '../../../util'
-import { getArticlePdfUrl, getFiguresPdfUrl } from './eLifeDataProvider'
+import { getArticlePdfUrl, getFiguresPdfUrl } from './dataProvider'
 
 const deriveUrl = (type: string, id: string, title = ''): string => {
   switch (type) {
