@@ -53,7 +53,7 @@
 }
 
 /* Hide article metadata */
-:--identifiers {
+:--Article :--identifiers {
   display: none;
 }
 
@@ -222,7 +222,7 @@
   }
 }
 
-:--references {
+:--Article :--references {
   font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
 
   ol {
