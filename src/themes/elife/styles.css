@@ -38,12 +38,6 @@
   user-select: none;
 }
 
-/* stylelint-disable xi/selector-pattern */
-main {
-  @extend .wrapper;
-}
-/* stylelint-enable */
-
 :--root {
   @extend .wrapper;
   @extend .content-container;
