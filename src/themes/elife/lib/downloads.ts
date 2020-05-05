@@ -1,7 +1,7 @@
 import { after, before, create, first, select } from '../../../util'
 import { getArticlePdfUrl, getFiguresPdfUrl } from './eLifeDataProvider'
 
-const deriveUrlFor = (type: string, id: string, title = ''): string => {
+const deriveUrl = (type: string, id: string, title = ''): string => {
   switch (type) {
     case 'bibtex':
       return `https://elifesciences.org/articles/${id}.bib`
@@ -60,16 +60,12 @@ const buildMenu = (
         create(
           'li',
           null,
-          create(
-            'a',
-            { href: `${deriveUrlFor('bibtex', articleId)}` },
-            'BibTeX'
-          )
+          create('a', { href: `${deriveUrl('bibtex', articleId)}` }, 'BibTeX')
         ),
         create(
           'li',
           null,
-          create('a', { href: `${deriveUrlFor('ris', articleId)}` }, 'RIS')
+          create('a', { href: `${deriveUrl('ris', articleId)}` }, 'RIS')
         )
       ),
       create('h3', null, 'Open citations'),
@@ -81,7 +77,7 @@ const buildMenu = (
           null,
           create(
             'a',
-            { href: `${deriveUrlFor('mendeley', articleId)}` },
+            { href: `${deriveUrl('mendeley', articleId)}` },
             'Mendeley'
           )
         ),
@@ -90,7 +86,7 @@ const buildMenu = (
           null,
           create(
             'a',
-            { href: `${deriveUrlFor('readcube', articleId)}` },
+            { href: `${deriveUrl('readcube', articleId)}` },
             'ReadCube'
           )
         ),
@@ -99,7 +95,7 @@ const buildMenu = (
           null,
           create(
             'a',
-            { href: `${deriveUrlFor('papers', articleId, articleTitle)}` },
+            { href: `${deriveUrl('papers', articleId, articleTitle)}` },
             'Papers'
           )
         )
