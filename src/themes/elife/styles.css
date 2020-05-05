@@ -228,7 +228,6 @@
   ol {
     counter-reset: item;
     list-style-type: none;
-    margin-left: 1.5rem;
 
     li:--reference {
       display: block;
