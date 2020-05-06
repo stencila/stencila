@@ -28,7 +28,7 @@
   /* Typography */
   --TEXT-SIZE-DEFAULT-REM: calc(1 * 1rem); /* 16px */
   --TEXT-SIZE-SMALL: 0.6875; /* 11px */
-  --TEXT-SIZE-SMALL-REM: calc(var(--TEXT-SIZE-SMALL) * 1rem);
+  --TEXT-SIZE-SMALL-REM: calc(var(--TEXT-SIZE-SMALL) * 1rem); /* 11px */
   --TEXT-SIZE-MEDIUM-REM: calc(0.875 * 1rem); /* 14px */
   --TEXT-SIZE-MAIN-TITLE--NARROWER-VIEWPORTS: 1.8125; /* 29px */
   --TEXT-SIZE-MAIN-TITLE--WIDER-VIEWPORTS: 2.25; /* 36px */
