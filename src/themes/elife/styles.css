@@ -49,7 +49,7 @@
 
   @extend .grid-column;
 
-  --h1-font-size: var(--text-size-h1-rem--narrower--viewports);
+  --main-title-font-size: var(--text-size-main-title-rem--narrower--viewports);
 }
 
 @media only screen and (--medium-viewport) {
@@ -276,7 +276,7 @@
     }
 
     & > :--title {
-      font-size: var(--h1-font-size);
+      font-size: var(--main-title-font-size);
       line-height: calc(36 / 29);
       margin-bottom: var(--baseline-measure-rem);
     }
@@ -317,7 +317,7 @@
 
     /* Target the 'content header' at the top of the article */
     &:not(:--reference) > :--title {
-      --h1-font-size: var(--text-size-h1-rem--wider-viewports);
+      --main-title-font-size: var(--text-size-main-title-rem--wider-viewports);
 
       line-height: calc(48 / 36);
     }
