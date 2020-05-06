@@ -4,8 +4,15 @@ interface Response {
   ok: boolean
   json: Function
 }
+const body = document.body
+
+const resetDom = (): void => {
+  body.innerHTML = ''
+}
 
 describe('data Provider ', () => {
+  afterEach(resetDom)
+
   describe('query', () => {
     describe('successfully querying a valid article id', () => {
       it('does not throw', async () => {
@@ -56,6 +63,14 @@ describe('data Provider ', () => {
           )
         )
       })
+    })
+  })
+
+  describe('getArticleDoi', () => {
+    it('it returns the expected DOI', () => {
+      const mockData = '10.7554/eLife.30274'
+      body.innerHTML = `<div itemprop="identifier"><meta content="https://registry.identifiers.org/registry/doi" /><span itemprop="value">${mockData}</span></div>`
+      expect(dataProvider.getArticleDoi()).toEqual(mockData)
     })
   })
 })
