@@ -81,4 +81,22 @@ describe('data Provider ', () => {
       expect(dataProvider.getArticleId()).toEqual(mockData)
     })
   })
+
+  describe('getArticleTitle', () => {
+    it('it returns the correct text of a title', () => {
+      const mockData =
+        'Replication Study: Transcriptional amplification in tumor cells with elevated c-Myc'
+      body.innerHTML = `<div itemprop="headline">${mockData}</div>`
+      expect(dataProvider.getArticleTitle()).toEqual(mockData)
+    })
+
+    it('omits any elements from the text it returns', () => {
+      const mockDataWithMarkup =
+        'Replication Study: Transcriptional amplification in <sup>tumor cells</sup> with elevated c-Myc'
+      const mockDataWithoutMarkup =
+        'Replication Study: Transcriptional amplification in tumor cells with elevated c-Myc'
+      body.innerHTML = `<div itemprop="headline">${mockDataWithMarkup}</div>`
+      expect(dataProvider.getArticleTitle()).toEqual(mockDataWithoutMarkup)
+    })
+  })
 })
