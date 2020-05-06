@@ -73,4 +73,12 @@ describe('data Provider ', () => {
       expect(dataProvider.getArticleDoi()).toEqual(mockData)
     })
   })
+
+  describe('getArticleId', () => {
+    it('it returns the expected eLife article Id', () => {
+      const mockData = '30274'
+      body.innerHTML = `<div itemprop="identifier"><meta content="https://registry.identifiers.org/registry/publisher-id" /><span itemprop="value">${mockData}</span></div>`
+      expect(dataProvider.getArticleId()).toEqual(mockData)
+    })
+  })
 })
