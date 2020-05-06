@@ -1,6 +1,8 @@
 :--root {
   /* Some names are based on those in https://github.com/elifesciences/pattern-library/blob/develop/assets/sass/_variables.scss
 
+    - All rem sizes assume a base font size of 16px
+
     - A unitless numerical value is an expression of rem, unless otherwise stated, e.g. in:
 
        --text-size-small: 0.6875;
@@ -19,7 +21,7 @@
   --color-text-secondary: #888;
   --color-text-ui-background: #fff;
 
-  /* Typography. All rem sizes assume a base font size of 16px */
+  /* Typography */
   --text-size-default-rem: calc(1 * 1rem); /* 16px */
   --text-size-small: 0.6875; /* 11px */
   --text-size-small-rem: calc(var(--text-size-small) * 1rem);
