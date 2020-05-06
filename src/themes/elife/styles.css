@@ -56,6 +56,8 @@
   :--root {
     padding-left: 3%;
     padding-right: 3%;
+
+    --main-title-font-size: var(--text-size-main-title-rem--wider-viewports);
   }
 }
 
@@ -317,8 +319,6 @@
 
     /* Target the 'content header' at the top of the article */
     &:not(:--reference) > :--title {
-      --main-title-font-size: var(--text-size-main-title-rem--wider-viewports);
-
       line-height: calc(48 / 36);
     }
   }
