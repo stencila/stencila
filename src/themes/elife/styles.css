@@ -49,7 +49,12 @@
 
   @extend .grid-column;
 
-  --main-title-font-size: var(--text-size-main-title-rem--narrower-viewports);
+  --main-title-font-size: var(--text-size-main-title--narrower-viewports);
+  --main-title-block-height: var(--block-height-main-title--narrower-viewports);
+  --download-icon-block-size: var(
+    --block-size-download-icon-px--narrower-viewports
+  );
+  --download-icon-image-path: var(--url-download-icon--narrower-viewports);
 }
 
 @media only screen and (--medium-viewport) {
@@ -57,7 +62,12 @@
     padding-left: 3%;
     padding-right: 3%;
 
-    --main-title-font-size: var(--text-size-main-title-rem--wider-viewports);
+    --main-title-font-size: var(--text-size-main-title--wider-viewports);
+    --main-title-block-height: var(--block-height-main-title--wider-viewports);
+    --download-icon-block-size: var(
+      --block-size-download-icon-px--wider-viewports
+    );
+    --download-icon-image-path: var(--url-download-icon--wider-viewports);
   }
 }
 
@@ -200,10 +210,9 @@
     margin-bottom: calc(var(--baseline-measure-rem) / 2);
 
     & > .download-link {
-      flex: 0 0 20px;
-      height: 20px;
-      background: url('https://elifesciences.org/assets/patterns/img/icons/download.ecfa2d98.svg')
-        transparent no-repeat;
+      flex: 0 0 var(--download-icon-block-size);
+      height: var(--download-icon-block-size);
+      background: var(--download-icon-image-path) transparent no-repeat;
 
       & > .download-link-text {
         @mixin visuallyhidden;
@@ -278,8 +287,10 @@
     }
 
     & > :--title {
-      font-size: var(--main-title-font-size);
-      line-height: calc(36 / 29);
+      font-size: calc(var(--main-title-font-size) * 1rem);
+      line-height: calc(
+        var(--main-title-block-height) / var(--main-title-font-size)
+      );
       margin-bottom: var(--baseline-measure-rem);
     }
 
@@ -305,21 +316,6 @@
     }
     & :--affiliations {
       @mixin visuallyhidden;
-    }
-  }
-}
-
-@media screen and (--medium-viewport) {
-  :--Article {
-    & .download-link-wrapper .download-link {
-      flex-basis: 44px;
-      height: 44px;
-      background-image: url('https://elifesciences.org/assets/patterns/img/icons/download-full.6691999e.svg');
-    }
-
-    /* Target the 'content header' at the top of the article */
-    &:not(:--reference) > :--title {
-      line-height: calc(48 / 36);
     }
   }
 }

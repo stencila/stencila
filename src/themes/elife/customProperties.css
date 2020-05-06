@@ -26,16 +26,21 @@
   --text-size-small: 0.6875; /* 11px */
   --text-size-small-rem: calc(var(--text-size-small) * 1rem);
   --text-size-medium-rem: calc(0.875 * 1rem); /* 14px */
-  --text-size-main-title-rem--narrower-viewports: calc(
-    1.8125 * 1rem
-  ); /* 29px */
-
-  --text-size-main-title-rem--wider-viewports: calc(2.25 * 1rem); /* 36px */
+  --text-size-main-title--narrower-viewports: 1.8125; /* 29px */
+  --text-size-main-title--wider-viewports: 2.25; /* 36px */
   --letter-spacing: 0.5px;
 
   /* Spacing */
+  --block-height-main-title--narrower-viewports: 2.25; /* 36px */
+  --block-height-main-title--wider-viewports: 3; /* 48px */
+  --block-size-download-icon-px--narrower-viewports: 20px;
+  --block-size-download-icon-px--wider-viewports: 44px;
   --baseline-measure: 1.5;
   --baseline-measure-rem: calc(var(--baseline-measure) * 1rem);
+
+  /* Images */
+  --url-download-icon--narrower-viewports: url('https://elifesciences.org/assets/patterns/img/icons/download.ecfa2d98.svg');
+  --url-download-icon--wider-viewports: url('https://elifesciences.org/assets/patterns/img/icons/download-full.6691999e.svg');
 }
 
 /* PostCSS Custom Media Queries */
