@@ -9,7 +9,7 @@ ready((): void => {
   dateFormatter.format(first(':--datePublished'))
 
   const articleTitle = dataProvider.getArticleTitle()
-  downloads.build(dataProvider.getArticleId(), articleTitle)
+  downloads.build(articleTitle, dataProvider.getArticleId())
 
   try {
     socialSharers.build(articleTitle, dataProvider.getArticleDoi())

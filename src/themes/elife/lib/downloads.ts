@@ -129,7 +129,7 @@ const buildLinkToMenu = (menuId: string): Promise<unknown> => {
   return Promise.resolve()
 }
 
-export const build = (articleId: string, articleTitle: string): void => {
+export const build = (articleTitle: string, articleId: string): void => {
   const menuId = 'downloadMenu'
   try {
     getArticlePdfUrl(articleId)
