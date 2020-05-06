@@ -8,19 +8,14 @@ import * as references from './lib/references'
 ready((): void => {
   dateFormatter.format(first(':--datePublished'))
 
-  downloads.build(
-    dataProvider.getArticleId(),
-    first(':--title')?.getAttribute('content') ?? ''
-  )
-
-  references.transform(select(':--reference'))
+  const articleTitle = dataProvider.getArticleTitle()
+  downloads.build(dataProvider.getArticleId(), articleTitle)
 
   try {
-    socialSharers.build(
-      dataProvider.getArticleTitle(),
-      dataProvider.getArticleDoi()
-    )
+    socialSharers.build(articleTitle, dataProvider.getArticleDoi())
   } catch (e) {
     console.error(e)
   }
+
+  references.transform(select(':--reference'))
 })
