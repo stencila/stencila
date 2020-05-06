@@ -30,10 +30,7 @@
     1.8125 * 1rem
   ); /* 29px */
 
-  --text-size-main-title-rem--wider-viewports: calc(
-    2.25 * 1rem
-  ); /* 36px assuming base font size of 16px */
-
+  --text-size-main-title-rem--wider-viewports: calc(2.25 * 1rem); /* 36px */
   --letter-spacing: 0.5px;
 
   /* Spacing */
