@@ -1,0 +1,51 @@
+:--root {
+  /*
+
+    All custom properties defined here should be considered STATIC and not modifiable by code
+
+    A unitless numerical value is an expression of rem, unless otherwise stated, e.g. in:
+
+       --TEXT-SIZE-SMALL: 0.6875;
+
+      0.6875 is a measure of rem
+
+    A name containing a unit has that unit as part of its value, e.g.:
+
+       --TEXT-SIZE-SMALL-REM: calc(var(--TEXT-SIZE-SMALL) * 1rem);
+
+    All rem sizes assume a base font size of 16px
+
+    Color names from https://github.com/elifesciences/pattern-library/blob/develop/assets/sass/_variables.scss
+
+     */
+
+  /* Colors */
+  --COLOR-PRIMARY: #0288d1;
+  --COLOR-TEXT: #212121;
+  --COLOR-TEXT-SECONDARY: #888;
+  --COLOR-TEXT-UI-BACKGROUND: #fff;
+
+  /* Typography */
+  --TEXT-SIZE-DEFAULT-REM: calc(1 * 1rem); /* 16px */
+  --TEXT-SIZE-SMALL: 0.6875; /* 11px */
+  --TEXT-SIZE-SMALL-REM: calc(var(--TEXT-SIZE-SMALL) * 1rem); /* 11px */
+  --TEXT-SIZE-MEDIUM-REM: calc(0.875 * 1rem); /* 14px */
+  --TEXT-SIZE-MAIN-TITLE--NARROWER-VIEWPORTS: 1.8125; /* 29px */
+  --TEXT-SIZE-MAIN-TITLE--WIDER-VIEWPORTS: 2.25; /* 36px */
+  --LETTER-SPACING: 0.5px;
+
+  /* Spacing */
+  --BLOCK-HEIGHT-MAIN-TITLE--NARROWER-VIEWPORTS: 2.25; /* 36px */
+  --BLOCK-HEIGHT-MAIN-TITLE--WIDER-VIEWPORTS: 3; /* 48px */
+  --BLOCK-SIZE-DOWNLOAD-ICON-PX--NARROWER-VIEWPORTS: 20px;
+  --BLOCK-SIZE-DOWNLOAD-ICON-PX--WIDER-VIEWPORTS: 44px;
+  --BASELINE-MEASURE: 1.5;
+  --BASELINE-MEASURE-REM: calc(var(--BASELINE-MEASURE) * 1rem);
+
+  /* TODO: update following paths when the eLife pattern library's compiled assets are available via an npm module */
+
+  /* URLs */
+  --URL-DOWNLOAD-ICON--NARROWER-VIEWPORTS: url('https://elifesciences.org/assets/patterns/img/icons/download.ecfa2d98.svg');
+  --URL-DOWNLOAD-ICON--WIDER-VIEWPORTS: url('https://elifesciences.org/assets/patterns/img/icons/download-full.6691999e.svg');
+  --URL-EMAIL-ICON: url('https://elifesciences.org/assets/patterns/img/icons/corresponding-author@1x.89247d49.png');
+}

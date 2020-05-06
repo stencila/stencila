@@ -134,7 +134,7 @@
 
     &:hover,
     &:active {
-      color: var(--color-primary);
+      color: var(--COLOR-PRIMARY);
     }
   }
 

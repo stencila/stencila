@@ -1,27 +1,7 @@
-import { after, before, create, first, select } from '../../util'
-import eLifeDataProvider from './eLifeDataProvider'
+import { after, before, create, first, select } from '../../../util'
+import { getArticlePdfUrl, getFiguresPdfUrl } from './dataProvider'
 
-const getPdfUrl = async (id: string, pdfType: string): Promise<string> => {
-  const allowedPdfTypes = ['article', 'figures']
-  if (!allowedPdfTypes.includes(pdfType)) {
-    return ''
-  }
-  const response = await eLifeDataProvider.query(id, window.fetch)
-  if (pdfType === 'figures') {
-    return Promise.resolve(response.articleData.figuresPdf)
-  }
-  return Promise.resolve(response.articleData.pdf)
-}
-
-const getArticlePdfUrl = async (id: string): Promise<string> => {
-  return getPdfUrl(id, 'article')
-}
-
-const getFiguresPdfUrl = async (id: string): Promise<string> => {
-  return getPdfUrl(id, 'figures')
-}
-
-const getUrl = (type: string, id: string, title = ''): string => {
+const deriveUrl = (type: string, id: string, title = ''): string => {
   switch (type) {
     case 'bibtex':
       return `https://elifesciences.org/articles/${id}.bib`
@@ -39,7 +19,7 @@ const getUrl = (type: string, id: string, title = ''): string => {
   return ''
 }
 
-const addFiguresPdfUrl = (url: string): void => {
+const buildLinkToFiguresPdf = (url: string): void => {
   after(
     select('[data-is-download-pdf-link]')[0],
     create('li', null, create('a', { href: url }, 'Figures PDF'))
@@ -80,12 +60,12 @@ const buildMenu = (
         create(
           'li',
           null,
-          create('a', { href: `${getUrl('bibtex', articleId)}` }, 'BibTeX')
+          create('a', { href: `${deriveUrl('bibtex', articleId)}` }, 'BibTeX')
         ),
         create(
           'li',
           null,
-          create('a', { href: `${getUrl('ris', articleId)}` }, 'RIS')
+          create('a', { href: `${deriveUrl('ris', articleId)}` }, 'RIS')
         )
       ),
       create('h3', null, 'Open citations'),
@@ -95,19 +75,27 @@ const buildMenu = (
         create(
           'li',
           null,
-          create('a', { href: `${getUrl('mendeley', articleId)}` }, 'Mendeley')
-        ),
-        create(
-          'li',
-          null,
-          create('a', { href: `${getUrl('readcube', articleId)}` }, 'ReadCube')
+          create(
+            'a',
+            { href: `${deriveUrl('mendeley', articleId)}` },
+            'Mendeley'
+          )
         ),
         create(
           'li',
           null,
           create(
             'a',
-            { href: `${getUrl('papers', articleId, articleTitle)}` },
+            { href: `${deriveUrl('readcube', articleId)}` },
+            'ReadCube'
+          )
+        ),
+        create(
+          'li',
+          null,
+          create(
+            'a',
+            { href: `${deriveUrl('papers', articleId, articleTitle)}` },
             'Papers'
           )
         )
@@ -141,13 +129,13 @@ const buildLinkToMenu = (menuId: string): Promise<unknown> => {
   return Promise.resolve()
 }
 
-export const build = (articleId: string, articleTitle: string): void => {
+export const build = (articleTitle: string, articleId: string): void => {
   const menuId = 'downloadMenu'
   try {
     getArticlePdfUrl(articleId)
       .then((pdfUri) => buildMenu(articleId, articleTitle, pdfUri, menuId))
       .then(() => getFiguresPdfUrl(articleId))
-      .then((figuresPdfUrl: string) => addFiguresPdfUrl(figuresPdfUrl))
+      .then((figuresPdfUrl: string) => buildLinkToFiguresPdf(figuresPdfUrl))
       .then(() => buildLinkToMenu(menuId))
       .catch((err: Error) => {
         throw err

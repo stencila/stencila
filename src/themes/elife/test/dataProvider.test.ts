@@ -1,11 +1,11 @@
-import dataProvider from '../eLifeDataProvider'
+import * as dataProvider from '../lib/dataProvider'
 
 interface Response {
   ok: boolean
   json: Function
 }
 
-describe('eLife Data Provider ', () => {
+describe('data Provider ', () => {
   describe('successfully querying a valid article id', () => {
     it('does not throw', async () => {
       const fetchMock = (): Promise<Response> =>

@@ -61,7 +61,7 @@
   --color-key: #363636;
 
   /* Primary: Used for primary tone of the theme, for buttons, links, and other elements */
-  --color-primary: #069;
+  --COLOR-PRIMARY: #069;
   --color-primary-light: #ebf6ff;
 
   /* Accent: Used sparingly for design flourishes */
@@ -162,7 +162,7 @@ h5:--Heading {
 
   a:link,
   a:visited {
-    color: var(--color-primary);
+    color: var(--COLOR-PRIMARY);
   }
 }
 
@@ -171,7 +171,7 @@ h5:--Heading {
   &:visited {
     position: relative;
     text-decoration: none;
-    color: var(--color-primary);
+    color: var(--COLOR-PRIMARY);
     font-style: italic;
   }
 
@@ -384,7 +384,7 @@ h5:--Heading {
   margin-top: var(--space-md);
 
   :--author {
-    color: var(--color-primary);
+    color: var(--COLOR-PRIMARY);
     display: inline;
     font-family: var(--font-family-secondary);
     font-weight: bold;
@@ -412,7 +412,7 @@ h5:--Heading {
   font-family: var(--font-family-secondary);
 
   :--Organization {
-    color: var(--color-primary);
+    color: var(--COLOR-PRIMARY);
     font-weight: bold;
   }
 
