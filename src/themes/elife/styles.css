@@ -16,7 +16,7 @@
 @import '../../extensions/person/styles.css';
 @import '../../extensions/math/styles.css';
 
-@import 'customProperties.css';
+@import 'staticCustomProperties.css';
 
 /* @extend-ing eLife's CSS may not take into account the cascade of styles
  * applied to an element upstream of the extended style. Add @mixins here for such styles
@@ -38,6 +38,9 @@
   user-select: none;
 }
 
+@custom-media --medium-viewport (min-width: 45.625em);
+@custom-media --medium-viewport-max (max-width: 45.625em);
+
 :--root {
   @extend .wrapper;
   @extend .content-container;
@@ -49,12 +52,12 @@
 
   @extend .grid-column;
 
-  --main-title-font-size: var(--text-size-main-title--narrower-viewports);
-  --main-title-block-height: var(--block-height-main-title--narrower-viewports);
+  --main-title-font-size: var(--TEXT-SIZE-MAIN-TITLE--NARROWER-VIEWPORTS);
+  --main-title-block-height: var(--BLOCK-HEIGHT-MAIN-TITLE--NARROWER-VIEWPORTS);
   --download-icon-block-size: var(
-    --block-size-download-icon-px--narrower-viewports
+    --BLOCK-SIZE-DOWNLOAD-ICON-PX--NARROWER-VIEWPORTS
   );
-  --download-icon-image-path: var(--url-download-icon--narrower-viewports);
+  --download-icon-image-path: var(--URL-DOWNLOAD-ICON--NARROWER-VIEWPORTS);
 }
 
 @media only screen and (--medium-viewport) {
@@ -62,12 +65,12 @@
     padding-left: 3%;
     padding-right: 3%;
 
-    --main-title-font-size: var(--text-size-main-title--wider-viewports);
-    --main-title-block-height: var(--block-height-main-title--wider-viewports);
+    --main-title-font-size: var(--TEXT-SIZE-MAIN-TITLE--WIDER-VIEWPORTS);
+    --main-title-block-height: var(--BLOCK-HEIGHT-MAIN-TITLE--WIDER-VIEWPORTS);
     --download-icon-block-size: var(
-      --block-size-download-icon-px--wider-viewports
+      --BLOCK-SIZE-DOWNLOAD-ICON-PX--WIDER-VIEWPORTS
     );
-    --download-icon-image-path: var(--url-download-icon--wider-viewports);
+    --download-icon-image-path: var(--URL-DOWNLOAD-ICON--WIDER-VIEWPORTS);
   }
 }
 
@@ -78,7 +81,7 @@
     :--Person {
       @extend .content-header__author_list_item;
 
-      font-size: var(--text-size-medium-rem);
+      font-size: var(--TEXT-SIZE-MEDIUM-REM);
 
       :--familyName::after {
         content: ', ';
@@ -106,7 +109,7 @@
     @mixin inline-list;
     @extend .content-header__institution_list;
 
-    margin-bottom: var(--baseline-measure-rem);
+    margin-bottom: var(--BASELINE-MEASURE-REM);
 
     :--Organization {
       display: inline;
@@ -146,7 +149,7 @@
     :--reference {
       display: block;
       font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
-      font-size: var(--text-size-medium-rem);
+      font-size: var(--TEXT-SIZE-MEDIUM-REM);
       margin-right: 2.5rem;
       margin-bottom: 0.75rem;
 
@@ -161,7 +164,7 @@
 
       :--title {
         display: block;
-        font-size: var(--text-size-default-rem);
+        font-size: var(--TEXT-SIZE-DEFAULT-REM);
         font-weight: bold;
       }
 
@@ -207,7 +210,7 @@
   & .download-link-wrapper {
     display: flex;
     flex-direction: row-reverse;
-    margin-bottom: calc(var(--baseline-measure-rem) / 2);
+    margin-bottom: calc(var(--BASELINE-MEASURE-REM) / 2);
 
     & > .download-link {
       flex: 0 0 var(--download-icon-block-size);
@@ -221,25 +224,25 @@
   }
 
   & .downloads {
-    --link-color: var(--color-text);
+    --link-color: var(--COLOR-TEXT);
 
     ul {
       margin-top: 0;
-      margin-bottom: var(--baseline-measure-rem);
+      margin-bottom: var(--BASELINE-MEASURE-REM);
 
       li {
-        font-size: var(--text-size-default-rem);
+        font-size: var(--TEXT-SIZE-DEFAULT-REM);
 
         a {
-          background-color: var(--color-text-ui-background);
+          background-color: var(--COLOR-TEXT-UI-BACKGROUND);
           color: var(--link-color);
-          border-bottom: 1px dotted var(--color-text);
+          border-bottom: 1px dotted var(--COLOR-TEXT);
           text-decoration: none;
 
           &:hover {
-            --link-color: var(--color-primary);
+            --link-color: var(--COLOR-PRIMARY);
 
-            border-bottom-color: var(--color-primary);
+            border-bottom-color: var(--COLOR-PRIMARY);
           }
         }
       }
@@ -251,7 +254,7 @@
     text-align: center;
 
     /* Added 4px because height of social sharer link is 20px instead of 24px; */
-    margin-bottom: calc(var(--baseline-measure-rem) + 4px);
+    margin-bottom: calc(var(--BASELINE-MEASURE-REM) + 4px);
 
     & .social-sharer-link {
       display: inline-block;
@@ -262,12 +265,12 @@
       text-align: center;
       border-radius: 3px;
       background-color: rgb(33, 33, 33);
-      fill: var(--color-text-ui-background);
+      fill: var(--COLOR-TEXT-UI-BACKGROUND);
       stroke: none; /* stylelint-disable-line scale-unlimited/declaration-strict-value */
       transition: 25ms ease-in-out;
 
       &:hover {
-        background-color: var(--color-primary);
+        background-color: var(--COLOR-PRIMARY);
       }
 
       & > svg {
@@ -291,16 +294,16 @@
       line-height: calc(
         var(--main-title-block-height) / var(--main-title-font-size)
       );
-      margin-bottom: var(--baseline-measure-rem);
+      margin-bottom: var(--BASELINE-MEASURE-REM);
     }
 
     & > :--datePublished {
-      color: var(--color-text-secondary);
+      color: var(--COLOR-TEXT-SECONDARY);
       display: block;
       font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
-      font-size: var(--text-size-small-rem);
-      letter-spacing: var(--letter-spacing);
-      line-height: calc(var(--baseline-measure) / var(--text-size-small));
+      font-size: var(--TEXT-SIZE-SMALL-REM);
+      letter-spacing: var(--LETTER-SPACING);
+      line-height: calc(var(--BASELINE-MEASURE) / var(--TEXT-SIZE-SMALL));
       text-align: center;
       text-transform: capitalize;
     }
@@ -312,7 +315,7 @@
   /* Target the 'content header' at the top of the article */
   :--Article:not(:--reference) {
     & > :--authors {
-      margin-bottom: var(--baseline-measure-rem);
+      margin-bottom: var(--BASELINE-MEASURE-REM);
     }
     & :--affiliations {
       @mixin visuallyhidden;
