@@ -47,4 +47,13 @@ describe('Formatting a reference', () => {
       )
     ).toBe(true)
   })
+  it('the publication year follows the authors', () => {
+    referenceFormatter.format(references)
+
+    expect(
+      getElement(firstReference, ':--datePublished').isSameNode(
+        firstReference.children[2]
+      )
+    ).toBe(true)
+  })
 })
