@@ -10,6 +10,16 @@ const getFirst = (references: Element[]): Element => {
   return firstReference
 }
 
+const getElement = (searchRoot: Element, customSelector: string): Element => {
+  const element = searchRoot.querySelector(translate(customSelector))
+  if (element === null) {
+    throw new Error(
+      `No elements found matching the semantic selector ${customSelector}`
+    )
+  }
+  return element
+}
+
 describe('Formatting a reference', () => {
   let references: Element[]
   let firstReference: Element
@@ -20,19 +30,20 @@ describe('Formatting a reference', () => {
   })
 
   it('the title is the first element', () => {
-    const getTitleElement = (reference: Element): Element => {
-      const title = reference.querySelector(translate(':--title'))
-      if (title === null) {
-        throw new Error('No title element found')
-      }
-      return title
-    }
+    referenceFormatter.format(references)
+    expect(
+      getElement(firstReference, ':--title').isSameNode(
+        firstReference.firstElementChild
+      )
+    ).toBe(true)
+  })
 
-    referenceFormatter.format(Array.from(references))
+  it('the authors follow the title', () => {
+    referenceFormatter.format(references)
 
     expect(
-      getTitleElement(firstReference).isSameNode(
-        firstReference.firstElementChild
+      getElement(firstReference, ':--authors').isSameNode(
+        firstReference.children[1]
       )
     ).toBe(true)
   })
