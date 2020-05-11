@@ -20,7 +20,7 @@ describe('social sharing links', () => {
 
   afterEach(resetDom)
 
-  it('has 4 social sharing links', () => {
+  it('has 4 links', () => {
     expect(sharers?.querySelectorAll('a').length ?? 0).toBe(4)
   })
 
