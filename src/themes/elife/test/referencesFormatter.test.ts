@@ -1,4 +1,4 @@
-import * as referenceFormatter from '../lib/referenceFormatter'
+import * as referencesFormatter from '../lib/referencesFormatter'
 import { getFixtureData } from './fixtures/referencesData.fixture'
 import { select, translate } from '../../../util'
 
@@ -30,7 +30,7 @@ describe('Formatting a reference', () => {
   })
 
   it('the title is the first element', () => {
-    referenceFormatter.format(references)
+    referencesFormatter.format(references)
     expect(
       getElement(firstReference, ':--title').isSameNode(
         firstReference.firstElementChild
@@ -39,7 +39,7 @@ describe('Formatting a reference', () => {
   })
 
   it('the authors follow the title', () => {
-    referenceFormatter.format(references)
+    referencesFormatter.format(references)
 
     expect(
       getElement(firstReference, ':--authors').isSameNode(
@@ -48,7 +48,7 @@ describe('Formatting a reference', () => {
     ).toBe(true)
   })
   it('the publication year follows the authors', () => {
-    referenceFormatter.format(references)
+    referencesFormatter.format(references)
 
     expect(
       getElement(firstReference, ':--datePublished').isSameNode(

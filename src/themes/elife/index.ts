@@ -3,7 +3,7 @@ import * as dateFormatter from './lib/dateFormatter'
 import * as dataProvider from './lib/dataProvider'
 import * as downloads from './lib/downloads'
 import * as socialSharers from './lib/socialSharers'
-import * as referenceFormatter from './lib/referenceFormatter'
+import * as referenceFormatter from './lib/referencesFormatter'
 
 ready((): void => {
   const articleTitle = dataProvider.getArticleTitle()
