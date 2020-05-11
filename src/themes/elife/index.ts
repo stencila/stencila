@@ -3,7 +3,7 @@ import * as dateFormatter from './lib/dateFormatter'
 import * as dataProvider from './lib/dataProvider'
 import * as downloads from './lib/downloads'
 import * as socialSharers from './lib/socialSharers'
-import * as references from './lib/references'
+import * as referenceFormatter from './lib/referenceFormatter'
 
 ready((): void => {
   const articleTitle = dataProvider.getArticleTitle()
@@ -16,5 +16,5 @@ ready((): void => {
     console.error(e)
   }
 
-  references.transform(select(':--reference'))
+  referenceFormatter.format(select(':--reference'))
 })

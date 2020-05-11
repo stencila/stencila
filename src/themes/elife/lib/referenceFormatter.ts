@@ -1,6 +1,6 @@
 import { prepend, append, first } from '../../../util'
 
-const moveTitles = (references: Element[]): Element[] => {
+export const moveTitles = (references: Element[]): Element[] => {
   references.forEach((reference: Element): void => {
     const headline = first(reference, ':--title')
     if (headline !== null) {
@@ -49,7 +49,7 @@ const movePagesEnd = (references: Element[]): void => {
   })
 }
 
-export const transform = (references: Element[]): void => {
+export const format = (references: Element[]): void => {
   movePagesEnd(
     movePagesStart(
       movePeriodicalNames(moveVolumeNumbers(moveTitles(references)))
