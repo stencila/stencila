@@ -1,6 +1,6 @@
 import { prepend, append, first } from '../../../util'
 
-export const moveTitles = (references: Element[]): Element[] => {
+const moveTitles = (references: Element[]): Element[] => {
   references.forEach((reference: Element): void => {
     const headline = first(reference, ':--title')
     if (headline !== null) {

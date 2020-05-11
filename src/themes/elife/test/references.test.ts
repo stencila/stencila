@@ -28,7 +28,7 @@ describe('Formatting a reference', () => {
       return title
     }
 
-    referenceFormatter.moveTitles(Array.from(references))
+    referenceFormatter.format(Array.from(references))
 
     expect(
       getTitleElement(firstReference).isSameNode(
