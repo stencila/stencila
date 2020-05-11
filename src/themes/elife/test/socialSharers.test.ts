@@ -43,7 +43,7 @@ describe('social sharing links', () => {
         'https://facebook.com/sharer/sharer.php?u=https://doi.org/10.7554/eLife.30274'
       expect(
         link?.getAttribute('href') ?? 'no appropriate anchor found with href'
-      ).toEqual(expectedUrl)
+      ).toBe(expectedUrl)
     })
 
     it('has the aria-label "Share on Facebook"', () => {
@@ -63,9 +63,9 @@ describe('social sharing links', () => {
     it('passes the title and DOI to Twitter', () => {
       const expectedUrl =
         'https://twitter.com/intent/tweet/?text=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;url=https://doi.org/10.7554/eLife.30274'
-      expect(
-        link?.getAttribute('href') ?? 'no appropriate anchor found'
-      ).toEqual(expectedUrl)
+      expect(link?.getAttribute('href') ?? 'no appropriate anchor found').toBe(
+        expectedUrl
+      )
     })
     it('has the aria-label "Tweet a link to this page"', () => {
       expect(
@@ -85,9 +85,9 @@ describe('social sharing links', () => {
     it('passes the title and DOI to Reddit', () => {
       const expectedUrl =
         'https://reddit.com/submit/?title=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;url=https://doi.org/10.7554/eLife.30274'
-      expect(
-        link?.getAttribute('href') ?? 'no appropriate anchor found'
-      ).toEqual(expectedUrl)
+      expect(link?.getAttribute('href') ?? 'no appropriate anchor found').toBe(
+        expectedUrl
+      )
     })
 
     it('has the aria-label "Share this page on Reddit"', () => {
@@ -108,9 +108,9 @@ describe('social sharing links', () => {
     it('is a mailto, with the title as the subject and the DOI as the body', () => {
       const expectedUrl =
         'mailto:?subject=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;body=https://doi.org/10.7554/eLife.30274'
-      expect(
-        link?.getAttribute('href') ?? 'no appropriate anchor found'
-      ).toEqual(expectedUrl)
+      expect(link?.getAttribute('href') ?? 'no appropriate anchor found').toBe(
+        expectedUrl
+      )
     })
 
     it('has the aria-label "Email a link to this page (opens up email program, if configured on this system)"', () => {
