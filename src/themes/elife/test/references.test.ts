@@ -19,7 +19,7 @@ describe('Formatting a reference', () => {
     firstReference = getFirst(references)
   })
 
-  it('the title is moved to be the first element', () => {
+  it('the title is the first element', () => {
     const getTitleElement = (reference: Element): Element => {
       const title = reference.querySelector(translate(':--title'))
       if (title === null) {
