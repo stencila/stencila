@@ -31,39 +31,95 @@ describe('social sharing links', () => {
     })
   })
 
-  it('has a link that passes the DOI to Facebook', () => {
-    const sharer = sharers?.querySelector('a[href^="https://facebook.com/"]')
-    const expectedUrl =
-      'https://facebook.com/sharer/sharer.php?u=https://doi.org/10.7554/eLife.30274'
-    expect(
-      sharer?.getAttribute('href') ?? 'no appropriate anchor found'
-    ).toEqual(expectedUrl)
+  describe('Facebook link', () => {
+    let link: HTMLAnchorElement | null | undefined
+
+    beforeEach(() => {
+      link = sharers?.querySelector('a[href^="https://facebook.com/"]')
+    })
+
+    it('passes the DOI to Facebook', () => {
+      const expectedUrl =
+        'https://facebook.com/sharer/sharer.php?u=https://doi.org/10.7554/eLife.30274'
+      expect(
+        link?.getAttribute('href') ?? 'no appropriate anchor found with href'
+      ).toEqual(expectedUrl)
+    })
+
+    it('has the aria-label "Share on Facebook"', () => {
+      expect(
+        link?.getAttribute('aria-label') ??
+          'no appropriate anchor found with aria-label'
+      ).toBe('Share on Facebook')
+    })
+  })
+  describe('Twitter link', () => {
+    let link: HTMLAnchorElement | null | undefined
+
+    beforeEach(() => {
+      link = sharers?.querySelector('a[href^="https://twitter.com/"]')
+    })
+
+    it('passes the title and DOI to Twitter', () => {
+      const expectedUrl =
+        'https://twitter.com/intent/tweet/?text=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;url=https://doi.org/10.7554/eLife.30274'
+      expect(
+        link?.getAttribute('href') ?? 'no appropriate anchor found'
+      ).toEqual(expectedUrl)
+    })
+    it('has the aria-label "Tweet a link to this page"', () => {
+      expect(
+        link?.getAttribute('aria-label') ??
+          'no appropriate anchor found with aria-label'
+      ).toBe('Tweet a link to this page')
+    })
   })
 
-  it('has a link that passes the title and DOI to Twitter', () => {
-    const sharer = sharers?.querySelector('a[href^="https://twitter.com/"]')
-    const expectedUrl =
-      'https://twitter.com/intent/tweet/?text=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;url=https://doi.org/10.7554/eLife.30274'
-    expect(
-      sharer?.getAttribute('href') ?? 'no appropriate anchor found'
-    ).toEqual(expectedUrl)
+  describe('Reddit link', () => {
+    let link: HTMLAnchorElement | null | undefined
+
+    beforeEach(() => {
+      link = sharers?.querySelector('a[href^="https://reddit.com"]')
+    })
+
+    it('passes the title and DOI to Reddit', () => {
+      const expectedUrl =
+        'https://reddit.com/submit/?title=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;url=https://doi.org/10.7554/eLife.30274'
+      expect(
+        link?.getAttribute('href') ?? 'no appropriate anchor found'
+      ).toEqual(expectedUrl)
+    })
+
+    it('has the aria-label "Share this page on Reddit"', () => {
+      expect(
+        link?.getAttribute('aria-label') ??
+          'no appropriate anchor found with aria-label'
+      ).toBe('Share this page on Reddit')
+    })
   })
 
-  it('has a link that passes the title and DOI to Reddit', () => {
-    const sharer = sharers?.querySelector('a[href^="https://reddit.com"]')
-    const expectedUrl =
-      'https://reddit.com/submit/?title=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;url=https://doi.org/10.7554/eLife.30274'
-    expect(
-      sharer?.getAttribute('href') ?? 'no appropriate anchor found'
-    ).toEqual(expectedUrl)
-  })
+  describe('email link', () => {
+    let link: HTMLAnchorElement | null | undefined
 
-  it('has a link to open email with the title as the subject and the DOI as the body', () => {
-    const sharer = sharers?.querySelector('a[href^="mailto:"]')
-    const expectedUrl =
-      'mailto:?subject=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;body=https://doi.org/10.7554/eLife.30274'
-    expect(
-      sharer?.getAttribute('href') ?? 'no appropriate anchor found'
-    ).toEqual(expectedUrl)
+    beforeEach(() => {
+      link = sharers?.querySelector('a[href^="mailto:"]')
+    })
+
+    it('is a mailto, with the title as the subject and the DOI as the body', () => {
+      const expectedUrl =
+        'mailto:?subject=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;body=https://doi.org/10.7554/eLife.30274'
+      expect(
+        link?.getAttribute('href') ?? 'no appropriate anchor found'
+      ).toEqual(expectedUrl)
+    })
+
+    it('has the aria-label "Email a link to this page (opens up email program, if configured on this system)"', () => {
+      expect(
+        link?.getAttribute('aria-label') ??
+          'no appropriate anchor found with aria-label'
+      ).toBe(
+        'Email a link to this page (opens up email program, if configured on this system)'
+      )
+    })
   })
 })
