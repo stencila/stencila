@@ -11,14 +11,13 @@ const moveTitles = (references: Element[]): Element[] => {
 }
 
 const moveVolumeNames = (references: Element[]): Element[] => {
-  references.forEach((reference: Element, i: number): void => {
+  references.forEach((reference: Element): void => {
     const volume = first(reference, ':--PublicationVolume:--isPartOf')
-    if (volume === null) {
-      throw new Error(`No volume found for reference ${i}`)
-    }
-    const volumeName = first(volume, ':--Periodical:--isPartOf')
-    if (volumeName !== null) {
-      prepend(volume, volumeName)
+    if (volume !== null) {
+      const volumeName = first(volume, ':--isPartOf')
+      if (volumeName !== null) {
+        prepend(volume, volumeName)
+      }
     }
   })
   return references
