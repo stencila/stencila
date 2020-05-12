@@ -1,3 +1,18 @@
+## [2.7.2](https://github.com/stencila/thema/compare/v2.7.1...v2.7.2) (2020-05-07)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @simonwep/pickr to ^1.6.0 ([2abd9bb](https://github.com/stencila/thema/commit/2abd9bb2a5f4982662a54c146baa5dc23c910046))
+
+## [2.7.1](https://github.com/stencila/thema/compare/v2.7.0...v2.7.1) (2020-05-06)
+
+
+### Bug Fixes
+
+* **Elife:** Consistent title retrieval ([5966ea5](https://github.com/stencila/thema/commit/5966ea5d09cd3da3e7ea6b99a00f9ef2d09aa49d))
+* **Elife:** Remove wrong margin ([96e3ac7](https://github.com/stencila/thema/commit/96e3ac7f7a05c8b5e6e77c322cc8b5af5833f0a8))
+
 # [2.7.0](https://github.com/stencila/thema/compare/v2.6.1...v2.7.0) (2020-05-01)
 
 
