@@ -56,4 +56,14 @@ describe('Formatting a reference', () => {
       )
     ).toBe(true)
   })
+
+  it('the publication name follows the publication year', () => {
+    referencesFormatter.format(references)
+    const volume = getElement(firstReference, ':--PublicationVolume')
+    expect(volume.isSameNode(firstReference.children[3])).toBe(true)
+
+    const volumePart = getElement(volume, ':--isPartOf')
+    expect(volumePart.isSameNode(volume.children[0])).toBe(true)
+    expect(getElement(volumePart, ':--name').isSameNode(volumePart.children[0]))
+  })
 })
