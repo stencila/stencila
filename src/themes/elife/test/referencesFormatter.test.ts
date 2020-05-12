@@ -57,13 +57,26 @@ describe('Formatting a reference', () => {
     ).toBe(true)
   })
 
-  it('the publication name follows the publication year', () => {
-    referencesFormatter.format(references)
-    const volume = getElement(firstReference, ':--PublicationVolume')
-    expect(volume.isSameNode(firstReference.children[3])).toBe(true)
+  describe('the publication volume', () => {
+    let volume: Element
 
-    const volumePart = getElement(volume, ':--isPartOf')
-    expect(volumePart.isSameNode(volume.children[0])).toBe(true)
-    expect(getElement(volumePart, ':--name').isSameNode(volumePart.children[0]))
+    beforeEach(() => {
+      referencesFormatter.format(references)
+      volume = getElement(firstReference, ':--PublicationVolume:--isPartOf')
+    })
+
+    it('follows the publication year', () => {
+      expect(volume.isSameNode(firstReference.children[3])).toBe(true)
+    })
+
+    it('its volume name is first', () => {
+      const volumeName: Element = getElement(volume, ':--isPartOf')
+      expect(volumeName.isSameNode(volume.children[0])).toBe(true)
+    })
+
+    it('its volume number is second', () => {
+      const volumeNumber: Element = getElement(volume, ':--volumeNumber')
+      expect(volumeNumber.isSameNode(volume.children[1])).toBe(true)
+    })
   })
 })

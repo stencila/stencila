@@ -187,11 +187,16 @@
         }
       }
 
-      :--name {
+      :--PublicationVolume :--name {
         font-style: italic;
 
         &::before {
           content: '\A';
+          white-space: pre;
+        }
+
+        &::after {
+          content: ' ';
           white-space: pre;
         }
       }
