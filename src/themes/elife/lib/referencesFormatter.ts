@@ -1,4 +1,4 @@
-import { prepend, append, first } from '../../../util'
+import { prepend, first } from '../../../util'
 
 const moveTitles = (references: Element[]): Element[] => {
   references.forEach((reference: Element): void => {
@@ -23,25 +23,6 @@ const moveVolumeNames = (references: Element[]): Element[] => {
   return references
 }
 
-const movePagesStart = (references: Element[]): Element[] => {
-  references.forEach((reference: Element): void => {
-    const pagesStart = first(reference, ':--pageStart')
-    if (pagesStart !== null) {
-      append(reference, pagesStart)
-    }
-  })
-  return references
-}
-
-const movePagesEnd = (references: Element[]): void => {
-  references.forEach((reference: Element): void => {
-    const pagesEnd = first(reference, ':--pageEnd')
-    if (pagesEnd !== null) {
-      append(reference, pagesEnd)
-    }
-  })
-}
-
 export const format = (references: Element[]): void => {
-  movePagesEnd(movePagesStart(moveVolumeNames(moveTitles(references))))
+  moveVolumeNames(moveTitles(references))
 }
