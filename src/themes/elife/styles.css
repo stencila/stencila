@@ -187,7 +187,7 @@
         }
       }
 
-      :--PublicationVolume :--name {
+      :--isPartOf :--name {
         font-style: italic;
 
         &::before {
