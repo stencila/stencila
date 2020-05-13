@@ -1,4 +1,5 @@
 import * as dataProvider from '../lib/dataProvider'
+import Mock = jest.Mock
 
 interface Response {
   ok: boolean
@@ -63,6 +64,43 @@ describe('data Provider ', () => {
           )
         )
       })
+    })
+  })
+
+  describe("getting PDF URLs for an article's id", () => {
+    let articleId: string
+    let mockPdfUrlGetter: Mock
+
+    beforeEach(() => {
+      articleId = 'someId'
+      mockPdfUrlGetter = jest.fn(
+        // args are used when the mock is injected, so disabling check:
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        (id: string, pdfType: string): Promise<string> => {
+          return Promise.resolve('theArticlePdfUri')
+        }
+      )
+      jest.fn(mockPdfUrlGetter)
+    })
+
+    it('getArticlePdfUrl() requests the article PDF URL for the id', async (): Promise<
+      unknown
+    > => {
+      await dataProvider.getArticlePdfUrl(articleId, mockPdfUrlGetter)
+      const mockCalls = mockPdfUrlGetter.mock.calls
+      expect(mockCalls.length).toBe(1)
+      expect(mockCalls[0][0]).toBe(articleId)
+      return expect(mockCalls[0][1]).toBe('article')
+    })
+
+    it('getFiguresPdfUrl() requests the figures PDF URL for the id', async (): Promise<
+      unknown
+    > => {
+      await dataProvider.getFiguresPdfUrl(articleId, mockPdfUrlGetter)
+      const mockCalls = mockPdfUrlGetter.mock.calls
+      expect(mockCalls.length).toBe(1)
+      expect(mockCalls[0][0]).toBe(articleId)
+      return expect(mockCalls[0][1]).toBe('figures')
     })
   })
 

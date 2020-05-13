@@ -5,6 +5,10 @@ interface Response {
   articleData: { pdf: string; figuresPdf: string }
 }
 
+interface PdfUrlGetter {
+  (id: string, pdfType: string): Promise<string>
+}
+
 const normaliseWhitespace = (txt: string): string => {
   return txt.replace(/\n/, ' ').replace(/ \s+|\n+/g, ' ')
 }
@@ -20,7 +24,10 @@ const getNormalisedTextFromElement = (selector: string): string => {
   return ''
 }
 
-const getPdfUrl = async (id: string, pdfType: string): Promise<string> => {
+const getPdfUrl: PdfUrlGetter = async (
+  id: string,
+  pdfType: string
+): Promise<string> => {
   const allowedPdfTypes = ['article', 'figures']
   if (!allowedPdfTypes.includes(pdfType)) {
     return ''
@@ -48,12 +55,18 @@ export const getArticleTitle = (): string => {
   return getNormalisedTextFromElement(':--title')
 }
 
-export const getArticlePdfUrl = async (id: string): Promise<string> => {
-  return getPdfUrl(id, 'article')
+export const getArticlePdfUrl = async (
+  id: string,
+  pdfUrlGetter: PdfUrlGetter = getPdfUrl
+): Promise<string> => {
+  return pdfUrlGetter(id, 'article')
 }
 
-export const getFiguresPdfUrl = async (id: string): Promise<string> => {
-  return getPdfUrl(id, 'figures')
+export const getFiguresPdfUrl = async (
+  id: string,
+  pdfUrlGetter: PdfUrlGetter = getPdfUrl
+): Promise<string> => {
+  return pdfUrlGetter(id, 'figures')
 }
 
 export const query = async (
