@@ -83,11 +83,22 @@ describe('data Provider ', () => {
   })
 
   describe('getArticleTitle', () => {
-    it('it returns the correct text of a title', () => {
+    it('returns the correct text of a title', () => {
       const mockData =
         'Replication Study: Transcriptional amplification in tumor cells with elevated c-Myc'
       body.innerHTML = `<div itemprop="headline">${mockData}</div>`
       expect(dataProvider.getArticleTitle()).toEqual(mockData)
+    })
+
+    it('normalises any whitespace found', () => {
+      const mockDataWithExtraWhitespace =
+        'Replication    Study: Transcriptional \n  amplification in      \n\n  tumor cells with elevated c-Myc'
+      const mockDataWithoutExtraWhitespace =
+        'Replication Study: Transcriptional amplification in tumor cells with elevated c-Myc'
+      body.innerHTML = `<div itemprop="headline">${mockDataWithExtraWhitespace}</div>`
+      expect(dataProvider.getArticleTitle()).toEqual(
+        mockDataWithoutExtraWhitespace
+      )
     })
 
     it('omits any elements from the text it returns', () => {
