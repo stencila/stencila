@@ -30,7 +30,11 @@ const getPdfUrl: PdfUrlGetter = async (
 ): Promise<string> => {
   const allowedPdfTypes = ['article', 'figures']
   if (!allowedPdfTypes.includes(pdfType)) {
-    return ''
+    throw new Error(
+      `Requested Invalid PDF type: "${pdfType}", must be one of ${allowedPdfTypes.join(
+        ', '
+      )}.`
+    )
   }
   const response = await query(id, window.fetch)
   if (pdfType === 'figures') {
