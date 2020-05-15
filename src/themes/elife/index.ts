@@ -3,19 +3,17 @@ import * as dateFormatter from './lib/dateFormatter'
 import * as dataProvider from './lib/dataProvider'
 import * as downloads from './lib/downloads'
 import * as socialSharers from './lib/socialSharers'
-import * as references from './lib/references'
+import * as referenceFormatter from './lib/referencesFormatter'
 
 ready((): void => {
-  dateFormatter.format(first(':--datePublished'))
-
   const articleTitle = dataProvider.getArticleTitle()
   downloads.build(articleTitle, dataProvider.getArticleId())
 
   try {
+    dateFormatter.format(first(':--datePublished'))
     socialSharers.build(articleTitle, dataProvider.getArticleDoi())
+    referenceFormatter.format(select(':--reference'))
   } catch (e) {
     console.error(e)
   }
-
-  references.transform(select(':--reference'))
 })
