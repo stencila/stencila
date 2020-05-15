@@ -1,3 +1,18 @@
+# [2.8.0](https://github.com/stencila/thema/compare/v2.7.3...v2.8.0) (2020-05-15)
+
+
+### Bug Fixes
+
+* **Elife:** Reference lacking a volume is not an Thema error ([b75ddbe](https://github.com/stencila/thema/commit/b75ddbe7b04bf85adc2615d0467fa0e56b027d33))
+* **Elife:** Reference PublicationVolume structure ([2504670](https://github.com/stencila/thema/commit/250467009a6c8f74d300acedd96a6d74c80032e3))
+* **Elife:** Style more types of reference source name ([2640327](https://github.com/stencila/thema/commit/2640327c00269e85ef5cb1c1d69a985459feee64))
+
+
+### Features
+
+* **Elife:** Catch errors from date formatting ([2081f00](https://github.com/stencila/thema/commit/2081f0063b48b2e5d7621c0cce964116e20ba05e))
+* **Elife:** Throw error on request for invalid PDF type ([fcd8e75](https://github.com/stencila/thema/commit/fcd8e758701d4a1efaae9552f35166f37125e77c))
+
 ## [2.7.3](https://github.com/stencila/thema/compare/v2.7.2...v2.7.3) (2020-05-14)
 
 
