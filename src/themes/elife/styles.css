@@ -8,7 +8,7 @@
 /* N.B. Until eLife's pattern library CSS is available from an npm module, this URL
    needs to be updated every time eLife deploy CSS.
    Once the CSS is available from an npm module, update this to @import accordingly and delete this comment :-) */
-@import 'https://elifesciences.org/assets/patterns/css/all.502a7c3d.css';
+@import 'https://elifesciences.org/assets/patterns/css/all.237986ca.css';
 
 /**
  * Ensure fonts still resolve when not viewed on ELife website
