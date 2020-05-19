@@ -10,7 +10,7 @@ const ASSET_PATH = process.env.ASSET_PATH || '/'
 
 // Convert absolute filepaths to project relative ones to use as
 // output destinations.
-const makeRelativePath = filepath =>
+const makeRelativePath = (filepath) =>
   path.relative(path.join(__dirname, contentSource), filepath)
 
 // Strip `/src` from output destination pathnames.
@@ -47,17 +47,15 @@ module.exports = (env = {}, { mode }) => {
       ? [
           './src/**/*.{jpg,png,gif,tsx,html}',
           // Template are used as basis for HtmlWebpackPlugin, and should not be used as an entry points
-          '!./src/demo/templates/*'
+          '!./src/demo/templates/*',
         ]
-      : ['!**/*.html', '!./src/demo/**/*', '!./src/examples/*'])
+      : ['!**/*.html', '!./src/demo/**/*', '!./src/examples/*']),
   ]
 
   const entry = globby.sync(entries).reduce(
     (files, file) => ({
       ...files,
-      [makeRelativePath(file)
-        .replace(/.ts$/, '')
-        .replace(/.css$/, '')]: file
+      [makeRelativePath(file).replace(/.ts$/, '').replace(/.css$/, '')]: file,
     }),
     {}
   )
@@ -71,8 +69,8 @@ module.exports = (env = {}, { mode }) => {
             template: './src/demo/templates/template.html',
             chunks: ['demo/styles', 'themes/stencila/styles', 'demo/app.tsx'],
             templateParameters: {
-              ASSET_PATH
-            }
+              ASSET_PATH,
+            },
           }),
           new HtmlWebpackPlugin({
             filename: 'index.html',
@@ -80,16 +78,16 @@ module.exports = (env = {}, { mode }) => {
             chunks: [
               'demo/styles',
               'demo/gallery.tsx',
-              'themes/galleria/styles'
-            ]
-          })
+              'themes/galleria/styles',
+            ],
+          }),
         ]
       : []
 
   return {
     entry,
     resolve: {
-      extensions: ['.ts', '.tsx', '.js', '.css', '.html']
+      extensions: ['.ts', '.tsx', '.js', '.css', '.html'],
     },
     mode: mode || 'development',
     target: target === 'lib' ? 'node' : 'web',
@@ -99,14 +97,14 @@ module.exports = (env = {}, { mode }) => {
       filename: '[name].js',
       library: 'thema',
       libraryTarget: 'umd',
-      umdNamedDefine: true
+      umdNamedDefine: true,
     },
     node: {
-      __dirname: false
+      __dirname: false,
     },
     devServer: {
       contentBase: path.join(__dirname, contentBase),
-      overlay: true
+      overlay: true,
     },
     plugins: [
       new DefinePlugin({
@@ -114,7 +112,7 @@ module.exports = (env = {}, { mode }) => {
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         'process.env.npm_package_version': JSON.stringify(
           process.env.npm_package_version
-        )
+        ),
       }),
       new MiniCssExtractPlugin(),
       ...docsPlugins,
@@ -126,10 +124,10 @@ module.exports = (env = {}, { mode }) => {
             `${contentBase}/**/styles.js`,
             `${contentBase}/**/styles.js`,
             `${contentBase}/fonts/**/*.js`,
-            `${contentBase}/generate`
-          ]
-        }
-      })
+            `${contentBase}/generate`,
+          ],
+        },
+      }),
     ],
     module: {
       rules: [
@@ -141,9 +139,11 @@ module.exports = (env = {}, { mode }) => {
               configFile: `tsconfig.${
                 target === 'lib' ? 'lib' : 'browser'
               }.json`,
-              experimentalWatchApi: true
-            }
-          }
+              compilerOptions: {
+                incremental: true,
+              },
+            },
+          },
         },
         { test: /\.ejs$/, loader: 'ejs-loader' },
         {
@@ -155,26 +155,26 @@ module.exports = (env = {}, { mode }) => {
               loader: 'file-loader',
               options: {
                 name: '[name].[ext]',
-                outputPath: fileLoaderOutputPath
-              }
+                outputPath: fileLoaderOutputPath,
+              },
             },
             'extract-loader',
-            'html-loader'
-          ]
+            'html-loader',
+          ],
         },
         {
           test: /\.(css)$/,
           use: [
             {
               loader: MiniCssExtractPlugin.loader,
-              options: { hmr: isDevelopment }
+              options: { hmr: isDevelopment },
             },
             {
               loader: 'css-loader',
-              options: { importLoaders: 1, url: false, import: true }
+              options: { importLoaders: 1, url: false, import: true },
             },
-            'postcss-loader'
-          ]
+            'postcss-loader',
+          ],
         },
         {
           test: /\.(eot|woff|woff2|svg|ttf|jpe?g|png|gif)$|html\.media\/.*$/,
@@ -183,12 +183,12 @@ module.exports = (env = {}, { mode }) => {
               loader: 'file-loader',
               options: {
                 name: '[folder]/[name].[ext]',
-                outputPath: fileLoaderOutputPath
-              }
-            }
-          ]
-        }
-      ]
-    }
+                outputPath: fileLoaderOutputPath,
+              },
+            },
+          ],
+        },
+      ],
+    },
   }
 }
