@@ -1,0 +1,42 @@
+@import '../../extensions/cite-apa/styles.css';
+@import '../../extensions/code/styles.css';
+@import '../../extensions/math/styles.css';
+@import '../../extensions/pages/styles.css';
+@import '../../extensions/person/styles.css';
+
+@import 'https://raw.githubusercontent.com/davidrzs/latexcss/9264a50c252d47fbe6d4998dbc5581882d79ab3c/latex.css';
+
+:--Article:--root {
+  --spacer-medium: 1em;
+  --spacer-large: 10em;
+
+  > :--authors :--author {
+    /* latexcss has a few classes, one of which is for authors of the
+     * article, so use that... */
+    @extend .author;
+  }
+
+  > :--datePublished {
+    display: block;
+    width: 20em;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  > :--identifiers {
+    display: none;
+  }
+
+  :--Figure,
+  :--Table {
+    margin-top: var(--spacer-large);
+    margin-bottom: var(--spacer-large);
+  }
+
+  > :--references {
+    :--reference {
+      margin-top: var(--spacer-medium);
+      text-align: left;
+    }
+  }
+}
