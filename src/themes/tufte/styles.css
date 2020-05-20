@@ -1,0 +1,76 @@
+@import '../../extensions/cite-apa/styles.css';
+@import '../../extensions/code/styles.css';
+@import '../../extensions/math/styles.css';
+@import '../../extensions/pages/styles.css';
+@import '../../extensions/person/styles.css';
+
+@import '../../fonts/etBook/etBook.css';
+@import 'https://unpkg.com/tufte-css@1.7.2/tufte.min.css';
+
+:--root {
+  --font-size-80: 80%;
+  --font-size-90: 90%;
+  --font-size-110: 110%;
+  --spacer-md: 1em;
+  --spacer-lg: 3em;
+  --max-width: 50em;
+
+  max-width: var(--max-width);
+  margin-left: auto;
+  margin-right: auto;
+
+  > :--authors :--author :--affiliations :--affiliation {
+    font-size: var(--font-size-80);
+  }
+
+  > :--datePublished {
+    display: block;
+    width: 20em;
+    margin: 0 auto;
+    text-align: center;
+    font-size: var(--font-size-110);
+  }
+
+  > :--identifiers {
+    display: none;
+  }
+
+  :--Figure {
+    margin-top: var(--spacer-lg);
+    margin-bottom: var(--spacer-lg);
+  }
+
+  > :--references {
+    :--reference {
+      margin-top: var(--spacer-md);
+    }
+  }
+
+  /*
+  * The Tufte style has several rules for offset sections and figures.
+  * But those don't work very well with the HTML that Encoda generates.
+  * The following rules override those styles for a more traditional
+  * single column layout.
+  */
+
+  section > p,
+  section > footer,
+  section > table,
+  section > ol,
+  section > ul,
+  pre > code {
+    width: inherit;
+  }
+
+  figure,
+  figcaption {
+    max-width: inherit;
+  }
+
+  figcaption {
+    float: none;
+    > * {
+      font-size: var(--font-size-90);
+    }
+  }
+}
