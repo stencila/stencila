@@ -8,8 +8,9 @@
   @import 'https://raw.githubusercontent.com/davidrzs/latexcss/9264a50c252d47fbe6d4998dbc5581882d79ab3c/latex.css';
 
   --spacer-medium: 1em;
-  --spacer-large: 10em;
+  --spacer-large: 6em;
   --color-stock: #fff;
+  --color-key: #000;
   --font-family-body: 'Latin Modern Roman', serif;
   --font-family-display: var(--font-family-display);
   --font-size-body: 13pt;
@@ -18,6 +19,7 @@
   background-color: var(--color-stock);
   font-size: var(--font-size-body);
   font-family: var(--font-family-body);
+  color: var(--color-key);
   counter-reset: theorem;
   counter-reset: definition;
   max-width: var(--max-width);
