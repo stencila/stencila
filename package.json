@@ -44,16 +44,16 @@
   },
   "homepage": "https://stencila.github.io/schema",
   "devDependencies": {
-    "@stencila/dev-config": "1.4.36",
-    "@stencila/encoda": "0.93.8",
+    "@stencila/dev-config": "1.4.39",
+    "@stencila/encoda": "0.93.10",
     "@stencila/logga": "2.2.0",
     "@stoplight/json-ref-resolver": "3.0.8",
     "@types/fs-extra": "9.0.1",
-    "@types/jest": "25.2.2",
+    "@types/jest": "25.2.3",
     "@types/js-yaml": "3.12.4",
     "@types/lodash.clonedeep": "4.5.6",
     "@types/lodash.flatten": "4.4.6",
-    "@types/prettier": "2.0.0",
+    "@types/prettier": "2.0.1",
     "@types/toposort": "2.0.3",
     "ajv": "6.12.2",
     "better-ajv-errors": "0.6.7",
@@ -75,7 +75,7 @@
     "ts-jest": "26.0.0",
     "ts-node": "8.10.1",
     "typedoc": "0.17.7",
-    "typescript": "3.9.2"
+    "typescript": "3.9.3"
   },
   "jest": {
     "preset": "ts-jest",
