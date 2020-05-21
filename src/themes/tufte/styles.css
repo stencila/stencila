@@ -5,15 +5,48 @@
 @import '../../extensions/person/styles.css';
 
 @import '../../fonts/etBook/etBook.css';
-@import 'https://unpkg.com/tufte-css@1.7.2/tufte.min.css';
 
 :--root {
+  @import 'https://unpkg.com/tufte-css@1.7.2/tufte.min.css';
+
+  --font-family-body: et-book, Palatino, 'Palatino Linotype', 'Palatino LT STD',
+    'Book Antiqua', Georgia, serif;
+  --font-family-display: var(--font-family-display);
+
+  --font-size-body: 13pt;
   --font-size-80: 80%;
   --font-size-90: 90%;
   --font-size-110: 110%;
+
   --spacer-md: 1em;
   --spacer-lg: 3em;
-  --max-width: 50em;
+  --max-width: 55em;
+
+  /*
+   * Color for font. Added as a variable for customization.
+   * Default value is that in Tufte CSS
+   */
+  --color-key: #111;
+
+  /*
+   * Color variables based off the hue used by Tufte CSS for background
+   * (which is `--color-neutral-100`).
+   */
+  --color-neutral-100: hsla(60, 100%, 99%, 1);
+  --color-neutral-200: hsla(60, 100%, 97%, 1);
+  --color-neutral-300: hsla(60, 100%, 95%, 1);
+  --color-neutral-400: hsla(60, 100%, 90%, 1);
+
+  background-color: var(--color-neutral-100);
+  font-size: var(--font-size-body);
+  font-family: var(--font-family-body);
+  color: var(--color-key);
+
+  /* On larger screens use padding so that edge between
+   * white and background color is not close to text */
+  @media screen and (min-width: 720px) {
+    padding: 10%;
+  }
 
   max-width: var(--max-width);
   margin-left: auto;
@@ -35,9 +68,28 @@
     display: none;
   }
 
-  :--Figure {
-    margin-top: var(--spacer-lg);
-    margin-bottom: var(--spacer-lg);
+  :--Figure,
+  :--Table {
+    margin: var(--spacer-lg) auto;
+    max-width: 90%;
+
+    :--ImageObject {
+      display: block;
+      max-height: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    figcaption,
+    caption {
+      margin-left: auto;
+      margin-right: auto;
+      > * {
+        text-align: justify;
+        font-size: var(--font-size-90);
+        line-height: 150%;
+      }
+    }
   }
 
   > :--references {
@@ -65,12 +117,6 @@
   figure,
   figcaption {
     max-width: inherit;
-  }
-
-  figcaption {
     float: none;
-    > * {
-      font-size: var(--font-size-90);
-    }
   }
 }
