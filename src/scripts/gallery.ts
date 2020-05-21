@@ -51,6 +51,7 @@ async function generateGallery(): Promise<void> {
   const sortedThemes = [
     ...new Set([
       themes.stencila,
+      themes.tufte,
       themes.elife,
       themes.nature,
       themes.wilmore,
