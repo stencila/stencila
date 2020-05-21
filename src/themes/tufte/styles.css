@@ -9,15 +9,13 @@
 :--root {
   @import 'https://unpkg.com/tufte-css@1.7.2/tufte.min.css';
 
-  --font-family-body: et-book, Palatino, 'Palatino Linotype', 'Palatino LT STD',
-    'Book Antiqua', Georgia, serif;
+  --font-family-body: et-book, palatino, 'Palatino Linotype', 'Palatino LT STD',
+    'Book Antiqua', georgia, serif;
   --font-family-display: var(--font-family-display);
-
   --font-size-body: 13pt;
   --font-size-80: 80%;
   --font-size-90: 90%;
   --font-size-110: 110%;
-
   --spacer-md: 1em;
   --spacer-lg: 3em;
   --max-width: 55em;
