@@ -393,6 +393,11 @@ menu p {
   border: none;
   padding: 0;
   margin: 0;
+}
+
+#themeVariables .fieldsetWrapper {
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-flow: row wrap;
 }

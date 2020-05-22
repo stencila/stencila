@@ -67,26 +67,30 @@ export class VariableInput extends React.PureComponent<Props, {}> {
 
     return (
       <fieldset>
-        <div className="labelWrapper">
-          <label
-            htmlFor={this.props.name}
-            className={this.props.valueOverride === undefined ? '' : 'modified'}
-            title={
-              this.props.valueOverride === undefined
-                ? ''
-                : 'Value has been modified'
-            }
-          >
-            {this.props.name}
-          </label>
-          {this.props.valueOverride !== undefined && (
-            <button onClick={this.clear} type="reset">
-              Clear
-            </button>
-          )}
-        </div>
+        <div className="fieldsetWrapper">
+          <div className="labelWrapper">
+            <label
+              htmlFor={this.props.name}
+              className={
+                this.props.valueOverride === undefined ? '' : 'modified'
+              }
+              title={
+                this.props.valueOverride === undefined
+                  ? ''
+                  : 'Value has been modified'
+              }
+            >
+              {this.props.name}
+            </label>
+            {this.props.valueOverride !== undefined && (
+              <button onClick={this.clear} type="reset">
+                Clear
+              </button>
+            )}
+          </div>
 
-        {input}
+          {input}
+        </div>
       </fieldset>
     )
   }
