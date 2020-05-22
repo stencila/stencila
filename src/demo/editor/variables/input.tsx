@@ -41,7 +41,10 @@ export class VariableInput extends React.PureComponent<Props, {}> {
 
     let input: JSX.Element
 
-    if (this.props.name.includes('color') && !_value.includes('var')) {
+    if (
+      this.props.name.toLowerCase().includes('color') &&
+      !_value.includes('var')
+    ) {
       input = (
         <ColorInput
           name={this.props.name}
