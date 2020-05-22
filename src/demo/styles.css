@@ -141,7 +141,8 @@ header {
   transition: box-shadow 200ms ease-out;
   padding-bottom: var(--spacer-sm);
 
-  &:hover {
+  &:hover,
+  &:focus {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.045), 0 0 40px rgba(0, 0, 0, 0.17);
   }
 }
@@ -184,7 +185,8 @@ header {
       width: 100%;
     }
 
-    &:hover::before {
+    &:hover::before,
+    &:focus::before {
       opacity: 0.4;
     }
 
@@ -208,7 +210,8 @@ header {
       transition: opacity 200ms ease-out, transform 250ms ease-out;
     }
 
-    &:hover::after {
+    &:hover::after,
+    &:focus::after {
       opacity: 1;
       transform: translateX(-50%) translateY(-50%);
     }
@@ -232,7 +235,8 @@ header {
     transition: color 200ms ease-out, background-color 200ms ease-out,
       border-color 200ms ease-out;
 
-    &:hover {
+    &:hover,
+    &:focus {
       background-color: var(--color-neutral-400);
     }
 
@@ -249,7 +253,8 @@ header {
       width: 14px;
     }
 
-    &:hover::after {
+    &:hover::after,
+    &:focus::after {
       transform: translateX(0.25rem);
     }
   }
@@ -308,6 +313,7 @@ menu p {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.035), 0 0 40px rgba(0, 0, 0, 0.07);
   color: var(--color-key);
   font-weight: bold;
+  line-height: 1;
   letter-spacing: 1px;
   margin: 1rem 0;
   padding: 0.5rem;
@@ -316,16 +322,15 @@ menu p {
   width: 100%;
 }
 
-.modalContents button:hover,
-#contribute:hover,
-#sidebar > a.button:hover,
-#sidebar > button:hover {
-  color: white;
-  background-color: #1d63f3;
-}
-
-#themeName {
-  /* display: flex; */
+.modalContents button,
+#contribute,
+#sidebar > a.button,
+#sidebar > button {
+  &:hover,
+  &:focus {
+    color: white;
+    background-color: #1d63f3;
+  }
 }
 
 #themeName span {
@@ -388,6 +393,11 @@ menu p {
   border: none;
   padding: 0;
   margin: 0;
+}
+
+#themeVariables .fieldsetWrapper {
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-flow: row wrap;
 }
@@ -397,10 +407,12 @@ menu p {
   flex-basis: 100%;
   flex-flow: row nowrap;
   font-size: 12px;
-  height: 17px;
+  margin: 0 0 1px;
+  min-height: 18px;
   justify-content: space-between;
 
   button {
+    align-self: center;
     background-color: var(--color-neutral-100);
     border: 1px solid var(--color-neutral-400);
     border-radius: 2px;
@@ -414,7 +426,8 @@ menu p {
       border-color 200ms ease-out;
   }
 
-  button:hover {
+  button:hover,
+  button:focus {
     background-color: #ff345d;
     border-color: #d1284a;
     color: white;
@@ -441,11 +454,18 @@ input {
   background-color: white;
   border-radius: 2px;
   border: 1px solid var(--color-neutral-400);
-  font-size: 16px;
-  margin-bottom: 1rem;
+  font-size: 14px;
+  margin: 0 0 1rem;
   padding: 0.25rem;
-  height: 1.75em;
+  height: 2em;
   flex-grow: 1;
+  outline: none;
+
+  &:focus,
+  &:active {
+    border-width: 2px;
+    border-color: #2568ef;
+  }
 }
 
 #themeVariables form {
