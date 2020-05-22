@@ -1,3 +1,10 @@
+## [0.43.1](https://github.com/stencila/schema/compare/v0.43.0...v0.43.1) (2020-05-22)
+
+
+### Bug Fixes
+
+* **Deps:** npm audit fix ([0af0889](https://github.com/stencila/schema/commit/0af0889cf13faa8d8a6e9290ae138f6e0f2dd67d))
+
 # [0.43.0](https://github.com/stencila/schema/compare/v0.42.1...v0.43.0) (2020-04-21)
 
 
