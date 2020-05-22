@@ -1,6 +1,6 @@
 {
   "name": "@stencila/thema",
-  "version": "2.8.0",
+  "version": "2.10.0",
   "description": "Semantic themes for use with encoda (https://github.com/stencila/encoda)",
   "files": [
     "/dist"
@@ -106,6 +106,7 @@
     "postcss-loader": "3.0.0",
     "postcss-mixins": "6.2.3",
     "postcss-nested": "4.2.1",
+    "postcss-nested-import": "^0.1.0",
     "postcss-selector-not": "4.0.0",
     "postcss-selector-replace": "1.0.2",
     "postcss-sort-media-queries": "1.31.21",

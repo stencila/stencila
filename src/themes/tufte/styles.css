@@ -1,0 +1,120 @@
+@import '../../extensions/cite-apa/styles.css';
+@import '../../extensions/code/styles.css';
+@import '../../extensions/math/styles.css';
+@import '../../extensions/pages/styles.css';
+@import '../../extensions/person/styles.css';
+
+@import '../../fonts/etBook/etBook.css';
+
+:--root {
+  @import 'https://unpkg.com/tufte-css@1.7.2/tufte.min.css';
+
+  --font-family-body: et-book, palatino, 'Palatino Linotype', 'Palatino LT STD',
+    'Book Antiqua', georgia, serif;
+  --font-family-display: var(--font-family-display);
+  --font-size-body: 13pt;
+  --font-size-80: 80%;
+  --font-size-90: 90%;
+  --font-size-110: 110%;
+  --spacer-md: 1em;
+  --spacer-lg: 3em;
+  --max-width: 55em;
+
+  /*
+   * Color for font. Added as a variable for customization.
+   * Default value is that in Tufte CSS
+   */
+  --color-key: #111;
+
+  /*
+   * Color variables based off the hue used by Tufte CSS for background
+   * (which is `--color-neutral-100`).
+   */
+  --color-neutral-100: hsla(60, 100%, 99%, 1);
+  --color-neutral-200: hsla(60, 100%, 97%, 1);
+  --color-neutral-300: hsla(60, 100%, 95%, 1);
+  --color-neutral-400: hsla(60, 100%, 90%, 1);
+
+  background-color: var(--color-neutral-100);
+  font-size: var(--font-size-body);
+  font-family: var(--font-family-body);
+  color: var(--color-key);
+
+  /* On larger screens use padding so that edge between
+   * white and background color is not close to text */
+  @media screen and (min-width: 720px) {
+    padding: 10%;
+  }
+
+  max-width: var(--max-width);
+  margin-left: auto;
+  margin-right: auto;
+
+  > :--authors :--author :--affiliations :--affiliation {
+    font-size: var(--font-size-80);
+  }
+
+  > :--datePublished {
+    display: block;
+    width: 20em;
+    margin: 0 auto;
+    text-align: center;
+    font-size: var(--font-size-110);
+  }
+
+  > :--identifiers {
+    display: none;
+  }
+
+  :--Figure,
+  :--Table {
+    margin: var(--spacer-lg) auto;
+    max-width: 90%;
+
+    :--ImageObject {
+      display: block;
+      max-height: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    figcaption,
+    caption {
+      margin-left: auto;
+      margin-right: auto;
+      > * {
+        text-align: justify;
+        font-size: var(--font-size-90);
+        line-height: 150%;
+      }
+    }
+  }
+
+  > :--references {
+    :--reference {
+      margin-top: var(--spacer-md);
+    }
+  }
+
+  /*
+  * The Tufte style has several rules for offset sections and figures.
+  * But those don't work very well with the HTML that Encoda generates.
+  * The following rules override those styles for a more traditional
+  * single column layout.
+  */
+
+  section > p,
+  section > footer,
+  section > table,
+  section > ol,
+  section > ul,
+  pre > code {
+    width: inherit;
+  }
+
+  figure,
+  figcaption {
+    max-width: inherit;
+    float: none;
+  }
+}

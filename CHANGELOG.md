@@ -1,3 +1,23 @@
+# [2.10.0](https://github.com/stencila/thema/compare/v2.9.0...v2.10.0) (2020-05-21)
+
+
+### Bug Fixes
+
+* **Tufte:** Nest imported styles and other tweaks ([0c9c590](https://github.com/stencila/thema/commit/0c9c590eea879fa862266b42c458a74d88835750))
+
+
+### Features
+
+* **Tufte:** Add the Tufte theme ([be2d1b8](https://github.com/stencila/thema/commit/be2d1b8d45b000ba5385810db9ee200e1e52ef1a))
+
+# [2.9.0](https://github.com/stencila/thema/compare/v2.8.0...v2.9.0) (2020-05-21)
+
+
+### Features
+
+* **LaTeX:** Add font color as a variable ([696aeef](https://github.com/stencila/thema/commit/696aeefdc2961373f2d01fd6b2511371d7e93652))
+* **LaTeX:** Add the LaTeX theme ([64e4ded](https://github.com/stencila/thema/commit/64e4ded2270f3961a87e14b0df9cbf4e173c849d))
+
 # [2.8.0](https://github.com/stencila/thema/compare/v2.7.3...v2.8.0) (2020-05-15)
 
 
