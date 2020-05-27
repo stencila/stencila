@@ -106,7 +106,7 @@
     "postcss-loader": "3.0.0",
     "postcss-mixins": "6.2.3",
     "postcss-nested": "4.2.1",
-    "postcss-nested-import": "^0.1.0",
+    "postcss-nested-import": "0.1.0",
     "postcss-selector-not": "4.0.0",
     "postcss-selector-replace": "1.0.2",
     "postcss-sort-media-queries": "1.31.21",
