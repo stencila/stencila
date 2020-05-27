@@ -1,6 +1,7 @@
 import path from 'path'
 const WdioScreenshot = require('wdio-screenshot-v5')
 const VisualRegressionCompare = require('wdio-novus-visual-regression-service/compare')
+const chromeDriver = require('chromedriver')
 
 export const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
 
@@ -36,7 +37,7 @@ const baseServices = [
 const browserCapabilities = {
   chrome: {
     browserName: 'chrome',
-    browserVersion: '81.0',
+    browserVersion: chromeDriver.version,
   },
   firefox: {
     browserName: 'firefox',

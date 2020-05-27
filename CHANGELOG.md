@@ -1,3 +1,12 @@
+## [2.10.1](https://github.com/stencila/thema/compare/v2.10.0...v2.10.1) (2020-05-22)
+
+
+### Bug Fixes
+
+* **Theme Editor:** Fix theme editor sidebar layout in Chrome ([b6c094e](https://github.com/stencila/thema/commit/b6c094e3c31f724117580fc1137feba9c0030786))
+* **Theme Editor:** Improve matching logic for color CSS variables ([f1a17af](https://github.com/stencila/thema/commit/f1a17af7d41cf528355fc789ee60081b9ebbb3c5))
+* **Theme Editor:** Refine editor styles, add focus styles to buttons ([a8b7a8b](https://github.com/stencila/thema/commit/a8b7a8b0874eef413190ab53a187ebcbf16794bc))
+
 # [2.10.0](https://github.com/stencila/thema/compare/v2.9.0...v2.10.0) (2020-05-21)
 
 
