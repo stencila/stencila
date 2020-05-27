@@ -330,11 +330,3 @@
     }
   }
 }
-
-tr:first-child {
-  td {
-    background: #f7f7f7;
-    font-weight: bold;
-    padding: 6px;
-  }
-}
