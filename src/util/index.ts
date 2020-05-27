@@ -1,6 +1,9 @@
 import { translate } from '../selectors'
 export { translate }
 
+const showValue = (value: unknown): string =>
+  typeof value === 'string' ? value : JSON.stringify(value)
+
 /**
  * Convenience functions for manipulating the DOM.
  *
@@ -176,7 +179,15 @@ export function create(
   spec: string | Element = 'div',
   attributes?:
     | Record<string, undefined | null | boolean | number | string>
-    | (object | undefined | null | boolean | number | string | Element),
+    | (
+        | Record<string, unknown>
+        | undefined
+        | null
+        | boolean
+        | number
+        | string
+        | Element
+      ),
   ...children: (undefined | null | boolean | number | string | Element)[]
 ): Element {
   let elem: Element
@@ -234,7 +245,7 @@ export function create(
     !(attributes instanceof Element)
   ) {
     Object.entries(attributes).forEach(([key, value]) => {
-      if (value !== undefined) elem.setAttribute(key, `${value}`)
+      if (value !== undefined) elem.setAttribute(key, showValue(value))
     })
   } else if (attributes !== undefined) {
     children = [attributes, ...children]
@@ -283,7 +294,10 @@ export function tag(target: Element, value?: string): string | Element {
 }
 
 export function attrs(target: Element): Record<string, string>
-export function attrs(target: Element, value: object): undefined
+export function attrs(
+  target: Element,
+  value: Record<string, unknown>
+): undefined
 /**
  * Get or set the attributes of an element
  *
@@ -293,15 +307,21 @@ export function attrs(target: Element, value: object): undefined
  */
 export function attrs(
   target: Element,
-  attributes?: object
+  attributes?: Record<string, unknown>
 ): Record<string, string> | undefined {
-  if (attributes === undefined)
-    return Object.assign(
-      {},
-      ...Array.from(target.attributes, ({ name, value }) => ({ [name]: value }))
+  if (attributes === undefined) {
+    return Array.from(target.attributes).reduce(
+      (attrs: Record<string, string>, attr) => ({
+        ...attrs,
+        [attr.name]: attr.value,
+      }),
+      {}
     )
+  }
+
   Object.entries(attributes).forEach(([name, value]) => {
-    if (value !== undefined && value !== null) target.setAttribute(name, value)
+    if (value !== undefined && value !== null)
+      target.setAttribute(name, showValue(value))
   })
 }
 
@@ -372,7 +392,9 @@ export function append(
   elems.forEach((elem) =>
     elem !== undefined && elem !== null
       ? target.appendChild(
-          elem instanceof Element ? elem : document.createTextNode(`${elem}`)
+          elem instanceof Element
+            ? elem
+            : document.createTextNode(showValue(elem))
         )
       : undefined
   )

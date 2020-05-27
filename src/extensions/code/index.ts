@@ -3,6 +3,7 @@ import 'prismjs/plugins/filter-highlight-all/prism-filter-highlight-all'
 import 'prismjs/components/prism-python'
 import 'prismjs/components/prism-r'
 import { ready, select } from '../../util'
+import { PrismJsPlugins } from '../../libs'
 
 ready(() => {
   /**
@@ -21,7 +22,9 @@ ready(() => {
    * `CodeBlock` nodes (highlighting of `CodeExpression` and `CodeChunks` nodes
    * is handled by the Web Components for those nodes).
    */
-  Prism.plugins.filterHighlightAll.reject.add(
+  const plugins = Prism.plugins as PrismJsPlugins
+
+  plugins.filterHighlightAll.reject.add(
     (code: { element: Element; language: string }) => {
       const { element } = code
       const itemtype = element.getAttribute('itemtype')

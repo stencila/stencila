@@ -90,16 +90,22 @@ const generateSelectors = async (): Promise<void> => {
         if (prop.isPlural) {
           const [[arrayAttr, arrayValue]] = Object.entries(
             microdataProperty(name, 'array')
-          )
+          ) as [string, string][]
+
           const [[itemAttr, itemValue]] = Object.entries(
             microdataProperty(name, 'item')
-          )
+          ) as [string, string][]
+
           return {
             [name]: `[${arrayAttr}~='${arrayValue}']`,
             [name.slice(0, -1)]: `[${itemAttr}~='${itemValue}']`,
           }
         } else {
-          const [[attr, value]] = Object.entries(microdataProperty(name))
+          const [[attr, value]] = Object.entries(microdataProperty(name)) as [
+            string,
+            string
+          ][]
+
           return {
             [name]: `[${attr}~='${value}']`,
           }

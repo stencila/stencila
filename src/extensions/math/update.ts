@@ -20,6 +20,6 @@ MathJax.typeset({ css: true }, (result) => {
 /* stylelint-disable */
 /* prettier-ignore */
 
-${css}`
+${css ?? ''}`
   )
 })
