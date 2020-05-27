@@ -38,10 +38,9 @@ export const isTheme = (theme: string): theme is ThemeNames =>
  * Return a CDN link to an asset, cleaning up any Windows specific path separators.
  */
 export const generateCDNUrl = (asset: string): string => {
-  return `https://unpkg.com/@stencila/thema@${themaMajor}/${asset}`.replace(
-    /\\/g,
-    '/'
-  )
+  return `https://unpkg.com/@stencila/thema@${
+    themaMajor ?? 'latest'
+  }/${asset}`.replace(/\\/g, '/')
 }
 
 /**

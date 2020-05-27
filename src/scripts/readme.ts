@@ -14,11 +14,9 @@ import {
   tableRow,
 } from '@stencila/schema'
 import fs from 'fs'
-/* eslint-disable-next-line */
-// @ts-ignore type definitions are available but only for v4
 import jsdoc2md from 'jsdoc-to-markdown'
 import path from 'path'
-import * as typescript from 'typescript'
+import typescript from 'typescript'
 import { promisify } from 'util'
 import { extensions } from '../extensions'
 import { themes } from '../themes/index'
@@ -43,8 +41,7 @@ function update(): void {
  *
  * @param {string} readme The contents of the README
  * @returns {Promise<string>}
- */
-async function generateThemeDocs(readme: string): Promise<string> {
+ */ async function generateThemeDocs(readme: string): Promise<string> {
   const md = await readmesToTable(
     path.join(__dirname, '..', 'themes'),
     Object.keys(themes)
@@ -123,6 +120,8 @@ async function generateApiDocs(readme: string): Promise<string> {
   const js = typescript.transpileModule(ts, {}).outputText
   const md = await jsdoc2md.render({
     source: js,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     'heading-depth': 3,
   })
   return readme.replace(

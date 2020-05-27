@@ -66,6 +66,7 @@
     "@stencila/encoda": "0.93.14",
     "@stencila/schema": "0.43.1",
     "@types/jest": "25.2.3",
+    "@types/jsdoc-to-markdown": "^5.0.0",
     "@types/prismjs": "1.16.1",
     "@types/react": "16.9.35",
     "@types/react-dom": "16.9.8",
@@ -173,24 +174,8 @@
       "jest": true
     },
     "rules": {
-      "no-shadow": 2
-    },
-    "overrides": [
-      {
-        "files": [
-          "./src/**/*.tsx"
-        ],
-        "rules": {
-          "@typescript-eslint/strict-boolean-expressions": [
-            "error",
-            {
-              "allowNullable": true,
-              "ignoreRhs": true
-            }
-          ]
-        }
-      }
-    ]
+      "no-shadow": 1
+    }
   },
   "jest": {
     "preset": "ts-jest",

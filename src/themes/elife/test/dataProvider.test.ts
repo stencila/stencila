@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as dataProvider from '../lib/dataProvider'
 import Mock = jest.Mock
 
 interface Response {
   ok: boolean
-  json: Function
+  json: () => Promise<unknown>
 }
 const body = document.body
 
@@ -18,8 +19,12 @@ describe('data Provider ', () => {
     describe('successfully querying a valid article id', () => {
       it('does not throw', async () => {
         const fetchMock = (): Promise<Response> =>
-          Promise.resolve({ ok: true, json: () => Promise.resolve() })
+          Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(),
+          })
         await expect(
+          // @ts-expect-error
           dataProvider.query('validArticleId', fetchMock)
         ).resolves.not.toThrow()
       })
@@ -30,6 +35,7 @@ describe('data Provider ', () => {
             ok: true,
             json: () => Promise.resolve({ pdf: 'path-to-the.pdf' }),
           })
+        // @ts-expect-error
         await expect(dataProvider.query('someId', fetchMock)).resolves.toEqual({
           articleData: { pdf: 'path-to-the.pdf' },
           ok: true,
@@ -45,6 +51,7 @@ describe('data Provider ', () => {
                 figuresPdf: 'path-to-the-figures.pdf',
               }),
           })
+        // @ts-expect-error
         await expect(dataProvider.query('someId', fetchMock)).resolves.toEqual({
           articleData: { figuresPdf: 'path-to-the-figures.pdf' },
           ok: true,
@@ -57,6 +64,7 @@ describe('data Provider ', () => {
         const fetchMock = (): Promise<Response> =>
           Promise.resolve({ ok: false, json: () => Promise.resolve() })
         await expect(
+          // @ts-expect-error
           dataProvider.query('invalidArticleId', fetchMock)
         ).rejects.toThrow(
           new Error(
@@ -89,8 +97,10 @@ describe('data Provider ', () => {
       await dataProvider.getArticlePdfUrl(articleId, mockPdfUrlGetter)
       const mockCalls = mockPdfUrlGetter.mock.calls
       expect(mockCalls.length).toBe(1)
+      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
       expect(mockCalls[0][0]).toBe(articleId)
       return expect(mockCalls[0][1]).toBe('article')
+      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
     })
 
     it('getFiguresPdfUrl() requests the figures PDF URL for the id', async (): Promise<
@@ -99,8 +109,10 @@ describe('data Provider ', () => {
       await dataProvider.getFiguresPdfUrl(articleId, mockPdfUrlGetter)
       const mockCalls = mockPdfUrlGetter.mock.calls
       expect(mockCalls.length).toBe(1)
+      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
       expect(mockCalls[0][0]).toBe(articleId)
       return expect(mockCalls[0][1]).toBe('figures')
+      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
     })
   })
 
