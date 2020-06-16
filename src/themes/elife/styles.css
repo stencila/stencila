@@ -234,6 +234,19 @@
   & .downloads {
     --link-color: var(--COLOR-TEXT);
 
+    .downloads--link {
+      margin-top: 6px;
+      font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
+
+      a {
+        color: var(--COLOR-PRIMARY);
+        font-size: var(--TEXT-SIZE-SMALL);
+        font-weight: normal;
+        line-height: 1.5rem;
+        border-bottom: 0;
+      }
+    }
+
     ul {
       margin-top: 0;
       margin-bottom: var(--BASELINE-MEASURE-REM);

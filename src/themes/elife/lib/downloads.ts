@@ -22,7 +22,17 @@ const deriveUrl = (type: string, id: string, title = ''): string => {
 const buildLinkToFiguresPdf = (url: string): void => {
   after(
     select('[data-is-download-pdf-link]')[0],
-    create('li', null, create('a', { href: url }, 'Figures PDF'))
+    create('li', null, create('a', { href: url }, 'Figures PDF')),
+    create(
+      'li',
+      null,
+      create('a', { href: url }, 'Executable DAR'),
+      create(
+        'div',
+        { class: 'downloads--link' },
+        create('a', { href: url }, 'Learn more about DAR')
+      )
+    )
   )
 }
 
