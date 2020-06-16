@@ -240,7 +240,7 @@
 
       a {
         color: var(--COLOR-PRIMARY);
-        font-size: var(--TEXT-SIZE-SMALL);
+        font-size: var(--TEXT-SIZE-MEDIUM-REM);
         font-weight: normal;
         line-height: 1.5rem;
         border-bottom: 0;
