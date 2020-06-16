@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@stencila/dev-config": "1.4.47",
-    "@stencila/encoda": "0.94.0",
+    "@stencila/encoda": "0.95.0",
     "@stencila/schema": "0.43.1",
     "@types/jest": "25.2.3",
     "@types/jsdoc-to-markdown": "6.0.0",
