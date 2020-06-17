@@ -26,7 +26,7 @@ You can now easily edit your personal information by clicking **settings**.
 
 ![](https://i.imgur.com/Wqk8Osz.png)
 
-We encourage you to add more information about yourself asa this is a public profile.
+If you want to add a little extra information it helps make your page look awesome. Simply click **settings**.
 
 ![](https://i.imgur.com/HiPdVlK.png)
 
@@ -36,7 +36,9 @@ Personalise your image by uploading one of your choice :cat:
 
 # Next steps
  
-- **Organizations** - [Create an organization](./https://hackmd.io/HzFwQFPuQvGpn_VZpa49yA) 
+[Create an organization](./https://hackmd.io/HzFwQFPuQvGpn_VZpa49yA)
+
+[Create a project](https://hackmd.io/u3DIkALuSL2oTcx6JU4aZQ)
 - **Projects** - [Create a project](https://hackmd.io/u3DIkALuSL2oTcx6JU4aZQ)
 
 
