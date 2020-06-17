@@ -1,0 +1,31 @@
+---
+id: 4170077
+title: Manage your organization settings
+description: Edit your organization information, upload an image and choose your project theme 
+---
+
+After [creating your organization](https://hackmd.io/HzFwQFPuQvGpn_VZpa49yA) it's a great idea to personalize your information.
+
+## Edit your profile
+If you want to add a little extra detail it helps make your organization page look awesome :sparkles: Just click **settings**. 
+
+![](http://stencila.github.io/hub/orgs-new-owner-data-labelprofile-fields.png)
+
+## Upload an image
+Personalise your image by uploading one of your choice :cat:
+
+![](https://i.imgur.com/3AL5q3T.png)
+
+## Choose your project theme
+
+It's pretty exciting to be able to choose a theme :sparkles: 
+
+Through **settings** scroll down to **Content** and select **Theme** to pick your template. Preview them all at https://stencila.github.io/thema.
+
+![](http://stencila.github.io/hub/biotech-corp-settings-owner-data-labelimage-form.png)
+
+***Note** if you don't specify one the default Stencila theme will be used for your projects*. 
+
+## Next step
+
+[Create a project](https://hackmd.io/u3DIkALuSL2oTcx6JU4aZQ)
