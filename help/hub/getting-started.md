@@ -6,7 +6,7 @@ description: Welcome to Stencila! Let’s quickly create your Stencila account a
 
 Signing up with Stencila is the first step on your journey to create a project, link data sources, and publish files. Here’s how to get going.
 
-# Create your account
+## Create your account
 
 
 Go to https://hub.stenci.la/ to sign up on the web.
@@ -19,7 +19,7 @@ Sign in via your GibHub, Google, Orchid or Twitter account or sign up as a user.
 
 Check your inbox for an email and select the link within it to verify your address. 
 
-# Edit your profile
+## Edit your profile
 
 Once you've logged in you will arrive on your dashboard :zap: 
 You can now easily edit your personal information by clicking **settings**. 
@@ -30,7 +30,7 @@ If you want to add a little extra information it helps make your page look aweso
 
 ![](https://i.imgur.com/HiPdVlK.png)
 
-# Edit your image
+## Edit your image
 
 Personalise your image by uploading one of your choice :cat:
 
@@ -44,7 +44,7 @@ It's pretty exciting to be able to choose a theme :sparkles: Select **Theme** to
 
 *Once selected the template will be your default theme. If you don't specify one the default Stencila theme will be used for all your projects*. 
 
-# Next steps
+## Next steps
  
 [Create an organization](./https://hackmd.io/HzFwQFPuQvGpn_VZpa49yA)
 
