@@ -38,7 +38,7 @@ Personalise your image by uploading one of your choice :cat:
 
 ## Choose your project theme
 
-It's pretty exciting to be able to choose a theme :sparkles: Select **Theme** to choose your template. Preview them all at https://stencila.github.io/thema.
+It's pretty exciting to be able to choose a theme :sparkles: Select **Theme** to select your template. Preview them all at https://stencila.github.io/thema.
 
 ![](https://i.imgur.com/kFXFbXW.png)
 
