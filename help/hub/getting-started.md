@@ -30,16 +30,26 @@ If you want to add a little extra information it helps make your page look aweso
 
 ![](https://i.imgur.com/HiPdVlK.png)
 
+# Edit your image
+
 Personalise your image by uploading one of your choice :cat:
 
 ![](https://i.imgur.com/3AL5q3T.png)
+
+## Choose your project theme
+
+It's pretty exciting to be able to choose a theme :sparkles: Select **Theme** to choose your template. Preview them all at https://stencila.github.io/thema.
+
+![](https://i.imgur.com/kFXFbXW.png)
+
+*Once selected the template will be your default theme. If you don't specify one the default Stencila theme will be used for all your projects*. 
 
 # Next steps
  
 [Create an organization](./https://hackmd.io/HzFwQFPuQvGpn_VZpa49yA)
 
 [Create a project](https://hackmd.io/u3DIkALuSL2oTcx6JU4aZQ)
-- **Projects** - [Create a project](https://hackmd.io/u3DIkALuSL2oTcx6JU4aZQ)
+
 
 
 
