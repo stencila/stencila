@@ -26,11 +26,11 @@ const buildLinkToFiguresPdf = (url: string): void => {
     create(
       'li',
       null,
-      create('a', { href: url }, 'Executable DAR'),
+      create('a', { href: url }, 'Executable version'),
       create(
         'div',
         { class: 'downloads--link' },
-        create('a', { href: url }, 'Learn more about DAR')
+        create('a', { href: url }, 'What are executable versions?')
       )
     )
   )
