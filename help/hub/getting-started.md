@@ -15,7 +15,7 @@ Sign in via your GibHub, Google, Orchid or Twitter account or sign up as a user.
 
 *Use the same sign in method each time otherwise your there is the potential for duplication on your account.*
 
-![](https://i.imgur.com/xW8xMDK.png)
+![](http://stencila.github.io/hub/me-signup-anon-360x640.png)
 
 Check your inbox for an email and select the link within it to verify your address. 
 
