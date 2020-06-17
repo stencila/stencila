@@ -73,6 +73,10 @@ export const getFiguresPdfUrl = async (
   return pdfUrlGetter(id, 'figures')
 }
 
+export const getExecutableVersionDownloadUrl = (id: string): string => {
+  return `https://elifesciences.org/article/${id}/download/executable/snapshot`
+}
+
 export const query = async (
   id: string,
   fetcher: WindowOrWorkerGlobalScope['fetch']
