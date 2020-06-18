@@ -19,7 +19,8 @@
     "build:bin": "pkg --target=node10 -o=bin/stencila .",
     "build:test": "bash ./build-test.sh",
     "bundle:linux": "tar -czvf bin/stencila-linux-x64.tar.gz -C bin stencila",
-    "bundle:osx": "tar -czvf bin/stencila-macos-x64.tar.gz -C bin stencila"
+    "bundle:osx": "tar -czvf bin/stencila-macos-x64.tar.gz -C bin stencila",
+    "docs:intercom": "npx ts-node --project tsconfig.json help/intercom.ts"
   },
   "keywords": [
     "reproducibility",
@@ -58,6 +59,8 @@
     "@types/tar": "4.0.3",
     "@types/yargs": "13.0.2",
     "dependency-check": "4.1.0",
+    "globby": "^11.0.1",
+    "got": "^11.3.0",
     "jest": "24.9.0",
     "markdown-toc": "1.2.0",
     "pkg": "4.4.0",
