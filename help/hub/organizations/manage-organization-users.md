@@ -5,12 +5,14 @@ description: Once your organization is created you can add users and work collab
 ---
 
 ## User roles
+
 There are three different user roles.
-**Member**:  can create, update and delete projects.
+**Member**: can create, update and delete projects.
 **Manager**: as for member and can create, update and delete teams.
 **Owner**: as for manager and can also add and remove users and change their role.
- 
+
 ## Add a user
+
 If you know someone is already a user of Stencila you can easily search and add them to your organization and assign then a role.
 
 Click **Users** under your organization image.
@@ -19,17 +21,21 @@ Click **Users** under your organization image.
 
 Type their username, or full name, into the search bar.
 
-![](http://stencila.github.io/hub/biotech-corp-users-owner-form.png)  
+![](http://stencila.github.io/hub/biotech-corp-users-owner-form.png)
 
 ## Change roles
-You can change the role of a user at any time. 
 
-## Remove a user 
+You can change the role of a user at any time.
+
+## Remove a user
+
 Delete a user from your organisation by selecting **remove from account** at the end of their name.
 
 ## Inviting a user
-If the person you want to add to your organization is not already a user you can invite them to join https://hub.stenci.la/ :+1: 
+
+If the person you want to add to your organization is not already a user you can invite them to join https://hub.stenci.la/ :+1:
 
 ## Next steps
+
 [Manager your organization settings](https://hackmd.io/LD1uGrXFS3-H8PjVrHEi8A)
-[Create a project](https://hackmd.io/u3DIkALuSL2oTcx6JU4aZQ) 
+[Create a project](https://hackmd.io/u3DIkALuSL2oTcx6JU4aZQ)
