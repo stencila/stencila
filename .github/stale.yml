@@ -13,7 +13,6 @@ markComment: >
   This issue has been automatically marked as stale because it has not had
   recent activity. It will be closed if no further activity occurs.
   To keep it open add a comment (prodding the maintainers if appropriate).
-
   Thank you for your contributions 🙏.
 # Comment to post when closing a stale issue. Set to `false` to disable
 closeComment: false
