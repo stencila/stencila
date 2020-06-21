@@ -39,10 +39,7 @@
     "./public/QuoteBlock.schema.json": "*quoteBlock.yaml",
     "https://json-schema.org/draft-07/schema": "*.schema.yaml"
   },
-  "cSpell.words": [
-    "stencila",
-    "transclude"
-  ],
+  "cSpell.words": ["stencila", "transclude"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "python.formatting.provider": "black"
 }

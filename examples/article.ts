@@ -3,11 +3,11 @@ import { Article } from '../ts/types'
 export const minimal: Article = {
   type: 'Article',
   title: '',
-  authors: []
+  authors: [],
 }
 
 export const simple: Article = {
   type: 'Article',
   title: 'The title of this article',
-  authors: []
+  authors: [],
 }

@@ -4,18 +4,18 @@ import * as datatable from './datatable'
 
 export const minimal: Collection = {
   type: 'Collection',
-  parts: []
+  parts: [],
 }
 
 export const simple: Collection = {
   type: 'Collection',
   editors: [
     {
-      type: 'Person'
-    }
+      type: 'Person',
+    },
   ],
   publisher: {
-    type: 'Organization'
+    type: 'Organization',
   },
-  parts: [article.simple, datatable.minimal]
+  parts: [article.simple, datatable.minimal],
 }
