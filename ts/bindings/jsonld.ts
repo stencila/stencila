@@ -7,7 +7,7 @@
  */
 
 import fs from 'fs-extra'
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import fromEntries from 'object.fromentries'
 import path from 'path'

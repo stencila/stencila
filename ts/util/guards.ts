@@ -55,7 +55,7 @@ export const nodeIs = <T extends Partial<TypeMap | TypeMapGeneric>>(
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const is = <Ts extends Entity>(type: keyof TypeMap<Ts>) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const typeMap: TypeMap<Ts> = {
     [type]: type,
