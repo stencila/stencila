@@ -17,6 +17,8 @@ export function cli(
     (yargsDefinition: yargs.Argv): yargs.Argv => {
       return yargsDefinition
     },
+    // TODO: Fix Linting errors
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises, @typescript-eslint/require-await
     async (): Promise<void> => {
       extractDeps(true)
       if (callbackFunction !== undefined) callbackFunction()

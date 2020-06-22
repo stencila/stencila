@@ -220,7 +220,7 @@ type HelpArticle = Article & {
   description?: string
   published?: boolean
   parent_type?: string
-  parent_id?: string
+  collectionId?: string
   relatedArticles?: string[]
 }
 /**
@@ -259,7 +259,7 @@ const postArticle = async (
     body: body,
     description: article.description,
     id: article.id,
-    parent_id: article.parent_id,
+    parent_id: article.collectionId,
     parent_type:
       article.parent_type === 'collection' || article.parent_type === 'section'
         ? article.parent_type

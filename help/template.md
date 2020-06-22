@@ -1,8 +1,8 @@
 ---
-id: 0000000
 published: false
 title: Article title
 description: Short article summary (140 characters maximum)
+# collectionId: 0000000
 relatedArticles:
   - ./hub/getting-started.md
 authors:
