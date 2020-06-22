@@ -1,31 +1,34 @@
 ---
 id: 4170077
 title: Manage your organization settings
-description: Edit your organization information, upload an image and choose your project theme 
+description: Update your organization profile information, set a image and choose your project theme 
 ---
 
-After [creating your organization](./create-an-organization.md) it's a great idea to personalize your information.
+After [creating an organization](./create-an-organization.md) it's a great idea to personalize your organization profile page.
 
 ## Edit your profile
-If you want to add a little extra detail it helps make your organization page look awesome :sparkles: Just click **settings**. 
+By customizing your profile other users get a better sense of who you are and what you do. It also helps make your page look awesome :sparkles:
 
-![](http://stencila.github.io/hub/manager/snaps/an-org-settings-owner-data-label-profile-form.png)
+![](http://stencila.github.io/hub/manager/snaps/org-new-profile-fields.png)
 
-## Upload an image
-Personalise your image by uploading one of your choice :cat:
+## Change your profile picture
+Your profile picture helps identify you across Stencila :cat:
 
-![](http://stencila.github.io/hub/manager/snaps/an-org-settings-owner-data-label-image-form.png)
+![](http://stencila.github.io/hub/manager/snaps/org-settings-image-form.png)
 
-## Choose your project theme
+## Choose your theme
+We want your published articles to look beautiful, branded and pleasant to read. :sparkles: 
 
-It's pretty exciting to be able to choose a theme :sparkles: 
+It's pretty exciting to be able to choose a theme and save yourself time deciding how your article will look. We have a range of design themes to choose from and you can preview them all at https://stencila.github.io/thema. 
 
-Through **settings** scroll down to **Content** and select **Theme** to pick your template. Preview them all at https://stencila.github.io/thema.
+Once chosen, you are still able to make edits and changes to the theme if you want to. You can also choose another theme at an time. 
 
-![](http://stencila.github.io/hub/manager/snaps/an-org-settings-owner-data-label-content-form.png)
+Through **settings** scroll down to **Content** and click **Theme** to select your template and **Upload**.  
 
-***Note** if you don't specify one the default Stencila theme will be used for your projects*. 
+![](http://stencila.github.io/hub/manager/snaps/org-settings-theme-field.png)
 
-## Next step
+If you choose to leave this section untouched the default style theme assigned to your projects with be the **Stencila** theme. 
 
-[Create a project](../projects/create-a-project.md)
+## Further reading
+
+Time to [create a project.](../projects/create-a-project.md)
