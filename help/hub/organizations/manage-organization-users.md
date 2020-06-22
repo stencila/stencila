@@ -1,8 +1,10 @@
 ---
 id: 4170086
 title: Manage organization users
-description: Once your organization is created you can add users and work collaboratively on projects
+description: Once your organization is created you can add users to work collaboratively on projects
 ---
+
+The advance of [creating an organization](./create-an-organization.md) is so that a collection of user accounts that be associated with it and work collaboratively on projects. 
 
 ## User roles
 There are three different user roles to choose from:
@@ -18,22 +20,24 @@ If you know someone is already a user of Stencila you can easily search and add 
 
 Click **Users** under your organization image.
 
-![](http://stencila.github.io/hub/manager/snaps/an-org-users-owner-menu.png)
+![](http://stencila.github.io/hub/manager/snaps/org-users-menu-item.png)
 
 Type their username, or full name, into the search bar.
 
-![](http://stencila.github.io/hub/manager/snaps/users-owner-360x640.png)  
+![](http://stencila.github.io/hub/manager/snaps/org-users-add-user.png)  
+
+## Invite a user
+If the person you want to add to your organization is not already a Stencila user you can invite them to join with this URL https://hub.stenci.la/ :+1: 
 
 ## Change roles
 You can change the role of a user at any time. 
 
 ## Remove a user 
-Delete a user from your organisation by selecting **remove from account** at the end of their name.
+Delete a user from your organisation by selecting the eclipse button at the end of their name and **remove from account**.
 
-## Inviting a user
-If the person you want to add to your organization is not already a user you can invite them to join https://hub.stenci.la/ :+1: 
+![](http://stencila.github.io/hub/manager/snaps/org-users-change-user.png)
 
-## Next steps
-[Change your organization settings](./manage-your-organization-settings.md)
+## Further reading
 
-[Create a project](../projects/create-a-project.md)  
+[Starting working on your first project.](../projects/create-a-project.md)  
+
