@@ -74,7 +74,7 @@ export const getFiguresPdfUrl = async (
 }
 
 export const getExecutableVersionDownloadUrl = (id: string): string => {
-  return `https://elifesciences.org/article/${id}/download/executable/snapshot`
+  return `https://elifesciences.org/article/${id}/executable/download`
 }
 
 export const query = async (
