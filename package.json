@@ -1,6 +1,6 @@
 {
   "name": "@stencila/thema",
-  "version": "2.10.2",
+  "version": "2.10.3",
   "description": "Semantic themes for use with encoda (https://github.com/stencila/encoda)",
   "files": [
     "/dist"
@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@stencila/dev-config": "1.4.47",
-    "@stencila/encoda": "0.94.0",
+    "@stencila/encoda": "0.95.0",
     "@stencila/schema": "0.43.1",
     "@types/jest": "25.2.3",
     "@types/jsdoc-to-markdown": "6.0.0",
