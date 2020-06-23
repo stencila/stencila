@@ -11,17 +11,19 @@ Stencila offers user accounts for individuals and organizations for teams of peo
 
 ## Create your account
 
-Go to https://hub.stenci.la/ to **sign up** on the web.
+Go to https://hub.stenci.la/
 
-![](http://stencila.github.io/hub/manager/snaps/me-signup-anon-360x640.png)
+**Sign in** via one of your GibHub, Google, Orchid or Twitter accounts. *If you can use the same sign in method each time you won't get duplications on your account.*
 
-Or **Sign in** via your GibHub, Google, Orchid or Twitter account or sign up as a user.
+![](https://i.imgur.com/wVxKgSZ.png)
 
-![](http://stencila.github.io/hub/manager/snaps/me-signin-anon-360x640.png)
+Or, **Sign up** as a user with your email address and a username. Check your inbox for an email and select the link within it to **verify your address**. 
 
-**If you can use the same sign in method each time you won't get duplications on your account.**
+![](http://stencila.github.io/hub/manager/snaps/user-signup-form.png)
 
-Check your inbox for an email and select the link within it to **verify your address**.
+If you have previously registered with the Stencila Hub simply **Sign in**.
+
+![](http://stencila.github.io/hub/manager/snaps/user-signin-username-password-form.png)
 
 ## Personalise your page
 
