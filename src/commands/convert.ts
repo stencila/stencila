@@ -35,6 +35,7 @@ export function cli(
     'convert input [outputs..]',
     'Convert between file formats',
     cliArgsDefine,
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     async (
       argv: yargs.Arguments<{
         input: string
@@ -54,9 +55,10 @@ export function cli(
           from,
           to,
           encodeOptions: {
-            theme,
-            shouldZip: zip
-          }
+            // TODO: Add type guards to avoid type casting
+            theme: theme as string,
+            shouldZip: zip as 'yes' | 'no' | 'maybe',
+          },
         }
       )
       if (callbackFunction !== undefined) callbackFunction()
@@ -77,31 +79,31 @@ export function cliArgsDefine(yargsDefinition: yargs.Argv): yargs.Argv<any> {
   return yargsDefinition
     .positional('input', {
       describe: 'The input file path. Defaults to standard input.',
-      type: 'string'
+      type: 'string',
     })
     .positional('outputs', {
       describe: 'The output file path/s. Defaults to standard output.',
       type: 'string',
-      default: '-'
+      default: '-',
     })
     .option('from', {
       describe: 'The format to convert the input from.',
-      type: 'string'
+      type: 'string',
     })
     .option('to', {
       describe: 'The format to convert the output to.',
-      type: 'string'
+      type: 'string',
     })
     .option('theme', {
       describe: `The theme to use for the output format (default: ${DEFAULT_THEME}).`,
       type: 'string',
-      default: DEFAULT_THEME
+      default: DEFAULT_THEME,
     })
     .option('zip', {
       describe:
         'Create Zip archive containing output files? no (default), yes, maybe (only if more than one file)',
       choices: ['no', 'yes', 'maybe'],
-      default: 'no'
+      default: 'no',
     })
 }
 

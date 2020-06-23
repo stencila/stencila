@@ -22,13 +22,20 @@ export function cli(yargsDefinition: yargs.Argv, next?: Function): void {
     'process [input] [output]',
     'Process content',
     cliArgsDefine,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (argv: yargs.Arguments<any>): Promise<void> => {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    async (
+      argv: yargs.Arguments<{
+        input: string
+        output: string
+        from: string
+        to: string
+      }>
+    ): Promise<void> => {
       const { input, output, from, to } = argv
 
       const node = await encoda.read(input, from)
       const processed = await encodaProcess(node)
-      await encoda.write(processed, output, to)
+      await encoda.write(processed, output, { format: to })
 
       if (next !== undefined) next()
     }

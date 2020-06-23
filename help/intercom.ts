@@ -4,9 +4,22 @@ import { Article, isA, Organization, Person } from '@stencila/schema'
 import glob from 'glob'
 import got from 'got'
 import path from 'path'
+import fs from 'fs'
 
 const mdPaths = glob.sync(path.join(__dirname, '/hub/**/*.md'))
 const authToken = process.env.INTERCOM_AUTH_TOKEN
+const intercomUrl = 'https://intercom.help/stencila/en/articles'
+
+// Using async is inconvenient in `String.replace`.
+// This is a synchronous function to read an article's `id` and `title` given a `filepath`.
+const getArticleProps = (filePath: string): { id?: string; title: string } => {
+  const linkedFileRaw = fs.readFileSync(filePath).toString()
+
+  const [, id] = linkedFileRaw.match(/id: (\d+)/) ?? []
+  const [, title] = linkedFileRaw.match(/title: (.+)/) ?? []
+
+  return { id, title }
+}
 
 interface IntercomPartialArticle {
   id?: string
@@ -24,6 +37,36 @@ interface IntercomArticle extends Required<IntercomPartialArticle> {
   type: 'article'
   id: string
   errors?: string[]
+}
+
+const slugify = (text: string): string => text.toLowerCase().replace(/\s/g, '-')
+
+const resolveArticleLinks = (filePath: string) => async (
+  article: string
+): Promise<string> => {
+  const relativeUrlRegEx = /href=['"](.{1,2}\/.*\.md)['"]/g
+  return article.replace(
+    relativeUrlRegEx,
+    (match, link: string | undefined): string => {
+      if (link === undefined) {
+        return match
+      }
+
+      const { id, title } = getArticleProps(path.resolve(filePath, link))
+
+      if (id === undefined) {
+        throw new Error(
+          `"${title}" must be published before you can link to it.`
+        )
+      }
+
+      if (typeof title === 'string') {
+        return `${intercomUrl}/${id}-${slugify(title)}`
+      }
+
+      return match
+    }
+  )
 }
 
 /**
@@ -44,13 +87,13 @@ const upsertArticle = (
     headers: {
       Authorization: `Bearer ${authToken}`,
       Accept: 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     json: { ...payload },
-    responseType: 'json'
+    responseType: 'json',
   })
-    .then(res => res.body)
-    .then(res => {
+    .then((res) => res.body)
+    .then((res) => {
       if (res.errors !== undefined && res.errors.length > 0) {
         console.log(res)
         throw new Error(JSON.stringify(res))
@@ -77,7 +120,7 @@ const buttonifyLinks = (article: string): string => {
  * Both those elements are already present in the Intercom article pages, so remove them from the article body.
  */
 const removeDuplicateIntro = (article: string): string => {
-  const introRegEx = /^\s*<h1 itemprop="headline">[\s\S]*<section>[\s\S]+<\/section>$/m
+  const introRegEx = /^\s*<h1 itemprop="headline">[\s\S]*<section data-itemprop="description">[\s\S]*<\/section>$/m
   return article.replace(introRegEx, '')
 }
 
@@ -91,7 +134,7 @@ const formatAuthor = (author: Person): string => {
 
   if (emails.length > 0) {
     name += ' '
-    name += emails.map(email => `<a href="mailto:${email}">✉️</a>`)
+    name += emails.map((email) => `<a href="mailto:${email}">✉️</a>`)
   }
 
   if (url !== undefined) {
@@ -102,12 +145,35 @@ const formatAuthor = (author: Person): string => {
   return name.replace('  ', ' ')
 }
 
-const createAuthorsSection = (authors: (Person | Organization)[]) => (
+const furtherReadingLinks = (relatedArticles: string[] = []) => (
   article: string
 ): string =>
-  article.replace(
-    '</article>',
-    `
+  relatedArticles.length === 0
+    ? article
+    : article.replace(
+        '</article>',
+        `
+<h2>Further Related</h2>
+
+${relatedArticles.map((rel) => {
+  const { title } = getArticleProps(rel)
+  return `
+  <div class="intercom-align-center">
+    <a href="${rel}" class="intercom-h2-button">${title}</a>
+  </div>
+  `
+})}
+`
+      )
+
+const createAuthorsSection = (authors: (Person | Organization)[] = []) => (
+  article: string
+): string =>
+  authors.length === 0
+    ? article
+    : article.replace(
+        '</article>',
+        `
 <h2>Documentation Contributors</h2>
 
 <p>
@@ -123,7 +189,7 @@ ${authors.reduce(
 </p>
 </article>
 `
-  )
+      )
 
 const insertFooter = (article: string): string =>
   article.replace(
@@ -139,17 +205,24 @@ href="https://discord.gg/qjNzVQK">Discord channel</a>.
 `
   )
 
-const processedArticle = (...fns: ((article: string) => string)[]) => (
-  article: string
-): string => fns.reduce((processedArticle, fn) => fn(processedArticle), article)
-
-type HelpArticle = Article & {
-  description?: string
-  state?: string
-  parent_type?: string
-  parent_id?: string
+const processArticle = (
+  ...fns: ((article: string) => string | Promise<string>)[]
+) => async (article: string): Promise<string> => {
+  let processedArticle = article
+  for (const fn of fns) {
+    processedArticle = await fn(processedArticle)
+  }
+  return processedArticle
 }
 
+type HelpArticle = Article & {
+  id: string | undefined
+  description?: string
+  published?: boolean
+  parent_type?: string
+  collectionId?: string
+  relatedArticles?: string[]
+}
 /**
  * Read a Markdown file, construct an Intercom Article API compatible payload.
  * If the article is already present on Intercom update it, otherwise create a new article.
@@ -162,31 +235,37 @@ const postArticle = async (
   const article = (await read(filePath)) as HelpArticle
   const bodyRaw = await dump(article, 'html', {
     isStandalone: false,
-    theme: 'stencila'
+    theme: 'stencila',
   })
 
-  console.log(article.authors)
-
   // Process the ingested HTML contents with various adjustments
-  const body = processedArticle(
+  const body = await processArticle(
     removeDuplicateIntro,
     buttonifyLinks,
+    furtherReadingLinks(article.relatedArticles),
     createAuthorsSection(article.authors),
-    insertFooter
+    insertFooter,
+    resolveArticleLinks(path.dirname(filePath))
   )(bodyRaw)
+
+  if (article.description && article.description.length > 140) {
+    throw new Error(
+      `"${article.title}" description field must be 140 characters or less.`
+    )
+  }
 
   const articlePayload: IntercomPartialArticle = {
     author_id: authorId,
     body: body,
     description: article.description,
     id: article.id,
-    parent_id: article.parent_id,
+    parent_id: article.collectionId,
     parent_type:
       article.parent_type === 'collection' || article.parent_type === 'section'
         ? article.parent_type
         : undefined,
-    state: article.state === 'published' ? 'published' : 'draft',
-    title: typeof article.title === 'string' ? article.title : ''
+    state: article.published === true ? 'published' : 'draft',
+    title: typeof article.title === 'string' ? article.title : '',
   }
 
   try {
@@ -199,7 +278,7 @@ const postArticle = async (
       const res = await upsertArticle(articlePayload)
       await write({ ...article, id: parseInt(res.id, 10) }, filePath, {
         format: 'md',
-        theme: 'stencila'
+        theme: 'stencila',
       })
     } else {
       console.log(
@@ -230,7 +309,7 @@ const updateAllArticles = async (): Promise<void> => {
 
   let progressMeter = 1
   for (const file of mdPaths) {
-    await postArticle(file, authorId, progressMeter).catch(e =>
+    await postArticle(file, authorId, progressMeter).catch((e) =>
       console.error(e)
     )
     progressMeter++

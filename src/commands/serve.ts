@@ -20,14 +20,16 @@ export function cli(
           describe:
             'The folder or file to preview. Defaults to current directory.',
           type: 'string',
-          default: '.'
+          default: '.',
         })
         .option('sync', {
           describe: 'Synchonize the browser with changes in the folder?',
           type: 'boolean',
-          default: false
+          default: false,
         })
     },
+    // TODO: Fix Linting errors
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises, @typescript-eslint/require-await
     async (argv: yargs.Arguments): Promise<void> => {
       const { folder, sync } = argv
       web(folder as string, sync as boolean)
