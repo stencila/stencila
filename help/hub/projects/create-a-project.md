@@ -2,7 +2,7 @@
 id: 4170095
 title: Create a project
 description: Projects are where you upload and link data sources and publish files 
-publish: true
+published: true
 ---
 
 Once you're [set up](../getting-started.md) as a Stencila account user decide whether you want to create a project under your personal account or [under your organization](./organizations/create-an-organization.md). The advance of creating an organization is so that a collection of users can be associated with it and work collaboratively on projects.
