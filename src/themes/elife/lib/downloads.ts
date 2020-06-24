@@ -28,12 +28,11 @@ const buildLinkToExecutableVersion = (url: string): void => {
     select('[data-is-download-pdf-link]')[0],
     create(
       'li',
-      null,
+      { 'data-is-download-executable-version-link': true },
       create(
         'a',
         {
           href: url,
-          'data-is-download-executable-version-link': true,
         },
         'Executable version'
       )
@@ -46,12 +45,11 @@ const buildLinkToFiguresPdf = (url: string): void => {
     select('[data-is-download-executable-version-link]')[0],
     create(
       'li',
-      null,
+      { 'data-is-download-figures-pdf-link': true },
       create(
         'a',
         {
           href: url,
-          'data-is-download-figures-pdf-link': true,
         },
         'Figures PDF'
       )
@@ -78,12 +76,8 @@ const buildMenu = (
         null,
         create(
           'li',
-          null,
-          create(
-            'a',
-            { href: pdfUrl, 'data-is-download-pdf-link': true },
-            'Article PDF'
-          )
+          { 'data-is-download-pdf-link': true },
+          create('a', { href: pdfUrl }, 'Article PDF')
         )
       ),
       create('h3', null, 'Download citations'),
