@@ -167,13 +167,13 @@ export const build = (articleTitle: string, articleId: string): void => {
   try {
     getArticlePdfUrl(articleId)
       .then((pdfUri) => buildMenu(articleId, articleTitle, pdfUri, menuId))
-      .then(() => getFiguresPdfUrl(articleId))
-      .then((figuresPdfUrl: string) => buildLinkToFiguresPdf(figuresPdfUrl))
-      .then(() => buildLinkToMenu(menuId))
       .then(() => getExecutableVersionDownloadUrl(articleId))
       .then((executableVersionDownloadUrl: string) =>
         buildLinkToExecutableVersion(executableVersionDownloadUrl)
       )
+      .then(() => getFiguresPdfUrl(articleId))
+      .then((figuresPdfUrl: string) => buildLinkToFiguresPdf(figuresPdfUrl))
+      .then(() => buildLinkToMenu(menuId))
       .catch((err: Error) => {
         throw err
       })
