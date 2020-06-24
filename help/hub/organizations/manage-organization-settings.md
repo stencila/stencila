@@ -2,22 +2,23 @@
 id: 4170077
 title: Manage your organization settings
 description: Update your organization profile information, set a image and choose your project theme 
+published: true
 ---
 
 After [creating an organization](./create-an-organization.md) it's a great idea to personalize your organization profile page.
 
 ## Edit your profile
-By customizing your profile other users get a better sense of who you are and what you do. It also helps make your page look awesome :sparkles:
+By customizing your profile other users get a better sense of who you are and what you do. It also helps make your page look awesome ⭐
 
 ![](http://stencila.github.io/hub/manager/snaps/org-new-profile-fields.png)
 
 ## Change your profile picture
-Your profile picture helps identify you across Stencila :cat:
+Your profile picture helps identify you across Stencila 😺
 
 ![](http://stencila.github.io/hub/manager/snaps/org-settings-image-form.png)
 
 ## Choose your theme
-We want your published articles to look beautiful, branded and pleasant to read. :sparkles: 
+We want your published articles to look beautiful, branded and pleasant to read 💥  
 
 It's pretty exciting to be able to choose a theme and save yourself time deciding how your article will look. We have a range of design themes to choose from and you can preview them all at https://stencila.github.io/thema. 
 
@@ -32,3 +33,4 @@ If you choose to leave this section untouched the default style theme assigned t
 ## Further reading
 
 Time to [create a project.](../projects/create-a-project.md)
+
