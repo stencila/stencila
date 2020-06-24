@@ -116,6 +116,12 @@ describe('data Provider ', () => {
     })
   })
 
+  describe('getExecutableVersionDownloadUrl', () => {
+    it('returns the executable version download url for the id', (): void => {
+      expect(dataProvider.getExecutableVersionDownloadUrl('someId')).toBe('https://elifesciences.org/articles/someId/executable/download')
+    })
+  })
+
   describe('getArticleDoi', () => {
     it('it returns the expected DOI', () => {
       const mockData = '10.7554/eLife.30274'
