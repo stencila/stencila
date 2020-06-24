@@ -2,9 +2,10 @@
 id: 4170095
 title: Create a project
 description: Projects are where you upload and link data sources and publish files 
+publish: true
 ---
 
-Once you're [set up](../getting-started.md) as a Stencila account user decide whether you want to create a project under your personal account or [under your organization](../organizations/create-an-organization.md). The advance of creating an organization is so that a collection of user accounts that be associated with it and work collaboratively on projects.
+Once you're [set up](../getting-started.md) as a Stencila account user decide whether you want to create a project under your personal account or [under your organization](./organizations/create-an-organization.md). The advance of creating an organization is so that a collection of users can be associated with it and work collaboratively on projects.
 
 ## Create a project
 Navigate to **projects** on the top header bar.
@@ -25,7 +26,7 @@ Your project will automatically be **private** which means that only you can vie
 
 As the creator of the project you automatically become the project **owner**. This gives you full authority to make changes or delete the project.
 
-Before you start [managing your project sources](./manage-project-source.md) we recommend you finalise your project set up. It won't take a moment. :wink:
+Before you start [managing your project sources](./manage-project-source.md) we recommend you finalise your project set up. It won't take a moment ⚡
 
 ## Project settings
 
@@ -33,7 +34,7 @@ Before you start [managing your project sources](./manage-project-source.md) we 
 
 ![](http://stencila.github.io/hub/manager/snaps/project-settings-description-field.png)
 
-**Theme** - We want your published articles to look beautiful, branded and pleasant to read. :sparkles: 
+**Theme** - We want your published articles to look beautiful, branded and pleasant to read 💥  
 
 If you haven't already selected your theme we have a range of design themes to choose from and you can preview them all at https://stencila.github.io/thema. 
 
@@ -46,4 +47,4 @@ Through **settings** scroll down to **Content** and click **Theme** to select yo
 If you choose to leave this section untouched the default style theme assigned to your projects with be the **Stencila** theme. 
 
 ## Manage project sources
-You're set up :clap: and ready to start [managing your project sources](./manage-project-sources.md). Learn how to create a new source, upload a file and much more.  
+You're set up 👏 and ready to start [managing your project sources](./manage-project-sources.md). Learn how to create a new source, upload a file and much more.  
