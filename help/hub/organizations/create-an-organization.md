@@ -1,7 +1,8 @@
 ---
 id: 4170083
 title: Create an organization
-description: Setting up an organization enables you to work collaboratively with your colleagues 
+description: Setting up an organization enables you to work collaboratively with your colleagues
+published: true
 ---
 You can use your existing personal Stencila account to work on projects or you can choose to set up an organization and work within it. 
 
