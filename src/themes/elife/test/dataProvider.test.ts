@@ -118,7 +118,9 @@ describe('data Provider ', () => {
 
   describe('getExecutableVersionDownloadUrl', () => {
     it('returns the executable version download url for the id', (): void => {
-      expect(dataProvider.getExecutableVersionDownloadUrl('someId')).toBe('https://elifesciences.org/articles/someId/executable/download')
+      expect(dataProvider.getExecutableVersionDownloadUrl('someId')).toBe(
+        'https://elifesciences.org/articles/someId/executable/download'
+      )
     })
   })
 
