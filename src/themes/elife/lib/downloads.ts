@@ -25,15 +25,37 @@ const deriveUrl = (type: string, id: string, title = ''): string => {
 
 const buildLinkToExecutableVersion = (url: string): void => {
   after(
-    select('[data-is-download-figures-pdf-link]')[0],
-    create('li', null, create('a', { href: url }, 'Executable version'))
+    select('[data-is-download-pdf-link]')[0],
+    create(
+      'li',
+      null,
+      create(
+        'a',
+        {
+          href: url,
+          'data-is-download-executable-version-link': true,
+        },
+        'Executable version'
+      )
+    )
   )
 }
 
 const buildLinkToFiguresPdf = (url: string): void => {
-  after(
-    select('[data-is-download-pdf-link]')[0],
-    create('li', null, create('a', { href: url, 'data-is-download-figures-pdf-link': true }, 'Figures PDF'))
+  before(
+    select('[data-is-download-executable-version-link]')[0],
+    create(
+      'li',
+      null,
+      create(
+        'a',
+        {
+          href: url,
+          'data-is-download-figures-pdf-link': true,
+        },
+        'Figures PDF'
+      )
+    )
   )
 }
 
