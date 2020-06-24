@@ -1,3 +1,10 @@
+## [2.10.3](https://github.com/stencila/thema/compare/v2.10.2...v2.10.3) (2020-06-23)
+
+
+### Bug Fixes
+
+* **Deps:** Upgrade Encoda ([44352c7](https://github.com/stencila/thema/commit/44352c7f6d66bc1809a38d5da49e8af98e5dfadf))
+
 ## [2.10.2](https://github.com/stencila/thema/compare/v2.10.1...v2.10.2) (2020-06-05)
 
 
