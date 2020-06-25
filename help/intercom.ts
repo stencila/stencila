@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { dump, read, write } from '@stencila/encoda'
 import { Article, isA, Organization, Person } from '@stencila/schema'
-import glob from 'glob'
+import glob from 'globby'
 import got from 'got'
 import path from 'path'
 import fs from 'fs'
 
-const mdPaths = glob.sync(path.join(__dirname, '/hub/**/*.md'))
+const mdPaths = glob.sync(path.join(__dirname, '/{guides,hub}/**/*.md'))
 const authToken = process.env.INTERCOM_AUTH_TOKEN
 const intercomUrl = 'https://intercom.help/stencila/en/articles'
 
@@ -153,7 +153,7 @@ const furtherReadingLinks = (filePath: string) => (
     : article.replace(
         '</article>',
         `
-<h2>Further Reading</h2>
+<h2>Further reading</h2>
 
 ${relatedArticles.reduce((rels, rel) => {
   const { title } = getArticleProps(path.resolve(filePath, rel))
@@ -179,7 +179,7 @@ const createAuthorsSection = (authors: (Person | Organization)[] = []) => (
     : article.replace(
         '</article>',
         `
-<h2>Documentation Contributors</h2>
+<h2>Contributors</h2>
 
 <p>
 ${authors.reduce(
@@ -210,8 +210,10 @@ Reach out to us at <a href="mailto:hello@stenci.la">hello@stenci.la</a> or on ou
 href="https://discord.gg/uFtQtk9">Discord channel</a>.
 </p>
 
+<h2>Help the help</h2>
+
 <p>
-  Help make this article better <a href="${gitHubLink}">by contributing improvements</a>.
+  Help make this help article better <a href="${gitHubLink}">by contributing improvements</a>.
 </p>
 </article>
 `
