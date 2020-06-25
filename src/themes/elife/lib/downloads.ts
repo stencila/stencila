@@ -1,12 +1,10 @@
 import { after, before, create, first, select } from '../../../util'
-import {
-  getArticlePdfUrl,
-  getFiguresPdfUrl,
-  getExecutableVersionDownloadUrl,
-} from './dataProvider'
+import { getArticlePdfUrl, getFiguresPdfUrl } from './dataProvider'
 
 const deriveUrl = (type: string, id: string, title = ''): string => {
   switch (type) {
+    case 'executable-version':
+      return `https://elifesciences.org/articles/${id}/executable/download`
     case 'bibtex':
       return `https://elifesciences.org/articles/${id}.bib`
     case 'ris':
@@ -23,17 +21,10 @@ const deriveUrl = (type: string, id: string, title = ''): string => {
   return ''
 }
 
-const buildLinkToExecutableVersion = (url: string): void => {
-  after(
-    select('[data-is-download-figures-pdf-link]')[0],
-    create('li', null, create('a', { href: url }, 'Executable version'))
-  )
-}
-
 const buildLinkToFiguresPdf = (url: string): void => {
   after(
-    select('[data-is-download-pdf-link]')[0],
-    create('li', null, create('a', { href: url, 'data-is-download-figures-pdf-link': true }, 'Figures PDF'))
+    select('[data-is-download-pdf-list-item]')[0],
+    create('li', null, create('a', { href: url }, 'Figures PDF'))
   )
 }
 
@@ -56,11 +47,28 @@ const buildMenu = (
         null,
         create(
           'li',
+          { 'data-is-download-pdf-list-item': true },
+          create('a', { href: pdfUrl }, 'Article PDF')
+        ),
+        create(
+          'li',
           null,
           create(
             'a',
-            { href: pdfUrl, 'data-is-download-pdf-link': true },
-            'Article PDF'
+            { href: `${deriveUrl('executable-version', articleId)}` },
+            'Executable version'
+          ),
+          create(
+            'div',
+            { class: 'downloads--link' },
+            create(
+              'a',
+              {
+                href:
+                  'https://preview--journal.elifesciences.org/labs/7dbeb390',
+              },
+              'What are executable versions?'
+            )
           )
         )
       ),
@@ -148,10 +156,6 @@ export const build = (articleTitle: string, articleId: string): void => {
       .then(() => getFiguresPdfUrl(articleId))
       .then((figuresPdfUrl: string) => buildLinkToFiguresPdf(figuresPdfUrl))
       .then(() => buildLinkToMenu(menuId))
-      .then(() => getExecutableVersionDownloadUrl(articleId))
-      .then((executableVersionDownloadUrl: string) =>
-        buildLinkToExecutableVersion(executableVersionDownloadUrl)
-      )
       .catch((err: Error) => {
         throw err
       })
