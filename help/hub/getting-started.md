@@ -7,11 +7,11 @@ published: True
 
 Stencila offers user accounts for individuals and also for organizations so people can work together. Signing up with Stencila as a user is the first step on your journey. Once you've joined you can work on your own and create your first project, or you can set up your organization and collabrate with others.  
 
-## Create your account
+## Create your account 
 
 Go to https://hub.stenci.la/
 
-**Sign in** via one of your GibHub, Google, Orchid or Twitter accounts. *If you can use the same sign in method each time you won't get duplications on your account.*
+**Sign in** via one of your GibHub, Google, Orcid or Twitter accounts. *If you can use the same sign in method each time you won't get duplications on your account.*
 
 ![](https://i.imgur.com/wVxKgSZ.png)
 
