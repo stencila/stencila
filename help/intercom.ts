@@ -153,16 +153,21 @@ const furtherReadingLinks = (filePath: string) => (
     : article.replace(
         '</article>',
         `
-<h2>Further Related</h2>
+<h2>Further Reading</h2>
 
-${relatedArticles.map((rel) => {
+${relatedArticles.reduce((rels, rel) => {
   const { title } = getArticleProps(path.resolve(filePath, rel))
-  return `
-  <div class="intercom-align-center">
-    <a href="${rel}" class="intercom-h2-button">${title}</a>
+  return (
+    rels +
+    `
+  <div class="intercom-container">
+    <a href="${rel}" class="intercom-h2b-button">${title}</a>
   </div>
   `
-})}
+  )
+}, '')}
+
+</article>
 `
       )
 
@@ -202,7 +207,7 @@ const insertFooter = (filePath: string) => (article: string): string => {
 
 <p>
 Reach out to us at <a href="mailto:hello@stenci.la">hello@stenci.la</a> or on our <a
-href="https://discord.gg/qjNzVQK">Discord channel</a>.
+href="https://discord.gg/uFtQtk9">Discord channel</a>.
 </p>
 
 <p>
