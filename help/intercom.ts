@@ -145,9 +145,9 @@ const formatAuthor = (author: Person): string => {
   return name.replace('  ', ' ')
 }
 
-const furtherReadingLinks = (relatedArticles: string[] = []) => (
-  article: string
-): string =>
+const furtherReadingLinks = (filePath: string) => (
+  relatedArticles: string[] = []
+) => (article: string): string =>
   relatedArticles.length === 0
     ? article
     : article.replace(
@@ -156,7 +156,7 @@ const furtherReadingLinks = (relatedArticles: string[] = []) => (
 <h2>Further Related</h2>
 
 ${relatedArticles.map((rel) => {
-  const { title } = getArticleProps(rel)
+  const { title } = getArticleProps(path.resolve(filePath, rel))
   return `
   <div class="intercom-align-center">
     <a href="${rel}" class="intercom-h2-button">${title}</a>
@@ -191,8 +191,11 @@ ${authors.reduce(
 `
       )
 
-const insertFooter = (article: string): string =>
-  article.replace(
+const insertFooter = (filePath: string) => (article: string): string => {
+  const relLink = filePath.replace(path.sep, '/').replace(/.+\/help\/hub\//, '')
+  const gitHubLink = `https://github.com/stencila/stencila/blob/master/help/hub/${relLink}`
+
+  return article.replace(
     '</article>',
     `
 <h2>Still have questions?</h2>
@@ -201,9 +204,14 @@ const insertFooter = (article: string): string =>
 Reach out to us at <a href="mailto:hello@stenci.la">hello@stenci.la</a> or on our <a
 href="https://discord.gg/qjNzVQK">Discord channel</a>.
 </p>
+
+<p>
+  Help make this article better <a href="${gitHubLink}">by contributing improvements</a>.
+</p>
 </article>
 `
   )
+}
 
 const processArticle = (
   ...fns: ((article: string) => string | Promise<string>)[]
@@ -242,9 +250,9 @@ const postArticle = async (
   const body = await processArticle(
     removeDuplicateIntro,
     buttonifyLinks,
-    furtherReadingLinks(article.relatedArticles),
+    furtherReadingLinks(path.dirname(filePath))(article.relatedArticles),
     createAuthorsSection(article.authors),
-    insertFooter,
+    insertFooter(filePath),
     resolveArticleLinks(path.dirname(filePath))
   )(bodyRaw)
 
