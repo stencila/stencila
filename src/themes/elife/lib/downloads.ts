@@ -65,7 +65,7 @@ const buildMenu = (
               'a',
               {
                 href:
-                  'https://preview--journal.elifesciences.org/labs/7dbeb390',
+                  'https://elifesciences.org/labs/7dbeb390/reproducible-document-stack-supporting-the-next-generation-research-article',
               },
               'What are executable versions?'
             )
