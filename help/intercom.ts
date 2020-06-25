@@ -61,7 +61,7 @@ const resolveArticleLinks = (filePath: string) => async (
       }
 
       if (typeof title === 'string') {
-        return `${intercomUrl}/${id}-${slugify(title)}`
+        return `href="${intercomUrl}/${id}-${slugify(title)}"`
       }
 
       return match
@@ -256,7 +256,7 @@ const postArticle = async (
 
   const articlePayload: IntercomPartialArticle = {
     author_id: authorId,
-    body: body,
+    body,
     description: article.description,
     id: article.id,
     parent_id: article.collectionId,
