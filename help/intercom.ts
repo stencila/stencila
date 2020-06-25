@@ -309,9 +309,10 @@ const updateAllArticles = async (): Promise<void> => {
 
   let progressMeter = 1
   for (const file of mdPaths) {
-    await postArticle(file, authorId, progressMeter).catch((e) =>
-      console.error(e)
-    )
+    await postArticle(file, authorId, progressMeter).catch((e) => {
+      // Terminate build in case of errors
+      throw new Error(e)
+    })
     progressMeter++
   }
 }
