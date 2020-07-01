@@ -22,7 +22,7 @@ const deriveUrl = (type: string, id: string, title = ''): string => {
 const buildLinkToFiguresPdf = (url: string): void => {
   after(
     select('[data-is-download-pdf-link]')[0],
-    create('li', null, create('a', { href: url }, 'Figures PDF'))
+    create('li', null, createSimpleLink(url, 'Figures PDF'))
   )
 }
 
@@ -32,6 +32,8 @@ const buildMenu = (
   pdfUrl: string,
   menuId: string
 ): void => {
+  const pdfLink = createSimpleLink(pdfUrl, 'Article PDF')
+  pdfLink.setAttribute('data-is-download-pdf-link', 'true')
   after(
     select(':--references')[0],
     create(
@@ -40,23 +42,7 @@ const buildMenu = (
 
       create('h2', null, 'Download links'),
       create('h3', null, 'Downloads'),
-      create(
-        'ul',
-        null,
-        create(
-          'li',
-          null,
-          create(
-            'a',
-            {
-              href: pdfUrl,
-              target: '_parent',
-              'data-is-download-pdf-link': true,
-            },
-            'Article PDF'
-          )
-        )
-      ),
+      create('ul', null, create('li', null, pdfLink)),
       create('h3', null, 'Download citations'),
       create(
         'ul',
@@ -64,21 +50,9 @@ const buildMenu = (
         create(
           'li',
           null,
-          create(
-            'a',
-            { href: `${deriveUrl('bibtex', articleId)}`, target: '_parent' },
-            'BibTeX'
-          )
+          createSimpleLink(deriveUrl('bibtex', articleId), 'BibTeX')
         ),
-        create(
-          'li',
-          null,
-          create(
-            'a',
-            { href: `${deriveUrl('ris', articleId)}`, target: '_parent' },
-            'RIS'
-          )
-        )
+        create('li', null, createSimpleLink(deriveUrl('ris', articleId), 'RIS'))
       ),
       create('h3', null, 'Open citations'),
       create(
@@ -87,30 +61,18 @@ const buildMenu = (
         create(
           'li',
           null,
-          create(
-            'a',
-            { href: `${deriveUrl('mendeley', articleId)}`, target: '_parent' },
-            'Mendeley'
-          )
+          createSimpleLink(deriveUrl('mendeley', articleId), 'Mendeley')
         ),
         create(
           'li',
           null,
-          create(
-            'a',
-            { href: `${deriveUrl('readcube', articleId)}`, target: '_parent' },
-            'ReadCube'
-          )
+          createSimpleLink(deriveUrl('readcube', articleId), 'ReadCube')
         ),
         create(
           'li',
           null,
-          create(
-            'a',
-            {
-              href: `${deriveUrl('papers', articleId, articleTitle)}`,
-              target: '_parent',
-            },
+          createSimpleLink(
+            deriveUrl('papers', articleId, articleTitle),
             'Papers'
           )
         )
@@ -143,6 +105,9 @@ const buildLinkToMenu = (menuId: string): Promise<unknown> => {
   )
   return Promise.resolve()
 }
+
+const createSimpleLink = (href: string, text: string): Element =>
+  create('a', { href, target: '_parent' }, text)
 
 export const build = (articleTitle: string, articleId: string): void => {
   const menuId = 'downloadMenu'
