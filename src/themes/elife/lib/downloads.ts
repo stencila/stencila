@@ -48,7 +48,11 @@ const buildMenu = (
           null,
           create(
             'a',
-            { href: pdfUrl, 'data-is-download-pdf-link': true },
+            {
+              href: pdfUrl,
+              target: '_parent',
+              'data-is-download-pdf-link': true,
+            },
             'Article PDF'
           )
         )
@@ -60,12 +64,20 @@ const buildMenu = (
         create(
           'li',
           null,
-          create('a', { href: `${deriveUrl('bibtex', articleId)}` }, 'BibTeX')
+          create(
+            'a',
+            { href: `${deriveUrl('bibtex', articleId)}`, target: '_parent' },
+            'BibTeX'
+          )
         ),
         create(
           'li',
           null,
-          create('a', { href: `${deriveUrl('ris', articleId)}` }, 'RIS')
+          create(
+            'a',
+            { href: `${deriveUrl('ris', articleId)}`, target: '_parent' },
+            'RIS'
+          )
         )
       ),
       create('h3', null, 'Open citations'),
@@ -77,7 +89,7 @@ const buildMenu = (
           null,
           create(
             'a',
-            { href: `${deriveUrl('mendeley', articleId)}` },
+            { href: `${deriveUrl('mendeley', articleId)}`, target: '_parent' },
             'Mendeley'
           )
         ),
@@ -86,7 +98,7 @@ const buildMenu = (
           null,
           create(
             'a',
-            { href: `${deriveUrl('readcube', articleId)}` },
+            { href: `${deriveUrl('readcube', articleId)}`, target: '_parent' },
             'ReadCube'
           )
         ),
@@ -95,7 +107,10 @@ const buildMenu = (
           null,
           create(
             'a',
-            { href: `${deriveUrl('papers', articleId, articleTitle)}` },
+            {
+              href: `${deriveUrl('papers', articleId, articleTitle)}`,
+              target: '_parent',
+            },
             'Papers'
           )
         )
