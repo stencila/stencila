@@ -326,13 +326,13 @@
     }
 
     :--Heading {
-      font-size: 0.8125rem;
+      font-size: var(--TEXT-SIZE-SMALL-MEDIUM-REM);
       line-height: 1.84615;
       padding-bottom: 0;
     }
 
     :--Paragraph {
-      font-size: 0.8125rem;
+      font-size: var(--TEXT-SIZE-SMALL-MEDIUM-REM);
       line-height: 1.84615;
     }
   }
