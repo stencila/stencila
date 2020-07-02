@@ -21,7 +21,7 @@ const deriveUrl = (type: string, id: string, title = ''): string => {
 
 const buildLinkToFiguresPdf = (url: string): void => {
   after(
-    select('[data-is-download-pdf-link]')[0],
+    select('[data-is-download-pdf-list-item]')[0],
     create('li', null, create('a', { href: url }, 'Figures PDF'))
   )
 }
@@ -45,12 +45,8 @@ const buildMenu = (
         null,
         create(
           'li',
-          null,
-          create(
-            'a',
-            { href: pdfUrl, 'data-is-download-pdf-link': true },
-            'Article PDF'
-          )
+          { 'data-is-download-pdf-list-item': true },
+          create('a', { href: pdfUrl }, 'Article PDF')
         )
       ),
       create('h3', null, 'Download citations'),
