@@ -1,3 +1,10 @@
+## [2.10.4](https://github.com/stencila/thema/compare/v2.10.3...v2.10.4) (2020-07-02)
+
+
+### Bug Fixes
+
+* **eLife:** Figures pdf list item should be sibling of article pdf list item ([b7b7167](https://github.com/stencila/thema/commit/b7b7167d4cf647135c90153cad764979c6195830)), closes [#200](https://github.com/stencila/thema/issues/200)
+
 ## [2.10.3](https://github.com/stencila/thema/compare/v2.10.2...v2.10.3) (2020-06-23)
 
 
