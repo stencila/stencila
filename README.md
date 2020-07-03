@@ -10,11 +10,10 @@
 
 <!-- toc -->
 
-- [Stencila schemas, protocols and other specs](#stencila-schemas-protocols-and-other-specs)
-  - [Documentation](#documentation)
-  - [JSON Schema definitions](#json-schema-definitions)
-  - [JSON-LD context](#json-ld-context)
-  - [Typescript type definitions](#typescript-type-definitions)
+- [Documentation](#documentation)
+- [JSON Schema definitions](#json-schema-definitions)
+- [JSON-LD context](#json-ld-context)
+- [Typescript type definitions](#typescript-type-definitions)
 
 <!-- tocstop -->
 
