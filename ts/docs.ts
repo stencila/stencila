@@ -38,6 +38,12 @@ import {
 } from './types'
 
 /**
+ * Preconfigured wrapper for the Encoda `write` function for generating consistent HTML documentation.
+ */
+const writeHtml = (contents: Article, path: string): Promise<void> =>
+  encoda.write(contents, path, { isStandalone: true, theme: 'stencila' })
+
+/**
  * Run `build()` when this file is run as a Node script
  */
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -99,7 +105,7 @@ async function build(): Promise<void> {
       const mainArticle = schema2MainArticle(schema, summaryArticle)
 
       // 3. Write the main article as HTML
-      await encoda.write(mainArticle, path.join(DOCS_DEST_DIR, `${title}.html`))
+      await writeHtml(mainArticle, path.join(DOCS_DEST_DIR, `${title}.html`))
     })
   )
 
@@ -188,7 +194,7 @@ async function build(): Promise<void> {
     ],
   })
 
-  await encoda.write(indexPage, path.join(DOCS_DEST_DIR, `index.html`))
+  await writeHtml(indexPage, path.join(DOCS_DEST_DIR, `index.html`))
 
   // Convert other documentation to HTML
   const others = await globby('docs/*')
