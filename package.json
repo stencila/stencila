@@ -55,7 +55,7 @@
   },
   "homepage": "https://github.com/stencila/thema#readme",
   "dependencies": {
-    "@elifesciences/pattern-library": "0.0.2",
+    "@elifesciences/pattern-library": "0.0.3",
     "@simonwep/pickr": "^1.7.1",
     "@stencila/components": "^0.14.3",
     "project-name-generator": "^2.1.7",
