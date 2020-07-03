@@ -1,3 +1,10 @@
+## [0.43.2](https://github.com/stencila/schema/compare/v0.43.1...v0.43.2) (2020-07-03)
+
+
+### Bug Fixes
+
+* **TS:** Fix Schema generation script ([002b320](https://github.com/stencila/schema/commit/002b32096fc8bffe26c0209da75e0e4e677550f6))
+
 ## [0.43.1](https://github.com/stencila/schema/compare/v0.43.0...v0.43.1) (2020-05-22)
 
 
