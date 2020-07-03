@@ -41,6 +41,9 @@ const validateSchema = ajv.compile(metaSchema)
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 if (module.parent === null) build()
 
+const recordGuard = (a: unknown): a is Record<string | number, unknown> =>
+  typeof a === 'object'
+
 /**
  * Generate `public/*.schema.json` files from `schema/*.schema.yaml` files.
  *
@@ -61,8 +64,15 @@ export async function build(cleanup = true): Promise<void> {
           const schema = yaml.safeLoad(
             await fs.readFile(path.join(SCHEMA_SOURCE_DIR, file), 'utf-8')
           )
+
+          if (!recordGuard(schema)) {
+            throw new Error(
+              `Schema does not have valid FrontMatter in source file: ${file}`
+            )
+          }
+
           const title = schema.title
-          if (title === undefined)
+          if (title === undefined || typeof title !== 'string')
             throw new Error(`Schema title is required in source file: ${file}`)
           if (file.split('.')[0] !== title)
             log.warn(`Schema title differs to filename: "${title}" in ${file}`)
@@ -71,6 +81,7 @@ export async function build(cleanup = true): Promise<void> {
       )
     )
   )
+
   const schemata = Array.from(schemas.values())
 
   // Check each schema is valid
