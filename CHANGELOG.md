@@ -1,3 +1,10 @@
+# [2.12.0](https://github.com/stencila/thema/compare/v2.11.1...v2.12.0) (2020-07-06)
+
+
+### Features
+
+* **eLife:** Add executable version download link ([fd9a985](https://github.com/stencila/thema/commit/fd9a98513c72ad6e3773cf37f010f6a6337e1039))
+
 ## [2.11.1](https://github.com/stencila/thema/compare/v2.11.0...v2.11.1) (2020-07-06)
 
 
