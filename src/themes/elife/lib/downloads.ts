@@ -32,8 +32,6 @@ const buildMenu = (
   pdfUrl: string,
   menuId: string
 ): void => {
-  const pdfLink = createSimpleLink(pdfUrl, 'Article PDF')
-  pdfLink.setAttribute('data-is-download-pdf-list-item', 'true')
   after(
     select(':--references')[0],
     create(
@@ -42,7 +40,15 @@ const buildMenu = (
 
       create('h2', null, 'Download links'),
       create('h3', null, 'Downloads'),
-      create('ul', null, create('li', null, pdfLink)),
+      create(
+        'ul',
+        null,
+        create(
+          'li',
+          { 'data-is-download-pdf-list-item': true },
+          createSimpleLink(pdfUrl, 'Article PDF')
+        )
+      ),
       create('h3', null, 'Download citations'),
       create(
         'ul',
