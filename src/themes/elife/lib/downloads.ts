@@ -57,10 +57,6 @@ const buildMenu = (
             deriveUrl('executable-version', articleId),
             'Executable version'
           ),
-          createSimpleLink(
-            deriveUrl('executable-version', articleId),
-            'Executable version'
-          ),
           create(
             'div',
             { class: 'downloads--link' },
