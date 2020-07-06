@@ -24,7 +24,7 @@ const deriveUrl = (type: string, id: string, title = ''): string => {
 const buildLinkToFiguresPdf = (url: string): void => {
   after(
     select('[data-is-download-pdf-list-item]')[0],
-    create('li', null, create('a', { href: url }, 'Figures PDF'))
+    create('li', null, createSimpleLink(url, 'Figures PDF'))
   )
 }
 
@@ -48,25 +48,24 @@ const buildMenu = (
         create(
           'li',
           { 'data-is-download-pdf-list-item': true },
-          create('a', { href: pdfUrl }, 'Article PDF')
+          createSimpleLink(pdfUrl, 'Article PDF')
         ),
         create(
           'li',
           null,
-          create(
-            'a',
-            { href: `${deriveUrl('executable-version', articleId)}` },
+          createSimpleLink(
+            deriveUrl('executable-version', articleId),
+            'Executable version'
+          ),
+          createSimpleLink(
+            deriveUrl('executable-version', articleId),
             'Executable version'
           ),
           create(
             'div',
             { class: 'downloads--link' },
-            create(
-              'a',
-              {
-                href:
-                  'https://elifesciences.org/labs/7dbeb390/reproducible-document-stack-supporting-the-next-generation-research-article',
-              },
+            createSimpleLink(
+              'https://elifesciences.org/labs/7dbeb390/reproducible-document-stack-supporting-the-next-generation-research-article',
               'What are executable versions?'
             )
           )
@@ -79,13 +78,9 @@ const buildMenu = (
         create(
           'li',
           null,
-          create('a', { href: `${deriveUrl('bibtex', articleId)}` }, 'BibTeX')
+          createSimpleLink(deriveUrl('bibtex', articleId), 'BibTeX')
         ),
-        create(
-          'li',
-          null,
-          create('a', { href: `${deriveUrl('ris', articleId)}` }, 'RIS')
-        )
+        create('li', null, createSimpleLink(deriveUrl('ris', articleId), 'RIS'))
       ),
       create('h3', null, 'Open citations'),
       create(
@@ -94,27 +89,18 @@ const buildMenu = (
         create(
           'li',
           null,
-          create(
-            'a',
-            { href: `${deriveUrl('mendeley', articleId)}` },
-            'Mendeley'
-          )
+          createSimpleLink(deriveUrl('mendeley', articleId), 'Mendeley')
         ),
         create(
           'li',
           null,
-          create(
-            'a',
-            { href: `${deriveUrl('readcube', articleId)}` },
-            'ReadCube'
-          )
+          createSimpleLink(deriveUrl('readcube', articleId), 'ReadCube')
         ),
         create(
           'li',
           null,
-          create(
-            'a',
-            { href: `${deriveUrl('papers', articleId, articleTitle)}` },
+          createSimpleLink(
+            deriveUrl('papers', articleId, articleTitle),
             'Papers'
           )
         )
@@ -147,6 +133,9 @@ const buildLinkToMenu = (menuId: string): Promise<unknown> => {
   )
   return Promise.resolve()
 }
+
+const createSimpleLink = (href: string, text: string): Element =>
+  create('a', { href, target: '_parent' }, text)
 
 export const build = (articleTitle: string, articleId: string): void => {
   const menuId = 'downloadMenu'
