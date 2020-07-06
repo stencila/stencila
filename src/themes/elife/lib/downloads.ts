@@ -3,6 +3,8 @@ import { getArticlePdfUrl, getFiguresPdfUrl } from './dataProvider'
 
 const deriveUrl = (type: string, id: string, title = ''): string => {
   switch (type) {
+    case 'executable-version':
+      return `https://elifesciences.org/articles/${id}/executable/download`
     case 'bibtex':
       return `https://elifesciences.org/articles/${id}.bib`
     case 'ris':
@@ -47,6 +49,22 @@ const buildMenu = (
           'li',
           { 'data-is-download-pdf-list-item': true },
           createSimpleLink(pdfUrl, 'Article PDF')
+        ),
+        create(
+          'li',
+          null,
+          createSimpleLink(
+            deriveUrl('executable-version', articleId),
+            'Executable version'
+          ),
+          create(
+            'div',
+            { class: 'downloads--link' },
+            createSimpleLink(
+              'https://elifesciences.org/labs/7dbeb390/reproducible-document-stack-supporting-the-next-generation-research-article',
+              'What are executable versions?'
+            )
+          )
         )
       ),
       create('h3', null, 'Download citations'),
