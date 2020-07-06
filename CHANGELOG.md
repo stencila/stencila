@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/stencila/thema/compare/v2.10.7...v2.11.0) (2020-07-06)
+
+
+### Features
+
+* **eLife:** Add target=“_parent” to download links ([79b427b](https://github.com/stencila/thema/commit/79b427bda4f5f9a40bdd1a8ee96a242adb983621))
+
 ## [2.10.7](https://github.com/stencila/thema/compare/v2.10.6...v2.10.7) (2020-07-03)
 
 
