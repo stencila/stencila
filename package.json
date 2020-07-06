@@ -1,6 +1,6 @@
 {
   "name": "@stencila/thema",
-  "version": "2.10.3",
+  "version": "2.10.7",
   "description": "Semantic themes for use with encoda (https://github.com/stencila/encoda)",
   "files": [
     "/dist"
@@ -55,9 +55,9 @@
   },
   "homepage": "https://github.com/stencila/thema#readme",
   "dependencies": {
-    "@elifesciences/pattern-library": "0.0.2",
-    "@simonwep/pickr": "^1.6.0",
-    "@stencila/components": "^0.14.3",
+    "@elifesciences/pattern-library": "0.0.3",
+    "@simonwep/pickr": "^1.7.1",
+    "@stencila/components": "^0.14.8",
     "project-name-generator": "^2.1.7",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"

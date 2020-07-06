@@ -1,3 +1,31 @@
+## [2.10.7](https://github.com/stencila/thema/compare/v2.10.6...v2.10.7) (2020-07-03)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/components to ^0.14.8 ([4e7a059](https://github.com/stencila/thema/commit/4e7a059bfd4a91c7fbc7806d37714f8252e149c7))
+
+## [2.10.6](https://github.com/stencila/thema/compare/v2.10.5...v2.10.6) (2020-07-03)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @elifesciences/pattern-library to v0.0.3 ([56e2227](https://github.com/stencila/thema/commit/56e2227a4ba4213095f6472b4f4302524c1b90e2))
+
+## [2.10.5](https://github.com/stencila/thema/compare/v2.10.4...v2.10.5) (2020-07-03)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @simonwep/pickr to ^1.7.1 ([c2c58c9](https://github.com/stencila/thema/commit/c2c58c9f600cccf738a15af36069f994d21b3623))
+
+## [2.10.4](https://github.com/stencila/thema/compare/v2.10.3...v2.10.4) (2020-07-02)
+
+
+### Bug Fixes
+
+* **eLife:** Figures pdf list item should be sibling of article pdf list item ([b7b7167](https://github.com/stencila/thema/commit/b7b7167d4cf647135c90153cad764979c6195830)), closes [#200](https://github.com/stencila/thema/issues/200)
+
 ## [2.10.3](https://github.com/stencila/thema/compare/v2.10.2...v2.10.3) (2020-06-23)
 
 
