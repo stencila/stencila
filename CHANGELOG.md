@@ -1,3 +1,10 @@
+## [2.11.1](https://github.com/stencila/thema/compare/v2.11.0...v2.11.1) (2020-07-06)
+
+
+### Bug Fixes
+
+* **eLife:** attribute should be set on list-item ([252c827](https://github.com/stencila/thema/commit/252c827bbe4d56a66aaf5a47e9de4c6d1bc6202e))
+
 # [2.11.0](https://github.com/stencila/thema/compare/v2.10.7...v2.11.0) (2020-07-06)
 
 
