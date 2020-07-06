@@ -21,7 +21,7 @@ const deriveUrl = (type: string, id: string, title = ''): string => {
 
 const buildLinkToFiguresPdf = (url: string): void => {
   after(
-    select('[data-is-download-pdf-link]')[0],
+    select('[data-is-download-pdf-list-item]')[0],
     create('li', null, createSimpleLink(url, 'Figures PDF'))
   )
 }
@@ -33,7 +33,7 @@ const buildMenu = (
   menuId: string
 ): void => {
   const pdfLink = createSimpleLink(pdfUrl, 'Article PDF')
-  pdfLink.setAttribute('data-is-download-pdf-link', 'true')
+  pdfLink.setAttribute('data-is-download-pdf-list-item', 'true')
   after(
     select(':--references')[0],
     create(

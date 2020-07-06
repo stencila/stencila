@@ -316,6 +316,42 @@
       text-transform: capitalize;
     }
   }
+
+  :--Figure {
+    margin: 1em 0;
+
+    img {
+      outline: 1px solid #e0e0e0;
+      padding: 0.75rem;
+    }
+
+    :--Heading {
+      font-size: var(--TEXT-SIZE-SMALL-MEDIUM-REM);
+      line-height: 1.84615;
+      padding-bottom: 0;
+    }
+
+    :--Paragraph {
+      font-size: var(--TEXT-SIZE-SMALL-MEDIUM-REM);
+      line-height: 1.84615;
+    }
+  }
+
+  :--label {
+    display: block;
+    font-size: var(--TEXT-SIZE-MEDIUM-REM);
+    font-weight: bold;
+    line-height: 1.71429;
+    padding: 0.75rem 0;
+  }
+}
+
+:--Collection {
+  padding-left: 0;
+
+  li {
+    list-style-type: none;
+  }
 }
 
 /* Visually hide 'content header' affiliations at narrower viewports, maintaining vertical whitespace */
