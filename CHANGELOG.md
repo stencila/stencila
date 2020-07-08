@@ -1,3 +1,10 @@
+## [0.43.3](https://github.com/stencila/schema/compare/v0.43.2...v0.43.3) (2020-07-08)
+
+
+### Bug Fixes
+
+* **TS:** Fix Typescript definition file path ([07af774](https://github.com/stencila/schema/commit/07af7748244270da72fb4d0d47ed8023d289652e))
+
 ## [0.43.2](https://github.com/stencila/schema/compare/v0.43.1...v0.43.2) (2020-07-03)
 
 
