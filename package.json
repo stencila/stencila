@@ -69,7 +69,7 @@
     "lodash.clonedeep": "4.5.0",
     "lodash.flatten": "4.4.0",
     "markdown-toc": "1.2.0",
-    "microbundle": "0.12.2",
+    "microbundle": "0.12.0",
     "object.fromentries": "2.0.2",
     "rimraf": "3.0.2",
     "toposort": "2.0.2",
