@@ -1,3 +1,10 @@
+# [2.13.0](https://github.com/stencila/thema/compare/v2.12.0...v2.13.0) (2020-07-13)
+
+
+### Features
+
+* **Stencila:** Style table rows for better readability ([876c87d](https://github.com/stencila/thema/commit/876c87d3d2ad1de96badde5d8c86de89e4256aed))
+
 # [2.12.0](https://github.com/stencila/thema/compare/v2.11.1...v2.12.0) (2020-07-06)
 
 
