@@ -89,6 +89,23 @@ h4:--Heading {
   font-size: var(--font-size-h4);
 }
 
+:--Table {
+  border-collapse: collapse;
+  border: 1px solid var(--color-neutral-400);
+}
+
+:--TableRow {
+  border: 1px solid var(--color-neutral-300);
+
+  &:nth-child(even) {
+    background-color: var(--color-neutral-100);
+  }
+}
+
+:--TableCell {
+  padding: 8px;
+}
+
 :--references ol li {
   list-style-type: number;
 }
