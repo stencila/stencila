@@ -42,7 +42,6 @@
   "dependencies": {
     "@stencila/encoda": "^0.97.1",
     "@stencila/logga": "^2.2.0",
-    "browser-sync": "^2.26.10",
     "tar": "^6.0.2",
     "yargs": "^15.4.1"
   },
