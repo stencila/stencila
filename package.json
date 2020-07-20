@@ -116,5 +116,10 @@
         "sentence-case"
       ]
     }
+  },
+  "renovate": {
+    "extends": [
+      "@stencila"
+    ]
   }
 }
