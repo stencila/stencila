@@ -1,3 +1,20 @@
+# [0.34.0](https://github.com/stencila/stencila/compare/v0.33.5...v0.34.0) (2020-07-20)
+
+
+### Bug Fixes
+
+* **Deps:** Remove opn ([6b5bb49](https://github.com/stencila/stencila/commit/6b5bb499cb715c288335f0944a3171917268ead3))
+* **Docs:** Fix Intercom doc link generation ([5f8cda6](https://github.com/stencila/stencila/commit/5f8cda61a97198ff9839770bf5c822c3b4838111))
+* **Docs:** Fix related articles section generation ([6cad5c3](https://github.com/stencila/stencila/commit/6cad5c326a44daca135d0f724f3d00cf4017c0ab))
+* **Docs:** Fix relative links in documentation ([72b3a66](https://github.com/stencila/stencila/commit/72b3a66a2cce9bc27d9700b18f6febe2f1071b38))
+
+
+### Features
+
+* **Docs:** Add a link to help make documentation better ([6caf76a](https://github.com/stencila/stencila/commit/6caf76a2e677a976be1f32a0cb93a807b68da8d9))
+* **Docs:** Terminate Documentatino build in case of errors ([d09d2cb](https://github.com/stencila/stencila/commit/d09d2cbfed67bee7561a8a72a899983411b91523))
+* **Process:** Remove process command ([e0f9562](https://github.com/stencila/stencila/commit/e0f95625e5298a6423e8504a19f696a1130285c1))
+
 ## [0.33.5](https://github.com/stencila/stencila/compare/v0.33.4...v0.33.5) (2019-10-11)
 
 
