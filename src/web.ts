@@ -19,9 +19,9 @@ const logger = getLogger('stencila')
  */
 export default function web(
   folder: string,
-  sync: boolean = false,
-  port: number = 3000,
-  address: string = 'localhost'
+  sync = false,
+  port = 3000,
+  address = 'localhost'
 ): void {
   const app = express()
 
@@ -64,9 +64,9 @@ export default function web(
       files: path.join(folder, '**', '*'),
       port: port + 1,
       proxy: {
-        target: url
+        target: url,
       },
-      logPrefix: 'stencila'
+      logPrefix: 'stencila',
     })
     // Add a log handler that displays errors in the browser
     addHandler((data: LogData) => {

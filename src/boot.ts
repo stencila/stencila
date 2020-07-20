@@ -39,7 +39,7 @@ const home = packaged ? path.dirname(process.execPath) : path.dirname(__dirname)
 /**
  *  Unzip the native dependencies to home
  */
-export function extractDeps(forceExtract: boolean = false): void {
+export function extractDeps(forceExtract = false): void {
   const shouldExtract =
     packaged &&
     (forceExtract || !fs.existsSync(path.join(home, 'node_modules')))
@@ -48,7 +48,7 @@ export function extractDeps(forceExtract: boolean = false): void {
       sync: true,
       file: path.join('/', 'snapshot', 'stencila', 'stencila-deps.tgz'),
       strip: 1,
-      C: home
+      C: home,
     })
 
     logger.info('Dependencies extracted.')
