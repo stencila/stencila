@@ -9,7 +9,6 @@
 
 import yargs from 'yargs'
 import * as convert from './commands/convert'
-import * as process_ from './commands/process'
 import * as serve from './commands/serve'
 import * as system from './commands/system'
 import * as boot from './boot'
@@ -24,7 +23,6 @@ const yargsDefinition = yargs.scriptName('stencila')
 
 // Add commands
 convert.cli(yargsDefinition, cleanup)
-process_.cli(yargsDefinition, cleanup)
 serve.cli(yargsDefinition, cleanup)
 system.cli(yargsDefinition, cleanup)
 

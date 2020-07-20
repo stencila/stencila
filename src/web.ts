@@ -6,7 +6,6 @@ import path from 'path'
 // @ts-ignore
 import Youch from 'youch'
 import * as convert from './commands/convert'
-import * as process from './commands/process'
 
 const logger = getLogger('stencila')
 
@@ -31,7 +30,6 @@ export default function web(
 
   // Add command endpoints
   convert.http(app)
-  process.http(app, folder)
 
   // Add error handling middleware to handle uncaught errors
   // and send them to the logger and client
