@@ -1,11 +1,11 @@
 build: 'off'
 
 artifacts:
-  - path: stencila-win-x64.zip 
+  - path: stencila-win-x64.zip
     name: Stencila Bin
 
 install:
-  - ps: Install-Product node 10
+  - ps: Install-Product node 12
   - npm install
 
 test_script:
@@ -20,7 +20,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: oXth+pYh6Nm8XlKDc27EeOuKlY6lTYt0lfeGNcQgI5T1ZwE8PCIKO5DhAA/UPL4W
-  artifact: stencila-win-x64.zip 
+  artifact: stencila-win-x64.zip
   draft: false
   prerelease: false
   skip_tags: true
