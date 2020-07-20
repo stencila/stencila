@@ -37,7 +37,7 @@ const args = yargs
   .option('debug', {
     description: 'Show debug level log entries',
     default: false,
-    type: 'boolean'
+    type: 'boolean',
   })
 
   // Setup command
@@ -48,7 +48,7 @@ const args = yargs
       yargs.option('force', {
         describe: 'Force reinstall of dependencies?',
         default: false,
-        type: 'boolean'
+        type: 'boolean',
       })
     },
     setup
@@ -63,38 +63,38 @@ const args = yargs
         .positional('input', {
           describe: 'The input file path. Defaults to standard input.',
           type: 'string',
-          default: '-'
+          default: '-',
         })
         .positional('outputs', {
           describe: 'The output file path/s. Defaults to standard output.',
           type: 'string',
-          default: '-'
+          default: '-',
         })
         .option('from', {
           describe: 'The format to convert the input from.',
-          type: 'string'
+          type: 'string',
         })
         .option('to', {
           describe: 'The format to convert the output to.',
-          type: 'string'
+          type: 'string',
         })
         .option('theme', {
           describe: `The theme to use for the output format.`,
           type: 'string',
-          default: 'stencila'
+          default: 'stencila',
         })
         .option('zip', {
           describe:
             'Create Zip archive containing output files? no (default), yes, maybe (only if more than one file)',
           choices: ['no', 'yes', 'maybe'],
-          default: 'no'
+          default: 'no',
         })
     },
     convert
   )
 
   // Unhandled errors
-  .fail(function(msg: string, err: Error) {
+  .fail(function (msg: string, err: Error) {
     if (err !== undefined) log.error(err)
     else log.error(msg)
     process.exit(1)
@@ -111,8 +111,8 @@ logga.replaceHandlers((data: logga.LogData): void => {
     throttle: {
       // Do not repeat the same message within 5s
       signature: `${data.tag}${data.level}${data.message}`,
-      duration: 5000
-    }
+      duration: 5000,
+    },
   })
 })
 
@@ -158,7 +158,7 @@ function setup(
       sync: true,
       file: path.join('/', 'snapshot', 'stencila', 'stencila-deps.tgz'),
       strip: 1,
-      C: home
+      C: home,
     })
 
     log.info('Setup complete.')
@@ -205,8 +205,8 @@ function convert(
         theme,
         isStandalone: true,
         isBundle: false,
-        shouldZip: zip
-      }
+        shouldZip: zip,
+      },
     })
-    .catch(error => log.error(error))
+    .catch((error) => log.error(error))
 }
