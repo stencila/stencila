@@ -21,16 +21,13 @@ To add an eLife article as a project source:
 
 ![](http://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
 
-
 2. Press the **New** button and select **From journal** > **eLife**
 
 ![](http://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
 
-
 3. Enter the number of the eLife article and the path that you want to link it to within the project.
 
 ![](http://stencila.github.io/hub/manager/snaps/project-sources-new-elife.png)
-
 
 ## Pulling an eLife source
 

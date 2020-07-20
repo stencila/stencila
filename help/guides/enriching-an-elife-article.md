@@ -5,7 +5,7 @@ description: A user guide for enriching a published eLife article
 published: true
 ---
 
-👋 *This guide is under active development. Please feel free to contribute using the link at the bottom of the page!*
+👋 _This guide is under active development. Please feel free to contribute using the link at the bottom of the page!_
 
 ## Introduction
 
@@ -50,7 +50,7 @@ There are two primary pathways for this transformation:
 
 The advantage of option A is that it will use a reproducible execution environment, hosted by Stencila, which will be exactly the same as when the article is published. If you choose to use option B, there is likely to be more effort required to ensure consistency between then the computational environment on your local machine and on Stencila Hub. **The rest of this guide assumes option A, i.e. using Google Docs, and the Stencila plugin, to enliven the article.**
 
-Select **Actions > Save as > Google Doc.** Choose a different name to the default, e.g. *elife-article-30274.gdoc,* if necessary then press the **Save** button.
+Select **Actions > Save as > Google Doc.** Choose a different name to the default, e.g. _elife-article-30274.gdoc,_ if necessary then press the **Save** button.
 
 ![](https://i.imgur.com/68vg6fR.png)
 

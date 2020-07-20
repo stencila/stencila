@@ -11,3 +11,6 @@ format:
 
 build:
 	npm run build
+
+clean:
+	npm run clean
