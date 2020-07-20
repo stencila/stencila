@@ -15,7 +15,7 @@
  *   - `package.json`
  */
 import { getLogger } from '@stencila/logga'
-import fs from 'fs-extra'
+import fs from 'fs'
 import path from 'path'
 import tar from 'tar'
 
