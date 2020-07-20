@@ -51,5 +51,6 @@
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.suggest.completeFunctionCalls": true,
   "typescript.updateImportsOnFileMove.enabled": "prompt",
-  "workbench.editor.highlightModifiedTabs": true
+  "workbench.editor.highlightModifiedTabs": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

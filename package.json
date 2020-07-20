@@ -2,8 +2,7 @@
   "name": "stencila",
   "version": "0.33.5",
   "description": "Living documents for reproducible research.",
-  "main": "./dist/index.js",
-  "bin": "./dist/cli.js",
+  "bin": "./dist/src/cli.js",
   "files": [
     "dist"
   ],
@@ -13,14 +12,16 @@
     "check": "npm run build:dist && npm run check:deps-used && npm run check:deps-unused",
     "check:deps-used": "dependency-check --missing .",
     "check:deps-unused": "dependency-check --unused --no-dev --ignore-module @stencila/schema .",
+    "cli": "ts-node --project tsconfig.json src/cli.ts",
     "build": "npm run build:dist && npm run build:tgz && npm run build:bin && npm run build:test",
     "build:dist": "tsc",
-    "build:tgz": "bash ./build-tgz.sh",
-    "build:bin": "pkg --target=node10 -o=bin/stencila .",
-    "build:test": "bash ./build-test.sh",
+    "build:tgz": "bash ./deps.sh",
+    "build:bin": "pkg --target=node12 -o=bin/stencila .",
+    "build:test": "bash ./test.sh",
     "bundle:linux": "tar -czvf bin/stencila-linux-x64.tar.gz -C bin stencila",
     "bundle:osx": "tar -czvf bin/stencila-macos-x64.tar.gz -C bin stencila",
-    "docs:intercom": "npx ts-node --project tsconfig.json help/intercom.ts"
+    "docs:intercom": "npx ts-node --project tsconfig.json help/intercom.ts",
+    "clean": "rm -rf bin dist"
   },
   "keywords": [
     "reproducibility",
@@ -41,18 +42,13 @@
   "dependencies": {
     "@stencila/encoda": "^0.97.1",
     "@stencila/logga": "^2.2.0",
-    "body-parser": "^1.19.0",
     "browser-sync": "^2.26.10",
-    "express": "^4.17.1",
-    "express-async-handler": "^1.1.4",
     "tar": "^6.0.2",
-    "yargs": "^15.4.1",
-    "youch": "^2.0.10"
+    "yargs": "^15.4.1"
   },
   "devDependencies": {
     "@stencila/dev-config": "1.4.57",
     "@types/browser-sync": "2.26.1",
-    "@types/express": "4.17.7",
     "@types/tar": "4.0.3",
     "@types/yargs": "15.0.5",
     "dependency-check": "4.1.0",

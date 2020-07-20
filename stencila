@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# A little script to make it a litle easier to test the CLI 
+# during development of this repo
+# change into the current directory of this script so it can be run from anywhere
+cd "$(dirname "$0")"
+npm run cli -- "$@"
