@@ -1,3 +1,10 @@
+## [2.13.1](https://github.com/stencila/thema/compare/v2.13.0...v2.13.1) (2020-07-21)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @simonwep/pickr to ^1.7.2 ([b56a220](https://github.com/stencila/thema/commit/b56a22066adc94f0d6bdc563ee6900a368f9b621))
+
 # [2.13.0](https://github.com/stencila/thema/compare/v2.12.0...v2.13.0) (2020-07-13)
 
 
