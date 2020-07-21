@@ -321,9 +321,9 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
       '}'
     )
   if (anyOf !== undefined)
-    return intersperse(flatten(anyOf.map(schema2Inlines)), orSeparator)
+    return flatten(intersperse(anyOf.map(schema2Inlines), orSeparator))
   if (allOf !== undefined)
-    return intersperse(flatten(allOf.map(schema2Inlines)), andSeparator)
+    return flatten(intersperse(allOf.map(schema2Inlines), andSeparator))
   if ($ref !== undefined) return [linkifyReference($ref)]
   if (codec !== undefined) return [codeFragment({ text: `codec:${codec}` })]
   return [codeFragment({ text: `${type}` })]
