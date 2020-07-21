@@ -2,11 +2,19 @@ import { first, text } from '../../../util'
 
 interface Response {
   ok: boolean
-  articleData: { pdf: string; figuresPdf: string }
+  articleData: {
+    pdf: string
+    figuresPdf: string
+    copyright: { license: string }
+  }
 }
 
 interface PdfUrlGetter {
   (id: string, pdfType: string): Promise<string>
+}
+
+interface CopyrightLicenseGetter {
+  (id: string): Promise<string>
 }
 
 const normaliseWhitespace = (txt: string): string => {
@@ -71,6 +79,13 @@ export const getFiguresPdfUrl = async (
   pdfUrlGetter: PdfUrlGetter = getPdfUrl
 ): Promise<string> => {
   return pdfUrlGetter(id, 'figures')
+}
+
+export const getCopyrightLicense: CopyrightLicenseGetter = async (
+  id: string
+): Promise<string> => {
+  const response = await query(id, window.fetch)
+  return Promise.resolve(response.articleData.copyright.license)
 }
 
 export const query = async (
