@@ -106,13 +106,13 @@ const buildMenu = (
 }
 
 const buildLinkToMenu = (
-  wrapper: Element,
+  contentHeader: Element,
   menuId: string
 ): Promise<unknown> => {
   const text =
     'A two-part list of links to download the article, or parts of the article, in various formats.'
   append(
-    wrapper,
+    contentHeader,
     create(
       'a',
       { href: `#${menuId}`, class: 'download-link' },
@@ -126,7 +126,7 @@ const createSimpleLink = (href: string, text: string): Element =>
   create('a', { href, target: '_parent' }, text)
 
 export const build = (
-  wrapper: Element,
+  contentHeader: Element,
   articleTitle: string,
   articleId: string
 ): void => {
@@ -136,7 +136,7 @@ export const build = (
       .then((pdfUri) => buildMenu(articleId, articleTitle, pdfUri, menuId))
       .then(() => getFiguresPdfUrl(articleId))
       .then((figuresPdfUrl: string) => buildLinkToFiguresPdf(figuresPdfUrl))
-      .then(() => buildLinkToMenu(wrapper, menuId))
+      .then(() => buildLinkToMenu(contentHeader, menuId))
       .catch((err: Error) => {
         throw err
       })
