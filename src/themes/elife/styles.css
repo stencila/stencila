@@ -215,7 +215,7 @@
     }
   }
 
-  & .download-link-wrapper {
+  & .pre-header-wrapper {
     display: flex;
     flex-direction: row-reverse;
     margin-bottom: calc(var(--BASELINE-MEASURE-REM) / 2);
