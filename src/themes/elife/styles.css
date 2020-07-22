@@ -215,7 +215,7 @@
     }
   }
 
-  & .pre-header-wrapper {
+  & .content-header {
     display: flex;
     flex-direction: row-reverse;
     margin-bottom: calc(var(--BASELINE-MEASURE-REM) / 2);

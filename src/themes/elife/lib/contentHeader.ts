@@ -4,10 +4,10 @@ export const build = (): Element | Promise<never> => {
   const articleTitle = first(':--Article > :--title')
   if (articleTitle === null) {
     return Promise.reject(
-      new Error("Can't find element to bolt the pre-header-wrapper on top of")
+      new Error("Can't find element to bolt the content header on top of")
     )
   }
-  const preHeaderWrapper = create('div', { class: 'pre-header-wrapper' })
-  before(articleTitle, preHeaderWrapper)
-  return preHeaderWrapper
+  const contentHeader = create('div', { class: 'content-header' })
+  before(articleTitle, contentHeader)
+  return contentHeader
 }
