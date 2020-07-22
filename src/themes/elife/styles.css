@@ -79,6 +79,7 @@
 }
 
 :--Article {
+  position: relative;
   & :--authors {
     @extend .content-header__author_list;
 
