@@ -57,6 +57,24 @@ describe('data Provider ', () => {
           ok: true,
         })
       })
+
+      it('it exposes the copyright license', async () => {
+        const fetchMock = (): Promise<Response> =>
+          Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                copyright: {
+                  license: 'CC',
+                },
+              }),
+          })
+        // @ts-expect-error
+        await expect(dataProvider.query('someId', fetchMock)).resolves.toEqual({
+          articleData: { copyright: { license: 'CC' } },
+          ok: true,
+        })
+      })
     })
 
     describe('being given an invalid article id', () => {
