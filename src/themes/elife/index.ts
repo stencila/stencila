@@ -9,9 +9,10 @@ import * as referenceFormatter from './lib/referencesFormatter'
 
 ready((): void => {
   const articleTitle = dataProvider.getArticleTitle()
-  icons.build(dataProvider.getArticleId())
+  const contentHeaderElement = contentHeader.build() as Element
+  icons.build(contentHeaderElement, dataProvider.getArticleId())
   downloads.build(
-    contentHeader.build() as Element,
+    contentHeaderElement,
     articleTitle,
     dataProvider.getArticleId()
   )
