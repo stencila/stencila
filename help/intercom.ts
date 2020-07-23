@@ -201,8 +201,13 @@ ${authors.reduce(
       )
 
 const insertFooter = (filePath: string) => (article: string): string => {
-  const relLink = filePath.replace(path.sep, '/').replace(/.+\/help\/hub\//, '')
-  const gitHubLink = `https://github.com/stencila/stencila/blob/master/help/hub/${relLink}`
+  const helpRoot = path.join(path.sep, 'stencila', 'stencila', path.sep)
+  const projectRootRegExp = new RegExp('.*' + helpRoot, 'gi')
+  const urlSepRegExp = new RegExp(path.sep, 'g')
+  const urlRelLink = filePath
+    .replace(projectRootRegExp, '')
+    .replace(urlSepRegExp, '/')
+  const gitHubLink = `https://github.com/stencila/stencila/blob/master/${urlRelLink}`
 
   return article.replace(
     '</article>',

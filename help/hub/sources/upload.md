@@ -5,7 +5,7 @@ authors:
   - Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)
 published: true
 id: 4278871
-collectionId: 2422090
+collectionId: 2413959
 ---
 
 You can upload files directly to your Stencila project to use within the project's executable documents.
