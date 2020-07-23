@@ -6,7 +6,9 @@ import got from 'got'
 import path from 'path'
 import fs from 'fs'
 
-const mdPaths = glob.sync(path.join(__dirname, '/{guides,hub}/**/*.md'))
+const mdPaths = glob.sync(
+  path.join(__dirname, '/{guides,hub,glossary}/**/*.md')
+)
 const authToken = process.env.INTERCOM_AUTH_TOKEN
 const intercomUrl = 'https://intercom.help/stencila/en/articles'
 
@@ -106,7 +108,7 @@ const upsertArticle = (
  * Assume that Paragraphs containing a single Link element should be stylized as buttons
  */
 const buttonifyLinks = (article: string): string => {
-  const buttonLinkRegEx = /<p><a ([^>]+)>[^<]+?<\/a><\/p>/g
+  const buttonLinkRegEx = /<p.*>\s*<a\s*([^>]+)>[^<]+?<\/a>\s*<\/p>/g
   return article.replace(buttonLinkRegEx, (match, attrs) =>
     match
       .replace('<p>', '<div class="intercom-align-center">')
@@ -127,7 +129,11 @@ const removeDuplicateIntro = (article: string): string => {
 /**
  * Given a `Person` node construct an HTML contact markup with `email` and `url` links.
  */
-const formatAuthor = (author: Person): string => {
+const formatAuthor = (author: Person | string): string => {
+  if (typeof author === 'string') {
+    return author
+  }
+
   const { givenNames = [], familyNames = [], emails = [], url } = author
 
   let name = `${givenNames.join(' ')} ${familyNames.join(' ')}`
@@ -181,17 +187,15 @@ const createAuthorsSection = (authors: (Person | Organization)[] = []) => (
         `
 <h2>Contributors</h2>
 
-<p>
+<ul>
 ${authors.reduce(
   (allAuthors: string, author, idx) =>
     isA('Organization', author)
       ? allAuthors
-      : `${allAuthors}${formatAuthor(author)}${
-          idx < authors.length - 1 ? ', ' : '.'
-        }`,
+      : `${allAuthors}<li>${formatAuthor(author)}</li>`,
   ''
 )}
-</p>
+</ul>
 </article>
 `
       )
@@ -248,6 +252,7 @@ const postArticle = async (
   index: number
 ): Promise<IntercomPartialArticle> => {
   const article = (await read(filePath)) as HelpArticle
+
   const bodyRaw = await dump(article, 'html', {
     isStandalone: false,
     theme: 'stencila',
@@ -281,6 +286,12 @@ const postArticle = async (
         : undefined,
     state: article.published === true ? 'published' : 'draft',
     title: typeof article.title === 'string' ? article.title : '',
+  }
+
+  if (process.env.DEBUG) {
+    console.log(`--- ${article.title} (${article.id}) ---`)
+    console.log(articlePayload)
+    console.log('----')
   }
 
   try {
