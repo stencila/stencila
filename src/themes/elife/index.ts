@@ -1,4 +1,5 @@
 import { first, ready, select } from '../../util'
+import * as contentHeader from './lib/contentHeader'
 import * as dateFormatter from './lib/dateFormatter'
 import * as dataProvider from './lib/dataProvider'
 import * as downloads from './lib/downloads'
@@ -9,7 +10,11 @@ import * as referenceFormatter from './lib/referencesFormatter'
 ready((): void => {
   const articleTitle = dataProvider.getArticleTitle()
   icons.build(dataProvider.getArticleId())
-  downloads.build(articleTitle, dataProvider.getArticleId())
+  downloads.build(
+    contentHeader.build() as Element,
+    articleTitle,
+    dataProvider.getArticleId()
+  )
 
   try {
     dateFormatter.format(first(':--datePublished'))

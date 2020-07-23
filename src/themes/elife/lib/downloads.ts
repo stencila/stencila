@@ -1,4 +1,4 @@
-import { after, before, create, first, select } from '../../../util'
+import { after, append, create, select } from '../../../util'
 import { getArticlePdfUrl, getFiguresPdfUrl } from './dataProvider'
 
 const deriveUrl = (type: string, id: string, title = ''): string => {
@@ -105,26 +105,18 @@ const buildMenu = (
   )
 }
 
-const buildLinkToMenu = (menuId: string): Promise<unknown> => {
-  const url = `#${menuId}`
+const buildLinkToMenu = (
+  contentHeader: Element,
+  menuId: string
+): Promise<unknown> => {
   const text =
     'A two-part list of links to download the article, or parts of the article, in various formats.'
-  const articleTitle = first(':--Article > :--title')
-  if (articleTitle === null) {
-    return Promise.reject(
-      new Error("Can't find element to bolt the download link on top of")
-    )
-  }
-  before(
-    articleTitle,
+  append(
+    contentHeader,
     create(
-      'div',
-      { class: 'download-link-wrapper' },
-      create(
-        'a',
-        { href: url, class: 'download-link' },
-        create('span', { class: 'download-link-text' }, text)
-      )
+      'a',
+      { href: `#${menuId}`, class: 'download-link' },
+      create('span', { class: 'download-link-text' }, text)
     )
   )
   return Promise.resolve()
@@ -133,14 +125,18 @@ const buildLinkToMenu = (menuId: string): Promise<unknown> => {
 const createSimpleLink = (href: string, text: string): Element =>
   create('a', { href, target: '_parent' }, text)
 
-export const build = (articleTitle: string, articleId: string): void => {
+export const build = (
+  contentHeader: Element,
+  articleTitle: string,
+  articleId: string
+): void => {
   const menuId = 'downloadMenu'
   try {
     getArticlePdfUrl(articleId)
       .then((pdfUri) => buildMenu(articleId, articleTitle, pdfUri, menuId))
       .then(() => getFiguresPdfUrl(articleId))
       .then((figuresPdfUrl: string) => buildLinkToFiguresPdf(figuresPdfUrl))
-      .then(() => buildLinkToMenu(menuId))
+      .then(() => buildLinkToMenu(contentHeader, menuId))
       .catch((err: Error) => {
         throw err
       })
