@@ -81,6 +81,10 @@
 :--Article {
   position: relative;
 
+  .content-header__icons {
+    left: 0;
+  }
+
   .content-header__icon {
     background-repeat: no-repeat;
     background-position: center bottom;
