@@ -85,7 +85,7 @@ const baseServices = [
 const browserCapabilities = {
   chrome: {
     browserName: 'chrome',
-    browserVersion: chromeDriver.version,
+    browserVersion: chromeDriver.version.split('.').slice(0, 2).join('.'),
   },
   firefox: {
     browserName: 'firefox',
