@@ -1,13 +1,5 @@
 import { first, text } from '../../../util'
-
-interface Response {
-  ok: boolean
-  articleData: {
-    pdf: string
-    figuresPdf: string
-    copyright: { license: string }
-  }
-}
+import query from './query'
 
 interface PdfUrlGetter {
   (id: string, pdfType: string): Promise<string>
@@ -86,16 +78,4 @@ export const getCopyrightLicense: CopyrightLicenseGetter = async (
 ): Promise<string> => {
   const response = await query(id, window.fetch)
   return Promise.resolve(response.articleData.copyright.license)
-}
-
-export const query = async (
-  id: string,
-  fetcher: WindowOrWorkerGlobalScope['fetch']
-): Promise<Response> => {
-  const response = await fetcher(`https://api.elifesciences.org/articles/${id}`)
-  if (response.ok === false) {
-    throw new Error(`There was a problem getting article data for ${id}`)
-  }
-  const articleData = (await response.json()) as Response['articleData']
-  return Promise.resolve({ ok: response.ok, articleData })
 }
