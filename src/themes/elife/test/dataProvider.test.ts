@@ -52,6 +52,20 @@ describe('data Provider ', () => {
     })
   })
 
+  describe('getCopyrightLicense', () => {
+    it('returns the expected copyright license', async () => {
+      const query = jest.fn(() => {
+        return Promise.resolve({
+          copyright: {
+            license: 'license',
+          },
+        })
+      })
+
+      await expect(dataProvider.getCopyrightLicense('id')).resolves.toEqual('license')
+    })
+  })
+
   describe('getArticleDoi', () => {
     it('it returns the expected DOI', () => {
       const mockData = '10.7554/eLife.30274'
