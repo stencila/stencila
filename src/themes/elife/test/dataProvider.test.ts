@@ -8,6 +8,21 @@ const resetDom = (): void => {
   body.innerHTML = ''
 }
 
+jest.mock('../lib/query', () => ({
+  __esModule: true,
+  default: async () => {
+    return Promise.resolve({
+      articleData: {
+        pdf: 'pdf',
+        figuresPdf: 'figuresPdf',
+        copyright: {
+          license: 'license',
+        },
+      },
+    })
+  },
+}))
+
 describe('data Provider ', () => {
   afterEach(resetDom)
 
@@ -54,15 +69,9 @@ describe('data Provider ', () => {
 
   describe('getCopyrightLicense', () => {
     it('returns the expected copyright license', async () => {
-      const query = jest.fn(() => {
-        return Promise.resolve({
-          copyright: {
-            license: 'license',
-          },
-        })
-      })
-
-      await expect(dataProvider.getCopyrightLicense('id')).resolves.toEqual('license')
+      await expect(dataProvider.getCopyrightLicense('id')).resolves.toEqual(
+        'license'
+      )
     })
   })
 
