@@ -409,3 +409,16 @@
     list-style-type: none;
   }
 }
+
+/* Visually hide 'content header' affiliations at narrower viewports, maintaining vertical whitespace */
+@media screen and (--medium-viewport-max) {
+  /* Target the 'content header' at the top of the article */
+  :--Article:not(:--reference) {
+    & > :--authors {
+      margin-bottom: var(--BASELINE-MEASURE-REM);
+    }
+    & :--affiliations {
+      @mixin visuallyhidden;
+    }
+  }
+}
