@@ -3,6 +3,8 @@ const WdioScreenshot = require('wdio-screenshot-v5')
 const VisualRegressionCompare = require('wdio-novus-visual-regression-service/compare')
 const chromeDriver = require('chromedriver')
 
+const env = process.env
+
 export const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
 
 export const staticDir = path.join(__dirname, '..', 'docs')
@@ -17,6 +19,40 @@ const testBrowser = (process.env.TEST_BROWSER
   ? process.env.TEST_BROWSER
   : 'chrome') as Browser
 
+/**
+ * Given a `screenshotType`, returns a function expecting a VisualRegressionCompare context
+ * @see https://github.com/Jnegrier/wdio-novus-visual-regression-service#visualregressioncomparelocalcompare
+ * @param {ScreenshotType} screenshotType
+ */
+const getScreenshotName = (screenshotType: keyof typeof screenshotDirs) => (
+  context: any
+) => {
+  const [_, example, theme] = context.meta.url.match(
+    /example=(\w+)&theme=(\w+)/
+  )
+  const testName = theme + '_' + example
+  const browserName = context.browser.name
+  const { width, height } = context.meta.viewport
+
+  return path.join(
+    screenshotDirs[screenshotType],
+    normalizeName(testName, browserName, width, height)
+  )
+}
+
+// When running on CI, don't compare images, as we'll be using Argos to compare them
+const compareStrategy =
+  env.CI !== undefined
+    ? new VisualRegressionCompare.SaveScreenshot({
+        screenshotName: getScreenshotName('local'),
+      })
+    : new VisualRegressionCompare.LocalCompare({
+        referenceName: getScreenshotName('reference'),
+        screenshotName: getScreenshotName('local'),
+        diffName: getScreenshotName('diff'),
+        misMatchTolerance: 0.01,
+      })
+
 // Test runner services
 // Services take over a specific job you don't want to take care of. They enhance
 // your test setup with almost no effort. Unlike plugins, they don't add new
@@ -30,14 +66,26 @@ const baseServices = [
       folders: [{ mount: '/', path: staticDir }],
     },
   ],
-  'novus-visual-regression',
+  [
+    'novus-visual-regression',
+    {
+      // https://github.com/Jnegrier/wdio-novus-visual-regression-service
+      compare: compareStrategy,
+      viewportChangePause: 400,
+      viewports: [
+        { width: 320, height: 568 },
+        { width: 1440, height: 900 },
+      ],
+      orientations: ['landscape', 'portrait'],
+    },
+  ],
   [WdioScreenshot],
 ]
 
 const browserCapabilities = {
   chrome: {
     browserName: 'chrome',
-    browserVersion: chromeDriver.version,
+    browserVersion: chromeDriver.version.split('.').slice(0, 2).join('.'),
   },
   firefox: {
     browserName: 'firefox',
@@ -48,8 +96,6 @@ const browserServices = {
   chrome: 'chromedriver',
   firefox: 'geckodriver',
 }
-
-const env = process.env
 
 // When running in CI, use SauceLabs if SAUCE_USERNAME and SAUCE_ACCESS_KEY is set,
 // otherwise the browser specific driver
@@ -98,40 +144,6 @@ const screenshotDirs: {
   local: path.join(screenshotDir, 'local'),
   diff: path.join(screenshotDir, 'diff'),
 }
-
-/**
- * Given a `screenshotType`, returns a function expecting a VisualRegressionCompare context
- * @see https://github.com/Jnegrier/wdio-novus-visual-regression-service#visualregressioncomparelocalcompare
- * @param {ScreenshotType} screenshotType
- */
-const getScreenshotName = (screenshotType: keyof typeof screenshotDirs) => (
-  context: any
-) => {
-  const [_, example, theme] = context.meta.url.match(
-    /example=(\w+)&theme=(\w+)/
-  )
-  const testName = theme + '_' + example
-  const browserName = context.browser.name
-  const { width, height } = context.meta.viewport
-
-  return path.join(
-    screenshotDirs[screenshotType],
-    normalizeName(testName, browserName, width, height)
-  )
-}
-
-// When running on CI, don't compare images, as we'll be using Argos to compare them
-const compareStrategy =
-  env.CI !== undefined
-    ? new VisualRegressionCompare.SaveScreenshot({
-        screenshotName: getScreenshotName('local'),
-      })
-    : new VisualRegressionCompare.LocalCompare({
-        referenceName: getScreenshotName('reference'),
-        screenshotName: getScreenshotName('local'),
-        diffName: getScreenshotName('diff'),
-        misMatchTolerance: 0.01,
-      })
 
 const baseConfig = {
   // Will bre prefixed to all relative test URLs. https://webdriver.io/docs/options.html#baseurl
@@ -200,16 +212,6 @@ const baseConfig = {
   // the plugin installed before running any tests.
   plugins: {},
   services,
-  visualRegression: {
-    // https://github.com/Jnegrier/wdio-novus-visual-regression-service
-    compare: compareStrategy,
-    viewportChangePause: 400,
-    viewports: [
-      { width: 320, height: 568 },
-      { width: 1440, height: 900 },
-    ],
-    orientations: ['landscape', 'portrait'],
-  },
   headless: false,
   // Options for selenium-standalone
   // Path where all logs from the Selenium server should be stored.

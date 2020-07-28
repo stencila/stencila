@@ -145,7 +145,14 @@ module.exports = (env = {}, { mode }) => {
             },
           },
         },
-        { test: /\.ejs$/, loader: 'ejs-loader' },
+        {
+          test: /\.ejs$/,
+          loader: 'ejs-loader',
+          options: {
+            // @see https://github.com/difelice/ejs-loader/pull/45
+            esModule: false,
+          },
+        },
         {
           test: /\.html$/i,
           // Don't transform HtmlWebpackPlugin generated file
