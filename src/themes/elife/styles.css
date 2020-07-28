@@ -102,6 +102,26 @@
       }
     }
 
+    :--Organization {
+      @extend .content-header__author_list_item;
+
+      font-size: var(--TEXT-SIZE-MEDIUM-REM);
+
+      :--name::after {
+        content: ', ';
+      }
+
+      &:last-child {
+        :--name::after {
+          content: '';
+        }
+      }
+
+      :--emails::after {
+        content: var(--URL-EMAIL-ICON);
+      }
+    }
+
     /* Hide until requirement is established */
     :--affiliations {
       display: none;
