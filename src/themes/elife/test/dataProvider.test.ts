@@ -41,7 +41,7 @@ describe('data Provider ', () => {
       /* eslint-enable @typescript-eslint/no-unsafe-member-access */
     })
 
-    it('getFiguresPdfUrl() requests the figures PDF URL for the id', async () => {
+    it('getFiguresPdfUrl() requests the figures PDF URL for the id', () => {
       dataProvider.getFiguresPdfUrl(mockArticle, mockPdfUrlGetter)
       const mockCalls = mockPdfUrlGetter.mock.calls
       expect(mockCalls.length).toBe(1)
