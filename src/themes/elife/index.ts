@@ -18,6 +18,9 @@ ready((): void => {
         response.articleData
       )
     })
+    .catch((e) => {
+      console.log(e)
+    })
 
   const articleTitle = dataProvider.getArticleTitle()
   try {
