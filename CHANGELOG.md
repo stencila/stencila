@@ -1,3 +1,12 @@
+## [2.13.2](https://github.com/stencila/thema/compare/v2.13.1...v2.13.2) (2020-07-29)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/components to ^0.14.13 ([2b4f5cc](https://github.com/stencila/thema/commit/2b4f5cc813e284e328c32e848f0ac59300ec968a))
+* **dependencies:** update dependency @stencila/components to ^0.15.1 ([f69641a](https://github.com/stencila/thema/commit/f69641ad9f2f2023bdddecb7bbb600db4acf9df2))
+* **RPNG:** Update Code component styling for revamped selectors ([99a297b](https://github.com/stencila/thema/commit/99a297b34ba31e0ef081addab4413826e9aa7114))
+
 ## [2.13.1](https://github.com/stencila/thema/compare/v2.13.0...v2.13.1) (2020-07-21)
 
 
