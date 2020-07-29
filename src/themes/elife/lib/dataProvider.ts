@@ -2,7 +2,7 @@ import { first, text } from '../../../util'
 import { articleData } from './query'
 
 interface PdfUrlGetter {
-  (data: articleData, pdfType: string): string
+  (article: articleData, pdfType: string): string
 }
 
 const normaliseWhitespace = (txt: string): string => {
