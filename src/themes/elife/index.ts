@@ -16,7 +16,7 @@ ready((): void => {
         contentHeader.build() as Element,
         articleTitle,
         articleId,
-        response.articleData
+        response.article
       )
     })
     .catch((e) => {

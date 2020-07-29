@@ -1,6 +1,6 @@
 interface Response {
   ok: boolean
-  articleData: articleData
+  article: articleData
 }
 
 export interface articleData {
@@ -16,6 +16,6 @@ export default async function (
   if (response.ok === false) {
     throw new Error(`There was a problem getting article data for ${id}`)
   }
-  const articleData = (await response.json()) as Response['articleData']
-  return Promise.resolve({ ok: response.ok, articleData })
+  const article = (await response.json()) as articleData
+  return Promise.resolve({ ok: response.ok, article })
 }

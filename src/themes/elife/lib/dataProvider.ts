@@ -21,7 +21,7 @@ const getNormalisedTextFromElement = (selector: string): string => {
 }
 
 const getPdfUrl: PdfUrlGetter = (
-  data: articleData,
+  article: articleData,
   pdfType: string
 ): string => {
   const allowedPdfTypes = ['article', 'figures']
@@ -32,7 +32,7 @@ const getPdfUrl: PdfUrlGetter = (
       )}.`
     )
   }
-  return pdfType === 'figures' ? data.figuresPdf : data.pdf
+  return pdfType === 'figures' ? article.figuresPdf : article.pdf
 }
 
 export const getArticleId = (): string => {
@@ -52,15 +52,15 @@ export const getArticleTitle = (): string => {
 }
 
 export const getArticlePdfUrl = (
-  data: articleData,
+  article: articleData,
   pdfUrlGetter: PdfUrlGetter = getPdfUrl
 ): string => {
-  return pdfUrlGetter(data, 'article')
+  return pdfUrlGetter(article, 'article')
 }
 
 export const getFiguresPdfUrl = (
-  data: articleData,
+  article: articleData,
   pdfUrlGetter: PdfUrlGetter = getPdfUrl
 ): string => {
-  return pdfUrlGetter(data, 'figures')
+  return pdfUrlGetter(article, 'figures')
 }
