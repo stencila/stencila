@@ -9,6 +9,7 @@ import query from './lib/query'
 
 ready((): void => {
   const articleId = dataProvider.getArticleId()
+  const articleTitle = dataProvider.getArticleTitle()
   query(articleId, window.fetch)
     .then((response) => {
       downloads.build(
@@ -22,7 +23,6 @@ ready((): void => {
       console.log(e)
     })
 
-  const articleTitle = dataProvider.getArticleTitle()
   try {
     dateFormatter.format(first(':--datePublished'))
     socialSharers.build(articleTitle, dataProvider.getArticleDoi())
