@@ -1,6 +1,11 @@
 interface Response {
   ok: boolean
-  articleData: { pdf: string; figuresPdf: string }
+  articleData: articleData
+}
+
+export interface articleData {
+  pdf: string
+  figuresPdf: string
 }
 
 export default async function (
