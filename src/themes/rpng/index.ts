@@ -1,26 +1,20 @@
 import { ready } from '../../util'
 
-/**
- * Check whether the custom Web Components have been loaded or not
- */
-const documentHydrated = (): boolean =>
-  document.querySelector('html')?.classList.contains('hydrated') ?? false
-
-ready(() => {
+ready(async () => {
   /**
-   * Wait until Web Components have been loaded, and trigger the custom CodeChunk event
+   * Wait until CodeChunk and CodeExpression Web Components have been loaded, and trigger the custom CodeChunk event
    * to collapse the source code panel
    */
-  const poll: number = window.setInterval(() => {
-    if (documentHydrated()) {
-      window.clearInterval(poll)
-      window.dispatchEvent(
-        new CustomEvent('collapseAllCode', {
-          bubbles: true,
-          cancelable: true,
-          detail: { isCollapsed: true },
-        })
-      )
-    }
-  }, 200)
+  await Promise.all([
+    customElements.whenDefined('stencila-code-chunk'),
+    customElements.whenDefined('stencila-code-expression'),
+  ])
+
+  window.dispatchEvent(
+    new CustomEvent('collapseAllCode', {
+      bubbles: true,
+      cancelable: true,
+      detail: { isVisible: false },
+    })
+  )
 })
