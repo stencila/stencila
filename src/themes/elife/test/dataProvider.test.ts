@@ -24,18 +24,21 @@ jest.mock('../lib/query', () => ({
 }))
 
 describe('data Provider ', () => {
+  let mockArticle: articleData
+
+  beforeEach(() => {
+    mockArticle = {
+      pdf: 'theArticlePdfUri',
+      figuresPdf: 'theFiguresPdfUri',
+      copyright: {
+        license: 'thCopyrightLicense',
+      },
+    }
+  })
+
   afterEach(resetDom)
 
   describe("getting PDF URLs for an article's id", () => {
-    let mockArticle: articleData
-
-    beforeEach(() => {
-      mockArticle = {
-        pdf: 'theArticlePdfUri',
-        figuresPdf: 'theFiguresPdfUri',
-      }
-    })
-
     it('getArticlePdfUrl() requests the article PDF URL for the id', () => {
       expect(dataProvider.getArticlePdfUrl(mockArticle)).toEqual(
         'theArticlePdfUri'
@@ -52,15 +55,18 @@ describe('data Provider ', () => {
       expect(
         dataProvider.getFiguresPdfUrl({
           pdf: 'theArticlePdfUri',
+          copyright: {
+            license: 'thCopyrightLicense',
+          },
         })
       ).toEqual('')
     })
   })
 
   describe('getCopyrightLicense', () => {
-    it('returns the expected copyright license', async () => {
-      await expect(dataProvider.getCopyrightLicense('id')).resolves.toEqual(
-        'license'
+    it('returns the expected copyright license', () => {
+      expect(dataProvider.getCopyrightLicense(mockArticle)).toEqual(
+        'thCopyrightLicense'
       )
     })
   })
