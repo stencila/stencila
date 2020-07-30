@@ -14,7 +14,7 @@ ready((): void => {
   const contentHeaderElement = contentHeader.build() as Element
   query(articleId, window.fetch)
     .then((response) => {
-      icons.build(contentHeaderElement, articleId)
+      icons.build(contentHeaderElement, response.article)
       downloads.build(
         contentHeaderElement,
         articleTitle,

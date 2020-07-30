@@ -1,5 +1,6 @@
 import { append, create } from '../../../util'
 import { getCopyrightLicense } from './dataProvider'
+import { articleData } from './query'
 
 const deriveUrl = (id: string): string => {
   switch (id) {
@@ -19,10 +20,7 @@ const deriveUrl = (id: string): string => {
   return ''
 }
 
-const buildMenu = (
-  contentHeader: Element,
-  license: string
-): Promise<unknown> => {
+const buildMenu = (contentHeader: Element, license: string): void => {
   append(
     contentHeader,
     create(
@@ -56,16 +54,11 @@ const buildMenu = (
       )
     )
   )
-  return Promise.resolve()
 }
 
-export const build = (contentHeader: Element, articleId: string): void => {
+export const build = (contentHeader: Element, article: articleData): void => {
   try {
-    getCopyrightLicense(articleId)
-      .then((license: string) => buildMenu(contentHeader, license))
-      .catch((err: Error) => {
-        throw err
-      })
+    buildMenu(contentHeader, getCopyrightLicense(article))
   } catch (err) {
     console.error(err)
   }
