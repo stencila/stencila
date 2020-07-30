@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { articleData } from '../lib/query'
 import * as dataProvider from '../lib/dataProvider'
-import Mock = jest.Mock
 
 const body = document.body
 
@@ -14,41 +13,32 @@ describe('data Provider ', () => {
 
   describe("getting PDF URLs for an article's id", () => {
     let mockArticle: articleData
-    let mockPdfUrlGetter: Mock
 
     beforeEach(() => {
       mockArticle = {
         pdf: 'theArticlePdfUri',
         figuresPdf: 'theFiguresPdfUri',
       }
-      mockPdfUrlGetter = jest.fn(
-        // args are used when the mock is injected, so disabling check:
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        (article: articleData, pdfType: string): string => {
-          return 'theArticlePdfUri'
-        }
-      )
-      jest.fn(mockPdfUrlGetter)
     })
 
     it('getArticlePdfUrl() requests the article PDF URL for the id', () => {
-      dataProvider.getArticlePdfUrl(mockArticle, mockPdfUrlGetter)
-      const mockCalls = mockPdfUrlGetter.mock.calls
-      expect(mockCalls.length).toBe(1)
-      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-      expect(mockCalls[0][0]).toBe(mockArticle)
-      return expect(mockCalls[0][1]).toBe('article')
-      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+      expect(dataProvider.getArticlePdfUrl(mockArticle)).toEqual(
+        'theArticlePdfUri'
+      )
     })
 
     it('getFiguresPdfUrl() requests the figures PDF URL for the id', () => {
-      dataProvider.getFiguresPdfUrl(mockArticle, mockPdfUrlGetter)
-      const mockCalls = mockPdfUrlGetter.mock.calls
-      expect(mockCalls.length).toBe(1)
-      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-      expect(mockCalls[0][0]).toBe(mockArticle)
-      return expect(mockCalls[0][1]).toBe('figures')
-      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+      expect(dataProvider.getFiguresPdfUrl(mockArticle)).toEqual(
+        'theFiguresPdfUri'
+      )
+    })
+
+    it('may not have a figures pdf', () => {
+      expect(
+        dataProvider.getFiguresPdfUrl({
+          pdf: 'theArticlePdfUri',
+        })
+      ).toEqual('')
     })
   })
 

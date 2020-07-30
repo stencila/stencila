@@ -1,10 +1,6 @@
 import { first, text } from '../../../util'
 import { articleData } from './query'
 
-interface PdfUrlGetter {
-  (article: articleData, pdfType: string): string
-}
-
 const normaliseWhitespace = (txt: string): string => {
   return txt.replace(/\n/, ' ').replace(/ \s+|\n+/g, ' ')
 }
@@ -20,10 +16,7 @@ const getNormalisedTextFromElement = (selector: string): string => {
   return ''
 }
 
-const getPdfUrl: PdfUrlGetter = (
-  article: articleData,
-  pdfType: string
-): string => {
+const getPdfUrl = (article: articleData, pdfType: string): string => {
   const allowedPdfTypes = ['article', 'figures']
   if (!allowedPdfTypes.includes(pdfType)) {
     throw new Error(
@@ -32,7 +25,9 @@ const getPdfUrl: PdfUrlGetter = (
       )}.`
     )
   }
-  return pdfType === 'figures' ? article.figuresPdf : article.pdf
+  return (
+    (pdfType === 'figures' ? article.figuresPdf ?? null : article.pdf) ?? ''
+  )
 }
 
 export const getArticleId = (): string => {
@@ -51,16 +46,8 @@ export const getArticleTitle = (): string => {
   return getNormalisedTextFromElement(':--title')
 }
 
-export const getArticlePdfUrl = (
-  article: articleData,
-  pdfUrlGetter: PdfUrlGetter = getPdfUrl
-): string => {
-  return pdfUrlGetter(article, 'article')
-}
+export const getArticlePdfUrl = (article: articleData): string =>
+  getPdfUrl(article, 'article')
 
-export const getFiguresPdfUrl = (
-  article: articleData,
-  pdfUrlGetter: PdfUrlGetter = getPdfUrl
-): string => {
-  return pdfUrlGetter(article, 'figures')
-}
+export const getFiguresPdfUrl = (article: articleData): string =>
+  getPdfUrl(article, 'figures')

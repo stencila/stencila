@@ -5,7 +5,7 @@ interface Response {
 
 export interface articleData {
   pdf: string
-  figuresPdf: string
+  figuresPdf?: string
 }
 
 export default async function (
