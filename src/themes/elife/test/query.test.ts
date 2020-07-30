@@ -63,7 +63,7 @@ describe('query', () => {
       })
     // @ts-expect-error
     await expect(query('someId', fetchMock)).resolves.toEqual({
-      articleData: { copyright: { license: 'CC' } },
+      article: { copyright: { license: 'CC' } },
       ok: true,
     })
   })
