@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { articleData } from '../lib/query'
 import * as dataProvider from '../lib/dataProvider'
-import Mock = jest.Mock
 
 const body = document.body
 
@@ -12,43 +12,33 @@ describe('data Provider ', () => {
   afterEach(resetDom)
 
   describe("getting PDF URLs for an article's id", () => {
-    let articleId: string
-    let mockPdfUrlGetter: Mock
+    let mockArticle: articleData
 
     beforeEach(() => {
-      articleId = 'someId'
-      mockPdfUrlGetter = jest.fn(
-        // args are used when the mock is injected, so disabling check:
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        (id: string, pdfType: string): Promise<string> => {
-          return Promise.resolve('theArticlePdfUri')
-        }
+      mockArticle = {
+        pdf: 'theArticlePdfUri',
+        figuresPdf: 'theFiguresPdfUri',
+      }
+    })
+
+    it('getArticlePdfUrl() requests the article PDF URL for the id', () => {
+      expect(dataProvider.getArticlePdfUrl(mockArticle)).toEqual(
+        'theArticlePdfUri'
       )
-      jest.fn(mockPdfUrlGetter)
     })
 
-    it('getArticlePdfUrl() requests the article PDF URL for the id', async (): Promise<
-      unknown
-    > => {
-      await dataProvider.getArticlePdfUrl(articleId, mockPdfUrlGetter)
-      const mockCalls = mockPdfUrlGetter.mock.calls
-      expect(mockCalls.length).toBe(1)
-      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-      expect(mockCalls[0][0]).toBe(articleId)
-      return expect(mockCalls[0][1]).toBe('article')
-      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+    it('getFiguresPdfUrl() requests the figures PDF URL for the id', () => {
+      expect(dataProvider.getFiguresPdfUrl(mockArticle)).toEqual(
+        'theFiguresPdfUri'
+      )
     })
 
-    it('getFiguresPdfUrl() requests the figures PDF URL for the id', async (): Promise<
-      unknown
-    > => {
-      await dataProvider.getFiguresPdfUrl(articleId, mockPdfUrlGetter)
-      const mockCalls = mockPdfUrlGetter.mock.calls
-      expect(mockCalls.length).toBe(1)
-      /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-      expect(mockCalls[0][0]).toBe(articleId)
-      return expect(mockCalls[0][1]).toBe('figures')
-      /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+    it('may not have a figures pdf', () => {
+      expect(
+        dataProvider.getFiguresPdfUrl({
+          pdf: 'theArticlePdfUri',
+        })
+      ).toEqual('')
     })
   })
 

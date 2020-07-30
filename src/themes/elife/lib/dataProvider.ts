@@ -1,9 +1,5 @@
 import { first, text } from '../../../util'
-import query from './query'
-
-interface PdfUrlGetter {
-  (id: string, pdfType: string): Promise<string>
-}
+import { articleData } from './query'
 
 const normaliseWhitespace = (txt: string): string => {
   return txt.replace(/\n/, ' ').replace(/ \s+|\n+/g, ' ')
@@ -20,10 +16,7 @@ const getNormalisedTextFromElement = (selector: string): string => {
   return ''
 }
 
-const getPdfUrl: PdfUrlGetter = async (
-  id: string,
-  pdfType: string
-): Promise<string> => {
+const getPdfUrl = (article: articleData, pdfType: string): string => {
   const allowedPdfTypes = ['article', 'figures']
   if (!allowedPdfTypes.includes(pdfType)) {
     throw new Error(
@@ -32,11 +25,9 @@ const getPdfUrl: PdfUrlGetter = async (
       )}.`
     )
   }
-  const response = await query(id, window.fetch)
-  if (pdfType === 'figures') {
-    return Promise.resolve(response.articleData.figuresPdf)
-  }
-  return Promise.resolve(response.articleData.pdf)
+  return (
+    (pdfType === 'figures' ? article.figuresPdf ?? null : article.pdf) ?? ''
+  )
 }
 
 export const getArticleId = (): string => {
@@ -55,16 +46,8 @@ export const getArticleTitle = (): string => {
   return getNormalisedTextFromElement(':--title')
 }
 
-export const getArticlePdfUrl = async (
-  id: string,
-  pdfUrlGetter: PdfUrlGetter = getPdfUrl
-): Promise<string> => {
-  return pdfUrlGetter(id, 'article')
-}
+export const getArticlePdfUrl = (article: articleData): string =>
+  getPdfUrl(article, 'article')
 
-export const getFiguresPdfUrl = async (
-  id: string,
-  pdfUrlGetter: PdfUrlGetter = getPdfUrl
-): Promise<string> => {
-  return pdfUrlGetter(id, 'figures')
-}
+export const getFiguresPdfUrl = (article: articleData): string =>
+  getPdfUrl(article, 'figures')
