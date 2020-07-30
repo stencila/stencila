@@ -1,3 +1,15 @@
+# [2.14.0](https://github.com/stencila/thema/compare/v2.13.2...v2.14.0) (2020-07-30)
+
+
+### Features
+
+* **Elife:** Add oa and cc icon links ([c6fcdcf](https://github.com/stencila/thema/commit/c6fcdcfa43f8f3613a29a81096c5e10657be32a8))
+
+
+### Reverts
+
+* Revert "style(Elife): Add relative to bring open acess and copyright inline" ([3542364](https://github.com/stencila/thema/commit/3542364ebc2ef3a635092ac93d537cc3552d5066))
+
 ## [2.13.2](https://github.com/stencila/thema/compare/v2.13.1...v2.13.2) (2020-07-29)
 
 
