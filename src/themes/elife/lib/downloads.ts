@@ -1,5 +1,6 @@
 import { after, append, create, select } from '../../../util'
 import { getArticlePdfUrl, getFiguresPdfUrl } from './dataProvider'
+import { articleData } from './query'
 
 const deriveUrl = (type: string, id: string, title = ''): string => {
   switch (type) {
@@ -105,10 +106,7 @@ const buildMenu = (
   )
 }
 
-const buildLinkToMenu = (
-  contentHeader: Element,
-  menuId: string
-): Promise<unknown> => {
+const buildLinkToMenu = (contentHeader: Element, menuId: string): void => {
   const text =
     'A two-part list of links to download the article, or parts of the article, in various formats.'
   append(
@@ -119,7 +117,6 @@ const buildLinkToMenu = (
       create('span', { class: 'download-link-text' }, text)
     )
   )
-  return Promise.resolve()
 }
 
 const createSimpleLink = (href: string, text: string): Element =>
@@ -128,19 +125,14 @@ const createSimpleLink = (href: string, text: string): Element =>
 export const build = (
   contentHeader: Element,
   articleTitle: string,
-  articleId: string
+  articleId: string,
+  article: articleData
 ): void => {
   const menuId = 'downloadMenu'
-  try {
-    getArticlePdfUrl(articleId)
-      .then((pdfUri) => buildMenu(articleId, articleTitle, pdfUri, menuId))
-      .then(() => getFiguresPdfUrl(articleId))
-      .then((figuresPdfUrl: string) => buildLinkToFiguresPdf(figuresPdfUrl))
-      .then(() => buildLinkToMenu(contentHeader, menuId))
-      .catch((err: Error) => {
-        throw err
-      })
-  } catch (err) {
-    console.error(err)
+  const figuresPdf = getFiguresPdfUrl(article)
+  buildMenu(articleId, articleTitle, getArticlePdfUrl(article), menuId)
+  if (figuresPdf !== '') {
+    buildLinkToFiguresPdf(getFiguresPdfUrl(article))
   }
+  buildLinkToMenu(contentHeader, menuId)
 }

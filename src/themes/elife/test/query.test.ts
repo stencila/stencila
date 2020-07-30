@@ -28,7 +28,7 @@ describe('query', () => {
         })
       // @ts-expect-error
       await expect(query('someId', fetchMock)).resolves.toEqual({
-        articleData: { pdf: 'path-to-the.pdf' },
+        article: { pdf: 'path-to-the.pdf' },
         ok: true,
       })
     })
@@ -44,7 +44,7 @@ describe('query', () => {
         })
       // @ts-expect-error
       await expect(query('someId', fetchMock)).resolves.toEqual({
-        articleData: { figuresPdf: 'path-to-the-figures.pdf' },
+        article: { figuresPdf: 'path-to-the-figures.pdf' },
         ok: true,
       })
     })

@@ -6,16 +6,25 @@ import * as downloads from './lib/downloads'
 import * as icons from './lib/icons'
 import * as socialSharers from './lib/socialSharers'
 import * as referenceFormatter from './lib/referencesFormatter'
+import query from './lib/query'
 
 ready((): void => {
+  const articleId = dataProvider.getArticleId()
   const articleTitle = dataProvider.getArticleTitle()
   const contentHeaderElement = contentHeader.build() as Element
-  icons.build(contentHeaderElement, dataProvider.getArticleId())
-  downloads.build(
-    contentHeaderElement,
-    articleTitle,
-    dataProvider.getArticleId()
-  )
+  icons.build(contentHeaderElement, articleId)
+  query(articleId, window.fetch)
+    .then((response) => {
+      downloads.build(
+        contentHeader.build() as Element,
+        articleTitle,
+        articleId,
+        response.article
+      )
+    })
+    .catch((e) => {
+      console.log(e)
+    })
 
   try {
     dateFormatter.format(first(':--datePublished'))
