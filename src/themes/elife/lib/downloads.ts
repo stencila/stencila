@@ -129,7 +129,10 @@ export const build = (
   article: articleData
 ): void => {
   const menuId = 'downloadMenu'
+  const figuresPdf = getFiguresPdfUrl(article)
   buildMenu(articleId, articleTitle, getArticlePdfUrl(article), menuId)
-  buildLinkToFiguresPdf(getFiguresPdfUrl(article))
+  if (figuresPdf !== '') {
+    buildLinkToFiguresPdf(getFiguresPdfUrl(article))
+  }
   buildLinkToMenu(contentHeader, menuId)
 }
