@@ -12,11 +12,11 @@ ready((): void => {
   const articleId = dataProvider.getArticleId()
   const articleTitle = dataProvider.getArticleTitle()
   const contentHeaderElement = contentHeader.build() as Element
-  icons.build(contentHeaderElement, articleId)
   query(articleId, window.fetch)
     .then((response) => {
+      icons.build(contentHeaderElement, articleId)
       downloads.build(
-        contentHeader.build() as Element,
+        contentHeaderElement,
         articleTitle,
         articleId,
         response.article
