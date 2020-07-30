@@ -50,6 +50,24 @@ describe('query', () => {
     })
   })
 
+  it('it exposes the copyright license', async () => {
+    const fetchMock = (): Promise<Response> =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            copyright: {
+              license: 'CC',
+            },
+          }),
+      })
+    // @ts-expect-error
+    await expect(query('someId', fetchMock)).resolves.toEqual({
+      article: { copyright: { license: 'CC' } },
+      ok: true,
+    })
+  })
+
   describe('being given an invalid article id', () => {
     it('throws an ReferenceError', async () => {
       const fetchMock = (): Promise<Response> =>

@@ -51,3 +51,6 @@ export const getArticlePdfUrl = (article: articleData): string =>
 
 export const getFiguresPdfUrl = (article: articleData): string =>
   getPdfUrl(article, 'figures')
+
+export const getCopyrightLicense = (article: articleData): string =>
+  article.copyright.license

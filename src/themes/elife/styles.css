@@ -79,6 +79,36 @@
 }
 
 :--Article {
+  position: relative;
+
+  .content-header__icons {
+    left: 0;
+  }
+
+  .content-header__icon {
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    display: block;
+    width: 17px;
+    height: 22px;
+  }
+
+  .content-header__icon--cc {
+    background-image: var(--URL-CC-ICON);
+
+    &:hover {
+      background-image: var(--URL-CC-ICON);
+    }
+  }
+
+  .content-header__icon--oa {
+    background-image: var(--URL-OA-ICON);
+
+    &:hover {
+      background-image: var(--URL-OA-ICON);
+    }
+  }
+
   & :--authors {
     @extend .content-header__author_list;
 

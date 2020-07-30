@@ -6,6 +6,7 @@ interface Response {
 export interface articleData {
   pdf: string
   figuresPdf?: string
+  copyright: { license: string }
 }
 
 export default async function (
