@@ -46,18 +46,18 @@
     "yargs": "^15.4.1"
   },
   "devDependencies": {
-    "@stencila/dev-config": "1.4.59",
+    "@stencila/dev-config": "1.4.60",
     "@types/browser-sync": "2.26.1",
     "@types/tar": "4.0.3",
     "@types/yargs": "15.0.5",
     "dependency-check": "4.1.0",
     "globby": "11.0.1",
     "got": "11.5.1",
-    "jest": "26.1.0",
+    "jest": "26.2.2",
     "markdown-toc": "1.2.0",
     "pkg": "4.4.9",
     "ts-node": "8.10.2",
-    "ts-node-dev": "1.0.0-pre.54",
+    "ts-node-dev": "1.0.0-pre.56",
     "typescript": "3.9.7"
   },
   "pkg": {
