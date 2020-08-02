@@ -21,13 +21,13 @@ Create a **project name**. All lower case and unique for your account. Note it w
 
 ![](http://stencila.github.io/hub/manager/snaps/project-new-name-field.png)
 
-Your project will automatically be **private** which means that only you can view it. Click if you want your project to be **public** for all Stencila users to view.
+Your project will automatically be **public** which means any Stencila users can view it. Click if you want your project to be **private**.
 
 ![](http://stencila.github.io/hub/manager/snaps/project-sharing-public.png)
 
 As the creator of the project you automatically become the project **owner**. This gives you full authority to make changes or delete the project.
 
-Before you start [managing your project sources](./manage-project-sources.md) we recommend you finalise your project set up. It won't take a moment ⚡
+Before you start **managing your project sources** we recommend you finalise your project set up. It won't take a moment ⚡
 
 ## Project settings
 
