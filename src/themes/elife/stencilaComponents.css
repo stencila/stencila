@@ -1,0 +1,138 @@
+stencila-button {
+  button {
+    font-family: var(--font-family-display);
+    font-size: var(--TEXT-SIZE-MEDIUM-REM);
+    text-transform: uppercase;
+  }
+
+  .label {
+    vertical-align: bottom;
+  }
+}
+
+stencila-executable-document-toolbar {
+  background-color: var(--COLOR-TEXT-UI-BACKGROUND);
+  border-bottom: 1px solid var(--color-netural-300);
+
+  stencila-toolbar {
+    --background: transparent;
+
+    box-sizing: border-box;
+
+    @extend .wrapper;
+
+    @media only screen and (--medium-viewport) {
+      padding-left: 3%;
+      padding-right: 3%;
+    }
+
+    & > div {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+
+  /* Make `Run Document` button a primary button */
+  [slot='start'] {
+    stencila-button button {
+      background-color: var(--COLOR-PRIMARY) !important;
+      color: var(--COLOR-TEXT-UI-BACKGROUND) !important;
+
+      &:hover {
+        background-color: var(--COLOR-PRIMARY-DARK) !important;
+      }
+    }
+  }
+
+  &[position='fixed'] + .content-header {
+    margin-top: 3rem; /* Height of the executable toolbar */
+    padding-top: calc(var(--BASELINE-MEASURE-REM) * 0.5833333333);
+  }
+}
+
+:--CodeChunk,
+:--CodeExpression {
+  --background-buttons: var(--COLOR-PRIMARY);
+
+  stencila-button[icon='eye'],
+  stencila-button[icon='eye-off'] {
+    order: -1;
+  }
+
+  stencila-button button {
+    background-color: var(--COLOR-PRIMARY) !important;
+    color: var(--COLOR-TEXT-UI-BACKGROUND) !important;
+
+    &:focus,
+    &:hover {
+      background-color: var(--COLOR-PRIMARY-DARK) !important;
+    }
+  }
+}
+
+:--CodeChunk {
+  /* Hide `play (Run Code)` button when source code panel is hidden */
+  stencila-button.run {
+    overflow: hidden;
+    width: 0;
+  }
+
+  /* Show `play (Run Code)` button when source code panel is visible */
+  &.isCodeVisible {
+    stencila-button.run {
+      width: 2rem;
+    }
+
+    stencila-action-menu nav {
+      width: 100%;
+      border-bottom-right-radius: 0;
+
+      @media screen and (min-width: 1024px) {
+        width: 50%;
+      }
+    }
+  }
+
+  .cm-gutters {
+    background-color: var(--color-neutral-200);
+  }
+
+  stencila-action-menu {
+    --background: transparent !important;
+
+    border: none !important;
+    padding: 0 !important;
+    overflow: hidden;
+
+    nav {
+      background: var(--COLOR-PRIMARY) !important;
+      border-bottom-right-radius: 4px;
+      display: inline-block;
+    }
+
+    .persistentActions {
+      display: inline-flex;
+    }
+  }
+}
+
+:--CodeExpression {
+  overflow: hidden;
+
+  /* Always show Source Toggle button */
+  stencila-button.sourceToggle {
+    width: 2rem !important;
+  }
+
+  /* Hide `play (Run Code)` button when source code panel is hidden */
+  stencila-button.run {
+    display: none !important;
+  }
+
+  /* Show `play (Run Code)` button when source code panel is visible */
+  &.isCodeVisible {
+    stencila-button.run {
+      display: inline-block !important;
+    }
+  }
+}
