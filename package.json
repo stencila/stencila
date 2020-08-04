@@ -58,9 +58,11 @@
     "@elifesciences/pattern-library": "0.0.3",
     "@simonwep/pickr": "^1.7.2",
     "@stencila/components": "^0.15.1",
+    "bootstrap": "^3.4.1",
     "project-name-generator": "^2.1.7",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "tufte-css": "^1.7.2"
   },
   "devDependencies": {
     "@stencila/dev-config": "1.4.60",

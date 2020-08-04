@@ -3,12 +3,9 @@
 @import '../../extensions/math/styles.css';
 @import '../../extensions/pages/styles.css';
 @import '../../extensions/person/styles.css';
-
-@import '../../fonts/etBook/etBook.css';
+@import 'tufte-css/tufte.min.css';
 
 :--root {
-  @import 'https://unpkg.com/tufte-css@1.7.2/tufte.min.css';
-
   --font-family-body: et-book, palatino, 'Palatino Linotype', 'Palatino LT STD',
     'Book Antiqua', georgia, serif;
   --font-family-display: var(--font-family-display);

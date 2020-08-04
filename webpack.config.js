@@ -178,7 +178,7 @@ module.exports = (env = {}, { mode }) => {
             },
             {
               loader: 'css-loader',
-              options: { importLoaders: 1, url: false, import: true },
+              options: { importLoaders: 1, url: true, import: true },
             },
             'postcss-loader',
           ],
