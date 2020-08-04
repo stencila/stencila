@@ -21,6 +21,7 @@
 
   /* Colors */
   --COLOR-PRIMARY: #0288d1;
+  --COLOR-PRIMARY-DARK: #047dbf;
   --COLOR-TEXT: #212121;
   --COLOR-TEXT-SECONDARY: #888;
   --COLOR-TEXT-UI-BACKGROUND: #fff;
@@ -51,4 +52,10 @@
   --URL-EMAIL-ICON: url('https://elifesciences.org/assets/patterns/img/icons/corresponding-author@1x.89247d49.png');
   --URL-CC-ICON: url('https://elifesciences.org/assets/patterns/img/icons/cc.ec7b6e9c.svg');
   --URL-OA-ICON: url('https://elifesciences.org/assets/patterns/img/icons/oa.f53eb8bd.svg');
+
+  /* Stencila WebComponent overrides */
+  --font-family-display: 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
+  --font-family-body: 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
+  --color-neutral-200: #f7f7f7;
+  --color-netural-300: #e0e0e0;
 }
