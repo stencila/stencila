@@ -2,7 +2,10 @@ module.exports = {
   modules: false,
   plugins: [
     require('postcss-import'),
-    require('postcss-import-url')({ modernBrowser: true }),
+    require('postcss-import-url')({
+      modernBrowser: true,
+      resolveUrls: true,
+    }),
     require('postcss-url')({
       url: 'rebase',
     }),
