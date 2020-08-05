@@ -1,3 +1,10 @@
+## [0.34.1](https://github.com/stencila/stencila/compare/v0.34.0...v0.34.1) (2020-08-05)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/encoda to ^0.97.3 ([285e573](https://github.com/stencila/stencila/commit/285e573da2e04a6f67b33e302429eb1fdaf4e43d))
+
 # [0.34.0](https://github.com/stencila/stencila/compare/v0.33.5...v0.34.0) (2020-07-20)
 
 
