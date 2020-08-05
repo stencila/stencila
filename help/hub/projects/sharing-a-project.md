@@ -33,6 +33,6 @@ If the person you wish to share your project with doesn't come up in the search 
 
 To **remove someone** from your project simply click at the end of their name and hit the remove button.
 
-## Manage project sources
+## Upload files
 
-[Managing your project sources](./manage-project-sources.md). Learn how to create a new source, upload a file and much more ⚡
+You're set up 👏 and ready to [upload files](../upload.md), link data sources and much more ⚡
