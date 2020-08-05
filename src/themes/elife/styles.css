@@ -10,17 +10,11 @@
    Once the CSS is available from an npm module, update this to @import accordingly and delete this comment :-) */
 @import '@elifesciences/pattern-library';
 
-/**
- * Ensure fonts still resolve when not viewed on ELife website
- * This could potentially be extracted into a separate file, for more granular imports
- */
-@import '../../fonts/notoSerif/notoSerif.css';
-@import '../../fonts/notoSans/notoSans.css';
-
 @import '../../extensions/person/styles.css';
 @import '../../extensions/math/styles.css';
 
 @import 'staticCustomProperties.css';
+@import 'stencilaComponents.css';
 
 /* @extend-ing eLife's CSS may not take into account the cascade of styles
  * applied to an element upstream of the extended style. Add @mixins here for such styles

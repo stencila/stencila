@@ -5,7 +5,7 @@
  */
 
 /**
- * Import the Bootstrap CSS, from their CDN, pinned to a specific version
+ * Import the Bootstrap CSS
  *
  * Many of Bootstrap's typographic styles target semantic HTML elements
  * e.g. `<del>`, `<blockquote>` etc. So we get those "for free" without
@@ -13,7 +13,7 @@
  * map between Bootstrap's class based selectors and Thema's semantic selectors
  * using `@extend` e.g. `:--Table` to `.table`
  */
-@import 'https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.css';
+@import 'bootstrap/dist/css/bootstrap.css';
 
 /* Import semantic selectors so that we can map Bootstrap styles to them */
 @import '../../selectors.css';
