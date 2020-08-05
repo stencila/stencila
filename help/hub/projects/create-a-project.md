@@ -27,7 +27,7 @@ Your project will automatically be **public** which means any Stencila users can
 
 As the creator of the project you automatically become the project **owner**. This gives you full authority to make changes or delete the project.
 
-Before you start **managing your project sources** we recommend you finalise your project set up. It won't take a moment ⚡
+Before you start to **upload files** we recommend you finalise your project set up. It won't take a moment ⚡
 
 ## Project settings
 
@@ -47,6 +47,6 @@ Through **settings** scroll down to **Content** and click **Theme** to select yo
 
 If you choose to leave this section untouched the default style theme assigned to your projects with be the **Stencila** theme.
 
-## Manage project sources
+## Upload Files
 
-You're set up 👏 and ready to start [managing your project sources](./manage-project-sources.md). Learn how to create a new source, upload a file and much more.
+You're set up 👏 and ready to [upload files](../upload.md) and link data sources.
