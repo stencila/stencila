@@ -1,3 +1,10 @@
+## [2.15.1](https://github.com/stencila/thema/compare/v2.15.0...v2.15.1) (2020-08-05)
+
+
+### Bug Fixes
+
+* **Build:** Make static asset paths relative so they work on CDNs ([aade93a](https://github.com/stencila/thema/commit/aade93a0b9e702be99de738b0db27a35a7cef46d))
+
 # [2.15.0](https://github.com/stencila/thema/compare/v2.14.0...v2.15.0) (2020-08-04)
 
 
