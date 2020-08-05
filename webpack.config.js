@@ -174,7 +174,16 @@ module.exports = (env = {}, { mode }) => {
           use: [
             {
               loader: MiniCssExtractPlugin.loader,
-              options: { hmr: isDevelopment },
+              options: {
+                hmr: isDevelopment,
+                publicPath: (resourcePath, context) => {
+                  // Make asset paths relative
+                  // @see https://github.com/webpack-contrib/mini-css-extract-plugin#the-publicpath-option-as-function
+                  return (
+                    path.relative(path.dirname(resourcePath), context) + '/'
+                  )
+                },
+              },
             },
             {
               loader: 'css-loader',
