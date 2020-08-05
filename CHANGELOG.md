@@ -1,3 +1,10 @@
+## [2.15.2](https://github.com/stencila/thema/compare/v2.15.1...v2.15.2) (2020-08-05)
+
+
+### Bug Fixes
+
+* **Build:** Fix root dir resolution for relative paths ([07f0115](https://github.com/stencila/thema/commit/07f01155f13136f7cad7f46b49e189b2e470ebd2))
+
 ## [2.15.1](https://github.com/stencila/thema/compare/v2.15.0...v2.15.1) (2020-08-05)
 
 
