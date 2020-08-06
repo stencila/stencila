@@ -411,10 +411,10 @@ describe('replace', () => {
 
 describe('wrap', () => {
   it('wrap an element with another', () => {
-    body.innerHTML = `<img>`
+    body.innerHTML = `<span><img></span>`
 
-    wrap(first('img') ?? body, create('<div>'))
-    expect(body.innerHTML).toEqual('<div><img></div>')
+    wrap(first('span') ?? body, create('<div>'))
+    expect(body.innerHTML).toEqual('<div><span><img></span></div>')
   })
 })
 
