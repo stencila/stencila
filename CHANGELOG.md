@@ -1,3 +1,11 @@
+## [2.15.3](https://github.com/stencila/thema/compare/v2.15.2...v2.15.3) (2020-08-06)
+
+
+### Bug Fixes
+
+* **Utils:** Include element children when cloning a node ([8a438e8](https://github.com/stencila/thema/commit/8a438e85da1ddc69a7b48e91f6fc10a3cdca12a3))
+* wrap isn’t work if element has children ([6057769](https://github.com/stencila/thema/commit/6057769166e7ed824772d8f3658d56b9ea5345da))
+
 ## [2.15.2](https://github.com/stencila/thema/compare/v2.15.1...v2.15.2) (2020-08-05)
 
 
