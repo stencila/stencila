@@ -138,8 +138,7 @@ export function select(...args: (string | Document | Element)[]): Element[] {
  * (a) a HTML (or SVG) string (b) a CSS selector like string, or (c) an `Element`.
  * CSS selectors are a convenient way to create elements with attributes,
  * particularly Microdata elements. They can be prone to syntax errors however.
- * Alternatively, the second argument can
- * be an object of attribute name:value pairs.
+ * Alternatively, the second argument can be an object of attribute name:value pairs.
  *
  * @example <caption>Create a <figure> with id, class and itemtype attributes</caption>
  *
@@ -193,7 +192,7 @@ export function create(
   let elem: Element
   if (spec instanceof Element) {
     // Create as clone of existing element
-    elem = spec.cloneNode() as Element
+    elem = spec.cloneNode(true) as Element
   } else if (/^\s*</.test(spec)) {
     // Create from HTML
     const wrapper = document.createElement('div')

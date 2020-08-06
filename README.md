@@ -512,8 +512,7 @@ Create a new element.
 (a) a HTML (or SVG) string (b) a CSS selector like string, or (c) an `Element`.
 CSS selectors are a convenient way to create elements with attributes,
 particularly Microdata elements. They can be prone to syntax errors however.
-Alternatively, the second argument can
-be an object of attribute name:value pairs.  
+Alternatively, the second argument can be an object of attribute name:value pairs.  
 
 | Param | Type | Description |
 | --- | --- | --- |
