@@ -25,28 +25,9 @@ Your project will automatically be **public** which means any Stencila users can
 
 ![](http://stencila.github.io/hub/manager/snaps/project-sharing-public.png)
 
-As the creator of the project you automatically become the project **owner**. This gives you full authority to make changes or delete the project.
+As the creator of the project you automatically become the project **owner**. This gives you full authority to make changes or delete the project. 
 
-Before you start to **upload files** we recommend you finalise your project set up. It won't take a moment ⚡
+You're now set up 👏 and ready to [upload files](../source/upload.md). Before you do we highly recommend you finalise your [project settings](./project.settings.md) and chose your theme. It won't take a moment ⚡
 
-## Project settings
 
-**Description** - click **settings** on the left hand side bar and insert a project description if you want to include more information.
 
-![](http://stencila.github.io/hub/manager/snaps/project-settings-description-field.png)
-
-**Theme** - We want your published articles to look beautiful, branded and pleasant to read 💥
-
-If you haven't already selected your theme we have a range of design themes to choose from and you can preview them all at https://stencila.github.io/thema.
-
-Once chosen, you are still able to make edits and changes to the theme if you want to. You can also choose another theme at an time.
-
-Through **settings** scroll down to **Content** and click **Theme** to select your template and **Upload**.
-
-![](http://stencila.github.io/hub/manager/snaps/org-settings-theme-field.png)
-
-If you choose to leave this section untouched the default style theme assigned to your projects with be the **Stencila** theme.
-
-## Upload Files
-
-You're set up 👏 and ready to [upload files](../upload.md) and link data sources.
