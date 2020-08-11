@@ -35,7 +35,7 @@ Congratulations 👏 you’ve just converted your source to an editable manuscri
 
 ![](https://i.imgur.com/5y7HQDC.png)
 
-Notice the project specific URL which has been created and you can [Share](./share.a.project.md).  You can also **Download** the document to your computer or **Open** the document where you can find and replace any static figures in the article with Code Chunks before submitting for publishing.  
+Notice the project specific URL which has been created and you can [Share](./share-a-project.md).  You can also **Download** the document to your computer or **Open** the document where you can find and replace any static figures in the article with Code Chunks before submitting for publishing.  
 
 ## Project settings
 Review your [Project Settings](./project-settings.md) to learn how content is served for this project and chosen your favorite project **theme**; a special feature of Stencila. 
