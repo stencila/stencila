@@ -1,7 +1,8 @@
 ---
 id: 4321162
 title: How to publish a project
-description: Convert your project into a editable format of choice to publish.
+description: Convert your project into a editable format of choice to publish
+published: true
 ---
 
 This guide presumes you have already:
