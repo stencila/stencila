@@ -5,7 +5,7 @@ description: Share your public or private project URL with others
 published: true
 ---
 
-As soon as you have [published an executable document](./how-to-publish-an-executable-document.md) you can share it with others.
+As soon as you have [published a project](./publish-a-project.md) you can share it with others.
 
 Click **sharing** on the left hand side bar.
 
