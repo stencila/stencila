@@ -2,6 +2,7 @@
 id: 4330629
 title: Project settings
 description: How to update your project details, choose a theme, pin your project & delete your project
+published: true
 ---
 
 We recommend taking a few moments to go through your project settings as they affect how content is served for your project. If you make any changes don't forget to commit them.
