@@ -14,10 +14,6 @@ const deriveUrl = (type: string, id: string, title = ''): string => {
       return `https://www.mendeley.com/import?doi=10.7554/eLife.${id}`
     case 'readcube':
       return `https://www.readcube.com/articles/10.7554/eLife.${id}`
-    case 'papers':
-      return `papers2://url/https%3A%2F%2Felifesciences.org%2Farticles%2F${id}?title=${encodeURIComponent(
-        title
-      )}`
   }
   return ''
 }
@@ -92,14 +88,6 @@ const buildMenu = (
           'li',
           null,
           createSimpleLink(deriveUrl('readcube', articleId), 'ReadCube')
-        ),
-        create(
-          'li',
-          null,
-          createSimpleLink(
-            deriveUrl('papers', articleId, articleTitle),
-            'Papers'
-          )
         )
       )
     )
