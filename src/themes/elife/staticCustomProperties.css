@@ -44,13 +44,6 @@
   --BASELINE-MEASURE: 1.5;
   --BASELINE-MEASURE-REM: calc(var(--BASELINE-MEASURE) * 1rem);
 
-  /* URLs */
-  --URL-DOWNLOAD-ICON--NARROWER-VIEWPORTS: url('@elifesciences/pattern-library/source/assets/img/icons/download.svg');
-  --URL-DOWNLOAD-ICON--WIDER-VIEWPORTS: url('@elifesciences/pattern-library/source/assets/img/icons/download-full.svg');
-  --URL-EMAIL-ICON: url('@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
-  --URL-CC-ICON: url('@elifesciences/pattern-library/source/assets/img/icons/cc.svg');
-  --URL-OA-ICON: url('@elifesciences/pattern-library/source/assets/img/icons/oa.svg');
-
   /* Stencila WebComponent overrides */
   --font-family-display: 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
   --font-family-body: 'Noto Sans', 'Arial', 'Helvetica', sans-serif;
