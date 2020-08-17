@@ -55,7 +55,6 @@
   --download-icon-block-size: var(
     --BLOCK-SIZE-DOWNLOAD-ICON-PX--NARROWER-VIEWPORTS
   );
-  --download-icon-image-path: var(--URL-DOWNLOAD-ICON--NARROWER-VIEWPORTS);
 }
 
 @media only screen and (--medium-viewport) {
@@ -68,7 +67,6 @@
     --download-icon-block-size: var(
       --BLOCK-SIZE-DOWNLOAD-ICON-PX--WIDER-VIEWPORTS
     );
-    --download-icon-image-path: var(--URL-DOWNLOAD-ICON--WIDER-VIEWPORTS);
   }
 }
 
@@ -87,20 +85,14 @@
     height: 22px;
   }
 
-  .content-header__icon--cc {
-    background-image: var(--URL-CC-ICON);
-
-    &:hover {
-      background-image: var(--URL-CC-ICON);
-    }
+  .content-header__icon--cc,
+  .content-header__icon--cc:hover {
+    background-image: url('@elifesciences/pattern-library/source/assets/img/icons/cc.svg');
   }
 
-  .content-header__icon--oa {
-    background-image: var(--URL-OA-ICON);
-
-    &:hover {
-      background-image: var(--URL-OA-ICON);
-    }
+  .content-header__icon--oa,
+  .content-header__icon--oa:hover {
+    background-image: url('@elifesciences/pattern-library/source/assets/img/icons/oa.svg');
   }
 
   & :--authors {
@@ -122,7 +114,7 @@
       }
 
       :--emails::after {
-        content: var(--URL-EMAIL-ICON);
+        content: url('@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
       }
     }
 
@@ -142,7 +134,7 @@
       }
 
       :--emails::after {
-        content: var(--URL-EMAIL-ICON);
+        content: url('@elifesciences/pattern-library/source/assets/img/icons/corresponding-author@1x.png');
       }
     }
 
@@ -267,7 +259,12 @@
     & > .download-link {
       flex: 0 0 var(--download-icon-block-size);
       height: var(--download-icon-block-size);
-      background: var(--download-icon-image-path) transparent no-repeat;
+      background: url('@elifesciences/pattern-library/source/assets/img/icons/download.svg')
+        transparent no-repeat;
+
+      @media only screen and (--medium-viewport) {
+        background-image: url('@elifesciences/pattern-library/source/assets/img/icons/download-full.svg');
+      }
 
       & > .download-link-text {
         @mixin visuallyhidden;
