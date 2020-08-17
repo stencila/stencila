@@ -1,3 +1,10 @@
+## [2.15.4](https://github.com/stencila/thema/compare/v2.15.3...v2.15.4) (2020-08-17)
+
+
+### Bug Fixes
+
+* **Elife:** Don't use string variables in URLs ([a787107](https://github.com/stencila/thema/commit/a7871075c92f7bd39640f00a776ec1a1177271ed))
+
 ## [2.15.3](https://github.com/stencila/thema/compare/v2.15.2...v2.15.3) (2020-08-06)
 
 
