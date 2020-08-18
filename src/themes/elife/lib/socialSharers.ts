@@ -75,7 +75,7 @@ export const build = (
   after(attachPoint, wrapper)
   getSharerData(
     encodeURIComponent(title),
-    encodeURI(`https://doi.org/${doi}`)
+    encodeURIComponent(`https://doi.org/${doi}`)
   ).forEach(
     (sharer: {
       description: string
