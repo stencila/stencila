@@ -62,7 +62,7 @@ describe('social sharing links', () => {
 
     it('passes the title and DOI to Twitter', () => {
       const expectedUrl =
-        'https://twitter.com/intent/tweet/?text=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;url=https%3A%2F%2Fdoi.org%2F10.7554%2FeLife.30274'
+        'https://twitter.com/intent/tweet/?text=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&url=https%3A%2F%2Fdoi.org%2F10.7554%2FeLife.30274'
       expect(link?.getAttribute('href') ?? 'no appropriate anchor found').toBe(
         expectedUrl
       )
@@ -84,7 +84,7 @@ describe('social sharing links', () => {
 
     it('passes the title and DOI to Reddit', () => {
       const expectedUrl =
-        'https://reddit.com/submit/?title=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;url=https%3A%2F%2Fdoi.org%2F10.7554%2FeLife.30274'
+        'https://reddit.com/submit/?title=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&url=https%3A%2F%2Fdoi.org%2F10.7554%2FeLife.30274'
       expect(link?.getAttribute('href') ?? 'no appropriate anchor found').toBe(
         expectedUrl
       )
@@ -107,7 +107,7 @@ describe('social sharing links', () => {
 
     it('is a mailto, with the title as the subject and the DOI as the body', () => {
       const expectedUrl =
-        'mailto:?subject=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&amp;body=https%3A%2F%2Fdoi.org%2F10.7554%2FeLife.30274'
+        'mailto:?subject=Replication%20Study%3A%20Transcriptional%20amplification%20in%20tumor%20cells%20with%20elevated%20c-Myc&body=https%3A%2F%2Fdoi.org%2F10.7554%2FeLife.30274'
       expect(link?.getAttribute('href') ?? 'no appropriate anchor found').toBe(
         expectedUrl
       )
