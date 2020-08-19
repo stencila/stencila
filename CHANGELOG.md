@@ -1,3 +1,10 @@
+# [2.16.0](https://github.com/stencila/thema/compare/v2.15.5...v2.16.0) (2020-08-19)
+
+
+### Features
+
+* **Elife:** Use link to executable for social media sharing ([81367e2](https://github.com/stencila/thema/commit/81367e2bedf4e587272d1157b7814b1cfe52308a))
+
 ## [2.15.5](https://github.com/stencila/thema/compare/v2.15.4...v2.15.5) (2020-08-19)
 
 
