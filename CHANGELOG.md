@@ -1,3 +1,10 @@
+## [2.15.5](https://github.com/stencila/thema/compare/v2.15.4...v2.15.5) (2020-08-19)
+
+
+### Bug Fixes
+
+* **Elife:** Social media links should encode doi ([0fead25](https://github.com/stencila/thema/commit/0fead25a125f30bde93d458313dc2e13d46491eb))
+
 ## [2.15.4](https://github.com/stencila/thema/compare/v2.15.3...v2.15.4) (2020-08-17)
 
 
