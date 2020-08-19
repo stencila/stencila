@@ -2,7 +2,7 @@ import { after, append, create, select } from '../../../util'
 import { getArticlePdfUrl, getFiguresPdfUrl } from './dataProvider'
 import { articleData } from './query'
 
-const deriveUrl = (type: string, id: string, title = ''): string => {
+const deriveUrl = (type: string, id: string): string => {
   switch (type) {
     case 'executable-version':
       return `https://elifesciences.org/articles/${id}/executable/download`
