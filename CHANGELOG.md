@@ -1,3 +1,10 @@
+## [2.16.1](https://github.com/stencila/thema/compare/v2.16.0...v2.16.1) (2020-08-21)
+
+
+### Bug Fixes
+
+* **ELife:** Vertically center button labels ([309453f](https://github.com/stencila/thema/commit/309453f1aa329fc3ea8d57ff323fe23f6bc6926a))
+
 # [2.16.0](https://github.com/stencila/thema/compare/v2.15.5...v2.16.0) (2020-08-19)
 
 
