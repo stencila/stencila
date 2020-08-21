@@ -3,6 +3,10 @@ stencila-button {
     font-family: var(--font-family-display);
     font-size: var(--TEXT-SIZE-MEDIUM-REM);
     text-transform: uppercase;
+
+    &[disabled] {
+      opacity: 1 !important;
+    }
   }
 
   .label {
