@@ -6,7 +6,8 @@ stencila-button {
   }
 
   .label {
-    vertical-align: bottom;
+    line-height: 0.75;
+    vertical-align: middle;
   }
 }
 
