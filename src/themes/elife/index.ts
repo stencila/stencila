@@ -28,7 +28,7 @@ ready((): void => {
 
   try {
     dateFormatter.format(first(':--datePublished'))
-    socialSharers.build(articleTitle, dataProvider.getArticleDoi())
+    socialSharers.build(articleTitle, articleId)
     referenceFormatter.format(select(':--reference'))
   } catch (e) {
     console.error(e)
