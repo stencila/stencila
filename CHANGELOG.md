@@ -1,3 +1,11 @@
+## [2.16.2](https://github.com/stencila/thema/compare/v2.16.1...v2.16.2) (2020-08-21)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/components to ^0.21.1 ([c920d34](https://github.com/stencila/thema/commit/c920d342937dfb1a4567c41b6187ba1da2c7ad0e))
+* **Elife:** Improve disabled button contrast (Close [#235](https://github.com/stencila/thema/issues/235)) ([9a4fa9b](https://github.com/stencila/thema/commit/9a4fa9b32b3edb0936d09844f89c401c00c6c01d))
+
 ## [2.16.1](https://github.com/stencila/thema/compare/v2.16.0...v2.16.1) (2020-08-21)
 
 
