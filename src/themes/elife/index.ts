@@ -3,6 +3,7 @@ import * as contentHeader from './lib/contentHeader'
 import * as dateFormatter from './lib/dateFormatter'
 import * as dataProvider from './lib/dataProvider'
 import * as downloads from './lib/downloads'
+import * as externalLinks from './lib/externalLinks'
 import * as icons from './lib/icons'
 import * as socialSharers from './lib/socialSharers'
 import * as referenceFormatter from './lib/referencesFormatter'
@@ -30,6 +31,7 @@ ready((): void => {
     dateFormatter.format(first(':--datePublished'))
     socialSharers.build(articleTitle, articleId)
     referenceFormatter.format(select(':--reference'))
+    externalLinks.format(select('a[href^=http]'))
   } catch (e) {
     console.error(e)
   }
