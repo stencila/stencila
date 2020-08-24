@@ -1,3 +1,10 @@
+## [2.16.3](https://github.com/stencila/thema/compare/v2.16.2...v2.16.3) (2020-08-24)
+
+
+### Bug Fixes
+
+* **Elife:** set target _parent on external links ([ee80b38](https://github.com/stencila/thema/commit/ee80b38b27e91c48bd7dba5c966193607f0cbcc8))
+
 ## [2.16.2](https://github.com/stencila/thema/compare/v2.16.1...v2.16.2) (2020-08-21)
 
 
