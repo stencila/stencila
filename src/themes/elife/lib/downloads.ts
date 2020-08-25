@@ -58,7 +58,7 @@ const buildMenu = (
             'div',
             { class: 'downloads--link' },
             createSimpleLink(
-              'https://elifesciences.org/labs/7dbeb390/reproducible-document-stack-supporting-the-next-generation-research-article',
+              'https://elifesciences.org/labs/dc5acbde/welcome-to-a-new-era-of-reproducible-publishing',
               'What are executable versions?'
             )
           )
