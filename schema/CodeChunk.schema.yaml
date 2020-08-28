@@ -6,6 +6,21 @@ status: unstable
 category: code
 description: A executable chunk of code.
 properties:
+  caption:
+    '@id': schema:caption
+    description: A caption for the CodeChunk.
+    $comment: |
+      An array of nodes or, to be compatible with https://schema.org/caption,
+      a string.
+    anyOf:
+      - type: string
+      - type: array
+        items:
+          $ref: Node
+  label:
+    '@id': stencila:label
+    description: A short label for the CodeChunk.
+    type: string
   imports:
     '@id': stencila:imports
     description: Software packages that the code chunk imports
