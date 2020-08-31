@@ -268,6 +268,9 @@ class CodeChunk(CodeBlock):
     assigns: Optional[Array[Union[str, "Variable"]]] = None
     """Variables that the code chunk assigns to."""
 
+    caption: Optional[Union[str, Array["Node"]]] = None
+    """A caption for the CodeChunk."""
+
     declares: Optional[Array[Union[str, "Variable", "Function"]]] = None
     """Variables that the code chunk declares."""
 
@@ -279,6 +282,9 @@ class CodeChunk(CodeBlock):
 
     imports: Optional[Array[Union[str, "SoftwareSourceCode", "SoftwareApplication"]]] = None
     """Software packages that the code chunk imports"""
+
+    label: Optional[str] = None
+    """A short label for the CodeChunk."""
 
     outputs: Optional[Array["Node"]] = None
     """Outputs from executing the chunk."""
@@ -295,6 +301,7 @@ class CodeChunk(CodeBlock):
         text: str,
         alters: Optional[Array[str]] = None,
         assigns: Optional[Array[Union[str, "Variable"]]] = None,
+        caption: Optional[Union[str, Array["Node"]]] = None,
         declares: Optional[Array[Union[str, "Variable", "Function"]]] = None,
         duration: Optional[float] = None,
         errors: Optional[Array["CodeError"]] = None,
@@ -303,6 +310,7 @@ class CodeChunk(CodeBlock):
         id: Optional[str] = None,
         importTo: Optional[str] = None,
         imports: Optional[Array[Union[str, "SoftwareSourceCode", "SoftwareApplication"]]] = None,
+        label: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         outputs: Optional[Array["Node"]] = None,
         programmingLanguage: Optional[str] = None,
@@ -322,6 +330,8 @@ class CodeChunk(CodeBlock):
             self.alters = alters
         if assigns is not None:
             self.assigns = assigns
+        if caption is not None:
+            self.caption = caption
         if declares is not None:
             self.declares = declares
         if duration is not None:
@@ -330,6 +340,8 @@ class CodeChunk(CodeBlock):
             self.errors = errors
         if imports is not None:
             self.imports = imports
+        if label is not None:
+            self.label = label
         if outputs is not None:
             self.outputs = outputs
         if reads is not None:
