@@ -1,3 +1,10 @@
+# [0.44.0](https://github.com/stencila/schema/compare/v0.43.3...v0.44.0) (2020-08-31)
+
+
+### Features
+
+* **CodeChunk:** Add support for caption & label fields ([3d78d9d](https://github.com/stencila/schema/commit/3d78d9d9740ae1a4a346d474a7144eb524c11a29))
+
 ## [0.43.3](https://github.com/stencila/schema/compare/v0.43.2...v0.43.3) (2020-07-08)
 
 
