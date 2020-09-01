@@ -1,3 +1,10 @@
+## [0.44.1](https://github.com/stencila/schema/compare/v0.44.0...v0.44.1) (2020-09-01)
+
+
+### Bug Fixes
+
+* **Package:** Fix path to types file ([af39983](https://github.com/stencila/schema/commit/af39983bf008abd545ab98f5009e9af30af59d1f))
+
 # [0.44.0](https://github.com/stencila/schema/compare/v0.43.3...v0.44.0) (2020-08-31)
 
 
