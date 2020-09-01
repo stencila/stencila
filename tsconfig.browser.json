@@ -3,7 +3,8 @@
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "node",
-    "lib": ["DOM", "ES2015"]
+    "lib": ["DOM", "ES2015"],
+    "declarationDir": "dist"
   },
   "include": ["ts/index.browser.ts"]
 }
