@@ -1,3 +1,10 @@
+## [0.44.2](https://github.com/stencila/schema/compare/v0.44.1...v0.44.2) (2020-09-01)
+
+
+### Bug Fixes
+
+* **Build:** Specify directory for type declarations ([9637465](https://github.com/stencila/schema/commit/96374656686e8ca78ac4c1eab0ab4442cd0a365c))
+
 ## [0.44.1](https://github.com/stencila/schema/compare/v0.44.0...v0.44.1) (2020-09-01)
 
 
