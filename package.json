@@ -10,7 +10,7 @@
   "module": "dist/index.mjs",
   "browser": "dist/browser/schema.mjs",
   "unpkg": "dist/browser/schema.umd.js",
-  "types": "dist/ts/ts/index.d.ts",
+  "types": "dist/ts/index.d.ts",
   "scripts": {
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
     "lint": "npx eslint 'ts/**/*.{js,ts}' --fix",
@@ -31,7 +31,7 @@
     "docs:build": "ts-node ts/docs.ts",
     "docs:api": "ts-node ts/bindings/typescript.ts && typedoc --out ts/docs/ --mode file --exclude '**/*.test.ts' --exclude '**/__tests__/**' --exclude '**/__file_snapshots__/**'",
     "docs:serve": "npx browser-sync ./public -f ./public --directory --no-ui --reload-debounce 750",
-    "clean": "rimraf dist/* public/* ts/types.ts"
+    "clean": "rimraf coverage dist public ts/types.ts"
   },
   "repository": {
     "type": "git",
