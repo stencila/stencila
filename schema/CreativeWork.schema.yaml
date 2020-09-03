@@ -168,6 +168,13 @@ properties:
     anyOf:
       - type: string
       - type: number
+  subjects:
+    '@id': schema:subjects
+    description: Define subjects related to an article.
+    type: array
+    items:
+      anyOf:
+        - $ref: Subjects
 definitions:
   dateProperty:
     # Schema for data properties

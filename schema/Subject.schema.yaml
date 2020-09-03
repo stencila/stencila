@@ -1,0 +1,16 @@
+title: Subject
+'@id': schema:Subject
+extends: Thing
+role: secondary
+status: stable
+category: metadata
+description: Subjects related to an article.
+properties:
+  name:
+    '@id': schema:name
+    description: A name for the subject.
+    type: string
+  value:
+    '@id': schema:value
+    description: A value for the subject.
+    type: string
