@@ -7,6 +7,17 @@ category: metadata
 description: |
   A creative work, including books, movies, photographs, software programs, etc.
 properties:
+  about:
+    '@id': schema:about
+    description: The subject matter of the content.
+    $comment: |
+      Consistent with https://schema.org/about, this property allows for
+      linking to one of more `Thing` nodes. This could for example include
+      a `Person` (e.g for a bibliography) or a `DefinedTerm` (e.g. for
+      subject areas the creative work relates to).
+    type: array
+    items:
+      $ref: Thing
   authors:
     '@id': schema:author
     description: The authors of this creative work.
@@ -87,6 +98,12 @@ properties:
       anyOf:
         - $ref: Grant
         - $ref: MonetaryGrant
+  genre:
+    '@id': schema:genre
+    description: Genre of the creative work, broadcast channel or group.
+    type: array
+    items:
+      type: string
   keywords:
     '@id': schema:keywords
     description: |
@@ -168,18 +185,6 @@ properties:
     anyOf:
       - type: string
       - type: number
-  about:
-    '@id': schema:about
-    description: The subject matter of the content.
-    type: array
-    items:
-      $ref: DefinedTerm
-  genre:
-    '@id': schema:genre
-    description: Genre of the creative work, broadcast channel or group.
-    type: array
-    items:
-      type: string
 definitions:
   dateProperty:
     # Schema for data properties

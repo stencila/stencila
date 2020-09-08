@@ -641,6 +641,7 @@ ContactPoint <- function(
 #' A creative work, including books, movies, photographs, software programs, etc.
 #'
 #' @name CreativeWork
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -653,6 +654,7 @@ ContactPoint <- function(
 #' @param editors People who edited the `CreativeWork`.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -671,6 +673,7 @@ ContactPoint <- function(
 #' @seealso \code{\link{Thing}}
 #' @export
 CreativeWork <- function(
+  about,
   alternateNames,
   authors,
   content,
@@ -683,6 +686,7 @@ CreativeWork <- function(
   editors,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -710,6 +714,7 @@ CreativeWork <- function(
     url = url
   )
   self$type <- as_scalar("CreativeWork")
+  self[["about"]] <- check_property("CreativeWork", "about", FALSE, missing(about), Array(Thing), about)
   self[["authors"]] <- check_property("CreativeWork", "authors", FALSE, missing(authors), Array(Union(Person, Organization)), authors)
   self[["content"]] <- check_property("CreativeWork", "content", FALSE, missing(content), Array(Node), content)
   self[["dateAccepted"]] <- check_property("CreativeWork", "dateAccepted", FALSE, missing(dateAccepted), Union(Date, "character"), dateAccepted)
@@ -720,6 +725,7 @@ CreativeWork <- function(
   self[["editors"]] <- check_property("CreativeWork", "editors", FALSE, missing(editors), Array(Person), editors)
   self[["fundedBy"]] <- check_property("CreativeWork", "fundedBy", FALSE, missing(fundedBy), Array(Union(Grant, MonetaryGrant)), fundedBy)
   self[["funders"]] <- check_property("CreativeWork", "funders", FALSE, missing(funders), Array(Union(Person, Organization)), funders)
+  self[["genre"]] <- check_property("CreativeWork", "genre", FALSE, missing(genre), Array("character"), genre)
   self[["isPartOf"]] <- check_property("CreativeWork", "isPartOf", FALSE, missing(isPartOf), CreativeWorkTypes, isPartOf)
   self[["keywords"]] <- check_property("CreativeWork", "keywords", FALSE, missing(keywords), Array("character"), keywords)
   self[["licenses"]] <- check_property("CreativeWork", "licenses", FALSE, missing(licenses), Array(Union("character", CreativeWorkTypes)), licenses)
@@ -737,6 +743,7 @@ CreativeWork <- function(
 #' An article, including news and scholarly articles.
 #'
 #' @name Article
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -749,6 +756,7 @@ CreativeWork <- function(
 #' @param editors People who edited the `CreativeWork`.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -770,6 +778,7 @@ CreativeWork <- function(
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Article <- function(
+  about,
   alternateNames,
   authors,
   content,
@@ -782,6 +791,7 @@ Article <- function(
   editors,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -802,6 +812,7 @@ Article <- function(
   version
 ){
   self <- CreativeWork(
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     content = content,
@@ -814,6 +825,7 @@ Article <- function(
     editors = editors,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -843,6 +855,7 @@ Article <- function(
 #'
 #' @name Collection
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.  \bold{Required}.
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -855,6 +868,7 @@ Article <- function(
 #' @param editors People who edited the `CreativeWork`.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -873,6 +887,7 @@ Article <- function(
 #' @export
 Collection <- function(
   parts,
+  about,
   alternateNames,
   authors,
   content,
@@ -885,6 +900,7 @@ Collection <- function(
   editors,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -902,6 +918,7 @@ Collection <- function(
 ){
   self <- CreativeWork(
     parts = parts,
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     content = content,
@@ -914,6 +931,7 @@ Collection <- function(
     editors = editors,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -940,6 +958,7 @@ Collection <- function(
 #'
 #' @name Datatable
 #' @param columns The columns of data. \bold{Required}.
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -952,6 +971,7 @@ Collection <- function(
 #' @param editors People who edited the `CreativeWork`.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -971,6 +991,7 @@ Collection <- function(
 #' @export
 Datatable <- function(
   columns,
+  about,
   alternateNames,
   authors,
   content,
@@ -983,6 +1004,7 @@ Datatable <- function(
   editors,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -1000,6 +1022,7 @@ Datatable <- function(
   version
 ){
   self <- CreativeWork(
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     content = content,
@@ -1012,6 +1035,7 @@ Datatable <- function(
     editors = editors,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -1039,6 +1063,7 @@ Datatable <- function(
 #'
 #' @name MediaObject
 #' @param contentUrl URL for the actual bytes of the media object, for example the image file or video file.  \bold{Required}.
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
@@ -1055,6 +1080,7 @@ Datatable <- function(
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -1074,6 +1100,7 @@ Datatable <- function(
 #' @export
 MediaObject <- function(
   contentUrl,
+  about,
   alternateNames,
   authors,
   bitrate,
@@ -1090,6 +1117,7 @@ MediaObject <- function(
   format,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -1107,6 +1135,7 @@ MediaObject <- function(
   version
 ){
   self <- CreativeWork(
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     content = content,
@@ -1119,6 +1148,7 @@ MediaObject <- function(
     editors = editors,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -1150,6 +1180,7 @@ MediaObject <- function(
 #'
 #' @name AudioObject
 #' @param contentUrl URL for the actual bytes of the media object, for example the image file or video file.  \bold{Required}.
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
@@ -1167,6 +1198,7 @@ MediaObject <- function(
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -1187,6 +1219,7 @@ MediaObject <- function(
 #' @export
 AudioObject <- function(
   contentUrl,
+  about,
   alternateNames,
   authors,
   bitrate,
@@ -1204,6 +1237,7 @@ AudioObject <- function(
   format,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -1223,6 +1257,7 @@ AudioObject <- function(
 ){
   self <- MediaObject(
     contentUrl = contentUrl,
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     bitrate = bitrate,
@@ -1239,6 +1274,7 @@ AudioObject <- function(
     format = format,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -1309,6 +1345,49 @@ DatatableColumn <- function(
 }
 
 
+#' A word, name, acronym, phrase, etc. with a formal definition.
+#'
+#' @name DefinedTerm
+#' @param name The name of the item. \bold{Required}.
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param description A description of the item.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param images Images of the item.
+#' @param meta Metadata associated with this item.
+#' @param termCode A code that identifies this DefinedTerm within a DefinedTermSet
+#' @param url The URL of the item.
+#' @seealso \code{\link{Thing}}
+#' @export
+DefinedTerm <- function(
+  name,
+  alternateNames,
+  description,
+  id,
+  identifiers,
+  images,
+  meta,
+  termCode,
+  url
+){
+  self <- Thing(
+    name = name,
+    alternateNames = alternateNames,
+    description = description,
+    id = id,
+    identifiers = identifiers,
+    images = images,
+    meta = meta,
+    url = url
+  )
+  self$type <- as_scalar("DefinedTerm")
+  self[["name"]] <- check_property("DefinedTerm", "name", TRUE, missing(name), "character", name)
+  self[["termCode"]] <- check_property("DefinedTerm", "termCode", FALSE, missing(termCode), "character", termCode)
+  class(self) <- c(class(self), "DefinedTerm")
+  self
+}
+
+
 #' A schema specifying that a node must be one of several values.
 #'
 #' @name EnumValidator
@@ -1336,6 +1415,7 @@ EnumValidator <- function(
 #' Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 #'
 #' @name Figure
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param caption A caption for the figure.
@@ -1349,6 +1429,7 @@ EnumValidator <- function(
 #' @param editors People who edited the `CreativeWork`.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -1368,6 +1449,7 @@ EnumValidator <- function(
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Figure <- function(
+  about,
   alternateNames,
   authors,
   caption,
@@ -1381,6 +1463,7 @@ Figure <- function(
   editors,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -1399,6 +1482,7 @@ Figure <- function(
   version
 ){
   self <- CreativeWork(
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     content = content,
@@ -1411,6 +1495,7 @@ Figure <- function(
     editors = editors,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -1541,6 +1626,7 @@ Heading <- function(
 #'
 #' @name ImageObject
 #' @param contentUrl URL for the actual bytes of the media object, for example the image file or video file.  \bold{Required}.
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
@@ -1558,6 +1644,7 @@ Heading <- function(
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -1578,6 +1665,7 @@ Heading <- function(
 #' @export
 ImageObject <- function(
   contentUrl,
+  about,
   alternateNames,
   authors,
   bitrate,
@@ -1595,6 +1683,7 @@ ImageObject <- function(
   format,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -1614,6 +1703,7 @@ ImageObject <- function(
 ){
   self <- MediaObject(
     contentUrl = contentUrl,
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     bitrate = bitrate,
@@ -1630,6 +1720,7 @@ ImageObject <- function(
     format = format,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -2185,6 +2276,7 @@ Parameter <- function(
 #' A periodical publication.
 #'
 #' @name Periodical
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -2199,6 +2291,7 @@ Parameter <- function(
 #' @param editors People who edited the `CreativeWork`.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -2218,6 +2311,7 @@ Parameter <- function(
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Periodical <- function(
+  about,
   alternateNames,
   authors,
   content,
@@ -2232,6 +2326,7 @@ Periodical <- function(
   editors,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -2250,6 +2345,7 @@ Periodical <- function(
   version
 ){
   self <- CreativeWork(
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     content = content,
@@ -2262,6 +2358,7 @@ Periodical <- function(
     editors = editors,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -2521,6 +2618,7 @@ PropertyValue <- function(
 #' A part of a successively published publication such as a periodical or publication volume, often numbered.
 #'
 #' @name PublicationIssue
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -2533,6 +2631,7 @@ PropertyValue <- function(
 #' @param editors People who edited the `CreativeWork`.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -2555,6 +2654,7 @@ PropertyValue <- function(
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 PublicationIssue <- function(
+  about,
   alternateNames,
   authors,
   content,
@@ -2567,6 +2667,7 @@ PublicationIssue <- function(
   editors,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -2588,6 +2689,7 @@ PublicationIssue <- function(
   version
 ){
   self <- CreativeWork(
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     content = content,
@@ -2600,6 +2702,7 @@ PublicationIssue <- function(
     editors = editors,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -2629,6 +2732,7 @@ PublicationIssue <- function(
 #' A part of a successively published publication such as a periodical or multi-volume work.
 #'
 #' @name PublicationVolume
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -2641,6 +2745,7 @@ PublicationIssue <- function(
 #' @param editors People who edited the `CreativeWork`.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -2663,6 +2768,7 @@ PublicationIssue <- function(
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 PublicationVolume <- function(
+  about,
   alternateNames,
   authors,
   content,
@@ -2675,6 +2781,7 @@ PublicationVolume <- function(
   editors,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -2696,6 +2803,7 @@ PublicationVolume <- function(
   volumeNumber
 ){
   self <- CreativeWork(
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     content = content,
@@ -2708,6 +2816,7 @@ PublicationVolume <- function(
     editors = editors,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -2791,6 +2900,7 @@ QuoteBlock <- function(
 #' A software application.
 #'
 #' @name SoftwareApplication
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param content The structured content of this creative work c.f. property `text`.
@@ -2803,6 +2913,7 @@ QuoteBlock <- function(
 #' @param editors People who edited the `CreativeWork`.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -2823,6 +2934,7 @@ QuoteBlock <- function(
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 SoftwareApplication <- function(
+  about,
   alternateNames,
   authors,
   content,
@@ -2835,6 +2947,7 @@ SoftwareApplication <- function(
   editors,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -2854,6 +2967,7 @@ SoftwareApplication <- function(
   version
 ){
   self <- CreativeWork(
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     content = content,
@@ -2866,6 +2980,7 @@ SoftwareApplication <- function(
     editors = editors,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -3032,6 +3147,7 @@ SoftwareSession <- function(
 #' Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
 #'
 #' @name SoftwareSourceCode
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param codeRepository Link to the repository where the un-compiled, human readable code and related code is located.
@@ -3046,6 +3162,7 @@ SoftwareSession <- function(
 #' @param editors People who edited the `CreativeWork`.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -3069,6 +3186,7 @@ SoftwareSession <- function(
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 SoftwareSourceCode <- function(
+  about,
   alternateNames,
   authors,
   codeRepository,
@@ -3083,6 +3201,7 @@ SoftwareSourceCode <- function(
   editors,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -3105,6 +3224,7 @@ SoftwareSourceCode <- function(
   version
 ){
   self <- CreativeWork(
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     content = content,
@@ -3117,6 +3237,7 @@ SoftwareSourceCode <- function(
     editors = editors,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -3255,6 +3376,7 @@ Superscript <- function(
 #'
 #' @name Table
 #' @param rows Rows of cells in the table.  \bold{Required}.
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param caption A caption for the table.
@@ -3268,6 +3390,7 @@ Superscript <- function(
 #' @param editors People who edited the `CreativeWork`.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -3288,6 +3411,7 @@ Superscript <- function(
 #' @export
 Table <- function(
   rows,
+  about,
   alternateNames,
   authors,
   caption,
@@ -3301,6 +3425,7 @@ Table <- function(
   editors,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -3319,6 +3444,7 @@ Table <- function(
   version
 ){
   self <- CreativeWork(
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     content = content,
@@ -3331,6 +3457,7 @@ Table <- function(
     editors = editors,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -3469,6 +3596,7 @@ TupleValidator <- function(
 #'
 #' @name VideoObject
 #' @param contentUrl URL for the actual bytes of the media object, for example the image file or video file.  \bold{Required}.
+#' @param about The subject matter of the content.
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param bitrate Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
@@ -3486,6 +3614,7 @@ TupleValidator <- function(
 #' @param format Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
 #' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
 #' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
 #' @param id The identifier for this item.
 #' @param identifiers Any kind of identifier for any kind of Thing.
 #' @param images Images of the item.
@@ -3507,6 +3636,7 @@ TupleValidator <- function(
 #' @export
 VideoObject <- function(
   contentUrl,
+  about,
   alternateNames,
   authors,
   bitrate,
@@ -3524,6 +3654,7 @@ VideoObject <- function(
   format,
   fundedBy,
   funders,
+  genre,
   id,
   identifiers,
   images,
@@ -3544,6 +3675,7 @@ VideoObject <- function(
 ){
   self <- MediaObject(
     contentUrl = contentUrl,
+    about = about,
     alternateNames = alternateNames,
     authors = authors,
     bitrate = bitrate,
@@ -3560,6 +3692,7 @@ VideoObject <- function(
     format = format,
     fundedBy = fundedBy,
     funders = funders,
+    genre = genre,
     id = id,
     identifiers = identifiers,
     images = images,
@@ -3676,7 +3809,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datat
 #' All type schemas that are derived from Entity
 #'
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Grant
@@ -3724,7 +3857,7 @@ NumberValidatorTypes <- Union(NumberValidator, IntegerValidator)
 #' All type schemas that are derived from Thing
 #'
 #' @export
-ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, Figure, Grant, ImageObject, ListItem, MediaObject, MonetaryGrant, Organization, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
+ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, ContactPoint, CreativeWork, Datatable, DatatableColumn, DefinedTerm, Figure, Grant, ImageObject, ListItem, MediaObject, MonetaryGrant, Organization, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
 
 
 #' Union type for all validator types.

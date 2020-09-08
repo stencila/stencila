@@ -690,6 +690,9 @@ class CreativeWork(Thing):
     etc.
     """
 
+    about: Optional[Array["Thing"]] = None
+    """The subject matter of the content."""
+
     authors: Optional[Array[Union["Person", "Organization"]]] = None
     """The authors of this creative work."""
 
@@ -719,6 +722,9 @@ class CreativeWork(Thing):
 
     funders: Optional[Array[Union["Person", "Organization"]]] = None
     """People or organizations that funded the `CreativeWork`."""
+
+    genre: Optional[Array[str]] = None
+    """Genre of the creative work, broadcast channel or group."""
 
     isPartOf: Optional["CreativeWorkTypes"] = None
     """An item or other CreativeWork that this CreativeWork is a part of.
@@ -759,6 +765,7 @@ web page, scholarly article, etc.
 
     def __init__(
         self,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
@@ -771,6 +778,7 @@ web page, scholarly article, etc.
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -797,6 +805,8 @@ web page, scholarly article, etc.
             name=name,
             url=url
         )
+        if about is not None:
+            self.about = about
         if authors is not None:
             self.authors = authors
         if content is not None:
@@ -817,6 +827,8 @@ web page, scholarly article, etc.
             self.fundedBy = fundedBy
         if funders is not None:
             self.funders = funders
+        if genre is not None:
+            self.genre = genre
         if isPartOf is not None:
             self.isPartOf = isPartOf
         if keywords is not None:
@@ -854,6 +866,7 @@ for example, "1-6, 9, 55".
 
     def __init__(
         self,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
@@ -866,6 +879,7 @@ for example, "1-6, 9, 55".
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -886,6 +900,7 @@ for example, "1-6, 9, 55".
         version: Optional[Union[str, float]] = None
     ) -> None:
         super().__init__(
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             content=content,
@@ -898,6 +913,7 @@ for example, "1-6, 9, 55".
             editors=editors,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -934,6 +950,7 @@ such as Articles, Datatables, Tables and more.
     def __init__(
         self,
         parts: Array["CreativeWorkTypes"],
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
@@ -946,6 +963,7 @@ such as Articles, Datatables, Tables and more.
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -963,6 +981,7 @@ such as Articles, Datatables, Tables and more.
     ) -> None:
         super().__init__(
             parts=parts,
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             content=content,
@@ -975,6 +994,7 @@ such as Articles, Datatables, Tables and more.
             editors=editors,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -1004,6 +1024,7 @@ class Datatable(CreativeWork):
     def __init__(
         self,
         columns: Array["DatatableColumn"],
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
@@ -1016,6 +1037,7 @@ class Datatable(CreativeWork):
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -1033,6 +1055,7 @@ class Datatable(CreativeWork):
         version: Optional[Union[str, float]] = None
     ) -> None:
         super().__init__(
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             content=content,
@@ -1045,6 +1068,7 @@ class Datatable(CreativeWork):
             editors=editors,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -1095,6 +1119,7 @@ class MediaObject(CreativeWork):
     def __init__(
         self,
         contentUrl: str,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
@@ -1111,6 +1136,7 @@ class MediaObject(CreativeWork):
         format: Optional[str] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -1128,6 +1154,7 @@ class MediaObject(CreativeWork):
         version: Optional[Union[str, float]] = None
     ) -> None:
         super().__init__(
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             content=content,
@@ -1140,6 +1167,7 @@ class MediaObject(CreativeWork):
             editors=editors,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -1181,6 +1209,7 @@ class AudioObject(MediaObject):
     def __init__(
         self,
         contentUrl: str,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
@@ -1198,6 +1227,7 @@ class AudioObject(MediaObject):
         format: Optional[str] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -1217,6 +1247,7 @@ class AudioObject(MediaObject):
     ) -> None:
         super().__init__(
             contentUrl=contentUrl,
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             bitrate=bitrate,
@@ -1233,6 +1264,7 @@ class AudioObject(MediaObject):
             format=format,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -1299,6 +1331,44 @@ class DatatableColumn(Thing):
             self.validator = validator
 
 
+class DefinedTerm(Thing):
+    """A word, name, acronym, phrase, etc. with a formal definition."""
+
+    name: str
+    """The name of the item."""
+
+    termCode: Optional[str] = None
+    """A code that identifies this DefinedTerm within a DefinedTermSet"""
+
+
+    def __init__(
+        self,
+        name: str,
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[Union[str, Array["Node"]]] = None,
+        id: Optional[str] = None,
+        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
+        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        termCode: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            name=name,
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            identifiers=identifiers,
+            images=images,
+            meta=meta,
+            url=url
+        )
+        if name is not None:
+            self.name = name
+        if termCode is not None:
+            self.termCode = termCode
+
+
 class EnumValidator(Entity):
     """A schema specifying that a node must be one of several values."""
 
@@ -1335,6 +1405,7 @@ class Figure(CreativeWork):
 
     def __init__(
         self,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         caption: Optional[Union[str, Array["Node"]]] = None,
@@ -1348,6 +1419,7 @@ class Figure(CreativeWork):
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -1366,6 +1438,7 @@ class Figure(CreativeWork):
         version: Optional[Union[str, float]] = None
     ) -> None:
         super().__init__(
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             content=content,
@@ -1378,6 +1451,7 @@ class Figure(CreativeWork):
             editors=editors,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -1515,6 +1589,7 @@ class ImageObject(MediaObject):
     def __init__(
         self,
         contentUrl: str,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
@@ -1532,6 +1607,7 @@ class ImageObject(MediaObject):
         format: Optional[str] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -1551,6 +1627,7 @@ class ImageObject(MediaObject):
     ) -> None:
         super().__init__(
             contentUrl=contentUrl,
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             bitrate=bitrate,
@@ -1567,6 +1644,7 @@ class ImageObject(MediaObject):
             format=format,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -2156,6 +2234,7 @@ class Periodical(CreativeWork):
 
     def __init__(
         self,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
@@ -2170,6 +2249,7 @@ class Periodical(CreativeWork):
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -2188,6 +2268,7 @@ class Periodical(CreativeWork):
         version: Optional[Union[str, float]] = None
     ) -> None:
         super().__init__(
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             content=content,
@@ -2200,6 +2281,7 @@ class Periodical(CreativeWork):
             editors=editors,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -2498,6 +2580,7 @@ for example, "1-6, 9, 55".
 
     def __init__(
         self,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
@@ -2510,6 +2593,7 @@ for example, "1-6, 9, 55".
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -2531,6 +2615,7 @@ for example, "1-6, 9, 55".
         version: Optional[Union[str, float]] = None
     ) -> None:
         super().__init__(
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             content=content,
@@ -2543,6 +2628,7 @@ for example, "1-6, 9, 55".
             editors=editors,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -2593,6 +2679,7 @@ for example, "1-6, 9, 55".
 
     def __init__(
         self,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
@@ -2605,6 +2692,7 @@ for example, "1-6, 9, 55".
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -2626,6 +2714,7 @@ for example, "1-6, 9, 55".
         volumeNumber: Optional[Union[str, int]] = None
     ) -> None:
         super().__init__(
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             content=content,
@@ -2638,6 +2727,7 @@ for example, "1-6, 9, 55".
             editors=editors,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -2728,6 +2818,7 @@ are not included in the application distribution.
 
     def __init__(
         self,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         content: Optional[Array["Node"]] = None,
@@ -2740,6 +2831,7 @@ are not included in the application distribution.
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -2759,6 +2851,7 @@ are not included in the application distribution.
         version: Optional[Union[str, float]] = None
     ) -> None:
         super().__init__(
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             content=content,
@@ -2771,6 +2864,7 @@ are not included in the application distribution.
             editors=editors,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -3013,6 +3107,7 @@ Python2.3, .Net Framework 3.0).
 
     def __init__(
         self,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         codeRepository: Optional[str] = None,
@@ -3027,6 +3122,7 @@ Python2.3, .Net Framework 3.0).
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -3049,6 +3145,7 @@ Python2.3, .Net Framework 3.0).
         version: Optional[Union[str, float]] = None
     ) -> None:
         super().__init__(
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             content=content,
@@ -3061,6 +3158,7 @@ Python2.3, .Net Framework 3.0).
             editors=editors,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -3194,6 +3292,7 @@ class Table(CreativeWork):
     def __init__(
         self,
         rows: Array["TableRow"],
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         caption: Optional[Union[str, Array["Node"]]] = None,
@@ -3207,6 +3306,7 @@ class Table(CreativeWork):
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -3225,6 +3325,7 @@ class Table(CreativeWork):
         version: Optional[Union[str, float]] = None
     ) -> None:
         super().__init__(
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             content=content,
@@ -3237,6 +3338,7 @@ class Table(CreativeWork):
             editors=editors,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -3392,6 +3494,7 @@ class VideoObject(MediaObject):
     def __init__(
         self,
         contentUrl: str,
+        about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
@@ -3409,6 +3512,7 @@ class VideoObject(MediaObject):
         format: Optional[str] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
         images: Optional[Array[Union[str, "ImageObject"]]] = None,
@@ -3429,6 +3533,7 @@ class VideoObject(MediaObject):
     ) -> None:
         super().__init__(
             contentUrl=contentUrl,
+            about=about,
             alternateNames=alternateNames,
             authors=authors,
             bitrate=bitrate,
@@ -3445,6 +3550,7 @@ class VideoObject(MediaObject):
             format=format,
             fundedBy=fundedBy,
             funders=funders,
+            genre=genre,
             id=id,
             identifiers=identifiers,
             images=images,
@@ -3559,7 +3665,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection"
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -3607,7 +3713,7 @@ NumberValidatorTypes = Union["NumberValidator", "IntegerValidator"]
 """
 All type schemas that are derived from Thing
 """
-ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
+ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
 
 
 """
