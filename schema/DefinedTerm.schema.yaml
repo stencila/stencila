@@ -1,5 +1,6 @@
 title: DefinedTerm
 '@id': schema:DefinedTerm
+extends: Thing
 status: stable
 role: secondary
 category: metadata
