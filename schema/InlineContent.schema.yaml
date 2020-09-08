@@ -18,6 +18,7 @@ anyOf:
   - $ref: ImageObject
   - $ref: Link
   - $ref: MathFragment
+  - $ref: NontextualAnnotation
   - $ref: Quote
   - $ref: Strong
   - $ref: Subscript

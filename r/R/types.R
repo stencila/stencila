@@ -2108,6 +2108,31 @@ MonetaryGrant <- function(
 }
 
 
+#' Inline text that has a non-textual annotation.
+#'
+#' @name NontextualAnnotation
+#' @param content The content that is marked. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @seealso \code{\link{Mark}}
+#' @export
+NontextualAnnotation <- function(
+  content,
+  id,
+  meta
+){
+  self <- Mark(
+    content = content,
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("NontextualAnnotation")
+
+  class(self) <- c(class(self), "NontextualAnnotation")
+  self
+}
+
+
 #' An organization such as a school, NGO, corporation, club, etc.
 #'
 #' @name Organization
@@ -3809,7 +3834,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Datat
 #' All type schemas that are derived from Entity
 #'
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Grant
@@ -3821,13 +3846,13 @@ GrantTypes <- Union(Grant, MonetaryGrant)
 #' Union type for valid inline content.
 #'
 #' @export
-InlineContent <- Union("NULL", "logical", "numeric", "character", CodeFragment, CodeExpression, Delete, Emphasis, ImageObject, Link, MathFragment, Quote, Strong, Subscript, Superscript, Cite, CiteGroup)
+InlineContent <- Union("NULL", "logical", "numeric", "character", CodeFragment, CodeExpression, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Quote, Strong, Subscript, Superscript, Cite, CiteGroup)
 
 
 #' All type schemas that are derived from Mark
 #'
 #' @export
-MarkTypes <- Union(Mark, Delete, Emphasis, Quote, Strong, Subscript, Superscript)
+MarkTypes <- Union(Mark, Delete, Emphasis, NontextualAnnotation, Quote, Strong, Subscript, Superscript)
 
 
 #' All type schemas that are derived from Math

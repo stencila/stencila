@@ -2030,6 +2030,23 @@ class MonetaryGrant(Grant):
             self.funders = funders
 
 
+class NontextualAnnotation(Mark):
+    """Inline text that has a non-textual annotation."""
+
+    def __init__(
+        self,
+        content: Array["InlineContent"],
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            content=content,
+            id=id,
+            meta=meta
+        )
+
+
+
 class Organization(Thing):
     """An organization such as a school, NGO, corporation, club, etc."""
 
@@ -3665,7 +3682,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection"
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -3677,13 +3694,13 @@ GrantTypes = Union["Grant", "MonetaryGrant"]
 """
 Union type for valid inline content.
 """
-InlineContent = Union[None, bool, int, float, str, "CodeFragment", "CodeExpression", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup"]
+InlineContent = Union[None, bool, int, float, str, "CodeFragment", "CodeExpression", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup"]
 
 
 """
 All type schemas that are derived from Mark
 """
-MarkTypes = Union["Mark", "Delete", "Emphasis", "Quote", "Strong", "Subscript", "Superscript"]
+MarkTypes = Union["Mark", "Delete", "Emphasis", "NontextualAnnotation", "Quote", "Strong", "Subscript", "Superscript"]
 
 
 """

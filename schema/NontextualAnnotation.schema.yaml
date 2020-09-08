@@ -1,0 +1,15 @@
+title: NontextualAnnotation
+'@id': stencila:NontextualAnnotation
+extends: Mark
+role: secondary
+status: stable
+category: prose
+description: Inline text that has a non-textual annotation.
+$comment: |
+  Use cases include annotating spelling errors, denoting proper names in Chinese text,
+  representing underline text, and other forms of annotation. See
+  - https://developer.mozilla.org/en-US/docs/Web/HTML/Element/u
+  - http://html5doctor.com/u-element/
+  - https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/underline.html
+  - https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs#L320
+properties: {}
