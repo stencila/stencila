@@ -168,13 +168,18 @@ properties:
     anyOf:
       - type: string
       - type: number
-  subjects:
-    '@id': schema:subjects
-    description: Define subjects related to an article.
+  about:
+    '@id': schema:about
+    description: The subject matter of the content.
     type: array
     items:
-      anyOf:
-        - $ref: Subjects
+      $ref: DefinedTerm
+  genre:
+    '@id': schema:genre
+    description: Genre of the creative work, broadcast channel or group.
+    type: array
+    items:
+      type: string
 definitions:
   dateProperty:
     # Schema for data properties
