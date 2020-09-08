@@ -1,3 +1,18 @@
+# [0.45.0](https://github.com/stencila/schema/compare/v0.44.2...v0.45.0) (2020-09-08)
+
+
+### Bug Fixes
+
+* **CreativeWork:** Allow about to be an array of Things ([665842a](https://github.com/stencila/schema/commit/665842a66eeaa61dcbb49955c092832daf534554))
+
+
+### Features
+
+* **NontextualAnnotation:** Adds node type for text that has a non-textual annotation ([9b593eb](https://github.com/stencila/schema/commit/9b593eb31aeabe397734d08c802591bc13322380)), closes [#211](https://github.com/stencila/schema/issues/211)
+* Add extends Thing in DefinedTerm schema ([775d0c4](https://github.com/stencila/schema/commit/775d0c4910c1c92bd206c9d3e952e95b5cd46282))
+* Add subjects schema ([de4871e](https://github.com/stencila/schema/commit/de4871e0373254fba44ace2dd5744d618562a533))
+* Add type about and genre ([692a9e7](https://github.com/stencila/schema/commit/692a9e7e7c5a94001cfb3acdd7ac8d52eef397d5))
+
 ## [0.44.2](https://github.com/stencila/schema/compare/v0.44.1...v0.44.2) (2020-09-01)
 
 
