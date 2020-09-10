@@ -100,11 +100,13 @@ This section describes common encodings for this node type. These samples are ge
 ### Simple
 
 ```markdown
+
 ```
 
 ### With Attribution URI
 
 ```markdown
+
 ```
 
 ## OpenDocument
@@ -118,11 +120,13 @@ This section describes common encodings for this node type. These samples are ge
 ### Simple
 
 ```pandoc
+
 ```
 
 ### With Attribution URI
 
 ```pandoc
+
 ```
 
 [//]: # 'WIP: Needs QuoteBlock JSON Fixes'

@@ -2,12 +2,15 @@
 # grained tasks see `package.json` and use `npm run <task>`, or the
 # `Makefiles` for each language folder e.g. `py/Makefile`.
 
-all: lint test build docs
+all: format lint test build docs
 
 setup:
 	npm install
 	make -C py setup
 	make -C r setup
+
+format:
+	npm run format
 
 lint:
 	npm run lint

@@ -18,32 +18,6 @@ export function microdataUrl(type = ''): string {
   return `http://schema.stenci.la/${type}`
 }
 
-export type Microdata = MicrodataItem & MicrodataProperty
-
-type Role = 'array' | 'item'
-
-/**
- * Create all Microdata attributes for a Stencila `Node`.
- *
- * @param node The node e.g. a `Person` node
- * @param property The name of the property that this node is part of e.g `authors`
- * @param role Is this an item within an array property e.g a `Person` within `authors`
- * @param id The id used to link to / from this Microdata item
- */
-export function microdata(
-  node: Node,
-  property?: string,
-  role?: Role,
-  id?: string
-): Microdata {
-  return {
-    ...(role !== 'array'
-      ? microdataItem(node, property === undefined ? id : undefined)
-      : {}),
-    ...(property !== undefined ? microdataProperty(property, role, id) : {}),
-  }
-}
-
 /**
  * Attributes for Microdata ["items"](https://www.w3.org/TR/microdata/#items)
  *
@@ -118,6 +92,8 @@ export interface MicrodataProperty {
   itemref?: string
 }
 
+type Role = 'array' | 'item'
+
 /**
  * Create `MicrodataProperty` attributes for a node property.
  *
@@ -175,6 +151,30 @@ export function microdataItemprop(
     name = name.slice(0, -1)
 
   return [prefix, name]
+}
+
+export type Microdata = MicrodataItem & MicrodataProperty
+
+/**
+ * Create all Microdata attributes for a Stencila `Node`.
+ *
+ * @param node The node e.g. a `Person` node
+ * @param property The name of the property that this node is part of e.g `authors`
+ * @param role Is this an item within an array property e.g a `Person` within `authors`
+ * @param id The id used to link to / from this Microdata item
+ */
+export function microdata(
+  node: Node,
+  property?: string,
+  role?: Role,
+  id?: string
+): Microdata {
+  return {
+    ...(role !== 'array'
+      ? microdataItem(node, property === undefined ? id : undefined)
+      : {}),
+    ...(property !== undefined ? microdataProperty(property, role, id) : {}),
+  }
 }
 
 /**
