@@ -9,7 +9,7 @@ import {
   microdataProperty,
   microdataRoot,
 } from './microdata'
-import { codeChunk, article, person, thing, organization } from '../types'
+import { codeChunk, article, person, organization } from '../types'
 
 test('microdata', () => {
   // A Stencila type

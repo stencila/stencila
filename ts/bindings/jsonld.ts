@@ -7,9 +7,6 @@
  */
 
 import fs from 'fs-extra'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import fromEntries from 'object.fromentries'
 import path from 'path'
 import { readSchemas } from '../helpers'
 import { jsonLdUrl } from '../util'
@@ -24,10 +21,11 @@ const DEST_DIR = path.join(__dirname, '..', '..', 'public')
 export const build = async (): Promise<void> => {
   await fs.ensureDir(DEST_DIR)
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const types: Record<string, Record<string, any>> = {}
-  const properties: Record<string, Record<string, any>> = {}
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  const types: Record<string, Record<string, string | undefined>> = {}
+  const properties: Record<
+    string,
+    Record<string, string | [{ '@id': string }] | undefined>
+  > = {}
 
   const schemas = await readSchemas()
   for (const schema of schemas.values()) {
@@ -90,7 +88,7 @@ export const build = async (): Promise<void> => {
    * Written to be similar to schema.org's @context:
    * https://schema.org/docs/jsonldcontext.jsonld
    */
-  const context = {
+  const context: Record<string, string> = {
     // Alias JSON-LD keywords e.g. `@type` and `@id`
     // For why this is useful, see "Addressing the “@” issue" at
     //    https://datalanguage.com/news/publishing-json-ld-for-developers
@@ -112,7 +110,7 @@ export const build = async (): Promise<void> => {
 
     // Types and properties added in alphabetical order after this e.g
     //   "schema:AudioObject": {"@id": "schema:AudioObject"},
-    ...fromEntries(
+    ...Object.fromEntries(
       [
         ...[...Object.entries(types)].sort(),
         ...[...Object.entries(properties)].sort(),
@@ -128,6 +126,7 @@ export const build = async (): Promise<void> => {
 
   await Promise.all(
     Object.entries({ ...types, ...properties }).map(([name, entry]) =>
+      typeof entry['@id'] === 'string' &&
       entry['@id'].startsWith('stencila:') === true
         ? fs.writeJSON(
             path.join(DEST_DIR, `${name}.jsonld`),

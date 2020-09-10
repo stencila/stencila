@@ -74,7 +74,9 @@ ${await generateTypeMaps()}
  */
 export const typesInterface = (schemas: Schema[]): string => {
   return `export interface Types {\n${schemas
-    .map(({ title }) => `  ${title}: ${titleToType(title ?? '')}`)
+    .map(({ title }) =>
+      title !== undefined ? `  ${title}: ${titleToType(title)}` : ''
+    )
     .join('\n')}\n}`
 }
 
@@ -154,10 +156,11 @@ export const interfaceGenerator = (schema: Schema): string => {
  * Generate a `Union` type.
  */
 export const unionGenerator = (schema: Schema): string => {
-  const { title, description } = schema
-  let code = docComment(description)
-  code += `export type ${title} = ${schemaToType(schema)}\n\n`
-  return code
+  const { title = '', description } = schema
+  return (
+    docComment(description) +
+    `export type ${title} = ${schemaToType(schema)}\n\n`
+  )
 }
 
 /**
@@ -295,26 +298,28 @@ export const generateTypeMaps = async (): Promise<string> => {
   `
 
   files.map((file) => {
+    const { title = '' } = file
+
     // `BlockContent` & `InlineContent` schema dont have a `*Types.schema.json` file
     // This standardizes the TypeMap names so that they all end with `Types`.
-    const schemaClass = file.title?.endsWith('Types')
-      ? file.title
-      : `${file.title}Types`
+    const schemaClass = title?.endsWith('Types') ? title : `${title}Types`
 
     typeMaps += `
-      export const ${camelCase(schemaClass)}: TypeMap<Exclude<${
-      file.title
-    }, Primitives>> = {
-        ${file.anyOf
-          ?.reduce((typeMap: string[], type) => {
-            const typeRef = type.$ref?.replace('.schema.json', '')
-            const typeName = JSON.stringify(typeRef)
+      export const ${camelCase(
+        schemaClass
+      )}: TypeMap<Exclude<${title}, Primitives>> = {
+        ${
+          file.anyOf
+            ?.reduce((typeMap: string[], type) => {
+              const typeRef = type.$ref?.replace('.schema.json', '')
+              const typeName = JSON.stringify(typeRef)
 
-            return typeRef !== undefined
-              ? [...typeMap, `${typeName}: ${typeName},`]
-              : typeMap
-          }, [])
-          .join('\n')}
+              return typeRef !== undefined
+                ? [...typeMap, `${typeName}: ${typeName},`]
+                : typeMap
+            }, [])
+            .join('\n') ?? ''
+        }
         }
       `
   })

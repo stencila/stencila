@@ -2,6 +2,7 @@
  * Generate Python language bindings.
  */
 
+import { strict as assert } from 'assert'
 import crypto from 'crypto'
 import fs from 'fs-extra'
 import path from 'path'
@@ -103,11 +104,13 @@ function formatDocstring(description: string): string {
  */
 export function classGenerator(schema: Schema): string {
   const { title, extends: parent, description } = schema
+  assert(title !== undefined)
+
   const { inherited, own, required, optional } = getSchemaProperties(schema)
 
   const base = parent !== undefined ? '(' + parent + ')' : ''
-  let docString = ''
 
+  let docString = ''
   if (description !== undefined) {
     const formattedDescription = formatDocstring(description)
     if (formattedDescription.length <= MAX_LINE_LENGTH - 6) {
@@ -123,7 +126,7 @@ export function classGenerator(schema: Schema): string {
     .map(({ name, schema, optional }) => {
       const type = schemaToType(schema)
       const attrType = optional ? `Optional[${type}] = None` : type
-      const { description } = schema
+      const { description = name } = schema
       return `    ${name}: ${attrType}\n    """${description}"""\n`
     })
     .join('\n')
@@ -164,7 +167,7 @@ export function classGenerator(schema: Schema): string {
  * Generate a `Union` type.
  */
 export function unionGenerator(schema: Schema): string {
-  const { title, description } = schema
+  const { title = '', description } = schema
   let code = ''
   if (description !== undefined) {
     code += `"""\n${formatDocstring(description)}\n"""\n`

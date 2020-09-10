@@ -81,7 +81,7 @@ async function build(): Promise<void> {
   // For each schema...
   await Promise.all(
     schemas.map(async (schema) => {
-      const { title } = schema
+      const { title = '' } = schema
 
       // 1. Generate a summary article for the schema and write it
       // to disk so that it can be transcluded in manually written

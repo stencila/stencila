@@ -59,7 +59,7 @@ export function classGenerator(schema: Schema): string {
     `@name ${title}`,
     ...all.map(
       ({ name, schema, optional }) =>
-        `@param ${name} ${schema.description} ${
+        `@param ${name} ${schema.description ?? ''} ${
           !optional ? `\\bold{Required}.` : ''
         }`
     ),
