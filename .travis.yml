@@ -5,7 +5,7 @@ jobs:
     # Test Typescript package
     - stage: test
       language: node_js
-      node_js: '12'
+      node_js: '14'
 
       script:
         - npm run lint
@@ -60,7 +60,7 @@ jobs:
     # Deploy NPM package and create a release
     - stage: deploy
       language: node_js
-      node_js: '12'
+      node_js: '14'
 
       script:
         - npm run build
