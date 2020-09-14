@@ -1,17 +1,29 @@
-FROM node:12
-# docker build -t stencila/schema .
+FROM ubuntu:20.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+ && apt-get install -y \
+      libcurl4-openssl-dev \
+      libfontconfig1-dev \
+      libfreetype6-dev \
+      libgit2-dev \
+      libjpeg-dev \
+      libpng-dev \
+      libssh2-1-dev \
+      libtiff5-dev \
+      libxml2-dev \
+      nodejs \
+      npm \
+      python3 \
+      python3-pip \
+      r-base \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY . /code
 WORKDIR /code
 
-# Install app dependencies
-COPY package*.json ./
-COPY .Rprofile /root/.Rprofile
+RUN npm install
+RUN make -C py setup
 
-RUN apt-get update && \
-    apt-get install -y python3-pip r-base && \
-    # RScript -e "devtools::install_github('r-lib/systemfonts')" && \
-    # this can be uncommented and changed to make setup if R deps can be resolved
-    npm install && \
-    npm audit fix
-
-# Bundle app source
-COPY . .
+# WIP: Skipping for now, until all system deps are determined and installed.
+# RUN make -C r setup

@@ -1,0 +1,14 @@
+# Tell Docker to ignore all files apart from those absolutely needed to setup a
+# development environment.
+# For why this is a good idea see https://codefresh.io/docker-tutorial/not-ignore-dockerignore/
+
+*
+
+!/Makefile
+!/package*.json
+
+!/py/Makefile
+!/py/requirements-dev.txt
+
+!/r/Makefile
+!/r/DESCRIPTION

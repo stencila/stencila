@@ -58,6 +58,15 @@ checkBindings:
 		fi \
 	done
 
-## Commits just the updated schema bindings
+# Commits just the updated schema bindings
 commitBindings:
 	git commit --only $(PYBINDINGS) $(RBINDINGS) $(RNAMESPACE) -m "chore(Language bindings): Update type bindings"
+
+
+# Build Docker image for development
+build-image:
+	docker build -t stencila/schema .
+
+# Run an interactive shell in Docker container
+run-image: build-image
+	docker run --rm -it -v $$PWD:/code -w /code stencila/schema bash
