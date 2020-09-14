@@ -1,0 +1,101 @@
+{
+  "projectName": "schema",
+  "projectOwner": "stencila",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "100ideas",
+      "name": "Mac Cowell",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/57006?v=4",
+      "profile": "http://has100ideas.com",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
+    },
+    {
+      "login": "jwijay",
+      "name": "Jacqueline",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/10161095?v=4",
+      "profile": "http://toki.io",
+      "contributions": [
+        "code",
+        "doc",
+        "ideas"
+      ]
+    },
+    {
+      "login": "beneboy",
+      "name": "Ben Shaw",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/292725?v=4",
+      "profile": "https://github.com/beneboy",
+      "contributions": [
+        "code",
+        "ideas",
+        "infra",
+        "doc"
+      ]
+    },
+    {
+      "login": "alex-ketch",
+      "name": "Alex Ketch",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/1646307?v=4",
+      "profile": "http://ketch.me",
+      "contributions": [
+        "code",
+        "doc",
+        "design"
+      ]
+    },
+    {
+      "login": "nokome",
+      "name": "Nokome Bentley",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1152336?v=4",
+      "profile": "https://github.com/nokome",
+      "contributions": [
+        "code",
+        "doc",
+        "ideas"
+      ]
+    },
+    {
+      "login": "asisiuc",
+      "name": "asisiuc",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/17000527?v=4",
+      "profile": "https://github.com/asisiuc",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
+    },
+    {
+      "login": "apawlik",
+      "name": "Aleksandra Pawlik",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/2358535?v=4",
+      "profile": "https://github.com/apawlik",
+      "contributions": [
+        "code",
+        "doc",
+        "ideas"
+      ]
+    },
+    {
+      "login": "vsoch",
+      "name": "Vanessasaurus",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/814322?v=4",
+      "profile": "https://vsoch.github.io",
+      "contributions": [
+        "ideas",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7
+}
