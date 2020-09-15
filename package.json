@@ -14,7 +14,7 @@
   "scripts": {
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
     "lint": "npx eslint 'ts/**/*.{js,ts}' --fix",
-    "test": "npm run build:jsonschema && npm run build:jsonld && npm run build:ts:types && jest",
+    "test": "npm run build:jsonschema && npm run build:ts:types && npm run build:jsonld && jest",
     "test:cover": "npm test -- --coverage",
     "build": "npm run build:jsonschema && npm run build:ts:types && npm run build:jsonld && npm run build:py && npm run build:r && npm run build:dist",
     "build:jsonschema": "ts-node ts/schema.ts",
@@ -32,7 +32,7 @@
     "docs:build": "ts-node ts/docs.ts",
     "docs:api": "ts-node ts/bindings/typescript.ts && typedoc --out ts/docs/ --mode file --exclude '**/*.test.ts' --exclude '**/__tests__/**' --exclude '**/__file_snapshots__/**'",
     "docs:serve": "npx browser-sync ./public -f ./public --directory --no-ui --reload-debounce 750",
-    "clean": "rimraf coverage dist public ts/types.ts"
+    "clean": "rimraf coverage dist public ts/types.ts ts/docs py/docs r/docs"
   },
   "repository": {
     "type": "git",
