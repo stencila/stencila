@@ -65,8 +65,11 @@ commitBindings:
 
 # Build Docker image for development
 build-image:
-	docker build -t stencila/schema .
+	docker build \
+	  --build-arg USER_ID=$$(id -u) \
+    --build-arg GROUP_ID=$$(id -g) \
+		-t stencila/schema .
 
 # Run an interactive shell in Docker container
-run-image: build-image
+run-image:
 	docker run --rm -it -v $$PWD:/code -w /code stencila/schema bash

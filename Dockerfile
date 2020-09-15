@@ -27,4 +27,13 @@ RUN apt-get update \
 COPY . /code
 WORKDIR /code
 
+# Install development dependencies for all languages
 RUN make setup
+
+# Run as non root user so that generated files do not require root
+# to delete or modify
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN groupadd --gid $GROUP_ID guest
+RUN useradd --uid $USER_ID -g $GROUP_ID guest
+USER guest
