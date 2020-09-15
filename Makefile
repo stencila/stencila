@@ -1,4 +1,4 @@
-# What? A Makefile for running high level development tasks. For finer
+# A Makefile for running high level development tasks. For finer
 # grained tasks see `package.json` and use `npm run <task>`, or the
 # `Makefiles` for each language folder e.g. `py/Makefile`.
 

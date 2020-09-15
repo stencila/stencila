@@ -51,9 +51,7 @@ as a Jupyter Notebook,
     {
       "cell_type": "markdown",
       "metadata": {},
-      "source": [
-        "Hello world!"
-      ]
+      "source": ["Hello world!"]
     }
   ]
 }
@@ -68,9 +66,7 @@ as JSON-LD,
   "content": [
     {
       "type": "Paragraph",
-      "content": [
-        "Hello world!"
-      ]
+      "content": ["Hello world!"]
     }
   ]
 }
@@ -91,10 +87,9 @@ This repository does not deal with format conversion per se. Please see [Encoda]
 - [Open Document Format](http://docs.oasis-open.org/office/v1.2/OpenDocument-v1.2-part1.html)
 - [Pandoc Types](https://github.com/jgm/pandoc-types)
 
-
 ### But, sometimes (often) we need more than just names
 
-Despite its name, schema.org does not define strong rules around the _shape_ of data, as say a database schema or XML schema does. All the properties of schema.org types are optional, and although they have "expected types", this is not enforced. In addition, properties can be singular values or array,  but always have a singular name. For example, a `Article` has a `author` property which could be undefined, a string, a `Person` or an `Organization`, or an array of `Person` or `Organization` items.
+Despite its name, schema.org does not define strong rules around the _shape_ of data, as say a database schema or XML schema does. All the properties of schema.org types are optional, and although they have "expected types", this is not enforced. In addition, properties can be singular values or array, but always have a singular name. For example, a `Article` has a `author` property which could be undefined, a string, a `Person` or an `Organization`, or an array of `Person` or `Organization` items.
 
 This flexibility makes a lot of sense for the primary purpose of schema.org: semantic annotation of other content. However, for use as an internal data model, as in Stencila, it can result in a lot of defensive code to check exactly which of these alternatives a property value is. And writing more code than you need to is A Bad Thing™.
 
@@ -147,7 +142,6 @@ With a JSON Schema, we are able to:
 
 JSON can be quite fiddly to write by hand. And JSON Schema lacks a way to easily express parent-child relationships between types. For these reasons, we define types using YAML with custom keywords such as `extends` and generate JSON Schema and ultimately bindings for each language from those.
 
-
 ## 📜 Documentation
 
 Documentation is available at https://schema.stenci.la/.
@@ -161,7 +155,6 @@ Alternatively, you may want to directly consult the type definitions (`*.yaml` f
 A JSON-LD `@context` is generated from the JSON Schema sources and published at https://schema.stenci.la/stencila.jsonld.
 
 Individual files are published for each extension type e.g. https://schema.stenci.la/CodeChunk.jsonld and extension property e.g. https://schema.stenci.la/rowspan.jsonld
-
 
 ### Programming language bindings
 
