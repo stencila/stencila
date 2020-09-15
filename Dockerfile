@@ -3,6 +3,10 @@ FROM ubuntu:20.04
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
  && apt-get install -y \
+      curl \
+ && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
+ && apt-get update \
+ && apt-get install -y \
       libcurl4-openssl-dev \
       libfontconfig1-dev \
       libfreetype6-dev \
@@ -10,10 +14,11 @@ RUN apt-get update \
       libjpeg-dev \
       libpng-dev \
       libssh2-1-dev \
+      libssl-dev \
       libtiff5-dev \
       libxml2-dev \
       nodejs \
-      npm \
+      pandoc \
       python3 \
       python3-pip \
       r-base \
@@ -22,8 +27,4 @@ RUN apt-get update \
 COPY . /code
 WORKDIR /code
 
-RUN npm install
-RUN make -C py setup
-
-# WIP: Skipping for now, until all system deps are determined and installed.
-# RUN make -C r setup
+RUN make setup
