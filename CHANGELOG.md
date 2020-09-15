@@ -1,3 +1,10 @@
+# [2.17.0](https://github.com/stencila/thema/compare/v2.16.3...v2.17.0) (2020-09-15)
+
+
+### Features
+
+* **Elife:** link to the new labs post directly ([829f474](https://github.com/stencila/thema/commit/829f474b35230668ebce046f42fe929ac3fe263a))
+
 ## [2.16.3](https://github.com/stencila/thema/compare/v2.16.2...v2.16.3) (2020-08-24)
 
 
