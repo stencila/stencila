@@ -2,6 +2,7 @@
 .idea
 .Rproj.user
 *.out.*
+stencilaschema_*.tar.gz
 /coverage
 /dist
 /node_modules
