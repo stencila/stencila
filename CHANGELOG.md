@@ -1,3 +1,11 @@
+## [2.17.1](https://github.com/stencila/thema/compare/v2.17.0...v2.17.1) (2020-09-17)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @elifesciences/pattern-library to v0.0.6 ([de8bf11](https://github.com/stencila/thema/commit/de8bf111a388d0feda778773a5c1f858c9303f56))
+* **dependencies:** update dependency @stencila/components to ^0.21.5 ([f6ed744](https://github.com/stencila/thema/commit/f6ed74416206a5f4db7ebd28014fceccb8f9f001))
+
 # [2.17.0](https://github.com/stencila/thema/compare/v2.16.3...v2.17.0) (2020-09-15)
 
 
