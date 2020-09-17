@@ -1,3 +1,10 @@
+## [0.45.1](https://github.com/stencila/schema/compare/v0.45.0...v0.45.1) (2020-09-17)
+
+
+### Bug Fixes
+
+* Reorder property type alternatives for improved coercion ([0b15122](https://github.com/stencila/schema/commit/0b1512248a5a13450e55cb8359e352fce4d2d2d9))
+
 # [0.45.0](https://github.com/stencila/schema/compare/v0.44.2...v0.45.0) (2020-09-08)
 
 
