@@ -15,8 +15,10 @@ properties:
     description: The date as an ISO 8601 string.
     anyOf:
       - type: string
+        format: date-time
+      - type: string
         format: date
       - type: string
-        format: date-time
+        pattern: \d{4}
 required:
   - value

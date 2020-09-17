@@ -11,14 +11,14 @@ properties:
     '@id': schema:pageStart
     description: The page on which the volume starts; for example "135" or "xiii".
     anyOf:
-      - type: string
       - type: integer
+      - type: string
   pageEnd:
     '@id': schema:pageEnd
     description: The page on which the volume ends; for example "138" or "xvi".
     anyOf:
-      - type: string
       - type: integer
+      - type: string
   pagination:
     '@id': schema:pagination
     description: |
@@ -30,5 +30,5 @@ properties:
     description: |
       Identifies the volume of publication or multi-part work; for example, "iii" or "2".
     anyOf:
-      - type: string
       - type: integer
+      - type: string

@@ -115,10 +115,10 @@ class Cite(Entity):
     content: Optional[Array["InlineContent"]] = None
     """Optional structured content/text of this citation."""
 
-    pageEnd: Optional[Union[str, int]] = None
+    pageEnd: Optional[Union[int, str]] = None
     """The page on which the work ends; for example "138" or "xvi"."""
 
-    pageStart: Optional[Union[str, int]] = None
+    pageStart: Optional[Union[int, str]] = None
     """The page on which the work starts; for example "135" or "xiii"."""
 
     pagination: Optional[str] = None
@@ -140,8 +140,8 @@ for example, "1-6, 9, 55".
         content: Optional[Array["InlineContent"]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
-        pageEnd: Optional[Union[str, int]] = None,
-        pageStart: Optional[Union[str, int]] = None,
+        pageEnd: Optional[Union[int, str]] = None,
+        pageStart: Optional[Union[int, str]] = None,
         pagination: Optional[str] = None,
         prefix: Optional[str] = None,
         suffix: Optional[str] = None
@@ -545,13 +545,13 @@ class Thing(Entity):
     alternateNames: Optional[Array[str]] = None
     """Alternate names (aliases) for the item."""
 
-    description: Optional[Union[str, Array["Node"]]] = None
+    description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None
     """A description of the item."""
 
-    identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None
+    identifiers: Optional[Array[Union["PropertyValue", str]]] = None
     """Any kind of identifier for any kind of Thing."""
 
-    images: Optional[Array[Union[str, "ImageObject"]]] = None
+    images: Optional[Array[Union["ImageObject", str]]] = None
     """Images of the item."""
 
     name: Optional[str] = None
@@ -564,10 +564,10 @@ class Thing(Entity):
     def __init__(
         self,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         url: Optional[str] = None
@@ -610,10 +610,10 @@ class Brand(Thing):
         self,
         name: str,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         logo: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         reviews: Optional[Array[str]] = None,
@@ -656,11 +656,11 @@ with the organization/department etc.
         self,
         alternateNames: Optional[Array[str]] = None,
         availableLanguages: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         emails: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         telephoneNumbers: Optional[Array[str]] = None,
@@ -735,7 +735,7 @@ class CreativeWork(Thing):
 Multiple entries in a keywords list are typically delimited by commas.
 """
 
-    licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None
+    licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None
     """License documents that applies to this content, typically indicated by URL.
 """
 
@@ -748,7 +748,7 @@ such as Articles, Datatables, Tables and more.
     """A publisher of the CreativeWork.
 """
 
-    references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None
+    references: Optional[Array[Union["CreativeWorkTypes", str]]] = None
     """References to other creative works, such as another publication,
 web page, scholarly article, etc.
 """
@@ -756,7 +756,7 @@ web page, scholarly article, etc.
     text: Optional[str] = None
     """The textual content of this creative work."""
 
-    title: Optional[Union[str, Array["Node"]]] = None
+    title: Optional[Union[Array["InlineContent"], str]] = None
     """The title of the creative work."""
 
     version: Optional[Union[str, float]] = None
@@ -774,24 +774,24 @@ web page, scholarly article, etc.
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -852,10 +852,10 @@ web page, scholarly article, etc.
 class Article(CreativeWork):
     """An article, including news and scholarly articles."""
 
-    pageEnd: Optional[Union[str, int]] = None
+    pageEnd: Optional[Union[int, str]] = None
     """The page on which the article ends; for example "138" or "xvi"."""
 
-    pageStart: Optional[Union[str, int]] = None
+    pageStart: Optional[Union[int, str]] = None
     """The page on which the article starts; for example "135" or "xiii"."""
 
     pagination: Optional[str] = None
@@ -875,27 +875,27 @@ for example, "1-6, 9, 55".
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        pageEnd: Optional[Union[str, int]] = None,
-        pageStart: Optional[Union[str, int]] = None,
+        pageEnd: Optional[Union[int, str]] = None,
+        pageStart: Optional[Union[int, str]] = None,
         pagination: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -959,23 +959,23 @@ such as Articles, Datatables, Tables and more.
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -1033,24 +1033,24 @@ class Datatable(CreativeWork):
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -1130,7 +1130,7 @@ class MediaObject(CreativeWork):
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
@@ -1138,18 +1138,18 @@ class MediaObject(CreativeWork):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -1221,7 +1221,7 @@ class AudioObject(MediaObject):
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
@@ -1229,18 +1229,18 @@ class AudioObject(MediaObject):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         transcript: Optional[str] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
@@ -1305,10 +1305,10 @@ class DatatableColumn(Thing):
         name: str,
         values: Array[Any],
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         url: Optional[str] = None,
         validator: Optional["ArrayValidator"] = None
@@ -1345,10 +1345,10 @@ class DefinedTerm(Thing):
         self,
         name: str,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         termCode: Optional[str] = None,
         url: Optional[str] = None
@@ -1415,25 +1415,25 @@ class Figure(CreativeWork):
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         label: Optional[str] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -1523,11 +1523,11 @@ class Grant(Thing):
     def __init__(
         self,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         fundedItems: Optional[Array["Thing"]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         sponsors: Optional[Array[Union["Person", "Organization"]]] = None,
@@ -1601,7 +1601,7 @@ class ImageObject(MediaObject):
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
@@ -1609,19 +1609,19 @@ class ImageObject(MediaObject):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
         thumbnail: Optional["ImageObject"] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -1878,10 +1878,10 @@ class ListItem(Thing):
         self,
         alternateNames: Optional[Array[str]] = None,
         content: Optional[Array["Node"]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isChecked: Optional[bool] = None,
         item: Optional["Node"] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -2001,12 +2001,12 @@ class MonetaryGrant(Grant):
         self,
         alternateNames: Optional[Array[str]] = None,
         amounts: Optional[float] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         fundedItems: Optional[Array["Thing"]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         sponsors: Optional[Array[Union["Person", "Organization"]]] = None,
@@ -2089,11 +2089,11 @@ class Organization(Thing):
         brands: Optional[Array["Brand"]] = None,
         contactPoints: Optional[Array["ContactPoint"]] = None,
         departments: Optional[Array["Organization"]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         funders: Optional[Array[Union["Organization", "Person"]]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         legalName: Optional[str] = None,
         logo: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -2262,25 +2262,25 @@ class Periodical(CreativeWork):
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
         dateStart: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         issns: Optional[Array[str]] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -2367,7 +2367,7 @@ some kind of financial contribution.
         address: Optional[Union[str, "PostalAddress"]] = None,
         affiliations: Optional[Array["Organization"]] = None,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         emails: Optional[Array[str]] = None,
         familyNames: Optional[Array[str]] = None,
         funders: Optional[Array[Union["Organization", "Person"]]] = None,
@@ -2375,8 +2375,8 @@ some kind of financial contribution.
         honorificPrefix: Optional[str] = None,
         honorificSuffix: Optional[str] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         jobTitle: Optional[str] = None,
         memberOf: Optional[Array["Organization"]] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -2447,11 +2447,11 @@ class PostalAddress(ContactPoint):
         addressRegion: Optional[str] = None,
         alternateNames: Optional[Array[str]] = None,
         availableLanguages: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         emails: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         postOfficeBoxNumber: Optional[str] = None,
@@ -2507,10 +2507,10 @@ class Product(Thing):
         self,
         alternateNames: Optional[Array[str]] = None,
         brands: Optional[Array["Brand"]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         logo: Optional[Union[str, "ImageObject"]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -2549,10 +2549,10 @@ class PropertyValue(Thing):
         self,
         value: "Node",
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         propertyID: Optional[str] = None,
@@ -2580,13 +2580,13 @@ class PublicationIssue(CreativeWork):
     publication volume, often numbered.
     """
 
-    issueNumber: Optional[Union[str, int]] = None
+    issueNumber: Optional[Union[int, str]] = None
     """Identifies the issue of publication; for example, "iii" or "2"."""
 
-    pageEnd: Optional[Union[str, int]] = None
+    pageEnd: Optional[Union[int, str]] = None
     """The page on which the issue ends; for example "138" or "xvi"."""
 
-    pageStart: Optional[Union[str, int]] = None
+    pageStart: Optional[Union[int, str]] = None
     """The page on which the issue starts; for example "135" or "xiii"."""
 
     pagination: Optional[str] = None
@@ -2606,28 +2606,28 @@ for example, "1-6, 9, 55".
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
-        issueNumber: Optional[Union[str, int]] = None,
+        issueNumber: Optional[Union[int, str]] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        pageEnd: Optional[Union[str, int]] = None,
-        pageStart: Optional[Union[str, int]] = None,
+        pageEnd: Optional[Union[int, str]] = None,
+        pageStart: Optional[Union[int, str]] = None,
         pagination: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -2678,10 +2678,10 @@ class PublicationVolume(CreativeWork):
     multi-volume work.
     """
 
-    pageEnd: Optional[Union[str, int]] = None
+    pageEnd: Optional[Union[int, str]] = None
     """The page on which the volume ends; for example "138" or "xvi"."""
 
-    pageStart: Optional[Union[str, int]] = None
+    pageStart: Optional[Union[int, str]] = None
     """The page on which the volume starts; for example "135" or "xiii"."""
 
     pagination: Optional[str] = None
@@ -2689,7 +2689,7 @@ class PublicationVolume(CreativeWork):
 for example, "1-6, 9, 55".
 """
 
-    volumeNumber: Optional[Union[str, int]] = None
+    volumeNumber: Optional[Union[int, str]] = None
     """Identifies the volume of publication or multi-part work; for example, "iii" or "2".
 """
 
@@ -2705,30 +2705,30 @@ for example, "1-6, 9, 55".
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        pageEnd: Optional[Union[str, int]] = None,
-        pageStart: Optional[Union[str, int]] = None,
+        pageEnd: Optional[Union[int, str]] = None,
+        pageStart: Optional[Union[int, str]] = None,
         pagination: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None,
-        volumeNumber: Optional[Union[str, int]] = None
+        volumeNumber: Optional[Union[int, str]] = None
     ) -> None:
         super().__init__(
             about=about,
@@ -2844,26 +2844,26 @@ are not included in the application distribution.
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         softwareRequirements: Optional[Array["SoftwareApplication"]] = None,
         softwareVersion: Optional[str] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -2925,11 +2925,11 @@ class SoftwareEnvironment(Thing):
         name: str,
         adds: Optional[Array["SoftwareSourceCode"]] = None,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         extends: Optional[Array["SoftwareEnvironment"]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         removes: Optional[Array["SoftwareSourceCode"]] = None,
         url: Optional[str] = None
@@ -3021,13 +3021,13 @@ class SoftwareSession(Thing):
         cpuRequest: Optional[float] = None,
         dateEnd: Optional[Union["Date", str]] = None,
         dateStart: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         durationLimit: Optional[float] = None,
         durationRequest: Optional[float] = None,
         environment: Optional["SoftwareEnvironment"] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         memoryLimit: Optional[float] = None,
         memoryRequest: Optional[float] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -3135,29 +3135,29 @@ Python2.3, .Net Framework 3.0).
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         programmingLanguage: Optional[str] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         runtimePlatform: Optional[Array[str]] = None,
         softwareRequirements: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
         targetProducts: Optional[Array["SoftwareApplication"]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -3319,25 +3319,25 @@ class Table(CreativeWork):
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         label: Optional[str] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
     ) -> None:
@@ -3523,7 +3523,7 @@ class VideoObject(MediaObject):
         dateModified: Optional[Union["Date", str]] = None,
         datePublished: Optional[Union["Date", str]] = None,
         dateReceived: Optional[Union["Date", str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         embedUrl: Optional[str] = None,
         format: Optional[str] = None,
@@ -3531,19 +3531,19 @@ class VideoObject(MediaObject):
         funders: Optional[Array[Union["Person", "Organization"]]] = None,
         genre: Optional[Array[str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
-        licenses: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
-        references: Optional[Array[Union[str, "CreativeWorkTypes"]]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
         text: Optional[str] = None,
         thumbnail: Optional["ImageObject"] = None,
-        title: Optional[Union[str, Array["Node"]]] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
         transcript: Optional[str] = None,
         url: Optional[str] = None,
         version: Optional[Union[str, float]] = None
@@ -3612,10 +3612,10 @@ class VolumeMount(Thing):
         self,
         mountDestination: str,
         alternateNames: Optional[Array[str]] = None,
-        description: Optional[Union[str, Array["Node"]]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
-        identifiers: Optional[Array[Union[str, "PropertyValue"]]] = None,
-        images: Optional[Array[Union[str, "ImageObject"]]] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         mountOptions: Optional[Array[str]] = None,
         mountSource: Optional[str] = None,
@@ -3694,7 +3694,7 @@ GrantTypes = Union["Grant", "MonetaryGrant"]
 """
 Union type for valid inline content.
 """
-InlineContent = Union[None, bool, int, float, str, "CodeFragment", "CodeExpression", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup"]
+InlineContent = Union["CodeFragment", "CodeExpression", "Delete", "Emphasis", "ImageObject", "Link", "MathFragment", "NontextualAnnotation", "Quote", "Strong", "Subscript", "Superscript", "Cite", "CiteGroup", int, float, bool, None, str]
 
 
 """
@@ -3718,7 +3718,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 """
 Union type for all valid nodes.
 """
-Node = Union[None, bool, float, int, str, Array[Any], Dict[str, Any], "Entity"]
+Node = Union["Entity", int, float, bool, None, str, Array[Any], Dict[str, Any]]
 
 
 """

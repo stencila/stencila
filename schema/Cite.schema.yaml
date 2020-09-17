@@ -23,14 +23,14 @@ properties:
     '@id': schema:pageStart
     description: The page on which the work starts; for example "135" or "xiii".
     anyOf:
-      - type: string
       - type: integer
+      - type: string
   pageEnd:
     '@id': schema:pageEnd
     description: The page on which the work ends; for example "138" or "xvi".
     anyOf:
-      - type: string
       - type: integer
+      - type: string
   pagination:
     '@id': schema:pagination
     description: |

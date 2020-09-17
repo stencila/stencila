@@ -5,12 +5,9 @@ $comment: |
   Note that this definition currently does not include
   `array` and `object` nodes (which are included in `Node`).
   This seems incongruent, and may be changed in the future.
+  The order of these types is important because it determines the
+  order of attempted coercion (particularly important for primitive types).
 anyOf:
-  - type: 'null'
-  - type: boolean
-  - type: integer
-  - type: number
-  - type: string
   - $ref: CodeFragment
   - $ref: CodeExpression
   - $ref: Delete
@@ -25,3 +22,8 @@ anyOf:
   - $ref: Superscript
   - $ref: Cite
   - $ref: CiteGroup
+  - type: integer
+  - type: number
+  - type: boolean
+  - type: 'null'
+  - type: string

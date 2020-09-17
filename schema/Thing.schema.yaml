@@ -15,11 +15,19 @@ properties:
   description:
     '@id': schema:description
     description: A description of the item.
+    $comment: |
+      Allows for the description to be an array of nodes (e.g. an array of inline content,
+      or a couple of paragraphs), or a string. The `minItems` restriction avoids a string
+      being coerced into an array with a single string item.
     anyOf:
-      - type: string
       - type: array
         items:
-          $ref: Node
+          $ref: BlockContent
+      - type: array
+        items:
+          $ref: InlineContent
+        minItems: 2
+      - type: string
   identifiers:
     '@id': schema:identifier
     description: Any kind of identifier for any kind of Thing.
@@ -33,17 +41,17 @@ properties:
     type: array
     items:
       anyOf:
-        - type: string
         - $ref: PropertyValue
+        - type: string
   images:
     '@id': schema:image
     description: Images of the item.
     type: array
     items:
       anyOf:
+        - $ref: ImageObject
         - type: string
           format: uri
-        - $ref: ImageObject
   name:
     '@id': schema:name
     description: The name of the item.
