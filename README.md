@@ -1,5 +1,7 @@
 # 📑 Schema
 
+**Extensions to schema.org to support structured, semantic, and executable documents**
+
 [![Build](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
 [![Code coverage](https://codecov.io/gh/stencila/schema/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/schema)
 [![Netlify](https://img.shields.io/netlify/b0e0d714-29f1-4ad1-8a7d-1af7799fb85b)](https://app.netlify.com/sites/stencila-schema/deploys)
@@ -216,6 +218,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for a guide on how to contribute t
 
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 <details>

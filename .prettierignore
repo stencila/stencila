@@ -6,3 +6,5 @@ public
 __file_snapshots__
 .mypy_cache
 .tox
+README.md
+CONTRIBUTING.md
