@@ -129,9 +129,9 @@ properties:
     type: array
     items:
       anyOf:
+        - $ref: CreativeWorkTypes
         - type: string
           format: uri
-        - $ref: CreativeWorkTypes
   parts:
     # The name "parts" seems more intuitive for users and developers than schema.orgs's "hasParts".
     # We provide the latter as an alias.
@@ -161,8 +161,8 @@ properties:
     type: array
     items:
       anyOf:
-        - type: string
         - $ref: CreativeWorkTypes
+        - type: string
   text:
     '@id': schema:text
     description: The textual content of this creative work.
@@ -174,14 +174,24 @@ properties:
     description: The title of the creative work.
     aliases:
       - headline
+    $comment: |
+      Allows for the title to include inline content (e.g `Strong`, `Math`)
+      or a string. The title can not be block content e.g `Paragraph`.
+      The `minItems` restriction avoids a string being coerced into an array
+      with a single string item.
     anyOf:
-      - type: string
       - type: array
         items:
-          $ref: Node
+          $ref: InlineContent
+        minItems: 2
+      - type: string
   version:
     '@id': schema:version
     description: The version of the creative work.
+    $comment: |
+      In this case `string` is listed as an alternative before `number` to
+      avoid semantic version numbers e.g. `1.0` being parsed, and subsequently
+      encoded, as `1` thereby resulting in loss of information.
     anyOf:
       - type: string
       - type: number
@@ -194,6 +204,6 @@ definitions:
     anyOf:
       - $ref: Date
       - type: string
-        format: date
-      - type: string
         format: date-time
+      - type: string
+        format: date

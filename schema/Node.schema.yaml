@@ -1,12 +1,15 @@
 title: Node
 category: metadata
 description: Union type for all valid nodes.
+$comment: |
+  The order of these types is important because it determines the
+  order of attempted coercion (ie. parsing and reshaping to arrays)
 anyOf:
-  - type: 'null'
-  - type: boolean
-  - type: number
+  - $ref: Entity
   - type: integer
+  - type: number
+  - type: boolean
+  - type: 'null'
   - type: string
   - type: array
   - type: object
-  - $ref: Entity

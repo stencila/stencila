@@ -117,8 +117,8 @@ Cite <- function(
   self[["target"]] <- check_property("Cite", "target", TRUE, missing(target), "character", target)
   self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("normal", "suppressAuthor"), citationMode)
   self[["content"]] <- check_property("Cite", "content", FALSE, missing(content), Array(InlineContent), content)
-  self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
-  self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
+  self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("numeric", "character"), pageEnd)
+  self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("numeric", "character"), pageStart)
   self[["pagination"]] <- check_property("Cite", "pagination", FALSE, missing(pagination), "character", pagination)
   self[["prefix"]] <- check_property("Cite", "prefix", FALSE, missing(prefix), "character", prefix)
   self[["suffix"]] <- check_property("Cite", "suffix", FALSE, missing(suffix), "character", suffix)
@@ -534,9 +534,9 @@ Thing <- function(
   )
   self$type <- as_scalar("Thing")
   self[["alternateNames"]] <- check_property("Thing", "alternateNames", FALSE, missing(alternateNames), Array("character"), alternateNames)
-  self[["description"]] <- check_property("Thing", "description", FALSE, missing(description), Union("character", Array(Node)), description)
-  self[["identifiers"]] <- check_property("Thing", "identifiers", FALSE, missing(identifiers), Array(Union("character", PropertyValue)), identifiers)
-  self[["images"]] <- check_property("Thing", "images", FALSE, missing(images), Array(Union("character", ImageObject)), images)
+  self[["description"]] <- check_property("Thing", "description", FALSE, missing(description), Union(Array(BlockContent), Array(InlineContent), "character"), description)
+  self[["identifiers"]] <- check_property("Thing", "identifiers", FALSE, missing(identifiers), Array(Union(PropertyValue, "character")), identifiers)
+  self[["images"]] <- check_property("Thing", "images", FALSE, missing(images), Array(Union(ImageObject, "character")), images)
   self[["name"]] <- check_property("Thing", "name", FALSE, missing(name), "character", name)
   self[["url"]] <- check_property("Thing", "url", FALSE, missing(url), "character", url)
   class(self) <- c(class(self), "Thing")
@@ -728,12 +728,12 @@ CreativeWork <- function(
   self[["genre"]] <- check_property("CreativeWork", "genre", FALSE, missing(genre), Array("character"), genre)
   self[["isPartOf"]] <- check_property("CreativeWork", "isPartOf", FALSE, missing(isPartOf), CreativeWorkTypes, isPartOf)
   self[["keywords"]] <- check_property("CreativeWork", "keywords", FALSE, missing(keywords), Array("character"), keywords)
-  self[["licenses"]] <- check_property("CreativeWork", "licenses", FALSE, missing(licenses), Array(Union("character", CreativeWorkTypes)), licenses)
+  self[["licenses"]] <- check_property("CreativeWork", "licenses", FALSE, missing(licenses), Array(Union(CreativeWorkTypes, "character")), licenses)
   self[["parts"]] <- check_property("CreativeWork", "parts", FALSE, missing(parts), Array(CreativeWorkTypes), parts)
   self[["publisher"]] <- check_property("CreativeWork", "publisher", FALSE, missing(publisher), Union(Person, Organization), publisher)
-  self[["references"]] <- check_property("CreativeWork", "references", FALSE, missing(references), Array(Union("character", CreativeWorkTypes)), references)
+  self[["references"]] <- check_property("CreativeWork", "references", FALSE, missing(references), Array(Union(CreativeWorkTypes, "character")), references)
   self[["text"]] <- check_property("CreativeWork", "text", FALSE, missing(text), "character", text)
-  self[["title"]] <- check_property("CreativeWork", "title", FALSE, missing(title), Union("character", Array(Node)), title)
+  self[["title"]] <- check_property("CreativeWork", "title", FALSE, missing(title), Union(Array(InlineContent), "character"), title)
   self[["version"]] <- check_property("CreativeWork", "version", FALSE, missing(version), Union("character", "numeric"), version)
   class(self) <- c(class(self), "CreativeWork")
   self
@@ -843,8 +843,8 @@ Article <- function(
     version = version
   )
   self$type <- as_scalar("Article")
-  self[["pageEnd"]] <- check_property("Article", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
-  self[["pageStart"]] <- check_property("Article", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
+  self[["pageEnd"]] <- check_property("Article", "pageEnd", FALSE, missing(pageEnd), Union("numeric", "character"), pageEnd)
+  self[["pageStart"]] <- check_property("Article", "pageStart", FALSE, missing(pageStart), Union("numeric", "character"), pageStart)
   self[["pagination"]] <- check_property("Article", "pagination", FALSE, missing(pagination), "character", pagination)
   class(self) <- c(class(self), "Article")
   self
@@ -2745,9 +2745,9 @@ PublicationIssue <- function(
     version = version
   )
   self$type <- as_scalar("PublicationIssue")
-  self[["issueNumber"]] <- check_property("PublicationIssue", "issueNumber", FALSE, missing(issueNumber), Union("character", "numeric"), issueNumber)
-  self[["pageEnd"]] <- check_property("PublicationIssue", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
-  self[["pageStart"]] <- check_property("PublicationIssue", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
+  self[["issueNumber"]] <- check_property("PublicationIssue", "issueNumber", FALSE, missing(issueNumber), Union("numeric", "character"), issueNumber)
+  self[["pageEnd"]] <- check_property("PublicationIssue", "pageEnd", FALSE, missing(pageEnd), Union("numeric", "character"), pageEnd)
+  self[["pageStart"]] <- check_property("PublicationIssue", "pageStart", FALSE, missing(pageStart), Union("numeric", "character"), pageStart)
   self[["pagination"]] <- check_property("PublicationIssue", "pagination", FALSE, missing(pagination), "character", pagination)
   class(self) <- c(class(self), "PublicationIssue")
   self
@@ -2859,10 +2859,10 @@ PublicationVolume <- function(
     version = version
   )
   self$type <- as_scalar("PublicationVolume")
-  self[["pageEnd"]] <- check_property("PublicationVolume", "pageEnd", FALSE, missing(pageEnd), Union("character", "numeric"), pageEnd)
-  self[["pageStart"]] <- check_property("PublicationVolume", "pageStart", FALSE, missing(pageStart), Union("character", "numeric"), pageStart)
+  self[["pageEnd"]] <- check_property("PublicationVolume", "pageEnd", FALSE, missing(pageEnd), Union("numeric", "character"), pageEnd)
+  self[["pageStart"]] <- check_property("PublicationVolume", "pageStart", FALSE, missing(pageStart), Union("numeric", "character"), pageStart)
   self[["pagination"]] <- check_property("PublicationVolume", "pagination", FALSE, missing(pagination), "character", pagination)
-  self[["volumeNumber"]] <- check_property("PublicationVolume", "volumeNumber", FALSE, missing(volumeNumber), Union("character", "numeric"), volumeNumber)
+  self[["volumeNumber"]] <- check_property("PublicationVolume", "volumeNumber", FALSE, missing(volumeNumber), Union("numeric", "character"), volumeNumber)
   class(self) <- c(class(self), "PublicationVolume")
   self
 }
@@ -3846,7 +3846,7 @@ GrantTypes <- Union(Grant, MonetaryGrant)
 #' Union type for valid inline content.
 #'
 #' @export
-InlineContent <- Union("NULL", "logical", "numeric", "character", CodeFragment, CodeExpression, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Quote, Strong, Subscript, Superscript, Cite, CiteGroup)
+InlineContent <- Union(CodeFragment, CodeExpression, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Quote, Strong, Subscript, Superscript, Cite, CiteGroup, "numeric", "logical", "NULL", "character")
 
 
 #' All type schemas that are derived from Mark
@@ -3870,7 +3870,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #' Union type for all valid nodes.
 #'
 #' @export
-Node <- Union("NULL", "logical", "numeric", "character", Array(Any()), "list", Entity)
+Node <- Union(Entity, "numeric", "logical", "NULL", "character", Array(Any()), "list")
 
 
 #' All type schemas that are derived from NumberValidator
