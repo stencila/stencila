@@ -2077,6 +2077,10 @@ class Organization(Thing):
     logo: Optional[Union[str, "ImageObject"]] = None
     """The logo of the organization."""
 
+    members: Optional[Array[Union["Organization", "Person"]]] = None
+    """Person(s) or Organization(s) who are members of this organization.
+"""
+
     parentOrganization: Optional["Organization"] = None
     """Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
 """
@@ -2096,6 +2100,7 @@ class Organization(Thing):
         images: Optional[Array[Union["ImageObject", str]]] = None,
         legalName: Optional[str] = None,
         logo: Optional[Union[str, "ImageObject"]] = None,
+        members: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parentOrganization: Optional["Organization"] = None,
@@ -2125,6 +2130,8 @@ class Organization(Thing):
             self.legalName = legalName
         if logo is not None:
             self.logo = logo
+        if members is not None:
+            self.members = members
         if parentOrganization is not None:
             self.parentOrganization = parentOrganization
 

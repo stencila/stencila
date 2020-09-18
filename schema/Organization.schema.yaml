@@ -27,6 +27,15 @@ properties:
     type: array
     items:
       $ref: ContactPoint
+  members:
+    '@id': schema:members
+    description: |
+      Person(s) or Organization(s) who are members of this organization.
+    type: array
+    items:
+      anyOf:
+        - $ref: Organization
+        - $ref: Person
   departments:
     '@id': schema:department
     description: |
