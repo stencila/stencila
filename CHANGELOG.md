@@ -1,3 +1,15 @@
+# [0.46.0](https://github.com/stencila/schema/compare/v0.45.1...v0.46.0) (2020-09-20)
+
+
+### Bug Fixes
+
+* **Organization:** Singular property name; put in alphabetical order. ([27ff502](https://github.com/stencila/schema/commit/27ff5029e34dea8d877c9577b5aed4e128f0f5c6))
+
+
+### Features
+
+* **Organization:** Add members field ([f5883dc](https://github.com/stencila/schema/commit/f5883dc19c686a867bf1b7efae621990eddbdb7b))
+
 ## [0.45.1](https://github.com/stencila/schema/compare/v0.45.0...v0.45.1) (2020-09-17)
 
 
