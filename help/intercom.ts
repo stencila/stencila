@@ -7,7 +7,7 @@ import path from 'path'
 import fs from 'fs'
 
 const mdPaths = glob.sync(
-  path.join(__dirname, '/{guides,hub,glossary}/**/*.md')
+  path.join(__dirname, '/{formats,glossary,guides,hub}/**/*.md')
 )
 const authToken = process.env.INTERCOM_AUTH_TOKEN
 const intercomUrl = 'https://intercom.help/stencila/en/articles'
