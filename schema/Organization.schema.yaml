@@ -59,6 +59,15 @@ properties:
       - type: string
         format: uri
       - $ref: ImageObject
+  members:
+    '@id': schema:member
+    description: |
+      Person(s) or organization(s) who are members of this organization.
+    type: array
+    items:
+      anyOf:
+        - $ref: Organization
+        - $ref: Person
   parentOrganization:
     '@id': schema:parentOrganization
     description: |

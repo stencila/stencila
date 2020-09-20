@@ -2148,6 +2148,7 @@ NontextualAnnotation <- function(
 #' @param images Images of the item.
 #' @param legalName Legal name for the Organization. Should only include letters and spaces.
 #' @param logo The logo of the organization.
+#' @param members Person(s) or organization(s) who are members of this organization.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param parentOrganization Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
@@ -2167,6 +2168,7 @@ Organization <- function(
   images,
   legalName,
   logo,
+  members,
   meta,
   name,
   parentOrganization,
@@ -2190,6 +2192,7 @@ Organization <- function(
   self[["funders"]] <- check_property("Organization", "funders", FALSE, missing(funders), Array(Union(Organization, Person)), funders)
   self[["legalName"]] <- check_property("Organization", "legalName", FALSE, missing(legalName), "character", legalName)
   self[["logo"]] <- check_property("Organization", "logo", FALSE, missing(logo), Union("character", ImageObject), logo)
+  self[["members"]] <- check_property("Organization", "members", FALSE, missing(members), Array(Union(Organization, Person)), members)
   self[["parentOrganization"]] <- check_property("Organization", "parentOrganization", FALSE, missing(parentOrganization), Organization, parentOrganization)
   class(self) <- c(class(self), "Organization")
   self
