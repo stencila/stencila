@@ -2148,7 +2148,7 @@ NontextualAnnotation <- function(
 #' @param images Images of the item.
 #' @param legalName Legal name for the Organization. Should only include letters and spaces.
 #' @param logo The logo of the organization.
-#' @param members Person(s) or Organization(s) who are members of this organization.
+#' @param members Person(s) or organization(s) who are members of this organization.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param parentOrganization Entity that the Organization is a part of. For example, parentOrganization to a department is a university.

@@ -2078,7 +2078,7 @@ class Organization(Thing):
     """The logo of the organization."""
 
     members: Optional[Array[Union["Organization", "Person"]]] = None
-    """Person(s) or Organization(s) who are members of this organization.
+    """Person(s) or organization(s) who are members of this organization.
 """
 
     parentOrganization: Optional["Organization"] = None
