@@ -4,14 +4,13 @@
 :--root {
   --max-width: 560px;
   --max-width-media: 720px;
-
   --font-family-title: 'Roboto', sans-serif;
   --font-family-body: 'Roboto', serif;
   --font-family-mono: monospace;
-
+  --font-size-100: 12px;
   --color-primary-100: #f2673c;
 
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.5em;
 
   a {
