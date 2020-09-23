@@ -1,0 +1,32 @@
+@import '../skeleton/styles.css';
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+:--root {
+  --max-width: 560px;
+  --max-width-media: 720px;
+
+  --font-family-title: 'Roboto', sans-serif;
+  --font-family-body: 'Roboto', serif;
+  --font-family-mono: monospace;
+
+  --color-primary-100: #f2673c;
+
+  font-size: 12px;
+  line-height: 1.5em;
+
+  a {
+    font-style: normal;
+    text-decoration: none;
+  }
+
+  :--Cite,
+  :--Link {
+    color: var(--color-primary-100);
+  }
+
+  :--Figure {
+    background: #eee;
+    padding: 20px;
+    border-radius: 3px;
+  }
+}
