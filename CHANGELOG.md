@@ -1,3 +1,10 @@
+## [0.46.1](https://github.com/stencila/schema/compare/v0.46.0...v0.46.1) (2020-09-25)
+
+
+### Bug Fixes
+
+* **CodeError:** Match required key to property name ([d5fb248](https://github.com/stencila/schema/commit/d5fb24816b62ed999b5920ec7371333bf8e87bf8)), closes [/travis-ci.org/github/stencila/thema/builds/730301506#L1031](https://github.com//travis-ci.org/github/stencila/thema/builds/730301506/issues/L1031)
+
 # [0.46.0](https://github.com/stencila/schema/compare/v0.45.1...v0.46.0) (2020-09-20)
 
 
