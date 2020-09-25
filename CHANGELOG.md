@@ -1,3 +1,10 @@
+## [0.46.2](https://github.com/stencila/schema/compare/v0.46.1...v0.46.2) (2020-09-25)
+
+
+### Bug Fixes
+
+* **Build:** Re-run CI to fix missing v0.46.1 NPM release ([4c847f0](https://github.com/stencila/schema/commit/4c847f03bff6d52636b3f8a58da4bb44f0d69cc1)), closes [#220](https://github.com/stencila/schema/issues/220)
+
 ## [0.46.1](https://github.com/stencila/schema/compare/v0.46.0...v0.46.1) (2020-09-25)
 
 
