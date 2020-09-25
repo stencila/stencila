@@ -28,4 +28,4 @@ properties:
     description: Stack trace leading up to the error.
     type: string
 required:
-  - message
+  - errorMessage
