@@ -430,45 +430,66 @@ function schema2SummaryArticle(schema: JsonSchema): Article {
     title,
     content: [
       paragraph({ content: [description] }),
-      paragraph({
-        content: [strong({ content: ['@id'] }), ': ', typeId2Link(id)],
-      }),
-      parent !== undefined
-        ? paragraph({
-            content: [
-              strong({ content: ['Parent'] }),
-              ': ',
-              typeName2Link(parent),
-            ],
-          })
-        : '',
-      descendants.length !== 0
-        ? paragraph({
-            content: [
-              strong({ content: ['Descendants'] }),
-              ': ',
-              ...intersperse(descendants.map(typeName2Link), ', '),
-            ],
-          })
-        : '',
       ...(Object.keys(properties).length > 0
-        ? [
-            heading({ content: ['Properties'], depth: 2 }),
-            table({ rows: [tableHeader, ...tableData] }),
-          ]
+        ? [table({ rows: [tableHeader, ...tableData] })]
         : []),
+      paragraph({
+        content: [
+          strong({ content: ['Parent'] }),
+          ': ',
+          parent !== undefined ? typeName2Link(parent) : 'None',
+        ],
+      }),
+      paragraph({
+        content: [
+          strong({ content: ['Descendants'] }),
+          ': ',
+          ...(descendants.length !== 0
+            ? intersperse(descendants.map(typeName2Link), ', ')
+            : ['None']),
+        ],
+      }),
+      paragraph({
+        content: [
+          strong({ content: ['As'] }),
+          ': ',
+          typeId2JsonldLink(id),
+          ' ',
+          typeId2JsonSchemaLink(id),
+        ],
+      }),
     ],
   })
 }
 
-function typeId2Link(id: string): Link {
+/**
+ * Generate a link to the JSON-LD for a type
+ *
+ * Note that we only generate JSON-LD files for extension types and properties
+ * so generate a Schema.org URL for others.
+ *
+ * @param id The id of the type, including it's context e.g. `schema:Article`
+ */
+function typeId2JsonldLink(id: string): Link {
   const [context, name] = id.split(':')
   const target =
-    context === 'schema'
-      ? `https://schema.org/${name}`
-      : `https://schema.stenci.la/jsonld/${name}`
+    context === 'schema' ? `https://schema.org/${name}` : `./${name}.jsonld`
   return link({
-    content: [id],
+    content: ['JSON-LD'],
+    target,
+  })
+}
+
+/**
+ * Generate a link to the JSON Schema for a type
+ *
+ * @param id The id of the type, including it's context e.g. `schema:Article`
+ */
+function typeId2JsonSchemaLink(id: string): Link {
+  const [context, name] = id.split(':')
+  const target = `./${name}.schema.json`
+  return link({
+    content: ['JSON-Schema'],
     target,
   })
 }
@@ -483,9 +504,7 @@ function typeName2Link(name: string): Link {
 function propertyId2Link(id: string): Link {
   const [context, name] = id.split(':')
   const target =
-    context === 'schema'
-      ? `https://schema.org/${name}`
-      : `https://schema.stenci.la/jsonld/${name}`
+    context === 'schema' ? `https://schema.org/${name}` : `./${name}.jsonld`
   return link({
     content: [id],
     target,
