@@ -114,3 +114,42 @@
     }
   }
 }
+
+:--Table {
+  border-collapse: collapse;
+  text-align: left;
+
+  th,
+  td {
+    --border-color: #d5dee2;
+
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-stock);
+    font-size: var(--font-size-h6);
+    padding: 4px 8px;
+    text-align: left;
+  }
+
+  thead th {
+    --background: #bdccd4;
+
+    background: var(--background);
+  }
+
+  tbody tr:nth-child(even) {
+    --background: #e5ebef;
+
+    background: var(--background);
+  }
+
+  caption {
+    text-align: left;
+    font-size: var(--font-size-h6);
+  }
+
+  :--caption {
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
