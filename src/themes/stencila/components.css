@@ -1,0 +1,7 @@
+/* Overrides for Stencila components */
+:--root {
+  a.button.sc-stencila-button-default,
+  button.sc-stencila-button-default {
+    font-family: var(--font-family-body);
+  }
+}
