@@ -1,12 +1,12 @@
-interface Response {
-  ok: boolean
-  article: articleData
-}
-
 export interface articleData {
   pdf: string
   figuresPdf?: string
   copyright: { license: string }
+}
+
+interface Response {
+  ok: boolean
+  article: articleData
 }
 
 export default async function (
