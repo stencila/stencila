@@ -1,3 +1,22 @@
+# [2.18.0](https://github.com/stencila/thema/compare/v2.17.2...v2.18.0) (2020-09-28)
+
+
+### Bug Fixes
+
+* **Cite APA:** Don't add ampersand before lone author names ([7e623a2](https://github.com/stencila/thema/commit/7e623a2f667a762572478e6f71d94dc3d4fd642e))
+* **Docs:** Don't inject toolbar or component scripts multiple times ([9fb3fda](https://github.com/stencila/thema/commit/9fb3fdafcf00e39b6447067ce172d0ed32d32401))
+* **F1000:** Formatting and other tidyups ([59ce4f3](https://github.com/stencila/thema/commit/59ce4f334d942851fdadf871c756ec072afde45f))
+* **PLOS:** Refine theme for WebComponent compatibility ([b358489](https://github.com/stencila/thema/commit/b358489f7032d13efaf6a2a53cfb0d8c7321a851))
+* **Stencila:** Match WebComponent button font-family to theme ([9173879](https://github.com/stencila/thema/commit/91738792e610331004dadd68a72749fc48d7bb2f))
+
+
+### Features
+
+* **Docs:** Inject Executable Toolbar into theme previews ([92d307f](https://github.com/stencila/thema/commit/92d307f98f85446338f2d1e32533d606015b6e5e)), closes [#233](https://github.com/stencila/thema/issues/233)
+* **F1000:** Add Table element styles ([e2579b2](https://github.com/stencila/thema/commit/e2579b2b0f8359bb2c2ee8d5170728f036114b12))
+* **F1000:** Initial version of a theme for F1000Research ([a1e8e9e](https://github.com/stencila/thema/commit/a1e8e9e64f353fd65d96f6bb8e52901c3db15b1c))
+* **F1000:** Style WebComponents to match theme ([93ccb8f](https://github.com/stencila/thema/commit/93ccb8f70de3d54c1f931f6c33dd8d5e4fb94b58))
+
 ## [2.17.2](https://github.com/stencila/thema/compare/v2.17.1...v2.17.2) (2020-09-17)
 
 
