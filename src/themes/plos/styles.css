@@ -34,12 +34,12 @@
   --color-neutral-100: #f7f7f7;
   --color-neutral-200: var(--figure-bg-color);
   --color-neutral-300: #c0c0c0;
-  --color-neutral-400: #bbbbbb;
-  --color-neutral-500: #777777;
-  --color-neutral-600: #666666;
+  --color-neutral-400: #bbb;
+  --color-neutral-500: #777;
+  --color-neutral-600: #666;
   --color-neutral-700: #606060;
   --color-neutral-800: #545454;
-  --color-neutral-900: #333333;
+  --color-neutral-900: #333;
 
   * {
     box-sizing: border-box;
@@ -231,7 +231,7 @@ h6:--Heading {
   padding: 18px 1.25rem 1.25rem;
 
   :--label {
-    font-size: 13px;
+    font-size: var(--font-size-body);
     font-style: normal;
     font-weight: 600;
   }

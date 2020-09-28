@@ -5,8 +5,8 @@
 :--root {
   --max-width: 560px;
   --max-width-media: 720px;
-  --font-family-title: Roboto, sans-serif;
-  --font-family-body: Roboto, sans-serif;
+  --font-family-title: roboto, sans-serif;
+  --font-family-body: roboto, sans-serif;
   --font-family-mono: monospace;
   --font-size-h1: 26px;
   --font-size-h2: 21px;
@@ -14,16 +14,28 @@
   --font-size-h4: 18px;
   --font-size-h5: 17px;
   --font-size-h6: 16px;
+  --font-size-em: 1em;
   --color-brand: #f2673c;
   --color-stock: #fff;
   --color-key: #333;
+  --color-secondary: #212a34;
+  --color-secondary-dark: #151b21;
   --color-primary-100: var(--color-brand);
+  --color-neutral-100: #f4f6f7;
+  --color-neutral-200: #f4f6f7;
+  --color-neutral-300: #e6e6e6;
+  --color-neutral-400: #e4e4e4;
+  --color-neutral-500: #adadad;
+  --color-neutral-600: #a2a2a2;
+  --color-neutral-700: #909090;
+  --color-neutral-800: #888;
+  --color-neutral-900: #666;
 
   @media (--mq-md) {
-    --font-size-100: 12px;
+    --font-size-h6: 12px;
   }
 
-  font-size: var(--font-size-100);
+  font-size: var(--font-size-h6);
   line-height: 1.5em;
 
   :--title,
@@ -31,6 +43,7 @@
   :--Heading {
     font-family: var(--font-family-title);
     margin-bottom: 0;
+    margin-top: 0;
     padding-bottom: 0;
     color: var(--color-key);
     font-weight: 500;
@@ -44,7 +57,7 @@
   h2:--Heading {
     font-size: var(--font-size-h2);
     line-height: 27.3px;
-    color: #909090;
+    color: var(--color-neutral-700);
     margin-top: 14px;
 
     @media (--mq-md) {
@@ -55,7 +68,7 @@
   }
 
   h3:--Heading {
-    font-size: 16px;
+    font-size: var(--font-size-h6);
     line-height: 20.8px;
     margin-bottom: 10px;
     margin-top: 10px;
@@ -91,7 +104,7 @@
 
   :--references :--reference {
     :--title {
-      font-size: 1em;
+      font-size: var(--font-size-em);
       font-weight: 400;
       line-height: 24px;
 

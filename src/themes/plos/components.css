@@ -21,10 +21,6 @@
     }
   }
 
-  /* stencila-executable-document-toolbar[position='fixed'] + * {
-    margin-top: 6rem;
-  } */
-
   & > stencila-tooltip-element {
     width: auto;
   }

@@ -7,8 +7,10 @@
 
   stencila-button button,
   stencila-button .button {
+    --font-size: 14px;
+
     text-transform: uppercase;
-    font-size: 14px !important;
+    font-size: var(--font-size) !important;
     font-weight: 500 !important;
     letter-spacing: 0.5px;
   }
@@ -17,8 +19,8 @@
     --background: var(--color-brand);
 
     [data-el='Toolbar/Run Document'] {
-      background-color: #212a34 !important;
-      color: #fff !important;
+      background-color: var(--color-secondary) !important;
+      color: var(--color-stock) !important;
       transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1),
         background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
         border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
@@ -26,15 +28,13 @@
       will-change: box-shadow;
 
       &:hover {
-        background-color: #151b21 !important;
+        background-color: var(--color-secondary-dark) !important;
         box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
           0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
       }
     }
 
-    & + :--Heading,
-    & + [data-itemtype~='http://schema.stenci.la/Heading']
-    {
+    &[position='fixed'] + * {
       margin-top: 3rem;
     }
   }

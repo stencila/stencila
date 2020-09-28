@@ -170,6 +170,7 @@
 
   & > :--datePublished {
     display: block;
+    margin-bottom: var(--spacer-md);
 
     &::before {
       content: 'Published:\00a0';
@@ -202,6 +203,15 @@
   margin-left: auto;
   margin-right: auto;
   padding: 0;
+
+  @media (--mq-md) {
+    :--label {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      max-width: var(--max-width);
+    }
+  }
 
   & > :--ImageObject {
     display: block;
