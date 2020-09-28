@@ -8,6 +8,7 @@
 @import '../../extensions/person/styles.css';
 
 @import '../../fonts/openSans/openSans.css';
+@import './components.css';
 
 :--root {
   --bg-color: #fff;
@@ -28,6 +29,17 @@
   --secondary-font-weight: 600;
   --secondary-font: 'Open Sans', helvetica, arial, sans-serif;
   --text-color: #202020;
+
+  /* Neutral: For backgrounds and borders. */
+  --color-neutral-100: #f7f7f7;
+  --color-neutral-200: var(--figure-bg-color);
+  --color-neutral-300: #c0c0c0;
+  --color-neutral-400: #bbbbbb;
+  --color-neutral-500: #777777;
+  --color-neutral-600: #666666;
+  --color-neutral-700: #606060;
+  --color-neutral-800: #545454;
+  --color-neutral-900: #333333;
 
   * {
     box-sizing: border-box;
@@ -92,6 +104,7 @@
 :--Figure,
 :--Table,
 :--CodeBlock,
+:--CodeBlock[class*='language-'],
 :--CodeChunk {
   max-width: var(--max-width);
   margin-left: auto;
@@ -192,6 +205,7 @@ h6:--Heading {
 
 :--Figure,
 :--CodeChunk {
+  border-radius: 0;
   font-family: var(--body-font);
   margin: 1.25rem auto;
   overflow: auto;
@@ -205,7 +219,21 @@ h6:--Heading {
     display: block;
     max-width: 100%;
     height: auto;
-    padding: 1.125rem;
+    margin-bottom: 1.125rem;
+
+    &:not(:first-child) {
+      margin-top: 1.125rem;
+    }
+  }
+}
+
+:--Figure {
+  padding: 18px 1.25rem 1.25rem;
+
+  :--label {
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 600;
   }
 }
 
@@ -213,12 +241,13 @@ h6:--Heading {
 :--Figure figcaption {
   font-size: var(--font-size-body);
   width: 100%;
-  padding: 0 1.125rem 1.125rem;
 
   :--Heading,
   :--title {
+    font-size: var(--font-size-body);
     font-weight: var(--secondary-font-weight);
     line-height: 1.84615;
+    margin-bottom: 0;
   }
 
   *:last-child {
@@ -322,6 +351,8 @@ h6:--Heading {
     color: inherit;
     display: inline;
     font-size: inherit;
+    font-weight: normal;
+    line-height: 1.125rem;
 
     &:first-of-type {
       display: none;
@@ -339,6 +370,7 @@ h6:--Heading {
   :--authors,
   :--affiliations {
     color: var(--text-color);
+    margin-bottom: 0;
   }
 
   :--authors + :--datePublished {

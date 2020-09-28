@@ -1,0 +1,31 @@
+/* Overrides for Stencila components */
+:--root {
+  a.button.sc-stencila-button-default,
+  button.sc-stencila-button-default {
+    font-family: var(--font-family-body);
+  }
+
+  stencila-executable-document-toolbar {
+    --background: var(--figure-bg-color);
+
+    stencila-button button,
+    stencila-button .button {
+      &:not([disabled]):hover {
+        background-color: var(--link-color) !important;
+        color: var(--bg-color) !important;
+      }
+    }
+
+    &[position='fixed'] + * {
+      margin-top: 6rem;
+    }
+  }
+
+  /* stencila-executable-document-toolbar[position='fixed'] + * {
+    margin-top: 6rem;
+  } */
+
+  & > stencila-tooltip-element {
+    width: auto;
+  }
+}
