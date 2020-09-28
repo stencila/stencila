@@ -68,6 +68,25 @@ export const getPreviewHead = (): HTMLHeadElement | null => {
   return getPreviewDoc()?.getElementsByTagName('head')[0] ?? null
 }
 
+const injectExecutableToolbar = () => {
+  const query = window.location.search
+  const toolbarDisabled: boolean = query.includes('toolbar=false')
+
+  if (toolbarDisabled) {
+    return
+  }
+
+  const doc = getPreviewDoc()
+  const article = doc?.querySelector('[data-itemscope="root"]')
+
+  if (doc && article) {
+    const toolbar = doc.createElement('stencila-executable-document-toolbar')
+    toolbar.setAttribute('source-url', '#')
+
+    article.prepend(toolbar)
+  }
+}
+
 /**
  * Inject necessary stylesheets and scripts to fully render a document
  * Currently this function inject the scripts for Stencila Components. Note that you will need to trigger the
@@ -79,24 +98,24 @@ export const injectPreviewAssets = (): void => {
   const previewHead = getPreviewHead()
 
   if (previewHead != null) {
-    if (previewHead != null) {
-      const stencilaComponentsES6 = create('script')
-      stencilaComponentsES6.setAttribute('type', 'module')
-      stencilaComponentsES6.setAttribute(
-        'src',
-        `https://unpkg.com/@stencila/components@latest/dist/stencila-components/stencila-components.esm.js`
-      )
+    const stencilaComponentsES6 = create('script')
+    stencilaComponentsES6.setAttribute('type', 'module')
+    stencilaComponentsES6.setAttribute(
+      'src',
+      `https://unpkg.com/@stencila/components@latest/dist/stencila-components/stencila-components.esm.js`
+    )
 
-      const stencilaComponents = create('script')
-      stencilaComponents.setAttribute('type', 'text/javascript')
-      stencilaComponents.setAttribute('nomodule', 'true')
-      stencilaComponents.setAttribute(
-        'src',
-        `https://unpkg.com/@stencila/components@latest/dist/stencila-components/stencila-components.js`
-      )
+    const stencilaComponents = create('script')
+    stencilaComponents.setAttribute('type', 'text/javascript')
+    stencilaComponents.setAttribute('nomodule', 'true')
+    stencilaComponents.setAttribute(
+      'src',
+      `https://unpkg.com/@stencila/components@latest/dist/stencila-components/stencila-components.js`
+    )
 
-      append(previewHead, stencilaComponentsES6)
-      append(previewHead, stencilaComponents)
-    }
+    append(previewHead, stencilaComponentsES6)
+    append(previewHead, stencilaComponents)
+
+    injectExecutableToolbar()
   }
 }
