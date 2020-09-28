@@ -79,12 +79,30 @@ const injectExecutableToolbar = () => {
   const doc = getPreviewDoc()
   const article = doc?.querySelector('[data-itemscope="root"]')
 
+  const toolbarEl =
+    article?.querySelectorAll('stencila-executable-document-toolbar') ?? []
+
+  // Toolbar has already been injected, so terminate function early
+  if (toolbarEl.length > 0) {
+    return
+  }
+
   if (doc && article) {
     const toolbar = doc.createElement('stencila-executable-document-toolbar')
     toolbar.setAttribute('source-url', '#')
 
     article.prepend(toolbar)
   }
+}
+
+const previewAssestsPresent = (): boolean => {
+  const doc = getPreviewDoc()
+  const scripts =
+    doc?.querySelectorAll(
+      'script[src="https://unpkg.com/@stencila/components@latest/dist/stencila-components/stencila-components.js"]'
+    ) ?? []
+
+  return scripts.length > 0
 }
 
 /**
@@ -97,7 +115,7 @@ const injectExecutableToolbar = () => {
 export const injectPreviewAssets = (): void => {
   const previewHead = getPreviewHead()
 
-  if (previewHead != null) {
+  if (previewHead != null && !previewAssestsPresent()) {
     const stencilaComponentsES6 = create('script')
     stencilaComponentsES6.setAttribute('type', 'module')
     stencilaComponentsES6.setAttribute(
