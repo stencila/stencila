@@ -53,9 +53,11 @@
           order: 3;
           content: ',\00a0';
         }
-        &:last-of-type::before {
+
+        &:last-of-type:not(:only-child)::before {
           content: '&\00a0';
         }
+
         &:last-of-type::after {
           content: normal;
         }

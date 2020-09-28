@@ -170,6 +170,7 @@
 
   & > :--datePublished {
     display: block;
+    margin-bottom: var(--spacer-md);
 
     &::before {
       content: 'Published:\00a0';
@@ -202,6 +203,15 @@
   margin-left: auto;
   margin-right: auto;
   padding: 0;
+
+  @media (--mq-md) {
+    :--label {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      max-width: var(--max-width);
+    }
+  }
 
   & > :--ImageObject {
     display: block;
@@ -238,7 +248,10 @@
   margin-left: auto;
   margin-right: auto;
   margin-top: var(--spacer-lg);
-  max-width: var(--max-width);
+
+  @media (--mq-md) {
+    max-width: var(--max-width);
+  }
 
   & + & {
     margin-top: var(--spacer-sm);
@@ -297,11 +310,19 @@ h2:--Heading {
   margin-left: auto;
   margin-right: auto;
   margin-top: 1em;
-  max-width: var(--max-width);
+
+  @media (--mq-md) {
+    max-width: var(--max-width);
+  }
 
   & + & {
     margin-top: 0;
   }
+}
+
+:--Superscript,
+:--Subscript {
+  line-height: 1;
 }
 
 :--references {

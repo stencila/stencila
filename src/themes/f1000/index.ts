@@ -1,4 +1,4 @@
-import '../../extensions/code'
+import '../skeleton'
 
 // Use solid icons for Stencila components
 document
