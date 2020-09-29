@@ -1,3 +1,10 @@
+## [0.46.3](https://github.com/stencila/schema/compare/v0.46.2...v0.46.3) (2020-09-29)
+
+
+### Bug Fixes
+
+* **R typing:** Allow integer values for numeric properties ([d525b06](https://github.com/stencila/schema/commit/d525b069e0c12ee540e7117a46ab697484116cce))
+
 ## [0.46.2](https://github.com/stencila/schema/compare/v0.46.1...v0.46.2) (2020-09-25)
 
 
