@@ -1,3 +1,10 @@
+# [2.19.0](https://github.com/stencila/thema/compare/v2.18.0...v2.19.0) (2020-09-29)
+
+
+### Features
+
+* **Giga:** Adds a theme for GigaScience and GigaByte ([3784dab](https://github.com/stencila/thema/commit/3784dab4d60c3bc5c047be82fadaa65913db9adf))
+
 # [2.18.0](https://github.com/stencila/thema/compare/v2.17.2...v2.18.0) (2020-09-28)
 
 
