@@ -1,0 +1,193 @@
+@import '../skeleton/styles.css';
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i');
+
+:--root {
+  --max-width: 800px;
+  --max-width-media: 800px;
+  --font-family-title: roboto, sans-serif;
+  --font-family-body: roboto, sans-serif;
+  --font-family-mono: monospace;
+  --font-family-display: roboto, sans-serif;
+  --font-size-90: 0.9em;
+  --font-size-80: 0.8em;
+  --font-size-75: 0.75em;
+  --font-size-h1: 26px;
+  --font-size-h2: 21px;
+  --font-size-h3: 19px;
+  --font-size-h4: 18px;
+  --font-size-h5: 17px;
+  --font-size-h6: 16px;
+  --font-size-body: 16px;
+  --font-size-em: 1em;
+  --color-brand: #3d913a;
+  --color-stock: #fff;
+  --color-key: #000000bd;
+  --color-headings: #333;
+  --color-secondary: #212a34;
+  --color-secondary-dark: #151b21;
+  --color-primary-100: var(--color-brand);
+  --color-primary-light: var(--color-brand);
+  --color-neutral-100: #f4f6f7;
+  --color-neutral-200: #f4f6f7;
+  --color-neutral-300: #e6e6e6;
+  --color-neutral-400: #e4e4e4;
+  --color-neutral-500: #adadad;
+  --color-neutral-600: #a2a2a2;
+  --color-neutral-700: #909090;
+  --color-neutral-800: #888;
+  --color-neutral-900: #666;
+
+  stencila-executable-document-toolbar {
+    --background: var(--color-brand);
+
+    .sc-stencila-toolbar-default {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    &[position='fixed'] + * {
+      margin-top: 3rem;
+    }
+  }
+
+  font-size: var(--font-size-body);
+  font-weight: 400;
+  line-height: 1.7em;
+
+  & > :--title {
+    color: var(--color-headings);
+    font-family: var(--font-family-title);
+    font-size: var(--font-size-h1);
+    font-weight: 500;
+    line-height: 33.8px;
+    margin-bottom: 0;
+    margin-top: 0;
+    padding-bottom: 0;
+  }
+
+  & > :--authors {
+    font-size: var(--font-size-90);
+    :--givenNames,
+    :--familyNames {
+      color: var(--color-headings);
+    }
+  }
+
+  & > [data-itemprop='affiliations'],
+  & > :--datePublished {
+    font-size: var(--font-size-90);
+  }
+
+  & > [data-itemprop='description'] {
+    padding: 20px;
+    margin-top: 40px;
+    box-shadow: inset -1px 0 6px 7px #f5f5f5;
+
+    h2 {
+      font-weight: 500;
+    }
+  }
+
+  :--Heading,
+  :--references > h2 {
+    color: var(--color-headings);
+    margin-top: 2%;
+    font-weight: 600;
+    border-right: 5px solid transparent;
+    border-bottom: 1px solid var(--color-brand);
+    line-height: 1.3;
+  }
+
+  h2:--Heading {
+    font-size: var(--font-size-h2);
+    margin-top: 1em;
+  }
+
+  h3:--Heading {
+    font-size: var(--font-size-h3);
+  }
+
+  h4:--Heading {
+    font-size: var(--font-size-h4);
+  }
+
+  h5:--Heading {
+    font-size: var(--font-size-h4);
+  }
+
+  h6:--Heading {
+    font-size: var(--font-size-h6);
+  }
+
+  :--Paragraph {
+    margin-bottom: 1em;
+    margin-top: 1em;
+  }
+
+  a {
+    font-style: normal;
+    text-decoration: none;
+  }
+
+  :--Cite,
+  :--Link {
+    color: var(--color-primary-100);
+  }
+
+  :--Figure,
+  :--Table caption {
+    background: #ecf5e3;
+    border-left: 3px solid var(--color-brand);
+    padding: 5px;
+    text-align: left;
+
+    :--label {
+      color: var(--color-brand);
+      font-weight: 500;
+    }
+
+    :--caption,
+    figcaption {
+      :--Heading {
+        border-bottom: none;
+      }
+    }
+  }
+
+  :--Table {
+    width: 100%;
+  }
+
+  :--Table,
+  :--TableRow,
+  :--TableCell {
+    border: 1px solid #ccc;
+    border-collapse: collapse;
+  }
+
+  thead,
+  tbody {
+    font-size: var(--font-size-75);
+  }
+
+  thead > :--TableRow,
+  :--TableRow:nth-child(even) {
+    background-color: var(--color-neutral-100);
+  }
+
+  :--TableCell {
+    padding: 0.25rem;
+  }
+
+  :--references > ol {
+    padding-left: 25px;
+    list-style: decimal;
+    list-style-position: outside;
+  }
+
+  :--reference {
+    font-size: var(--font-size-80);
+    font-weight: 400;
+    line-height: 21.76px;
+  }
+}
