@@ -73,6 +73,8 @@ test_that("is_type", {
   expect_false(is_type(factor(1:10), Array("numeric")))
   expect_true(is_type(factor(1:10), Array("character")))
 
+  expect_true(is_type(as.integer(42), "numeric"))
+
   p <- Paragraph(list(""))
   expect_true(is_type(p, Node))
   expect_true(is_type(p, Union(numeric, Node)))
@@ -105,6 +107,19 @@ test_that("check_property", {
       value = "foo"
     )),
     c("scalar", "character")
+  )
+
+  # An integer can be used as a numeric property value
+  expect_equal(
+    class(check_property(
+      type_name = "type",
+      property_name = "property",
+      is_required = TRUE,
+      is_missing = FALSE,
+      type = "numeric",
+      value = as.integer(42)
+    )),
+    c("scalar", "integer")
   )
 
   expect_equal(

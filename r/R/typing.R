@@ -100,6 +100,7 @@ is_type <- function(value, type) { # nolint
     is_type(value, func_name)
   } else if (type_class == "character") {
     if (type == "NULL") return(is.null(value))
+    else if (type == "numeric" && typeof(value) == "integer") return(TRUE)
     else inherits(value, type)
   } else if (type_class == "Any") {
     TRUE
