@@ -1,3 +1,10 @@
+## [0.46.4](https://github.com/stencila/schema/compare/v0.46.3...v0.46.4) (2020-10-01)
+
+
+### Bug Fixes
+
+* **R:** Marks property values as scalars where possible ([7b1221e](https://github.com/stencila/schema/commit/7b1221e3536fc3e143d62b39edb99cabbe9e1fa0))
+
 ## [0.46.3](https://github.com/stencila/schema/compare/v0.46.2...v0.46.3) (2020-09-29)
 
 
