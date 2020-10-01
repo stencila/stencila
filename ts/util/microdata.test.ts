@@ -126,8 +126,6 @@ test('microdataItemprop', () => {
   expect(microdataItemprop('authors')).toEqual(['schema', 'author'])
   expect(microdataItemprop('references')).toEqual(['schema', 'citation'])
 
-  expect(microdataItemprop('maintainers')).toEqual(['codemeta', 'maintainer'])
-
   expect(microdataItemprop('foo')).toEqual([undefined, undefined])
 })
 
