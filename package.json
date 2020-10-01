@@ -65,9 +65,9 @@
     "tufte-css": "^1.7.2"
   },
   "devDependencies": {
-    "@stencila/dev-config": "1.4.72",
+    "@stencila/dev-config": "1.4.76",
     "@stencila/encoda": "0.99.11",
-    "@stencila/schema": "0.46.2",
+    "@stencila/schema": "0.46.4",
     "@types/jest": "26.0.14",
     "@types/jsdoc-to-markdown": "6.0.0",
     "@types/prismjs": "1.16.1",
@@ -124,7 +124,7 @@
     "stylelint-declaration-strict-value": "1.6.0",
     "stylelint-selector-pattern": "0.0.2",
     "stylelint-selector-tag-no-without-class": "2.0.3",
-    "ts-jest": "26.4.0",
+    "ts-jest": "26.4.1",
     "ts-loader": "8.0.4",
     "ts-node": "8.10.2",
     "typescript": "3.9.7",
