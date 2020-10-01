@@ -78,3 +78,36 @@ test_that("arguments to constructor functions are checked", {
     1:10
   )
 })
+
+test_that("primitives in Array properties are treated as scalars", {
+  chunk <- CodeChunk(
+    # These should all be scalars
+    programmingLanguage = "r",
+    text = "plot(1)",
+    label = "Figure 1",
+    id = "fig1",
+    caption = list(
+      Heading(
+        # So should the strings here inside an array...
+        content = list("Figure title"),
+        depth = 2
+      ),
+      Paragraph(
+        content = list(
+          "A paragraph with some",
+          # Including here, inside a nested array...
+          Strong(content = list("strong emphasis")),
+          "in it."
+        )
+      )
+    )
+  )
+  expect_true(inherits(chunk$programmingLanguage, "scalar"))
+  expect_true(inherits(chunk$text, "scalar"))
+  expect_true(inherits(chunk$label, "scalar"))
+  expect_true(inherits(chunk$id, "scalar"))
+
+  expect_equal(class(chunk$caption), "list")
+  expect_equal(class(chunk$caption[[1]]$depth), c("scalar", "numeric"))
+  expect_equal(class(chunk$caption[[1]]$content[[1]]), c("scalar", "character"))
+})

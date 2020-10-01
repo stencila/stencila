@@ -145,6 +145,42 @@ as_scalar <- function(node) {
   node
 }
 
+#' Coerce a value to conform to the type
+#' Principally, marks values as scalar where possible
+as_type <- function(value, type) { #nolint
+  primitive_types <- c("logical", "numeric", "character")
+
+  # Make singular primitive types scalar
+  if (
+    is.character(type) && type %in% primitive_types &&
+    length(value) == 1 && mode(value) %in% primitive_types
+  ) {
+    return(as_scalar(value))
+  }
+  else if (is_class(type, "Array")) {
+    # Flatten lists of primitives to vectors of primitives
+    if (
+      is.character(type$items) && type$items %in% primitive_types &&
+      is.list(value)
+    ) {
+      return(unlist(value))
+    }
+    # Make singular primitives within lists scalar
+    else if (
+      is_class(type$items, "Any") ||
+      is_class(type$items, "Union") && any(match(type$items$types, primitive_types))
+    ) {
+      scalarize <- function(item) {
+        if (length(item) == 1 && mode(item) %in% primitive_types) as_scalar(item)
+        else item
+      }
+      if (is.list(value)) return(lapply(value, scalarize))
+      else if (is.vector(value)) return(sapply(value, scalarize, USE.NAMES = FALSE))
+    }
+  }
+  return(value)
+}
+
 #' Check that a value is present if required and conforms to the
 #' specified type for a property.
 check_property <- function(type_name, property_name, is_required, is_missing, type, value) {
@@ -157,18 +193,10 @@ check_property <- function(type_name, property_name, is_required, is_missing, ty
 
   if (is_missing) return()
 
-  if (is_class(type, "Array")) {
-    # Flatten lists to vectors where possible
-    if (is.list(value) && is.character(type$items) && type$items %in% c("logical", "numeric", "character")) {
-      value <- unlist(value)
-    }
-  } else {
-    value <- as_scalar(value)
-  }
-
   # Convert functions to function names before passing to is_type
   if (is.function(type)) type <- deparse(substitute(type))
 
+  value <- as_type(value, type)
   if (!is_type(value, type)) {
     stop(
       paste0(
