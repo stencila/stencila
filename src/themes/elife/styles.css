@@ -1,13 +1,3 @@
-/**
- * Ideally use import as below, but currently encounters build issues,
- * and inability to install as NPM package due to missing package version number.
- * @import 'eLife-pattern-library/assets/sass/build.scss';
- * due to the above issues we import and inline the built CSS file from the web
- */
-
-/* N.B. Until eLife's pattern library CSS is available from an npm module, this URL
-   needs to be updated every time eLife deploy CSS.
-   Once the CSS is available from an npm module, update this to @import accordingly and delete this comment :-) */
 @import '@elifesciences/pattern-library';
 
 @import '../../extensions/person/styles.css';
