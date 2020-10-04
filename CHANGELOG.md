@@ -1,3 +1,10 @@
+## [0.46.5](https://github.com/stencila/schema/compare/v0.46.4...v0.46.5) (2020-10-04)
+
+
+### Bug Fixes
+
+* **CreativeWork:** Move `maintainer` property from `SoftwareSourceCode` to `CreativeWork`. ([0b10689](https://github.com/stencila/schema/commit/0b10689ba7ab5f40d5f5074e77dd627bd3f0209f))
+
 ## [0.46.4](https://github.com/stencila/schema/compare/v0.46.3...v0.46.4) (2020-10-01)
 
 
