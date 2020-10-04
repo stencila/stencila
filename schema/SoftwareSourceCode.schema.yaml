@@ -19,14 +19,6 @@ properties:
     description: |
       What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
     type: string
-  maintainers:
-    '@id': codemeta:maintainer
-    description: |
-      The people or organizations who maintain the software.
-    type: array
-    items:
-      - $ref: Organization
-      - $ref: Person
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: |

@@ -29,10 +29,6 @@ test('jsonLdTermUrl', () => {
   expect(jsonLdTermUrl('Article')).toEqual('http://schema.org/Article')
   expect(jsonLdTermUrl('authors')).toEqual('http://schema.org/author')
 
-  expect(jsonLdTermUrl('maintainers')).toEqual(
-    'http://doi.org/10.5063/schema/codemeta-2.0#maintainer'
-  )
-
   expect(jsonLdTermUrl('foo')).toBeUndefined()
 })
 
@@ -43,8 +39,4 @@ test('jsonLdTermName', () => {
 
   expect(jsonLdTermName('http://schema.org/Article')).toEqual('Article')
   expect(jsonLdTermName('http://schema.org/author')).toEqual('authors')
-
-  expect(
-    jsonLdTermName('http://doi.org/10.5063/schema/codemeta-2.0#maintainer')
-  ).toEqual('maintainers')
 })
