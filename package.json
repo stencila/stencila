@@ -60,7 +60,7 @@
     "ajv": "6.12.5",
     "better-ajv-errors": "0.6.7",
     "browser-sync": "2.26.12",
-    "del": "5.1.0",
+    "del": "6.0.0",
     "fs-extra": "9.0.1",
     "globby": "11.0.1",
     "jest": "26.4.2",
