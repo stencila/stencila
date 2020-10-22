@@ -324,7 +324,7 @@ const postArticle = async (
   }
 
   core.info(
-    `✅  ${index}/${mdPaths.length} Updated article: "${article.title}"\n`
+    `✅  ${index}/${mdPaths.length} Updated article: "${article.title}"`
   )
   return articlePayload
 }

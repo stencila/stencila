@@ -14,7 +14,7 @@ Stencila offers user accounts for individuals and also for organizations so peop
 
 Go to https://hub.stenci.la/
 
-**Sign in** via one of your GibHub, Google, Orcid or Twitter accounts. _If you can use the same sign in method each time you won't get duplications on your account._
+**Sign in** via one of your GitHub, Google, Orcid, or Twitter accounts. _If you can use the same sign in method each time you won't get duplications on your account._
 
 ![](https://i.imgur.com/wVxKgSZ.png)
 
