@@ -3,12 +3,12 @@ title: URL Source
 description: Add an URL to your Stencila project
 id: 4170128
 relatedArticles:
-  - ../hub/projects/manage-project-sources.md
-  authors:
+  - ../projects/manage-project-sources.md
+authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
 ---
 
-You can add an URL as a source within your Stencila project. 
+You can add an URL as a source within your Stencila project.
 
 ## Creating an URL source
 

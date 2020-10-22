@@ -3,14 +3,14 @@ title: Google Docs Source
 description: Add a Google Doc to your Stencila project
 id: 4170126
 relatedArticles:
-  - ../hub/projects/manage-project-sources.md
-  authors:
+  - ../projects/manage-project-sources.md
+authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
 ---
 
-You can add a Google Doc as a source within your Stencila project. 
+You can add a Google Doc as a source within your Stencila project.
 
-Before you start make sure your google account is connected to your Stencila account. To check, go to your account **Settings** in the top right corner of your screen, scroll to the bottom of the page and under **Other** click **Account Connections**. 
+Before you start make sure your google account is connected to your Stencila account. To check, go to your account **Settings** in the top right corner of your screen, scroll to the bottom of the page and under **Other** click **Account Connections**.
 
 ## Creating a Google Doc source
 

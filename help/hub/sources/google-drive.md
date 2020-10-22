@@ -3,14 +3,14 @@ title: Google Drive Source
 description: Add a Google Drive to your Stencila project
 id: 4170127
 relatedArticles:
-  - ../hub/projects/manage-project-sources.md
-  authors:
+  - ../projects/manage-project-sources.md
+authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
 ---
 
-You can add a Google Drive file or folder as a source within your Stencila project. 
+You can add a Google Drive file or folder as a source within your Stencila project.
 
-Before you start make sure your google account is connected to your Stencila account. To check, go to your account **Settings** in the top right corner of your screen, scroll to the bottom of the page and under **Other** click **Account Connections**. 
+Before you start make sure your google account is connected to your Stencila account. To check, go to your account **Settings** in the top right corner of your screen, scroll to the bottom of the page and under **Other** click **Account Connections**.
 
 ## Creating a Google Drive source
 
@@ -38,7 +38,7 @@ To add a Google Drive file or folder as a project source:
 
 ## Your Google Drive source
 
-Your Google Drive source is stores in your project's working directory as a folder. Within the folder will be all the files which have automatically "pulled". 
+Your Google Drive source is stores in your project's working directory as a folder. Within the folder will be all the files which have automatically "pulled".
 
-Currently, only **non-native** files such as images, pdfs and data files get pulled down. Any **google formats** such as Google Docs, Google Sheets, Google Slides etc do not currently get pulled down. You can pull [Google Docs](./Google-Docs-Source.md) individually. We are working to correct this issue https://github.com/stencila/hub/issues/771. 
+Currently, only **non-native** files such as images, pdfs and data files get pulled down. Any **google formats** such as Google Docs, Google Sheets, Google Slides etc do not currently get pulled down. You can pull [Google Docs](./google-docs.md) individually. We are working to correct this issue https://github.com/stencila/hub/issues/771.
 

@@ -3,7 +3,7 @@ title: GitHub Source
 description: Add a GitHub Source to your Stencila project
 id: 4170125
 relatedArticles:
-  - ../hub/projects/manage-project-sources.md
+  - ../projects/manage-project-sources.md
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
 ---
