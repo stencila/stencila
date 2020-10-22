@@ -21,7 +21,7 @@ Once created you can perform various tasks
 
 ## Folder
 
-Keep your files organized within seperate folders.
+Keep your files organized within separate folders.
 
 ## File upload
 

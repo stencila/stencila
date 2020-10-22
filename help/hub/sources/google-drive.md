@@ -6,6 +6,8 @@ relatedArticles:
   - ../projects/manage-project-sources.md
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
+collectionId: 2413959
+published: true
 ---
 
 You can add a Google Drive file or folder as a source within your Stencila project.

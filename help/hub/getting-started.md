@@ -2,7 +2,7 @@
 id: 4170065
 title: Getting started
 description: Welcome to Stencila! Let’s quickly create your Stencila account and show you around so you can get started
-published: True
+published: true
 relatedArticles:
   - ./organizations/create-an-organization.md
   - ./projects/create-a-project.md

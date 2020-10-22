@@ -3,9 +3,9 @@ title: Upload Files
 description: Upload a file from your computer to your Stencila project
 authors:
   - Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)
-published: true
 id: 4278871
 collectionId: 2413959
+published: true
 ---
 
 You can upload files directly to your Stencila project to use within the project's executable documents.

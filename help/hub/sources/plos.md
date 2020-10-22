@@ -4,6 +4,8 @@ title: PLOS Sources
 description: Add a PLOS article to your Stencila project
 authors:
   - Colette Doughty <colette@stenci.la> (https://stenci.la)
+collectionId: 2413959
+published: true
 ---
 
 [PLOS](https://plos.org/) is a nonprofit, Open Access publisher empowering researchers to accelerate progress in science and medicine by leading a transformation in research communication.
@@ -30,7 +32,7 @@ To add an PLOS article as a project source:
 
 By adding a PLOS article source, you would have "pulled" it to your project. Pulling a project source fetches a copy and stores it in your project's working directory.
 
-For PLOS sources, pulling the project will fetch the article's published XML from https://journals.plos.org/ as well as any images for the figures (in a sibling `.media` folder). 
+For PLOS sources, pulling the project will fetch the article's published XML from https://journals.plos.org/ as well as any images for the figures (in a sibling `.media` folder).
 
 ## Pushing a PLOS source
 
