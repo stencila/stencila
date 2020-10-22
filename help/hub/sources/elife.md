@@ -4,7 +4,7 @@ title: eLife Sources
 description: Add an eLife article to your Stencila project
 authors:
   - Nokome Bentley <nokome@stenci.la> (https://stenci.la)
-collectionId: 2413959
+collectionId: 2414017
 published: true
 ---
 

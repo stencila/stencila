@@ -4,7 +4,7 @@ description: Upload a file from your computer to your Stencila project
 authors:
   - Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)
 id: 4278871
-collectionId: 2413959
+collectionId: 2414017
 published: true
 ---
 
