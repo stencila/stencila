@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { dump, read, write } from '@stencila/encoda'
-import { Article, isA, Organization, Person } from '@stencila/schema'
+import * as core from '@actions/core'
+import fs from 'fs'
 import glob from 'globby'
 import got from 'got'
 import path from 'path'
-import fs from 'fs'
+import { Article, isA, Organization, Person } from '@stencila/schema'
+import { dump, read, write } from '@stencila/encoda'
 
 const mdPaths = glob.sync(
   path.join(__dirname, '/{formats,glossary,guides,hub}/**/*.md')
@@ -97,7 +98,6 @@ const upsertArticle = (
     .then((res) => res.body)
     .then((res) => {
       if (res.errors !== undefined && res.errors.length > 0) {
-        console.log(res)
         throw new Error(JSON.stringify(res))
       }
       return res
@@ -256,6 +256,8 @@ const postArticle = async (
   authorId: string,
   index: number
 ): Promise<IntercomPartialArticle> => {
+  core.info(`\n🆕  Parsing file: "${filePath}"`)
+
   const article = (await read(filePath)) as HelpArticle
 
   const bodyRaw = await dump(article, 'html', {
@@ -293,15 +295,15 @@ const postArticle = async (
     title: typeof article.title === 'string' ? article.title : '',
   }
 
-  if (process.env.DEBUG) {
-    console.log(`--- ${article.title} (${article.id}) ---`)
-    console.log(articlePayload)
-    console.log('----')
+  if (process.env.DEBUG || core.isDebug()) {
+    core.debug(`--- ${article.title} (${article.id}) ---`)
+    core.debug(JSON.stringify(articlePayload, null, 2))
+    core.debug('----')
   }
 
   try {
     if (article.id === undefined) {
-      console.log(
+      core.info(
         `🎉 ${index}/${mdPaths.length} Creating article: "${article.title}"`
       )
       // This is a new article that doesn't exist on Intercom yet.
@@ -312,15 +314,18 @@ const postArticle = async (
         theme: 'stencila',
       })
     } else {
-      console.log(
+      core.info(
         `🔄 ${index}/${mdPaths.length} Updating article: "${article.title} (#${article.id})"`
       )
       await upsertArticle(articlePayload)
     }
   } catch (err) {
-    console.log(err)
+    throw new Error(err)
   }
 
+  core.info(
+    `✅  ${index}/${mdPaths.length} Updated article: "${article.title}"\n`
+  )
   return articlePayload
 }
 
@@ -348,4 +353,6 @@ const updateAllArticles = async (): Promise<void> => {
   }
 }
 
-updateAllArticles().catch(console.error)
+updateAllArticles().catch((err) => {
+  core.setFailed(err)
+})
