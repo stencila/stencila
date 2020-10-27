@@ -13,7 +13,7 @@ Within your project click **New** and choose from the drop down menu.
 
 ## Upload a file
 
-You can [upload a file](../projects/upload.md) directly from your computer to your Stencila project to use within the project's executable documents. The files are managed on Stencila servers and do not need to be pulled.
+You can [upload a file](../sources/upload.md) directly from your computer to your Stencila project to use within the project's executable documents. The files are managed on Stencila servers and do not need to be pulled.
 
 ## Link a source
 
