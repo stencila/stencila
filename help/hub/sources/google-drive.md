@@ -30,7 +30,7 @@ To add a Google Drive file or folder as a project source:
 
 ![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledrive-url.png)
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledrive-repo.png)
+![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledrive-id.png)
 
 4. Add the **Path** that you want to link it to within the project (what you want to name your source) and **Create Source**
 
