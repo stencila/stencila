@@ -1,3 +1,11 @@
+## [2.19.2](https://github.com/stencila/thema/compare/v2.19.1...v2.19.2) (2020-10-27)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/components to ^0.25.0 ([7dfebc6](https://github.com/stencila/thema/commit/7dfebc6965f116763567b5d5304bef46f0a5de21))
+* **dependencies:** update dependency project-name-generator to ^2.1.9 ([c2b61ee](https://github.com/stencila/thema/commit/c2b61eec22c93ce0da0da0fbe8fdd80ba38e4f46))
+
 ## [2.19.1](https://github.com/stencila/thema/compare/v2.19.0...v2.19.1) (2020-10-01)
 
 
