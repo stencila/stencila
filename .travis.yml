@@ -41,6 +41,11 @@ jobs:
     - stage: test
       language: r
       r: release
+      addons:
+        apt:
+          packages:
+            - libharfbuzz-dev
+            - libfribidi-dev
 
       before_install:
         - cd r
@@ -114,6 +119,11 @@ jobs:
     - stage: deploy
       language: r
       r: release
+      addons:
+        apt:
+          packages:
+            - libharfbuzz-dev
+            - libfribidi-dev
 
       before_install:
         - cd r
