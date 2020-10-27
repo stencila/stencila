@@ -1,3 +1,10 @@
+## [2.19.3](https://github.com/stencila/thema/compare/v2.19.2...v2.19.3) (2020-10-27)
+
+
+### Bug Fixes
+
+* **dependencies:** update react monorepo to v17 ([a12e559](https://github.com/stencila/thema/commit/a12e559e0b3a010e972269f6c6bea609275a68ad))
+
 ## [2.19.2](https://github.com/stencila/thema/compare/v2.19.1...v2.19.2) (2020-10-27)
 
 
