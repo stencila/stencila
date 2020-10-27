@@ -163,7 +163,16 @@
   }
 
   /* Hide article metadata */
+  & > [data-itemprop='about'],
+  & > [data-itemprop='genre'],
+  & > :--keywords,
   & > :--identifiers {
+    display: none;
+  }
+
+  /* Hide Collaborative group/organization author emails/list */
+  & > :--authors :--Organization :--email,
+  & > :--authors :--Organization :--members {
     display: none;
   }
 

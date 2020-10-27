@@ -8,9 +8,13 @@
 
 :--root > :--title,
 :--root > :--authors,
+:--root > :--affiliations,
 :--root > :--identifiers,
 :--Article:--root > :--datePublished,
 :--root > span,
+:--root > :--keywords,
+:--root > [data-itemprop='about'],
+:--root > [data-itemprop='genre'],
 :--root > :--Organization {
   display: none;
 }

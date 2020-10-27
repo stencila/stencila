@@ -8,6 +8,7 @@
 @import '../../extensions/math/styles.css';
 @import '../../extensions/pages/styles.css';
 @import '../../extensions/person/styles.css';
+@import '../../extensions/organization/styles.css';
 
 /* Mobile first breakpoint variables. To use:
 * @media (--mq-sm) { … } */
@@ -158,13 +159,24 @@
   }
 
   /* Comma separate authors */
-  & > :--authors :--author {
+  & > :--authors :--author,
+  & > :--authors :--member {
     &::after {
       content: ',\00a0';
       order: 100;
     }
     &:last-of-type::after {
       content: normal;
+    }
+  }
+
+  & > :--authors :--Organization:--author {
+    display: inline-block;
+    list-style-type: none;
+
+    :--members {
+      display: hidden;
+      padding: 0;
     }
   }
 
@@ -181,6 +193,30 @@
 :--root > :--CodeBlock {
   padding: var(--spacer-md);
   border-radius: 4px;
+}
+
+:--root:--Article > [data-itemprop='genre'],
+:--root:--Article > [data-itemprop='about'],
+:--root:--Article > [data-itemprop='keywords'],
+:--root:--Article > :--keywords,
+:--root:--Article > :--genre,
+:--root:--Article > :--about {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+:--keywords {
+  :--keyword {
+    display: inline-block;
+
+    &::after {
+      content: ',\00a0';
+    }
+
+    &:last-child::after {
+      content: none;
+    }
+  }
 }
 
 /* Hide article metadata */

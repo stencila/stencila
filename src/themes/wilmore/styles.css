@@ -2,6 +2,7 @@
 @import '../../extensions/math/styles.css';
 @import '../../extensions/pages/styles.css';
 @import '../../extensions/person/styles.css';
+@import '../../extensions/organization/styles.css';
 @import '../../fonts/merriweather/merriweather.css';
 
 :--root {
@@ -119,6 +120,13 @@
 
   & > :--datePublished {
     display: block;
+  }
+
+  > [data-itemprop="about"],
+  > [data-itemprop="genre"],
+  > :--identifiers,
+  > :--keywords {
+    display: none;
   }
 }
 

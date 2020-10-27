@@ -54,6 +54,13 @@
   --color-neutral-700: #4a5568;
   --color-neutral-800: #2d3748;
   --color-neutral-900: #1a202c;
+
+  & > [data-itemprop='about'],
+  & > [data-itemprop='genre'],
+  & > :--identifiers,
+  & > :--keywords {
+    display: none;
+  }
 }
 
 :--Heading {
