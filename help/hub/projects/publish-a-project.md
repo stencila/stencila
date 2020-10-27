@@ -7,7 +7,7 @@ published: true
 
 This guide presumes you have already:
 1. [Created a project](./create-a-project.md) 
-2. [Uploaded a file](../sources/upload.md) to your project and pulled the source. 
+2. [Uploaded relevant files](../sources/upload.md) and [pulled any sources](./manage-project-sources.md) to your project. 
 
 ## Select your main file
 
