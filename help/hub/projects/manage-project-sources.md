@@ -1,9 +1,9 @@
 ---
 id: 4170098
 title: Manage project sources
-description: How to link a source, upload a file and convert 
+description: How to link a source, upload a file and convert
 relatedArticles:
-  - ./projects/publish-a-project.md
+  - ./publish-a-project.md
 published: true
 ---
 
@@ -15,7 +15,7 @@ Within your project click **New** and choose from the drop down menu.
 
 ## Upload a file or folder
 
-You can [upload a file](../sources/upload.md) directly from your computer to your Stencila project to use within the project's executable documents. The files are managed on Stencila servers and do not need to be pulled. You can upload a folder with multiple files in the same way. 
+You can [upload a file](../sources/upload.md) directly from your computer to your Stencila project to use within the project's executable documents. The files are managed on Stencila servers and do not need to be pulled. You can upload a folder with multiple files in the same way.
 
 ## Link a source
 
@@ -25,7 +25,7 @@ These sources remain on the external service, but a versioned copy is downloaded
 
 * [URL Source](../sources/upload.md)
 * [Google Docs Source](../sources/google-docs.md)
-* [Google Drive Source](../sources/google-drive.md) 
+* [Google Drive Source](../sources/google-drive.md)
 * [GitHub Source](../sources/url.md)
 
 You can go to the sources tab of your project at any time in the future to update the local copies of your source files by **pulling** them.
@@ -40,7 +40,7 @@ You can convert your file to many different formats via the drop down menu ⚡
 
 ![](https://i.imgur.com/Wgmz6D7.png)
 
-Once converted to your chosen format you can perform other tasks. For example you might wish to download a file to enrich it and then upload it. 
+Once converted to your chosen format you can perform other tasks. For example you might wish to download a file to enrich it and then upload it.
 
 
 
