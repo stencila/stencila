@@ -79,7 +79,7 @@
     "@wdio/local-runner": "6.7.0",
     "@wdio/mocha-framework": "6.7.0",
     "@wdio/sauce-service": "6.7.0",
-    "@wdio/static-server-service": "6.7.0",
+    "@wdio/static-server-service": "6.6.0",
     "argos-cli": "0.3.0",
     "autoprefixer": "9.8.6",
     "chromedriver": "84.0.1",
