@@ -3,6 +3,7 @@
 @import '../../extensions/math/styles.css';
 @import '../../extensions/pages/styles.css';
 @import '../../extensions/person/styles.css';
+@import '../../extensions/organization/styles.css';
 
 :--root {
   @import 'https://raw.githubusercontent.com/davidrzs/latexcss/9264a50c252d47fbe6d4998dbc5581882d79ab3c/latex.css';
@@ -36,6 +37,11 @@
     /* latexcss has a few classes, one of which is for authors of the
      * article, so use that... */
     @extend .author;
+
+    &:not(:last-child)::after {
+      content: ', ';
+      order: 100;
+    }
   }
 
   > :--datePublished {
@@ -43,6 +49,13 @@
     width: 20em;
     margin: 0 auto;
     text-align: center;
+  }
+
+  > [data-itemprop='about'],
+  > [data-itemprop='genre'],
+  > :--identifiers,
+  > :--keywords {
+    display: none;
   }
 
   > :--identifiers {

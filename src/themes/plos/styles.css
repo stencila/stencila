@@ -6,6 +6,7 @@
 @import '../../extensions/math/styles.css';
 @import '../../extensions/code/styles.css';
 @import '../../extensions/person/styles.css';
+@import '../../extensions/organization/styles.css';
 
 @import '../../fonts/openSans/openSans.css';
 @import './components.css';
@@ -81,6 +82,13 @@
 :--datePublished,
 :--root > span {
   display: block;
+}
+
+:--root > [data-itemprop='about'],
+:--root > [data-itemprop='genre'],
+:--root > :--identifiers,
+:--root > :--keywords {
+  display: none;
 }
 
 :--root > * {

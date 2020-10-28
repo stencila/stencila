@@ -14,6 +14,7 @@
  * using `@extend` e.g. `:--Table` to `.table`
  */
 @import 'bootstrap/dist/css/bootstrap.css';
+@import './components.css';
 
 /* Import semantic selectors so that we can map Bootstrap styles to them */
 @import '../../selectors.css';
@@ -29,12 +30,14 @@
 
   max-width: 70rem;
 
+  :--authors :--Organization :--members,
   :--authors {
     /* Use Bootstrap's `list-inline` class  */
     @extend .list-inline;
 
     /* For each author... */
-    :--author {
+    :--author,
+    :--member {
       /* Separate authors using a comma */
       &::after {
         content: ', ';
@@ -56,7 +59,7 @@
         @extend .list-inline;
 
         display: inline-block;
-        margin: -5px;
+        margin: -5px 0 0 5px;
 
         :--affiliation {
           @extend .label;
@@ -69,12 +72,44 @@
         @extend .list-inline;
 
         display: inline-block;
+        margin-left: 5px;
 
         :--email {
           @extend .glyphicon;
           @extend .glyphicon-envelope;
+
+          width: 1em;
+          text-overflow: clip;
+          overflow: hidden;
+          display: inline-flex;
+
+          &::before {
+            padding-right: 5px;
+          }
+
+          & + :--email {
+            margin-left: 5px;
+          }
         }
       }
+    }
+  }
+
+  :--authors :--Organization :--members {
+    display: inline;
+    padding-left: 5px;
+    padding-right: 5px;
+
+    &::before {
+      content: '(';
+    }
+
+    &::after {
+      content: ')';
+    }
+
+    :--member {
+      padding: 0;
     }
   }
 
@@ -89,6 +124,13 @@
     :--Organization {
       @extend .list-group-item;
     }
+  }
+
+  & > [data-itemprop='about'],
+  & > [data-itemprop='genre'],
+  & > :--identifiers,
+  & > :--keywords {
+    display: none;
   }
 
   /**

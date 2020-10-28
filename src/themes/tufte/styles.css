@@ -3,6 +3,7 @@
 @import '../../extensions/math/styles.css';
 @import '../../extensions/pages/styles.css';
 @import '../../extensions/person/styles.css';
+@import '../../extensions/organization/styles.css';
 @import 'tufte-css/tufte.min.css';
 
 :--root {
@@ -47,6 +48,30 @@
   margin-left: auto;
   margin-right: auto;
 
+  > :--authors {
+    padding-left: 0;
+
+    :--author,
+    :--Organization {
+      :--emails::after,
+      :--members::before {
+        color: var(--color-key);
+        font-size: var(--font-size-80);
+        font-style: italic;
+        line-height: 1;
+        vertical-align: super;
+      }
+
+      :--emails::after {
+        content: '\00a0 Email';
+      }
+
+      :--members::before {
+        content: '\00a0 Members';
+      }
+    }
+  }
+
   > :--authors :--author :--affiliations :--affiliation {
     font-size: var(--font-size-80);
   }
@@ -57,6 +82,13 @@
     margin: 0 auto;
     text-align: center;
     font-size: var(--font-size-110);
+  }
+
+  > [data-itemprop='about'],
+  > [data-itemprop='genre'],
+  > :--identifiers,
+  > :--keywords {
+    display: none;
   }
 
   > :--identifiers {

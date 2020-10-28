@@ -6,6 +6,7 @@
 @import '../../extensions/math/styles.css';
 @import '../../extensions/code/styles.css';
 @import '../../extensions/person/styles.css';
+@import '../../extensions/organization/styles.css';
 
 @import '../../fonts/biolinum/biolinum.css';
 
@@ -84,6 +85,15 @@
   margin: 4rem auto 1rem;
   max-width: var(--max-width);
   width: 100%;
+}
+
+:--root:--Article {
+  & > [data-itemprop='about'],
+  & > [data-itemprop='genre'],
+  & > :--identifiers,
+  & > :--keywords {
+    display: none;
+  }
 }
 
 /* Hide article metadata */

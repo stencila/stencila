@@ -1,0 +1,76 @@
+:--Organization:--author {
+  display: inline-flex;
+
+  /*
+    If any `emails`, indicate that with an emoji, but don't display
+    the email address/es (leave that to web component).
+  */
+  :--emails {
+    order: 3;
+    display: inline;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    & > li {
+      display: inline;
+    }
+
+    :--email {
+      display: none;
+    }
+
+    &::after {
+      color: var(--color-key);
+      content: '\00a0📧';
+      font-size: var(--font-size-80);
+      cursor: help;
+      vertical-align: super;
+      line-height: 1;
+      user-select: text;
+    }
+  }
+}
+
+:--Organization :--members {
+  /*
+    If any `emails`, indicate that with an emoji, but don't display
+    the email address/es (leave that to web component).
+  */
+  order: 3;
+  display: inline;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  & > li {
+    display: inline;
+  }
+
+  &::before {
+    color: var(--color-key);
+    content: '\00a0👥';
+    cursor: help;
+    font-size: var(--font-size-80);
+    line-height: 1;
+    vertical-align: super;
+    user-select: text;
+  }
+
+  :--member {
+    display: none;
+  }
+
+  &::before:hover :--member {
+    display: block;
+  }
+}
+
+:--Organization :--address {
+  display: inline-block;
+
+  :--addressLocality:not(:first-child)::before,
+  :--addressLocality + :--addressCountry::before {
+    content: ',\00a0';
+  }
+}

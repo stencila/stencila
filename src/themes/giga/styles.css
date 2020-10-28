@@ -78,6 +78,13 @@
     font-size: var(--font-size-90);
   }
 
+  & > [data-itemprop='about'],
+  & > [data-itemprop='genre'],
+  & > :--identifiers,
+  & > :--keywords {
+    display: none;
+  }
+
   & > [data-itemprop='description'] {
     padding: 20px;
     margin-top: 40px;

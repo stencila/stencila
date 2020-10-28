@@ -113,6 +113,14 @@
       }
     }
   }
+
+  /* Hide article metadata */
+  & > [data-itemprop='about'],
+  & > [data-itemprop='genre'],
+  & > :--keywords,
+  & > :--identifiers {
+    display: none;
+  }
 }
 
 :--Table {
