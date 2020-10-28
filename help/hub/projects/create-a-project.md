@@ -27,7 +27,7 @@ Your project will automatically be **public** which means any Stencila users can
 
 As the creator of the project you automatically become the project **owner**. This gives you full authority to make changes or delete the project. 
 
-You're now set up 👏 and ready to [upload files](../sources/upload.md). Before you do we highly recommend you finalise your [project settings](./project-settings.md) and chose your theme. It won't take a moment ⚡
+You're now set up 👏 and ready to [manage your project sources](./manage-project-sources.md). Before you do we highly recommend you finalise your [project settings](./project-settings.md) and chose your theme. It won't take a moment ⚡
 
 
 
