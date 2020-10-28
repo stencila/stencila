@@ -1,23 +1,25 @@
 ---
 id: 4321162
-title: How to publish a project
+title: Publish a project
 description: Select your main file, take a snapshot and create an editable manuscript to publish
+authors:
+  - Colette Doughty <colette@stenci.la> (https://stenci.la)
 published: true
 ---
 
 This guide presumes you have already:
 1. [Created a project](./create-a-project.md) 
-2. [Uploaded relevant files](../sources/upload.md) and [pulled any sources](./manage-project-sources.md) to your project. 
+2. [Uploaded sources](../sources/upload.md) and if needed [pulled sources](./manage-project-sources.md) to your project. 
 
 ## Select your main file
 
 1. Search and select the project you want to publish from before selecting **Files**.
 
-  ![](https://i.imgur.com/9YE1vo1.png)
+    ![](https://i.imgur.com/9YE1vo1.png)
 
 2. The file you wish to publish must be the **main file**. If you named a file _Read Me_ or _Main_ it will automatically be selected, otherwise, you can manually do this.  Click Main file from the action menu of your chosen file.
 
-  ![](https://i.imgur.com/ObLjYe9.png)
+    ![](https://i.imgur.com/ObLjYe9.png)
 
 The main file is effectively the home page for your project. Looking ahead, when someone visits your project, you want them to view this document.
 
