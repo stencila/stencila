@@ -55,8 +55,11 @@
     :--Organization {
       :--emails::after,
       :--members::before {
+        color: var(--color-key);
         font-size: var(--font-size-80);
         font-style: italic;
+        line-height: 1;
+        vertical-align: super;
       }
 
       :--emails::after {
@@ -81,8 +84,8 @@
     font-size: var(--font-size-110);
   }
 
-  > [data-itemprop="about"],
-  > [data-itemprop="genre"],
+  > [data-itemprop='about'],
+  > [data-itemprop='genre'],
   > :--identifiers,
   > :--keywords {
     display: none;

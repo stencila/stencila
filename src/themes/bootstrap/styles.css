@@ -81,6 +81,7 @@
           width: 1em;
           text-overflow: clip;
           overflow: hidden;
+          display: inline-flex;
 
           &::before {
             padding-right: 5px;

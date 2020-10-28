@@ -1,15 +1,28 @@
 /* Overrides for Stencila components */
 :--root {
+  --font-size-body: 14px;
+
   a.button.sc-stencila-button-default,
   button.sc-stencila-button-default {
     @extend .button;
 
     stencila-icon,
     .label {
-      --font-size-body: 14px;
-
       font-size: var(--font-size-body);
       color: inherit;
     }
+  }
+
+  stencila-code-expression .text,
+  stencila-code-expression .output,
+  stencila-tooltip {
+    &,
+    * {
+      font-size: var(--font-size-body);
+    }
+  }
+
+  stencila-code-expression .text code {
+    padding: 0;
   }
 }
