@@ -3,6 +3,8 @@ id: 4184684
 collectionId: 2422090
 title: Enriching an eLife article
 description: A user guide for enriching a published eLife article
+relatedArticles:
+  - ../projects/publish-a-project.md
 authors:
   - Colette Doughty<colette@stenci.la> (https://stenci.la)
   - Alexander Ketchakmadze<alexander@stenci.la> (https://stenci.la)
