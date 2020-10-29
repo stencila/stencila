@@ -10,7 +10,7 @@ collectionId: 2414017
 published: true
 ---
 
-A Google Docs Source lets you pull a Google Doc into your project so that you can convert it to other formats or to publish it!  This allows you to take full advantage of Google Doc's many benefits such real-time collaboration which you might already be using with your colleagues and to easily pull this information into your Stencila project at any time.  
+A Google Docs Source lets you pull a Google Doc into your project so that you can convert it to other formats or to publish it!  This allows you to take full advantage of Google Doc's many benefits such real-time collaboration which you might already be using with your colleagues and to easily pull this information into your Stencila project at any time.
 
 ## Before you start
 
@@ -20,17 +20,17 @@ Before you start you will need to make sure your google account is connected to 
 
 To add a Google Doc as a project source:
 
-1. Go to the project **Sources** page
+* Go to the project **Sources** page
 
-    ![](http://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
+![](http://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
 
-2. Press the **New** button and select **Google Doc**
+* Press the **New** button and select **Google Doc**
 
-    ![](http://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
+![](http://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
 
-3. Enter the **Doc id** by copy and pasting the document URL or link. Add the **Path** that you want to link it to within the project (what you want to name your source)
+* Enter the **Doc id** by copy and pasting the document URL or link. Add the **Path** that you want to link it to within the project (what you want to name your source)
 
-    ![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledocs.png)
+![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledocs.png)
 
 Your Google Doc source is automatically **pulled** into your project and stores in your project's working directory.
 

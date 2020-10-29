@@ -73,8 +73,7 @@ it into a reproducible article. See the available formats, under the **Actions**
 
 There are two primary pathways for enriching an article:
 
-1. Save the article as a Google Doc and use the Stencila plugin for Google Docs to replace static tables and figures
-   with reproducible versions
+1. Save the article as a Google Doc and use the Stencila plugin for Google Docs to replace static tables and figures with reproducible versions
 2. Save the article as a Jupyter Notebook or R Markdown document, download it, and edit it locally.
 
 ![](https://i.imgur.com/Kq0iDix.png)
@@ -82,8 +81,7 @@ There are two primary pathways for enriching an article:
 Click on your desired format to begin the conversion process.
 **The conversion process can take some time.** In the background, Stencila Encoda needs to do several things:
 
-1. Search the [eLife article Github repository](https://github.com/elifesciences/elife-article-xml) to get the most
-   recent version number
+1. Search the [eLife article Github repository](https://github.com/elifesciences/elife-article-xml) to get the most recent version number
 2. Download the XML of the article from that repository
 3. Download images for each of the figures in the article
 4. Convert the XML and images to Google Docs format and upload the file to Google.

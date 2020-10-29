@@ -10,7 +10,7 @@ collectionId: 2414017
 published: true
 ---
 
-A Google Drive source lets you pull files from your Google Drive into your project so that you can convert files to other formats (e.g. a Word document), use them in compute sessions (e.g. CSV files) or publish. This allows you to take full advantage of Google Drive's many benefits such a cloud-based storage solution and real-time collaboration which you might already be using with your colleagues and to easily pull this information into your Stencila project at any time.  
+A Google Drive source lets you pull files from your Google Drive into your project so that you can convert files to other formats (e.g. a Word document), use them in compute sessions (e.g. CSV files) or publish. This allows you to take full advantage of Google Drive's many benefits such a cloud-based storage solution and real-time collaboration which you might already be using with your colleagues and to easily pull this information into your Stencila project at any time.
 
 ## Before you start
 
@@ -20,27 +20,27 @@ Before you start you will need to make sure your google account is connected to 
 
 To add a Google Drive file or folder as a project source:
 
-1. Go to the project **Sources** page
+* Go to the project **Sources** page
 
-    ![](http://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
+![](http://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
 
-2. Press the **New** button and select **Google Drive**
+* Press the **New** button and select **Google Drive**
 
-    ![](http://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
+![](http://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
 
-3. Enter the **File or Folder URL** 
+* Enter the **File or Folder URL**
 
-    ![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledrive-url.png)
+![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledrive-url.png)
 
-4. Or **id**
+* Or **id**
 
-    ![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledrive-id.png)
+![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledrive-id.png)
 
-5. Add the **Path** that you want to link it to within the project (what you want to name your source) 
+* Add the **Path** that you want to link it to within the project (what you want to name your source)
 
-    ![](http://stencila.github.io/hub/manager/snaps/project-sources-new-path-field.png)
+![](http://stencila.github.io/hub/manager/snaps/project-sources-new-path-field.png)
 
-    ![](http://stencila.github.io/hub/manager/snaps/project-sources-new-create-button.png)
+![](http://stencila.github.io/hub/manager/snaps/project-sources-new-create-button.png)
 
 ## Your Google Drive source
 
