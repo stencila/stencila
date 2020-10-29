@@ -1,3 +1,15 @@
+# [2.20.0](https://github.com/stencila/thema/compare/v2.19.3...v2.20.0) (2020-10-29)
+
+
+### Bug Fixes
+
+* More style refinements for metadata elements ([705b2ad](https://github.com/stencila/thema/commit/705b2ad2640c6ca99b91f6b9edcd749eaf11dcff))
+
+
+### Features
+
+* Style new Article elements added by Encoda v0.99.16 ([3948918](https://github.com/stencila/thema/commit/39489183a4d6217bc0cfe2118ed0f8519faf02d0))
+
 ## [2.19.3](https://github.com/stencila/thema/compare/v2.19.2...v2.19.3) (2020-10-27)
 
 
