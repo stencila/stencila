@@ -26,7 +26,7 @@ jobs:
           INTERCOM_AUTH_TOKEN: ${{ secrets.INTERCOM_AUTH_TOKEN }}
           INTERCOM_AUTHOR_ID: ${{ secrets.INTERCOM_AUTHOR_ID }}
       - name: Commit updated Articles
-        uses: EndBug/add-and-commit@v4.2.0
+        uses: EndBug/add-and-commit@v4.4.0
         with:
           add: help/
           author_name: stencila-ci
