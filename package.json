@@ -46,7 +46,7 @@
     "yargs": "^15.4.1"
   },
   "devDependencies": {
-    "@actions/core": "^1.2.6",
+    "@actions/core": "1.2.6",
     "@stencila/dev-config": "1.4.60",
     "@types/browser-sync": "2.26.1",
     "@types/tar": "4.0.3",
