@@ -1,3 +1,10 @@
+## [0.34.3](https://github.com/stencila/stencila/compare/v0.34.2...v0.34.3) (2020-11-06)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/logga to v3 ([8fe1f98](https://github.com/stencila/stencila/commit/8fe1f98939e01a48d0b7174438d9cd9a2f695608))
+
 ## [0.34.2](https://github.com/stencila/stencila/compare/v0.34.1...v0.34.2) (2020-08-27)
 
 
