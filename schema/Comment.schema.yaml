@@ -1,0 +1,23 @@
+title: Comment
+'@id': schema:Comment
+extends: CreativeWork
+role: primary
+status: stable
+category: metadata
+description: A comment on an item, e.g on a Article, or SoftwareSourceCode.
+$comment: |
+  Use the `about` property to define the item that a comment is on.
+  The `content` property should be used for the structured content of the
+  Comment, in preference to the schema.org `text` property which is is expected to
+  have the plain text content.
+properties:
+  parentItem:
+    '@id': schema:parentItem
+    description: The parent Comment of this Comment.
+    $ref: Comment
+  replies:
+    '@id': stencila:replies
+    description: Comments made in reply to this comment. The inverse of parentItem.
+    type: array
+    items:
+      $ref: Comment
