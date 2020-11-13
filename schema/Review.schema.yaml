@@ -1,14 +1,14 @@
 title: Review
 '@id': schema:Review
 extends: CreativeWork
-role: primary
+role: secondary
 status: stable
 category: metadata
 description: A review of an item, e.g of an Article, or SoftwareSourceCode.
 $comment: |
   Use the `content` property for the structured content of the review in
-  preference to the schema.org `text` or `reviewBody` properties which
-  have plain text as the expected type of this property.
+  preference to the schema.org `text` or `reviewBody` properties (which
+  have plain text as the expected type).
 properties:
   itemReviewed:
     '@id': schema:itemReviewed
@@ -17,14 +17,4 @@ properties:
   reviewAspect:
     '@id': schema:reviewAspect
     description: The part or facet of the item that is being reviewed.
-    anyOf:
-      - type: integer
-      - type: string
-  comments:
-    '@id': stencila:comments
-    description: Comments, usually on specific parts of the item reviewed, that form part of the review.
-    $comment: |
-      This is a custom property which allows us to associate Comments with a review.
-    type: array
-    items:
-      $ref: Comment
+    type: string

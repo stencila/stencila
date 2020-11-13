@@ -31,6 +31,12 @@ properties:
           anyOf:
             - $ref: Person
             - $ref: Organization
+  comments:
+    '@id': schema:comment
+    description: Comments about this creative work.
+    type: array
+    items:
+      $ref: Comment
   content:
     # We have added "content" because the existing schema.org property "text" implies
     # only unstructured text content.
