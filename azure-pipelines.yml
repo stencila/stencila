@@ -1,0 +1,88 @@
+# Azure Pipelines config
+#
+# For docs on multi-platform setup see:
+#   https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started-multiplatform?view=azure-devops
+# For migration guide see:
+#   https://docs.microsoft.com/en-us/azure/devops/pipelines/migrate/from-travis?view=azure-devops
+
+jobs:
+  - job: test_typescript
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 14.x
+        displayName: Install Node.js
+
+      - script: npm install
+        displayName: Install dependencies
+
+      - script: npm run lint
+        displayName: Run linting
+
+      - script: npm run test:cover
+        displayName: Run tests
+
+      - script: npm run build
+        displayName: Build package
+
+      - script: npm run docs
+        displayName: Build docs
+
+      - script: bash <(curl -s https://codecov.io/bash) -cF ts
+        condition: succeeded()
+        displayName: Upload coverage
+
+  - job: test_python
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: 3.8
+        displayName: Install Python
+
+      - script: make -C py setup
+        displayName: Install dependencies
+
+      - script: make -C py lint
+        displayName: Run linting
+
+      - script: make -C py test
+        displayName: Run tests
+
+      - script: make -C py build
+        displayName: Build package
+
+      - script: make -C py docs
+        displayName: Build docs
+
+      - script: bash <(curl -s https://codecov.io/bash) -cF py
+        condition: succeeded()
+        displayName: Upload coverage
+
+  - job: test_r
+    pool:
+      vmImage: ubuntu-20.04
+    container: rstudio/r-base:4.0-focal
+    steps:
+
+      - script: make -C r setup
+        displayName: Install dependencies
+
+      - script: make -C r lint
+        displayName: Run linting
+
+      - script: make -C r test
+        displayName: Run tests
+
+      - script: make -C r build
+        displayName: Build package
+
+      - script: make -C r docs
+        displayName: Build docs
+
+      - script: Rscript -e 'covr::codecov()'
+        condition: succeeded()
+        displayName: Upload coverage
