@@ -5,3 +5,4 @@ pylint==2.4.4
 tox==3.14.3
 tox-travis==0.12
 twine==3.1.1
+wheel==0.35.1
