@@ -1,9 +1,8 @@
-# Azure Pipelines config
-#
-# For docs on multi-platform setup see:
-#   https://docs.microsoft.com/en-us/azure/devops/pipelines/get-started-multiplatform?view=azure-devops
-# For migration guide see:
-#   https://docs.microsoft.com/en-us/azure/devops/pipelines/migrate/from-travis?view=azure-devops
+trigger:
+  branches:
+    include:
+    - master
+    - refs/tags/*
 
 jobs:
   - job: test_typescript
@@ -97,3 +96,85 @@ jobs:
       - script: cd r && Rscript -e 'covr::codecov()'
         condition: succeeded()
         displayName: Upload coverage
+
+  - job: deploy_typescript
+    dependsOn: [test_typescript, test_python, test_r]
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 14.x
+        displayName: Install Node.js
+
+      - script: npm run build
+        displayName: Build package
+
+      - script: npm run docs
+        displayName: Build docs
+
+      # Deploy a new version of NPM package and create a Github release
+      # This creates a new version tag, which will then trigger the
+      # following deploy jobs for other language packages.
+      - script: npx semantic-release
+        displayName: Release package
+
+      - script: bash ci.sh deploy_typescript_docs_to_pages
+        displayName: Release docs
+
+  - job: deploy_python
+    dependsOn: [deploy_typescript]
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: 3.8
+        displayName: Install Python
+
+      - script: make -C py setup
+        displayName: Install dependencies
+
+      - script: make -C py build
+        displayName: Build package
+
+      - script: make -C py docs
+        displayName: Build docs
+
+      - script: twine upload dist/*
+        env:
+          TWINE_USERNAME: stencila
+          TWINE_PASSWORD: $(TWINE_PASSWORD)
+        displayName: Release package
+
+      - script: bash ci.sh deploy_python_docs_to_pages
+        displayName: Release docs
+
+  - job: deploy_r
+    dependsOn: [deploy_typescript]
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    pool:
+      vmImage: ubuntu-20.04
+    container: rstudio/r-base:4.0-focal
+    variables:
+      CRAN: 'https://demo.rstudiopm.com/all/__linux__/focal/latest'
+      R_LIBS_USER: '$(Agent.BuildDirectory)/R/library'
+      TZ: UTC
+      CI: true
+    steps:
+      - script: |
+          echo 'options(repos = "$(CRAN)")' > ~/.Rprofile
+          echo ".libPaths(c('$R_LIBS_USER', .libPaths()))" >> ~/.Rprofile
+          mkdir -p $(R_LIBS_USER)
+        displayName: Setup R library directory
+
+      - script: make -C r setup
+        displayName: Install dependencies
+
+      - script: make -C r docs
+        displayName: Build docs
+
+      - script: bash ci.sh deploy_r_docs_to_pages
+        displayName: Release docs
