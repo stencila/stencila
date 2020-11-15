@@ -1,0 +1,28 @@
+title: Comment
+'@id': schema:Comment
+extends: CreativeWork
+role: secondary
+status: stable
+category: metadata
+description: A comment on an item, e.g on a Article, or SoftwareSourceCode.
+$comment: |
+  Use the `about` property to define the item that a comment is on and
+  `commentAspect` to point to a specific part of aspect of that item.
+  The `content` property should be used for the structured content of the
+  comment, in preference to the schema.org `text` property (which is expected to
+  be plain text). Replies to a comment can be added to its `comments` property
+  or have their `parentItem` set to the parent comment.
+properties:
+  parentItem:
+    '@id': schema:parentItem
+    description: The parent comment of this comment.
+    $ref: Comment
+  commentAspect:
+    '@id': stencila:commentAspect
+    description: The part or facet of the item that is being commented on.
+    $comment: |
+      This propery is analagous to the `reviewAspect` property of the `reviewAspect`
+      type. It is a string to allow flexibility in how the aspect is expressed
+      depending on the item e.g "technique", for a comment on a painting, or
+      "some_code.py#L10-L20" for a comment on a software code repository.
+    type: string
