@@ -72,6 +72,13 @@ jobs:
       TZ: UTC
       CI: true
     steps:
+      # From https://stackoverflow.com/a/57374105
+      - script: |
+          echo 'options(repos = "$(CRAN)")' > ~/.Rprofile
+          echo ".libPaths(c('$R_LIBS_USER', .libPaths()))" >> ~/.Rprofile
+          mkdir -p $(R_LIBS_USER)
+        displayName: Setup R library directory
+
       - script: make -C r setup
         displayName: Install dependencies
 
