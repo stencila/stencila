@@ -94,6 +94,6 @@ jobs:
       - script: make -C r docs
         displayName: Build docs
 
-      - script: Rscript -e 'covr::codecov()'
+      - script: cd r && Rscript -e 'covr::codecov()'
         condition: succeeded()
         displayName: Upload coverage
