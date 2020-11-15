@@ -68,13 +68,10 @@ jobs:
     container: rstudio/r-base:4.0-focal
     variables:
       CRAN: 'https://demo.rstudiopm.com/all/__linux__/focal/latest'
-      R_LIBS_USER: /rlibs
+      R_LIBS_USER: '$(Agent.BuildDirectory)/R/library'
       TZ: UTC
       CI: true
     steps:
-      - script: mkdir -p /rlibs
-        displayName: Create R libs folder
-
       - script: make -C r setup
         displayName: Install dependencies
 
