@@ -64,7 +64,7 @@ jobs:
   - job: test_r
     pool:
       vmImage: ubuntu-20.04
-    container: rstudio/r-base:4.0-focal
+    container: rstudio/r-base:3.6-focal
     variables:
       CRAN: 'https://demo.rstudiopm.com/all/__linux__/focal/latest'
       R_LIBS_USER: '$(Agent.BuildDirectory)/R/library'
@@ -157,7 +157,7 @@ jobs:
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     pool:
       vmImage: ubuntu-20.04
-    container: rstudio/r-base:4.0-focal
+    container: rstudio/r-base:3.6-focal
     variables:
       CRAN: 'https://demo.rstudiopm.com/all/__linux__/focal/latest'
       R_LIBS_USER: '$(Agent.BuildDirectory)/R/library'
