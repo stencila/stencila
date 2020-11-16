@@ -1,6 +1,6 @@
 # Stencila Schema for Python
 
-[![Build Status](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
+[![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.schema?branchName=master)](https://dev.azure.com/stencila/stencila/_build/latest?definitionId=9&branchName=master)
 [![Code coverage](https://badger.nokome.now.sh/codecov-folder/stencila/schema/py)](https://codecov.io/gh/stencila/schema/tree/master/py)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PyPI](https://img.shields.io/pypi/v/stencila-schema.svg)](https://pypi.org/project/stencila-schema)

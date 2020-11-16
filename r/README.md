@@ -1,6 +1,6 @@
 # Stencila Schema for R
 
-[![Build Status](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
+[![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.schema?branchName=master)](https://dev.azure.com/stencila/stencila/_build/latest?definitionId=9&branchName=master)
 [![Code coverage](https://badger.nokome.now.sh/codecov-folder/stencila/schema/R)](https://codecov.io/gh/stencila/schema/tree/master/R)
 [![CRAN](https://www.r-pkg.org/badges/version-last-release/schema)](https://cran.r-project.org/web/packages/stencilaschema/)
 [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/r/docs)
@@ -103,4 +103,4 @@ Documentation is written using `roxygen2` and the documentation site is generate
 
 ### Continuous integration
 
-Tests are run on [Travis](https://travis-ci.org/stencila/schema) and code coverage tracked at [Codecov](https://codecov.io/gh/stencila/schema).
+Tests are run on [Azure Pipelines](https://dev.azure.com/stencila/stencila/_build/latest?definitionId=9&branchName=master) and code coverage tracked at [Codecov](https://codecov.io/gh/stencila/schema).

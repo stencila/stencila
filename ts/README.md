@@ -1,6 +1,6 @@
 # Stencila Schema for Typescript
 
-[![Build Status](https://travis-ci.org/stencila/schema.svg?branch=master)](https://travis-ci.org/stencila/schema)
+[![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.schema?branchName=master)](https://dev.azure.com/stencila/stencila/_build/latest?definitionId=9&branchName=master)
 [![Code coverage](https://badger.nokome.now.sh/codecov-folder/stencila/schema/ts)](https://codecov.io/gh/stencila/schema/tree/master/ts)
 [![NPM](https://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema)
 [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/ts/docs)
