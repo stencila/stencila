@@ -44,16 +44,18 @@ To add a GitHub repository as a project source:
 
 Your Github repository is automatically **pulled** into your project and stores in your project's working directory.
 
-## Refresh
+## Refresh your repo
 
-At any time in the future you can go back and refresh the content of your source. To do this simply click the **source** tab on the side bar and pull your source.
+At any time in the future you can go back and pull in a new version of your repo. 
 
-![](https://i.imgur.com/Lr87DCF.png)
+To do this simply click the **Source** tab from the side bar, click to view the pop up at the end of Github source and **Pull**.
+
+![](https://i.imgur.com/wAxR8T8.png)
 
 ## Next steps
 
 You might like to: 
 - [Convert your file](../projects/manage-project-sources.md) to one of the many different formats available. 
-- Select your main file, take a snapshot and create an [editable manuscript to publish](../projects/publish-a-project.md).
+- Publish your document as an [executable manuscript](../projects/publish-a-project.md).
 
 
