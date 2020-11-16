@@ -46,4 +46,14 @@ Your Github repository is automatically **pulled** into your project and stores 
 
 ## Refresh
 
-You can **pull** the file again at any time to refresh the content.
+At any time in the future you can go back and refresh the content of your source. To do this simply click the **source** tab on the side bar and pull your source.
+
+![](https://i.imgur.com/Lr87DCF.png)
+
+## Next steps
+
+You might like to: 
+- [Convert your file](../projects/manage-project-sources.md) to one of the many different formats available. 
+- Select your main file, take a snapshot and create an [editable manuscript to publish](../projects/publish-a-project.md).
+
+
