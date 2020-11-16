@@ -1,15 +1,12 @@
 #!/bin/sh
 
-# Bash function for doing things as part of Travis build
-#
-# Why? mostly because Travis deployment scripts need to be a
-# a single command https://docs.travis-ci.com/user/deployment/script/
+# Bash functions for doing things as part of CI build
 
 checkout_pages() {
-  git config --global user.email $GIT_AUTHOR_EMAIL
-  git config --global user.name $GIT_AUTHOR_NAME
+  git config --global user.email ci@stenci.la
+  git config --global user.name Stencila CI Bot
 
-  git remote add origin-pages https://${GITHUB_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git > /dev/null 2>&1
+  git remote add origin-pages https://${GITHUB_TOKEN}@github.com/stencila/schema.git > /dev/null 2>&1
   git fetch --all
   git checkout --force gh-pages
   git branch --set-upstream-to origin-pages/gh-pages
