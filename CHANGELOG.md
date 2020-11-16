@@ -1,3 +1,17 @@
+# [0.47.0](https://github.com/stencila/schema/compare/v0.46.5...v0.47.0) (2020-11-16)
+
+
+### Bug Fixes
+
+* **Review, Comment:** Move comments to CreativeWork ([b9bad70](https://github.com/stencila/schema/commit/b9bad704385285216393e2878decdfaeec70e302))
+
+
+### Features
+
+* **Comment:** Add comment aspect ([3c06245](https://github.com/stencila/schema/commit/3c06245eb9ae390650375409de4babf6b833cf6e)), closes [/github.com/stencila/schema/pull/228#discussion_r522498602](https://github.com//github.com/stencila/schema/pull/228/issues/discussion_r522498602)
+* **Comment:** Add comment type ([89e93a3](https://github.com/stencila/schema/commit/89e93a356957ab6146d9d879293231abd49da181)), closes [#227](https://github.com/stencila/schema/issues/227)
+* **Review:** Add review type ([0779830](https://github.com/stencila/schema/commit/077983073b30f92769a0793063d9a56cb0dd5720)), closes [#227](https://github.com/stencila/schema/issues/227)
+
 ## [0.46.5](https://github.com/stencila/schema/compare/v0.46.4...v0.46.5) (2020-10-04)
 
 
