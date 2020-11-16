@@ -21,6 +21,7 @@ test:
 
 build:
 	python3 setup.py sdist bdist_wheel
+.PHONY: build
 
 docs:
 	pdoc --html --output-dir docs --force ./stencila/schema

@@ -154,7 +154,7 @@ jobs:
       - script: make -C py docs
         displayName: Build docs
 
-      - script: twine upload dist/*
+      - script: cd py && twine upload dist/*
         env:
           TWINE_USERNAME: stencila
           TWINE_PASSWORD: $(TWINE_PASSWORD)
