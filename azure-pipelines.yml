@@ -122,6 +122,13 @@ jobs:
       # This creates a new version tag, which will then trigger the
       # following deploy jobs for other language packages.
       - script: npx semantic-release
+        env:
+          GIT_AUTHOR_NAME: Stencila CI Bot
+          GIT_AUTHOR_EMAIL: ci@stenci.la
+          GIT_COMMITTER_NAME: Stencila CI Bot
+          GIT_COMMITTER_EMAIL: ci@stenci.la
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+          NPM_TOKEN: $(NPM_TOKEN)
         displayName: Release package
 
       - script: bash ci.sh deploy_typescript_docs_to_pages
