@@ -27,3 +27,10 @@ To upload a file to a project:
 ![](http://stencila.github.io/hub/manager/snaps/project-sources-new-upload.png)
 
 * Once ready click **Upload** to begin the upload process.  Once completed you can see the files that were pulled from the source and begin working with them.
+
+## Next steps
+
+You might like to: 
+- [Link a source](../projects/manage-project-sources.md) from Github, Google Docs or your Google Drive etc.
+- [Convert your file](../projects/manage-project-sources.md) to one of the many different formats available. 
+- Publish a document as an [executable manuscript](../projects/publish-a-project.md).
