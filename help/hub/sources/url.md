@@ -30,7 +30,19 @@ To add an URL as a project source:
 
 Your URL source is automatically **pulled** into your project and stores in your project's working directory.
 
-## Refresh
+## Refresh your URL
 
-You can **pull** the file again at any time to refresh the content.
+At any time in the future you can go back and pull in an updated version of your source. 
+
+To do this simply click the **Source** tab from the side bar, click to view the pop up at the end of URL source and **Pull**.
+
+![](https://i.imgur.com/wAxR8T8.png)
+
+## Next steps
+
+You might like to: 
+- [Link another source](../projects/manage-project-sources.md) from Github, Google Docs or your Google Drive etc.
+- [Convert a file](../projects/manage-project-sources.md) to one of the many different formats available. 
+- Publish a document as an [executable manuscript](../projects/publish-a-project.md).
+
 
