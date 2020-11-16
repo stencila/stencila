@@ -3,8 +3,8 @@
 # Bash functions for doing things as part of CI build
 
 checkout_pages() {
-  git config --global user.email ci@stenci.la
-  git config --global user.name Stencila CI Bot
+  git config --global user.email "ci@stenci.la"
+  git config --global user.name "Stencila CI Bot"
 
   git remote add origin-pages https://${GITHUB_TOKEN}@github.com/stencila/schema.git > /dev/null 2>&1
   git fetch --all
