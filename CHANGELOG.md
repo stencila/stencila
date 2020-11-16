@@ -1,3 +1,10 @@
+## [0.47.1](https://github.com/stencila/schema/compare/v0.47.0...v0.47.1) (2020-11-16)
+
+
+### Bug Fixes
+
+* **CI:** Fix config for docs and trigger release ([d52239b](https://github.com/stencila/schema/commit/d52239bb8852139b1f324b9535542bf177f1a3ab))
+
 # [0.47.0](https://github.com/stencila/schema/compare/v0.46.5...v0.47.0) (2020-11-16)
 
 
