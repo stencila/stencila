@@ -23,10 +23,10 @@ In addition to uploading files to a project, you can link sources to your projec
 
 These sources remain on the external service, but a versioned copy is downloaded (pulled) and stored with your project to maintain reproducibility. When you start a compute session to run your project, we will mount the pulled files into the session.
 
-* [URL Source](../sources/upload.md)
+* [URL Source] (../sources/url.md)
 * [Google Docs Source](../sources/google-docs.md)
 * [Google Drive Source](../sources/google-drive.md)
-* [GitHub Source](../sources/url.md)
+* [GitHub Source](../sources/github.md)
 
 You can go to the sources tab of your project at any time in the future to update the local copies of your source files by **pulling** them.
 
