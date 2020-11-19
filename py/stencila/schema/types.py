@@ -409,7 +409,7 @@ class CodeError(Entity):
     An error that occurred when parsing, compiling or executing a Code node.
     """
 
-    errorMessage: Optional[str] = None
+    errorMessage: str
     """The error message or brief description of the error."""
 
     errorType: Optional[str] = None
@@ -421,7 +421,7 @@ class CodeError(Entity):
 
     def __init__(
         self,
-        errorMessage: Optional[str] = None,
+        errorMessage: str,
         errorType: Optional[str] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -696,6 +696,9 @@ class CreativeWork(Thing):
     authors: Optional[Array[Union["Person", "Organization"]]] = None
     """The authors of this creative work."""
 
+    comments: Optional[Array["Comment"]] = None
+    """Comments about this creative work."""
+
     content: Optional[Array["Node"]] = None
     """The structured content of this creative work c.f. property `text`."""
 
@@ -739,6 +742,9 @@ Multiple entries in a keywords list are typically delimited by commas.
     """License documents that applies to this content, typically indicated by URL.
 """
 
+    maintainers: Optional[Array[Union["Organization", "Person"]]] = None
+    """The people or organizations who maintain this CreativeWork."""
+
     parts: Optional[Array["CreativeWorkTypes"]] = None
     """Elements of the collection which can be a variety of different elements,
 such as Articles, Datatables, Tables and more.
@@ -768,6 +774,7 @@ web page, scholarly article, etc.
         about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -785,6 +792,7 @@ web page, scholarly article, etc.
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -809,6 +817,8 @@ web page, scholarly article, etc.
             self.about = about
         if authors is not None:
             self.authors = authors
+        if comments is not None:
+            self.comments = comments
         if content is not None:
             self.content = content
         if dateAccepted is not None:
@@ -835,6 +845,8 @@ web page, scholarly article, etc.
             self.keywords = keywords
         if licenses is not None:
             self.licenses = licenses
+        if maintainers is not None:
+            self.maintainers = maintainers
         if parts is not None:
             self.parts = parts
         if publisher is not None:
@@ -869,6 +881,7 @@ for example, "1-6, 9, 55".
         about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -886,6 +899,7 @@ for example, "1-6, 9, 55".
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         pageEnd: Optional[Union[int, str]] = None,
@@ -903,6 +917,7 @@ for example, "1-6, 9, 55".
             about=about,
             alternateNames=alternateNames,
             authors=authors,
+            comments=comments,
             content=content,
             dateAccepted=dateAccepted,
             dateCreated=dateCreated,
@@ -920,6 +935,7 @@ for example, "1-6, 9, 55".
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -953,6 +969,7 @@ such as Articles, Datatables, Tables and more.
         about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -970,6 +987,7 @@ such as Articles, Datatables, Tables and more.
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
@@ -984,6 +1002,7 @@ such as Articles, Datatables, Tables and more.
             about=about,
             alternateNames=alternateNames,
             authors=authors,
+            comments=comments,
             content=content,
             dateAccepted=dateAccepted,
             dateCreated=dateCreated,
@@ -1001,6 +1020,7 @@ such as Articles, Datatables, Tables and more.
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             publisher=publisher,
@@ -1012,6 +1032,91 @@ such as Articles, Datatables, Tables and more.
         )
         if parts is not None:
             self.parts = parts
+
+
+class Comment(CreativeWork):
+    """A comment on an item, e.g on a Article, or SoftwareSourceCode."""
+
+    commentAspect: Optional[str] = None
+    """The part or facet of the item that is being commented on."""
+
+    parentItem: Optional["Comment"] = None
+    """The parent comment of this comment."""
+
+
+    def __init__(
+        self,
+        about: Optional[Array["Thing"]] = None,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        commentAspect: Optional[str] = None,
+        comments: Optional[Array["Comment"]] = None,
+        content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
+        id: Optional[str] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        parentItem: Optional["Comment"] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        text: Optional[str] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            about=about,
+            alternateNames=alternateNames,
+            authors=authors,
+            comments=comments,
+            content=content,
+            dateAccepted=dateAccepted,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            dateReceived=dateReceived,
+            description=description,
+            editors=editors,
+            fundedBy=fundedBy,
+            funders=funders,
+            genre=genre,
+            id=id,
+            identifiers=identifiers,
+            images=images,
+            isPartOf=isPartOf,
+            keywords=keywords,
+            licenses=licenses,
+            maintainers=maintainers,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            references=references,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if commentAspect is not None:
+            self.commentAspect = commentAspect
+        if parentItem is not None:
+            self.parentItem = parentItem
 
 
 class Datatable(CreativeWork):
@@ -1027,6 +1132,7 @@ class Datatable(CreativeWork):
         about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -1044,6 +1150,7 @@ class Datatable(CreativeWork):
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -1058,6 +1165,7 @@ class Datatable(CreativeWork):
             about=about,
             alternateNames=alternateNames,
             authors=authors,
+            comments=comments,
             content=content,
             dateAccepted=dateAccepted,
             dateCreated=dateCreated,
@@ -1075,6 +1183,7 @@ class Datatable(CreativeWork):
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -1123,6 +1232,7 @@ class MediaObject(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
@@ -1143,6 +1253,7 @@ class MediaObject(CreativeWork):
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -1157,6 +1268,7 @@ class MediaObject(CreativeWork):
             about=about,
             alternateNames=alternateNames,
             authors=authors,
+            comments=comments,
             content=content,
             dateAccepted=dateAccepted,
             dateCreated=dateCreated,
@@ -1174,6 +1286,7 @@ class MediaObject(CreativeWork):
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -1214,6 +1327,7 @@ class AudioObject(MediaObject):
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
         caption: Optional[str] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
@@ -1234,6 +1348,7 @@ class AudioObject(MediaObject):
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -1251,6 +1366,7 @@ class AudioObject(MediaObject):
             alternateNames=alternateNames,
             authors=authors,
             bitrate=bitrate,
+            comments=comments,
             content=content,
             contentSize=contentSize,
             dateAccepted=dateAccepted,
@@ -1271,6 +1387,7 @@ class AudioObject(MediaObject):
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -1409,6 +1526,7 @@ class Figure(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         caption: Optional[Union[str, Array["Node"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -1427,6 +1545,7 @@ class Figure(CreativeWork):
         keywords: Optional[Array[str]] = None,
         label: Optional[str] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -1441,6 +1560,7 @@ class Figure(CreativeWork):
             about=about,
             alternateNames=alternateNames,
             authors=authors,
+            comments=comments,
             content=content,
             dateAccepted=dateAccepted,
             dateCreated=dateCreated,
@@ -1458,6 +1578,7 @@ class Figure(CreativeWork):
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -1594,6 +1715,7 @@ class ImageObject(MediaObject):
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
         caption: Optional[str] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
@@ -1614,6 +1736,7 @@ class ImageObject(MediaObject):
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -1631,6 +1754,7 @@ class ImageObject(MediaObject):
             alternateNames=alternateNames,
             authors=authors,
             bitrate=bitrate,
+            comments=comments,
             content=content,
             contentSize=contentSize,
             dateAccepted=dateAccepted,
@@ -1651,6 +1775,7 @@ class ImageObject(MediaObject):
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -2261,6 +2386,7 @@ class Periodical(CreativeWork):
         about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -2281,6 +2407,7 @@ class Periodical(CreativeWork):
         issns: Optional[Array[str]] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -2295,6 +2422,7 @@ class Periodical(CreativeWork):
             about=about,
             alternateNames=alternateNames,
             authors=authors,
+            comments=comments,
             content=content,
             dateAccepted=dateAccepted,
             dateCreated=dateCreated,
@@ -2312,6 +2440,7 @@ class Periodical(CreativeWork):
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -2607,6 +2736,7 @@ for example, "1-6, 9, 55".
         about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -2625,6 +2755,7 @@ for example, "1-6, 9, 55".
         issueNumber: Optional[Union[int, str]] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         pageEnd: Optional[Union[int, str]] = None,
@@ -2642,6 +2773,7 @@ for example, "1-6, 9, 55".
             about=about,
             alternateNames=alternateNames,
             authors=authors,
+            comments=comments,
             content=content,
             dateAccepted=dateAccepted,
             dateCreated=dateCreated,
@@ -2659,6 +2791,7 @@ for example, "1-6, 9, 55".
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -2706,6 +2839,7 @@ for example, "1-6, 9, 55".
         about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -2723,6 +2857,7 @@ for example, "1-6, 9, 55".
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         pageEnd: Optional[Union[int, str]] = None,
@@ -2741,6 +2876,7 @@ for example, "1-6, 9, 55".
             about=about,
             alternateNames=alternateNames,
             authors=authors,
+            comments=comments,
             content=content,
             dateAccepted=dateAccepted,
             dateCreated=dateCreated,
@@ -2758,6 +2894,7 @@ for example, "1-6, 9, 55".
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -2828,16 +2965,14 @@ class QuoteBlock(Entity):
             self.cite = cite
 
 
-class SoftwareApplication(CreativeWork):
-    """A software application."""
+class Review(CreativeWork):
+    """A review of an item, e.g of an Article, or SoftwareSourceCode."""
 
-    softwareRequirements: Optional[Array["SoftwareApplication"]] = None
-    """Requirements for application, including shared libraries that
-are not included in the application distribution.
-"""
+    itemReviewed: Optional["Thing"] = None
+    """The item that is being reviewed."""
 
-    softwareVersion: Optional[str] = None
-    """Version of the software."""
+    reviewAspect: Optional[str] = None
+    """The part or facet of the item that is being reviewed."""
 
 
     def __init__(
@@ -2845,6 +2980,7 @@ are not included in the application distribution.
         about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -2860,15 +2996,16 @@ are not included in the application distribution.
         identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
         images: Optional[Array[Union["ImageObject", str]]] = None,
         isPartOf: Optional["CreativeWorkTypes"] = None,
+        itemReviewed: Optional["Thing"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
         publisher: Optional[Union["Person", "Organization"]] = None,
         references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
-        softwareRequirements: Optional[Array["SoftwareApplication"]] = None,
-        softwareVersion: Optional[str] = None,
+        reviewAspect: Optional[str] = None,
         text: Optional[str] = None,
         title: Optional[Union[Array["InlineContent"], str]] = None,
         url: Optional[str] = None,
@@ -2878,6 +3015,7 @@ are not included in the application distribution.
             about=about,
             alternateNames=alternateNames,
             authors=authors,
+            comments=comments,
             content=content,
             dateAccepted=dateAccepted,
             dateCreated=dateCreated,
@@ -2895,6 +3033,94 @@ are not included in the application distribution.
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            references=references,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if itemReviewed is not None:
+            self.itemReviewed = itemReviewed
+        if reviewAspect is not None:
+            self.reviewAspect = reviewAspect
+
+
+class SoftwareApplication(CreativeWork):
+    """A software application."""
+
+    softwareRequirements: Optional[Array["SoftwareApplication"]] = None
+    """Requirements for application, including shared libraries that
+are not included in the application distribution.
+"""
+
+    softwareVersion: Optional[str] = None
+    """Version of the software."""
+
+
+    def __init__(
+        self,
+        about: Optional[Array["Thing"]] = None,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
+        content: Optional[Array["Node"]] = None,
+        dateAccepted: Optional[Union["Date", str]] = None,
+        dateCreated: Optional[Union["Date", str]] = None,
+        dateModified: Optional[Union["Date", str]] = None,
+        datePublished: Optional[Union["Date", str]] = None,
+        dateReceived: Optional[Union["Date", str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
+        id: Optional[str] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        softwareRequirements: Optional[Array["SoftwareApplication"]] = None,
+        softwareVersion: Optional[str] = None,
+        text: Optional[str] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            about=about,
+            alternateNames=alternateNames,
+            authors=authors,
+            comments=comments,
+            content=content,
+            dateAccepted=dateAccepted,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            dateReceived=dateReceived,
+            description=description,
+            editors=editors,
+            fundedBy=fundedBy,
+            funders=funders,
+            genre=genre,
+            id=id,
+            identifiers=identifiers,
+            images=images,
+            isPartOf=isPartOf,
+            keywords=keywords,
+            licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -3108,10 +3334,6 @@ code is located.
     """What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
 """
 
-    maintainers: Optional[Array[Union["Organization", "Person"]]] = None
-    """The people or organizations who maintain the software.
-"""
-
     programmingLanguage: Optional[str] = None
     """The computer programming language.
 """
@@ -3136,6 +3358,7 @@ Python2.3, .Net Framework 3.0).
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         codeRepository: Optional[str] = None,
         codeSampleType: Optional[str] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -3172,6 +3395,7 @@ Python2.3, .Net Framework 3.0).
             about=about,
             alternateNames=alternateNames,
             authors=authors,
+            comments=comments,
             content=content,
             dateAccepted=dateAccepted,
             dateCreated=dateCreated,
@@ -3189,6 +3413,7 @@ Python2.3, .Net Framework 3.0).
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -3203,8 +3428,6 @@ Python2.3, .Net Framework 3.0).
             self.codeRepository = codeRepository
         if codeSampleType is not None:
             self.codeSampleType = codeSampleType
-        if maintainers is not None:
-            self.maintainers = maintainers
         if programmingLanguage is not None:
             self.programmingLanguage = programmingLanguage
         if runtimePlatform is not None:
@@ -3320,6 +3543,7 @@ class Table(CreativeWork):
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         caption: Optional[Union[str, Array["Node"]]] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
         dateCreated: Optional[Union["Date", str]] = None,
@@ -3338,6 +3562,7 @@ class Table(CreativeWork):
         keywords: Optional[Array[str]] = None,
         label: Optional[str] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -3352,6 +3577,7 @@ class Table(CreativeWork):
             about=about,
             alternateNames=alternateNames,
             authors=authors,
+            comments=comments,
             content=content,
             dateAccepted=dateAccepted,
             dateCreated=dateCreated,
@@ -3369,6 +3595,7 @@ class Table(CreativeWork):
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -3523,6 +3750,7 @@ class VideoObject(MediaObject):
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
         caption: Optional[str] = None,
+        comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         contentSize: Optional[float] = None,
         dateAccepted: Optional[Union["Date", str]] = None,
@@ -3543,6 +3771,7 @@ class VideoObject(MediaObject):
         isPartOf: Optional["CreativeWorkTypes"] = None,
         keywords: Optional[Array[str]] = None,
         licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         parts: Optional[Array["CreativeWorkTypes"]] = None,
@@ -3561,6 +3790,7 @@ class VideoObject(MediaObject):
             alternateNames=alternateNames,
             authors=authors,
             bitrate=bitrate,
+            comments=comments,
             content=content,
             contentSize=contentSize,
             dateAccepted=dateAccepted,
@@ -3581,6 +3811,7 @@ class VideoObject(MediaObject):
             isPartOf=isPartOf,
             keywords=keywords,
             licenses=licenses,
+            maintainers=maintainers,
             meta=meta,
             name=name,
             parts=parts,
@@ -3683,13 +3914,13 @@ ContactPointTypes = Union["ContactPoint", "PostalAddress"]
 """
 All type schemas that are derived from CreativeWork
 """
-CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
+CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection", "Comment", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
 
 
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -3737,7 +3968,7 @@ NumberValidatorTypes = Union["NumberValidator", "IntegerValidator"]
 """
 All type schemas that are derived from Thing
 """
-ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
+ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "Comment", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
 
 
 """
