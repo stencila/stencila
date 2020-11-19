@@ -8,7 +8,7 @@ checkout_pages() {
 
   git remote add origin-pages https://${GITHUB_TOKEN}@github.com/stencila/schema.git > /dev/null 2>&1
   git fetch --all
-  git checkout --track origin-pages/gh-pages
+  git checkout --force --track origin-pages/gh-pages
   git branch --set-upstream-to origin-pages/gh-pages
   git reset --hard
 }
