@@ -44,7 +44,7 @@ RNAMESPACE := 'r/NAMESPACE'
 
 # Build schema bindings for Python and R. If the bindings have changed, this script
 # will commit the updated bindings. This script is run automatically as a git pre-push hook.
-checkBindings:
+check-bindings:
 	@echo "🔬 Checking if schema bindings have changed"
 	@echo "🏗 Building schema language bindings"
 	npm run build:jsonschema
@@ -53,13 +53,13 @@ checkBindings:
 	@for i in $$(git ls-files -m); do \
 		if [ "$$i" = $(PYBINDINGS) ] || [ "$$i" = $(RBINDINGS) ] ; then \
 			echo "☝️ Bindings have changed, please verify and commit them."; \
-			echo "If there are no other changes, you can run \"make commitBindings\"\n\n"; \
+			echo "If there are no other changes, you can run \"make commit-bindings\"\n\n"; \
 			exit 1; \
 		fi \
 	done
 
 # Commits just the updated schema bindings
-commitBindings:
+commit-bindings:
 	git commit --only $(PYBINDINGS) $(RBINDINGS) $(RNAMESPACE) -m "chore(Language bindings): Update type bindings"
 
 

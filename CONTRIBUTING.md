@@ -354,7 +354,7 @@ potential risk of the type bindings and schema YAML to drift out of sync.
 One remedy we have in place is to use [git hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks).
 This allows us to automatically build the schema, detects changes in the bindings, and commit them prior to each push command.
 
-To see the exact steps being performed, please see the [`checkBindings`](./Makefile) command in the `Makefile`.
+To see the exact steps being performed, please see the [`check-bindings`](./Makefile) command in the `Makefile`.
 
 ## Developing with Docker
 

@@ -23,6 +23,9 @@ jobs:
       - script: npm run test:cover
         displayName: Run tests
 
+      - script: make check-bindings
+        displayName: Check bindings
+
       - script: npm run build
         displayName: Build package
 
