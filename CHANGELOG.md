@@ -1,3 +1,10 @@
+## [0.47.2](https://github.com/stencila/schema/compare/v0.47.1...v0.47.2) (2020-11-19)
+
+
+### Bug Fixes
+
+* **Language bindings:** Update type bindings ([955fd3b](https://github.com/stencila/schema/commit/955fd3b798ee272360557a77f5c0c3b8a1c61383))
+
 ## [0.47.1](https://github.com/stencila/schema/compare/v0.47.0...v0.47.1) (2020-11-16)
 
 
