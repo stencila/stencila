@@ -14,58 +14,51 @@ variables:
   isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
   npm_config_cache: $(Pipeline.Workspace)/.npm
 
-stages:
-  - stage: Main
-    jobs:
-      - job: Build
-        steps:
-          - task: NodeTool@0
-            inputs:
-              versionSpec: 14.x
-            displayName: Install Node.js
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: 14.x
+    displayName: Install Node.js
 
-          - task: Cache@2
-            inputs:
-              key: 'npm | "$(Agent.OS)" | package-lock.json'
-              restoreKeys: |
-                npm | "$(Agent.OS)"
-              path: $(npm_config_cache)
-            displayName: Cache npm
+  - task: Cache@2
+    inputs:
+      key: 'npm | "$(Agent.OS)" | package-lock.json'
+      restoreKeys: |
+        npm | "$(Agent.OS)"
+      path: $(npm_config_cache)
+    displayName: Cache npm
 
-          - script: npm ci
-            displayName: Install dependencies
+  - script: npm ci
+    displayName: Install dependencies
 
-          - script: |
-              npm run check:themes
-              npm run lint
-            displayName: Run linting
+  - script: |
+      npm run check:themes
+      npm run lint
+    displayName: Run linting
 
-          - script: |
-              npm run test:unit -- --coverage
-              bash <(curl -s https://codecov.io/bash)
-            displayName: Run unit tests
+  - script: |
+      npm run test:unit -- --coverage
+      bash <(curl -s https://codecov.io/bash)
+    displayName: Run unit tests
 
-          # Skip until ChromeDrive issues can be resolved
-          # - script: |
-          #     npm run docs
-          #     npm run test:visual
-          #     argos upload test/screenshots/local -T "$ARGOS_TOKEN"
-          #   displayName: Run visual regression tests
-          #   condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['ARGOS_TOKEN'], ''))
-          #   env:
-          #     ARGOS_TOKEN: $(ARGOS_TOKEN)
-          #     SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
+  # Skip until ChromeDrive issues can be resolved
+  # - script: |
+  #     npm run docs
+  #     npm run test:visual
+  #     argos upload test/screenshots/local -T "$ARGOS_TOKEN"
+  #   displayName: Run visual regression tests
+  #   condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['ARGOS_TOKEN'], ''))
+  #   env:
+  #     ARGOS_TOKEN: $(ARGOS_TOKEN)
+  #     SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
 
-  - stage: Release
+  - script: ASSET_PATH=/thema/ npm run docs
     condition: and(succeeded(), eq(variables.isMain, true))
-    jobs:
-      - job: Release
-        steps:
-          - script: ASSET_PATH=/thema/ npm run docs
-            displayName: 'Build documentation site'
+    displayName: 'Build documentation site'
 
-          - script: npx semantic-release
-            displayName: Release package & Publish documentation site
-            env:
-              GITHUB_TOKEN: $(GITHUB_TOKEN)
-              NPM_TOKEN: $(NPM_TOKEN)
+  - script: npx semantic-release
+    condition: and(succeeded(), eq(variables.isMain, true))
+    displayName: Release package & Publish documentation site
+    env:
+      GITHUB_TOKEN: $(GITHUB_TOKEN)
+      NPM_TOKEN: $(NPM_TOKEN)
