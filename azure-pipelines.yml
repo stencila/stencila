@@ -45,15 +45,16 @@ stages:
               bash <(curl -s https://codecov.io/bash)
             displayName: Run unit tests
 
-          - script: |
-              npm run docs
-              npm run test:visual
-              argos upload test/screenshots/local -T "$ARGOS_TOKEN"
-            displayName: Run visual regression tests
-            condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['ARGOS_TOKEN'], ''))
-            env:
-              ARGOS_TOKEN: $(ARGOS_TOKEN)
-              SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
+          # Skip until ChromeDrive issues can be resolved
+          # - script: |
+          #     npm run docs
+          #     npm run test:visual
+          #     argos upload test/screenshots/local -T "$ARGOS_TOKEN"
+          #   displayName: Run visual regression tests
+          #   condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['ARGOS_TOKEN'], ''))
+          #   env:
+          #     ARGOS_TOKEN: $(ARGOS_TOKEN)
+          #     SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
 
   - stage: Release
     condition: and(succeeded(), eq(variables.isMain, true))
