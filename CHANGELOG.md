@@ -1,3 +1,10 @@
+## [2.20.1](https://github.com/stencila/thema/compare/v2.20.0...v2.20.1) (2020-11-24)
+
+
+### Bug Fixes
+
+* **Elife:** separate address span with commas ([56294b9](https://github.com/stencila/thema/commit/56294b969a7699460faf959f1742c7b8d327e1d8)), closes [#261](https://github.com/stencila/thema/issues/261)
+
 # [2.20.0](https://github.com/stencila/thema/compare/v2.19.3...v2.20.0) (2020-10-29)
 
 
