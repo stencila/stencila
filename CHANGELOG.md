@@ -1,3 +1,10 @@
+## [2.20.2](https://github.com/stencila/thema/compare/v2.20.1...v2.20.2) (2020-11-24)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/components to ^0.26.3 ([d1ddc1a](https://github.com/stencila/thema/commit/d1ddc1a38b61e8c3449514061315f2d2fc079cae))
+
 ## [2.20.1](https://github.com/stencila/thema/compare/v2.20.0...v2.20.1) (2020-11-24)
 
 
