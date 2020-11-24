@@ -1,3 +1,10 @@
+## [2.20.3](https://github.com/stencila/thema/compare/v2.20.2...v2.20.3) (2020-11-24)
+
+
+### Bug Fixes
+
+* **CI:** Always build package & docs to catch issues ([74d00bf](https://github.com/stencila/thema/commit/74d00bf61417715df08378edffbce94629140d5a))
+
 ## [2.20.2](https://github.com/stencila/thema/compare/v2.20.1...v2.20.2) (2020-11-24)
 
 
