@@ -52,8 +52,12 @@ steps:
   #     ARGOS_TOKEN: $(ARGOS_TOKEN)
   #     SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
 
+  - script: npm run build
+    condition: succeeded()
+    displayName: 'Build package'
+
   - script: ASSET_PATH=/thema/ npm run docs
-    condition: and(succeeded(), eq(variables.isMain, true))
+    condition: succeeded()
     displayName: 'Build documentation site'
 
   - script: npx semantic-release
