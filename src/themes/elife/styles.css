@@ -156,6 +156,10 @@
         content: '';
       }
 
+      & :--address span::before {
+        content: ', ';
+      }
+
       :--addressCountry::before {
         content: ' ';
       }
