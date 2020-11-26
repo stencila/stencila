@@ -76,7 +76,7 @@ it into a reproducible article. See the available formats, under the **Actions**
 There are two primary pathways for enriching an article:
 
 1. Save the article as a Google Doc and use the Stencila plugin for Google Docs to replace static tables and figures with reproducible versions
-2. Save the article as a Jupyter Notebook or R Markdown document, download it, and edit it locally.
+2. Save the article as a Jupyter Notebook or R Markdown document, [download it](../hub/projects/publish-a-project.md), and edit it locally. (See further notes below).
 
 ![](https://i.imgur.com/Kq0iDix.png)
 
@@ -93,12 +93,10 @@ a new entry in the project’s list of files:
 
 ![](https://i.imgur.com/y8pmshl.png)
 
-## Enriching the article
+## Create an editable manuscript to publish 
 
-Now that you've converted the article into an easily editable format, you can download it to your computer to edit using
-your tool of choice such as R Studio or Jupyter Notebooks.
+If you use editable formats such as R Studio or Jupyter Notebooks and you've successsfully converted the article into your chosen format, your next step is to [download the file to your computer](../hub/projects/publish-a-project.md), find the static figures in the article and replace them with Code Chunks to create an editable manuscript to publish.
 
-The enrichment process consists of finding static figures in the article and replacing them with Code Chunks.
 Please refer to the help documentation of [R Studio](https://bookdown.org/yihui/rmarkdown/r-code.html), [Jupyter
 Notebooks](https://jupyter-notebook.readthedocs.io/en/stable/notebook.html), or your editor for specific instructions.
 
