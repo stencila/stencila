@@ -1,3 +1,10 @@
+## [2.20.4](https://github.com/stencila/thema/compare/v2.20.3...v2.20.4) (2020-12-01)
+
+
+### Bug Fixes
+
+* **eLife:** Add comma space before parentOrganization ([c1e14a3](https://github.com/stencila/thema/commit/c1e14a3bda8fafb0db46dff86d8641f194f74cee))
+
 ## [2.20.3](https://github.com/stencila/thema/compare/v2.20.2...v2.20.3) (2020-11-24)
 
 
