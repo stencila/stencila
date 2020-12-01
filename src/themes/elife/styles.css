@@ -148,6 +148,10 @@
         @extend .content-header__institution_list_item;
       }
 
+      & :--parentOrganization::before {
+        content: ', ';
+      }
+
       & :--address::after {
         content: '; ';
       }
