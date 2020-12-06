@@ -43,7 +43,7 @@
     "@stencila/encoda": "^0.98.5",
     "@stencila/logga": "^3.0.1",
     "tar": "^6.0.2",
-    "yargs": "^15.4.1"
+    "yargs": "^16.2.0"
   },
   "devDependencies": {
     "@actions/core": "1.2.6",
