@@ -2,7 +2,7 @@
 
 Welcome to the main entry point to the Stencila ecosystem. This repo contains the `stencila` command line tool which is the top level 'umbrella' package to use our various libraries.
 
-> :sparkles: We are are undergoing a major reboot in this repository (and many of our others) to build a single entry point for reproducible documents. We will deprecate `stencila/cli` and `stencila/desktop` and instead build those binaries here. We will also be deprecating binary builds of our other repositories as they are integrated into this one.
+> :sparkles: We are undergoing a major reboot in this repository (and many of our others) to build a single entry point for reproducible documents. We will deprecate `stencila/cli` and `stencila/desktop` and instead build those binaries here. We will also be deprecating binary builds of our other repositories as they are integrated into this one.
 
 [![NPM](http://img.shields.io/npm/v/stencila.svg?style=flat)](https://www.npmjs.com/package/stencila)
 [![Build status](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
