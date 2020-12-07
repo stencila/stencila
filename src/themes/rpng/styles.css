@@ -18,7 +18,7 @@
 :--MathBlock,
 :--MathFragment {
   /* For rPNG generation there should be no margin
-  and thet should have a minimum size. */
+  and they should have a minimum size. */
   display: inline-block;
   margin: 0 !important;
   min-width: 1em;
