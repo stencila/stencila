@@ -3,7 +3,7 @@
 /* stylelint-disable scale-unlimited/declaration-strict-value */
 
 :--root {
-  --color-ok: #6dfc6e;
+  --color-ok: #95e8af;
 
   display: inline-block;
   font-family: monospace;
@@ -14,26 +14,51 @@
 }
 
 :--CodeChunk,
-:--CodeExpression {
+:--CodeExpression,
+:--MathBlock,
+:--MathFragment {
   /* For rPNG generation there should be no margin
   and thet should have a minimum size. */
   display: inline-block;
   margin: 0 !important;
   min-width: 1em;
   min-height: 1em;
+  overflow: visible;
+  position: relative;
   width: auto !important;
 
   /* Remove borders and add a green dot affordance */
   border: none;
+
   &::before {
-      position: absolute;
-      border-radius: 50%;
-      width: 12px;
-      height: 12px;
-      content: '';
-      background-color: var(--color-ok);
-      opacity: 0.7;
-      pointer-events: none;
+    background-color: var(--color-ok);
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 4px;
+    color: #4e6751;
+    content: '';
+    height: 14px;
+    left: -8px;
+    padding: 1px;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    width: 14px;
+  }
+}
+
+:--CodeChunk,
+:--CodeExpression {
+  &::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='10' height='10'%3E%3Cpath fill='none' d='M0 0h24v24H0z'/%3E%3Cpath d='M11 12l-7.071 7.071-1.414-1.414L8.172 12 2.515 6.343 3.929 4.93 11 12zm0 7h10v2H11v-2z'/%3E%3C/svg%3E");
+  }
+}
+
+:--MathBlock,
+:--MathFragment {
+  &::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='10' height='10'%3E%3Cpath fill='none' d='M0 0h24v24H0z'/%3E%3Cpath d='M5 18l7.68-6L5 6V4h14v2H8.263L16 12l-7.737 6H19v2H5v-2z'/%3E%3C/svg%3E");
+    left: -18px;
   }
 }
 
