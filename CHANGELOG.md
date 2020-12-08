@@ -1,3 +1,11 @@
+## [2.20.5](https://github.com/stencila/thema/compare/v2.20.4...v2.20.5) (2020-12-08)
+
+
+### Bug Fixes
+
+* **RPNG:** Add icons to executable nodes ([c6e9753](https://github.com/stencila/thema/commit/c6e9753497d3e6e37871a91b5a61a505dd2bccd5))
+* **RPNG:** Increase subtedly of affordance ([cb5dd56](https://github.com/stencila/thema/commit/cb5dd564b5b3470db2e578fd0121fe8152a4ab76))
+
 ## [2.20.4](https://github.com/stencila/thema/compare/v2.20.3...v2.20.4) (2020-12-01)
 
 
