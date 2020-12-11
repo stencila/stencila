@@ -5,8 +5,6 @@ Welcome to the main entry point to the Stencila ecosystem. This repo contains th
 > :sparkles: We are undergoing a major reboot in this repository (and many of our others) to build a single entry point for reproducible documents. We will deprecate `stencila/cli` and `stencila/desktop` and instead build those binaries here. We will also be deprecating binary builds of our other repositories as they are integrated into this one.
 
 [![NPM](http://img.shields.io/npm/v/stencila.svg?style=flat)](https://www.npmjs.com/package/stencila)
-[![Build status](https://travis-ci.org/stencila/stencila.svg?branch=master)](https://travis-ci.org/stencila/stencila)
-[![Code coverage](https://codecov.io/gh/stencila/stencila/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/stencila) [![Greenkeeper badge](https://badges.greenkeeper.io/stencila/stencila.svg)](https://greenkeeper.io/)
 
 # Install
 
