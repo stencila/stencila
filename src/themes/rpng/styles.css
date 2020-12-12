@@ -38,7 +38,6 @@
     color: #4e6751;
     content: '';
     height: 14px;
-    left: -8px;
     padding: 1px;
     pointer-events: none;
     position: absolute;
@@ -58,16 +57,24 @@
 :--MathFragment {
   &::before {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='10' height='10'%3E%3Cpath fill='none' d='M0 0h24v24H0z'/%3E%3Cpath d='M5 18l7.68-6L5 6V4h14v2H8.263L16 12l-7.737 6H19v2H5v-2z'/%3E%3C/svg%3E");
-    left: -18px;
   }
 }
 
-/* Add spacing between the dot and the output */
-:--CodeChunk stencila-node-list {
-  padding: 12px !important;
+/* Add spacing between the icon and the output */
+:--CodeChunk stencila-node-list,
+:--CodeExpression .output,
+:--MathBlock > span,
+:--MathFragment > span {
+  padding: 1px 1px 1px 19px !important;
 }
-:--CodeExpression .output {
-  padding: 0 0 0 15px !important;
+
+/* "Remove" spacing for image outputs so that the icon overlaps the image.
+   This is important for round trip conversion of "self-referencing" RPNGs.
+*/
+:--CodeChunk stencila-node-list img,
+:--CodeExpression .output img {
+  position: relative;
+  left: -19px;
 }
 
 /* Hide the UI chrome etc that is not wanted */
