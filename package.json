@@ -106,7 +106,7 @@
     "postcss-custom-selectors": "5.1.2",
     "postcss-extend": "1.0.5",
     "postcss-import": "12.0.1",
-    "postcss-import-url": "git+https://github.com/stencila/postcss-import-url.git",
+    "postcss-import-url": "5.1.0",
     "postcss-loader": "3.0.0",
     "postcss-mixins": "6.2.3",
     "postcss-nested": "4.2.3",
