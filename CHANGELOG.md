@@ -1,3 +1,12 @@
+## [2.20.8](https://github.com/stencila/thema/compare/v2.20.7...v2.20.8) (2020-12-13)
+
+
+### Bug Fixes
+
+* **Deps:** Upgrade to postcss-import-url and npm audit fix ([f4c8bba](https://github.com/stencila/thema/commit/f4c8bba50f54bc867be4790dfb0dfb7e671443a7))
+* **Deps:** Use postcss-import-url v5.1.0 ([9896f35](https://github.com/stencila/thema/commit/9896f35354ccd51de3edcec6721ec97aa32a735b))
+* **RPNG:** Keep icon inside bounding box ([ba55ca9](https://github.com/stencila/thema/commit/ba55ca94daf1664378b4307e4946344ef1f5201d))
+
 ## [2.20.7](https://github.com/stencila/thema/compare/v2.20.6...v2.20.7) (2020-12-09)
 
 
