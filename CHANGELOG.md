@@ -1,3 +1,10 @@
+## [2.20.9](https://github.com/stencila/thema/compare/v2.20.8...v2.20.9) (2021-01-04)
+
+
+### Bug Fixes
+
+* **Deps:** Update dev-dependencies (major) ([8e2db57](https://github.com/stencila/thema/commit/8e2db574f8a255bba34b8b2b80e4fb56a45250b1))
+
 ## [2.20.8](https://github.com/stencila/thema/compare/v2.20.7...v2.20.8) (2020-12-13)
 
 
