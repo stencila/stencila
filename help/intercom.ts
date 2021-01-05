@@ -258,7 +258,9 @@ const postArticle = async (
 ): Promise<IntercomPartialArticle> => {
   core.info(`\n🆕  Parsing file: "${filePath}"`)
 
-  const article = (await read(filePath)) as HelpArticle
+  const article = (await read(filePath, 'md', {
+    shouldCoerce: false,
+  })) as HelpArticle
 
   const bodyRaw = await dump(article, 'html', {
     isStandalone: false,
@@ -323,9 +325,7 @@ const postArticle = async (
     throw new Error(err)
   }
 
-  core.info(
-    `✅ ${index}/${mdPaths.length} Updated article: "${article.title}"`
-  )
+  core.info(`✅ ${index}/${mdPaths.length} Updated article: "${article.title}"`)
   return articlePayload
 }
 
