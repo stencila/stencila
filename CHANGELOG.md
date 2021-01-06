@@ -1,3 +1,10 @@
+## [2.20.10](https://github.com/stencila/thema/compare/v2.20.9...v2.20.10) (2021-01-06)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @stencila/components to ^0.26.7 ([69495ff](https://github.com/stencila/thema/commit/69495ffcaf8cc88f86a8505670cf1fdb42714cbf))
+
 ## [2.20.9](https://github.com/stencila/thema/compare/v2.20.8...v2.20.9) (2021-01-04)
 
 
