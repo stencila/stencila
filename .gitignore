@@ -1,7 +1,5 @@
 .DS_Store
-/stencila-deps
-/stencila-deps.tgz
-/bin
 /coverage
 /dist
 /node_modules
+/target
