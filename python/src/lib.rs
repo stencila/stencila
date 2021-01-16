@@ -25,13 +25,12 @@ use stencila::{
 ///
 /// The `os` argument is a string describing the current operating system
 /// e.g. "windows", "macos", ""linux"
-#[tracing::instrument]
 #[pyfunction]
-fn init(manifest: PyObject, dispatch: PyObject, log_level: Option<String>) -> PyResult<()> {
+fn init(_manifest: PyObject, dispatch: PyObject, log_level: Option<String>) -> PyResult<()> {
     // Initialize logging
     match logging::init(log_level) {
-        Ok() => {}
-        Err(error) => return Err(PyRuntimeError::new_err("error".to_string())),
+        Ok(_) => {}
+        Err(error) => return Err(PyRuntimeError::new_err(error.to_string())),
     };
 
     // Call the manifest function with system information and store
@@ -44,8 +43,7 @@ fn init(manifest: PyObject, dispatch: PyObject, log_level: Option<String>) -> Py
     // and returns a node.
     let python_delegator = Box::new(
         move |method: Method, params: serde_json::Value| -> Result<Node> {
-            let span = tracing::trace_span!("python_delegator");
-            span.enter();
+            let _span = tracing::trace_span!("python_delegator");
 
             // Obtain the Python Global Interpreter Lock
             let gil = Python::acquire_gil();
@@ -71,7 +69,7 @@ fn init(manifest: PyObject, dispatch: PyObject, log_level: Option<String>) -> Py
     let result = DELEGATOR.set(python_delegator);
     match result {
         Ok(_) => Ok(()),
-        Err(_) => return Err(PyRuntimeError::new_err("Failed to set delegator")),
+        Err(_) => Err(PyRuntimeError::new_err("Failed to set delegator")),
     }
 }
 
@@ -88,7 +86,7 @@ fn serve(
     port: Option<u16>,
     background: Option<bool>,
 ) -> PyResult<()> {
-    let protocol = match Protocol::from_str(protocol.unwrap_or("ws".to_string()).as_str()) {
+    let protocol = match Protocol::from_str(protocol.unwrap_or_else(|| "ws".to_string()).as_str()) {
         Ok(value) => Some(value),
         Err(_) => return Err(PyValueError::new_err("Invalid protocol identifier")),
     };
