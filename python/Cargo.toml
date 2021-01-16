@@ -9,4 +9,3 @@ crate-type = ["cdylib"]
 [dependencies]
 stencila = { path = "../rust" }
 pyo3 = { version = "0.13.1", features = ["extension-module"] }
-anyhow = "1.0.38"
