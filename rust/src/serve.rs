@@ -1,4 +1,3 @@
-use crate::decode;
 use crate::nodes::Node;
 use crate::protocols::Protocol;
 use crate::rpc::{Error, Request, Response};
@@ -253,14 +252,8 @@ async fn rejection_handler(
 /// and parameters to a function that returns a result.
 fn respond(request: Request) -> Response {
     let id = request.id();
-    match dispatch(request) {
+    match request.dispatch() {
         Ok(node) => Response::new(id, Some(node), None),
         Err(error) => Response::new(id, None, Some(error)),
-    }
-}
-
-fn dispatch(request: Request) -> Result<Node> {
-    match request {
-        Request::Decode(request) => decode::rpc::decode(request.params),
     }
 }

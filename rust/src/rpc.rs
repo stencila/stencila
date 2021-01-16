@@ -1,4 +1,5 @@
 use crate::nodes::Node;
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,18 +20,28 @@ pub struct GenericRequest<P> {
 #[serde(tag = "method", rename_all = "lowercase")]
 pub enum Request {
     Decode(GenericRequest<crate::decode::rpc::Params>),
+    Execute(GenericRequest<crate::execute::rpc::Params>),
 }
 
 impl Request {
     pub fn id(&self) -> Option<u64> {
         match self {
             Request::Decode(request) => request.id,
+            Request::Execute(request) => request.id,
         }
     }
 
     pub fn method(&self) -> &str {
         match self {
             Request::Decode(_) => "decode",
+            Request::Execute(_) => "execute",
+        }
+    }
+
+    pub fn dispatch(self) -> Result<Node> {
+        match self {
+            Request::Decode(request) => crate::decode::rpc::decode(request.params),
+            Request::Execute(request) => crate::execute::rpc::execute(request.params),
         }
     }
 }

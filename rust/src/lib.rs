@@ -25,6 +25,7 @@ pub mod rpc;
 //pub mod convert;
 pub mod decode;
 pub mod encode;
+pub mod execute;
 pub mod validate;
 
 // Utilities

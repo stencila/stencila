@@ -6,4 +6,5 @@ use strum::{EnumString, EnumVariantNames, ToString};
 pub enum Method {
     Decode,
     Encode,
+    Execute,
 }
