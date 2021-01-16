@@ -1,53 +1,34 @@
 all: format lint cover audit build docs
 
-setup: setup-ts setup-rust
-	
-setup-ts:
-	npm install
-
-setup-rust:
-	rustup component add clippy
-	rustup toolchain install nightly
-	cargo install \
-		cargo-audit --features=fix
-	cargo install \
-		cargo-edit \
-		cargo-strip \
-		cargo-tarpaulin \
-		cargo-udeps \
-		cargo-watch
-	cargo fetch
+# Some Cargo commands which only make sense at this top level (e.g. `clean`)
+# of the Cargo workspace are added below, in addition to those in the
+# `rust` package's `Makefile`.
 
 format:
-	cargo fmt
+	make -C rust format
 
 lint:
-	cargo clippy
+	make -C rust lint
 
 test:
-	cargo test
+	make -C rust test
 
 cover:
-	cargo tarpaulin --ignore-tests --out Html --output-dir coverage
+	make -C rust cover
 
 watch:
-	cargo watch -x 'run -- serve --protocol=ws'
+	make -C rust watch
 
-audit: audit-ts audit-rust
-
-audit-ts:
-	npm audit fix
-
-audit-rust:
-	cargo +nightly udeps
+audit:
+	make -C rust audit
 	cargo audit fix
 
 build:
-	cargo build --release && cargo strip
+	make -C rust build
+	cargo strip
 
 docs:
-	cargo doc
-.PHONY: docs
+	make -C rust docs
 
 clean:
 	cargo clean

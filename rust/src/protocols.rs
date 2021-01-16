@@ -1,6 +1,6 @@
-use strum::{EnumString, EnumVariantNames};
+use strum::{Display, EnumString, EnumVariantNames};
 
-#[derive(Debug, EnumString, EnumVariantNames, PartialEq)]
+#[derive(Debug, Display, EnumString, EnumVariantNames, PartialEq)]
 #[strum(serialize_all = "lowercase")]
 pub enum Protocol {
     #[cfg(any(feature = "delegate-stdio", feature = "serve-stdio"))]

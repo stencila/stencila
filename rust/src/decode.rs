@@ -13,16 +13,16 @@ pub mod cli {
     )]
     pub struct Args {
         /// TODO docs
-        input: String,
+        content: String,
 
         /// TODO docs
         #[structopt(short, long)]
-        from: Option<String>,
+        format: Option<String>,
     }
 
     pub fn decode(args: Args) -> Result<Node> {
-        let Args { input, from } = args;
-        super::decode(input, from.unwrap_or_default())
+        let Args { content, format } = args;
+        super::decode(content, format.unwrap_or_default())
     }
 }
 
@@ -33,33 +33,33 @@ pub mod rpc {
 
     #[derive(Debug, Serialize, Deserialize)]
     pub struct Params {
-        pub input: String,
+        pub content: String,
 
-        pub from: Option<String>,
+        pub format: Option<String>,
     }
 
     pub fn decode(params: Params) -> Result<Node> {
-        let Params { input, from } = params;
-        super::decode(input, from.unwrap_or_default())
+        let Params { content, format } = params;
+        super::decode(content, format.unwrap_or_default())
     }
 }
 
 // Allow these for when no features are enabled
 #[allow(unused_variables, unreachable_code)]
-pub fn decode(input: String, from: String) -> Result<Node> {
-    let node = match from.as_str() {
+pub fn decode(content: String, format: String) -> Result<Node> {
+    let node = match format.as_str() {
         #[cfg(feature = "json")]
-        "json" => serde_json::from_str::<Node>(input.as_str())?,
+        "json" => serde_json::from_str::<Node>(content.as_str())?,
         #[cfg(feature = "yaml")]
-        "yaml" => serde_yaml::from_str::<Node>(input.as_str())?,
+        "yaml" => serde_yaml::from_str::<Node>(content.as_str())?,
         _ => {
             #[cfg(feature = "request")]
             return crate::delegate::delegate(
                 crate::methods::Method::Decode,
-                rpc::Params {
-                    input,
-                    from: Some(from),
-                },
+                serde_json::json!({
+                    "content": content,
+                    "format": format
+                }),
             );
 
             #[cfg(not(feature = "request"))]

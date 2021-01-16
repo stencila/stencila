@@ -33,21 +33,17 @@ pub mod cli {
             port,
         } = args;
 
-        let (join_handle, ..) = super::serve(protocol, address, port)?;
-        join_handle.await?;
+        super::serve(protocol, address, port).await?;
 
         Ok(Node::Null)
     }
 }
 
-pub fn serve(
+pub async fn serve(
     protocol: Option<Protocol>,
     address: Option<String>,
-    port: Option<u16>,
-) -> Result<(
-    tokio::task::JoinHandle<()>,
-    tokio::sync::oneshot::Sender<()>,
-)> {
+    port: Option<u16>
+) -> Result<()> {
     let protocol = protocol.unwrap_or(if cfg!(feature = "serve-stdio") {
         Protocol::Stdio
     } else if cfg!(feature = "serve-http") {
@@ -62,8 +58,31 @@ pub fn serve(
 
     let port = port.unwrap_or(9000);
 
+    let _span = tracing::trace_span!(
+        "serve",
+        %protocol, %address, %port
+    );
+
     match protocol {
-        Protocol::Stdio => todo!(),
+        Protocol::Stdio => {
+            use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
+
+            let stdin = tokio::io::stdin();
+            let mut stdout = tokio::io::stdout();
+
+            let buffer = tokio::io::BufReader::new(stdin);
+            let mut lines = buffer.lines();
+            // TODO capture next_line errors and log them
+            while let Some(line) = lines.next_line().await? {
+                // TODO capture any json errors and send
+                let request = serde_json::from_str::<Request>(&line)?;
+                let response = respond(request);
+                let json = serde_json::to_string(&response)? + "\n";
+                // TODO: unwrap any of these errors and log them
+                stdout.write_all(json.as_bytes()).await?;
+                stdout.flush().await?
+            }
+        },
         Protocol::Http | Protocol::Ws => {
             use warp::Filter;
 
@@ -96,19 +115,56 @@ pub fn serve(
                 .with(cors)
                 .recover(rejection_handler);
 
-            use tokio::sync::oneshot;
-            let (sender, reciever) = oneshot::channel::<()>();
-
-            let (_, server) =
-                warp::serve(routes).bind_with_graceful_shutdown((address, port), async {
-                    reciever.await.ok();
-                });
-
-            let join_handle = tokio::task::spawn(server);
-
-            Ok((join_handle, sender))
+            // Use `try_bind_ephemeral` here to avoid potential panic when using `run`
+            let (_address, future) = warp::serve(routes).try_bind_ephemeral((address, port))?;
+            future.await
         }
-    }
+    };
+
+    Ok(())
+}
+
+/// Run a server in the current thread.
+///
+#[tracing::instrument]
+pub fn serve_blocking(
+    protocol: Option<Protocol>,
+    address: Option<String>,
+    port: Option<u16>
+) -> Result<()> {
+    let mut runtime = tokio::runtime::Runtime::new()?;
+    runtime.block_on(async { serve(protocol, address, port).await })
+}
+
+#[tracing::instrument]
+pub fn serve_background(
+    protocol: Option<Protocol>,
+    address: Option<String>,
+    port: Option<u16>
+) -> Result<()> {
+    // Spawn a thread, start a runtime in it, and serve using that runtime.
+    // Any errors within the thread are logged because we can't return a
+    // `Result` from the thread to the caller of this function.
+    std::thread::spawn(move || {
+        let _span = tracing::trace_span!("serve_in_background");
+
+        let mut runtime = match tokio::runtime::Runtime::new() {
+            Ok(runtime) => runtime,
+            Err(error) => {
+                tracing::error!("{}", error.to_string());
+                return;
+            }
+        };
+        match runtime.block_on(async { serve(protocol, address, port).await }) {
+            Ok(_) => return,
+            Err(error) => {
+                tracing::error!("{}", error.to_string());
+                return;
+            }
+        };
+    });
+
+    Ok(())
 }
 
 fn post_handler(request: Request) -> impl warp::Reply {
@@ -116,7 +172,10 @@ fn post_handler(request: Request) -> impl warp::Reply {
     warp::reply::json(&response)
 }
 
-fn post_wrap_handler(method: String, params: serde_json::Value) -> impl warp::Reply {
+fn post_wrap_handler(
+    method: String,
+    params: serde_json::Value
+) -> impl warp::Reply {
     use warp::http::StatusCode;
     use warp::reply;
 
@@ -194,13 +253,20 @@ async fn rejection_handler(
     }))
 }
 
+/// Respond to a request
+///
+/// Optionally pass a dispatching closure which dispatches the requested method
+/// and parameters to a function that returns a result.
 fn respond(request: Request) -> Response {
-    let id = Request::id(&request);
-    let result = match request {
-        Request::Decode(request) => decode::rpc::decode(request.params),
-    };
-    match result {
+    let id = request.id();
+    match dispatch(request) {
         Ok(node) => Response::new(id, Some(node), None),
         Err(error) => Response::new(id, None, Some(error)),
+    }
+}
+
+fn dispatch(request: Request) -> Result<Node> {
+    match request {
+        Request::Decode(request) => decode::rpc::decode(request.params),
     }
 }

@@ -27,6 +27,12 @@ impl Request {
             Request::Decode(request) => request.id,
         }
     }
+
+    pub fn method(&self) -> &str {
+        match self {
+            Request::Decode(_) => "decode",
+        }
+    }
 }
 
 /// A JSON-RPC 2.0 response

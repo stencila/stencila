@@ -34,10 +34,10 @@ pub fn encode(node: Node, format: String) -> Result<String> {
             {
                 let node = crate::delegate::delegate(
                     crate::methods::Method::Encode,
-                    rpc::Params {
-                        node,
-                        format: Some(format),
-                    },
+                    serde_json::json!({
+                        "node": node,
+                        "format": format,
+                    }),
                 )?;
                 // Delegate returns a node so always convert it to a string
                 return Ok(node.to_string());
