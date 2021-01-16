@@ -86,12 +86,13 @@ fn serve(
     port: Option<u16>,
     background: Option<bool>,
 ) -> PyResult<()> {
-    let protocol = match Protocol::from_str(protocol.unwrap_or_else(|| "ws".to_string()).as_str()) {
+    let protocol = protocol.unwrap_or_else(|| "stdio".to_string());
+    let protocol = match Protocol::from_str(protocol.as_str()) {
         Ok(value) => Some(value),
         Err(_) => return Err(PyValueError::new_err("Invalid protocol identifier")),
     };
 
-    let background = background.unwrap_or(true);
+    let background = background.unwrap_or(false);
 
     // When creating threads that will aquire the GIL, or doing any blocking,
     // it is necessary to call `py.allow_threads`
