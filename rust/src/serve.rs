@@ -42,7 +42,7 @@ pub mod cli {
 pub async fn serve(
     protocol: Option<Protocol>,
     address: Option<String>,
-    port: Option<u16>
+    port: Option<u16>,
 ) -> Result<()> {
     let protocol = protocol.unwrap_or(if cfg!(feature = "serve-stdio") {
         Protocol::Stdio
@@ -82,7 +82,7 @@ pub async fn serve(
                 stdout.write_all(json.as_bytes()).await?;
                 stdout.flush().await?
             }
-        },
+        }
         Protocol::Http | Protocol::Ws => {
             use warp::Filter;
 
@@ -130,7 +130,7 @@ pub async fn serve(
 pub fn serve_blocking(
     protocol: Option<Protocol>,
     address: Option<String>,
-    port: Option<u16>
+    port: Option<u16>,
 ) -> Result<()> {
     let mut runtime = tokio::runtime::Runtime::new()?;
     runtime.block_on(async { serve(protocol, address, port).await })
@@ -140,7 +140,7 @@ pub fn serve_blocking(
 pub fn serve_background(
     protocol: Option<Protocol>,
     address: Option<String>,
-    port: Option<u16>
+    port: Option<u16>,
 ) -> Result<()> {
     // Spawn a thread, start a runtime in it, and serve using that runtime.
     // Any errors within the thread are logged because we can't return a
@@ -156,11 +156,8 @@ pub fn serve_background(
             }
         };
         match runtime.block_on(async { serve(protocol, address, port).await }) {
-            Ok(_) => return,
-            Err(error) => {
-                tracing::error!("{}", error.to_string());
-                return;
-            }
+            Ok(_) => {}
+            Err(error) => tracing::error!("{}", error.to_string()),
         };
     });
 
@@ -172,10 +169,7 @@ fn post_handler(request: Request) -> impl warp::Reply {
     warp::reply::json(&response)
 }
 
-fn post_wrap_handler(
-    method: String,
-    params: serde_json::Value
-) -> impl warp::Reply {
+fn post_wrap_handler(method: String, params: serde_json::Value) -> impl warp::Reply {
     use warp::http::StatusCode;
     use warp::reply;
 

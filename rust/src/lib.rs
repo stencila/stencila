@@ -29,8 +29,8 @@ pub mod validate;
 
 // Utilities
 
-pub mod nodes;
 pub mod logging;
+pub mod nodes;
 
 pub use anyhow;
 pub use env_logger;
