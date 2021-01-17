@@ -324,6 +324,34 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de853764b47027c2e862a995c34978ffa63c1501f2e15f987ba11bd4f9bba193"
 
 [[package]]
+name = "extendr-api"
+version = "0.1.11"
+source = "git+https://github.com/extendr/extendr#e9730419de5f6f0c49b8f23b1da29cf3b0163541"
+dependencies = [
+ "extendr-engine",
+ "extendr-macros",
+ "libR-sys",
+]
+
+[[package]]
+name = "extendr-engine"
+version = "0.1.11"
+source = "git+https://github.com/extendr/extendr#e9730419de5f6f0c49b8f23b1da29cf3b0163541"
+dependencies = [
+ "libR-sys",
+]
+
+[[package]]
+name = "extendr-macros"
+version = "0.1.11"
+source = "git+https://github.com/extendr/extendr#e9730419de5f6f0c49b8f23b1da29cf3b0163541"
+dependencies = [
+ "lazy_static",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "fake-simd"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -871,6 +899,16 @@ name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
+
+[[package]]
+name = "libR-sys"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1cbd8e612a78f2ccbef3d1e4b94ed136996793fc37c8da54e8d50ff04a1a9ad8"
+dependencies = [
+ "kernel32-sys",
+ "winapi 0.3.9",
+]
 
 [[package]]
 name = "libc"
@@ -1815,6 +1853,14 @@ name = "stencila-python"
 version = "0.1.0"
 dependencies = [
  "pyo3",
+ "stencila",
+]
+
+[[package]]
+name = "stencila-r"
+version = "0.1.0"
+dependencies = [
+ "extendr-api",
  "stencila",
 ]
 

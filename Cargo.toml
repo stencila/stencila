@@ -1,9 +1,6 @@
 [workspace]
 
-members = [
-    "rust",
-    "python"
-]
+members = ["rust", "python", "r"]
 
 [profile.release]
 # Settings that help reduce the binary size based on https://github.com/johnthagen/min-sized-rust

@@ -1,0 +1,10 @@
+Package: stencila
+Type: Package
+Title: Stencila for R
+Description: Use Stencila from within R.
+Authors@R: c(person("Nokome", "Bentley", email = "nokome@stenci.la", role = c("aut", "cre")))
+License: MIT
+Version: 0.1.0
+RoxygenNote: 7.1.1
+Suggests:
+    devtools
