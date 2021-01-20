@@ -57,7 +57,7 @@
   "dependencies": {
     "@elifesciences/pattern-library": "0.0.6",
     "@simonwep/pickr": "^1.8.0",
-    "@stencila/components": "^0.26.8",
+    "@stencila/components": "^0.27.0",
     "bootstrap": "^3.4.1",
     "project-name-generator": "^2.1.9",
     "react": "^17.0.1",
