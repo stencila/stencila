@@ -40,10 +40,10 @@
     "url": "https://github.com/stencila/stencila/issues"
   },
   "dependencies": {
-    "@stencila/encoda": "^0.104.1",
-    "@stencila/logga": "^3.0.1",
-    "tar": "^6.0.5",
-    "yargs": "^16.2.0"
+    "@stencila/encoda": "0.104.1",
+    "@stencila/logga": "3.0.1",
+    "tar": "6.0.5",
+    "yargs": "16.2.0"
   },
   "devDependencies": {
     "@actions/core": "1.2.6",
