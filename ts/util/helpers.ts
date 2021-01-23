@@ -18,6 +18,7 @@ export async function readSchemas(
   glob: string | string[] = path.join(
     __dirname,
     '..',
+    '..',
     'public',
     '*.schema.json'
   )
