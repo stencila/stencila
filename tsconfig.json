@@ -4,13 +4,5 @@
     "lib": ["DOM", "ESNext"],
     "outDir": "dist"
   },
-  "include": ["ts/**/*.ts"],
-  // These exclusions are mainly here to avoid these files being in docs
-  // (and in the case of snapshot files, causing TypeScript compile errors during
-  // the generation of docs)
-  "exclude": [
-    "ts/**/__tests__",
-    "ts/**/*.test.ts",
-    "ts/**/bindings/__file_snapshots__"
-  ]
+  "include": ["ts/**/*.ts"]
 }
