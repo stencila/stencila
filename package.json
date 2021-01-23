@@ -30,7 +30,7 @@
     "docs:readme": "markdown-toc -i --maxdepth=4 README.md",
     "docs:contrib": "markdown-toc -i --maxdepth=4 CONTRIBUTING.md",
     "docs:build": "ts-node ts/docs.ts",
-    "docs:api": "ts-node ts/bindings/typescript.ts && typedoc --out ts/docs/ --mode file --exclude '**/*.test.ts' --exclude '**/__tests__/**' --exclude '**/__file_snapshots__/**'",
+    "docs:api": "ts-node ts/bindings/typescript.ts && typedoc ts --out ts/docs/ --exclude **/*__*/**",
     "docs:serve": "npx browser-sync ./public -f ./public --directory --no-ui --reload-debounce 750",
     "clean": "rimraf coverage dist public ts/types.ts ts/docs py/docs r/docs"
   },
