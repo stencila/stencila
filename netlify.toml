@@ -56,3 +56,18 @@
   from = "/v0/*"
   to = "https://unpkg.com/@stencila/schema@0/dist/:splat"
   force = true
+
+[[redirects]]
+  from = "/v1/jsonld"
+  to = "https://unpkg.com/@stencila/schema@1/dist/stencila.jsonld"
+  force = true
+
+[[redirects]]
+  from = "/v1/jsonld/*"
+  to = "https://unpkg.com/@stencila/schema@1/dist/:splat.jsonld"
+  force = true
+
+[[redirects]]
+  from = "/v1/*"
+  to = "https://unpkg.com/@stencila/schema@1/dist/:splat"
+  force = true
