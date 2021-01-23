@@ -79,7 +79,8 @@ jobs:
           echo 'options(repos = "$(CRAN)")' > ~/.Rprofile
           echo ".libPaths(c('$R_LIBS_USER', .libPaths()))" >> ~/.Rprofile
           mkdir -p $(R_LIBS_USER)
-        displayName: Setup R library directory
+          apt update && apt install git -y
+        displayName: Setup R library directory and Git (for codecov)
 
       - script: make -C r setup
         displayName: Install dependencies
@@ -181,7 +182,8 @@ jobs:
           echo 'options(repos = "$(CRAN)")' > ~/.Rprofile
           echo ".libPaths(c('$R_LIBS_USER', .libPaths()))" >> ~/.Rprofile
           mkdir -p $(R_LIBS_USER)
-        displayName: Setup R library directory
+          apt update && apt install git -y
+        displayName: Setup R library directory and Git (for deploying docs)
 
       - script: make -C r setup
         displayName: Install dependencies
