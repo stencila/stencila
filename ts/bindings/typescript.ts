@@ -12,7 +12,7 @@ import {
   filterUnionSchemas,
   getSchemaProperties,
   readSchemas,
-} from '../helpers'
+} from '../util/helpers'
 import { JsonSchema } from '../JsonSchema'
 
 /**

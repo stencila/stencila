@@ -14,7 +14,7 @@ import globby from 'globby'
 import { flow, groupBy, sortBy, startCase, uniq } from 'lodash'
 import flatten from 'lodash.flatten'
 import path from 'path'
-import { readSchemas } from './helpers'
+import { readSchemas } from './util/helpers'
 import log from './log'
 import { JsonSchema } from './JsonSchema'
 import {

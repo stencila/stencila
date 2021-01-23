@@ -12,7 +12,7 @@ import {
   filterUnionSchemas,
   getSchemaProperties,
   readSchemas,
-} from '../helpers'
+} from '../util/helpers'
 import { JsonSchema } from '../JsonSchema'
 
 const MAX_LINE_LENGTH = 75 // Desired max length - 4 to allow for indent

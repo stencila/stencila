@@ -8,7 +8,7 @@
 
 import fs from 'fs-extra'
 import path from 'path'
-import { readSchemas } from '../helpers'
+import { readSchemas } from '../util/helpers'
 import { jsonLdUrl } from '../util'
 
 const STENCILA_CONTEXT_URL = jsonLdUrl()
