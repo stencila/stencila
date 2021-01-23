@@ -463,7 +463,7 @@ const addTypesSchemas = (schemas: Map<string, JsonSchema>): void => {
       const typesTitle = title + 'Types'
       schemas.set(typesTitle, {
         $schema: 'http://json-schema.org/draft-07/schema#',
-        $id: `${SCHEMA_DEST_URL}/${typesTitle}.schema.json`,
+        $id: `${ID_BASE_URL}/${typesTitle}.schema.json`,
         title: typesTitle,
         description: `All type schemas that are derived from ${title}`,
         anyOf: [title, ...descendants].map((descendant) => ({
