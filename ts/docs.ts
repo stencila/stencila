@@ -297,7 +297,7 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
     anyOf,
     allOf,
     $ref,
-    codec,
+    parser,
   } = schema
 
   if (format !== undefined) return [codeFragment({ text: `${type}:${format}` })]
@@ -325,7 +325,7 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
   if (allOf !== undefined)
     return flatten(intersperse(allOf.map(schema2Inlines), andSeparator))
   if ($ref !== undefined) return [linkifyReference($ref)]
-  if (codec !== undefined) return [codeFragment({ text: `codec:${codec}` })]
+  if (parser !== undefined) return [codeFragment({ text: `parser:${parser}` })]
   return [codeFragment({ text: `${type}` })]
 }
 

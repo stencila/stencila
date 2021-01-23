@@ -8,7 +8,7 @@ description: A date encoded as a ISO 8601 string.
 $comment: |
   This type serves mainly to disambiguate an ISO 8601 date string from
   a plain string. It should generally be used instead of a date formatted string.
-codec: date
+parser: date
 properties:
   value:
     '@id': 'schema:value'

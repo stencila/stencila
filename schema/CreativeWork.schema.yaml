@@ -25,7 +25,7 @@ properties:
     # during `coerce()`
     type: array
     allOf:
-      - codec: csi
+      - parser: csi
       - type: array
         items:
           anyOf:
@@ -118,7 +118,7 @@ properties:
     allOf:
       # Allow for a comma separated list of keywords to be decoded to
       # an array of strings
-      - codec: csi
+      - parser: csi
       - type: array
         items:
           type: string

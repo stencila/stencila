@@ -16,7 +16,7 @@
   * [The `status` keyword](#the-status-keyword)
   * [The `description` keyword](#the-description-keyword)
   * [The `aliases` keyword](#the-aliases-keyword)
-  * [The `codec` keyword](#the-codec-keyword)
+  * [The `parser` keyword](#the-parser-keyword)
   * [The `anyOf` keyword](#the-anyof-keyword)
 - [Writing `.md` documentation files](#writing-md-documentation-files)
   * [Generating skeleton](#generating-skeleton)
@@ -151,25 +151,25 @@ properties:
       - lastNames
 ```
 
-### The `codec` keyword
+### The `parser` keyword
 
-A custom keyword which allow you to define allowable shorthand strings for a property or type. The `codec` keyword is used in Encoda's [`coerce`](https://github.com/stencila/encoda/blob/20c12711e7f232fee71a4dfae48ca3e870cb808c/src/util/coerce.ts) function to parse strings into more complex objects e.g. `array`, `Person`.
+A custom keyword which allow you to define allowable shorthand strings for a property or type. The `parser` keyword can be used by validators to coerce strings into more complex objects e.g. `array`, `Person`.
 
-Codecs always take a string but differ in the type that they produce, for example:
+Parsers always take a string but differ in the type that they produce, for example:
 
 - `ssi`: decodes a space separated list of items to an array of strings
 - `csi`: decodes a comma separated list of items to an array of strings
 - `person`: decodes a personal name, email or url to a `Person`
 
-You can specify a codec for both types and properties. To specify a codec for a type, add the `codec` keyword at the top level e.g.
+You can specify a parser for both types and properties. To specify a parser for a type, add the `parser` keyword at the top level e.g.
 
 ```yaml
 title: Person
 ---
-codec: person
+parser: person
 ```
 
-Specifying a codec at the type means that it will be used to attempt to coerce a string to that type. For example, a `CreativeWork` has a `authors` property which could be specified in the schema like this:
+Specifying a parser at the type means that it will be used to attempt to coerce a string to that type. For example, a `CreativeWork` has a `authors` property which could be specified in the schema like this:
 
 ```yaml
 authors:
@@ -210,7 +210,7 @@ intro this JSON:
 }
 ```
 
-You can specify a codec for a _property_ using `anyOf`. For example, to allow `givenNames` to de provided as either a space separated values string or as an array of strings.
+You can specify a parser for a _property_ using `anyOf`. For example, to allow `givenNames` to de provided as either a space separated values string or as an array of strings.
 
 ```yaml
 title: Person
@@ -220,7 +220,7 @@ properties:
   givenNames:
     ...
     anyOf:
-      - codec: ssi
+      - parser: ssi
       - type: array
         items:
           type: strings

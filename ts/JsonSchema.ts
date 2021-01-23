@@ -95,10 +95,10 @@ export interface JsonSchema extends JSONSchema7 {
   propertyAliases?: { [key: string]: string }
 
   /**
-   * The name of a Encoda codec that can be used to decode
+   * The name of a parser that can be used to decode
    * values for this schema.
    */
-  codec?: string
+  parser?: string
 
   /**
    * The file in which this schema is defined.
