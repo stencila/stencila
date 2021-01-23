@@ -1,6 +1,6 @@
 # 📑 Schema
 
-**Extensions to schema.org to support structured, semantic, and executable documents**
+**Extensions to schema.org to support semantic, composable, parameterize-able and executable documents**
 
 [![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.schema?branchName=master)](https://dev.azure.com/stencila/stencila/_build/latest?definitionId=9&branchName=master)
 [![Code coverage](https://codecov.io/gh/stencila/schema/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/schema)
@@ -15,19 +15,20 @@
 
 <!-- toc -->
 
-- [�️ Contents](#%f0%9f%97%83%ef%b8%8f-contents)
-- [👋 Introduction](#%f0%9f%91%8b-introduction)
-  - [Why an extension to schema.org?](#why-an-extension-to-schemaorg)
-  - [It's about names, not formats](#its-about-names-not-formats)
-  - [But, sometimes (often) we need more than just names](#but-sometimes-often-we-need-more-than-just-names)
-  - [Using JSON Schema for validation and type safety](#using-json-schema-for-validation-and-type-safety)
-  - [But, JSON Schema can be a pain to write](#but-json-schema-can-be-a-pain-to-write)
-- [📜 Documentation](#%f0%9f%93%9c-documentation)
-- [🚀 Usage](#%f0%9f%9a%80-usage)
-  - [JSON-LD context](#json-ld-context)
-  - [Programming language bindings](#programming-language-bindings)
-- [🛠 Contributing](#%f0%9f%9b%a0-contributing)
-- [🙏 Acknowledgments](#%f0%9f%99%8f-acknowledgments)
+- [📑 Schema](#-schema)
+  - [🗃️ Contents](#️-contents)
+  - [👋 Introduction](#-introduction)
+    - [Why an extension to schema.org?](#why-an-extension-to-schemaorg)
+    - [It's about names, not formats](#its-about-names-not-formats)
+    - [But, sometimes (often) we need more than just names](#but-sometimes-often-we-need-more-than-just-names)
+    - [Using JSON Schema for validation and type safety](#using-json-schema-for-validation-and-type-safety)
+    - [But, JSON Schema can be a pain to write](#but-json-schema-can-be-a-pain-to-write)
+  - [📜 Documentation](#-documentation)
+  - [🚀 Usage](#-usage)
+    - [JSON-LD context](#json-ld-context)
+    - [Programming language bindings](#programming-language-bindings)
+  - [🛠 Contributing](#-contributing)
+  - [🙏 Acknowledgments](#-acknowledgments)
 
 <!-- tocstop -->
 
@@ -35,7 +36,7 @@
 
 ## 👋 Introduction
 
-This is the Stencila Schema, an extension to [schema.org](https://schema.org) to support structured, semantic, and executable documents. It also provides implementations of schema.org types (and our extensions) for several languages including JSON Schema, Typescript, Python and R. It is a central part of our platform that is used widely throughout our open-source tools as the data model for executable documents.
+This is the Stencila Schema, an extension to [schema.org](https://schema.org) to support semantic, composable, parameterize-able and executable documents (we call them _stencils_ for short). It also provides implementations of schema.org types (and our extensions) for several languages including JSON Schema, Typescript, Python and R. It is a central part of our platform that is used widely throughout our open-source tools as the data model for executable documents.
 
 ### Why an extension to schema.org?
 
