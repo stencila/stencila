@@ -1,3 +1,23 @@
+# [1.0.0](https://github.com/stencila/schema/compare/v0.47.2...v1.0.0) (2021-01-23)
+
+
+### Bug Fixes
+
+* **Helpers:** Account for change in directory ([4b0e079](https://github.com/stencila/schema/commit/4b0e0797e7291de5bc6b6b07dff8de90a1497bfc))
+* **JSON Schemas:** Fix the base URL for "types schemas" ([10e9b35](https://github.com/stencila/schema/commit/10e9b3500f58cc5456bea2b274ddee18d1daf811)), closes [#238](https://github.com/stencila/schema/issues/238)
+* **Package:** Export JsonSchema type ([e328278](https://github.com/stencila/schema/commit/e32827832757c7a8b92d09ffcf728bc85d8054e3)), closes [#240](https://github.com/stencila/schema/issues/240)
+* **R:** Update NAMESPACE file ([aec2b25](https://github.com/stencila/schema/commit/aec2b254c236e5355a8aebda2bec948b4858e384))
+
+
+### Code Refactoring
+
+* **Parser keyword:** Rename `codec` keyword to `parser` ([de26e9f](https://github.com/stencila/schema/commit/de26e9f52dc380155e42211c80c029f1369704d2)), closes [#241](https://github.com/stencila/schema/issues/241)
+
+
+### BREAKING CHANGES
+
+* **Parser keyword:** Renaming of `codec` keyword to `parser` will break existing validation / coercion.
+
 ## [0.47.2](https://github.com/stencila/schema/compare/v0.47.1...v0.47.2) (2020-11-19)
 
 
