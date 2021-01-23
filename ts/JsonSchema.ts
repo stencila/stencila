@@ -18,7 +18,7 @@ import { JSONSchema7 } from 'json-schema'
  *
  * For more details see the guidelines for authoring schemas.
  */
-export default interface JsonSchema extends JSONSchema7 {
+export interface JsonSchema extends JSONSchema7 {
   /**
    * The id for the type or property schema to be used
    * when generating JSON-LD.

@@ -9,7 +9,7 @@
 
 import fs from 'fs'
 import path from 'path'
-import JsonSchema from '../jsonSchema'
+import { JsonSchema } from '../JsonSchema'
 
 // Lazily loaded set of JSON Schemas
 let SCHEMAS: Record<string, JsonSchema> = {}

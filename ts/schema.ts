@@ -12,7 +12,7 @@ import yaml from 'js-yaml'
 import cloneDeep from 'lodash.clonedeep'
 import path from 'path'
 import log from './log'
-import JsonSchema from './jsonSchema'
+import { JsonSchema } from './JsonSchema'
 import { versionMajor } from './util/version'
 
 const SCHEMA_SOURCE_DIR = path.join(__dirname, '..', 'schema')

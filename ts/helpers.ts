@@ -8,8 +8,7 @@ import fs from 'fs-extra'
 import globby from 'globby'
 import path from 'path'
 import toposort from 'toposort'
-import JsonSchema from './jsonSchema'
-export { default as Schema } from './jsonSchema'
+import { JsonSchema } from './JsonSchema'
 
 /**
  * Read the schemas from `public/*.schema.json` and dereference

@@ -10,8 +10,8 @@ import {
   filterUnionSchemas,
   getSchemaProperties,
   readSchemas,
-  Schema,
 } from '../helpers'
+import { JsonSchema } from '../JsonSchema'
 
 /**
  * Run `build()` when this file is run as a Node script
@@ -51,7 +51,7 @@ ${unionsCode}
 /**
  * Generate a constructor function for a normal type.
  */
-export function classGenerator(schema: Schema): string {
+export function classGenerator(schema: JsonSchema): string {
   const { title = 'Untitled', extends: parent, description = title } = schema
   const { all, inherited, own } = getSchemaProperties(schema)
 
@@ -100,7 +100,7 @@ export function classGenerator(schema: Schema): string {
 /**
  * Generate a `Union` type.
  */
-export function unionGenerator(schema: Schema): string {
+export function unionGenerator(schema: JsonSchema): string {
   const { title = '', description = title } = schema
   let code = docComment(description, ['@export'])
   code += `${title} <- ${schemaToType(schema)}\n\n`
@@ -125,7 +125,7 @@ function docComment(description: string, tags: string[] = []): string {
 /**
  * Convert a schema definition to a R class
  */
-function schemaToType(schema: Schema): string {
+function schemaToType(schema: JsonSchema): string {
   const { type, anyOf, allOf, $ref } = schema
 
   if ($ref !== undefined) return `${$ref.replace('.schema.json', '')}`
@@ -147,7 +147,7 @@ function schemaToType(schema: Schema): string {
 /**
  * Convert a schema with the `anyOf` property to a `Union` type checker.
  */
-function anyOfToType(anyOf: Schema[]): string {
+function anyOfToType(anyOf: JsonSchema[]): string {
   const types = anyOf
     .map((schema) => schemaToType(schema))
     .reduce(
@@ -162,7 +162,7 @@ function anyOfToType(anyOf: Schema[]): string {
 /**
  * Convert a schema with the `allOf` property to a type.
  */
-function allOfToType(allOf: Schema[]): string {
+function allOfToType(allOf: JsonSchema[]): string {
   if (allOf.length === 1) return schemaToType(allOf[0])
   else return schemaToType(allOf[allOf.length - 1])
 }
@@ -170,7 +170,7 @@ function allOfToType(allOf: Schema[]): string {
 /**
  * Convert a schema with the `array` property to an `Array` type checker.
  */
-function arrayToType(schema: Schema): string {
+function arrayToType(schema: JsonSchema): string {
   const items = Array.isArray(schema.items)
     ? anyOfToType(schema.items)
     : schema.items !== undefined

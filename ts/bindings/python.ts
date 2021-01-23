@@ -12,8 +12,8 @@ import {
   filterUnionSchemas,
   getSchemaProperties,
   readSchemas,
-  Schema,
 } from '../helpers'
+import { JsonSchema } from '../JsonSchema'
 
 const MAX_LINE_LENGTH = 75 // Desired max length - 4 to allow for indent
 
@@ -102,7 +102,7 @@ function formatDocstring(description: string): string {
 /**
  * Generate a `class`.
  */
-export function classGenerator(schema: Schema): string {
+export function classGenerator(schema: JsonSchema): string {
   const { title, extends: parent, description } = schema
   assert(title !== undefined)
 
@@ -166,7 +166,7 @@ export function classGenerator(schema: Schema): string {
 /**
  * Generate a `Union` type.
  */
-export function unionGenerator(schema: Schema): string {
+export function unionGenerator(schema: JsonSchema): string {
   const { title = '', description } = schema
   let code = ''
   if (description !== undefined) {
@@ -179,7 +179,7 @@ export function unionGenerator(schema: Schema): string {
 /**
  * Convert a schema definition to a Python type
  */
-function schemaToType(schema: Schema): string {
+function schemaToType(schema: JsonSchema): string {
   const { type, anyOf, allOf, $ref } = schema
 
   if ($ref !== undefined) return `"${$ref.replace('.schema.json', '')}"`
@@ -201,7 +201,7 @@ function schemaToType(schema: Schema): string {
 /**
  * Convert a schema with the `anyOf` property to a Python `Union` type.
  */
-function anyOfToType(anyOf: Schema[]): string {
+function anyOfToType(anyOf: JsonSchema[]): string {
   const types = anyOf
     .map((schema) => schemaToType(schema))
     .reduce(
@@ -222,7 +222,7 @@ function anyOfToType(anyOf: Schema[]): string {
  * used on a property and the last schema is the final, expected, type of
  * the property).
  */
-function allOfToType(allOf: Schema[]): string {
+function allOfToType(allOf: JsonSchema[]): string {
   if (allOf.length === 1) return schemaToType(allOf[0])
   else return schemaToType(allOf[allOf.length - 1])
 }
@@ -230,7 +230,7 @@ function allOfToType(allOf: Schema[]): string {
 /**
  * Convert a schema with the `array` property to a Python `Array` type.
  */
-function arrayToType(schema: Schema): string {
+function arrayToType(schema: JsonSchema): string {
   const items = Array.isArray(schema.items)
     ? anyOfToType(schema.items)
     : schema.items !== undefined

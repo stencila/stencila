@@ -12,8 +12,8 @@ import {
   filterUnionSchemas,
   getSchemaProperties,
   readSchemas,
-  Schema,
 } from '../helpers'
+import { JsonSchema } from '../JsonSchema'
 
 /**
  * Runs Prettier to beautify code contents based on the project settings
@@ -72,7 +72,7 @@ ${await generateTypeMaps()}
  * Generate a `interface Types`, that maps all types
  * and can be used to get a type from its name at compile time.
  */
-export const typesInterface = (schemas: Schema[]): string => {
+export const typesInterface = (schemas: JsonSchema[]): string => {
   return `export interface Types {\n${schemas
     .map(({ title }) =>
       title !== undefined ? `  ${title}: ${titleToType(title)}` : ''
@@ -101,7 +101,7 @@ export const titleToType = (title: string): string => {
 /**
  * Generate a `interface` and a factory function for each type.
  */
-export const interfaceGenerator = (schema: Schema): string => {
+export const interfaceGenerator = (schema: JsonSchema): string => {
   const {
     title = 'Undefined',
     extends: parent,
@@ -155,7 +155,7 @@ export const interfaceGenerator = (schema: Schema): string => {
 /**
  * Generate a `Union` type.
  */
-export const unionGenerator = (schema: Schema): string => {
+export const unionGenerator = (schema: JsonSchema): string => {
   const { title = '', description } = schema
   return (
     docComment(description) +
@@ -194,7 +194,7 @@ const docComment = (description?: string, tags: string[] = []): string => {
 /**
  * Convert a JSON Schema definition to a Typescript type
  */
-const schemaToType = (schema: Schema): string => {
+const schemaToType = (schema: JsonSchema): string => {
   const { type, anyOf, allOf, $ref } = schema
 
   if ($ref !== undefined) return $refToType($ref)
@@ -225,7 +225,7 @@ const $refToType = ($ref: string): string => {
 /**
  * Convert a JSON Schema with the `anyOf` property to a Typescript `Union` type.
  */
-const anyOfToType = (anyOf: Schema[]): string => {
+const anyOfToType = (anyOf: JsonSchema[]): string => {
   const types = anyOf
     .map((schema) => schemaToType(schema))
     .reduce(
@@ -246,7 +246,7 @@ const anyOfToType = (anyOf: Schema[]): string => {
  * used on a property and the last schema is the final, expected, type of
  * the property).
  */
-const allOfToType = (allOf: Schema[]): string => {
+const allOfToType = (allOf: JsonSchema[]): string => {
   if (allOf.length === 1) return schemaToType(allOf[0])
   else return schemaToType(allOf[allOf.length - 1])
 }
@@ -257,7 +257,7 @@ const allOfToType = (allOf: Schema[]): string => {
  * Uses the more explicity `Array<>` syntax over the shorter`[]` syntax
  * because the latter necessitates the use of, sometime superfluous, parentheses.
  */
-const arrayToType = (schema: Schema): string => {
+const arrayToType = (schema: JsonSchema): string => {
   const items = Array.isArray(schema.items)
     ? anyOfToType(schema.items)
     : schema.items !== undefined

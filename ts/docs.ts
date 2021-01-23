@@ -16,7 +16,7 @@ import flatten from 'lodash.flatten'
 import path from 'path'
 import { readSchemas } from './helpers'
 import log from './log'
-import JsonSchema from './jsonSchema'
+import { JsonSchema } from './JsonSchema'
 import {
   Article,
   article,
