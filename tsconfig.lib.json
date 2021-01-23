@@ -6,5 +6,5 @@
     "module": "esnext"
   },
   "include": ["ts/**/*.ts"],
-  "exclude": ["*.test.ts", "ts/__tests__", "ts/bindings/__file_snapshots__"]
+  "exclude": ["ts/**/*.test.ts", "ts/**/__tests__", "ts/**/bindings"]
 }
