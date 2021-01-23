@@ -49,7 +49,7 @@ test_that("arguments to constructor functions are checked", {
         )
       )
     ),
-    "DatatableColumn\\$values is type matrix, expected type Array\\(Any\\(\\)\\)"
+    "DatatableColumn\\$values is type array, expected type Array\\(Any\\(\\)\\)"
   )
 
   expect_error(
