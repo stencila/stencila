@@ -10,21 +10,21 @@ regen:
 	npm run build:py
 
 lint:
-	pylint stencila/schema
-	mypy stencila/schema --ignore-missing-imports
+	python3 -m pylint stencila/schema
+	python3 -m mypy stencila/schema --ignore-missing-imports
 
 format:
-	black --exclude stencila/schema/types.py ./stencila ./*.py
+	python3 -m black --exclude stencila/schema/types.py ./stencila ./*.py
 
 test:
-	tox
+	python3 -m tox
 
 build:
 	python3 setup.py sdist bdist_wheel
 .PHONY: build
 
 docs:
-	pdoc --html --output-dir docs --force ./stencila/schema
+	python3 -m pdoc --html --output-dir docs --force ./stencila/schema
 	mv docs/schema/* docs
 	rmdir docs/schema
 .PHONY: docs
