@@ -2,11 +2,20 @@
 
 **Extensions to schema.org to support semantic, composable, parameterize-able and executable documents**
 
+<br>
+
 [![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.schema?branchName=master)](https://dev.azure.com/stencila/stencila/_build/latest?definitionId=9&branchName=master)
 [![Code coverage](https://codecov.io/gh/stencila/schema/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/schema)
 [![Netlify](https://img.shields.io/netlify/b0e0d714-29f1-4ad1-8a7d-1af7799fb85b)](https://app.netlify.com/sites/stencila-schema/deploys)
 [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://schema.stenci.la/)
 [![Community](https://img.shields.io/badge/join-community-green.svg)](https://discord.gg/uFtQtk9)
+
+
+[![NPM](https://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema)
+[![PyPI](https://img.shields.io/pypi/v/stencila-schema.svg)](https://pypi.org/project/stencila-schema)
+[![CRAN](https://www.r-pkg.org/badges/version-last-release/stencilaschema)](https://cran.r-project.org/web/packages/stencilaschema/)
+
+<br>
 
 ## 🗃️ Contents
 
@@ -15,20 +24,18 @@
 
 <!-- toc -->
 
-- [📑 Schema](#-schema)
-  - [🗃️ Contents](#️-contents)
-  - [👋 Introduction](#-introduction)
-    - [Why an extension to schema.org?](#why-an-extension-to-schemaorg)
-    - [It's about names, not formats](#its-about-names-not-formats)
-    - [But, sometimes (often) we need more than just names](#but-sometimes-often-we-need-more-than-just-names)
-    - [Using JSON Schema for validation and type safety](#using-json-schema-for-validation-and-type-safety)
-    - [But, JSON Schema can be a pain to write](#but-json-schema-can-be-a-pain-to-write)
-  - [📜 Documentation](#-documentation)
-  - [🚀 Usage](#-usage)
-    - [JSON-LD context](#json-ld-context)
-    - [Programming language bindings](#programming-language-bindings)
-  - [🛠 Contributing](#-contributing)
-  - [🙏 Acknowledgments](#-acknowledgments)
+- [👋 Introduction](#%F0%9F%91%8B-introduction)
+  * [Why an extension to schema.org?](#why-an-extension-to-schemaorg)
+  * [It's about names, not formats](#its-about-names-not-formats)
+  * [But, sometimes (often) we need more than just names](#but-sometimes-often-we-need-more-than-just-names)
+  * [Using JSON Schema for validation and type safety](#using-json-schema-for-validation-and-type-safety)
+  * [But, JSON Schema can be a pain to write](#but-json-schema-can-be-a-pain-to-write)
+- [📜 Documentation](#%F0%9F%93%9C-documentation)
+- [🚀 Usage](#%F0%9F%9A%80-usage)
+  * [JSON-LD context](#json-ld-context)
+  * [Programming language bindings](#programming-language-bindings)
+- [🛠 Contributing](#%F0%9F%9B%A0-contributing)
+- [🙏 Acknowledgments](#%F0%9F%99%8F-acknowledgments)
 
 <!-- tocstop -->
 
@@ -40,7 +47,7 @@ This is the Stencila Schema, an extension to [schema.org](https://schema.org) to
 
 ### Why an extension to schema.org?
 
-Schema.org is _"a collaborative, community activity with a mission to create, maintain, and promote schemas for structured data on the Internet, on web pages, in email messages, and beyond."_ Schema.org is is used by most major search engines to provide richer, more semantic, search results. More and more web sites are using the schema.org vocabulary and there is increasing uptake in the research community e.g. bioschemas.org, codemeta.github.io
+Schema.org is _"a collaborative, community activity with a mission to create, maintain, and promote schemas for structured data on the Internet, on web pages, in email messages, and beyond."_. Schema.org is is used by most major search engines to provide richer, more semantic, search results. More and more web sites are using the schema.org vocabulary and there is increasing uptake in the research community e.g. bioschemas.org, codemeta.github.io
 
 The [schema.org vocabulary](https://schema.org/docs/full.html) encompasses many varied concepts and topics. Of particular relevance to Stencila are types for research outputs such as [`ScholarlyArticle`](https://schema.org/CreativeWork), [`Dataset`](https://schema.org/Dataset) and [`SoftwareSourceCode`](https://schema.org/SoftwareSourceCode) and their associated meta data e.g. [`Person`](https://schema.org/Person), [`Organization`](https://schema.org/Organization), and [`Organization`](https://schema.org/Organization).
 
