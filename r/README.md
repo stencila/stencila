@@ -5,7 +5,7 @@
 [![CRAN](https://www.r-pkg.org/badges/version-last-release/schema)](https://cran.r-project.org/web/packages/stencilaschema/)
 [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/r/docs)
 
-This package provides R bindings for the [Stencila Schema](https://schema.stenci.la). It is primarily aimed at R developers wanting to programmatically generate, or modify, executable documents. For example, it is used in [`rasta`](https://github.com/stencila/rasta), an interpreter for executable documents containing R code.
+This package provides R bindings for the [Stencila Schema](https://schema.stenci.la). It is primarily aimed at R developers wanting to programmatically generate, or modify, executable documents. For example, it is used in [`rasta`](https://github.com/stencila/rasta), a Stencila plugin for R.
 
 ## Install
 

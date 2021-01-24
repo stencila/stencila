@@ -7,7 +7,7 @@
 [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/py/docs)
 
 This package provides Python bindings for the [Stencila Schema](https://schema.stenci.la) for executable documents.
-It is primarily aimed at Python developers wanting to programmatically generate, or modify, executable documents. For example, it is used in [`pyla`](https://github.com/stencila/pyla), an interpreter for executable documents containing Python code.
+It is primarily aimed at Python developers wanting to programmatically generate, or modify, executable documents. For example, it is used in [`pyla`](https://github.com/stencila/pyla), a Stencila plugin for Python.
 
 ## Install
 
