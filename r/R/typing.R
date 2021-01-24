@@ -64,6 +64,8 @@ print.Union <- function(x) { # nolint
 }
 
 #' An enumeration
+#'
+#' @param ... The values in the enumeration
 #' @export
 Enum <- function(...) {
   self <- list(values = c(...))
@@ -82,16 +84,24 @@ print.Enum <- function(x) { # nolint
 
 #' Get the last class for an object
 #' The last class is usually the "highest" in the inheritance tree
+#'
+#' @param obj The object to get the last class for
 last_class <- function(obj) {
   utils::tail(class(obj), n = 1)
 }
 
 #' Is a value of a particular class
+#'
+#' @param value The value to check
+#' @param clas The class the check against
 is_class <- function(value, clas) {
   last_class(value) == clas
 }
 
 #' Does a value conform to the type?
+#'
+#' @param value The value to check
+#' @param type The type to check against
 is_type <- function(value, type) { # nolint
   type_class <- last_class(type)
   if (type_class == "function") {
@@ -138,6 +148,8 @@ is_type <- function(value, type) { # nolint
 }
 
 #' Declare that a node is scalar
+#'
+#' @param node The node to declare as a scalar
 as_scalar <- function(node) {
   # Make other values "scalar" so that they are "unboxed"
   # when serialized to JSON
@@ -147,6 +159,9 @@ as_scalar <- function(node) {
 
 #' Coerce a value to conform to the type
 #' Principally, marks values as scalar where possible
+#'
+#' @param value The value to coerce
+#' @param type The type to coerce it to
 as_type <- function(value, type) { #nolint
   primitive_types <- c("logical", "numeric", "character")
 
@@ -183,6 +198,13 @@ as_type <- function(value, type) { #nolint
 
 #' Check that a value is present if required and conforms to the
 #' specified type for a property.
+#'
+#' @param type_name The name of the type that they property is on
+#' @param property_name The name of the property
+#' @param is_required Is a value for the property required?
+#' @param is_missing Is a value for the property missing?
+#' @param value The value to check
+#' @param type The type to check against
 check_property <- function(type_name, property_name, is_required, is_missing, type, value) {
   if (is_required && is_missing) {
     stop(
