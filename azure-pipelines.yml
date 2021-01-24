@@ -136,6 +136,8 @@ jobs:
 
       - script: bash ci.sh deploy_typescript_docs_to_pages
         displayName: Release docs
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
 
   - job: deploy_python
     dependsOn: [deploy_typescript]
@@ -165,6 +167,8 @@ jobs:
 
       - script: bash ci.sh deploy_python_docs_to_pages
         displayName: Release docs
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
 
   - job: deploy_r
     dependsOn: [deploy_typescript]
@@ -192,3 +196,5 @@ jobs:
 # Git is not available in rstudio/r-base:4.0-focal currently being used
 #      - script: bash ci.sh deploy_r_docs_to_pages
 #        displayName: Release docs
+#        env:
+#          GITHUB_TOKEN: $(GITHUB_TOKEN)
