@@ -47,7 +47,7 @@
   "devDependencies": {
     "@stencila/dev-config": "1.4.131",
     "@stencila/encoda": "0.104.5",
-    "@stencila/logga": "3.0.1",
+    "@stencila/logga": "4.0.0",
     "@stoplight/json-ref-resolver": "3.1.0",
     "@types/fs-extra": "9.0.6",
     "@types/jest": "26.0.20",
