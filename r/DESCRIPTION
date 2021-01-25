@@ -1,23 +1,26 @@
 Package: stencilaschema
-Title: R bindings for Stencila Schema
-Description: R classes for each of the types in the Stencila Schema.
+Title: Bindings for Stencila Schema
+Description: Provides R bindings for the Stencila Schema <https://schema.stenci.la>. It is primarily aimed at R developers wanting to programmatically generate, or modify, executable documents.
 Authors@R: c(
     person("Nokome", "Bentley", email = "nokome@stenci.la", role = c("aut", "cre"))
   )
 URL: https://github.com/stencila/schema#readme
 BugReports: https://github.com/stencila/schema/issues
 License: file LICENSE
-Version: 0.0.1
+Language: en-gb
+Version: 1.0.0
 Encoding: UTF-8
 Suggests:
     covr,
     devtools,
     lintr,
     pkgdown,
+    rhub,
     roxygen2,
+    spelling,
     testthat
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1.9000
+RoxygenNote: 7.1.1
 Collate:
     'typing.R'
     'types.R'

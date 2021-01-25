@@ -32,5 +32,11 @@ docs:
 install: build
 	Rscript -e 'devtools::install()'
 
+release: clean regen build
+	Rscript -e 'devtools::check()'
+	Rscript -e 'devtools::spell_check()'
+	Rscript -e 'devtools::check_rhub()'
+	Rscript -e 'devtools::check_win_devel()'
+
 clean:
 	rm -rf man stencilaschema_*.tar.gz stencilaschema.Rcheck
