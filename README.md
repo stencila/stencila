@@ -27,20 +27,18 @@ R | [![CRAN](https://www.r-pkg.org/badges/version-last-release/stencilaschema)](
 
 <!-- toc -->
 
-- [� Schema](#-schema)
-  - [🗃️ Contents](#️-contents)
-  - [👋 Introduction](#-introduction)
-    - [Why an extension to schema.org?](#why-an-extension-to-schemaorg)
-    - [It's about names, not formats](#its-about-names-not-formats)
-    - [But, sometimes (often) we need more than just names](#but-sometimes-often-we-need-more-than-just-names)
-    - [Using JSON Schema for validation and type safety](#using-json-schema-for-validation-and-type-safety)
-    - [But, JSON Schema can be a pain to write](#but-json-schema-can-be-a-pain-to-write)
-  - [📜 Documentation](#-documentation)
-  - [🚀 Usage](#-usage)
-    - [JSON-LD context](#json-ld-context)
-    - [Programming language bindings](#programming-language-bindings)
-  - [🛠 Contributing](#-contributing)
-  - [🙏 Acknowledgments](#-acknowledgments)
+- [👋 Introduction](#%F0%9F%91%8B-introduction)
+  * [Why an extension to schema.org?](#why-an-extension-to-schemaorg)
+  * [It's about names, not formats](#its-about-names-not-formats)
+  * [But, sometimes (often) we need more than just names](#but-sometimes-often-we-need-more-than-just-names)
+  * [Using JSON Schema for validation and type safety](#using-json-schema-for-validation-and-type-safety)
+  * [But, JSON Schema can be a pain to write](#but-json-schema-can-be-a-pain-to-write)
+- [📜 Documentation](#%F0%9F%93%9C-documentation)
+- [🚀 Usage](#%F0%9F%9A%80-usage)
+  * [JSON-LD context](#json-ld-context)
+  * [Programming language bindings](#programming-language-bindings)
+- [🛠 Contributing](#%F0%9F%9B%A0-contributing)
+- [🙏 Acknowledgments](#%F0%9F%99%8F-acknowledgments)
 
 <!-- tocstop -->
 
