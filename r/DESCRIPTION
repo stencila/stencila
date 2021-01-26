@@ -1,6 +1,6 @@
 Package: stencilaschema
 Title: Bindings for Stencila Schema
-Description: Provides R bindings for the Stencila Schema <https://schema.stenci.la>. It is primarily aimed at R developers wanting to programmatically generate, or modify, executable documents.
+Description: Provides R bindings for the Stencila Schema <https://schema.stenci.la>. This package is primarily aimed at R developers wanting to programmatically generate, or modify, executable documents.
 Authors@R: c(
     person("Nokome", "Bentley", email = "nokome@stenci.la", role = c("aut", "cre"))
   )
