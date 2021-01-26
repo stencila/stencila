@@ -6,7 +6,7 @@ Authors@R: c(
   )
 URL: https://github.com/stencila/schema#readme
 BugReports: https://github.com/stencila/schema/issues
-License: file LICENSE
+License: Apache License (>= 2)
 Language: en-gb
 Version: 1.0.0
 Encoding: UTF-8
