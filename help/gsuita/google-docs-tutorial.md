@@ -16,6 +16,6 @@ The tutorial covers the following steps:
 - Install the add-on
 - Open the add-on
 - Sign up / into the hub
-- Create a new project or link to an existing one 
+- Create a new project or link to an existing one
 - Add code blocks
 - Create your first chart
