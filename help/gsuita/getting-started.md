@@ -28,7 +28,7 @@ You will then be able to create, evaluate, and embed either Code or Equation Blo
 
 ## Code & Equations Blocks
 
-Blocks are the basic building blocks for writing executable Google Docs.
+Blocks are the foundational elements for writing executable Google Docs.
 
 They are PNG images enriched with either source code or LaTeX equations depending on the type of block, as well as other metadata such as resulting output and time of execution.
 
