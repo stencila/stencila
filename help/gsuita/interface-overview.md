@@ -1,5 +1,7 @@
 ---
 title: Add-on interface overview
+collectionId: 2378614
+published: true
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
 ---

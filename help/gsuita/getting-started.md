@@ -1,6 +1,8 @@
 ---
 title: Getting started
 description: Overview of the workflows for executing code in your documents
+collectionId: 2378614
+published: true
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
 ---
