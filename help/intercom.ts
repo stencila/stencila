@@ -7,9 +7,8 @@ import path from 'path'
 import { Article, isA, Organization, Person } from '@stencila/schema'
 import { dump, read, write } from '@stencila/encoda'
 
-const mdPaths = glob.sync(
-  path.join(__dirname, '/{formats,glossary,guides,hub}/**/*.md')
-)
+const mdPaths = glob.sync([path.join(__dirname, '**/*.md'), '!**/template.md'])
+
 const authToken = process.env.INTERCOM_AUTH_TOKEN
 const intercomUrl = 'https://intercom.help/stencila/en/articles'
 
@@ -189,7 +188,7 @@ const createAuthorsSection = (authors: (Person | Organization)[] = []) => (
 
 <ul>
 ${authors.reduce(
-  (allAuthors: string, author, idx) =>
+  (allAuthors: string, author) =>
     isA('Organization', author)
       ? allAuthors
       : `${allAuthors}<li>${formatAuthor(author)}</li>`,
@@ -286,7 +285,7 @@ const postArticle = async (
   const articlePayload: IntercomPartialArticle = {
     author_id: authorId,
     body,
-    description: article.description,
+    description: article.description ?? '',
     id: article.id,
     parent_id: article.collectionId,
     parent_type:

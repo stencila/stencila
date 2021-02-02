@@ -1,5 +1,6 @@
 ---
 title: Add-on interface overview
+description: 'A look at the add-on interface, buttons, and what they do'
 collectionId: 2378614
 published: true
 authors:
