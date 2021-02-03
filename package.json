@@ -50,7 +50,7 @@
     "@stencila/dev-config": "1.4.131",
     "@types/browser-sync": "2.26.1",
     "@types/tar": "4.0.4",
-    "@types/yargs": "15.0.13",
+    "@types/yargs": "16.0.0",
     "dependency-check": "4.1.0",
     "globby": "11.0.2",
     "got": "11.8.1",
