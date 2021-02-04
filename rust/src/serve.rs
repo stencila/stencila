@@ -131,7 +131,7 @@ pub fn serve_blocking(
     address: Option<String>,
     port: Option<u16>,
 ) -> Result<()> {
-    let mut runtime = tokio::runtime::Runtime::new()?;
+    let runtime = tokio::runtime::Runtime::new()?;
     runtime.block_on(async { serve(protocol, address, port).await })
 }
 
@@ -147,7 +147,7 @@ pub fn serve_background(
     std::thread::spawn(move || {
         let _span = tracing::trace_span!("serve_in_background");
 
-        let mut runtime = match tokio::runtime::Runtime::new() {
+        let runtime = match tokio::runtime::Runtime::new() {
             Ok(runtime) => runtime,
             Err(error) => {
                 tracing::error!("{}", error.to_string());
