@@ -244,6 +244,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "cslice"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "697c714f50560202b1f4e2e09cd50a421881c83e9025db75d15f276616f04f40"
+
+[[package]]
 name = "ctor"
 version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1062,6 +1068,49 @@ dependencies = [
 ]
 
 [[package]]
+name = "neon"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a171c5739a277a667669678475165bdbaec1769010e167706c365fd2f98d4f39"
+dependencies = [
+ "cslice",
+ "neon-build",
+ "neon-runtime",
+ "semver",
+ "smallvec",
+]
+
+[[package]]
+name = "neon-build"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "69c4ddb734e07eeb082b1db7e94b47efd385a3672229ca758a2e2c128263db7f"
+dependencies = [
+ "neon-sys",
+]
+
+[[package]]
+name = "neon-runtime"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e4c2ae6cb6d5f5a546f5f43dc0318ae90c237b8c0fd30364e299abb7e5cda913"
+dependencies = [
+ "cfg-if 1.0.0",
+ "neon-sys",
+ "smallvec",
+]
+
+[[package]]
+name = "neon-sys"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f054b2f3b77e6d686792521c0fd8dd5b3a5fee17a08e951de908b8bd799ec115"
+dependencies = [
+ "cc",
+ "regex",
+]
+
+[[package]]
 name = "net2"
 version = "0.2.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1671,6 +1720,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "semver"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d7eb9ef2c18661902cc47e535f9bc51b78acd254da71d375c2f6720d9a40403"
+dependencies = [
+ "semver-parser",
+]
+
+[[package]]
+name = "semver-parser"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
+
+[[package]]
 name = "serde"
 version = "1.0.119"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1805,6 +1869,15 @@ dependencies = [
  "tracing",
  "url",
  "warp",
+]
+
+[[package]]
+name = "stencila-node"
+version = "0.1.0"
+dependencies = [
+ "neon",
+ "neon-build",
+ "stencila",
 ]
 
 [[package]]
