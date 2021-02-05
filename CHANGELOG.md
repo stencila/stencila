@@ -1,3 +1,10 @@
+## [2.20.13](https://github.com/stencila/thema/compare/v2.20.12...v2.20.13) (2021-02-05)
+
+
+### Bug Fixes
+
+* **Elife:** Ensure editor autocomplete doesn't clash with suggestion ([4db8ca3](https://github.com/stencila/thema/commit/4db8ca351c111d9e924eb27d6388696031ffa58a))
+
 ## [2.20.12](https://github.com/stencila/thema/compare/v2.20.11...v2.20.12) (2021-01-25)
 
 
