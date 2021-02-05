@@ -102,6 +102,10 @@ stencila-executable-document-toolbar {
     background-color: var(--color-neutral-200);
   }
 
+  .cm-completionIcon {
+    min-width: 3ch !important;
+  }
+
   stencila-action-menu {
     --background: transparent !important;
 
