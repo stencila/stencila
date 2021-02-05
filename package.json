@@ -148,6 +148,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "browserslist": [
+    "defaults"
+  ],
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
