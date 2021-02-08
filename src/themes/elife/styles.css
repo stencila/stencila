@@ -188,30 +188,29 @@
     font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
 
     ol {
-      counter-reset: item;
       list-style-type: none;
+      padding: 0;
     }
 
     :--reference {
-      display: block;
       font-family: 'Noto Sans', Arial, Helvetica, sans-serif;
-      font-size: var(--TEXT-SIZE-MEDIUM-REM);
+      font-size: var(--TEXT-SIZE-DEFAULT-REM);
       margin-right: 2.5rem;
       margin-bottom: 0.75rem;
 
-      &::before {
-        content: counter(item) ' ';
-        counter-increment: item;
-        font-weight: bold;
-        float: left;
-        margin-left: -2.5rem;
-        text-align: right;
-      }
-
       :--title {
-        display: block;
+        display: inline;
         font-size: var(--TEXT-SIZE-DEFAULT-REM);
         font-weight: bold;
+
+        &:before {
+          content: " ";
+        }
+      }
+
+      :--author {
+        font-size: var(--TEXT-SIZE-DEFAULT-REM);
+        line-height: 28px;
       }
 
       :--authors {
@@ -219,7 +218,7 @@
       }
 
       :--datePublished {
-        display: inline-block;
+        display: inline;
 
         &::before {
           content: ' (';
@@ -234,8 +233,7 @@
         font-style: italic;
 
         &::before {
-          content: '\A';
-          white-space: pre;
+          content: ' ';
         }
 
         &::after {

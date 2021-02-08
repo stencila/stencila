@@ -1,14 +1,4 @@
-import { prepend, first } from '../../../util'
-
-const moveTitles = (references: Element[]): Element[] => {
-  references.forEach((reference: Element): void => {
-    const headline = first(reference, ':--title')
-    if (headline !== null) {
-      prepend(reference, headline)
-    }
-  })
-  return references
-}
+import { prepend, first, append } from '../../../util'
 
 const moveVolumeNames = (references: Element[]): Element[] => {
   references.forEach((reference: Element): void => {
@@ -23,6 +13,19 @@ const moveVolumeNames = (references: Element[]): Element[] => {
   return references
 }
 
+const movePeriodical = (references: Element[]): Element[] => {
+  references.forEach((reference: Element): void => {
+    const volume = first(reference, ':--Periodical:--isPartOf')
+    if (volume !== null) {
+      const movePeriodical = first(volume, ':--isPartOf')
+      if (movePeriodical !== null) {
+        prepend(volume, movePeriodical)
+      }
+    }
+  })
+  return references
+}
+
 export const format = (references: Element[]): void => {
-  moveVolumeNames(moveTitles(references))
+  moveVolumeNames(movePeriodical(references))
 }
