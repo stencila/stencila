@@ -27,20 +27,18 @@ const testBrowser = (process.env.TEST_BROWSER
 const getScreenshotName = (screenshotType: keyof typeof screenshotDirs) => (
   context: any
 ) => {
-  const [_, example, theme] = context.meta.url.match(
-    /example=(\w+)&theme=(\w+)/
-  )
+  const [, example, theme] = context.meta.url.match(/example=(\w+)&theme=(\w+)/)
   const testName = theme + '_' + example
   const browserName = context.browser.name
-  const { width, height } = context.meta.viewport
+  const { width } = context.meta.viewport
 
   return path.join(
     screenshotDirs[screenshotType],
-    normalizeName(testName, browserName, width, height)
+    normalizeName(testName, browserName, width)
   )
 }
 
-// When running on CI, don't compare images, as we'll be using Argos to compare them
+// When running on CI, don't compare images, as we'll be using a cloud testing service to compare them
 const compareStrategy =
   env.CI !== undefined
     ? new VisualRegressionCompare.SaveScreenshot({
@@ -73,8 +71,8 @@ const baseServices = [
       compare: compareStrategy,
       viewportChangePause: 400,
       viewports: [
-        { width: 375, height: 667 },
-        { width: 1152, height: 700 },
+        { width: 375, height: 1440 },
+        { width: 1152, height: 1440 },
       ],
       orientations: ['landscape', 'portrait'],
     },
@@ -122,12 +120,11 @@ const services = [
 const normalizeName = (
   testName: string,
   browserName: string,
-  width: string,
-  height: string
+  width: string
 ): string => {
   const browser = browserName.toLocaleLowerCase().replace(/ /g, '_')
 
-  return `${testName}_${browser}_${width}x${height}.png`
+  return `${testName}_${browser}_${width}W.png`
 }
 
 // Declare configuration variables and paths for storing screenshots
