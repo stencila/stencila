@@ -203,7 +203,7 @@
         font-size: var(--TEXT-SIZE-DEFAULT-REM);
         font-weight: bold;
 
-        &:before {
+        &::before {
           content: " ";
         }
       }
