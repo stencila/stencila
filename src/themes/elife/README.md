@@ -9,3 +9,9 @@ publisher:
 # eLife
 
 A theme for the journal eLife.
+
+## Styling
+
+There are some css classes that do not match what you see in the console.
+
+* itemprop="headline" is .title in style.css
