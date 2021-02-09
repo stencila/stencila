@@ -37,13 +37,15 @@ steps:
 
   - script: |
       npm run check:themes
-      npm run lint
+      npm run lint -- --quiet
     displayName: Run linting
+    failOnStderr: true
 
   - script: |
       npm run test:unit -- --coverage --ci
       bash <(curl -s https://codecov.io/bash)
     displayName: Run unit tests
+    failOnStderr: true
 
   - script: |
       npm run docs
