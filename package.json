@@ -31,7 +31,7 @@
     "lint": "npm run lint:styles && npm run lint:scripts",
     "lint:fix": "npm run lint:styles -- --fix && npm run lint:scripts -- --fix",
     "lint:styles": "stylelint './src/**/*.css'",
-    "lint:scripts": "eslint './src/**/*.ts'",
+    "lint:scripts": "eslint './src/**/*.ts' --quiet",
     "format": "prettier --write './**/*.{css,js,json,md,ts,yaml}'",
     "test": "npm run test:unit && npm run test:visual",
     "test:unit": "jest",
@@ -181,6 +181,11 @@
     },
     "rules": {
       "no-shadow": 1
+    },
+    "settings": {
+      "react": {
+        "version": "detect"
+      }
     }
   },
   "jest": {

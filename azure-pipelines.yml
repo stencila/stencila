@@ -37,7 +37,7 @@ steps:
 
   - script: |
       npm run check:themes
-      npm run lint -- --quiet
+      npm run lint
     displayName: Run linting
     failOnStderr: true
 
@@ -52,7 +52,7 @@ steps:
       npm run test:visual
       npx argos upload test/screenshots/local -T "$ARGOS_TOKEN" -B "$(Build.SourceBranch)" -C "$(Build.SourceVersion)"
     displayName: Run visual regression tests
-    condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['ARGOS_TOKEN'], ''))
+    condition: and(succeeded(), ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['ARGOS_TOKEN'], ''))
     env:
       ARGOS_TOKEN: $(ARGOS_TOKEN)
       SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
