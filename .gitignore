@@ -1,5 +1,6 @@
 .DS_Store
 coverage
+junit.xml
 dist
 docs
 node_modules
