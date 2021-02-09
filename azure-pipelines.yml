@@ -4,7 +4,11 @@ trigger:
       - master
       - refs/tags/*
 
-pr: ['*']
+pr:
+  drafts: false
+  branches:
+    include:
+      - '*'
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -37,20 +41,20 @@ steps:
     displayName: Run linting
 
   - script: |
-      npm run test:unit -- --coverage
+      npm run test:unit -- --coverage --ci
       bash <(curl -s https://codecov.io/bash)
     displayName: Run unit tests
 
-  # Skip until ChromeDrive issues can be resolved
-  # - script: |
-  #     npm run docs
-  #     npm run test:visual
-  #     argos upload test/screenshots/local -T "$ARGOS_TOKEN"
-  #   displayName: Run visual regression tests
-  #   condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['ARGOS_TOKEN'], ''))
-  #   env:
-  #     ARGOS_TOKEN: $(ARGOS_TOKEN)
-  #     SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
+  - script: |
+      npm run docs
+      npm run test:visual
+      npx argos upload test/screenshots/local -T "$ARGOS_TOKEN" -B "$(Build.SourceBranch)" -C "$(Build.SourceVersion)"
+    displayName: Run visual regression tests
+    condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['ARGOS_TOKEN'], ''))
+    env:
+      ARGOS_TOKEN: $(ARGOS_TOKEN)
+      SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
+      SAUCE_USERNAME: $(SAUCE_USERNAME)
 
   - script: npm run build
     condition: succeeded()

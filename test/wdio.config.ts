@@ -73,8 +73,8 @@ const baseServices = [
       compare: compareStrategy,
       viewportChangePause: 400,
       viewports: [
-        { width: 320, height: 568 },
-        { width: 1440, height: 900 },
+        { width: 375, height: 667 },
+        { width: 1152, height: 700 },
       ],
       orientations: ['landscape', 'portrait'],
     },
@@ -179,8 +179,9 @@ const baseConfig = {
     Object.assign(
       {},
       browserCapabilities[testBrowser],
-      env.CI !== undefined
+      useSauce
         ? {
+            platformName: 'Windows 10',
             // When using Open Sauce (https://saucelabs.com/opensauce/),
             // capabilities must be tagged as "public" for the jobs's status
             // to update (failed/passed). If omitted on Open Sauce, the job's
