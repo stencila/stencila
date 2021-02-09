@@ -39,18 +39,32 @@ steps:
       npm run check:themes
       npm run lint
     displayName: Run linting
+    failOnStderr: true
 
-  - script: |
-      npm run test:unit -- --coverage --ci
-      bash <(curl -s https://codecov.io/bash)
+  - task: Npm@1
     displayName: Run unit tests
+    inputs:
+      command: 'custom'
+      customCommand: 'run -s test:unit -- --coverage --ci --reporters=default --reporters=jest-junit'
+
+  - script: bash <(curl -s https://codecov.io/bash)
+    displayName: Report test coverage
+    condition: succeededOrFailed()
+
+  - task: PublishTestResults@2
+    displayName: Upload test results to CI
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'junit.xml'
+      failTaskOnFailedTests: true
 
   - script: |
       npm run docs
       npm run test:visual
       npx argos upload test/screenshots/local -T "$ARGOS_TOKEN" -B "$(Build.SourceBranch)" -C "$(Build.SourceVersion)"
     displayName: Run visual regression tests
-    condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['ARGOS_TOKEN'], ''))
+    condition: and(succeeded(), ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['ARGOS_TOKEN'], ''))
     env:
       ARGOS_TOKEN: $(ARGOS_TOKEN)
       SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
