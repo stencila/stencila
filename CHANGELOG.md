@@ -1,3 +1,10 @@
+## [2.20.14](https://github.com/stencila/thema/compare/v2.20.13...v2.20.14) (2021-02-10)
+
+
+### Bug Fixes
+
+* **eLife:** update unit tests to support new reference format ([#293](https://github.com/stencila/thema/issues/293)) ([edae444](https://github.com/stencila/thema/commit/edae44474fc741d44750aba1fbd80f43f30a9ceb))
+
 ## [2.20.13](https://github.com/stencila/thema/compare/v2.20.12...v2.20.13) (2021-02-05)
 
 
