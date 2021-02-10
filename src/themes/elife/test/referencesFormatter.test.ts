@@ -29,21 +29,21 @@ describe('Formatting a reference', () => {
     firstReference = getFirst(references)
   })
 
-  it('the title is the first element', () => {
+  it('the title is the second element', () => {
     referencesFormatter.format(references)
     expect(
       getElement(firstReference, ':--title').isSameNode(
-        firstReference.firstElementChild
+        firstReference.children[2]
       )
     ).toBe(true)
   })
 
-  it('the authors follow the title', () => {
+  it('the title follow the authors', () => {
     referencesFormatter.format(references)
 
     expect(
       getElement(firstReference, ':--authors').isSameNode(
-        firstReference.children[1]
+        firstReference.children[0]
       )
     ).toBe(true)
   })
@@ -52,7 +52,7 @@ describe('Formatting a reference', () => {
 
     expect(
       getElement(firstReference, ':--datePublished').isSameNode(
-        firstReference.children[2]
+        firstReference.children[1]
       )
     ).toBe(true)
   })
