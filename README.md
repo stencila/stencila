@@ -4,7 +4,7 @@
 
 [![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.thema?branchName=master)](https://dev.azure.com/stencila/stencila/_build/latest?definitionId=11&branchName=master)
 [![Code coverage](https://codecov.io/gh/stencila/thema/branch/master/graph/badge.svg)](https://codecov.io/gh/stencila/thema)
-[![Visual Regression Tests](https://img.shields.io/badge/Argos%20CI-Visual%20Regression%20tests-informational?style=flat)](https://www.argos-ci.com/stencila/thema/builds)
+[![Visual regression test results](https://percy.io/static/images/percy-badge.svg)](https://percy.io/01dadd16/Thema)
 
 - [Quick Start](#quick-start)
 - [Themes](#themes)
@@ -343,13 +343,13 @@ Authors of themes and extensions, and contributors to the utility functions are 
 
 #### Visual regressions
 
-We use visual regression testing powered by [Sauce Labs](https://saucelabs.com), [Argos](https://www.argos-ci.com), and [WebdriverIO](https://webdriver.io).
+We use visual regression testing powered by [Sauce Labs](https://saucelabs.com), [Percy](https://percy.io), and [WebdriverIO](https://webdriver.io).
 
 As part of the continuous integration for this repository, for each push,
 
 1. themes are [built on Travis](https://travis-ci.org/stencila/thema),
 2. examples rendered in a browser running on Sauce Labs,
-3. screenshots taken and [uploaded to Argos](https://www.argos-ci.com/stencila/thema/builds).
+3. screenshots taken and [uploaded to Percy](https://percy.io).
 
 To run these tests locally, run `npm run test`.
 By default Webdriver will try to run the tests using Chrome, but you can switch to Firefox by setting an `TEST_BROWSER=firefox` environment variable.
@@ -379,7 +379,6 @@ We rely on many tools and services for which we are grateful ❤ to their develo
 | :--------------------------------------------------------------------------------------------------: | ------------------------------------ |
 |    <a href="https://saucelabs.com"><img src="./.github/PoweredBySauceLabs.svg" width="150" /></a>    | Cross-browser testing platform       |
 | <a href="https://webdriver.io/"><img src="https://webdriver.io/img/webdriverio.png" width="50"/></a> | WebDriver test framework for Node.js |
-|        <a href="https://www.argos-ci.com/"><img src="./.github/ArgosCI.svg" width="150"/></a>        | Visual regression system             |
 
 ## Utilities API
 

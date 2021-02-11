@@ -62,11 +62,11 @@ steps:
   - script: |
       npm run docs
       npm run test:visual
-      npx argos upload test/screenshots/local -T "$ARGOS_TOKEN" -B "$(Build.SourceBranch)" -C "$(Build.SourceVersion)"
+      npx percy upload test/screenshots/local
     displayName: Run visual regression tests
-    condition: and(succeeded(), ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['ARGOS_TOKEN'], ''))
+    condition: and(ne(variables['SAUCE_ACCESS_KEY'], ''), ne(variables['PERCY_TOKEN'], ''), not(contains(variables['Build.SourceBranch'], 'renovate')))
     env:
-      ARGOS_TOKEN: $(ARGOS_TOKEN)
+      PERCY_TOKEN: $(PERCY_TOKEN)
       SAUCE_ACCESS_KEY: $(SAUCE_ACCESS_KEY)
       SAUCE_USERNAME: $(SAUCE_USERNAME)
 

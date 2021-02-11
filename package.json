@@ -65,9 +65,11 @@
     "tufte-css": "^1.7.2"
   },
   "devDependencies": {
+    "@percy/cli": "1.0.0-beta.35",
     "@stencila/dev-config": "2.0.0",
     "@stencila/encoda": "0.104.5",
     "@stencila/schema": "1.0.0",
+    "@types/chromedriver": "81.0.0",
     "@types/jest": "26.0.20",
     "@types/jsdoc-to-markdown": "6.0.0",
     "@types/prismjs": "1.16.2",
@@ -80,7 +82,6 @@
     "@wdio/mocha-framework": "6.11.0",
     "@wdio/sauce-service": "6.12.1",
     "@wdio/static-server-service": "6.10.10",
-    "argos-cli": "0.3.3",
     "autoprefixer": "9.8.6",
     "chromedriver": "88.0.0",
     "css-loader": "5.0.2",
@@ -213,6 +214,14 @@
     "hooks": {
       "pre-commit": "npm run update:selectors && npm run docs:readme && npm run lint:scripts && pretty-quick --staged",
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "percy": {
+    "discovery": {
+      "network-idle-timeout": 900,
+      "allowed-hostnames": [
+        "unpkg.com"
+      ]
     }
   },
   "renovate": {

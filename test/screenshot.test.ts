@@ -8,9 +8,9 @@
 import assert from 'assert'
 import fs from 'fs'
 import http from 'http'
-import { staticDir, baseUrl } from './wdio.config'
 import { examples } from '../src/examples'
 import { themes } from '../src/themes/index'
+import { baseUrl, staticDir } from './wdio.config'
 
 // The examples to use for visual regression tests
 // It's generally better to only use small examples, as
@@ -68,6 +68,20 @@ describe('visual regressions: ', () => {
             const frame = await browser.$('#preview')
             // @ts-ignore
             await browser.switchToFrame(frame)
+
+            // Wait for page to completely load
+            // @ts-ignore
+            browser.waitUntil(
+              async () => {
+                // @ts-ignore
+                const state = await browser.execute(() => document.readyState)
+                return state === 'complete'
+              },
+              {
+                timeout: 60000,
+                timeoutMsg: 'The page did not load in time',
+              }
+            )
 
             // @ts-ignore
             const results = await browser.checkDocument()
