@@ -65,7 +65,7 @@
     "tufte-css": "^1.7.2"
   },
   "devDependencies": {
-    "@stencila/dev-config": "1.4.131",
+    "@stencila/dev-config": "2.0.0",
     "@stencila/encoda": "0.104.5",
     "@stencila/schema": "1.0.0",
     "@types/jest": "26.0.20",
