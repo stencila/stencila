@@ -1,6 +1,11 @@
 @import '../../extensions/math/styles.css';
 
-/* stylelint-disable scale-unlimited/declaration-strict-value */
+/* stylelint-disable scale-unlimited/declaration-strict-value, xi/selector-pattern */
+
+/* Basic CSS reset to remove default browser padding */
+body {
+  margin: 0;
+}
 
 :--root {
   --color-ok: #95e8af;
@@ -10,7 +15,7 @@
   font-size: 11pt;
   line-height: 150%;
   color: #333;
-  padding: 1px;
+  padding: 0;
 }
 
 :--CodeChunk,
@@ -22,7 +27,7 @@
   display: inline-block;
   margin: 0 !important;
   min-width: 1em;
-  min-height: 1em;
+  min-height: 16px;
   overflow: visible;
   position: relative;
   width: auto !important;
@@ -38,11 +43,13 @@
     color: #4e6751;
     content: '';
     height: 14px;
+    left: 0;
     padding: 1px;
     pointer-events: none;
     position: absolute;
     top: 0;
     width: 14px;
+    z-index: 1;
   }
 }
 
@@ -60,21 +67,9 @@
   }
 }
 
-/* Add spacing between the icon and the output */
-:--CodeChunk stencila-node-list,
-:--CodeExpression .output,
-:--MathBlock > span,
-:--MathFragment > span {
-  padding: 1px 1px 1px 19px !important;
-}
-
-/* "Remove" spacing for image outputs so that the icon overlaps the image.
-   This is important for round trip conversion of "self-referencing" RPNGs.
-*/
-:--CodeChunk stencila-node-list img,
-:--CodeExpression .output img {
-  position: relative;
-  left: -19px;
+:--MathFragment {
+  /* Ensure that the icon does not overlap the equation */
+  padding-left: 18px;
 }
 
 /* Hide the UI chrome etc that is not wanted */
@@ -90,6 +85,11 @@
 :--CodeChunk *,
 :--CodeExpression * {
   font-size: 0.9rem !important;
+}
+
+:--CodeChunk stencila-node-list,
+:--CodeExpression stencila-node-list {
+  padding: 0 !important;
 }
 
 /* Make display of datatables a little more pleasing */
