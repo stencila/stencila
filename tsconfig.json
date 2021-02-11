@@ -4,6 +4,7 @@
   "exclude": ["node_modules"],
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "es2017"],
-    "outDir": "dist"
+    "outDir": "dist",
+    "module": "CommonJS"
   }
 }
