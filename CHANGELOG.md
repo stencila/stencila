@@ -1,3 +1,10 @@
+## [2.20.15](https://github.com/stencila/thema/compare/v2.20.14...v2.20.15) (2021-02-11)
+
+
+### Bug Fixes
+
+* **RPNG:** Fix RPNG icon cropping/overlapping figures ([3771dd3](https://github.com/stencila/thema/commit/3771dd3931cf1841cadcd07c8f6a57d25ddee180)), closes [#270](https://github.com/stencila/thema/issues/270)
+
 ## [2.20.14](https://github.com/stencila/thema/compare/v2.20.13...v2.20.14) (2021-02-10)
 
 
