@@ -1,13 +1,16 @@
 @import '../skeleton/styles.css';
-@import url('https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i');
 
 :--root {
   --max-width: 800px;
   --max-width-media: 800px;
-  --font-family-title: roboto, sans-serif;
-  --font-family-body: roboto, sans-serif;
-  --font-family-mono: monospace;
-  --font-family-display: roboto, sans-serif;
+  --font-family-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-family-title: var(--font-family-sans);
+  --font-family-body: var(--font-family-sans);
+  --font-family-display: var(--font-family-sans);
+  --font-family-mono: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
   --font-size-90: 0.9em;
   --font-size-80: 0.8em;
   --font-size-75: 0.75em;
@@ -21,6 +24,7 @@
   --font-size-em: 1em;
   --color-brand: #3d913a;
   --color-stock: #fff;
+  --color-accent: #22749b;
   --color-key: #000000bd;
   --color-headings: #333;
   --color-secondary: #212a34;
@@ -48,6 +52,10 @@
     &[position='fixed'] + * {
       margin-top: 3rem;
     }
+
+    .executableDocumentStatus {
+      color: var(--color-stock) !important;
+    }
   }
 
   font-size: var(--font-size-body);
@@ -59,7 +67,7 @@
     font-family: var(--font-family-title);
     font-size: var(--font-size-h1);
     font-weight: 500;
-    line-height: 33.8px;
+    line-height: 1.3em;
     margin-bottom: 0;
     margin-top: 0;
     padding-bottom: 0;
@@ -131,13 +139,17 @@
     margin-top: 1em;
   }
 
-  a {
-    font-style: normal;
-    text-decoration: none;
+  a,
+  :--Link {
+    &:link,
+    &:visited {
+      font-style: normal;
+      text-decoration: none;
+      color: var(--color-brand);
+    }
   }
 
-  :--Cite,
-  :--Link {
+  :--Cite {
     color: var(--color-primary-100);
   }
 
@@ -185,6 +197,23 @@
     }
   }
 
+  :--Figure {
+    display: flex;
+    flex-direction: column;
+
+    :--label {
+      order: -2;
+      margin-left: 0;
+    }
+
+    :--caption,
+    figcaption {
+      order: -1;
+      padding-top: 0;
+      padding-left: var(--spacer-sm);
+    }
+  }
+
   :--Table {
     width: 100%;
   }
@@ -210,10 +239,44 @@
     padding: 0.25rem;
   }
 
-  :--references > ol {
-    padding-left: 25px;
-    list-style: decimal;
-    list-style-position: outside;
+  :--references {
+    & > h2 {
+      font-size: var(--font-size-h4);
+    }
+
+    & > ol {
+      padding-left: 25px;
+      list-style: decimal;
+      list-style-position: outside;
+      margin-top: 0;
+
+      :--reference {
+        margin-top: var(--spacer-md);
+        margin-bottom: var(--spacer-md);
+        min-height: 68px;
+
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+
+      :--authors {
+        & > :--Person:not(:only-child):not(:first-child) {
+          display: none;
+        }
+
+        & > :--Person:first-child:not(:only-child) {
+          &::after {
+            content: '\00a0 et al.';
+            white-space: nowrap;
+          }
+        }
+      }
+
+      :--title {
+        color: var(--color-accent);
+      }
+    }
   }
 
   :--reference {
