@@ -1,0 +1,4437 @@
+{
+  "type": "Article",
+  "authors": [
+    {
+      "type": "Person",
+      "emails": [
+        "farrell.damien@gmail.com"
+      ],
+      "familyNames": [
+        "Farrell"
+      ],
+      "givenNames": [
+        "Damien"
+      ]
+    }
+  ],
+  "description": [
+    {
+      "type": "Paragraph",
+      "content": [
+        "A key step in the cellular adaptive immune response is the presentation of antigen to T cells. During this process short peptides processed from self or foreign proteins may be presented on the surface bound to MHC molecules for binding to T cell receptors. Those that bind and activate an immune response are called epitopes. Computational prediction of T cell epitopes has many applications in vaccine design and immuno-diagnostics. This is the basis of immunoinformatics which allows in silico screening of peptides before experiments are performed. The most effective approach is to estimate the binding affinity of a given peptide fragment to MHC class I or II molecules. With the availability of whole genomes for many microbial species it is now feasible to computationally screen whole proteomes for candidate peptides. epitopepredict is a programmatic framework and command line tool designed to aid this process. It provides access to multiple binding prediction algorithms under a single interface and scales for whole genomes using multiple target MHC alleles. A web interface is provided to assist visualization and filtering of the results. The software is freely available under an open source license from ",
+        {
+          "type": "Link",
+          "target": "https://github.com/dmnfarrell/mhcpredict",
+          "content": [
+            "https://github.com/dmnfarrell/epitopepredict"
+          ]
+        }
+      ]
+    }
+  ],
+  "keywords": [
+    "MHC-binding",
+    "immunoinformatics",
+    "antigen",
+    "epitope",
+    "T-cell"
+  ],
+  "references": [
+    {
+      "type": "Article",
+      "id": "ref1",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lundegaard"
+          ],
+          "givenNames": [
+            "Claus"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hoof"
+          ],
+          "givenNames": [
+            "Ilka"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lund"
+          ],
+          "givenNames": [
+            "Ole"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nielsen"
+          ],
+          "givenNames": [
+            "Morten"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1186/1745-7580-6-s2-s3"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Immunome Research"
+          },
+          "volumeNumber": 6
+        },
+        "issueNumber": "Suppl 2"
+      },
+      "pagination": "S3",
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer Science and Business Media LLC"
+      },
+      "title": "State of the art and challenges in sequence based T-cell epitope prediction",
+      "url": "http://dx.doi.org/10.1186/1745-7580-6-s2-s3"
+    },
+    {
+      "type": "Article",
+      "id": "ref2",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Backert"
+          ],
+          "givenNames": [
+            "Linus"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kohlbacher"
+          ],
+          "givenNames": [
+            "Oliver"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2015-11-20"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1186/s13073-015-0245-0"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Genome Medicine"
+          },
+          "volumeNumber": 7
+        },
+        "issueNumber": 1
+      },
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer Science and Business Media LLC"
+      },
+      "title": "Immunoinformatics and epitope prediction in the age of genomic medicine",
+      "url": "http://dx.doi.org/10.1186/s13073-015-0245-0"
+    },
+    {
+      "type": "Article",
+      "id": "ref3",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Domingos"
+          ],
+          "givenNames": [
+            "Pedro"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2012-10-01"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1145/2347736.2347755"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Communications of the ACM"
+          },
+          "volumeNumber": 55
+        },
+        "issueNumber": 10
+      },
+      "pageEnd": 87,
+      "pageStart": 78,
+      "publisher": {
+        "type": "Organization",
+        "name": "Association for Computing Machinery (ACM)"
+      },
+      "title": "A few useful things to know about machine learning",
+      "url": "http://dx.doi.org/10.1145/2347736.2347755"
+    },
+    {
+      "type": "Article",
+      "id": "ref4",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chaves"
+          ],
+          "givenNames": [
+            "Francisco A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "Alvin H."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nayak"
+          ],
+          "givenNames": [
+            "Jennifer L."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Richards"
+          ],
+          "givenNames": [
+            "Katherine A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sant"
+          ],
+          "givenNames": [
+            "Andrea J."
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2012-03-30"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.4049/jimmunol.1103640"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "The Journal of Immunology"
+          },
+          "volumeNumber": 188
+        },
+        "issueNumber": 9
+      },
+      "pageEnd": 4248,
+      "pageStart": 4235,
+      "publisher": {
+        "type": "Organization",
+        "name": "The American Association of Immunologists"
+      },
+      "title": "The Utility and Limitations of Current Web-Available Algorithms To Predict Peptides Recognized by CD4 T Cells in Response to Pathogen Infection",
+      "url": "http://dx.doi.org/10.4049/jimmunol.1103640"
+    },
+    {
+      "type": "Article",
+      "id": "ref5",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bremel"
+          ],
+          "givenNames": [
+            "Robert D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Homan"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1186/1745-7580-6-8"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Immunome Research"
+          },
+          "volumeNumber": 6
+        },
+        "issueNumber": 1
+      },
+      "pagination": "8",
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer Science and Business Media LLC"
+      },
+      "title": "An integrated approach to epitope analysis II: A system for proteomic-scale prediction of immunological characteristics",
+      "url": "http://dx.doi.org/10.1186/1745-7580-6-8"
+    },
+    {
+      "type": "Article",
+      "id": "ref6",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Paul"
+          ],
+          "givenNames": [
+            "Sinu"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Weiskopf"
+          ],
+          "givenNames": [
+            "Daniela"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Angelo"
+          ],
+          "givenNames": [
+            "Michael A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sidney"
+          ],
+          "givenNames": [
+            "John"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Peters"
+          ],
+          "givenNames": [
+            "Bjoern"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sette"
+          ],
+          "givenNames": [
+            "Alessandro"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2013-11-04"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.4049/jimmunol.1302101"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "The Journal of Immunology"
+          },
+          "volumeNumber": 191
+        },
+        "issueNumber": 12
+      },
+      "pageEnd": 5839,
+      "pageStart": 5831,
+      "publisher": {
+        "type": "Organization",
+        "name": "The American Association of Immunologists"
+      },
+      "title": "HLA Class I Alleles Are Associated with Peptide-Binding Repertoires of Different Size, Affinity, and Immunogenicity",
+      "url": "http://dx.doi.org/10.4049/jimmunol.1302101"
+    },
+    {
+      "type": "Article",
+      "id": "ref7",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schubert"
+          ],
+          "givenNames": [
+            "B."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lund"
+          ],
+          "givenNames": [
+            "O."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nielsen"
+          ],
+          "givenNames": [
+            "M."
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2013-09-17"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1111/tan.12199"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Tissue Antigens"
+          },
+          "volumeNumber": 82
+        },
+        "issueNumber": 4
+      },
+      "pageEnd": 251,
+      "pageStart": 243,
+      "publisher": {
+        "type": "Organization",
+        "name": "Wiley"
+      },
+      "title": "Evaluation of peptide selection approaches for epitope-based vaccine design",
+      "url": "http://dx.doi.org/10.1111/tan.12199"
+    },
+    {
+      "type": "Article",
+      "id": "ref8",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Soria-Guerra"
+          ],
+          "givenNames": [
+            "Ruth E."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nieto-Gomez"
+          ],
+          "givenNames": [
+            "Ricardo"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Govea-Alonso"
+          ],
+          "givenNames": [
+            "Dania O."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rosales-Mendoza"
+          ],
+          "givenNames": [
+            "Sergio"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2015-02-01"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.jbi.2014.11.003"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Journal of Biomedical Informatics"
+        },
+        "volumeNumber": 53
+      },
+      "pageEnd": 414,
+      "pageStart": 405,
+      "publisher": {
+        "type": "Organization",
+        "name": "Elsevier BV"
+      },
+      "title": "An overview of bioinformatics tools for epitope prediction: Implications on vaccine development",
+      "url": "http://dx.doi.org/10.1016/j.jbi.2014.11.003"
+    },
+    {
+      "type": "Article",
+      "id": "ref9",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "De Groot"
+          ],
+          "givenNames": [
+            "Anne S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Martin"
+          ],
+          "givenNames": [
+            "William"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2009-05-01"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.clim.2009.01.009"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Clinical Immunology"
+          },
+          "volumeNumber": 131
+        },
+        "issueNumber": 2
+      },
+      "pageEnd": 201,
+      "pageStart": 189,
+      "publisher": {
+        "type": "Organization",
+        "name": "Elsevier BV"
+      },
+      "title": "Reducing risk, improving outcomes: Bioengineering less immunogenic protein therapeutics",
+      "url": "http://dx.doi.org/10.1016/j.clim.2009.01.009"
+    },
+    {
+      "type": "CreativeWork",
+      "id": "ref10",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nelli"
+          ],
+          "givenNames": [
+            "Fabio"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1007/978-1-4842-0958-5_4"
+        }
+      ],
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "Python Data Analytics"
+      },
+      "publisher": {
+        "type": "Organization",
+        "name": "Apress"
+      },
+      "title": "The pandas Library—An Introduction",
+      "url": "http://dx.doi.org/10.1007/978-1-4842-0958-5_4"
+    },
+    "FriendFeed: Tornado: Python web framework and asynchronous networking library. https://www.tornadoweb.org/en/stable/",
+    {
+      "type": "CreativeWork",
+      "id": "ref12",
+      "authors": [],
+      "datePublished": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.5040/9781350088733.0029"
+        }
+      ],
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "The Visual Dictionary of Photography"
+      },
+      "publisher": {
+        "type": "Organization",
+        "name": "AVA Publishing SA Distributed by Thames & Hudson (ex-North America) Distributed in the USA & Canada by: English Language Support Office"
+      },
+      "title": "Bokeh",
+      "url": "http://dx.doi.org/10.5040/9781350088733.0029"
+    },
+    {
+      "type": "Article",
+      "id": "ref13",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhang"
+          ],
+          "givenNames": [
+            "Lianming"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chen"
+          ],
+          "givenNames": [
+            "Yiqing"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wong"
+          ],
+          "givenNames": [
+            "Hau-San"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhou"
+          ],
+          "givenNames": [
+            "Shuigeng"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mamitsuka"
+          ],
+          "givenNames": [
+            "Hiroshi"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhu"
+          ],
+          "givenNames": [
+            "Shanfeng"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2012-02-23"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1371/journal.pone.0030483"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "PLoS ONE"
+          },
+          "volumeNumber": 7
+        },
+        "issueNumber": 2
+      },
+      "pagination": "e30483",
+      "publisher": {
+        "type": "Organization",
+        "name": "Public Library of Science (PLoS)"
+      },
+      "title": "TEPITOPEpan: Extending TEPITOPE for Peptide Binding Prediction Covering over 700 HLA-DR Molecules",
+      "url": "http://dx.doi.org/10.1371/journal.pone.0030483"
+    },
+    {
+      "type": "Article",
+      "id": "ref14",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sturniolo"
+          ],
+          "givenNames": [
+            "Tiziana"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bono"
+          ],
+          "givenNames": [
+            "Elisa"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ding"
+          ],
+          "givenNames": [
+            "Jiayi"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Raddrizzani"
+          ],
+          "givenNames": [
+            "Laura"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tuereci"
+          ],
+          "givenNames": [
+            "Oezlem"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sahin"
+          ],
+          "givenNames": [
+            "Ugur"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Braxenthaler"
+          ],
+          "givenNames": [
+            "Michael"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gallazzi"
+          ],
+          "givenNames": [
+            "Fabio"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Protti"
+          ],
+          "givenNames": [
+            "Maria Pia"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sinigaglia"
+          ],
+          "givenNames": [
+            "Francesco"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hammer"
+          ],
+          "givenNames": [
+            "Juergen"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "1999-06-01"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/9858"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Nature Biotechnology"
+          },
+          "volumeNumber": 17
+        },
+        "issueNumber": 6
+      },
+      "pageEnd": 561,
+      "pageStart": 555,
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer Science and Business Media LLC"
+      },
+      "title": "Generation of tissue-specific and promiscuous HLA ligand databases using DNA microarrays and virtual HLA class II matrices",
+      "url": "http://dx.doi.org/10.1038/9858"
+    },
+    {
+      "type": "Article",
+      "id": "ref15",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Abraham"
+          ],
+          "givenNames": [
+            "Alexandre"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pedregosa"
+          ],
+          "givenNames": [
+            "Fabian"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eickenberg"
+          ],
+          "givenNames": [
+            "Michael"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gervais"
+          ],
+          "givenNames": [
+            "Philippe"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mueller"
+          ],
+          "givenNames": [
+            "Andreas"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kossaifi"
+          ],
+          "givenNames": [
+            "Jean"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gramfort"
+          ],
+          "givenNames": [
+            "Alexandre"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Thirion"
+          ],
+          "givenNames": [
+            "Bertrand"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Varoquaux"
+          ],
+          "givenNames": [
+            "Gaël"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.3389/fninf.2014.00014"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Frontiers in Neuroinformatics"
+        },
+        "volumeNumber": 8
+      },
+      "publisher": {
+        "type": "Organization",
+        "name": "Frontiers Media SA"
+      },
+      "title": "Machine learning for neuroimaging with scikit-learn",
+      "url": "http://dx.doi.org/10.3389/fninf.2014.00014"
+    },
+    {
+      "type": "Article",
+      "id": "ref16",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "O'Donnell"
+          ],
+          "givenNames": [
+            "Timothy J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rubinsteyn"
+          ],
+          "givenNames": [
+            "Alex"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bonsack"
+          ],
+          "givenNames": [
+            "Maria"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Riemer"
+          ],
+          "givenNames": [
+            "Angelika B."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Laserson"
+          ],
+          "givenNames": [
+            "Uri"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hammerbacher"
+          ],
+          "givenNames": [
+            "Jeff"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2018-07-01"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.cels.2018.05.014"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Cell Systems"
+          },
+          "volumeNumber": 7
+        },
+        "issueNumber": 1
+      },
+      "pageEnd": 132,
+      "pageStart": 129,
+      "publisher": {
+        "type": "Organization",
+        "name": "Elsevier BV"
+      },
+      "title": "MHCflurry: Open-Source Class I MHC Binding Affinity Prediction",
+      "url": "http://dx.doi.org/10.1016/j.cels.2018.05.014"
+    },
+    {
+      "type": "Article",
+      "id": "ref17",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jurtz"
+          ],
+          "givenNames": [
+            "Vanessa"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Paul"
+          ],
+          "givenNames": [
+            "Sinu"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Andreatta"
+          ],
+          "givenNames": [
+            "Massimo"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Marcatili"
+          ],
+          "givenNames": [
+            "Paolo"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Peters"
+          ],
+          "givenNames": [
+            "Bjoern"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nielsen"
+          ],
+          "givenNames": [
+            "Morten"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2017-10-04"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.4049/jimmunol.1700893"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "The Journal of Immunology"
+          },
+          "volumeNumber": 199
+        },
+        "issueNumber": 9
+      },
+      "pageEnd": 3368,
+      "pageStart": 3360,
+      "publisher": {
+        "type": "Organization",
+        "name": "The American Association of Immunologists"
+      },
+      "title": "NetMHCpan-4.0: Improved Peptide–MHC Class I Interaction Predictions Integrating Eluted Ligand and Peptide Binding Affinity Data",
+      "url": "http://dx.doi.org/10.4049/jimmunol.1700893"
+    },
+    {
+      "type": "Article",
+      "id": "ref18",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nielsen"
+          ],
+          "givenNames": [
+            "Morten"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Justesen"
+          ],
+          "givenNames": [
+            "Sune"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lund"
+          ],
+          "givenNames": [
+            "Ole"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lundegaard"
+          ],
+          "givenNames": [
+            "Claus"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Buus"
+          ],
+          "givenNames": [
+            "Søren"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1186/1745-7580-6-9"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Immunome Research"
+          },
+          "volumeNumber": 6
+        },
+        "issueNumber": 1
+      },
+      "pagination": "9",
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer Science and Business Media LLC"
+      },
+      "title": "NetMHCIIpan-2.0 - Improved pan-specific HLA-DR predictions using a novel concurrent alignment and weight optimization training procedure",
+      "url": "http://dx.doi.org/10.1186/1745-7580-6-9"
+    },
+    {
+      "type": "Article",
+      "id": "ref19",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Karosiene"
+          ],
+          "givenNames": [
+            "Edita"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rasmussen"
+          ],
+          "givenNames": [
+            "Michael"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Blicher"
+          ],
+          "givenNames": [
+            "Thomas"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lund"
+          ],
+          "givenNames": [
+            "Ole"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Buus"
+          ],
+          "givenNames": [
+            "Søren"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nielsen"
+          ],
+          "givenNames": [
+            "Morten"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2013-07-31"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1007/s00251-013-0720-y"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Immunogenetics"
+          },
+          "volumeNumber": 65
+        },
+        "issueNumber": 10
+      },
+      "pageEnd": 724,
+      "pageStart": 711,
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer Science and Business Media LLC"
+      },
+      "title": "NetMHCIIpan-3.0, a common pan-specific MHC class II prediction method including all three human MHC class II isotypes, HLA-DR, HLA-DP and HLA-DQ",
+      "url": "http://dx.doi.org/10.1007/s00251-013-0720-y"
+    },
+    {
+      "type": "Article",
+      "id": "ref20",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nanni"
+          ],
+          "givenNames": [
+            "Loris"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lumini"
+          ],
+          "givenNames": [
+            "Alessandra"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2011-04-01"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.eswa.2010.09.005"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Expert Systems with Applications"
+          },
+          "volumeNumber": 38
+        },
+        "issueNumber": 4
+      },
+      "pageEnd": 3191,
+      "pageStart": 3185,
+      "publisher": {
+        "type": "Organization",
+        "name": "Elsevier BV"
+      },
+      "title": "A new encoding technique for peptide classification",
+      "url": "http://dx.doi.org/10.1016/j.eswa.2010.09.005"
+    },
+    {
+      "type": "Article",
+      "id": "ref21",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gök"
+          ],
+          "givenNames": [
+            "Murat"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Özcerit"
+          ],
+          "givenNames": [
+            "Ahmet Turan"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2011-07-30"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1007/s11010-011-1000-5"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Molecular and Cellular Biochemistry"
+          },
+          "volumeNumber": 359
+        },
+        "issueNumber": "1-2"
+      },
+      "pageEnd": 72,
+      "pageStart": 67,
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer Science and Business Media LLC"
+      },
+      "title": "OETMAP: a new feature encoding scheme for MHC class I binding prediction",
+      "url": "http://dx.doi.org/10.1007/s11010-011-1000-5"
+    },
+    {
+      "type": "Article",
+      "id": "ref22",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kim"
+          ],
+          "givenNames": [
+            "Yohan"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sidney"
+          ],
+          "givenNames": [
+            "John"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Buus"
+          ],
+          "givenNames": [
+            "Søren"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sette"
+          ],
+          "givenNames": [
+            "Alessandro"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nielsen"
+          ],
+          "givenNames": [
+            "Morten"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Peters"
+          ],
+          "givenNames": [
+            "Bjoern"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1186/1471-2105-15-241"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "BMC Bioinformatics"
+          },
+          "volumeNumber": 15
+        },
+        "issueNumber": 1
+      },
+      "pagination": "241",
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer Science and Business Media LLC"
+      },
+      "title": "Dataset size and composition impact the reliability of performance benchmarks for peptide-MHC binding predictions",
+      "url": "http://dx.doi.org/10.1186/1471-2105-15-241"
+    },
+    {
+      "type": "Article",
+      "id": "ref23",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lindestam Arlehamn"
+          ],
+          "givenNames": [
+            "Cecilia S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "McKinney"
+          ],
+          "givenNames": [
+            "Denise M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Carpenter"
+          ],
+          "givenNames": [
+            "Chelsea"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Paul"
+          ],
+          "givenNames": [
+            "Sinu"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rozot"
+          ],
+          "givenNames": [
+            "Virginie"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Makgotlho"
+          ],
+          "givenNames": [
+            "Edward"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gregg"
+          ],
+          "givenNames": [
+            "Yolande"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "van Rooyen"
+          ],
+          "givenNames": [
+            "Michele"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ernst"
+          ],
+          "givenNames": [
+            "Joel D."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hatherill"
+          ],
+          "givenNames": [
+            "Mark"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hanekom"
+          ],
+          "givenNames": [
+            "Willem A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Peters"
+          ],
+          "givenNames": [
+            "Bjoern"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Scriba"
+          ],
+          "givenNames": [
+            "Thomas J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sette"
+          ],
+          "givenNames": [
+            "Alessandro"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2016-07-13"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1371/journal.ppat.1005760"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "PLOS Pathogens"
+          },
+          "volumeNumber": 12
+        },
+        "issueNumber": 7
+      },
+      "pagination": "e1005760",
+      "publisher": {
+        "type": "Organization",
+        "name": "Public Library of Science (PLoS)"
+      },
+      "title": "A Quantitative Analysis of Complexity of Human Pathogen-Specific CD4 T Cell Responses in Healthy M. tuberculosis Infected South Africans",
+      "url": "http://dx.doi.org/10.1371/journal.ppat.1005760"
+    },
+    {
+      "type": "Article",
+      "id": "ref24",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Farrell"
+          ],
+          "givenNames": [
+            "Damien"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jones"
+          ],
+          "givenNames": [
+            "Gareth"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pirson"
+          ],
+          "givenNames": [
+            "Christopher"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Malone"
+          ],
+          "givenNames": [
+            "Kerri"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rue-Albrecht"
+          ],
+          "givenNames": [
+            "Kevin"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chubb"
+          ],
+          "givenNames": [
+            "Anthony J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vordermeier"
+          ],
+          "givenNames": [
+            "Martin"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gordon"
+          ],
+          "givenNames": [
+            "Stephen V."
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2016-08-25"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1099/mgen.0.000071"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Microbial Genomics"
+          },
+          "volumeNumber": 2
+        },
+        "issueNumber": 8
+      },
+      "publisher": {
+        "type": "Organization",
+        "name": "Microbiology Society"
+      },
+      "title": "Integrated computational prediction and experimental validation identifies promiscuous T cell epitopes in the proteome of Mycobacterium bovis",
+      "url": "http://dx.doi.org/10.1099/mgen.0.000071"
+    },
+    {
+      "type": "Article",
+      "id": "ref25",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Santos"
+          ],
+          "givenNames": [
+            "Anderson R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pereira"
+          ],
+          "givenNames": [
+            "Vanessa Bastos"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Barbosa"
+          ],
+          "givenNames": [
+            "Eudes"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Baumbach"
+          ],
+          "givenNames": [
+            "Jan"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pauling"
+          ],
+          "givenNames": [
+            "Josch"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Röttger"
+          ],
+          "givenNames": [
+            "Richard"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Turk"
+          ],
+          "givenNames": [
+            "Meritxell Zurita"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Silva"
+          ],
+          "givenNames": [
+            "Artur"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Miyoshi"
+          ],
+          "givenNames": [
+            "Anderson"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Azevedo"
+          ],
+          "givenNames": [
+            "Vasco"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1186/1471-2164-14-s6-s4"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "BMC Genomics"
+          },
+          "volumeNumber": 14
+        },
+        "issueNumber": "Suppl 6"
+      },
+      "pagination": "S4",
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer Science and Business Media LLC"
+      },
+      "title": "Mature Epitope Density - A strategy for target selection based on immunoinformatics and exported prokaryotic proteins",
+      "url": "http://dx.doi.org/10.1186/1471-2164-14-s6-s4"
+    },
+    {
+      "type": "Article",
+      "id": "ref26",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Doshi"
+          ],
+          "givenNames": [
+            "Peter"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2020-09-17"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1136/bmj.m3563"
+        }
+      ],
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "BMJ"
+      },
+      "pagination": "m3563",
+      "publisher": {
+        "type": "Organization",
+        "name": "BMJ"
+      },
+      "title": "Covid-19: Do many people have pre-existing immunity?",
+      "url": "http://dx.doi.org/10.1136/bmj.m3563"
+    },
+    {
+      "type": "Article",
+      "id": "ref27",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Grifoni"
+          ],
+          "givenNames": [
+            "Alba"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Weiskopf"
+          ],
+          "givenNames": [
+            "Daniela"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ramirez"
+          ],
+          "givenNames": [
+            "Sydney I."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mateus"
+          ],
+          "givenNames": [
+            "Jose"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dan"
+          ],
+          "givenNames": [
+            "Jennifer M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Moderbacher"
+          ],
+          "givenNames": [
+            "Carolyn Rydyznski"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rawlings"
+          ],
+          "givenNames": [
+            "Stephen A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sutherland"
+          ],
+          "givenNames": [
+            "Aaron"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Premkumar"
+          ],
+          "givenNames": [
+            "Lakshmanane"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jadi"
+          ],
+          "givenNames": [
+            "Ramesh S."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Marrama"
+          ],
+          "givenNames": [
+            "Daniel"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "de Silva"
+          ],
+          "givenNames": [
+            "Aravinda M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Frazier"
+          ],
+          "givenNames": [
+            "April"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Carlin"
+          ],
+          "givenNames": [
+            "Aaron F."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Greenbaum"
+          ],
+          "givenNames": [
+            "Jason A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Peters"
+          ],
+          "givenNames": [
+            "Bjoern"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Krammer"
+          ],
+          "givenNames": [
+            "Florian"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smith"
+          ],
+          "givenNames": [
+            "Davey M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Crotty"
+          ],
+          "givenNames": [
+            "Shane"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sette"
+          ],
+          "givenNames": [
+            "Alessandro"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2020-06-01"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.cell.2020.05.015"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Cell"
+          },
+          "volumeNumber": 181
+        },
+        "issueNumber": 7
+      },
+      "pageEnd": 1501,
+      "pageStart": 1489,
+      "publisher": {
+        "type": "Organization",
+        "name": "Elsevier BV"
+      },
+      "title": "Targets of T Cell Responses to SARS-CoV-2 Coronavirus in Humans with COVID-19 Disease and Unexposed Individuals",
+      "url": "http://dx.doi.org/10.1016/j.cell.2020.05.015"
+    },
+    {
+      "type": "Article",
+      "id": "ref28",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mateus"
+          ],
+          "givenNames": [
+            "Jose"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Grifoni"
+          ],
+          "givenNames": [
+            "Alba"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tarke"
+          ],
+          "givenNames": [
+            "Alison"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sidney"
+          ],
+          "givenNames": [
+            "John"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ramirez"
+          ],
+          "givenNames": [
+            "Sydney I."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dan"
+          ],
+          "givenNames": [
+            "Jennifer M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Burger"
+          ],
+          "givenNames": [
+            "Zoe C."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rawlings"
+          ],
+          "givenNames": [
+            "Stephen A."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smith"
+          ],
+          "givenNames": [
+            "Davey M."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Phillips"
+          ],
+          "givenNames": [
+            "Elizabeth"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mallal"
+          ],
+          "givenNames": [
+            "Simon"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lammers"
+          ],
+          "givenNames": [
+            "Marshall"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rubiro"
+          ],
+          "givenNames": [
+            "Paul"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Quiambao"
+          ],
+          "givenNames": [
+            "Lorenzo"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sutherland"
+          ],
+          "givenNames": [
+            "Aaron"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yu"
+          ],
+          "givenNames": [
+            "Esther Dawen"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "da Silva Antunes"
+          ],
+          "givenNames": [
+            "Ricardo"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Greenbaum"
+          ],
+          "givenNames": [
+            "Jason"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Frazier"
+          ],
+          "givenNames": [
+            "April"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Markmann"
+          ],
+          "givenNames": [
+            "Alena J."
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Premkumar"
+          ],
+          "givenNames": [
+            "Lakshmanane"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "de Silva"
+          ],
+          "givenNames": [
+            "Aravinda"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Peters"
+          ],
+          "givenNames": [
+            "Bjoern"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Crotty"
+          ],
+          "givenNames": [
+            "Shane"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sette"
+          ],
+          "givenNames": [
+            "Alessandro"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Weiskopf"
+          ],
+          "givenNames": [
+            "Daniela"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2020-08-04"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1126/science.abd3871"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "Science"
+          },
+          "volumeNumber": 370
+        },
+        "issueNumber": 6512
+      },
+      "pageEnd": 94,
+      "pageStart": 89,
+      "publisher": {
+        "type": "Organization",
+        "name": "American Association for the Advancement of Science (AAAS)"
+      },
+      "title": "Selective and cross-reactive SARS-CoV-2 T cell epitopes in unexposed humans",
+      "url": "http://dx.doi.org/10.1126/science.abd3871"
+    },
+    {
+      "type": "Article",
+      "id": "ref29",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Farrell"
+          ],
+          "givenNames": [
+            "Damien"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gordon"
+          ],
+          "givenNames": [
+            "Stephen V"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2015-07-14"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1186/s12859-015-0659-0"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationIssue",
+        "isPartOf": {
+          "type": "PublicationVolume",
+          "isPartOf": {
+            "type": "Periodical",
+            "name": "BMC Bioinformatics"
+          },
+          "volumeNumber": 16
+        },
+        "issueNumber": 1
+      },
+      "publisher": {
+        "type": "Organization",
+        "name": "Springer Science and Business Media LLC"
+      },
+      "title": "Epitopemap: a web application for integrated whole proteome epitope prediction",
+      "url": "http://dx.doi.org/10.1186/s12859-015-0659-0"
+    },
+    "Project Jupyter: Jupyter Notebook. http://jupyter.org/ (2015). Accessed 2016 Jan 21."
+  ],
+  "title": "epitopepredict: A tool for integrated MHC binding prediction",
+  "content": [
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        {
+          "type": "Superscript",
+          "content": [
+            "1"
+          ]
+        },
+        "UCD School of Veterinary Medicine, University College Dublin, Ireland."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": [
+        "Background"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "An essential step in provoking adaptive immunity, delivered by the activated CD8+ or CD4+ T cells, is the recognition of T cell receptor (TCR) to T cell epitopes. The ‘epitope’ is the peptide-MHC combination resulting from the binding of antigenic peptides to MHC proteins. This is the major determinant step and is computationally predictable. Algorithms that can identify MHC-class I ot MHC-class II binding peptides rapidly and accurately are essential in for vaccine development, neo-epitope discovery and immunogenicity screening of protein therapeutics. Many MHC binding prediction methods exist for both class I and II and have been comprehensively reviewed ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref1"
+            }
+          ]
+        },
+        "⁠. Currently the most effective are machine learning (ML) based approaches which are trained on existing binding affinity data for a given MHC molecule. To do this the peptide sequence is encoded and these features fit against the known affinity. To date artificial neural networks (ANN) preform better at this task than other models such as linear regression. This is likely because the hidden layers in such networks are better able to account for the contribution of intrapeptide residue-residue interactions to the binding affinity. All methods vary in accuracy over MHC alleles depending on the availability of quality datasets. Pan-allele tools have been developed to deal with this issue ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref2"
+            }
+          ]
+        },
+        "⁠. These approaches can impute affinities for unknown alleles on the basis of neighboring MHC with the highest sequence similarity and which have sufficient training data."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "By convention, selection of peptides is done using an arbitrary score threshold. For affinities, a threshold value of 500nM is considered a binder and 50nM a strong binder. The algorithms perform best at this classification task rather than re-producing exact affinities. This problem is intrinsic to ML-based approaches: the effect of the most dominant features is penalized intentionally to achieve better generalization on blind test data ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref3"
+            }
+          ]
+        },
+        "⁠. Another source of the inaccuracy is the loss of sensitivity of experimental assays at either very high or low binding affinity regimes. As a consequence, epitope candidates for subsequent experimental validation selected by ranking the affinities may not necessarily be the best approach. Percentage ranking is now often the recommended method ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref4"
+            }
+          ]
+        },
+        "⁠. However the exact approach probably depends on the study in question. For example, searching a small number of proteins might mean taking the top ranked percentile from each sequence regardless of score. Threshold selection is discussed later in the examples."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Strategies for epitope selection"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "A typical approach to binder selection is to select the top n",
+        {
+          "type": "Superscript",
+          "content": [
+            "th"
+          ]
+        },
+        " percentile per protein rather than using an absolute threshold value; however for whole proteome studies this is likely to introduce multiple false positives from peptides in proteins that would otherwise score very low globally. We therefore include in our method a global standardization of the score over the entire proteome, similar to that used by Bremel et al. ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref5"
+            }
+          ]
+        },
+        "⁠ and others, by setting a global cut-off based on the top percentage of scores from the entire proteome. In addition, some alleles have a significantly higher score distribution and will dominate the results if a uniform score cut-off is applied; this applies in general to MHC binding predictors. Thus separate global cut-off per allele so that low scoring alleles would be better represented is also advisable. This approach is consistent with recent work by Paul et al. ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref6"
+            }
+          ]
+        },
+        "⁠ regarding allele-specific thresholds in MHC-I prediction. Three alternative such threshold strategies are provided in this library and discussed below."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Binding promiscuity"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Promiscuous MHC binders are defined in this context as those above the cutoffs in more than a given number of alleles. The rationale for this is that a peptide is more likely to be immunogenic in your target population if it is a binder in multiple alleles."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Tools for epitope selection"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Software for T cell vaccine development or neoepitope prediction currently concentrates on using the binding prediction or eluted ligand likelihood as the main selection methods. Typically when a binding prediction tool is published, the authors will provide a binary that can be used on the command line or via a web interface. Some tools provide both. Command line tools offer better control and perhaps higher throughput but may be harder to use for a general user. Virtually all of these require users separately input each sequence and it’s allele. It is then difficult or impossible to integrate results from multiple sequences and alleles. The results are often in different formats and it is not possible to compare between algorithms, for example."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "There are several computational pipelines that help a researcher to do epitope prediction ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref7"
+            },
+            {
+              "type": "Cite",
+              "target": "ref8"
+            }
+          ]
+        },
+        "⁠⁠. Other commercial desktop software applications for epitope discovery are EpiMatrix ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref9"
+            }
+          ]
+        },
+        "⁠. Commercial tools may be of high quality but are neither free nor open source, raising issues of reproducibility for academics. Therefore there is a limited choice for users in readily available and easy to use tools."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": [
+        "Implementation"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "This software is implemented entirely in Python. To achieve some level of uniformity between prediction methods a standardized programmatic interface for executing the binding prediction methods and processing the results was designed. The results from each method can then be processed and visualized in a consistent manner. Prediction methods are implemented by inheriting from a Predictor object. Each predictor may wrap methods from other python packages or call command line predictors. For example the ",
+        {
+          "type": "Emphasis",
+          "content": [
+            "TepitopePredictor"
+          ]
+        },
+        " uses the epitopepredict.tepitope module provided with this package. This approach allows us to integrate a new prediction method in a relatively straightforward and consistent manner. The prediction methods always return a Pandas DataFrame ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref10"
+            }
+          ]
+        },
+        "⁠ in a standard format. The ",
+        {
+          "type": "Emphasis",
+          "content": [
+            "predict_sequences"
+          ]
+        },
+        " method is used for multiple protein sequences and can be run in parallel. This can take a GenBank or fasta file as input. For large numbers of sequences the prediction function   should be called with save=True so that the results are saved as each protein is completed to avoid memory issues, since many alleles might be called for each protein. Results are saved with one file per protein/sequence in csv format. More details on how to use the Python API are given in the online documentation and in the example notebooks referencing the examples below."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "The web application is implemented in Tornado ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref11"
+            }
+          ]
+        },
+        "⁠ using the Bokeh ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref12"
+            }
+          ]
+        },
+        "⁠ visualization library for making interactive plots."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": []
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Supported MHC binding prediction tools"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "The following MHC binding prediction methods are supported though the API. This means they can be utilized via the command line tool. The first two are built-in to the package, the others require installation of external software by the user. NetMHC tools in particular have to be installed separately as they have a more restrictive academic license that does not allow them to be distributed by a third party or via a repository. Only the ‘pan specific’ versions of these tools are supported as they provide the best allelic coverage."
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "meta": {
+                "style": "Title Slide~LT~Titel"
+              },
+              "content": [
+                "TEPITOPEpan ",
+                {
+                  "type": "CiteGroup",
+                  "items": [
+                    {
+                      "type": "Cite",
+                      "target": "ref13"
+                    }
+                  ]
+                },
+                "⁠ is a position specific scoring matrix (PSSM) based algorithm. It uses 11 scoring matrices derived from combinatorial competitive binding assays on 11 HLA-DR alleles ",
+                {
+                  "type": "CiteGroup",
+                  "items": [
+                    {
+                      "type": "Cite",
+                      "target": "ref14"
+                    }
+                  ]
+                },
+                "⁠. This method is pan specific and covers 700 HLA-DR molecules with unknown binding specificities based on pocket similarity to the original set of 11 library sequences. We have implemented this algorithm as a Python module, thus it comes with the package. It is fast but not as accurate in benchmarks as netMHCIIpan with less alleles covered."
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "meta": {
+                "style": "Title Slide~LT~Titel"
+              },
+              "content": [
+                "The BasicMHC1 predictor is a built-in method MHC-I prediction method further detailed below. It is implemented using the scikit-learn ",
+                {
+                  "type": "CiteGroup",
+                  "items": [
+                    {
+                      "type": "Cite",
+                      "target": "ref15"
+                    }
+                  ]
+                },
+                "⁠ package. It only covers 103 MHC-I alleles and cannot currently be extrapolated to use with similar alleles (i.e. not pan specific) but provides a convenient alternative to the external tools."
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "meta": {
+                "style": "Title Slide~LT~Titel"
+              },
+              "content": [
+                "MHCflurry ",
+                {
+                  "type": "CiteGroup",
+                  "items": [
+                    {
+                      "type": "Cite",
+                      "target": "ref16"
+                    }
+                  ]
+                },
+                " is an MHC-I predictor also using ANNs trained on affinity measurements. It currently covers 112 human alleles. This is an open source tool available via pip and thus easy to install. It is recommended for MHC-I predictions unless there are alleles not covered. The latest supported version is 2.0.1."
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "meta": {
+                "style": "Title Slide~LT~Titel"
+              },
+              "content": [
+                "NetMHCpan ",
+                {
+                  "type": "CiteGroup",
+                  "items": [
+                    {
+                      "type": "Cite",
+                      "target": "ref17"
+                    }
+                  ]
+                },
+                "⁠ is an artificial neural network algorithm covering many human and animal MHC-I alleles. This is trained on both MS eluted ligand data and binding affinity data. It therefore returns two properties: either the likelihood of a peptide becoming a natural ligand, or the predicted binding affinity. Version 4.1 is currently supported."
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "meta": {
+                "style": "Title Slide~LT~Titel"
+              },
+              "content": [
+                "NetMHCIIpan ",
+                {
+                  "type": "CiteGroup",
+                  "items": [
+                    {
+                      "type": "Cite",
+                      "target": "ref18"
+                    }
+                  ]
+                },
+                "⁠ is also an ANN, trained on binding data for multiple MHC-II alleles. Predictions are now extended to all HLA-DR, DQ and DP known sequences as from version 3.0 ",
+                {
+                  "type": "CiteGroup",
+                  "items": [
+                    {
+                      "type": "Cite",
+                      "target": "ref19"
+                    }
+                  ]
+                },
+                "⁠. Both this tool and netMHCpan have the broadest species support of any algorithms. They both have good web interfaces but are covered by free non-commercial academic licenses and the local versions must be installed separately. Version 3.0 is supported."
+              ]
+            }
+          ]
+        }
+      ],
+      "order": "unordered"
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Available threshold methods"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Thresholds for considering a peptide to be a binder are somewhat arbitrary. This tool provides three threshold methods. The results from each will overlap but will not be identical. These are applied per sequence/protein and per each allele using the currently loaded data. These three threshold methods are also available when calculating promiscuous binders. Ultimately these are simply alternative methods of achieving the same result - reducing the set of predicted peptides."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Strong",
+          "content": [
+            "rank –"
+          ]
+        },
+        " Selects the top ranking peptides in each sequence above a rank cutoff. This is the most frequently recommended method of binder selection in general."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Strong",
+          "content": [
+            "score"
+          ]
+        },
+        " - Uses a single score cutoff for all peptides. Most binding predictors produce a binding affinity score (ic50) and a cutoff of 500nM is common. There is no rule over which score cutoff is optimal however. Some alleles will tend to produce higher scores. Also unless some limit is placed on the number of peptides, large proteins will produce a lot of peptides compared to smaller sequences."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Strong",
+          "content": [
+            "global"
+          ]
+        },
+        " - Allele specific ‘global’ cutoffs, this uses a percentile cutoff to select peptides using pre-calculated quantile scores for each allele. The global quantile scores were calculated for each prediction method using a set of sequences from known human antigens such as apical membrane antigen, Tetanus toxin, thrombopoietin and interferon beta. Therefore peptides can be selected as measured against a standard scale as opposed to their ‘within protein’ ranking. A typical value would be using the top 5% in each allele across all sequences. This technique is designed for selection of a small set of candidates from very large numbers of proteins such as across a bacterial proteome. There is limited evidence to suggest this is superior to the other methods but w",
+        {
+          "type": "Emphasis",
+          "content": [
+            "e have used it for selection of a small set of candidates from large numbers of proteins, detailed in example 2 below."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "A basic MHC-I predictor"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "This section details the built-in method for MHC-I binding prediction. It is implemented in Python using scikit-learn. The typical method of building such an algorithm is to encode the peptide amino acid sequences numerically in a manner that captures the properties important for binding. Then these features can be fit against their known binding affinities (or eluted ligand data) using a regression model of some kind. Several peptide encoding schemes were tested, including the NLF encoding scheme ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref20"
+            }
+          ]
+        },
+        "⁠, OETMAP ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref21"
+            }
+          ]
+        },
+        "⁠, a Blosum62 matrix or a simple ‘one hot’ encoding method. One hot encoding was found to be adequate and the more complex schemes did not appear to offer any significant advantage. This may require further testing. For now it is possible to instantiate and train the predictor with any of these encoders. The regression model used is the ",
+        {
+          "type": "Emphasis",
+          "content": [
+            "MLPRegressor"
+          ]
+        },
+        " from sklearn, an implementation of a multilayer perceptron (MLP), a class of artificial neural network. The data used for training was primarily from the IEDB and was curated by the authors of MHCflurry ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref16"
+            }
+          ]
+        },
+        "⁠ from various sources. The regression model must be trained for each allele. When this is done the model is persisted with the joblib module and can be re-loaded for new predictions for that allele. All of this functionality is encapsulated in the ",
+        {
+          "type": "Emphasis",
+          "content": [
+            "BasicMHCIPredictor"
+          ]
+        },
+        " class in epitopepredict. The predictor only supports 103 alleles currently and is not pan specific as of yet. This feature is still to be added."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "To test performance, a separate evaluation set of peptides originally created by Kim et al. ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref22"
+            }
+          ]
+        },
+        "⁠ was downloaded from the IEDB. The training set sequences were subtracted from this leaving 25948 9-mer peptides. Only alleles for which there were more than 200 peptides were evaluated to give a reasonable performance estimate. This left 40 HLA alleles for testing. Both the Pearson correlation coefficient and the roc auc metric (with a threshold of below 500nM set as a positive binder) were used as metrics. The results in Figure 1 show that our predictor gives similar performance to the others with this test set. It is not meant to provide a definitive benchmark since these other tools have been more comprehensively benchmarked elsewhere. In particular it can be hard to obtain a benchmark set of peptides that has not been used for training in one or more of the models."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "In practical use this predictor can be run directly from the API or command line without installing any other program. Models are trained once as needed for each allele/length combination using the current installed versions of scikit-learn and joblib. Once trained each model is saved and can be re-used. Training only takes a matter of seconds for each model."
+      ]
+    },
+    {
+      "type": "Figure",
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "Performance of the basicmhc1 predictor compared to netMHCpan and MHCflurry for 40 human alleles. (a) Mean Pearson r and (b) mean AUC scores over all alleles. Only alleles with evaluation data for over more than 200 peptides were used. This test dataset used 9-mer peptides only."
+          ]
+        }
+      ],
+      "label": "Figure 1",
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "farrell-2021.json.media/image1.png",
+          "text": "",
+          "title": ""
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": [
+        "Results"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "In the following we use several examples to illustrate the use of this package in practice with real data. These are available as Jupyter notebooks stored at ",
+        {
+          "type": "Link",
+          "target": "https://github.com/dmnfarrell/epitopepredict/tree/master/examples",
+          "content": [
+            "https://github.com/dmnfarrell/epitopepredict/tree/master/examples"
+          ]
+        },
+        ". They are also archived permanently on Zenodo and the latest version can be found using the DOI: 10.5281/zenodo.593878. Some of these notebooks are also reproducible using the epitopepredict examples Code Ocean capsule (DOI: 10.24433/CO.5815986.v1)."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Example 1: Predictions for selected antigens in Mycobacterium Tuberculosis – comparison with experimental data"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "A typical use of epitope prediction tools is to select a candidate list of peptides for testing from a large sequence space representing multiple potential antigens. This example provides a comparison of the three different selection methods in epitopepredict using a realistic example. It uses a set of known CD4 epitopes discovered in a study by measuring IFN-γ T cell responses to M. tuberculosis (Mtb) antigens in a healthy South African cohort ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref23"
+            }
+          ]
+        },
+        "⁠. The test data is available as supplementary tables in that paper. It comprises 75 15-mer epitopes selected from a set of known Mtb antigens. Here we perform a simple benchmark to find the percentage coverage of predicted MHC-II binders in two predictors, netMHCIIpan and Tepitope, using the three threshold methods for selecting promiscuous binders described above. These are then compared across a selection of cut-offs that each yield a certain number of binders. Ideally we would want to produce as small a number of predicted binders as possible to reduce the number to be experimentally tested."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "The sequences of all 29 proteins represented in the target set where retrieved and split into 15-mers. Then predictions were made for each of the 27 alleles in the target population tested in the study. This produces a list of 9,299 peptides predicted for each allele. With epitopepredict selection of promiscuous binders can be done easily with a single command. Binders promiscuous above thresholds in at least five alleles were selected."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "The results are shown in Figure 2, with the plots showing the percentage of experimental peptides covered versus the number of predicted binders, corresponding to a certain cut-off in each method. It is seen that the ‘rank’ method is superior in both cases as it achieves a higher coverage with the lowest number of binders. All the curves level off at about 80% coverage. The ‘rank’ method may work better in this case partly because some of the epitopes were originally selected by prediction algorithms using a similar approach."
+      ]
+    },
+    {
+      "type": "Figure",
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "Performance of three binder selection methods showing the percentage coverage of experimental positive peptides by predicted binders at different cutoff levels. The higher the cutoff the more binders are predicted until the curves level off. Results are shown for (a) netMHCIIpan and (b) Tepitope."
+          ]
+        }
+      ],
+      "label": "Figure 2",
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "farrell-2021.json.media/image2.png",
+          "text": "",
+          "title": ""
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Example 2: Scanning the proteome of Mycobacterium bovis for CD4+ epitopes"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "We have previously used this package to prioritize CD4+ epitopes in the proteome of M. bovis (",
+        {
+          "type": "Emphasis",
+          "content": [
+            "Mycobacterium tuberculosis"
+          ]
+        },
+        " variant bovis AF2122/97) for potential use in novel antigens for bovine tuberculosis ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref24"
+            }
+          ]
+        },
+        "⁠. The results are documented in the paper. Briefly, we performed binding predictions over the entire M. ",
+        {
+          "type": "Emphasis",
+          "content": [
+            "Bovis"
+          ]
+        },
+        " proteome using two different binding predictors, netMHCIIpan ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref19"
+            }
+          ]
+        },
+        "⁠, Tepitope ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref13"
+            }
+          ]
+        },
+        "⁠. For each set of results we found only promiscuous binders above an allele specific cutoff using the ‘global’ selection strategy. In addition clusters of binders were detected to find areas of high binder density in each sequence. The assumption underlying this method is that ~20mer peptides covering these regions will be more likely to yield at least one true positive epitope and hence elicit a T-cell response. The results are a set of clusters for both prediction methods, ranked by number of binders per unit length. This has also been referred to as the ‘epitope density’ method ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref25"
+            }
+          ]
+        },
+        "⁠. We further contrasted this cluster selection with the more conventional ranking of top scoring binders. We also included random non high scoring peptides as a control. 20-mer peptides derived from these sets were synthesized and tested for IFN-γ responses in M.bovis naturally infected cattle. Approximately 24% out of 270 peptides had high responses (using known epitopes as the baseline response). The random controls had no responses above this threshold."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "This workflow was performed using an older version of this software. A newer and somewhat simplified form of the same analysis is now available as a notebook in the examples folder. Results from this output will be slightly different to our previous analysis since some of the extra steps have been removed but the methodology is the same."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Example 3: Predicting cross-reactive T cell epitopes in Sars-CoV-2"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "Eight months after the initial outbreak, puzzles remain about the human immune response to the SARS-CoV-2 virus. By now a significant proportion in some large cities, such as New York, will have been exposed. However antibody tests have often revealed lower than expected rates of seropositivity in populations where the virus has spread ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref26"
+            }
+          ]
+        },
+        "⁠. It is almost certain that other components of the immune system are important in protecting individuals just as in other infectious diseases. Robust innate immune responses are one candidate. Another possibility is T cells. SARS-CoV-2 reactive CD4+ T cells have been reported in unexposed individuals, suggesting pre-existing cross-reactive T cell memory in 20-50% of people ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref27"
+            }
+          ]
+        },
+        "⁠. It is possible these are memory T cells generated from previous exposures to the human common cold coronaviruses (HCoVs) which circulate widely."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "Mateus et al. ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref28"
+            }
+          ]
+        },
+        "⁠ have identified such cross-reactive CD4+ epitopes by generating 42 short term T cell lines specific to previously identified epitopes in PBMCs from unexposed donors. Then homologs to these peptides in the HCoVs were tested against these cell lines for a response. These tests were done in both unexposed and convalescent COVID19 patients. Cross reactivity was found in 10/42 of the T cell lines. Responding cells in unexposed donors were predominantly found in the effector memory CD4+ T cell population, though the consequences of this for protective immunity are not yet known."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "Here we show how it’s possible to predict such potential cross-reactive CD4+ epitopes just using the sequences."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "The method used is as follows:"
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "Predict MHC-binders in each SCoV2 protein sequence and selected the top scoring candidates. Here we use epitopepredict to predict the most promiscuous binders across the 8 most representative human MHC-II alleles. Each protein sequence is split into 15-mer peptides and scored."
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "Select the top scoring peptides in each protein. In this case we select the peptides using the global cutoff method in the top 5% percentile for each allele. We also limit the total for each protein to 70 to prevent a very long protein like ORF1ab from dominating the selection."
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                "Calculate conservation of each peptide with it’s closest homologous sequence in each of the other four HCoVs. Then rank them by percentage identity."
+              ]
+            }
+          ]
+        }
+      ],
+      "order": "unordered"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Using a limit of 70 peptides per protein we found 282 predicted peptides. Out of these, 162 were conserved with >67% identity in at least one HCoV (most commonly with Sars). Note that for a peptide to be cross-reactive it does not necessarily have to share all residues in common with it’s homolog. The 9-mer core binding sequence could be conserved with perhaps similar residues at ends. We finally checked our 162 peptides against the 10 epitopes identified by Mateus et al. We found a hit in 6/10 cases, shown in Table Table. Some hits are two peptides in our set overlapping which probably indicates the same core epitope."
+      ]
+    },
+    {
+      "type": "Table",
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "Matches to the 10 cross reactive peptides found by Mateus et al. from our predicted binders shows hits in 6/10 cases."
+          ]
+        }
+      ],
+      "label": "Table 1",
+      "rows": [
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Heading"
+                  },
+                  "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        "Sequence"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Heading"
+                  },
+                  "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        "Protein"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Heading"
+                  },
+                  "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        "Start"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Heading"
+                  },
+                  "content": [
+                    {
+                      "type": "Strong",
+                      "content": [
+                        "Hit from Predicted Set"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "PSGTWLTYTGAIKLD"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "N"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "326"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "GTWLTYTGAIKLDDK"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "SFIEDLLFNKVTLAD"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "S"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "816"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "FIEDLLFNKVTLADA, DLLFNKVTLADAGFI"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "YEQYIKWPWYIWLGF"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "S"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "1206"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "None"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "VLKKLKKSLNVAKSE"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "nsp8"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "3976"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "VVLKKLKKSLNVAKS, EVVLKKLKKSLNVAK"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "KLLKSIAATRGATVV"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "nsp12"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "4966"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "RQFHQKLLKSIAATR"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "EFYAYLRKHFSMMIL"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "nsp12"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "5136"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "NEFYAYLRKHFSMMI, YLRKHFSMMILSDDA"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "LMIERFVSLAIDAYP"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "nsp12"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "5246"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "None"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "TSHKLVLSVNPYVCN"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "nsp13"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "5361"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "None"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "NVNRFNVAITRAKVG"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "nsp13"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "5881"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "meta": {
+                    "style": "Table Contents"
+                  },
+                  "content": [
+                    "VNRFNVAITRAKVGI"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": [
+        "Usage"
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Command Line Interface"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Installing the package provides a command line tool that is run from a terminal. It is envisaged that most users will utilize the package using this tool since it requires no programming knowledge. It provides pre-defined functionality with all inputs and settings specified in a text configuration file. One advantage of using configuration files is in avoiding long commands with multiple arguments that may be prone to causing errors. Also configuration files can be kept to recall what setting was used for a particular workflow. Using this you can make MHC predictions with your chosen alleles and predictors in one run. If settings are left out generally defaults will be used so one can use a minimal file, simplifying usage. Other useful features of the tool are the ability to run predictions in parallel using multiple processing cores, the use of preset lists of alleles and resuming runs that have been interrupted without overwriting previous predictions. Results are saved to disk as text files and can be re-read in a subsequent run of the tool without having to re-calculate binding predictions."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "By default the command line tool will calculate the promiscuous binders to give you a unique list of peptides and include the number of alleles in which it is a binder. The table is ranked by this value and the maximum score over the alleles tested."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "API usage"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A very basic example of how to use the library from the Python API is given here. More complex usage is detailed in the documentation."
+      ]
+    },
+    {
+      "type": "CodeBlock",
+      "text": "import epitopepredict as ep\nP = ep.get_predictor('basicmhc1')\nfrom epitopepredict import peptutils\n#get some random peptides, returns a list\nseqs = peptutils.create_random_sequences(10)\n#run predictions\nres = P.predict_peptides(seqs, alleles='HLA-A*01:01')"
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "The above code returns a pandas DataFrame sorted by allele and rank."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Plotting"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "The API includes the ability to plot results for individual protein sequences for one or more predictor. In such plots binders are shown as colored blocks at their position in the protein with multiple tracks, one per allele/method. This allows ready comparisons between methods. An example is shown in Figure 3. This shows binders for three MHC-class I predictors for an antigenic Mtb protein, Rv3875. Six HLA alleles are shown. We can see that each method has some overlap with the others."
+      ]
+    },
+    {
+      "type": "Figure",
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "Predicted ‘promiscuous’ binders in a sample sequence for three methods. Each method will have some overlapping peptides but they are usually likely to differ."
+          ]
+        }
+      ],
+      "label": "Figure 3",
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "farrell-2021.json.media/image3.png",
+          "text": "",
+          "title": ""
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Testing"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "The command line tool can be tested by calling ",
+        {
+          "type": "Strong",
+          "content": [
+            "epitopepredict -t"
+          ]
+        },
+        " which runs a set of sample Ebola virus sequences with the available prediction methods. Outputs are saved to a folder called zaire_test. It should be noted that this is not used as a benchmark test since the algorithms used have all been tested independently. This is an example run for the user to check that the command line workflow is working and to inspect the outputs."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Web Application"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "A web interface that is launched from the command line can be used to view results from a set of predictions that have been previously made. This is an improved and much easier to use form of a previous web interface called epitopemap ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref29"
+            }
+          ]
+        },
+        "⁠ and replaces it. Widgets can be used to select thresholds and the kind of plot shown. Currently two kinds of plots can be viewed, a sequence view and one that shows the peptides as colored blocks in tracks along the sequence, as shown in Figure 4. This web interface can be tested by running the test command above and then launching the web app using the zaire_test folder as input."
+      ]
+    },
+    {
+      "type": "Figure",
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "Web application showing results for a single protein sequence. Widgets can be used to select protein, cut-off levels."
+          ]
+        }
+      ],
+      "label": "Figure 4",
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "farrell-2021.json.media/image4.png",
+          "text": "",
+          "title": ""
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": [
+        "Conclusions"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "This software provides a programmatic framework and command line interface for running multiple MHC binding prediction algorithms. This will be especially useful for performing high throughput calculations in many sequences and alleles. It is designed to scale for proteome scanning by allowing multiple processing threads to be used with any of the prediction methods. The API can also be easily applied to single sequences or small numbers of antigens. A web interface allows users to readily review results if they wish."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": [
+        "Availability and requirements"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Project name: epitopepredict"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Project home page: ",
+        {
+          "type": "Link",
+          "target": "https://github.com/dmnfarrell/mhcpredict",
+          "content": [
+            "https://github.com/dmnfarrell/epitopepredict"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Archived version: v0.5.0 (DOI: 10.5281/zenodo.4056421)"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "SciCrunch Identifier: SCR_019221"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Operating system(s): Linux, Unix"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Programming language: Python"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Other requirements: biopython, pandas, numpy, matplotlib, scikit-learn, bokeh"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "License: GNU General Public License v 3.0"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Any restrictions to use by non-academics: None"
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": [
+        "Funding"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "This work was supported by the Irish Department of Agriculture Food and the Marine grant 15/S/651 (NEXUSMAP). DF was previously funded under an Irish Research Council Postdoctoral Fellowship (GOIPD/2015/475) for part of this work. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": [
+        "Acknowledgments"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Thanks to Dr. Joseph Crispell for useful discussions on machine learning. Also thanks to Prof. Stephen Gordon for support during the development of this software."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 1,
+      "content": [
+        "Availability of data and materials"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "All computational work described here was implemented using Python. The code is provided as a Python package called epitopepredict under the Apache license. Extensive use was made of the IPython (Jupyter) notebook environment ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            {
+              "type": "Cite",
+              "target": "ref30"
+            }
+          ]
+        },
+        "⁠ in prototyping the codebase."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Documentation for users is available at ",
+        {
+          "type": "Link",
+          "target": "http://epitopepredict.readthedocs.io/",
+          "content": [
+            "http://epitopepredict.readthedocs.io"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Installation"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "meta": {
+        "style": "Title Slide~LT~Titel"
+      },
+      "content": [
+        "This software should be run on a Linux operating system. Ubuntu is recommended but most major distributions will work well. Windows is not supported. If using Windows or macOS (OS X), users can simply install Linux using virtual machine software such as Oracle VM VirtualBox (",
+        {
+          "type": "Link",
+          "target": "https://www.virtualbox.org/",
+          "content": [
+            {
+              "type": "Strong",
+              "content": [
+                "https://www.virtualbox.org"
+              ]
+            }
+          ]
+        },
+        "). Software is then installed using the online documentation. The installation process is very simple, requiring only a single typed command. Externally used MHC binding prediction algorithms do need to be installed separately, these are all freely available."
+      ]
+    },
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": [
+        "Installing netMHCpan and netMHCIIpan"
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Due to license restrictions these programs must be installed separately. They are free for academic users. You can go to ",
+        {
+          "type": "Link",
+          "target": "http://www.cbs.dtu.dk/",
+          "content": [
+            "http://www.cbs.dtu.dk"
+          ]
+        },
+        " to fill in the forms that will give you access to the install file for the respective programs. The install instructions can then be found in the readme files when you untar the downloaded file e.g. netMHCpan-4.1.readme. There are four steps detailed and the process is relatively simple. Remember to test the software is working before you use it in epitopepredict."
+      ]
+    }
+  ]
+}
