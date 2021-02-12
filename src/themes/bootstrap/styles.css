@@ -133,6 +133,26 @@
     display: none;
   }
 
+  /* Default to author-date citation format for cite groups with fallback text */
+  :--CiteGroup {
+    &::before {
+      content: '(';
+    }
+
+    &::after {
+      content: ')';
+    }
+
+    :--Cite > a > :first-child {
+      display: none;
+    }
+
+    /* Ensure that at least one citation format is visible */
+    :--Cite > a > :only-child {
+      display: inline;
+    }
+  }
+
   /**
    * Use Bootstrap's `panel` class to emphasize the Article's abstract.
    * See `./index.ts` for how we add wrapping elements to the content

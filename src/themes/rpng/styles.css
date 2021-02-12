@@ -114,3 +114,23 @@ body {
     border: 1px solid lightgrey;
   }
 }
+
+/* Default to author-date citation format for cite groups with fallback text */
+:--CiteGroup {
+  &::before {
+    content: '(';
+  }
+
+  &::after {
+    content: ')';
+  }
+
+  :--Cite > a > :first-child {
+    display: none;
+  }
+
+  /* Ensure that at least one citation format is visible */
+  :--Cite > a > :only-child {
+    display: inline;
+  }
+}

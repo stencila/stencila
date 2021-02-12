@@ -122,8 +122,8 @@
     display: block;
   }
 
-  > [data-itemprop="about"],
-  > [data-itemprop="genre"],
+  > [data-itemprop='about'],
+  > [data-itemprop='genre'],
   > :--identifiers,
   > :--keywords {
     display: none;
@@ -512,6 +512,26 @@ h6:--Heading {
 
   :--title + :--datePublished {
     display: none;
+  }
+}
+
+/* Default to author-date citation format for cite groups with fallback text */
+:--CiteGroup {
+  &::before {
+    content: '(';
+  }
+
+  &::after {
+    content: ')';
+  }
+
+  :--Cite > a > :first-child {
+    display: none;
+  }
+
+  /* Ensure that at least one citation format is visible */
+  :--Cite > a > :only-child {
+    display: inline;
   }
 }
 

@@ -361,6 +361,26 @@ h2:--Heading {
   line-height: 1;
 }
 
+/* Default to author-date citation format for cite group fallback text */
+:--CiteGroup {
+  &::before {
+    content: '(';
+  }
+
+  &::after {
+    content: ')';
+  }
+
+  :--Cite > a > :first-child {
+    display: none;
+  }
+
+  /* Ensure that at least one citation format is visible */
+  :--Cite > a > :only-child {
+    display: inline;
+  }
+}
+
 :--references {
   :--reference {
     /* Override the width: 100% applied above on :--ListTypes */
