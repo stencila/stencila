@@ -1,3 +1,32 @@
+/*
+In-text citations
+
+See https://en.wikipedia.org/wiki/APA_style#In-text_citations
+*/
+:--CiteGroup {
+  &::before {
+    content: '(';
+  }
+
+  &::after {
+    content: ')';
+  }
+
+  :--Cite > a > :first-child {
+    display: none;
+  }
+
+  /* Ensure that at least one citation format is visible */
+  :--Cite > a > :only-child {
+    display: inline;
+  }
+}
+
+/*
+Reference list
+
+See https://en.wikipedia.org/wiki/APA_style#Reference_list
+*/
 :--references {
   > ol {
     padding-left: 0;

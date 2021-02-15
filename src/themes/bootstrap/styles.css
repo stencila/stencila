@@ -19,6 +19,9 @@
 /* Import semantic selectors so that we can map Bootstrap styles to them */
 @import '../../selectors.css';
 
+/* Import some Thema extensions to re-use styling for certain node types */
+@import '../../extensions/cite-apa/styles.css';
+
 /* Hide article metadata */
 :--identifiers {
   display: none;
@@ -131,26 +134,6 @@
   & > :--identifiers,
   & > :--keywords {
     display: none;
-  }
-
-  /* Default to author-date citation format for cite groups with fallback text */
-  :--CiteGroup {
-    &::before {
-      content: '(';
-    }
-
-    &::after {
-      content: ')';
-    }
-
-    :--Cite > a > :first-child {
-      display: none;
-    }
-
-    /* Ensure that at least one citation format is visible */
-    :--Cite > a > :only-child {
-      display: inline;
-    }
   }
 
   /**
