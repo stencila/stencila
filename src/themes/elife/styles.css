@@ -204,7 +204,7 @@
         font-weight: bold;
 
         &::before {
-          content: " ";
+          content: ' ';
         }
       }
 
@@ -253,6 +253,26 @@
       :--pageEnd::before {
         content: '-';
       }
+    }
+  }
+
+  /* Default to author-date citation format for cite groups with fallback text */
+  :--CiteGroup {
+    &::before {
+      content: '(';
+    }
+
+    &::after {
+      content: ')';
+    }
+
+    :--Cite > a > :first-child {
+      display: none;
+    }
+
+    /* Ensure that at least one citation format is visible */
+    :--Cite > a > :only-child {
+      display: inline;
     }
   }
 

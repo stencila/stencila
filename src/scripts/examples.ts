@@ -32,6 +32,7 @@ const EXAMPLES = [
   articleDrosophila,
   articleReplication,
   articleAntibodies,
+  epitopepredict,
 ]
 
 /**
@@ -66,6 +67,13 @@ function articleReadme(): Promise<string | undefined> {
  */
 function articleKitchenSink(): Promise<string | undefined> {
   return build(ex('articleKitchenSink.json'), ex('articleKitchenSink.html'))
+}
+
+/**
+ * An article on cellular immune response
+ */
+function epitopepredict(): Promise<string | undefined> {
+  return build(ex('epitopepredict.json'), ex('epitopepredict.html'))
 }
 
 /**

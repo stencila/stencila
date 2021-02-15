@@ -1,3 +1,4 @@
+import '../../extensions/cite-apa'
 import '../../extensions/code'
 
 // Use solid icons for Stencila components

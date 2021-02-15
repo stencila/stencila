@@ -19,6 +19,9 @@
 /* Import semantic selectors so that we can map Bootstrap styles to them */
 @import '../../selectors.css';
 
+/* Import some Thema extensions to re-use styling for certain node types */
+@import '../../extensions/cite-apa/styles.css';
+
 /* Hide article metadata */
 :--identifiers {
   display: none;

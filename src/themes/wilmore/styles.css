@@ -122,8 +122,8 @@
     display: block;
   }
 
-  > [data-itemprop="about"],
-  > [data-itemprop="genre"],
+  > [data-itemprop='about'],
+  > [data-itemprop='genre'],
   > :--identifiers,
   > :--keywords {
     display: none;

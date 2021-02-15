@@ -1,3 +1,4 @@
+import '../../extensions/cite-apa'
 import { create, first, ready, select, wrap } from '../../util'
 
 ready(() => {

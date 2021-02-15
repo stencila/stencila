@@ -1,3 +1,4 @@
+import '../../extensions/cite-apa'
 import { ready } from '../../util'
 
 ready(async () => {

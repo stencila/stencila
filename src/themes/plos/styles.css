@@ -3,6 +3,7 @@
   some linting rules are disabled.
 */
 
+@import '../../extensions/cite-apa/styles.css';
 @import '../../extensions/math/styles.css';
 @import '../../extensions/code/styles.css';
 @import '../../extensions/person/styles.css';

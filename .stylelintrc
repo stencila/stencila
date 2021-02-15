@@ -28,6 +28,12 @@
         "disableFix": true
       }
     ],
+    "value-keyword-case": [
+      "lower",
+      {
+        "ignoreProperties": ["/^--/", "font-family"]
+      }
+    ],
     "xi/selector-pattern": [
       "^(?:{element}{pseudo}?).*$",
       {

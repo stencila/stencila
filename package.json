@@ -67,7 +67,7 @@
   "devDependencies": {
     "@percy/cli": "1.0.0-beta.35",
     "@stencila/dev-config": "2.0.0",
-    "@stencila/encoda": "0.104.5",
+    "@stencila/encoda": "0.105.2",
     "@stencila/schema": "1.0.0",
     "@types/chromedriver": "81.0.0",
     "@types/jest": "26.0.20",
