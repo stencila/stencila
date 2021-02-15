@@ -91,7 +91,9 @@ stencila-executable-document-toolbar {
     stencila-action-menu nav {
       width: 100%;
       border-bottom-right-radius: 0;
+    }
 
+    &:not(.isStacked) stencila-action-menu nav {
       @media screen and (min-width: 1024px) {
         width: 50%;
       }
