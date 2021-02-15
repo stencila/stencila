@@ -1,3 +1,17 @@
+# [2.21.0](https://github.com/stencila/thema/compare/v2.20.16...v2.21.0) (2021-02-15)
+
+
+### Bug Fixes
+
+* **Giga:** Refine GigaScience based theme ([5511bc5](https://github.com/stencila/thema/commit/5511bc5ad4e5df3e4eca1a581ae78434f7af583f))
+* **In-text citations:** Add separator between Cite items within a CiteGroup ([5a30430](https://github.com/stencila/thema/commit/5a304307bdb7e931d1a84329eb369c1bef2be068))
+
+
+### Features
+
+* Style in-text citations ([58ee4f8](https://github.com/stencila/thema/commit/58ee4f89bdad86135c02d4930d54ec63b9d6d6a5)), closes [#283](https://github.com/stencila/thema/issues/283)
+* **Numeric in-text citations:** Split out into separate extension for reuse ([d6e496a](https://github.com/stencila/thema/commit/d6e496a50049a132eefd6908091e2f1db69e3b9d))
+
 ## [2.20.16](https://github.com/stencila/thema/compare/v2.20.15...v2.20.16) (2021-02-11)
 
 
