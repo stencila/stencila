@@ -1,4 +1,5 @@
 @import '../skeleton/styles.css';
+@import '../../extensions/cite-numeric/styles.css';
 
 :--root {
   --max-width: 800px;
@@ -151,37 +152,6 @@
 
   :--Cite {
     color: var(--color-primary-100);
-  }
-
-  /* Default to numeric citation format for cite group fallback text */
-  :--CiteGroup {
-    &::before {
-      content: '[';
-    }
-
-    &::after {
-      content: ']';
-    }
-
-    :--Cite {
-      &:not(:last-child)::after {
-        content: ',\00a0';
-        order: 100;
-      }
-    }
-
-    :--Cite > a > :first-child {
-      display: inline;
-    }
-
-    :--Cite > a > :last-child {
-      display: none;
-    }
-
-    /* Ensure that at least one citation format is visible */
-    :--Cite > a > :only-child {
-      display: inline;
-    }
   }
 
   :--Figure,
