@@ -163,6 +163,13 @@
       content: ']';
     }
 
+    :--Cite {
+      &:not(:last-child)::after {
+        content: ',\00a0';
+        order: 100;
+      }
+    }
+
     :--Cite > a > :first-child {
       display: inline;
     }
