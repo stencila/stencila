@@ -30,10 +30,7 @@ const ID_BASE_URL = `${SCHEMA_DEST_URL}/v${versionMajor}`
 const SOURCE_BASE_URL = `https://github.com/stencila/schema/blob/master`
 
 // Create a validation function for JSON Schema for use in `checkSchema`
-const ajv = new Ajv({ jsonPointers: true })
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const metaSchema = require('ajv/lib/refs/json-schema-draft-07.json')
-const validateSchema = ajv.compile(metaSchema)
+const ajv = new Ajv()
 
 /**
  * Run `build()` when this file is run as a Node script
@@ -165,17 +162,8 @@ const checkSchema = (
   if (allTypes.includes(title)) error(`Type ${title} already exists`)
 
   // Is a valid schema?
-  if (validateSchema(schema) !== true) {
-    const message = (betterAjvErrors(
-      metaSchema,
-      schema,
-      validateSchema.errors,
-      {
-        format: 'cli',
-        indent: 2,
-      }
-    ) as unknown) as string
-    error(`${title} is not a valid JSON Schema:\n${message}`)
+  if (ajv.validateSchema(schema) !== true) {
+    error(`${title} is not a valid JSON Schema:\n${ajv.errors}`)
   }
 
   const maxDescriptionLength = 120

@@ -21,22 +21,14 @@ test('build', async () => {
  * are valid JSON Schemas.
  */
 test('schemas are valid', async () => {
-  const ajv = new Ajv({ jsonPointers: true })
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const metaSchema = require('ajv/lib/refs/json-schema-draft-07.json')
-  const validate = ajv.compile(metaSchema)
-
+  const ajv = new Ajv()
   const files = await globby(
     path.join(__dirname, '..', 'public', '*.schema.json')
   )
   for (const file of files) {
     const schema = await fs.readJSON(file)
-    if (validate(schema) !== true) {
-      const message = betterAjvErrors(metaSchema, schema, validate.errors, {
-        format: 'cli',
-        indent: 2,
-      })
-      console.log(message)
+    if (ajv.validateSchema(schema) !== true) {
+      console.log(ajv.errors)
       throw new Error(`💣  Oh, oh, ${file} is invalid`)
     }
   }
