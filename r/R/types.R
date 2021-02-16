@@ -248,6 +248,26 @@ CodeBlock <- function(
 #' @return A `list` of class `CodeChunk`
 #' @seealso \code{\link{CodeBlock}}
 #' @export
+#' @examples
+#' CodeChunk(
+#'   programmingLanguage = "r",
+#'   text = "plot(1)",
+#'   label = "Figure 1",
+#'   id = "fig1",
+#'   caption = list(
+#'     Heading(
+#'       content = list("Figure title"),
+#'       depth = 2
+#'     ),
+#'     Paragraph(
+#'       content = list(
+#'         "A paragraph with some",
+#'         Strong(content = list("strong emphasis")),
+#'         "in it."
+#'       )
+#'     )
+#'   )
+#' )
 CodeChunk <- function(
   text,
   alters,
@@ -2655,6 +2675,12 @@ Periodical <- function(
 #' @return A `list` of class `Person`
 #' @seealso \code{\link{Thing}}
 #' @export
+#' @examples
+#' Person(
+#'   honorificPrefix = "Dr",
+#'   givenNames = list("Jane", "J"),
+#'   familyNames = list("Jamieson")
+#' )
 Person <- function(
   address,
   affiliations,
@@ -4189,102 +4215,119 @@ VolumeMount <- function(
 
 #' Union type for valid block content.
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 BlockContent <- Union(CodeBlock, CodeChunk, Collection, Figure, Heading, List, ListItem, MathBlock, Paragraph, QuoteBlock, Table, ThematicBreak)
 
 
 #' All type schemas that are derived from CodeBlock
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 CodeBlockTypes <- Union(CodeBlock, CodeChunk)
 
 
 #' All type schemas that are derived from CodeFragment
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 CodeFragmentTypes <- Union(CodeFragment, CodeExpression)
 
 
 #' All type schemas that are derived from Code
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 CodeTypes <- Union(Code, CodeBlock, CodeChunk, CodeExpression, CodeFragment)
 
 
 #' All type schemas that are derived from ContactPoint
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 ContactPointTypes <- Union(ContactPoint, PostalAddress)
 
 
 #' All type schemas that are derived from CreativeWork
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Comment, Datatable, Figure, ImageObject, MediaObject, Periodical, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
 
 
 #' All type schemas that are derived from Entity
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Grant
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 GrantTypes <- Union(Grant, MonetaryGrant)
 
 
 #' Union type for valid inline content.
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 InlineContent <- Union(CodeFragment, CodeExpression, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Quote, Strong, Subscript, Superscript, Cite, CiteGroup, "numeric", "logical", "NULL", "character")
 
 
 #' All type schemas that are derived from Mark
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 MarkTypes <- Union(Mark, Delete, Emphasis, NontextualAnnotation, Quote, Strong, Subscript, Superscript)
 
 
 #' All type schemas that are derived from Math
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 MathTypes <- Union(Math, MathBlock, MathFragment)
 
 
 #' All type schemas that are derived from MediaObject
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 
 
 #' Union type for all valid nodes.
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 Node <- Union(Entity, "numeric", "logical", "NULL", "character", Array(Any()), "list")
 
 
 #' All type schemas that are derived from NumberValidator
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 NumberValidatorTypes <- Union(NumberValidator, IntegerValidator)
 
 
 #' All type schemas that are derived from Thing
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, Comment, ContactPoint, CreativeWork, Datatable, DatatableColumn, DefinedTerm, Figure, Grant, ImageObject, ListItem, MediaObject, MonetaryGrant, Organization, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
 
 
 #' Union type for all validator types.
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 ValidatorTypes <- Union(ConstantValidator, EnumValidator, BooleanValidator, NumberValidator, IntegerValidator, StringValidator, ArrayValidator, TupleValidator)
 
 
 #' All type schemas that are derived from Variable
 #'
+#' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
 VariableTypes <- Union(Variable, Parameter)
 

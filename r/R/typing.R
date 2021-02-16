@@ -5,6 +5,8 @@
 #' Any type
 #' 
 #' @return A `list` of class `Any`
+#' @examples
+#' Any()
 #' @export
 Any <- function() {
   self <- list()
@@ -25,6 +27,11 @@ print.Any <- function(x) { # nolint
 #'
 #' @param items The type that items in the array should be
 #' @return A `list` of class `Array` describing the valid `items` of an array
+#' @examples
+#' Array(numeric)
+#' Array("numeric")
+#' Array(Person)
+#' Array(Union(character, Person))
 #' @export
 Array <- function(items) {
   self <- list(
@@ -46,6 +53,8 @@ print.Array <- function(x) { # nolint
 #'
 #' @param ... The types in the union
 #' @return A `list` of class `Union` describing the valid sub `types` of a union type
+#' @examples
+#' Union(character, Person)
 #' @export
 Union <- function(...) {
   args <- as.list(match.call())[-1]
@@ -71,6 +80,8 @@ print.Union <- function(x) { # nolint
 #'
 #' @param ... The values in the enumeration
 #' @return A `list` of class `Enum` describing the valid `values` in an enumeration
+#' @examples
+#' Enum("apple", "pear", "orange")
 #' @export
 Enum <- function(...) {
   self <- list(values = c(...))
