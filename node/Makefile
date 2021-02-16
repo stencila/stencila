@@ -7,7 +7,11 @@ format:
 	cargo fmt --manifest-path native/Cargo.toml
 
 lint:
-	touch native/src/*.rs && cargo clippy
+	touch native/src/*.rs
+	cargo clippy
+
+audit:
+	cargo +nightly udeps
 
 build:
 	npx neon build --release

@@ -8,10 +8,14 @@ format:
 	cargo fmt
 
 lint:
-	touch src/*.rs && cargo clippy
+	touch src/*.rs
+	cargo clippy
 
 check:
 	Rscript -e 'devtools::check()'
+
+audit:
+	cargo +nightly udeps
 
 build:
 	Rscript -e 'devtools::document()'

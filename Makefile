@@ -1,8 +1,8 @@
 all: format lint cover audit build docs
 
-# Some Cargo commands which only make sense at this top level (e.g. `clean`)
-# of the Cargo workspace are added below, in addition to those in the
-# `rust` package's `Makefile`.
+# Some Cargo commands which only make sense at this top level of the
+# Cargo workspace (e.g. `cargo clean`, `cargo audit fix`) are added below
+# (in addition to the cargo commands in the Makefile for each language package)
 
 format:
 	make -C rust format
@@ -15,9 +15,6 @@ test:
 
 cover:
 	make -C rust cover
-
-watch:
-	make -C rust watch
 
 audit:
 	make -C rust audit
