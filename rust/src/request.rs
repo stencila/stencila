@@ -5,50 +5,7 @@ use anyhow::{anyhow, bail, Context, Result};
 use regex::Regex;
 use strum::VariantNames;
 
-#[cfg(feature = "cli")]
-pub mod cli {
-    use super::*;
-    use structopt::StructOpt;
-
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Request a method call on a peer",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
-    pub struct Args {
-        /// URL of the peer (e.g. ws://example.org:9001, :9000)
-        url: String,
-
-        /// Method name
-        #[structopt(possible_values = Method::VARIANTS, case_insensitive = true)]
-        method: Method,
-
-        /// Method parameters
-        #[structopt(raw(true))]
-        params: Vec<String>,
-    }
-
-    pub async fn request(args: Args) -> Result<Node> {
-        let Args {
-            url,
-            method,
-            params,
-        } = args;
-
-        let mut object = serde_json::json!({});
-        for param in params {
-            let parts: Vec<&str> = param.split('=').collect();
-            let (name, value) = (parts[0], parts[1]);
-            object[name] = match serde_json::from_str(value) {
-                Ok(value) => value,
-                Err(_) => serde_json::Value::String(value.to_string()),
-            };
-        }
-
-        super::request(url, method, object).await
-    }
-}
-
+/// Make a JSON-RPC request to a plugin or a peer
 pub async fn request(url: String, method: Method, params: serde_json::Value) -> Result<Node> {
     // Ensure that url is fully formed
     let url = if url.starts_with(':') {
@@ -94,6 +51,7 @@ pub async fn request(url: String, method: Method, params: serde_json::Value) -> 
     }
 }
 
+/// Make a request over HTTP
 #[cfg(feature = "request-http")]
 async fn request_http(url: &str, request: &serde_json::Value) -> Result<Response> {
     let client = reqwest::Client::new();
@@ -107,7 +65,8 @@ async fn request_http(url: &str, request: &serde_json::Value) -> Result<Response
     Ok(response)
 }
 
-#[cfg(feature = "request-http")]
+/// Make a request over Websocket
+#[cfg(feature = "request-ws")]
 async fn request_ws(url: &str, request: &serde_json::Value) -> Result<Response> {
     use futures::{SinkExt, StreamExt};
     use tokio_tungstenite::tungstenite::Message;
@@ -130,4 +89,59 @@ async fn request_ws(url: &str, request: &serde_json::Value) -> Result<Response> 
 
     let response: Response = Default::default();
     Ok(response)
+}
+
+/// CLI options for the `request` command
+///
+/// This command is mainly for testing, particularly during development.
+/// It allows you to check that you can make a JSON-RPC request to a
+/// plugin or peer.
+#[cfg(feature = "cli")]
+pub mod cli {
+    use super::*;
+    use structopt::StructOpt;
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        about = "Request a method call on a plugin or peer (mainly for testing)",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder
+    )]
+    pub struct Args {
+        /// URL of the peer (e.g. ws://example.org:9001, :9000)
+        url: String,
+
+        /// Method name (e.g. `convert`)
+        #[structopt(possible_values = Method::VARIANTS, case_insensitive = true)]
+        method: Method,
+
+        /// Method parameters (after `--`) as strings (e.g. `format=json`) or JSON (e.g. `node:='{"type":...}'`)
+        #[structopt(raw(true))]
+        params: Vec<String>,
+    }
+
+    pub async fn request(args: Args) -> Result<Node> {
+        let Args {
+            url,
+            method,
+            params,
+        } = args;
+
+        let re = Regex::new(r"(\w+)(:?=)(.+)").unwrap();
+        let mut object = serde_json::json!({});
+        for param in params {
+            if let Some(captures) = re.captures(param.as_str()) {
+                let (name, kind, value) = (&captures[1], &captures[2], &captures[3]);
+                if kind == ":=" {
+                    object[name] = match serde_json::from_str(value) {
+                        Ok(value) => value,
+                        Err(_) => serde_json::Value::String(value.to_string()),
+                    };
+                } else {
+                    object[name] = serde_json::Value::from(value);
+                }
+            }
+        }
+
+        super::request(url, method, object).await
+    }
 }

@@ -5,50 +5,50 @@ use anyhow::{bail, Result};
 use futures::{FutureExt, StreamExt};
 use strum::VariantNames;
 
-#[cfg(feature = "cli")]
-pub mod cli {
-    use super::*;
-    use structopt::StructOpt;
-    #[derive(Debug, StructOpt)]
-    #[structopt(about = "Serve an executor using HTTP, WebSockets, or Standard I/O")]
-    pub struct Args {
-        /// Transport protocol to use (defaults to `stdio`)
-        #[structopt(long, env = "EXECUTA_PROTOCOL", possible_values = Protocol::VARIANTS, case_insensitive = true)]
-        protocol: Option<Protocol>,
-
-        /// Address to listen on (HTTP and Websockets only, defaults to "127.0.0.1")
-        #[structopt(short, long, env = "EXECUTA_ADDRESS")]
-        address: Option<String>,
-
-        /// Port to listen on (HTTP and Websockets only, defaults to 9000)
-        #[structopt(short, long, env = "EXECUTA_PORT")]
-        port: Option<u16>,
-    }
-
-    pub async fn serve(args: Args) -> Result<Node> {
-        let Args {
-            protocol,
-            address,
-            port,
-        } = args;
-
-        super::serve(protocol, address, port).await?;
-
-        Ok(Node::Null)
-    }
-}
-
+/// Serve JSON-RPC requests over one of alternative transport protocols
+///
+/// # Arguments
+///
+/// - `protocol`: The `Protocol` to serve on (defaults to Websocket)
+/// - `address`: The address to listen to (defaults to `127.0.0.1`; only for HTTP and Websocket protocols)
+/// - `port`: The port to listen on (defaults to `9000`, only for HTTP and Websocket protocols)
+///
+/// # Examples
+///
+/// Listen on http://127.0.0.1:9000,
+///
+/// ```
+/// use stencila::serve::serve;
+/// use stencila::protocols::Protocol;
+/// serve(Some(Protocol::Http), Some("127.0.0.1".to_string()), Some(9000));
+/// ```
+///
+/// Which is equivalent to,
+///
+/// ```
+/// use stencila::serve::serve;
+/// use stencila::protocols::Protocol;
+/// serve(Some(Protocol::Http), None, None);
+/// ```
+///
+/// Listen on both http://127.0.0.1:8000 and ws://127.0.0.1:9000,
+///
+/// ```
+/// use stencila::serve::serve;
+/// use stencila::protocols::Protocol;
+/// serve(Some(Protocol::Ws), None, None);
+/// ```
 pub async fn serve(
     protocol: Option<Protocol>,
     address: Option<String>,
     port: Option<u16>,
 ) -> Result<()> {
-    let protocol = protocol.unwrap_or(if cfg!(feature = "serve-stdio") {
-        Protocol::Stdio
+    let protocol = protocol.unwrap_or(if cfg!(feature = "serve-ws") {
+        Protocol::Ws
     } else if cfg!(feature = "serve-http") {
         Protocol::Http
-    } else if cfg!(feature = "serve-ws") {
-        Protocol::Ws
+    } else if cfg!(feature = "serve-stdio") {
+        Protocol::Stdio
     } else {
         bail!("There are no serve-* features enabled")
     });
@@ -61,6 +61,8 @@ pub async fn serve(
         "serve",
         %protocol, %address, %port
     );
+
+    tracing::info!(%protocol, %address, %port);
 
     match protocol {
         Protocol::Stdio => {
@@ -101,7 +103,7 @@ pub async fn serve(
                 .allow_any_origin()
                 .allow_headers(vec![
                     "Content-Type",
-                    "Referer",
+                    "Referer", // Note that this is an intentional misspelling!
                     "Origin",
                     "Access-Control-Allow-Origin",
                 ])
@@ -124,7 +126,6 @@ pub async fn serve(
 }
 
 /// Run a server in the current thread.
-///
 #[tracing::instrument]
 pub fn serve_blocking(
     protocol: Option<Protocol>,
@@ -135,6 +136,7 @@ pub fn serve_blocking(
     runtime.block_on(async { serve(protocol, address, port).await })
 }
 
+/// Run a server on another thread.
 #[tracing::instrument]
 pub fn serve_background(
     protocol: Option<Protocol>,
@@ -163,11 +165,13 @@ pub fn serve_background(
     Ok(())
 }
 
+// Handle a HTTP `POST /` request
 fn post_handler(request: Request) -> impl warp::Reply {
     let response = respond(request);
     warp::reply::json(&response)
 }
 
+// Handle a HTTP `POST /<method>` request
 fn post_wrap_handler(method: String, params: serde_json::Value) -> impl warp::Reply {
     use warp::http::StatusCode;
     use warp::reply;
@@ -205,6 +209,7 @@ fn post_wrap_handler(method: String, params: serde_json::Value) -> impl warp::Re
     }
 }
 
+// Handle a Websocket connection
 fn ws_handler(ws: warp::ws::Ws) -> impl warp::Reply {
     ws.on_upgrade(|socket| {
         // TODO Currently just echos
@@ -255,5 +260,39 @@ fn respond(request: Request) -> Response {
     match request.dispatch() {
         Ok(node) => Response::new(id, Some(node), None),
         Err(error) => Response::new(id, None, Some(error)),
+    }
+}
+
+/// CLI options for the `serve` command
+#[cfg(feature = "cli")]
+pub mod cli {
+    use super::*;
+    use structopt::StructOpt;
+    #[derive(Debug, StructOpt)]
+    #[structopt(about = "Serve an executor using HTTP, WebSockets, or Standard I/O")]
+    pub struct Args {
+        /// Transport protocol to use (defaults to `ws`)
+        #[structopt(long, env = "EXECUTA_PROTOCOL", possible_values = Protocol::VARIANTS, case_insensitive = true)]
+        protocol: Option<Protocol>,
+
+        /// Address to listen on (HTTP and Websockets only, defaults to "127.0.0.1")
+        #[structopt(short, long, env = "EXECUTA_ADDRESS")]
+        address: Option<String>,
+
+        /// Port to listen on (HTTP and Websockets only, defaults to 9000)
+        #[structopt(short, long, env = "EXECUTA_PORT")]
+        port: Option<u16>,
+    }
+
+    pub async fn serve(args: Args) -> Result<Node> {
+        let Args {
+            protocol,
+            address,
+            port,
+        } = args;
+
+        super::serve(protocol, address, port).await?;
+
+        Ok(Node::Null)
     }
 }

@@ -12,7 +12,7 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
-    about = "Executors for stencils",
+    about = "Stencila command line tool",
     setting = structopt::clap::AppSettings::DeriveDisplayOrder
 )]
 struct Args {

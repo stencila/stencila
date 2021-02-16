@@ -33,6 +33,8 @@ pub mod validate;
 pub mod logging;
 pub mod nodes;
 
+// Re-export packages (mainly for use by stencila-* language packages in this workspace)
+
 pub use anyhow;
 pub use env_logger;
 pub use serde_json;
