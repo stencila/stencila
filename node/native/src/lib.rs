@@ -1,12 +1,5 @@
 use neon::prelude::*;
 use std::str::FromStr;
-use stencila::{
-    anyhow::{bail, Result},
-    delegate::DELEGATOR,
-    methods::Method,
-    nodes::Node,
-    serde_json, tracing,
-};
 
 fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     /*

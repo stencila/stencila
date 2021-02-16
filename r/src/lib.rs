@@ -19,7 +19,7 @@ fn serve(
     let protocol = protocol.unwrap_or_else(|| "stdio".to_string());
     let protocol = match stencila::protocols::Protocol::from_str(protocol.as_str()) {
         Ok(value) => Some(value),
-        Err(error) => return Err(Error::Other("Invalid protocol".to_string())),
+        Err(_error) => return Err(Error::Other("Invalid protocol".to_string())),
     };
 
     let background = background.unwrap_or(false);
