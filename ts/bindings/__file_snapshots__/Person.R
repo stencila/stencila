@@ -20,8 +20,15 @@
 #' @param name The name of the item.
 #' @param telephoneNumbers Telephone numbers for the person.
 #' @param url The URL of the item.
+#' @return A `list` of class `Person`
 #' @seealso \code{\link{Thing}}
 #' @export
+#' @examples
+#' Person(
+#'   honorificPrefix = "Dr",
+#'   givenNames = list("Jane", "J"),
+#'   familyNames = list("Jamieson")
+#' )
 Person <- function(
   address,
   affiliations,
