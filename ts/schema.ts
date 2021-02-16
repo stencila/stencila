@@ -61,7 +61,7 @@ export async function build(cleanup = true): Promise<void> {
     await Promise.all(
       files.map(
         async (file: string): Promise<[string, JsonSchema]> => {
-          const schema = yaml.safeLoad(
+          const schema = yaml.load(
             await fs.readFile(path.join(SCHEMA_SOURCE_DIR, file), 'utf-8')
           )
 
