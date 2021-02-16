@@ -3,6 +3,8 @@
 # not available natively in R.
 
 #' Any type
+#' 
+#' @return A `list` of class `Any`
 #' @export
 Any <- function() {
   self <- list()
@@ -22,6 +24,7 @@ print.Any <- function(x) { # nolint
 #' Array type
 #'
 #' @param items The type that items in the array should be
+#' @return A `list` of class `Array` describing the valid `items` of an array
 #' @export
 Array <- function(items) {
   self <- list(
@@ -42,6 +45,7 @@ print.Array <- function(x) { # nolint
 #' Union type
 #'
 #' @param ... The types in the union
+#' @return A `list` of class `Union` describing the valid sub `types` of a union type
 #' @export
 Union <- function(...) {
   args <- as.list(match.call())[-1]
@@ -66,6 +70,7 @@ print.Union <- function(x) { # nolint
 #' An enumeration
 #'
 #' @param ... The values in the enumeration
+#' @return A `list` of class `Enum` describing the valid `values` in an enumeration
 #' @export
 Enum <- function(...) {
   self <- list(values = c(...))

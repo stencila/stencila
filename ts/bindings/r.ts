@@ -63,6 +63,7 @@ export function classGenerator(schema: JsonSchema): string {
           !optional ? `\\bold{Required}.` : ''
         }`
     ),
+    `@return A \`list\` of class \`${title}\``,
     ...(parent !== undefined ? [`@seealso \\code{\\link{${parent}}}`] : []),
     '@export',
   ])
@@ -102,7 +103,10 @@ export function classGenerator(schema: JsonSchema): string {
  */
 export function unionGenerator(schema: JsonSchema): string {
   const { title = '', description = title } = schema
-  let code = docComment(description, ['@export'])
+  let code = docComment(description, [
+    `@return A \`list\` of class \`Union\` describing valid subtypes of this type`,
+    '@export',
+  ])
   code += `${title} <- ${schemaToType(schema)}\n\n`
   return code
 }

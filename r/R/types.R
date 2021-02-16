@@ -10,6 +10,7 @@ NULL
 #' @name Entity
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Entity`
 #' @export
 Entity <- function(
   id,
@@ -34,6 +35,7 @@ Entity <- function(
 #' @param meta Metadata associated with this item.
 #' @param minItems An array node is valid if its size is greater than, or equal to, this value.
 #' @param uniqueItems A flag to indicate that each value in the array should be unique.
+#' @return A `list` of class `ArrayValidator`
 #' @seealso \code{\link{Entity}}
 #' @export
 ArrayValidator <- function(
@@ -65,6 +67,7 @@ ArrayValidator <- function(
 #' @name BooleanValidator
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `BooleanValidator`
 #' @seealso \code{\link{Entity}}
 #' @export
 BooleanValidator <- function(
@@ -95,6 +98,7 @@ BooleanValidator <- function(
 #' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
 #' @param prefix A prefix to show before the citation.
 #' @param suffix A suffix to show after the citation.
+#' @return A `list` of class `Cite`
 #' @seealso \code{\link{Entity}}
 #' @export
 Cite <- function(
@@ -133,6 +137,7 @@ Cite <- function(
 #' @param items One or more `Cite`s to be referenced in the same surrounding text. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `CiteGroup`
 #' @seealso \code{\link{Entity}}
 #' @export
 CiteGroup <- function(
@@ -159,6 +164,7 @@ CiteGroup <- function(
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
+#' @return A `list` of class `Code`
 #' @seealso \code{\link{Entity}}
 #' @export
 Code <- function(
@@ -191,6 +197,7 @@ Code <- function(
 #' @param importTo A compilation directive giving the name of the variable to import the content of the code block as.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
+#' @return A `list` of class `CodeBlock`
 #' @seealso \code{\link{Code}}
 #' @export
 CodeBlock <- function(
@@ -238,6 +245,7 @@ CodeBlock <- function(
 #' @param programmingLanguage The programming language of the code.
 #' @param reads Filesystem paths that this code chunk reads from.
 #' @param uses Names of variables that the code chunk uses (but does not alter).
+#' @return A `list` of class `CodeChunk`
 #' @seealso \code{\link{CodeBlock}}
 #' @export
 CodeChunk <- function(
@@ -294,6 +302,7 @@ CodeChunk <- function(
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param programmingLanguage The programming language of the code.
+#' @return A `list` of class `CodeFragment`
 #' @seealso \code{\link{Code}}
 #' @export
 CodeFragment <- function(
@@ -327,6 +336,7 @@ CodeFragment <- function(
 #' @param meta Metadata associated with this item.
 #' @param output The value of the expression when it was last evaluated.
 #' @param programmingLanguage The programming language of the code.
+#' @return A `list` of class `CodeExpression`
 #' @seealso \code{\link{CodeFragment}}
 #' @export
 CodeExpression <- function(
@@ -361,6 +371,7 @@ CodeExpression <- function(
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param stackTrace Stack trace leading up to the error.
+#' @return A `list` of class `CodeError`
 #' @seealso \code{\link{Entity}}
 #' @export
 CodeError <- function(
@@ -389,6 +400,7 @@ CodeError <- function(
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param value The value that the node must have.
+#' @return A `list` of class `ConstantValidator`
 #' @seealso \code{\link{Entity}}
 #' @export
 ConstantValidator <- function(
@@ -413,6 +425,7 @@ ConstantValidator <- function(
 #' @param value The date as an ISO 8601 string. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Date`
 #' @seealso \code{\link{Entity}}
 #' @export
 Date <- function(
@@ -437,6 +450,7 @@ Date <- function(
 #' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Mark`
 #' @seealso \code{\link{Entity}}
 #' @export
 Mark <- function(
@@ -461,6 +475,7 @@ Mark <- function(
 #' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Delete`
 #' @seealso \code{\link{Mark}}
 #' @export
 Delete <- function(
@@ -486,6 +501,7 @@ Delete <- function(
 #' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Emphasis`
 #' @seealso \code{\link{Mark}}
 #' @export
 Emphasis <- function(
@@ -516,6 +532,7 @@ Emphasis <- function(
 #' @param meta Metadata associated with this item.
 #' @param name The name of the item.
 #' @param url The URL of the item.
+#' @return A `list` of class `Thing`
 #' @seealso \code{\link{Entity}}
 #' @export
 Thing <- function(
@@ -557,6 +574,7 @@ Thing <- function(
 #' @param meta Metadata associated with this item.
 #' @param reviews Reviews of the brand.
 #' @param url The URL of the item.
+#' @return A `list` of class `Brand`
 #' @seealso \code{\link{Thing}}
 #' @export
 Brand <- function(
@@ -604,6 +622,7 @@ Brand <- function(
 #' @param name The name of the item.
 #' @param telephoneNumbers Telephone numbers for the contact point.
 #' @param url The URL of the item.
+#' @return A `list` of class `ContactPoint`
 #' @seealso \code{\link{Thing}}
 #' @export
 ContactPoint <- function(
@@ -672,6 +691,7 @@ ContactPoint <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `CreativeWork`
 #' @seealso \code{\link{Thing}}
 #' @export
 CreativeWork <- function(
@@ -783,6 +803,7 @@ CreativeWork <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `Article`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Article <- function(
@@ -897,6 +918,7 @@ Article <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `Collection`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Collection <- function(
@@ -1008,6 +1030,7 @@ Collection <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `Comment`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Comment <- function(
@@ -1121,6 +1144,7 @@ Comment <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `Datatable`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Datatable <- function(
@@ -1236,6 +1260,7 @@ Datatable <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `MediaObject`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 MediaObject <- function(
@@ -1361,6 +1386,7 @@ MediaObject <- function(
 #' @param transcript The transcript of this audio recording.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `AudioObject`
 #' @seealso \code{\link{MediaObject}}
 #' @export
 AudioObject <- function(
@@ -1462,6 +1488,7 @@ AudioObject <- function(
 #' @param meta Metadata associated with this item.
 #' @param url The URL of the item.
 #' @param validator The validator to use to validate data in the column.
+#' @return A `list` of class `DatatableColumn`
 #' @seealso \code{\link{Thing}}
 #' @export
 DatatableColumn <- function(
@@ -1507,6 +1534,7 @@ DatatableColumn <- function(
 #' @param meta Metadata associated with this item.
 #' @param termCode A code that identifies this DefinedTerm within a DefinedTermSet
 #' @param url The URL of the item.
+#' @return A `list` of class `DefinedTerm`
 #' @seealso \code{\link{Thing}}
 #' @export
 DefinedTerm <- function(
@@ -1544,6 +1572,7 @@ DefinedTerm <- function(
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param values A node is valid if it is equal to any of these values.
+#' @return A `list` of class `EnumValidator`
 #' @seealso \code{\link{Entity}}
 #' @export
 EnumValidator <- function(
@@ -1598,6 +1627,7 @@ EnumValidator <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `Figure`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Figure <- function(
@@ -1684,6 +1714,7 @@ Figure <- function(
 #' @param name The name of the function.
 #' @param parameters The parameters of the function.
 #' @param returns The return type of the function.
+#' @return A `list` of class `Function`
 #' @seealso \code{\link{Entity}}
 #' @export
 Function <- function(
@@ -1719,6 +1750,7 @@ Function <- function(
 #' @param name The name of the item.
 #' @param sponsors A person or organization that supports a thing through a pledge, promise, or financial contribution.
 #' @param url The URL of the item.
+#' @return A `list` of class `Grant`
 #' @seealso \code{\link{Thing}}
 #' @export
 Grant <- function(
@@ -1758,6 +1790,7 @@ Grant <- function(
 #' @param depth The depth of the heading.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Heading`
 #' @seealso \code{\link{Entity}}
 #' @export
 Heading <- function(
@@ -1819,6 +1852,7 @@ Heading <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `ImageObject`
 #' @seealso \code{\link{MediaObject}}
 #' @export
 ImageObject <- function(
@@ -1915,6 +1949,7 @@ ImageObject <- function(
 #' @param format Media type, typically expressed using a MIME format, of the source content.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Include`
 #' @seealso \code{\link{Entity}}
 #' @export
 Include <- function(
@@ -1947,6 +1982,7 @@ Include <- function(
 #' @param meta Metadata associated with this item.
 #' @param minimum The inclusive lower limit for a numeric node.
 #' @param multipleOf A number that a numeric node must be a multiple of.
+#' @return A `list` of class `NumberValidator`
 #' @seealso \code{\link{Entity}}
 #' @export
 NumberValidator <- function(
@@ -1983,6 +2019,7 @@ NumberValidator <- function(
 #' @param meta Metadata associated with this item.
 #' @param minimum The inclusive lower limit for a numeric node.
 #' @param multipleOf A number that a numeric node must be a multiple of.
+#' @return A `list` of class `IntegerValidator`
 #' @seealso \code{\link{NumberValidator}}
 #' @export
 IntegerValidator <- function(
@@ -2021,6 +2058,7 @@ IntegerValidator <- function(
 #' @param meta Metadata associated with this item.
 #' @param relation The relation between the target and the current thing.
 #' @param title A title for the link.
+#' @return A `list` of class `Link`
 #' @seealso \code{\link{Entity}}
 #' @export
 Link <- function(
@@ -2056,6 +2094,7 @@ Link <- function(
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param order Type of ordering.
+#' @return A `list` of class `List`
 #' @seealso \code{\link{Entity}}
 #' @export
 List <- function(
@@ -2091,6 +2130,7 @@ List <- function(
 #' @param name The name of the item.
 #' @param position The position of the item in a series or sequence of items.
 #' @param url The URL of the item.
+#' @return A `list` of class `ListItem`
 #' @seealso \code{\link{Thing}}
 #' @export
 ListItem <- function(
@@ -2135,6 +2175,7 @@ ListItem <- function(
 #' @param id The identifier for this item.
 #' @param mathLanguage The language used for the equation e.g tex, mathml, asciimath.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Math`
 #' @seealso \code{\link{Entity}}
 #' @export
 Math <- function(
@@ -2165,6 +2206,7 @@ Math <- function(
 #' @param id The identifier for this item.
 #' @param mathLanguage The language used for the equation e.g tex, mathml, asciimath.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `MathBlock`
 #' @seealso \code{\link{Math}}
 #' @export
 MathBlock <- function(
@@ -2196,6 +2238,7 @@ MathBlock <- function(
 #' @param id The identifier for this item.
 #' @param mathLanguage The language used for the equation e.g tex, mathml, asciimath.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `MathFragment`
 #' @seealso \code{\link{Math}}
 #' @export
 MathFragment <- function(
@@ -2234,6 +2277,7 @@ MathFragment <- function(
 #' @param name The name of the item.
 #' @param sponsors A person or organization that supports a thing through a pledge, promise, or financial contribution.
 #' @param url The URL of the item.
+#' @return A `list` of class `MonetaryGrant`
 #' @seealso \code{\link{Grant}}
 #' @export
 MonetaryGrant <- function(
@@ -2276,6 +2320,7 @@ MonetaryGrant <- function(
 #' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `NontextualAnnotation`
 #' @seealso \code{\link{Mark}}
 #' @export
 NontextualAnnotation <- function(
@@ -2315,6 +2360,7 @@ NontextualAnnotation <- function(
 #' @param name The name of the item.
 #' @param parentOrganization Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
 #' @param url The URL of the item.
+#' @return A `list` of class `Organization`
 #' @seealso \code{\link{Thing}}
 #' @export
 Organization <- function(
@@ -2367,6 +2413,7 @@ Organization <- function(
 #' @param content The contents of the paragraph. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Paragraph`
 #' @seealso \code{\link{Entity}}
 #' @export
 Paragraph <- function(
@@ -2394,6 +2441,7 @@ Paragraph <- function(
 #' @param meta Metadata associated with this item.
 #' @param validator The validator that the value is validated against.
 #' @param value The value of the variable.
+#' @return A `list` of class `Variable`
 #' @seealso \code{\link{Entity}}
 #' @export
 Variable <- function(
@@ -2431,6 +2479,7 @@ Variable <- function(
 #' @param meta Metadata associated with this item.
 #' @param validator The validator that the value is validated against.
 #' @param value The value of the variable.
+#' @return A `list` of class `Parameter`
 #' @seealso \code{\link{Variable}}
 #' @export
 Parameter <- function(
@@ -2500,6 +2549,7 @@ Parameter <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `Periodical`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Periodical <- function(
@@ -2602,6 +2652,7 @@ Periodical <- function(
 #' @param name The name of the item.
 #' @param telephoneNumbers Telephone numbers for the person.
 #' @param url The URL of the item.
+#' @return A `list` of class `Person`
 #' @seealso \code{\link{Thing}}
 #' @export
 Person <- function(
@@ -2672,6 +2723,7 @@ Person <- function(
 #' @param streetAddress The street address.
 #' @param telephoneNumbers Telephone numbers for the contact point.
 #' @param url The URL of the item.
+#' @return A `list` of class `PostalAddress`
 #' @seealso \code{\link{ContactPoint}}
 #' @export
 PostalAddress <- function(
@@ -2732,6 +2784,7 @@ PostalAddress <- function(
 #' @param name The name of the item.
 #' @param productID Product identification code.
 #' @param url The URL of the item.
+#' @return A `list` of class `Product`
 #' @seealso \code{\link{Thing}}
 #' @export
 Product <- function(
@@ -2779,6 +2832,7 @@ Product <- function(
 #' @param name The name of the item.
 #' @param propertyID A commonly used identifier for the characteristic represented by the property.
 #' @param url The URL of the item.
+#' @return A `list` of class `PropertyValue`
 #' @seealso \code{\link{Thing}}
 #' @export
 PropertyValue <- function(
@@ -2849,6 +2903,7 @@ PropertyValue <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `PublicationIssue`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 PublicationIssue <- function(
@@ -2969,6 +3024,7 @@ PublicationIssue <- function(
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
 #' @param volumeNumber Identifies the volume of publication or multi-part work; for example, "iii" or "2".
+#' @return A `list` of class `PublicationVolume`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 PublicationVolume <- function(
@@ -3058,6 +3114,7 @@ PublicationVolume <- function(
 #' @param cite The source of the quote.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Quote`
 #' @seealso \code{\link{Mark}}
 #' @export
 Quote <- function(
@@ -3085,6 +3142,7 @@ Quote <- function(
 #' @param cite The source of the quote.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `QuoteBlock`
 #' @seealso \code{\link{Entity}}
 #' @export
 QuoteBlock <- function(
@@ -3141,6 +3199,7 @@ QuoteBlock <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `Review`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Review <- function(
@@ -3255,6 +3314,7 @@ Review <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `SoftwareApplication`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 SoftwareApplication <- function(
@@ -3347,6 +3407,7 @@ SoftwareApplication <- function(
 #' @param meta Metadata associated with this item.
 #' @param removes The packages that this environment removes from the base environments listed under `extends` (if any).,
 #' @param url The URL of the item.
+#' @return A `list` of class `SoftwareEnvironment`
 #' @seealso \code{\link{Thing}}
 #' @export
 SoftwareEnvironment <- function(
@@ -3410,6 +3471,7 @@ SoftwareEnvironment <- function(
 #' @param timeoutRequest The inactivity timeout (seconds) requested for the session.
 #' @param url The URL of the item.
 #' @param volumeMounts Volumes to mount in the session.
+#' @return A `list` of class `SoftwareSession`
 #' @seealso \code{\link{Thing}}
 #' @export
 SoftwareSession <- function(
@@ -3512,6 +3574,7 @@ SoftwareSession <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `SoftwareSourceCode`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 SoftwareSourceCode <- function(
@@ -3606,6 +3669,7 @@ SoftwareSourceCode <- function(
 #' @param meta Metadata associated with this item.
 #' @param minLength The minimum length for a string node.
 #' @param pattern A regular expression that a string node must match.
+#' @return A `list` of class `StringValidator`
 #' @seealso \code{\link{Entity}}
 #' @export
 StringValidator <- function(
@@ -3634,6 +3698,7 @@ StringValidator <- function(
 #' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Strong`
 #' @seealso \code{\link{Mark}}
 #' @export
 Strong <- function(
@@ -3659,6 +3724,7 @@ Strong <- function(
 #' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Subscript`
 #' @seealso \code{\link{Mark}}
 #' @export
 Subscript <- function(
@@ -3684,6 +3750,7 @@ Subscript <- function(
 #' @param content The content that is marked. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `Superscript`
 #' @seealso \code{\link{Mark}}
 #' @export
 Superscript <- function(
@@ -3740,6 +3807,7 @@ Superscript <- function(
 #' @param title The title of the creative work.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `Table`
 #' @seealso \code{\link{CreativeWork}}
 #' @export
 Table <- function(
@@ -3830,6 +3898,7 @@ Table <- function(
 #' @param meta Metadata associated with this item.
 #' @param name The name of the cell.
 #' @param rowspan How many columns the cell extends.
+#' @return A `list` of class `TableCell`
 #' @seealso \code{\link{Entity}}
 #' @export
 TableCell <- function(
@@ -3863,6 +3932,7 @@ TableCell <- function(
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param rowType If present, indicates that all cells in this row should be treated as header cells.
+#' @return A `list` of class `TableRow`
 #' @seealso \code{\link{Entity}}
 #' @export
 TableRow <- function(
@@ -3888,6 +3958,7 @@ TableRow <- function(
 #' @name ThematicBreak
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `ThematicBreak`
 #' @seealso \code{\link{Entity}}
 #' @export
 ThematicBreak <- function(
@@ -3911,6 +3982,7 @@ ThematicBreak <- function(
 #' @param id The identifier for this item.
 #' @param items An array of validators specifying the constraints on each successive item in the array.
 #' @param meta Metadata associated with this item.
+#' @return A `list` of class `TupleValidator`
 #' @seealso \code{\link{Entity}}
 #' @export
 TupleValidator <- function(
@@ -3971,6 +4043,7 @@ TupleValidator <- function(
 #' @param transcript The transcript of this video recording.
 #' @param url The URL of the item.
 #' @param version The version of the creative work.
+#' @return A `list` of class `VideoObject`
 #' @seealso \code{\link{MediaObject}}
 #' @export
 VideoObject <- function(
@@ -4076,6 +4149,7 @@ VideoObject <- function(
 #' @param mountType The type of mount.
 #' @param name The name of the item.
 #' @param url The URL of the item.
+#' @return A `list` of class `VolumeMount`
 #' @seealso \code{\link{Thing}}
 #' @export
 VolumeMount <- function(

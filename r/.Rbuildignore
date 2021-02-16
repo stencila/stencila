@@ -3,4 +3,5 @@
 ^.covrignore$
 ^.lintr$
 ^\.Rproj\.user$
-^Makefile
+^docs$
+^Makefile$
