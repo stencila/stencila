@@ -4,6 +4,7 @@ use crate::nodes::Node;
 use crate::rpc::Response;
 use anyhow::{anyhow, bail, Context, Result};
 use regex::Regex;
+use std::env;
 use strum::VariantNames;
 
 /// Make a JSON-RPC request to a plugin or a peer
@@ -65,11 +66,21 @@ async fn request_http(
     key: Option<String>,
 ) -> Result<Response> {
     let client = reqwest::Client::new();
-    let request = client.post(url).json(request);
+    let request = client
+        .post(url)
+        .header(
+            "user-agent",
+            format!(
+                "Stencila/{} ({})",
+                env!("CARGO_PKG_VERSION"),
+                env::consts::OS
+            ),
+        )
+        .json(request);
     let request = match key {
         Some(key) => {
             let jwt = jwt::encode(key)?;
-            request.header("Authorization", jwt::to_auth_header(jwt))
+            request.header("authorization", jwt::to_auth_header(jwt))
         }
         None => request,
     };

@@ -6,6 +6,7 @@ use futures::{FutureExt, StreamExt};
 use jwt::JwtError;
 use reqwest::StatusCode;
 use serde::Deserialize;
+use std::env;
 use strum::VariantNames;
 use warp::Filter;
 
@@ -141,6 +142,14 @@ pub async fn serve(
                 .or(post)
                 .or(post_wrap)
                 .or(ws)
+                .with(warp::reply::with::default_header(
+                    "server",
+                    format!(
+                        "Stencila/{} ({})",
+                        env!("CARGO_PKG_VERSION"),
+                        env::consts::OS
+                    ),
+                ))
                 .with(cors)
                 .recover(rejection_handler);
 
