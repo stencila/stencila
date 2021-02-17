@@ -14,6 +14,8 @@ pub mod serve;
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod delegate;
 #[cfg(any(feature = "request", feature = "serve"))]
+pub mod jwt;
+#[cfg(any(feature = "request", feature = "serve"))]
 pub mod methods;
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod protocols;

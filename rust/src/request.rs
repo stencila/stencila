@@ -1,3 +1,4 @@
+use crate::jwt;
 use crate::methods::Method;
 use crate::nodes::Node;
 use crate::rpc::Response;
@@ -6,7 +7,12 @@ use regex::Regex;
 use strum::VariantNames;
 
 /// Make a JSON-RPC request to a plugin or a peer
-pub async fn request(url: String, method: Method, params: serde_json::Value) -> Result<Node> {
+pub async fn request(
+    url: String,
+    method: Method,
+    params: serde_json::Value,
+    key: Option<String>,
+) -> Result<Node> {
     // Ensure that url is fully formed
     let url = if url.starts_with(':') {
         format!("http://127.0.0.1{}", url)
@@ -30,7 +36,7 @@ pub async fn request(url: String, method: Method, params: serde_json::Value) -> 
     let scheme = parsed.scheme();
     let response = match scheme {
         #[cfg(feature = "request-http")]
-        "http" | "https" => request_http(&url, &request).await?,
+        "http" | "https" => request_http(&url, &request, key).await?,
         #[cfg(feature = "request-ws")]
         "ws" | "wss" => request_ws(&url, &request).await?,
         _ => bail!(
@@ -53,15 +59,21 @@ pub async fn request(url: String, method: Method, params: serde_json::Value) -> 
 
 /// Make a request over HTTP
 #[cfg(feature = "request-http")]
-async fn request_http(url: &str, request: &serde_json::Value) -> Result<Response> {
+async fn request_http(
+    url: &str,
+    request: &serde_json::Value,
+    key: Option<String>,
+) -> Result<Response> {
     let client = reqwest::Client::new();
-    let response = client
-        .post(url)
-        .json(request)
-        .send()
-        .await?
-        .json::<Response>()
-        .await?;
+    let request = client.post(url).json(request);
+    let request = match key {
+        Some(key) => {
+            let jwt = jwt::encode(key)?;
+            request.header("Authorization", jwt::to_auth_header(jwt))
+        }
+        None => request,
+    };
+    let response = request.send().await?.json::<Response>().await?;
     Ok(response)
 }
 
@@ -117,6 +129,10 @@ pub mod cli {
         /// Method parameters (after `--`) as strings (e.g. `format=json`) or JSON (e.g. `node:='{"type":...}'`)
         #[structopt(raw(true))]
         params: Vec<String>,
+
+        /// Secret key to use for signing JSON Web Tokens
+        #[structopt(short, long)]
+        key: Option<String>,
     }
 
     pub async fn request(args: Args) -> Result<Node> {
@@ -124,6 +140,7 @@ pub mod cli {
             url,
             method,
             params,
+            key,
         } = args;
 
         let re = Regex::new(r"(\w+)(:?=)(.+)").unwrap();
@@ -142,6 +159,6 @@ pub mod cli {
             }
         }
 
-        super::request(url, method, object).await
+        super::request(url, method, object, key).await
     }
 }

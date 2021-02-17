@@ -69,7 +69,10 @@ impl Response {
             id,
             result,
             error: match error {
-                Some(error) => Some(Error::from(error)),
+                Some(error) => Some(Error {
+                    code: -32000,
+                    message: error.to_string(),
+                }),
                 None => None,
             },
             ..Default::default()
@@ -95,13 +98,4 @@ impl Default for Response {
 pub struct Error {
     pub code: i16,
     pub message: String,
-}
-
-impl From<anyhow::Error> for Error {
-    fn from(error: anyhow::Error) -> Self {
-        Error {
-            code: 0,
-            message: error.to_string(),
-        }
-    }
 }
