@@ -1,5 +1,6 @@
 use crate::jwt;
 use crate::rpc::{Error, Request, Response};
+use crate::urls;
 use crate::{nodes::Node, protocols::Protocol};
 use anyhow::{bail, Result};
 use futures::{FutureExt, StreamExt};
@@ -7,8 +8,66 @@ use jwt::JwtError;
 use reqwest::StatusCode;
 use serde::Deserialize;
 use std::env;
-use strum::VariantNames;
+use std::str::FromStr;
 use warp::Filter;
+
+/// Serve JSON-RPC requests at a URL
+///
+/// # Arguments
+///
+/// - `url`: The URL to listen on
+/// - `key`: A secret key for signing and verifying JSON Web Tokens (defaults to random)
+///
+/// # Examples
+///
+/// Listen on ws://0.0.0.0:1234,
+///
+/// ```
+/// use stencila::serve::serve;
+/// serve(Some("ws://0.0.0.0:1234".to_string()), None);
+/// ```
+pub async fn serve(url: Option<String>, key: Option<String>) -> Result<()> {
+    let url = urls::parse(
+        url.unwrap_or_else(|| "ws://127.0.0.1:9000".to_string())
+            .as_str(),
+    )?;
+    let protocol = Protocol::from_str(url.scheme())?;
+    let address = url.host().unwrap().to_string();
+    let port = url.port_or_known_default();
+    serve_on(Some(protocol), Some(address), port, key).await
+}
+
+/// Run a server in the current thread.
+#[tracing::instrument]
+pub fn serve_blocking(url: Option<String>, key: Option<String>) -> Result<()> {
+    let runtime = tokio::runtime::Runtime::new()?;
+    runtime.block_on(async { serve(url, key).await })
+}
+
+/// Run a server on another thread.
+#[tracing::instrument]
+pub fn serve_background(url: Option<String>, key: Option<String>) -> Result<()> {
+    // Spawn a thread, start a runtime in it, and serve using that runtime.
+    // Any errors within the thread are logged because we can't return a
+    // `Result` from the thread to the caller of this function.
+    std::thread::spawn(move || {
+        let _span = tracing::trace_span!("serve_in_background");
+
+        let runtime = match tokio::runtime::Runtime::new() {
+            Ok(runtime) => runtime,
+            Err(error) => {
+                tracing::error!("{}", error.to_string());
+                return;
+            }
+        };
+        match runtime.block_on(async { serve(url, key).await }) {
+            Ok(_) => {}
+            Err(error) => tracing::error!("{}", error.to_string()),
+        };
+    });
+
+    Ok(())
+}
 
 /// Serve JSON-RPC requests over one of alternative transport protocols
 ///
@@ -23,27 +82,27 @@ use warp::Filter;
 /// Listen on http://127.0.0.1:9000,
 ///
 /// ```
-/// use stencila::serve::serve;
+/// use stencila::serve::serve_on;
 /// use stencila::protocols::Protocol;
-/// serve(Some(Protocol::Http), Some("127.0.0.1".to_string()), Some(9000), None);
+/// serve_on(Some(Protocol::Http), Some("127.0.0.1".to_string()), Some(9000), None);
 /// ```
 ///
 /// Which is equivalent to,
 ///
 /// ```
-/// use stencila::serve::serve;
+/// use stencila::serve::serve_on;
 /// use stencila::protocols::Protocol;
-/// serve(Some(Protocol::Http), None, None, None);
+/// serve_on(Some(Protocol::Http), None, None, None);
 /// ```
 ///
 /// Listen on both http://127.0.0.1:8000 and ws://127.0.0.1:9000,
 ///
 /// ```
-/// use stencila::serve::serve;
+/// use stencila::serve::serve_on;
 /// use stencila::protocols::Protocol;
-/// serve(Some(Protocol::Ws), None, None, None);
+/// serve_on(Some(Protocol::Ws), None, None, None);
 /// ```
-pub async fn serve(
+pub async fn serve_on(
     protocol: Option<Protocol>,
     address: Option<String>,
     port: Option<u16>,
@@ -158,49 +217,6 @@ pub async fn serve(
             future.await
         }
     };
-
-    Ok(())
-}
-
-/// Run a server in the current thread.
-#[tracing::instrument]
-pub fn serve_blocking(
-    protocol: Option<Protocol>,
-    address: Option<String>,
-    port: Option<u16>,
-    key: Option<String>,
-) -> Result<()> {
-    let runtime = tokio::runtime::Runtime::new()?;
-    runtime.block_on(async { serve(protocol, address, port, key).await })
-}
-
-/// Run a server on another thread.
-#[tracing::instrument]
-pub fn serve_background(
-    protocol: Option<Protocol>,
-    address: Option<String>,
-    port: Option<u16>,
-    key: Option<String>,
-    insecure: Option<bool>,
-) -> Result<()> {
-    // Spawn a thread, start a runtime in it, and serve using that runtime.
-    // Any errors within the thread are logged because we can't return a
-    // `Result` from the thread to the caller of this function.
-    std::thread::spawn(move || {
-        let _span = tracing::trace_span!("serve_in_background");
-
-        let runtime = match tokio::runtime::Runtime::new() {
-            Ok(runtime) => runtime,
-            Err(error) => {
-                tracing::error!("{}", error.to_string());
-                return;
-            }
-        };
-        match runtime.block_on(async { serve(protocol, address, port, key).await }) {
-            Ok(_) => {}
-            Err(error) => tracing::error!("{}", error.to_string()),
-        };
-    });
 
     Ok(())
 }
@@ -382,20 +398,12 @@ pub mod cli {
     #[derive(Debug, StructOpt)]
     #[structopt(about = "Serve an executor using HTTP, WebSockets, or Standard I/O")]
     pub struct Args {
-        /// Transport protocol to use (defaults to `ws`)
-        #[structopt(long, env = "EXECUTA_PROTOCOL", possible_values = Protocol::VARIANTS, case_insensitive = true)]
-        protocol: Option<Protocol>,
-
-        /// Address to listen on (HTTP and Websockets only, defaults to "127.0.0.1")
-        #[structopt(short, long, env = "EXECUTA_ADDRESS")]
-        address: Option<String>,
-
-        /// Port to listen on (HTTP and Websockets only, defaults to 9000)
-        #[structopt(short, long, env = "EXECUTA_PORT")]
-        port: Option<u16>,
+        /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
+        #[structopt(env = "STENCILA_URL")]
+        url: Option<String>,
 
         /// Secret key to use for signing and verifying JSON Web Tokens
-        #[structopt(short, long)]
+        #[structopt(short, long, env = "STENCILA_KEY")]
         key: Option<String>,
 
         /// Do not require a JSON Web Token
@@ -404,18 +412,10 @@ pub mod cli {
     }
 
     pub async fn serve(args: Args) -> Result<Node> {
-        let Args {
-            protocol,
-            address,
-            port,
-            key,
-            insecure,
-        } = args;
+        let Args { url, key, insecure } = args;
 
         super::serve(
-            protocol,
-            address,
-            port,
+            url,
             if insecure {
                 Some("insecure".to_string())
             } else {

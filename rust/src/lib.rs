@@ -21,6 +21,8 @@ pub mod methods;
 pub mod protocols;
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod rpc;
+#[cfg(any(feature = "request", feature = "serve"))]
+pub mod urls;
 
 // Methods
 

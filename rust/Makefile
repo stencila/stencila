@@ -27,7 +27,7 @@ cover:
 	cargo tarpaulin --ignore-tests --out Html --output-dir coverage
 
 watch:
-	cargo watch -x 'run -- serve --protocol=ws'
+	cargo watch -x 'run -- serve'
 
 audit:
 	cargo +nightly udeps

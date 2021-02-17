@@ -2,6 +2,7 @@ use crate::jwt;
 use crate::methods::Method;
 use crate::nodes::Node;
 use crate::rpc::Response;
+use crate::urls;
 use anyhow::{anyhow, bail, Context, Result};
 use regex::Regex;
 use std::env;
@@ -14,17 +15,6 @@ pub async fn request(
     params: serde_json::Value,
     key: Option<String>,
 ) -> Result<Node> {
-    // Ensure that url is fully formed
-    let url = if url.starts_with(':') {
-        format!("http://127.0.0.1{}", url)
-    } else {
-        let re = Regex::new("https?|wss?").unwrap();
-        match re.captures(&url) {
-            Some(_) => url,
-            None => format!("http://{}", url),
-        }
-    };
-
     // Construct a JSON-RPC request
     let request = serde_json::json!({
         "jsonrpc": "2.0",
@@ -33,7 +23,7 @@ pub async fn request(
     });
 
     // Dispatch to functions based on URL scheme
-    let parsed = url::Url::parse(&url)?;
+    let parsed = urls::parse(url.as_str())?;
     let scheme = parsed.scheme();
     let response = match scheme {
         #[cfg(feature = "request-http")]
