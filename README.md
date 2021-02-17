@@ -1,55 +1,106 @@
-# Stencila
+<div align="center">
+	<img src="https://stenci.la/img/stencila/stencilaLogo.svg" alt="Stencila" style="max-width:300px">
+</div>
+<br>
 
-Welcome to the main entry point to the Stencila ecosystem. This repo contains the `stencila` command line tool which is the top level 'umbrella' package to use our various libraries.
+> ⚠️ This repo is currently undergoing a bit of a reboot. Please bear with us while we get it organized.
 
-[![NPM](http://img.shields.io/npm/v/stencila.svg?style=flat)](https://www.npmjs.com/package/stencila)
+> 🦄 We are using using [README Driven Development](https://tom.preston-werner.com/2010/08/23/readme-driven-development.html) in this repository. That means, depending on when you read this, some (a lot!) of the features described below don't actually exist yet. As far as possible, we indicate non-existing features using a unicorn emoji with either square brackets e.g. 🦄 [a cool feature that's not yet implemented], or a link to an issue about the feature e.g. 🦄 [a link to the issue for the feature](https://github.com/stencila/stencila/issues).
 
-# Install
+## 🎁 Hub
 
-Stencila is available as a pre-compiled, standalone command line tool.
+If you don't want to install anything and/or just want to try out Stencila https://hub.stenci.la is the best place to start.
 
-### Windows
+## 👩‍💻 Language packages
 
-To install the latest release of the `stencila` command line tool, download `stencila-win-x64.zip` for the [latest release](https://github.com/stencila/stencila/releases/) and place it somewhere on your `PATH`.
+If you prefer, you can use Stencila from within your favourite programming lanaguage. The following `stencila` packages for each language 🦄[include the same functionality as the CLI] but accessible via functions e.g. `convert`, `execute` etc
 
-### MacOS
+### JavaScript / TypeScript
 
-To install the latest release of the `stencila` command line tool to `/usr/local/bin` just use,
+The `stencila` Node.js package is available from NPM,
 
-```bash
-curl -L https://raw.githubusercontent.com/stencila/stencila/master/install.sh | bash
+```sh
+npm install stencila
 ```
 
-To install a specific version, append `-s vX.X.X` e.g.
+### Python
 
-```bash
-curl -L https://raw.githubusercontent.com/stencila/stencila/master/install.sh | bash -s v0.33.0
+The `stencila` Python package 🦄 [is available from PyPI],
+
+```sh
+python3 -m pip install stencila
 ```
 
-Or, if you'd prefer to do things manually, download `stencila-macos-x64.tar.gz` for the [latest release](https://github.com/stencila/stencila/releases/) and then,
+### R
 
-```bash
-tar xvf stencila-macos-x64.tar.gz
-sudo mv -f stencila /usr/local/bin # or wherever you like
+The `stencila` R package 🦄 [is available from CRAN]. To install it from within R,
+
+```r
+install.packages("stencila")
 ```
 
-### Linux
+Or, from the command line,
 
-To install the latest release of the `stencila` command line tool to `~/.local/bin/` just use,
-
-```bash
-curl -L https://raw.githubusercontent.com/stencila/stencila/master/install.sh | bash
+```sh
+Rscript -e 'install.packages("stencila")'
 ```
 
-To install a specific version, append `-s vX.X.X` e.g.
+The R package 🦄 [includes an RStudio Add-in] that makes it even easier to get started using Stencila with R.
 
-```bash
-curl -L https://raw.githubusercontent.com/stencila/stencila/master/install.sh | bash -s v0.33.0
+### Rust
+
+The `stencila` Rust package 🦄 [is available via crates.io],
+
+```sh
+cargo add stencila
 ```
 
-Or, if you'd prefer to do things manually, or place stencila elsewhere, download `stencila-linux-x64.tar.gz` for the [latest release](https://github.com/stencila/stencila/releases/) and then,
+### Other
 
-```bash
-tar xvf stencila-linux-x64.tar.gz
-mv -f stencila ~/.local/bin/ # or wherever you like
+Is your favourite language missing from the above list? [Let us know!](https://github.com/stencila/stencila/discussions/new)
+
+<br>
+
+## 🔌 Plugins
+
+On their own, the desktop application, CLI tool and language packages provide little functionality. Instead they rely on _plugins_ to provide much of their functionality.
+
+You can 🦄 [install plugins] using the `stencila` CLI tool using it's name or an alias,
+
+```sh
+stencila plugins install <name or alias>
 ```
+
+The following table lists the main plugins. These plugins are in various stages of development and not all of them are compatible with the CLI. Generally, it won't be worth installing them prior to `v1` and coverage of at least 90%.
+
+| Plugin   | Aliases              | Version     | Coverage    | Primary functionality                                   |
+| -------- | -------------------- | ----------- | ----------- | ------------------------------------------------------- |
+| [encoda] | `converter`          | ![encoda-v] | ![encoda-c] | Convert stencils between file formats                   |
+| [jesta]  | `node`, `javascript` | ![jesta-v]  | ![jesta-c]  | Compile, build and execute stencils that use JavaScript |
+| [rasta]  | `r`                  | ![rasta-v]  | ![rasta-c]  | Compile, build and execute stencils that use R          |
+| [pyla]   | `python`             | ![pyla-v]   | ![pyla-c]   | Compile, build and execute stencils that use Python     |
+| [jupita] | `jupyter`            | ![jupita-v] | ![jupita-c] | Execute stencils using Jupyter kernels                  |
+| [dockta] | `docker`             | ![dockta-v] | ![dockta-c] | Build Docker images for stencils                        |
+| [nixta]  | `nix`                | ![nixta-v]  | ![nixta-c]  | Build Nix environments for stencils                     |
+
+[encoda]: https://github.com/stencila/encoda#readme
+[jesta]: https://github.com/stencila/jesta#readme
+[pyla]: https://github.com/stencila/pyla#readme
+[rasta]: https://github.com/stencila/rasta#readme
+[jupita]: https://github.com/stencila/jupita#readme
+[dockta]: https://github.com/stencila/dockta#readme
+[nixta]: https://github.com/stencila/nixta#readme
+[encoda-v]: https://img.shields.io/github/v/release/stencila/encoda?label=
+[jesta-v]: https://img.shields.io/github/v/release/stencila/jesta?label=
+[rasta-v]: https://img.shields.io/github/v/release/stencila/rasta?label=
+[pyla-v]: https://img.shields.io/github/v/release/stencila/pyla?label=
+[dockta-v]: https://img.shields.io/github/v/release/stencila/dockta?label=
+[nixta-v]: https://img.shields.io/github/v/release/stencila/nixta?label=
+[jupita-v]: https://img.shields.io/github/v/release/stencila/jupita?label=
+[encoda-c]: https://img.shields.io/codecov/c/github/stencila/encoda?label=
+[jesta-c]: https://img.shields.io/codecov/c/github/stencila/jesta?label=
+[rasta-c]: https://img.shields.io/codecov/c/github/stencila/rasta?label=
+[pyla-c]: https://img.shields.io/codecov/c/github/stencila/pyla?label=
+[dockta-c]: https://img.shields.io/codecov/c/github/stencila/dockta?label=
+[nixta-c]: https://img.shields.io/codecov/c/github/stencila/nixta?label=
+[jupita-c]: https://img.shields.io/codecov/c/github/stencila/jupita?label=
