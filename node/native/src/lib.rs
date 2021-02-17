@@ -1,5 +1,4 @@
 use neon::prelude::*;
-use std::str::FromStr;
 
 fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     /*
@@ -46,21 +45,8 @@ fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 }
 
 fn serve(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let protocol = match cx.argument_opt(0) {
-        Some(arg) => {
-            let value = arg.downcast::<JsString>().or_throw(&mut cx)?.value();
-            match stencila::protocols::Protocol::from_str(value.as_str()) {
-                Ok(value) => Some(value),
-                Err(_) => return cx.throw_error("Invalid protocol".to_string()),
-            }
-        }
-        None => Some(stencila::protocols::Protocol::Ws),
-    };
-
-    let address = None;
-
-    let port = match cx.argument_opt(2) {
-        Some(arg) => Some(arg.downcast::<JsNumber>().or_throw(&mut cx)?.value() as u16),
+    let url = match cx.argument_opt(1) {
+        Some(arg) => Some(arg.downcast::<JsString>().or_throw(&mut cx)?.value()),
         None => None,
     };
 
@@ -70,9 +56,9 @@ fn serve(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     };
 
     match if background {
-        stencila::serve::serve_background(protocol, address, port)
+        stencila::serve::serve_background(url, None)
     } else {
-        stencila::serve::serve_blocking(protocol, address, port)
+        stencila::serve::serve_blocking(url, None)
     } {
         Ok(_) => Ok(cx.undefined()),
         Err(error) => cx.throw_error(error.to_string()),

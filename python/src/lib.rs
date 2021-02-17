@@ -1,14 +1,12 @@
-use pyo3::exceptions::{PyRuntimeError, PyValueError};
+use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
-use std::str::FromStr;
 use stencila::{
     anyhow::{bail, Result},
     delegate::DELEGATOR,
     logging,
     methods::Method,
     nodes::Node,
-    protocols::Protocol,
     serde_json, tracing,
 };
 
@@ -79,28 +77,15 @@ fn init(_manifest: PyObject, dispatch: PyObject, log_level: Option<String>) -> P
 /// Run a server using `protocol` (e.g. "ws", "http", "stdio") and listening
 /// on `address` and `port`.
 #[pyfunction]
-fn serve(
-    py: Python,
-    protocol: Option<String>,
-    address: Option<String>,
-    port: Option<u16>,
-    background: Option<bool>,
-) -> PyResult<()> {
-    let protocol = protocol.unwrap_or_else(|| "stdio".to_string());
-    let protocol = match Protocol::from_str(protocol.as_str()) {
-        Ok(value) => Some(value),
-        Err(_) => return Err(PyValueError::new_err("Invalid protocol identifier")),
-    };
-
+fn serve(py: Python, url: Option<String>, background: Option<bool>) -> PyResult<()> {
     let background = background.unwrap_or(false);
-
     // When creating threads that will aquire the GIL, or doing any blocking,
     // it is necessary to call `py.allow_threads`
     py.allow_threads(|| {
         match if background {
-            stencila::serve::serve_background(protocol, address, port)
+            stencila::serve::serve_background(url, None)
         } else {
-            stencila::serve::serve_blocking(protocol, address, port)
+            stencila::serve::serve_blocking(url, None)
         } {
             Ok(_) => Ok(()),
             Err(error) => Err(PyRuntimeError::new_err(error.to_string())),
