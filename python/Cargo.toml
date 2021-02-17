@@ -1,0 +1,11 @@
+[package]
+name = "stencila-python"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+stencila = { path = "../rust" }
+pyo3 = { version = "0.13.1", features = ["extension-module"] }

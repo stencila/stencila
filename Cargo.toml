@@ -1,0 +1,9 @@
+[workspace]
+
+members = ["rust", "node/native", "python", "r"]
+
+[profile.release]
+# Settings that help reduce the binary size based on https://github.com/johnthagen/min-sized-rust
+lto = true
+codegen-units = 1
+panic = 'abort'

@@ -1,0 +1,4 @@
+.Rhistory
+.RData
+*.so
+/man

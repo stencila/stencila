@@ -2,26 +2,11 @@
   "name": "stencila",
   "version": "0.34.3",
   "description": "Living documents for reproducible research.",
-  "bin": "./dist/src/cli.js",
   "files": [
     "dist"
   ],
   "scripts": {
-    "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
-    "lint": "eslint 'src/**/*.{ts,js}' --fix",
-    "check": "npm run build:dist && npm run check:deps-used && npm run check:deps-unused",
-    "check:deps-used": "dependency-check --missing .",
-    "check:deps-unused": "dependency-check --unused --no-dev --ignore-module @stencila/schema .",
-    "cli": "ts-node --project tsconfig.json src/cli.ts",
-    "build": "npm run build:dist && npm run build:tgz && npm run build:bin && npm run build:test",
-    "build:dist": "tsc",
-    "build:tgz": "bash ./deps.sh",
-    "build:bin": "pkg --target=node12 -o=bin/stencila .",
-    "build:test": "bash ./test.sh",
-    "bundle:linux": "tar -czvf bin/stencila-linux-x64.tar.gz -C bin stencila",
-    "bundle:osx": "tar -czvf bin/stencila-macos-x64.tar.gz -C bin stencila",
-    "docs:intercom": "npx ts-node --project tsconfig.json help/intercom.ts",
-    "clean": "rm -rf bin dist"
+    "docs:intercom": "npx ts-node --project tsconfig.json help/intercom.ts"
   },
   "keywords": [
     "reproducibility",
@@ -39,35 +24,10 @@
   "bugs": {
     "url": "https://github.com/stencila/stencila/issues"
   },
-  "dependencies": {
-    "@stencila/encoda": "0.104.5",
-    "@stencila/logga": "3.0.1",
-    "tar": "6.1.0",
-    "yargs": "16.2.0"
-  },
   "devDependencies": {
     "@actions/core": "1.2.6",
-    "@stencila/dev-config": "1.4.131",
-    "@types/browser-sync": "2.26.1",
-    "@types/tar": "4.0.4",
-    "@types/yargs": "15.0.13",
-    "dependency-check": "4.1.0",
-    "globby": "11.0.2",
-    "got": "11.8.1",
-    "jest": "26.6.3",
-    "markdown-toc": "1.2.0",
-    "pkg": "4.4.9",
-    "ts-node": "9.1.1",
-    "ts-node-dev": "1.1.1",
+    "@stencila/dev-config": "1.4.127",
     "typescript": "4.1.3"
-  },
-  "pkg": {
-    "scripts": "./dist/**/*.js",
-    "assets": [
-      "./stencila-deps.tgz",
-      "./node_modules/@stencila/schema/dist/**/*.json",
-      "./node_modules/@stencila/encoda/dist/**/*.json"
-    ]
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "husky": {
@@ -86,20 +46,7 @@
     "extends": "@stencila/eslint-config"
   },
   "release": {
-    "extends": "@stencila/semantic-release-config",
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      "@semantic-release/changelog",
-      "@semantic-release/npm",
-      [
-        "@semantic-release/git",
-        {
-          "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
-        }
-      ],
-      "@semantic-release/github"
-    ]
+    "extends": "@stencila/semantic-release-config"
   },
   "commitlint": {
     "extends": [
