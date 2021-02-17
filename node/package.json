@@ -9,6 +9,6 @@
     "install": "neon build"
   },
   "devDependencies": {
-    "neon-cli": "0.7.0"
+    "neon-cli": "0.7.1"
   }
 }
