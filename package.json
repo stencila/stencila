@@ -26,8 +26,8 @@
   },
   "devDependencies": {
     "@actions/core": "1.2.6",
-    "@stencila/dev-config": "1.4.127",
-    "typescript": "4.1.3"
+    "@stencila/dev-config": "1.4.131",
+    "typescript": "4.1.5"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "husky": {
