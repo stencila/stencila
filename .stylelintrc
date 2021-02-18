@@ -40,7 +40,7 @@
         "subpatterns": {
           "semantic": ":--[A-z][A-z0-9]+",
           "element": "(?:\\w*:--[A-z][A-z0-9]+|:root|^stencila-)",
-          "pseudo": "(?::{1,2}(?:\\w|-)+)",
+          "pseudo": "(?::{1,2}(?:\\w|-)+)|(:not(?:\\w|-)+)",
           "combinator": "(:?\\s*(?:>|\\+|~|\\s+|\\|\\|)\\s*)"
         }
       }

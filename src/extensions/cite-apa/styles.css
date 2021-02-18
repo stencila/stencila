@@ -20,6 +20,7 @@ See https://en.wikipedia.org/wiki/APA_style#In-text_citations
   }
 }
 
+/* Hide numeric citation format */
 :--Cite > a > :first-child {
   display: none;
 }

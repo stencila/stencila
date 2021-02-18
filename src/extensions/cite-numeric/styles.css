@@ -15,10 +15,21 @@
   }
 }
 
+:not(:--CiteGroup) > :--Cite {
+  &::before {
+    content: '[';
+  }
+  &::after {
+    content: ']';
+  }
+}
+
+/* Show numeric citation format */
 :--Cite > a > :first-child {
   display: inline;
 }
 
+/* Hide author-date citation format */
 :--Cite > a > :last-child {
   display: none;
 }
