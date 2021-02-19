@@ -11,6 +11,11 @@ pool:
   vmImage: $(image_name)
 
 steps:
+  - task: Cache@2
+    inputs:
+      path: $(Pipeline.Workspace)/target
+      key: 'rust | "$(Agent.OS)" | Cargo.lock'
+
   - script: |
       set -e
       curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable
@@ -37,7 +42,7 @@ steps:
     condition: eq(variables['Agent.OS'], 'Linux')
 
   - script: bash <(curl -s https://codecov.io/bash)
-    displayName: Upload coverage
+    displayName: Upload coverage (Linux)
     condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 
   - script: make test
@@ -48,5 +53,5 @@ steps:
     displayName: Build packages
 
   - script: make docs
-    displayName: Build docs
+    displayName: Build docs (Linux)
     condition: eq(variables['Agent.OS'], 'Linux')
