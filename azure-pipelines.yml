@@ -13,7 +13,7 @@ pool:
 steps:
   - task: Cache@2
     inputs:
-      path: $(Agent.BuildDirectory)/target
+      path: $(Build.SourcesDirectory)/target
       key: 'rust | "$(Agent.OS)" | Cargo.lock'
 
   - script: |
@@ -55,3 +55,15 @@ steps:
   - script: make docs
     displayName: Build docs (Linux)
     condition: eq(variables['Agent.OS'], 'Linux')
+
+  - script: |
+      npm ci
+      npx semantic-release
+    displayName: Release package and docs (Linux; if necessary)
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    env:
+      GIT_AUTHOR_NAME: Stencila CI Bot
+      GIT_AUTHOR_EMAIL: ci@stenci.la
+      GIT_COMMITTER_NAME: Stencila CI Bot
+      GIT_COMMITTER_EMAIL: ci@stenci.la
+      GITHUB_TOKEN: $(GITHUB_TOKEN)

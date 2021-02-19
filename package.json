@@ -2,9 +2,6 @@
   "name": "stencila",
   "version": "0.34.3",
   "description": "Living documents for reproducible research.",
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "docs:intercom": "npx ts-node --project tsconfig.json help/intercom.ts"
   },
@@ -45,9 +42,6 @@
   "eslintConfig": {
     "extends": "@stencila/eslint-config"
   },
-  "release": {
-    "extends": "@stencila/semantic-release-config"
-  },
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
@@ -68,6 +62,37 @@
   "renovate": {
     "extends": [
       "@stencila"
+    ]
+  },
+  "release": {
+    "extends": "@stencila/semantic-release-config",
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      [
+        "@semantic-release/exec",
+        {
+          "prepareCmd": "./prepare-release.sh ${nextRelease.version}",
+          "publishCmd": "./publish-release.sh ${nextRelease.version}"
+        }
+      ],
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "package.json",
+            "CHANGELOG.md",
+            "manager/manager/version.py",
+            "manager/manager/components.py",
+            "manager/manager/themes.py",
+            "clients/python/.openapi-generator-config.yaml",
+            "clients/typescript/package.json"
+          ]
+        }
+      ],
+      "@semantic-release/github",
+      "@qiwi/semantic-release-gh-pages-plugin"
     ]
   }
 }
