@@ -26,6 +26,7 @@ build:
 
 docs:
 	make -C rust docs
+.PHONY: docs
 
 clean:
 	cargo clean
