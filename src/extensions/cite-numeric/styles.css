@@ -13,17 +13,28 @@
       order: 100;
     }
   }
+}
 
-  :--Cite > a > :first-child {
-    display: inline;
+:not(:--CiteGroup) > :--Cite {
+  &::before {
+    content: '[';
   }
+  &::after {
+    content: ']';
+  }
+}
 
-  :--Cite > a > :last-child {
-    display: none;
-  }
+/* Show numeric citation format */
+:--Cite > a > :first-child {
+  display: inline;
+}
 
-  /* Ensure that at least one citation format is visible */
-  :--Cite > a > :only-child {
-    display: inline;
-  }
+/* Hide author-date citation format */
+:--Cite > a > :last-child {
+  display: none;
+}
+
+/* Ensure that at least one citation format is visible */
+:--Cite > a > :only-child {
+  display: inline;
 }

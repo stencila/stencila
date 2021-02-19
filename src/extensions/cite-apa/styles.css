@@ -18,15 +18,16 @@ See https://en.wikipedia.org/wiki/APA_style#In-text_citations
       order: 100;
     }
   }
+}
 
-  :--Cite > a > :first-child {
-    display: none;
-  }
+/* Hide numeric citation format */
+:--Cite > a > :first-child {
+  display: none;
+}
 
-  /* Ensure that at least one citation format is visible */
-  :--Cite > a > :only-child {
-    display: inline;
-  }
+/* Ensure that at least one citation format is visible */
+:--Cite > a > :only-child {
+  display: inline;
 }
 
 /*
