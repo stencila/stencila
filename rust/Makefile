@@ -24,7 +24,7 @@ test:
 	cargo test
 
 cover:
-	cargo tarpaulin --ignore-tests --out Html --output-dir coverage
+	cargo tarpaulin --ignore-tests --out Xml --out Html --output-dir coverage 
 
 watch:
 	cargo watch -x 'run -- serve'
