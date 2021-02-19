@@ -9,7 +9,7 @@ use reqwest::StatusCode;
 use serde::Deserialize;
 use std::env;
 use std::str::FromStr;
-use warp::Filter;
+use warp::{Filter, Reply};
 
 /// Serve JSON-RPC requests at a URL
 ///
@@ -131,7 +131,7 @@ pub async fn serve_on(
             Some(key)
         }
     } else {
-        Some(generate_secret())
+        Some(generate_key())
     };
 
     let _span = tracing::trace_span!(
@@ -141,7 +141,11 @@ pub async fn serve_on(
 
     tracing::info!(%protocol, %address, %port);
     if let Some(key) = key.clone() {
-        tracing::info!("To connect use key {}", key)
+        tracing::info!("To sign JWTs use key:\n\n  {}", key);
+        tracing::info!(
+            "To login visit:\n\n  {}\n\nNote: Link valid for one use within 5 minutes.",
+            login_url(&key, None)?
+        );
     }
 
     match protocol {
@@ -165,6 +169,13 @@ pub async fn serve_on(
             }
         }
         Protocol::Http | Protocol::Ws => {
+            let key_clone = key.clone();
+            let login = warp::get()
+                .and(warp::path("login"))
+                .and(warp::query::<LoginParams>())
+                .map(move |params: LoginParams| (key_clone.clone(), params))
+                .map(login_handler);
+
             let authorize = || jwt_filter(key.clone());
 
             let get = warp::get()
@@ -197,7 +208,8 @@ pub async fn serve_on(
                 .allow_methods(&[warp::http::Method::GET, warp::http::Method::POST])
                 .max_age(24 * 60 * 60);
 
-            let routes = get
+            let routes = login
+                .or(get)
                 .or(post)
                 .or(post_wrap)
                 .or(ws)
@@ -221,16 +233,15 @@ pub async fn serve_on(
     Ok(())
 }
 
-/// Generate a secret.
+/// Generate a secret key for signing and verifying JSON Web Tokens.
 ///
 /// Returns a secret comprised of 64 URL and command line compatible characters
-/// so that it can easily be used in URLs and entered on the CLI for the
-/// `--key` option of the `request` command.
+/// (e.g. so that it can easily be entered on the CLI for the `--key` option of the `request` command).
 ///
 /// Uses 64 bytes because this is the maximum size possible for JWT signing keys.
 /// Using a large key for JWT signing reduces the probability of brute force attacks.
 /// See https://auth0.com/blog/brute-forcing-hs256-is-possible-the-importance-of-using-strong-keys-to-sign-jwts/.
-fn generate_secret() -> String {
+pub fn generate_key() -> String {
     use rand::Rng;
     const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                             abcdefghijklmnopqrstuvwxyz\
@@ -244,9 +255,15 @@ fn generate_secret() -> String {
         .collect()
 }
 
-#[derive(Debug, Deserialize)]
-struct TokenParam {
-    pub token: Option<String>,
+/// Generate the login URL given a key, and optionally, the path to redirect to
+/// on successful login.
+pub fn login_url(key: &str, next: Option<String>) -> Result<String> {
+    let token = jwt::encode(key.to_string(), Some(300))?;
+    let next = next.unwrap_or_else(|| "/".to_string());
+    Ok(format!(
+        "http://127.0.0.1:9000/login?token={}&next={}",
+        token, next
+    ))
 }
 
 /// A Warp filter that extracts any JSON Web Token from either the `Authorization` header
@@ -254,19 +271,19 @@ struct TokenParam {
 fn jwt_filter(
     key: Option<String>,
 ) -> impl Filter<Extract = (jwt::Claims,), Error = warp::Rejection> + Clone {
-    warp::query::<TokenParam>()
-        .and(warp::header::optional::<String>("authorization"))
-        .map(move |param: TokenParam, header: Option<String>| (key.clone(), param.token, header))
+    warp::header::optional::<String>("authorization")
+        .and(warp::cookie::optional("token"))
+        .map(move |header: Option<String>, cookie: Option<String>| (key.clone(), header, cookie))
         .and_then(
             |args: (Option<String>, Option<String>, Option<String>)| async move {
                 if let Some(key) = args.0 {
-                    let jwt = if let Some(param) = args.1 {
-                        param
-                    } else if let Some(header) = args.2 {
+                    let jwt = if let Some(header) = args.1 {
                         match jwt::from_auth_header(header) {
                             Ok(jwt) => jwt,
                             Err(error) => return Err(warp::reject::custom(error)),
                         }
+                    } else if let Some(cookie) = args.2 {
+                        cookie
                     } else {
                         return Err(warp::reject::custom(JwtError::NoTokenSupplied));
                     };
@@ -279,6 +296,73 @@ fn jwt_filter(
                 }
             },
         )
+}
+
+#[derive(Debug, Deserialize)]
+struct TokenParam {
+    pub token: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct LoginParams {
+    pub token: Option<String>,
+    pub next: Option<String>,
+}
+
+/// Handle a HTTP `GET /login` request
+///
+/// This view is intended for humans so it returns HTML responses telling the
+/// human if something failed with the login and what to do about it. Otherwise,
+/// it just sets a cookie and redirects them to the next page.
+#[allow(clippy::unnecessary_unwrap)]
+fn login_handler(key_and_params: (Option<String>, LoginParams)) -> warp::reply::Response {
+    let (key, params) = key_and_params;
+    let token = params.token;
+    let next = params.next.unwrap_or_else(|| "/".to_string());
+
+    fn redirect(next: String) -> warp::reply::Response {
+        warp::reply::with_header(
+            warp::http::StatusCode::MOVED_PERMANENTLY,
+            warp::http::header::LOCATION,
+            next.as_str(),
+        )
+        .into_response()
+    }
+
+    if key.is_none() {
+        // There is no key so nothing further to do other than redirect to `next`
+        redirect(next)
+    } else if token.is_none() {
+        // There is no `?token=` query parameter
+        warp::reply::with_status(
+            warp::reply::html("No token"),
+            warp::http::StatusCode::UNAUTHORIZED,
+        )
+        .into_response()
+    } else {
+        let key = key.unwrap();
+        let token = token.unwrap();
+        if jwt::decode(token, key.clone()).is_ok() {
+            // Valid token, so set a new, long-expiry token cookie and
+            // redirect to `next`.
+            let mut response = redirect(next);
+            const DAY: i64 = 24 * 60 * 60;
+            let cookie_token = jwt::encode(key, Some(30 * DAY)).unwrap();
+            let cookie =
+                warp::http::HeaderValue::from_str(format!("token={}", cookie_token).as_str())
+                    .unwrap();
+            let headers = response.headers_mut();
+            headers.insert("set-cookie", cookie);
+            response
+        } else {
+            // Invalid token
+            warp::reply::with_status(
+                warp::reply::html("Invalid token"),
+                warp::http::StatusCode::UNAUTHORIZED,
+            )
+            .into_response()
+        }
+    }
 }
 
 /// Handle a HTTP `GET /` request

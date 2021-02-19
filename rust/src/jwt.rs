@@ -45,9 +45,9 @@ pub fn to_auth_header(jwt: String) -> String {
     format!("Bearer {}", jwt)
 }
 
-pub fn encode(key: String) -> Result<String, JwtError> {
+pub fn encode(key: String, expiry_seconds: Option<i64>) -> Result<String, JwtError> {
     let exp = chrono::Utc::now()
-        .checked_add_signed(chrono::Duration::seconds(60))
+        .checked_add_signed(chrono::Duration::seconds(expiry_seconds.unwrap_or(60)))
         .expect("valid timestamp")
         .timestamp();
     let claims = Claims { exp };

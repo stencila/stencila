@@ -69,7 +69,7 @@ async fn request_http(
         .json(request);
     let request = match key {
         Some(key) => {
-            let jwt = jwt::encode(key)?;
+            let jwt = jwt::encode(key, Some(60))?;
             request.header("authorization", jwt::to_auth_header(jwt))
         }
         None => request,
