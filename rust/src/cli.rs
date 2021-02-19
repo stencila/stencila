@@ -1,6 +1,7 @@
 use crate::decode;
 use crate::encode;
 use crate::nodes::Node;
+use crate::open;
 use crate::request;
 use crate::serve;
 use crate::validate;
@@ -33,10 +34,11 @@ struct Args {
     setting = structopt::clap::AppSettings::DeriveDisplayOrder
 )]
 pub enum Command {
+    Open(open::cli::Args),
     Decode(decode::cli::Args),
     Validate(validate::cli::Args),
-    Request(request::cli::Args),
     Serve(serve::cli::Args),
+    Request(request::cli::Args),
 }
 
 pub async fn cli(args: Vec<String>) -> i32 {
@@ -47,10 +49,11 @@ pub async fn cli(args: Vec<String>) -> i32 {
     } = Args::from_iter(args);
 
     let node = match command {
+        Command::Open(command) => open::cli::open(command).await,
         Command::Decode(command) => decode::cli::decode(command),
         Command::Validate(command) => validate::cli::validate(command),
-        Command::Request(command) => request::cli::request(command).await,
         Command::Serve(command) => serve::cli::serve(command).await,
+        Command::Request(command) => request::cli::request(command).await,
     };
     match node {
         Ok(node) => {
