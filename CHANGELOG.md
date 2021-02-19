@@ -1,3 +1,11 @@
+## [2.21.2](https://github.com/stencila/thema/compare/v2.21.1...v2.21.2) (2021-02-19)
+
+
+### Bug Fixes
+
+* **Cite:** Format in-text citations outside of CiteGroups ([e0456da](https://github.com/stencila/thema/commit/e0456dacfa3f2159062b0c1e0c9efcf9843c835d))
+* **Cite:** Wrap standalone citations in brackets ([4113180](https://github.com/stencila/thema/commit/4113180d82746cd030b14321efb65726568c5707))
+
 ## [2.21.1](https://github.com/stencila/thema/compare/v2.21.0...v2.21.1) (2021-02-15)
 
 
