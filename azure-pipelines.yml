@@ -13,7 +13,7 @@ pool:
 steps:
   - task: Cache@2
     inputs:
-      path: $(Pipeline.Workspace)/target
+      path: $(Agent.BuildDirectory)/target
       key: 'rust | "$(Agent.OS)" | Cargo.lock'
 
   - script: |
