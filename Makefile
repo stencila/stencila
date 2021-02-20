@@ -24,9 +24,6 @@ build:
 	make -C rust build
 	cargo strip
 
-upload:
-	@echo TODO
-
 docs:
 	make -C rust docs
 .PHONY: docs

@@ -25,7 +25,9 @@ jobs:
         displayName: Upload coverage
         condition: succeeded()
 
-      - script: make build upload
+      - script: |
+          make build
+          .ci/upload-release.sh target/release/stencila Linux-CLI
         displayName: Build and upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
 
@@ -47,7 +49,9 @@ jobs:
       - script: make test
         displayName: Run tests
 
-      - script: make build upload
+      - script: |
+          make build
+          .ci/upload-release.sh target/release/stencila MacOS-CLI
         displayName: Build and upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
 
@@ -70,7 +74,9 @@ jobs:
       - script: make test
         displayName: Run tests
 
-      - script: make build upload
+      - script: |
+          make build
+          .ci/upload-release.sh target/release/stencila.exe Windows-CLI
         displayName: Build and upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
 
