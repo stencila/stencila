@@ -81,13 +81,11 @@
         "@semantic-release/git",
         {
           "assets": [
-            "package.json",
             "CHANGELOG.md",
-            "manager/manager/version.py",
-            "manager/manager/components.py",
-            "manager/manager/themes.py",
-            "clients/python/.openapi-generator-config.yaml",
-            "clients/typescript/package.json"
+            "node/package.json",
+            "node/native/Cargo.toml",
+            "python/Cargo.toml",
+            "r/Cargo.toml"
           ]
         }
       ],
