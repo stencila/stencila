@@ -1674,6 +1674,7 @@ dependencies = [
  "serde_yaml",
  "structopt",
  "strum",
+ "strum_macros",
  "thiserror",
  "tokio",
  "tokio-tungstenite",
