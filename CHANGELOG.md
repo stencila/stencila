@@ -1,3 +1,33 @@
+# [0.35.0](https://github.com/stencila/stencila/compare/v0.34.3...v0.35.0) (2021-02-20)
+
+
+### Bug Fixes
+
+* **dependencies:** pin dependencies ([ed7891a](https://github.com/stencila/stencila/commit/ed7891a03d3382e893db665f81c95d9e3b5166ab))
+* **dependencies:** update dependency @stencila/encoda to ^0.98.6 ([8c6709c](https://github.com/stencila/stencila/commit/8c6709c0cfd8b9e30651d83cbf0077e82e722a47))
+* **dependencies:** update dependency @stencila/encoda to v0.104.5 ([24016c0](https://github.com/stencila/stencila/commit/24016c06246000c35ce86b664dda50084e60743c))
+* **dependencies:** update dependency tar to ^6.0.5 ([5b7a39d](https://github.com/stencila/stencila/commit/5b7a39d6fb3160e3785adb1614ae4e281562c679))
+* **dependencies:** update dependency tar to v6.1.0 ([9fd0153](https://github.com/stencila/stencila/commit/9fd01534d96ad9d47acad2783ecbda73e79f8d58))
+* **dependencies:** update dependency yargs to v16 ([29c7c7e](https://github.com/stencila/stencila/commit/29c7c7e96451c6c83aa635812f1f2b0a25c9d940))
+* **dependencies:** update rust crate anyhow to 1.0.38 ([2d9e5fb](https://github.com/stencila/stencila/commit/2d9e5fb44080c7e84223bb6d6f567681e31a54fe))
+* **dependencies:** update rust crate env_logger to 0.8.3 ([e019917](https://github.com/stencila/stencila/commit/e019917fdfbe7807a6189f03e3ab3eb9eca0697a))
+* **Dependencies:** Update deps to latest versions ([6eff527](https://github.com/stencila/stencila/commit/6eff527c9cc1ee7127eeeee8ccd579e5297504ff))
+* **Deps:** Add strum_macros ([505d1e9](https://github.com/stencila/stencila/commit/505d1e9033de94ed4463e68344c54fb573aeeb11))
+* **Deps:** Cargo audit fix ([1aca400](https://github.com/stencila/stencila/commit/1aca40075415e41c1a1c21ea12d2ed59de13d3d3))
+* **Deps:** Update Encoda and yargs ([980c0bd](https://github.com/stencila/stencila/commit/980c0bda997dc912b4b5b222c7ca4c5c3ea29363))
+* **Deps:** Update tokio, warp etc ([0bbc1e4](https://github.com/stencila/stencila/commit/0bbc1e48300d1c3ab14694005d1eee851c90e62a))
+* **Docs:** Skip schema coercion as it loses necessary meta data ([67a01c7](https://github.com/stencila/stencila/commit/67a01c7879988669b41e6db1053aac7dfab51b50))
+
+
+### Features
+
+* **JWT:** Add JSOn Web Token authorization ([075f407](https://github.com/stencila/stencila/commit/075f407a70fa97a0f3d68647f3c2ba685c3a9ca7))
+* **Node:** Very preliminary version of Stencila for Node.js package ([595308b](https://github.com/stencila/stencila/commit/595308be17a3106543e456233e7133eda154bebf))
+* **Open:** Add open command for opening  a stencil in browser ([29afbe1](https://github.com/stencila/stencila/commit/29afbe17d36649b11b09e2032db4fae1de715cb9))
+* **R:** Very preliminary version of Stencila for R package ([7aed77e](https://github.com/stencila/stencila/commit/7aed77e91712843f44f232a40b51832253041cbb))
+* **Rust:** Add the execute command ([23832b2](https://github.com/stencila/stencila/commit/23832b21f8e2cef57e968e4c30ae733f85663e7d))
+* **Seve & request:** Add server and user-agent headers ([00f0335](https://github.com/stencila/stencila/commit/00f0335e19cbb45d74d608e09a5b9ca95647abfd))
+
 ## [0.34.3](https://github.com/stencila/stencila/compare/v0.34.2...v0.34.3) (2020-11-06)
 
 
