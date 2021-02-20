@@ -1,0 +1,96 @@
+jobs:
+  - job: Linux
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: Cache@2
+        inputs:
+          path: $(Build.SourcesDirectory)/target
+          key: 'rust | Linux | Cargo.lock'
+
+      - script: |
+          set -e
+          curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable
+          echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+          cargo install cargo-tarpaulin
+        displayName: Install Rust
+
+      - script: make lint
+        displayName: Run linting
+
+      - script: make cover
+        displayName: Run tests with coverage
+
+      - script: bash <(curl -s https://codecov.io/bash)
+        displayName: Upload coverage
+        condition: succeeded()
+
+      - script: |
+          make build
+          .ci/upload-release.sh target/release/stencila Linux-CLI
+        displayName: Build and upload release
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+
+  - job: MacOS
+    pool:
+      vmImage: macOS-latest
+    steps:
+      # It seems that there may be an issue with using caching on Mac
+      # so avoiding for now.
+
+      - script: |
+          set -e
+          curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable
+          echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+        displayName: Install Rust
+
+      - script: make test
+        displayName: Run tests
+
+      - script: |
+          make build
+          .ci/upload-release.sh target/release/stencila MacOS-CLI
+        displayName: Build and upload release
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+
+  - job: Windows
+    pool:
+      vmImage: windows-latest
+    steps:
+      - task: Cache@2
+        inputs:
+          path: $(Build.SourcesDirectory)/target
+          key: 'rust | Windows | Cargo.lock'
+
+      - script: |
+          curl -sSf -o rustup-init.exe https://win.rustup.rs
+          rustup-init.exe -y --profile minimal --default-toolchain stable --default-host x86_64-pc-windows-msvc
+          set PATH=%PATH%;%USERPROFILE%\.cargo\bin
+          echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
+        displayName: Install Rust
+
+      - script: make test
+        displayName: Run tests
+
+      - script: |
+          make build
+          .ci/upload-release.sh target/release/stencila.exe Windows-CLI
+        displayName: Build and upload release
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+
+  - job: Release
+    dependsOn: [Linux, MacOS, Windows]
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: |
+          npm ci
+          npx semantic-release
+        displayName: Create a release (if necessary)
+        env:
+          GIT_AUTHOR_NAME: Stencila CI Bot
+          GIT_AUTHOR_EMAIL: ci@stenci.la
+          GIT_COMMITTER_NAME: Stencila CI Bot
+          GIT_COMMITTER_EMAIL: ci@stenci.la
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
