@@ -35,10 +35,8 @@ jobs:
     pool:
       vmImage: macOS-latest
     steps:
-      - task: Cache@2
-        inputs:
-          path: $(Build.SourcesDirectory)/target
-          key: 'rust | MacOS | Cargo.lock'
+      # It seems that there may be an issue with using caching on Mac
+      # so avoiding for now.
 
       - script: |
           set -e
