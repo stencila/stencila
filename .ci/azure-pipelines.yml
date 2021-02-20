@@ -25,18 +25,6 @@ jobs:
         displayName: Upload coverage
         condition: succeeded()
 
-      - script: |
-          npm ci
-          npx semantic-release
-        displayName: Create a release (if necessary)
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-        env:
-          GIT_AUTHOR_NAME: Stencila CI Bot
-          GIT_AUTHOR_EMAIL: ci@stenci.la
-          GIT_COMMITTER_NAME: Stencila CI Bot
-          GIT_COMMITTER_EMAIL: ci@stenci.la
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-
       - script: make build upload
         displayName: Build and upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
@@ -85,3 +73,20 @@ jobs:
       - script: make build upload
         displayName: Build and upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+
+  - job: Release
+    dependsOn: [Linux, MacOS, Windows]
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: |
+          npm ci
+          npx semantic-release
+        displayName: Create a release (if necessary)
+        env:
+          GIT_AUTHOR_NAME: Stencila CI Bot
+          GIT_AUTHOR_EMAIL: ci@stenci.la
+          GIT_COMMITTER_NAME: Stencila CI Bot
+          GIT_COMMITTER_EMAIL: ci@stenci.la
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
