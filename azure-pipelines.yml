@@ -37,6 +37,10 @@ jobs:
           GIT_COMMITTER_EMAIL: ci@stenci.la
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
+      - script: make build upload
+        displayName: Build and upload release
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+
   - job: MacOS
     pool:
       vmImage: macOS-latest
@@ -54,6 +58,10 @@ jobs:
 
       - script: make test
         displayName: Run tests
+
+      - script: make build upload
+        displayName: Build and upload release
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
 
   - job: Windows
     pool:
@@ -73,3 +81,7 @@ jobs:
 
       - script: make test
         displayName: Run tests
+
+      - script: make build upload
+        displayName: Build and upload release
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
