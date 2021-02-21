@@ -4,6 +4,7 @@ use crate::nodes::Node;
 use crate::open;
 use crate::request;
 use crate::serve;
+use crate::upgrade;
 use crate::validate;
 use anyhow::Context;
 use std::ffi::OsStr;
@@ -39,6 +40,7 @@ pub enum Command {
     Validate(validate::cli::Args),
     Serve(serve::cli::Args),
     Request(request::cli::Args),
+    Upgrade(upgrade::cli::Args),
 }
 
 pub async fn cli(args: Vec<String>) -> i32 {
@@ -54,6 +56,10 @@ pub async fn cli(args: Vec<String>) -> i32 {
         Command::Validate(command) => validate::cli::validate(command),
         Command::Serve(command) => serve::cli::serve(command).await,
         Command::Request(command) => request::cli::request(command).await,
+        Command::Upgrade(command) => {
+            upgrade::cli::upgrade(command).unwrap();
+            Ok(Node::Null)
+        }
     };
     match node {
         Ok(node) => {
