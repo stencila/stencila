@@ -273,7 +273,7 @@ checksum = "de853764b47027c2e862a995c34978ffa63c1501f2e15f987ba11bd4f9bba193"
 [[package]]
 name = "extendr-api"
 version = "0.1.11"
-source = "git+https://github.com/extendr/extendr#d5a8c7fb8b626afeb6eef7a9ff66767c4993bc7e"
+source = "git+https://github.com/extendr/extendr#ba8531c3272d88b2b5aef89bbea370cd7748d62e"
 dependencies = [
  "extendr-engine",
  "extendr-macros",
@@ -284,7 +284,7 @@ dependencies = [
 [[package]]
 name = "extendr-engine"
 version = "0.1.11"
-source = "git+https://github.com/extendr/extendr#d5a8c7fb8b626afeb6eef7a9ff66767c4993bc7e"
+source = "git+https://github.com/extendr/extendr#ba8531c3272d88b2b5aef89bbea370cd7748d62e"
 dependencies = [
  "libR-sys",
 ]
@@ -292,7 +292,7 @@ dependencies = [
 [[package]]
 name = "extendr-macros"
 version = "0.1.11"
-source = "git+https://github.com/extendr/extendr#d5a8c7fb8b626afeb6eef7a9ff66767c4993bc7e"
+source = "git+https://github.com/extendr/extendr#ba8531c3272d88b2b5aef89bbea370cd7748d62e"
 dependencies = [
  "lazy_static",
  "quote",
@@ -1655,7 +1655,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.34.3"
+version = "0.35.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1686,7 +1686,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.1.0"
+version = "0.35.0"
 dependencies = [
  "neon",
  "neon-build",
@@ -1695,7 +1695,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-python"
-version = "0.1.0"
+version = "0.35.0"
 dependencies = [
  "pyo3",
  "stencila",
@@ -1703,7 +1703,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-r"
-version = "0.1.0"
+version = "0.35.0"
 dependencies = [
  "extendr-api",
  "stencila",

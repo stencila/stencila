@@ -83,10 +83,12 @@
         {
           "assets": [
             "CHANGELOG.md",
+            "Cargo.lock",
             "node/package.json",
             "node/native/Cargo.toml",
             "python/Cargo.toml",
-            "r/Cargo.toml"
+            "r/Cargo.toml",
+            "rust/Cargo.toml"
           ]
         }
       ],
