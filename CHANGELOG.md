@@ -1,3 +1,10 @@
+# [0.36.0](https://github.com/stencila/stencila/compare/v0.35.0...v0.36.0) (2021-02-21)
+
+
+### Features
+
+* **Upgrade:** Add upgrade command for updating to most recent release ([81a5775](https://github.com/stencila/stencila/commit/81a57751a88a94f6036ae3614654a7a64e293aa1))
+
 # [0.35.0](https://github.com/stencila/stencila/compare/v0.34.3...v0.35.0) (2021-02-20)
 
 
