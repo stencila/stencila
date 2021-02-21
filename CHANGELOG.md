@@ -21,12 +21,12 @@
 
 ### Features
 
-* **JWT:** Add JSOn Web Token authorization ([075f407](https://github.com/stencila/stencila/commit/075f407a70fa97a0f3d68647f3c2ba685c3a9ca7))
+* **JWT:** Add JSON Web Token authorization ([075f407](https://github.com/stencila/stencila/commit/075f407a70fa97a0f3d68647f3c2ba685c3a9ca7))
 * **Node:** Very preliminary version of Stencila for Node.js package ([595308b](https://github.com/stencila/stencila/commit/595308be17a3106543e456233e7133eda154bebf))
 * **Open:** Add open command for opening  a stencil in browser ([29afbe1](https://github.com/stencila/stencila/commit/29afbe17d36649b11b09e2032db4fae1de715cb9))
 * **R:** Very preliminary version of Stencila for R package ([7aed77e](https://github.com/stencila/stencila/commit/7aed77e91712843f44f232a40b51832253041cbb))
 * **Rust:** Add the execute command ([23832b2](https://github.com/stencila/stencila/commit/23832b21f8e2cef57e968e4c30ae733f85663e7d))
-* **Seve & request:** Add server and user-agent headers ([00f0335](https://github.com/stencila/stencila/commit/00f0335e19cbb45d74d608e09a5b9ca95647abfd))
+* **Serve & request:** Add server and user-agent headers ([00f0335](https://github.com/stencila/stencila/commit/00f0335e19cbb45d74d608e09a5b9ca95647abfd))
 
 ## [0.34.3](https://github.com/stencila/stencila/compare/v0.34.2...v0.34.3) (2020-11-06)
 
@@ -63,7 +63,7 @@
 ### Features
 
 * **Docs:** Add a link to help make documentation better ([6caf76a](https://github.com/stencila/stencila/commit/6caf76a2e677a976be1f32a0cb93a807b68da8d9))
-* **Docs:** Terminate Documentatino build in case of errors ([d09d2cb](https://github.com/stencila/stencila/commit/d09d2cbfed67bee7561a8a72a899983411b91523))
+* **Docs:** Terminate documentation build in case of errors ([d09d2cb](https://github.com/stencila/stencila/commit/d09d2cbfed67bee7561a8a72a899983411b91523))
 * **Process:** Remove process command ([e0f9562](https://github.com/stencila/stencila/commit/e0f95625e5298a6423e8504a19f696a1130285c1))
 
 ## [0.33.5](https://github.com/stencila/stencila/compare/v0.33.4...v0.33.5) (2019-10-11)
@@ -114,7 +114,7 @@
 
 ### Bug Fixes
 
-* **Packaging:** Fix to libary inclusion in macOS build ([4a8627e](https://github.com/stencila/stencila/commit/4a8627e))
+* **Packaging:** Fix to library inclusion in macOS build ([4a8627e](https://github.com/stencila/stencila/commit/4a8627e))
 
 # [0.32.0](https://github.com/stencila/stencila/compare/v0.31.1...v0.32.0) (2019-09-13)
 

@@ -2,24 +2,6 @@
   "breadcrumbs.enabled": true,
   "breadcrumbs.filePath": "last",
   "coverage-gutters.lcovname": "coverage/lcov.info",
-  "cSpell.userWords": [
-    "Apps",
-    "dropdown",
-    "emoji",
-    "Google's",
-    "Jupyter",
-    "Nixta",
-    "PNGs",
-    "polyfills",
-    "repo",
-    "rPNG",
-    "screenshots",
-    "steganography",
-    "Stencila",
-    "subfolder",
-    "transpiles",
-    "vapourware"
-  ],
   "debug.inlineValues": true,
   "debug.node.autoAttach": "on",
   "editor.suggest.localityBonus": true,
@@ -52,5 +34,17 @@
   "typescript.suggest.completeFunctionCalls": true,
   "typescript.updateImportsOnFileMove.enabled": "prompt",
   "workbench.editor.highlightModifiedTabs": true,
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "cSpell.words": [
+    "CRAN",
+    "Encoda",
+    "Rscript",
+    "Dockta",
+    "Jesta",
+    "Jupita",
+    "Logga",
+    "Nixta",
+    "Pyla",
+    "Stencila"
+  ]
 }

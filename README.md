@@ -13,7 +13,7 @@ If you don't want to install anything and/or just want to try out Stencila https
 
 ## 👩‍💻 Language packages
 
-If you prefer, you can use Stencila from within your favourite programming lanaguage. The following `stencila` packages for each language 🦄[include the same functionality as the CLI] but accessible via functions e.g. `convert`, `execute` etc
+If you prefer, you can use Stencila from within your favorite programming language. The following `stencila` packages for each language 🦄[include the same functionality as the CLI] but accessible via functions e.g. `convert`, `execute` etc
 
 ### JavaScript / TypeScript
 
@@ -57,7 +57,7 @@ cargo add stencila
 
 ### Other
 
-Is your favourite language missing from the above list? [Let us know!](https://github.com/stencila/stencila/discussions/new)
+Is your favorite language missing from the above list? [Let us know!](https://github.com/stencila/stencila/discussions/new)
 
 <br>
 
