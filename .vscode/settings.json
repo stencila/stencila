@@ -37,14 +37,15 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "cSpell.words": [
     "CRAN",
-    "Encoda",
-    "Rscript",
     "Dockta",
+    "Encoda",
     "Jesta",
     "Jupita",
     "Logga",
     "Nixta",
     "Pyla",
-    "Stencila"
+    "Rscript",
+    "Stencila",
+    "structopt"
   ]
 }

@@ -8,9 +8,6 @@ pub mod cli;
 #[cfg(feature = "request")]
 pub mod request;
 
-#[cfg(feature = "open")]
-pub mod open;
-
 #[cfg(feature = "serve")]
 pub mod serve;
 
@@ -26,6 +23,12 @@ pub mod protocols;
 pub mod rpc;
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod urls;
+
+#[cfg(feature = "open")]
+pub mod open;
+
+#[cfg(feature = "upgrade")]
+pub mod upgrade;
 
 // Methods
 
