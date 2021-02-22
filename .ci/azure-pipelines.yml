@@ -32,8 +32,8 @@ jobs:
         displayName: Upload coverage
         condition: succeeded()
 
-      - script: make audit
-        displayName: Audit for unused and insecure dependencies
+      - script: cargo audit
+        displayName: Run dependency audit
 
       - script: |
           make build
