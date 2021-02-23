@@ -58,9 +58,13 @@ pub mod cli {
         format: Option<String>,
     }
 
-    pub fn validate(args: Args) -> Result<Node> {
+    pub fn validate(args: Args) -> Result<()> {
         let Args { input, format } = args;
+
         let node = decode(input, format.unwrap_or_default())?;
-        super::validate(node)
+
+        super::validate(node);
+
+        Ok(())
     }
 }

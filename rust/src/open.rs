@@ -52,11 +52,11 @@ pub mod cli {
         url: String,
     }
 
-    pub async fn open(args: Args) -> Result<Node> {
+    pub async fn open(args: Args) -> Result<()> {
         let Args { url } = args;
 
         super::open(Some(url)).await?;
 
-        Ok(Node::Null)
+        Ok(())
     }
 }
