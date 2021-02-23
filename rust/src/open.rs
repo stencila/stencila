@@ -1,7 +1,4 @@
-use crate::{
-    nodes::Node,
-    serve::{generate_key, login_url, serve},
-};
+use crate::serve::{generate_key, login_url, serve};
 use anyhow::Result;
 
 /// Serve JSON-RPC requests at a URL

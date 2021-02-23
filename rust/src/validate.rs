@@ -63,7 +63,7 @@ pub mod cli {
 
         let node = decode(input, format.unwrap_or_default())?;
 
-        super::validate(node);
+        super::validate(node)?;
 
         Ok(())
     }
