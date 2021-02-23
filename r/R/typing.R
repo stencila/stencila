@@ -102,6 +102,7 @@ print.Enum <- function(x) { # nolint
 #' The last class is usually the "highest" in the inheritance tree
 #'
 #' @param obj The object to get the last class for
+#' @return The class that is last in the list of classes for the object
 last_class <- function(obj) {
   utils::tail(class(obj), n = 1)
 }
@@ -110,6 +111,7 @@ last_class <- function(obj) {
 #'
 #' @param value The value to check
 #' @param clas The class the check against
+#' @return TRUE if the value has the class as its last class, FALSE otherwise
 is_class <- function(value, clas) {
   last_class(value) == clas
 }
@@ -118,6 +120,7 @@ is_class <- function(value, clas) {
 #'
 #' @param value The value to check
 #' @param type The type to check against
+#' @return TRUE if the value conforms to the type, FALSE otherwise
 is_type <- function(value, type) { # nolint
   type_class <- last_class(type)
   if (type_class == "function") {
@@ -166,6 +169,7 @@ is_type <- function(value, type) { # nolint
 #' Declare that a node is scalar
 #'
 #' @param node The node to declare as a scalar
+#' @return The node with the `scalar` class added to it
 as_scalar <- function(node) {
   # Make other values "scalar" so that they are "unboxed"
   # when serialized to JSON
@@ -178,6 +182,7 @@ as_scalar <- function(node) {
 #'
 #' @param value The value to coerce
 #' @param type The type to coerce it to
+#' @return The value, possibly coerced to the type
 as_type <- function(value, type) { #nolint
   primitive_types <- c("logical", "numeric", "character")
 
@@ -221,6 +226,7 @@ as_type <- function(value, type) { #nolint
 #' @param is_missing Is a value for the property missing?
 #' @param value The value to check
 #' @param type The type to check against
+#' @return The value, if it is valid, nothing otherwise
 check_property <- function(type_name, property_name, is_required, is_missing, type, value) {
   if (is_required && is_missing) {
     stop(
