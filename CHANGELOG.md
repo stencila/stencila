@@ -1,3 +1,10 @@
+## [0.36.5](https://github.com/stencila/stencila/compare/v0.36.4...v0.36.5) (2021-02-24)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate thiserror to 1.0.24 ([0cf99e8](https://github.com/stencila/stencila/commit/0cf99e8447eff64d4d8687619a785187fa8ed5e6))
+
 ## [0.36.4](https://github.com/stencila/stencila/compare/v0.36.3...v0.36.4) (2021-02-24)
 
 
