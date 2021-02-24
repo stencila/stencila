@@ -1,3 +1,10 @@
+## [0.36.2](https://github.com/stencila/stencila/compare/v0.36.1...v0.36.2) (2021-02-24)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate once_cell to 1.6.0 ([f4e5163](https://github.com/stencila/stencila/commit/f4e51637ff8775eacdc55d61884fda25886dc331))
+
 ## [0.36.1](https://github.com/stencila/stencila/compare/v0.36.0...v0.36.1) (2021-02-24)
 
 
