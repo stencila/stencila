@@ -1,3 +1,10 @@
+## [0.36.4](https://github.com/stencila/stencila/compare/v0.36.3...v0.36.4) (2021-02-24)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate self_update to 0.25.0 ([2b21114](https://github.com/stencila/stencila/commit/2b21114c2c532715b4409450e8f26960d05f9bdd))
+
 ## [0.36.3](https://github.com/stencila/stencila/compare/v0.36.2...v0.36.3) (2021-02-24)
 
 
