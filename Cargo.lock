@@ -884,9 +884,9 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "0.7.8"
+version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc250d6848c90d719ea2ce34546fb5df7af1d3fd189d10bf7bad80bfcebecd95"
+checksum = "a5dede4e2065b3842b8b0af444119f3aa331cc7cc2dd20388bfb0f5d5a38823a"
 dependencies = [
  "libc",
  "log",
@@ -1047,9 +1047,9 @@ checksum = "17b02fc0ff9a9e4b35b3342880f48e896ebf69f2967921fe8646bf5b7125956a"
 
 [[package]]
 name = "once_cell"
-version = "1.5.2"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "13bd41f508810a131401606d54ac32a467c97172d74ba7662562ebba5ad07fa0"
+checksum = "4ad167a2f54e832b82dbe003a046280dceffe5227b5f79e08e363a29638cfddd"
 
 [[package]]
 name = "opaque-debug"
@@ -1744,7 +1744,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.36.0"
+version = "0.36.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1776,7 +1776,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.36.0"
+version = "0.36.1"
 dependencies = [
  "neon",
  "neon-build",
@@ -1785,7 +1785,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-python"
-version = "0.36.0"
+version = "0.36.1"
 dependencies = [
  "pyo3",
  "stencila",
@@ -1793,7 +1793,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-r"
-version = "0.36.0"
+version = "0.36.1"
 dependencies = [
  "extendr-api",
  "stencila",
@@ -2045,9 +2045,9 @@ checksum = "360dfd1d6d30e05fda32ace2c8c70e9c0a9da713275777f5a4dbb8a1893930c6"
 
 [[package]]
 name = "tracing"
-version = "0.1.24"
+version = "0.1.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f77d3842f76ca899ff2dbcf231c5c65813dea431301d6eb686279c15c4464f12"
+checksum = "01ebdc2bb4498ab1ab5f5b73c5803825e60199229ccba0698170e3be0e7f959f"
 dependencies = [
  "cfg-if",
  "log",

@@ -1,3 +1,10 @@
+## [0.36.1](https://github.com/stencila/stencila/compare/v0.36.0...v0.36.1) (2021-02-24)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate futures to 0.3.13 ([1e21537](https://github.com/stencila/stencila/commit/1e2153704742aa984eb6433f5a4230f92957932f))
+
 # [0.36.0](https://github.com/stencila/stencila/compare/v0.35.0...v0.36.0) (2021-02-21)
 
 
