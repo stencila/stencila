@@ -1,3 +1,10 @@
+## [0.36.7](https://github.com/stencila/stencila/compare/v0.36.6...v0.36.7) (2021-02-24)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate url to 2.2.1 ([cc19037](https://github.com/stencila/stencila/commit/cc1903772e83a55f6ddb54d67c2452cf1c22bf9b))
+
 ## [0.36.6](https://github.com/stencila/stencila/compare/v0.36.5...v0.36.6) (2021-02-24)
 
 
