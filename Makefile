@@ -22,7 +22,6 @@ audit:
 
 build:
 	make -C rust build
-	cargo strip
 
 docs:
 	make -C rust docs

@@ -33,7 +33,8 @@ audit:
 	cargo +nightly udeps
 
 build:
-	cargo build --release && cargo strip
+	cargo build --release
+	cargo strip
 
 docs:
 	cargo doc
