@@ -1,3 +1,10 @@
+## [0.36.3](https://github.com/stencila/stencila/compare/v0.36.2...v0.36.3) (2021-02-24)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate reqwest to 0.11.1 ([328d50c](https://github.com/stencila/stencila/commit/328d50c71babe07f95473e6c0f6d8848896f9aa1))
+
 ## [0.36.2](https://github.com/stencila/stencila/compare/v0.36.1...v0.36.2) (2021-02-24)
 
 

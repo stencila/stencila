@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.36.2",
+  "version": "0.36.3",
   "description": "Run Stencila from inside Node.js",
   "main": "lib/index.js",
   "author": "Nokome Bentley <nokome@stenci.la>",
