@@ -1,3 +1,10 @@
+## [0.36.6](https://github.com/stencila/stencila/compare/v0.36.5...v0.36.6) (2021-02-24)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate tracing to 0.1.25 ([a57f933](https://github.com/stencila/stencila/commit/a57f933eb8e91369763ed2681ed1ce8b7717977c))
+
 ## [0.36.5](https://github.com/stencila/stencila/compare/v0.36.4...v0.36.5) (2021-02-24)
 
 

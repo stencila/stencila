@@ -1542,9 +1542,9 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "security-framework"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1759c2e3c8580017a484a7ac56d3abc5a6c1feadf88db2f3633f12ae4268c69"
+checksum = "c6af1b6204f89cf0069736daf8b852573e3bc34898eee600e95d3dd855c12e81"
 dependencies = [
  "bitflags",
  "core-foundation",
@@ -1555,9 +1555,9 @@ dependencies = [
 
 [[package]]
 name = "security-framework-sys"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f99b9d5e26d2a71633cc4f2ebae7cc9f874044e0c351a27e17892d76dce5678b"
+checksum = "31531d257baab426203cf81c5ce1b0b55159dda7ed602ac81b582ccd62265741"
 dependencies = [
  "core-foundation-sys",
  "libc",
@@ -1744,7 +1744,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.36.5"
+version = "0.36.6"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1776,7 +1776,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.36.5"
+version = "0.36.6"
 dependencies = [
  "neon",
  "neon-build",
@@ -1785,7 +1785,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-python"
-version = "0.36.5"
+version = "0.36.6"
 dependencies = [
  "pyo3",
  "stencila",
@@ -1793,7 +1793,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-r"
-version = "0.36.5"
+version = "0.36.6"
 dependencies = [
  "extendr-api",
  "stencila",
