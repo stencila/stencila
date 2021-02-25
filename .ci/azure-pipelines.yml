@@ -37,7 +37,7 @@ jobs:
 
       - script: |
           make build
-          bash .ci/upload-release.sh target/release/stencila x86_64-unknown-linux-gnu Linux%20CLI
+          bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu Linux%20CLI
         displayName: Build and upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
@@ -62,7 +62,7 @@ jobs:
 
       - script: |
           make build
-          bash .ci/upload-release.sh target/release/stencila x86_64-apple-darwin MacOS%20CLI
+          bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin MacOS%20CLI
         displayName: Build and upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
