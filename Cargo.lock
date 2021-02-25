@@ -1132,9 +1132,9 @@ checksum = "17b02fc0ff9a9e4b35b3342880f48e896ebf69f2967921fe8646bf5b7125956a"
 
 [[package]]
 name = "once_cell"
-version = "1.6.0"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ad167a2f54e832b82dbe003a046280dceffe5227b5f79e08e363a29638cfddd"
+checksum = "10acf907b94fc1b1a152d08ef97e7759650268cf986bf127f387e602b02c7e5a"
 
 [[package]]
 name = "opaque-debug"
@@ -1864,7 +1864,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.36.7"
+version = "0.37.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1897,7 +1897,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.36.7"
+version = "0.37.0"
 dependencies = [
  "neon",
  "neon-build",
@@ -1906,7 +1906,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-python"
-version = "0.36.7"
+version = "0.37.0"
 dependencies = [
  "pyo3",
  "stencila",
@@ -1914,7 +1914,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-r"
-version = "0.36.7"
+version = "0.37.0"
 dependencies = [
  "extendr-api",
  "stencila",

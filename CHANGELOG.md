@@ -1,3 +1,10 @@
+# [0.37.0](https://github.com/stencila/stencila/compare/v0.36.7...v0.37.0) (2021-02-25)
+
+
+### Features
+
+* **Config:** Add config command ([2ab9fbe](https://github.com/stencila/stencila/commit/2ab9fbe5393cafa2cfaf66d2e618fdf883e24e9d))
+
 ## [0.36.7](https://github.com/stencila/stencila/compare/v0.36.6...v0.36.7) (2021-02-24)
 
 
