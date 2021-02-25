@@ -1,7 +1,7 @@
 use crate::jwt;
+use crate::protocols::Protocol;
 use crate::rpc::{Error, Request, Response};
 use crate::urls;
-use crate::{nodes::Node, protocols::Protocol};
 use anyhow::{bail, Result};
 use futures::{FutureExt, StreamExt};
 use jwt::JwtError;
@@ -495,7 +495,7 @@ pub mod cli {
         insecure: bool,
     }
 
-    pub async fn serve(args: Args) -> Result<Node> {
+    pub async fn serve(args: Args) -> Result<()> {
         let Args { url, key, insecure } = args;
 
         super::serve(
@@ -508,6 +508,6 @@ pub mod cli {
         )
         .await?;
 
-        Ok(Node::Null)
+        Ok(())
     }
 }

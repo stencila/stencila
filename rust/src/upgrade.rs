@@ -31,7 +31,7 @@ pub fn upgrade(confirm: bool, verbose: bool, current_version: Option<String>) ->
             .bin_name("stencila")
             .current_version(
                 current_version
-                    .unwrap_or(env!("CARGO_PKG_VERSION").to_string())
+                    .unwrap_or_else(|| env!("CARGO_PKG_VERSION").to_string())
                     .as_str(),
             )
             .no_confirm(!confirm)
@@ -93,6 +93,7 @@ mod tests {
         upgrade(false, false, Some("100.0.0".to_string()))
     }
 
+    #[ignore]
     #[test]
     fn test_cli() -> Result<()> {
         cli::upgrade(cli::Args {

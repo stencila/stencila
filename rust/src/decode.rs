@@ -20,9 +20,12 @@ pub mod cli {
         format: Option<String>,
     }
 
-    pub fn decode(args: Args) -> Result<Node> {
+    pub fn decode(args: Args) -> Result<()> {
         let Args { content, format } = args;
-        super::decode(content, format.unwrap_or_default())
+
+        super::decode(content, format.unwrap_or_default())?;
+
+        Ok(())
     }
 }
 

@@ -136,7 +136,7 @@ pub mod cli {
         key: Option<String>,
     }
 
-    pub async fn request(args: Args) -> Result<Node> {
+    pub async fn request(args: Args) -> Result<()> {
         let Args {
             url,
             method,
@@ -160,6 +160,8 @@ pub mod cli {
             }
         }
 
-        super::request(url, method, object, key).await
+        super::request(url, method, object, key).await?;
+
+        Ok(())
     }
 }

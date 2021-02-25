@@ -32,6 +32,8 @@ pub mod upgrade;
 
 // Methods
 
+pub mod config;
+
 //pub mod convert;
 pub mod decode;
 pub mod encode;
@@ -40,6 +42,9 @@ pub mod validate;
 
 // Utilities
 
+mod util {
+    pub mod dirs;
+}
 pub mod logging;
 pub mod nodes;
 

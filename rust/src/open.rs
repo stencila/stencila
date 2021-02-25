@@ -1,7 +1,4 @@
-use crate::{
-    nodes::Node,
-    serve::{generate_key, login_url, serve},
-};
+use crate::serve::{generate_key, login_url, serve};
 use anyhow::Result;
 
 /// Serve JSON-RPC requests at a URL
@@ -52,11 +49,11 @@ pub mod cli {
         url: String,
     }
 
-    pub async fn open(args: Args) -> Result<Node> {
+    pub async fn open(args: Args) -> Result<()> {
         let Args { url } = args;
 
         super::open(Some(url)).await?;
 
-        Ok(Node::Null)
+        Ok(())
     }
 }
