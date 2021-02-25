@@ -1864,7 +1864,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.37.0"
+version = "0.38.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1897,7 +1897,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.37.0"
+version = "0.38.0"
 dependencies = [
  "neon",
  "neon-build",
@@ -1906,7 +1906,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-python"
-version = "0.37.0"
+version = "0.38.0"
 dependencies = [
  "pyo3",
  "stencila",
@@ -1914,7 +1914,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-r"
-version = "0.37.0"
+version = "0.38.0"
 dependencies = [
  "extendr-api",
  "stencila",

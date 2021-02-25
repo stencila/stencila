@@ -1,3 +1,15 @@
+# [0.38.0](https://github.com/stencila/stencila/compare/v0.37.0...v0.38.0) (2021-02-25)
+
+
+### Bug Fixes
+
+* **Config:** Handle global options ([882d456](https://github.com/stencila/stencila/commit/882d456af904ba998ff72657a4d85f1ff782c39c))
+
+
+### Features
+
+* **Upgrade:** Add options for desired version and to force upgrade ([ad28f01](https://github.com/stencila/stencila/commit/ad28f019bf1dc8bd628d2ad450efdebe99771c96))
+
 # [0.37.0](https://github.com/stencila/stencila/compare/v0.36.7...v0.37.0) (2021-02-25)
 
 
