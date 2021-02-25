@@ -1,3 +1,10 @@
+## [0.38.1](https://github.com/stencila/stencila/compare/v0.38.0...v0.38.1) (2021-02-25)
+
+
+### Bug Fixes
+
+* **Release:** Update version in top level package ([4ef4ea8](https://github.com/stencila/stencila/commit/4ef4ea8b512f9beb4ac27506a5df41d60dad0953))
+
 # [0.38.0](https://github.com/stencila/stencila/compare/v0.37.0...v0.38.0) (2021-02-25)
 
 
