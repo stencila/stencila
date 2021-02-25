@@ -6,6 +6,9 @@
 VERSION=$1
 echo "Preparing release $VERSION"
 
+# Update the version in the top-level package
+sed -i -e "s!\"version\": .*!\"version\": \"$VERSION\",!" package.json
+
 # Update the version in the Node package
 sed -i -e "s!\"version\": .*!\"version\": \"$VERSION\",!" node/package.json
 sed -i -e "s!^version = .*!version = \"$VERSION\"!" node/native/Cargo.toml

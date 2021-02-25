@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.34.3",
+  "version": "0.37.0",
   "description": "Living documents for reproducible research.",
   "scripts": {
     "docs:intercom": "npx ts-node --project tsconfig.json help/intercom.ts"
@@ -107,9 +107,9 @@
       [
         "@semantic-release/git",
         {
-          "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}",
           "assets": [
             "CHANGELOG.md",
+            "package.json",
             "Cargo.lock",
             "node/package.json",
             "node/native/Cargo.toml",
