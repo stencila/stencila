@@ -38,7 +38,7 @@ pub async fn cli(args: Vec<String>) -> i32 {
     // Merge in any configured arguments for the command (if any)
     let new_args = if args.len() > 1 {
         let command = args[1].clone();
-        let merged_args = if command != "config" {
+        let merged_args = if !command.starts_with("-") && command != "config" {
             let config = config::get(&command).unwrap();
             let extra_args = args[2..].to_vec();
             config::merge(&command, &config, &extra_args).unwrap()

@@ -1,6 +1,6 @@
 use crate::cli::Command;
 use crate::util;
-use anyhow::{bail, Result};
+use anyhow::Result;
 use std::collections::HashMap;
 use std::fs;
 use std::io::Write;
@@ -71,13 +71,7 @@ pub fn clear(command: &str) -> Result<()> {
 pub fn merge(command: &str, config: &str, args: &[String]) -> Result<Vec<String>> {
     // Get a `clap::App` for the command that will be used to
     // validate the args being set and merge values with existing one
-    let app = match command {
-        "open" => crate::open::cli::Args::clap(),
-        "request" => crate::request::cli::Args::clap(),
-        "serve" => crate::serve::cli::Args::clap(),
-        "upgrade" => crate::upgrade::cli::Args::clap(),
-        _ => structopt::clap::App::new("command"),
-    };
+    let app = crate::cli::Args::clap();
 
     // Extract message from a `clap` error (excludes usage etc)
     fn arg_error_message(error: &structopt::clap::Error) -> String {
@@ -85,57 +79,51 @@ pub fn merge(command: &str, config: &str, args: &[String]) -> Result<Vec<String>
             Some(found) => found + 7,
             None => 0,
         };
-        let end = error.message.find("\n\n").unwrap_or(100);
+        let end = error.message.find("\n\n").unwrap_or(error.message.len());
         error.message.as_str()[start..end].to_string()
     }
 
     // Check that the existing config is valid. If it is not, ignore it with warning.
-    let config_matches = match app
-        .clone()
-        .get_matches_from_safe(format!("{} {}", command, config).trim().split_whitespace())
-    {
+    let config_matches = match app.clone().get_matches_from_safe(
+        format!("stencila {} {}", command, config)
+            .trim()
+            .split_whitespace(),
+    ) {
         Ok(matches) => matches,
         Err(error) => {
             tracing::warn!(
                 "Existing config for {} is invalid and will be ignored: {}. Use `stencila config clear {}` or edit {}.",
-                command, arg_error_message(&error), path().to_string_lossy(), command
+                command, arg_error_message(&error), command, path().to_string_lossy()
             );
             structopt::clap::ArgMatches::new()
         }
     };
 
-    // Parse the args
-    let args_matches = match app
-        .clone()
-        .get_matches_from_safe([&[command.to_string()], args].concat())
-    {
-        Ok(matches) => matches,
-        Err(error) => {
-            bail!(
-                "New config for {} is invalid: {}",
-                command,
-                arg_error_message(&error)
-            )
-        }
-    };
+    // Parse the args, this will exit the process if there are errors or --help was used.
+    let args_matches =
+        app.get_matches_from([&["stencila".to_string(), command.to_string()], args].concat());
 
     // Do merge
     let mut args_map = HashMap::<&str, String>::new();
-    for (name, arg) in config_matches.args {
-        let value = if arg.vals.is_empty() {
-            "".to_string()
-        } else {
-            format!("={}", arg.vals[0].to_str().unwrap_or_default())
-        };
-        args_map.insert(name, value.to_string());
+    if let Some(config) = config_matches.subcommand {
+        for (name, arg) in config.matches.args {
+            let value = if arg.vals.is_empty() {
+                "".to_string()
+            } else {
+                format!("={}", arg.vals[0].to_str().unwrap_or_default())
+            };
+            args_map.insert(name, value.to_string());
+        }
     }
-    for (name, arg) in args_matches.args {
-        let value = if arg.vals.is_empty() {
-            "".to_string()
-        } else {
-            format!("={}", arg.vals[0].to_str().unwrap_or_default())
-        };
-        args_map.insert(name, value.to_string());
+    if let Some(args) = args_matches.subcommand {
+        for (name, arg) in args.matches.args {
+            let value = if arg.vals.is_empty() {
+                "".to_string()
+            } else {
+                format!("={}", arg.vals[0].to_str().unwrap_or_default())
+            };
+            args_map.insert(name, value.to_string());
+        }
     }
 
     // Create new vector or ags, sorted for determinism
@@ -230,9 +218,7 @@ pub mod cli {
     )]
     pub struct Set {
         /// The command to set the config for.
-        // Currently this only allows for the commands that are handled by the
-        // `set` function above.
-        #[structopt(possible_values = &["open", "request", "serve", "upgrade"])]
+        #[structopt(possible_values = &Command::VARIANTS)]
         pub command: String,
 
         /// The options and flags to set for the command
@@ -304,12 +290,7 @@ mod tests {
             Vec::<String>::new()
         );
 
-        match merge("serve", "", &["--bad".to_string()]) {
-            Ok(result) => bail!("Should error but got {:?}", result),
-            Err(error) => assert!(error
-                .to_string()
-                .starts_with("New config for serve is invalid:")),
-        };
+        //merge("serve", "", &["--bad".to_string()]);
 
         Ok(())
     }
