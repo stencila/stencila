@@ -93,7 +93,6 @@ mod tests {
         upgrade(false, false, Some("100.0.0".to_string()))
     }
 
-    #[ignore]
     #[test]
     fn test_cli() -> Result<()> {
         cli::upgrade(cli::Args {
