@@ -1,3 +1,11 @@
+## [0.38.2](https://github.com/stencila/stencila/compare/v0.38.1...v0.38.2) (2021-02-25)
+
+
+### Bug Fixes
+
+* **Release:** Avoid sed which differs on MacOS ([7377b13](https://github.com/stencila/stencila/commit/7377b13ea287a9e668fdd738ab772f68c9a1657a))
+* **Release:** Use asset name when calling upload script ([c813e76](https://github.com/stencila/stencila/commit/c813e768b8d89d5dae66858b92548144ac1b69cb))
+
 ## [0.38.1](https://github.com/stencila/stencila/compare/v0.38.0...v0.38.1) (2021-02-25)
 
 
