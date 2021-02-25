@@ -9,6 +9,7 @@ use std::thread;
 ///
 /// # Arguments
 ///
+/// - `force`: Force the upgrade (fail on any errors)
 /// - `confirm`: Prompt the user to confirm an upgrade
 /// - `verbose`: Print information on the upgrade process
 /// - `current_version`: The current version (used mainly for testing)
@@ -17,15 +18,22 @@ use std::thread;
 ///
 /// ```
 /// use stencila::upgrade::upgrade;
-/// upgrade(true, false, None);
+/// upgrade(false, true, false, None, None);
 /// ```
-pub fn upgrade(confirm: bool, verbose: bool, current_version: Option<String>) -> Result<()> {
+pub fn upgrade(
+    force: bool,
+    confirm: bool,
+    verbose: bool,
+    wanted_version: Option<String>,
+    current_version: Option<String>,
+) -> Result<()> {
     // This is run in a separate thread so that is does not slow down the
     // command currently being run by the user (when doing an auto-update).
     // In any case it needs to be because `self_update` creates a new `tokio`
     // runtime (which can not be nested within our main `tokio` runtime).
     thread::spawn(move || -> Result<()> {
-        let result = self_update::backends::github::Update::configure()
+        let mut builder = self_update::backends::github::Update::configure();
+        builder
             .repo_owner("stencila")
             .repo_name("stencila")
             .bin_name("stencila")
@@ -36,17 +44,24 @@ pub fn upgrade(confirm: bool, verbose: bool, current_version: Option<String>) ->
             )
             .no_confirm(!confirm)
             .show_output(verbose)
-            .show_download_progress(verbose)
-            .build()?
-            .update();
-        match result {
+            .show_download_progress(verbose);
+
+        if let Some(version) = wanted_version {
+            builder.target_version_tag(format!("v{}", version).as_str());
+        }
+
+        match builder.build()?.update() {
             Ok(_) => Ok(()),
             Err(error) => {
-                if format!("{}", error).contains("Update aborted") {
-                    // If the user said no to the confirmation, that's `Ok`.
+                let message = error.to_string();
+                if !force
+                    && (message.contains("Update aborted")
+                        || message.starts_with("ReqwestError")
+                        || message.starts_with("NetworkError"))
+                {
                     Ok(())
                 } else {
-                    Err(anyhow!(error))
+                    Err(anyhow!("Error attempting to upgrade: {}", error))
                 }
             }
         }
@@ -65,6 +80,14 @@ pub mod cli {
     #[derive(Debug, StructOpt)]
     #[structopt(about = "Upgrade stencila to the latest version")]
     pub struct Args {
+        /// Version to upgrade (or downgrade) to (defaults to the latest)
+        #[structopt(short, long)]
+        pub to: Option<String>,
+
+        /// Force upgrade (fail on any errors)
+        #[structopt(short, long)]
+        pub force: bool,
+
         /// Prompt the user to confirm an upgrade
         #[structopt(short, long)]
         pub confirm: bool,
@@ -75,8 +98,19 @@ pub mod cli {
     }
 
     pub fn upgrade(args: Args) -> Result<()> {
-        let Args { confirm, verbose } = args;
-        super::upgrade(confirm, verbose, None)
+        let Args {
+            to,
+            force,
+            confirm,
+            verbose,
+        } = args;
+
+        let current_version = if force {
+            Some("0.0.0".to_string())
+        } else {
+            None
+        };
+        super::upgrade(force, confirm, verbose, to, current_version)
     }
 }
 
@@ -90,12 +124,14 @@ mod tests {
 
     #[test]
     fn test_upgrade() -> Result<()> {
-        upgrade(false, false, Some("100.0.0".to_string()))
+        upgrade(false, false, false, None, Some("100.0.0".to_string()))
     }
 
     #[test]
     fn test_cli() -> Result<()> {
         cli::upgrade(cli::Args {
+            to: None,
+            force: false,
             confirm: false,
             verbose: false,
         })
