@@ -90,7 +90,7 @@ jobs:
 
       - script: |
           make build
-          bash .ci/upload-release.sh target/release/stencila.exe x86_64-pc-windows-msvc Windows%20CLI
+          bash .ci/upload-release.sh target/release/stencila.exe stencila.exe x86_64-pc-windows-msvc Windows%20CLI
         displayName: Build and upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
