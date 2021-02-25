@@ -22,7 +22,7 @@ DOWNLOAD_LABEL=$4
 
 AUTH_HEADER="Authorization: token $GITHUB_TOKEN"
 TAG=$(git describe --tags --abbrev=0)
-RELEASE_ID=$(curl -s -H "$AUTH_HEADER" "https://api.github.com/repos/stencila/stencila/releases/tags/$TAG" | grep -oP '(?<=^  "id": )\d+')
+RELEASE_ID=$(curl -s -H "$AUTH_HEADER" "https://api.github.com/repos/stencila/stencila/releases/tags/$TAG" | sed -n 's/^  "id": \(\S*\),$/\1/p')
 DOWNLOAD_NAME="$ASSET_NAME-$TAG-$TARGET_TRIPLE"
 UPLOAD_URL="https://uploads.github.com/repos/stencila/stencila/releases/$RELEASE_ID/assets?name=$DOWNLOAD_NAME&label=$DOWNLOAD_LABEL"
 curl -H "$AUTH_HEADER" -H "Content-Type: application/octet-stream" -o /dev/null --data-binary @"$FILE_PATH" "$UPLOAD_URL"
