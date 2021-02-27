@@ -35,10 +35,15 @@ pub enum Command {
 
 // TODO Return a result?
 pub async fn cli(args: Vec<String>) -> i32 {
+    // TODO: Do not call updrade if command itself is upgrade
+    let upgrade_thread = upgrade::upgrade_auto();
+
     // Merge in any configured arguments for the command (if any)
+    // Note: this may cause a process exit because `config::merge` currently checks
+    // for help and usage.
     let new_args = if args.len() > 1 {
         let command = args[1].clone();
-        let merged_args = if !command.starts_with("-") && command != "config" {
+        let merged_args = if !command.starts_with('-') && command != "help" && command != "config" {
             let config = config::get(&command).unwrap();
             let extra_args = args[2..].to_vec();
             config::merge(&command, &config, &extra_args).unwrap()
@@ -63,6 +68,12 @@ pub async fn cli(args: Vec<String>) -> i32 {
         Command::Upgrade(command) => upgrade::cli::upgrade(command),
         Command::Config(command) => config::cli::config(command),
     };
+
+    // Join the upgrade thread and log any errors
+    if let Err(_error) = upgrade_thread.join() {
+        // TODO: Log error
+    }
+
     match result {
         Ok(_) => exitcode::OK,
         Err(error) => {

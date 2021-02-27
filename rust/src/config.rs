@@ -79,7 +79,10 @@ pub fn merge(command: &str, config: &str, args: &[String]) -> Result<Vec<String>
             Some(found) => found + 7,
             None => 0,
         };
-        let end = error.message.find("\n\n").unwrap_or(error.message.len());
+        let end = error
+            .message
+            .find("\n\n")
+            .unwrap_or_else(|| error.message.len());
         error.message.as_str()[start..end].to_string()
     }
 
@@ -93,7 +96,7 @@ pub fn merge(command: &str, config: &str, args: &[String]) -> Result<Vec<String>
         Err(error) => {
             tracing::warn!(
                 "Existing config for {} is invalid and will be ignored: {}. Use `stencila config clear {}` or edit {}.",
-                command, arg_error_message(&error), command, path().to_string_lossy()
+                command, arg_error_message(&error), command, path()?.to_string_lossy()
             );
             structopt::clap::ArgMatches::new()
         }
@@ -137,21 +140,21 @@ pub fn merge(command: &str, config: &str, args: &[String]) -> Result<Vec<String>
 }
 
 /// Get the path of the configuration file
-fn path() -> PathBuf {
+fn path() -> Result<PathBuf> {
     #[cfg(not(test))]
-    return util::dirs::config().join("cli.txt");
+    return Ok(util::dirs::config(true)?.join("cli.txt"));
 
     // When running tests, avoid messing with users existing config
     #[cfg(test)]
-    return std::env::temp_dir()
+    return Ok(std::env::temp_dir()
         .join("stencila")
         .join("test")
-        .join("cli.txt");
+        .join("cli.txt"));
 }
 
 /// Read lines from the configuration file
 fn read() -> Result<Vec<String>> {
-    let config_file = path();
+    let config_file = path()?;
     let lines = fs::read_to_string(config_file)
         .unwrap_or_else(|_| "".to_string())
         .lines()
@@ -162,10 +165,7 @@ fn read() -> Result<Vec<String>> {
 
 /// Write lines to the configuration file
 fn write(lines: Vec<String>) -> Result<()> {
-    let config_file = path();
-    if let Some(dir) = config_file.parent() {
-        fs::create_dir_all(dir)?;
-    }
+    let config_file = path()?;
     let mut file = fs::File::create(config_file)?;
     file.write_all(lines.join("\n").as_bytes())?;
     file.sync_all()?;
@@ -251,8 +251,8 @@ pub mod cli {
                 super::clear(&command)?;
             }
             Action::Dirs => {
-                let config = util::dirs::config().display().to_string();
-                let plugins = util::dirs::plugins().display().to_string();
+                let config = util::dirs::config(false)?.display().to_string();
+                let plugins = util::dirs::plugins(false)?.display().to_string();
                 println!("config: {}\nplugins: {}", config, plugins);
             }
         };
@@ -265,9 +265,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_path() {
-        let path = path();
+    fn test_path() -> Result<()> {
+        let path = path()?;
         assert!(path.starts_with(std::env::temp_dir()));
+        Ok(())
     }
 
     #[test]
