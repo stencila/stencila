@@ -19,7 +19,7 @@ pub fn config(ensure: bool) -> Result<PathBuf> {
 
 /// Get the directory within which plugins and their configurations are installed
 pub fn plugins(ensure: bool) -> Result<PathBuf> {
-    let config = config(ensure)?;
+    let config = config(false)?;
     let dir = match env::consts::OS {
         "macos" => config.join("Plugins"),
         "windows" => config.join("Plugins"),
