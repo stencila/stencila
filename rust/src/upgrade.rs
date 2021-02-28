@@ -53,6 +53,8 @@ pub fn upgrade(
     Ok(())
 }
 
+const UPGRADE_FILE: &str = "cli-upgrade.txt";
+
 /// Do a upgrade check automatically if not within the configured interval
 /// since the last check.
 ///
@@ -76,7 +78,7 @@ pub fn upgrade_auto() -> std::thread::JoinHandle<Result<()>> {
         }
 
         // Check if within the time since the last check was done
-        let upgrade_file = crate::util::dirs::config(true)?.join("cli-upgrade.txt");
+        let upgrade_file = crate::util::dirs::config(true)?.join(UPGRADE_FILE);
         let last = match fs::read_to_string(upgrade_file.clone()) {
             Ok(date) => DateTime::parse_from_rfc3339(date.as_str())?.with_timezone(&Utc),
             Err(_) => Utc::now(),
