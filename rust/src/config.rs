@@ -146,10 +146,14 @@ fn path() -> Result<PathBuf> {
 
     // When running tests, avoid messing with users existing config
     #[cfg(test)]
-    return Ok(std::env::temp_dir()
-        .join("stencila")
-        .join("test")
-        .join("cli.txt"));
+    {
+        let path = std::env::temp_dir()
+            .join("stencila")
+            .join("test")
+            .join("cli.txt");
+        fs::create_dir_all(path.parent().unwrap())?;
+        return Ok(path);
+    }
 }
 
 /// Read lines from the configuration file
