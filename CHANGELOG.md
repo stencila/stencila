@@ -1,3 +1,10 @@
+# [0.39.0](https://github.com/stencila/stencila/compare/v0.38.2...v0.39.0) (2021-02-28)
+
+
+### Features
+
+* **Auto upgrade:** Do automatic upgrades with configurable frequency ([a4ed8bc](https://github.com/stencila/stencila/commit/a4ed8bc489d7980d5fa7bd50a258b9c8f59747d2))
+
 ## [0.38.2](https://github.com/stencila/stencila/compare/v0.38.1...v0.38.2) (2021-02-25)
 
 
