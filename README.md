@@ -23,7 +23,9 @@ If you don't want to install anything, or just want to try out Stencila, https:/
 
 ## ⌨️ Command line tool
 
-If you want to use Stencila on your own machine, then the `stencila` command line tool (CLI) is for you! It is developed in Rust in the [`rust`](rust) folder of this repo. Download the CLI for MacOS, Windows or Linux from the [latest release](https://github.com/stencila/stencila/releases/latest).
+If you want to use Stencila on your own machine, then the `stencila` command line tool (CLI) is for you! It is developed in Rust in the [`rust`](rust) folder of this repo.
+
+The CLI is is early stages of development (again, all contributions welcome!). We don't recommend installing it yet, but if you are an early adopter 💖, we'd also appreciate any feedback. You can download standalone binaries for MacOS, Windows or Linux from the [latest release](https://github.com/stencila/stencila/releases/latest).
 
 <br>
 
