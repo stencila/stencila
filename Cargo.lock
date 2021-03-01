@@ -2,9 +2,9 @@
 # It is not intended for manual editing.
 [[package]]
 name = "ahash"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1dd69f6bbb6851e9bba54499698ed6b50640e35544e6b552e7604ad6258778b9"
+checksum = "7f200cbb1e856866d9eade941cf3aa0c5d7dd36f74311c4273b494f4ef036957"
 dependencies = [
  "getrandom 0.2.2",
  "once_cell",
@@ -1723,9 +1723,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43535db9747a4ba938c0ce0a98cc631a46ebf943c9e1d604e091df6007620bf6"
+checksum = "799e97dc9fdae36a5c8b8f2cae9ce2ee9fdce2058c57a93e6099d919fd982f79"
 dependencies = [
  "itoa",
  "ryu",
@@ -1832,7 +1832,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.39.0"
+version = "0.39.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1866,7 +1866,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.39.0"
+version = "0.39.1"
 dependencies = [
  "neon",
  "neon-build",
@@ -1875,7 +1875,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-python"
-version = "0.39.0"
+version = "0.39.1"
 dependencies = [
  "pyo3",
  "stencila",
@@ -1883,7 +1883,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-r"
-version = "0.39.0"
+version = "0.39.1"
 dependencies = [
  "extendr-api",
  "stencila",

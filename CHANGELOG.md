@@ -1,3 +1,15 @@
+## [0.39.1](https://github.com/stencila/stencila/compare/v0.39.0...v0.39.1) (2021-03-01)
+
+
+### Bug Fixes
+
+* **Release:** Drop use of upload label which was causing issues for Windows ([8ac528c](https://github.com/stencila/stencila/commit/8ac528cc9b87808576a564ce100214d82a00d3f3))
+
+
+### Performance Improvements
+
+* **Directories:** Avoid unecessary create_dir_all call ([95cfd3d](https://github.com/stencila/stencila/commit/95cfd3da7918d43a81c18aec0794c9c1402a92de))
+
 # [0.39.0](https://github.com/stencila/stencila/compare/v0.38.2...v0.39.0) (2021-02-28)
 
 
