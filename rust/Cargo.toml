@@ -23,7 +23,7 @@ serve-stdio = []
 serve-http = ["warp", "jsonwebtoken"]
 serve-ws = ["warp", "jsonwebtoken"]
 # Command line interface
-cli = ["structopt", "exitcode"]#, "crossterm"]
+cli = ["structopt", "exitcode"] #, "crossterm"]
 # Open a stencil in the browser
 open = ["serve", "serve-http", "serve-ws", "webbrowser"]
 # Upgrade the application
@@ -46,7 +46,7 @@ default = [
     "serve-ws",
     "cli",
     "open",
-    "upgrade"
+    "upgrade",
 ]
 
 [dependencies]
@@ -66,7 +66,12 @@ once_cell = "1.6.0"
 rand = "0.8.3"
 regex = "1.4.3"
 reqwest = { version = "0.11.1", optional = true, features = ["json"] }
-self_update = { version = "0.25.0", optional = true }
+self_update = { version = "0.25.0", optional = true, features = [
+    "archive-tar",
+    "archive-zip",
+    "compression-flate2",
+    "compression-zip-deflate",
+] }
 serde = { version = "1.0.123", features = ["derive"] }
 serde_json = { version = "1.0.62" }
 serde_yaml = { version = "0.8.17", optional = true }
@@ -75,7 +80,7 @@ strum = { version = "0.20", features = ["derive"] }
 strum_macros = "0.20.1"
 thiserror = "1.0.24"
 tokio = { version = "1.2.0", features = ["full"] }
-tokio-tungstenite = {version = "0.13.0", optional = true}
+tokio-tungstenite = { version = "0.13.0", optional = true }
 tracing = "0.1.25"
 url = "2.2.1"
 warp = { version = "0.3.0", optional = true }

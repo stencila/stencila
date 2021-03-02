@@ -37,7 +37,7 @@ jobs:
 
       - script: |
           make build
-          bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu
+          bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu tar.gz
         displayName: Build and upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
@@ -62,7 +62,7 @@ jobs:
 
       - script: |
           make build
-          bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin
+          bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin tar.gz
         displayName: Build and upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
@@ -90,7 +90,7 @@ jobs:
 
       - script: |
           make build
-          bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc
+          bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc zip
         displayName: Build and upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
