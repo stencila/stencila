@@ -14,20 +14,22 @@ Stencila for Google Docs enables you to execute and embed reproducible figures i
 
 You will be presented with several dialogue windows asking permission for us to work with your documents in Google Drive.
 
-Outlined below are the permissions we ask for, and the explanations for why they are needed:
+Outlined below are the permissions we ask for, and the explanations for why they are needed.
+We strive to request the least amount of permissions needed while still being able to provide
+a feature rich add-on. If you notice areas for improvement, please let us know.
 
 figure:
 :::
-![Stencila for Google Docs Permissions request](https://user-images.githubusercontent.com/1646307/106334557-ebf0c100-6258-11eb-8cf7-28c92a041476.png)
+![Stencila for Google Docs Permissions request](https://user-images.githubusercontent.com/1646307/109692342-6792a600-7b56-11eb-86f1-730d92ae9417.png)
 :::
 
-| Permission                                                                                   | Reason                                                                                            |
-| -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| View and manage Google Drive files and folders that you have opened or created with this app | Allows the add-on to work with files used in your Stencila projects                               |
-| View and manage your Google Docs documents                                                   | Allows the add-on to work with new documents                                                      |
-| See, edit, create, and delete your spreadsheets in Google Drive                              | We have a beta version of the add-on for Google Sheets                                            |
-| Connect to an external service                                                               | Necessary for authenticating with Stencila, loading project details, and evaluating code elements |
-| Display and run third-party web content in prompts and sidebars inside Google applications   | Necessary for displaying the add-on interface and the code editor                                 |
+| Permission                                                                                   | Reason                                                                                         |
+| -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| View and manage Google Drive files and folders that you have opened or created with this app | Only the files you select, or open the add-on in, will be shared with Stencila                 |
+| View and manage documents that this application has been installed in                        | Lets Stencila run the add-on and insert code blocks inside Google Docs                         |
+| View and manage spreadsheets that this application has been installed in                     | Lets Stencila run the add-on and insert code blocks inside Google Sheets (Currently in beta)   |
+| Connect to an external service                                                               | Allows you to sign in to Stencila, load project details, and run code elements from the add-on |
+| Display and run third-party web content in prompts and sidebars inside Google applications   | Allows us to display the add-on interface and code editor inside Google Docs and Sheets        |
 
 ## Opening the add-on
 
