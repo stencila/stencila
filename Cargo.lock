@@ -768,6 +768,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "if_chain"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f7280c75fb2e2fc47080ec80ccc481376923acb04501957fc38f935c3de5088"
+
+[[package]]
 name = "indexmap"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1922,8 +1928,10 @@ dependencies = [
  "thiserror",
  "tokio",
  "tokio-tungstenite",
+ "toml",
  "tracing",
  "url",
+ "validator",
  "warp",
  "webbrowser",
 ]
@@ -2203,6 +2211,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "toml"
+version = "0.5.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a31142970826733df8241ef35dc040ef98c679ab14d7c3e54d827099b3acecaa"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "tower-service"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2371,6 +2388,45 @@ name = "utf-8"
 version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "05e42f7c18b8f902290b009cde6d651262f956c98bc51bca4cd1d511c9cd85c7"
+
+[[package]]
+name = "validator"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "841d6937c33ec6039d8071bcf72933146b5bbe378d645d8fa59bdadabfc2a249"
+dependencies = [
+ "idna",
+ "lazy_static",
+ "regex",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "url",
+ "validator_derive",
+ "validator_types",
+]
+
+[[package]]
+name = "validator_derive"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4286b4497f270f59276a89ae0ad109d5f8f18c69b613e3fb22b61201aadb0c4d"
+dependencies = [
+ "if_chain",
+ "lazy_static",
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "regex",
+ "syn",
+ "validator_types",
+]
+
+[[package]]
+name = "validator_types"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad9680608df133af2c1ddd5eaf1ddce91d60d61b6bc51494ef326458365a470a"
 
 [[package]]
 name = "vcpkg"

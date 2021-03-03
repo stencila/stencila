@@ -38,25 +38,8 @@ pub async fn cli(args: Vec<String>) -> i32 {
     // TODO: Do not call updrade if command itself is upgrade
     let upgrade_thread = upgrade::upgrade_auto();
 
-    // Merge in any configured arguments for the command (if any)
-    // Note: this may cause a process exit because `config::merge` currently checks
-    // for help and usage.
-    let new_args = if args.len() > 1 {
-        let command = args[1].clone();
-        let merged_args = if !command.starts_with('-') && command != "help" && command != "config" {
-            let config = config::get(&command).unwrap();
-            let extra_args = args[2..].to_vec();
-            config::merge(&command, &config, &extra_args).unwrap()
-        } else {
-            args[2..].to_vec()
-        };
-        [vec![args[0].clone(), command], merged_args].concat()
-    } else {
-        args.clone()
-    };
-
     // Parse args into a command
-    let Args { command } = Args::from_iter(new_args);
+    let Args { command } = Args::from_iter(args);
 
     // Run the command
     let result = match command {

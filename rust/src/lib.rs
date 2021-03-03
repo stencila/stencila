@@ -30,8 +30,7 @@ pub mod open;
 #[cfg(feature = "upgrade")]
 pub mod upgrade;
 
-// Methods
-
+#[cfg(feature = "config")]
 pub mod config;
 
 //pub mod convert;

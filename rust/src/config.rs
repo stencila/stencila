@@ -1,145 +1,32 @@
-use crate::cli::Command;
 use crate::util;
-use anyhow::Result;
-use std::collections::HashMap;
+use anyhow::{bail, Result};
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
-use structopt::StructOpt;
+use validator::Validate;
 
-/// Get configuration options for a command or all commands
-pub fn get(command: &str) -> Result<String> {
-    let lines = read()?;
+#[derive(Debug, PartialEq, Deserialize, Serialize, Validate)]
+pub struct Config {
+    #[serde(default)]
+    #[validate]
+    pub serve: crate::serve::config::Config,
 
-    if command == "all" {
-        return Ok(lines.join("\n"));
-    }
-
-    for line in lines {
-        if line.starts_with(command) {
-            return Ok(line.strip_prefix(command).unwrap().trim().to_string());
-        }
-    }
-
-    Ok("".to_string())
+    #[serde(default)]
+    #[validate]
+    pub upgrade: crate::upgrade::config::Config,
 }
 
-/// Set configuration options for a command
-pub fn set(command: &str, args: &[String]) -> Result<()> {
-    let mut lines = read()?;
-
-    let mut found = false;
-    for (index, line) in lines.iter().enumerate() {
-        if line.starts_with(command) {
-            // Merge existing and new args
-            let config = line.strip_prefix(command).unwrap().trim().to_string();
-            let merged = merge(command, &config, &args)?;
-            lines[index] = format!("{} {}", command, merged.join(" "));
-            found = true;
-            break;
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            serve: Default::default(),
+            upgrade: Default::default(),
         }
-    }
-
-    if !found {
-        // If not found, still call merge to ensure args are checked
-        // and in a consistent format
-        let merged = merge(command, "", &args)?;
-        let line = format!("{} {}", command, merged.join(" "));
-        lines.push(line)
-    }
-
-    write(lines)
-}
-
-/// Clear configuration options for a command or all commands
-pub fn clear(command: &str) -> Result<()> {
-    if command == "all" {
-        write(vec![])
-    } else {
-        let mut lines = read()?;
-        for (index, line) in lines.iter().enumerate() {
-            if line.starts_with(command) {
-                lines.remove(index);
-                break;
-            }
-        }
-        write(lines)
     }
 }
 
-/// Merge args into an existing configuration
-pub fn merge(command: &str, config: &str, args: &[String]) -> Result<Vec<String>> {
-    // Get a `clap::App` for the command that will be used to
-    // validate the args being set and merge values with existing one
-    let app = crate::cli::Args::clap();
-
-    // Extract message from a `clap` error (excludes usage etc)
-    fn arg_error_message(error: &structopt::clap::Error) -> String {
-        let start = match error.message.find("error: ") {
-            Some(found) => found + 7,
-            None => 0,
-        };
-        let end = error
-            .message
-            .find("\n\n")
-            .unwrap_or_else(|| error.message.len());
-        error.message.as_str()[start..end].to_string()
-    }
-
-    // Check that the existing config is valid. If it is not, ignore it with warning.
-    let config_matches = match app.clone().get_matches_from_safe(
-        format!("stencila {} {}", command, config)
-            .trim()
-            .split_whitespace(),
-    ) {
-        Ok(matches) => matches,
-        Err(error) => {
-            tracing::warn!(
-                "Existing config for {} is invalid and will be ignored: {}. Use `stencila config clear {}` or edit {}.",
-                command, arg_error_message(&error), command, path()?.to_string_lossy()
-            );
-            structopt::clap::ArgMatches::new()
-        }
-    };
-
-    // Parse the args, this will exit the process if there are errors or --help was used.
-    let args_matches =
-        app.get_matches_from([&["stencila".to_string(), command.to_string()], args].concat());
-
-    // Do merge
-    let mut args_map = HashMap::<&str, String>::new();
-    if let Some(config) = config_matches.subcommand {
-        for (name, arg) in config.matches.args {
-            let value = if arg.vals.is_empty() {
-                "".to_string()
-            } else {
-                format!("={}", arg.vals[0].to_str().unwrap_or_default())
-            };
-            args_map.insert(name, value.to_string());
-        }
-    }
-    if let Some(args) = args_matches.subcommand {
-        for (name, arg) in args.matches.args {
-            let value = if arg.vals.is_empty() {
-                "".to_string()
-            } else {
-                format!("={}", arg.vals[0].to_str().unwrap_or_default())
-            };
-            args_map.insert(name, value.to_string());
-        }
-    }
-
-    // Create new vector or ags, sorted for determinism
-    let mut args_vec: Vec<String> = args_map
-        .iter()
-        .map(|(name, value)| format!("--{}{}", name, value))
-        .collect();
-    args_vec.sort();
-
-    Ok(args_vec)
-}
-
-const CONFIG_FILE: &str = "cli-config.txt";
+const CONFIG_FILE: &str = "config.toml";
 
 /// Get the path of the configuration file
 fn path() -> Result<PathBuf> {
@@ -158,24 +45,115 @@ fn path() -> Result<PathBuf> {
     }
 }
 
-/// Read lines from the configuration file
-fn read() -> Result<Vec<String>> {
+/// Read the config from the configuration file
+fn read() -> Result<Config> {
     let config_file = path()?;
-    let lines = fs::read_to_string(config_file)
-        .unwrap_or_else(|_| "".to_string())
-        .lines()
-        .map(|line| line.to_string())
-        .collect();
-    Ok(lines)
+    let content = fs::read_to_string(config_file).unwrap_or_else(|_| "".to_string());
+    let config = toml::from_str(content.as_str())?;
+    Ok(config)
 }
 
-/// Write lines to the configuration file
-fn write(lines: Vec<String>) -> Result<()> {
+/// Write the config to the configuration file
+fn write(config: Config) -> Result<()> {
     let config_file = path()?;
     let mut file = fs::File::create(config_file)?;
-    file.write_all(lines.join("\n").as_bytes())?;
-    file.sync_all()?;
+    file.write_all(toml::to_string(&config)?.as_bytes())?;
+    file.sync_data()?;
     Ok(())
+}
+
+/// Validate the config
+pub fn validate(config: &Config) -> Result<()> {
+    if let Err(error) = config.validate() {
+        bail!(
+            "Invalid configuration; use `config set`, `config reset` or edit {} to fix.\n\n{:#?}",
+            path()?.display(),
+            error
+        )
+    }
+    Ok(())
+}
+
+/// Read and validate the config
+pub fn get() -> Result<Config> {
+    let config = read()?;
+    validate(&config)?;
+    Ok(config)
+}
+
+/// Ensure that a string is a valid JSON pointer
+///
+/// Replaces dots (`.`) with slashes (`/`) and ensures a
+/// leading slash.
+pub fn json_pointer(pointer: &str) -> String {
+    let pointer = pointer.replace(".", "/");
+    if pointer.starts_with('/') {
+        pointer
+    } else {
+        format!("/{}", pointer)
+    }
+}
+
+/// Display a config property
+pub fn display(pointer: Option<String>) -> Result<String> {
+    let config = get()?;
+    match pointer {
+        None => Ok(toml::to_string(&config)?),
+        Some(pointer) => {
+            let config = serde_json::to_value(config)?;
+            if let Some(part) = config.pointer(json_pointer(&pointer).as_str()) {
+                let json = serde_json::to_string(part)?;
+                let part: toml::Value = serde_json::from_str(&json)?;
+                let toml = toml::to_string(&part)?;
+                Ok(toml)
+            } else {
+                bail!("No configuration value at pointer: {}", pointer)
+            }
+        }
+    }
+}
+
+/// Set a config property
+pub fn set(pointer: String, value: String) -> Result<()> {
+    // Use `read` to avoid validation (user may fix any errors and we
+    // validate below anyway).
+    let config = read()?;
+
+    let mut config = serde_json::to_value(config)?;
+    if let Some(property) = config.pointer_mut(json_pointer(&pointer).as_str()) {
+        let value = match serde_json::from_str(&value) {
+            Ok(value) => value,
+            Err(_) => serde_json::Value::String(value),
+        };
+        *property = value;
+    } else {
+        bail!("No configuration value at pointer: {}", pointer)
+    };
+
+    let config: Config = serde_json::from_value(config)?;
+    validate(&config)?;
+
+    write(config)
+}
+
+/// Reset a config property
+pub fn reset(property: String) -> Result<()> {
+    let config = get()?;
+
+    let config: Config = match property.as_str() {
+        "all" => Default::default(),
+        "serve" => Config {
+            serve: Default::default(),
+            ..config
+        },
+        "upgrade" => Config {
+            upgrade: Default::default(),
+            ..config
+        },
+        _ => bail!("No configuration property named: {}", property),
+    };
+
+    write(config)
 }
 
 /// CLI options for the `config` command
@@ -183,7 +161,6 @@ fn write(lines: Vec<String>) -> Result<()> {
 pub mod cli {
     use super::*;
     use structopt::StructOpt;
-    use strum::VariantNames;
 
     #[derive(Debug, StructOpt)]
     #[structopt(
@@ -202,59 +179,55 @@ pub mod cli {
     pub enum Action {
         Get(Get),
         Set(Set),
-        Clear(Clear),
+        Reset(Reset),
 
         #[structopt(about = "Get the directories used for config, cache etc")]
         Dirs,
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Get configuration options for a command")]
+    #[structopt(about = "Get configuration properties")]
     pub struct Get {
-        /// The command to get the config for. Use 'all' to get config for all commands.
-        #[structopt(possible_values = [Command::VARIANTS, &["all"]].concat().as_slice())]
-        pub command: String,
+        /// A pointer to a config property e.g. `upgrade.auto`
+        pub pointer: Option<String>,
     }
 
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Set configuration options for a command",
+        about = "Set configuration properties",
         setting = structopt::clap::AppSettings::TrailingVarArg,
         setting = structopt::clap::AppSettings::AllowLeadingHyphen
     )]
     pub struct Set {
-        /// The command to set the config for.
-        #[structopt(possible_values = &Command::VARIANTS)]
-        pub command: String,
+        /// A pointer to a config property e.g. `upgrade.auto`
+        pub pointer: String,
 
-        /// The options and flags to set for the command
-        #[structopt(multiple = true)]
-        pub args: Vec<String>,
+        /// The value to set the property to
+        pub value: String,
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Clear configuration options for a command")]
-    pub struct Clear {
-        /// The command to clear the config for. Use 'all' to clear the config for all commands.
-        #[structopt(possible_values = [Command::VARIANTS, &["all"]].concat().as_slice())]
-        pub command: String,
+    #[structopt(about = "Reset configuration properties to their defaults")]
+    pub struct Reset {
+        /// The config property to reset. Use 'all' to reset the entire config.
+        pub property: String,
     }
 
     pub fn config(args: Args) -> Result<()> {
         let Args { action } = args;
         match action {
             Action::Get(action) => {
-                let Get { command } = action;
-                let config = super::get(&command)?;
+                let Get { pointer } = action;
+                let config = super::display(pointer)?;
                 println!("{}", config)
             }
             Action::Set(action) => {
-                let Set { command, args } = action;
-                super::set(&command, &args)?;
+                let Set { pointer, value } = action;
+                super::set(pointer, value)?;
             }
-            Action::Clear(action) => {
-                let Clear { command } = action;
-                super::clear(&command)?;
+            Action::Reset(action) => {
+                let Reset { property } = action;
+                super::reset(property)?;
             }
             Action::Dirs => {
                 let config = util::dirs::config(false)?.display().to_string();
@@ -278,72 +251,97 @@ mod tests {
     }
 
     #[test]
-    fn test_merge() -> Result<()> {
-        assert_eq!(merge("serve", "", &[])?, Vec::<String>::new());
+    fn test_json_pointer() {
+        assert_eq!(json_pointer("a"), "/a");
+        assert_eq!(json_pointer("a/b"), "/a/b");
+        assert_eq!(json_pointer("/a.b"), "/a/b");
+        assert_eq!(json_pointer("a.b.c"), "/a/b/c");
+    }
+
+    #[test]
+    fn test_display() -> Result<()> {
+        let all = display(None)?;
+        assert!(all.contains("[serve]\n"));
+        assert!(all.contains("[upgrade]\n"));
+
+        let serve = display(Some("serve".to_string()))?;
+        assert!(!serve.contains("[serve]\n"));
+        assert!(serve.contains("url = "));
+
+        let upgrade = display(Some("upgrade".to_string()))?;
+        assert!(!upgrade.contains("[upgrade]\n"));
+        assert!(upgrade.contains("auto = "));
 
         assert_eq!(
-            merge("serve", "", &["--key=bar".to_string()])?,
-            vec!["--key=bar".to_string()]
+            display(Some("foo.bar".to_string()))
+                .unwrap_err()
+                .to_string(),
+            "No configuration value at pointer: foo.bar"
         );
-
-        assert_eq!(
-            merge("serve", "--key=bar", &["--key=baz".to_string()])?,
-            vec!["--key=baz".to_string()]
-        );
-
-        assert_eq!(
-            // Bad existing config just gets ignored
-            merge("serve", "--bad", &[])?,
-            Vec::<String>::new()
-        );
-
-        //merge("serve", "", &["--bad".to_string()]);
 
         Ok(())
     }
 
     #[test]
-    fn test_set_get_clear() -> Result<()> {
-        // This is a single test because otherwise there can
-        // be conflicting writes to the test config file if
-        // tests are run in parallel.
+    fn test_get_set_reset() -> Result<()> {
+        // Do all this in one test to avoid individual tests
+        // clobbering each other
 
-        clear("all")?;
-        assert_eq!(get("all")?, "");
+        let default = Config {
+            ..Default::default()
+        };
 
-        set("serve", &vec!["--key=foo".to_string()])?;
-        assert_eq!(get("serve")?, "--key=foo");
+        reset("all".to_string())?;
+        assert_eq!(get()?, default);
 
-        set("serve", &vec!["--insecure".to_string()])?;
-        assert_eq!(get("serve")?, "--insecure --key=foo");
+        set("upgrade.auto".to_string(), "off".to_string())?;
+        assert_eq!(get()?.upgrade.auto, "off");
 
-        set("serve", &vec!["--key=bar".to_string()])?;
-        assert_eq!(get("serve")?, "--insecure --key=bar");
+        set("upgrade.verbose".to_string(), "true".to_string())?;
+        assert_eq!(get()?.upgrade.verbose, true);
 
-        clear("serve")?;
-        assert_eq!(get("serve")?, "");
+        assert_eq!(
+            set("foo.bar".to_string(), "baz".to_string())
+                .unwrap_err()
+                .to_string(),
+            "No configuration value at pointer: foo.bar"
+        );
 
-        cli::config(cli::Args {
-            action: cli::Action::Get(cli::Get {
-                command: "serve".to_string(),
+        reset("upgrade".to_string())?;
+        let upgrade = get()?.upgrade;
+        assert_eq!(upgrade.auto, default.upgrade.auto);
+        assert_eq!(upgrade.verbose, default.upgrade.verbose);
+
+        reset("serve".to_string())?;
+
+        assert_eq!(
+            reset("foo".to_string()).unwrap_err().to_string(),
+            "No configuration property named: foo"
+        );
+
+        use super::cli::*;
+
+        config(Args {
+            action: Action::Get(Get { pointer: None }),
+        })?;
+
+        config(Args {
+            action: Action::Set(Set {
+                pointer: "upgrade.confirm".to_string(),
+                value: "true".to_string(),
             }),
         })?;
 
-        cli::config(cli::Args {
-            action: cli::Action::Set(cli::Set {
-                command: "serve".to_string(),
-                args: vec![],
+        config(Args {
+            action: Action::Reset(Reset {
+                property: "upgrade".to_string(),
             }),
         })?;
 
-        cli::config(cli::Args {
-            action: cli::Action::Clear(cli::Clear {
-                command: "serve".to_string(),
-            }),
+        config(Args {
+            action: Action::Dirs,
         })?;
 
-        cli::config(cli::Args {
-            action: cli::Action::Dirs,
-        })
+        Ok(())
     }
 }

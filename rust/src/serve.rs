@@ -474,11 +474,53 @@ fn respond(request: Request) -> Response {
     }
 }
 
-/// CLI options for the `serve` command
+#[cfg(feature = "config")]
+pub mod config {
+    use serde::{Deserialize, Serialize};
+    use validator::Validate;
+
+    #[derive(Debug, PartialEq, Deserialize, Serialize, Validate)]
+    pub struct Config {
+        /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
+        #[serde(default = "default_url")]
+        #[validate(url(message = "Not a valid URL"))]
+        pub url: String,
+
+        /// Secret key to use for signing and verifying JSON Web Tokens
+        #[serde(default)]
+        #[serde(skip_serializing_if = "Option::is_none")]
+        pub key: Option<String>,
+
+        /// Do not require a JSON Web Token
+        #[serde(default)]
+        pub insecure: bool,
+    }
+
+    /// Default configuration
+    ///
+    /// These values are used when `config.toml` does not
+    /// contain any config for `serve`.
+    impl Default for Config {
+        fn default() -> Self {
+            Config {
+                url: default_url(),
+                key: None,
+                insecure: false,
+            }
+        }
+    }
+
+    /// Get the default value for `url`
+    pub fn default_url() -> String {
+        "ws://127.0.0.1:9000".to_string()
+    }
+}
+
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
     use structopt::StructOpt;
+
     #[derive(Debug, StructOpt)]
     #[structopt(about = "Serve an executor using HTTP, WebSockets, or Standard I/O")]
     pub struct Args {
@@ -497,6 +539,11 @@ pub mod cli {
 
     pub async fn serve(args: Args) -> Result<()> {
         let Args { url, key, insecure } = args;
+
+        let config = crate::config::get()?.serve;
+        let url = url.or(Some(config.url));
+        let key = key.or(config.key);
+        let insecure = insecure || config.insecure;
 
         super::serve(
             url,
