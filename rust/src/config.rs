@@ -5,7 +5,7 @@ use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct Config {
     #[serde(default)]
     pub serve: crate::serve::config::Config,
@@ -228,6 +228,101 @@ mod tests {
     fn test_path() -> Result<()> {
         let path = path()?;
         assert!(path.starts_with(std::env::temp_dir()));
+        Ok(())
+    }
+
+    #[test]
+    fn test_json_pointer() {
+        assert_eq!(json_pointer("a"), "/a");
+        assert_eq!(json_pointer("a/b"), "/a/b");
+        assert_eq!(json_pointer("/a.b"), "/a/b");
+        assert_eq!(json_pointer("a.b.c"), "/a/b/c");
+    }
+
+    #[test]
+    fn test_display() -> Result<()> {
+        let all = display(None)?;
+        assert!(all.contains("[serve]\n"));
+        assert!(all.contains("[upgrade]\n"));
+
+        let serve = display(Some("serve".to_string()))?;
+        assert!(!serve.contains("[serve]\n"));
+        assert!(serve.contains("url = "));
+
+        let upgrade = display(Some("upgrade".to_string()))?;
+        assert!(!upgrade.contains("[upgrade]\n"));
+        assert!(upgrade.contains("auto = "));
+
+        assert_eq!(
+            display(Some("foo.bar".to_string()))
+                .unwrap_err()
+                .to_string(),
+            "No configuration value at pointer: foo.bar"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_get_set_reset() -> Result<()> {
+        // Do all this in one test to avoid individual tests
+        // clobbering each other
+
+        let default = Config {
+            ..Default::default()
+        };
+
+        reset("all".to_string())?;
+        assert_eq!(get()?, default);
+
+        set("upgrade.auto".to_string(), "off".to_string())?;
+        assert_eq!(get()?.upgrade.auto, "off");
+
+        set("upgrade.verbose".to_string(), "true".to_string())?;
+        assert_eq!(get()?.upgrade.verbose, true);
+
+        assert_eq!(
+            set("foo.bar".to_string(), "baz".to_string())
+                .unwrap_err()
+                .to_string(),
+            "No configuration value at pointer: foo.bar"
+        );
+
+        reset("upgrade".to_string())?;
+        let upgrade = get()?.upgrade;
+        assert_eq!(upgrade.auto, default.upgrade.auto);
+        assert_eq!(upgrade.verbose, default.upgrade.verbose);
+
+        reset("serve".to_string())?;
+
+        assert_eq!(
+            reset("foo".to_string()).unwrap_err().to_string(),
+            "No configuration property named: foo"
+        );
+
+        use super::cli::*;
+
+        config(Args {
+            action: Action::Get(Get { pointer: None }),
+        })?;
+
+        config(Args {
+            action: Action::Set(Set {
+                pointer: "upgrade.confirm".to_string(),
+                value: "true".to_string(),
+            }),
+        })?;
+
+        config(Args {
+            action: Action::Reset(Reset {
+                property: "upgrade".to_string(),
+            }),
+        })?;
+
+        config(Args {
+            action: Action::Dirs,
+        })?;
+
         Ok(())
     }
 }

@@ -100,7 +100,7 @@ pub fn upgrade_auto() -> std::thread::JoinHandle<Result<()>> {
 pub mod config {
     use serde::{Deserialize, Serialize};
 
-    #[derive(Debug, Deserialize, Serialize)]
+    #[derive(Debug, PartialEq, Deserialize, Serialize)]
     pub struct Config {
         /// Prompt the user to confirm an upgrade
         #[serde(default)]

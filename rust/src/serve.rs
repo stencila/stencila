@@ -478,14 +478,15 @@ fn respond(request: Request) -> Response {
 pub mod config {
     use serde::{Deserialize, Serialize};
 
-    #[derive(Debug, Deserialize, Serialize)]
+    #[derive(Debug, PartialEq, Deserialize, Serialize)]
     pub struct Config {
         /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
-        #[serde(default)]
+        #[serde(default = "default_url")]
         pub url: String,
 
         /// Secret key to use for signing and verifying JSON Web Tokens
         #[serde(default)]
+        #[serde(skip_serializing_if = "Option::is_none")]
         pub key: Option<String>,
 
         /// Do not require a JSON Web Token
