@@ -1,3 +1,26 @@
+# [0.40.0](https://github.com/stencila/stencila/compare/v0.39.1...v0.40.0) (2021-03-03)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate once_cell to 1.7.2 ([a1ba977](https://github.com/stencila/stencila/commit/a1ba977f6218f2b288e48c489eb6bc96d07ddce3))
+* **dependencies:** update rust crate serde_json to 1.0.64 ([2e44fee](https://github.com/stencila/stencila/commit/2e44fee35dd55e6ecffb19112942c247b8705d72))
+* **dependencies:** update rust crate tokio-tungstenite to 0.14.0 ([239d113](https://github.com/stencila/stencila/commit/239d1139ef52cf76bd29e10ffa451f4bb7a3a984))
+* **Deps:** Cargo audit fix ([6d8589b](https://github.com/stencila/stencila/commit/6d8589bcfa8ef9515d072e0a312b9a218084d8f8))
+* **Deps:** Use dirs-next instead of dirs ([b5fe31d](https://github.com/stencila/stencila/commit/b5fe31d0b1edb2f6ffacb8a8ec052c60cf9a5a01))
+* **Docs:** Fix generation of help documentation ([f10aeb4](https://github.com/stencila/stencila/commit/f10aeb46556fd89b4c4997a27c6fcbeae1a0c7ec))
+
+
+### Features
+
+* **Config:** Add validation of config ([62a5a9b](https://github.com/stencila/stencila/commit/62a5a9b904cbd919a8e226120756d2e274bccc73))
+* **Config:** Get, set and reset config using TOML ([af7b626](https://github.com/stencila/stencila/commit/af7b6269f5cd39602439a970515906b463fc97f8))
+
+
+### Performance Improvements
+
+* **Upgrade:** Release and fetch compressed binaries ([e8cdf44](https://github.com/stencila/stencila/commit/e8cdf4477e7472e3c85fb27dff9c0a1b7359d606))
+
 ## [0.39.1](https://github.com/stencila/stencila/compare/v0.39.0...v0.39.1) (2021-03-01)
 
 
