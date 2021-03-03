@@ -24,7 +24,7 @@
   "devDependencies": {
     "@actions/core": "1.2.6",
     "@semantic-release/exec": "5.0.0",
-    "@stencila/dev-config": "2.0.2",
+    "@stencila/dev-config": "2.0.3",
     "@stencila/encoda": "0.108.0",
     "@stencila/schema": "1.0.0",
     "typescript": "4.2.2"
