@@ -477,11 +477,13 @@ fn respond(request: Request) -> Response {
 #[cfg(feature = "config")]
 pub mod config {
     use serde::{Deserialize, Serialize};
+    use validator::Validate;
 
-    #[derive(Debug, PartialEq, Deserialize, Serialize)]
+    #[derive(Debug, PartialEq, Deserialize, Serialize, Validate)]
     pub struct Config {
         /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
         #[serde(default = "default_url")]
+        #[validate(url(message = "Not a valid URL"))]
         pub url: String,
 
         /// Secret key to use for signing and verifying JSON Web Tokens

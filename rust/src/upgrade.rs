@@ -99,20 +99,25 @@ pub fn upgrade_auto() -> std::thread::JoinHandle<Result<()>> {
 #[cfg(feature = "config")]
 pub mod config {
     use serde::{Deserialize, Serialize};
+    use validator::{Validate, ValidationError};
 
-    #[derive(Debug, PartialEq, Deserialize, Serialize)]
+    #[derive(Debug, PartialEq, Deserialize, Serialize, Validate)]
     pub struct Config {
         /// Prompt the user to confirm an upgrade
-        #[serde(default)]
+        //#[serde(default)]
         pub confirm: bool,
 
         /// Print information on the upgrade process
-        #[serde(default)]
+        //#[serde(default)]
         pub verbose: bool,
 
         /// The interval between automatic upgrade checks (defaults to "1 day").
         /// Only used when for configuration. Set to "off" for no automatic checks.
         #[serde(default = "default_auto")]
+        #[validate(
+            length(min = 2),
+            custom(function = "validate_auto", message = "Not a valid duration")
+        )]
         pub auto: String,
     }
 
@@ -136,12 +141,12 @@ pub mod config {
     }
 
     /// Validate `auto` (a valid duration or "off")
-    pub fn validate_auto(value: String) -> Result<(), String> {
-        if value == *"off" {
+    pub fn validate_auto(value: &str) -> Result<(), ValidationError> {
+        if value == "off" {
             return Ok(());
         }
-        if let Err(error) = humantime::parse_duration(value.as_str()) {
-            return Err(error.to_string());
+        if humantime::parse_duration(value).is_err() {
+            return Err(ValidationError::new("invalid_duration_string"));
         }
         Ok(())
     }
@@ -218,16 +223,13 @@ mod tests {
 
     #[test]
     fn test_validate_auto() {
-        assert_eq!(config::validate_auto("off".to_string()), Ok(()));
-        assert_eq!(config::validate_auto("1 day".to_string()), Ok(()));
-        assert_eq!(
-            config::validate_auto("2 weeks 3 days 1 hr".to_string()),
-            Ok(())
-        );
+        assert_eq!(config::validate_auto("off"), Ok(()));
+        assert_eq!(config::validate_auto("1 day"), Ok(()));
+        assert_eq!(config::validate_auto("2 weeks 3 days 1 hr"), Ok(()));
 
         assert_eq!(
-            config::validate_auto("foo".to_string()),
-            Err("expected number at 0".to_string())
+            config::validate_auto("foo").unwrap_err().to_string(),
+            "Validation error: invalid_duration_string [{}]".to_string()
         );
     }
 }

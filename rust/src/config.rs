@@ -4,13 +4,16 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
+use validator::Validate;
 
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize, Validate)]
 pub struct Config {
     #[serde(default)]
+    #[validate]
     pub serve: crate::serve::config::Config,
 
     #[serde(default)]
+    #[validate]
     pub upgrade: crate::upgrade::config::Config,
 }
 
@@ -59,11 +62,23 @@ fn write(config: Config) -> Result<()> {
     Ok(())
 }
 
-/// Get the config
+/// Validate the config
+pub fn validate(config: &Config) -> Result<()> {
+    if let Err(error) = config.validate() {
+        bail!(
+            "Invalid configuration; use `config set`, `config reset` or edit {} to fix.\n\n{:#?}",
+            path()?.display(),
+            error
+        )
+    }
+    Ok(())
+}
+
+/// Read and validate the config
 pub fn get() -> Result<Config> {
-    // Currently this just calls read but in future may
-    // use a stored config object to avoid multiple reads
-    read()
+    let config = read()?;
+    validate(&config)?;
+    Ok(config)
 }
 
 /// Ensure that a string is a valid JSON pointer
@@ -100,6 +115,8 @@ pub fn display(pointer: Option<String>) -> Result<String> {
 
 /// Set a config property
 pub fn set(pointer: String, value: String) -> Result<()> {
+    // Use `read` to avoid validation (user may fix any errors and we
+    // validate below anyway).
     let config = read()?;
 
     let mut config = serde_json::to_value(config)?;
@@ -114,12 +131,14 @@ pub fn set(pointer: String, value: String) -> Result<()> {
     };
 
     let config: Config = serde_json::from_value(config)?;
+    validate(&config)?;
+
     write(config)
 }
 
 /// Reset a config property
 pub fn reset(property: String) -> Result<()> {
-    let config = read()?;
+    let config = get()?;
 
     let config: Config = match property.as_str() {
         "all" => Default::default(),
