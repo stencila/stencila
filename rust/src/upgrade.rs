@@ -2,7 +2,6 @@ use anyhow::{anyhow, Result};
 use chrono::{DateTime, Duration, Utc};
 use std::fs;
 use std::thread;
-use structopt::StructOpt;
 
 /// Upgrade the application
 ///
@@ -60,19 +59,16 @@ const UPGRADE_FILE: &str = "cli-upgrade.txt";
 ///
 /// Runs in a separate thread so that is does not slow down the
 /// command currently being run by the user.
+///
+/// Because this function use values form the config file, requires
+/// that `feature = "config"` is enabled.
+#[cfg(feature = "config")]
 pub fn upgrade_auto() -> std::thread::JoinHandle<Result<()>> {
     thread::spawn(move || -> Result<()> {
         // Get the upgrade configuration
-        let config = crate::config::get("upgrade")?;
-        let cli::Args {
-            auto,
-            confirm,
-            verbose,
-            ..
-        } = cli::Args::from_iter(format!("upgrade {}", config).split_whitespace());
+        let config::Config { auto, confirm, .. } = crate::config::get()?.upgrade;
 
         // Go no further if auto upgrade is not enabled
-        let auto = auto.unwrap_or_else(|| "1 day".to_string());
         if auto == "off" {
             return Ok(());
         }
@@ -89,7 +85,7 @@ pub fn upgrade_auto() -> std::thread::JoinHandle<Result<()>> {
         }
 
         // Attempt an upgrade
-        upgrade(None, None, confirm, verbose)?;
+        upgrade(None, None, confirm, false)?;
 
         // Record the time of the upgrade check, so another check
         // is not made within the `auto`.
@@ -100,11 +96,62 @@ pub fn upgrade_auto() -> std::thread::JoinHandle<Result<()>> {
     })
 }
 
-/// CLI options for the `upgrade` command
+#[cfg(feature = "config")]
+pub mod config {
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Deserialize, Serialize)]
+    pub struct Config {
+        /// Prompt the user to confirm an upgrade
+        #[serde(default)]
+        pub confirm: bool,
+
+        /// Print information on the upgrade process
+        #[serde(default)]
+        pub verbose: bool,
+
+        /// The interval between automatic upgrade checks (defaults to "1 day").
+        /// Only used when for configuration. Set to "off" for no automatic checks.
+        #[serde(default = "default_auto")]
+        pub auto: String,
+    }
+
+    /// Default configuration
+    ///
+    /// These values are used when `config.toml` does not
+    /// contain any config for `upgrade`.
+    impl Default for Config {
+        fn default() -> Self {
+            Config {
+                confirm: false,
+                verbose: false,
+                auto: default_auto(),
+            }
+        }
+    }
+
+    /// Get the default value for `auto`
+    pub fn default_auto() -> String {
+        "1 day".to_string()
+    }
+
+    /// Validate `auto` (a valid duration or "off")
+    pub fn validate_auto(value: String) -> Result<(), String> {
+        if value == *"off" {
+            return Ok(());
+        }
+        if let Err(error) = humantime::parse_duration(value.as_str()) {
+            return Err(error.to_string());
+        }
+        Ok(())
+    }
+}
+
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
     use structopt::StructOpt;
+
     #[derive(Debug, StructOpt)]
     #[structopt(about = "Upgrade stencila to the latest version")]
     pub struct Args {
@@ -119,22 +166,6 @@ pub mod cli {
         /// Print information on the upgrade process
         #[structopt(short, long)]
         pub verbose: bool,
-
-        /// The interval between automatic upgrade checks (defaults to "1 day").
-        /// Only used when for configuration. Set to "off" for no automatic checks.
-        #[structopt(short, long, validator = validate_auto)]
-        pub auto: Option<String>,
-    }
-
-    /// Validate that a string is a valid duration or "off"
-    pub fn validate_auto(value: String) -> Result<(), String> {
-        if value == *"off" {
-            return Ok(());
-        }
-        if let Err(error) = humantime::parse_duration(value.as_str()) {
-            return Err(error.to_string());
-        }
-        Ok(())
     }
 
     pub fn upgrade(args: Args) -> Result<()> {
@@ -144,6 +175,10 @@ pub mod cli {
             verbose,
             ..
         } = args;
+
+        let config = crate::config::get()?.upgrade;
+        let confirm = confirm || config.confirm;
+        let verbose = verbose || config.verbose;
 
         // This is run in a separate thread because `self_update` creates a new `tokio`
         // runtime (which can not be nested within our main `tokio` runtime).
@@ -178,21 +213,20 @@ mod tests {
             to: None,
             confirm: false,
             verbose: false,
-            auto: None,
         })
     }
 
     #[test]
     fn test_validate_auto() {
-        assert_eq!(cli::validate_auto("off".to_string()), Ok(()));
-        assert_eq!(cli::validate_auto("1 day".to_string()), Ok(()));
+        assert_eq!(config::validate_auto("off".to_string()), Ok(()));
+        assert_eq!(config::validate_auto("1 day".to_string()), Ok(()));
         assert_eq!(
-            cli::validate_auto("2 weeks 3 days 1 hr".to_string()),
+            config::validate_auto("2 weeks 3 days 1 hr".to_string()),
             Ok(())
         );
 
         assert_eq!(
-            cli::validate_auto("foo".to_string()),
+            config::validate_auto("foo".to_string()),
             Err("expected number at 0".to_string())
         );
     }
