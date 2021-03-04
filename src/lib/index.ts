@@ -31,7 +31,6 @@ export {
  * @return {ThemaAssets|undefined} Object containing two arrays, one of all the themes stylesheets, and one of all
  * scripts.
  */
-
 export const getTheme = (
   theme: string,
   asCDNUrl: boolean | undefined = false
@@ -58,3 +57,12 @@ export const getTheme = (
     scripts: readThemeFiles(resolvedTheme.scripts),
   }
 }
+
+/* Returns the dimensions of the symbol used to identify RPNG images.
+ * This is used in Encoda to crop out the symbol when decoding RPNGs.
+ * @see the `--symbol-width` variable in `/themes/rpng/styles.css`
+ */
+export const getRpngSymbolSize = (): { height: number; width: number } => ({
+  height: 18,
+  width: 18,
+})
