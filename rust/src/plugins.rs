@@ -1,11 +1,12 @@
 use crate::util::dirs;
-use anyhow::{bail, Result};
+use anyhow::{anyhow, bail, Result};
 use futures::StreamExt;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
+use std::thread;
+use std::{collections::HashMap, process::Command};
 use strum::{Display, EnumString, EnumVariantNames};
 
 #[derive(Debug, Display, EnumString, EnumVariantNames, PartialEq, Deserialize, Serialize)]
@@ -203,19 +204,81 @@ pub async fn install_docker(name: &str, version: &str) -> Result<()> {
         )
     };
 
-    // TODO: desrialize manifest and then serialize to file
+    // TODO: deserialize manifest and then serialize to file
     fs::write(manifest_path(name)?, manifest)?;
 
     Ok(())
 }
 
 /// Add a plugin as a downloaded binary
+#[cfg(any(feature = "plugins-binary"))]
 pub fn install_binary(name: &str, version: &str) -> Result<()> {
-    // TODO
-    bail!("Unable to add plugin '{}@{}' as binary", name, version)
+    let (owner, name) = if name.contains('/') {
+        let parts: Vec<&str> = name.split('/').collect();
+        (parts[0], parts[1])
+    } else {
+        ("stencila", name)
+    };
+
+    // Get the current version from the manifest (if any)
+    let current_version = if let Ok(_manifest) = manifest(name) {
+        // TODO extract version from manifest
+        "0.1.0"
+    } else {
+        // Not yet installed, so artificially low version
+        "0.0.0"
+    };
+
+    // Create the directory where the binary will be downloaded to
+    let install_dir = dirs::plugins(false)?.join(name);
+    fs::create_dir_all(&install_dir)?;
+    let install_path = install_dir.join(name);
+
+    let mut builder = self_update::backends::github::Update::configure();
+    builder
+        .repo_owner(owner)
+        .repo_name(name)
+        .bin_name(name)
+        .current_version(current_version)
+        .bin_install_path(&install_path)
+        .show_output(true)
+        .show_download_progress(true);
+    if version != "latest" {
+        builder.target_version_tag(format!("v{}", version).as_str());
+    }
+
+    // The download has to be done in another thread because it spawns
+    // a new tokio runtime
+    thread::spawn(move || -> Result<()> {
+        if let Err(error) = builder.build()?.update() {
+            match error {
+                self_update::errors::Error::Network(message) => {
+                    if message.contains("404") {
+                        bail!("Could not find repository or corresponding release in repository")
+                    } else {
+                        bail!(message)
+                    }
+                }
+                _ => bail!(error.to_string()),
+            }
+        } else {
+            Ok(())
+        }
+    })
+    .join()
+    .map_err(|_| anyhow!("Error joining thread"))??;
+
+    // Get and store manifest
+    let manifest = Command::new(&install_path).arg("manifest").output()?.stdout;
+    let manifest = std::str::from_utf8(&manifest)?;
+    // TODO: deserialize manifest and then serialize to file
+    fs::write(manifest_path(name)?, manifest)?;
+
+    Ok(())
 }
 
 /// Add a plugin as a programing language package
+#[cfg(any(feature = "plugins-package"))]
 pub fn install_package(name: &str, version: &str) -> Result<()> {
     // TODO
     bail!(
