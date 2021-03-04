@@ -10,6 +10,7 @@ body {
 
 :--root {
   --color-ok: #95e8af;
+  --symbol-width: 18px;
 
   display: inline-block;
   font-family: monospace;
@@ -68,11 +69,6 @@ body {
   }
 }
 
-:--MathFragment {
-  /* Ensure that the icon does not overlap the equation */
-  padding-left: 18px;
-}
-
 /* Hide the UI chrome etc that is not wanted */
 :--CodeChunk stencila-action-menu,
 :--CodeChunk [slot='text'],
@@ -89,8 +85,11 @@ body {
 }
 
 :--CodeChunk stencila-node-list,
-:--CodeExpression stencila-node-list {
-  padding: 0 !important;
+:--CodeExpression .output,
+:--MathBlock > :first-child,
+:--MathFragment > :first-child {
+  /* Ensure that the icon does not overlap the content */
+  padding: 0 0 0 var(--symbol-width) !important;
 }
 
 /* Make display of datatables a little more pleasing */
