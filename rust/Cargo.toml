@@ -26,6 +26,11 @@ serve-ws = ["warp", "jsonwebtoken"]
 cli = ["structopt", "exitcode"] #, "crossterm"]
 # Open a stencil in the browser
 open = ["serve", "serve-http", "serve-ws", "webbrowser"]
+# Manage plugins
+plugins = []
+plugins-docker = ["plugins", "bollard"]
+plugins-binary = ["plugins", "self_update"]
+plugins-package = ["plugins"]
 # Upgrade the application
 upgrade = ["self_update"]
 # Configure the application using a TOML file
@@ -48,12 +53,17 @@ default = [
     "serve-ws",
     "cli",
     "open",
+    "plugins",
+    "plugins-docker",
+    "plugins-binary",
+    "plugins-package",
     "upgrade",
     "config",
 ]
 
 [dependencies]
 anyhow = "1.0.38"
+bollard = { version = "0.10.0", optional = true }
 chrono = "0.4.19"
 dirs-next = "2.0.0"
 env_logger = "0.8.3"

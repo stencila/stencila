@@ -27,6 +27,9 @@ pub mod urls;
 #[cfg(feature = "open")]
 pub mod open;
 
+#[cfg(feature = "plugins")]
+pub mod plugins;
+
 #[cfg(feature = "upgrade")]
 pub mod upgrade;
 

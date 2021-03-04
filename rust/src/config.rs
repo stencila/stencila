@@ -14,6 +14,10 @@ pub struct Config {
 
     #[serde(default)]
     #[validate]
+    pub plugins: crate::plugins::config::Config,
+
+    #[serde(default)]
+    #[validate]
     pub upgrade: crate::upgrade::config::Config,
 }
 
@@ -21,6 +25,7 @@ impl Default for Config {
     fn default() -> Self {
         Config {
             serve: Default::default(),
+            plugins: Default::default(),
             upgrade: Default::default(),
         }
     }
