@@ -1,3 +1,15 @@
+# [2.22.0](https://github.com/stencila/thema/compare/v2.21.2...v2.22.0) (2021-03-05)
+
+
+### Bug Fixes
+
+* **RPNG:** Ensure contents of all node types are fully visible ([f2586b3](https://github.com/stencila/thema/commit/f2586b32c741932c781f1fa946c3231a39466a5c))
+
+
+### Features
+
+* **Utils:** Expose function for getting dimensions of RPNG symbol ([1f74664](https://github.com/stencila/thema/commit/1f74664acca0279a4bfb393737b02f29f490aa06))
+
 ## [2.21.2](https://github.com/stencila/thema/compare/v2.21.1...v2.21.2) (2021-02-19)
 
 
