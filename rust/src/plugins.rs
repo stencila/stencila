@@ -148,7 +148,7 @@ pub async fn install_docker(name: &str, version: &str) -> Result<()> {
             },
         )
         .await?;
-    if response.warnings.len() > 0 {
+    if !response.warnings.is_empty() {
         for warning in response.warnings {
             tracing::warn!("When creating container: {}", warning);
         }
@@ -188,11 +188,11 @@ pub async fn install_docker(name: &str, version: &str) -> Result<()> {
         }
     }
 
-    if stderr.len() > 0 {
+    if !stderr.is_empty() {
         tracing::warn!("{}", std::str::from_utf8(&stderr)?);
     }
 
-    let manifest = if stdout.len() > 0 {
+    let manifest = if !stdout.is_empty() {
         match std::str::from_utf8(&stdout) {
             Ok(stdout) => stdout,
             Err(error) => bail!("Error converting stream to UTF8: {}", error),
@@ -289,7 +289,7 @@ pub fn install_package(name: &str, version: &str) -> Result<()> {
 }
 
 /// Add a plugin
-pub async fn add(plugin: &str, kinds: &Vec<Kind>, aliases: &HashMap<String, String>) -> Result<()> {
+pub async fn add(plugin: &str, kinds: &[Kind], aliases: &HashMap<String, String>) -> Result<()> {
     let (alias, version) = spec_to_alias_version(plugin);
     let name = alias_to_name(&alias, aliases);
 
@@ -514,7 +514,7 @@ pub mod cli {
                 if package {
                     kinds_local.push(Kind::Package)
                 }
-                if kinds_local.len() == 0 {
+                if kinds_local.is_empty() {
                     kinds_local = kinds
                 }
 
@@ -528,7 +528,7 @@ pub mod cli {
             Action::Upgrade(action) => {
                 let Upgrade { plugins } = action;
 
-                let plugins = if plugins.len() == 0 { list()? } else { plugins };
+                let plugins = if plugins.is_empty() { list()? } else { plugins };
 
                 // Note: Currently, `upgrade` is just an alias for `add`
                 // and does not warn user if plugin is not yet installed.
