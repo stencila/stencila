@@ -97,7 +97,7 @@ jobs:
           rootFolderOrFile: target/release/stencila.exe
           includeRootFolder: false
           archiveType: zip
-          archiveFile: target/release/stencila.zip'
+          archiveFile: target/release/stencila.exe.zip'
           replaceExistingArchive: true
           verbose: true
         displayName: Archive release
