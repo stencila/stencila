@@ -2,7 +2,7 @@
 
 # Upload files to a GitHub release
 #
-#    upload-release.sh <path> <asset> <triple> <format>
+#    upload-release.sh <path> <asset> <triple> <format> <skip archiving>
 #
 # <path> is the local path to the binary, <asset> is the asset name, <target> is
 # the targe triple and <format> is the archive format (i.e. `zip` or `tar.gz`)
@@ -21,12 +21,15 @@ FILE_PATH=$1
 ASSET_NAME=$2
 TARGET_TRIPLE=$3
 ARCHIVE_FORMAT=$4
+SKIP_ARCHIVE=$5
 
 ARCHIVE_PATH="$FILE_PATH.$ARCHIVE_FORMAT"
-if [ $ARCHIVE_FORMAT == "zip" ]; then
-    (cd $(dirname $FILE_PATH) && zip -r - $(basename $FILE_PATH)) > $ARCHIVE_PATH
-elif [ $ARCHIVE_FORMAT == "tar.gz" ]; then
-    tar -C $(dirname $FILE_PATH) -czvf $ARCHIVE_PATH $(basename $FILE_PATH)
+if [ -z $SKIP_ARCHIVE ]; then
+    if [ $ARCHIVE_FORMAT == "zip" ]; then
+        (cd $(dirname $FILE_PATH) && zip -r - $(basename $FILE_PATH)) > $ARCHIVE_PATH
+    elif [ $ARCHIVE_FORMAT == "tar.gz" ]; then
+        tar -C $(dirname $FILE_PATH) -czvf $ARCHIVE_PATH $(basename $FILE_PATH)
+    fi
 fi
 
 TAG=$(git describe --tags --abbrev=0)

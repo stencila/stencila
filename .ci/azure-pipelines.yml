@@ -88,10 +88,24 @@ jobs:
       - script: make test
         displayName: Run tests
 
+      - script: make build
+        displayName: Build release
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: target/release/stencila.exe
+          includeRootFolder: false
+          archiveType: zip
+          archiveFile: target/release/stencila.zip'
+          replaceExistingArchive: true
+          verbose: true
+        displayName: Archive release
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+
       - script: |
-          make build
-          bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc zip
-        displayName: Build and upload release
+          bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc zip true
+        displayName: Upload release
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
