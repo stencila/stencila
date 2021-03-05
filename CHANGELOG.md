@@ -1,3 +1,10 @@
+## [0.40.1](https://github.com/stencila/stencila/compare/v0.40.0...v0.40.1) (2021-03-05)
+
+
+### Bug Fixes
+
+* **Windows release:** Archive using task because zip not available ([49dabb6](https://github.com/stencila/stencila/commit/49dabb65dba5521ba071f33611dd52c60d91480d))
+
 # [0.40.0](https://github.com/stencila/stencila/compare/v0.39.1...v0.40.0) (2021-03-03)
 
 
