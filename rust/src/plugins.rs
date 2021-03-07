@@ -1,12 +1,11 @@
 use crate::util::dirs;
 use anyhow::{anyhow, bail, Result};
 use futures::StreamExt;
+use jsonschema::JSONSchema;
+use once_cell::sync::Lazy;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::PathBuf;
-use std::thread;
-use std::{collections::HashMap, process::Command};
+use std::{collections::HashMap, fs, path::PathBuf, process::Command, sync::Mutex, thread};
 use strum::{Display, EnumString, EnumVariantNames};
 
 #[derive(Debug, Display, EnumString, EnumVariantNames, PartialEq, Deserialize, Serialize)]
@@ -19,6 +18,39 @@ pub enum Kind {
     Binary,
     #[cfg(any(feature = "plugins-package"))]
     Package,
+}
+
+/// The name of the plugin file within the plugin directory
+const PLUGIN_FILE: &str = "codemeta.json";
+
+/// The plugins that have been loaded
+type Plugins = HashMap<String, Plugin>;
+pub static PLUGINS: Lazy<Mutex<Plugins>> = Lazy::new(|| Mutex::new(HashMap::new()));
+
+type Methods = HashMap<String, Vec<(String, Box<serde_json::Value>, JSONSchema<'static>)>>;
+pub static METHODS: Lazy<Mutex<Methods>> = Lazy::new(|| Mutex::new(HashMap::new()));
+
+/// Description of a plugin
+///
+/// As far as possible using existing properties defined in schema.org
+/// [`SoftwareApplication`](https://schema.org/SoftwareApplication) but extensions
+/// added where necessary.
+///
+/// Properties names use the Rust convention of snake_case but are renamed
+/// to schema.org camelCase on serialization.
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Plugin {
+    /// The name of the plugin
+    name: String,
+
+    /// The version of the plugin
+    software_version: String,
+
+    /// A list of plugin "features"
+    /// Each feature is a `JSONSchema` object describing a method
+    /// (including its parameters).
+    feature_list: Vec<serde_json::Value>,
 }
 
 /// Split a plugin spec (ie. alias/name and, optionally, version) into alias and version
@@ -43,41 +75,134 @@ pub fn alias_to_name(alias: &str, aliases: &HashMap<String, String>) -> String {
     .into()
 }
 
-/// Get the path to the manifest file of a plugin
-pub fn manifest_path(name: &str) -> Result<PathBuf> {
-    Ok(dirs::plugins(false)?.join(format!("{}.json", name)))
+/// Get the path of the plugin directory
+pub fn plugin_dir(name: &str) -> Result<PathBuf> {
+    Ok(dirs::plugins(false)?.join(name))
 }
 
-/// Get the manifest for an installed plugin
-pub fn manifest(name: &str) -> Result<String> {
-    // TODO: deserialize JSON into a manifest object
-    match fs::read_to_string(manifest_path(name)?) {
-        Ok(json) => Ok(json),
-        Err(_) => bail!("Plugin '{}' is not installed", name),
-    }
+/// Get the path of the plugin directory
+pub fn plugin_file(name: &str) -> Result<PathBuf> {
+    Ok(plugin_dir(name)?.join(PLUGIN_FILE))
 }
 
 /// Test whether a plugin is installed
+///
+/// Note that if a plugin was not successfully installed
+/// it may have a directory but no plugin file and `is_installed`
+/// will return `false`.
 pub fn is_installed(name: &str) -> Result<bool> {
-    Ok(manifest_path(name)?.exists())
+    Ok(plugin_file(name)?.exists())
 }
 
-/// List installed manifests
-pub fn list() -> Result<Vec<String>> {
-    // TODO: Return a Vec<Manifest>
+/// Load a plugin from JSON into memory
+///
+/// Deserialize a plugin from JSON and compile the
+/// JSON Schema in each item in its `featureList`.
+pub fn load_plugin(json: &str) -> Result<Plugin> {
+    let plugin: Plugin = serde_json::from_str(json)?;
+
+    let mut plugins = PLUGINS.lock().expect("Unable to obtain plugins lock");
+    plugins.insert(plugin.name.clone(), plugin.clone());
+
+    let mut methods = METHODS.lock().expect("Unable to obtain methods lock");
+    for feature in &plugin.feature_list {
+        let title = match feature.get("title") {
+            None => bail!("JSON Schema is missing 'title' annotation"),
+            Some(value) => value.to_string(),
+        };
+
+        // The `JSONSchema::compile` function used below wants a reference to a `serde_json::Value`
+        // with a lifetime. This is the only way I could figure out how to do that.
+        // The `schema_box_droppable` is stored and dropped as part of `unload_plugin` to avoid
+        // memory leaks.
+        // See https://doc.rust-lang.org/std/boxed/struct.Box.html#method.leak about `Box::leak` and
+        // `Box::from_raw`.
+        let schema_box = Box::new(feature.clone());
+        let schema_static_ref: &'static serde_json::Value = Box::leak(schema_box.clone());
+        #[allow(unsafe_code)]
+        let schema_box_droppable = unsafe { Box::from_raw(Box::into_raw(schema_box)) };
+
+        // Compile the JSON Schema
+        let compiled_schema = JSONSchema::compile(schema_static_ref)?;
+
+        methods.entry(title).or_insert_with(Vec::new).push((
+            plugin.name.clone(),
+            schema_box_droppable,
+            compiled_schema,
+        ));
+    }
+
+    Ok(plugin)
+}
+
+/// Unload a plugin from memory
+///
+/// Unregisters the plugin so it will no longer be delegated to
+pub fn unload_plugin(name: &str) -> Result<()> {
+    let mut plugins = PLUGINS.lock().expect("Unable to obtain plugins lock");
+    plugins.remove(name);
+
+    let mut methods = METHODS.lock().expect("Unable to obtain methods lock");
+    for implementations in methods.values_mut() {
+        implementations.retain(|implementation| implementation.0 != name)
+    }
+
+    Ok(())
+}
+
+/// Read an installed plugin
+pub fn read_plugin(name: &str) -> Result<Plugin> {
+    let file = plugin_file(name)?;
+    let json = match fs::read_to_string(file) {
+        Ok(json) => json,
+        Err(_) => bail!("Plugin '{}' is not installed", name),
+    };
+    let plugin = load_plugin(&json)?;
+    Ok(plugin)
+}
+
+/// Write a plugin to installation directory
+pub fn write_plugin(name: &str, plugin: &Plugin) -> Result<()> {
+    let json = serde_json::to_string_pretty(&plugin)?;
+    let dir = plugin_dir(name)?;
+    fs::create_dir_all(dir)?;
+    let file = plugin_file(name)?;
+    fs::write(file, json)?;
+    Ok(())
+}
+
+/// Read all the installed plugins
+pub fn read_plugins() -> Result<Vec<Plugin>> {
     let dir = dirs::plugins(true)?;
-    let mut plugins: Vec<String> = vec![];
+    let mut plugins: Vec<Plugin> = vec![];
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
         let path = entry.path();
-        if let Some(ext) = path.extension() {
-            if ext == "json" {
-                let name = path.file_stem().unwrap().to_string_lossy().to_string();
-                plugins.push(name)
+        if path.is_dir() {
+            let name = path.display().to_string();
+            // Check this directory actually has a plugin file
+            if is_installed(&name)? {
+                plugins.push(read_plugin(&name)?);
             }
         }
     }
     Ok(plugins)
+}
+
+/// Uninstall and unload (from memory) a plugin
+pub fn uninstall_plugin(name: &str) -> Result<()> {
+    let dir = plugin_dir(&name)?;
+    if dir.exists() || fs::symlink_metadata(&dir).is_ok() {
+        if dir.is_file() {
+            fs::remove_file(dir)?
+        } else {
+            // Note that if `dir` is a symlink to a directory that
+            // only the directory will be removed.
+            fs::remove_dir_all(dir)?
+        }
+    }
+
+    unload_plugin(name)
 }
 
 /// Add a plugin as a pulled Docker image
@@ -192,7 +317,7 @@ pub async fn install_docker(name: &str, version: &str) -> Result<()> {
         tracing::warn!("{}", std::str::from_utf8(&stderr)?);
     }
 
-    let manifest = if !stdout.is_empty() {
+    let json = if !stdout.is_empty() {
         match std::str::from_utf8(&stdout) {
             Ok(stdout) => stdout,
             Err(error) => bail!("Error converting stream to UTF8: {}", error),
@@ -204,8 +329,12 @@ pub async fn install_docker(name: &str, version: &str) -> Result<()> {
         )
     };
 
-    // TODO: deserialize manifest and then serialize to file
-    fs::write(manifest_path(name)?, manifest)?;
+    // Remove the plugin directory
+    uninstall_plugin(&name)?;
+
+    // Load and write the plugin file
+    let plugin = load_plugin(json)?;
+    write_plugin(name, &plugin)?;
 
     Ok(())
 }
@@ -221,7 +350,7 @@ pub fn install_binary(name: &str, version: &str) -> Result<()> {
     };
 
     // Get the current version from the manifest (if any)
-    let current_version = if let Ok(_manifest) = manifest(name) {
+    let current_version = if let Ok(_manifest) = read_plugin(name) {
         // TODO extract version from manifest
         "0.1.0"
     } else {
@@ -229,7 +358,10 @@ pub fn install_binary(name: &str, version: &str) -> Result<()> {
         "0.0.0"
     };
 
-    // Create the directory where the binary will be downloaded to
+    // Remove the plugin directory
+    uninstall_plugin(&name)?;
+
+    // (Re)create the directory where the binary will be downloaded to
     let install_dir = dirs::plugins(false)?.join(name);
     fs::create_dir_all(&install_dir)?;
     let install_path = install_dir.join(name);
@@ -268,11 +400,12 @@ pub fn install_binary(name: &str, version: &str) -> Result<()> {
     .join()
     .map_err(|_| anyhow!("Error joining thread"))??;
 
-    // Get and store manifest
-    let manifest = Command::new(&install_path).arg("manifest").output()?.stdout;
-    let manifest = std::str::from_utf8(&manifest)?;
-    // TODO: deserialize manifest and then serialize to file
-    fs::write(manifest_path(name)?, manifest)?;
+    // Get plugin json manifest
+    let json = Command::new(&install_path).arg("manifest").output()?.stdout;
+    let json = std::str::from_utf8(&json)?;
+
+    let plugin = load_plugin(json)?;
+    write_plugin(name, &plugin)?;
 
     Ok(())
 }
@@ -288,17 +421,52 @@ pub fn install_package(name: &str, version: &str) -> Result<()> {
     )
 }
 
+/// Add a plugin as a soft link to a directory on the current machine
+///
+/// # Arguments
+///
+/// - `path`: Local file system path to the directory
+#[cfg(any(feature = "plugins-link"))]
+pub fn install_link(path: &str) -> Result<()> {
+    // Make the path absolute (for symlink to work)
+    let path = fs::canonicalize(&path)?;
+
+    // Check that the path is a directory
+    if !path.is_dir() {
+        bail!("Path must be a directory")
+    }
+
+    // Check that the directory has a plugin file
+    let plugin_file = path.join(PLUGIN_FILE);
+    if !plugin_file.is_file() {
+        bail!("Directory must contain a '{}' file", PLUGIN_FILE)
+    }
+
+    // Check that the plugin's file can be loaded
+    let json = fs::read_to_string(plugin_file)?;
+    let plugin = load_plugin(&json)?;
+    let name = plugin.name;
+
+    // Remove the plugin directory
+    uninstall_plugin(&name)?;
+
+    // Create the soft link
+    let link = plugin_dir(&name)?;
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    std::os::unix::fs::symlink(path, link)?;
+    #[cfg(target_os = "windows")]
+    std::os::windows::fs::symlink_dir(path, link)?;
+
+    Ok(())
+}
+
 /// Add a plugin
 pub async fn add(plugin: &str, kinds: &[Kind], aliases: &HashMap<String, String>) -> Result<()> {
     let (alias, version) = spec_to_alias_version(plugin);
     let name = alias_to_name(&alias, aliases);
 
     if is_installed(&name)? {
-        bail!(
-            "Plugin '{}' is already installed, consider using `stencila plugins upgrade {}`",
-            name,
-            name
-        );
+        uninstall_plugin(&name)?
     }
 
     for kind in kinds {
@@ -343,20 +511,15 @@ pub async fn add_list(
 }
 
 /// Remove a plugin
-pub fn remove(plugin: &str, aliases: &HashMap<String, String>) -> Result<()> {
-    let (alias, ..) = spec_to_alias_version(plugin);
-    let name = alias_to_name(&alias, aliases);
-
-    let file = manifest_path(&name)?;
-    if file.exists() {
-        fs::remove_file(file)?;
-    }
+pub fn remove(alias: &str, aliases: &HashMap<String, String>) -> Result<()> {
+    let name = alias_to_name(&alias, &aliases);
+    uninstall_plugin(&name)?;
 
     Ok(())
 }
 
 /// Remove a list of plugins
-pub fn remove_list(plugins: Vec<String>, aliases: HashMap<String, String>) -> Result<()> {
+pub fn remove_list(plugins: Vec<String>, aliases: &HashMap<String, String>) -> Result<()> {
     for plugin in plugins {
         match remove(&plugin, &aliases) {
             Ok(_) => tracing::info!("Removed plugin {}", plugin),
@@ -432,6 +595,7 @@ pub mod cli {
         Add(Add),
         Remove(Remove),
         Upgrade(Upgrade),
+        Link(Link),
     }
 
     #[derive(Debug, StructOpt)]
@@ -479,21 +643,29 @@ pub mod cli {
         pub plugins: Vec<String>,
     }
 
+    #[derive(Debug, StructOpt)]
+    #[structopt(about = "Link to a local plugins")]
+    pub struct Link {
+        /// The path of a plugin directory
+        #[structopt()]
+        pub path: String,
+    }
+
     pub async fn plugins(args: Args) -> Result<()> {
         let Args { action } = args;
         let config::Config { kinds, aliases } = crate::config::get()?.plugins;
 
         match action {
             Action::List => {
-                let plugins = list()?;
+                let plugins = read_plugins()?;
                 println!("{:?}", plugins);
                 Ok(())
             }
             Action::Show(action) => {
                 let Show { plugin } = action;
 
-                let manifest = manifest(&plugin)?;
-                println!("{}", manifest);
+                let plugin = read_plugin(&plugin)?;
+                println!("{:#?}", plugin);
                 Ok(())
             }
             Action::Add(action) => {
@@ -523,16 +695,28 @@ pub mod cli {
             Action::Remove(action) => {
                 let Remove { plugins } = action;
 
-                remove_list(plugins, aliases)
+                remove_list(plugins, &aliases)
             }
             Action::Upgrade(action) => {
                 let Upgrade { plugins } = action;
 
-                let plugins = if plugins.is_empty() { list()? } else { plugins };
+                let plugins = if plugins.is_empty() {
+                    read_plugins()?
+                        .iter()
+                        .map(|plugin| plugin.name.clone())
+                        .collect()
+                } else {
+                    plugins
+                };
 
                 // Note: Currently, `upgrade` is just an alias for `add`
                 // and does not warn user if plugin is not yet installed.
                 add_list(plugins, kinds, aliases).await
+            }
+            Action::Link(action) => {
+                let Link { path } = action;
+
+                install_link(&path)
             }
         }
     }
