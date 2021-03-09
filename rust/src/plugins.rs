@@ -466,7 +466,11 @@ pub fn install_link(path: &str) -> Result<()> {
 }
 
 /// Add a plugin
-pub async fn add(plugin: &str, kinds: &[Kind], aliases: &HashMap<String, String>) -> Result<()> {
+pub async fn install(
+    plugin: &str,
+    kinds: &[Kind],
+    aliases: &HashMap<String, String>,
+) -> Result<()> {
     let (alias, version) = spec_to_alias_version(plugin);
     let name = alias_to_name(&alias, aliases);
 
@@ -501,13 +505,13 @@ pub async fn add(plugin: &str, kinds: &[Kind], aliases: &HashMap<String, String>
 }
 
 /// Add a list of plugins
-pub async fn add_list(
+pub async fn install_list(
     plugins: Vec<String>,
     kinds: Vec<Kind>,
     aliases: HashMap<String, String>,
 ) -> Result<()> {
     for plugin in plugins {
-        match add(&plugin, &kinds, &aliases).await {
+        match install(&plugin, &kinds, &aliases).await {
             Ok(_) => tracing::info!("Added plugin {}", plugin),
             Err(error) => tracing::error!("{}", error),
         }
@@ -516,7 +520,7 @@ pub async fn add_list(
 }
 
 /// Remove a plugin
-pub fn remove(alias: &str, aliases: &HashMap<String, String>) -> Result<()> {
+pub fn uninstall(alias: &str, aliases: &HashMap<String, String>) -> Result<()> {
     let name = alias_to_name(&alias, &aliases);
     uninstall_plugin(&name)?;
 
@@ -524,9 +528,9 @@ pub fn remove(alias: &str, aliases: &HashMap<String, String>) -> Result<()> {
 }
 
 /// Remove a list of plugins
-pub fn remove_list(plugins: Vec<String>, aliases: &HashMap<String, String>) -> Result<()> {
+pub fn uninstall_list(plugins: Vec<String>, aliases: &HashMap<String, String>) -> Result<()> {
     for plugin in plugins {
-        match remove(&plugin, &aliases) {
+        match uninstall(&plugin, &aliases) {
             Ok(_) => tracing::info!("Removed plugin {}", plugin),
             Err(error) => tracing::error!("{}", error),
         }
@@ -595,16 +599,17 @@ pub mod cli {
         setting = structopt::clap::AppSettings::DeriveDisplayOrder
     )]
     pub enum Action {
+        #[structopt(about = "List installed plugins")]
         List,
         Show(Show),
-        Add(Add),
+        Install(Install),
         Link(Link),
         Upgrade(Upgrade),
-        Remove(Remove),
+        Uninstall(Uninstall),
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Show the manifest of a plugin")]
+    #[structopt(about = "Show the details of an installed plugin")]
     pub struct Show {
         /// The name of the plugin to show
         #[structopt()]
@@ -612,8 +617,8 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Add one or more plugins")]
-    pub struct Add {
+    #[structopt(about = "Install one or more plugins")]
+    pub struct Install {
         /// Attempt to add plugins as Docker image
         #[structopt(short, long)]
         pub docker: bool,
@@ -640,7 +645,7 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Upgrade plugins")]
+    #[structopt(about = "Upgrade one of more plugins")]
     pub struct Upgrade {
         /// The names or aliases of plugins to upgrade
         /// (omit to upgrade all plugins)
@@ -649,9 +654,9 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Remove one or more plugins")]
-    pub struct Remove {
-        /// The names or aliases of plugins to remove
+    #[structopt(about = "Uninstall one or more plugins")]
+    pub struct Uninstall {
+        /// The names or aliases of plugins to uninstall
         #[structopt(required = true, multiple = true)]
         pub plugins: Vec<String>,
     }
@@ -673,8 +678,8 @@ pub mod cli {
                 println!("{:#?}", plugin);
                 Ok(())
             }
-            Action::Add(action) => {
-                let Add {
+            Action::Install(action) => {
+                let Install {
                     docker,
                     binary,
                     package,
@@ -695,7 +700,7 @@ pub mod cli {
                     kinds_local = kinds
                 }
 
-                add_list(plugins, kinds_local, aliases).await
+                install_list(plugins, kinds_local, aliases).await
             }
             Action::Link(action) => {
                 let Link { path } = action;
@@ -714,14 +719,14 @@ pub mod cli {
                     plugins
                 };
 
-                // Note: Currently, `upgrade` is just an alias for `add`
+                // Note: Currently, `upgrade` is just an alias for `install`
                 // and does not warn user if plugin is not yet installed.
-                add_list(plugins, kinds, aliases).await
+                install_list(plugins, kinds, aliases).await
             }
-            Action::Remove(action) => {
-                let Remove { plugins } = action;
+            Action::Uninstall(action) => {
+                let Uninstall { plugins } = action;
 
-                remove_list(plugins, &aliases)
+                uninstall_list(plugins, &aliases)
             }
         }
     }
@@ -752,7 +757,7 @@ mod tests {
         .expect_err("Expected an error!");
 
         plugins(Args {
-            action: Action::Add(Add {
+            action: Action::Install(Install {
                 plugins: vec![],
                 docker: false,
                 binary: false,
@@ -775,7 +780,7 @@ mod tests {
         .await?;
 
         plugins(Args {
-            action: Action::Remove(Remove { plugins: vec![] }),
+            action: Action::Uninstall(Uninstall { plugins: vec![] }),
         })
         .await?;
 
