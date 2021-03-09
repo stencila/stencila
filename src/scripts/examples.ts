@@ -32,6 +32,7 @@ const EXAMPLES = [
   articleDrosophila,
   articleReplication,
   articleAntibodies,
+  articlePests,
   epitopepredict,
 ]
 
@@ -83,6 +84,16 @@ function articleDrosophila(): Promise<string | undefined> {
   return build(
     'https://elifesciences.org/articles/49574v2',
     ex('articleDrosophila.html')
+  )
+}
+
+/**
+ * A relatively short eLife article on pest control.
+ */
+function articlePests(): Promise<string | undefined> {
+  return build(
+    'https://elifesciences.org/articles/60912',
+    ex('articlePests.html')
   )
 }
 
