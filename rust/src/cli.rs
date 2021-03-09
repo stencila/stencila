@@ -1,6 +1,7 @@
 use crate::config;
 use crate::decode;
 use crate::open;
+use crate::plugins;
 use crate::request;
 use crate::serve;
 use crate::upgrade;
@@ -30,6 +31,7 @@ pub enum Command {
     Serve(serve::cli::Args),
     Request(request::cli::Args),
     Upgrade(upgrade::cli::Args),
+    Plugins(plugins::cli::Args),
     Config(config::cli::Args),
 }
 
@@ -49,6 +51,7 @@ pub async fn cli(args: Vec<String>) -> i32 {
         Command::Serve(command) => serve::cli::serve(command).await,
         Command::Request(command) => request::cli::request(command).await,
         Command::Upgrade(command) => upgrade::cli::upgrade(command),
+        Command::Plugins(command) => plugins::cli::plugins(command).await,
         Command::Config(command) => config::cli::config(command),
     };
 

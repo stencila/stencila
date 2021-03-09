@@ -1,4 +1,4 @@
-#![forbid(unsafe_code)]
+#![deny(unsafe_code)]
 
 // Features
 
@@ -26,6 +26,9 @@ pub mod urls;
 
 #[cfg(feature = "open")]
 pub mod open;
+
+#[cfg(feature = "plugins")]
+pub mod plugins;
 
 #[cfg(feature = "upgrade")]
 pub mod upgrade;

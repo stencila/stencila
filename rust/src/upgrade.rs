@@ -104,11 +104,9 @@ pub mod config {
     #[derive(Debug, PartialEq, Deserialize, Serialize, Validate)]
     pub struct Config {
         /// Prompt the user to confirm an upgrade
-        //#[serde(default)]
         pub confirm: bool,
 
         /// Print information on the upgrade process
-        //#[serde(default)]
         pub verbose: bool,
 
         /// The interval between automatic upgrade checks (defaults to "1 day").
