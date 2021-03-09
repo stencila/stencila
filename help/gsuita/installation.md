@@ -6,6 +6,9 @@ published: true
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
 id: 4857019
+relatedArticles:
+  - ./getting-started.md
+  - ./interface-overview.md
 ---
 
 Stencila for Google Docs enables you to execute and embed reproducible figures inside Google Docs.

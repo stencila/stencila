@@ -6,6 +6,9 @@ published: true
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
 id: 4857017
+relatedArticles:
+  - ./installation.md
+  - ./interface-overview.md
 ---
 
 ## Overview

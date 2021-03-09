@@ -6,11 +6,15 @@ published: true
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
 id: 4857020
+relatedArticles:
+  - ./installation.md
+  - ./getting-started.md
 ---
 
 ## Main view
 
-The main view shown after opening the sidebar and signing in lists all blocks found in the document. From here you can also create new code and equation blocks.
+This is the main view shown after opening the sidebar and signing in.
+It lists all blocks found in the document, from here you can also create new code and equation blocks.
 
 figure:
 :::
@@ -19,7 +23,8 @@ figure:
 
 ## Block Detail view
 
-When you click on a block from the list view, you will be taken to the Block Detail view. There you can see the source code or the equation, as well as have the ability to run and preview the block, and update the document with the resulting figure.
+When you click on a block from the list view, you will be taken to the Block Detail view.
+There you can see the source code or the equation, as well as have the ability to run and preview the block, and update the document with the resulting figure.
 
 figure:
 :::
