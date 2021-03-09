@@ -1,3 +1,17 @@
+# [0.41.0](https://github.com/stencila/stencila/compare/v0.40.1...v0.41.0) (2021-03-09)
+
+
+### Bug Fixes
+
+* **Load plugin:** Ignore plugin method if invalid schema ([fde35e6](https://github.com/stencila/stencila/commit/fde35e6c60c7c7feebd14d3075021fd986dda8d7))
+
+
+### Features
+
+* **Plugins:** Add plugin link subcommand; compile features schema ([7bc7e16](https://github.com/stencila/stencila/commit/7bc7e1662453cd7dd9adbb3af1007493734be224))
+* **Plugins:** Inital version of plugins subcommand ([6afc011](https://github.com/stencila/stencila/commit/6afc011dada5622b3c1bc127e808d889fb00eaed))
+* **Plugins:** Initial implementation for adding binary plugins ([a46315b](https://github.com/stencila/stencila/commit/a46315b2db2f7322f9e84ef7b86025634913ec13))
+
 ## [0.40.1](https://github.com/stencila/stencila/compare/v0.40.0...v0.40.1) (2021-03-05)
 
 
