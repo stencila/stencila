@@ -723,11 +723,9 @@ pub mod cli {
 
                 remove_list(plugins, &aliases)
             }
-            
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -742,13 +740,16 @@ mod tests {
 
         plugins(Args {
             action: Action::List,
-        }).await?;
+        })
+        .await?;
 
         plugins(Args {
             action: Action::Show(Show {
-                plugin: "foo".to_string()
+                plugin: "foo".to_string(),
             }),
-        }).await.expect_err("Expected an error!");
+        })
+        .await
+        .expect_err("Expected an error!");
 
         plugins(Args {
             action: Action::Add(Add {
@@ -757,25 +758,26 @@ mod tests {
                 binary: false,
                 package: false,
             }),
-        }).await?;
+        })
+        .await?;
 
         plugins(Args {
             action: Action::Link(Link {
-                path: "../foo".to_string()
+                path: "../foo".to_string(),
             }),
-        }).await.expect_err("Expected an error!");
+        })
+        .await
+        .expect_err("Expected an error!");
 
         plugins(Args {
-            action: Action::Upgrade(Upgrade {
-                plugins: vec![],
-            }),
-        }).await?;
+            action: Action::Upgrade(Upgrade { plugins: vec![] }),
+        })
+        .await?;
 
         plugins(Args {
-            action: Action::Remove(Remove {
-                plugins: vec![],
-            }),
-        }).await?;
+            action: Action::Remove(Remove { plugins: vec![] }),
+        })
+        .await?;
 
         Ok(())
     }
