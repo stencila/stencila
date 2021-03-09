@@ -122,14 +122,19 @@ pub fn load_plugin(json: &str) -> Result<Plugin> {
         #[allow(unsafe_code)]
         let schema_box_droppable = unsafe { Box::from_raw(Box::into_raw(schema_box)) };
 
-        // Compile the JSON Schema
-        let compiled_schema = JSONSchema::compile(schema_static_ref)?;
-
-        methods.entry(title).or_insert_with(Vec::new).push((
-            plugin.name.clone(),
-            schema_box_droppable,
-            compiled_schema,
-        ));
+        // Compile the JSON Schema for this feature
+        match JSONSchema::compile(schema_static_ref) {
+            Ok(compiled_schema) => {
+                methods.entry(title).or_insert_with(Vec::new).push((
+                    plugin.name.clone(),
+                    schema_box_droppable,
+                    compiled_schema,
+                ));
+            }
+            Err(error) => {
+                tracing::warn!("Error compiling schema for method '{}' of plugin '{}'; will ignore, please let the plugin maintainer know: {}", title, plugin.name, error)
+            }
+        };
     }
 
     Ok(plugin)
@@ -593,9 +598,9 @@ pub mod cli {
         List,
         Show(Show),
         Add(Add),
-        Remove(Remove),
-        Upgrade(Upgrade),
         Link(Link),
+        Upgrade(Upgrade),
+        Remove(Remove),
     }
 
     #[derive(Debug, StructOpt)]
@@ -627,11 +632,11 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Remove one or more plugins")]
-    pub struct Remove {
-        /// The names or aliases of plugins to remove
-        #[structopt(required = true, multiple = true)]
-        pub plugins: Vec<String>,
+    #[structopt(about = "Link to a local plugins")]
+    pub struct Link {
+        /// The path of a plugin directory
+        #[structopt()]
+        pub path: String,
     }
 
     #[derive(Debug, StructOpt)]
@@ -644,11 +649,11 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Link to a local plugins")]
-    pub struct Link {
-        /// The path of a plugin directory
-        #[structopt()]
-        pub path: String,
+    #[structopt(about = "Remove one or more plugins")]
+    pub struct Remove {
+        /// The names or aliases of plugins to remove
+        #[structopt(required = true, multiple = true)]
+        pub plugins: Vec<String>,
     }
 
     pub async fn plugins(args: Args) -> Result<()> {
@@ -692,10 +697,10 @@ pub mod cli {
 
                 add_list(plugins, kinds_local, aliases).await
             }
-            Action::Remove(action) => {
-                let Remove { plugins } = action;
+            Action::Link(action) => {
+                let Link { path } = action;
 
-                remove_list(plugins, &aliases)
+                install_link(&path)
             }
             Action::Upgrade(action) => {
                 let Upgrade { plugins } = action;
@@ -713,11 +718,65 @@ pub mod cli {
                 // and does not warn user if plugin is not yet installed.
                 add_list(plugins, kinds, aliases).await
             }
-            Action::Link(action) => {
-                let Link { path } = action;
+            Action::Remove(action) => {
+                let Remove { plugins } = action;
 
-                install_link(&path)
+                remove_list(plugins, &aliases)
             }
+            
         }
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_cli() -> Result<()> {
+        // These tests don't do anything other test that
+        // actions run with expected `Ok` or `Err`.
+
+        use super::cli::*;
+
+        plugins(Args {
+            action: Action::List,
+        }).await?;
+
+        plugins(Args {
+            action: Action::Show(Show {
+                plugin: "foo".to_string()
+            }),
+        }).await.expect_err("Expected an error!");
+
+        plugins(Args {
+            action: Action::Add(Add {
+                plugins: vec![],
+                docker: false,
+                binary: false,
+                package: false,
+            }),
+        }).await?;
+
+        plugins(Args {
+            action: Action::Link(Link {
+                path: "../foo".to_string()
+            }),
+        }).await.expect_err("Expected an error!");
+
+        plugins(Args {
+            action: Action::Upgrade(Upgrade {
+                plugins: vec![],
+            }),
+        }).await?;
+
+        plugins(Args {
+            action: Action::Remove(Remove {
+                plugins: vec![],
+            }),
+        }).await?;
+
+        Ok(())
     }
 }
