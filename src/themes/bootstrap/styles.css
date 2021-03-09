@@ -33,6 +33,11 @@
 
   max-width: 70rem;
 
+  :--ImageObject {
+    max-width: 100%;
+    height: auto;
+  }
+
   :--authors :--Organization :--members,
   :--authors {
     /* Use Bootstrap's `list-inline` class  */

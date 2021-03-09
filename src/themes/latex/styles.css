@@ -33,6 +33,11 @@
     padding: 0;
   }
 
+  :--ImageObject {
+    max-width: 100%;
+    height: auto;
+  }
+
   > :--authors :--author {
     /* latexcss has a few classes, one of which is for authors of the
      * article, so use that... */

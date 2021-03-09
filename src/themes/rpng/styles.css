@@ -20,6 +20,11 @@ body {
   padding: 0;
 }
 
+:--ImageObject {
+  max-width: 100%;
+  height: auto;
+}
+
 :--CodeChunk,
 :--CodeExpression,
 :--MathBlock,
