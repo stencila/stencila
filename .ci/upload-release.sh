@@ -48,5 +48,5 @@ UPLOAD_URL="https://uploads.github.com/repos/stencila/stencila/releases/$RELEASE
 echo "Will upload $UPLOAD_PATH to $UPLOAD_URL"
 
 AUTH_HEADER="Authorization: token $GITHUB_TOKEN"
-curl -H "$AUTH_HEADER" -H "Content-Type: application/octet-stream" -o /dev/null --data-binary @"$ARCHIVE_PATH" "$UPLOAD_URL"
+curl -H "$AUTH_HEADER" -H "Content-Type: application/octet-stream" -o /dev/null --data-binary @"$UPLOAD_PATH" "$UPLOAD_URL"
 echo "Upload complete"
