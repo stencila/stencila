@@ -908,7 +908,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56ffd9d031a7e8683c97b09198e7ef8a04a67352967a0e779bd9ebf971dd2b0a"
 dependencies = [
  "ahash",
- "base64 0.13.0",
+ "base64 0.12.3",
  "chrono",
  "idna",
  "lazy_static",
