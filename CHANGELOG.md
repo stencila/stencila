@@ -1,3 +1,10 @@
+# [0.42.0](https://github.com/stencila/stencila/compare/v0.41.0...v0.42.0) (2021-03-10)
+
+
+### Features
+
+* **Docker images:** Add initial versions ([ff12ab9](https://github.com/stencila/stencila/commit/ff12ab97ec2df6c58ec254efcafc117966c33de7))
+
 # [0.41.0](https://github.com/stencila/stencila/compare/v0.40.1...v0.41.0) (2021-03-09)
 
 
