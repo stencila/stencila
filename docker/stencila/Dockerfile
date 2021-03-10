@@ -23,8 +23,7 @@ RUN apt-get update \
        libssl1.1 \
  && rm -rf /var/lib/apt/lists/*
 
-RUN curl -sL https://github.com/stencila/stencila/releases/download/v0.42.0/stencila-v0.42.0-x86_64-unknown-linux-gnu.tar.gz | tar xvz \
- && mv stencila* /usr/local/bin 
+RUN curl -L https://raw.githubusercontent.com/stencila/stencila/master/install.sh | bash -s latest /usr/local/bin 
 
 RUN useradd -m guest
 USER guest
