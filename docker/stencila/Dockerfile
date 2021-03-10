@@ -19,10 +19,12 @@ FROM ubuntu:20.04
 
 RUN apt-get update \
  && apt-get install -y \
+       curl \
        libssl1.1 \
  && rm -rf /var/lib/apt/lists/*
 
-COPY stencila /usr/bin/stencila
+RUN curl -sL https://github.com/stencila/stencila/releases/download/v0.42.0/stencila-v0.42.0-x86_64-unknown-linux-gnu.tar.gz | tar xvz \
+ && mv stencila* /usr/local/bin 
 
 RUN useradd -m guest
 USER guest

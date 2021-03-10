@@ -128,18 +128,12 @@ jobs:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
   - job: Images
+    # Will only run once the Linux job has succeeded and uploaded binary
     dependsOn: [Linux]
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     pool:
       vmImage: ubuntu-latest
     steps:
-      - script: |
-          set -e
-          curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable
-          echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
-          cargo install cargo-strip
-        displayName: Install Rust
-
       - task: gitversion/setup@0
         displayName: Install GitVersion
         inputs:
@@ -148,28 +142,26 @@ jobs:
       - task: gitversion/execute@0
         displayName: Determine version
 
-      - script: make -C docker/stencila
-        displayName: Build image stencila/stencila
-
       - task: Docker@2
-        displayName: Push image stencila/stencila
+        displayName: Build and push stencila/stencila
         inputs:
-          command: push
+          command: buildAndPush
+          dockerfile: docker/stencila/Dockerfile
           containerRegistry: DockerHub
           repository: stencila/stencila
           tags: |
+            $(Build.BuildNumber)
             $(GitVersion.SemVer)
             latest
 
-      - script: make -C docker/stencila
-        displayName: Build image stencila/stencila
-
       - task: Docker@2
-        displayName: Push image stencila/node
+        displayName: Build and push stencila/node
         inputs:
-          command: push
+          command: buildAndPush
+          dockerfile: docker/node/Dockerfile
           containerRegistry: DockerHub
           repository: stencila/node
           tags: |
+            $(Build.BuildNumber)
             $(GitVersion.SemVer)
             latest
