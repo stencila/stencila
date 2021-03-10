@@ -9,6 +9,7 @@ export const examples: {
   articleDrosophila: string
   articleReplication: string
   articleAntibodies: string
+  articlePests: string
   epitopepredict: string
 } = {
   articleReadme: 'articleReadme',
@@ -16,5 +17,6 @@ export const examples: {
   articleDrosophila: 'articleDrosophila',
   articleReplication: 'articleReplication',
   articleAntibodies: 'articleAntibodies',
+  articlePests: 'articlePests',
   epitopepredict: 'epitopepredict'
 }

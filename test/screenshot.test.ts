@@ -15,7 +15,7 @@ import { baseUrl, staticDir } from './wdio.config'
 // The examples to use for visual regression tests
 // It's generally better to only use small examples, as
 // larger ones take up time and space
-const EXAMPLES = [examples.articleKitchenSink]
+const EXAMPLES = [examples.articleKitchenSink, examples.articlePests]
 
 // The themes to be tested. Defaults to all
 const THEMES = Object.keys(themes)
