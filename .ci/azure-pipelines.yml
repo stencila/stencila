@@ -104,7 +104,7 @@ jobs:
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
 
       - script: |
-          bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc zip true
+          bash .ci/upload-release.sh D:\a\1\s\target\release\stencila.exe.zip stencila x86_64-pc-windows-msvc zip true
         displayName: Upload binaries
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
