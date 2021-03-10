@@ -1,3 +1,10 @@
+## [0.43.1](https://github.com/stencila/stencila/compare/v0.43.0...v0.43.1) (2021-03-10)
+
+
+### Bug Fixes
+
+* **Release:** Use UPLOAD_PATH; use set -e on CI ([225d525](https://github.com/stencila/stencila/commit/225d525c2309ece08fe0c0bbc2628b2ca1ba9a38))
+
 # [0.43.0](https://github.com/stencila/stencila/compare/v0.42.1...v0.43.0) (2021-03-10)
 
 
