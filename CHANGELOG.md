@@ -1,3 +1,20 @@
+# [0.43.0](https://github.com/stencila/stencila/compare/v0.42.1...v0.43.0) (2021-03-10)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate bollard to 0.10.1 ([2a091c8](https://github.com/stencila/stencila/commit/2a091c857f07ffb7a83bc9443a38febe3bed6436))
+* **dependencies:** update rust crate reqwest to 0.11.2 ([6d3c08d](https://github.com/stencila/stencila/commit/6d3c08d53b3e8236b5e9cd491e36cc1531a1b8fb))
+* **dependencies:** update rust crate self_update to 0.26.0 ([8141bef](https://github.com/stencila/stencila/commit/8141bef700e085e7900030b5d34954464cb41c73))
+* **dependencies:** update rust crate serde to 1.0.124 ([093b70f](https://github.com/stencila/stencila/commit/093b70f0c8d8faf62767aca6e6d457e6cd270eb2))
+* **dependencies:** update rust crate tokio to 1.3.0 ([3964dcf](https://github.com/stencila/stencila/commit/3964dcf5980097c754c42fa5b987b14e6e1dedae))
+* **Install:** Allow for latest and location to be specified; use in Docker image ([d65b52e](https://github.com/stencila/stencila/commit/d65b52e481056b1b40eaaaebe2290c0290a5bc25))
+
+
+### Features
+
+* **Install:** Add install script and instructions for CLI ([ca2c15a](https://github.com/stencila/stencila/commit/ca2c15accb60aa0c7ac742cab0d3b1ce55b7d6ee))
+
 ## [0.42.1](https://github.com/stencila/stencila/compare/v0.42.0...v0.42.1) (2021-03-10)
 
 

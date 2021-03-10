@@ -154,9 +154,9 @@ checksum = "63396b8a4b9de3f4fdfb320ab6080762242f66a8ef174c49d8e19b674db4cdbe"
 
 [[package]]
 name = "byteorder"
-version = "1.4.2"
+version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae44d1a3d5a19df61dd0c8beb138458ac2a53a7ac09eba97d55592540004306b"
+checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "bytes"
@@ -917,7 +917,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56ffd9d031a7e8683c97b09198e7ef8a04a67352967a0e779bd9ebf971dd2b0a"
 dependencies = [
  "ahash",
- "base64 0.12.3",
+ "base64 0.13.0",
  "chrono",
  "idna",
  "lazy_static",
@@ -1928,7 +1928,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.42.1"
+version = "0.43.0"
 dependencies = [
  "anyhow",
  "bollard",
@@ -1965,7 +1965,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.42.1"
+version = "0.43.0"
 dependencies = [
  "neon",
  "neon-build",
@@ -1974,7 +1974,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-python"
-version = "0.42.1"
+version = "0.43.0"
 dependencies = [
  "pyo3",
  "stencila",
@@ -1982,7 +1982,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-r"
-version = "0.42.1"
+version = "0.43.0"
 dependencies = [
  "extendr-api",
  "stencila",
@@ -2286,9 +2286,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-attributes"
-version = "0.1.13"
+version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8a9bd1db7706f2373a190b0d067146caa39350c486f3d455b0e33b431f94c07"
+checksum = "41768be5b9f3489491825f56f01f25290aa1d3e7cc97e182d4d34360493ba6fa"
 dependencies = [
  "proc-macro2",
  "quote",
