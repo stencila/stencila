@@ -38,7 +38,7 @@ jobs:
       - script: |
           make build
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu tar.gz
-        displayName: Build and upload release
+        displayName: Build and upload binaries
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
@@ -63,7 +63,7 @@ jobs:
       - script: |
           make build
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin tar.gz
-        displayName: Build and upload release
+        displayName: Build and upload binaries
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
@@ -89,7 +89,7 @@ jobs:
         displayName: Run tests
 
       - script: make build
-        displayName: Build release
+        displayName: Build binaries
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
 
       - task: ArchiveFiles@2
@@ -100,12 +100,12 @@ jobs:
           archiveFile: target/release/stencila.exe.zip'
           replaceExistingArchive: true
           verbose: true
-        displayName: Archive release
+        displayName: Archive binaries
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
 
       - script: |
           bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc zip true
-        displayName: Upload release
+        displayName: Upload binaries
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
@@ -126,3 +126,50 @@ jobs:
           GIT_COMMITTER_NAME: Stencila CI Bot
           GIT_COMMITTER_EMAIL: ci@stenci.la
           GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  - job: Images
+    dependsOn: [Linux]
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: |
+          set -e
+          curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable
+          echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+          cargo install cargo-strip
+        displayName: Install Rust
+
+      - task: gitversion/setup@0
+        displayName: Install GitVersion
+        inputs:
+          versionSpec: '5.x'
+
+      - task: gitversion/execute@0
+        displayName: Determine version
+
+      - script: make -C docker/stencila
+        displayName: Build image stencila/stencila
+
+      - task: Docker@2
+        displayName: Push image stencila/stencila
+        inputs:
+          command: push
+          containerRegistry: DockerHub
+          repository: stencila/stencila
+          tags: |
+            $(GitVersion.SemVer)
+            latest
+
+      - script: make -C docker/stencila
+        displayName: Build image stencila/stencila
+
+      - task: Docker@2
+        displayName: Push image stencila/node
+        inputs:
+          command: push
+          containerRegistry: DockerHub
+          repository: stencila/node
+          tags: |
+            $(GitVersion.SemVer)
+            latest
