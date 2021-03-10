@@ -23,7 +23,7 @@ Search for your organization name to double check it has not already been set up
 
 ![](http://stencila.github.io/hub/manager/snaps/org-search.png)
 
-Enter the organization name which you want to be used in URL's. e.g https://hub.stencil.la/awesome-org
+Enter the organization name which you want to be used in URL's. e.g https://hub.stenci.la/awesome-org
 
 ![](http://stencila.github.io/hub/manager/snaps/org-new-name-field.png)
 
