@@ -7,7 +7,7 @@
 #
 #    docker run -it --rm stencila/stencila help
 #
-# Execute a stencil in the current working directory:
+# Execute the main document in the current working directory:
 #
 #    docker run -it --rm -v$PWD:/work stencila/stencila execute
 #

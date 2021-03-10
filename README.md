@@ -41,15 +41,15 @@ The following table lists the main plugins. These plugins are in various stages 
 
 We are currently focussed on the integration between `jesta` and the `stencila` CLI and will then use `jesta` as the base for other Node.js based plugins `encoda`, `jupita` and `nixta`.
 
-| Plugin   | Aliases                    | Version     | Coverage    | Primary functionality                                   |
-| -------- | -------------------------- | ----------- | ----------- | ------------------------------------------------------- |
-| [encoda] | `converter`                | ![encoda-v] | ![encoda-c] | Convert stencils between file formats                   |
-| [jesta]  | `node`, `javascript`, `js` | ![jesta-v]  | ![jesta-c]  | Compile, build and execute stencils that use JavaScript |
-| [rasta]  | `r`                        | ![rasta-v]  | ![rasta-c]  | Compile, build and execute stencils that use R          |
-| [pyla]   | `python`                   | ![pyla-v]   | ![pyla-c]   | Compile, build and execute stencils that use Python     |
-| [jupita] | `jupyter`                  | ![jupita-v] | ![jupita-c] | Execute stencils using Jupyter kernels                  |
-| [dockta] | `docker`                   | ![dockta-v] | ![dockta-c] | Build Docker images for stencils                        |
-| [nixta]  | `nix`                      | ![nixta-v]  | ![nixta-c]  | Build Nix environments for stencils                     |
+| Plugin   | Aliases                    | Version     | Coverage    | Primary functionality                                    |
+| -------- | -------------------------- | ----------- | ----------- | -------------------------------------------------------- |
+| [encoda] | `converter`                | ![encoda-v] | ![encoda-c] | Convert documents between file formats                   |
+| [jesta]  | `node`, `javascript`, `js` | ![jesta-v]  | ![jesta-c]  | Compile, build and execute documents that use JavaScript |
+| [rasta]  | `r`                        | ![rasta-v]  | ![rasta-c]  | Compile, build and execute documents that use R          |
+| [pyla]   | `python`                   | ![pyla-v]   | ![pyla-c]   | Compile, build and execute documents that use Python     |
+| [jupita] | `jupyter`                  | ![jupita-v] | ![jupita-c] | Execute documents that use Jupyter kernels               |
+| [dockta] | `docker`                   | ![dockta-v] | ![dockta-c] | Build Docker images for executable documents             |
+| [nixta]  | `nix`                      | ![nixta-v]  | ![nixta-c]  | Build Nix environments for executable documents          |
 
 <br>
 

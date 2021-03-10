@@ -24,7 +24,7 @@ serve-http = ["warp", "jsonwebtoken"]
 serve-ws = ["warp", "jsonwebtoken"]
 # Command line interface
 cli = ["structopt", "exitcode"] #, "crossterm"]
-# Open a stencil in the browser
+# Open a document in the browser
 open = ["serve", "serve-http", "serve-ws", "webbrowser"]
 # Manage plugins
 plugins = ["jsonschema"]

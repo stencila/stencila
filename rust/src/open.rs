@@ -5,11 +5,11 @@ use anyhow::Result;
 ///
 /// # Arguments
 ///
-/// - `url`: The file system path or URL to the stencil
+/// - `url`: The file system path or URL to the document
 ///
 /// # Examples
 ///
-/// Open the stencil in the current working directory,
+/// Open the document in the current working directory,
 ///
 /// ```
 /// use stencila::open::open;
@@ -19,11 +19,11 @@ pub async fn open(url: Option<String>) -> Result<()> {
     // URL defaults to the
     let url = url.unwrap_or_else(|| "".to_string());
 
-    // Read the stencil from the URL
+    // Read the document from the URL
 
-    // Store the stencil in an in memory ap of stencils
+    // Store the document in an in memory map of documents
 
-    // Determine the local path to the stencil
+    // Determine the local path to the document
 
     // Generate a key and a login URL
     let key = generate_key();
@@ -42,9 +42,9 @@ pub mod cli {
     use super::*;
     use structopt::StructOpt;
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Open a stencil")]
+    #[structopt(about = "Open a document in the browser")]
     pub struct Args {
-        /// The file path or URL of the stencil to open
+        /// The file path or URL of the document
         #[structopt(default_value = ".")]
         url: String,
     }

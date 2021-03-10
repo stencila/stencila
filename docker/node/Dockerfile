@@ -1,7 +1,7 @@
 # A Docker image for using Stencila with Node.js
 #
 # Extends base Stencila image with Node.js and `jesta`.
-# Intended primarily for executing stencils containing Javascript code.
+# Intended primarily for executing documents containing Javascript code.
 
 FROM stencila/stencila
 
