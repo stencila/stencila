@@ -1,3 +1,10 @@
+## [0.42.1](https://github.com/stencila/stencila/compare/v0.42.0...v0.42.1) (2021-03-10)
+
+
+### Bug Fixes
+
+* **Docker images:** Install binary for faster build ([981cb23](https://github.com/stencila/stencila/commit/981cb23328df5ca518467a91e3a202bc7cb6e168))
+
 # [0.42.0](https://github.com/stencila/stencila/compare/v0.41.0...v0.42.0) (2021-03-10)
 
 
