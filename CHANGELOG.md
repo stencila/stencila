@@ -1,3 +1,10 @@
+## [2.22.1](https://github.com/stencila/thema/compare/v2.22.0...v2.22.1) (2021-03-10)
+
+
+### Bug Fixes
+
+* **Bootsrap, Latex, RPNG:** Prevent images breaking out of containers ([9018c40](https://github.com/stencila/thema/commit/9018c40eaa2488cdeaa04ea1a1ee5d2d7586bccf))
+
 # [2.22.0](https://github.com/stencila/thema/compare/v2.21.2...v2.22.0) (2021-03-05)
 
 
