@@ -1,3 +1,10 @@
+## [0.43.2](https://github.com/stencila/stencila/compare/v0.43.1...v0.43.2) (2021-03-11)
+
+
+### Bug Fixes
+
+* **Releases:** Use 7z instead of archive task ([a54d005](https://github.com/stencila/stencila/commit/a54d005a19485f327094fac30a2acc70eef9dca9))
+
 ## [0.43.1](https://github.com/stencila/stencila/compare/v0.43.0...v0.43.1) (2021-03-10)
 
 
