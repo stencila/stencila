@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/stencila/schema/compare/v1.0.0...v1.1.0) (2021-03-15)
+
+
+### Features
+
+* **MathBlock:** Add label property ([d1b850d](https://github.com/stencila/schema/commit/d1b850d5ce6ecbf7fa50a3d53da77ea5833bf0cd)), closes [#246](https://github.com/stencila/schema/issues/246)
+
 # [1.0.0](https://github.com/stencila/schema/compare/v0.47.2...v1.0.0) (2021-01-23)
 
 
