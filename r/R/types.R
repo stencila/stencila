@@ -2224,6 +2224,7 @@ Math <- function(
 #' @param text The text of the equation in the language. \bold{Required}.
 #' @param errors Errors that occurred when parsing the math equation.
 #' @param id The identifier for this item.
+#' @param label A short label for the math block.
 #' @param mathLanguage The language used for the equation e.g tex, mathml, asciimath.
 #' @param meta Metadata associated with this item.
 #' @return A `list` of class `MathBlock`
@@ -2233,6 +2234,7 @@ MathBlock <- function(
   text,
   errors,
   id,
+  label,
   mathLanguage,
   meta
 ){
@@ -2244,7 +2246,7 @@ MathBlock <- function(
     meta = meta
   )
   self$type <- as_scalar("MathBlock")
-
+  self[["label"]] <- check_property("MathBlock", "label", FALSE, missing(label), "character", label)
   class(self) <- c(class(self), "MathBlock")
   self
 }

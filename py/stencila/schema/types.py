@@ -2070,11 +2070,16 @@ class Math(Entity):
 class MathBlock(Math):
     """A block of math, e.g an equation, to be treated as block content."""
 
+    label: Optional[str] = None
+    """A short label for the math block."""
+
+
     def __init__(
         self,
         text: str,
         errors: Optional[Array[str]] = None,
         id: Optional[str] = None,
+        label: Optional[str] = None,
         mathLanguage: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
@@ -2085,7 +2090,8 @@ class MathBlock(Math):
             mathLanguage=mathLanguage,
             meta=meta
         )
-
+        if label is not None:
+            self.label = label
 
 
 class MathFragment(Math):

@@ -5,4 +5,8 @@ role: secondary
 status: unstable
 category: prose
 description: A block of math, e.g an equation, to be treated as block content.
-properties: {}
+properties:
+  label:
+    '@id': stencila:label
+    description: A short label for the math block.
+    type: string
