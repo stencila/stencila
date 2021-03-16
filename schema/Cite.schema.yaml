@@ -19,10 +19,13 @@ properties:
       # TODO: Remove in v2
       - normal # == parenthetical
       - suppressAuthor # == narrative-year
+    default: parenthetical
     $comment: |
       There are two main citation modes: parenthetical and narrative (a.k.a textual).
       See https://apastyle.apa.org/style-grammar-guidelines/citations/basic-principles/parenthetical-versus-narrative
       for an explanation.
+
+      This property is optional and tools are recommended to assume `parenthetical` if missing.
 
       Narrative citations will usually be of form "As noted by Smith (1992)," but `narrative-author`
       allows for "In the early nineties, Smith noted" and `narrative-year` allows for "As noted by Smith in 1992 and 1993".
