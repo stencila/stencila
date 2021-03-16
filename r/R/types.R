@@ -89,15 +89,15 @@ BooleanValidator <- function(
 #'
 #' @name Cite
 #' @param target The target of the citation (URL or reference ID). \bold{Required}.
-#' @param citationMode How the cite is rendered in the surrounding text.
+#' @param citationMode Determines how the citation is shown within the surrounding text.
 #' @param content Optional structured content/text of this citation.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param pageEnd The page on which the work ends; for example "138" or "xvi".
 #' @param pageStart The page on which the work starts; for example "135" or "xiii".
 #' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
-#' @param prefix A prefix to show before the citation.
-#' @param suffix A suffix to show after the citation.
+#' @param prefix Text to show before the citation.
+#' @param suffix Text to show after the citation.
 #' @return A `list` of class `Cite`
 #' @seealso \code{\link{Entity}}
 #' @export
@@ -119,7 +119,7 @@ Cite <- function(
   )
   self$type <- as_scalar("Cite")
   self[["target"]] <- check_property("Cite", "target", TRUE, missing(target), "character", target)
-  self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("normal", "suppressAuthor"), citationMode)
+  self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("parenthetical", "narrative", "narrative-author", "narrative-year", "normal", "suppressAuthor"), citationMode)
   self[["content"]] <- check_property("Cite", "content", FALSE, missing(content), Array(InlineContent), content)
   self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("numeric", "character"), pageEnd)
   self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("numeric", "character"), pageStart)
