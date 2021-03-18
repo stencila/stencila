@@ -8,11 +8,35 @@ description: |
 properties:
   citationMode:
     '@id': stencila:citationMode
-    description: How the cite is rendered in the surrounding text.
+    description: Determines how the citation is shown within the surrounding text.
     type: string
     enum:
-      - normal
-      - suppressAuthor
+      - parenthetical
+      - narrative
+      - narrative-author
+      - narrative-year
+      # Deprecated mode names: retained for backwards compatibility
+      # TODO: Remove in v2
+      - normal # == parenthetical
+      - suppressAuthor # == narrative-year
+    default: parenthetical
+    $comment: |
+      There are two main citation modes: parenthetical and narrative (a.k.a textual).
+      See https://apastyle.apa.org/style-grammar-guidelines/citations/basic-principles/parenthetical-versus-narrative
+      for an explanation.
+
+      This property is optional and tools are recommended to assume `parenthetical` if missing.
+
+      Narrative citations will usually be of form "As noted by Smith (1992)," but `narrative-author`
+      allows for "In the early nineties, Smith noted" and `narrative-year` allows for "As noted by Smith in 1992 and 1993".
+
+      Pandoc's `CitationMode` enumeration has `Normal` (for `parenthetical`), `AuthorInText` (for `textual`),
+      and `SuppressAuthor` (for `textual-year`).
+      See https://github.com/jgm/pandoc-types/blob/0158cd0e2a2ca9d6f14389a1a57bc64cab45a7dd/src/Text/Pandoc/Definition.hs#L353.
+
+      LaTeX's `natbib` package has `\citep{}` (for `parenthetical`), `\citet{}` (for `textual`),
+      `\citeauthor{}` (for `textual-author`), `\citeyear{}` (for `textual-year`).
+      See https://www.overleaf.com/learn/latex/Natbib_citation_styles.
   content:
     '@id': stencila:content
     description: Optional structured content/text of this citation.
@@ -39,11 +63,11 @@ properties:
     type: string
   prefix:
     '@id': stencila:citationPrefix
-    description: A prefix to show before the citation.
+    description: Text to show before the citation.
     type: string
   suffix:
     '@id': stencila:citationSuffix
-    description: A suffix to show after the citation.
+    description: Text to show after the citation.
     type: string
   target:
     '@id': stencila:target

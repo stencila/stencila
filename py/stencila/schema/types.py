@@ -6,7 +6,7 @@
 from typing import Any, Dict, List as Array, Optional, Union
 from enum import Enum
 
-ECitationMode = Enum("CitationMode", ["normal", "suppressAuthor"])
+ECitationMode = Enum("CitationMode", ["parenthetical", "narrative", "narrative-author", "narrative-year", "normal", "suppressAuthor"])
 
 EItemListOrder = Enum("ItemListOrder", ["ascending", "descending", "unordered"])
 
@@ -110,7 +110,7 @@ class Cite(Entity):
     """The target of the citation (URL or reference ID)."""
 
     citationMode: Optional["ECitationMode"] = None
-    """How the cite is rendered in the surrounding text."""
+    """Determines how the citation is shown within the surrounding text."""
 
     content: Optional[Array["InlineContent"]] = None
     """Optional structured content/text of this citation."""
@@ -127,10 +127,10 @@ for example, "1-6, 9, 55".
 """
 
     prefix: Optional[str] = None
-    """A prefix to show before the citation."""
+    """Text to show before the citation."""
 
     suffix: Optional[str] = None
-    """A suffix to show after the citation."""
+    """Text to show after the citation."""
 
 
     def __init__(

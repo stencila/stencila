@@ -3,8 +3,14 @@ title: CiteGroup
 extends: Entity
 role: secondary
 status: unstable
-description: |
-  A group of `Cite` nodes
+description: A group of `Cite` nodes
+$comment: |
+  This type allows us to group associated citations together.
+  At present we do not give a `citationMode` property to a `CiteGroup` since
+  they will almost always be parenthetical as opposed to narrative.
+  In other words, it usually only makes sense for individual `Cite` nodes to be
+  narrative (although they may be connected together within `content` using words
+  such as "and").
 properties:
   items:
     '@id': schema:itemListElement
