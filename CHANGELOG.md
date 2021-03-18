@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/stencila/schema/compare/v1.1.0...v1.1.1) (2021-03-18)
+
+
+### Bug Fixes
+
+* **Cite:** Alter citation modes; add docs ([21acf0c](https://github.com/stencila/schema/commit/21acf0c64caa83588cbf5c2325b717475d23e813))
+
 # [1.1.0](https://github.com/stencila/schema/compare/v1.0.0...v1.1.0) (2021-03-15)
 
 
