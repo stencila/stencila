@@ -6,7 +6,7 @@
 from typing import Any, Dict, List as Array, Optional, Union
 from enum import Enum
 
-ECitationMode = Enum("CitationMode", ["parenthetical", "narrative", "narrative-author", "narrative-year", "normal", "suppressAuthor"])
+ECitationMode = Enum("CitationMode", ["Parenthetical", "Narrative", "NarrativeAuthor", "NarrativeYear", "normal", "suppressAuthor"])
 
 EItemListOrder = Enum("ItemListOrder", ["ascending", "descending", "unordered"])
 

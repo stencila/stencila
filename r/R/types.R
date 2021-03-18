@@ -119,7 +119,7 @@ Cite <- function(
   )
   self$type <- as_scalar("Cite")
   self[["target"]] <- check_property("Cite", "target", TRUE, missing(target), "character", target)
-  self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("parenthetical", "narrative", "narrative-author", "narrative-year", "normal", "suppressAuthor"), citationMode)
+  self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("Parenthetical", "Narrative", "NarrativeAuthor", "NarrativeYear", "normal", "suppressAuthor"), citationMode)
   self[["content"]] <- check_property("Cite", "content", FALSE, missing(content), Array(InlineContent), content)
   self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("numeric", "character"), pageEnd)
   self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("numeric", "character"), pageStart)

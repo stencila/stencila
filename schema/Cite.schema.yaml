@@ -11,10 +11,10 @@ properties:
     description: Determines how the citation is shown within the surrounding text.
     type: string
     enum:
-      - parenthetical
-      - narrative
-      - narrative-author
-      - narrative-year
+      - Parenthetical
+      - Narrative
+      - NarrativeAuthor
+      - NarrativeYear
       # Deprecated mode names: retained for backwards compatibility
       # TODO: Remove in v2
       - normal # == parenthetical
