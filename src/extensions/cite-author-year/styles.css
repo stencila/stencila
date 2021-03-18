@@ -16,7 +16,7 @@
   }
 }
 
-/* 
+/*
 Parentheses around orphan Cite elements
 
 This is temporarily commented out until we implement encoding
@@ -25,6 +25,7 @@ Cite elements are `citationMode: narrative` (which is the
 case for how we decoded eLife articles).
 See https://github.com/stencila/schema/pull/247
 */
+
 /*
 :not(:--CiteGroup) > :--Cite {
   &::before {
