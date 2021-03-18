@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/stencila/schema/compare/v1.1.1...v1.1.2) (2021-03-18)
+
+
+### Bug Fixes
+
+* **Cite:** Use PascalCase for enumeration variants ([fa9a413](https://github.com/stencila/schema/commit/fa9a413bd1168d2315d6f62869cdde719cfa3bdb))
+
 ## [1.1.1](https://github.com/stencila/schema/compare/v1.1.0...v1.1.1) (2021-03-18)
 
 
