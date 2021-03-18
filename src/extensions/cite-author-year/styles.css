@@ -1,39 +1,39 @@
-/* Square brackets around CiteGroup elements with commas between Cite items */
+/* Parentheses around CiteGroup elements with semicolon between Cite items */
 :--CiteGroup {
   &::before {
-    content: '[';
+    content: '(';
   }
 
   &::after {
-    content: ']';
+    content: ')';
   }
 
   :--Cite {
     &:not(:last-child)::after {
-      content: ',\00a0';
+      content: ';\00a0';
       order: 100;
     }
   }
 }
 
-/* Square brackets around orphan Cite elements */
+/* Parentheses around orphan Cite elements */
 :not(:--CiteGroup) > :--Cite {
   &::before {
-    content: '[';
+    content: '(';
   }
   &::after {
-    content: ']';
+    content: ')';
   }
 }
 
-/* Show numeric citation content */
+/* Hide numeric citation content */
 :--Cite > a > :first-child {
-  display: inline;
+  display: none;
 }
 
-/* Hide author-date citation content */
+/* Show author-year citation content */
 :--Cite > a > :last-child {
-  display: none;
+  display: inline;
 }
 
 /* Ensure that at least some content is visible */

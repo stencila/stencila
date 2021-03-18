@@ -1,34 +1,9 @@
-/*
-In-text citations
+/* 
+Author-year style in-text citations
 
 See https://en.wikipedia.org/wiki/APA_style#In-text_citations
 */
-:--CiteGroup {
-  &::before {
-    content: '(';
-  }
-
-  &::after {
-    content: ')';
-  }
-
-  :--Cite {
-    &:not(:last-child)::after {
-      content: ';\00a0';
-      order: 100;
-    }
-  }
-}
-
-/* Hide numeric citation format */
-:--Cite > a > :first-child {
-  display: none;
-}
-
-/* Ensure that at least one citation format is visible */
-:--Cite > a > :only-child {
-  display: inline;
-}
+@import '../cite-author-year/styles.css';
 
 /*
 Reference list
