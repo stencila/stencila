@@ -1,3 +1,10 @@
+## [0.43.3](https://github.com/stencila/stencila/compare/v0.43.2...v0.43.3) (2021-03-18)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate regex to 1.4.5 ([d97670e](https://github.com/stencila/stencila/commit/d97670ef75c4d0d6996ed00ad1ffeaf0b8f41c97))
+
 ## [0.43.2](https://github.com/stencila/stencila/compare/v0.43.1...v0.43.2) (2021-03-11)
 
 
