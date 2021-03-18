@@ -145,9 +145,7 @@
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "release": {
-    "extends": "@stencila/semantic-release-config",
-    "$comment": "With current CI setup is is necessary to override the message, so CI is not skipped on tag commits, so that Python package is released.",
-    "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
+    "extends": "@stencila/semantic-release-config"
   },
   "renovate": {
     "extends": [

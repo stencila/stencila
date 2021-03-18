@@ -5,7 +5,7 @@ trigger:
       - refs/tags/*
 
 jobs:
-  - job: test_typescript
+  - job: TypeScript
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -23,6 +23,10 @@ jobs:
       - script: npm run test:cover
         displayName: Run tests
 
+      - script: bash <(curl -s https://codecov.io/bash) -cF ts
+        condition: succeeded()
+        displayName: Upload coverage
+
       - script: make check-bindings
         displayName: Check bindings
 
@@ -32,11 +36,23 @@ jobs:
       - script: npm run docs
         displayName: Build docs
 
-      - script: bash <(curl -s https://codecov.io/bash) -cF ts
+      - script: npx semantic-release
         condition: succeeded()
-        displayName: Upload coverage
+        env:
+          GIT_AUTHOR_NAME: Stencila CI Bot
+          GIT_AUTHOR_EMAIL: ci@stenci.la
+          GIT_COMMITTER_NAME: Stencila CI Bot
+          GIT_COMMITTER_EMAIL: ci@stenci.la
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+          NPM_TOKEN: $(NPM_TOKEN)
+        displayName: Release package
 
-  - job: test_python
+      - script: bash ci.sh deploy_typescript_docs_to_pages
+        displayName: Release docs
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  - job: Python
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -54,17 +70,30 @@ jobs:
       - script: make -C py test
         displayName: Run tests
 
+      - script: bash <(curl -s https://codecov.io/bash) -cF py
+        condition: succeeded()
+        displayName: Upload coverage
+
       - script: make -C py build
         displayName: Build package
 
       - script: make -C py docs
         displayName: Build docs
 
-      - script: bash <(curl -s https://codecov.io/bash) -cF py
-        condition: succeeded()
-        displayName: Upload coverage
+      - script: cd py && twine upload dist/*
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        env:
+          TWINE_USERNAME: stencila
+          TWINE_PASSWORD: $(TWINE_PASSWORD)
+        displayName: Release package
 
-  - job: test_r
+      - script: bash ci.sh deploy_python_docs_to_pages
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        displayName: Release docs
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  - job: R
     pool:
       vmImage: ubuntu-20.04
     container: rstudio/r-base:4.0-focal
@@ -90,111 +119,19 @@ jobs:
       - script: make -C r test
         displayName: Run tests
 
+      # Git is not available in rstudio/r-base:4.0-focal currently being used
+      #      - script: cd r && Rscript -e 'covr::codecov()'
+      #        condition: succeeded()
+      #        displayName: Upload coverage
+
       - script: make -C r build
         displayName: Build package
 
       - script: make -C r docs
         displayName: Build docs
-
-  # Git is not available in rstudio/r-base:4.0-focal currently being used
-  #      - script: cd r && Rscript -e 'covr::codecov()'
-  #        condition: succeeded()
-  #        displayName: Upload coverage
-
-  - job: deploy_typescript
-    dependsOn: [test_typescript, test_python, test_r]
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - task: NodeTool@0
-        inputs:
-          versionSpec: 14.x
-        displayName: Install Node.js
-
-      - script: npm install
-        displayName: Install dependencies
-
-      - script: npm run build
-        displayName: Build package
-
-      - script: npm run docs
-        displayName: Build docs
-
-      # Deploy a new version of NPM package and create a Github release
-      # This creates a new version tag, which will then trigger the
-      # following deploy jobs for other language packages.
-      - script: npx semantic-release
-        env:
-          GIT_AUTHOR_NAME: Stencila CI Bot
-          GIT_AUTHOR_EMAIL: ci@stenci.la
-          GIT_COMMITTER_NAME: Stencila CI Bot
-          GIT_COMMITTER_EMAIL: ci@stenci.la
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-          NPM_TOKEN: $(NPM_TOKEN)
-        displayName: Release package
-
-      - script: bash ci.sh deploy_typescript_docs_to_pages
-        displayName: Release docs
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-
-  - job: deploy_python
-    dependsOn: [deploy_typescript]
-    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: 3.8
-        displayName: Install Python
-
-      - script: make -C py setup
-        displayName: Install dependencies
-
-      - script: make -C py build
-        displayName: Build package
-
-      - script: make -C py docs
-        displayName: Build docs
-
-      - script: cd py && twine upload dist/*
-        env:
-          TWINE_USERNAME: stencila
-          TWINE_PASSWORD: $(TWINE_PASSWORD)
-        displayName: Release package
-
-      - script: bash ci.sh deploy_python_docs_to_pages
-        displayName: Release docs
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-
-  - job: deploy_r
-    dependsOn: [deploy_typescript]
-    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-    pool:
-      vmImage: ubuntu-20.04
-    container: rstudio/r-base:4.0-focal
-    variables:
-      CRAN: 'https://demo.rstudiopm.com/all/__linux__/focal/latest'
-      R_LIBS_USER: '$(Agent.BuildDirectory)/R/library'
-      TZ: UTC
-      CI: true
-    steps:
-      - script: |
-          echo 'options(repos = "$(CRAN)")' > ~/.Rprofile
-          echo ".libPaths(c('$R_LIBS_USER', .libPaths()))" >> ~/.Rprofile
-          mkdir -p $(R_LIBS_USER)
-        displayName: Setup R library directory
-
-      - script: make -C r setup
-        displayName: Install dependencies
-
-      - script: make -C r docs
-        displayName: Build docs
 # Git is not available in rstudio/r-base:4.0-focal currently being used
 #      - script: bash ci.sh deploy_r_docs_to_pages
+#        condition: condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
 #        displayName: Release docs
 #        env:
 #          GITHUB_TOKEN: $(GITHUB_TOKEN)
