@@ -1,3 +1,16 @@
+# [2.23.0](https://github.com/stencila/thema/compare/v2.22.1...v2.23.0) (2021-03-19)
+
+
+### Bug Fixes
+
+* **Cite:** Temporarily remove parentheses around orphan Cite elements ([db01994](https://github.com/stencila/thema/commit/db01994e8fdcf7f02fcc28f7946563e4f811d73c))
+* **Elife:** Add missing semicolon between Cites in CiteGroups ([74729ad](https://github.com/stencila/thema/commit/74729adda546c446f2ac0ace9d93f43513c5474c)), closes [#314](https://github.com/stencila/thema/issues/314)
+
+
+### Features
+
+* **Extensions:** Add `cite-author-year` extension ([fb534e2](https://github.com/stencila/thema/commit/fb534e2ca030cb30d8b7d43d00cc973e697bc26c))
+
 ## [2.22.1](https://github.com/stencila/thema/compare/v2.22.0...v2.22.1) (2021-03-10)
 
 
