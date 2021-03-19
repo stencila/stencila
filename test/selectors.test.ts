@@ -13,14 +13,14 @@ describe('semantic selectors are valid', () => {
   const selectors = fs
     .readFileSync(path.join(srcDir, 'selectors.css'), 'utf8')
     .split('\n')
-    .filter(line => line.startsWith('@custom-selector'))
-    .map(line => /(:--\w+)/.exec(line)?.[0])
+    .filter((line) => line.startsWith('@custom-selector'))
+    .map((line) => /(:--\w+)/.exec(line)?.[0])
 
   const themesDir = path.join(srcDir, 'themes')
   const files = globby.sync('**/*.css', {
-    cwd: themesDir
+    cwd: themesDir,
   })
-  test.each(files)('%s', async theme => {
+  test.each(files)('%s', async (theme) => {
     const styles = await promisify(fs.readFile)(
       path.join(themesDir, theme),
       'utf8'

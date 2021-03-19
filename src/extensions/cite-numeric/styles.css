@@ -1,3 +1,4 @@
+/* Square brackets around CiteGroup elements with commas between Cite items */
 :--CiteGroup {
   &::before {
     content: '[';
@@ -15,6 +16,7 @@
   }
 }
 
+/* Square brackets around orphan Cite elements */
 :not(:--CiteGroup) > :--Cite {
   &::before {
     content: '[';
@@ -24,17 +26,17 @@
   }
 }
 
-/* Show numeric citation format */
+/* Show numeric citation content */
 :--Cite > a > :first-child {
   display: inline;
 }
 
-/* Hide author-date citation format */
+/* Hide author-date citation content */
 :--Cite > a > :last-child {
   display: none;
 }
 
-/* Ensure that at least one citation format is visible */
+/* Ensure that at least some content is visible */
 :--Cite > a > :only-child {
   display: inline;
 }

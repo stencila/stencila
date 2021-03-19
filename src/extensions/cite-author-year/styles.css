@@ -1,0 +1,53 @@
+/* Parentheses around CiteGroup elements with semicolon between Cite items */
+:--CiteGroup {
+  &::before {
+    content: '(';
+  }
+
+  &::after {
+    content: ')';
+  }
+
+  :--Cite {
+    &:not(:last-child)::after {
+      content: ';\00a0';
+      order: 100;
+    }
+  }
+}
+
+/*
+Parentheses around orphan Cite elements
+
+This is temporarily commented out until we implement encoding
+of `citationMode` into HTML. This assumes that all orphan
+Cite elements are `citationMode: narrative` (which is the
+case for how we decoded eLife articles).
+See https://github.com/stencila/schema/pull/247
+*/
+
+/*
+:not(:--CiteGroup) > :--Cite {
+  &::before {
+    content: '(';
+  }
+  &::after {
+    content: ')';
+  }
+}
+*/
+
+/* Hide numeric citation content */
+:--Cite > a > :first-child {
+  display: none;
+}
+
+/* Show author-year citation content */
+:--Cite > a > :last-child {
+  display: inline;
+}
+
+/* Ensure that at least some content is visible */
+:--Cite > a > :only-child {
+  display: inline;
+}

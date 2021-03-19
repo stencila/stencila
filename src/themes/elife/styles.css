@@ -1,5 +1,6 @@
 @import '@elifesciences/pattern-library';
 
+@import '../../extensions/cite-author-year/styles.css';
 @import '../../extensions/person/styles.css';
 @import '../../extensions/math/styles.css';
 
@@ -254,26 +255,6 @@
         content: '-';
       }
     }
-  }
-
-  :--CiteGroup {
-    &::before {
-      content: '(';
-    }
-
-    &::after {
-      content: ')';
-    }
-  }
-
-  /* Default to author-date citation format for cite groups with fallback text */
-  :--Cite > a > :first-child {
-    display: none;
-  }
-
-  /* Ensure that at least one citation format is visible */
-  :--Cite > a > :only-child {
-    display: inline;
   }
 
   & .content-header {
