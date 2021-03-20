@@ -26,12 +26,25 @@
     {
       "type": "Paragraph",
       "content": [
-        "A short description of the article. Also known as an ",
+        "This is our \"kitchen sink\" example which we use when developing, ",
+        {
+          "type": "Link",
+          "target": "https://stencila.github.io/thema/",
+          "content": ["demoing"]
+        },
+        ", and ",
+        {
+          "type": "Link",
+          "target": "https://percy.io/01dadd16/Thema/",
+          "content": ["testing"]
+        },
+        " themes. It is intended to include examples of most of the types of elements in a Stencila document (whilst staying relatively brief).",
+        " This abstract can include not just string content, but other content types as well, for example, ",
         {
           "type": "Emphasis",
-          "content": ["abstract"]
+          "content": ["emphasized text"]
         },
-        ". This description includes not just string content, but other content nodes as well, for example, a inline math fragment: ",
+        ", an inline math fragment: ",
         {
           "type": "MathFragment",
           "mathLanguage": "tex",
@@ -280,6 +293,29 @@
       "depth": 1,
       "content": ["Inline content"]
     },
+
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Primitive types"]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "The JSON primitives are valid inline content. This includes: ",
+        null,
+        " and ",
+        true,
+        " and ",
+        false,
+        " and numbers like ",
+        42,
+        " and ",
+        3.14,
+        ", as well as plain old strings like this one."
+      ]
+    },
+
     {
       "type": "Heading",
       "depth": 2,
@@ -301,6 +337,67 @@
         " content and ",
         { "type": "Superscript", "content": ["superscripted"] },
         " content."
+      ]
+    },
+
+    {
+      "type": "Heading",
+      "depth": 2,
+      "content": ["Citation types"]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Citations have a 'mode' which defaults to 'Parenthetical', for example, ",
+        { "type": "Cite", "target": "bib1" },
+        " and ",
+        { "type": "Cite", "target": "bib2" },
+        " and ",
+        { "type": "Cite", "target": "bib3" },
+        "; can be 'Narrative' ",
+        { "type": "Cite", "target": "bib1", "citationMode": "Narrative" },
+        "; can be 'NarrativeAuthor' (only show author/s) ",
+        { "type": "Cite", "target": "bib1", "citationMode": "NarrativeAuthor" },
+        "; can be 'NarrativeYear' (only show year) ",
+        { "type": "Cite", "target": "bib1", "citationMode": "NarrativeYear" },
+        "."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Citations can also have a prefix ",
+        { "type": "Cite", "target": "bib1", "citationPrefix": "e.g."},
+        ", a suffix ",
+        { "type": "Cite", "target": "bib1", "citationSuffix": "p. 21" },
+        ", or both ",
+        { "type": "Cite", "target": "bib1", "citationPrefix": "e.g.", "citationSuffix": "p. 42" },
+        ". They can also have 'content' (which overrides prefix, suffix, author, year) ",
+        { "type": "Cite", "target": "bib1", "content": ["as published by us in twenty-oh-seven"] },
+        "."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Citations can be grouped like ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            { "type": "Cite", "target": "bib1"},
+            { "type": "Cite", "target": "bib2"}
+          ]
+        },
+        " and ",
+        {
+          "type": "CiteGroup",
+          "items": [
+            { "type": "Cite", "target": "bib1"},
+            { "type": "Cite", "target": "bib2"},
+            { "type": "Cite", "target": "bib3"}
+          ]
+        },
+        " in which case themes will usually place parentheses or brackets around the group, and commas or semicolons between them."
       ]
     },
 
@@ -347,28 +444,6 @@
       "type": "MathBlock",
       "mathLanguage": "tex",
       "text": "x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}"
-    },
-
-    {
-      "type": "Heading",
-      "depth": 2,
-      "content": ["Primitive types"]
-    },
-    {
-      "type": "Paragraph",
-      "content": [
-        "The JSON primitives are valid inline content. This includes: ",
-        null,
-        " and ",
-        true,
-        " and ",
-        false,
-        " and numbers like ",
-        42,
-        " and ",
-        3.14,
-        ", as well as plain old strings like this one."
-      ]
     },
 
     {
