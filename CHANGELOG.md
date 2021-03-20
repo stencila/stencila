@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/stencila/schema/compare/v1.1.2...v1.1.3) (2021-03-20)
+
+
+### Bug Fixes
+
+* **Cite:** Rename to citationPrefix and citationSuffix ([379dffc](https://github.com/stencila/schema/commit/379dffcbfa62e7dff0987bd19a347a816cad1faa))
+
 ## [1.1.2](https://github.com/stencila/schema/compare/v1.1.1...v1.1.2) (2021-03-18)
 
 
