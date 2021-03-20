@@ -112,6 +112,12 @@ class Cite(Entity):
     citationMode: Optional["ECitationMode"] = None
     """Determines how the citation is shown within the surrounding text."""
 
+    citationPrefix: Optional[str] = None
+    """Text to show before the citation."""
+
+    citationSuffix: Optional[str] = None
+    """Text to show after the citation."""
+
     content: Optional[Array["InlineContent"]] = None
     """Optional structured content/text of this citation."""
 
@@ -126,25 +132,19 @@ class Cite(Entity):
 for example, "1-6, 9, 55".
 """
 
-    prefix: Optional[str] = None
-    """Text to show before the citation."""
-
-    suffix: Optional[str] = None
-    """Text to show after the citation."""
-
 
     def __init__(
         self,
         target: str,
         citationMode: Optional["ECitationMode"] = None,
+        citationPrefix: Optional[str] = None,
+        citationSuffix: Optional[str] = None,
         content: Optional[Array["InlineContent"]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         pageEnd: Optional[Union[int, str]] = None,
         pageStart: Optional[Union[int, str]] = None,
-        pagination: Optional[str] = None,
-        prefix: Optional[str] = None,
-        suffix: Optional[str] = None
+        pagination: Optional[str] = None
     ) -> None:
         super().__init__(
             id=id,
@@ -154,6 +154,10 @@ for example, "1-6, 9, 55".
             self.target = target
         if citationMode is not None:
             self.citationMode = citationMode
+        if citationPrefix is not None:
+            self.citationPrefix = citationPrefix
+        if citationSuffix is not None:
+            self.citationSuffix = citationSuffix
         if content is not None:
             self.content = content
         if pageEnd is not None:
@@ -162,10 +166,6 @@ for example, "1-6, 9, 55".
             self.pageStart = pageStart
         if pagination is not None:
             self.pagination = pagination
-        if prefix is not None:
-            self.prefix = prefix
-        if suffix is not None:
-            self.suffix = suffix
 
 
 class CiteGroup(Entity):

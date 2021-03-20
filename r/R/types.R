@@ -90,28 +90,28 @@ BooleanValidator <- function(
 #' @name Cite
 #' @param target The target of the citation (URL or reference ID). \bold{Required}.
 #' @param citationMode Determines how the citation is shown within the surrounding text.
+#' @param citationPrefix Text to show before the citation.
+#' @param citationSuffix Text to show after the citation.
 #' @param content Optional structured content/text of this citation.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param pageEnd The page on which the work ends; for example "138" or "xvi".
 #' @param pageStart The page on which the work starts; for example "135" or "xiii".
 #' @param pagination Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
-#' @param prefix Text to show before the citation.
-#' @param suffix Text to show after the citation.
 #' @return A `list` of class `Cite`
 #' @seealso \code{\link{Entity}}
 #' @export
 Cite <- function(
   target,
   citationMode,
+  citationPrefix,
+  citationSuffix,
   content,
   id,
   meta,
   pageEnd,
   pageStart,
-  pagination,
-  prefix,
-  suffix
+  pagination
 ){
   self <- Entity(
     id = id,
@@ -120,12 +120,12 @@ Cite <- function(
   self$type <- as_scalar("Cite")
   self[["target"]] <- check_property("Cite", "target", TRUE, missing(target), "character", target)
   self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("Parenthetical", "Narrative", "NarrativeAuthor", "NarrativeYear", "normal", "suppressAuthor"), citationMode)
+  self[["citationPrefix"]] <- check_property("Cite", "citationPrefix", FALSE, missing(citationPrefix), "character", citationPrefix)
+  self[["citationSuffix"]] <- check_property("Cite", "citationSuffix", FALSE, missing(citationSuffix), "character", citationSuffix)
   self[["content"]] <- check_property("Cite", "content", FALSE, missing(content), Array(InlineContent), content)
   self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("numeric", "character"), pageEnd)
   self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("numeric", "character"), pageStart)
   self[["pagination"]] <- check_property("Cite", "pagination", FALSE, missing(pagination), "character", pagination)
-  self[["prefix"]] <- check_property("Cite", "prefix", FALSE, missing(prefix), "character", prefix)
-  self[["suffix"]] <- check_property("Cite", "suffix", FALSE, missing(suffix), "character", suffix)
   class(self) <- c(class(self), "Cite")
   self
 }

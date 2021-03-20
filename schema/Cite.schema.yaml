@@ -61,14 +61,20 @@ properties:
       Any description of pages that is not separated into pageStart and pageEnd;
       for example, "1-6, 9, 55".
     type: string
-  prefix:
+  citationPrefix:
     '@id': stencila:citationPrefix
     description: Text to show before the citation.
     type: string
-  suffix:
+    $comment: |
+      Previously this was name `prefix` but for consistency with `citationMode`
+      and `honorificPrefix`, to avoid ambiguity with other prefixes was renamed
+      to `citationPrefix`.
+  citationSuffix:
     '@id': stencila:citationSuffix
     description: Text to show after the citation.
     type: string
+    $comment: |
+      See comment on `citationPrefix` regarding naming.
   target:
     '@id': stencila:target
     description: The target of the citation (URL or reference ID).
