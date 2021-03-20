@@ -1,3 +1,65 @@
+/* Hide numeric citation content */
+:--Cite > a > :first-child {
+  display: none;
+}
+
+/* Ensure that at least some content is visible */
+:--Cite > a > :only-child {
+  display: inline;
+}
+
+/* Default to space before year */
+:--Cite > a > :nth-child(3)::before {
+  content: '\00a0';
+}
+
+/* Space after citation prefix */
+:--Cite :--citationPrefix::after {
+  content: '\00a0';
+}
+
+/* Space before citation suffix */
+:--Cite :--citationSuffix::before {
+  content: '\00a0';
+}
+
+/* Parenthetical citation: surrounding parenthese */
+:not(:--CiteGroup) > :--Cite:not([data-citationmode]),
+:not(:--CiteGroup) > :--CiteParenthetical {
+  &::before {
+    content: '(';
+  }
+  &::after {
+    content: ')';
+  }
+}
+
+/* Narrative citation: paranthesese around year */
+:not(:--CiteGroup) > :--CiteNarrative > a {
+  & > :nth-child(3) {
+    &::before {
+      content: '\00a0(';
+    }
+    &::after {
+      content: ')';
+    }
+  }
+}
+
+/* NarrativeAuthor citation: only author */
+:not(:--CiteGroup) > :--CiteNarrativeAuthor > a {
+  & > :nth-child(3) {
+    display: none;
+  }
+}
+
+/* NarrativeYear citation: only year */
+:not(:--CiteGroup) > :--CiteNarrativeYear > a {
+  & > :nth-child(2) {
+    display: none;
+  }
+}
+
 /* Parentheses around CiteGroup elements with semicolon between Cite items */
 :--CiteGroup {
   &::before {
@@ -14,40 +76,4 @@
       order: 100;
     }
   }
-}
-
-/*
-Parentheses around orphan Cite elements
-
-This is temporarily commented out until we implement encoding
-of `citationMode` into HTML. This assumes that all orphan
-Cite elements are `citationMode: narrative` (which is the
-case for how we decoded eLife articles).
-See https://github.com/stencila/schema/pull/247
-*/
-
-/*
-:not(:--CiteGroup) > :--Cite {
-  &::before {
-    content: '(';
-  }
-  &::after {
-    content: ')';
-  }
-}
-*/
-
-/* Hide numeric citation content */
-:--Cite > a > :first-child {
-  display: none;
-}
-
-/* Show author-year citation content */
-:--Cite > a > :last-child {
-  display: inline;
-}
-
-/* Ensure that at least some content is visible */
-:--Cite > a > :only-child {
-  display: inline;
 }

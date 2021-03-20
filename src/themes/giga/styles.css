@@ -151,7 +151,14 @@
   }
 
   :--Cite {
-    color: var(--color-primary-100);
+    /* For some reason, at least on Firefox, without this the bracket are italic */
+    &::before,
+    &::after {
+      font-style: normal;
+    }
+    a {
+      color: var(--color-primary-100);
+    }
   }
 
   :--Figure,

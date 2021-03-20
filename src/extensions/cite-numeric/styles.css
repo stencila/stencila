@@ -1,3 +1,42 @@
+/* Show numeric citation content */
+:--Cite > a > :first-child {
+  display: inline;
+}
+
+/* Hide other citation content */
+:--Cite > a > :not(:first-child) {
+  display: none;
+}
+
+/* Ensure that at least some content is visible */
+:--Cite > a > :only-child {
+  display: inline;
+}
+
+/* Space after citation prefix */
+:--Cite :--citationPrefix::after {
+  content: '\00a0';
+}
+
+/* Space before citation suffix */
+:--Cite :--citationSuffix::before {
+  content: '\00a0';
+}
+
+/* Square brackets around all orphan citation types */
+:not(:--CiteGroup) > :--Cite:not([data-citationmode]),
+:not(:--CiteGroup) > :--CiteParenthetical,
+:not(:--CiteGroup) > :--CiteNarrative,
+:not(:--CiteGroup) > :--CiteNarrativeAuthor,
+:not(:--CiteGroup) > :--CiteNarrativeYear {
+  &::before {
+    content: '[';
+  }
+  &::after {
+    content: ']';
+  }
+}
+
 /* Square brackets around CiteGroup elements with commas between Cite items */
 :--CiteGroup {
   &::before {
@@ -14,29 +53,4 @@
       order: 100;
     }
   }
-}
-
-/* Square brackets around orphan Cite elements */
-:not(:--CiteGroup) > :--Cite {
-  &::before {
-    content: '[';
-  }
-  &::after {
-    content: ']';
-  }
-}
-
-/* Show numeric citation content */
-:--Cite > a > :first-child {
-  display: inline;
-}
-
-/* Hide author-date citation content */
-:--Cite > a > :last-child {
-  display: none;
-}
-
-/* Ensure that at least some content is visible */
-:--Cite > a > :only-child {
-  display: inline;
 }
