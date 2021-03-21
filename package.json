@@ -21,6 +21,7 @@
     "build:jsonld": "ts-node ts/bindings/jsonld.ts",
     "build:py": "ts-node ts/bindings/python.ts",
     "build:r": "ts-node ts/bindings/r.ts",
+    "build:rust": "ts-node ts/bindings/rust.ts",
     "build:ts": "ts-node ts/bindings/typescript.ts",
     "build:vscode": "ts-node ts/bindings/vscode.ts",
     "build:browser": "microbundle --tsconfig tsconfig.browser.json -o dist/browser --format es,umd ts/index.browser.ts",
