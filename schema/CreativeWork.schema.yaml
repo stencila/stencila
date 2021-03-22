@@ -149,8 +149,9 @@ properties:
       as well as upstream maintainers of the underlying work.
     type: array
     items:
-      - $ref: Organization
-      - $ref: Person
+      anyOf:
+        - $ref: Person
+        - $ref: Organization
   parts:
     # The name "parts" seems more intuitive for users and developers than schema.orgs's "hasParts".
     # We provide the latter as an alias.

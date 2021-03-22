@@ -774,7 +774,7 @@ CreativeWork <- function(
   self[["isPartOf"]] <- check_property("CreativeWork", "isPartOf", FALSE, missing(isPartOf), CreativeWorkTypes, isPartOf)
   self[["keywords"]] <- check_property("CreativeWork", "keywords", FALSE, missing(keywords), Array("character"), keywords)
   self[["licenses"]] <- check_property("CreativeWork", "licenses", FALSE, missing(licenses), Array(Union(CreativeWorkTypes, "character")), licenses)
-  self[["maintainers"]] <- check_property("CreativeWork", "maintainers", FALSE, missing(maintainers), Array(Union(Organization, Person)), maintainers)
+  self[["maintainers"]] <- check_property("CreativeWork", "maintainers", FALSE, missing(maintainers), Array(Union(Person, Organization)), maintainers)
   self[["parts"]] <- check_property("CreativeWork", "parts", FALSE, missing(parts), Array(CreativeWorkTypes), parts)
   self[["publisher"]] <- check_property("CreativeWork", "publisher", FALSE, missing(publisher), Union(Person, Organization), publisher)
   self[["references"]] <- check_property("CreativeWork", "references", FALSE, missing(references), Array(Union(CreativeWorkTypes, "character")), references)
