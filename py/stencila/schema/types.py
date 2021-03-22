@@ -2377,10 +2377,10 @@ class Parameter(Variable):
 class Periodical(CreativeWork):
     """A periodical publication."""
 
-    dateEnd: Optional[Union["Date", str]] = None
+    dateEnd: Optional["Date"] = None
     """The date this Periodical ceased publication."""
 
-    dateStart: Optional[Union["Date", str]] = None
+    dateStart: Optional["Date"] = None
     """The date this Periodical was first published."""
 
     issns: Optional[Array[str]] = None
@@ -2396,11 +2396,11 @@ class Periodical(CreativeWork):
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional["Date"] = None,
         dateCreated: Optional["Date"] = None,
-        dateEnd: Optional[Union["Date", str]] = None,
+        dateEnd: Optional["Date"] = None,
         dateModified: Optional["Date"] = None,
         datePublished: Optional["Date"] = None,
         dateReceived: Optional["Date"] = None,
-        dateStart: Optional[Union["Date", str]] = None,
+        dateStart: Optional["Date"] = None,
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         editors: Optional[Array["Person"]] = None,
         fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
@@ -3211,10 +3211,10 @@ class SoftwareSession(Thing):
     cpuRequest: Optional[float] = None
     """The amount of CPU requested for the session."""
 
-    dateEnd: Optional[Union["Date", str]] = None
+    dateEnd: Optional["Date"] = None
     """The date-time that the session ended."""
 
-    dateStart: Optional[Union["Date", str]] = None
+    dateStart: Optional["Date"] = None
     """The date-time that the session began."""
 
     durationLimit: Optional[float] = None
@@ -3258,8 +3258,8 @@ class SoftwareSession(Thing):
         clientsRequest: Optional[float] = None,
         cpuLimit: Optional[float] = None,
         cpuRequest: Optional[float] = None,
-        dateEnd: Optional[Union["Date", str]] = None,
-        dateStart: Optional[Union["Date", str]] = None,
+        dateEnd: Optional["Date"] = None,
+        dateStart: Optional["Date"] = None,
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         durationLimit: Optional[float] = None,
         durationRequest: Optional[float] = None,

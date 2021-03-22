@@ -2644,8 +2644,8 @@ Periodical <- function(
     version = version
   )
   self$type <- as_scalar("Periodical")
-  self[["dateEnd"]] <- check_property("Periodical", "dateEnd", FALSE, missing(dateEnd), Union(Date, "character"), dateEnd)
-  self[["dateStart"]] <- check_property("Periodical", "dateStart", FALSE, missing(dateStart), Union(Date, "character"), dateStart)
+  self[["dateEnd"]] <- check_property("Periodical", "dateEnd", FALSE, missing(dateEnd), Date, dateEnd)
+  self[["dateStart"]] <- check_property("Periodical", "dateStart", FALSE, missing(dateStart), Date, dateStart)
   self[["issns"]] <- check_property("Periodical", "issns", FALSE, missing(issns), Array("character"), issns)
   class(self) <- c(class(self), "Periodical")
   self
@@ -3544,8 +3544,8 @@ SoftwareSession <- function(
   self[["clientsRequest"]] <- check_property("SoftwareSession", "clientsRequest", FALSE, missing(clientsRequest), "numeric", clientsRequest)
   self[["cpuLimit"]] <- check_property("SoftwareSession", "cpuLimit", FALSE, missing(cpuLimit), "numeric", cpuLimit)
   self[["cpuRequest"]] <- check_property("SoftwareSession", "cpuRequest", FALSE, missing(cpuRequest), "numeric", cpuRequest)
-  self[["dateEnd"]] <- check_property("SoftwareSession", "dateEnd", FALSE, missing(dateEnd), Union(Date, "character"), dateEnd)
-  self[["dateStart"]] <- check_property("SoftwareSession", "dateStart", FALSE, missing(dateStart), Union(Date, "character"), dateStart)
+  self[["dateEnd"]] <- check_property("SoftwareSession", "dateEnd", FALSE, missing(dateEnd), Date, dateEnd)
+  self[["dateStart"]] <- check_property("SoftwareSession", "dateStart", FALSE, missing(dateStart), Date, dateStart)
   self[["durationLimit"]] <- check_property("SoftwareSession", "durationLimit", FALSE, missing(durationLimit), "numeric", durationLimit)
   self[["durationRequest"]] <- check_property("SoftwareSession", "durationRequest", FALSE, missing(durationRequest), "numeric", durationRequest)
   self[["environment"]] <- check_property("SoftwareSession", "environment", FALSE, missing(environment), SoftwareEnvironment, environment)
