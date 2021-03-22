@@ -130,9 +130,19 @@ jobs:
 
       - script: make -C r docs
         displayName: Build docs
-# Git is not available in rstudio/r-base:4.0-focal currently being used
-#      - script: bash ci.sh deploy_r_docs_to_pages
-#        condition: condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-#        displayName: Release docs
-#        env:
-#          GITHUB_TOKEN: $(GITHUB_TOKEN)
+  # Git is not available in rstudio/r-base:4.0-focal currently being used
+  #      - script: bash ci.sh deploy_r_docs_to_pages
+  #        condition: condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  #        displayName: Release docs
+  #        env:
+  #          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  - job: Rust
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: make -C rust lint
+        displayName: Run linting
+
+      - script: make -C rust test
+        displayName: Run tests

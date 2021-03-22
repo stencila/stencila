@@ -1,4 +1,6 @@
 
+#![allow(clippy::large_enum_variant)]
+
 use std::sync::Arc;
 
 type Null = serde_json::Value;
@@ -14,6 +16,7 @@ type Object = std::collections::HashMap<String, serde_json::Value>;
 /// Entity
 ///
 /// The most simple compound (ie. non-atomic like `number`, `string` etc) type.
+#[derive(Debug, Default)]
 pub struct Entity {
     /// The identifier for this item.
     pub id: Option<String>,
@@ -25,6 +28,7 @@ pub struct Entity {
 /// ArrayValidator
 ///
 /// A validator specifying constraints on an array node.
+#[derive(Debug, Default)]
 pub struct ArrayValidator {
     /// An array node is valid if at least one of its items is valid against the `contains` schema.
     pub contains: Option<Arc<ValidatorTypes>>,
@@ -51,6 +55,7 @@ pub struct ArrayValidator {
 /// BooleanValidator
 ///
 /// A schema specifying that a node must be a boolean value.
+#[derive(Debug, Default)]
 pub struct BooleanValidator {
     /// The identifier for this item.
     pub id: Option<String>,
@@ -62,6 +67,7 @@ pub struct BooleanValidator {
 /// Cite
 ///
 /// A reference to a CreativeWork that is cited in another CreativeWork.
+#[derive(Debug, Default)]
 pub struct Cite {
     /// The target of the citation (URL or reference ID).
     pub target: String,
@@ -97,6 +103,7 @@ pub struct Cite {
 /// CiteGroup
 ///
 /// A group of `Cite` nodes
+#[derive(Debug, Default)]
 pub struct CiteGroup {
     /// One or more `Cite`s to be referenced in the same surrounding text.
     pub items: Vec<Cite>,
@@ -111,6 +118,7 @@ pub struct CiteGroup {
 /// Code
 ///
 /// Base type for code nodes e.g. `CodeBlock`, `CodeExpression`.
+#[derive(Debug, Default)]
 pub struct Code {
     /// The text of the code.
     pub text: String,
@@ -131,6 +139,7 @@ pub struct Code {
 /// CodeBlock
 ///
 /// A code block.
+#[derive(Debug, Default)]
 pub struct CodeBlock {
     /// The text of the code.
     pub text: String,
@@ -157,6 +166,7 @@ pub struct CodeBlock {
 /// CodeChunk
 ///
 /// A executable chunk of code.
+#[derive(Debug, Default)]
 pub struct CodeChunk {
     /// The text of the code.
     pub text: String,
@@ -216,6 +226,7 @@ pub struct CodeChunk {
 /// CodeFragment
 ///
 /// Inline code.
+#[derive(Debug, Default)]
 pub struct CodeFragment {
     /// The text of the code.
     pub text: String,
@@ -236,6 +247,7 @@ pub struct CodeFragment {
 /// CodeExpression
 ///
 /// An expression defined in programming language source code.
+#[derive(Debug, Default)]
 pub struct CodeExpression {
     /// The text of the code.
     pub text: String,
@@ -262,6 +274,7 @@ pub struct CodeExpression {
 /// CodeError
 ///
 /// An error that occurred when parsing, compiling or executing a Code node.
+#[derive(Debug, Default)]
 pub struct CodeError {
     /// The error message or brief description of the error.
     pub error_message: String,
@@ -282,6 +295,7 @@ pub struct CodeError {
 /// ConstantValidator
 ///
 /// A validator specifying a constant value that a node must have.
+#[derive(Debug, Default)]
 pub struct ConstantValidator {
     /// The identifier for this item.
     pub id: Option<String>,
@@ -296,6 +310,7 @@ pub struct ConstantValidator {
 /// Date
 ///
 /// A date encoded as a ISO 8601 string.
+#[derive(Debug)]
 pub struct Date {
     /// The date as an ISO 8601 string.
     pub value: DateValue,
@@ -310,6 +325,7 @@ pub struct Date {
 /// Mark
 ///
 /// A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
+#[derive(Debug, Default)]
 pub struct Mark {
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -324,6 +340,7 @@ pub struct Mark {
 /// Delete
 ///
 /// Content that is marked for deletion
+#[derive(Debug, Default)]
 pub struct Delete {
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -338,6 +355,7 @@ pub struct Delete {
 /// Emphasis
 ///
 /// Emphasised content.
+#[derive(Debug, Default)]
 pub struct Emphasis {
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -352,6 +370,7 @@ pub struct Emphasis {
 /// Thing
 ///
 /// The most generic type of item.
+#[derive(Debug, Default)]
 pub struct Thing {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -381,6 +400,7 @@ pub struct Thing {
 /// Brand
 ///
 /// A brand used by an organization or person for labeling a product, product group, or similar.
+#[derive(Debug, Default)]
 pub struct Brand {
     /// The name of the item.
     pub name: String,
@@ -416,6 +436,7 @@ pub struct Brand {
 /// ContactPoint
 ///
 /// A contact point, for example, a R&D department.
+#[derive(Debug, Default)]
 pub struct ContactPoint {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -454,6 +475,7 @@ pub struct ContactPoint {
 /// CreativeWork
 ///
 /// A creative work, including books, movies, photographs, software programs, etc.
+#[derive(Debug, Default)]
 pub struct CreativeWork {
     /// The subject matter of the content.
     pub about: Option<Vec<Thing>>,
@@ -552,6 +574,7 @@ pub struct CreativeWork {
 /// Article
 ///
 /// An article, including news and scholarly articles.
+#[derive(Debug, Default)]
 pub struct Article {
     /// The subject matter of the content.
     pub about: Option<Vec<Thing>>,
@@ -659,6 +682,7 @@ pub struct Article {
 /// Collection
 ///
 /// A created collection of CreativeWorks or other artefacts.
+#[derive(Debug, Default)]
 pub struct Collection {
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Vec<CreativeWorkTypes>,
@@ -757,6 +781,7 @@ pub struct Collection {
 /// Comment
 ///
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
+#[derive(Debug, Default)]
 pub struct Comment {
     /// The subject matter of the content.
     pub about: Option<Vec<Thing>>,
@@ -861,6 +886,7 @@ pub struct Comment {
 /// Datatable
 ///
 /// A table of data.
+#[derive(Debug, Default)]
 pub struct Datatable {
     /// The columns of data.
     pub columns: Vec<DatatableColumn>,
@@ -962,6 +988,7 @@ pub struct Datatable {
 /// MediaObject
 ///
 /// A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
+#[derive(Debug, Default)]
 pub struct MediaObject {
     /// URL for the actual bytes of the media object, for example the image file or video file.
     pub content_url: String,
@@ -1075,6 +1102,7 @@ pub struct MediaObject {
 /// AudioObject
 ///
 /// An audio file
+#[derive(Debug, Default)]
 pub struct AudioObject {
     /// URL for the actual bytes of the media object, for example the image file or video file.
     pub content_url: String,
@@ -1194,6 +1222,7 @@ pub struct AudioObject {
 /// DatatableColumn
 ///
 /// A column of data within a Datatable.
+#[derive(Debug, Default)]
 pub struct DatatableColumn {
     /// The name of the item.
     pub name: String,
@@ -1229,6 +1258,7 @@ pub struct DatatableColumn {
 /// DefinedTerm
 ///
 /// A word, name, acronym, phrase, etc. with a formal definition.
+#[derive(Debug, Default)]
 pub struct DefinedTerm {
     /// The name of the item.
     pub name: String,
@@ -1261,6 +1291,7 @@ pub struct DefinedTerm {
 /// EnumValidator
 ///
 /// A schema specifying that a node must be one of several values.
+#[derive(Debug, Default)]
 pub struct EnumValidator {
     /// The identifier for this item.
     pub id: Option<String>,
@@ -1275,6 +1306,7 @@ pub struct EnumValidator {
 /// Figure
 ///
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
+#[derive(Debug, Default)]
 pub struct Figure {
     /// The subject matter of the content.
     pub about: Option<Vec<Thing>>,
@@ -1379,6 +1411,7 @@ pub struct Figure {
 /// Function
 ///
 /// A function with a name, which might take Parameters and return a value of a certain type.
+#[derive(Debug, Default)]
 pub struct Function {
     /// The identifier for this item.
     pub id: Option<String>,
@@ -1399,6 +1432,7 @@ pub struct Function {
 /// Grant
 ///
 /// A grant, typically financial or otherwise quantifiable, of resources.
+#[derive(Debug, Default)]
 pub struct Grant {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -1434,6 +1468,7 @@ pub struct Grant {
 /// Heading
 ///
 /// Heading
+#[derive(Debug, Default)]
 pub struct Heading {
     /// Content of the heading.
     pub content: Vec<InlineContent>,
@@ -1451,6 +1486,7 @@ pub struct Heading {
 /// ImageObject
 ///
 /// An image file.
+#[derive(Debug, Default)]
 pub struct ImageObject {
     /// URL for the actual bytes of the media object, for example the image file or video file.
     pub content_url: String,
@@ -1570,6 +1606,7 @@ pub struct ImageObject {
 /// Include
 ///
 /// A directive to include content from an external source (e.g. file, URL) or content.
+#[derive(Debug, Default)]
 pub struct Include {
     /// The source of the content, a URL or file path, or the content itself.
     pub source: String,
@@ -1590,6 +1627,7 @@ pub struct Include {
 /// NumberValidator
 ///
 /// A validator specifying the constraints on a numeric node.
+#[derive(Debug, Default)]
 pub struct NumberValidator {
     /// The exclusive upper limit for a numeric node.
     pub exclusive_maximum: Option<Number>,
@@ -1616,6 +1654,7 @@ pub struct NumberValidator {
 /// IntegerValidator
 ///
 /// A validator specifying the constraints on an integer node.
+#[derive(Debug, Default)]
 pub struct IntegerValidator {
     /// The exclusive upper limit for a numeric node.
     pub exclusive_maximum: Option<Number>,
@@ -1642,6 +1681,7 @@ pub struct IntegerValidator {
 /// Link
 ///
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
+#[derive(Debug, Default)]
 pub struct Link {
     /// The textual content of the link.
     pub content: Vec<InlineContent>,
@@ -1671,6 +1711,7 @@ pub struct Link {
 /// List
 ///
 /// A list of items.
+#[derive(Debug, Default)]
 pub struct List {
     /// The items in the list
     pub items: Vec<ListItem>,
@@ -1688,6 +1729,7 @@ pub struct List {
 /// ListItem
 ///
 /// A single item in a list.
+#[derive(Debug, Default)]
 pub struct ListItem {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -1729,6 +1771,7 @@ pub struct ListItem {
 /// Math
 ///
 /// A mathematical variable or equation.
+#[derive(Debug, Default)]
 pub struct Math {
     /// The text of the equation in the language.
     pub text: String,
@@ -1749,6 +1792,7 @@ pub struct Math {
 /// MathBlock
 ///
 /// A block of math, e.g an equation, to be treated as block content.
+#[derive(Debug, Default)]
 pub struct MathBlock {
     /// The text of the equation in the language.
     pub text: String,
@@ -1772,6 +1816,7 @@ pub struct MathBlock {
 /// MathFragment
 ///
 /// A fragment of math, e.g a variable name, to be treated as inline content.
+#[derive(Debug, Default)]
 pub struct MathFragment {
     /// The text of the equation in the language.
     pub text: String,
@@ -1792,6 +1837,7 @@ pub struct MathFragment {
 /// MonetaryGrant
 ///
 /// A monetary grant.
+#[derive(Debug, Default)]
 pub struct MonetaryGrant {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -1833,6 +1879,7 @@ pub struct MonetaryGrant {
 /// NontextualAnnotation
 ///
 /// Inline text that has a non-textual annotation.
+#[derive(Debug, Default)]
 pub struct NontextualAnnotation {
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -1847,6 +1894,7 @@ pub struct NontextualAnnotation {
 /// Organization
 ///
 /// An organization such as a school, NGO, corporation, club, etc.
+#[derive(Debug, Default)]
 pub struct Organization {
     /// Postal address for the organization.
     pub address: Option<StringPostalAddress>,
@@ -1903,6 +1951,7 @@ pub struct Organization {
 /// Paragraph
 ///
 /// Paragraph
+#[derive(Debug, Default)]
 pub struct Paragraph {
     /// The contents of the paragraph.
     pub content: Vec<InlineContent>,
@@ -1917,6 +1966,7 @@ pub struct Paragraph {
 /// Variable
 ///
 /// A variable representing a name / value pair.
+#[derive(Debug, Default)]
 pub struct Variable {
     /// The name of the variable.
     pub name: String,
@@ -1940,6 +1990,7 @@ pub struct Variable {
 /// Parameter
 ///
 /// A parameter that can be set and used in evaluated code.
+#[derive(Debug, Default)]
 pub struct Parameter {
     /// The name of the variable.
     pub name: String,
@@ -1975,6 +2026,7 @@ pub struct Parameter {
 /// Periodical
 ///
 /// A periodical publication.
+#[derive(Debug, Default)]
 pub struct Periodical {
     /// The subject matter of the content.
     pub about: Option<Vec<Thing>>,
@@ -2082,6 +2134,7 @@ pub struct Periodical {
 /// Person
 ///
 /// A person (alive, dead, undead, or fictional).
+#[derive(Debug, Default)]
 pub struct Person {
     /// Postal address for the person.
     pub address: Option<StringPostalAddress>,
@@ -2144,6 +2197,7 @@ pub struct Person {
 /// PostalAddress
 ///
 /// A physical mailing address.
+#[derive(Debug, Default)]
 pub struct PostalAddress {
     /// The country.
     pub address_country: Option<String>,
@@ -2200,6 +2254,7 @@ pub struct PostalAddress {
 /// Product
 ///
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
+#[derive(Debug, Default)]
 pub struct Product {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -2238,6 +2293,7 @@ pub struct Product {
 /// PropertyValue
 ///
 /// A property-value pair.
+#[derive(Debug)]
 pub struct PropertyValue {
     /// The value of the property.
     pub value: Node,
@@ -2273,6 +2329,7 @@ pub struct PropertyValue {
 /// PublicationIssue
 ///
 /// A part of a successively published publication such as a periodical or publication volume, often numbered.
+#[derive(Debug, Default)]
 pub struct PublicationIssue {
     /// The subject matter of the content.
     pub about: Option<Vec<Thing>>,
@@ -2383,6 +2440,7 @@ pub struct PublicationIssue {
 /// PublicationVolume
 ///
 /// A part of a successively published publication such as a periodical or multi-volume work.
+#[derive(Debug, Default)]
 pub struct PublicationVolume {
     /// The subject matter of the content.
     pub about: Option<Vec<Thing>>,
@@ -2493,6 +2551,7 @@ pub struct PublicationVolume {
 /// Quote
 ///
 /// Inline, quoted content.
+#[derive(Debug, Default)]
 pub struct Quote {
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -2510,6 +2569,7 @@ pub struct Quote {
 /// QuoteBlock
 ///
 /// A section quoted from somewhere else.
+#[derive(Debug, Default)]
 pub struct QuoteBlock {
     /// The content of the quote.
     pub content: Vec<BlockContent>,
@@ -2527,6 +2587,7 @@ pub struct QuoteBlock {
 /// Review
 ///
 /// A review of an item, e.g of an Article, or SoftwareSourceCode.
+#[derive(Debug, Default)]
 pub struct Review {
     /// The subject matter of the content.
     pub about: Option<Vec<Thing>>,
@@ -2631,6 +2692,7 @@ pub struct Review {
 /// SoftwareApplication
 ///
 /// A software application.
+#[derive(Debug, Default)]
 pub struct SoftwareApplication {
     /// The subject matter of the content.
     pub about: Option<Vec<Thing>>,
@@ -2735,6 +2797,7 @@ pub struct SoftwareApplication {
 /// SoftwareEnvironment
 ///
 /// A computational environment.
+#[derive(Debug, Default)]
 pub struct SoftwareEnvironment {
     /// The name of the item.
     pub name: String,
@@ -2773,6 +2836,7 @@ pub struct SoftwareEnvironment {
 /// SoftwareSession
 ///
 /// Definition of a compute session, including its software and compute resource requirements and status.
+#[derive(Debug, Default)]
 pub struct SoftwareSession {
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -2853,6 +2917,7 @@ pub struct SoftwareSession {
 /// SoftwareSourceCode
 ///
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
+#[derive(Debug, Default)]
 pub struct SoftwareSourceCode {
     /// The subject matter of the content.
     pub about: Option<Vec<Thing>>,
@@ -2969,6 +3034,7 @@ pub struct SoftwareSourceCode {
 /// StringValidator
 ///
 /// A schema specifying constraints on a string node.
+#[derive(Debug, Default)]
 pub struct StringValidator {
     /// The identifier for this item.
     pub id: Option<String>,
@@ -2989,6 +3055,7 @@ pub struct StringValidator {
 /// Strong
 ///
 /// Strongly emphasised content.
+#[derive(Debug, Default)]
 pub struct Strong {
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -3003,6 +3070,7 @@ pub struct Strong {
 /// Subscript
 ///
 /// Subscripted content.
+#[derive(Debug, Default)]
 pub struct Subscript {
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -3017,6 +3085,7 @@ pub struct Subscript {
 /// Superscript
 ///
 /// Superscripted content.
+#[derive(Debug, Default)]
 pub struct Superscript {
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -3031,6 +3100,7 @@ pub struct Superscript {
 /// Table
 ///
 /// A table.
+#[derive(Debug, Default)]
 pub struct Table {
     /// Rows of cells in the table.
     pub rows: Vec<TableRow>,
@@ -3138,6 +3208,7 @@ pub struct Table {
 /// TableCell
 ///
 /// A cell within a `Table`.
+#[derive(Debug, Default)]
 pub struct TableCell {
     /// Contents of the table cell.
     pub content: Vec<Node>,
@@ -3164,6 +3235,7 @@ pub struct TableCell {
 /// TableRow
 ///
 /// A row within a Table.
+#[derive(Debug, Default)]
 pub struct TableRow {
     /// An array of cells in the row.
     pub cells: Vec<TableCell>,
@@ -3181,6 +3253,7 @@ pub struct TableRow {
 /// ThematicBreak
 ///
 /// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
+#[derive(Debug, Default)]
 pub struct ThematicBreak {
     /// The identifier for this item.
     pub id: Option<String>,
@@ -3192,6 +3265,7 @@ pub struct ThematicBreak {
 /// TupleValidator
 ///
 /// A validator specifying constraints on an array of heterogeneous items.
+#[derive(Debug, Default)]
 pub struct TupleValidator {
     /// The identifier for this item.
     pub id: Option<String>,
@@ -3206,6 +3280,7 @@ pub struct TupleValidator {
 /// VideoObject
 ///
 /// A video file.
+#[derive(Debug, Default)]
 pub struct VideoObject {
     /// URL for the actual bytes of the media object, for example the image file or video file.
     pub content_url: String,
@@ -3328,6 +3403,7 @@ pub struct VideoObject {
 /// VolumeMount
 ///
 /// Describes a volume mount from a host to container.
+#[derive(Debug, Default)]
 pub struct VolumeMount {
     /// The mount location inside the container.
     pub mount_destination: String,
@@ -3373,6 +3449,7 @@ type DateValue = chrono::DateTime::<chrono::Utc>;
 
 // Enums for properties which use JSON Schema 'enum' or 'anyOf'
 
+#[derive(Debug)]
 pub enum CiteCitationMode {
     Parenthetical,
     Narrative,
@@ -3382,100 +3459,119 @@ pub enum CiteCitationMode {
     SuppressAuthor,
 }
 
+#[derive(Debug)]
 pub enum IntegerString {
     Integer(Integer),
     String(String),
 }
 
+#[derive(Debug)]
 pub enum StringVariable {
     String(String),
     Variable(Variable),
 }
 
+#[derive(Debug)]
 pub enum StringVecNode {
     String(String),
     VecNode(Vec<Node>),
 }
 
+#[derive(Debug)]
 pub enum StringVariableFunction {
     String(String),
     Variable(Variable),
     Function(Function),
 }
 
+#[derive(Debug)]
 pub enum StringSoftwareSourceCodeSoftwareApplication {
     String(String),
     SoftwareSourceCode(SoftwareSourceCode),
     SoftwareApplication(SoftwareApplication),
 }
 
+#[derive(Debug)]
 pub enum VecBlockContentVecInlineContentString {
     VecBlockContent(Vec<BlockContent>),
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
+#[derive(Debug)]
 pub enum PropertyValueString {
     PropertyValue(PropertyValue),
     String(String),
 }
 
+#[derive(Debug)]
 pub enum ImageObjectString {
     ImageObject(ImageObject),
     String(String),
 }
 
+#[derive(Debug)]
 pub enum StringImageObject {
     String(String),
     ImageObject(ImageObject),
 }
 
+#[derive(Debug)]
 pub enum PersonOrganization {
     Person(Person),
     Organization(Organization),
 }
 
+#[derive(Debug)]
 pub enum GrantMonetaryGrant {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
+#[derive(Debug)]
 pub enum CreativeWorkTypesString {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
+#[derive(Debug)]
 pub enum VecInlineContentString {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
+#[derive(Debug)]
 pub enum StringNumber {
     String(String),
     Number(Number),
 }
 
+#[derive(Debug)]
 pub enum ListOrder {
     Ascending,
     Descending,
     Unordered,
 }
 
+#[derive(Debug)]
 pub enum StringPostalAddress {
     String(String),
     PostalAddress(PostalAddress),
 }
 
+#[derive(Debug)]
 pub enum OrganizationPerson {
     Organization(Organization),
     Person(Person),
 }
 
+#[derive(Debug)]
 pub enum CiteString {
     Cite(Cite),
     String(String),
 }
 
+#[derive(Debug)]
 pub enum SoftwareSessionStatus {
     Unknown,
     Starting,
@@ -3485,17 +3581,20 @@ pub enum SoftwareSessionStatus {
     Failed,
 }
 
+#[derive(Debug)]
 pub enum SoftwareSourceCodeSoftwareApplicationString {
     SoftwareSourceCode(SoftwareSourceCode),
     SoftwareApplication(SoftwareApplication),
     String(String),
 }
 
+#[derive(Debug)]
 pub enum TableCellCellType {
     Data,
     Header,
 }
 
+#[derive(Debug)]
 pub enum TableRowRowType {
     Header,
     Footer,
@@ -3504,7 +3603,9 @@ pub enum TableRowRowType {
 
 // Enums for "union" types
   
+#[derive(Debug)]
 /// Union type for valid block content.
+
 pub enum BlockContent {
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
@@ -3520,19 +3621,25 @@ pub enum BlockContent {
     ThematicBreak(ThematicBreak),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from CodeBlock
+
 pub enum CodeBlockTypes {
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from CodeFragment
+
 pub enum CodeFragmentTypes {
     CodeFragment(CodeFragment),
     CodeExpression(CodeExpression),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from Code
+
 pub enum CodeTypes {
     Code(Code),
     CodeBlock(CodeBlock),
@@ -3541,13 +3648,17 @@ pub enum CodeTypes {
     CodeFragment(CodeFragment),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from ContactPoint
+
 pub enum ContactPointTypes {
     ContactPoint(ContactPoint),
     PostalAddress(PostalAddress),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from CreativeWork
+
 pub enum CreativeWorkTypes {
     CreativeWork(CreativeWork),
     Article(Article),
@@ -3568,7 +3679,9 @@ pub enum CreativeWorkTypes {
     VideoObject(VideoObject),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from Entity
+
 pub enum EntityTypes {
     Entity(Entity),
     ArrayValidator(ArrayValidator),
@@ -3646,13 +3759,17 @@ pub enum EntityTypes {
     VolumeMount(VolumeMount),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from Grant
+
 pub enum GrantTypes {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
+#[derive(Debug)]
 /// Union type for valid inline content.
+
 pub enum InlineContent {
     CodeFragment(CodeFragment),
     CodeExpression(CodeExpression),
@@ -3675,7 +3792,9 @@ pub enum InlineContent {
     String(String),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from Mark
+
 pub enum MarkTypes {
     Mark(Mark),
     Delete(Delete),
@@ -3687,14 +3806,18 @@ pub enum MarkTypes {
     Superscript(Superscript),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from Math
+
 pub enum MathTypes {
     Math(Math),
     MathBlock(MathBlock),
     MathFragment(MathFragment),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from MediaObject
+
 pub enum MediaObjectTypes {
     MediaObject(MediaObject),
     AudioObject(AudioObject),
@@ -3702,7 +3825,9 @@ pub enum MediaObjectTypes {
     VideoObject(VideoObject),
 }
 
+#[derive(Debug)]
 /// Union type for all valid nodes.
+
 pub enum Node {
     Entity(Entity),
     Integer(Integer),
@@ -3714,13 +3839,17 @@ pub enum Node {
     Object(Object),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from NumberValidator
+
 pub enum NumberValidatorTypes {
     NumberValidator(NumberValidator),
     IntegerValidator(IntegerValidator),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from Thing
+
 pub enum ThingTypes {
     Thing(Thing),
     Article(Article),
@@ -3757,7 +3886,9 @@ pub enum ThingTypes {
     VolumeMount(VolumeMount),
 }
 
+#[derive(Debug)]
 /// Union type for all validator types.
+
 pub enum ValidatorTypes {
     ConstantValidator(ConstantValidator),
     EnumValidator(EnumValidator),
@@ -3769,7 +3900,9 @@ pub enum ValidatorTypes {
     TupleValidator(TupleValidator),
 }
 
+#[derive(Debug)]
 /// All type schemas that are derived from Variable
+
 pub enum VariableTypes {
     Variable(Variable),
     Parameter(Parameter),

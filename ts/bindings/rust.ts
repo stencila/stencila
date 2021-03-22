@@ -42,6 +42,11 @@ const pointerProperties = [
   'ArrayValidator.itemsValidator',
 ]
 
+// Types to NOT derive from Default
+// This usually have a property that is required that
+// doe snot have a default itself
+const skipDefaultTypes = ['Date', 'PropertyValue']
+
 /**
  * Generate `../../rust/types.rs` from schemas.
  */
@@ -61,6 +66,8 @@ async function build(): Promise<void> {
     .join('\n')
 
   const code = `
+#![allow(clippy::large_enum_variant)]
+
 use std::sync::Arc;
 
 type Null = serde_json::Value;
@@ -88,7 +95,10 @@ ${Object.values(context.anonEnums).join('\n')}
   
 ${unions}`
 
-  await fs.writeFile(path.join(__dirname, '..', '..', 'rust', 'types.rs'), code)
+  await fs.writeFile(
+    path.join(__dirname, '..', '..', 'rust', 'src', 'lib.rs'),
+    code
+  )
 }
 
 /**
@@ -123,10 +133,16 @@ export function structGenerator(schema: JsonSchema, context: Context): string {
     })
     .join('\n\n')
 
+  const derives = [
+    'Debug',
+    ...(skipDefaultTypes.includes(title) ? [] : ['Default']),
+  ].join(', ')
+
   const code = `
 /// ${title}
 ///
 ${docComment(description)}
+#[derive(${derives})]
 pub struct ${title} {
 ${fields}
 }`
@@ -181,7 +197,8 @@ function anyOfToType(anyOf: JsonSchema[], context: Context): string {
     })
     .join('')
 
-  const definition = `pub enum ${name} {\n${variants}}\n`
+  const definition = `#[derive(Debug)]
+pub enum ${name} {\n${variants}}\n`
   context.anonEnums[name] = definition
 
   return name
@@ -199,7 +216,8 @@ export function enumToType(enu: (string | number)[], context: Context): string {
     .join('')
 
   const name = context.propertyTypeName ?? ''
-  const definition = `pub enum ${name} {\n${lines}}\n`
+  const definition = `#[derive(Debug)]
+pub enum ${name} {\n${lines}}\n`
   context.anonEnums[name] = definition
 
   return name
@@ -238,5 +256,7 @@ export function enumGenerator(schema: JsonSchema, context: Context): string {
     })
     .join('')
 
-  return `${docComment(description)}\npub enum ${title} {\n${variants}}\n`
+  return `#[derive(Debug)]
+${docComment(description)}\n
+pub enum ${title} {\n${variants}}\n`
 }
