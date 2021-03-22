@@ -9,13 +9,11 @@ properties:
   itemsValidator:
     '@id': stencila:itemsValidator
     description: Another validator node specifying the constraints on all items in the array.
-    anyOf:
-      - $ref: ValidatorTypes
+    $ref: ValidatorTypes
   contains:
     '@id': stencila:contains
     description: An array node is valid if at least one of its items is valid against the `contains` schema.
-    anyOf:
-      - $ref: ValidatorTypes
+    $ref: ValidatorTypes
   minItems:
     '@id': stencila:minItems
     description: An array node is valid if its size is greater than, or equal to, this value.

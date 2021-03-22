@@ -136,6 +136,7 @@ export const readSchema = async (type: string): Promise<JsonSchema> => {
  * - each `@id` is associated with only one property name or type `title`
  * - no duplicate `stencila:` `@ids` (case insensitive)
  * - that other schemas that are referred to in `extends` or `$ref` exist
+ * - that `anyOf` and `allOf` for properties have at least two items
  *
  * @param schemas A map of all the schemas
  * @param schema The schema being checked
@@ -219,6 +220,18 @@ const checkSchema = (
         error(`${title}.${name} is missing description`)
       else if (property.description.length > maxDescriptionLength)
         error(`${title}.${name}.description is too long`)
+
+      if (property.anyOf && property.anyOf.length < 2) {
+        error(
+          `${title}.${name}.anyOf has less than two items, is it necessary?`
+        )
+      }
+
+      if (property.allOf && property.allOf.length < 2) {
+        error(
+          `${title}.${name}.allOf has less than two items, is it necessary?`
+        )
+      }
     }
   }
 

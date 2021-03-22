@@ -72,5 +72,4 @@ properties:
     '@id': schema:parentOrganization
     description: |
       Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
-    allOf:
-      - $ref: Organization
+    $ref: Organization

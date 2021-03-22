@@ -12,5 +12,4 @@ properties:
   value:
     '@id': schema:value
     description: The value that the node must have.
-    allOf:
-      - $ref: Node
+    $ref: Node

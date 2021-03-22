@@ -23,7 +23,6 @@ properties:
   value:
     '@id': schema:value
     description: The value of the property.
-    anyOf:
-      - $ref: Node
+    $ref: Node
 required:
   - value

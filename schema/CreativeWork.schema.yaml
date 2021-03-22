@@ -48,26 +48,22 @@ properties:
   dateCreated:
     '@id': schema:dateCreated
     description: Date/time of creation.
-    allOf:
-      - $ref: '#/definitions/dateProperty'
+    $ref: '#/definitions/dateProperty'
   dateReceived:
     '@id': schema:dateReceived
     description: Date/time that work was received.
-    allOf:
-      - $ref: '#/definitions/dateProperty'
+    $ref: '#/definitions/dateProperty'
   dateAccepted:
     '@id': stencila:dateAccepted
     description: Date/time of acceptance.
     $comment: |
       This is not yet a schema.org property but the term is used
       [in Dublin Core](http://purl.org/dc/terms/dateAccepted).
-    allOf:
-      - $ref: '#/definitions/dateProperty'
+    $ref: '#/definitions/dateProperty'
   dateModified:
     '@id': schema:dateModified
     description: Date/time of most recent modification.
-    allOf:
-      - $ref: '#/definitions/dateProperty'
+    $ref: '#/definitions/dateProperty'
   datePublished:
     '@id': schema:datePublished
     aliases:
@@ -75,8 +71,7 @@ properties:
       # and not the date modified or created.
       - date
     description: Date of first publication.
-    allOf:
-      - $ref: '#/definitions/dateProperty'
+    $ref: '#/definitions/dateProperty'
   editors:
     '@id': schema:editor
     description: People who edited the `CreativeWork`.
@@ -126,8 +121,7 @@ properties:
     '@id': schema:isPartOf
     description: |
       An item or other CreativeWork that this CreativeWork is a part of.
-    allOf:
-      - $ref: CreativeWorkTypes
+    $ref: CreativeWorkTypes
   licenses:
     '@id': schema:license
     description: |

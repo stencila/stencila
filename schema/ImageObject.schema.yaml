@@ -13,5 +13,4 @@ properties:
   thumbnail:
     '@id': schema:thumbnail
     description: Thumbnail image of this image.
-    allOf:
-      - $ref: ImageObject
+    $ref: ImageObject

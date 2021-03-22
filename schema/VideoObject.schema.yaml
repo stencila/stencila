@@ -13,8 +13,7 @@ properties:
   thumbnail:
     '@id': schema:thumbnail
     description: Thumbnail image of this video recording.
-    allOf:
-      - $ref: ImageObject
+    $ref: ImageObject
   transcript:
     '@id': schema:transcript
     description: The transcript of this video recording.

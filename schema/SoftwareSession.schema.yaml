@@ -14,8 +14,7 @@ properties:
   environment:
     '@id': stencila:environment
     description: The software environment to execute this session in.
-    allOf:
-      - $ref: SoftwareEnvironment
+    $ref: SoftwareEnvironment
   dateStart:
     '@id': schema:startDate
     description: The date-time that the session began.

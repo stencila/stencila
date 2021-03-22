@@ -9,8 +9,7 @@ properties:
   output:
     '@id': stencila:output
     description: The value of the expression when it was last evaluated.
-    allOf:
-      - $ref: Node
+    $ref: Node
   errors:
     '@id': stencila:errors
     description: Errors when compiling or executing the chunk.
