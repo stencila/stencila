@@ -31,7 +31,7 @@ properties:
       Python2.3, .Net Framework 3.0).
     type: array
     items:
-      - type: string
+      type: string
   softwareRequirements:
     '@id': schema:softwareRequirements
     description: Dependency requirements for the software.
@@ -47,4 +47,4 @@ properties:
       Target operating system or product to which the code applies.
     type: array
     items:
-      - $ref: SoftwareApplication
+      $ref: SoftwareApplication

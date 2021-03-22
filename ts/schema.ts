@@ -137,6 +137,7 @@ export const readSchema = async (type: string): Promise<JsonSchema> => {
  * - no duplicate `stencila:` `@ids` (case insensitive)
  * - that other schemas that are referred to in `extends` or `$ref` exist
  * - that `anyOf` and `allOf` for properties have at least two items
+ * - that no ordering is required for `array` properties
  *
  * @param schemas A map of all the schemas
  * @param schema The schema being checked
@@ -230,6 +231,12 @@ const checkSchema = (
       if (property.allOf && property.allOf.length < 2) {
         error(
           `${title}.${name}.allOf has less than two items, is it necessary?`
+        )
+      }
+
+      if (property.type === 'array' && Array.isArray(property.items)) {
+        error(
+          `${title}.${name}.items is using ordered validation, use plain 'ref' or 'anyOf' instead?`
         )
       }
     }

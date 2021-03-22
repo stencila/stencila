@@ -86,7 +86,7 @@ properties:
     description: An organization (or program membership) to which this person belongs.
     type: array
     items:
-      - $ref: Organization
+      $ref: Organization
   telephoneNumbers:
     '@id': schema:telephone
     aliases:

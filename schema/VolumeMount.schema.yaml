@@ -20,7 +20,7 @@ properties:
     description: A list of options to use when applying the mount.
     type: array
     items:
-      - type: string
+      type: string
   mountType:
     '@id': stencila:mountType
     type: string

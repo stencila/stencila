@@ -23,4 +23,4 @@ properties:
       for more details.
     type: array
     items:
-      - type: string
+      type: string

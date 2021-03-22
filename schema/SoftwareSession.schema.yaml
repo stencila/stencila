@@ -98,4 +98,4 @@ properties:
     description: Volumes to mount in the session.
     type: array
     items:
-      - $ref: VolumeMount
+      $ref: VolumeMount
