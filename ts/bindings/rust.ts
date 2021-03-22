@@ -2,6 +2,7 @@
  * Module for generating R language bindings.
  */
 
+import { pascalCase, snakeCase } from 'change-case'
 import fs from 'fs-extra'
 import path from 'path'
 import { JsonSchema } from '../JsonSchema'
@@ -101,9 +102,7 @@ export function structGenerator(schema: JsonSchema, context: Context): string {
     .map(({ name, schema, optional }) => {
       const { description = name } = schema
 
-      const propertyTypeName = `${title}${name[0].toUpperCase()}${name.slice(
-        1
-      )}`
+      const propertyTypeName = pascalCase(`${title} ${name}`)
       context.propertyTypeName = propertyTypeName
 
       let type =
@@ -120,7 +119,7 @@ export function structGenerator(schema: JsonSchema, context: Context): string {
       type = optional ? `Option<${type}>` : type
 
       return `    ${docComment(description)}
-    ${name}: ${type},`
+    pub ${snakeCase(name)}: ${type},`
     })
     .join('\n\n')
 
@@ -128,7 +127,7 @@ export function structGenerator(schema: JsonSchema, context: Context): string {
 /// ${title}
 ///
 ${docComment(description)}
-struct ${title} {
+pub struct ${title} {
 ${fields}
 }`
 
@@ -182,7 +181,7 @@ function anyOfToType(anyOf: JsonSchema[], context: Context): string {
     })
     .join('')
 
-  const definition = `enum ${name} {\n${variants}}\n`
+  const definition = `pub enum ${name} {\n${variants}}\n`
   context.anonEnums[name] = definition
 
   return name
@@ -195,14 +194,12 @@ export function enumToType(enu: (string | number)[], context: Context): string {
   const lines = enu
     .map((variant) => {
       variant = typeof variant === 'string' ? variant : `V${variant}`
-      return `    ${variant[0].toUpperCase()}${variant
-        .slice(1)
-        .toLowerCase()},\n`
+      return `    ${pascalCase(variant)},\n`
     })
     .join('')
 
   const name = context.propertyTypeName ?? ''
-  const definition = `enum ${name} {\n${lines}}\n`
+  const definition = `pub enum ${name} {\n${lines}}\n`
   context.anonEnums[name] = definition
 
   return name
@@ -241,5 +238,5 @@ export function enumGenerator(schema: JsonSchema, context: Context): string {
     })
     .join('')
 
-  return `${docComment(description)}\nenum ${title} {\n${variants}}\n`
+  return `${docComment(description)}\npub enum ${title} {\n${variants}}\n`
 }
