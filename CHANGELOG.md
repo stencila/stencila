@@ -1,3 +1,14 @@
+## [1.1.4](https://github.com/stencila/schema/compare/v1.1.3...v1.1.4) (2021-03-22)
+
+
+### Bug Fixes
+
+* Do not use order validation for array properties ([c77f588](https://github.com/stencila/schema/commit/c77f588d16029e15c3662edbf5791ea988d0b821))
+* Remove redudant anyOf and allOf in property schemas ([1957053](https://github.com/stencila/schema/commit/19570534ab89fad6e947fead9d46850610ea7641))
+* **CreativeWork:** Use anyOf for maintainer ([1d35af9](https://github.com/stencila/schema/commit/1d35af9c6bc74acbe9a800d8648d3b3811989b41)), closes [/json-schema.org/understanding-json-schema/reference/array.html#id6](https://github.com//json-schema.org/understanding-json-schema/reference/array.html/issues/id6)
+* **CreativeWork:** Use Date for date* properties ([264dc95](https://github.com/stencila/schema/commit/264dc95abea295ba3d4c902a50c4a7e5e48c8e08))
+* **Periodical & SoftwareSession:** Use Date ([94cc6ac](https://github.com/stencila/schema/commit/94cc6acb8184febe05cfcdb962625a8faaa7475c))
+
 ## [1.1.3](https://github.com/stencila/schema/compare/v1.1.2...v1.1.3) (2021-03-20)
 
 
