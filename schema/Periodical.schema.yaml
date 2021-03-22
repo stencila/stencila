@@ -9,23 +9,11 @@ properties:
   dateStart:
     '@id': schema:startDate
     description: The date this Periodical was first published.
-    type: string
-    anyOf:
-      - $ref: Date
-      - type: string
-        format: date
-      - type: string
-        format: date-time
+    $ref: Date
   dateEnd:
     '@id': schema:endDate
     description: The date this Periodical ceased publication.
-    type: string
-    anyOf:
-      - $ref: Date
-      - type: string
-        format: date
-      - type: string
-        format: date-time
+    $ref: Date
   issns:
     '@id': schema:issn
     description: The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
