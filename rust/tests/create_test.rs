@@ -1,4 +1,4 @@
-use stencila_schema::{Article, VecInlineContentString};
+use stencila_schema::{Article, ArticleTitle};
 
 #[test]
 fn create_article() {
@@ -6,8 +6,8 @@ fn create_article() {
     assert!(article.title.is_none());
 
     let article = Article {
-        title: Some(VecInlineContentString::String(
-            "The article title".to_string(),
+        title: Some(ArticleTitle::String(
+            "The article title".into(),
         )),
         ..Default::default()
     };

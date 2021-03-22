@@ -183,11 +183,7 @@ function schemaToType(schema: JsonSchema, context: Context): string {
  * Convert the `anyOf` property of a JSON schema to a Rust `enum`.
  */
 function anyOfToType(anyOf: JsonSchema[], context: Context): string {
-  const name = anyOf
-    .map((schema) =>
-      schemaToType(schema, context).replace('<', '').replace('>', '')
-    )
-    .join('')
+  const name = context.propertyTypeName ?? ''
 
   const variants = anyOf
     .map((schema) => {

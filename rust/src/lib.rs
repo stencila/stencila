@@ -91,10 +91,10 @@ pub struct Cite {
     pub meta: Option<Object>,
 
     /// The page on which the work ends; for example "138" or "xvi".
-    pub page_end: Option<IntegerString>,
+    pub page_end: Option<CitePageEnd>,
 
     /// The page on which the work starts; for example "135" or "xiii".
-    pub page_start: Option<IntegerString>,
+    pub page_start: Option<CitePageStart>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
@@ -175,13 +175,13 @@ pub struct CodeChunk {
     pub alters: Option<Vec<String>>,
 
     /// Variables that the code chunk assigns to.
-    pub assigns: Option<Vec<StringVariable>>,
+    pub assigns: Option<Vec<CodeChunkAssigns>>,
 
     /// A caption for the CodeChunk.
-    pub caption: Option<StringVecNode>,
+    pub caption: Option<CodeChunkCaption>,
 
     /// Variables that the code chunk declares.
-    pub declares: Option<Vec<StringVariableFunction>>,
+    pub declares: Option<Vec<CodeChunkDeclares>>,
 
     /// Duration in seconds of the last execution of the chunk.
     pub duration: Option<Number>,
@@ -202,7 +202,7 @@ pub struct CodeChunk {
     pub import_to: Option<String>,
 
     /// Software packages that the code chunk imports
-    pub imports: Option<Vec<StringSoftwareSourceCodeSoftwareApplication>>,
+    pub imports: Option<Vec<CodeChunkImports>>,
 
     /// A short label for the CodeChunk.
     pub label: Option<String>,
@@ -220,7 +220,7 @@ pub struct CodeChunk {
     pub reads: Option<Vec<String>>,
 
     /// Names of variables that the code chunk uses (but does not alter).
-    pub uses: Option<Vec<StringVariable>>,
+    pub uses: Option<Vec<CodeChunkUses>>,
 }
 
 /// CodeFragment
@@ -376,16 +376,16 @@ pub struct Thing {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<ThingDescription>,
 
     /// The identifier for this item.
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<ThingIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -409,19 +409,19 @@ pub struct Brand {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<BrandDescription>,
 
     /// The identifier for this item.
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<BrandIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<BrandImages>>,
 
     /// A logo associated with the brand.
-    pub logo: Option<StringImageObject>,
+    pub logo: Option<BrandLogo>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -445,7 +445,7 @@ pub struct ContactPoint {
     pub available_languages: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<ContactPointDescription>,
 
     /// Email address for correspondence.
     pub emails: Option<Vec<String>>,
@@ -454,10 +454,10 @@ pub struct ContactPoint {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<ContactPointIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<ContactPointImages>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -484,7 +484,7 @@ pub struct CreativeWork {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -508,16 +508,16 @@ pub struct CreativeWork {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<CreativeWorkDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<CreativeWorkFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -526,10 +526,10 @@ pub struct CreativeWork {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<CreativeWorkIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<CreativeWorkImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -538,10 +538,10 @@ pub struct CreativeWork {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<CreativeWorkLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -553,22 +553,22 @@ pub struct CreativeWork {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<CreativeWorkPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<CreativeWorkTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<CreativeWorkVersion>,
 }
 
 /// Article
@@ -583,7 +583,7 @@ pub struct Article {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<ArticleAuthors>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -607,16 +607,16 @@ pub struct Article {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<ArticleDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<ArticleFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<ArticleFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -625,10 +625,10 @@ pub struct Article {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<ArticleIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<ArticleImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -637,10 +637,10 @@ pub struct Article {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<ArticleLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<ArticleMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -649,10 +649,10 @@ pub struct Article {
     pub name: Option<String>,
 
     /// The page on which the article ends; for example "138" or "xvi".
-    pub page_end: Option<IntegerString>,
+    pub page_end: Option<ArticlePageEnd>,
 
     /// The page on which the article starts; for example "135" or "xiii".
-    pub page_start: Option<IntegerString>,
+    pub page_start: Option<ArticlePageStart>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
@@ -661,22 +661,22 @@ pub struct Article {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<ArticlePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<ArticleReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<ArticleTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<ArticleVersion>,
 }
 
 /// Collection
@@ -694,7 +694,7 @@ pub struct Collection {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<CollectionAuthors>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -718,16 +718,16 @@ pub struct Collection {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<CollectionDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<CollectionFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<CollectionFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -736,10 +736,10 @@ pub struct Collection {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<CollectionIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<CollectionImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -748,10 +748,10 @@ pub struct Collection {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<CollectionLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<CollectionMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -760,22 +760,22 @@ pub struct Collection {
     pub name: Option<String>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<CollectionPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<CollectionReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<CollectionTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<CollectionVersion>,
 }
 
 /// Comment
@@ -790,7 +790,7 @@ pub struct Comment {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<CommentAuthors>>,
 
     /// The part or facet of the item that is being commented on.
     pub comment_aspect: Option<String>,
@@ -817,16 +817,16 @@ pub struct Comment {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<CommentDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<CommentFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<CommentFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -835,10 +835,10 @@ pub struct Comment {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<CommentIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<CommentImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -847,10 +847,10 @@ pub struct Comment {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<CommentLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<CommentMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -865,22 +865,22 @@ pub struct Comment {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<CommentPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<CommentReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<CommentTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<CommentVersion>,
 }
 
 /// Datatable
@@ -898,7 +898,7 @@ pub struct Datatable {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<DatatableAuthors>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -922,16 +922,16 @@ pub struct Datatable {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<DatatableDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<DatatableFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<DatatableFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -940,10 +940,10 @@ pub struct Datatable {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<DatatableIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<DatatableImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -952,10 +952,10 @@ pub struct Datatable {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<DatatableLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<DatatableMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -967,22 +967,22 @@ pub struct Datatable {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<DatatablePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<DatatableReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<DatatableTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<DatatableVersion>,
 }
 
 /// MediaObject
@@ -1000,7 +1000,7 @@ pub struct MediaObject {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<MediaObjectAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
     pub bitrate: Option<Number>,
@@ -1030,7 +1030,7 @@ pub struct MediaObject {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<MediaObjectDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1042,10 +1042,10 @@ pub struct MediaObject {
     pub format: Option<String>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<MediaObjectFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<MediaObjectFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -1054,10 +1054,10 @@ pub struct MediaObject {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<MediaObjectIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<MediaObjectImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -1066,10 +1066,10 @@ pub struct MediaObject {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<MediaObjectLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<MediaObjectMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -1081,22 +1081,22 @@ pub struct MediaObject {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<MediaObjectPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<MediaObjectReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<MediaObjectTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<MediaObjectVersion>,
 }
 
 /// AudioObject
@@ -1114,7 +1114,7 @@ pub struct AudioObject {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<AudioObjectAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
     pub bitrate: Option<Number>,
@@ -1147,7 +1147,7 @@ pub struct AudioObject {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<AudioObjectDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1159,10 +1159,10 @@ pub struct AudioObject {
     pub format: Option<String>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<AudioObjectFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<AudioObjectFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -1171,10 +1171,10 @@ pub struct AudioObject {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<AudioObjectIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<AudioObjectImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -1183,10 +1183,10 @@ pub struct AudioObject {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<AudioObjectLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<AudioObjectMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -1198,16 +1198,16 @@ pub struct AudioObject {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<AudioObjectPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<AudioObjectReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<AudioObjectTitle>,
 
     /// The transcript of this audio recording.
     pub transcript: Option<String>,
@@ -1216,7 +1216,7 @@ pub struct AudioObject {
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<AudioObjectVersion>,
 }
 
 /// DatatableColumn
@@ -1234,16 +1234,16 @@ pub struct DatatableColumn {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<DatatableColumnDescription>,
 
     /// The identifier for this item.
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<DatatableColumnIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<DatatableColumnImages>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -1267,16 +1267,16 @@ pub struct DefinedTerm {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<DefinedTermDescription>,
 
     /// The identifier for this item.
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<DefinedTermIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<DefinedTermImages>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -1315,10 +1315,10 @@ pub struct Figure {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<FigureAuthors>>,
 
     /// A caption for the figure.
-    pub caption: Option<StringVecNode>,
+    pub caption: Option<FigureCaption>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -1342,16 +1342,16 @@ pub struct Figure {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<FigureDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<FigureFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<FigureFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -1360,10 +1360,10 @@ pub struct Figure {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<FigureIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<FigureImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -1375,10 +1375,10 @@ pub struct Figure {
     pub label: Option<String>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<FigureLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<FigureMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -1390,22 +1390,22 @@ pub struct Figure {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<FigurePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<FigureReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<FigureTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<FigureVersion>,
 }
 
 /// Function
@@ -1438,7 +1438,7 @@ pub struct Grant {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<GrantDescription>,
 
     /// Indicates an item funded or sponsored through a Grant.
     pub funded_items: Option<Vec<Thing>>,
@@ -1447,10 +1447,10 @@ pub struct Grant {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<GrantIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<GrantImages>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -1459,7 +1459,7 @@ pub struct Grant {
     pub name: Option<String>,
 
     /// A person or organization that supports a thing through a pledge, promise, or financial contribution.
-    pub sponsors: Option<Vec<PersonOrganization>>,
+    pub sponsors: Option<Vec<GrantSponsors>>,
 
     /// The URL of the item.
     pub url: Option<String>,
@@ -1498,7 +1498,7 @@ pub struct ImageObject {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<ImageObjectAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
     pub bitrate: Option<Number>,
@@ -1531,7 +1531,7 @@ pub struct ImageObject {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<ImageObjectDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1543,10 +1543,10 @@ pub struct ImageObject {
     pub format: Option<String>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<ImageObjectFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<ImageObjectFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -1555,10 +1555,10 @@ pub struct ImageObject {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<ImageObjectIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<ImageObjectImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -1567,10 +1567,10 @@ pub struct ImageObject {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<ImageObjectLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<ImageObjectMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -1582,10 +1582,10 @@ pub struct ImageObject {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<Arc<PersonOrganization>>,
+    pub publisher: Option<Arc<ImageObjectPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<ImageObjectReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
@@ -1594,13 +1594,13 @@ pub struct ImageObject {
     pub thumbnail: Option<Arc<ImageObject>>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<ImageObjectTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<ImageObjectVersion>,
 }
 
 /// Include
@@ -1738,16 +1738,16 @@ pub struct ListItem {
     pub content: Option<Vec<Node>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<ListItemDescription>,
 
     /// The identifier for this item.
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<ListItemIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<ListItemImages>>,
 
     /// A flag to indicate if this list item is checked.
     pub is_checked: Option<Bool>,
@@ -1846,22 +1846,22 @@ pub struct MonetaryGrant {
     pub amounts: Option<Number>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<MonetaryGrantDescription>,
 
     /// Indicates an item funded or sponsored through a Grant.
     pub funded_items: Option<Vec<Thing>>,
 
     /// A person or organization that supports (sponsors) something through some kind of financial contribution.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<MonetaryGrantFunders>>,
 
     /// The identifier for this item.
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<MonetaryGrantIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<MonetaryGrantImages>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -1870,7 +1870,7 @@ pub struct MonetaryGrant {
     pub name: Option<String>,
 
     /// A person or organization that supports a thing through a pledge, promise, or financial contribution.
-    pub sponsors: Option<Vec<PersonOrganization>>,
+    pub sponsors: Option<Vec<MonetaryGrantSponsors>>,
 
     /// The URL of the item.
     pub url: Option<String>,
@@ -1897,7 +1897,7 @@ pub struct NontextualAnnotation {
 #[derive(Debug, Default)]
 pub struct Organization {
     /// Postal address for the organization.
-    pub address: Option<StringPostalAddress>,
+    pub address: Option<OrganizationAddress>,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -1912,28 +1912,28 @@ pub struct Organization {
     pub departments: Option<Vec<Organization>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<OrganizationDescription>,
 
     /// Organization(s) or person(s) funding the organization.
-    pub funders: Option<Vec<OrganizationPerson>>,
+    pub funders: Option<Vec<OrganizationFunders>>,
 
     /// The identifier for this item.
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<OrganizationIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<OrganizationImages>>,
 
     /// Legal name for the Organization. Should only include letters and spaces.
     pub legal_name: Option<String>,
 
     /// The logo of the organization.
-    pub logo: Option<StringImageObject>,
+    pub logo: Option<OrganizationLogo>,
 
     /// Person(s) or organization(s) who are members of this organization.
-    pub members: Option<Vec<OrganizationPerson>>,
+    pub members: Option<Vec<OrganizationMembers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2035,7 +2035,7 @@ pub struct Periodical {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<PeriodicalAuthors>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -2065,16 +2065,16 @@ pub struct Periodical {
     pub date_start: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<PeriodicalDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<PeriodicalFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<PeriodicalFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -2083,10 +2083,10 @@ pub struct Periodical {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<PeriodicalIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<PeriodicalImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -2098,10 +2098,10 @@ pub struct Periodical {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<PeriodicalLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<PeriodicalMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2113,22 +2113,22 @@ pub struct Periodical {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<PeriodicalPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<PeriodicalReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<PeriodicalTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<PeriodicalVersion>,
 }
 
 /// Person
@@ -2137,7 +2137,7 @@ pub struct Periodical {
 #[derive(Debug, Default)]
 pub struct Person {
     /// Postal address for the person.
-    pub address: Option<StringPostalAddress>,
+    pub address: Option<PersonAddress>,
 
     /// Organizations that the person is affiliated with.
     pub affiliations: Option<Vec<Organization>>,
@@ -2146,7 +2146,7 @@ pub struct Person {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<PersonDescription>,
 
     /// Email addresses for the person.
     pub emails: Option<Vec<String>>,
@@ -2155,7 +2155,7 @@ pub struct Person {
     pub family_names: Option<Vec<String>>,
 
     /// A person or organization that supports (sponsors) something through some kind of financial contribution.
-    pub funders: Option<Vec<OrganizationPerson>>,
+    pub funders: Option<Vec<PersonFunders>>,
 
     /// Given name. In the U.S., the first name of a person.
     pub given_names: Option<Vec<String>>,
@@ -2170,10 +2170,10 @@ pub struct Person {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<PersonIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<PersonImages>>,
 
     /// The job title of the person (for example, Financial Manager).
     pub job_title: Option<String>,
@@ -2215,7 +2215,7 @@ pub struct PostalAddress {
     pub available_languages: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<PostalAddressDescription>,
 
     /// Email address for correspondence.
     pub emails: Option<Vec<String>>,
@@ -2224,10 +2224,10 @@ pub struct PostalAddress {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<PostalAddressIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<PostalAddressImages>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2263,19 +2263,19 @@ pub struct Product {
     pub brands: Option<Vec<Brand>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<ProductDescription>,
 
     /// The identifier for this item.
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<ProductIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<ProductImages>>,
 
     /// The logo of the product.
-    pub logo: Option<StringImageObject>,
+    pub logo: Option<ProductLogo>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2302,16 +2302,16 @@ pub struct PropertyValue {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<PropertyValueDescription>,
 
     /// The identifier for this item.
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<PropertyValueIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<PropertyValueImages>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2338,7 +2338,7 @@ pub struct PublicationIssue {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<PublicationIssueAuthors>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -2362,16 +2362,16 @@ pub struct PublicationIssue {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<PublicationIssueDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<PublicationIssueFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<PublicationIssueFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -2380,25 +2380,25 @@ pub struct PublicationIssue {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<PublicationIssueIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<PublicationIssueImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Identifies the issue of publication; for example, "iii" or "2".
-    pub issue_number: Option<IntegerString>,
+    pub issue_number: Option<PublicationIssueIssueNumber>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<PublicationIssueLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<PublicationIssueMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2407,10 +2407,10 @@ pub struct PublicationIssue {
     pub name: Option<String>,
 
     /// The page on which the issue ends; for example "138" or "xvi".
-    pub page_end: Option<IntegerString>,
+    pub page_end: Option<PublicationIssuePageEnd>,
 
     /// The page on which the issue starts; for example "135" or "xiii".
-    pub page_start: Option<IntegerString>,
+    pub page_start: Option<PublicationIssuePageStart>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
@@ -2419,22 +2419,22 @@ pub struct PublicationIssue {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<PublicationIssuePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<PublicationIssueReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<PublicationIssueTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<PublicationIssueVersion>,
 }
 
 /// PublicationVolume
@@ -2449,7 +2449,7 @@ pub struct PublicationVolume {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<PublicationVolumeAuthors>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -2473,16 +2473,16 @@ pub struct PublicationVolume {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<PublicationVolumeDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<PublicationVolumeFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<PublicationVolumeFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -2491,10 +2491,10 @@ pub struct PublicationVolume {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<PublicationVolumeIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<PublicationVolumeImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -2503,10 +2503,10 @@ pub struct PublicationVolume {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<PublicationVolumeLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<PublicationVolumeMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2515,10 +2515,10 @@ pub struct PublicationVolume {
     pub name: Option<String>,
 
     /// The page on which the volume ends; for example "138" or "xvi".
-    pub page_end: Option<IntegerString>,
+    pub page_end: Option<PublicationVolumePageEnd>,
 
     /// The page on which the volume starts; for example "135" or "xiii".
-    pub page_start: Option<IntegerString>,
+    pub page_start: Option<PublicationVolumePageStart>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
@@ -2527,25 +2527,25 @@ pub struct PublicationVolume {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<PublicationVolumePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<PublicationVolumeReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<PublicationVolumeTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<PublicationVolumeVersion>,
 
     /// Identifies the volume of publication or multi-part work; for example, "iii" or "2".
-    pub volume_number: Option<IntegerString>,
+    pub volume_number: Option<PublicationVolumeVolumeNumber>,
 }
 
 /// Quote
@@ -2557,7 +2557,7 @@ pub struct Quote {
     pub content: Vec<InlineContent>,
 
     /// The source of the quote.
-    pub cite: Option<CiteString>,
+    pub cite: Option<QuoteCite>,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -2575,7 +2575,7 @@ pub struct QuoteBlock {
     pub content: Vec<BlockContent>,
 
     /// The source of the quote.
-    pub cite: Option<CiteString>,
+    pub cite: Option<QuoteBlockCite>,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -2596,7 +2596,7 @@ pub struct Review {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<ReviewAuthors>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -2620,16 +2620,16 @@ pub struct Review {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<ReviewDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<ReviewFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<ReviewFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -2638,10 +2638,10 @@ pub struct Review {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<ReviewIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<ReviewImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -2653,10 +2653,10 @@ pub struct Review {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<ReviewLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<ReviewMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2668,10 +2668,10 @@ pub struct Review {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<ReviewPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<ReviewReferences>>,
 
     /// The part or facet of the item that is being reviewed.
     pub review_aspect: Option<String>,
@@ -2680,13 +2680,13 @@ pub struct Review {
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<ReviewTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<ReviewVersion>,
 }
 
 /// SoftwareApplication
@@ -2701,7 +2701,7 @@ pub struct SoftwareApplication {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<SoftwareApplicationAuthors>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -2725,16 +2725,16 @@ pub struct SoftwareApplication {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<SoftwareApplicationDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<SoftwareApplicationFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<SoftwareApplicationFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -2743,10 +2743,10 @@ pub struct SoftwareApplication {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<SoftwareApplicationIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<SoftwareApplicationImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -2755,10 +2755,10 @@ pub struct SoftwareApplication {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<SoftwareApplicationLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<SoftwareApplicationMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2770,10 +2770,10 @@ pub struct SoftwareApplication {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<SoftwareApplicationPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<SoftwareApplicationReferences>>,
 
     /// Requirements for application, including shared libraries that are not included in the application distribution.
     pub software_requirements: Option<Vec<SoftwareApplication>>,
@@ -2785,13 +2785,13 @@ pub struct SoftwareApplication {
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<SoftwareApplicationTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<SoftwareApplicationVersion>,
 }
 
 /// SoftwareEnvironment
@@ -2809,7 +2809,7 @@ pub struct SoftwareEnvironment {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<SoftwareEnvironmentDescription>,
 
     /// Other environments that this environment extends by adding or removing packages.,
     pub extends: Option<Vec<SoftwareEnvironment>>,
@@ -2818,10 +2818,10 @@ pub struct SoftwareEnvironment {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<SoftwareEnvironmentIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<SoftwareEnvironmentImages>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2860,7 +2860,7 @@ pub struct SoftwareSession {
     pub date_start: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<SoftwareSessionDescription>,
 
     /// The maximum duration (seconds) the session is limited to.
     pub duration_limit: Option<Number>,
@@ -2875,10 +2875,10 @@ pub struct SoftwareSession {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<SoftwareSessionIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<SoftwareSessionImages>>,
 
     /// The amount of memory that the session is limited to.
     pub memory_limit: Option<Number>,
@@ -2926,7 +2926,7 @@ pub struct SoftwareSourceCode {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<SoftwareSourceCodeAuthors>>,
 
     /// Link to the repository where the un-compiled, human readable code and related code is located.
     pub code_repository: Option<String>,
@@ -2956,16 +2956,16 @@ pub struct SoftwareSourceCode {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<SoftwareSourceCodeDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<SoftwareSourceCodeFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<SoftwareSourceCodeFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -2974,10 +2974,10 @@ pub struct SoftwareSourceCode {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<SoftwareSourceCodeIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<SoftwareSourceCodeImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -2986,10 +2986,10 @@ pub struct SoftwareSourceCode {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<SoftwareSourceCodeLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<SoftwareSourceCodeMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -3004,16 +3004,16 @@ pub struct SoftwareSourceCode {
     pub programming_language: Option<String>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<SoftwareSourceCodePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<SoftwareSourceCodeReferences>>,
 
     /// Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
     pub runtime_platform: Option<Vec<String>>,
 
     /// Dependency requirements for the software.
-    pub software_requirements: Option<Vec<SoftwareSourceCodeSoftwareApplicationString>>,
+    pub software_requirements: Option<Vec<SoftwareSourceCodeSoftwareRequirements>>,
 
     /// Target operating system or product to which the code applies.
     pub target_products: Option<Vec<SoftwareApplication>>,
@@ -3022,13 +3022,13 @@ pub struct SoftwareSourceCode {
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<SoftwareSourceCodeTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<SoftwareSourceCodeVersion>,
 }
 
 /// StringValidator
@@ -3112,10 +3112,10 @@ pub struct Table {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<TableAuthors>>,
 
     /// A caption for the table.
-    pub caption: Option<StringVecNode>,
+    pub caption: Option<TableCaption>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
@@ -3139,16 +3139,16 @@ pub struct Table {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<TableDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<TableFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<TableFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -3157,10 +3157,10 @@ pub struct Table {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<TableIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<TableImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -3172,10 +3172,10 @@ pub struct Table {
     pub label: Option<String>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<TableLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<TableMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -3187,22 +3187,22 @@ pub struct Table {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<TablePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<TableReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<TableTitle>,
 
     /// The URL of the item.
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<TableVersion>,
 }
 
 /// TableCell
@@ -3292,7 +3292,7 @@ pub struct VideoObject {
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    pub authors: Option<Vec<PersonOrganization>>,
+    pub authors: Option<Vec<VideoObjectAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
     pub bitrate: Option<Number>,
@@ -3325,7 +3325,7 @@ pub struct VideoObject {
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<VideoObjectDescription>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -3337,10 +3337,10 @@ pub struct VideoObject {
     pub format: Option<String>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    pub funded_by: Option<Vec<GrantMonetaryGrant>>,
+    pub funded_by: Option<Vec<VideoObjectFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    pub funders: Option<Vec<PersonOrganization>>,
+    pub funders: Option<Vec<VideoObjectFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
     pub genre: Option<Vec<String>>,
@@ -3349,10 +3349,10 @@ pub struct VideoObject {
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<VideoObjectIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<VideoObjectImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
@@ -3361,10 +3361,10 @@ pub struct VideoObject {
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    pub licenses: Option<Vec<CreativeWorkTypesString>>,
+    pub licenses: Option<Vec<VideoObjectLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    pub maintainers: Option<Vec<PersonOrganization>>,
+    pub maintainers: Option<Vec<VideoObjectMaintainers>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -3376,10 +3376,10 @@ pub struct VideoObject {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<PersonOrganization>,
+    pub publisher: Option<VideoObjectPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    pub references: Option<Vec<CreativeWorkTypesString>>,
+    pub references: Option<Vec<VideoObjectReferences>>,
 
     /// The textual content of this creative work.
     pub text: Option<String>,
@@ -3388,7 +3388,7 @@ pub struct VideoObject {
     pub thumbnail: Option<ImageObject>,
 
     /// The title of the creative work.
-    pub title: Option<VecInlineContentString>,
+    pub title: Option<VideoObjectTitle>,
 
     /// The transcript of this video recording.
     pub transcript: Option<String>,
@@ -3397,7 +3397,7 @@ pub struct VideoObject {
     pub url: Option<String>,
 
     /// The version of the creative work.
-    pub version: Option<StringNumber>,
+    pub version: Option<VideoObjectVersion>,
 }
 
 /// VolumeMount
@@ -3412,16 +3412,16 @@ pub struct VolumeMount {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<VecBlockContentVecInlineContentString>,
+    pub description: Option<VolumeMountDescription>,
 
     /// The identifier for this item.
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    pub identifiers: Option<Vec<PropertyValueString>>,
+    pub identifiers: Option<Vec<VolumeMountIdentifiers>>,
 
     /// Images of the item.
-    pub images: Option<Vec<ImageObjectString>>,
+    pub images: Option<Vec<VolumeMountImages>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -3460,88 +3460,846 @@ pub enum CiteCitationMode {
 }
 
 #[derive(Debug)]
-pub enum IntegerString {
+pub enum CitePageEnd {
     Integer(Integer),
     String(String),
 }
 
 #[derive(Debug)]
-pub enum StringVariable {
+pub enum CitePageStart {
+    Integer(Integer),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CodeChunkAssigns {
     String(String),
     Variable(Variable),
 }
 
 #[derive(Debug)]
-pub enum StringVecNode {
+pub enum CodeChunkCaption {
     String(String),
     VecNode(Vec<Node>),
 }
 
 #[derive(Debug)]
-pub enum StringVariableFunction {
+pub enum CodeChunkDeclares {
     String(String),
     Variable(Variable),
     Function(Function),
 }
 
 #[derive(Debug)]
-pub enum StringSoftwareSourceCodeSoftwareApplication {
+pub enum CodeChunkImports {
     String(String),
     SoftwareSourceCode(SoftwareSourceCode),
     SoftwareApplication(SoftwareApplication),
 }
 
 #[derive(Debug)]
-pub enum VecBlockContentVecInlineContentString {
+pub enum CodeChunkUses {
+    String(String),
+    Variable(Variable),
+}
+
+#[derive(Debug)]
+pub enum ThingDescription {
     VecBlockContent(Vec<BlockContent>),
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
 #[derive(Debug)]
-pub enum PropertyValueString {
+pub enum ThingIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
 #[derive(Debug)]
-pub enum ImageObjectString {
+pub enum ThingImages {
     ImageObject(ImageObject),
     String(String),
 }
 
 #[derive(Debug)]
-pub enum StringImageObject {
-    String(String),
-    ImageObject(ImageObject),
-}
-
-#[derive(Debug)]
-pub enum PersonOrganization {
-    Person(Person),
-    Organization(Organization),
-}
-
-#[derive(Debug)]
-pub enum GrantMonetaryGrant {
-    Grant(Grant),
-    MonetaryGrant(MonetaryGrant),
-}
-
-#[derive(Debug)]
-pub enum CreativeWorkTypesString {
-    CreativeWorkTypes(CreativeWorkTypes),
-    String(String),
-}
-
-#[derive(Debug)]
-pub enum VecInlineContentString {
+pub enum BrandDescription {
+    VecBlockContent(Vec<BlockContent>),
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
 #[derive(Debug)]
-pub enum StringNumber {
+pub enum BrandIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum BrandImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum BrandLogo {
+    String(String),
+    ImageObject(ImageObject),
+}
+
+#[derive(Debug)]
+pub enum ContactPointDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ContactPointIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ContactPointImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkPublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CreativeWorkVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum ArticleAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ArticleDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ArticleFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum ArticleFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ArticleIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ArticleImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ArticleLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ArticleMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ArticlePageEnd {
+    Integer(Integer),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ArticlePageStart {
+    Integer(Integer),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ArticlePublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ArticleReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ArticleTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ArticleVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum CollectionAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CollectionDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CollectionFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum CollectionFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CollectionIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CollectionImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CollectionLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CollectionMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CollectionPublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CollectionReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CollectionTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CollectionVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum CommentAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CommentDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CommentFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum CommentFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CommentIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CommentImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CommentLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CommentMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CommentPublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum CommentReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CommentTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum CommentVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum DatatableAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum DatatableDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum DatatableFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum DatatableFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum DatatableIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum DatatableImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum DatatableLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum DatatableMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum DatatablePublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum DatatableReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum DatatableTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum DatatableVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectPublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum MediaObjectVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectPublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum AudioObjectVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum DatatableColumnDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum DatatableColumnIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum DatatableColumnImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum DefinedTermDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum DefinedTermIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum DefinedTermImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum FigureAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum FigureCaption {
+    String(String),
+    VecNode(Vec<Node>),
+}
+
+#[derive(Debug)]
+pub enum FigureDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum FigureFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum FigureFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum FigureIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum FigureImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum FigureLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum FigureMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum FigurePublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum FigureReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum FigureTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum FigureVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum GrantDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum GrantIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum GrantImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum GrantSponsors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectPublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ImageObjectVersion {
     String(String),
     Number(Number),
 }
@@ -3554,20 +4312,640 @@ pub enum ListOrder {
 }
 
 #[derive(Debug)]
-pub enum StringPostalAddress {
+pub enum ListItemDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ListItemIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ListItemImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum MonetaryGrantDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum MonetaryGrantFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum MonetaryGrantIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum MonetaryGrantImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum MonetaryGrantSponsors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum OrganizationAddress {
     String(String),
     PostalAddress(PostalAddress),
 }
 
 #[derive(Debug)]
-pub enum OrganizationPerson {
+pub enum OrganizationDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum OrganizationFunders {
     Organization(Organization),
     Person(Person),
 }
 
 #[derive(Debug)]
-pub enum CiteString {
+pub enum OrganizationIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum OrganizationImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum OrganizationLogo {
+    String(String),
+    ImageObject(ImageObject),
+}
+
+#[derive(Debug)]
+pub enum OrganizationMembers {
+    Organization(Organization),
+    Person(Person),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalPublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PeriodicalVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum PersonAddress {
+    String(String),
+    PostalAddress(PostalAddress),
+}
+
+#[derive(Debug)]
+pub enum PersonDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PersonFunders {
+    Organization(Organization),
+    Person(Person),
+}
+
+#[derive(Debug)]
+pub enum PersonIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PersonImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PostalAddressDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PostalAddressIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PostalAddressImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ProductDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ProductIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ProductImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ProductLogo {
+    String(String),
+    ImageObject(ImageObject),
+}
+
+#[derive(Debug)]
+pub enum PropertyValueDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PropertyValueIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PropertyValueImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueIssueNumber {
+    Integer(Integer),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssuePageEnd {
+    Integer(Integer),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssuePageStart {
+    Integer(Integer),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssuePublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationIssueVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumePageEnd {
+    Integer(Integer),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumePageStart {
+    Integer(Integer),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumePublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum PublicationVolumeVolumeNumber {
+    Integer(Integer),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum QuoteCite {
     Cite(Cite),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum QuoteBlockCite {
+    Cite(Cite),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ReviewAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ReviewDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ReviewFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum ReviewFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ReviewIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ReviewImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ReviewLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ReviewMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ReviewPublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum ReviewReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ReviewTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum ReviewVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationPublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareApplicationVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum SoftwareEnvironmentDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareEnvironmentIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareEnvironmentImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSessionDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSessionIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSessionImages {
+    ImageObject(ImageObject),
     String(String),
 }
 
@@ -3582,10 +4960,162 @@ pub enum SoftwareSessionStatus {
 }
 
 #[derive(Debug)]
-pub enum SoftwareSourceCodeSoftwareApplicationString {
+pub enum SoftwareSourceCodeAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodeDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodeFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodeFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodeIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodeImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodeLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodeMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodePublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodeReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodeSoftwareRequirements {
     SoftwareSourceCode(SoftwareSourceCode),
     SoftwareApplication(SoftwareApplication),
     String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodeTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum SoftwareSourceCodeVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum TableAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum TableCaption {
+    String(String),
+    VecNode(Vec<Node>),
+}
+
+#[derive(Debug)]
+pub enum TableDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum TableFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum TableFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum TableIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum TableImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum TableLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum TableMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum TablePublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum TableReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum TableTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum TableVersion {
+    String(String),
+    Number(Number),
 }
 
 #[derive(Debug)]
@@ -3598,6 +5128,98 @@ pub enum TableCellCellType {
 pub enum TableRowRowType {
     Header,
     Footer,
+}
+
+#[derive(Debug)]
+pub enum VideoObjectAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum VideoObjectDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum VideoObjectFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug)]
+pub enum VideoObjectFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum VideoObjectIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum VideoObjectImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum VideoObjectLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum VideoObjectMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum VideoObjectPublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug)]
+pub enum VideoObjectReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum VideoObjectTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum VideoObjectVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug)]
+pub enum VolumeMountDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum VolumeMountIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug)]
+pub enum VolumeMountImages {
+    ImageObject(ImageObject),
+    String(String),
 }
 
 
