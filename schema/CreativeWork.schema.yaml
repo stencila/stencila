@@ -48,22 +48,22 @@ properties:
   dateCreated:
     '@id': schema:dateCreated
     description: Date/time of creation.
-    $ref: '#/definitions/dateProperty'
+    $ref: Date
   dateReceived:
     '@id': schema:dateReceived
     description: Date/time that work was received.
-    $ref: '#/definitions/dateProperty'
+    $ref: Date
   dateAccepted:
     '@id': stencila:dateAccepted
     description: Date/time of acceptance.
     $comment: |
       This is not yet a schema.org property but the term is used
       [in Dublin Core](http://purl.org/dc/terms/dateAccepted).
-    $ref: '#/definitions/dateProperty'
+    $ref: Date
   dateModified:
     '@id': schema:dateModified
     description: Date/time of most recent modification.
-    $ref: '#/definitions/dateProperty'
+    $ref: Date
   datePublished:
     '@id': schema:datePublished
     aliases:
@@ -71,7 +71,7 @@ properties:
       # and not the date modified or created.
       - date
     description: Date of first publication.
-    $ref: '#/definitions/dateProperty'
+    $ref: Date
   editors:
     '@id': schema:editor
     description: People who edited the `CreativeWork`.
@@ -214,15 +214,3 @@ properties:
     anyOf:
       - type: string
       - type: number
-definitions:
-  dateProperty:
-    # Schema for data properties
-    # Although schema.org says expected values are `Date`, for
-    # consistency with `dateCreated` and `dateModified` we allow
-    # for `DateTime` as well.
-    anyOf:
-      - $ref: Date
-      - type: string
-        format: date-time
-      - type: string
-        format: date
