@@ -29,6 +29,18 @@ const propertyTypes = {
   DateValue: 'chrono::DateTime::<chrono::Utc>',
 }
 
+// Properties that need to use a pointer to prevent circular references
+// (the "recursive type has infinite size" error)
+const pointerProperties = [
+  '*.isPartOf',
+  'Organization.parentOrganization',
+  'ImageObject.publisher', // recursive because publisher has `logo`
+  'ImageObject.thumbnail',
+  'Comment.parentItem',
+  'ArrayValidator.contains',
+  'ArrayValidator.itemsValidator',
+]
+
 /**
  * Generate `../../rust/types.rs` from schemas.
  */
@@ -48,6 +60,8 @@ async function build(): Promise<void> {
     .join('\n')
 
   const code = `
+use std::sync::Arc;
+
 type Null = serde_json::Value;
 type Bool = bool;
 type Integer = i32;
@@ -92,14 +106,21 @@ export function structGenerator(schema: JsonSchema, context: Context): string {
       )}`
       context.propertyTypeName = propertyTypeName
 
-      const type =
+      let type =
         propertyTypeName in propertyTypes
           ? propertyTypeName
           : schemaToType(schema, context)
-      const fieldType = optional ? `Option<${type}>` : type
+
+      type =
+        pointerProperties.includes(`${title}.${name}`) ||
+        pointerProperties.includes(`*.${name}`)
+          ? `Arc<${type}>`
+          : type
+
+      type = optional ? `Option<${type}>` : type
 
       return `    ${docComment(description)}
-    ${name}: ${fieldType},`
+    ${name}: ${type},`
     })
     .join('\n\n')
 
@@ -147,8 +168,6 @@ function schemaToType(schema: JsonSchema, context: Context): string {
  * Convert the `anyOf` property of a JSON schema to a Rust `enum`.
  */
 function anyOfToType(anyOf: JsonSchema[], context: Context): string {
-  if (anyOf.length == 1) return schemaToType(anyOf[0], context)
-
   const name = anyOf
     .map((schema) =>
       schemaToType(schema, context).replace('<', '').replace('>', '')
