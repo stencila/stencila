@@ -287,7 +287,8 @@ export const generateTypeMaps = async (): Promise<string> => {
     path.join(__dirname, '..', '..', 'public', 'InlineContent.schema.json'),
   ])
 
-  let typeMaps = `
+  return (
+    `
   export type TypeMap<T extends Entity = Entity> = { [key in T['type']]: key }
 
   export type TypeMapGeneric<
@@ -295,16 +296,16 @@ export const generateTypeMaps = async (): Promise<string> => {
   > = { [key in T['type']]: key }
 
   type Primitives = undefined | null | boolean | string | number;
-  `
+  ` +
+    files
+      .map((file) => {
+        const { title = '' } = file
 
-  files.map((file) => {
-    const { title = '' } = file
+        // `BlockContent` & `InlineContent` schema dont have a `*Types.schema.json` file
+        // This standardizes the TypeMap names so that they all end with `Types`.
+        const schemaClass = title?.endsWith('Types') ? title : `${title}Types`
 
-    // `BlockContent` & `InlineContent` schema dont have a `*Types.schema.json` file
-    // This standardizes the TypeMap names so that they all end with `Types`.
-    const schemaClass = title?.endsWith('Types') ? title : `${title}Types`
-
-    typeMaps += `
+        return `
       export const ${camelCase(
         schemaClass
       )}: TypeMap<Exclude<${title}, Primitives>> = {
@@ -322,9 +323,9 @@ export const generateTypeMaps = async (): Promise<string> => {
         }
         }
       `
-  })
-
-  return typeMaps
+      })
+      .join()
+  )
 }
 
 /** Generate Type Definitions and Type Maps files */

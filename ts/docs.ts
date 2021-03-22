@@ -199,7 +199,7 @@ async function build(): Promise<void> {
   // Convert other documentation to HTML
   const others = await globby('docs/*')
   await Promise.all(
-    others.map(async (file) => {
+    others.map((file) => {
       const { name } = path.parse(file)
       return encoda.convert(file, path.join(DOCS_DEST_DIR, `${name}.html`))
     })
