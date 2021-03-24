@@ -10,7 +10,7 @@ name = "stencila"
 crate-type = ["cdylib"]
 
 [build-dependencies]
-neon-build = "0.7.1"
+neon-build = "0.8.0"
 
 [dependencies]
 stencila = { path = "../../rust" }
