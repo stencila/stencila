@@ -14,7 +14,7 @@ neon-build = "0.8.0"
 
 [dependencies]
 stencila = { path = "../../rust" }
-neon = "0.7.1"
+neon = "0.8.0"
 # The following required for https://docs.rs/neon/0.7.0-napi.3/neon/event/struct.EventQueue.html
 # See https://github.com/neon-bindings/neon/pull/622#issuecomment-756763449
 #neon = { version = "0.7.0", default-features = false, features = ["napi-4", "event-queue-api"] }
