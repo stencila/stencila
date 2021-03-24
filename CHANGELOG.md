@@ -1,3 +1,14 @@
+## [0.43.4](https://github.com/stencila/stencila/compare/v0.43.3...v0.43.4) (2021-03-24)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate anyhow to 1.0.39 ([fe38ada](https://github.com/stencila/stencila/commit/fe38ada50044149ef1b6b1869db3d7da7a4db6f2))
+* **dependencies:** update rust crate neon to 0.8.0 ([44a9602](https://github.com/stencila/stencila/commit/44a9602e13c9e0fdd808c30c46f104c68978b614))
+* **dependencies:** update rust crate serde to 1.0.125 ([1c17e23](https://github.com/stencila/stencila/commit/1c17e2306afde6f883f6d0b492053d43403255d2))
+* **dependencies:** update rust crate tokio to 1.4.0 ([7f4c676](https://github.com/stencila/stencila/commit/7f4c676d7c18939b1576618fe23f8b934e8bd9cf))
+* **dependencies:** update rust crate validator to 0.13.0 ([72606ac](https://github.com/stencila/stencila/commit/72606ac21a339be81e89a984fba2b723aafb83e7))
+
 ## [0.43.3](https://github.com/stencila/stencila/compare/v0.43.2...v0.43.3) (2021-03-18)
 
 
