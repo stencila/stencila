@@ -1104,7 +1104,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9e98cdd7a8f84ad67b8b3b15806a2972914533d3af7e4ec32cb24e3a101955b9"
 dependencies = [
  "cslice",
- "neon-build",
+ "neon-build 0.7.1",
  "neon-runtime",
  "semver 0.9.0",
  "smallvec",
@@ -1118,6 +1118,12 @@ checksum = "40aa98b2816150f1b0e4f9283b6cb8df101aba9a5e8c5facba32e607e80bedac"
 dependencies = [
  "neon-sys",
 ]
+
+[[package]]
+name = "neon-build"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a529aacddb4b04e9c0a0d5e67478d9aad331c748cbbf6d1657f6d167b3fac37a"
 
 [[package]]
 name = "neon-runtime"
@@ -1967,7 +1973,7 @@ name = "stencila-node"
 version = "0.43.3"
 dependencies = [
  "neon",
- "neon-build",
+ "neon-build 0.8.0",
  "stencila",
 ]
 
