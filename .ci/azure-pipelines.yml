@@ -10,17 +10,8 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - task: Cache@2
-        inputs:
-          path: $(Build.SourcesDirectory)/target
-          key: 'rust | Linux | Cargo.lock'
-
-      - script: |
-          set -e
-          curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable
-          echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
-          cargo install cargo-audit cargo-strip cargo-tarpaulin
-        displayName: Install Rust
+      - script: cargo install cargo-audit cargo-strip cargo-tarpaulin
+        displayName: Install Rust dev deps
 
       - script: make lint
         displayName: Run linting
@@ -48,15 +39,8 @@ jobs:
     pool:
       vmImage: macOS-latest
     steps:
-      # It seems that there may be an issue with using caching on Mac
-      # so avoiding for now.
-
-      - script: |
-          set -e
-          curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable
-          echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
-          cargo install cargo-strip
-        displayName: Install Rust
+      - script: cargo install cargo-strip
+        displayName: Install Rust dev deps
 
       - script: make test
         displayName: Run tests
@@ -74,18 +58,8 @@ jobs:
     pool:
       vmImage: windows-latest
     steps:
-      - task: Cache@2
-        inputs:
-          path: $(Build.SourcesDirectory)/target
-          key: 'rust | Windows | Cargo.lock'
-
-      - script: |
-          curl -sSf -o rustup-init.exe https://win.rustup.rs
-          rustup-init.exe -y --profile minimal --default-toolchain stable --default-host x86_64-pc-windows-msvc
-          set PATH=%PATH%;%USERPROFILE%\.cargo\bin
-          echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
-          cargo install cargo-strip
-        displayName: Install Rust
+      - script: cargo install cargo-strip
+        displayName: Install Rust dev deps
 
       - script: make test
         displayName: Run tests
