@@ -274,9 +274,9 @@ dependencies = [
 
 [[package]]
 name = "ctor"
-version = "0.1.19"
+version = "0.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8f45d9ad417bcef4817d614a501ab55cdd96a6fdb24f49aab89a54acfd66b19"
+checksum = "5e98e2ad1a782e33928b96fc3948e7c355e5af34ba4de7670fe8bac2a3b2006d"
 dependencies = [
  "quote",
  "syn",
@@ -402,7 +402,7 @@ checksum = "de853764b47027c2e862a995c34978ffa63c1501f2e15f987ba11bd4f9bba193"
 [[package]]
 name = "extendr-api"
 version = "0.2.0"
-source = "git+https://github.com/extendr/extendr#36dc6948d289aee4eff4aa4e216f66a81b0a4acd"
+source = "git+https://github.com/extendr/extendr#30b2bba80fbaf02b00fd543d13a2161ac6f06d94"
 dependencies = [
  "extendr-engine",
  "extendr-macros",
@@ -413,7 +413,7 @@ dependencies = [
 [[package]]
 name = "extendr-engine"
 version = "0.2.0"
-source = "git+https://github.com/extendr/extendr#36dc6948d289aee4eff4aa4e216f66a81b0a4acd"
+source = "git+https://github.com/extendr/extendr#30b2bba80fbaf02b00fd543d13a2161ac6f06d94"
 dependencies = [
  "libR-sys",
 ]
@@ -421,9 +421,8 @@ dependencies = [
 [[package]]
 name = "extendr-macros"
 version = "0.2.0"
-source = "git+https://github.com/extendr/extendr#36dc6948d289aee4eff4aa4e216f66a81b0a4acd"
+source = "git+https://github.com/extendr/extendr#30b2bba80fbaf02b00fd543d13a2161ac6f06d94"
 dependencies = [
- "lazy_static",
  "quote",
  "syn",
 ]
@@ -705,12 +704,13 @@ dependencies = [
 
 [[package]]
 name = "http-body"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2861bd27ee074e5ee891e8b539837a9430012e249d7f0ca2d795650f579c1994"
+checksum = "5dfb77c123b4e2f72a2069aeae0b4b4949cc7e966df277813fc16347e7549737"
 dependencies = [
  "bytes",
  "http",
+ "pin-project-lite",
 ]
 
 [[package]]
@@ -973,9 +973,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.90"
+version = "0.2.91"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba4aede83fc3617411dc6993bc8c70919750c1c257c6ca6a502aed6e0e2394ae"
+checksum = "8916b1f6ca17130ec6568feccee27c156ad12037880833a3b842a823236502e7"
 
 [[package]]
 name = "linked-hash-map"
@@ -1040,9 +1040,9 @@ dependencies = [
 
 [[package]]
 name = "mio"
-version = "0.7.10"
+version = "0.7.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2182a122f3b7f3f5329cb1972cee089ba2459a0a80a56935e6e674f096f8d839"
+checksum = "cf80d3e903b34e0bd7282b218398aec54e082c840d9baf8339e0080a0c542956"
 dependencies = [
  "libc",
  "log",
@@ -1053,11 +1053,10 @@ dependencies = [
 
 [[package]]
 name = "miow"
-version = "0.3.6"
+version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a33c1b55807fbed163481b5ba66db4b2fa6cde694a5027be10fb724206c5897"
+checksum = "b9f1c5b025cda876f66ef43a113f91ebc9f4ccef34843000e0adf6ebbab84e21"
 dependencies = [
- "socket2",
  "winapi 0.3.9",
 ]
 
@@ -1104,17 +1103,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bcdbfbcfbb5ae2ffc7281dfe0b118374bd696369096afc252f26c0b8e7a02e91"
 dependencies = [
  "cslice",
- "neon-build 0.8.0",
+ "neon-build",
  "neon-runtime",
  "semver 0.9.0",
  "smallvec",
 ]
-
-[[package]]
-name = "neon-build"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "40aa98b2816150f1b0e4f9283b6cb8df101aba9a5e8c5facba32e607e80bedac"
 
 [[package]]
 name = "neon-build"
@@ -1124,12 +1117,6 @@ checksum = "a529aacddb4b04e9c0a0d5e67478d9aad331c748cbbf6d1657f6d167b3fac37a"
 dependencies = [
  "neon-sys",
 ]
-
-[[package]]
-name = "neon-build"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a529aacddb4b04e9c0a0d5e67478d9aad331c748cbbf6d1657f6d167b3fac37a"
 
 [[package]]
 name = "neon-runtime"
@@ -1979,7 +1966,7 @@ name = "stencila-node"
 version = "0.43.3"
 dependencies = [
  "neon",
- "neon-build 0.8.0",
+ "neon-build",
  "stencila",
 ]
 
@@ -2209,9 +2196,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-stream"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c535f53c0cfa1acace62995a8994fc9cc1f12d202420da96ff306ee24d576469"
+checksum = "e177a5d8c3bf36de9ebe6d58537d8879e964332f93fb3339e43f618c81361af0"
 dependencies = [
  "futures-core",
  "pin-project-lite",
@@ -2246,9 +2233,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.6.4"
+version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec31e5cc6b46e653cf57762f36f71d5e6386391d88a72fd6db4508f8f676fb29"
+checksum = "5143d049e85af7fbc36f5454d990e62c2df705b3589f123b71f441b6b59f443f"
 dependencies = [
  "bytes",
  "futures-core",
