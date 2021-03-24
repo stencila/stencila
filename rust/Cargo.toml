@@ -84,7 +84,7 @@ self_update = { version = "0.26.0", optional = true, features = [
     "compression-flate2",
     "compression-zip-deflate",
 ] }
-serde = { version = "1.0.124", features = ["derive"] }
+serde = { version = "1.0.125", features = ["derive"] }
 serde_json = { version = "1.0.64" }
 serde_yaml = { version = "0.8.17", optional = true }
 structopt = { version = "0.3.21", optional = true }
