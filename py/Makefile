@@ -11,7 +11,7 @@ regen:
 
 lint:
 	python3 -m pylint stencila/schema
-	python3 -m mypy stencila/schema --ignore-missing-imports
+	python3 -m mypy stencila/schema --config-file .mypy.ini
 
 format:
 	python3 -m black --exclude stencila/schema/types.py ./stencila ./*.py

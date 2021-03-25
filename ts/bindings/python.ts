@@ -123,9 +123,11 @@ export function classGenerator(schema: JsonSchema): string {
   const clas = `class ${title}${base}:\n${docString}`
 
   const attrs = own
-    .map(({ name, schema, optional }) => {
+    .map(({ name, schema, optional, override }) => {
       const type = schemaToType(schema)
-      const attrType = optional ? `Optional[${type}] = None` : type
+      const attrType =
+        (optional ? `Optional[${type}] = None` : type) +
+        (override ? ' # type: ignore' : '')
       const { description = name } = schema
       return `    ${name}: ${attrType}\n    """${description}"""\n`
     })

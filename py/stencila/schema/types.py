@@ -598,7 +598,7 @@ class Brand(Thing):
     group, or similar.
     """
 
-    name: str
+    name: str # type: ignore
     """The name of the item."""
 
     logo: Optional[Union[str, "ImageObject"]] = None
@@ -866,6 +866,9 @@ web page, scholarly article, etc.
 class Article(CreativeWork):
     """An article, including news and scholarly articles."""
 
+    content: Optional[Array["BlockContent"]] = None # type: ignore
+    """The structured content of this article."""
+
     pageEnd: Optional[Union[int, str]] = None
     """The page on which the article ends; for example "138" or "xvi"."""
 
@@ -959,7 +962,7 @@ for example, "1-6, 9, 55".
 class Collection(CreativeWork):
     """A created collection of CreativeWorks or other artefacts."""
 
-    parts: Array["CreativeWorkTypes"]
+    parts: Array["CreativeWorkTypes"] # type: ignore
     """Elements of the collection which can be a variety of different elements,
 such as Articles, Datatables, Tables and more.
 """
@@ -1409,7 +1412,7 @@ class AudioObject(MediaObject):
 class DatatableColumn(Thing):
     """A column of data within a Datatable."""
 
-    name: str
+    name: str # type: ignore
     """The name of the item."""
 
     values: Array[Any]
@@ -1453,7 +1456,7 @@ class DatatableColumn(Thing):
 class DefinedTerm(Thing):
     """A word, name, acronym, phrase, etc. with a formal definition."""
 
-    name: str
+    name: str # type: ignore
     """The name of the item."""
 
     termCode: Optional[str] = None
@@ -3177,7 +3180,7 @@ are not included in the application distribution.
 class SoftwareEnvironment(Thing):
     """A computational environment."""
 
-    name: str
+    name: str # type: ignore
     """The name of the item."""
 
     adds: Optional[Array["SoftwareSourceCode"]] = None
