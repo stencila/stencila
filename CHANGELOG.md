@@ -1,3 +1,11 @@
+# [0.44.0](https://github.com/stencila/stencila/compare/v0.43.4...v0.44.0) (2021-03-27)
+
+
+### Features
+
+* **Plugins:** Display  details about a plugin ([e93a1a2](https://github.com/stencila/stencila/commit/e93a1a2b6f1835c2cde1799a8b4602c425c3a3fc))
+* **Plugins:** Display plugin list as a table ([411f6c0](https://github.com/stencila/stencila/commit/411f6c0cbaaea20b9e054a6592df19ea4195e8c5))
+
 ## [0.43.4](https://github.com/stencila/stencila/compare/v0.43.3...v0.43.4) (2021-03-24)
 
 
