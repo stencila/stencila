@@ -23,12 +23,10 @@ pub mod rpc {
 #[allow(unused_variables, unreachable_code)]
 pub fn encode(node: Node, format: String) -> Result<String> {
     let content = match format.as_str() {
-        #[cfg(feature = "json")]
+        #[cfg(feature = "format-json")]
         "json" => serde_json::to_string(&node)?,
-        #[cfg(feature = "yaml")]
+        #[cfg(feature = "format-yaml")]
         "yaml" => serde_yaml::to_string(&node)?,
-        #[cfg(feature = "cli")]
-        "cli" => encode_cli(node)?,
         _ => {
             #[cfg(feature = "request")]
             {
@@ -48,12 +46,4 @@ pub fn encode(node: Node, format: String) -> Result<String> {
         }
     };
     Ok(content)
-}
-
-#[cfg(feature = "cli")]
-fn encode_cli(node: Node) -> Result<String> {
-    match node {
-        Node::String(node) => Ok(node),
-        _ => Ok(serde_json::to_string_pretty(&node)?),
-    }
 }

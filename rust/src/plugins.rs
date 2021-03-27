@@ -182,6 +182,45 @@ pub fn write_plugin(name: &str, plugin: &Plugin) -> Result<()> {
     Ok(())
 }
 
+/// Create a Markdown document describing a plugin
+pub fn display_plugin(name: &str, format: &str) -> Result<String> {
+    let plugin = read_plugin(name)?;
+    let content = match format {
+        #[cfg(any(feature = "template-handlebars"))]
+        "md" => {
+            let template = r#"
+# {{name}} {{softwareVersion}}
+
+{{description}}
+
+## Installation options
+
+{{#each installUrl}}
+- {{this}}{{/each}}
+
+
+## Methods
+
+{{#each featureList}}
+### {{title}}
+
+{{description}}
+
+{{#each properties}}
+- **{{@key}}**: *{{type}}* : {{description}}{{/each}}
+
+{{/each}}
+
+"#;
+            use handlebars::Handlebars;
+            let hb = Handlebars::new();
+            hb.render_template(template, &plugin)?
+        }
+        _ => serde_json::to_string_pretty(&plugin)?,
+    };
+    Ok(content)
+}
+
 /// Read all the installed plugins
 pub fn read_plugins() -> Result<Vec<Plugin>> {
     let dir = dirs::plugins(true)?;
@@ -218,7 +257,7 @@ pub fn display_plugins() -> Result<String> {
         .collect::<Vec<String>>()
         .join("\n");
     let foot = "|-";
-    return Ok(format!("{}\n{}\n{}\n", head, body, foot));
+    Ok(format!("{}\n{}\n{}\n", head, body, foot))
 }
 
 /// Uninstall and unload (from memory) a plugin
@@ -641,6 +680,10 @@ pub mod cli {
         /// The name of the plugin to show
         #[structopt()]
         pub plugin: String,
+
+        /// The format
+        #[structopt(short, long, default_value = "md")]
+        pub format: String,
     }
 
     #[derive(Debug, StructOpt)]
@@ -692,18 +735,22 @@ pub mod cli {
         let Args { action } = args;
         let config::Config { kinds, aliases } = crate::config::get()?.plugins;
 
+        let skin = termimad::MadSkin::default();
         match action {
             Action::List => {
                 let md = display_plugins()?;
-                let skin = termimad::MadSkin::default();
                 println!("{}", skin.term_text(md.as_str()));
                 Ok(())
             }
             Action::Show(action) => {
-                let Show { plugin } = action;
+                let Show { plugin, format } = action;
 
-                let plugin = read_plugin(&plugin)?;
-                println!("{:#?}", plugin);
+                let content = display_plugin(&plugin, &format)?;
+                if format == "json" {
+                    println!("{}", content)
+                } else {
+                    println!("{}", skin.term_text(content.as_str()))
+                }
                 Ok(())
             }
             Action::Install(action) => {
@@ -779,6 +826,7 @@ mod tests {
         plugins(Args {
             action: Action::Show(Show {
                 plugin: "foo".to_string(),
+                format: "md".to_string(),
             }),
         })
         .await

@@ -51,9 +51,9 @@ pub mod rpc {
 #[allow(unused_variables, unreachable_code)]
 pub fn decode(content: String, format: String) -> Result<Node> {
     let node = match format.as_str() {
-        #[cfg(feature = "json")]
+        #[cfg(feature = "format-json")]
         "json" => serde_json::from_str::<Node>(content.as_str())?,
-        #[cfg(feature = "yaml")]
+        #[cfg(feature = "format-yaml")]
         "yaml" => serde_yaml::from_str::<Node>(content.as_str())?,
         _ => {
             #[cfg(feature = "request")]
