@@ -23,7 +23,7 @@ serve-stdio = []
 serve-http = ["warp", "jsonwebtoken"]
 serve-ws = ["warp", "jsonwebtoken"]
 # Command line interface
-cli = ["structopt", "exitcode"] #, "crossterm"]
+cli = [ "exitcode", "structopt", "termimad"]
 # Open a document in the browser
 open = ["serve", "serve-http", "serve-ws", "webbrowser"]
 # Manage plugins
@@ -90,6 +90,7 @@ serde_yaml = { version = "0.8.17", optional = true }
 structopt = { version = "0.3.21", optional = true }
 strum = { version = "0.20", features = ["derive"] }
 strum_macros = "0.20.1"
+termimad = { version = "0.10.1", optional = true }
 thiserror = "1.0.24"
 tokio = { version = "1.4.0", features = ["full"] }
 tokio-tungstenite = { version = "0.14.0", optional = true }

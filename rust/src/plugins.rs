@@ -47,6 +47,12 @@ pub struct Plugin {
     /// The version of the plugin
     software_version: String,
 
+    /// A description of the plugin
+    description: String,
+
+    /// A list of URLS that the plugin can be installed from
+    install_url: Vec<String>,
+
     /// A list of plugin "features"
     /// Each feature is a `JSONSchema` object describing a method
     /// (including its parameters).
@@ -192,6 +198,27 @@ pub fn read_plugins() -> Result<Vec<Plugin>> {
         }
     }
     Ok(plugins)
+}
+
+/// Create a Markdown table of all the install plugins
+pub fn display_plugins() -> Result<String> {
+    let plugins = read_plugins()?;
+    let head = r#"
+| ---- | ------- | ------------ |
+| Name | Version | Description  |
+| :--- | ------: | -------------|"#;
+    let body = plugins
+        .iter()
+        .map(|plugin| {
+            format!(
+                "| **{}** | {} | {} |",
+                plugin.name, plugin.software_version, plugin.description
+            )
+        })
+        .collect::<Vec<String>>()
+        .join("\n");
+    let foot = "|-";
+    return Ok(format!("{}\n{}\n{}\n", head, body, foot));
 }
 
 /// Uninstall and unload (from memory) a plugin
@@ -667,8 +694,9 @@ pub mod cli {
 
         match action {
             Action::List => {
-                let plugins = read_plugins()?;
-                println!("{:?}", plugins);
+                let md = display_plugins()?;
+                let skin = termimad::MadSkin::default();
+                println!("{}", skin.term_text(md.as_str()));
                 Ok(())
             }
             Action::Show(action) => {
