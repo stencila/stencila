@@ -37,11 +37,15 @@ pub enum Command {
 
 // TODO Return a result?
 pub async fn cli(args: Vec<String>) -> i32 {
-    // TODO: Do not call updrade if command itself is upgrade
-    let upgrade_thread = upgrade::upgrade_auto();
-
     // Parse args into a command
     let Args { command } = Args::from_iter(args);
+
+    // If not explicitly upgrading then run an upgrade check in the background
+    let upgrade_thread = if let Command::Upgrade(_) = command {
+        None
+    } else {
+        Some(upgrade::upgrade_auto())
+    };
 
     // Run the command
     let result = match command {
@@ -56,8 +60,10 @@ pub async fn cli(args: Vec<String>) -> i32 {
     };
 
     // Join the upgrade thread and log any errors
-    if let Err(_error) = upgrade_thread.join() {
-        // TODO: Log error
+    if let Some(upgrade_thread) = upgrade_thread {
+        if let Err(_error) = upgrade_thread.join() {
+            // TODO: Log error
+        }
     }
 
     match result {
