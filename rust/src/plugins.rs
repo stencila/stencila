@@ -182,6 +182,22 @@ pub fn write_plugin(name: &str, plugin: &Plugin) -> Result<()> {
     Ok(())
 }
 
+/// Uninstall and unload (from memory) a plugin
+pub fn remove_plugin(name: &str) -> Result<()> {
+    let dir = plugin_dir(&name)?;
+    if dir.exists() || fs::symlink_metadata(&dir).is_ok() {
+        if dir.is_file() {
+            fs::remove_file(dir)?
+        } else {
+            // Note that if `dir` is a symlink to a directory that
+            // only the directory will be removed.
+            fs::remove_dir_all(dir)?
+        }
+    }
+
+    unload_plugin(name)
+}
+
 /// Create a Markdown document describing a plugin
 pub fn display_plugin(name: &str, format: &str) -> Result<String> {
     let plugin = read_plugin(name)?;
@@ -265,22 +281,6 @@ pub fn display_plugins() -> Result<String> {
         .join("\n");
     let foot = "|-";
     Ok(format!("{}\n{}\n{}\n", head, body, foot))
-}
-
-/// Uninstall and unload (from memory) a plugin
-pub fn uninstall_plugin(name: &str) -> Result<()> {
-    let dir = plugin_dir(&name)?;
-    if dir.exists() || fs::symlink_metadata(&dir).is_ok() {
-        if dir.is_file() {
-            fs::remove_file(dir)?
-        } else {
-            // Note that if `dir` is a symlink to a directory that
-            // only the directory will be removed.
-            fs::remove_dir_all(dir)?
-        }
-    }
-
-    unload_plugin(name)
 }
 
 /// Add a plugin as a pulled Docker image
@@ -408,7 +408,7 @@ pub async fn install_docker(name: &str, version: &str) -> Result<()> {
     };
 
     // Remove the plugin directory
-    uninstall_plugin(&name)?;
+    remove_plugin(&name)?;
 
     // Load and write the plugin file
     let plugin = load_plugin(json)?;
@@ -437,7 +437,7 @@ pub fn install_binary(name: &str, version: &str) -> Result<()> {
     };
 
     // Remove the plugin directory
-    uninstall_plugin(&name)?;
+    remove_plugin(&name)?;
 
     // (Re)create the directory where the binary will be downloaded to
     let install_dir = dirs::plugins(false)?.join(name);
@@ -526,7 +526,7 @@ pub fn install_link(path: &str) -> Result<()> {
     let name = plugin.name;
 
     // Remove the plugin directory
-    uninstall_plugin(&name)?;
+    remove_plugin(&name)?;
 
     // Create the soft link
     let link = plugin_dir(&name)?;
@@ -548,7 +548,7 @@ pub async fn install(
     let name = alias_to_name(&alias, aliases);
 
     if is_installed(&name)? {
-        uninstall_plugin(&name)?
+        remove_plugin(&name)?
     }
 
     for kind in kinds {
@@ -595,7 +595,7 @@ pub async fn install_list(
 /// Remove a plugin
 pub fn uninstall(alias: &str, aliases: &HashMap<String, String>) -> Result<()> {
     let name = alias_to_name(&alias, &aliases);
-    uninstall_plugin(&name)?;
+    remove_plugin(&name)?;
 
     Ok(())
 }
@@ -679,7 +679,7 @@ pub mod cli {
         Link(Link),
         Upgrade(Upgrade),
         Uninstall(Uninstall),
-        Unlink(Unlink)
+        Unlink(Unlink),
     }
 
     #[derive(Debug, StructOpt)]
@@ -738,7 +738,6 @@ pub mod cli {
         #[structopt(required = true, multiple = true)]
         pub plugins: Vec<String>,
     }
-
 
     #[derive(Debug, StructOpt)]
     #[structopt(about = "Unlink a local plugins")]
@@ -823,7 +822,7 @@ pub mod cli {
             Action::Unlink(action) => {
                 let Unlink { name } = action;
 
-                uninstall_plugin(&name)
+                remove_plugin(&name)
             }
         }
     }
