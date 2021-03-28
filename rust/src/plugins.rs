@@ -242,10 +242,17 @@ pub fn read_plugins() -> Result<Vec<Plugin>> {
 /// Create a Markdown table of all the install plugins
 pub fn display_plugins() -> Result<String> {
     let plugins = read_plugins()?;
+
+    if plugins.is_empty() {
+        return Ok("No plugins installed. See `stencila plugins install --help`.".to_string());
+    }
+
     let head = r#"
 | ---- | ------- | ------------ |
 | Name | Version | Description  |
-| :--- | ------: | -------------|"#;
+| :--- | ------: | -------------|
+"#
+    .trim();
     let body = plugins
         .iter()
         .map(|plugin| {
