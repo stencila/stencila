@@ -679,6 +679,7 @@ pub mod cli {
         Link(Link),
         Upgrade(Upgrade),
         Uninstall(Uninstall),
+        Unlink(Unlink)
     }
 
     #[derive(Debug, StructOpt)]
@@ -736,6 +737,15 @@ pub mod cli {
         /// The names or aliases of plugins to uninstall
         #[structopt(required = true, multiple = true)]
         pub plugins: Vec<String>,
+    }
+
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(about = "Unlink a local plugins")]
+    pub struct Unlink {
+        /// The name of the plugin
+        #[structopt()]
+        pub name: String,
     }
 
     pub async fn plugins(args: Args) -> Result<()> {
@@ -809,6 +819,11 @@ pub mod cli {
                 let Uninstall { plugins } = action;
 
                 uninstall_list(plugins, &aliases)
+            }
+            Action::Unlink(action) => {
+                let Unlink { name } = action;
+
+                uninstall_plugin(&name)
             }
         }
     }
