@@ -1,4 +1,3 @@
-use crate::config;
 use crate::decode;
 use crate::open;
 use crate::plugins;
@@ -6,6 +5,8 @@ use crate::request;
 use crate::serve;
 use crate::upgrade;
 use crate::validate;
+use crate::{config, plugins::read_plugins};
+use anyhow::Result;
 use structopt::StructOpt;
 use strum::{Display, EnumVariantNames};
 
@@ -35,8 +36,7 @@ pub enum Command {
     Config(config::cli::Args),
 }
 
-// TODO Return a result?
-pub async fn cli(args: Vec<String>) -> i32 {
+pub async fn cli(args: Vec<String>) -> Result<i32> {
     // Parse args into a command
     let Args { command } = Args::from_iter(args);
 
@@ -46,6 +46,9 @@ pub async fn cli(args: Vec<String>) -> i32 {
     } else {
         Some(upgrade::upgrade_auto())
     };
+
+    // Load plugins
+    read_plugins()?;
 
     // Run the command
     let result = match command {
@@ -67,12 +70,12 @@ pub async fn cli(args: Vec<String>) -> i32 {
     }
 
     match result {
-        Ok(_) => exitcode::OK,
+        Ok(_) => Ok(exitcode::OK),
         Err(error) => {
             // Write the error to the terminal
             // TODO Send this to a logger
             eprintln!("{}", error);
-            exitcode::SOFTWARE
+            Ok(exitcode::SOFTWARE)
         }
     }
 }

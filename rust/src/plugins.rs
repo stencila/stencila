@@ -27,9 +27,6 @@ const PLUGIN_FILE: &str = "codemeta.json";
 type Plugins = HashMap<String, Plugin>;
 pub static PLUGINS: Lazy<Mutex<Plugins>> = Lazy::new(|| Mutex::new(HashMap::new()));
 
-type Methods = HashMap<String, Vec<(String, Box<serde_json::Value>, JSONSchema<'static>)>>;
-pub static METHODS: Lazy<Mutex<Methods>> = Lazy::new(|| Mutex::new(HashMap::new()));
-
 /// Description of a plugin
 ///
 /// As far as possible using existing properties defined in schema.org
@@ -113,7 +110,8 @@ pub fn load_plugin(json: &str) -> Result<Plugin> {
     let mut methods = METHODS.lock().expect("Unable to obtain methods lock");
     for feature in &plugin.feature_list {
         let title = match feature.get("title") {
-            None => bail!("JSON Schema is missing 'title' annotation"),
+            None => bail!("JSON Schema is missing 'title' property"),
+            Some(serde_json::Value::String(value)) => value.clone(),
             Some(value) => value.to_string(),
         };
 
@@ -224,7 +222,6 @@ pub fn display_plugin(name: &str, format: &str) -> Result<String> {
 
 {{#each properties}}
 - **{{@key}}**: *{{type}}* : {{description}}{{/each}}
-
 {{/each}}
 
 "#;
@@ -611,6 +608,90 @@ pub fn uninstall_list(plugins: Vec<String>, aliases: &HashMap<String, String>) -
     Ok(())
 }
 
+/// The methods that are available from loaded plugins
+///
+/// Used for fast delegation of calls to plugins.
+type Methods = HashMap<String, Vec<(String, Box<serde_json::Value>, JSONSchema<'static>)>>;
+pub static METHODS: Lazy<Mutex<Methods>> = Lazy::new(|| Mutex::new(HashMap::new()));
+
+/// Create a Markdown document describing a plugin
+pub fn display_method(name: &str, format: &str) -> Result<String> {
+    let methods = METHODS.lock().expect("Unable to lock methods");
+
+    let plugins = match methods.get(name) {
+        None => bail!("No implementations for method `{}`", name),
+        Some(plugins) => plugins
+            .iter()
+            .map(|implem| {
+                let (name, schema, ..) = implem;
+                serde_json::json!({
+                    "name": name,
+                    "schema": schema
+                })
+            })
+            .collect::<serde_json::Value>(),
+    };
+
+    let method = &serde_json::json!({ "name": name, "plugins": plugins });
+
+    let content = match format {
+        #[cfg(any(feature = "template-handlebars"))]
+        "md" => {
+            let template = r#"
+# {{name}}
+
+{{#each plugins}}
+## {{name}}
+
+{{#with schema }}
+{{description}}
+
+{{#each properties}}
+- **{{@key}}**: *{{type}}* : {{description}}{{/each}}
+{{/with}}
+{{/each}}
+"#
+            .trim();
+            use handlebars::Handlebars;
+            let hb = Handlebars::new();
+            hb.render_template(template, &method)?
+        }
+        _ => serde_json::to_string_pretty(&method)?,
+    };
+    Ok(content)
+}
+
+/// Create a Markdown table of all the registed methods
+pub fn display_methods() -> Result<String> {
+    let methods = METHODS.lock().expect("Unable to lock methods");
+
+    if methods.is_empty() {
+        return Ok("No methods registered. See `stencila plugins install --help`.".to_string());
+    }
+
+    let head = r#"
+| -------- | -------- |
+| Method   | Plugins  |
+| :------- | :------- |
+"#
+    .trim();
+    let body = methods
+        .iter()
+        .map(|method| {
+            let (method_name, plugins) = method;
+            let plugins = plugins
+                .iter()
+                .map(|plugin| plugin.0.clone())
+                .collect::<Vec<String>>()
+                .join(", ");
+            format!("| {} | {} |", method_name, plugins)
+        })
+        .collect::<Vec<String>>()
+        .join("\n");
+    let foot = "|-";
+    Ok(format!("{}\n{}\n{}\n", head, body, foot))
+}
+
 #[cfg(feature = "config")]
 pub mod config {
     use super::*;
@@ -680,6 +761,7 @@ pub mod cli {
         Upgrade(Upgrade),
         Uninstall(Uninstall),
         Unlink(Unlink),
+        Methods(Methods),
     }
 
     #[derive(Debug, StructOpt)]
@@ -689,7 +771,7 @@ pub mod cli {
         #[structopt()]
         pub plugin: String,
 
-        /// The format
+        /// The format to show the plugin in
         #[structopt(short, long, default_value = "md")]
         pub format: String,
     }
@@ -745,6 +827,18 @@ pub mod cli {
         /// The name of the plugin
         #[structopt()]
         pub name: String,
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(about = "List methods and the plugins that implement them")]
+    pub struct Methods {
+        /// The name of the method
+        #[structopt()]
+        pub name: Option<String>,
+
+        /// The format to show the method using
+        #[structopt(short, long, default_value = "md")]
+        pub format: String,
     }
 
     pub async fn plugins(args: Args) -> Result<()> {
@@ -823,6 +917,20 @@ pub mod cli {
                 let Unlink { name } = action;
 
                 remove_plugin(&name)
+            }
+            Action::Methods(action) => {
+                let Methods { name, format } = action;
+
+                let content = match name {
+                    None => display_methods()?,
+                    Some(name) => display_method(&name, &format)?,
+                };
+                if format == "json" {
+                    println!("{}", content)
+                } else {
+                    println!("{}", skin.term_text(content.as_str()))
+                }
+                Ok(())
             }
         }
     }
