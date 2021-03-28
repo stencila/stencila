@@ -538,7 +538,7 @@ pub fn install_link(path: &str) -> Result<()> {
     Ok(())
 }
 
-/// Add a plugin
+/// Install a plugin
 pub async fn install(
     plugin: &str,
     kinds: &[Kind],
@@ -577,7 +577,7 @@ pub async fn install(
     )
 }
 
-/// Add a list of plugins
+/// Install a list of plugins
 pub async fn install_list(
     plugins: Vec<String>,
     kinds: Vec<Kind>,
