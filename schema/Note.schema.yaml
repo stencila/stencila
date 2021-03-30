@@ -1,0 +1,25 @@
+title: Note
+'@id': stencila:Note
+extends: Entity
+role: secondary
+status: unstable
+description: .
+properties:
+  noteType:
+    '@id': stencila:noteType
+    description: Determines where the note content is displayed within document.
+    type: string
+    enum:
+      - Footnote
+      - Endnote
+  content:
+    '@id': stencila:content
+    description: Content of the note, usually a paragraph.
+    type: array
+    items:
+      $ref: BlockContent
+    $comment: |
+      Most notes will have a single paragraph but could have multiple
+      paragraphs, tables and even figures.
+required:
+  - content
