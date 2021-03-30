@@ -1,3 +1,15 @@
+# [2.24.0](https://github.com/stencila/thema/compare/v2.23.0...v2.24.0) (2021-03-30)
+
+
+### Bug Fixes
+
+* **Cite:** Avoid italicizing parentheses surrounding citations ([f75cc56](https://github.com/stencila/thema/commit/f75cc56e537e717e760b1489cd085e0393ba7376))
+
+
+### Features
+
+* **Citations:** Add support for alternative citation modes ([ab821f1](https://github.com/stencila/thema/commit/ab821f1e8d2a82e43cf5cafed8b753bdbe78ba90))
+
 # [2.23.0](https://github.com/stencila/thema/compare/v2.22.1...v2.23.0) (2021-03-19)
 
 
