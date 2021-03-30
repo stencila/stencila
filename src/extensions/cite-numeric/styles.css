@@ -1,3 +1,17 @@
+/* Override browser default stylesheets to avoid italicized parentheses */
+:--Cite {
+  &,
+  :--citationPrefix::before,
+  :--citationPrefix::after {
+    font-style: normal;
+  }
+
+  /* But keep the reference links italicized */
+  & > a {
+    font-style: italic;
+  }
+}
+
 /* Show numeric citation content */
 :--Cite > a > :first-child {
   display: inline;
