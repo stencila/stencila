@@ -20,7 +20,7 @@ const tsPath = path.join(__dirname, '..', 'selectors.ts')
  * in the Stencila Schema.
  *
  * For the root node, use the exact matcher (`=`), for others
- * use the "container the word" matcher (`~=`).
+ * use the "contains the word" matcher (`~=`).
  *
  * For types, there is only one selector, having the name of the type, and
  * using the `itemtype` attribute eg.
@@ -129,6 +129,7 @@ const generateSelectors = async (): Promise<void> => {
   )
 
   // Generate some utility selector groups for more ergonomic theme authoring
+
   const listTypes = [
     ':--Article:--root > :--affiliations',
     ':--Collection',
@@ -187,6 +188,13 @@ ${propSelectorsCss.join('\n')}
 @custom-selector :--CodeTypes ${codeTypes.join(',')};
 @custom-selector :--MediaTypes ${mediaTypes.join(',')};
 
+/**
+ * Utility selectors for convenience
+ */
+@custom-selector :--CiteParenthetical :--Cite[data-citationmode='Parenthetical'];
+@custom-selector :--CiteNarrative :--Cite[data-citationmode='Narrative'];
+@custom-selector :--CiteNarrativeAuthor :--Cite[data-citationmode='NarrativeAuthor'];
+@custom-selector :--CiteNarrativeYear :--Cite[data-citationmode='NarrativeYear'];
 `
   fs.writeFile(cssPath, css, () => css)
 

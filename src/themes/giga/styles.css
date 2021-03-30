@@ -151,7 +151,9 @@
   }
 
   :--Cite {
-    color: var(--color-primary-100);
+    a {
+      color: var(--color-primary-100);
+    }
   }
 
   :--Figure,
