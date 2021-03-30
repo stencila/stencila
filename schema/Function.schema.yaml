@@ -25,4 +25,5 @@ properties:
   returns:
     '@id': stencila:returns
     description: The return type of the function.
-    $ref: ValidatorTypes
+    allOf:
+      - $ref: ValidatorTypes

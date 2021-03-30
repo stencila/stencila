@@ -9,7 +9,8 @@ properties:
   default:
     '@id': schema:defaultValue
     description: The default value of the parameter.
-    $ref: Node
+    allOf:
+      - $ref: Node
   isRequired:
     '@id': schema:valueRequired
     description: Is this parameter required, if not it should have a default or default is assumed to be null.

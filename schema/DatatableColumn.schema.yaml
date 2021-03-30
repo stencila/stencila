@@ -9,7 +9,8 @@ properties:
   validator:
     '@id': stencila:validator
     description: The validator to use to validate data in the column.
-    $ref: ArrayValidator
+    allOf:
+      - $ref: ArrayValidator
   values:
     '@id': stencila:values
     description: The data values of the column.

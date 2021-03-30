@@ -25,10 +25,12 @@ properties:
   validator:
     '@id': stencila:validator
     description: The validator that the value is validated against.
-    $ref: ValidatorTypes
+    allOf:
+      - $ref: ValidatorTypes
   value:
     '@id': schema:value
     description: The value of the variable.
-    $ref: Node
+    allOf:
+      - $ref: Node
 required:
   - name

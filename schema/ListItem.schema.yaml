@@ -22,7 +22,8 @@ properties:
     '@id': schema:item
     description: The item represented by this list item.
     $comment: Use either `item` or `content`, not both.
-    $ref: Node
+    allOf:
+      - $ref: Node
   position:
     '@id': schema:position
     description: The position of the item in a series or sequence of items.

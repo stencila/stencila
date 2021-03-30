@@ -14,15 +14,18 @@ properties:
   environment:
     '@id': stencila:environment
     description: The software environment to execute this session in.
-    $ref: SoftwareEnvironment
+    allOf:
+      - $ref: SoftwareEnvironment
   dateStart:
     '@id': schema:startDate
     description: The date-time that the session began.
-    $ref: Date
+    allOf:
+      - $ref: Date
   dateEnd:
     '@id': schema:endDate
     description: The date-time that the session ended.
-    $ref: Date
+    allOf:
+      - $ref: Date
   status:
     '@id': stencila:sessionStatus
     description: The status of the session (starting, stopped, etc).
