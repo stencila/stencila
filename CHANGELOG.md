@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/stencila/schema/compare/v1.1.5...v1.2.0) (2021-03-31)
+
+
+### Features
+
+* **Note:** Draft Note specification ([b187519](https://github.com/stencila/schema/commit/b187519d72ed8d77fa85bc3c44abc1b81ad5d93a))
+
 ## [1.1.5](https://github.com/stencila/schema/compare/v1.1.4...v1.1.5) (2021-03-31)
 
 

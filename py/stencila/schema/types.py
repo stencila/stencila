@@ -2189,7 +2189,7 @@ class Note(Entity):
     """Content of the note, usually a paragraph."""
 
     noteType: Optional["ENoteType"] = None
-    """Determines where the note content is displayed within document."""
+    """Determines where the note content is displayed within the document."""
 
 
     def __init__(

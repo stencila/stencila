@@ -2368,7 +2368,7 @@ NontextualAnnotation <- function(
 #' @param content Content of the note, usually a paragraph. \bold{Required}.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
-#' @param noteType Determines where the note content is displayed within document.
+#' @param noteType Determines where the note content is displayed within the document.
 #' @return A `list` of class `Note`
 #' @seealso \code{\link{Entity}}
 #' @export
