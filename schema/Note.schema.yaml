@@ -14,7 +14,7 @@ $comment: |
 properties:
   noteType:
     '@id': stencila:noteType
-    description: Determines where the note content is displayed within document.
+    description: Determines where the note content is displayed within the document.
     type: string
     enum:
       - Footnote
