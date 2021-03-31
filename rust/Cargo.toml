@@ -69,7 +69,7 @@ default = [
 ]
 
 [dependencies]
-anyhow = "1.0.39"
+anyhow = "1.0.40"
 bollard = { version = "0.10.1", optional = true }
 chrono = "0.4.19"
 dirs-next = "2.0.0"
