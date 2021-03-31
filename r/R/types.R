@@ -2362,6 +2362,34 @@ NontextualAnnotation <- function(
 }
 
 
+#' Additional content which is not part of the main content of a document.
+#'
+#' @name Note
+#' @param content Content of the note, usually a paragraph. \bold{Required}.
+#' @param id The identifier for this item.
+#' @param meta Metadata associated with this item.
+#' @param noteType Determines where the note content is displayed within document.
+#' @return A `list` of class `Note`
+#' @seealso \code{\link{Entity}}
+#' @export
+Note <- function(
+  content,
+  id,
+  meta,
+  noteType
+){
+  self <- Entity(
+    id = id,
+    meta = meta
+  )
+  self$type <- as_scalar("Note")
+  self[["content"]] <- check_property("Note", "content", TRUE, missing(content), Array(BlockContent), content)
+  self[["noteType"]] <- check_property("Note", "noteType", FALSE, missing(noteType), Enum("Footnote", "Endnote", "Sidenote"), noteType)
+  class(self) <- c(class(self), "Note")
+  self
+}
+
+
 #' An organization such as a school, NGO, corporation, club, etc.
 #'
 #' @name Organization
@@ -4261,7 +4289,7 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Comme
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Grant

@@ -10,6 +10,8 @@ ECitationMode = Enum("CitationMode", ["Parenthetical", "Narrative", "NarrativeAu
 
 EItemListOrder = Enum("ItemListOrder", ["ascending", "descending", "unordered"])
 
+ENoteType = Enum("NoteType", ["Footnote", "Endnote", "Sidenote"])
+
 ESessionStatus = Enum("SessionStatus", ["unknown", "starting", "started", "stopping", "stopped", "failed"])
 
 ECellType = Enum("CellType", ["data", "header"])
@@ -2178,6 +2180,35 @@ class NontextualAnnotation(Mark):
 
 
 
+class Note(Entity):
+    """
+    Additional content which is not part of the main content of a document.
+    """
+
+    content: Array["BlockContent"]
+    """Content of the note, usually a paragraph."""
+
+    noteType: Optional["ENoteType"] = None
+    """Determines where the note content is displayed within document."""
+
+
+    def __init__(
+        self,
+        content: Array["BlockContent"],
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        noteType: Optional["ENoteType"] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if content is not None:
+            self.content = content
+        if noteType is not None:
+            self.noteType = noteType
+
+
 class Organization(Thing):
     """An organization such as a school, NGO, corporation, club, etc."""
 
@@ -3926,7 +3957,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection"
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
