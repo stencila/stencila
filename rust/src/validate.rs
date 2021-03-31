@@ -1,18 +1,15 @@
 use anyhow::{bail, Result};
 use jsonschema::JSONSchema;
+use once_cell::sync::Lazy;
 use serde_json::{json, Value};
 
 use crate::nodes::Node;
 
-lazy_static! {
-    static ref SCHEMA: Value = json!({
-        "maxLength": 5, "pattern": "aaa",
-    });
-    // TODO cache compiled schemas in a LRU cache
-    static ref VALIDATOR: JSONSchema<'static> = JSONSchema::compile(&SCHEMA).unwrap();
-}
-
 pub fn validate(node: Node) -> Result<Node> {
+    static SCHEMA: Lazy<Value> = Lazy::new(|| json!({ "maxLength": 5, "pattern": "aaa" }));
+    static VALIDATOR: Lazy<JSONSchema<'static>> =
+        Lazy::new(|| JSONSchema::compile(&SCHEMA).unwrap());
+
     let result = VALIDATOR.validate(&node);
     match result {
         Ok(_) => Ok(Node::Bool(true)),
