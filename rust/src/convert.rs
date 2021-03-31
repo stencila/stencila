@@ -1,61 +1,79 @@
-use crate::decode::decode;
-use crate::delegate::delegate;
-use crate::encode::encode;
-use crate::err;
-use crate::error::Error;
-use crate::methods::Method;
-use crate::nodes::Node;
-use crate::validate::validate;
+use crate::export::export;
+use crate::import::import;
 use anyhow::Result;
-use serde::{Deserialize, Serialize};
-use structopt::StructOpt;
 
-#[derive(Debug, Serialize, Deserialize, StructOpt)]
-#[structopt(
-    about = "Convert content from one format to another",
-    setting = structopt::clap::AppSettings::DeriveDisplayOrder
-)]
-pub struct Params {
-    /// Content, path or URL to read
-    input: String,
-
-    /// Path or URL to write to
-    output: String,
-
-    #[structopt(short, long, default_value)]
-    from: String,
-
-    #[structopt(short, long, default_value)]
-    to: String,
+pub fn convert(input: &str, output: &str, from: Option<String>, to: Option<String>) -> Result<()> {
+    let imported = import(input, from)?;
+    export(imported, output, to)
 }
 
-pub fn convert_params(params: Params) -> Result<Node> {
-    let Params {
-        input,
-        output,
-        from,
-        to,
-        ..
-    } = params;
+#[cfg(feature = "watch")]
+pub fn convert_watch(
+    input: &str,
+    output: &str,
+    from: Option<String>,
+    to: Option<String>,
+    watch: &str,
+) -> Result<()> {
+    tracing::info!("Watching '{}' for changes", watch);
 
-    convert(&input, &output, &from, &to)
-}
+    use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
+    use std::time::Duration;
 
-pub fn convert(input: &str, output: &str, from: &str, to: &str) -> Result<Node> {
-    // TODO: Attempt to delegate if can't handle both from and to formats
-    if false {
-        return delegate(
-            Method::Convert,
-            Params {
-                input: String::from(input),
-                output: String::from(output),
-                from: String::from(from),
-                to: String::from(to),
-            },
-        );
+    let (tx, rx) = std::sync::mpsc::channel();
+    let mut watcher = watcher(tx, Duration::from_secs(1)).unwrap();
+    watcher.watch(watch, RecursiveMode::NonRecursive).unwrap();
+
+    loop {
+        match rx.recv() {
+            Ok(event) => {
+                tracing::debug!("{:?}", event);
+                if let DebouncedEvent::Write(_) = event {
+                    if let Err(error) = convert(input, output, from.clone(), to.clone()) {
+                        tracing::error!("Convert error: {:?}", error)
+                    }
+                }
+            }
+            Err(error) => tracing::error!("Watch error: {:?}", error),
+        }
     }
-    // TODO: If unable to delegate then attempt the following (which may involve transfer of decoded node to peer)
-    let node = decode(input, from)?;
-    // TODO: reshape prior to encoding
-    encode(node, to)
+}
+
+#[cfg(feature = "cli")]
+pub mod cli {
+    use super::*;
+    use structopt::StructOpt;
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(about = "Convert document from one format to another")]
+    pub struct Args {
+        input: String,
+
+        output: String,
+
+        #[structopt(short, long)]
+        from: Option<String>,
+
+        #[structopt(short, long)]
+        to: Option<String>,
+
+        #[structopt(short, long)]
+        watch: bool,
+    }
+
+    pub fn convert(args: Args) -> Result<()> {
+        let Args {
+            input,
+            output,
+            from,
+            to,
+            watch,
+        } = args;
+
+        if watch {
+            super::convert_watch(&input, &output, from, to, &input)
+        } else {
+            super::convert(&input, &output, from, to)
+        }
+    }
 }

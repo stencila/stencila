@@ -1,4 +1,4 @@
-use crate::decode;
+use crate::convert;
 use crate::open;
 use crate::plugins;
 use crate::request;
@@ -27,7 +27,7 @@ pub struct Args {
 )]
 pub enum Command {
     Open(open::cli::Args),
-    Decode(decode::cli::Args),
+    Convert(convert::cli::Args),
     Validate(validate::cli::Args),
     Serve(serve::cli::Args),
     Request(request::cli::Args),
@@ -53,7 +53,7 @@ pub async fn cli(args: Vec<String>) -> Result<i32> {
     // Run the command
     let result = match command {
         Command::Open(command) => open::cli::open(command).await,
-        Command::Decode(command) => decode::cli::decode(command),
+        Command::Convert(command) => convert::cli::convert(command),
         Command::Validate(command) => validate::cli::validate(command),
         Command::Serve(command) => serve::cli::serve(command).await,
         Command::Request(command) => request::cli::request(command).await,
