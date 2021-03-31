@@ -3,7 +3,14 @@ title: Note
 extends: Entity
 role: secondary
 status: unstable
-description: .
+description: Additional content which is not part of the main content of a document.
+$comment: |
+  A note is usually associated with a word or paragraph using a number or other symbol. 
+  It can be displayed as a footnote, endnote, or side note, or in interactive elements.
+  For analogues, see 
+  - [JATS `<fn>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/fn.html)
+  - [Pandoc footnotes](https://pandoc.org/MANUAL.html#footnotes)
+  - [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)
 properties:
   noteType:
     '@id': stencila:noteType
@@ -12,6 +19,7 @@ properties:
     enum:
       - Footnote
       - Endnote
+      - Sidenote
   content:
     '@id': stencila:content
     description: Content of the note, usually a paragraph.
