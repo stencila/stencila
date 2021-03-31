@@ -2197,6 +2197,7 @@ dependencies = [
  "humantime",
  "jsonschema",
  "jsonwebtoken",
+ "lazy_static",
  "once_cell",
  "pretty_assertions",
  "rand 0.8.3",

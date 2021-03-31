@@ -1,5 +1,8 @@
 #![deny(unsafe_code)]
 
+#[macro_use]
+extern crate lazy_static;
+
 // Features
 
 #[cfg(feature = "cli")]

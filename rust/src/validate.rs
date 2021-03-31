@@ -1,15 +1,19 @@
 use anyhow::{bail, Result};
 use jsonschema::JSONSchema;
-use serde_json::json;
+use serde_json::{json, Value};
 
 use crate::nodes::Node;
 
-pub fn validate(node: Node) -> Result<Node> {
+lazy_static! {
+    static ref SCHEMA: Value = json!({
+        "maxLength": 5, "pattern": "aaa",
+    });
     // TODO cache compiled schemas in a LRU cache
-    let schema = json!({"maxLength": 5, "pattern": "aaa"});
-    let validator = JSONSchema::compile(&schema)?;
+    static ref VALIDATOR: JSONSchema<'static> = JSONSchema::compile(&SCHEMA).unwrap();
+}
 
-    let result = validator.validate(&node);
+pub fn validate(node: Node) -> Result<Node> {
+    let result = VALIDATOR.validate(&node);
     match result {
         Ok(_) => Ok(Node::Bool(true)),
         Err(errors) => {
