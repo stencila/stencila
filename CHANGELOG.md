@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/stencila/schema/compare/v1.1.4...v1.1.5) (2021-03-31)
+
+
+### Bug Fixes
+
+* Use allOf where needed ([31be54c](https://github.com/stencila/schema/commit/31be54c7f40f18561c2374a0ad2ea26743146101))
+
 ## [1.1.4](https://github.com/stencila/schema/compare/v1.1.3...v1.1.4) (2021-03-22)
 
 
