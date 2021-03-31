@@ -6,7 +6,11 @@ async fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
     #[cfg(feature = "cli")]
-    exit(stencila::cli::cli(std::env::args().collect()).await);
+    exit(
+        stencila::cli::cli(std::env::args().collect())
+            .await
+            .unwrap(),
+    );
 
     #[cfg(all(feature = "serve", not(feature = "cli")))]
     exit(match stencila::serve::serve(None, None, None) {

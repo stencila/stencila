@@ -1,6 +1,6 @@
 {
   "name": "stencila",
-  "version": "0.44.0",
+  "version": "0.45.0",
   "description": "Living documents for reproducible research.",
   "scripts": {
     "docs:intercom": "npx ts-node --project tsconfig.json help/intercom.ts"
@@ -25,8 +25,8 @@
     "@actions/core": "1.2.6",
     "@semantic-release/exec": "5.0.0",
     "@stencila/dev-config": "2.0.7",
-    "@stencila/encoda": "0.111.0",
-    "@stencila/schema": "1.1.4",
+    "@stencila/encoda": "0.113.0",
+    "@stencila/schema": "1.1.5",
     "typescript": "4.2.3"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",

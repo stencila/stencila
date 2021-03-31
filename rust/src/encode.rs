@@ -1,28 +1,10 @@
 use crate::nodes::Node;
 use anyhow::Result;
 
-#[cfg(any(feature = "request", feature = "serve"))]
-pub mod rpc {
-    use super::*;
-    use serde::{Deserialize, Serialize};
-
-    #[derive(Debug, Serialize, Deserialize)]
-    pub struct Params {
-        pub node: Node,
-
-        pub format: Option<String>,
-    }
-
-    pub fn encode(params: Params) -> Result<String> {
-        let Params { node, format } = params;
-        super::encode(node, format.unwrap_or_default())
-    }
-}
-
 // Allow these for when no features are enabled
 #[allow(unused_variables, unreachable_code)]
-pub fn encode(node: Node, format: String) -> Result<String> {
-    let content = match format.as_str() {
+pub fn encode(node: Node, format: &str) -> Result<String> {
+    let content = match format {
         #[cfg(feature = "format-json")]
         "json" => serde_json::to_string(&node)?,
         #[cfg(feature = "format-yaml")]
@@ -46,4 +28,22 @@ pub fn encode(node: Node, format: String) -> Result<String> {
         }
     };
     Ok(content)
+}
+
+#[cfg(any(feature = "request", feature = "serve"))]
+pub mod rpc {
+    use super::*;
+    use serde::{Deserialize, Serialize};
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct Params {
+        pub node: Node,
+
+        pub format: Option<String>,
+    }
+
+    pub fn encode(params: Params) -> Result<String> {
+        let Params { node, format } = params;
+        super::encode(node, &format.unwrap_or_else(|| "json".to_string()))
+    }
 }

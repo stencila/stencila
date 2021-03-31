@@ -46,7 +46,7 @@ fn path() -> Result<PathBuf> {
             .join("test")
             .join(CONFIG_FILE);
         fs::create_dir_all(path.parent().unwrap())?;
-        return Ok(path);
+        Ok(path)
     }
 }
 

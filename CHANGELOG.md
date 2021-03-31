@@ -1,3 +1,22 @@
+# [0.45.0](https://github.com/stencila/stencila/compare/v0.44.0...v0.45.0) (2021-03-31)
+
+
+### Bug Fixes
+
+* **CLI:** Only run upgrade thread if not explicitly upgrading ([4ba156d](https://github.com/stencila/stencila/commit/4ba156d20e49597037661862007a900a46dd5035))
+* **dependencies:** update rust crate anyhow to 1.0.40 ([de7567b](https://github.com/stencila/stencila/commit/de7567bbecba42e66323800a3ad77cf0330c51a0))
+* **dependencies:** update rust crate handlebars to 3.5.4 ([5b1220c](https://github.com/stencila/stencila/commit/5b1220cdf4011e6550006abc95fed55615357a86))
+* **dependencies:** update rust crate jsonschema to 0.6.1 ([ca37acb](https://github.com/stencila/stencila/commit/ca37acb63d2817a9fbf3635e25ed3c77c5130be2))
+* **dependencies:** update rust crate warp to 0.3.1 ([5800b97](https://github.com/stencila/stencila/commit/5800b97b1ada4827ae2882908e7abbe1706deb6c))
+* **Plugins:** Print message when no plugins are installed ([b7535b2](https://github.com/stencila/stencila/commit/b7535b2675b427d491d0eff2ec86897aee41847d))
+
+
+### Features
+
+* **CLI:** Add convert command with watch option ([e67cb20](https://github.com/stencila/stencila/commit/e67cb20ea589f40fd4d320e3aee79bc524cf0560))
+* **Plugins:** Add command to unlink a local plugin ([66e6475](https://github.com/stencila/stencila/commit/66e6475aac4ec15e2f095582fc35df786fcf4274))
+* **Plugins:** Read plugins at startup and display methods ([0ab348e](https://github.com/stencila/stencila/commit/0ab348ebb18fd3b9d5db8f3a4478444a84d83ebe))
+
 # [0.44.0](https://github.com/stencila/stencila/compare/v0.43.4...v0.44.0) (2021-03-27)
 
 

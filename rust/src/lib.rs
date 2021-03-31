@@ -1,9 +1,22 @@
 #![deny(unsafe_code)]
 
-// Features
-
 #[cfg(feature = "cli")]
 pub mod cli;
+
+#[cfg(feature = "open")]
+pub mod open;
+
+#[cfg(feature = "convert")]
+pub mod convert;
+
+#[cfg(feature = "plugins")]
+pub mod plugins;
+
+#[cfg(feature = "upgrade")]
+pub mod upgrade;
+
+#[cfg(feature = "config")]
+pub mod config;
 
 #[cfg(feature = "request")]
 pub mod request;
@@ -24,23 +37,20 @@ pub mod rpc;
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod urls;
 
-#[cfg(feature = "open")]
-pub mod open;
+// Methods
 
-#[cfg(feature = "plugins")]
-pub mod plugins;
+pub mod read;
+pub mod write;
 
-#[cfg(feature = "upgrade")]
-pub mod upgrade;
-
-#[cfg(feature = "config")]
-pub mod config;
-
-//pub mod convert;
 pub mod decode;
 pub mod encode;
-pub mod execute;
+
+pub mod export;
+pub mod import;
+
 pub mod validate;
+
+pub mod execute;
 
 // Utilities
 

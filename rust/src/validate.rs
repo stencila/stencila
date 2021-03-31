@@ -42,7 +42,7 @@ pub mod rpc {
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
-    use crate::decode::decode;
+    use crate::import::import;
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
@@ -62,10 +62,8 @@ pub mod cli {
     pub fn validate(args: Args) -> Result<()> {
         let Args { input, format } = args;
 
-        let node = decode(input, format.unwrap_or_default())?;
-
+        let node = import(&input, format)?;
         super::validate(node)?;
-
         Ok(())
     }
 }

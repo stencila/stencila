@@ -27,9 +27,6 @@ const PLUGIN_FILE: &str = "codemeta.json";
 type Plugins = HashMap<String, Plugin>;
 pub static PLUGINS: Lazy<Mutex<Plugins>> = Lazy::new(|| Mutex::new(HashMap::new()));
 
-type Methods = HashMap<String, Vec<(String, Box<serde_json::Value>, JSONSchema<'static>)>>;
-pub static METHODS: Lazy<Mutex<Methods>> = Lazy::new(|| Mutex::new(HashMap::new()));
-
 /// Description of a plugin
 ///
 /// As far as possible using existing properties defined in schema.org
@@ -113,7 +110,8 @@ pub fn load_plugin(json: &str) -> Result<Plugin> {
     let mut methods = METHODS.lock().expect("Unable to obtain methods lock");
     for feature in &plugin.feature_list {
         let title = match feature.get("title") {
-            None => bail!("JSON Schema is missing 'title' annotation"),
+            None => bail!("JSON Schema is missing 'title' property"),
+            Some(serde_json::Value::String(value)) => value.clone(),
             Some(value) => value.to_string(),
         };
 
@@ -182,6 +180,22 @@ pub fn write_plugin(name: &str, plugin: &Plugin) -> Result<()> {
     Ok(())
 }
 
+/// Uninstall and unload (from memory) a plugin
+pub fn remove_plugin(name: &str) -> Result<()> {
+    let dir = plugin_dir(&name)?;
+    if dir.exists() || fs::symlink_metadata(&dir).is_ok() {
+        if dir.is_file() {
+            fs::remove_file(dir)?
+        } else {
+            // Note that if `dir` is a symlink to a directory that
+            // only the directory will be removed.
+            fs::remove_dir_all(dir)?
+        }
+    }
+
+    unload_plugin(name)
+}
+
 /// Create a Markdown document describing a plugin
 pub fn display_plugin(name: &str, format: &str) -> Result<String> {
     let plugin = read_plugin(name)?;
@@ -208,7 +222,6 @@ pub fn display_plugin(name: &str, format: &str) -> Result<String> {
 
 {{#each properties}}
 - **{{@key}}**: *{{type}}* : {{description}}{{/each}}
-
 {{/each}}
 
 "#;
@@ -242,10 +255,17 @@ pub fn read_plugins() -> Result<Vec<Plugin>> {
 /// Create a Markdown table of all the install plugins
 pub fn display_plugins() -> Result<String> {
     let plugins = read_plugins()?;
+
+    if plugins.is_empty() {
+        return Ok("No plugins installed. See `stencila plugins install --help`.".to_string());
+    }
+
     let head = r#"
 | ---- | ------- | ------------ |
 | Name | Version | Description  |
-| :--- | ------: | -------------|"#;
+| :--- | ------: | -------------|
+"#
+    .trim();
     let body = plugins
         .iter()
         .map(|plugin| {
@@ -258,22 +278,6 @@ pub fn display_plugins() -> Result<String> {
         .join("\n");
     let foot = "|-";
     Ok(format!("{}\n{}\n{}\n", head, body, foot))
-}
-
-/// Uninstall and unload (from memory) a plugin
-pub fn uninstall_plugin(name: &str) -> Result<()> {
-    let dir = plugin_dir(&name)?;
-    if dir.exists() || fs::symlink_metadata(&dir).is_ok() {
-        if dir.is_file() {
-            fs::remove_file(dir)?
-        } else {
-            // Note that if `dir` is a symlink to a directory that
-            // only the directory will be removed.
-            fs::remove_dir_all(dir)?
-        }
-    }
-
-    unload_plugin(name)
 }
 
 /// Add a plugin as a pulled Docker image
@@ -401,7 +405,7 @@ pub async fn install_docker(name: &str, version: &str) -> Result<()> {
     };
 
     // Remove the plugin directory
-    uninstall_plugin(&name)?;
+    remove_plugin(&name)?;
 
     // Load and write the plugin file
     let plugin = load_plugin(json)?;
@@ -430,7 +434,7 @@ pub fn install_binary(name: &str, version: &str) -> Result<()> {
     };
 
     // Remove the plugin directory
-    uninstall_plugin(&name)?;
+    remove_plugin(&name)?;
 
     // (Re)create the directory where the binary will be downloaded to
     let install_dir = dirs::plugins(false)?.join(name);
@@ -519,7 +523,7 @@ pub fn install_link(path: &str) -> Result<()> {
     let name = plugin.name;
 
     // Remove the plugin directory
-    uninstall_plugin(&name)?;
+    remove_plugin(&name)?;
 
     // Create the soft link
     let link = plugin_dir(&name)?;
@@ -531,7 +535,7 @@ pub fn install_link(path: &str) -> Result<()> {
     Ok(())
 }
 
-/// Add a plugin
+/// Install a plugin
 pub async fn install(
     plugin: &str,
     kinds: &[Kind],
@@ -541,7 +545,7 @@ pub async fn install(
     let name = alias_to_name(&alias, aliases);
 
     if is_installed(&name)? {
-        uninstall_plugin(&name)?
+        remove_plugin(&name)?
     }
 
     for kind in kinds {
@@ -570,7 +574,7 @@ pub async fn install(
     )
 }
 
-/// Add a list of plugins
+/// Install a list of plugins
 pub async fn install_list(
     plugins: Vec<String>,
     kinds: Vec<Kind>,
@@ -588,7 +592,7 @@ pub async fn install_list(
 /// Remove a plugin
 pub fn uninstall(alias: &str, aliases: &HashMap<String, String>) -> Result<()> {
     let name = alias_to_name(&alias, &aliases);
-    uninstall_plugin(&name)?;
+    remove_plugin(&name)?;
 
     Ok(())
 }
@@ -602,6 +606,90 @@ pub fn uninstall_list(plugins: Vec<String>, aliases: &HashMap<String, String>) -
         }
     }
     Ok(())
+}
+
+/// The methods that are available from loaded plugins
+///
+/// Used for fast delegation of calls to plugins.
+type Methods = HashMap<String, Vec<(String, Box<serde_json::Value>, JSONSchema<'static>)>>;
+pub static METHODS: Lazy<Mutex<Methods>> = Lazy::new(|| Mutex::new(HashMap::new()));
+
+/// Create a Markdown document describing a plugin
+pub fn display_method(name: &str, format: &str) -> Result<String> {
+    let methods = METHODS.lock().expect("Unable to lock methods");
+
+    let plugins = match methods.get(name) {
+        None => bail!("No implementations for method `{}`", name),
+        Some(plugins) => plugins
+            .iter()
+            .map(|implem| {
+                let (name, schema, ..) = implem;
+                serde_json::json!({
+                    "name": name,
+                    "schema": schema
+                })
+            })
+            .collect::<serde_json::Value>(),
+    };
+
+    let method = &serde_json::json!({ "name": name, "plugins": plugins });
+
+    let content = match format {
+        #[cfg(any(feature = "template-handlebars"))]
+        "md" => {
+            let template = r#"
+# {{name}}
+
+{{#each plugins}}
+## {{name}}
+
+{{#with schema }}
+{{description}}
+
+{{#each properties}}
+- **{{@key}}**: *{{type}}* : {{description}}{{/each}}
+{{/with}}
+{{/each}}
+"#
+            .trim();
+            use handlebars::Handlebars;
+            let hb = Handlebars::new();
+            hb.render_template(template, &method)?
+        }
+        _ => serde_json::to_string_pretty(&method)?,
+    };
+    Ok(content)
+}
+
+/// Create a Markdown table of all the registed methods
+pub fn display_methods() -> Result<String> {
+    let methods = METHODS.lock().expect("Unable to lock methods");
+
+    if methods.is_empty() {
+        return Ok("No methods registered. See `stencila plugins install --help`.".to_string());
+    }
+
+    let head = r#"
+| -------- | -------- |
+| Method   | Plugins  |
+| :------- | :------- |
+"#
+    .trim();
+    let body = methods
+        .iter()
+        .map(|method| {
+            let (method_name, plugins) = method;
+            let plugins = plugins
+                .iter()
+                .map(|plugin| plugin.0.clone())
+                .collect::<Vec<String>>()
+                .join(", ");
+            format!("| {} | {} |", method_name, plugins)
+        })
+        .collect::<Vec<String>>()
+        .join("\n");
+    let foot = "|-";
+    Ok(format!("{}\n{}\n{}\n", head, body, foot))
 }
 
 #[cfg(feature = "config")]
@@ -672,6 +760,8 @@ pub mod cli {
         Link(Link),
         Upgrade(Upgrade),
         Uninstall(Uninstall),
+        Unlink(Unlink),
+        Methods(Methods),
     }
 
     #[derive(Debug, StructOpt)]
@@ -681,7 +771,7 @@ pub mod cli {
         #[structopt()]
         pub plugin: String,
 
-        /// The format
+        /// The format to show the plugin in
         #[structopt(short, long, default_value = "md")]
         pub format: String,
     }
@@ -729,6 +819,26 @@ pub mod cli {
         /// The names or aliases of plugins to uninstall
         #[structopt(required = true, multiple = true)]
         pub plugins: Vec<String>,
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(about = "Unlink a local plugins")]
+    pub struct Unlink {
+        /// The name of the plugin
+        #[structopt()]
+        pub name: String,
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(about = "List methods and the plugins that implement them")]
+    pub struct Methods {
+        /// The name of the method
+        #[structopt()]
+        pub name: Option<String>,
+
+        /// The format to show the method using
+        #[structopt(short, long, default_value = "md")]
+        pub format: String,
     }
 
     pub async fn plugins(args: Args) -> Result<()> {
@@ -802,6 +912,25 @@ pub mod cli {
                 let Uninstall { plugins } = action;
 
                 uninstall_list(plugins, &aliases)
+            }
+            Action::Unlink(action) => {
+                let Unlink { name } = action;
+
+                remove_plugin(&name)
+            }
+            Action::Methods(action) => {
+                let Methods { name, format } = action;
+
+                let content = match name {
+                    None => display_methods()?,
+                    Some(name) => display_method(&name, &format)?,
+                };
+                if format == "json" {
+                    println!("{}", content)
+                } else {
+                    println!("{}", skin.term_text(content.as_str()))
+                }
+                Ok(())
             }
         }
     }
