@@ -145,7 +145,26 @@
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "release": {
-    "extends": "@stencila/semantic-release-config"
+    "extends": "@stencila/semantic-release-config",
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/npm",
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "package.json",
+            "CHANGELOG.md",
+            "py/stencila/schema/types.py",
+            "r/R/types.R",
+            "r/NAMESPACE"
+          ]
+        }
+      ],
+      "@semantic-release/github"
+    ]
   },
   "renovate": {
     "extends": [

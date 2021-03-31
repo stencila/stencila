@@ -38,31 +38,6 @@ clean:
 	make -C py clean
 	make -C r clean
 
-PYBINDINGS := 'py/stencila/schema/types.py'
-RBINDINGS := 'r/R/types.R'
-RNAMESPACE := 'r/NAMESPACE'
-
-# Build schema bindings for Python and R. If the bindings have changed, this script
-# will commit the updated bindings. This script is run automatically as a git pre-push hook.
-check-bindings:
-	@echo "🔬 Checking if schema bindings have changed"
-	@echo "🏗 Building schema language bindings"
-	npm run build:jsonschema
-	npm run build:py & npm run build:r
-	@echo "🔗 Finished building language bindings"
-	@for i in $$(git ls-files -m); do \
-		if [ "$$i" = $(PYBINDINGS) ] || [ "$$i" = $(RBINDINGS) ] ; then \
-			echo "☝️ Bindings have changed, please verify and commit them."; \
-			echo "If there are no other changes, you can run \"make commit-bindings\"\n\n"; \
-			exit 1; \
-		fi \
-	done
-
-# Commits just the updated schema bindings
-commit-bindings:
-	git commit --only $(PYBINDINGS) $(RBINDINGS) $(RNAMESPACE) -m "chore(Language bindings): Update type bindings"
-
-
 # Build Docker image for development
 build-image:
 	docker build \

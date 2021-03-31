@@ -27,11 +27,8 @@ jobs:
         condition: succeeded()
         displayName: Upload coverage
 
-      - script: make check-bindings
-        displayName: Check bindings
-
       - script: npm run build
-        displayName: Build package
+        displayName: Generate language bindings and build TypeScript package
 
       - script: npm run docs
         displayName: Build docs
