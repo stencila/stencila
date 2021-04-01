@@ -1,15 +1,16 @@
 use anyhow::{bail, Result};
 use jsonschema::JSONSchema;
-use serde_json::json;
+use once_cell::sync::Lazy;
+use serde_json::{json, Value};
 
 use crate::nodes::Node;
 
 pub fn validate(node: Node) -> Result<Node> {
-    // TODO cache compiled schemas in a LRU cache
-    let schema = json!({"maxLength": 5, "pattern": "aaa"});
-    let validator = JSONSchema::compile(&schema)?;
+    static SCHEMA: Lazy<Value> = Lazy::new(|| json!({ "maxLength": 5, "pattern": "aaa" }));
+    static VALIDATOR: Lazy<JSONSchema<'static>> =
+        Lazy::new(|| JSONSchema::compile(&SCHEMA).unwrap());
 
-    let result = validator.validate(&node);
+    let result = VALIDATOR.validate(&node);
     match result {
         Ok(_) => Ok(Node::Bool(true)),
         Err(errors) => {
