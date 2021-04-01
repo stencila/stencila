@@ -11,6 +11,7 @@ import {
   article,
   CreativeWork,
   creativeWork,
+  date,
   heading,
   imageObject,
   link,
@@ -88,7 +89,7 @@ async function generateGallery(): Promise<void> {
     title: 'Thema Gallery',
     authors: [stencila],
     publisher: stencila,
-    datePublished: new Date().toISOString(),
+    datePublished: date({ value: new Date().toISOString() }),
     content: [
       paragraph({
         content: [
