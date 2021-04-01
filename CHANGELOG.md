@@ -1,3 +1,10 @@
+## [2.24.1](https://github.com/stencila/thema/compare/v2.24.0...v2.24.1) (2021-04-01)
+
+
+### Bug Fixes
+
+* **Gallery:** Fix mismatch type in article generation script ([8c90338](https://github.com/stencila/thema/commit/8c9033897b17118dcd7f12a0de418c09511ecb95))
+
 # [2.24.0](https://github.com/stencila/thema/compare/v2.23.0...v2.24.0) (2021-03-30)
 
 
