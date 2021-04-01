@@ -439,25 +439,18 @@ fn ws_handler(ws: warp::ws::Ws) -> impl warp::Reply {
 async fn rejection_handler(
     rejection: warp::Rejection,
 ) -> Result<impl warp::Reply, std::convert::Infallible> {
-    let code: i16;
-    let message: String;
-
-    if let Some(error) = rejection.find::<jwt::JwtError>() {
-        code = -1;
-        message = format!("{}", error);
+    let error = if let Some(error) = rejection.find::<jwt::JwtError>() {
+        Error::invalid_request_error(&format!("{}", error))
     } else if let Some(error) = rejection.find::<warp::filters::body::BodyDeserializeError>() {
-        code = -32700;
-        message = format!("{}", error);
+        Error::invalid_request_error(&format!("{}", error))
     } else if rejection.find::<warp::reject::MethodNotAllowed>().is_some() {
-        code = -32700;
-        message = "Method not found".to_string();
+        Error::invalid_request_error("Invalid HTTP method and/or path")
     } else {
-        code = -32000;
-        message = "Internal server error".to_string();
-    }
+        Error::server_error("Unknown error")
+    };
 
     Ok(warp::reply::json(&Response {
-        error: Some(Error { code, message }),
+        error: Some(error),
         ..Default::default()
     }))
 }
