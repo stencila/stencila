@@ -109,7 +109,7 @@ impl Error {
         Self {
             code,
             message: message.to_string(),
-            data: None,
+            data: data,
         }
     }
 
