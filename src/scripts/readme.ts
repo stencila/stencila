@@ -120,8 +120,6 @@ async function generateApiDocs(readme: string): Promise<string> {
   const js = typescript.transpileModule(ts, {}).outputText
   const md = await jsdoc2md.render({
     source: js,
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     'heading-depth': 3,
   })
   return readme.replace(
