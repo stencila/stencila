@@ -6,8 +6,12 @@ use std::io::Write;
 use std::path::PathBuf;
 use validator::Validate;
 
-#[derive(Debug, PartialEq, Deserialize, Serialize, Validate)]
+#[derive(Debug, Default, PartialEq, Deserialize, Serialize, Validate)]
 pub struct Config {
+    #[serde(default)]
+    #[validate]
+    pub logging: crate::logging::config::Config,
+
     #[serde(default)]
     #[validate]
     pub serve: crate::serve::config::Config,
@@ -19,16 +23,6 @@ pub struct Config {
     #[serde(default)]
     #[validate]
     pub upgrade: crate::upgrade::config::Config,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Config {
-            serve: Default::default(),
-            plugins: Default::default(),
-            upgrade: Default::default(),
-        }
-    }
 }
 
 const CONFIG_FILE: &str = "config.toml";

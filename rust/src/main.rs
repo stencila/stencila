@@ -3,8 +3,6 @@
 async fn main() {
     use std::process::exit;
 
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
-
     #[cfg(feature = "cli")]
     exit(
         stencila::cli::cli(std::env::args().collect())

@@ -17,12 +17,24 @@ pub fn config(ensure: bool) -> Result<PathBuf> {
     Ok(dir)
 }
 
+/// Get the directory where logs are stored
+pub fn logs(ensure: bool) -> Result<PathBuf> {
+    let config = config(false)?;
+    let dir = match env::consts::OS {
+        "macos" | "windows" => config.join("Logs"),
+        _ => config.join("logs"),
+    };
+    if ensure {
+        fs::create_dir_all(&dir)?;
+    }
+    Ok(dir)
+}
+
 /// Get the directory within which plugins and their configurations are installed
 pub fn plugins(ensure: bool) -> Result<PathBuf> {
     let config = config(false)?;
     let dir = match env::consts::OS {
-        "macos" => config.join("Plugins"),
-        "windows" => config.join("Plugins"),
+        "macos" | "windows" => config.join("Plugins"),
         _ => config.join("plugins"),
     };
     if ensure {
