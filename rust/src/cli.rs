@@ -13,24 +13,20 @@ pub struct Args {
     #[structopt(subcommand)]
     pub command: Command,
 
-    /// Emit tracing level (and above) log entries
-    #[structopt(long, conflicts_with_all = &["debug", "info", "warn", "error"])]
-    pub trace: bool,
-
     /// Emit debug level (and above) log entries
-    #[structopt(long, conflicts_with_all = &["trace", "info", "warn", "error"])]
+    #[structopt(long, conflicts_with_all = &["info", "warn", "error"])]
     pub debug: bool,
 
     /// Emit info level (and above) log entries
-    #[structopt(long, conflicts_with_all = &["trace", "debug", "warn", "error"])]
+    #[structopt(long, conflicts_with_all = &["debug", "warn", "error"])]
     pub info: bool,
 
     /// Emit waning level (and above) log entries
-    #[structopt(long, conflicts_with_all = &["trace", "debug", "info", "error"])]
+    #[structopt(long, conflicts_with_all = &["debug", "info", "error"])]
     pub warn: bool,
 
     /// Emit error level log entries only
-    #[structopt(long, conflicts_with_all = &["trace", "debug", "info", "warn"])]
+    #[structopt(long, conflicts_with_all = &["debug", "info", "warn"])]
     pub error: bool,
 }
 
@@ -54,7 +50,6 @@ pub async fn cli(args: Vec<String>) -> Result<i32> {
     // Parse args into a command
     let Args {
         command,
-        trace,
         debug,
         info,
         warn,
@@ -62,9 +57,7 @@ pub async fn cli(args: Vec<String>) -> Result<i32> {
     } = Args::from_iter(args);
 
     // Determine the log level to use on stderr
-    let level = if trace {
-        logging::Level::Trace
-    } else if debug {
+    let level = if debug {
         logging::Level::Debug
     } else if info {
         logging::Level::Info

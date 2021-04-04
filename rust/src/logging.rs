@@ -5,10 +5,9 @@ use std::path::Path;
 use strum::ToString;
 use validator::Validate;
 
-#[derive(Debug, PartialEq, Deserialize, Serialize, ToString)]
+#[derive(Debug, PartialEq, Clone, Copy, Deserialize, Serialize, ToString)]
 #[serde(rename_all = "lowercase")]
 pub enum Level {
-    Trace,
     Debug,
     Info,
     Warn,
@@ -32,7 +31,7 @@ pub mod config {
     #[derive(Debug, Defaults, PartialEq, Deserialize, Serialize, Validate)]
     pub struct StdErr {
         /// The maximum log level to emit
-        #[def = "Level::Trace"]
+        #[def = "Level::Info"]
         pub level: Level,
 
         /// The format for the logs entries
@@ -47,7 +46,7 @@ pub mod config {
         pub path: String,
 
         /// The maximum log level to emit
-        #[def = "Level::Trace"]
+        #[def = "Level::Debug"]
         pub level: Level,
     }
 
@@ -71,7 +70,7 @@ pub mod config {
 pub fn init(level: Option<Level>) -> Result<[tracing_appender::non_blocking::WorkerGuard; 2]> {
     use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 
-    let config::Config { stderr, file } = crate::config::get()?.logging;
+    let config::Config { stderr, file } = &crate::config::get()?.logging;
 
     let level = level.unwrap_or(stderr.level);
 
