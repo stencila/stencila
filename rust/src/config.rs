@@ -194,7 +194,8 @@ pub mod cli {
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Manage configuration options",
-        setting = structopt::clap::AppSettings::ColoredHelp
+        setting = structopt::clap::AppSettings::ColoredHelp,
+        setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]
     pub struct Args {
         #[structopt(subcommand)]
@@ -210,12 +211,18 @@ pub mod cli {
         Set(Set),
         Reset(Reset),
 
-        #[structopt(about = "Get the directories used for config, cache etc")]
+        #[structopt(
+            about = "Get the directories used for config, cache etc",
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
         Dirs,
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Get configuration properties")]
+    #[structopt(
+        about = "Get configuration properties",
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Get {
         /// A pointer to a config property e.g. `upgrade.auto`
         pub pointer: Option<String>,
@@ -224,8 +231,7 @@ pub mod cli {
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Set configuration properties",
-        setting = structopt::clap::AppSettings::TrailingVarArg,
-        setting = structopt::clap::AppSettings::AllowLeadingHyphen
+        setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Set {
         /// A pointer to a config property e.g. `upgrade.auto`
@@ -236,7 +242,10 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Reset configuration properties to their defaults")]
+    #[structopt(
+        about = "Reset configuration properties to their defaults",
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Reset {
         /// The config property to reset. Use 'all' to reset the entire config.
         pub property: String,

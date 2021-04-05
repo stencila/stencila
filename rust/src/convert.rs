@@ -47,19 +47,25 @@ pub mod cli {
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Convert a document from one format to another",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Args {
+        /// The input file or URL to convert from
         input: String,
 
+        /// The output file to convert to
         output: String,
 
+        /// The format of the input (defaults to being inferred from the file extension or content type)
         #[structopt(short, long)]
         from: Option<String>,
 
+        /// The format of the output (defaults to being inferred from the file extension)
         #[structopt(short, long)]
         to: Option<String>,
 
+        /// Watch for changes in the input and redo conversion automatically (if input is local file)
         #[structopt(short, long)]
         watch: bool,
     }

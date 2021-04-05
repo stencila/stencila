@@ -517,6 +517,7 @@ pub mod cli {
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Serve on HTTP, WebSockets, or Standard I/O",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Args {

@@ -762,7 +762,8 @@ pub mod cli {
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Manage plugins",
-        setting = structopt::clap::AppSettings::ColoredHelp
+        setting = structopt::clap::AppSettings::ColoredHelp,
+        setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]
     pub struct Args {
         #[structopt(subcommand)]
@@ -774,7 +775,10 @@ pub mod cli {
         setting = structopt::clap::AppSettings::DeriveDisplayOrder
     )]
     pub enum Action {
-        #[structopt(about = "List installed plugins")]
+        #[structopt(
+            about = "List installed plugins",
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
         List,
         Show(Show),
         Install(Install),
@@ -787,7 +791,11 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Show the details of an installed plugin")]
+    #[structopt(
+        about = "Show the details of an installed plugin",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Show {
         /// The name of the plugin to show
         #[structopt()]
@@ -799,7 +807,11 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Install one or more plugins")]
+    #[structopt(
+        about = "Install one or more plugins",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Install {
         /// Attempt to add plugins as Docker image
         #[structopt(short, long)]
@@ -819,7 +831,11 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Link to a local plugins")]
+    #[structopt(
+        about = "Link to a local plugins",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Link {
         /// The path of a plugin directory
         #[structopt()]
@@ -827,7 +843,11 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Upgrade one of more plugins")]
+    #[structopt(
+        about = "Upgrade one of more plugins",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Upgrade {
         /// The names or aliases of plugins to upgrade
         /// (omit to upgrade all plugins)
@@ -836,7 +856,11 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Uninstall one or more plugins")]
+    #[structopt(
+        about = "Uninstall one or more plugins",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Uninstall {
         /// The names or aliases of plugins to uninstall
         #[structopt(required = true, multiple = true)]
@@ -844,7 +868,11 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Unlink a local plugins")]
+    #[structopt(
+        about = "Unlink a local plugins",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Unlink {
         /// The name of the plugin to unlink
         #[structopt()]
@@ -852,7 +880,11 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "List methods and the plugins that implement them")]
+    #[structopt(
+        about = "List methods and the plugins that implement them",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Methods {
         /// The name of the method to display
         #[structopt()]
@@ -864,7 +896,11 @@ pub mod cli {
     }
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Delegate a method call to any, or a particular, plugin")]
+    #[structopt(
+        about = "Delegate a method call to any, or a particular, plugin",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Delegate {
         /// The method to call
         #[structopt()]
