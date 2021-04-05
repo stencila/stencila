@@ -1,27 +1,104 @@
-#[cfg(not(tarpaulin_include))]
+use anyhow::Result;
+use stencila::{
+    cli::{print_error, run_command, Args, Command, GLOBAL_ARGS},
+    config, interact, logging, plugins, upgrade,
+};
+use structopt::StructOpt;
+
 #[tokio::main]
-async fn main() {
-    use std::process::exit;
+pub async fn main() -> Result<()> {
+    let args: Vec<String> = std::env::args().collect();
 
-    #[cfg(feature = "cli")]
-    exit(
-        stencila::cli::cli(std::env::args().collect())
-            .await
-            .unwrap(),
-    );
-
-    #[cfg(all(feature = "serve", not(feature = "cli")))]
-    exit(match stencila::serve::serve(None, None, None) {
-        Ok(_) => 0,
+    // Parse args into a command
+    let parsed_args = Args::from_iter_safe(args.clone());
+    let Args {
+        command,
+        debug,
+        info,
+        warn,
+        error,
+        interact,
+    } = match parsed_args {
+        Ok(args) => args,
         Err(error) => {
-            eprintln!("Error: {}", error);
-            1
+            if args.contains(&"-i".to_string()) || args.contains(&"--interact".to_string()) {
+                // Parse the global options ourselves so that user can
+                // pass an incomplete command prefix to interactive mode
+                Args {
+                    command: None,
+                    debug: args.contains(&"--debug".to_string()),
+                    info: args.contains(&"--info".to_string()),
+                    warn: args.contains(&"--warn".to_string()),
+                    error: args.contains(&"--error".to_string()),
+                    interact: true,
+                }
+            } else {
+                // Print the error `clap` help or usage message and exit
+                eprintln!("{}", error);
+                std::process::exit(exitcode::USAGE);
+            }
         }
-    });
+    };
 
-    #[cfg(not(any(feature = "serve", feature = "cli")))]
-    {
-        eprintln!("Warning: neither `cli` nor `serve` features enabled, nothing to do.");
-        exit(0)
+    // Determine the log level to use on stderr
+    let level = if debug {
+        logging::Level::Debug
+    } else if info {
+        logging::Level::Info
+    } else if warn {
+        logging::Level::Warn
+    } else if error {
+        logging::Level::Error
+    } else {
+        logging::Level::Info
+    };
+
+    // Create a preliminary logging subscriber to be able to log any issues
+    // when reading the config.
+    let prelim_subscriber_guard = logging::prelim();
+    let config = config::read()?;
+    drop(prelim_subscriber_guard);
+
+    // To ensure all log events get written to file, take guards here, so that
+    // non blocking writers do not get dropped until the end of this function.
+    // See https://tracing.rs/tracing_appender/non_blocking/struct.workerguard
+    let _logging_guards = logging::init(Some(level), &config.logging)?;
+
+    // If not explicitly upgrading then run an upgrade check in the background
+    let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
+        None
+    } else {
+        Some(upgrade::upgrade_auto(&config.upgrade))
+    };
+
+    // Load plugins
+    plugins::read_plugins()?;
+
+    let result = if command.is_none() || interact {
+        let prefix: Vec<String> = args
+            .into_iter()
+            // Remove executable name
+            .skip(1)
+            // Remove the global args which can not be applied to each interactive line
+            .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
+            .collect();
+        interact::run(&prefix, &config).await
+    } else {
+        run_command(command.unwrap(), &config).await
+    };
+
+    // Join the upgrade thread and log any errors
+    if let Some(upgrade_thread) = upgrade_thread {
+        if let Err(_error) = upgrade_thread.join() {
+            tracing::warn!("Error while attempting to join upgrade thread")
+        }
+    }
+
+    match result {
+        Ok(_) => Ok(()),
+        Err(error) => {
+            print_error(error);
+            std::process::exit(exitcode::SOFTWARE);
+        }
     }
 }

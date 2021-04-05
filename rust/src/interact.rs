@@ -1,6 +1,9 @@
-use crate::cli::Command;
-use crate::{config, convert, open, plugins, serve, upgrade, util::dirs};
-use anyhow::{bail, Result};
+use crate::{
+    cli::{print_error, Command},
+    config, convert, open, plugins, serve, upgrade,
+    util::dirs,
+};
+use anyhow::{anyhow, bail, Result};
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -80,7 +83,7 @@ pub async fn run(prefix: &Vec<String>, config: &config::Config) -> Result<()> {
                                 Err(err) => Err(err),
                             },
                         } {
-                            eprintln!("{}", error)
+                            print_error(error)
                         }
                     }
                     Err(error) => {
@@ -100,7 +103,7 @@ pub async fn run(prefix: &Vec<String>, config: &config::Config) -> Result<()> {
                             print!("{}", lines)
                         } else {
                             tracing::debug!("{:?}", error.kind);
-                            eprintln!("{}", error)
+                            print_error(anyhow!(error))
                         }
                     }
                 }
