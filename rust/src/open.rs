@@ -42,7 +42,10 @@ pub mod cli {
     use super::*;
     use structopt::StructOpt;
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Open a document in the browser")]
+    #[structopt(
+        about = "Open a document in the browser",
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Args {
         /// The file path or URL of the document
         #[structopt(default_value = ".")]

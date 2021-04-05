@@ -156,7 +156,10 @@ pub mod cli {
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Upgrade to the latest (or other) version")]
+    #[structopt(
+        about = "Upgrade to the latest (or other) version",
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
     pub struct Args {
         /// Version to upgrade (or downgrade) to (defaults to the latest)
         #[structopt(short, long)]

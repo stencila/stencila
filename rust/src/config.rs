@@ -194,7 +194,7 @@ pub mod cli {
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Manage configuration options",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
+        setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Args {
         #[structopt(subcommand)]

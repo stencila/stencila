@@ -1,4 +1,4 @@
-use crate::{config, convert, logging, open, plugins, serve, upgrade};
+use crate::{config, convert, interact, logging, open, plugins, serve, upgrade};
 use anyhow::Result;
 use regex::Regex;
 use structopt::StructOpt;
@@ -7,12 +7,11 @@ use strum::{Display, EnumVariantNames};
 #[derive(Debug, StructOpt)]
 #[structopt(
     about = "Stencila command line tool",
-    setting = structopt::clap::AppSettings::DeriveDisplayOrder
+    setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+    setting = structopt::clap::AppSettings::ColoredHelp,
+    setting = structopt::clap::AppSettings::VersionlessSubcommands
 )]
 pub struct Args {
-    #[structopt(subcommand)]
-    pub command: Command,
-
     /// Show debug level log events (and above)
     #[structopt(long, conflicts_with_all = &["info", "warn", "error"])]
     pub debug: bool,
@@ -28,6 +27,9 @@ pub struct Args {
     /// Show error level log entries only
     #[structopt(long, conflicts_with_all = &["debug", "info", "warn"])]
     pub error: bool,
+
+    #[structopt(subcommand)]
+    pub command: Option<Command>,
 }
 
 #[derive(Debug, Display, StructOpt, EnumVariantNames)]
@@ -79,7 +81,7 @@ pub async fn cli(args: Vec<String>) -> Result<i32> {
     let _logging_guards = logging::init(Some(level), &config.logging)?;
 
     // If not explicitly upgrading then run an upgrade check in the background
-    let upgrade_thread = if let Command::Upgrade(_) = command {
+    let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
         None
     } else {
         Some(upgrade::upgrade_auto(&config.upgrade))
@@ -88,14 +90,17 @@ pub async fn cli(args: Vec<String>) -> Result<i32> {
     // Load plugins
     plugins::read_plugins()?;
 
-    // Run the command
-    let result = match command {
-        Command::Open(args) => open::cli::run(args).await,
-        Command::Convert(args) => convert::cli::run(args),
-        Command::Serve(args) => serve::cli::run(args, &config.serve).await,
-        Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade),
-        Command::Plugins(args) => plugins::cli::run(args, &config.plugins).await,
-        Command::Config(args) => config::cli::run(args, &config),
+    let result = if command.is_none() {
+        interact::run()
+    } else {
+        match command.unwrap() {
+            Command::Open(args) => open::cli::run(args).await,
+            Command::Convert(args) => convert::cli::run(args),
+            Command::Serve(args) => serve::cli::run(args, &config.serve).await,
+            Command::Plugins(args) => plugins::cli::run(args, &config.plugins).await,
+            Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade),
+            Command::Config(args) => config::cli::run(args, &config),
+        }
     };
 
     // Join the upgrade thread and log any errors

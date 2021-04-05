@@ -315,7 +315,7 @@ pub mod cli {
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Request a method call on a plugin or peer (mainly for testing)",
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
+        setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Args {
         /// URL of the peer (e.g. ws://example.org:9001, :9000)
