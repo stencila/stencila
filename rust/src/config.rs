@@ -242,30 +242,33 @@ pub mod cli {
         pub property: String,
     }
 
-    pub fn run(args: Args, config: &Config) -> Result<()> {
+    pub fn run(args: Args, config: &Config) -> Result<Config> {
         let Args { action } = args;
         match action {
             Action::Get(action) => {
                 let Get { pointer } = action;
-                println!("{}", super::display(config, pointer)?)
+                println!("{}", super::display(config, pointer)?);
+                Ok(config.clone())
             }
             Action::Set(action) => {
                 let Set { pointer, value } = action;
                 let config = super::set(config, &pointer, &value)?;
                 write(&config)?;
+                Ok(config)
             }
             Action::Reset(action) => {
                 let Reset { property } = action;
                 let config = super::reset(config, &property)?;
                 write(&config)?;
+                Ok(config)
             }
             Action::Dirs => {
-                let config = util::dirs::config(false)?.display().to_string();
-                let plugins = util::dirs::plugins(false)?.display().to_string();
-                println!("config: {}\nplugins: {}", config, plugins);
+                let config_dir = util::dirs::config(false)?.display().to_string();
+                let plugins_dir = util::dirs::plugins(false)?.display().to_string();
+                println!("config: {}\nplugins: {}", config_dir, plugins_dir);
+                Ok(config.clone())
             }
-        };
-        Ok(())
+        }
     }
 }
 

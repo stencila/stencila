@@ -91,7 +91,7 @@ pub async fn cli(args: Vec<String>) -> Result<i32> {
     plugins::read_plugins()?;
 
     let result = if command.is_none() {
-        interact::run()
+        interact::run(&config).await
     } else {
         match command.unwrap() {
             Command::Open(args) => open::cli::run(args).await,
@@ -99,7 +99,7 @@ pub async fn cli(args: Vec<String>) -> Result<i32> {
             Command::Serve(args) => serve::cli::run(args, &config.serve).await,
             Command::Plugins(args) => plugins::cli::run(args, &config.plugins).await,
             Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade),
-            Command::Config(args) => config::cli::run(args, &config),
+            Command::Config(args) => config::cli::run(args, &config).map(|_| ()),
         }
     };
 

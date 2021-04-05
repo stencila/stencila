@@ -3,11 +3,11 @@
 #[cfg(feature = "cli")]
 pub mod cli;
 
+#[cfg(feature = "interact")]
+pub mod interact;
+
 #[cfg(feature = "open")]
 pub mod open;
-
-#[cfg(feature = "convert")]
-pub mod convert;
 
 #[cfg(feature = "plugins")]
 pub mod plugins;
@@ -47,6 +47,8 @@ pub mod encode;
 
 pub mod export;
 pub mod import;
+
+pub mod convert;
 
 pub mod validate;
 
