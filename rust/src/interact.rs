@@ -79,7 +79,7 @@ pub async fn run(config: &config::Config) -> Result<()> {
                             || error.kind == structopt::clap::ErrorKind::MissingArgumentOrSubcommand
                         {
                             // Remove the unnecessary command / version line at the start
-                            let lines = error
+                            let lines = format!("{}\n", error)
                                 .to_string()
                                 .lines()
                                 .skip(1)
