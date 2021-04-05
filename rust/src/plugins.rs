@@ -1,3 +1,4 @@
+use crate::request::Client;
 use crate::util::dirs;
 use anyhow::{anyhow, bail, Result};
 use futures::StreamExt;
@@ -8,7 +9,9 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs, path::PathBuf, process::Command, sync::Mutex, thread};
 use strum::{Display, EnumString, EnumVariantNames};
 
-#[derive(Debug, Display, EnumString, EnumVariantNames, PartialEq, Deserialize, Serialize)]
+#[derive(
+    Debug, Display, Clone, Copy, EnumString, EnumVariantNames, PartialEq, Deserialize, Serialize,
+)]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 pub enum Kind {
@@ -24,7 +27,7 @@ pub enum Kind {
 const PLUGIN_FILE: &str = "codemeta.json";
 
 /// The plugins that have been loaded
-type Plugins = HashMap<String, Plugin>;
+type Plugins = HashMap<String, (Plugin, Option<Client>)>;
 pub static PLUGINS: Lazy<Mutex<Plugins>> = Lazy::new(|| Mutex::new(HashMap::new()));
 
 /// Description of a plugin
@@ -105,7 +108,7 @@ pub fn load_plugin(json: &str) -> Result<Plugin> {
     let plugin: Plugin = serde_json::from_str(json)?;
 
     let mut plugins = PLUGINS.lock().expect("Unable to obtain plugins lock");
-    plugins.insert(plugin.name.clone(), plugin.clone());
+    plugins.insert(plugin.name.clone(), (plugin.clone(), None));
 
     let mut methods = METHODS.lock().expect("Unable to obtain methods lock");
     for feature in &plugin.feature_list {
@@ -577,8 +580,8 @@ pub async fn install(
 /// Install a list of plugins
 pub async fn install_list(
     plugins: Vec<String>,
-    kinds: Vec<Kind>,
-    aliases: HashMap<String, String>,
+    kinds: &[Kind],
+    aliases: &HashMap<String, String>,
 ) -> Result<()> {
     for plugin in plugins {
         match install(&plugin, &kinds, &aliases).await {
@@ -692,12 +695,30 @@ pub fn display_methods() -> Result<String> {
     Ok(format!("{}\n{}\n{}\n", head, body, foot))
 }
 
+/// Delegate a method call to a particular plugin
+///
+/// Note that this function does not do any validation of parameters against
+/// the plugin schema before sending a JSON-RPC request.
+pub async fn delegate_to(
+    _plugin: &str,
+    _method: &str,
+    params: &serde_json::Value,
+) -> Result<serde_json::Value> {
+    // TODO Check if the plugin has an existing client and create one if necessary
+    Ok(params.clone())
+}
+
+pub async fn delegate(_method: &str, params: &serde_json::Value) -> Result<serde_json::Value> {
+    // TODO find a plugin with matching schema
+    Ok(params.clone())
+}
+
 #[cfg(feature = "config")]
 pub mod config {
     use super::*;
     use validator::Validate;
 
-    #[derive(Debug, PartialEq, Deserialize, Serialize, Validate)]
+    #[derive(Debug, PartialEq, Clone, Deserialize, Serialize, Validate)]
     pub struct Config {
         #[serde(default = "default_kinds")]
         pub kinds: Vec<Kind>,
@@ -762,6 +783,7 @@ pub mod cli {
         Uninstall(Uninstall),
         Unlink(Unlink),
         Methods(Methods),
+        Delegate(Delegate),
     }
 
     #[derive(Debug, StructOpt)]
@@ -824,26 +846,41 @@ pub mod cli {
     #[derive(Debug, StructOpt)]
     #[structopt(about = "Unlink a local plugins")]
     pub struct Unlink {
-        /// The name of the plugin
+        /// The name of the plugin to unlink
         #[structopt()]
-        pub name: String,
+        pub plugin: String,
     }
 
     #[derive(Debug, StructOpt)]
     #[structopt(about = "List methods and the plugins that implement them")]
     pub struct Methods {
-        /// The name of the method
+        /// The name of the method to display
         #[structopt()]
-        pub name: Option<String>,
+        pub method: Option<String>,
 
         /// The format to show the method using
         #[structopt(short, long, default_value = "md")]
         pub format: String,
     }
 
-    pub async fn plugins(args: Args) -> Result<()> {
+    #[derive(Debug, StructOpt)]
+    #[structopt(about = "Delegate a method call to any, or a particular, plugin")]
+    pub struct Delegate {
+        /// The method to call
+        #[structopt()]
+        pub method: String,
+
+        /// The plugin to delegate to
+        #[structopt()]
+        pub plugin: Option<String>,
+
+        /// Method parameters (after `--`) as strings (e.g. `format=json`) or JSON (e.g. `node:='{"type":...}'`)
+        #[structopt(raw(true))]
+        params: Vec<String>,
+    }
+
+    pub async fn run(args: Args, config: &config::Config) -> Result<()> {
         let Args { action } = args;
-        let config::Config { kinds, aliases } = crate::config::get()?.plugins;
 
         let skin = termimad::MadSkin::default();
         match action {
@@ -871,21 +908,24 @@ pub mod cli {
                     plugins,
                 } = action;
 
-                let mut kinds_local = vec![];
+                let mut kinds = vec![];
                 if docker {
-                    kinds_local.push(Kind::Docker)
+                    kinds.push(Kind::Docker)
                 }
                 if binary {
-                    kinds_local.push(Kind::Binary)
+                    kinds.push(Kind::Binary)
                 }
                 if package {
-                    kinds_local.push(Kind::Package)
-                }
-                if kinds_local.is_empty() {
-                    kinds_local = kinds
+                    kinds.push(Kind::Package)
                 }
 
-                install_list(plugins, kinds_local, aliases).await
+                let kinds = if kinds.is_empty() {
+                    &config.kinds
+                } else {
+                    &kinds
+                };
+
+                install_list(plugins, kinds, &config.aliases).await
             }
             Action::Link(action) => {
                 let Link { path } = action;
@@ -906,30 +946,46 @@ pub mod cli {
 
                 // Note: Currently, `upgrade` is just an alias for `install`
                 // and does not warn user if plugin is not yet installed.
-                install_list(plugins, kinds, aliases).await
+                install_list(plugins, &config.kinds, &config.aliases).await
             }
             Action::Uninstall(action) => {
                 let Uninstall { plugins } = action;
 
-                uninstall_list(plugins, &aliases)
+                uninstall_list(plugins, &config.aliases)
             }
             Action::Unlink(action) => {
-                let Unlink { name } = action;
+                let Unlink { plugin } = action;
 
-                remove_plugin(&name)
+                remove_plugin(&plugin)
             }
             Action::Methods(action) => {
-                let Methods { name, format } = action;
+                let Methods { method, format } = action;
 
-                let content = match name {
+                let content = match method {
                     None => display_methods()?,
-                    Some(name) => display_method(&name, &format)?,
+                    Some(method) => display_method(&method, &format)?,
                 };
                 if format == "json" {
                     println!("{}", content)
                 } else {
                     println!("{}", skin.term_text(content.as_str()))
                 }
+                Ok(())
+            }
+            Action::Delegate(action) => {
+                let Delegate {
+                    method,
+                    plugin,
+                    params,
+                } = action;
+
+                let params = crate::cli::parse_params(params);
+                let result = match plugin {
+                    Some(plugin) => delegate_to(&plugin, &method, &params).await?,
+                    None => delegate(&method, &params).await?,
+                };
+                println!("{}", serde_json::to_string_pretty(&result)?);
+
                 Ok(())
             }
         }
@@ -947,46 +1003,68 @@ mod tests {
 
         use super::cli::*;
 
-        plugins(Args {
-            action: Action::List,
-        })
+        let config = config::Config {
+            ..Default::default()
+        };
+
+        run(
+            Args {
+                action: Action::List,
+            },
+            &config,
+        )
         .await?;
 
-        plugins(Args {
-            action: Action::Show(Show {
-                plugin: "foo".to_string(),
-                format: "md".to_string(),
-            }),
-        })
+        run(
+            Args {
+                action: Action::Show(Show {
+                    plugin: "foo".to_string(),
+                    format: "md".to_string(),
+                }),
+            },
+            &config,
+        )
         .await
         .expect_err("Expected an error!");
 
-        plugins(Args {
-            action: Action::Install(Install {
-                plugins: vec![],
-                docker: false,
-                binary: false,
-                package: false,
-            }),
-        })
+        run(
+            Args {
+                action: Action::Install(Install {
+                    plugins: vec![],
+                    docker: false,
+                    binary: false,
+                    package: false,
+                }),
+            },
+            &config,
+        )
         .await?;
 
-        plugins(Args {
-            action: Action::Link(Link {
-                path: "../foo".to_string(),
-            }),
-        })
+        run(
+            Args {
+                action: Action::Link(Link {
+                    path: "../foo".to_string(),
+                }),
+            },
+            &config,
+        )
         .await
         .expect_err("Expected an error!");
 
-        plugins(Args {
-            action: Action::Upgrade(Upgrade { plugins: vec![] }),
-        })
+        run(
+            Args {
+                action: Action::Upgrade(Upgrade { plugins: vec![] }),
+            },
+            &config,
+        )
         .await?;
 
-        plugins(Args {
-            action: Action::Uninstall(Uninstall { plugins: vec![] }),
-        })
+        run(
+            Args {
+                action: Action::Uninstall(Uninstall { plugins: vec![] }),
+            },
+            &config,
+        )
         .await?;
 
         Ok(())
