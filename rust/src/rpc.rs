@@ -10,6 +10,7 @@ pub struct GenericRequest<P> {
     /// An identifier for the request established by the client
     /// The standard allows this to be a number or a string but here we use
     /// `u64` because it proved to require less code and is probably more efficient.
+    /// May be `None` for notifications from the server
     pub id: Option<u64>,
 
     /// Parameters of the method call
@@ -48,9 +49,10 @@ impl Request {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Response {
     /// A string specifying the version of the JSON-RPC protocol.
-    pub jsonrpc: String,
+    pub jsonrpc: Option<String>,
 
     /// The id of the request that this response is for
+    /// May be `None` for notifications from the server
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<u64>,
 
@@ -80,7 +82,7 @@ impl Response {
 impl Default for Response {
     fn default() -> Self {
         Self {
-            jsonrpc: "2.0".to_string(),
+            jsonrpc: Some("2.0".to_string()),
             id: None,
             result: None,
             error: None,
@@ -109,7 +111,7 @@ impl Error {
         Self {
             code,
             message: message.to_string(),
-            data: data,
+            data,
         }
     }
 
