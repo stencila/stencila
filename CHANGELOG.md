@@ -1,3 +1,18 @@
+# [0.46.0](https://github.com/stencila/stencila/compare/v0.45.0...v0.46.0) (2021-04-05)
+
+
+### Bug Fixes
+
+* **CLI:** Refinements to command descriptions and options ([0c2540f](https://github.com/stencila/stencila/commit/0c2540f56bbfd2a2d33ce45e6dbfa1d2ba73940c))
+* **Logging:** Initialize a temporary subscriber as soon as possible ([4c1ff46](https://github.com/stencila/stencila/commit/4c1ff463707c1e971796c2087345c9c1610d180d))
+* **Logging:** Remove trace level ([ca5d829](https://github.com/stencila/stencila/commit/ca5d8292f097b2a12c5c4b1b11ebbc402a886e35))
+* **RPC:** Use error data arg ([66069e1](https://github.com/stencila/stencila/commit/66069e1df6cb6f12b2db451f092d274c0493ebc5))
+
+
+### Features
+
+* **Logging:** Add configurable logging ([cd4ac32](https://github.com/stencila/stencila/commit/cd4ac3243789ce702cb488806c73d9294aecedb1))
+
 # [0.45.0](https://github.com/stencila/stencila/compare/v0.44.0...v0.45.0) (2021-03-31)
 
 
