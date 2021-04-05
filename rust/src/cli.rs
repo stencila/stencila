@@ -13,19 +13,19 @@ pub struct Args {
     #[structopt(subcommand)]
     pub command: Command,
 
-    /// Emit debug level (and above) log entries
+    /// Show debug level log events (and above)
     #[structopt(long, conflicts_with_all = &["info", "warn", "error"])]
     pub debug: bool,
 
-    /// Emit info level (and above) log entries
+    /// Show info level log events (and above; default)
     #[structopt(long, conflicts_with_all = &["debug", "warn", "error"])]
     pub info: bool,
 
-    /// Emit waning level (and above) log entries
+    /// Show warning level log events (and above)
     #[structopt(long, conflicts_with_all = &["debug", "info", "error"])]
     pub warn: bool,
 
-    /// Emit error level log entries only
+    /// Show error level log entries only
     #[structopt(long, conflicts_with_all = &["debug", "info", "warn"])]
     pub error: bool,
 }
@@ -39,9 +39,9 @@ pub enum Command {
     Open(open::cli::Args),
     Convert(convert::cli::Args),
     Serve(serve::cli::Args),
-    Upgrade(upgrade::cli::Args),
     Plugins(plugins::cli::Args),
     Config(config::cli::Args),
+    Upgrade(upgrade::cli::Args)
 }
 
 pub async fn cli(args: Vec<String>) -> Result<i32> {

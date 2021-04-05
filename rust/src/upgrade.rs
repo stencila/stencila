@@ -156,7 +156,7 @@ pub mod cli {
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Upgrade stencila to the latest version")]
+    #[structopt(about = "Upgrade to the latest (or other) version")]
     pub struct Args {
         /// Version to upgrade (or downgrade) to (defaults to the latest)
         #[structopt(short, long)]

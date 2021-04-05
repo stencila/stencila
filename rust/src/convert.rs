@@ -45,7 +45,7 @@ pub mod cli {
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Convert document from one format to another")]
+    #[structopt(about = "Convert a document from one format to another")]
     pub struct Args {
         input: String,
 

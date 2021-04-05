@@ -515,7 +515,7 @@ pub mod cli {
     use structopt::StructOpt;
 
     #[derive(Debug, StructOpt)]
-    #[structopt(about = "Serve an executor using HTTP, WebSockets, or Standard I/O")]
+    #[structopt(about = "Serve on HTTP, WebSockets, or Standard I/O")]
     pub struct Args {
         /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
         #[structopt(env = "STENCILA_URL")]
