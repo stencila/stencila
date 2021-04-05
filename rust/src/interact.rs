@@ -1,3 +1,4 @@
+use crate::cli::Command;
 use crate::{config, convert, open, plugins, serve, upgrade, util::dirs};
 use anyhow::{bail, Result};
 use structopt::StructOpt;
@@ -14,23 +15,10 @@ pub struct Line {
     pub command: Command,
 }
 
-#[derive(Debug, StructOpt)]
-#[structopt(
-    setting = structopt::clap::AppSettings::DeriveDisplayOrder
-)]
-pub enum Command {
-    Open(open::cli::Args),
-    Convert(convert::cli::Args),
-    Serve(serve::cli::Args),
-    Plugins(plugins::cli::Args),
-    Config(config::cli::Args),
-    Upgrade(upgrade::cli::Args),
-}
-
 /// Run the interactive REPL
 #[cfg(feature = "interact")]
 #[tracing::instrument]
-pub async fn run(config: &config::Config) -> Result<()> {
+pub async fn run(prefix: &Vec<String>, config: &config::Config) -> Result<()> {
     use rustyline::{error::ReadlineError, Editor};
 
     let history_file = dirs::config(true)?.join("history.txt");
@@ -40,16 +28,39 @@ pub async fn run(config: &config::Config) -> Result<()> {
         tracing::debug!("No previous history found")
     }
 
+    let mut prefix = prefix.clone();
     let mut config = config.clone();
 
     loop {
         let readline = rl.readline("> ");
         match readline {
             Ok(line) => {
-                rl.add_history_entry(line.as_str());
-                let clap = Line::clap();
-                let line = line.split_whitespace().collect::<Vec<&str>>();
-                match clap.get_matches_from_safe(line) {
+                rl.add_history_entry(&line);
+
+                let mut args = line
+                    .split_whitespace()
+                    .map(str::to_string)
+                    .collect::<Vec<String>>();
+
+                if let Some(first) = line.trim_start().chars().nth(0) {
+                    if first == '~' {
+                        println!("Command prefix is {:?}", prefix);
+                        continue;
+                    } else if first == '<' {
+                        prefix = args[1..].into();
+                        println!("Set command prefix to {:?}", prefix);
+                        continue;
+                    } else if first == '>' {
+                        prefix.clear();
+                        println!("Cleared command prefix");
+                        continue;
+                    } else if first == '?' {
+                        args[0] = "help".into();
+                    }
+                };
+
+                let args = [prefix.as_slice(), args.as_slice()].concat();
+                match Line::clap().get_matches_from_safe(args) {
                     Ok(matches) => {
                         let Line { command } = Line::from_clap(&matches);
                         if let Err(error) = match command {

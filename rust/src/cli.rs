@@ -12,25 +12,31 @@ use strum::{Display, EnumVariantNames};
     setting = structopt::clap::AppSettings::VersionlessSubcommands
 )]
 pub struct Args {
+    #[structopt(subcommand)]
+    pub command: Option<Command>,
+
     /// Show debug level log events (and above)
-    #[structopt(long, conflicts_with_all = &["info", "warn", "error"])]
+    #[structopt(long, global = true, conflicts_with_all = &["info", "warn", "error"])]
     pub debug: bool,
 
     /// Show info level log events (and above; default)
-    #[structopt(long, conflicts_with_all = &["debug", "warn", "error"])]
+    #[structopt(long, global = true, conflicts_with_all = &["debug", "warn", "error"])]
     pub info: bool,
 
     /// Show warning level log events (and above)
-    #[structopt(long, conflicts_with_all = &["debug", "info", "error"])]
+    #[structopt(long, global = true, conflicts_with_all = &["debug", "info", "error"])]
     pub warn: bool,
 
     /// Show error level log entries only
-    #[structopt(long, conflicts_with_all = &["debug", "info", "warn"])]
+    #[structopt(long, global = true, conflicts_with_all = &["debug", "info", "warn"])]
     pub error: bool,
 
-    #[structopt(subcommand)]
-    pub command: Option<Command>,
+    /// Enter interactive mode (with any command and options as the prefix)
+    #[structopt(short, long, global = true)]
+    pub interact: bool,
 }
+
+const GLOBAL_ARGS: [&str; 6] = ["--debug", "--info", "--warn", "--error", "--interact", "-i"];
 
 #[derive(Debug, Display, StructOpt, EnumVariantNames)]
 #[strum(serialize_all = "lowercase")]
@@ -48,13 +54,35 @@ pub enum Command {
 
 pub async fn cli(args: Vec<String>) -> Result<i32> {
     // Parse args into a command
+    let parsed_args = Args::from_iter_safe(args.clone());
     let Args {
         command,
         debug,
         info,
         warn,
         error,
-    } = Args::from_iter(args);
+        interact,
+    } = match parsed_args {
+        Ok(args) => args,
+        Err(error) => {
+            if args.contains(&"-i".to_string()) || args.contains(&"--interact".to_string()) {
+                // Parse the global options ourselves so that user can
+                // pass an incomplete command prefix to interactive mode
+                Args {
+                    command: None,
+                    debug: args.contains(&"--debug".to_string()),
+                    info: args.contains(&"--info".to_string()),
+                    warn: args.contains(&"--warn".to_string()),
+                    error: args.contains(&"--error".to_string()),
+                    interact: true,
+                }
+            } else {
+                // Print the error `clap` help or usage message and exit
+                println!("{}", error);
+                return Ok(exitcode::SOFTWARE);
+            }
+        }
+    };
 
     // Determine the log level to use on stderr
     let level = if debug {
@@ -90,8 +118,15 @@ pub async fn cli(args: Vec<String>) -> Result<i32> {
     // Load plugins
     plugins::read_plugins()?;
 
-    let result = if command.is_none() {
-        interact::run(&config).await
+    let result = if command.is_none() || interact {
+        let prefix: Vec<String> = args
+            .into_iter()
+            // Remove executable name
+            .skip(1)
+            // Remove the global args which can not be applied to each interactive line
+            .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
+            .collect();
+        interact::run(&prefix, &config).await
     } else {
         match command.unwrap() {
             Command::Open(args) => open::cli::run(args).await,
