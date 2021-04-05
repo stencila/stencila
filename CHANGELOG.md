@@ -1,3 +1,19 @@
+# [0.47.0](https://github.com/stencila/stencila/compare/v0.46.0...v0.47.0) (2021-04-05)
+
+
+### Bug Fixes
+
+* **CLI:** Consistent ordering and color for help ([71f4cd3](https://github.com/stencila/stencila/commit/71f4cd3e10ea45be6366a3eab30324963e4f126e))
+* **Interact:** Do not drop last line of help ([c13824b](https://github.com/stencila/stencila/commit/c13824b53524551573d83d80e71b5b05b5f05c93))
+* **Plugins:** Return error rather than logging ([b5278e1](https://github.com/stencila/stencila/commit/b5278e1e3f0ae1945e271d8ce935808698f0954b))
+
+
+### Features
+
+* **CLI:** Show coloured help ([62f8eb4](https://github.com/stencila/stencila/commit/62f8eb49e2ba8e064e22215a38dd0e5e77845c02))
+* **Interact:** Add interactive mode ([8122ba0](https://github.com/stencila/stencila/commit/8122ba0961bad39a9e1d2eea5bc7a29d8e77fbf5))
+* **Interact:** Allow setting and resetting of prefix ([a684126](https://github.com/stencila/stencila/commit/a684126f7bff23357aafe078651a338d7abf1cb2))
+
 # [0.46.0](https://github.com/stencila/stencila/compare/v0.45.0...v0.46.0) (2021-04-05)
 
 
