@@ -63,10 +63,10 @@ const UPGRADE_FILE: &str = "cli-upgrade.txt";
 /// Because this function use values form the config file, requires
 /// that `feature = "config"` is enabled.
 #[cfg(feature = "config")]
-pub fn upgrade_auto() -> std::thread::JoinHandle<Result<()>> {
+pub fn upgrade_auto(config: &config::Config) -> std::thread::JoinHandle<Result<()>> {
+    let config = config.clone();
     thread::spawn(move || -> Result<()> {
-        // Get the upgrade configuration
-        let config::Config { auto, confirm, .. } = crate::config::get()?.upgrade;
+        let config::Config { auto, confirm, .. } = config;
 
         // Go no further if auto upgrade is not enabled
         if auto == "off" {
@@ -101,7 +101,7 @@ pub mod config {
     use serde::{Deserialize, Serialize};
     use validator::{Validate, ValidationError};
 
-    #[derive(Debug, PartialEq, Deserialize, Serialize, Validate)]
+    #[derive(Debug, PartialEq, Clone, Deserialize, Serialize, Validate)]
     pub struct Config {
         /// Prompt the user to confirm an upgrade
         pub confirm: bool,
@@ -171,7 +171,7 @@ pub mod cli {
         pub verbose: bool,
     }
 
-    pub fn upgrade(args: Args) -> Result<()> {
+    pub fn run(args: Args, config: &config::Config) -> Result<()> {
         let Args {
             to,
             confirm,
@@ -179,7 +179,6 @@ pub mod cli {
             ..
         } = args;
 
-        let config = crate::config::get()?.upgrade;
         let confirm = confirm || config.confirm;
         let verbose = verbose || config.verbose;
 
@@ -207,16 +206,27 @@ mod tests {
 
     #[test]
     fn test_upgrade_auto() -> Result<()> {
-        upgrade_auto().join().expect("Failed")
+        let config = config::Config {
+            ..Default::default()
+        };
+
+        upgrade_auto(&config).join().expect("Failed")
     }
 
     #[test]
     fn test_cli() -> Result<()> {
-        cli::upgrade(cli::Args {
-            to: None,
-            confirm: false,
-            verbose: false,
-        })
+        let config = config::Config {
+            ..Default::default()
+        };
+
+        cli::run(
+            cli::Args {
+                to: None,
+                confirm: false,
+                verbose: false,
+            },
+            &config,
+        )
     }
 
     #[test]

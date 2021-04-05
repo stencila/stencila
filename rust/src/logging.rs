@@ -15,7 +15,7 @@ pub enum Level {
     Never,
 }
 
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Clone, Copy, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Format {
     Plain,
@@ -28,7 +28,7 @@ pub mod config {
     use super::*;
     use crate::util::dirs;
 
-    #[derive(Debug, Defaults, PartialEq, Deserialize, Serialize, Validate)]
+    #[derive(Debug, Defaults, PartialEq, Clone, Copy, Deserialize, Serialize, Validate)]
     pub struct StdErr {
         /// The maximum log level to emit
         #[def = "Level::Info"]
@@ -39,7 +39,7 @@ pub mod config {
         pub format: Format,
     }
 
-    #[derive(Debug, Defaults, PartialEq, Deserialize, Serialize, Validate)]
+    #[derive(Debug, Defaults, PartialEq, Clone, Deserialize, Serialize, Validate)]
     pub struct File {
         /// The path of the log file
         #[def = "default_file_path()"]
@@ -60,28 +60,34 @@ pub mod config {
             .expect("Unable to convert path to string")
     }
 
-    #[derive(Debug, Default, PartialEq, Deserialize, Serialize, Validate)]
+    #[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, Validate)]
     pub struct Config {
         pub stderr: StdErr,
         pub file: File,
     }
 }
 
-pub fn init(level: Option<Level>) -> Result<[tracing_appender::non_blocking::WorkerGuard; 2]> {
-    use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
-
-    // Create a temporary subscriber which will be active
-    // only during the scope of this function. This is necessary to ensure
-    // that any log events that get emitted during this function (e.g. in `config::get`)
-    // are displayed to the user. Without it they are not displayed at all.
-    let subscriber = fmt()
+/// Create a preliminary logging subscriber.
+/// 
+/// This can be necessary to ensure that any log events that get emitted during
+/// initialization are displayed to the user.
+pub fn prelim() -> tracing::subscriber::DefaultGuard {
+    let subscriber = tracing_subscriber::fmt()
         .pretty()
         .with_max_level(tracing::Level::INFO)
         .with_writer(std::io::stderr)
         .finish();
-    let _subscriber_guard = tracing::subscriber::set_default(subscriber);
+    tracing::subscriber::set_default(subscriber)
+}
 
-    let config::Config { stderr, file } = &crate::config::get()?.logging;
+/// Initialize a logging subscriber based on passed args and read config.
+pub fn init(
+    level: Option<Level>,
+    config: &config::Config,
+) -> Result<[tracing_appender::non_blocking::WorkerGuard; 2]> {
+    use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
+
+    let config::Config { stderr, file } = config;
 
     let level = level.unwrap_or(stderr.level);
 

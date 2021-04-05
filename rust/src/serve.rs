@@ -472,7 +472,7 @@ pub mod config {
     use serde::{Deserialize, Serialize};
     use validator::Validate;
 
-    #[derive(Debug, PartialEq, Deserialize, Serialize, Validate)]
+    #[derive(Debug, PartialEq, Clone, Deserialize, Serialize, Validate)]
     pub struct Config {
         /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
         #[serde(default = "default_url")]
@@ -530,12 +530,11 @@ pub mod cli {
         insecure: bool,
     }
 
-    pub async fn serve(args: Args) -> Result<()> {
+    pub async fn run(args: Args, config: &config::Config) -> Result<()> {
         let Args { url, key, insecure } = args;
 
-        let config = crate::config::get()?.serve;
-        let url = url.or(Some(config.url));
-        let key = key.or(config.key);
+        let url = url.or_else(|| Some(config.url.clone()));
+        let key = key.or_else(|| config.key.clone());
         let insecure = insecure || config.insecure;
 
         super::serve(
