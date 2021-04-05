@@ -70,6 +70,17 @@ pub mod config {
 pub fn init(level: Option<Level>) -> Result<[tracing_appender::non_blocking::WorkerGuard; 2]> {
     use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 
+    // Create a temporary subscriber which will be active
+    // only during the scope of this function. This is necessary to ensure
+    // that any log events that get emitted during this function (e.g. in `config::get`)
+    // are displayed to the user. Without it they are not displayed at all.
+    let subscriber = fmt()
+        .pretty()
+        .with_max_level(tracing::Level::INFO)
+        .with_writer(std::io::stderr)
+        .finish();
+    let _subscriber_guard = tracing::subscriber::set_default(subscriber);
+
     let config::Config { stderr, file } = &crate::config::get()?.logging;
 
     let level = level.unwrap_or(stderr.level);
