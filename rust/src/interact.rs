@@ -4,6 +4,7 @@ use crate::{
     util::dirs,
 };
 use anyhow::{anyhow, bail, Result};
+use rustyline::error::ReadlineError;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -19,14 +20,11 @@ pub struct Line {
 }
 
 /// Run the interactive REPL
-#[cfg(feature = "interact")]
 #[tracing::instrument]
 pub async fn run(prefix: &Vec<String>, config: &config::Config) -> Result<()> {
-    use rustyline::{error::ReadlineError, Editor};
-
     let history_file = dirs::config(true)?.join("history.txt");
 
-    let mut rl = Editor::<()>::new();
+    let mut rl = editor::new();
     if rl.load_history(&history_file).is_err() {
         tracing::debug!("No previous history found")
     }
@@ -122,4 +120,131 @@ pub async fn run(prefix: &Vec<String>, config: &config::Config) -> Result<()> {
     rl.save_history(&history_file)?;
 
     Ok(())
+}
+
+mod editor {
+    use ansi_term::Colour::{Blue, White, Yellow};
+    use rustyline::{
+        completion::{Completer, FilenameCompleter, Pair},
+        config::OutputStreamType,
+        highlight::{Highlighter, MatchingBracketHighlighter},
+        hint::{Hinter, HistoryHinter},
+        validate::{MatchingBracketValidator, Validator},
+        validate::{ValidationContext, ValidationResult},
+        CompletionType, Context, EditMode, Editor, Result,
+    };
+    use rustyline_derive::Helper;
+    use std::borrow::Cow::{self, Owned};
+
+    pub fn new() -> Editor<Helper> {
+        let config = rustyline::Config::builder()
+            .history_ignore_space(true)
+            .max_history_size(1000)
+            .completion_type(CompletionType::List)
+            .edit_mode(EditMode::Emacs)
+            .output_stream(OutputStreamType::Stdout)
+            .build();
+
+        let mut editor = Editor::with_config(config);
+
+        let helper = Helper::new();
+        editor.set_helper(Some(helper));
+
+        editor
+    }
+
+    #[derive(Helper)]
+    pub struct Helper {
+        pub completer: FilenameCompleter,
+        pub hinter: HistoryHinter,
+        pub validator: MatchingBracketValidator,
+        pub highlighter: MatchingBracketHighlighter,
+    }
+
+    impl Helper {
+        pub fn new() -> Self {
+            Helper {
+                completer: FilenameCompleter::new(),
+                hinter: HistoryHinter {},
+                validator: MatchingBracketValidator::new(),
+                highlighter: MatchingBracketHighlighter::new(),
+            }
+        }
+    }
+
+    /// Provides tab-completion candidates
+    ///
+    /// https://github.com/kkawakam/rustyline/blob/master/src/completion.rs
+    impl Completer for Helper {
+        type Candidate = Pair;
+
+        fn complete(
+            &self,
+            line: &str,
+            pos: usize,
+            ctx: &Context<'_>,
+        ) -> Result<(usize, Vec<Self::Candidate>)> {
+            self.completer.complete(line, pos, ctx)
+        }
+    }
+
+    /// Provides hints based on the current line
+    ///
+    /// See https://github.com/kkawakam/rustyline/blob/master/src/hint.rs
+    impl Hinter for Helper {
+        type Hint = String;
+
+        // Takes the currently edited line with the cursor position and returns the string that should be
+        // displayed or None if no hint is available for the text the user currently typed
+        fn hint(&self, line: &str, pos: usize, ctx: &Context<'_>) -> Option<String> {
+            self.hinter.hint(line, pos, ctx)
+        }
+    }
+
+    /// Determines whether the current buffer is a valid command or should continue.
+    ///
+    /// Will not validate unless brackets (round, square and curly) are balanced.
+    impl Validator for Helper {
+        fn validate(&self, ctx: &mut ValidationContext) -> Result<ValidationResult> {
+            self.validator.validate(ctx)
+        }
+
+        fn validate_while_typing(&self) -> bool {
+            self.validator.validate_while_typing()
+        }
+    }
+
+    /// Syntax highlighter
+    ///
+    /// Highlights brackets, prompt, hints and completion candidates.
+    /// See https://github.com/kkawakam/rustyline/blob/master/src/highlight.rs
+    impl Highlighter for Helper {
+        fn highlight<'l>(&self, line: &'l str, pos: usize) -> Cow<'l, str> {
+            self.highlighter.highlight(line, pos)
+        }
+
+        fn highlight_prompt<'b, 's: 'b, 'p: 'b>(
+            &'s self,
+            prompt: &'p str,
+            _default: bool,
+        ) -> Cow<'b, str> {
+            Owned(Blue.paint(prompt).to_string())
+        }
+
+        fn highlight_hint<'h>(&self, hint: &'h str) -> Cow<'h, str> {
+            Owned(White.dimmed().paint(hint).to_string())
+        }
+
+        fn highlight_candidate<'c>(
+            &self,
+            candidate: &'c str,
+            _completion: CompletionType,
+        ) -> Cow<'c, str> {
+            Owned(Yellow.dimmed().paint(candidate).to_string())
+        }
+
+        fn highlight_char(&self, line: &str, pos: usize) -> bool {
+            self.highlighter.highlight_char(line, pos)
+        }
+    }
 }

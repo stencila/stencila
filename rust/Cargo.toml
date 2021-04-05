@@ -16,7 +16,7 @@ edition = "2018"
 
 cli = ["template-handlebars", "exitcode", "structopt", "termimad"]
 
-interact = ["rustyline"]
+interact = ["ansi_term", "rustyline", "rustyline-derive"]
 
 open = ["serve", "serve-http", "serve-ws", "webbrowser"]
 
@@ -80,6 +80,7 @@ default = [
 ]
 
 [dependencies]
+ansi_term = { version = "0.12.1", optional = true }
 anyhow = "1.0.40"
 bollard = { version = "0.10.1", optional = true }
 chrono = "0.4.19"
@@ -97,6 +98,7 @@ rand = "0.8.3"
 regex = "1.4.5"
 reqwest = { version = "0.11.2", optional = true, features = ["json"] }
 rustyline = { version = "8.0.0", optional = true }
+rustyline-derive = { version = "0.4.0", optional = true }
 self_update = { version = "0.26.0", optional = true, features = [
     "archive-tar",
     "archive-zip",

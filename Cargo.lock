@@ -2129,6 +2129,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustyline-derive"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db9dfbf470021de34cfaf6983067f460ea19164934a7c2d4b92eec0968eb95f1"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "ryu"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2433,6 +2443,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 name = "stencila"
 version = "0.47.0"
 dependencies = [
+ "ansi_term 0.12.1",
  "anyhow",
  "bollard",
  "chrono",
@@ -2451,6 +2462,7 @@ dependencies = [
  "regex",
  "reqwest",
  "rustyline",
+ "rustyline-derive",
  "self_update",
  "serde",
  "serde_json",
