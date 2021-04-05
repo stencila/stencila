@@ -41,7 +41,7 @@ pub enum Command {
     Serve(serve::cli::Args),
     Plugins(plugins::cli::Args),
     Config(config::cli::Args),
-    Upgrade(upgrade::cli::Args)
+    Upgrade(upgrade::cli::Args),
 }
 
 pub async fn cli(args: Vec<String>) -> Result<i32> {

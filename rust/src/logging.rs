@@ -68,7 +68,7 @@ pub mod config {
 }
 
 /// Create a preliminary logging subscriber.
-/// 
+///
 /// This can be necessary to ensure that any log events that get emitted during
 /// initialization are displayed to the user.
 pub fn prelim() -> tracing::subscriber::DefaultGuard {
