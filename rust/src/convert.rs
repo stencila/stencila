@@ -61,7 +61,7 @@ pub mod cli {
         watch: bool,
     }
 
-    pub fn convert(args: Args) -> Result<()> {
+    pub fn run(args: Args) -> Result<()> {
         let Args {
             input,
             output,

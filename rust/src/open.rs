@@ -49,7 +49,7 @@ pub mod cli {
         url: String,
     }
 
-    pub async fn open(args: Args) -> Result<()> {
+    pub async fn run(args: Args) -> Result<()> {
         let Args { url } = args;
 
         super::open(Some(url)).await?;

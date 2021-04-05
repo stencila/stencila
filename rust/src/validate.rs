@@ -38,32 +38,3 @@ pub mod rpc {
         super::validate(node)
     }
 }
-
-#[cfg(feature = "cli")]
-pub mod cli {
-    use super::*;
-    use crate::import::import;
-    use structopt::StructOpt;
-
-    #[derive(Debug, StructOpt)]
-    #[structopt(
-        about = "Validate", // TODO about
-        setting = structopt::clap::AppSettings::DeriveDisplayOrder
-    )]
-    pub struct Args {
-        /// TODO docs
-        input: String,
-
-        /// TODO docs
-        #[structopt(short, long)]
-        format: Option<String>,
-    }
-
-    pub fn validate(args: Args) -> Result<()> {
-        let Args { input, format } = args;
-
-        let node = import(&input, format)?;
-        super::validate(node)?;
-        Ok(())
-    }
-}
