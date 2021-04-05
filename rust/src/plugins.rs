@@ -586,7 +586,7 @@ pub async fn install_list(
     for plugin in plugins {
         match install(&plugin, &kinds, &aliases).await {
             Ok(_) => tracing::info!("Added plugin {}", plugin),
-            Err(error) => tracing::error!("{}", error),
+            Err(error) => bail!(error),
         }
     }
     Ok(())
@@ -605,7 +605,7 @@ pub fn uninstall_list(plugins: Vec<String>, aliases: &HashMap<String, String>) -
     for plugin in plugins {
         match uninstall(&plugin, &aliases) {
             Ok(_) => tracing::info!("Removed plugin {}", plugin),
-            Err(error) => tracing::error!("{}", error),
+            Err(error) => bail!(error),
         }
     }
     Ok(())
