@@ -52,12 +52,17 @@ pub enum Command {
 }
 
 /// Run a command
-pub async fn run_command(command: Command, config: &config::Config) -> Result<()> {
+#[tracing::instrument(skip(config, plugins_store))]
+pub async fn run_command(
+    command: Command,
+    config: &config::Config,
+    plugins_store: &mut plugins::Store,
+) -> Result<()> {
     match command {
         Command::Open(args) => open::cli::run(args).await,
         Command::Convert(args) => convert::cli::run(args),
         Command::Serve(args) => serve::cli::run(args, &config.serve).await,
-        Command::Plugins(args) => plugins::cli::run(args, &config.plugins).await,
+        Command::Plugins(args) => plugins::cli::run(args, &config.plugins, plugins_store).await,
         Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade),
         Command::Config(args) => config::cli::run(args, &config).map(|_| ()),
     }

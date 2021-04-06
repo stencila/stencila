@@ -17,7 +17,7 @@ pub async fn main() -> Result<()> {
         info,
         warn,
         error,
-        interact,
+        ..
     } = match parsed_args {
         Ok(args) => args,
         Err(error) => {
@@ -72,9 +72,12 @@ pub async fn main() -> Result<()> {
     };
 
     // Load plugins
-    plugins::read_plugins()?;
+    let mut plugins_store = plugins::Store::load()?;
 
-    let result = if command.is_none() || interact {
+    // Get the result of running the command
+    let result = if let Some(command) = command {
+        run_command(command, &config, &mut plugins_store).await
+    } else {
         let prefix: Vec<String> = args
             .into_iter()
             // Remove executable name
@@ -82,9 +85,7 @@ pub async fn main() -> Result<()> {
             // Remove the global args which can not be applied to each interactive line
             .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
             .collect();
-        interact::run(&prefix, &config).await
-    } else {
-        run_command(command.unwrap(), &config).await
+        interact::run(prefix, &config, &mut plugins_store).await
     };
 
     // Join the upgrade thread and log any errors

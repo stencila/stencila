@@ -7,6 +7,7 @@ use std::env;
 use strum::VariantNames;
 use tokio::io::AsyncWriteExt;
 
+#[derive(Debug)]
 pub enum Client {
     #[cfg(feature = "request-stdio")]
     Stdio(Stdio),
@@ -117,6 +118,7 @@ impl Stdio {
 
 #[cfg(feature = "request-docker")]
 /// A Docker container client
+#[derive(Debug)]
 pub struct Docker {}
 
 #[cfg(feature = "request-docker")]
@@ -134,6 +136,7 @@ impl Docker {
 
 #[cfg(feature = "request-http")]
 /// A HTTP client
+#[derive(Debug)]
 pub struct Http {
     url: String,
     client: reqwest::Client,
@@ -177,6 +180,7 @@ impl Http {
 
 #[cfg(feature = "request-ws")]
 /// A WebSocket client
+#[derive(Debug)]
 pub struct Ws {
     url: String,
 }

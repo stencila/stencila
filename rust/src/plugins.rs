@@ -3,10 +3,9 @@ use crate::util::dirs;
 use anyhow::{anyhow, bail, Result};
 use futures::StreamExt;
 use jsonschema::JSONSchema;
-use once_cell::sync::Lazy;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fs, path::PathBuf, process::Command, sync::Mutex, thread};
+use std::{collections::HashMap, fs, path::PathBuf, process::Command, thread};
 use strum::{Display, EnumString, EnumVariantNames};
 
 #[derive(
@@ -23,13 +22,6 @@ pub enum Kind {
     Package,
 }
 
-/// The name of the plugin file within the plugin directory
-const PLUGIN_FILE: &str = "codemeta.json";
-
-/// The plugins that have been loaded
-type Plugins = HashMap<String, (Plugin, Option<Client>)>;
-pub static PLUGINS: Lazy<Mutex<Plugins>> = Lazy::new(|| Mutex::new(HashMap::new()));
-
 /// Description of a plugin
 ///
 /// As far as possible using existing properties defined in schema.org
@@ -38,7 +30,7 @@ pub static PLUGINS: Lazy<Mutex<Plugins>> = Lazy::new(|| Mutex::new(HashMap::new(
 ///
 /// Properties names use the Rust convention of snake_case but are renamed
 /// to schema.org camelCase on serialization.
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Plugin {
     /// The name of the plugin
@@ -59,153 +51,16 @@ pub struct Plugin {
     feature_list: Vec<serde_json::Value>,
 }
 
-/// Split a plugin spec (ie. alias/name and, optionally, version) into alias and version
-pub fn spec_to_alias_version(spec: &str) -> (String, String) {
-    if spec.contains('@') {
-        let parts: Vec<&str> = spec.split('@').collect();
-        (parts[0].into(), parts[1].into())
-    } else {
-        (spec.into(), "latest".into())
-    }
-}
+impl Plugin {
+    /// The name of the plugin file within the plugin directory
+    const FILE_NAME: &'static str = "codemeta.json";
 
-/// Resolve a plugin alias to a plugin name
-///
-/// If the provided string is a registered alias then returns the corresponding
-/// plugin name, otherwise assumes the string is a plugin name
-pub fn alias_to_name(alias: &str, aliases: &HashMap<String, String>) -> String {
-    match aliases.get(alias) {
-        Some(name) => name,
-        None => alias,
-    }
-    .into()
-}
-
-/// Get the path of the plugin directory
-pub fn plugin_dir(name: &str) -> Result<PathBuf> {
-    Ok(dirs::plugins(false)?.join(name))
-}
-
-/// Get the path of the plugin directory
-pub fn plugin_file(name: &str) -> Result<PathBuf> {
-    Ok(plugin_dir(name)?.join(PLUGIN_FILE))
-}
-
-/// Test whether a plugin is installed
-///
-/// Note that if a plugin was not successfully installed
-/// it may have a directory but no plugin file and `is_installed`
-/// will return `false`.
-pub fn is_installed(name: &str) -> Result<bool> {
-    Ok(plugin_file(name)?.exists())
-}
-
-/// Load a plugin from JSON into memory
-///
-/// Deserialize a plugin from JSON and compile the
-/// JSON Schema in each item in its `featureList`.
-pub fn load_plugin(json: &str) -> Result<Plugin> {
-    let plugin: Plugin = serde_json::from_str(json)?;
-
-    let mut plugins = PLUGINS.lock().expect("Unable to obtain plugins lock");
-    plugins.insert(plugin.name.clone(), (plugin.clone(), None));
-
-    let mut methods = METHODS.lock().expect("Unable to obtain methods lock");
-    for feature in &plugin.feature_list {
-        let title = match feature.get("title") {
-            None => bail!("JSON Schema is missing 'title' property"),
-            Some(serde_json::Value::String(value)) => value.clone(),
-            Some(value) => value.to_string(),
-        };
-
-        // The `JSONSchema::compile` function used below wants a reference to a `serde_json::Value`
-        // with a lifetime. This is the only way I could figure out how to do that.
-        // The `schema_box_droppable` is stored and dropped as part of `unload_plugin` to avoid
-        // memory leaks.
-        // See https://doc.rust-lang.org/std/boxed/struct.Box.html#method.leak about `Box::leak` and
-        // `Box::from_raw`.
-        let schema_box = Box::new(feature.clone());
-        let schema_static_ref: &'static serde_json::Value = Box::leak(schema_box.clone());
-        #[allow(unsafe_code)]
-        let schema_box_droppable = unsafe { Box::from_raw(Box::into_raw(schema_box)) };
-
-        // Compile the JSON Schema for this feature
-        match JSONSchema::compile(schema_static_ref) {
-            Ok(compiled_schema) => {
-                methods.entry(title).or_insert_with(Vec::new).push((
-                    plugin.name.clone(),
-                    schema_box_droppable,
-                    compiled_schema,
-                ));
-            }
-            Err(error) => {
-                tracing::warn!("Error compiling schema for method '{}' of plugin '{}'; will ignore, please let the plugin maintainer know: {}", title, plugin.name, error)
-            }
-        };
-    }
-
-    Ok(plugin)
-}
-
-/// Unload a plugin from memory
-///
-/// Unregisters the plugin so it will no longer be delegated to
-pub fn unload_plugin(name: &str) -> Result<()> {
-    let mut plugins = PLUGINS.lock().expect("Unable to obtain plugins lock");
-    plugins.remove(name);
-
-    let mut methods = METHODS.lock().expect("Unable to obtain methods lock");
-    for implementations in methods.values_mut() {
-        implementations.retain(|implementation| implementation.0 != name)
-    }
-
-    Ok(())
-}
-
-/// Read an installed plugin
-pub fn read_plugin(name: &str) -> Result<Plugin> {
-    let file = plugin_file(name)?;
-    let json = match fs::read_to_string(file) {
-        Ok(json) => json,
-        Err(_) => bail!("Plugin '{}' is not installed", name),
-    };
-    let plugin = load_plugin(&json)?;
-    Ok(plugin)
-}
-
-/// Write a plugin to installation directory
-pub fn write_plugin(name: &str, plugin: &Plugin) -> Result<()> {
-    let json = serde_json::to_string_pretty(&plugin)?;
-    let dir = plugin_dir(name)?;
-    fs::create_dir_all(dir)?;
-    let file = plugin_file(name)?;
-    fs::write(file, json)?;
-    Ok(())
-}
-
-/// Uninstall and unload (from memory) a plugin
-pub fn remove_plugin(name: &str) -> Result<()> {
-    let dir = plugin_dir(&name)?;
-    if dir.exists() || fs::symlink_metadata(&dir).is_ok() {
-        if dir.is_file() {
-            fs::remove_file(dir)?
-        } else {
-            // Note that if `dir` is a symlink to a directory that
-            // only the directory will be removed.
-            fs::remove_dir_all(dir)?
-        }
-    }
-
-    unload_plugin(name)
-}
-
-/// Create a Markdown document describing a plugin
-pub fn display_plugin(name: &str, format: &str) -> Result<String> {
-    let plugin = read_plugin(name)?;
-    let content = match format {
-        #[cfg(any(feature = "template-handlebars"))]
-        "md" => {
-            let template = r#"
+    /// Create a Markdown document describing a plugin
+    pub fn display(&self, format: &str) -> Result<String> {
+        let content = match format {
+            #[cfg(any(feature = "template-handlebars"))]
+            "md" => {
+                let template = r#"
 # {{name}} {{softwareVersion}}
 
 {{description}}
@@ -228,491 +83,691 @@ pub fn display_plugin(name: &str, format: &str) -> Result<String> {
 {{/each}}
 
 "#;
-            use handlebars::Handlebars;
-            let hb = Handlebars::new();
-            hb.render_template(template, &plugin)?
-        }
-        _ => serde_json::to_string_pretty(&plugin)?,
-    };
-    Ok(content)
-}
+                use handlebars::Handlebars;
+                let hb = Handlebars::new();
+                hb.render_template(template, self)?
+            }
+            _ => serde_json::to_string_pretty(self)?,
+        };
+        Ok(content)
+    }
 
-/// Read all the installed plugins
-pub fn read_plugins() -> Result<Vec<Plugin>> {
-    let dir = dirs::plugins(true)?;
-    let mut plugins: Vec<Plugin> = vec![];
-    for entry in fs::read_dir(dir)? {
-        let entry = entry?;
-        let path = entry.path();
-        if path.is_dir() {
-            let name = path.display().to_string();
-            // Check this directory actually has a plugin file
-            if is_installed(&name)? {
-                plugins.push(read_plugin(&name)?);
+    /// Split a plugin spec into `owner`, `name`, and `version`
+    pub fn spec_to_parts(spec: &str) -> (&str, &str, &str) {
+        let (owner, name) = if spec.contains('/') {
+            let parts: Vec<&str> = spec.split('/').collect();
+            (parts[0].trim(), parts[1].trim())
+        } else {
+            ("stencila", spec)
+        };
+
+        let (name, version) = if name.contains('@') {
+            let parts: Vec<&str> = name.split('@').collect();
+            (parts[0].trim(), parts[1].trim())
+        } else {
+            (name, "latest")
+        };
+
+        (owner, name, version)
+    }
+
+    /// Resolve a plugin alias to a plugin name
+    ///
+    /// If the provided string is a registered alias then returns the corresponding
+    /// plugin name, otherwise assumes the string is a plugin name
+    pub fn alias_to_name(alias: &str, aliases: &HashMap<String, String>) -> String {
+        match aliases.get(alias) {
+            Some(name) => name,
+            None => alias,
+        }
+        .into()
+    }
+
+    /// Get the path of the plugin's directory
+    pub fn dir(name: &str) -> Result<PathBuf> {
+        Ok(dirs::plugins(false)?.join(name))
+    }
+
+    /// Get the path of the plugin's manifest file
+    pub fn file(name: &str) -> Result<PathBuf> {
+        Ok(Plugin::dir(name)?.join(Plugin::FILE_NAME))
+    }
+
+    /// Test whether a plugin is installed
+    ///
+    /// Note that if a plugin was not successfully installed
+    /// it may have a directory but no plugin file and `is_installed`
+    /// will return `false`.
+    pub fn is_installed(name: &str) -> Result<bool> {
+        Ok(Plugin::file(name)?.exists())
+    }
+
+    /// Load a plugin from its JSON
+    pub fn load(json: &str) -> Result<Plugin> {
+        let plugin: Plugin = serde_json::from_str(json)?;
+        Ok(plugin)
+    }
+
+    /// Read the plugin from its directory
+    pub fn read(name: &str) -> Result<Plugin> {
+        let json = match fs::read_to_string(Plugin::file(name)?) {
+            Ok(json) => json,
+            Err(_) => bail!("Plugin '{}' is not installed", name),
+        };
+
+        Plugin::load(&json)
+    }
+
+    /// Write the plugin to its directory
+    pub fn write(name: &str, plugin: &Plugin) -> Result<()> {
+        let json = serde_json::to_string_pretty(plugin)?;
+
+        let dir = Plugin::dir(name)?;
+        fs::create_dir_all(dir)?;
+
+        let file = Plugin::file(name)?;
+        fs::write(file, json)?;
+
+        Ok(())
+    }
+
+    /// Remove the plugin's directory
+    pub fn remove(name: &str) -> Result<()> {
+        let dir = Plugin::dir(name)?;
+        if dir.exists() || fs::symlink_metadata(&dir).is_ok() {
+            if dir.is_file() {
+                fs::remove_file(dir)?
+            } else {
+                // Note that if `dir` is a symlink to a directory that
+                // only the directory will be removed.
+                fs::remove_dir_all(dir)?
             }
         }
+
+        Ok(())
     }
-    Ok(plugins)
+
+    /// Install the plugin
+    pub async fn install(
+        spec: &str,
+        aliases: &HashMap<String, String>,
+        kinds: &[Kind],
+    ) -> Result<()> {
+        for kind in kinds {
+            let result = match kind {
+                Kind::Package => Plugin::install_package(spec, aliases),
+                Kind::Binary => Plugin::install_binary(spec, aliases),
+                Kind::Docker => Plugin::install_docker(spec, aliases).await,
+            };
+            match result {
+                // Success, so just return now
+                Ok(_) => return Ok(()),
+                // Error, keep trying other kinds, or if there is
+                // only one kind, return that error.
+                Err(error) => {
+                    if kinds.len() == 1 {
+                        return Err(error);
+                    }
+                }
+            }
+        }
+
+        bail!(
+            "Unable to install plugin '{}', tried kinds {:?}",
+            spec,
+            kinds
+        )
+    }
+
+    /// Install a list of plugins
+    pub async fn install_list(
+        plugins: Vec<String>,
+        kinds: &[Kind],
+        aliases: &HashMap<String, String>,
+    ) -> Result<()> {
+        for plugin in plugins {
+            match Plugin::install(&plugin, &aliases, &kinds).await {
+                Ok(_) => tracing::info!("Added plugin {}", plugin),
+                Err(error) => bail!(error),
+            }
+        }
+        Ok(())
+    }
+
+    /// Add a plugin as a programing language package
+    #[cfg(any(feature = "plugins-package"))]
+    pub fn install_package(spec: &str, _aliases: &HashMap<String, String>) -> Result<()> {
+        // TODO
+        bail!(
+            "Unable to add plugin '{}' as programming language package",
+            spec
+        )
+    }
+
+    /// Add a plugin as a downloaded binary
+    #[cfg(any(feature = "plugins-binary"))]
+    pub fn install_binary(spec: &str, aliases: &HashMap<String, String>) -> Result<()> {
+        let (owner, name, version) = Plugin::spec_to_parts(spec);
+        let name = Plugin::alias_to_name(name, &aliases);
+
+        // Remove the plugin directory
+        Plugin::remove(&name)?;
+
+        // (Re)create the directory where the binary will be downloaded to
+        let install_dir = dirs::plugins(false)?.join(&name);
+        fs::create_dir_all(&install_dir)?;
+        let install_path = install_dir.join(&name);
+
+        let mut builder = self_update::backends::github::Update::configure();
+        builder
+            .repo_owner(owner)
+            .repo_name(&name)
+            .bin_name(&name)
+            // Use low version to force install
+            .current_version("0.0.0")
+            .bin_install_path(&install_path)
+            .show_output(true)
+            .show_download_progress(true);
+        if version != "latest" {
+            builder.target_version_tag(format!("v{}", version).as_str());
+        }
+
+        // The download has to be done in another thread because it spawns
+        // a new tokio runtime
+        thread::spawn(move || -> Result<()> {
+            if let Err(error) = builder.build()?.update() {
+                match error {
+                    self_update::errors::Error::Network(message) => {
+                        if message.contains("404") {
+                            bail!(
+                                "Could not find repository or corresponding release in repository"
+                            )
+                        } else {
+                            bail!(message)
+                        }
+                    }
+                    _ => bail!(error.to_string()),
+                }
+            } else {
+                Ok(())
+            }
+        })
+        .join()
+        .map_err(|_| anyhow!("Error joining thread"))??;
+
+        // Get plugin json manifest
+        let json = Command::new(&install_path).arg("manifest").output()?.stdout;
+        let json = std::str::from_utf8(&json)?;
+
+        let plugin = Plugin::load(json)?;
+        Plugin::write(&name, &plugin)?;
+
+        Ok(())
+    }
+
+    /// Add a plugin as a pulled Docker image
+    ///
+    /// For this to succeed must be able to connect to the local
+    /// Docker server and be able to pull an image with corresponding
+    /// name.
+    #[cfg(any(feature = "plugins-docker"))]
+    pub async fn install_docker(spec: &str, aliases: &HashMap<String, String>) -> Result<()> {
+        let docker = bollard::Docker::connect_with_local_defaults()?;
+
+        let (owner, name, version) = Plugin::spec_to_parts(spec);
+        let name = Plugin::alias_to_name(name, &aliases);
+        let image = format!("{}/{}:{}", owner, name, version);
+
+        // Pull the image (by creating an image from it)
+        let mut stream = docker.create_image(
+            Some(bollard::image::CreateImageOptions {
+                from_image: image.clone(),
+                ..Default::default()
+            }),
+            None,
+            None,
+        );
+        while let Some(item) = stream.next().await {
+            match item {
+                Ok(info) => {
+                    if let Some(error) = info.error {
+                        bail!("{}", error)
+                    } else if let Some(status) = info.status {
+                        // TODO display of status and progress could be improved and displayed
+                        // per id (layer) as in docker CLI
+                        // println!("{:?} {:?} {:?}", info.id, info.progress, info.progress_detail);
+                        if let Some(progress) = info.progress {
+                            tracing::info!("{} {}", status, progress)
+                        } else {
+                            tracing::info!("{}", status)
+                        }
+                    }
+                }
+                Err(error) => match error {
+                    bollard::errors::Error::DockerResponseNotFoundError { .. } => {
+                        bail!("Unable to find Docker image '{}'", image)
+                    }
+                    _ => bail!("{}", error),
+                },
+            }
+        }
+
+        // Create a container to obtain manifest from
+        let container_name: String = rand::thread_rng()
+            .sample_iter(&rand::distributions::Alphanumeric)
+            .take(24)
+            .map(char::from)
+            .collect();
+        let response = docker
+            .create_container(
+                Some(bollard::container::CreateContainerOptions {
+                    name: &container_name,
+                }),
+                bollard::container::Config {
+                    image: Some(image.clone()),
+                    cmd: Some(vec!["manifest".to_string()]),
+                    ..Default::default()
+                },
+            )
+            .await?;
+        if !response.warnings.is_empty() {
+            for warning in response.warnings {
+                tracing::warn!("When creating container: {}", warning);
+            }
+        }
+
+        // Start the container
+        docker
+            .start_container(
+                &container_name,
+                None::<bollard::container::StartContainerOptions<String>>,
+            )
+            .await?;
+
+        // Capture the container output into `manifest`
+        let mut stream = docker.logs::<String>(
+            &container_name,
+            Some(bollard::container::LogsOptions {
+                follow: true,
+                stderr: true,
+                stdout: true,
+                ..Default::default()
+            }),
+        );
+        let mut stdout = vec![];
+        let mut stderr = vec![];
+        while let Some(output) = stream.next().await {
+            if let Ok(output) = output {
+                match output {
+                    bollard::container::LogOutput::StdOut { message } => {
+                        stdout.extend_from_slice(&message)
+                    }
+                    bollard::container::LogOutput::StdErr { message } => {
+                        stderr.extend_from_slice(&message)
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        if !stderr.is_empty() {
+            tracing::warn!("{}", std::str::from_utf8(&stderr)?);
+        }
+
+        let json = if !stdout.is_empty() {
+            match std::str::from_utf8(&stdout) {
+                Ok(stdout) => stdout,
+                Err(error) => bail!("Error converting stream to UTF8: {}", error),
+            }
+        } else {
+            bail!(
+                "No output from Docker container manifest command; is {} a Stencila plugin?",
+                image
+            )
+        };
+
+        // Remove the plugin directory
+        Plugin::remove(&name)?;
+
+        // Load and write the plugin file
+        let plugin = Plugin::load(json)?;
+        Plugin::write(&name, &plugin)?;
+
+        Ok(())
+    }
+
+    /// Add a plugin as a soft link to a directory on the current machine
+    ///
+    /// # Arguments
+    ///
+    /// - `path`: Local file system path to the directory
+    #[cfg(any(feature = "plugins-link"))]
+    pub fn install_link(path: &str) -> Result<()> {
+        // Make the path absolute (for symlink to work)
+        let path = fs::canonicalize(&path)?;
+
+        // Check that the path is a directory
+        if !path.is_dir() {
+            bail!("Path must be a directory")
+        }
+
+        // Check that the directory has a plugin file
+        let plugin_file = path.join(Plugin::FILE_NAME);
+        if !plugin_file.is_file() {
+            bail!("Directory must contain a '{}' file", Plugin::FILE_NAME)
+        }
+
+        // Check that the plugin's file can be loaded
+        let json = fs::read_to_string(plugin_file)?;
+        let plugin = Plugin::load(&json)?;
+        let name = plugin.name;
+
+        // Remove the plugin directory
+        Plugin::remove(&name)?;
+
+        // Create the soft link
+        let link = Plugin::dir(&name)?;
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        std::os::unix::fs::symlink(path, link)?;
+        #[cfg(target_os = "windows")]
+        std::os::windows::fs::symlink_dir(path, link)?;
+
+        Ok(())
+    }
+
+    /// Remove a plugin
+    pub fn uninstall(alias: &str, aliases: &HashMap<String, String>) -> Result<()> {
+        let name = Plugin::alias_to_name(&alias, &aliases);
+        Plugin::remove(&name)?;
+
+        Ok(())
+    }
+
+    /// Remove a list of plugins
+    pub fn uninstall_list(plugins: Vec<String>, aliases: &HashMap<String, String>) -> Result<()> {
+        for plugin in plugins {
+            match Plugin::uninstall(&plugin, &aliases) {
+                Ok(_) => tracing::info!("Removed plugin {}", plugin),
+                Err(error) => bail!(error),
+            }
+        }
+        Ok(())
+    }
 }
 
-/// Create a Markdown table of all the install plugins
-pub fn display_plugins() -> Result<String> {
-    let plugins = read_plugins()?;
+#[derive(Debug)]
+struct PluginStore {
+    plugin: Plugin,
 
-    if plugins.is_empty() {
-        return Ok("No plugins installed. See `stencila plugins install --help`.".to_string());
+    #[allow(dead_code)]
+    client: Option<Client>,
+}
+
+#[derive(Debug)]
+struct MethodImplem {
+    plugin: String,
+
+    schema: Box<serde_json::Value>,
+
+    #[allow(dead_code)]
+    compiled_schema: JSONSchema<'static>,
+}
+
+#[derive(Debug)]
+struct MethodStore {
+    implems: Vec<MethodImplem>,
+}
+
+#[derive(Debug)]
+pub struct Store {
+    plugins: HashMap<String, PluginStore>,
+
+    methods: HashMap<String, MethodStore>,
+}
+
+impl Store {
+    pub fn empty() -> Self {
+        Store {
+            plugins: HashMap::new(),
+            methods: HashMap::new(),
+        }
     }
 
-    let head = r#"
+    pub fn load() -> Result<Self> {
+        let mut store = Store {
+            plugins: HashMap::new(),
+            methods: HashMap::new(),
+        };
+
+        let dir = dirs::plugins(true)?;
+        for entry in fs::read_dir(dir)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.is_dir() {
+                let name = path.display().to_string();
+                // Check this directory actually has a plugin file
+                if Plugin::is_installed(&name)? {
+                    let plugin = Plugin::read(&name)?;
+                    store.add(plugin)?
+                }
+            }
+        }
+
+        Ok(store)
+    }
+
+    /// Load a plugin from JSON into memory
+    ///
+    /// Deserialize a plugin from JSON and compile the
+    /// JSON Schema in each item in its `featureList`.
+    /// Should be called when a plugin is installed.
+    pub fn add(&mut self, plugin: Plugin) -> Result<()> {
+        let name = plugin.name.as_str();
+
+        for feature in &plugin.feature_list {
+            let title = match feature.get("title") {
+                None => bail!("JSON Schema is missing 'title' property"),
+                Some(serde_json::Value::String(value)) => value.clone(),
+                Some(value) => value.to_string(),
+            };
+
+            // The `JSONSchema::compile` function used below wants a reference to a `serde_json::Value`
+            // with a lifetime. This is the only way I could figure out how to do that.
+            // The `schema_box_droppable` is stored and dropped as part of `unload_plugin` to avoid
+            // memory leaks.
+            // See https://doc.rust-lang.org/std/boxed/struct.Box.html#method.leak about `Box::leak` and
+            // `Box::from_raw`.
+            let schema_box = Box::new(feature.clone());
+            let schema_static_ref: &'static serde_json::Value = Box::leak(schema_box.clone());
+            #[allow(unsafe_code)]
+            let schema_box_droppable = unsafe { Box::from_raw(Box::into_raw(schema_box)) };
+
+            // Compile the JSON Schema for this feature
+            match JSONSchema::compile(schema_static_ref) {
+                Ok(compiled_schema) => {
+                    self.methods
+                        .entry(title)
+                        .or_insert_with(|| MethodStore {
+                            implems: Vec::new(),
+                        })
+                        .implems
+                        .push(MethodImplem {
+                            plugin: name.into(),
+                            schema: schema_box_droppable,
+                            compiled_schema,
+                        });
+                }
+                Err(error) => {
+                    tracing::warn!(
+                        "Error compiling schema for method '{}' of plugin '{}'; will ignore, please let the plugin maintainer know: {}",
+                        title, name, error
+                    )
+                }
+            };
+        }
+
+        self.plugins.insert(
+            name.into(),
+            PluginStore {
+                plugin,
+                client: None,
+            },
+        );
+
+        Ok(())
+    }
+
+    /// Unload a plugin from memory
+    ///
+    /// De-registers the plugin so it will no longer be delegated to.
+    /// Should be called when a plugin is uninstalled.
+    pub fn remove(&mut self, name: &str) -> Result<()> {
+        self.plugins.remove(name);
+
+        for method in self.methods.values_mut() {
+            method.implems.retain(|implem| implem.plugin != name)
+        }
+
+        Ok(())
+    }
+
+    /// Display an individual plugin
+    pub fn display_plugin(&self, name: &str, format: &str) -> Result<String> {
+        match self.plugins.get(name) {
+            None => bail!("Plugin '{}' is not loaded", name),
+            Some(plugin_store) => plugin_store.plugin.display(format),
+        }
+    }
+
+    /// Create a Markdown table of all the install plugins
+    pub fn display_plugins(&self) -> Result<String> {
+        if self.plugins.is_empty() {
+            return Ok("No plugins installed. See `stencila plugins install --help`.".to_string());
+        }
+
+        let head = r#"
 | ---- | ------- | ------------ |
 | Name | Version | Description  |
 | :--- | ------: | -------------|
-"#
-    .trim();
-    let body = plugins
-        .iter()
-        .map(|plugin| {
-            format!(
-                "| **{}** | {} | {} |",
-                plugin.name, plugin.software_version, plugin.description
-            )
-        })
-        .collect::<Vec<String>>()
-        .join("\n");
-    let foot = "|-";
-    Ok(format!("{}\n{}\n{}\n", head, body, foot))
-}
-
-/// Add a plugin as a pulled Docker image
-///
-/// For this to succeed must be able to connect to the local
-/// Docker server and be able to pull an image with corresponding
-/// name.
-#[cfg(any(feature = "plugins-docker"))]
-pub async fn install_docker(name: &str, version: &str) -> Result<()> {
-    let docker = bollard::Docker::connect_with_local_defaults()?;
-
-    let image = if name.contains('/') {
-        name.to_string()
-    } else {
-        format!("stencila/{}", name)
-    };
-    let image = format!("{}:{}", image, version);
-
-    // Pull the image (by creating an image from it)
-    let mut stream = docker.create_image(
-        Some(bollard::image::CreateImageOptions {
-            from_image: image.clone(),
-            ..Default::default()
-        }),
-        None,
-        None,
-    );
-    while let Some(item) = stream.next().await {
-        match item {
-            Ok(info) => {
-                if let Some(error) = info.error {
-                    bail!("{}", error)
-                } else if let Some(status) = info.status {
-                    // TODO display of status and progress could be improved and displayed
-                    // per id (layer) as in docker CLI
-                    // println!("{:?} {:?} {:?}", info.id, info.progress, info.progress_detail);
-                    if let Some(progress) = info.progress {
-                        tracing::info!("{} {}", status, progress)
-                    } else {
-                        tracing::info!("{}", status)
-                    }
-                }
-            }
-            Err(error) => match error {
-                bollard::errors::Error::DockerResponseNotFoundError { .. } => {
-                    bail!("Unable to find Docker image '{}'", image)
-                }
-                _ => bail!("{}", error),
-            },
-        }
-    }
-
-    // Create a container to obtain manifest from
-    let container_name: String = rand::thread_rng()
-        .sample_iter(&rand::distributions::Alphanumeric)
-        .take(24)
-        .map(char::from)
-        .collect();
-    let response = docker
-        .create_container(
-            Some(bollard::container::CreateContainerOptions {
-                name: &container_name,
-            }),
-            bollard::container::Config {
-                image: Some(image.clone()),
-                cmd: Some(vec!["manifest".to_string()]),
-                ..Default::default()
-            },
-        )
-        .await?;
-    if !response.warnings.is_empty() {
-        for warning in response.warnings {
-            tracing::warn!("When creating container: {}", warning);
-        }
-    }
-
-    // Start the container
-    docker
-        .start_container(
-            &container_name,
-            None::<bollard::container::StartContainerOptions<String>>,
-        )
-        .await?;
-
-    // Capture the container output into `manifest`
-    let mut stream = docker.logs::<String>(
-        &container_name,
-        Some(bollard::container::LogsOptions {
-            follow: true,
-            stderr: true,
-            stdout: true,
-            ..Default::default()
-        }),
-    );
-    let mut stdout = vec![];
-    let mut stderr = vec![];
-    while let Some(output) = stream.next().await {
-        if let Ok(output) = output {
-            match output {
-                bollard::container::LogOutput::StdOut { message } => {
-                    stdout.extend_from_slice(&message)
-                }
-                bollard::container::LogOutput::StdErr { message } => {
-                    stderr.extend_from_slice(&message)
-                }
-                _ => {}
-            }
-        }
-    }
-
-    if !stderr.is_empty() {
-        tracing::warn!("{}", std::str::from_utf8(&stderr)?);
-    }
-
-    let json = if !stdout.is_empty() {
-        match std::str::from_utf8(&stdout) {
-            Ok(stdout) => stdout,
-            Err(error) => bail!("Error converting stream to UTF8: {}", error),
-        }
-    } else {
-        bail!(
-            "No output from Docker container manifest command; is {} a Stencila plugin?",
-            image
-        )
-    };
-
-    // Remove the plugin directory
-    remove_plugin(&name)?;
-
-    // Load and write the plugin file
-    let plugin = load_plugin(json)?;
-    write_plugin(name, &plugin)?;
-
-    Ok(())
-}
-
-/// Add a plugin as a downloaded binary
-#[cfg(any(feature = "plugins-binary"))]
-pub fn install_binary(name: &str, version: &str) -> Result<()> {
-    let (owner, name) = if name.contains('/') {
-        let parts: Vec<&str> = name.split('/').collect();
-        (parts[0], parts[1])
-    } else {
-        ("stencila", name)
-    };
-
-    // Get the current version from the manifest (if any)
-    let current_version = if let Ok(_manifest) = read_plugin(name) {
-        // TODO extract version from manifest
-        "0.1.0"
-    } else {
-        // Not yet installed, so artificially low version
-        "0.0.0"
-    };
-
-    // Remove the plugin directory
-    remove_plugin(&name)?;
-
-    // (Re)create the directory where the binary will be downloaded to
-    let install_dir = dirs::plugins(false)?.join(name);
-    fs::create_dir_all(&install_dir)?;
-    let install_path = install_dir.join(name);
-
-    let mut builder = self_update::backends::github::Update::configure();
-    builder
-        .repo_owner(owner)
-        .repo_name(name)
-        .bin_name(name)
-        .current_version(current_version)
-        .bin_install_path(&install_path)
-        .show_output(true)
-        .show_download_progress(true);
-    if version != "latest" {
-        builder.target_version_tag(format!("v{}", version).as_str());
-    }
-
-    // The download has to be done in another thread because it spawns
-    // a new tokio runtime
-    thread::spawn(move || -> Result<()> {
-        if let Err(error) = builder.build()?.update() {
-            match error {
-                self_update::errors::Error::Network(message) => {
-                    if message.contains("404") {
-                        bail!("Could not find repository or corresponding release in repository")
-                    } else {
-                        bail!(message)
-                    }
-                }
-                _ => bail!(error.to_string()),
-            }
-        } else {
-            Ok(())
-        }
-    })
-    .join()
-    .map_err(|_| anyhow!("Error joining thread"))??;
-
-    // Get plugin json manifest
-    let json = Command::new(&install_path).arg("manifest").output()?.stdout;
-    let json = std::str::from_utf8(&json)?;
-
-    let plugin = load_plugin(json)?;
-    write_plugin(name, &plugin)?;
-
-    Ok(())
-}
-
-/// Add a plugin as a programing language package
-#[cfg(any(feature = "plugins-package"))]
-pub fn install_package(name: &str, version: &str) -> Result<()> {
-    // TODO
-    bail!(
-        "Unable to add plugin '{}@{}' as programming language package",
-        name,
-        version
-    )
-}
-
-/// Add a plugin as a soft link to a directory on the current machine
-///
-/// # Arguments
-///
-/// - `path`: Local file system path to the directory
-#[cfg(any(feature = "plugins-link"))]
-pub fn install_link(path: &str) -> Result<()> {
-    // Make the path absolute (for symlink to work)
-    let path = fs::canonicalize(&path)?;
-
-    // Check that the path is a directory
-    if !path.is_dir() {
-        bail!("Path must be a directory")
-    }
-
-    // Check that the directory has a plugin file
-    let plugin_file = path.join(PLUGIN_FILE);
-    if !plugin_file.is_file() {
-        bail!("Directory must contain a '{}' file", PLUGIN_FILE)
-    }
-
-    // Check that the plugin's file can be loaded
-    let json = fs::read_to_string(plugin_file)?;
-    let plugin = load_plugin(&json)?;
-    let name = plugin.name;
-
-    // Remove the plugin directory
-    remove_plugin(&name)?;
-
-    // Create the soft link
-    let link = plugin_dir(&name)?;
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
-    std::os::unix::fs::symlink(path, link)?;
-    #[cfg(target_os = "windows")]
-    std::os::windows::fs::symlink_dir(path, link)?;
-
-    Ok(())
-}
-
-/// Install a plugin
-pub async fn install(
-    plugin: &str,
-    kinds: &[Kind],
-    aliases: &HashMap<String, String>,
-) -> Result<()> {
-    let (alias, version) = spec_to_alias_version(plugin);
-    let name = alias_to_name(&alias, aliases);
-
-    if is_installed(&name)? {
-        remove_plugin(&name)?
-    }
-
-    for kind in kinds {
-        let result = match kind {
-            Kind::Docker => install_docker(&name, &version).await,
-            Kind::Binary => install_binary(&name, &version),
-            Kind::Package => install_package(&name, &version),
-        };
-        match result {
-            // Success, so just return now
-            Ok(_) => return Ok(()),
-            // Error, keep trying other kinds, or if there is
-            // only one kind, return that error.
-            Err(error) => {
-                if kinds.len() == 1 {
-                    return Err(error);
-                }
-            }
-        }
-    }
-
-    bail!(
-        "Unable to install plugin '{}', tried kinds {:?}",
-        plugin,
-        kinds
-    )
-}
-
-/// Install a list of plugins
-pub async fn install_list(
-    plugins: Vec<String>,
-    kinds: &[Kind],
-    aliases: &HashMap<String, String>,
-) -> Result<()> {
-    for plugin in plugins {
-        match install(&plugin, &kinds, &aliases).await {
-            Ok(_) => tracing::info!("Added plugin {}", plugin),
-            Err(error) => bail!(error),
-        }
-    }
-    Ok(())
-}
-
-/// Remove a plugin
-pub fn uninstall(alias: &str, aliases: &HashMap<String, String>) -> Result<()> {
-    let name = alias_to_name(&alias, &aliases);
-    remove_plugin(&name)?;
-
-    Ok(())
-}
-
-/// Remove a list of plugins
-pub fn uninstall_list(plugins: Vec<String>, aliases: &HashMap<String, String>) -> Result<()> {
-    for plugin in plugins {
-        match uninstall(&plugin, &aliases) {
-            Ok(_) => tracing::info!("Removed plugin {}", plugin),
-            Err(error) => bail!(error),
-        }
-    }
-    Ok(())
-}
-
-/// The methods that are available from loaded plugins
-///
-/// Used for fast delegation of calls to plugins.
-type Methods = HashMap<String, Vec<(String, Box<serde_json::Value>, JSONSchema<'static>)>>;
-pub static METHODS: Lazy<Mutex<Methods>> = Lazy::new(|| Mutex::new(HashMap::new()));
-
-/// Create a Markdown document describing a plugin
-pub fn display_method(name: &str, format: &str) -> Result<String> {
-    let methods = METHODS.lock().expect("Unable to lock methods");
-
-    let plugins = match methods.get(name) {
-        None => bail!("No implementations for method `{}`", name),
-        Some(plugins) => plugins
+    "#
+        .trim();
+        let body = self
+            .plugins
             .iter()
-            .map(|implem| {
-                let (name, schema, ..) = implem;
-                serde_json::json!({
-                    "name": name,
-                    "schema": schema
-                })
+            .map(|(_name, plugin_store)| {
+                let Plugin {
+                    name,
+                    software_version,
+                    description,
+                    ..
+                } = plugin_store.plugin.clone();
+                format!("| **{}** | {} | {} |", name, software_version, description)
             })
-            .collect::<serde_json::Value>(),
-    };
-
-    let method = &serde_json::json!({ "name": name, "plugins": plugins });
-
-    let content = match format {
-        #[cfg(any(feature = "template-handlebars"))]
-        "md" => {
-            let template = r#"
-# {{name}}
-
-{{#each plugins}}
-## {{name}}
-
-{{#with schema }}
-{{description}}
-
-{{#each properties}}
-- **{{@key}}**: *{{type}}* : {{description}}{{/each}}
-{{/with}}
-{{/each}}
-"#
-            .trim();
-            use handlebars::Handlebars;
-            let hb = Handlebars::new();
-            hb.render_template(template, &method)?
-        }
-        _ => serde_json::to_string_pretty(&method)?,
-    };
-    Ok(content)
-}
-
-/// Create a Markdown table of all the registed methods
-pub fn display_methods() -> Result<String> {
-    let methods = METHODS.lock().expect("Unable to lock methods");
-
-    if methods.is_empty() {
-        return Ok("No methods registered. See `stencila plugins install --help`.".to_string());
+            .collect::<Vec<String>>()
+            .join("\n");
+        let foot = "|-";
+        Ok(format!("{}\n{}\n{}\n", head, body, foot))
     }
 
-    let head = r#"
+    /// Create a Markdown document describing a plugin
+    pub fn display_method(&self, name: &str, format: &str) -> Result<String> {
+        let plugins = match self.methods.get(name) {
+            None => bail!("No implementations for method `{}`", name),
+            Some(method_store) => method_store
+                .implems
+                .iter()
+                .map(|method_implem| {
+                    serde_json::json!({
+                        "name": name,
+                        "schema": method_implem.schema
+                    })
+                })
+                .collect::<serde_json::Value>(),
+        };
+
+        let method = &serde_json::json!({ "name": name, "plugins": plugins });
+
+        let content = match format {
+            #[cfg(any(feature = "template-handlebars"))]
+            "md" => {
+                let template = r#"
+    # {{name}}
+
+    {{#each plugins}}
+    ## {{name}}
+
+    {{#with schema }}
+    {{description}}
+
+    {{#each properties}}
+    - **{{@key}}**: *{{type}}* : {{description}}{{/each}}
+    {{/with}}
+    {{/each}}
+    "#
+                .trim();
+                use handlebars::Handlebars;
+                let hb = Handlebars::new();
+                hb.render_template(template, &method)?
+            }
+            _ => serde_json::to_string_pretty(&method)?,
+        };
+        Ok(content)
+    }
+
+    /// Create a Markdown table of all the registed methods
+    pub fn display_methods(&self) -> Result<String> {
+        if self.methods.is_empty() {
+            return Ok("No methods registered. See `stencila plugins install --help`.".to_string());
+        }
+
+        let head = r#"
 | -------- | -------- |
 | Method   | Plugins  |
 | :------- | :------- |
-"#
-    .trim();
-    let body = methods
-        .iter()
-        .map(|method| {
-            let (method_name, plugins) = method;
-            let plugins = plugins
-                .iter()
-                .map(|plugin| plugin.0.clone())
-                .collect::<Vec<String>>()
-                .join(", ");
-            format!("| {} | {} |", method_name, plugins)
-        })
-        .collect::<Vec<String>>()
-        .join("\n");
-    let foot = "|-";
-    Ok(format!("{}\n{}\n{}\n", head, body, foot))
-}
+    "#
+        .trim();
+        let body = self
+            .methods
+            .iter()
+            .map(|method| {
+                let (method_name, method_store) = method;
+                let plugins = method_store
+                    .implems
+                    .iter()
+                    .map(|plugin| plugin.plugin.clone())
+                    .collect::<Vec<String>>()
+                    .join(", ");
+                format!("| {} | {} |", method_name, plugins)
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+        let foot = "|-";
+        Ok(format!("{}\n{}\n{}\n", head, body, foot))
+    }
 
-/// Delegate a method call to a particular plugin
-///
-/// Note that this function does not do any validation of parameters against
-/// the plugin schema before sending a JSON-RPC request.
-pub async fn delegate_to(
-    _plugin: &str,
-    _method: &str,
-    params: &serde_json::Value,
-) -> Result<serde_json::Value> {
-    // TODO Check if the plugin has an existing client and create one if necessary
-    Ok(params.clone())
-}
+    /// Delegate a method call to a particular plugin
+    ///
+    /// Note that this function does not do any validation of parameters against
+    /// the plugin schema before sending a JSON-RPC request.
+    pub async fn delegate_to(
+        &self,
+        _plugin: &str,
+        _method: &str,
+        params: &serde_json::Value,
+    ) -> Result<serde_json::Value> {
+        // TODO Check if the plugin has an existing client and create one if necessary
+        Ok(params.clone())
+    }
 
-pub async fn delegate(_method: &str, params: &serde_json::Value) -> Result<serde_json::Value> {
-    // TODO find a plugin with matching schema
-    Ok(params.clone())
+    pub async fn delegate(
+        &self,
+        _method: &str,
+        params: &serde_json::Value,
+    ) -> Result<serde_json::Value> {
+        // TODO find a plugin with matching schema
+        Ok(params.clone())
+    }
 }
-
 #[cfg(feature = "config")]
 pub mod config {
     use super::*;
@@ -915,20 +970,20 @@ pub mod cli {
         params: Vec<String>,
     }
 
-    pub async fn run(args: Args, config: &config::Config) -> Result<()> {
+    pub async fn run(args: Args, config: &config::Config, store: &mut Store) -> Result<()> {
         let Args { action } = args;
 
         let skin = termimad::MadSkin::default();
         match action {
             Action::List => {
-                let md = display_plugins()?;
+                let md = store.display_plugins()?;
                 println!("{}", skin.term_text(md.as_str()));
                 Ok(())
             }
             Action::Show(action) => {
                 let Show { plugin, format } = action;
 
-                let content = display_plugin(&plugin, &format)?;
+                let content = store.display_plugin(&plugin, &format)?;
                 if format == "json" {
                     println!("{}", content)
                 } else {
@@ -961,45 +1016,42 @@ pub mod cli {
                     &kinds
                 };
 
-                install_list(plugins, kinds, &config.aliases).await
+                Plugin::install_list(plugins, kinds, &config.aliases).await
             }
             Action::Link(action) => {
                 let Link { path } = action;
 
-                install_link(&path)
+                Plugin::install_link(&path)
             }
             Action::Upgrade(action) => {
                 let Upgrade { plugins } = action;
 
-                let plugins = if plugins.is_empty() {
-                    read_plugins()?
-                        .iter()
-                        .map(|plugin| plugin.name.clone())
-                        .collect()
+                let plugins: Vec<String> = if plugins.is_empty() {
+                    store.plugins.iter().map(|(key, ..)| key.clone()).collect()
                 } else {
                     plugins
                 };
 
                 // Note: Currently, `upgrade` is just an alias for `install`
                 // and does not warn user if plugin is not yet installed.
-                install_list(plugins, &config.kinds, &config.aliases).await
+                Plugin::install_list(plugins, &config.kinds, &config.aliases).await
             }
             Action::Uninstall(action) => {
                 let Uninstall { plugins } = action;
 
-                uninstall_list(plugins, &config.aliases)
+                Plugin::uninstall_list(plugins, &config.aliases)
             }
             Action::Unlink(action) => {
                 let Unlink { plugin } = action;
 
-                remove_plugin(&plugin)
+                Plugin::remove(&plugin)
             }
             Action::Methods(action) => {
                 let Methods { method, format } = action;
 
                 let content = match method {
-                    None => display_methods()?,
-                    Some(method) => display_method(&method, &format)?,
+                    None => store.display_methods()?,
+                    Some(method) => store.display_method(&method, &format)?,
                 };
                 if format == "json" {
                     println!("{}", content)
@@ -1017,8 +1069,8 @@ pub mod cli {
 
                 let params = crate::cli::parse_params(params);
                 let result = match plugin {
-                    Some(plugin) => delegate_to(&plugin, &method, &params).await?,
-                    None => delegate(&method, &params).await?,
+                    Some(plugin) => store.delegate_to(&plugin, &method, &params).await?,
+                    None => store.delegate(&method, &params).await?,
                 };
                 println!("{}", serde_json::to_string_pretty(&result)?);
 
@@ -1042,12 +1094,14 @@ mod tests {
         let config = config::Config {
             ..Default::default()
         };
+        let mut store = Store::empty();
 
         run(
             Args {
                 action: Action::List,
             },
             &config,
+            &mut store,
         )
         .await?;
 
@@ -1059,6 +1113,7 @@ mod tests {
                 }),
             },
             &config,
+            &mut store,
         )
         .await
         .expect_err("Expected an error!");
@@ -1073,6 +1128,7 @@ mod tests {
                 }),
             },
             &config,
+            &mut store,
         )
         .await?;
 
@@ -1083,6 +1139,7 @@ mod tests {
                 }),
             },
             &config,
+            &mut store,
         )
         .await
         .expect_err("Expected an error!");
@@ -1092,6 +1149,7 @@ mod tests {
                 action: Action::Upgrade(Upgrade { plugins: vec![] }),
             },
             &config,
+            &mut store,
         )
         .await?;
 
@@ -1100,6 +1158,7 @@ mod tests {
                 action: Action::Uninstall(Uninstall { plugins: vec![] }),
             },
             &config,
+            &mut store,
         )
         .await?;
 

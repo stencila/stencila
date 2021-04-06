@@ -20,8 +20,12 @@ pub struct Line {
 }
 
 /// Run the interactive REPL
-#[tracing::instrument]
-pub async fn run(prefix: Vec<String>, config: &config::Config) -> Result<()> {
+#[tracing::instrument(skip(config, plugins_store))]
+pub async fn run(
+    prefix: Vec<String>,
+    config: &config::Config,
+    plugins_store: &mut plugins::Store,
+) -> Result<()> {
     let history_file = dirs::config(true)?.join("history.txt");
 
     let mut rl = editor::new();
@@ -69,7 +73,7 @@ pub async fn run(prefix: Vec<String>, config: &config::Config) -> Result<()> {
                             Command::Convert(args) => convert::cli::run(args),
                             Command::Serve(args) => serve::cli::run(args, &config.serve).await,
                             Command::Plugins(args) => {
-                                plugins::cli::run(args, &config.plugins).await
+                                plugins::cli::run(args, &config.plugins, plugins_store).await
                             }
                             Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade),
                             Command::Config(args) => match config::cli::run(args, &config) {
