@@ -273,8 +273,12 @@ pub mod cli {
             }
             Action::Dirs => {
                 let config_dir = util::dirs::config(false)?.display().to_string();
+                let logs_dir = util::dirs::logs(false)?.display().to_string();
                 let plugins_dir = util::dirs::plugins(false)?.display().to_string();
-                println!("config: {}\nplugins: {}", config_dir, plugins_dir);
+                println!(
+                    "config: {}\nlogs: {}\nplugins: {}",
+                    config_dir, logs_dir, plugins_dir
+                );
                 Ok(config.clone())
             }
         }
