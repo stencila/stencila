@@ -1,3 +1,18 @@
+# [0.48.0](https://github.com/stencila/stencila/compare/v0.47.0...v0.48.0) (2021-04-06)
+
+
+### Bug Fixes
+
+* **Config:** Add logs directory to dirs command ([28dc7c4](https://github.com/stencila/stencila/commit/28dc7c4299e6c1eb4068b0da160e47e19804af81))
+* **Interact:** Add welcome message ([aa6c7ad](https://github.com/stencila/stencila/commit/aa6c7ad6de352f82c6e9002c07d1b81ccbce8c27))
+* **Plugins:** Pass store into functions to call add/remove ([684e6b0](https://github.com/stencila/stencila/commit/684e6b0f40129f7fef605390ab671c57d601a960))
+
+
+### Features
+
+* **Inspect:** Add inspect command ([c57f5ad](https://github.com/stencila/stencila/commit/c57f5addf85531f97595c24f2b70e205adcdd3ca))
+* **Interact:** Add completions, hints, validation and highlighting ([8662932](https://github.com/stencila/stencila/commit/8662932d5a25231a971c17169aebf8472d656ff9))
+
 # [0.47.0](https://github.com/stencila/stencila/compare/v0.46.0...v0.47.0) (2021-04-05)
 
 
