@@ -9,7 +9,7 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
-    about = "Stencila command line tool",
+    about = "Stencila CLI interactive mode",
     setting = structopt::clap::AppSettings::NoBinaryName,
     setting = structopt::clap::AppSettings::ColoredHelp,
     setting = structopt::clap::AppSettings::VersionlessSubcommands
@@ -27,6 +27,8 @@ pub async fn run(
     plugins_store: &mut plugins::Store,
 ) -> Result<()> {
     let history_file = dirs::config(true)?.join("history.txt");
+
+    println!("Welcome to interactive mode. Use `--help` or `?` for help.");
 
     let mut rl = editor::new();
     if rl.load_history(&history_file).is_err() {
