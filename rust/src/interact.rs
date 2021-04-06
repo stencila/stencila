@@ -21,7 +21,7 @@ pub struct Line {
 
 /// Run the interactive REPL
 #[tracing::instrument]
-pub async fn run(prefix: &Vec<String>, config: &config::Config) -> Result<()> {
+pub async fn run(prefix: Vec<String>, config: &config::Config) -> Result<()> {
     let history_file = dirs::config(true)?.join("history.txt");
 
     let mut rl = editor::new();
@@ -43,7 +43,7 @@ pub async fn run(prefix: &Vec<String>, config: &config::Config) -> Result<()> {
                     .map(str::to_string)
                     .collect::<Vec<String>>();
 
-                if let Some(first) = line.trim_start().chars().nth(0) {
+                if let Some(first) = line.trim_start().chars().next() {
                     if first == '~' {
                         println!("Command prefix is {:?}", prefix);
                         continue;
