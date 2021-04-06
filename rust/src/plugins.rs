@@ -192,6 +192,7 @@ impl Plugin {
         spec: &str,
         aliases: &HashMap<String, String>,
         kinds: &[Kind],
+        store: &mut Store,
     ) -> Result<()> {
         for kind in kinds {
             let result = match kind {
@@ -200,8 +201,11 @@ impl Plugin {
                 Kind::Docker => Plugin::install_docker(spec, aliases).await,
             };
             match result {
-                // Success, so just return now
-                Ok(_) => return Ok(()),
+                // Success, so add plugin to the store
+                Ok(plugin) => {
+                    store.add(plugin)?;
+                    return Ok(());
+                }
                 // Error, keep trying other kinds, or if there is
                 // only one kind, return that error.
                 Err(error) => {
@@ -224,9 +228,10 @@ impl Plugin {
         plugins: Vec<String>,
         kinds: &[Kind],
         aliases: &HashMap<String, String>,
+        store: &mut Store,
     ) -> Result<()> {
         for plugin in plugins {
-            match Plugin::install(&plugin, &aliases, &kinds).await {
+            match Plugin::install(&plugin, &aliases, &kinds, store).await {
                 Ok(_) => tracing::info!("Added plugin {}", plugin),
                 Err(error) => bail!(error),
             }
@@ -236,7 +241,7 @@ impl Plugin {
 
     /// Add a plugin as a programing language package
     #[cfg(any(feature = "plugins-package"))]
-    pub fn install_package(spec: &str, _aliases: &HashMap<String, String>) -> Result<()> {
+    pub fn install_package(spec: &str, _aliases: &HashMap<String, String>) -> Result<Plugin> {
         // TODO
         bail!(
             "Unable to add plugin '{}' as programming language package",
@@ -246,7 +251,7 @@ impl Plugin {
 
     /// Add a plugin as a downloaded binary
     #[cfg(any(feature = "plugins-binary"))]
-    pub fn install_binary(spec: &str, aliases: &HashMap<String, String>) -> Result<()> {
+    pub fn install_binary(spec: &str, aliases: &HashMap<String, String>) -> Result<Plugin> {
         let (owner, name, version) = Plugin::spec_to_parts(spec);
         let name = Plugin::alias_to_name(name, &aliases);
 
@@ -301,8 +306,7 @@ impl Plugin {
 
         let plugin = Plugin::load(json)?;
         Plugin::write(&name, &plugin)?;
-
-        Ok(())
+        Ok(plugin)
     }
 
     /// Add a plugin as a pulled Docker image
@@ -311,7 +315,7 @@ impl Plugin {
     /// Docker server and be able to pull an image with corresponding
     /// name.
     #[cfg(any(feature = "plugins-docker"))]
-    pub async fn install_docker(spec: &str, aliases: &HashMap<String, String>) -> Result<()> {
+    pub async fn install_docker(spec: &str, aliases: &HashMap<String, String>) -> Result<Plugin> {
         let docker = bollard::Docker::connect_with_local_defaults()?;
 
         let (owner, name, version) = Plugin::spec_to_parts(spec);
@@ -432,8 +436,7 @@ impl Plugin {
         // Load and write the plugin file
         let plugin = Plugin::load(json)?;
         Plugin::write(&name, &plugin)?;
-
-        Ok(())
+        Ok(plugin)
     }
 
     /// Add a plugin as a soft link to a directory on the current machine
@@ -442,7 +445,7 @@ impl Plugin {
     ///
     /// - `path`: Local file system path to the directory
     #[cfg(any(feature = "plugins-link"))]
-    pub fn install_link(path: &str) -> Result<()> {
+    pub fn install_link(path: &str, store: &mut Store) -> Result<()> {
         // Make the path absolute (for symlink to work)
         let path = fs::canonicalize(&path)?;
 
@@ -460,33 +463,44 @@ impl Plugin {
         // Check that the plugin's file can be loaded
         let json = fs::read_to_string(plugin_file)?;
         let plugin = Plugin::load(&json)?;
-        let name = plugin.name;
+        let name = plugin.name.as_str();
 
         // Remove the plugin directory
-        Plugin::remove(&name)?;
+        Plugin::remove(name)?;
 
         // Create the soft link
-        let link = Plugin::dir(&name)?;
+        let link = Plugin::dir(name)?;
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         std::os::unix::fs::symlink(path, link)?;
         #[cfg(target_os = "windows")]
         std::os::windows::fs::symlink_dir(path, link)?;
 
+        // Add to store
+        store.add(plugin)?;
+
         Ok(())
     }
 
     /// Remove a plugin
-    pub fn uninstall(alias: &str, aliases: &HashMap<String, String>) -> Result<()> {
+    pub fn uninstall(
+        alias: &str,
+        aliases: &HashMap<String, String>,
+        store: &mut Store,
+    ) -> Result<()> {
         let name = Plugin::alias_to_name(&alias, &aliases);
         Plugin::remove(&name)?;
-
+        store.remove(&name)?;
         Ok(())
     }
 
     /// Remove a list of plugins
-    pub fn uninstall_list(plugins: Vec<String>, aliases: &HashMap<String, String>) -> Result<()> {
+    pub fn uninstall_list(
+        plugins: Vec<String>,
+        aliases: &HashMap<String, String>,
+        store: &mut Store,
+    ) -> Result<()> {
         for plugin in plugins {
-            match Plugin::uninstall(&plugin, &aliases) {
+            match Plugin::uninstall(&plugin, &aliases, store) {
                 Ok(_) => tracing::info!("Removed plugin {}", plugin),
                 Err(error) => bail!(error),
             }
@@ -972,6 +986,7 @@ pub mod cli {
 
     pub async fn run(args: Args, config: &config::Config, store: &mut Store) -> Result<()> {
         let Args { action } = args;
+        let config::Config { aliases, kinds } = config;
 
         let skin = termimad::MadSkin::default();
         match action {
@@ -1016,12 +1031,12 @@ pub mod cli {
                     &kinds
                 };
 
-                Plugin::install_list(plugins, kinds, &config.aliases).await
+                Plugin::install_list(plugins, kinds, aliases, store).await
             }
             Action::Link(action) => {
                 let Link { path } = action;
 
-                Plugin::install_link(&path)
+                Plugin::install_link(&path, store)
             }
             Action::Upgrade(action) => {
                 let Upgrade { plugins } = action;
@@ -1034,17 +1049,17 @@ pub mod cli {
 
                 // Note: Currently, `upgrade` is just an alias for `install`
                 // and does not warn user if plugin is not yet installed.
-                Plugin::install_list(plugins, &config.kinds, &config.aliases).await
+                Plugin::install_list(plugins, kinds, aliases, store).await
             }
             Action::Uninstall(action) => {
                 let Uninstall { plugins } = action;
 
-                Plugin::uninstall_list(plugins, &config.aliases)
+                Plugin::uninstall_list(plugins, aliases, store)
             }
             Action::Unlink(action) => {
                 let Unlink { plugin } = action;
 
-                Plugin::remove(&plugin)
+                Plugin::uninstall(&plugin, aliases, store)
             }
             Action::Methods(action) => {
                 let Methods { method, format } = action;
