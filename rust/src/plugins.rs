@@ -855,8 +855,6 @@ pub mod cli {
         Upgrade(Upgrade),
         Uninstall(Uninstall),
         Unlink(Unlink),
-        Methods(Methods),
-        Delegate(Delegate),
     }
 
     #[derive(Debug, StructOpt)]
@@ -964,6 +962,24 @@ pub mod cli {
         pub format: String,
     }
 
+    impl Methods {
+        pub async fn run(&self, store: &mut Store) -> Result<()> {
+            let Methods { method, format } = self;
+
+            let content = match method {
+                None => store.display_methods()?,
+                Some(method) => store.display_method(&method, &format)?,
+            };
+            if format == "json" {
+                println!("{}", content)
+            } else {
+                let skin = termimad::MadSkin::default();
+                println!("{}", skin.term_text(content.as_str()))
+            }
+            Ok(())
+        }
+    }
+
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Delegate a method call to any, or a particular, plugin",
@@ -982,6 +998,24 @@ pub mod cli {
         /// Method parameters (after `--`) as strings (e.g. `format=json`) or JSON (e.g. `node:='{"type":...}'`)
         #[structopt(raw(true))]
         params: Vec<String>,
+    }
+
+    impl Delegate {
+        pub async fn run(&self, store: &mut Store) -> Result<()> {
+            let Delegate {
+                method,
+                plugin,
+                params,
+            } = self;
+            let params = crate::cli::parse_params(params);
+            let result = match plugin {
+                Some(plugin) => store.delegate_to(&plugin, &method, &params).await?,
+                None => store.delegate(&method, &params).await?,
+            };
+            println!("{}", serde_json::to_string_pretty(&result)?);
+
+            Ok(())
+        }
     }
 
     pub async fn run(args: Args, config: &config::Config, store: &mut Store) -> Result<()> {
@@ -1060,36 +1094,6 @@ pub mod cli {
                 let Unlink { plugin } = action;
 
                 Plugin::uninstall(&plugin, aliases, store)
-            }
-            Action::Methods(action) => {
-                let Methods { method, format } = action;
-
-                let content = match method {
-                    None => store.display_methods()?,
-                    Some(method) => store.display_method(&method, &format)?,
-                };
-                if format == "json" {
-                    println!("{}", content)
-                } else {
-                    println!("{}", skin.term_text(content.as_str()))
-                }
-                Ok(())
-            }
-            Action::Delegate(action) => {
-                let Delegate {
-                    method,
-                    plugin,
-                    params,
-                } = action;
-
-                let params = crate::cli::parse_params(params);
-                let result = match plugin {
-                    Some(plugin) => store.delegate_to(&plugin, &method, &params).await?,
-                    None => store.delegate(&method, &params).await?,
-                };
-                println!("{}", serde_json::to_string_pretty(&result)?);
-
-                Ok(())
             }
         }
     }

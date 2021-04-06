@@ -1,6 +1,6 @@
 use crate::{
     cli::{print_error, Command},
-    config, convert, open, plugins, serve, upgrade,
+    config, convert, inspect, open, plugins, serve, upgrade,
     util::dirs,
 };
 use anyhow::{anyhow, bail, Result};
@@ -86,6 +86,7 @@ pub async fn run(
                                 }
                                 Err(err) => Err(err),
                             },
+                            Command::Inspect(args) => inspect::cli::run(args, plugins_store).await,
                         } {
                             print_error(error)
                         }

@@ -306,11 +306,6 @@ pub async fn request_url(
     }
 }
 
-/// CLI options for the `request` command
-///
-/// This command is mainly for testing, particularly during development.
-/// It allows you to check that you can make a JSON-RPC request to a
-/// plugin or peer.
 #[cfg(feature = "cli")]
 pub mod cli {
     use super::*;
@@ -318,7 +313,7 @@ pub mod cli {
 
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Request a method call on a plugin or peer (mainly for testing)",
+        about = "Request a method call on a plugin or peer",
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Args {
@@ -346,7 +341,7 @@ pub mod cli {
             key,
         } = args;
 
-        let params = crate::cli::parse_params(params);
+        let params = crate::cli::parse_params(&params);
         let result = super::request_url(&url, method, &params, key).await?;
         println!("{}", serde_json::to_string_pretty(&result)?);
 

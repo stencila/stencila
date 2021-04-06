@@ -18,6 +18,9 @@ pub mod upgrade;
 #[cfg(feature = "config")]
 pub mod config;
 
+#[cfg(feature = "inspect")]
+pub mod inspect;
+
 #[cfg(feature = "request")]
 pub mod request;
 

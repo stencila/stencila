@@ -1,4 +1,4 @@
-use crate::{config, convert, open, plugins, serve, upgrade};
+use crate::{config, convert, inspect, open, plugins, serve, upgrade};
 use anyhow::Result;
 use regex::Regex;
 use structopt::StructOpt;
@@ -49,6 +49,7 @@ pub enum Command {
     Plugins(plugins::cli::Args),
     Config(config::cli::Args),
     Upgrade(upgrade::cli::Args),
+    Inspect(inspect::cli::Args),
 }
 
 /// Run a command
@@ -65,6 +66,7 @@ pub async fn run_command(
         Command::Plugins(args) => plugins::cli::run(args, &config.plugins, plugins_store).await,
         Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade),
         Command::Config(args) => config::cli::run(args, &config).map(|_| ()),
+        Command::Inspect(args) => inspect::cli::run(args, plugins_store).await,
     }
 }
 
@@ -82,7 +84,7 @@ pub fn print_error(error: anyhow::Error) {
 }
 
 /// Parse a vector of command line arguments into parameters of a method call
-pub fn parse_params(params: Vec<String>) -> serde_json::Value {
+pub fn parse_params(params: &[String]) -> serde_json::Value {
     let re = Regex::new(r"(\w+)(:?=)(.+)").unwrap();
     let mut object = serde_json::json!({});
     for param in params {

@@ -41,6 +41,8 @@ upgrade = ["self_update"]
 
 config = ["humantime", "toml", "validator"]
 
+inspect = []
+
 format-json = []
 format-yaml = ["serde_yaml"]
 
@@ -71,6 +73,7 @@ default = [
     "plugins-package",
     "upgrade",
     "config",
+    "inspect",
     "format-json",
     "format-yaml",
     "query-jsonptr",
