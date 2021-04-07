@@ -71,7 +71,7 @@ pub enum Command {
 pub async fn run_command(
     command: Command,
     config: &mut config::Config,
-    plugins: &mut plugins::Store,
+    plugins: &mut plugins::Plugins,
 ) -> Result<()> {
     match command {
         #[cfg(feature = "open")]
@@ -184,7 +184,7 @@ pub async fn main() -> Result<()> {
     };
 
     // Load plugins
-    let mut plugins = plugins::Store::load()?;
+    let mut plugins = plugins::Plugins::load()?;
 
     // Get the result of running the command
     let result = if let Some(command) = command {
@@ -244,11 +244,11 @@ mod interact {
     }
 
     /// Run the interactive REPL
-    #[tracing::instrument(skip(config, plugins_store))]
+    #[tracing::instrument(skip(config, plugins))]
     pub async fn run(
         prefix: Vec<String>,
         config: &mut config::Config,
-        plugins_store: &mut plugins::Store,
+        plugins: &mut plugins::Plugins,
     ) -> Result<()> {
         let history_file = util::dirs::config(true)?.join("history.txt");
 
@@ -293,7 +293,7 @@ mod interact {
                     match Line::clap().get_matches_from_safe(args) {
                         Ok(matches) => {
                             let Line { command } = Line::from_clap(&matches);
-                            if let Err(error) = run_command(command, config, plugins_store).await {
+                            if let Err(error) = run_command(command, config, plugins).await {
                                 print_error(error);
                             };
                         }

@@ -35,12 +35,12 @@ pub mod cli {
         Request(request::cli::Args),
     }
 
-    pub async fn run(args: Args, plugins_store: &mut plugins::Store) -> Result<()> {
+    pub async fn run(args: Args, plugins: &mut plugins::Plugins) -> Result<()> {
         let Args { action } = args;
 
         match action {
-            Action::Methods(methods) => methods.run(plugins_store).await,
-            Action::Delegate(delegate) => delegate.run(plugins_store).await,
+            Action::Methods(methods) => methods.run(plugins).await,
+            Action::Delegate(delegate) => delegate.run(plugins).await,
             Action::Request(args) => request::cli::run(args).await,
         }
     }

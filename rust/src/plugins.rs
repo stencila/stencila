@@ -1,4 +1,3 @@
-use crate::request::Client;
 use crate::util::dirs;
 use anyhow::{anyhow, bail, Result};
 use futures::StreamExt;
@@ -192,7 +191,7 @@ impl Plugin {
         spec: &str,
         aliases: &HashMap<String, String>,
         kinds: &[Kind],
-        store: &mut Store,
+        plugins: &mut Plugins,
     ) -> Result<()> {
         for kind in kinds {
             let result = match kind {
@@ -203,7 +202,7 @@ impl Plugin {
             match result {
                 // Success, so add plugin to the store
                 Ok(plugin) => {
-                    store.add(plugin)?;
+                    plugins.add(plugin)?;
                     return Ok(());
                 }
                 // Error, keep trying other kinds, or if there is
@@ -225,14 +224,14 @@ impl Plugin {
 
     /// Install a list of plugins
     pub async fn install_list(
-        plugins: Vec<String>,
+        specs: Vec<String>,
         kinds: &[Kind],
         aliases: &HashMap<String, String>,
-        store: &mut Store,
+        plugins: &mut Plugins,
     ) -> Result<()> {
-        for plugin in plugins {
-            match Plugin::install(&plugin, &aliases, &kinds, store).await {
-                Ok(_) => tracing::info!("Added plugin {}", plugin),
+        for spec in specs {
+            match Plugin::install(&spec, aliases, kinds, plugins).await {
+                Ok(_) => tracing::info!("Added plugin {}", spec),
                 Err(error) => bail!(error),
             }
         }
@@ -445,7 +444,7 @@ impl Plugin {
     ///
     /// - `path`: Local file system path to the directory
     #[cfg(any(feature = "plugins-link"))]
-    pub fn install_link(path: &str, store: &mut Store) -> Result<()> {
+    pub fn install_link(path: &str, plugins: &mut Plugins) -> Result<()> {
         // Make the path absolute (for symlink to work)
         let path = fs::canonicalize(&path)?;
 
@@ -476,7 +475,7 @@ impl Plugin {
         std::os::windows::fs::symlink_dir(path, link)?;
 
         // Add to store
-        store.add(plugin)?;
+        plugins.add(plugin)?;
 
         Ok(())
     }
@@ -485,23 +484,23 @@ impl Plugin {
     pub fn uninstall(
         alias: &str,
         aliases: &HashMap<String, String>,
-        store: &mut Store,
+        plugins: &mut Plugins,
     ) -> Result<()> {
         let name = Plugin::alias_to_name(&alias, &aliases);
         Plugin::remove(&name)?;
-        store.remove(&name)?;
+        plugins.remove(&name)?;
         Ok(())
     }
 
     /// Remove a list of plugins
     pub fn uninstall_list(
-        plugins: Vec<String>,
+        list: Vec<String>,
         aliases: &HashMap<String, String>,
-        store: &mut Store,
+        plugins: &mut Plugins,
     ) -> Result<()> {
-        for plugin in plugins {
-            match Plugin::uninstall(&plugin, &aliases, store) {
-                Ok(_) => tracing::info!("Removed plugin {}", plugin),
+        for alias in list {
+            match Plugin::uninstall(&alias, aliases, plugins) {
+                Ok(_) => tracing::info!("Removed plugin {}", alias),
                 Err(error) => bail!(error),
             }
         }
@@ -509,49 +508,42 @@ impl Plugin {
     }
 }
 
-#[derive(Debug)]
-struct PluginStore {
-    plugin: Plugin,
-
-    #[allow(dead_code)]
-    client: Option<Client>,
-}
-
+/// An in-memory store for an implementation of a method
 #[derive(Debug)]
 struct MethodImplem {
+    /// The name of the plugin which provides the implementation
     plugin: String,
 
+    /// The plugin's JSON Schema which describes the method
     schema: Box<serde_json::Value>,
 
+    /// The plugin's JSON Schema compiled
     #[allow(dead_code)]
     compiled_schema: JSONSchema<'static>,
 }
 
+/// An in-memory store of the installed plugins and methods that they implement
 #[derive(Debug)]
-struct MethodStore {
-    implems: Vec<MethodImplem>,
+pub struct Plugins {
+    /// The plugins that are installed
+    plugins: HashMap<String, Plugin>,
+
+    /// The methods that are implemented by the plugins
+    methods: HashMap<String, Vec<MethodImplem>>,
 }
 
-#[derive(Debug)]
-pub struct Store {
-    plugins: HashMap<String, PluginStore>,
-
-    methods: HashMap<String, MethodStore>,
-}
-
-impl Store {
+impl Plugins {
+    /// Create an empty plugins store (mainly for testing)
     pub fn empty() -> Self {
-        Store {
+        Plugins {
             plugins: HashMap::new(),
             methods: HashMap::new(),
         }
     }
 
+    /// Load all the installed plugins
     pub fn load() -> Result<Self> {
-        let mut store = Store {
-            plugins: HashMap::new(),
-            methods: HashMap::new(),
-        };
+        let mut plugins = Plugins::empty();
 
         let dir = dirs::plugins(true)?;
         for entry in fs::read_dir(dir)? {
@@ -562,12 +554,12 @@ impl Store {
                 // Check this directory actually has a plugin file
                 if Plugin::is_installed(&name)? {
                     let plugin = Plugin::read(&name)?;
-                    store.add(plugin)?
+                    plugins.add(plugin)?
                 }
             }
         }
 
-        Ok(store)
+        Ok(plugins)
     }
 
     /// Load a plugin from JSON into memory
@@ -601,10 +593,7 @@ impl Store {
                 Ok(compiled_schema) => {
                     self.methods
                         .entry(title)
-                        .or_insert_with(|| MethodStore {
-                            implems: Vec::new(),
-                        })
-                        .implems
+                        .or_insert_with(|| Vec::new())
                         .push(MethodImplem {
                             plugin: name.into(),
                             schema: schema_box_droppable,
@@ -620,13 +609,7 @@ impl Store {
             };
         }
 
-        self.plugins.insert(
-            name.into(),
-            PluginStore {
-                plugin,
-                client: None,
-            },
-        );
+        self.plugins.insert(name.into(), plugin);
 
         Ok(())
     }
@@ -639,7 +622,7 @@ impl Store {
         self.plugins.remove(name);
 
         for method in self.methods.values_mut() {
-            method.implems.retain(|implem| implem.plugin != name)
+            method.retain(|implem| implem.plugin != name)
         }
 
         Ok(())
@@ -649,7 +632,7 @@ impl Store {
     pub fn display_plugin(&self, name: &str, format: &str) -> Result<String> {
         match self.plugins.get(name) {
             None => bail!("Plugin '{}' is not loaded", name),
-            Some(plugin_store) => plugin_store.plugin.display(format),
+            Some(plugin) => plugin.display(format),
         }
     }
 
@@ -668,13 +651,13 @@ impl Store {
         let body = self
             .plugins
             .iter()
-            .map(|(_name, plugin_store)| {
+            .map(|(_name, plugin)| {
                 let Plugin {
                     name,
                     software_version,
                     description,
                     ..
-                } = plugin_store.plugin.clone();
+                } = plugin.clone();
                 format!("| **{}** | {} | {} |", name, software_version, description)
             })
             .collect::<Vec<String>>()
@@ -683,12 +666,11 @@ impl Store {
         Ok(format!("{}\n{}\n{}\n", head, body, foot))
     }
 
-    /// Create a Markdown document describing a plugin
+    /// Create a Markdown document describing a method and the plugins that implement it
     pub fn display_method(&self, name: &str, format: &str) -> Result<String> {
         let plugins = match self.methods.get(name) {
             None => bail!("No implementations for method `{}`", name),
-            Some(method_store) => method_store
-                .implems
+            Some(implems) => implems
                 .iter()
                 .map(|method_implem| {
                     serde_json::json!({
@@ -705,18 +687,18 @@ impl Store {
             #[cfg(any(feature = "template-handlebars"))]
             "md" => {
                 let template = r#"
-    # {{name}}
+# {{name}}
 
-    {{#each plugins}}
-    ## {{name}}
+{{#each plugins}}
+## {{name}}
 
-    {{#with schema }}
-    {{description}}
+{{#with schema }}
+{{description}}
 
-    {{#each properties}}
-    - **{{@key}}**: *{{type}}* : {{description}}{{/each}}
-    {{/with}}
-    {{/each}}
+{{#each properties}}
+- **{{@key}}**: *{{type}}* : {{description}}{{/each}}
+{{/with}}
+{{/each}}
     "#
                 .trim();
                 use handlebars::Handlebars;
@@ -728,7 +710,7 @@ impl Store {
         Ok(content)
     }
 
-    /// Create a Markdown table of all the registed methods
+    /// Create a Markdown table of all the registered methods
     pub fn display_methods(&self) -> Result<String> {
         if self.methods.is_empty() {
             return Ok("No methods registered. See `stencila plugins install --help`.".to_string());
@@ -744,14 +726,13 @@ impl Store {
             .methods
             .iter()
             .map(|method| {
-                let (method_name, method_store) = method;
-                let plugins = method_store
-                    .implems
+                let (name, implems) = method;
+                let plugins = implems
                     .iter()
                     .map(|plugin| plugin.plugin.clone())
                     .collect::<Vec<String>>()
                     .join(", ");
-                format!("| {} | {} |", method_name, plugins)
+                format!("| {} | {} |", name, plugins)
             })
             .collect::<Vec<String>>()
             .join("\n");
@@ -773,6 +754,7 @@ impl Store {
         Ok(params.clone())
     }
 
+    /// Delegate a method call to any of the plugins
     pub async fn delegate(
         &self,
         _method: &str,
@@ -963,12 +945,12 @@ pub mod cli {
     }
 
     impl Methods {
-        pub async fn run(&self, store: &mut Store) -> Result<()> {
+        pub async fn run(&self, plugins: &mut Plugins) -> Result<()> {
             let Methods { method, format } = self;
 
             let content = match method {
-                None => store.display_methods()?,
-                Some(method) => store.display_method(&method, &format)?,
+                None => plugins.display_methods()?,
+                Some(method) => plugins.display_method(&method, &format)?,
             };
             if format == "json" {
                 println!("{}", content)
@@ -1001,7 +983,7 @@ pub mod cli {
     }
 
     impl Delegate {
-        pub async fn run(&self, store: &mut Store) -> Result<()> {
+        pub async fn run(&self, plugins: &mut Plugins) -> Result<()> {
             let Delegate {
                 method,
                 plugin,
@@ -1009,8 +991,8 @@ pub mod cli {
             } = self;
             let params = crate::util::params::parse(params);
             let result = match plugin {
-                Some(plugin) => store.delegate_to(&plugin, &method, &params).await?,
-                None => store.delegate(&method, &params).await?,
+                Some(plugin) => plugins.delegate_to(&plugin, &method, &params).await?,
+                None => plugins.delegate(&method, &params).await?,
             };
             println!("{}", serde_json::to_string_pretty(&result)?);
 
@@ -1018,21 +1000,21 @@ pub mod cli {
         }
     }
 
-    pub async fn run(args: Args, config: &config::Config, store: &mut Store) -> Result<()> {
+    pub async fn run(args: Args, config: &config::Config, plugins: &mut Plugins) -> Result<()> {
         let Args { action } = args;
         let config::Config { aliases, kinds } = config;
 
         let skin = termimad::MadSkin::default();
         match action {
             Action::List => {
-                let md = store.display_plugins()?;
+                let md = plugins.display_plugins()?;
                 println!("{}", skin.term_text(md.as_str()));
                 Ok(())
             }
             Action::Show(action) => {
                 let Show { plugin, format } = action;
 
-                let content = store.display_plugin(&plugin, &format)?;
+                let content = plugins.display_plugin(&plugin, &format)?;
                 if format == "json" {
                     println!("{}", content)
                 } else {
@@ -1045,7 +1027,7 @@ pub mod cli {
                     docker,
                     binary,
                     package,
-                    plugins,
+                    plugins: list
                 } = action;
 
                 let mut kinds = vec![];
@@ -1065,35 +1047,35 @@ pub mod cli {
                     &kinds
                 };
 
-                Plugin::install_list(plugins, kinds, aliases, store).await
+                Plugin::install_list(list, kinds, aliases, plugins).await
             }
             Action::Link(action) => {
                 let Link { path } = action;
 
-                Plugin::install_link(&path, store)
+                Plugin::install_link(&path, plugins)
             }
             Action::Upgrade(action) => {
-                let Upgrade { plugins } = action;
+                let Upgrade { plugins: list } = action;
 
-                let plugins: Vec<String> = if plugins.is_empty() {
-                    store.plugins.iter().map(|(key, ..)| key.clone()).collect()
+                let list: Vec<String> = if list.is_empty() {
+                    plugins.plugins.iter().map(|(key, ..)| key.clone()).collect()
                 } else {
-                    plugins
+                    list
                 };
 
                 // Note: Currently, `upgrade` is just an alias for `install`
                 // and does not warn user if plugin is not yet installed.
-                Plugin::install_list(plugins, kinds, aliases, store).await
+                Plugin::install_list(list, kinds, aliases, plugins).await
             }
             Action::Uninstall(action) => {
-                let Uninstall { plugins } = action;
+                let Uninstall { plugins: list } = action;
 
-                Plugin::uninstall_list(plugins, aliases, store)
+                Plugin::uninstall_list(list, aliases, plugins)
             }
             Action::Unlink(action) => {
                 let Unlink { plugin } = action;
 
-                Plugin::uninstall(&plugin, aliases, store)
+                Plugin::uninstall(&plugin, aliases, plugins)
             }
         }
     }
@@ -1113,14 +1095,14 @@ mod tests {
         let config = config::Config {
             ..Default::default()
         };
-        let mut store = Store::empty();
+        let mut plugins = Plugins::empty();
 
         run(
             Args {
                 action: Action::List,
             },
             &config,
-            &mut store,
+            &mut plugins,
         )
         .await?;
 
@@ -1132,7 +1114,7 @@ mod tests {
                 }),
             },
             &config,
-            &mut store,
+            &mut plugins,
         )
         .await
         .expect_err("Expected an error!");
@@ -1147,7 +1129,7 @@ mod tests {
                 }),
             },
             &config,
-            &mut store,
+            &mut plugins,
         )
         .await?;
 
@@ -1158,7 +1140,7 @@ mod tests {
                 }),
             },
             &config,
-            &mut store,
+            &mut plugins,
         )
         .await
         .expect_err("Expected an error!");
@@ -1168,7 +1150,7 @@ mod tests {
                 action: Action::Upgrade(Upgrade { plugins: vec![] }),
             },
             &config,
-            &mut store,
+            &mut plugins,
         )
         .await?;
 
@@ -1177,7 +1159,7 @@ mod tests {
                 action: Action::Uninstall(Uninstall { plugins: vec![] }),
             },
             &config,
-            &mut store,
+            &mut plugins,
         )
         .await?;
 
