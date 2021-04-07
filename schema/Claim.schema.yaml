@@ -28,6 +28,10 @@ properties:
       - Hypothesis
       - Proposition
       - Corollary
+    label:
+      '@id': stencila:label
+      description: A short label for the claim.
+      type: string
   content:
     '@id': stencila:content
     description: Content of the claim, usually a single paragraph.
