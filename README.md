@@ -184,7 +184,7 @@ Depending on the capabilities of the host language, these packages expose type d
 
 We 💕 contributions! All contributions: ideas 🤔, examples 💡, bug reports 🐛, documentation 📖, code 💻, questions 💬.
 
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for a guide on how to contribute to the schema definitions. See the `README.md` files of each language sub-folder e.g. [`py`](py) for advice on development of language bindings.
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for a guide on how to contribute to the schema definitions. See the `README.md` files of each language sub-folder e.g. [`py`](py) for advice on development of language bindings and [issue](https://github.com/stencila/schema/issues/256) for how to add you or others to the following _important_ table:
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -209,25 +209,6 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for a guide on how to contribute t
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
-
-<details>
-<summary><b id="format-approach">Add a contributor</b>...</summary>
-
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. To add youself, or someone else, to the above list, either,
-
-1. Ask the [@all-contributors bot](https://allcontributors.org/docs/en/bot/overview) to do it for you by commenting on an issue or PR like this:
-
-   > @all-contributors please add @octocat for bugs, tests and code
-
-2. Use the [`all-contributors` CLI](https://allcontributors.org/docs/en/cli/overview) to do it yourself:
-
-   ```bash
-   npx all-contributors add octocat bugs, tests, code
-   ```
-
-See the list of [contribution types](https://allcontributors.org/docs/en/emoji-key).
-
-</details>
 
 ## 🙏 Acknowledgments
 
