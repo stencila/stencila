@@ -1,6 +1,6 @@
 [workspace]
 
-members = ["rust", "node/native", "python", "r"]
+members = ["rust", "cli", "node/native", "python", "r"]
 
 [profile.release]
 # Settings that help reduce the binary size based on https://github.com/johnthagen/min-sized-rust

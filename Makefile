@@ -6,9 +6,11 @@ all: format lint cover audit build docs
 
 format:
 	make -C rust format
+	make -C cli format
 
 lint:
 	make -C rust lint
+	make -C cli format
 
 test:
 	make -C rust test
@@ -22,6 +24,7 @@ audit:
 
 build:
 	make -C rust build
+	make -C cli build
 
 docs:
 	make -C rust docs

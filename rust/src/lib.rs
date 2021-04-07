@@ -1,11 +1,5 @@
 #![deny(unsafe_code)]
 
-#[cfg(feature = "cli")]
-pub mod cli;
-
-#[cfg(feature = "interact")]
-pub mod interact;
-
 #[cfg(feature = "open")]
 pub mod open;
 
@@ -59,8 +53,9 @@ pub mod execute;
 
 // Utilities
 
-mod util {
+pub mod util {
     pub mod dirs;
+    pub mod params;
 }
 pub mod logging;
 pub mod nodes;
@@ -68,6 +63,8 @@ pub mod nodes;
 // Re-export packages (mainly for use by stencila-* language packages in this workspace)
 
 pub use anyhow;
+pub use regex;
 pub use serde_json;
+pub use strum;
 pub use tokio;
 pub use tracing;

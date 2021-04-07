@@ -1007,7 +1007,7 @@ pub mod cli {
                 plugin,
                 params,
             } = self;
-            let params = crate::cli::parse_params(params);
+            let params = crate::util::params::parse(params);
             let result = match plugin {
                 Some(plugin) => store.delegate_to(&plugin, &method, &params).await?,
                 None => store.delegate(&method, &params).await?,

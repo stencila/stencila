@@ -341,7 +341,7 @@ pub mod cli {
             key,
         } = args;
 
-        let params = crate::cli::parse_params(&params);
+        let params = crate::util::params::parse(&params);
         let result = super::request_url(&url, method, &params, key).await?;
         println!("{}", serde_json::to_string_pretty(&result)?);
 

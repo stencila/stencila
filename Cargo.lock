@@ -1216,9 +1216,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.92"
+version = "0.2.93"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "56d855069fafbb9b344c0f962150cd2c1187975cb1c22c1522c240d8c4986714"
+checksum = "9385f66bf6105b241aa65a61cb923ef20efc665cb9f9bb50ac2f0c4b7f378d41"
 
 [[package]]
 name = "linked-hash-map"
@@ -2443,13 +2443,11 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 name = "stencila"
 version = "0.48.0"
 dependencies = [
- "ansi_term 0.12.1",
  "anyhow",
  "bollard",
  "chrono",
  "defaults",
  "dirs-next",
- "exitcode",
  "futures",
  "handlebars",
  "humantime",
@@ -2461,8 +2459,6 @@ dependencies = [
  "rand 0.8.3",
  "regex",
  "reqwest",
- "rustyline",
- "rustyline-derive",
  "self_update",
  "serde",
  "serde_json",
@@ -2482,6 +2478,18 @@ dependencies = [
  "validator",
  "warp",
  "webbrowser",
+]
+
+[[package]]
+name = "stencila-cli"
+version = "0.48.0"
+dependencies = [
+ "ansi_term 0.12.1",
+ "exitcode",
+ "rustyline",
+ "rustyline-derive",
+ "stencila",
+ "structopt",
 ]
 
 [[package]]
@@ -2961,9 +2969,9 @@ dependencies = [
 
 [[package]]
 name = "unicode-bidi"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49f2bd0c6468a8230e1db229cff8029217cf623c767ea5d60bfbd42729ea54d5"
+checksum = "eeb8be209bb1c96b7c177c7420d26e04eccacb0eeae6b980e35fcb74678107e0"
 dependencies = [
  "matches",
 ]

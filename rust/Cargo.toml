@@ -14,9 +14,7 @@ edition = "2018"
 
 [features]
 
-cli = ["template-handlebars", "exitcode", "structopt", "termimad"]
-
-interact = ["ansi_term", "rustyline", "rustyline-derive"]
+cli = ["template-handlebars", "structopt", "termimad"]
 
 open = ["serve", "serve-http", "serve-ws", "webbrowser"]
 
@@ -55,7 +53,6 @@ watch = ["notify"]
 
 default = [
     "cli",
-    "interact",
     "open",
     "serve",
     "serve-stdio",
@@ -83,13 +80,11 @@ default = [
 ]
 
 [dependencies]
-ansi_term = { version = "0.12.1", optional = true }
 anyhow = "1.0.40"
 bollard = { version = "0.10.1", optional = true }
 chrono = "0.4.19"
 defaults = "0.2.0"
 dirs-next = "2.0.0"
-exitcode = { version = "1.1.2", optional = true }
 futures = "0.3.13"
 handlebars = { version = "3.5.4", optional = true }
 humantime = { version = "2.1.0", optional = true }
@@ -100,8 +95,6 @@ once_cell = "1.7.2"
 rand = "0.8.3"
 regex = "1.4.5"
 reqwest = { version = "0.11.2", optional = true, features = ["json"] }
-rustyline = { version = "8.0.0", optional = true }
-rustyline-derive = { version = "0.4.0", optional = true }
 self_update = { version = "0.26.0", optional = true, features = [
     "archive-tar",
     "archive-zip",

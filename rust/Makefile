@@ -34,7 +34,6 @@ audit:
 
 build:
 	cargo build --release
-	cargo strip
 
 install:
 	cargo install --path .
