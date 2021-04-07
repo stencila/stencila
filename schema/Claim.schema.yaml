@@ -30,7 +30,7 @@ properties:
       - Corollary
   content:
     '@id': stencila:content
-    description: Content of the claim, usually a paragraph.
+    description: Content of the claim, usually a single paragraph.
     type: array
     items:
       $ref: BlockContent
