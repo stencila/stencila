@@ -1,3 +1,12 @@
+## [1.2.1](https://github.com/stencila/schema/compare/v1.2.0...v1.2.1) (2021-04-07)
+
+
+### Bug Fixes
+
+* **Article:** Narrow content to BlockContent types ([ebc4560](https://github.com/stencila/schema/commit/ebc45600cccad68fbabbb83562ac72d4c660f64e))
+* **InlineContent:** Add Note and ordering ([aa370b6](https://github.com/stencila/schema/commit/aa370b665f2fd43dd00e32b96838df33bce0d41c))
+* **Python bindings:** Ignore type for fields that are overrides ([6f80099](https://github.com/stencila/schema/commit/6f8009937b70efa3ae35d628e4c8769ffa488b06))
+
 # [1.2.0](https://github.com/stencila/schema/compare/v1.1.5...v1.2.0) (2021-03-31)
 
 
