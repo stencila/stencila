@@ -1,0 +1,41 @@
+title: Claim
+'@id': stencila:Claim
+extends: Entity
+role: secondary
+status: unstable
+description: A claim represents specific reviewable facts or statements.
+$comment: |
+  It is usually displayed as a block element and can have a separate title.
+  In the context of a scholarly article this could be a theorem or proof.
+  See also
+  - [Schema.org `Claim`](https://schema.org/Claim)
+  - [JATS `<statement>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/statement.html)
+properties:
+  title:
+    '@id': stencila:title
+    description: Title of the claim.
+    type: string
+  claimType:
+    '@id': stencila:claimType
+    description: Kind of the claim.
+    type: string
+    enum:
+      - Claim
+      - Theorem
+      - Lemma
+      - Proof
+      - Postulate
+      - Hypothesis
+      - Proposition
+      - Corollary
+  content:
+    '@id': stencila:content
+    description: Content of the claim, usually a paragraph.
+    type: array
+    items:
+      $ref: BlockContent
+    $comment: |
+      Most claims will have a single paragraph but could have multiple
+      paragraphs, tables and even figures.
+required:
+  - content
