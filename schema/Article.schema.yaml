@@ -6,6 +6,15 @@ status: unstable
 category: metadata
 description: An article, including news and scholarly articles.
 properties:
+  content:
+    '@id': stencila:content
+    description: The structured content of this article.
+    $comment: |
+      This is an override of `CreativeWork.content` to restrict node to
+      `BlockContent` node types e.g `Paragraph`.
+    type: array
+    items:
+      $ref: BlockContent
   pageStart:
     '@id': schema:pageStart
     description: The page on which the article starts; for example "135" or "xiii".
