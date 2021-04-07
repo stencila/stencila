@@ -95,7 +95,19 @@
         "ideas",
         "code"
       ]
+    },
+    {
+      "login": "rgieseke",
+      "name": "Robert Gieseke",
+      "avatar_url": "https://avatars.githubusercontent.com/u/198537?v=4",
+      "profile": "https://github.com/rgieseke",
+      "contributions": [
+        "ideas",
+        "code",
+        "doc"
+      ]
     }
   ],
-  "contributorsPerLine": 7
+  "contributorsPerLine": 7,
+  "skipCi": true
 }
