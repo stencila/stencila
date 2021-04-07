@@ -5,7 +5,7 @@ role: secondary
 status: unstable
 description: A claim represents specific reviewable facts or statements.
 $comment: |
-  It is usually displayed as a block element and can have a separate title.
+  It is usually displayed as a block element and can have a label and title.
   In the context of a scholarly article this could be a theorem or proof.
   See also
   - [Schema.org `Claim`](https://schema.org/Claim)
