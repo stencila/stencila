@@ -3,7 +3,7 @@
 # not available natively in R.
 
 #' Any type
-#' 
+#'
 #' @return A `list` of class `Any`
 #' @examples
 #' Any()
