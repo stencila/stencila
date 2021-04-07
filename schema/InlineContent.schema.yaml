@@ -8,20 +8,24 @@ $comment: |
   The order of these types is important because it determines the
   order of attempted coercion (particularly important for primitive types).
 anyOf:
-  - $ref: CodeFragment
+  # Entity types in alphabetical order
+  - $ref: Cite
+  - $ref: CiteGroup
   - $ref: CodeExpression
+  - $ref: CodeFragment
   - $ref: Delete
   - $ref: Emphasis
   - $ref: ImageObject
   - $ref: Link
   - $ref: MathFragment
   - $ref: NontextualAnnotation
+  - $ref: Note
   - $ref: Quote
   - $ref: Strong
   - $ref: Subscript
   - $ref: Superscript
-  - $ref: Cite
-  - $ref: CiteGroup
+  # Primitive types in the order that coersion from
+  # string should be attempted (for example by Ajv, or by serde_json).
   - type: integer
   - type: number
   - type: boolean
