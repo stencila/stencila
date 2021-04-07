@@ -1,6 +1,6 @@
 title: Claim
 '@id': stencila:Claim
-extends: Entity
+extends: CreativeWork
 role: secondary
 status: unstable
 description: A claim represents specific reviewable facts or statements.
@@ -11,10 +11,6 @@ $comment: |
   - [Schema.org `Claim`](https://schema.org/Claim)
   - [JATS `<statement>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/statement.html)
 properties:
-  title:
-    '@id': stencila:title
-    description: Title of the claim.
-    type: string
   claimType:
     '@id': stencila:claimType
     description: Kind of the claim.
