@@ -340,3 +340,16 @@ $ make run-image
 # Now we are inside the container...
 > make docs
 ```
+
+## Committing
+
+Commit messages should follow the [conventional commits](https://www.conventionalcommits.org/) specification. This important because commit messages are used to determine the semantic version of releases and to generate the project's [CHANGELOG.md](https://github.com/stencila/schema/blob/next/CHANGELOG.md). If appropriate, use the sentence case theme name as the scope (to help make both `git log` and the CHANGELOG more readable). Some previous examples,
+
+- `fix(BlockContent): Add Figure and Collection as valid types`
+- `fix(R): Fix and improve generated bindings`
+- `feat(Elife): Use eLife corresponding author envelope icon`
+- `feat(MathBlock): Add label property`
+- `feat(Python bindings): Add node_type utility function`
+- `feat(Typescript factory functions): Only first required prop is unnamed`
+- `docs(CreativeWork): Add some references`
+- `docs(Python): Add doc string to types.py`
