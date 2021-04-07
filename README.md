@@ -20,32 +20,6 @@ R | [![CRAN](https://www.r-pkg.org/badges/version/stencilaschema)](https://cran.
 
 <br>
 
-## 🗃️ Contents
-
-<!-- Automatically generated TOC. Don't edit, `make docs` instead>
-<!-- prettier-ignore-start -->
-
-<!-- toc -->
-
-- [� Schema](#-schema)
-  - [🗃️ Contents](#️-contents)
-  - [👋 Introduction](#-introduction)
-    - [Why an extension to schema.org?](#why-an-extension-to-schemaorg)
-    - [It's about names, not formats](#its-about-names-not-formats)
-    - [But, sometimes (often) we need more than just names](#but-sometimes-often-we-need-more-than-just-names)
-    - [Using JSON Schema for validation and type safety](#using-json-schema-for-validation-and-type-safety)
-    - [But, JSON Schema can be a pain to write](#but-json-schema-can-be-a-pain-to-write)
-  - [📜 Documentation](#-documentation)
-  - [🚀 Usage](#-usage)
-    - [JSON-LD context](#json-ld-context)
-    - [Programming language bindings](#programming-language-bindings)
-  - [🛠 Contributing](#-contributing)
-  - [🙏 Acknowledgments](#-acknowledgments)
-
-<!-- tocstop -->
-
-<!-- prettier-ignore-end -->
-
 ## 👋 Introduction
 
 This is the Stencila Schema, an extension to [schema.org](https://schema.org) to support semantic, composable, parameterize-able and executable documents (we call them _stencils_ for short). It also provides implementations of schema.org types (and our extensions) for several languages including JSON Schema, Typescript, Python and R. It is a central part of our platform that is used widely throughout our open-source tools as the data model for executable documents.
