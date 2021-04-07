@@ -793,7 +793,7 @@ CreativeWork <- function(
 #' @param alternateNames Alternate names (aliases) for the item.
 #' @param authors The authors of this creative work.
 #' @param comments Comments about this creative work.
-#' @param content The structured content of this creative work c.f. property `text`.
+#' @param content The structured content of this article.
 #' @param dateAccepted Date/time of acceptance.
 #' @param dateCreated Date/time of creation.
 #' @param dateModified Date/time of most recent modification.
@@ -867,7 +867,6 @@ Article <- function(
     alternateNames = alternateNames,
     authors = authors,
     comments = comments,
-    content = content,
     dateAccepted = dateAccepted,
     dateCreated = dateCreated,
     dateModified = dateModified,
@@ -896,6 +895,7 @@ Article <- function(
     version = version
   )
   self$type <- as_scalar("Article")
+  self[["content"]] <- check_property("Article", "content", FALSE, missing(content), Array(BlockContent), content)
   self[["pageEnd"]] <- check_property("Article", "pageEnd", FALSE, missing(pageEnd), Union("numeric", "character"), pageEnd)
   self[["pageStart"]] <- check_property("Article", "pageStart", FALSE, missing(pageStart), Union("numeric", "character"), pageStart)
   self[["pagination"]] <- check_property("Article", "pagination", FALSE, missing(pagination), "character", pagination)
@@ -4303,7 +4303,7 @@ GrantTypes <- Union(Grant, MonetaryGrant)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-InlineContent <- Union(CodeFragment, CodeExpression, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Quote, Strong, Subscript, Superscript, Cite, CiteGroup, "numeric", "logical", "NULL", "character")
+InlineContent <- Union(Cite, CiteGroup, CodeExpression, CodeFragment, Delete, Emphasis, ImageObject, Link, MathFragment, NontextualAnnotation, Note, Quote, Strong, Subscript, Superscript, "numeric", "logical", "NULL", "character")
 
 
 #' All type schemas that are derived from Mark
