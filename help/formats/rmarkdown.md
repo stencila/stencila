@@ -19,6 +19,11 @@ There are many resources available for how to use R Markdown for reproducible re
 
 - Paul Bauer (2018) _Writing a Reproducible Paper in R Markdown_ https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3175518
 
+# Reference project
+
+There is Stencila Hub project demonstrating the syntaxes and functionalities outlined below
+which [can be found here](https://hub.stenci.la/stencila/reference-r-markdown/files/rmarkdown.Rmd!details).
+
 # Code chunks
 
 ## The basics
