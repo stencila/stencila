@@ -55,7 +55,7 @@
     "@types/node": "14.14.37",
     "@types/prettier": "2.2.3",
     "@types/toposort": "2.0.3",
-    "ajv": "7.2.4",
+    "ajv": "8.1.0",
     "browser-sync": "2.26.14",
     "del": "6.0.0",
     "fs-extra": "9.1.0",
