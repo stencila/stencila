@@ -32,7 +32,10 @@ properties:
     '@id': stencila:target
     description: The target of the link.
     type: string
-    format: uri
+    # See http://json-schema.org/draft-06/json-schema-release-notes.html#formats-uri-vs-uri-reference
+    # for the difference between `uri` and `uri-reference`. The latter is more permissive, and is
+    # used here because it allows for intra-doc links using a #fragment only.
+    format: uri-reference
   title:
     '@id': schema:headline
     description: A title for the link.
