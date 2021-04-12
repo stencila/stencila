@@ -12,9 +12,9 @@ properties:
     '@id': schema:logo
     description: A logo associated with the brand.
     anyOf:
+      - $ref: ImageObject
       - type: string
         format: uri
-      - $ref: ImageObject
   reviews:
     '@id': schema:review
     description: Reviews of the brand.

@@ -27,34 +27,34 @@ properties:
     type: array
     items:
       anyOf:
-        - type: string
         - $ref: SoftwareSourceCode
         - $ref: SoftwareApplication
+        - type: string
   declares:
     '@id': stencila:declares
     description: Variables that the code chunk declares.
     type: array
     items:
       anyOf:
-        # String for when user want to specify manually that a cell
-        # declares a variable
-        - type: string
         # For when we want to store type and possibly value of variable
         - $ref: Variable
         # Functions already have a name so it is redundant / confusing
         # to wrap then in a variable
         - $ref: Function
+        # String for when user want to specify manually that a cell
+        # declares a variable
+        - type: string
   assigns:
     '@id': stencila:assigns
     description: Variables that the code chunk assigns to.
     type: array
     items:
       anyOf:
+        # For when we want to store type and possibly value of variable
+        - $ref: Variable
         # String for when user want to specify manually that a cell
         # declares a variable
         - type: string
-        # For when we want to store type and possibly value of variable
-        - $ref: Variable
     $comment: |
       In languages such as Python and R we are unable
       to differentiate between an assignment that
@@ -79,8 +79,8 @@ properties:
     type: array
     items:
       anyOf:
-        - type: string
         - $ref: Variable
+        - type: string
   reads:
     '@id': stencila:reads
     description: Filesystem paths that this code chunk reads from.

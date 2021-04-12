@@ -3,7 +3,7 @@
  */
 export interface Person extends Thing {
   type: 'Person'
-  address?: string | PostalAddress
+  address?: PostalAddress | string
   affiliations?: Array<Organization>
   emails?: Array<string>
   familyNames?: Array<string>

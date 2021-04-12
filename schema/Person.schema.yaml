@@ -11,8 +11,8 @@ properties:
     '@id': schema:address
     description: Postal address for the person.
     anyOf:
-      - type: string
       - $ref: PostalAddress
+      - type: string
   affiliations:
     '@id': schema:affiliation
     description: Organizations that the person is affiliated with.

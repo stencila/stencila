@@ -18,9 +18,9 @@ properties:
     '@id': schema:logo
     description: The logo of the product.
     anyOf:
+      - $ref: ImageObject
       - type: string
         format: uri
-      - $ref: ImageObject
   productID:
     '@id': schema:productID
     description: Product identification code.

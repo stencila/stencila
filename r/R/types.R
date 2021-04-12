@@ -299,16 +299,16 @@ CodeChunk <- function(
   )
   self$type <- as_scalar("CodeChunk")
   self[["alters"]] <- check_property("CodeChunk", "alters", FALSE, missing(alters), Array("character"), alters)
-  self[["assigns"]] <- check_property("CodeChunk", "assigns", FALSE, missing(assigns), Array(Union("character", Variable)), assigns)
+  self[["assigns"]] <- check_property("CodeChunk", "assigns", FALSE, missing(assigns), Array(Union(Variable, "character")), assigns)
   self[["caption"]] <- check_property("CodeChunk", "caption", FALSE, missing(caption), Union(Array(BlockContent), "character"), caption)
-  self[["declares"]] <- check_property("CodeChunk", "declares", FALSE, missing(declares), Array(Union("character", Variable, Function)), declares)
+  self[["declares"]] <- check_property("CodeChunk", "declares", FALSE, missing(declares), Array(Union(Variable, Function, "character")), declares)
   self[["duration"]] <- check_property("CodeChunk", "duration", FALSE, missing(duration), "numeric", duration)
   self[["errors"]] <- check_property("CodeChunk", "errors", FALSE, missing(errors), Array(CodeError), errors)
-  self[["imports"]] <- check_property("CodeChunk", "imports", FALSE, missing(imports), Array(Union("character", SoftwareSourceCode, SoftwareApplication)), imports)
+  self[["imports"]] <- check_property("CodeChunk", "imports", FALSE, missing(imports), Array(Union(SoftwareSourceCode, SoftwareApplication, "character")), imports)
   self[["label"]] <- check_property("CodeChunk", "label", FALSE, missing(label), "character", label)
   self[["outputs"]] <- check_property("CodeChunk", "outputs", FALSE, missing(outputs), Array(Node), outputs)
   self[["reads"]] <- check_property("CodeChunk", "reads", FALSE, missing(reads), Array("character"), reads)
-  self[["uses"]] <- check_property("CodeChunk", "uses", FALSE, missing(uses), Array(Union("character", Variable)), uses)
+  self[["uses"]] <- check_property("CodeChunk", "uses", FALSE, missing(uses), Array(Union(Variable, "character")), uses)
   class(self) <- c(class(self), "CodeChunk")
   self
 }
@@ -621,7 +621,7 @@ Brand <- function(
   )
   self$type <- as_scalar("Brand")
   self[["name"]] <- check_property("Brand", "name", TRUE, missing(name), "character", name)
-  self[["logo"]] <- check_property("Brand", "logo", FALSE, missing(logo), Union("character", ImageObject), logo)
+  self[["logo"]] <- check_property("Brand", "logo", FALSE, missing(logo), Union(ImageObject, "character"), logo)
   self[["reviews"]] <- check_property("Brand", "reviews", FALSE, missing(reviews), Array("character"), reviews)
   class(self) <- c(class(self), "Brand")
   self
@@ -2443,13 +2443,13 @@ Organization <- function(
     url = url
   )
   self$type <- as_scalar("Organization")
-  self[["address"]] <- check_property("Organization", "address", FALSE, missing(address), Union("character", PostalAddress), address)
+  self[["address"]] <- check_property("Organization", "address", FALSE, missing(address), Union(PostalAddress, "character"), address)
   self[["brands"]] <- check_property("Organization", "brands", FALSE, missing(brands), Array(Brand), brands)
   self[["contactPoints"]] <- check_property("Organization", "contactPoints", FALSE, missing(contactPoints), Array(ContactPoint), contactPoints)
   self[["departments"]] <- check_property("Organization", "departments", FALSE, missing(departments), Array(Organization), departments)
   self[["funders"]] <- check_property("Organization", "funders", FALSE, missing(funders), Array(Union(Organization, Person)), funders)
   self[["legalName"]] <- check_property("Organization", "legalName", FALSE, missing(legalName), "character", legalName)
-  self[["logo"]] <- check_property("Organization", "logo", FALSE, missing(logo), Union("character", ImageObject), logo)
+  self[["logo"]] <- check_property("Organization", "logo", FALSE, missing(logo), Union(ImageObject, "character"), logo)
   self[["members"]] <- check_property("Organization", "members", FALSE, missing(members), Array(Union(Organization, Person)), members)
   self[["parentOrganization"]] <- check_property("Organization", "parentOrganization", FALSE, missing(parentOrganization), Organization, parentOrganization)
   class(self) <- c(class(self), "Organization")
@@ -2743,7 +2743,7 @@ Person <- function(
     url = url
   )
   self$type <- as_scalar("Person")
-  self[["address"]] <- check_property("Person", "address", FALSE, missing(address), Union("character", PostalAddress), address)
+  self[["address"]] <- check_property("Person", "address", FALSE, missing(address), Union(PostalAddress, "character"), address)
   self[["affiliations"]] <- check_property("Person", "affiliations", FALSE, missing(affiliations), Array(Organization), affiliations)
   self[["emails"]] <- check_property("Person", "emails", FALSE, missing(emails), Array("character"), emails)
   self[["familyNames"]] <- check_property("Person", "familyNames", FALSE, missing(familyNames), Array("character"), familyNames)
@@ -2868,7 +2868,7 @@ Product <- function(
   )
   self$type <- as_scalar("Product")
   self[["brands"]] <- check_property("Product", "brands", FALSE, missing(brands), Array(Brand), brands)
-  self[["logo"]] <- check_property("Product", "logo", FALSE, missing(logo), Union("character", ImageObject), logo)
+  self[["logo"]] <- check_property("Product", "logo", FALSE, missing(logo), Union(ImageObject, "character"), logo)
   self[["productID"]] <- check_property("Product", "productID", FALSE, missing(productID), "character", productID)
   class(self) <- c(class(self), "Product")
   self
@@ -4331,7 +4331,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Node <- Union(Entity, "numeric", "logical", "NULL", "character", Array(Any()), "list")
+Node <- Union(Entity, "NULL", "logical", "numeric", Array(Any()), "list", "character")
 
 
 #' All type schemas that are derived from NumberValidator

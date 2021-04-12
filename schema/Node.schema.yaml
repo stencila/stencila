@@ -6,10 +6,10 @@ $comment: |
   order of attempted coercion (ie. parsing and reshaping to arrays)
 anyOf:
   - $ref: Entity
+  - type: 'null'
+  - type: boolean
   - type: integer
   - type: number
-  - type: boolean
-  - type: 'null'
-  - type: string
   - type: array
   - type: object
+  - type: string

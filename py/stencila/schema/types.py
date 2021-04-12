@@ -267,13 +267,13 @@ class CodeChunk(CodeBlock):
     alters: Optional[Array[str]] = None
     """Names of variables that the code chunk alters."""
 
-    assigns: Optional[Array[Union[str, "Variable"]]] = None
+    assigns: Optional[Array[Union["Variable", str]]] = None
     """Variables that the code chunk assigns to."""
 
     caption: Optional[Union[Array["BlockContent"], str]] = None
     """A caption for the CodeChunk."""
 
-    declares: Optional[Array[Union[str, "Variable", "Function"]]] = None
+    declares: Optional[Array[Union["Variable", "Function", str]]] = None
     """Variables that the code chunk declares."""
 
     duration: Optional[float] = None
@@ -282,7 +282,7 @@ class CodeChunk(CodeBlock):
     errors: Optional[Array["CodeError"]] = None
     """Errors when compiling or executing the chunk."""
 
-    imports: Optional[Array[Union[str, "SoftwareSourceCode", "SoftwareApplication"]]] = None
+    imports: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None
     """Software packages that the code chunk imports"""
 
     label: Optional[str] = None
@@ -294,7 +294,7 @@ class CodeChunk(CodeBlock):
     reads: Optional[Array[str]] = None
     """Filesystem paths that this code chunk reads from."""
 
-    uses: Optional[Array[Union[str, "Variable"]]] = None
+    uses: Optional[Array[Union["Variable", str]]] = None
     """Names of variables that the code chunk uses (but does not alter)."""
 
 
@@ -302,22 +302,22 @@ class CodeChunk(CodeBlock):
         self,
         text: str,
         alters: Optional[Array[str]] = None,
-        assigns: Optional[Array[Union[str, "Variable"]]] = None,
+        assigns: Optional[Array[Union["Variable", str]]] = None,
         caption: Optional[Union[Array["BlockContent"], str]] = None,
-        declares: Optional[Array[Union[str, "Variable", "Function"]]] = None,
+        declares: Optional[Array[Union["Variable", "Function", str]]] = None,
         duration: Optional[float] = None,
         errors: Optional[Array["CodeError"]] = None,
         exportFrom: Optional[str] = None,
         format: Optional[str] = None,
         id: Optional[str] = None,
         importTo: Optional[str] = None,
-        imports: Optional[Array[Union[str, "SoftwareSourceCode", "SoftwareApplication"]]] = None,
+        imports: Optional[Array[Union["SoftwareSourceCode", "SoftwareApplication", str]]] = None,
         label: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         outputs: Optional[Array["Node"]] = None,
         programmingLanguage: Optional[str] = None,
         reads: Optional[Array[str]] = None,
-        uses: Optional[Array[Union[str, "Variable"]]] = None
+        uses: Optional[Array[Union["Variable", str]]] = None
     ) -> None:
         super().__init__(
             text=text,
@@ -601,7 +601,7 @@ class Brand(Thing):
     name: str # type: ignore
     """The name of the item."""
 
-    logo: Optional[Union[str, "ImageObject"]] = None
+    logo: Optional[Union["ImageObject", str]] = None
     """A logo associated with the brand."""
 
     reviews: Optional[Array[str]] = None
@@ -616,7 +616,7 @@ class Brand(Thing):
         id: Optional[str] = None,
         identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
         images: Optional[Array[Union["ImageObject", str]]] = None,
-        logo: Optional[Union[str, "ImageObject"]] = None,
+        logo: Optional[Union["ImageObject", str]] = None,
         meta: Optional[Dict[str, Any]] = None,
         reviews: Optional[Array[str]] = None,
         url: Optional[str] = None
@@ -2216,7 +2216,7 @@ class Note(Entity):
 class Organization(Thing):
     """An organization such as a school, NGO, corporation, club, etc."""
 
-    address: Optional[Union[str, "PostalAddress"]] = None
+    address: Optional[Union["PostalAddress", str]] = None
     """Postal address for the organization.
 """
 
@@ -2240,7 +2240,7 @@ class Organization(Thing):
     """Legal name for the Organization. Should only include letters and spaces.
 """
 
-    logo: Optional[Union[str, "ImageObject"]] = None
+    logo: Optional[Union["ImageObject", str]] = None
     """The logo of the organization."""
 
     members: Optional[Array[Union["Organization", "Person"]]] = None
@@ -2254,7 +2254,7 @@ class Organization(Thing):
 
     def __init__(
         self,
-        address: Optional[Union[str, "PostalAddress"]] = None,
+        address: Optional[Union["PostalAddress", str]] = None,
         alternateNames: Optional[Array[str]] = None,
         brands: Optional[Array["Brand"]] = None,
         contactPoints: Optional[Array["ContactPoint"]] = None,
@@ -2265,7 +2265,7 @@ class Organization(Thing):
         identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
         images: Optional[Array[Union["ImageObject", str]]] = None,
         legalName: Optional[str] = None,
-        logo: Optional[Union[str, "ImageObject"]] = None,
+        logo: Optional[Union["ImageObject", str]] = None,
         members: Optional[Array[Union["Organization", "Person"]]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -2503,7 +2503,7 @@ class Periodical(CreativeWork):
 class Person(Thing):
     """A person (alive, dead, undead, or fictional)."""
 
-    address: Optional[Union[str, "PostalAddress"]] = None
+    address: Optional[Union["PostalAddress", str]] = None
     """Postal address for the person."""
 
     affiliations: Optional[Array["Organization"]] = None
@@ -2541,7 +2541,7 @@ some kind of financial contribution.
 
     def __init__(
         self,
-        address: Optional[Union[str, "PostalAddress"]] = None,
+        address: Optional[Union["PostalAddress", str]] = None,
         affiliations: Optional[Array["Organization"]] = None,
         alternateNames: Optional[Array[str]] = None,
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
@@ -2673,7 +2673,7 @@ class Product(Thing):
     brands: Optional[Array["Brand"]] = None
     """Brands that the product is labelled with."""
 
-    logo: Optional[Union[str, "ImageObject"]] = None
+    logo: Optional[Union["ImageObject", str]] = None
     """The logo of the product."""
 
     productID: Optional[str] = None
@@ -2688,7 +2688,7 @@ class Product(Thing):
         id: Optional[str] = None,
         identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
         images: Optional[Array[Union["ImageObject", str]]] = None,
-        logo: Optional[Union[str, "ImageObject"]] = None,
+        logo: Optional[Union["ImageObject", str]] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
         productID: Optional[str] = None,
@@ -3997,7 +3997,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 """
 Union type for all valid nodes.
 """
-Node = Union["Entity", int, float, bool, None, str, Array[Any], Dict[str, Any]]
+Node = Union["Entity", None, bool, int, float, Array[Any], Dict[str, Any], str]
 
 
 """

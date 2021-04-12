@@ -11,8 +11,8 @@ properties:
     description: |
       Postal address for the organization.
     anyOf:
-      - type: string
       - $ref: PostalAddress
+      - type: string
   brands:
     '@id': schema:brand
     description: |
@@ -56,9 +56,9 @@ properties:
       This is a singleton property because, at any one time, an organization
       will usually only have one logo.
     anyOf:
+      - $ref: ImageObject
       - type: string
         format: uri
-      - $ref: ImageObject
   members:
     '@id': schema:member
     description: |

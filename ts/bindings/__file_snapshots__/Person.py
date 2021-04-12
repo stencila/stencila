@@ -1,7 +1,7 @@
 class Person(Thing):
     """A person (alive, dead, undead, or fictional)."""
 
-    address: Optional[Union[str, "PostalAddress"]] = None
+    address: Optional[Union["PostalAddress", str]] = None
     """Postal address for the person."""
 
     affiliations: Optional[Array["Organization"]] = None
@@ -39,7 +39,7 @@ some kind of financial contribution.
 
     def __init__(
         self,
-        address: Optional[Union[str, "PostalAddress"]] = None,
+        address: Optional[Union["PostalAddress", str]] = None,
         affiliations: Optional[Array["Organization"]] = None,
         alternateNames: Optional[Array[str]] = None,
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
