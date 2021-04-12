@@ -1,3 +1,13 @@
+## [1.2.2](https://github.com/stencila/schema/compare/v1.2.1...v1.2.2) (2021-04-12)
+
+
+### Bug Fixes
+
+* Order primitive types consistenctly and always after entities ([810c5da](https://github.com/stencila/schema/commit/810c5da9fce0cbf391ded9b61afc971c4178e880))
+* **Inline Content:** Add audio, media and video objects; reorder primitives ([de6cfd5](https://github.com/stencila/schema/commit/de6cfd534f9985218e87648ed525274f1ffaa7e0))
+* **Link:** Use uri-reference instead of uri ([fdd6b04](https://github.com/stencila/schema/commit/fdd6b0426d2275d5b336114dd6ea18b952e1f540))
+* **Table, Figure, CodeChunk:** Narrow caption to BlockContent falling back to string ([4acc3ba](https://github.com/stencila/schema/commit/4acc3ba691a17844d7a24f1a295c3d352c83aac6))
+
 ## [1.2.1](https://github.com/stencila/schema/compare/v1.2.0...v1.2.1) (2021-04-07)
 
 
