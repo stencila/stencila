@@ -9,6 +9,7 @@ $comment: |
   order of attempted coercion (particularly important for primitive types).
 anyOf:
   # Entity types in alphabetical order
+  - $ref: AudioObject
   - $ref: Cite
   - $ref: CiteGroup
   - $ref: CodeExpression
@@ -18,16 +19,18 @@ anyOf:
   - $ref: ImageObject
   - $ref: Link
   - $ref: MathFragment
+  - $ref: MediaObject
   - $ref: NontextualAnnotation
   - $ref: Note
   - $ref: Quote
   - $ref: Strong
   - $ref: Subscript
   - $ref: Superscript
-  # Primitive types in the order that coersion from
+  - $ref: VideoObject
+  # Primitive types in the order that coercion from
   # string should be attempted (for example by Ajv, or by serde_json).
+  - type: 'null'
+  - type: boolean
   - type: integer
   - type: number
-  - type: boolean
-  - type: 'null'
   - type: string
