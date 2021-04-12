@@ -270,7 +270,7 @@ class CodeChunk(CodeBlock):
     assigns: Optional[Array[Union[str, "Variable"]]] = None
     """Variables that the code chunk assigns to."""
 
-    caption: Optional[Union[str, Array["Node"]]] = None
+    caption: Optional[Union[Array["BlockContent"], str]] = None
     """A caption for the CodeChunk."""
 
     declares: Optional[Array[Union[str, "Variable", "Function"]]] = None
@@ -303,7 +303,7 @@ class CodeChunk(CodeBlock):
         text: str,
         alters: Optional[Array[str]] = None,
         assigns: Optional[Array[Union[str, "Variable"]]] = None,
-        caption: Optional[Union[str, Array["Node"]]] = None,
+        caption: Optional[Union[Array["BlockContent"], str]] = None,
         declares: Optional[Array[Union[str, "Variable", "Function"]]] = None,
         duration: Optional[float] = None,
         errors: Optional[Array["CodeError"]] = None,
@@ -1519,7 +1519,7 @@ class Figure(CreativeWork):
     and labels for them.
     """
 
-    caption: Optional[Union[str, Array["Node"]]] = None
+    caption: Optional[Union[Array["BlockContent"], str]] = None
     """A caption for the figure."""
 
     label: Optional[str] = None
@@ -1531,7 +1531,7 @@ class Figure(CreativeWork):
         about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        caption: Optional[Union[str, Array["Node"]]] = None,
+        caption: Optional[Union[Array["BlockContent"], str]] = None,
         comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional["Date"] = None,
@@ -3570,7 +3570,7 @@ class Table(CreativeWork):
     """Rows of cells in the table.
 """
 
-    caption: Optional[Union[str, Array["Node"]]] = None
+    caption: Optional[Union[Array["BlockContent"], str]] = None
     """A caption for the table."""
 
     label: Optional[str] = None
@@ -3583,7 +3583,7 @@ class Table(CreativeWork):
         about: Optional[Array["Thing"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
-        caption: Optional[Union[str, Array["Node"]]] = None,
+        caption: Optional[Union[Array["BlockContent"], str]] = None,
         comments: Optional[Array["Comment"]] = None,
         content: Optional[Array["Node"]] = None,
         dateAccepted: Optional["Date"] = None,

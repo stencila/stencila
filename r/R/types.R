@@ -300,7 +300,7 @@ CodeChunk <- function(
   self$type <- as_scalar("CodeChunk")
   self[["alters"]] <- check_property("CodeChunk", "alters", FALSE, missing(alters), Array("character"), alters)
   self[["assigns"]] <- check_property("CodeChunk", "assigns", FALSE, missing(assigns), Array(Union("character", Variable)), assigns)
-  self[["caption"]] <- check_property("CodeChunk", "caption", FALSE, missing(caption), Union("character", Array(Node)), caption)
+  self[["caption"]] <- check_property("CodeChunk", "caption", FALSE, missing(caption), Union(Array(BlockContent), "character"), caption)
   self[["declares"]] <- check_property("CodeChunk", "declares", FALSE, missing(declares), Array(Union("character", Variable, Function)), declares)
   self[["duration"]] <- check_property("CodeChunk", "duration", FALSE, missing(duration), "numeric", duration)
   self[["errors"]] <- check_property("CodeChunk", "errors", FALSE, missing(errors), Array(CodeError), errors)
@@ -1719,7 +1719,7 @@ Figure <- function(
     version = version
   )
   self$type <- as_scalar("Figure")
-  self[["caption"]] <- check_property("Figure", "caption", FALSE, missing(caption), Union("character", Array(Node)), caption)
+  self[["caption"]] <- check_property("Figure", "caption", FALSE, missing(caption), Union(Array(BlockContent), "character"), caption)
   self[["label"]] <- check_property("Figure", "label", FALSE, missing(label), "character", label)
   class(self) <- c(class(self), "Figure")
   self
@@ -3937,7 +3937,7 @@ Table <- function(
   )
   self$type <- as_scalar("Table")
   self[["rows"]] <- check_property("Table", "rows", TRUE, missing(rows), Array(TableRow), rows)
-  self[["caption"]] <- check_property("Table", "caption", FALSE, missing(caption), Union("character", Array(Node)), caption)
+  self[["caption"]] <- check_property("Table", "caption", FALSE, missing(caption), Union(Array(BlockContent), "character"), caption)
   self[["label"]] <- check_property("Table", "label", FALSE, missing(label), "character", label)
   class(self) <- c(class(self), "Table")
   self
