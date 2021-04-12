@@ -25,11 +25,13 @@ export async function readSchemas(
 ): Promise<JsonSchema[]> {
   const files = await globby(glob)
   return Promise.all(
-    files.map(async (file: string) => {
-      const resolver = new Resolver()
-      const resolved = await resolver.resolve(await fs.readJSON(file))
-      return resolved.result
-    })
+    files.map(
+      async (file: string): Promise<JsonSchema> => {
+        const resolver = new Resolver()
+        const resolved = await resolver.resolve(await fs.readJSON(file))
+        return resolved.result as JsonSchema
+      }
+    )
   )
 }
 

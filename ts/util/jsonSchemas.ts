@@ -120,12 +120,14 @@ export async function jsonSchemaProperties(): Promise<
             // Most of these checks are done in `../schema.ts` when the
             // JSON Schema files are generated. These checks may be moved
             // to elsewhere.
-            const message = `${title}.${name} differs to that on ${existing.domainIncludes}`
+            const message = `${title}.${name} differs to that on ${existing.domainIncludes.join(
+              ', '
+            )}`
             if (id !== existing.id) throw new Error(`${message}: @id ${id}`)
             if (isArray !== existing.isArray)
-              throw new Error(`${message}: isArray ${isArray}`)
+              throw new Error(`${message}: isArray ${isArray.toString()}`)
             if (isPlural !== existing.isPlural)
-              throw new Error(`${message}: isPlural ${isPlural}`)
+              throw new Error(`${message}: isPlural ${isPlural.toString()}`)
             // Add the type...
             existing.domainIncludes.push(title)
           }

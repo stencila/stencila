@@ -56,6 +56,7 @@ export function jsonLdContext(): typeof CONTEXT {
       ),
       'utf8'
     )
+    // eslint-disable-next-line
     CONTEXT = JSON.parse(json)['@context']
   }
   return CONTEXT
@@ -87,7 +88,7 @@ export function jsonLdTermUrl(term: string): string | undefined {
   const base = context[prefix]
   if (base === undefined) return undefined
 
-  return `${base}${name}`
+  return `${base.toString()}${name}`
 }
 
 /**
@@ -104,12 +105,12 @@ export function jsonLdTermName(url: string): string | undefined {
   // Parse the url into a base URL / term pair
   const { hash, pathname } = new URL(url)
   const term = hash !== '' ? hash.slice(1) : pathname.split('/').pop()
-  const baseUrl = url.replace(new RegExp(`${term}$`), '')
+  const baseUrl = url.replace(new RegExp(`${term ?? ''}$`), '')
 
   // Resolve the URL into a prefix
   const prefix = idToTerm[baseUrl]
   if (prefix === undefined) return undefined
 
   // Resolve the `@id` to the term name
-  return idToTerm[`${prefix}:${term}`]
+  return idToTerm[`${prefix}:${term ?? 'undefined'}`]
 }

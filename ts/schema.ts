@@ -3,8 +3,9 @@
  * from them.
  */
 
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 import Ajv from 'ajv'
-import betterAjvErrors from 'better-ajv-errors'
 import del from 'del'
 import fs from 'fs-extra'
 import globby from 'globby'
@@ -119,10 +120,10 @@ export async function build(cleanup = true): Promise<void> {
 /**
  * Read a generated schema file
  */
-export const readSchema = async (type: string): Promise<JsonSchema> => {
+export const readSchema = (type: string): Promise<JsonSchema> => {
   return fs.readJSON(
     path.join(__dirname, '..', 'public', type + '.schema.json')
-  )
+  ) as Promise<JsonSchema>
 }
 
 /**
@@ -426,6 +427,7 @@ const processSchema = (
     walk(schema)
   } catch (error) {
     throw new Error(
+      // eslint-disable-next-line
       `Error when processing "${schema.source}": "${error.stack}"`
     )
   }

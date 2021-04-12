@@ -1,5 +1,4 @@
 import Ajv from 'ajv'
-import betterAjvErrors from 'better-ajv-errors'
 import fs from 'fs-extra'
 import globby from 'globby'
 import path from 'path'
