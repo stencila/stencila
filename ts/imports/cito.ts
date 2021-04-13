@@ -77,8 +77,14 @@ import { pascalCase, sentenceCase } from 'change-case'
     .join('')
 
   fs.writeFileSync(
-    path.join(__dirname, '..', '..', 'schema', 'CitationTypeEnumeration.yaml'),
-    `title: Enumeration
+    path.join(
+      __dirname,
+      '..',
+      '..',
+      'schema',
+      'CitationTypeEnumeration.schema.yaml'
+    ),
+    `title: CitationTypeEnumeration
 '@id': stencila:CitationTypeEnumeration
 status: unstable
 role: secondary
