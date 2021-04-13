@@ -23,7 +23,13 @@ properties:
   value:
     '@id': schema:value
     description: The value of the property.
-    allOf:
-      - $ref: Node
+    anyOf:
+      - type: boolean
+      - type: integer
+      - type: number
+      - type: string
+    $comment: |
+      This follows the expected types of https://schema.org/value except for `StructuredValue`,
+      which at the time of writing was not implemented in this schema.
 required:
   - value
