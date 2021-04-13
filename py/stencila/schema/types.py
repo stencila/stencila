@@ -2715,7 +2715,7 @@ class Product(Thing):
 class PropertyValue(Thing):
     """A property-value pair."""
 
-    value: "Node"
+    value: Union[bool, int, float, str]
     """The value of the property."""
 
     propertyID: Optional[str] = None
@@ -2724,7 +2724,7 @@ class PropertyValue(Thing):
 
     def __init__(
         self,
-        value: "Node",
+        value: Union[bool, int, float, str],
         alternateNames: Optional[Array[str]] = None,
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
@@ -3997,7 +3997,7 @@ MediaObjectTypes = Union["MediaObject", "AudioObject", "ImageObject", "VideoObje
 """
 Union type for all valid nodes.
 """
-Node = Union["Entity", None, bool, int, float, Array[Any], Dict[str, Any], str]
+Node = Union["Entity", None, bool, int, float, str, Dict[str, Any], Array[Any]]
 
 
 """

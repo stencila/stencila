@@ -2914,7 +2914,7 @@ PropertyValue <- function(
     url = url
   )
   self$type <- as_scalar("PropertyValue")
-  self[["value"]] <- check_property("PropertyValue", "value", TRUE, missing(value), Node, value)
+  self[["value"]] <- check_property("PropertyValue", "value", TRUE, missing(value), Union("logical", "numeric", "character"), value)
   self[["propertyID"]] <- check_property("PropertyValue", "propertyID", FALSE, missing(propertyID), "character", propertyID)
   class(self) <- c(class(self), "PropertyValue")
   self
@@ -4331,7 +4331,7 @@ MediaObjectTypes <- Union(MediaObject, AudioObject, ImageObject, VideoObject)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-Node <- Union(Entity, "NULL", "logical", "numeric", Array(Any()), "list", "character")
+Node <- Union(Entity, "NULL", "logical", "numeric", "character", "list", Array(Any()))
 
 
 #' All type schemas that are derived from NumberValidator
