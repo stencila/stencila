@@ -904,6 +904,121 @@ Article <- function(
 }
 
 
+#' A claim represents specific reviewable facts or statements.
+#'
+#' @name Claim
+#' @param content Content of the claim, usually a single paragraph. \bold{Required}.
+#' @param about The subject matter of the content.
+#' @param alternateNames Alternate names (aliases) for the item.
+#' @param authors The authors of this creative work.
+#' @param claimType Kind of the claim.
+#' @param comments Comments about this creative work.
+#' @param dateAccepted Date/time of acceptance.
+#' @param dateCreated Date/time of creation.
+#' @param dateModified Date/time of most recent modification.
+#' @param datePublished Date of first publication.
+#' @param dateReceived Date/time that work was received.
+#' @param description A description of the item.
+#' @param editors People who edited the `CreativeWork`.
+#' @param fundedBy Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+#' @param funders People or organizations that funded the `CreativeWork`.
+#' @param genre Genre of the creative work, broadcast channel or group.
+#' @param id The identifier for this item.
+#' @param identifiers Any kind of identifier for any kind of Thing.
+#' @param images Images of the item.
+#' @param isPartOf An item or other CreativeWork that this CreativeWork is a part of.
+#' @param keywords Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+#' @param label A short label for the claim.
+#' @param licenses License documents that applies to this content, typically indicated by URL.
+#' @param maintainers The people or organizations who maintain this CreativeWork.
+#' @param meta Metadata associated with this item.
+#' @param name The name of the item.
+#' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+#' @param publisher A publisher of the CreativeWork.
+#' @param references References to other creative works, such as another publication, web page, scholarly article, etc.
+#' @param text The textual content of this creative work.
+#' @param title The title of the creative work.
+#' @param url The URL of the item.
+#' @param version The version of the creative work.
+#' @return A `list` of class `Claim`
+#' @seealso \code{\link{CreativeWork}}
+#' @export
+Claim <- function(
+  content,
+  about,
+  alternateNames,
+  authors,
+  claimType,
+  comments,
+  dateAccepted,
+  dateCreated,
+  dateModified,
+  datePublished,
+  dateReceived,
+  description,
+  editors,
+  fundedBy,
+  funders,
+  genre,
+  id,
+  identifiers,
+  images,
+  isPartOf,
+  keywords,
+  label,
+  licenses,
+  maintainers,
+  meta,
+  name,
+  parts,
+  publisher,
+  references,
+  text,
+  title,
+  url,
+  version
+){
+  self <- CreativeWork(
+    about = about,
+    alternateNames = alternateNames,
+    authors = authors,
+    comments = comments,
+    dateAccepted = dateAccepted,
+    dateCreated = dateCreated,
+    dateModified = dateModified,
+    datePublished = datePublished,
+    dateReceived = dateReceived,
+    description = description,
+    editors = editors,
+    fundedBy = fundedBy,
+    funders = funders,
+    genre = genre,
+    id = id,
+    identifiers = identifiers,
+    images = images,
+    isPartOf = isPartOf,
+    keywords = keywords,
+    licenses = licenses,
+    maintainers = maintainers,
+    meta = meta,
+    name = name,
+    parts = parts,
+    publisher = publisher,
+    references = references,
+    text = text,
+    title = title,
+    url = url,
+    version = version
+  )
+  self$type <- as_scalar("Claim")
+  self[["content"]] <- check_property("Claim", "content", TRUE, missing(content), Array(BlockContent), content)
+  self[["claimType"]] <- check_property("Claim", "claimType", FALSE, missing(claimType), Enum("Statement", "Theorem", "Lemma", "Proof", "Postulate", "Hypothesis", "Proposition", "Corollary"), claimType)
+  self[["label"]] <- check_property("Claim", "label", FALSE, missing(label), "character", label)
+  class(self) <- c(class(self), "Claim")
+  self
+}
+
+
 #' A created collection of CreativeWorks or other artefacts.
 #'
 #' @name Collection
@@ -4282,14 +4397,14 @@ ContactPointTypes <- Union(ContactPoint, PostalAddress)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Collection, Comment, Datatable, Figure, ImageObject, MediaObject, Periodical, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
+CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Claim, Collection, Comment, Datatable, Figure, ImageObject, MediaObject, Periodical, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareSourceCode, Table, VideoObject)
 
 
 #' All type schemas that are derived from Entity
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Grant
@@ -4345,7 +4460,7 @@ NumberValidatorTypes <- Union(NumberValidator, IntegerValidator)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-ThingTypes <- Union(Thing, Article, AudioObject, Brand, Collection, Comment, ContactPoint, CreativeWork, Datatable, DatatableColumn, DefinedTerm, Figure, Grant, ImageObject, ListItem, MediaObject, MonetaryGrant, Organization, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
+ThingTypes <- Union(Thing, Article, AudioObject, Brand, Claim, Collection, Comment, ContactPoint, CreativeWork, Datatable, DatatableColumn, DefinedTerm, Figure, Grant, ImageObject, ListItem, MediaObject, MonetaryGrant, Organization, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
 
 
 #' Union type for all validator types.

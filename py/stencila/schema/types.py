@@ -8,6 +8,8 @@ from enum import Enum
 
 ECitationMode = Enum("CitationMode", ["Parenthetical", "Narrative", "NarrativeAuthor", "NarrativeYear", "normal", "suppressAuthor"])
 
+EClaimType = Enum("ClaimType", ["Statement", "Theorem", "Lemma", "Proof", "Postulate", "Hypothesis", "Proposition", "Corollary"])
+
 EItemListOrder = Enum("ItemListOrder", ["ascending", "descending", "unordered"])
 
 ENoteType = Enum("NoteType", ["Footnote", "Endnote", "Sidenote"])
@@ -958,6 +960,95 @@ for example, "1-6, 9, 55".
             self.pageStart = pageStart
         if pagination is not None:
             self.pagination = pagination
+
+
+class Claim(CreativeWork):
+    """A claim represents specific reviewable facts or statements."""
+
+    content: Array["BlockContent"] # type: ignore
+    """Content of the claim, usually a single paragraph."""
+
+    claimType: Optional["EClaimType"] = None
+    """Kind of the claim."""
+
+    label: Optional[str] = None
+    """A short label for the claim."""
+
+
+    def __init__(
+        self,
+        content: Array["BlockContent"],
+        about: Optional[Array["Thing"]] = None,
+        alternateNames: Optional[Array[str]] = None,
+        authors: Optional[Array[Union["Person", "Organization"]]] = None,
+        claimType: Optional["EClaimType"] = None,
+        comments: Optional[Array["Comment"]] = None,
+        dateAccepted: Optional["Date"] = None,
+        dateCreated: Optional["Date"] = None,
+        dateModified: Optional["Date"] = None,
+        datePublished: Optional["Date"] = None,
+        dateReceived: Optional["Date"] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        editors: Optional[Array["Person"]] = None,
+        fundedBy: Optional[Array[Union["Grant", "MonetaryGrant"]]] = None,
+        funders: Optional[Array[Union["Person", "Organization"]]] = None,
+        genre: Optional[Array[str]] = None,
+        id: Optional[str] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
+        isPartOf: Optional["CreativeWorkTypes"] = None,
+        keywords: Optional[Array[str]] = None,
+        label: Optional[str] = None,
+        licenses: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        maintainers: Optional[Array[Union["Person", "Organization"]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        parts: Optional[Array["CreativeWorkTypes"]] = None,
+        publisher: Optional[Union["Person", "Organization"]] = None,
+        references: Optional[Array[Union["CreativeWorkTypes", str]]] = None,
+        text: Optional[str] = None,
+        title: Optional[Union[Array["InlineContent"], str]] = None,
+        url: Optional[str] = None,
+        version: Optional[Union[str, float]] = None
+    ) -> None:
+        super().__init__(
+            about=about,
+            alternateNames=alternateNames,
+            authors=authors,
+            comments=comments,
+            dateAccepted=dateAccepted,
+            dateCreated=dateCreated,
+            dateModified=dateModified,
+            datePublished=datePublished,
+            dateReceived=dateReceived,
+            description=description,
+            editors=editors,
+            fundedBy=fundedBy,
+            funders=funders,
+            genre=genre,
+            id=id,
+            identifiers=identifiers,
+            images=images,
+            isPartOf=isPartOf,
+            keywords=keywords,
+            licenses=licenses,
+            maintainers=maintainers,
+            meta=meta,
+            name=name,
+            parts=parts,
+            publisher=publisher,
+            references=references,
+            text=text,
+            title=title,
+            url=url,
+            version=version
+        )
+        if content is not None:
+            self.content = content
+        if claimType is not None:
+            self.claimType = claimType
+        if label is not None:
+            self.label = label
 
 
 class Collection(CreativeWork):
@@ -3955,13 +4046,13 @@ ContactPointTypes = Union["ContactPoint", "PostalAddress"]
 """
 All type schemas that are derived from CreativeWork
 """
-CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Collection", "Comment", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
+CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Collection", "Comment", "Datatable", "Figure", "ImageObject", "MediaObject", "Periodical", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareSourceCode", "Table", "VideoObject"]
 
 
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -4009,7 +4100,7 @@ NumberValidatorTypes = Union["NumberValidator", "IntegerValidator"]
 """
 All type schemas that are derived from Thing
 """
-ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Collection", "Comment", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
+ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Claim", "Collection", "Comment", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
 
 
 """

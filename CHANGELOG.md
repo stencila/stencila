@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/stencila/schema/compare/v1.2.3...v1.3.0) (2021-04-13)
+
+
+### Bug Fixes
+
+* **Claim:** Use schema id; order properties alphabetically ([f9d2e67](https://github.com/stencila/schema/commit/f9d2e6727fd0117564d68be79599262b16d20620))
+
+
+### Features
+
+* **Claim:** Draft Claim specification ([43833b4](https://github.com/stencila/schema/commit/43833b49a9b69f1ead0a13c881aa9f904929222b))
+
 ## [1.2.3](https://github.com/stencila/schema/compare/v1.2.2...v1.2.3) (2021-04-13)
 
 
