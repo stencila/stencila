@@ -212,7 +212,10 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for a guide on how to contribute t
 
 ## 🙏 Acknowledgments
 
-Thanks to the developers of all the existing schemas and open source tools we use in this repo, including:
+Thanks to the developers of the existing schemas and open source tools we use, or have been inspired by, including:
 
-- Schema.org
-- [CodeMeta](codemeta.github.io)
+- [BioSchemas](https://bioschemas.org/)
+- [CiTO](http://www.sparontologies.net/ontologies/cito)
+- [CodeMeta](https://codemeta.github.io)
+- [JSON Schema](https://json-schema.org/)
+- [Schema.org](https://schema.org)
