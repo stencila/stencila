@@ -1,0 +1,41 @@
+title: Claim
+'@id': schema:Claim
+extends: CreativeWork
+role: secondary
+status: unstable
+description: A claim represents specific reviewable facts or statements.
+$comment: |
+  It is usually displayed as a block element and can have a label and title.
+  In the context of a scholarly article this could be a theorem or proof.
+  See also
+  - [Schema.org `Claim`](https://schema.org/Claim)
+  - [JATS `<statement>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/statement.html)
+properties:
+  claimType:
+    '@id': stencila:claimType
+    description: Kind of the claim.
+    type: string
+    enum:
+      - Statement
+      - Theorem
+      - Lemma
+      - Proof
+      - Postulate
+      - Hypothesis
+      - Proposition
+      - Corollary
+  content:
+    '@id': stencila:content
+    description: Content of the claim, usually a single paragraph.
+    type: array
+    items:
+      $ref: BlockContent
+    $comment: |
+      Most claims will have a single paragraph but could have multiple
+      paragraphs, tables and even figures.
+  label:
+    '@id': stencila:label
+    description: A short label for the claim.
+    type: string
+required:
+  - content
