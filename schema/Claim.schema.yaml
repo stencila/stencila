@@ -16,7 +16,7 @@ properties:
     description: Kind of the claim.
     type: string
     enum:
-      - Claim
+      - Statement
       - Theorem
       - Lemma
       - Proof
