@@ -1,3 +1,11 @@
+## [1.2.3](https://github.com/stencila/schema/compare/v1.2.2...v1.2.3) (2021-04-13)
+
+
+### Bug Fixes
+
+* **Node:** Change ordering so array is last ([17cfdfc](https://github.com/stencila/schema/commit/17cfdfc5c79aac7db937174b6dc9db505723f1ad))
+* **PropertyValue:** Narrow schema for value property ([0c058fb](https://github.com/stencila/schema/commit/0c058fb8ef905483e3238f567c820039d1a76be9))
+
 ## [1.2.2](https://github.com/stencila/schema/compare/v1.2.1...v1.2.2) (2021-04-12)
 
 
