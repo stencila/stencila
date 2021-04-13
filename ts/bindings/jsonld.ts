@@ -148,4 +148,5 @@ export const build = async (): Promise<void> => {
 /**
  * Run `build()` when this file is run as a Node script
  */
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 if (require.main) build()
