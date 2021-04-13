@@ -10,6 +10,8 @@ anyOf:
   - type: boolean
   - type: integer
   - type: number
-  - type: array
-  - type: object
   - type: string
+  - type: object
+  # Array should come last to avoid single items (e.g. a single string)
+  # being coerced into an array.
+  - type: array
