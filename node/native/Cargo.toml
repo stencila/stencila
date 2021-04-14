@@ -1,6 +1,6 @@
 [package]
 name = "stencila-node"
-version = "0.48.0"
+version = "0.48.1"
 edition = "2018"
 build = "build.rs"
 exclude = ["artifacts.json", "index.node"]

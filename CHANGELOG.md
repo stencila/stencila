@@ -1,3 +1,12 @@
+## [0.48.1](https://github.com/stencila/stencila/compare/v0.48.0...v0.48.1) (2021-04-14)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate futures to 0.3.14 ([30d5ac1](https://github.com/stencila/stencila/commit/30d5ac144e5b782428e77a1c41b6fc413fa5776e))
+* **dependencies:** update rust crate reqwest to 0.11.3 ([8f229ad](https://github.com/stencila/stencila/commit/8f229ad823501d249a61121b820459a2cd776e43))
+* **dependencies:** update rust crate tokio to 1.5.0 ([441440a](https://github.com/stencila/stencila/commit/441440a0bc26ee2eaee7743157d75a8bc3441735))
+
 # [0.48.0](https://github.com/stencila/stencila/compare/v0.47.0...v0.48.0) (2021-04-06)
 
 
