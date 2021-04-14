@@ -5,6 +5,8 @@ use stencila::{
     tokio, tracing,
 };
 use structopt::StructOpt;
+
+/// The arguments for the command line tool
 #[derive(Debug, StructOpt)]
 #[structopt(
     about = "Stencila command line tool",
@@ -13,6 +15,7 @@ use structopt::StructOpt;
     setting = structopt::clap::AppSettings::VersionlessSubcommands
 )]
 pub struct Args {
+    /// The command to run
     #[structopt(subcommand)]
     pub command: Option<Command>,
 
@@ -37,8 +40,10 @@ pub struct Args {
     pub interact: bool,
 }
 
+/// Global arguments that should be removed when entering interactive mode
 pub const GLOBAL_ARGS: [&str; 6] = ["--debug", "--info", "--warn", "--error", "--interact", "-i"];
 
+/// The commands that can be run
 #[derive(Debug, StructOpt)]
 #[structopt(
     setting = structopt::clap::AppSettings::DeriveDisplayOrder
@@ -104,6 +109,7 @@ pub async fn run_command(
     }
 }
 
+/// Print an error
 pub fn print_error(error: Error) {
     // Remove any error label already in error string
     let re = Regex::new(r"\s*error\s*:?").unwrap();
@@ -116,6 +122,7 @@ pub fn print_error(error: Error) {
     eprintln!("ERROR: {}", error);
 }
 
+/// Main entry point function
 #[tokio::main]
 pub async fn main() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();
@@ -222,6 +229,9 @@ pub async fn main() -> Result<()> {
     }
 }
 
+/// Module for interactive mode
+///
+/// Implements the the parsing and handling of user input when in interactive mode
 #[cfg(feature = "interact")]
 mod interact {
     use super::*;
@@ -337,6 +347,9 @@ mod interact {
     }
 }
 
+/// Module for interactive mode line editor
+///
+/// Implements traits for `rustyline`
 #[cfg(feature = "interact")]
 mod editor {
     use ansi_term::Colour::{Blue, White, Yellow};
