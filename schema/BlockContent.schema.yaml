@@ -2,6 +2,7 @@ title: BlockContent
 category: prose
 description: Union type for valid block content.
 anyOf:
+  - $ref: Claim
   - $ref: CodeBlock
   - $ref: CodeChunk
   - $ref: Collection
