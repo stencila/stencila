@@ -122,6 +122,9 @@ class Cite(Entity):
     citationSuffix: Optional[str] = None
     """Text to show after the citation."""
 
+    citationType: Optional[Array["CitationTypeEnumeration"]] = None
+    """The type/s of the citation, both factually and rhetorically."""
+
     content: Optional[Array["InlineContent"]] = None
     """Optional structured content/text of this citation."""
 
@@ -143,6 +146,7 @@ for example, "1-6, 9, 55".
         citationMode: Optional["ECitationMode"] = None,
         citationPrefix: Optional[str] = None,
         citationSuffix: Optional[str] = None,
+        citationType: Optional[Array["CitationTypeEnumeration"]] = None,
         content: Optional[Array["InlineContent"]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -162,6 +166,8 @@ for example, "1-6, 9, 55".
             self.citationPrefix = citationPrefix
         if citationSuffix is not None:
             self.citationSuffix = citationSuffix
+        if citationType is not None:
+            self.citationType = citationType
         if content is not None:
             self.content = content
         if pageEnd is not None:
@@ -1602,6 +1608,36 @@ class EnumValidator(Entity):
         )
         if values is not None:
             self.values = values
+
+
+class Enumeration(Thing):
+    """
+    Lists or enumerations, for example, a list of cuisines or music genres,
+    etc.
+    """
+
+    def __init__(
+        self,
+        alternateNames: Optional[Array[str]] = None,
+        description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
+        id: Optional[str] = None,
+        identifiers: Optional[Array[Union["PropertyValue", str]]] = None,
+        images: Optional[Array[Union["ImageObject", str]]] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,
+        url: Optional[str] = None
+    ) -> None:
+        super().__init__(
+            alternateNames=alternateNames,
+            description=description,
+            id=id,
+            identifiers=identifiers,
+            images=images,
+            meta=meta,
+            name=name,
+            url=url
+        )
+
 
 
 class Figure(CreativeWork):
@@ -4013,6 +4049,309 @@ class VolumeMount(Thing):
             self.mountType = mountType
 
 
+class CitationTypeEnumeration(Enum):
+    """
+    The type or nature of a citation, both factually and rhetorically.
+    """
+    # A citation in which at least one author from each of the citing and the cited entities is affiliated with the same academic institution
+    AffilationSelfCitation = "AffilationSelfCitation"
+
+    # The citing entity agrees with statements, ideas or conclusions presented in the cited entity
+    AgreesWith = "AgreesWith"
+
+    # A citation in which at least one author of the citing entity has direct or indirect co-authorship links with one of the authors of the cited entity
+    AuthorNetworkSelfCitation = "AuthorNetworkSelfCitation"
+
+    # A citation in which the citing and the cited entities have at least one author in common
+    AuthorSelfCitation = "AuthorSelfCitation"
+
+    # The citing entity cites the cited entity as one that provides an authoritative description or definition of the subject under discussion
+    CitesAsAuthority = "CitesAsAuthority"
+
+    # The citing entity cites the cited entity as source of data
+    CitesAsDataSource = "CitesAsDataSource"
+
+    # The citing entity cites the cited entity as source of factual evidence for statements it contains
+    CitesAsEvidence = "CitesAsEvidence"
+
+    # The citing entity cites the cited entity as being the container of metadata describing the citing entity
+    CitesAsMetadataDocument = "CitesAsMetadataDocument"
+
+    # The citing entity cites the cited entity as providing or containing a possible solution to the issues being discussed
+    CitesAsPotentialSolution = "CitesAsPotentialSolution"
+
+    # The citing entity cites the cited entity as an item of recommended reading
+    CitesAsRecommendedReading = "CitesAsRecommendedReading"
+
+    # The citing entity cites the cited entity as one that is related
+    CitesAsRelated = "CitesAsRelated"
+
+    # The citing entity cites the cited entity as being the entity from which the citing entity is derived, or about which the citing entity contains metadata
+    CitesAsSourceDocument = "CitesAsSourceDocument"
+
+    # The citing entity cites the cited entity as a source of information on the subject under discussion
+    CitesForInformation = "CitesForInformation"
+
+    # The citing entity is used to create or compile the cited entity
+    Compiles = "Compiles"
+
+    # The citing entity confirms facts, ideas or statements presented in the cited entity
+    Confirms = "Confirms"
+
+    # The citing entity contains a statement of fact or a logical assertion (or a collection of such facts and/or assertions) originally present in the cited entity
+    ContainsAssertionFrom = "ContainsAssertionFrom"
+
+    # The citing entity corrects statements, ideas or conclusions presented in the cited entity
+    Corrects = "Corrects"
+
+    # The citing entity acknowledges contributions made by the cited entity
+    Credits = "Credits"
+
+    # The citing entity critiques statements, ideas or conclusions presented in the cited entity
+    Critiques = "Critiques"
+
+    # The citing entity express derision for the cited entity, or for ideas or conclusions contained within it
+    Derides = "Derides"
+
+    # The citing entity describes the cited entity
+    Describes = "Describes"
+
+    # The citing entity disagrees with statements, ideas or conclusions presented in the cited entity
+    DisagreesWith = "DisagreesWith"
+
+    # The citing entity discusses statements, ideas or conclusions presented in the cited entity
+    Discusses = "Discusses"
+
+    # The citing entity disputes statements, ideas or conclusions presented in the cited entity
+    Disputes = "Disputes"
+
+    # A citation in which the citing and the cited entities have nothing significant in common with one another (for example authors, journal, institutional affiliation, or funding agency) over and beyond their subject matter
+    DistantCitation = "DistantCitation"
+
+    # The citing entity documents information about the cited entity
+    Documents = "Documents"
+
+    # The citing entity extends facts, ideas or understandings presented in the cited entity
+    Extends = "Extends"
+
+    # A citation in which the works reported in the citing and the cited entities were funded by the same funding agency
+    FunderSelfCitation = "FunderSelfCitation"
+
+    # The cited entity provides background information for the citing entity
+    GivesBackgroundTo = "GivesBackgroundTo"
+
+    # The cited entity provides intellectual or factual support for the citing entity
+    GivesSupportTo = "GivesSupportTo"
+
+    # The cited entity evokes a reply from the citing entity
+    HasReplyFrom = "HasReplyFrom"
+
+    # The citing entity includes one or more excerpts from the cited entity
+    IncludesExcerptFrom = "IncludesExcerptFrom"
+
+    # The citing entity includes one or more quotations from the cited entity
+    IncludesQuotationFrom = "IncludesQuotationFrom"
+
+    # The cited entity contains statements, ideas or conclusions with which the citing entity agrees
+    IsAgreedWithBy = "IsAgreedWithBy"
+
+    # The cited entity is cited as providing an authoritative description or definition of the subject under discussion in the citing entity
+    IsCitedAsAuthorityBy = "IsCitedAsAuthorityBy"
+
+    # The cited entity is cited as a data source by the citing entity
+    IsCitedAsDataSourceBy = "IsCitedAsDataSourceBy"
+
+    # The cited entity is cited for providing factual evidence to the citing entity
+    IsCitedAsEvidenceBy = "IsCitedAsEvidenceBy"
+
+    # The cited entity is cited as being the container of metadata relating to the citing entity
+    IsCitedAsMetadataDocumentBy = "IsCitedAsMetadataDocumentBy"
+
+    # The cited entity is cited as providing or containing a possible solution to the issues being discussed in the citing entity
+    IsCitedAsPontentialSolutionBy = "IsCitedAsPontentialSolutionBy"
+
+    # The cited entity is cited by the citing entity as an item of recommended reading
+    IsCitedAsRecommendedReadingBy = "IsCitedAsRecommendedReadingBy"
+
+    # The cited entity is cited as being related to the citing entity
+    IsCitedAsRelatedBy = "IsCitedAsRelatedBy"
+
+    # The cited entity is cited as being the entity from which the citing entity is derived, or about which the citing entity contains metadata
+    IsCitedAsSourceDocumentBy = "IsCitedAsSourceDocumentBy"
+
+    # The cited entity (the subject of the RDF triple) is cited by the citing entity (the object of the triple)
+    IsCitedBy = "IsCitedBy"
+
+    # The cited entity is cited as a source of information on the subject under discussion in the citing entity
+    IsCitedForInformationBy = "IsCitedForInformationBy"
+
+    # The cited entity is the result of a compile or creation event using the citing entity
+    IsCompiledBy = "IsCompiledBy"
+
+    # The cited entity presents facts, ideas or statements that are confirmed by the citing entity
+    IsConfirmedBy = "IsConfirmedBy"
+
+    # The cited entity presents statements, ideas or conclusions that are corrected by the citing entity
+    IsCorrectedBy = "IsCorrectedBy"
+
+    # The cited entity makes contributions that are acknowledged by the citing entity
+    IsCreditedBy = "IsCreditedBy"
+
+    # The cited entity presents statements, ideas or conclusions that are critiqued by the citing entity
+    IsCritiquedBy = "IsCritiquedBy"
+
+    # The cited entity contains ideas or conclusions for which the citing entity express derision
+    IsDeridedBy = "IsDeridedBy"
+
+    # The cited entity is described by the citing entity
+    IsDescribedBy = "IsDescribedBy"
+
+    # The cited entity presents statements, ideas or conclusions that are disagreed with by the citing entity
+    IsDisagreedWithBy = "IsDisagreedWithBy"
+
+    # The cited entity presents statements, ideas or conclusions that are discussed by the citing entity
+    IsDiscussedBy = "IsDiscussedBy"
+
+    # The cited entity presents statements, ideas or conclusions that are disputed by the citing entity
+    IsDisputedBy = "IsDisputedBy"
+
+    # Information about the cited entity is documented by the citing entity
+    IsDocumentedBy = "IsDocumentedBy"
+
+    # The cited entity presents facts, ideas or understandings that are extended by the citing entity
+    IsExtendedBy = "IsExtendedBy"
+
+    # The cited entity is the target for an HTTP Uniform Resource Locator (URL) link within the citing entity
+    IsLinkedToBy = "IsLinkedToBy"
+
+    # The characteristic style or content of the cited entity is imitated by the citing entity for comic effect, usually without explicit citation
+    IsParodiedBy = "IsParodiedBy"
+
+    # The cited entity is plagiarized by the author of the citing entity, who includes within the citing entity textual or other elements from the cited entity without formal acknowledgement of their source
+    IsPlagiarizedBy = "IsPlagiarizedBy"
+
+    # The cited entity presents statements, ideas or conclusions that are qualified or have conditions placed upon them by the citing entity
+    IsQualifiedBy = "IsQualifiedBy"
+
+    # The cited entity presents statements, ideas or conclusions that are refuted by the citing entity
+    IsRefutedBy = "IsRefutedBy"
+
+    # The cited entity is formally retracted by the citing entity
+    IsRetractedBy = "IsRetractedBy"
+
+    # The cited entity presents statements, ideas or conclusions that are reviewed by the citing entity
+    IsReviewedBy = "IsReviewedBy"
+
+    # The cited entity or aspects of its contents are ridiculed by the citing entity
+    IsRidiculedBy = "IsRidiculedBy"
+
+    # The cited entity is cited because the citing article contains speculations on its content or ideas
+    IsSpeculatedOnBy = "IsSpeculatedOnBy"
+
+    # The cited entity receives intellectual or factual support from the citing entity
+    IsSupportedBy = "IsSupportedBy"
+
+    # The cited entity presents statements, ideas, hypotheses or understanding that are updated by the cited entity
+    IsUpdatedBy = "IsUpdatedBy"
+
+    # A citation from one journal to another journal which forms one of a very large number of citations from the citing journal to recent articles in the cited journal, possibly undertaken as part of a citation cartel for the purpose of gaming the impact factor of the cited journal
+    JournalCartelCitation = "JournalCartelCitation"
+
+    # A citation in which the citing and the cited entities are published in the same journal
+    JournalSelfCitation = "JournalSelfCitation"
+
+    # A property that permits you to express appreciation of or interest in something that is the object of the RDF triple, or to express that it is worth thinking about even if you do not agree with its content, enabling social media 'likes' statements to be encoded in RDF
+    Likes = "Likes"
+
+    # The citing entity provides a link, in the form of an HTTP Uniform Resource Locator (URL), to the cited entity
+    LinksTo = "LinksTo"
+
+    # The citing entity obtains background information from the cited entity
+    ObtainsBackgroundFrom = "ObtainsBackgroundFrom"
+
+    # The citing entity obtains intellectual or factual support from the cited entity
+    ObtainsSupportFrom = "ObtainsSupportFrom"
+
+    # The citing entity imitates the characteristic style or content of the cited entity for comic effect, usually without explicit citation
+    Parodies = "Parodies"
+
+    # A property indicating that the author of the citing entity plagiarizes the cited entity, by including textual or other elements from the cited entity without formal acknowledgement of their source
+    Plagiarizes = "Plagiarizes"
+
+    # The cited entity contains and is the original source of a statement of fact or a logical assertion (or a collection of such facts and/or assertions) that is to be found in the citing entity
+    ProvidesAssertionFor = "ProvidesAssertionFor"
+
+    # The cited entity presents conclusions that are used in work described in the citing entity
+    ProvidesConclusionsFor = "ProvidesConclusionsFor"
+
+    # The cited entity presents data that are used in work described in the citing entity
+    ProvidesDataFor = "ProvidesDataFor"
+
+    # The cited entity contains information, usually of a textual nature, that is excerpted by (used as an excerpt within) the citing entity
+    ProvidesExcerptFor = "ProvidesExcerptFor"
+
+    # The cited entity details a method that is used in work described by the citing entity
+    ProvidesMethodFor = "ProvidesMethodFor"
+
+    # The cited entity contains information, usually of a textual nature, that is quoted by (used as a quotation within) the citing entity
+    ProvidesQuotationFor = "ProvidesQuotationFor"
+
+    # The citing entity qualifies or places conditions or restrictions upon statements, ideas or conclusions presented in the cited entity
+    Qualifies = "Qualifies"
+
+    # The citing entity refutes statements, ideas or conclusions presented in the cited entity
+    Refutes = "Refutes"
+
+    # The citing entity replies to statements, ideas or criticisms presented in the cited entity
+    RepliesTo = "RepliesTo"
+
+    # The citing entity constitutes a formal retraction of the cited entity
+    Retracts = "Retracts"
+
+    # The citing entity reviews statements, ideas or conclusions presented in the cited entity
+    Reviews = "Reviews"
+
+    # The citing entity ridicules the cited entity or aspects of its contents
+    Ridicules = "Ridicules"
+
+    # A citation in which the citing and the cited entities have something significant in common with one another, over and beyond their subject matter, for example authors, journal, institutional affiliation, or funding agency
+    SelfCitation = "SelfCitation"
+
+    # Each entity has at least one author that shares a common institutional affiliation with an author of the other entity
+    SharesAuthorInstitutionWith = "SharesAuthorInstitutionWith"
+
+    # Each entity has at least one author in common with the other entity
+    SharesAuthorWith = "SharesAuthorWith"
+
+    # The two entities result from activities that have been funded by the same funding agency
+    SharesFundingAgencyWith = "SharesFundingAgencyWith"
+
+    # The citing and cited bibliographic resources are published in the same journal
+    SharesJournalWith = "SharesJournalWith"
+
+    # The citing and cited bibliographic resources are published in same publication venue
+    SharesPublicationVenueWith = "SharesPublicationVenueWith"
+
+    # The citing entity speculates on something within or related to the cited entity, without firm evidence
+    SpeculatesOn = "SpeculatesOn"
+
+    # The citing entity provides intellectual or factual support for statements, ideas or conclusions presented in the cited entity
+    Supports = "Supports"
+
+    # The citing entity updates statements, ideas, hypotheses or understanding presented in the cited entity
+    Updates = "Updates"
+
+    # The citing entity describes work that uses conclusions presented in the cited entity
+    UsesConclusionsFrom = "UsesConclusionsFrom"
+
+    # The citing entity describes work that uses data presented in the cited entity
+    UsesDataFrom = "UsesDataFrom"
+
+    # The citing entity describes work that uses a method detailed in the cited entity
+    UsesMethodIn = "UsesMethodIn"
+
+
+
 """
 Union type for valid block content.
 """
@@ -4052,7 +4391,13 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Co
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationTypeEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
+
+
+"""
+All type schemas that are derived from Enumeration
+"""
+EnumerationTypes = Union["Enumeration", "CitationTypeEnumeration"]
 
 
 """
@@ -4100,7 +4445,7 @@ NumberValidatorTypes = Union["NumberValidator", "IntegerValidator"]
 """
 All type schemas that are derived from Thing
 """
-ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "Claim", "Collection", "Comment", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
+ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "CitationTypeEnumeration", "Claim", "Collection", "Comment", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Enumeration", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
 
 
 """
