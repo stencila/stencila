@@ -1,7 +1,7 @@
 {
   "name": "@stencila/schema",
   "version": "1.3.0",
-  "description": "Stencila schema and other specifications",
+  "description": "Extensions to schema.org to support semantic, composable, parameterize-able and executable documents",
   "files": [
     "dist"
   ],
@@ -14,18 +14,18 @@
   "scripts": {
     "format": "npx prettier --write './**/*.{js,json,md,ts,yaml}'",
     "lint": "npx eslint 'ts/**/*.{js,ts}' --fix",
-    "test": "npm run build:jsonschema && npm run build:ts:types && npm run build:jsonld && jest",
+    "test": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && jest",
     "test:cover": "npm test -- --coverage",
-    "build": "npm run build:jsonschema && npm run build:ts:types && npm run build:jsonld && npm run build:py && npm run build:r && npm run build:dist",
+    "build": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && npm run build:py && npm run build:r && npm run build:vscode && npm run build:dist",
     "build:jsonschema": "ts-node ts/schema.ts",
     "build:jsonld": "ts-node ts/bindings/jsonld.ts",
-    "build:ts:types": "ts-node ts/bindings/typescript.ts",
     "build:py": "ts-node ts/bindings/python.ts",
     "build:r": "ts-node ts/bindings/r.ts",
-    "build:ts:browser": "microbundle --tsconfig tsconfig.browser.json -o dist/browser --format es,umd ts/index.browser.ts",
-    "build:ts:node": "microbundle --tsconfig tsconfig.lib.json --target node --format es,cjs ts/index.ts",
-    "build:ts": "npm run build:ts:node && npm run build:ts:browser",
-    "build:dist": "npm run build:ts && cp public/*.schema.json dist && cp public/*.jsonld dist",
+    "build:ts": "ts-node ts/bindings/typescript.ts",
+    "build:vscode": "ts-node ts/bindings/vscode.ts",
+    "build:browser": "microbundle --tsconfig tsconfig.browser.json -o dist/browser --format es,umd ts/index.browser.ts",
+    "build:node": "microbundle --tsconfig tsconfig.lib.json --target node --format es,cjs ts/index.ts",
+    "build:dist": "npm run build:node && npm run build:browser && cp public/*.schema.json dist && cp public/*.jsonld dist",
     "docs": "npm run docs:build && npm run docs:api",
     "docs:build": "ts-node ts/docs.ts",
     "docs:api": "ts-node ts/bindings/typescript.ts && typedoc ts --readme ts/README.md --tsconfig tsconfig.docs.json --out ts/docs/",
@@ -41,7 +41,7 @@
   "bugs": {
     "url": "https://github.com/stencila/schema/issues"
   },
-  "homepage": "https://stencila.github.io/schema",
+  "homepage": "https://github.com/stencila/schema#readme",
   "devDependencies": {
     "@stencila/dev-config": "2.0.7",
     "@stencila/encoda": "0.113.0",
@@ -161,7 +161,8 @@
             "CHANGELOG.md",
             "py/stencila/schema/types.py",
             "r/R/types.R",
-            "r/NAMESPACE"
+            "r/NAMESPACE",
+            ".vscode/settings.json"
           ]
         }
       ],
