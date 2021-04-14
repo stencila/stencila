@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/stencila/schema/compare/v1.3.0...v1.3.1) (2021-04-14)
+
+
+### Bug Fixes
+
+* **Claim:** Add Claim to list of valid BlockContent elements ([fd7a01e](https://github.com/stencila/schema/commit/fd7a01e4b5f67e7011193b18e306ef822d30a78e))
+
 # [1.3.0](https://github.com/stencila/schema/compare/v1.2.3...v1.3.0) (2021-04-13)
 
 
