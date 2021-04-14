@@ -6,311 +6,311 @@
   },
   "json.schemas": [
     {
-      "fileMatch": ["*.entity.json"],
+      "fileMatch": ["*.Entity.json"],
       "url": "./public/Entity.schema.json"
     },
     {
-      "fileMatch": ["*.arrayvalidator.json"],
+      "fileMatch": ["*.ArrayValidator.json"],
       "url": "./public/ArrayValidator.schema.json"
     },
     {
-      "fileMatch": ["*.booleanvalidator.json"],
+      "fileMatch": ["*.BooleanValidator.json"],
       "url": "./public/BooleanValidator.schema.json"
     },
     {
-      "fileMatch": ["*.cite.json"],
+      "fileMatch": ["*.Cite.json"],
       "url": "./public/Cite.schema.json"
     },
     {
-      "fileMatch": ["*.citegroup.json"],
+      "fileMatch": ["*.CiteGroup.json"],
       "url": "./public/CiteGroup.schema.json"
     },
     {
-      "fileMatch": ["*.code.json"],
+      "fileMatch": ["*.Code.json"],
       "url": "./public/Code.schema.json"
     },
     {
-      "fileMatch": ["*.codeblock.json"],
+      "fileMatch": ["*.CodeBlock.json"],
       "url": "./public/CodeBlock.schema.json"
     },
     {
-      "fileMatch": ["*.codechunk.json"],
+      "fileMatch": ["*.CodeChunk.json"],
       "url": "./public/CodeChunk.schema.json"
     },
     {
-      "fileMatch": ["*.codefragment.json"],
+      "fileMatch": ["*.CodeFragment.json"],
       "url": "./public/CodeFragment.schema.json"
     },
     {
-      "fileMatch": ["*.codeexpression.json"],
+      "fileMatch": ["*.CodeExpression.json"],
       "url": "./public/CodeExpression.schema.json"
     },
     {
-      "fileMatch": ["*.codeerror.json"],
+      "fileMatch": ["*.CodeError.json"],
       "url": "./public/CodeError.schema.json"
     },
     {
-      "fileMatch": ["*.constantvalidator.json"],
+      "fileMatch": ["*.ConstantValidator.json"],
       "url": "./public/ConstantValidator.schema.json"
     },
     {
-      "fileMatch": ["*.date.json"],
+      "fileMatch": ["*.Date.json"],
       "url": "./public/Date.schema.json"
     },
     {
-      "fileMatch": ["*.mark.json"],
+      "fileMatch": ["*.Mark.json"],
       "url": "./public/Mark.schema.json"
     },
     {
-      "fileMatch": ["*.delete.json"],
+      "fileMatch": ["*.Delete.json"],
       "url": "./public/Delete.schema.json"
     },
     {
-      "fileMatch": ["*.emphasis.json"],
+      "fileMatch": ["*.Emphasis.json"],
       "url": "./public/Emphasis.schema.json"
     },
     {
-      "fileMatch": ["*.thing.json"],
+      "fileMatch": ["*.Thing.json"],
       "url": "./public/Thing.schema.json"
     },
     {
-      "fileMatch": ["*.brand.json"],
+      "fileMatch": ["*.Brand.json"],
       "url": "./public/Brand.schema.json"
     },
     {
-      "fileMatch": ["*.contactpoint.json"],
+      "fileMatch": ["*.ContactPoint.json"],
       "url": "./public/ContactPoint.schema.json"
     },
     {
-      "fileMatch": ["*.creativework.json"],
+      "fileMatch": ["*.CreativeWork.json"],
       "url": "./public/CreativeWork.schema.json"
     },
     {
-      "fileMatch": ["*.article.json"],
+      "fileMatch": ["*.Article.json"],
       "url": "./public/Article.schema.json"
     },
     {
-      "fileMatch": ["*.collection.json"],
+      "fileMatch": ["*.Collection.json"],
       "url": "./public/Collection.schema.json"
     },
     {
-      "fileMatch": ["*.comment.json"],
+      "fileMatch": ["*.Comment.json"],
       "url": "./public/Comment.schema.json"
     },
     {
-      "fileMatch": ["*.datatable.json"],
+      "fileMatch": ["*.Datatable.json"],
       "url": "./public/Datatable.schema.json"
     },
     {
-      "fileMatch": ["*.mediaobject.json"],
+      "fileMatch": ["*.MediaObject.json"],
       "url": "./public/MediaObject.schema.json"
     },
     {
-      "fileMatch": ["*.audioobject.json"],
+      "fileMatch": ["*.AudioObject.json"],
       "url": "./public/AudioObject.schema.json"
     },
     {
-      "fileMatch": ["*.datatablecolumn.json"],
+      "fileMatch": ["*.DatatableColumn.json"],
       "url": "./public/DatatableColumn.schema.json"
     },
     {
-      "fileMatch": ["*.definedterm.json"],
+      "fileMatch": ["*.DefinedTerm.json"],
       "url": "./public/DefinedTerm.schema.json"
     },
     {
-      "fileMatch": ["*.enumeration.json"],
+      "fileMatch": ["*.Enumeration.json"],
       "url": "./public/Enumeration.schema.json"
     },
     {
-      "fileMatch": ["*.citationtypeenumeration.json"],
+      "fileMatch": ["*.CitationTypeEnumeration.json"],
       "url": "./public/CitationTypeEnumeration.schema.json"
     },
     {
-      "fileMatch": ["*.enumvalidator.json"],
+      "fileMatch": ["*.EnumValidator.json"],
       "url": "./public/EnumValidator.schema.json"
     },
     {
-      "fileMatch": ["*.figure.json"],
+      "fileMatch": ["*.Figure.json"],
       "url": "./public/Figure.schema.json"
     },
     {
-      "fileMatch": ["*.function.json"],
+      "fileMatch": ["*.Function.json"],
       "url": "./public/Function.schema.json"
     },
     {
-      "fileMatch": ["*.grant.json"],
+      "fileMatch": ["*.Grant.json"],
       "url": "./public/Grant.schema.json"
     },
     {
-      "fileMatch": ["*.heading.json"],
+      "fileMatch": ["*.Heading.json"],
       "url": "./public/Heading.schema.json"
     },
     {
-      "fileMatch": ["*.imageobject.json"],
+      "fileMatch": ["*.ImageObject.json"],
       "url": "./public/ImageObject.schema.json"
     },
     {
-      "fileMatch": ["*.include.json"],
+      "fileMatch": ["*.Include.json"],
       "url": "./public/Include.schema.json"
     },
     {
-      "fileMatch": ["*.numbervalidator.json"],
+      "fileMatch": ["*.NumberValidator.json"],
       "url": "./public/NumberValidator.schema.json"
     },
     {
-      "fileMatch": ["*.integervalidator.json"],
+      "fileMatch": ["*.IntegerValidator.json"],
       "url": "./public/IntegerValidator.schema.json"
     },
     {
-      "fileMatch": ["*.link.json"],
+      "fileMatch": ["*.Link.json"],
       "url": "./public/Link.schema.json"
     },
     {
-      "fileMatch": ["*.list.json"],
+      "fileMatch": ["*.List.json"],
       "url": "./public/List.schema.json"
     },
     {
-      "fileMatch": ["*.listitem.json"],
+      "fileMatch": ["*.ListItem.json"],
       "url": "./public/ListItem.schema.json"
     },
     {
-      "fileMatch": ["*.math.json"],
+      "fileMatch": ["*.Math.json"],
       "url": "./public/Math.schema.json"
     },
     {
-      "fileMatch": ["*.mathblock.json"],
+      "fileMatch": ["*.MathBlock.json"],
       "url": "./public/MathBlock.schema.json"
     },
     {
-      "fileMatch": ["*.mathfragment.json"],
+      "fileMatch": ["*.MathFragment.json"],
       "url": "./public/MathFragment.schema.json"
     },
     {
-      "fileMatch": ["*.monetarygrant.json"],
+      "fileMatch": ["*.MonetaryGrant.json"],
       "url": "./public/MonetaryGrant.schema.json"
     },
     {
-      "fileMatch": ["*.nontextualannotation.json"],
+      "fileMatch": ["*.NontextualAnnotation.json"],
       "url": "./public/NontextualAnnotation.schema.json"
     },
     {
-      "fileMatch": ["*.note.json"],
+      "fileMatch": ["*.Note.json"],
       "url": "./public/Note.schema.json"
     },
     {
-      "fileMatch": ["*.organization.json"],
+      "fileMatch": ["*.Organization.json"],
       "url": "./public/Organization.schema.json"
     },
     {
-      "fileMatch": ["*.paragraph.json"],
+      "fileMatch": ["*.Paragraph.json"],
       "url": "./public/Paragraph.schema.json"
     },
     {
-      "fileMatch": ["*.variable.json"],
+      "fileMatch": ["*.Variable.json"],
       "url": "./public/Variable.schema.json"
     },
     {
-      "fileMatch": ["*.parameter.json"],
+      "fileMatch": ["*.Parameter.json"],
       "url": "./public/Parameter.schema.json"
     },
     {
-      "fileMatch": ["*.periodical.json"],
+      "fileMatch": ["*.Periodical.json"],
       "url": "./public/Periodical.schema.json"
     },
     {
-      "fileMatch": ["*.person.json"],
+      "fileMatch": ["*.Person.json"],
       "url": "./public/Person.schema.json"
     },
     {
-      "fileMatch": ["*.postaladdress.json"],
+      "fileMatch": ["*.PostalAddress.json"],
       "url": "./public/PostalAddress.schema.json"
     },
     {
-      "fileMatch": ["*.product.json"],
+      "fileMatch": ["*.Product.json"],
       "url": "./public/Product.schema.json"
     },
     {
-      "fileMatch": ["*.propertyvalue.json"],
+      "fileMatch": ["*.PropertyValue.json"],
       "url": "./public/PropertyValue.schema.json"
     },
     {
-      "fileMatch": ["*.publicationissue.json"],
+      "fileMatch": ["*.PublicationIssue.json"],
       "url": "./public/PublicationIssue.schema.json"
     },
     {
-      "fileMatch": ["*.publicationvolume.json"],
+      "fileMatch": ["*.PublicationVolume.json"],
       "url": "./public/PublicationVolume.schema.json"
     },
     {
-      "fileMatch": ["*.quote.json"],
+      "fileMatch": ["*.Quote.json"],
       "url": "./public/Quote.schema.json"
     },
     {
-      "fileMatch": ["*.quoteblock.json"],
+      "fileMatch": ["*.QuoteBlock.json"],
       "url": "./public/QuoteBlock.schema.json"
     },
     {
-      "fileMatch": ["*.review.json"],
+      "fileMatch": ["*.Review.json"],
       "url": "./public/Review.schema.json"
     },
     {
-      "fileMatch": ["*.softwareapplication.json"],
+      "fileMatch": ["*.SoftwareApplication.json"],
       "url": "./public/SoftwareApplication.schema.json"
     },
     {
-      "fileMatch": ["*.softwareenvironment.json"],
+      "fileMatch": ["*.SoftwareEnvironment.json"],
       "url": "./public/SoftwareEnvironment.schema.json"
     },
     {
-      "fileMatch": ["*.softwaresession.json"],
+      "fileMatch": ["*.SoftwareSession.json"],
       "url": "./public/SoftwareSession.schema.json"
     },
     {
-      "fileMatch": ["*.softwaresourcecode.json"],
+      "fileMatch": ["*.SoftwareSourceCode.json"],
       "url": "./public/SoftwareSourceCode.schema.json"
     },
     {
-      "fileMatch": ["*.stringvalidator.json"],
+      "fileMatch": ["*.StringValidator.json"],
       "url": "./public/StringValidator.schema.json"
     },
     {
-      "fileMatch": ["*.strong.json"],
+      "fileMatch": ["*.Strong.json"],
       "url": "./public/Strong.schema.json"
     },
     {
-      "fileMatch": ["*.subscript.json"],
+      "fileMatch": ["*.Subscript.json"],
       "url": "./public/Subscript.schema.json"
     },
     {
-      "fileMatch": ["*.superscript.json"],
+      "fileMatch": ["*.Superscript.json"],
       "url": "./public/Superscript.schema.json"
     },
     {
-      "fileMatch": ["*.table.json"],
+      "fileMatch": ["*.Table.json"],
       "url": "./public/Table.schema.json"
     },
     {
-      "fileMatch": ["*.tablecell.json"],
+      "fileMatch": ["*.TableCell.json"],
       "url": "./public/TableCell.schema.json"
     },
     {
-      "fileMatch": ["*.tablerow.json"],
+      "fileMatch": ["*.TableRow.json"],
       "url": "./public/TableRow.schema.json"
     },
     {
-      "fileMatch": ["*.thematicbreak.json"],
+      "fileMatch": ["*.ThematicBreak.json"],
       "url": "./public/ThematicBreak.schema.json"
     },
     {
-      "fileMatch": ["*.tuplevalidator.json"],
+      "fileMatch": ["*.TupleValidator.json"],
       "url": "./public/TupleValidator.schema.json"
     },
     {
-      "fileMatch": ["*.videoobject.json"],
+      "fileMatch": ["*.VideoObject.json"],
       "url": "./public/VideoObject.schema.json"
     },
     {
-      "fileMatch": ["*.volumemount.json"],
+      "fileMatch": ["*.VolumeMount.json"],
       "url": "./public/VolumeMount.schema.json"
     }
   ]

@@ -2,7 +2,7 @@
  * A script to update the `json.schemas` property of the `./vscode/settings.json` file.
  *
  * This enabled intellisense for files following the naming conversion of `.<type>.json`.
- * For example, `a.cite.json` file will have `Cite.schema.json` applied to it within
+ * For example, `a.Cite.json` file will have `Cite.schema.json` applied to it within
  * the editor.
  *
  * @see https://code.visualstudio.com/docs/languages/json#_json-schemas-and-settings
@@ -18,7 +18,7 @@ import { filterInterfaceSchemas, readSchemas } from '../util/helpers'
 ;(async () => {
   const mappings = filterInterfaceSchemas(await readSchemas()).map(
     ({ title }) => ({
-      fileMatch: [`*.${title?.toLowerCase() ?? ''}.json`],
+      fileMatch: [`*.${title ?? ''}.json`],
       url: `./public/${title ?? ''}.schema.json`,
     })
   )
