@@ -11,395 +11,494 @@ anyOf:
   - title: AffilationSelfCitation
     '@id': cito:AffilationSelfCitation
     description: A citation in which at least one author from each of the citing and the cited entities is affiliated with the same academic institution
+    const: AffilationSelfCitation
 
   - title: AgreesWith
     '@id': cito:agreesWith
     description: The citing entity agrees with statements, ideas or conclusions presented in the cited entity
+    const: AgreesWith
 
   - title: AuthorNetworkSelfCitation
     '@id': cito:AuthorNetworkSelfCitation
     description: A citation in which at least one author of the citing entity has direct or indirect co-authorship links with one of the authors of the cited entity
+    const: AuthorNetworkSelfCitation
 
   - title: AuthorSelfCitation
     '@id': cito:AuthorSelfCitation
     description: A citation in which the citing and the cited entities have at least one author in common
+    const: AuthorSelfCitation
 
   - title: CitesAsAuthority
     '@id': cito:citesAsAuthority
     description: The citing entity cites the cited entity as one that provides an authoritative description or definition of the subject under discussion
+    const: CitesAsAuthority
 
   - title: CitesAsDataSource
     '@id': cito:citesAsDataSource
     description: The citing entity cites the cited entity as source of data
+    const: CitesAsDataSource
 
   - title: CitesAsEvidence
     '@id': cito:citesAsEvidence
     description: The citing entity cites the cited entity as source of factual evidence for statements it contains
+    const: CitesAsEvidence
 
   - title: CitesAsMetadataDocument
     '@id': cito:citesAsMetadataDocument
     description: The citing entity cites the cited entity as being the container of metadata describing the citing entity
+    const: CitesAsMetadataDocument
 
   - title: CitesAsPotentialSolution
     '@id': cito:citesAsPotentialSolution
     description: The citing entity cites the cited entity as providing or containing a possible solution to the issues being discussed
+    const: CitesAsPotentialSolution
 
   - title: CitesAsRecommendedReading
     '@id': cito:citesAsRecommendedReading
     description: The citing entity cites the cited entity as an item of recommended reading
+    const: CitesAsRecommendedReading
 
   - title: CitesAsRelated
     '@id': cito:citesAsRelated
     description: The citing entity cites the cited entity as one that is related
+    const: CitesAsRelated
 
   - title: CitesAsSourceDocument
     '@id': cito:citesAsSourceDocument
     description: The citing entity cites the cited entity as being the entity from which the citing entity is derived, or about which the citing entity contains metadata
+    const: CitesAsSourceDocument
 
   - title: CitesForInformation
     '@id': cito:citesForInformation
     description: The citing entity cites the cited entity as a source of information on the subject under discussion
+    const: CitesForInformation
 
   - title: Compiles
     '@id': cito:compiles
     description: The citing entity is used to create or compile the cited entity
+    const: Compiles
 
   - title: Confirms
     '@id': cito:confirms
     description: The citing entity confirms facts, ideas or statements presented in the cited entity
+    const: Confirms
 
   - title: ContainsAssertionFrom
     '@id': cito:containsAssertionFrom
     description: The citing entity contains a statement of fact or a logical assertion (or a collection of such facts and/or assertions) originally present in the cited entity
+    const: ContainsAssertionFrom
 
   - title: Corrects
     '@id': cito:corrects
     description: The citing entity corrects statements, ideas or conclusions presented in the cited entity
+    const: Corrects
 
   - title: Credits
     '@id': cito:credits
     description: The citing entity acknowledges contributions made by the cited entity
+    const: Credits
 
   - title: Critiques
     '@id': cito:critiques
     description: The citing entity critiques statements, ideas or conclusions presented in the cited entity
+    const: Critiques
 
   - title: Derides
     '@id': cito:derides
     description: The citing entity express derision for the cited entity, or for ideas or conclusions contained within it
+    const: Derides
 
   - title: Describes
     '@id': cito:describes
     description: The citing entity describes the cited entity
+    const: Describes
 
   - title: DisagreesWith
     '@id': cito:disagreesWith
     description: The citing entity disagrees with statements, ideas or conclusions presented in the cited entity
+    const: DisagreesWith
 
   - title: Discusses
     '@id': cito:discusses
     description: The citing entity discusses statements, ideas or conclusions presented in the cited entity
+    const: Discusses
 
   - title: Disputes
     '@id': cito:disputes
     description: The citing entity disputes statements, ideas or conclusions presented in the cited entity
+    const: Disputes
 
   - title: DistantCitation
     '@id': cito:DistantCitation
     description: A citation in which the citing and the cited entities have nothing significant in common with one another (for example authors, journal, institutional affiliation, or funding agency) over and beyond their subject matter
+    const: DistantCitation
 
   - title: Documents
     '@id': cito:documents
     description: The citing entity documents information about the cited entity
+    const: Documents
 
   - title: Extends
     '@id': cito:extends
     description: The citing entity extends facts, ideas or understandings presented in the cited entity
+    const: Extends
 
   - title: FunderSelfCitation
     '@id': cito:FunderSelfCitation
     description: A citation in which the works reported in the citing and the cited entities were funded by the same funding agency
+    const: FunderSelfCitation
 
   - title: GivesBackgroundTo
     '@id': cito:givesBackgroundTo
     description: The cited entity provides background information for the citing entity
+    const: GivesBackgroundTo
 
   - title: GivesSupportTo
     '@id': cito:givesSupportTo
     description: The cited entity provides intellectual or factual support for the citing entity
+    const: GivesSupportTo
 
   - title: HasReplyFrom
     '@id': cito:hasReplyFrom
     description: The cited entity evokes a reply from the citing entity
+    const: HasReplyFrom
 
   - title: IncludesExcerptFrom
     '@id': cito:includesExcerptFrom
     description: The citing entity includes one or more excerpts from the cited entity
+    const: IncludesExcerptFrom
 
   - title: IncludesQuotationFrom
     '@id': cito:includesQuotationFrom
     description: The citing entity includes one or more quotations from the cited entity
+    const: IncludesQuotationFrom
 
   - title: IsAgreedWithBy
     '@id': cito:isAgreedWithBy
     description: The cited entity contains statements, ideas or conclusions with which the citing entity agrees
+    const: IsAgreedWithBy
 
   - title: IsCitedAsAuthorityBy
     '@id': cito:isCitedAsAuthorityBy
     description: The cited entity is cited as providing an authoritative description or definition of the subject under discussion in the citing entity
+    const: IsCitedAsAuthorityBy
 
   - title: IsCitedAsDataSourceBy
     '@id': cito:isCitedAsDataSourceBy
     description: The cited entity is cited as a data source by the citing entity
+    const: IsCitedAsDataSourceBy
 
   - title: IsCitedAsEvidenceBy
     '@id': cito:isCitedAsEvidenceBy
     description: The cited entity is cited for providing factual evidence to the citing entity
+    const: IsCitedAsEvidenceBy
 
   - title: IsCitedAsMetadataDocumentBy
     '@id': cito:isCitedAsMetadataDocumentBy
     description: The cited entity is cited as being the container of metadata relating to the citing entity
+    const: IsCitedAsMetadataDocumentBy
 
   - title: IsCitedAsPontentialSolutionBy
     '@id': cito:isCitedAsPontentialSolutionBy
     description: The cited entity is cited as providing or containing a possible solution to the issues being discussed in the citing entity
+    const: IsCitedAsPontentialSolutionBy
 
   - title: IsCitedAsRecommendedReadingBy
     '@id': cito:isCitedAsRecommendedReadingBy
     description: The cited entity is cited by the citing entity as an item of recommended reading
+    const: IsCitedAsRecommendedReadingBy
 
   - title: IsCitedAsRelatedBy
     '@id': cito:isCitedAsRelatedBy
     description: The cited entity is cited as being related to the citing entity
+    const: IsCitedAsRelatedBy
 
   - title: IsCitedAsSourceDocumentBy
     '@id': cito:isCitedAsSourceDocumentBy
     description: The cited entity is cited as being the entity from which the citing entity is derived, or about which the citing entity contains metadata
+    const: IsCitedAsSourceDocumentBy
 
   - title: IsCitedBy
     '@id': cito:isCitedBy
     description: The cited entity (the subject of the RDF triple) is cited by the citing entity (the object of the triple)
+    const: IsCitedBy
 
   - title: IsCitedForInformationBy
     '@id': cito:isCitedForInformationBy
     description: The cited entity is cited as a source of information on the subject under discussion in the citing entity
+    const: IsCitedForInformationBy
 
   - title: IsCompiledBy
     '@id': cito:isCompiledBy
     description: The cited entity is the result of a compile or creation event using the citing entity
+    const: IsCompiledBy
 
   - title: IsConfirmedBy
     '@id': cito:isConfirmedBy
     description: The cited entity presents facts, ideas or statements that are confirmed by the citing entity
+    const: IsConfirmedBy
 
   - title: IsCorrectedBy
     '@id': cito:isCorrectedBy
     description: The cited entity presents statements, ideas or conclusions that are corrected by the citing entity
+    const: IsCorrectedBy
 
   - title: IsCreditedBy
     '@id': cito:isCreditedBy
     description: The cited entity makes contributions that are acknowledged by the citing entity
+    const: IsCreditedBy
 
   - title: IsCritiquedBy
     '@id': cito:isCritiquedBy
     description: The cited entity presents statements, ideas or conclusions that are critiqued by the citing entity
+    const: IsCritiquedBy
 
   - title: IsDeridedBy
     '@id': cito:isDeridedBy
     description: The cited entity contains ideas or conclusions for which the citing entity express derision
+    const: IsDeridedBy
 
   - title: IsDescribedBy
     '@id': cito:isDescribedBy
     description: The cited entity is described by the citing entity
+    const: IsDescribedBy
 
   - title: IsDisagreedWithBy
     '@id': cito:isDisagreedWithBy
     description: The cited entity presents statements, ideas or conclusions that are disagreed with by the citing entity
+    const: IsDisagreedWithBy
 
   - title: IsDiscussedBy
     '@id': cito:isDiscussedBy
     description: The cited entity presents statements, ideas or conclusions that are discussed by the citing entity
+    const: IsDiscussedBy
 
   - title: IsDisputedBy
     '@id': cito:isDisputedBy
     description: The cited entity presents statements, ideas or conclusions that are disputed by the citing entity
+    const: IsDisputedBy
 
   - title: IsDocumentedBy
     '@id': cito:isDocumentedBy
     description: Information about the cited entity is documented by the citing entity
+    const: IsDocumentedBy
 
   - title: IsExtendedBy
     '@id': cito:isExtendedBy
     description: The cited entity presents facts, ideas or understandings that are extended by the citing entity
+    const: IsExtendedBy
 
   - title: IsLinkedToBy
     '@id': cito:isLinkedToBy
     description: The cited entity is the target for an HTTP Uniform Resource Locator (URL) link within the citing entity
+    const: IsLinkedToBy
 
   - title: IsParodiedBy
     '@id': cito:isParodiedBy
     description: The characteristic style or content of the cited entity is imitated by the citing entity for comic effect, usually without explicit citation
+    const: IsParodiedBy
 
   - title: IsPlagiarizedBy
     '@id': cito:isPlagiarizedBy
     description: The cited entity is plagiarized by the author of the citing entity, who includes within the citing entity textual or other elements from the cited entity without formal acknowledgement of their source
+    const: IsPlagiarizedBy
 
   - title: IsQualifiedBy
     '@id': cito:isQualifiedBy
     description: The cited entity presents statements, ideas or conclusions that are qualified or have conditions placed upon them by the citing entity
+    const: IsQualifiedBy
 
   - title: IsRefutedBy
     '@id': cito:isRefutedBy
     description: The cited entity presents statements, ideas or conclusions that are refuted by the citing entity
+    const: IsRefutedBy
 
   - title: IsRetractedBy
     '@id': cito:isRetractedBy
     description: The cited entity is formally retracted by the citing entity
+    const: IsRetractedBy
 
   - title: IsReviewedBy
     '@id': cito:isReviewedBy
     description: The cited entity presents statements, ideas or conclusions that are reviewed by the citing entity
+    const: IsReviewedBy
 
   - title: IsRidiculedBy
     '@id': cito:isRidiculedBy
     description: The cited entity or aspects of its contents are ridiculed by the citing entity
+    const: IsRidiculedBy
 
   - title: IsSpeculatedOnBy
     '@id': cito:isSpeculatedOnBy
     description: The cited entity is cited because the citing article contains speculations on its content or ideas
+    const: IsSpeculatedOnBy
 
   - title: IsSupportedBy
     '@id': cito:isSupportedBy
     description: The cited entity receives intellectual or factual support from the citing entity
+    const: IsSupportedBy
 
   - title: IsUpdatedBy
     '@id': cito:isUpdatedBy
     description: The cited entity presents statements, ideas, hypotheses or understanding that are updated by the cited entity
+    const: IsUpdatedBy
 
   - title: JournalCartelCitation
     '@id': cito:JournalCartelCitation
     description: A citation from one journal to another journal which forms one of a very large number of citations from the citing journal to recent articles in the cited journal, possibly undertaken as part of a citation cartel for the purpose of gaming the impact factor of the cited journal
+    const: JournalCartelCitation
 
   - title: JournalSelfCitation
     '@id': cito:JournalSelfCitation
     description: A citation in which the citing and the cited entities are published in the same journal
+    const: JournalSelfCitation
 
   - title: Likes
     '@id': cito:likes
     description: A property that permits you to express appreciation of or interest in something that is the object of the RDF triple, or to express that it is worth thinking about even if you do not agree with its content, enabling social media 'likes' statements to be encoded in RDF
+    const: Likes
 
   - title: LinksTo
     '@id': cito:linksTo
     description: The citing entity provides a link, in the form of an HTTP Uniform Resource Locator (URL), to the cited entity
+    const: LinksTo
 
   - title: ObtainsBackgroundFrom
     '@id': cito:obtainsBackgroundFrom
     description: The citing entity obtains background information from the cited entity
+    const: ObtainsBackgroundFrom
 
   - title: ObtainsSupportFrom
     '@id': cito:obtainsSupportFrom
     description: The citing entity obtains intellectual or factual support from the cited entity
+    const: ObtainsSupportFrom
 
   - title: Parodies
     '@id': cito:parodies
     description: The citing entity imitates the characteristic style or content of the cited entity for comic effect, usually without explicit citation
+    const: Parodies
 
   - title: Plagiarizes
     '@id': cito:plagiarizes
     description: A property indicating that the author of the citing entity plagiarizes the cited entity, by including textual or other elements from the cited entity without formal acknowledgement of their source
+    const: Plagiarizes
 
   - title: ProvidesAssertionFor
     '@id': cito:providesAssertionFor
     description: The cited entity contains and is the original source of a statement of fact or a logical assertion (or a collection of such facts and/or assertions) that is to be found in the citing entity
+    const: ProvidesAssertionFor
 
   - title: ProvidesConclusionsFor
     '@id': cito:providesConclusionsFor
     description: The cited entity presents conclusions that are used in work described in the citing entity
+    const: ProvidesConclusionsFor
 
   - title: ProvidesDataFor
     '@id': cito:providesDataFor
     description: The cited entity presents data that are used in work described in the citing entity
+    const: ProvidesDataFor
 
   - title: ProvidesExcerptFor
     '@id': cito:providesExcerptFor
     description: The cited entity contains information, usually of a textual nature, that is excerpted by (used as an excerpt within) the citing entity
+    const: ProvidesExcerptFor
 
   - title: ProvidesMethodFor
     '@id': cito:providesMethodFor
     description: The cited entity details a method that is used in work described by the citing entity
+    const: ProvidesMethodFor
 
   - title: ProvidesQuotationFor
     '@id': cito:providesQuotationFor
     description: The cited entity contains information, usually of a textual nature, that is quoted by (used as a quotation within) the citing entity
+    const: ProvidesQuotationFor
 
   - title: Qualifies
     '@id': cito:qualifies
     description: The citing entity qualifies or places conditions or restrictions upon statements, ideas or conclusions presented in the cited entity
+    const: Qualifies
 
   - title: Refutes
     '@id': cito:refutes
     description: The citing entity refutes statements, ideas or conclusions presented in the cited entity
+    const: Refutes
 
   - title: RepliesTo
     '@id': cito:repliesTo
     description: The citing entity replies to statements, ideas or criticisms presented in the cited entity
+    const: RepliesTo
 
   - title: Retracts
     '@id': cito:retracts
     description: The citing entity constitutes a formal retraction of the cited entity
+    const: Retracts
 
   - title: Reviews
     '@id': cito:reviews
     description: The citing entity reviews statements, ideas or conclusions presented in the cited entity
+    const: Reviews
 
   - title: Ridicules
     '@id': cito:ridicules
     description: The citing entity ridicules the cited entity or aspects of its contents
+    const: Ridicules
 
   - title: SelfCitation
     '@id': cito:SelfCitation
     description: A citation in which the citing and the cited entities have something significant in common with one another, over and beyond their subject matter, for example authors, journal, institutional affiliation, or funding agency
+    const: SelfCitation
 
   - title: SharesAuthorInstitutionWith
     '@id': cito:sharesAuthorInstitutionWith
     description: Each entity has at least one author that shares a common institutional affiliation with an author of the other entity
+    const: SharesAuthorInstitutionWith
 
   - title: SharesAuthorWith
     '@id': cito:sharesAuthorWith
     description: Each entity has at least one author in common with the other entity
+    const: SharesAuthorWith
 
   - title: SharesFundingAgencyWith
     '@id': cito:sharesFundingAgencyWith
     description: The two entities result from activities that have been funded by the same funding agency
+    const: SharesFundingAgencyWith
 
   - title: SharesJournalWith
     '@id': cito:sharesJournalWith
     description: The citing and cited bibliographic resources are published in the same journal
+    const: SharesJournalWith
 
   - title: SharesPublicationVenueWith
     '@id': cito:sharesPublicationVenueWith
     description: The citing and cited bibliographic resources are published in same publication venue
+    const: SharesPublicationVenueWith
 
   - title: SpeculatesOn
     '@id': cito:speculatesOn
     description: The citing entity speculates on something within or related to the cited entity, without firm evidence
+    const: SpeculatesOn
 
   - title: Supports
     '@id': cito:supports
     description: The citing entity provides intellectual or factual support for statements, ideas or conclusions presented in the cited entity
+    const: Supports
 
   - title: Updates
     '@id': cito:updates
     description: The citing entity updates statements, ideas, hypotheses or understanding presented in the cited entity
+    const: Updates
 
   - title: UsesConclusionsFrom
     '@id': cito:usesConclusionsFrom
     description: The citing entity describes work that uses conclusions presented in the cited entity
+    const: UsesConclusionsFrom
 
   - title: UsesDataFrom
     '@id': cito:usesDataFrom
     description: The citing entity describes work that uses data presented in the cited entity
+    const: UsesDataFrom
 
   - title: UsesMethodIn
     '@id': cito:usesMethodIn
     description: The citing entity describes work that uses a method detailed in the cited entity
+    const: UsesMethodIn

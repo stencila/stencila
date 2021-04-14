@@ -1,0 +1,5 @@
+{
+  "type": "Cite",
+  "citationMode": "Foo",
+  "citationType": ["Bar"]
+}
