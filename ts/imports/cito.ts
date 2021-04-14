@@ -16,12 +16,12 @@
  * Run using `npx ts-node ts/imports/cito.ts`.
  */
 
-/* eslint-disable */
-
 import got from 'got'
 import fs from 'fs-extra'
 import path from 'path'
 import { pascalCase, sentenceCase } from 'change-case'
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
   const {
     body,
@@ -31,6 +31,7 @@ import { pascalCase, sentenceCase } from 'change-case'
   )
 
   const citoUrl = 'http://purl.org/spar/cito/'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const types = (body as Array<Record<string, any>>).reduce(
     (prev: Record<string, string>, type) => {
       const idUrl = type['@id'] as string
@@ -55,6 +56,7 @@ import { pascalCase, sentenceCase } from 'change-case'
 
       const title = pascalCase(id)
       const rdfComment =
+        // eslint-disable-next-line
         type['http://www.w3.org/2000/01/rdf-schema#comment']?.[0]?.['@value']
       const description =
         typeof rdfComment === 'string'
@@ -62,7 +64,7 @@ import { pascalCase, sentenceCase } from 'change-case'
           : sentenceCase(id)
 
       const yaml = `
-  - title: ${title}
+  - const: ${title}
     '@id': cito:${id}
     description: ${description}
 `
@@ -73,7 +75,7 @@ import { pascalCase, sentenceCase } from 'change-case'
 
   const yaml = Object.entries(types)
     .sort()
-    .map(([title, yaml]) => yaml)
+    .map(([_title, yaml]) => yaml)
     .join('')
 
   fs.writeFileSync(
