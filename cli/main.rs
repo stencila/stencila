@@ -6,14 +6,15 @@ use stencila::{
 };
 use structopt::StructOpt;
 
-/// The arguments for the command line tool
 #[derive(Debug, StructOpt)]
 #[structopt(
-    about = "Stencila command line tool",
     setting = structopt::clap::AppSettings::DeriveDisplayOrder,
     setting = structopt::clap::AppSettings::ColoredHelp,
     setting = structopt::clap::AppSettings::VersionlessSubcommands
 )]
+/// Stencila, in a terminal console, on your own machine
+///
+/// Enter interactive mode by using the `--interact` option with any command.
 pub struct Args {
     /// The command to run
     #[structopt(subcommand)]
@@ -43,7 +44,6 @@ pub struct Args {
 /// Global arguments that should be removed when entering interactive mode
 pub const GLOBAL_ARGS: [&str; 6] = ["--debug", "--info", "--warn", "--error", "--interact", "-i"];
 
-/// The commands that can be run
 #[derive(Debug, StructOpt)]
 #[structopt(
     setting = structopt::clap::AppSettings::DeriveDisplayOrder
@@ -71,8 +71,8 @@ pub enum Command {
     Inspect(stencila::inspect::cli::Args),
 }
 
-/// Run a command
 #[tracing::instrument(skip(config, plugins))]
+/// Run a command
 pub async fn run_command(
     command: Command,
     config: &mut config::Config,
@@ -243,7 +243,6 @@ mod interact {
 
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Stencila CLI interactive mode",
         setting = structopt::clap::AppSettings::NoBinaryName,
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
@@ -262,14 +261,42 @@ mod interact {
     ) -> Result<()> {
         let history_file = util::dirs::config(true)?.join("history.txt");
 
-        println!("Welcome to interactive mode. Use `--help` or `?` for help.");
-
         let mut rl = editor::new();
         if rl.load_history(&history_file).is_err() {
             tracing::debug!("No previous history found")
         }
 
+        let help = r#"Stencila CLI interactive mode
+
+Interactive mode allows you to interact with one or more of the CLIs
+commands without having to restart the application. It is particularly
+useful for exploring the structure of documents using `select`,
+running code within them using `execute`, and inspecting variables
+using `list` and `get`.
+
+Interactive mode has the concept of a command prefix to save you having
+to retype the same command and its options. For example, to interactively
+execute code within the context of a RMarkdown document:
+
+  stencila execute report.Rmd --interact
+
+
+--help      Get help for the current command prefix
+^           Prints the current command prefix
+<           Sets the command prefix
+>           Clears the command prefix
+?           Prints this message
+↑           Go back through command history
+↓           Go forward through command history
+Ctrl+C      Cancels the current command
+Ctrl+D      Exits interactive application
+"#;
+        println!("{}", help);
+
         let mut prefix = prefix.clone();
+        if !prefix.is_empty() {
+            println!("Starting command prefix is {:?}", prefix);
+        }
 
         loop {
             let readline = rl.readline("> ");
@@ -277,25 +304,26 @@ mod interact {
                 Ok(line) => {
                     rl.add_history_entry(&line);
 
-                    let mut args = line
+                    let args = line
                         .split_whitespace()
                         .map(str::to_string)
                         .collect::<Vec<String>>();
 
                     if let Some(first) = line.trim_start().chars().next() {
-                        if first == '~' {
-                            println!("Command prefix is {:?}", prefix);
+                        if first == '^' {
+                            println!("Command prefix is currently {:?}", prefix);
                             continue;
                         } else if first == '<' {
                             prefix = args[1..].into();
-                            println!("Set command prefix to {:?}", prefix);
+                            println!("Command prefix was set to {:?}", prefix);
                             continue;
                         } else if first == '>' {
                             prefix.clear();
-                            println!("Cleared command prefix");
+                            println!("Command prefix was cleared");
                             continue;
                         } else if first == '?' {
-                            args[0] = "help".into();
+                            println!("{}", help);
+                            continue;
                         }
                     };
 
