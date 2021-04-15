@@ -4,10 +4,10 @@ use stencila::{
     serde_json,
 };
 
-// We currently serialize / deserialize objects when passing them to / from Rust
+// We currently JSON serialize / deserialize objects when passing them to / from Rust
 // and Node.js. That's because, at the time of writing, the `neon-serde` crate
 // (which provides a more convenient mechanism) was not compatible with the most
-// recent `neon` version. These function just make that a little less boilerplate.
+// recent `neon` version. These function just reduce some boilerplate associated with that.
 
 pub fn to_json<Type>(mut cx: FunctionContext, value: Type) -> JsResult<JsString>
 where
