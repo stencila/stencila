@@ -1,3 +1,12 @@
+# [0.49.0](https://github.com/stencila/stencila/compare/v0.48.1...v0.49.0) (2021-04-15)
+
+
+### Features
+
+* **Config:** Expose validate function ([be02573](https://github.com/stencila/stencila/commit/be025735785b7b943fc1d20ff44792d99fa8a6f5))
+* **Node package:** Expose config functions ([c8838b9](https://github.com/stencila/stencila/commit/c8838b9dfe2b2d26665dba0a6a9e2ced8bf1f2fe))
+* **Rust:** Re-export serde ([8992211](https://github.com/stencila/stencila/commit/89922112f4420e7db8765cffb2a34bafc06cf1c8))
+
 ## [0.48.1](https://github.com/stencila/stencila/compare/v0.48.0...v0.48.1) (2021-04-14)
 
 
