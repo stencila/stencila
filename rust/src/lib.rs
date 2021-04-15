@@ -63,6 +63,7 @@ pub mod nodes;
 // Re-export packages (mainly for use by stencila-* language packages in this workspace)
 
 pub use anyhow;
+pub use once_cell;
 pub use regex;
 pub use serde;
 pub use serde_json;
