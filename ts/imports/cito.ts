@@ -13,6 +13,9 @@
  * Excludes `hasCitationCharacterization`, `hasCitationTimeSpan`, etc since these describe properties
  * of a citation other than it's type.
  *
+ * Excludes `*Citation` and `Shares*` since these are related to citation "distance", not citation
+ * intent. See https://github.com/stencila/schema/pull/260#pullrequestreview-636331806.
+ *
  * Run using `npx ts-node ts/imports/cito.ts`.
  */
 
@@ -50,7 +53,9 @@ import { pascalCase, sentenceCase } from 'change-case'
           'hasCitingEntity',
           'hasCoAuthorshipCitationLevel',
           'Likes',
-        ].includes(id)
+        ].includes(id) ||
+        id.startsWith('Shares') ||
+        id.endsWith('Citation')
       )
         return prev
 
@@ -95,7 +100,6 @@ extends: Enumeration
 description: The type or nature of a citation, both factually and rhetorically.
 $comment: |
   The members of this enumeration map directly on to the types in the [Citation Typing Ontology (CiTO)](http://www.sparontologies.net/ontologies/cito).
-anyOf:${yaml}
-`
+anyOf:${yaml}`
   )
 })()

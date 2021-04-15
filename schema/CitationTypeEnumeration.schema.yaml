@@ -8,21 +8,9 @@ description: The type or nature of a citation, both factually and rhetorically.
 $comment: |
   The members of this enumeration map directly on to the types in the [Citation Typing Ontology (CiTO)](http://www.sparontologies.net/ontologies/cito).
 anyOf:
-  - const: AffilationSelfCitation
-    '@id': cito:AffilationSelfCitation
-    description: A citation in which at least one author from each of the citing and the cited entities is affiliated with the same academic institution
-
   - const: AgreesWith
     '@id': cito:agreesWith
     description: The citing entity agrees with statements, ideas or conclusions presented in the cited entity
-
-  - const: AuthorNetworkSelfCitation
-    '@id': cito:AuthorNetworkSelfCitation
-    description: A citation in which at least one author of the citing entity has direct or indirect co-authorship links with one of the authors of the cited entity
-
-  - const: AuthorSelfCitation
-    '@id': cito:AuthorSelfCitation
-    description: A citation in which the citing and the cited entities have at least one author in common
 
   - const: CitesAsAuthority
     '@id': cito:citesAsAuthority
@@ -104,10 +92,6 @@ anyOf:
     '@id': cito:disputes
     description: The citing entity disputes statements, ideas or conclusions presented in the cited entity
 
-  - const: DistantCitation
-    '@id': cito:DistantCitation
-    description: A citation in which the citing and the cited entities have nothing significant in common with one another (for example authors, journal, institutional affiliation, or funding agency) over and beyond their subject matter
-
   - const: Documents
     '@id': cito:documents
     description: The citing entity documents information about the cited entity
@@ -115,10 +99,6 @@ anyOf:
   - const: Extends
     '@id': cito:extends
     description: The citing entity extends facts, ideas or understandings presented in the cited entity
-
-  - const: FunderSelfCitation
-    '@id': cito:FunderSelfCitation
-    description: A citation in which the works reported in the citing and the cited entities were funded by the same funding agency
 
   - const: GivesBackgroundTo
     '@id': cito:givesBackgroundTo
@@ -276,14 +256,6 @@ anyOf:
     '@id': cito:isUpdatedBy
     description: The cited entity presents statements, ideas, hypotheses or understanding that are updated by the cited entity
 
-  - const: JournalCartelCitation
-    '@id': cito:JournalCartelCitation
-    description: A citation from one journal to another journal which forms one of a very large number of citations from the citing journal to recent articles in the cited journal, possibly undertaken as part of a citation cartel for the purpose of gaming the impact factor of the cited journal
-
-  - const: JournalSelfCitation
-    '@id': cito:JournalSelfCitation
-    description: A citation in which the citing and the cited entities are published in the same journal
-
   - const: Likes
     '@id': cito:likes
     description: A property that permits you to express appreciation of or interest in something that is the object of the RDF triple, or to express that it is worth thinking about even if you do not agree with its content, enabling social media 'likes' statements to be encoded in RDF
@@ -355,10 +327,6 @@ anyOf:
   - const: Ridicules
     '@id': cito:ridicules
     description: The citing entity ridicules the cited entity or aspects of its contents
-
-  - const: SelfCitation
-    '@id': cito:SelfCitation
-    description: A citation in which the citing and the cited entities have something significant in common with one another, over and beyond their subject matter, for example authors, journal, institutional affiliation, or funding agency
 
   - const: SharesAuthorInstitutionWith
     '@id': cito:sharesAuthorInstitutionWith
