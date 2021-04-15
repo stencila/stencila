@@ -9,6 +9,7 @@
     "install": "neon build",
     "test": "neon build && jest",
     "build": "neon build --release",
+    "docs": "typedoc lib",
     "clean": "neon clean"
   },
   "devDependencies": {
@@ -16,6 +17,7 @@
     "jest": "26.6.3",
     "neon-cli": "0.8.0",
     "ts-jest": "26.5.4",
+    "typedoc": "0.20.35",
     "typescript": "4.2.4"
   },
   "jest": {

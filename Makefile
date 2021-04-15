@@ -33,6 +33,7 @@ build:
 
 docs:
 	make -C rust docs
+	make -C node docs
 .PHONY: docs
 
 clean:
