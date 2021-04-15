@@ -1,4 +1,4 @@
-all: format lint build
+all: format lint test build
 
 setup:
 	npm install
@@ -10,11 +10,14 @@ lint:
 	touch native/src/*.rs
 	cargo clippy
 
+test:
+	npm run test
+
 audit:
 	cargo +nightly udeps
 
 build:
-	npx neon build --release
+	npm run build
 
 clean:
-	npx neon clean
+	npm run clean
