@@ -96,8 +96,9 @@ pub fn read() -> Result<Config> {
 
 /// Write a config to the configuration file
 #[tracing::instrument]
-fn write(config: &Config) -> Result<()> {
+pub fn write(config: &Config) -> Result<()> {
     let config_file = path()?;
+
     let mut file = fs::File::create(config_file)?;
     file.write_all(toml::to_string(&config)?.as_bytes())?;
     Ok(())
@@ -136,6 +137,19 @@ pub fn display(config: &Config, pointer: Option<String>) -> Result<String> {
     }
 }
 
+/// Validate a configuration
+#[tracing::instrument]
+pub fn validate(config: &Config) -> Result<()> {
+    if let Err(errors) = config.validate() {
+        bail!(
+            "Invalid configuration value/s:\n\n{}",
+            serde_json::to_string_pretty(&errors)?
+        )
+    } else {
+        Ok(())
+    }
+}
+
 /// Set a config property
 #[tracing::instrument]
 pub fn set(config: &Config, pointer: &str, value: &str) -> Result<Config> {
@@ -151,12 +165,7 @@ pub fn set(config: &Config, pointer: &str, value: &str) -> Result<Config> {
     };
 
     let config: Config = serde_json::from_value(config)?;
-    if let Err(errors) = config.validate() {
-        bail!(
-            "Invalid configuration value/s:\n\n{}",
-            serde_json::to_string_pretty(&errors)?
-        )
-    }
+    validate(&config)?;
     Ok(config)
 }
 
