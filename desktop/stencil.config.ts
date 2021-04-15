@@ -8,6 +8,10 @@ export const config: Config = {
   globalStyle: 'src/renderer/global/app.css',
   globalScript: 'src/renderer/global/app.ts',
   taskQueue: 'async',
+  tsconfig: 'tsconfig.ui.json',
+  devServer: {
+    openBrowser: false,
+  },
   outputTargets: [
     {
       type: 'www',

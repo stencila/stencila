@@ -1,20 +1,35 @@
-import { app, BrowserWindow } from 'electron'
-declare const MAIN_WINDOW_WEBPACK_ENTRY: any
+import { app, BrowserWindow, ipcMain } from 'electron'
+import { main } from './main'
+import { initStore } from './main/store/bootstrap'
+
+let store: ReturnType<typeof initStore>
+
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
-  // eslint-disable-line global-require
   app.quit()
 }
 
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
+    height: 860,
+    width: 1024,
+    webPreferences: {
+      // TODO: Fix sandboxing, currently prevents `preload` script access
+      sandbox: false,
+      nodeIntegration: false,
+      contextIsolation: true, // protect against prototype pollution
+      enableRemoteModule: false,
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      additionalArguments: [`storePath:${app.getPath('userData')}`],
+    },
   })
 
-  // and load the index.html of the app.
+  store = initStore(mainWindow)
+
   // mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
   mainWindow.loadURL('http://localhost:3333')
 
@@ -33,6 +48,8 @@ app.on('ready', createWindow)
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
+  } else {
+    store.clearMainBindings(ipcMain)
   }
 })
 
@@ -46,3 +63,4 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+main()

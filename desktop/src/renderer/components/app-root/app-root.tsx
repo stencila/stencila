@@ -17,8 +17,8 @@ export class AppRoot {
           </Route>
 
           <Route
-            path={match('/profile/:name')}
-            render={({ name }) => <app-profile name={name}></app-profile>}
+            path={match('/project/:path*')}
+            render={({ path }) => <app-project projectDir={path}></app-project>}
           />
         </Router.Switch>
       </main>

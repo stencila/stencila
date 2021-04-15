@@ -1,5 +1,6 @@
 import { Component, h } from '@stencil/core'
-import { href } from '@stencil/router'
+import { CHANNEL } from '../../../preload/index'
+import { Router } from '../../router'
 
 @Component({
   tag: 'app-home',
@@ -7,18 +8,45 @@ import { href } from '@stencil/router'
   shadow: true,
 })
 export class AppHome {
+  private selectFiles = () => {
+    window.api.invoke(CHANNEL.SELECT_DIRS).then((selectedFiles) => {
+      // TODO: Get type inference on IPC calls
+      if (
+        typeof selectedFiles === 'object' &&
+        Object.prototype.hasOwnProperty.call(selectedFiles, 'filePaths')
+      ) {
+        // @ts-ignore
+        const path = selectedFiles.filePaths
+          ? // @ts-ignore
+            selectedFiles?.filePaths[0]
+          : undefined
+
+        if (path) {
+          const p = `/project${path}`
+          console.log(p)
+          Router.push(p)
+        }
+      }
+    })
+  }
+
   render() {
     return (
       <div class="app-home">
-        <p>
-          Welcome to the Stencil App Starter. You can use this starter to build
-          entire apps all with web components using Stencil! Check out our docs
-          on <a href="https://stenciljs.com">stenciljs.com</a> to get started.
-        </p>
+        <h1>Stencila</h1>
 
-        <a {...href('/profile/stencil')} class="my-link button">
-          Profile page
-        </a>
+        <stencila-button>New document</stencila-button>
+        <stencila-button>New project</stencila-button>
+
+        <hr />
+
+        <stencila-button onClick={this.selectFiles}>Open…</stencila-button>
+
+        <hr />
+
+        <h2>Recent projects</h2>
+
+        <hr />
       </div>
     )
   }

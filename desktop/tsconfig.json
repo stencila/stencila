@@ -3,23 +3,18 @@
   "compilerOptions": {
     "allowJs": true,
     "declaration": false,
-    "experimentalDecorators": true,
-    "module": "commonjs",
-    "skipLibCheck": true,
+    "module": "esnext",
     "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
-    "strictPropertyInitialization": false,
     "baseUrl": ".",
     "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
       "*": ["node_modules/*"]
-    },
-    "jsx": "react",
-    "jsxFactory": "h"
+    }
   },
-  "include": ["src", "src/**/*"]
+  "include": ["./src/main", "./src/preload", "./src/lib.d.ts"]
 }

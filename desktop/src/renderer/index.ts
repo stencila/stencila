@@ -11,26 +11,7 @@
  *
  * https://electronjs.org/docs/tutorial/security
  *
- * To enable Node.js integration in this file, open up `main.js` and enable the `nodeIntegration`
- * flag:
- *
- * ```
- *  // Create the browser window.
- *  mainWindow = new BrowserWindow({
- *    width: 800,
- *    height: 600,
- *    webPreferences: {
- *      nodeIntegration: true
- *    }
- *  });
- * ```
  */
 
 import '@stencil/router'
-import './index.css'
-
-export { Components, JSX } from './components'
-
-console.log(
-  '👋 This message is being logged by "renderer.js", included via webpack'
-)
+import '@stencila/components'
