@@ -64,6 +64,7 @@ pub mod nodes;
 
 pub use anyhow;
 pub use regex;
+pub use serde;
 pub use serde_json;
 pub use strum;
 pub use tokio;
