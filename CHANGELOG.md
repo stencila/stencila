@@ -1,3 +1,15 @@
+# [0.50.0](https://github.com/stencila/stencila/compare/v0.49.0...v0.50.0) (2021-04-16)
+
+
+### Bug Fixes
+
+* **Config:** Store global config in Rust [skip release] ([6fe378f](https://github.com/stencila/stencila/commit/6fe378f21d16b37e9430c59fbeb2509a157f8110))
+
+
+### Features
+
+* **Plugins:** Upgrade plugins based on current installation type ([828c37a](https://github.com/stencila/stencila/commit/828c37a41646dc2937a165c37d6021c4aa4abe29))
+
 # [0.49.0](https://github.com/stencila/stencila/compare/v0.48.1...v0.49.0) (2021-04-15)
 
 
