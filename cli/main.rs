@@ -225,7 +225,10 @@ pub async fn main() -> Result<()> {
 
     match result {
         Ok(_) => Ok(()),
-        Err(_) => std::process::exit(exitcode::SOFTWARE),
+        Err(error) => {
+            print_error(error);
+            std::process::exit(exitcode::SOFTWARE)
+        }
     }
 }
 
