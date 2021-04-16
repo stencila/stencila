@@ -280,7 +280,7 @@ impl Plugin {
             .repo_owner(owner)
             .repo_name(&name)
             .bin_name(&name)
-            .current_version(&current_version.unwrap_or("0.0.0".into()))
+            .current_version(&current_version.unwrap_or_else(|| "0.0.0".into()))
             .bin_install_path(&install_path)
             .show_output(true)
             .show_download_progress(true);
