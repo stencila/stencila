@@ -1,24 +1,30 @@
-use anyhow::{anyhow, Result};
+use crate::plugins;
+use anyhow::{anyhow, bail, Result};
 use chrono::{DateTime, Duration, Utc};
-use std::fs;
-use std::thread;
+use std::{fs, thread};
 
 /// Upgrade the application
 ///
 /// Checks for a higher version on [GitHub releases](https://github.com/stencila/stencila/releases)
 /// and downloads the binary for the current platform if one is found.
 ///
+/// Optionally checks for new versions and, upgrades if necessary, all installed plugins.
+/// See `plugins::upgrade_list` to only upgrade certain plugins.
+///
 /// # Arguments
 ///
 /// - `current_version`: The current version (used mainly for testing)
 /// - `wanted_version`: The version that is wanted (other than latest)
+/// - `include_plugins`: Whether to upgrade installed plugins to their latest version
 /// - `confirm`: Prompt the user to confirm an upgrade
 /// - `verbose`: Print information on the upgrade process
-pub fn upgrade(
+pub async fn upgrade(
     current_version: Option<String>,
     wanted_version: Option<String>,
+    include_plugins: bool,
     confirm: bool,
     verbose: bool,
+    plugins: &mut plugins::Plugins,
 ) -> Result<()> {
     let mut builder = self_update::backends::github::Update::configure();
     builder
@@ -38,16 +44,28 @@ pub fn upgrade(
         builder.target_version_tag(format!("v{}", version).as_str());
     }
 
-    // Fail silently unless `verbose` is true.
-    match builder.build()?.update() {
-        Ok(_) => {}
-        Err(error) => {
-            let message = error.to_string();
-            if !message.contains("Update aborted") && verbose {
-                println!("Error attempting to upgrade: {}", message)
+    // The actual upgrade is run in a separate thread because `self_update`
+    // creates a new `tokio` runtime (which can not be nested within our main `tokio` runtime).
+    thread::spawn(move || -> Result<()> {
+        // Fail silently unless `verbose` is true.
+        match builder.build()?.update() {
+            Ok(_status) => Ok(()),
+            Err(error) => {
+                let message = error.to_string();
+                if !message.contains("Update aborted") && verbose {
+                    bail!("Error attempting to upgrade: {}", message)
+                } else {
+                    Ok(())
+                }
             }
         }
-    };
+    })
+    .join()
+    .map_err(|_| anyhow!("Error joining thread"))??;
+
+    if include_plugins {
+        plugins::Plugin::upgrade_all(plugins).await?;
+    }
 
     Ok(())
 }
@@ -60,13 +78,25 @@ const UPGRADE_FILE: &str = "cli-upgrade.txt";
 /// Runs in a separate thread so that is does not slow down the
 /// command currently being run by the user.
 ///
+/// Note that the in-memory state of application and plugins is unchanged after this call
+/// A restart is required to upload both the new version and plugin versions.
+///
 /// Because this function use values form the config file, requires
 /// that `feature = "config"` is enabled.
 #[cfg(feature = "config")]
-pub fn upgrade_auto(config: &config::Config) -> std::thread::JoinHandle<Result<()>> {
+pub fn upgrade_auto(
+    config: &config::Config,
+    plugins: &plugins::Plugins,
+) -> std::thread::JoinHandle<Result<()>> {
     let config = config.clone();
+    let mut plugins = plugins.clone();
     thread::spawn(move || -> Result<()> {
-        let config::Config { auto, confirm, .. } = config;
+        let config::Config {
+            auto,
+            confirm,
+            plugins: include_plugins,
+            ..
+        } = config;
 
         // Go no further if auto upgrade is not enabled
         if auto == "off" {
@@ -85,7 +115,10 @@ pub fn upgrade_auto(config: &config::Config) -> std::thread::JoinHandle<Result<(
         }
 
         // Attempt an upgrade
-        upgrade(None, None, confirm, false)?;
+        let runtime = tokio::runtime::Runtime::new()?;
+        runtime.block_on(async move {
+            upgrade(None, None, include_plugins, confirm, false, &mut plugins).await
+        })?;
 
         // Record the time of the upgrade check, so another check
         // is not made within the `auto`.
@@ -98,44 +131,33 @@ pub fn upgrade_auto(config: &config::Config) -> std::thread::JoinHandle<Result<(
 
 #[cfg(feature = "config")]
 pub mod config {
+    use defaults::Defaults;
     use serde::{Deserialize, Serialize};
     use validator::{Validate, ValidationError};
 
-    #[derive(Debug, PartialEq, Clone, Deserialize, Serialize, Validate)]
+    #[derive(Debug, Defaults, PartialEq, Clone, Deserialize, Serialize, Validate)]
+    #[serde(default)]
     pub struct Config {
+        /// Plugins should also be upgraded to latest version
+        #[def = "true"]
+        pub plugins: bool,
+
         /// Prompt the user to confirm an upgrade
+        #[def = "true"]
         pub confirm: bool,
 
         /// Print information on the upgrade process
+        #[def = "false"]
         pub verbose: bool,
 
         /// The interval between automatic upgrade checks (defaults to "1 day").
         /// Only used when for configuration. Set to "off" for no automatic checks.
-        #[serde(default = "default_auto")]
+        #[def = "\"1 day\".to_string()"]
         #[validate(
             length(min = 2),
             custom(function = "validate_auto", message = "Not a valid duration")
         )]
         pub auto: String,
-    }
-
-    /// Default configuration
-    ///
-    /// These values are used when `config.toml` does not
-    /// contain any config for `upgrade`.
-    impl Default for Config {
-        fn default() -> Self {
-            Config {
-                confirm: false,
-                verbose: false,
-                auto: default_auto(),
-            }
-        }
-    }
-
-    /// Get the default value for `auto`
-    pub fn default_auto() -> String {
-        "1 day".to_string()
     }
 
     /// Validate `auto` (a valid duration or "off")
@@ -166,7 +188,11 @@ pub mod cli {
         #[structopt(short, long)]
         pub to: Option<String>,
 
-        /// Prompt the user to confirm an upgrade
+        /// Plugins should also be upgraded to their latest version
+        #[structopt(short, long)]
+        pub plugins: bool,
+
+        /// The user should be asked to confirm an upgrade
         #[structopt(short, long)]
         pub confirm: bool,
 
@@ -175,22 +201,29 @@ pub mod cli {
         pub verbose: bool,
     }
 
-    pub fn run(args: Args, config: &config::Config) -> Result<()> {
+    /// Run the upgrade.
+    ///
+    /// Note that the in-memory state of application and plugins is unchanged after this call
+    /// (e.g. if called in interactive mode). A restart is required to upload both the new
+    /// version and plugin versions.
+    pub async fn run(
+        args: Args,
+        config: &config::Config,
+        plugins: &mut plugins::Plugins,
+    ) -> Result<()> {
         let Args {
             to,
+            plugins: include_plugins,
             confirm,
             verbose,
             ..
         } = args;
 
+        let include_plugins = include_plugins || config.plugins;
         let confirm = confirm || config.confirm;
         let verbose = verbose || config.verbose;
 
-        // This is run in a separate thread because `self_update` creates a new `tokio`
-        // runtime (which can not be nested within our main `tokio` runtime).
-        thread::spawn(move || -> Result<()> { super::upgrade(None, to, confirm, verbose) })
-            .join()
-            .map_err(|_| anyhow!("Error joining thread"))?
+        upgrade(None, to, include_plugins, confirm, verbose, plugins).await
     }
 }
 
@@ -203,34 +236,42 @@ mod tests {
     // They use an artificially high `current_version` to avoid any binaries
     // from being downloaded.
 
-    #[test]
-    fn test_upgrade() -> Result<()> {
-        upgrade(Some("100.0.0".to_string()), None, false, false)
+    #[tokio::test]
+    async fn test_upgrade() -> Result<()> {
+        let mut plugins = plugins::Plugins::empty();
+        upgrade(
+            Some("100.0.0".to_string()),
+            None,
+            false,
+            false,
+            false,
+            &mut plugins,
+        )
+        .await
     }
 
     #[test]
     fn test_upgrade_auto() -> Result<()> {
-        let config = config::Config {
-            ..Default::default()
-        };
-
-        upgrade_auto(&config).join().expect("Failed")
+        let config = config::Config::default();
+        let mut plugins = plugins::Plugins::empty();
+        upgrade_auto(&config, &mut plugins).join().expect("Failed")
     }
 
-    #[test]
-    fn test_cli() -> Result<()> {
-        let config = config::Config {
-            ..Default::default()
-        };
-
+    #[tokio::test]
+    async fn test_cli() -> Result<()> {
+        let config = config::Config::default();
+        let mut plugins = plugins::Plugins::empty();
         cli::run(
             cli::Args {
                 to: None,
+                plugins: false,
                 confirm: false,
                 verbose: false,
             },
             &config,
+            &mut plugins,
         )
+        .await
     }
 
     #[test]

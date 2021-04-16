@@ -92,7 +92,7 @@ pub async fn run_command(
         Command::Plugins(args) => stencila::plugins::cli::run(args, &config.plugins, plugins).await,
 
         #[cfg(feature = "upgrade")]
-        Command::Upgrade(args) => stencila::upgrade::cli::run(args, &config.upgrade),
+        Command::Upgrade(args) => stencila::upgrade::cli::run(args, &config.upgrade, plugins).await,
 
         #[cfg(feature = "config")]
         Command::Config(args) => match config::cli::run(args, &config) {
@@ -182,16 +182,16 @@ pub async fn main() -> Result<()> {
     // See https://tracing.rs/tracing_appender/non_blocking/struct.workerguard
     let _logging_guards = logging::init(Some(level), &config.logging)?;
 
+    // Load plugins
+    let mut plugins = plugins::Plugins::load()?;
+
     // If not explicitly upgrading then run an upgrade check in the background
     #[cfg(feature = "upgrade")]
     let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
         None
     } else {
-        Some(stencila::upgrade::upgrade_auto(&config.upgrade))
+        Some(stencila::upgrade::upgrade_auto(&config.upgrade, &plugins))
     };
-
-    // Load plugins
-    let mut plugins = plugins::Plugins::load()?;
 
     // Get the result of running the command
     let result = if let Some(command) = command {

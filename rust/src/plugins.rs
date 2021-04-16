@@ -12,7 +12,7 @@ use strum::{Display, EnumString, EnumVariantNames};
 )]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
-pub enum Kind {
+pub enum Installation {
     #[cfg(any(feature = "plugins-docker"))]
     Docker,
     #[cfg(any(feature = "plugins-binary"))]
@@ -48,6 +48,9 @@ pub struct Plugin {
     /// Each feature is a `JSONSchema` object describing a method
     /// (including its parameters).
     feature_list: Vec<serde_json::Value>,
+
+    /// If the plugin is installed, the installation type
+    installation: Option<Installation>,
 }
 
 impl Plugin {
@@ -189,15 +192,18 @@ impl Plugin {
     /// Install the plugin
     pub async fn install(
         spec: &str,
+        installs: &[Installation],
         aliases: &HashMap<String, String>,
-        kinds: &[Kind],
         plugins: &mut Plugins,
+        current_version: Option<String>,
     ) -> Result<()> {
-        for kind in kinds {
-            let result = match kind {
-                Kind::Package => Plugin::install_package(spec, aliases),
-                Kind::Binary => Plugin::install_binary(spec, aliases),
-                Kind::Docker => Plugin::install_docker(spec, aliases).await,
+        for install in installs {
+            let result = match install {
+                Installation::Package => Plugin::install_package(spec, aliases),
+                Installation::Binary => {
+                    Plugin::install_binary(spec, aliases, current_version.clone())
+                }
+                Installation::Docker => Plugin::install_docker(spec, aliases).await,
             };
             match result {
                 // Success, so add plugin to the store
@@ -205,10 +211,10 @@ impl Plugin {
                     plugins.add(plugin)?;
                     return Ok(());
                 }
-                // Error, keep trying other kinds, or if there is
-                // only one kind, return that error.
+                // Error, keep trying other install methods, or if there is
+                // only one method, return that error.
                 Err(error) => {
-                    if kinds.len() == 1 {
+                    if installs.len() == 1 {
                         return Err(error);
                     }
                 }
@@ -216,21 +222,21 @@ impl Plugin {
         }
 
         bail!(
-            "Unable to install plugin '{}', tried kinds {:?}",
+            "Unable to install plugin '{}', tried install methods {:?}",
             spec,
-            kinds
+            installs
         )
     }
 
     /// Install a list of plugins
     pub async fn install_list(
         specs: Vec<String>,
-        kinds: &[Kind],
+        installs: &[Installation],
         aliases: &HashMap<String, String>,
         plugins: &mut Plugins,
     ) -> Result<()> {
         for spec in specs {
-            match Plugin::install(&spec, aliases, kinds, plugins).await {
+            match Plugin::install(&spec, installs, aliases, plugins, None).await {
                 Ok(_) => tracing::info!("Added plugin {}", spec),
                 Err(error) => bail!(error),
             }
@@ -250,12 +256,19 @@ impl Plugin {
 
     /// Add a plugin as a downloaded binary
     #[cfg(any(feature = "plugins-binary"))]
-    pub fn install_binary(spec: &str, aliases: &HashMap<String, String>) -> Result<Plugin> {
+    pub fn install_binary(
+        spec: &str,
+        aliases: &HashMap<String, String>,
+        current_version: Option<String>,
+    ) -> Result<Plugin> {
         let (owner, name, version) = Plugin::spec_to_parts(spec);
         let name = Plugin::alias_to_name(name, &aliases);
 
-        // Remove the plugin directory
-        Plugin::remove(&name)?;
+        // Remove the plugin directory if this is not an upgrade
+        // (we don't want it remove if the user aborts download)
+        if current_version.is_none() {
+            Plugin::remove(&name)?
+        }
 
         // (Re)create the directory where the binary will be downloaded to
         let install_dir = dirs::plugins(false)?.join(&name);
@@ -267,8 +280,7 @@ impl Plugin {
             .repo_owner(owner)
             .repo_name(&name)
             .bin_name(&name)
-            // Use low version to force install
-            .current_version("0.0.0")
+            .current_version(&current_version.unwrap_or("0.0.0".into()))
             .bin_install_path(&install_path)
             .show_output(true)
             .show_download_progress(true);
@@ -303,8 +315,10 @@ impl Plugin {
         let json = Command::new(&install_path).arg("manifest").output()?.stdout;
         let json = std::str::from_utf8(&json)?;
 
-        let plugin = Plugin::load(json)?;
+        let mut plugin = Plugin::load(json)?;
+        plugin.installation = Some(Installation::Binary);
         Plugin::write(&name, &plugin)?;
+
         Ok(plugin)
     }
 
@@ -433,8 +447,10 @@ impl Plugin {
         Plugin::remove(&name)?;
 
         // Load and write the plugin file
-        let plugin = Plugin::load(json)?;
+        let mut plugin = Plugin::load(json)?;
+        plugin.installation = Some(Installation::Docker);
         Plugin::write(&name, &plugin)?;
+
         Ok(plugin)
     }
 
@@ -478,6 +494,71 @@ impl Plugin {
         plugins.add(plugin)?;
 
         Ok(())
+    }
+
+    /// Upgrade a plugin
+    pub async fn upgrade(
+        spec: &str,
+        installs: &[Installation],
+        aliases: &HashMap<String, String>,
+        plugins: &mut Plugins,
+    ) -> Result<()> {
+        let (_owner, name, _version) = Plugin::spec_to_parts(spec);
+        let name = Plugin::alias_to_name(name, &aliases);
+
+        let plugin = match plugins.plugins.get(&name) {
+            None => {
+                tracing::info!("Plugin {} is not installed yet", spec);
+                return Plugin::install(spec, installs, aliases, plugins, None).await;
+            }
+            Some(plugin) => plugin.clone(),
+        };
+
+        let installs = match plugin.installation {
+            Some(install) => vec![install],
+            None => Vec::from(installs),
+        };
+        Plugin::install(
+            spec,
+            &installs,
+            aliases,
+            plugins,
+            Some(plugin.software_version),
+        )
+        .await
+    }
+
+    /// Upgrade a list of plugins
+    pub async fn upgrade_list(
+        list: Vec<String>,
+        installs: &[Installation],
+        aliases: &HashMap<String, String>,
+        plugins: &mut Plugins,
+    ) -> Result<()> {
+        let list = if list.is_empty() {
+            plugins
+                .plugins
+                .iter()
+                .map(|(key, ..)| key.clone())
+                .collect()
+        } else {
+            list
+        };
+        for spec in list {
+            match Plugin::upgrade(&spec, installs, aliases, plugins).await {
+                Ok(_) => tracing::info!("Upgraded plugin {}", spec),
+                Err(error) => bail!(error),
+            }
+        }
+        Ok(())
+    }
+
+    /// Upgrade all installed plugins
+    ///
+    /// This is equivalent to calling `upgrade_list` with an empty list but
+    /// requires fewer arguments. Intended for auto upgrades primarily.
+    pub async fn upgrade_all(plugins: &mut Plugins) -> Result<()> {
+        Plugin::upgrade_list(Vec::new(), &Vec::new(), &HashMap::new(), plugins).await
     }
 
     /// Remove a plugin
@@ -530,6 +611,18 @@ pub struct Plugins {
 
     /// The methods that are implemented by the plugins
     methods: HashMap<String, Vec<MethodImplem>>,
+}
+
+/// In some cases it is necessary to clone the plugins store, e.g. when doing
+/// a background update in a separate thread. In these cases just clone the plugins
+/// info, not the derived methods.
+impl Clone for Plugins {
+    fn clone(&self) -> Self {
+        Plugins {
+            plugins: self.plugins.clone(),
+            methods: HashMap::new(),
+        }
+    }
 }
 
 impl Plugins {
@@ -593,7 +686,7 @@ impl Plugins {
                 Ok(compiled_schema) => {
                     self.methods
                         .entry(title)
-                        .or_insert_with(|| Vec::new())
+                        .or_insert_with(Vec::new)
                         .push(MethodImplem {
                             plugin: name.into(),
                             schema: schema_box_droppable,
@@ -643,9 +736,9 @@ impl Plugins {
         }
 
         let head = r#"
-| ---- | ------- | ------------ |
-| Name | Version | Description  |
-| :--- | ------: | -------------|
+| ---- | ------- | ------------  | ----------- |
+| Name | Version | Installation  | Description |
+| :--- | ------: | :-----------  | :---------- |
     "#
         .trim();
         let body = self
@@ -655,10 +748,18 @@ impl Plugins {
                 let Plugin {
                     name,
                     software_version,
+                    installation,
                     description,
                     ..
                 } = plugin.clone();
-                format!("| **{}** | {} | {} |", name, software_version, description)
+                let installation = match installation {
+                    None => "None".to_string(),
+                    Some(value) => value.to_string(),
+                };
+                format!(
+                    "| **{}** | {} | {} | {} |",
+                    name, software_version, installation, description
+                )
             })
             .collect::<Vec<String>>()
             .join("\n");
@@ -767,33 +868,17 @@ impl Plugins {
 #[cfg(feature = "config")]
 pub mod config {
     use super::*;
+    use defaults::Defaults;
     use validator::Validate;
 
-    #[derive(Debug, PartialEq, Clone, Deserialize, Serialize, Validate)]
+    #[derive(Debug, Defaults, PartialEq, Clone, Deserialize, Serialize, Validate)]
+    #[serde(default)]
     pub struct Config {
-        #[serde(default = "default_kinds")]
-        pub kinds: Vec<Kind>,
+        #[def = "vec![Installation::Docker, Installation::Binary, Installation::Package]"]
+        pub installations: Vec<Installation>,
 
-        #[serde(default = "default_aliases")]
+        #[def = "default_aliases()"]
         pub aliases: HashMap<String, String>,
-    }
-
-    /// Default configuration
-    ///
-    /// These values are used when `config.toml` does not
-    /// contain any config for `upgrade`.
-    impl Default for Config {
-        fn default() -> Self {
-            Config {
-                kinds: default_kinds(),
-                aliases: default_aliases(),
-            }
-        }
-    }
-
-    /// Get the default value for `kinds`
-    pub fn default_kinds() -> Vec<Kind> {
-        vec![Kind::Docker, Kind::Binary, Kind::Package]
     }
 
     /// Get the default value for `aliases`
@@ -1002,7 +1087,10 @@ pub mod cli {
 
     pub async fn run(args: Args, config: &config::Config, plugins: &mut Plugins) -> Result<()> {
         let Args { action } = args;
-        let config::Config { aliases, kinds } = config;
+        let config::Config {
+            aliases,
+            installations,
+        } = config;
 
         let skin = termimad::MadSkin::default();
         match action {
@@ -1027,27 +1115,27 @@ pub mod cli {
                     docker,
                     binary,
                     package,
-                    plugins: list
+                    plugins: list,
                 } = action;
 
-                let mut kinds = vec![];
+                let mut installs = vec![];
                 if docker {
-                    kinds.push(Kind::Docker)
+                    installs.push(Installation::Docker)
                 }
                 if binary {
-                    kinds.push(Kind::Binary)
+                    installs.push(Installation::Binary)
                 }
                 if package {
-                    kinds.push(Kind::Package)
+                    installs.push(Installation::Package)
                 }
 
-                let kinds = if kinds.is_empty() {
-                    &config.kinds
+                let installs = if installs.is_empty() {
+                    &installations
                 } else {
-                    &kinds
+                    &installs
                 };
 
-                Plugin::install_list(list, kinds, aliases, plugins).await
+                Plugin::install_list(list, installs, aliases, plugins).await
             }
             Action::Link(action) => {
                 let Link { path } = action;
@@ -1057,15 +1145,7 @@ pub mod cli {
             Action::Upgrade(action) => {
                 let Upgrade { plugins: list } = action;
 
-                let list: Vec<String> = if list.is_empty() {
-                    plugins.plugins.iter().map(|(key, ..)| key.clone()).collect()
-                } else {
-                    list
-                };
-
-                // Note: Currently, `upgrade` is just an alias for `install`
-                // and does not warn user if plugin is not yet installed.
-                Plugin::install_list(list, kinds, aliases, plugins).await
+                Plugin::upgrade_list(list, &installations, aliases, plugins).await
             }
             Action::Uninstall(action) => {
                 let Uninstall { plugins: list } = action;
