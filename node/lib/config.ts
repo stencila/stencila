@@ -34,7 +34,7 @@ export interface Config {
 /**
  * Read the configuration from the configuration file
  *
- * @param config The configuration object
+ * @returns The configuration object
  */
 export function read(): Config {
   return fromJSON<Config>(addon.configRead())
