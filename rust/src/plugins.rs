@@ -125,6 +125,16 @@ impl Plugin {
         .into()
     }
 
+    /// Resolve a plugin name to a preferred alias
+    pub fn name_to_alias(name: &str, aliases: &HashMap<String, String>) -> String {
+        for (alias, value) in aliases.iter() {
+            if name == value {
+                return alias.into();
+            }
+        }
+        return name.into();
+    }
+
     /// Get the path of the plugin's directory
     pub fn dir(name: &str) -> Result<PathBuf> {
         Ok(dirs::plugins(false)?.join(name))
@@ -722,23 +732,24 @@ impl Plugins {
     }
 
     /// Display an individual plugin
-    pub fn display_plugin(&self, name: &str, format: &str) -> Result<String> {
-        match self.plugins.get(name) {
-            None => bail!("Plugin '{}' is not loaded", name),
+    pub fn display_plugin(&self, alias: &str, format: &str, aliases: &HashMap<String, String>) -> Result<String> {
+        let name = Plugin::alias_to_name(alias, aliases);
+        match self.plugins.get(&name) {
+            None => bail!("Plugin with name or alias '{}' is not loaded", alias),
             Some(plugin) => plugin.display(format),
         }
     }
 
     /// Create a Markdown table of all the install plugins
-    pub fn display_plugins(&self) -> Result<String> {
+    pub fn display_plugins(&self, aliases: &HashMap<String, String>) -> Result<String> {
         if self.plugins.is_empty() {
             return Ok("No plugins installed. See `stencila plugins install --help`.".to_string());
         }
 
         let head = r#"
-| ---- | ------- | ------------  | ----------- |
-| Name | Version | Installation  | Description |
-| :--- | ------: | :-----------  | :---------- |
+| ----- | ------ | ------- | ------------  | ----------- |
+| Name  | Plugin | Version | Installation  | Description |
+| :---- | :----- | ------: | :-----------  | :---------- |
     "#
         .trim();
         let body = self
@@ -757,8 +768,12 @@ impl Plugins {
                     Some(value) => value.to_string(),
                 };
                 format!(
-                    "| **{}** | {} | {} | {} |",
-                    name, software_version, installation, description
+                    "| **{}** | {} | {} | {} | {} |",
+                    Plugin::name_to_alias(&name, aliases),
+                    name,
+                    software_version,
+                    installation,
+                    description
                 )
             })
             .collect::<Vec<String>>()
@@ -1095,14 +1110,14 @@ pub mod cli {
         let skin = termimad::MadSkin::default();
         match action {
             Action::List => {
-                let md = plugins.display_plugins()?;
+                let md = plugins.display_plugins(aliases)?;
                 println!("{}", skin.term_text(md.as_str()));
                 Ok(())
             }
             Action::Show(action) => {
                 let Show { plugin, format } = action;
 
-                let content = plugins.display_plugin(&plugin, &format)?;
+                let content = plugins.display_plugin(&plugin, &format, aliases)?;
                 if format == "json" {
                     println!("{}", content)
                 } else {
