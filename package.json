@@ -113,6 +113,7 @@
             "CHANGELOG.md",
             "package.json",
             "Cargo.lock",
+            "cli/Cargo.toml",
             "node/package.json",
             "node/native/Cargo.toml",
             "python/Cargo.toml",
