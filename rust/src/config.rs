@@ -7,20 +7,17 @@ use std::path::PathBuf;
 use validator::Validate;
 
 #[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, Validate)]
+#[serde(default)]
 pub struct Config {
-    #[serde(default)]
     #[validate]
     pub logging: crate::logging::config::Config,
 
-    #[serde(default)]
     #[validate]
     pub serve: crate::serve::config::Config,
 
-    #[serde(default)]
     #[validate]
     pub plugins: crate::plugins::config::Config,
 
-    #[serde(default)]
     #[validate]
     pub upgrade: crate::upgrade::config::Config,
 }

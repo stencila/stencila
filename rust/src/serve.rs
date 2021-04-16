@@ -469,43 +469,26 @@ fn respond(request: Request) -> Response {
 
 #[cfg(feature = "config")]
 pub mod config {
+    use defaults::Defaults;
     use serde::{Deserialize, Serialize};
     use validator::Validate;
 
-    #[derive(Debug, PartialEq, Clone, Deserialize, Serialize, Validate)]
+    #[derive(Debug, Defaults, PartialEq, Clone, Deserialize, Serialize, Validate)]
+    #[serde(default)]
     pub struct Config {
         /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
-        #[serde(default = "default_url")]
+        #[def = "\"ws://127.0.0.1:9000\".to_string()"]
         #[validate(url(message = "Not a valid URL"))]
         pub url: String,
 
         /// Secret key to use for signing and verifying JSON Web Tokens
-        #[serde(default)]
+        #[def = "None"]
         #[serde(skip_serializing_if = "Option::is_none")]
         pub key: Option<String>,
 
         /// Do not require a JSON Web Token
-        #[serde(default)]
+        #[def = "false"]
         pub insecure: bool,
-    }
-
-    /// Default configuration
-    ///
-    /// These values are used when `config.toml` does not
-    /// contain any config for `serve`.
-    impl Default for Config {
-        fn default() -> Self {
-            Config {
-                url: default_url(),
-                key: None,
-                insecure: false,
-            }
-        }
-    }
-
-    /// Get the default value for `url`
-    pub fn default_url() -> String {
-        "ws://127.0.0.1:9000".to_string()
     }
 }
 
