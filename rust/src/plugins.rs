@@ -51,6 +51,9 @@ pub struct Plugin {
 
     /// If the plugin is installed, the installation type
     installation: Option<Installation>,
+
+    /// The current alias for this plugin, if any
+    alias: Option<String>,
 }
 
 impl Plugin {
@@ -211,7 +214,7 @@ impl Plugin {
             let result = match install {
                 Installation::Package => Plugin::install_package(spec, aliases),
                 Installation::Binary => {
-                    Plugin::install_binary(spec, aliases, current_version.clone())
+                    Plugin::install_binary(spec, aliases, current_version.clone(), false, true)
                 }
                 Installation::Docker => Plugin::install_docker(spec, aliases).await,
             };
@@ -270,6 +273,8 @@ impl Plugin {
         spec: &str,
         aliases: &HashMap<String, String>,
         current_version: Option<String>,
+        confirm: bool,
+        verbose: bool,
     ) -> Result<Plugin> {
         let (owner, name, version) = Plugin::spec_to_parts(spec);
         let name = Plugin::alias_to_name(name, &aliases);
@@ -292,8 +297,9 @@ impl Plugin {
             .bin_name(&name)
             .current_version(&current_version.unwrap_or_else(|| "0.0.0".into()))
             .bin_install_path(&install_path)
-            .show_output(true)
-            .show_download_progress(true);
+            .no_confirm(!confirm)
+            .show_output(verbose)
+            .show_download_progress(verbose);
         if version != "latest" {
             builder.target_version_tag(format!("v{}", version).as_str());
         }
@@ -614,12 +620,13 @@ struct MethodImplem {
 }
 
 /// An in-memory store of the installed plugins and methods that they implement
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Plugins {
     /// The plugins that are installed
-    plugins: HashMap<String, Plugin>,
+    pub plugins: HashMap<String, Plugin>,
 
     /// The methods that are implemented by the plugins
+    #[serde(skip)]
     methods: HashMap<String, Vec<MethodImplem>>,
 }
 
@@ -731,8 +738,26 @@ impl Plugins {
         Ok(())
     }
 
+    /// List all the installed plugins
+    ///
+    /// Populates the alias of the plugin based on the passed aliases map
+    pub fn list_plugins(&self, aliases: &HashMap<String, String>) -> Vec<Plugin> {
+        self.plugins
+            .iter()
+            .map(|(name, plugin)| Plugin {
+                alias: Some(Plugin::name_to_alias(&name, aliases)),
+                ..plugin.clone()
+            })
+            .collect::<Vec<Plugin>>()
+    }
+
     /// Display an individual plugin
-    pub fn display_plugin(&self, alias: &str, format: &str, aliases: &HashMap<String, String>) -> Result<String> {
+    pub fn display_plugin(
+        &self,
+        alias: &str,
+        format: &str,
+        aliases: &HashMap<String, String>,
+    ) -> Result<String> {
         let name = Plugin::alias_to_name(alias, aliases);
         match self.plugins.get(&name) {
             None => bail!("Plugin with name or alias '{}' is not loaded", alias),
@@ -740,7 +765,7 @@ impl Plugins {
         }
     }
 
-    /// Create a Markdown table of all the install plugins
+    /// Create a Markdown table of all the installed plugins
     pub fn display_plugins(&self, aliases: &HashMap<String, String>) -> Result<String> {
         if self.plugins.is_empty() {
             return Ok("No plugins installed. See `stencila plugins install --help`.".to_string());
