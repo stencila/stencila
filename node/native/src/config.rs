@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use neon::prelude::*;
-use std::sync::Mutex;
+use std::sync::{Mutex, MutexGuard};
 use stencila::{
     config::{self, Config},
     once_cell::sync::Lazy,
@@ -14,6 +14,16 @@ use stencila::{
 // and then passed on to other functions
 pub static CONFIG: Lazy<Mutex<Config>> =
     Lazy::new(|| Mutex::new(config::read().expect("Unable to read config")));
+
+pub fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Config>> {
+    match CONFIG.try_lock() {
+        Ok(guard) => Ok(guard),
+        Err(error) => cx.throw_error(format!(
+            "When attempting on obtain config: {}",
+            error.to_string()
+        )),
+    }
+}
 
 fn save_then_to_json(cx: FunctionContext, conf: Config) -> JsResult<JsString> {
     let mut guard = CONFIG.lock().expect("Unable to lock config");

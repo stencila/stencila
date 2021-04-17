@@ -1,7 +1,7 @@
 use neon::{prelude::*, result::Throw};
 use stencila::{
     serde::{Deserialize, Serialize},
-    serde_json,
+    serde_json, tokio,
 };
 
 // We currently JSON serialize / deserialize objects when passing them to / from Rust
@@ -25,6 +25,14 @@ where
 {
     match serde_json::from_str::<Type>(&json) {
         Ok(value) => Ok(value),
+        Err(error) => cx.throw_error(error.to_string()),
+    }
+}
+
+/// Create a async runtime to await on async functions
+pub fn runtime(cx: &mut FunctionContext) -> Result<tokio::runtime::Runtime, Throw> {
+    match tokio::runtime::Runtime::new() {
+        Ok(runtime) => Ok(runtime),
         Err(error) => cx.throw_error(error.to_string()),
     }
 }
