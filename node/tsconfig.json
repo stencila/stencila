@@ -1,9 +1,8 @@
 {
-  "include": ["lib/*.ts", "lib/*.js", "tests/*.ts"],
+  "include": ["src/*.ts"],
   "compilerOptions": {
     "module": "CommonJS",
     "esModuleInterop": true,
-    "outDir": "./dist",
-    "allowJs": true
+    "outDir": "./dist"
   }
 }

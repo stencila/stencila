@@ -1,6 +1,6 @@
 import { fromJSON } from './prelude'
 
-const addon = require('../native')
+const addon = require('../index.node')
 
 export type Installation = 'binary' | 'docker' | 'package'
 

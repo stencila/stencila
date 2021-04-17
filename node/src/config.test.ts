@@ -1,4 +1,4 @@
-import { read, validate, set, reset } from '../lib/config'
+import { read, validate, set, reset } from './config'
 
 describe('config', () => {
   const conf = read()

@@ -1,11 +1,11 @@
-import { list, install, uninstall, upgrade } from '../lib/plugins'
+import { list, install, uninstall, upgrade } from './plugins'
 
 describe('plugins', () => {
   test('list', () => {
     expect(list()).toEqual(expect.arrayContaining([]))
   })
 
-  test('install', () => {
+  test.skip('install', () => {
     expect(install('javascript')).toEqual(expect.arrayContaining([]))
   })
 
@@ -13,7 +13,7 @@ describe('plugins', () => {
     expect(uninstall('javascript')).toEqual(expect.arrayContaining([]))
   })
 
-  test('upgrade', () => {
+  test.skip('upgrade', () => {
     expect(upgrade('javascript')).toEqual(expect.arrayContaining([]))
   })
 })

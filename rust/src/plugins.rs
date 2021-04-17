@@ -135,7 +135,7 @@ impl Plugin {
                 return alias.into();
             }
         }
-        return name.into();
+        name.into()
     }
 
     /// Get the path of the plugin's directory

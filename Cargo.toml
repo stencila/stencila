@@ -1,7 +1,7 @@
 [workspace]
 
 # Python and R binding are not added as members here yet until more developed
-members = ["rust", "cli", "node/native"]
+members = ["rust", "cli", "node"]
 
 [profile.release]
 # Settings that help reduce the binary size based on https://github.com/johnthagen/min-sized-rust

@@ -4,7 +4,8 @@ mod config;
 mod plugins;
 mod prelude;
 
-register_module!(mut cx, {
+#[neon::main]
+fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("pluginsList", plugins::list)?;
     cx.export_function("pluginsInstall", plugins::install)?;
     cx.export_function("pluginsUninstall", plugins::uninstall)?;
@@ -17,4 +18,4 @@ register_module!(mut cx, {
     cx.export_function("configReset", config::reset)?;
 
     Ok(())
-});
+}

@@ -1,4 +1,4 @@
-all: format lint test build
+all: format lint test build docs
 
 node_modules:
 	npm install
@@ -6,10 +6,10 @@ node_modules:
 setup: node_modules
 
 format:
-	cargo fmt --manifest-path native/Cargo.toml
+	cargo fmt
 
 lint:
-	touch native/src/*.rs
+	touch src/*.rs
 	cargo clippy
 
 test: setup

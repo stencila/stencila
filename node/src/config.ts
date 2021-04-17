@@ -1,6 +1,6 @@
 import { fromJSON, toJSON } from './prelude'
 
-const addon = require('../native')
+const addon = require('../index.node')
 
 type LoggingLevel = 'debug' | 'info' | 'warn' | 'error' | 'never'
 

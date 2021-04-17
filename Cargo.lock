@@ -1127,6 +1127,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9385f66bf6105b241aa65a61cb923ef20efc665cb9f9bb50ac2f0c4b7f378d41"
 
 [[package]]
+name = "libloading"
+version = "0.6.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "351a32417a12d5f7e82c368a66781e307834dae04c6ce0cd4456d52989229883"
+dependencies = [
+ "cfg-if 1.0.0",
+ "winapi 0.3.9",
+]
+
+[[package]]
 name = "linked-hash-map"
 version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1330,6 +1340,7 @@ checksum = "bcdbfbcfbb5ae2ffc7281dfe0b118374bd696369096afc252f26c0b8e7a02e91"
 dependencies = [
  "cslice",
  "neon-build",
+ "neon-macros",
  "neon-runtime",
  "semver 0.9.0",
  "smallvec",
@@ -1340,8 +1351,15 @@ name = "neon-build"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a529aacddb4b04e9c0a0d5e67478d9aad331c748cbbf6d1657f6d167b3fac37a"
+
+[[package]]
+name = "neon-macros"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8cfecd558575c3997790d574be135680e5cd8d75dcd3e82fe4e71fb6fa4c1b71"
 dependencies = [
- "neon-sys",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -1351,18 +1369,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7dbec080794ea0939cbd4fa262e749068fd36b18bbb65b6b810e72ae98fea789"
 dependencies = [
  "cfg-if 1.0.0",
- "neon-sys",
+ "libloading",
  "smallvec",
-]
-
-[[package]]
-name = "neon-sys"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed97a0dce4e4666c57b15e4cd94c7d3cf1405f58383a302b989e6e9e0f5cac5d"
-dependencies = [
- "cc",
- "regex",
 ]
 
 [[package]]
@@ -2346,7 +2354,6 @@ name = "stencila-node"
 version = "0.51.0"
 dependencies = [
  "neon",
- "neon-build",
  "stencila",
 ]
 

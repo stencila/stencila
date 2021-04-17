@@ -42,7 +42,7 @@ pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
 
 /// Install a plugin
 pub fn install(mut cx: FunctionContext) -> JsResult<JsString> {
-    let spec = &cx.argument::<JsString>(0)?.value();
+    let spec = &cx.argument::<JsString>(0)?.value(&mut cx);
 
     let config = &config::obtain(&mut cx)?;
     let installs = &installations(&mut cx, 1, &config)?;
@@ -59,7 +59,7 @@ pub fn install(mut cx: FunctionContext) -> JsResult<JsString> {
 
 /// Uninstall a plugin
 pub fn uninstall(mut cx: FunctionContext) -> JsResult<JsString> {
-    let alias = &cx.argument::<JsString>(0)?.value();
+    let alias = &cx.argument::<JsString>(0)?.value(&mut cx);
     let aliases = &config::obtain(&mut cx)?.plugins.aliases;
     let plugins = &mut *obtain(&mut cx)?;
 
@@ -71,7 +71,7 @@ pub fn uninstall(mut cx: FunctionContext) -> JsResult<JsString> {
 
 /// Upgrade a plugin
 pub fn upgrade(mut cx: FunctionContext) -> JsResult<JsString> {
-    let spec = &cx.argument::<JsString>(0)?.value();
+    let spec = &cx.argument::<JsString>(0)?.value(&mut cx);
     let config = &config::obtain(&mut cx)?;
     let installs = &config.plugins.installations;
     let aliases = &config.plugins.aliases;
@@ -97,7 +97,7 @@ pub fn installations(
     } else {
         let mut installations = Vec::new();
         for value in arg {
-            let str = value.to_string(cx)?.value();
+            let str = value.to_string(cx)?.value(cx);
             let installation = match plugins::Installation::from_str(&str) {
                 Ok(value) => value,
                 Err(error) => return cx.throw_error(error.to_string()),

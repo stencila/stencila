@@ -2,20 +2,21 @@
   "name": "stencila",
   "version": "0.51.0",
   "description": "Stencila in Node.js",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "author": "Nokome Bentley <nokome@stenci.la>",
   "license": "Apache-2.0",
   "scripts": {
-    "install": "neon build",
-    "test": "neon build && jest",
-    "build": "neon build --release",
-    "docs": "typedoc lib",
-    "clean": "neon clean"
+    "install": "npm run build",
+    "build": "npm run build:rust && npm run build:ts",
+    "build:rust": "cargo-cp-artifact --artifact cdylib stencila-node index.node -- cargo build --message-format=json-render-diagnostics",
+    "build:ts": "tsc -p tsconfig.prod.json",
+    "test": "npm run build:rust && jest",
+    "docs": "typedoc src/index.ts"
   },
   "devDependencies": {
     "@types/jest": "26.0.22",
+    "cargo-cp-artifact": "0.1",
     "jest": "26.6.3",
-    "neon-cli": "0.8.0",
     "ts-jest": "26.5.4",
     "typedoc": "0.20.35",
     "typescript": "4.2.4"
@@ -24,7 +25,7 @@
     "preset": "ts-jest",
     "testEnvironment": "node",
     "testMatch": [
-      "**/tests/*.test.ts"
+      "**/*.test.ts"
     ]
   }
 }

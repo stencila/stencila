@@ -39,7 +39,7 @@ pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {
 }
 
 pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let json = cx.argument::<JsString>(0)?.value();
+    let json = cx.argument::<JsString>(0)?.value(&mut cx);
 
     let conf = from_json::<Config>(&mut cx, &json)?;
     match config::write(&conf) {
@@ -49,7 +49,7 @@ pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 }
 
 pub fn validate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
-    let json = cx.argument::<JsString>(0)?.value();
+    let json = cx.argument::<JsString>(0)?.value(&mut cx);
 
     let conf = from_json::<Config>(&mut cx, &json)?;
     match config::validate(&conf) {
@@ -59,9 +59,9 @@ pub fn validate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 }
 
 pub fn set(mut cx: FunctionContext) -> JsResult<JsString> {
-    let json = cx.argument::<JsString>(0)?.value();
-    let pointer = cx.argument::<JsString>(1)?.value();
-    let value = cx.argument::<JsString>(2)?.value();
+    let json = cx.argument::<JsString>(0)?.value(&mut cx);
+    let pointer = cx.argument::<JsString>(1)?.value(&mut cx);
+    let value = cx.argument::<JsString>(2)?.value(&mut cx);
 
     let conf = from_json::<Config>(&mut cx, &json)?;
     match config::set(&conf, &pointer, &value) {
@@ -71,8 +71,8 @@ pub fn set(mut cx: FunctionContext) -> JsResult<JsString> {
 }
 
 pub fn reset(mut cx: FunctionContext) -> JsResult<JsString> {
-    let json = cx.argument::<JsString>(0)?.value();
-    let property = cx.argument::<JsString>(1)?.value();
+    let json = cx.argument::<JsString>(0)?.value(&mut cx);
+    let property = cx.argument::<JsString>(1)?.value(&mut cx);
 
     let conf = from_json::<Config>(&mut cx, &json)?;
     match config::reset(&conf, &property) {
