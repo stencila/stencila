@@ -3,6 +3,8 @@
   "compilerOptions": {
     "module": "CommonJS",
     "esModuleInterop": true,
+    "declaration": true,
+    "strict": true,
     "outDir": "./dist"
   }
 }
