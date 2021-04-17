@@ -1,7 +1,7 @@
-import { config } from '../lib'
+import { read, validate, set, reset } from '../lib/config'
 
 describe('config', () => {
-  const conf = config.read()
+  const conf = read()
 
   expect(conf).toEqual(
     expect.objectContaining({
@@ -13,10 +13,10 @@ describe('config', () => {
   )
 
   test('validate', () => {
-    expect(config.validate(conf)).toBe(true)
+    expect(validate(conf)).toBe(true)
     try {
       // @ts-ignore
-      config.validate({ logging: { file: { level: 'foo' } } })
+      validate({ logging: { file: { level: 'foo' } } })
     } catch (error) {
       expect(error.toString()).toMatch(
         'unknown variant `foo`, expected one of `debug`, `info`, `warn`, `error`, `never` at line 1 column 33'
@@ -25,7 +25,7 @@ describe('config', () => {
   })
 
   test('set', () => {
-    expect(config.set(conf, 'upgrade.auto', '1 week')).toEqual({
+    expect(set(conf, 'upgrade.auto', '1 week')).toEqual({
       ...conf,
       upgrade: {
         ...conf.upgrade,
@@ -33,7 +33,7 @@ describe('config', () => {
       },
     })
     try {
-      config.set(conf, 'upgrade.auto', 'foo bar')
+      set(conf, 'upgrade.auto', 'foo bar')
     } catch (error) {
       expect(error.toString()).toMatch(`Invalid configuration value/s:
 
@@ -54,11 +54,11 @@ describe('config', () => {
   })
 
   test('reset', () => {
-    config.reset(conf, 'all')
-    config.reset(conf, 'logging')
+    reset(conf, 'all')
+    reset(conf, 'logging')
     try {
       // @ts-ignore
-      config.reset(conf, 'foo')
+      reset(conf, 'foo')
     } catch (error) {
       // @ts-ignore
       expect(error.toString()).toMatch(
