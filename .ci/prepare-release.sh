@@ -11,7 +11,7 @@ sed -i -e "s!\"version\": .*!\"version\": \"$VERSION\",!" package.json
 
 # Update the version in the Node package
 sed -i -e "s!\"version\": .*!\"version\": \"$VERSION\",!" node/package.json
-sed -i -e "s!^version = .*!version = \"$VERSION\"!" node/native/Cargo.toml
+sed -i -e "s!^version = .*!version = \"$VERSION\"!" node/Cargo.toml
 
 # Update the version in the Python package
 sed -i -e "s!^version = .*!version = \"$VERSION\"!" python/Cargo.toml

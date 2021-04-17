@@ -8,9 +8,10 @@
   "scripts": {
     "install": "npm run build",
     "build": "npm run build:rust && npm run build:ts",
-    "build:rust": "cargo-cp-artifact --artifact cdylib stencila-node index.node -- cargo build --message-format=json-render-diagnostics",
+    "build:rust:debug": "cargo-cp-artifact --artifact cdylib stencila-node index.node -- cargo build --message-format=json-render-diagnostics",
+    "build:rust": "npm run build:rust:debug -- --release",
     "build:ts": "tsc -p tsconfig.prod.json",
-    "test": "npm run build:rust && jest",
+    "test": "npm run build:rust:debug && jest",
     "docs": "typedoc src/index.ts"
   },
   "devDependencies": {
