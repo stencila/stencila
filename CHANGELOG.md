@@ -1,3 +1,17 @@
+# [0.51.0](https://github.com/stencila/stencila/compare/v0.50.0...v0.51.0) (2021-04-17)
+
+
+### Bug Fixes
+
+* **CLI:** Print errors ([0f1253c](https://github.com/stencila/stencila/commit/0f1253c0ada95d1e8530b49093c0aa8963c5f152))
+* **Plugins:** Add list_plugins with aliases; allow no confirm ([af0efac](https://github.com/stencila/stencila/commit/af0efac1a31d6e4b6e50ece8230b6fa763f5ef4d))
+* **Plugins:** Display using and with aliases ([1cff1fa](https://github.com/stencila/stencila/commit/1cff1fa6ff7d24e31919391a7ec3e65052cecdeb))
+
+
+### Features
+
+* **Node bindings:** Add plugins module ([71fe53d](https://github.com/stencila/stencila/commit/71fe53db7b00f2812ca3d191e85a87539cf98ed5))
+
 # [0.50.0](https://github.com/stencila/stencila/compare/v0.49.0...v0.50.0) (2021-04-16)
 
 

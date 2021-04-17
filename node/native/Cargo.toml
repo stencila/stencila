@@ -1,6 +1,6 @@
 [package]
 name = "stencila-node"
-version = "0.50.0"
+version = "0.51.0"
 authors = ["Nokome Bentley <nokome@stenci.la>"]
 license = "Apache-2.0"
 build = "build.rs"
