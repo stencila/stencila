@@ -19,6 +19,8 @@ pub enum Installation {
     Binary,
     #[cfg(any(feature = "plugins-package"))]
     Package,
+    #[cfg(any(feature = "plugins-link"))]
+    Link,
 }
 
 /// Description of a plugin
@@ -116,6 +118,17 @@ impl Plugin {
         (owner, name, version)
     }
 
+    /// Merge locally configured aliases into global aliases possibly extending
+    /// and overriding them
+    fn merge_aliases(
+        global: &HashMap<String, String>,
+        local: &HashMap<String, String>,
+    ) -> HashMap<String, String> {
+        let mut aliases = global.clone();
+        aliases.extend(local.into_iter().map(|(k, v)| (k.clone(), v.clone())));
+        aliases
+    }
+
     /// Resolve a plugin alias to a plugin name
     ///
     /// If the provided string is a registered alias then returns the corresponding
@@ -148,29 +161,32 @@ impl Plugin {
         Ok(Plugin::dir(name)?.join(Plugin::FILE_NAME))
     }
 
-    /// Test whether a plugin is installed
-    ///
-    /// Note that if a plugin was not successfully installed
-    /// it may have a directory but no plugin file and `is_installed`
-    /// will return `false`.
-    pub fn is_installed(name: &str) -> Result<bool> {
-        Ok(Plugin::file(name)?.exists())
-    }
-
-    /// Load a plugin from its JSON
+    /// Load a plugin from its JSON manifest
     pub fn load(json: &str) -> Result<Plugin> {
         let plugin: Plugin = serde_json::from_str(json)?;
         Ok(plugin)
     }
 
-    /// Read the plugin from its directory
+    /// Read the plugin from its file
+    ///
+    /// If the plugin directory is a symlink then set the installation
+    /// method as `Link`.
     pub fn read(name: &str) -> Result<Plugin> {
         let json = match fs::read_to_string(Plugin::file(name)?) {
             Ok(json) => json,
             Err(_) => bail!("Plugin '{}' is not installed", name),
         };
 
-        Plugin::load(&json)
+        let mut plugin = Plugin::load(&json)?;
+
+        if fs::symlink_metadata(Plugin::dir(name)?)?
+            .file_type()
+            .is_symlink()
+        {
+            plugin.installation = Some(Installation::Link);
+        }
+
+        Ok(plugin)
     }
 
     /// Write the plugin to its directory
@@ -210,13 +226,15 @@ impl Plugin {
         plugins: &mut Plugins,
         current_version: Option<String>,
     ) -> Result<()> {
+        let aliases = Plugin::merge_aliases(&plugins.aliases, aliases);
         for install in installs {
             let result = match install {
-                Installation::Package => Plugin::install_package(spec, aliases),
+                Installation::Package => Plugin::install_package(spec, &aliases),
                 Installation::Binary => {
-                    Plugin::install_binary(spec, aliases, current_version.clone(), false, true)
+                    Plugin::install_binary(spec, &aliases, current_version.clone(), false, true)
                 }
-                Installation::Docker => Plugin::install_docker(spec, aliases).await,
+                Installation::Docker => Plugin::install_docker(spec, &aliases).await,
+                Installation::Link => Plugin::install_link(spec),
             };
             match result {
                 // Success, so add plugin to the store
@@ -277,7 +295,7 @@ impl Plugin {
         verbose: bool,
     ) -> Result<Plugin> {
         let (owner, name, version) = Plugin::spec_to_parts(spec);
-        let name = Plugin::alias_to_name(name, &aliases);
+        let name = Plugin::alias_to_name(name, aliases);
 
         // Remove the plugin directory if this is not an upgrade
         // (we don't want it remove if the user aborts download)
@@ -348,7 +366,7 @@ impl Plugin {
         let docker = bollard::Docker::connect_with_local_defaults()?;
 
         let (owner, name, version) = Plugin::spec_to_parts(spec);
-        let name = Plugin::alias_to_name(name, &aliases);
+        let name = Plugin::alias_to_name(name, aliases);
         let image = format!("{}/{}:{}", owner, name, version);
 
         // Pull the image (by creating an image from it)
@@ -476,7 +494,7 @@ impl Plugin {
     ///
     /// - `path`: Local file system path to the directory
     #[cfg(any(feature = "plugins-link"))]
-    pub fn install_link(path: &str, plugins: &mut Plugins) -> Result<()> {
+    pub fn install_link(path: &str) -> Result<Plugin> {
         // Make the path absolute (for symlink to work)
         let path = fs::canonicalize(&path)?;
 
@@ -493,7 +511,8 @@ impl Plugin {
 
         // Check that the plugin's file can be loaded
         let json = fs::read_to_string(plugin_file)?;
-        let plugin = Plugin::load(&json)?;
+        let mut plugin = Plugin::load(&json)?;
+        plugin.installation = Some(Installation::Link);
         let name = plugin.name.as_str();
 
         // Remove the plugin directory
@@ -506,10 +525,7 @@ impl Plugin {
         #[cfg(target_os = "windows")]
         std::os::windows::fs::symlink_dir(path, link)?;
 
-        // Add to store
-        plugins.add(plugin)?;
-
-        Ok(())
+        Ok(plugin)
     }
 
     /// Upgrade a plugin
@@ -520,7 +536,7 @@ impl Plugin {
         plugins: &mut Plugins,
     ) -> Result<()> {
         let (_owner, name, _version) = Plugin::spec_to_parts(spec);
-        let name = Plugin::alias_to_name(name, &aliases);
+        let name = Plugin::alias_to_name(name, aliases);
 
         let plugin = match plugins.plugins.get(&name) {
             None => {
@@ -583,7 +599,7 @@ impl Plugin {
         aliases: &HashMap<String, String>,
         plugins: &mut Plugins,
     ) -> Result<()> {
-        let name = Plugin::alias_to_name(&alias, &aliases);
+        let name = Plugin::alias_to_name(alias, aliases);
         Plugin::remove(&name)?;
         plugins.remove(&name)?;
         Ok(())
@@ -599,6 +615,55 @@ impl Plugin {
             match Plugin::uninstall(&alias, aliases, plugins) {
                 Ok(_) => tracing::info!("Removed plugin {}", alias),
                 Err(error) => bail!(error),
+            }
+        }
+        Ok(())
+    }
+
+    /// Refresh a plugin
+    pub async fn refresh(
+        alias: &str,
+        aliases: &HashMap<String, String>,
+        plugins: &mut Plugins,
+    ) -> Result<()> {
+        let name = Plugin::alias_to_name(&alias, aliases);
+
+        // If the plugin is linked then there is nothing more to do
+        // (we don't want to write anything into the directory)
+        if let Some(plugin) = plugins.plugins.get(&name) {
+            if let Some(Installation::Link) = plugin.installation {
+                return Ok(());
+            }
+        }
+
+        // Load the plugin's latest manifest file and store it on disk
+        let url = match plugins.registry.get(&name) {
+            None => bail!("No plugin registered with alias or name '{}'", alias),
+            Some(url) => url,
+        };
+        let json = reqwest::get(url).await?.text().await?;
+        let plugin = Plugin::load(&json)?;
+        plugins.plugins.insert(name, plugin);
+
+        tracing::info!("Refreshed plugin {}", alias);
+        Ok(())
+    }
+
+    /// Refresh a list of plugins
+    pub async fn refresh_list(
+        list: Vec<String>,
+        aliases: &HashMap<String, String>,
+        plugins: &mut Plugins,
+    ) -> Result<()> {
+        let list = if list.is_empty() {
+            plugins.registry.keys().cloned().collect::<Vec<String>>()
+        } else {
+            list
+        };
+
+        for alias in list {
+            if let Err(error) = Plugin::refresh(&alias, aliases, plugins).await {
+                tracing::error!("When refreshing plugin {}: {}", alias, error)
             }
         }
         Ok(())
@@ -619,13 +684,22 @@ struct MethodImplem {
     compiled_schema: JSONSchema<'static>,
 }
 
-/// An in-memory store of the installed plugins and methods that they implement
-#[derive(Debug, Serialize)]
+/// An in-memory store of plugins and the methods that they implement
+#[derive(Debug, Default, Deserialize)]
+#[serde(default)]
 pub struct Plugins {
-    /// The plugins that are installed
+    /// The global aliases for plugin names
+    /// Can be overridden by local config.
+    pub aliases: HashMap<String, String>,
+
+    /// The global registry of plugins that maps their
+    /// name to their manifest file
+    pub registry: HashMap<String, String>,
+
+    /// The plugins manifests
     pub plugins: HashMap<String, Plugin>,
 
-    /// The methods that are implemented by the plugins
+    /// The methods that are implemented by installed plugins
     #[serde(skip)]
     methods: HashMap<String, Vec<MethodImplem>>,
 }
@@ -636,6 +710,8 @@ pub struct Plugins {
 impl Clone for Plugins {
     fn clone(&self) -> Self {
         Plugins {
+            aliases: self.aliases.clone(),
+            registry: self.registry.clone(),
             plugins: self.plugins.clone(),
             methods: HashMap::new(),
         }
@@ -646,14 +722,16 @@ impl Plugins {
     /// Create an empty plugins store (mainly for testing)
     pub fn empty() -> Self {
         Plugins {
+            aliases: HashMap::new(),
+            registry: HashMap::new(),
             plugins: HashMap::new(),
             methods: HashMap::new(),
         }
     }
 
-    /// Load all the installed plugins
+    /// Load the registry, aliases, and any plugin manifests
     pub fn load() -> Result<Self> {
-        let mut plugins = Plugins::empty();
+        let mut plugins: Plugins = serde_json::from_str(include_str!("../../plugins.json"))?;
 
         let dir = dirs::plugins(true)?;
         for entry in fs::read_dir(dir)? {
@@ -662,7 +740,7 @@ impl Plugins {
             if path.is_dir() {
                 let name = path.display().to_string();
                 // Check this directory actually has a plugin file
-                if Plugin::is_installed(&name)? {
+                if Plugin::file(&name)?.exists() {
                     let plugin = Plugin::read(&name)?;
                     plugins.add(plugin)?
                 }
@@ -772,9 +850,9 @@ impl Plugins {
         }
 
         let head = r#"
-| ----- | ------ | ------- | ------------  | ----------- |
-| Name  | Plugin | Version | Installation  | Description |
-| :---- | :----- | ------: | :-----------  | :---------- |
+| ----- | ------ | ------- | ------- | ----------- |
+| Name  | Plugin | Version | Install | Description |
+| :---- | :----- | ------: | :------ | :---------- |
     "#
         .trim();
         let body = self
@@ -851,6 +929,29 @@ impl Plugins {
         Ok(content)
     }
 
+    /// Create a Markdown table of all the registered aliases
+    pub fn display_aliases(&self, aliases: &HashMap<String, String>) -> Result<String> {
+        let aliases = Plugin::merge_aliases(&self.aliases, aliases);
+
+        if aliases.is_empty() {
+            return Ok("No aliases registered".to_string());
+        }
+
+        let head = r#"
+| -------- | -------- |
+| Alias    | Plugin   |
+| :------- | :------- |
+    "#
+        .trim();
+        let body = aliases
+            .iter()
+            .map(|(alias, plugin)| format!("| {} | {} |", alias, plugin))
+            .collect::<Vec<String>>()
+            .join("\n");
+        let foot = "|-";
+        Ok(format!("{}\n{}\n{}\n", head, body, foot))
+    }
+
     /// Create a Markdown table of all the registered methods
     pub fn display_methods(&self) -> Result<String> {
         if self.methods.is_empty() {
@@ -914,19 +1015,10 @@ pub mod config {
     #[derive(Debug, Defaults, PartialEq, Clone, Deserialize, Serialize, Validate)]
     #[serde(default)]
     pub struct Config {
-        #[def = "vec![Installation::Docker, Installation::Binary, Installation::Package]"]
+        #[def = "vec![Installation::Docker, Installation::Binary, Installation::Package, Installation::Link]"]
         pub installations: Vec<Installation>,
 
-        #[def = "default_aliases()"]
         pub aliases: HashMap<String, String>,
-    }
-
-    /// Get the default value for `aliases`
-    pub fn default_aliases() -> HashMap<String, String> {
-        let mut aliases = HashMap::new();
-        aliases.insert("javascript".to_string(), "jesta".to_string());
-        aliases.insert("js".to_string(), "jesta".to_string());
-        aliases
     }
 }
 
@@ -957,11 +1049,17 @@ pub mod cli {
         )]
         List,
         Show(Show),
+        #[structopt(
+            about = "List registered plugin aliases",
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        Aliases,
         Install(Install),
         Link(Link),
         Upgrade(Upgrade),
         Uninstall(Uninstall),
         Unlink(Unlink),
+        Refresh(Refresh),
     }
 
     #[derive(Debug, StructOpt)]
@@ -987,17 +1085,21 @@ pub mod cli {
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
     pub struct Install {
-        /// Attempt to add plugins as Docker image
+        /// Install plugins as Docker image
         #[structopt(short, long)]
         pub docker: bool,
 
-        /// Attempt to add plugins as binary
+        /// Install plugins as binary
         #[structopt(short, long)]
         pub binary: bool,
 
-        /// Attempt to add plugins as language package
+        /// Install plugins as language package
         #[structopt(short, long)]
         pub package: bool,
+
+        /// Install plugins as soft links
+        #[structopt(short, long)]
+        pub link: bool,
 
         /// The names or aliases of plugins to add
         #[structopt(required = true, multiple = true)]
@@ -1051,6 +1153,18 @@ pub mod cli {
         /// The name of the plugin to unlink
         #[structopt()]
         pub plugin: String,
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        about = "Refresh details of one or more plugins",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Refresh {
+        /// The names or aliases of plugins to refresh (leave blank for all)
+        #[structopt(required = false, multiple = true)]
+        pub plugins: Vec<String>,
     }
 
     #[derive(Debug, StructOpt)]
@@ -1150,11 +1264,17 @@ pub mod cli {
                 }
                 Ok(())
             }
+            Action::Aliases => {
+                let md = plugins.display_aliases(aliases)?;
+                println!("{}", skin.term_text(md.as_str()));
+                Ok(())
+            }
             Action::Install(action) => {
                 let Install {
                     docker,
                     binary,
                     package,
+                    link,
                     plugins: list,
                 } = action;
 
@@ -1168,6 +1288,9 @@ pub mod cli {
                 if package {
                     installs.push(Installation::Package)
                 }
+                if link {
+                    installs.push(Installation::Link)
+                }
 
                 let installs = if installs.is_empty() {
                     &installations
@@ -1180,7 +1303,7 @@ pub mod cli {
             Action::Link(action) => {
                 let Link { path } = action;
 
-                Plugin::install_link(&path, plugins)
+                Plugin::install(&path, &vec![Installation::Link], aliases, plugins, None).await
             }
             Action::Upgrade(action) => {
                 let Upgrade { plugins: list } = action;
@@ -1196,6 +1319,11 @@ pub mod cli {
                 let Unlink { plugin } = action;
 
                 Plugin::uninstall(&plugin, aliases, plugins)
+            }
+            Action::Refresh(action) => {
+                let Refresh { plugins: list } = action;
+
+                Plugin::refresh_list(list, aliases, plugins).await
             }
         }
     }
@@ -1246,6 +1374,7 @@ mod tests {
                     docker: false,
                     binary: false,
                     package: false,
+                    link: false,
                 }),
             },
             &config,

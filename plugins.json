@@ -1,0 +1,8 @@
+{
+  "aliases": {
+    "javascript": "jesta"
+  },
+  "registry": {
+    "jesta": "https://raw.githubusercontent.com/stencila/jesta/main/codemeta.json"
+  }
+}
