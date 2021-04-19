@@ -245,13 +245,22 @@ impl Plugin {
         current_version: Option<String>,
     ) -> Result<()> {
         let aliases = Plugin::merge_aliases(&plugins.aliases, aliases);
+        let name_or_spec = Plugin::alias_to_name(spec, &aliases);
+
+        let (owner, name, version) = Plugin::spec_to_parts(&name_or_spec);
+
         for install in installs {
             let result = match install {
-                Installation::Package => Plugin::install_package(spec, &aliases),
-                Installation::Binary => {
-                    Plugin::install_binary(spec, &aliases, current_version.clone(), false, true)
-                }
-                Installation::Docker => Plugin::install_docker(spec, &aliases).await,
+                Installation::Package => Plugin::install_package(owner, name, version),
+                Installation::Binary => Plugin::install_binary(
+                    owner,
+                    name,
+                    version,
+                    current_version.clone(),
+                    false,
+                    true,
+                ),
+                Installation::Docker => Plugin::install_docker(owner, name, version).await,
                 Installation::Link => Plugin::install_link(spec),
             };
             match result {
@@ -295,26 +304,26 @@ impl Plugin {
 
     /// Add a plugin as a programing language package
     #[cfg(any(feature = "plugins-package"))]
-    pub fn install_package(spec: &str, _aliases: &HashMap<String, String>) -> Result<Plugin> {
+    pub fn install_package(owner: &str, name: &str, version: &str) -> Result<Plugin> {
         // TODO
         bail!(
-            "Unable to add plugin '{}' as programming language package",
-            spec
+            "Unable to add plugin '{}/{}@{}' as programming language package",
+            owner,
+            name,
+            version
         )
     }
 
     /// Add a plugin as a downloaded binary
     #[cfg(any(feature = "plugins-binary"))]
     pub fn install_binary(
-        spec: &str,
-        aliases: &HashMap<String, String>,
+        owner: &str,
+        name: &str,
+        version: &str,
         current_version: Option<String>,
         confirm: bool,
         verbose: bool,
     ) -> Result<Plugin> {
-        let (owner, name, version) = Plugin::spec_to_parts(spec);
-        let name = Plugin::alias_to_name(name, aliases);
-
         // Remove the plugin directory if this is not an upgrade
         // (we don't want it remove if the user aborts download)
         if current_version.is_none() {
@@ -380,14 +389,11 @@ impl Plugin {
     /// Docker server and be able to pull an image with corresponding
     /// name.
     #[cfg(any(feature = "plugins-docker"))]
-    pub async fn install_docker(spec: &str, aliases: &HashMap<String, String>) -> Result<Plugin> {
+    pub async fn install_docker(owner: &str, name: &str, version: &str) -> Result<Plugin> {
         let docker = bollard::Docker::connect_with_local_defaults()?;
 
-        let (owner, name, version) = Plugin::spec_to_parts(spec);
-        let name = Plugin::alias_to_name(name, aliases);
-        let image = format!("{}/{}:{}", owner, name, version);
-
         // Pull the image (by creating an image from it)
+        let image = format!("{}/{}:{}", owner, name, version);
         let mut stream = docker.create_image(
             Some(bollard::image::CreateImageOptions {
                 from_image: image.clone(),
@@ -553,13 +559,14 @@ impl Plugin {
         aliases: &HashMap<String, String>,
         plugins: &mut Plugins,
     ) -> Result<()> {
-        let (_owner, name, _version) = Plugin::spec_to_parts(spec);
-        let name = Plugin::alias_to_name(name, aliases);
+        let aliases = Plugin::merge_aliases(&plugins.aliases, aliases);
+        let name_or_spec = Plugin::alias_to_name(spec, &aliases);
+        let (_owner, name, _version) = Plugin::spec_to_parts(&name_or_spec);
 
-        let plugin = match plugins.plugins.get(&name) {
+        let plugin = match plugins.plugins.get(name) {
             None => {
                 tracing::info!("Plugin {} is not installed yet", spec);
-                return Plugin::install(spec, installs, aliases, plugins, None).await;
+                return Plugin::install(spec, installs, &aliases, plugins, None).await;
             }
             Some(plugin) => plugin.clone(),
         };
@@ -571,7 +578,7 @@ impl Plugin {
         Plugin::install(
             spec,
             &installs,
-            aliases,
+            &aliases,
             plugins,
             Some(plugin.software_version),
         )
@@ -617,9 +624,12 @@ impl Plugin {
         aliases: &HashMap<String, String>,
         plugins: &mut Plugins,
     ) -> Result<()> {
-        let name = Plugin::alias_to_name(alias, aliases);
+        let aliases = Plugin::merge_aliases(&plugins.aliases, aliases);
+        let name = Plugin::alias_to_name(alias, &aliases);
+
         Plugin::remove(&name)?;
         plugins.remove(&name)?;
+
         Ok(())
     }
 
@@ -644,7 +654,8 @@ impl Plugin {
         aliases: &HashMap<String, String>,
         plugins: &mut Plugins,
     ) -> Result<()> {
-        let name = Plugin::alias_to_name(&alias, aliases);
+        let aliases = Plugin::merge_aliases(&plugins.aliases, aliases);
+        let name = Plugin::alias_to_name(&alias, &aliases);
 
         let plugin = plugins.plugins.get(&name);
 
@@ -879,7 +890,9 @@ impl Plugins {
         format: &str,
         aliases: &HashMap<String, String>,
     ) -> Result<String> {
-        let name = Plugin::alias_to_name(alias, aliases);
+        let aliases = Plugin::merge_aliases(&self.aliases, aliases);
+        let name = Plugin::alias_to_name(alias, &aliases);
+
         match self.plugins.get(&name) {
             None => bail!("Plugin with name or alias '{}' is not loaded", alias),
             Some(plugin) => plugin.display(format),
@@ -888,6 +901,8 @@ impl Plugins {
 
     /// Create a Markdown table of all the installed plugins
     pub fn display_plugins(&self, aliases: &HashMap<String, String>) -> Result<String> {
+        let aliases = Plugin::merge_aliases(&self.aliases, aliases);
+
         if self.plugins.is_empty() {
             return Ok("No plugins installed. See `stencila plugins install --help`.".to_string());
         }
@@ -920,7 +935,7 @@ impl Plugins {
                 };
                 format!(
                     "| **{}** | {} | {} ({}) | {} | {} |",
-                    Plugin::name_to_alias(&name, aliases),
+                    Plugin::name_to_alias(&name, &aliases),
                     name,
                     software_version,
                     installation,
@@ -981,7 +996,6 @@ impl Plugins {
     /// Create a Markdown table of all the registered aliases
     pub fn display_aliases(&self, aliases: &HashMap<String, String>) -> Result<String> {
         let aliases = Plugin::merge_aliases(&self.aliases, aliases);
-
         if aliases.is_empty() {
             return Ok("No aliases registered".to_string());
         }
