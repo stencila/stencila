@@ -10,6 +10,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("pluginsInstall", plugins::install)?;
     cx.export_function("pluginsUninstall", plugins::uninstall)?;
     cx.export_function("pluginsUpgrade", plugins::upgrade)?;
+    cx.export_function("pluginsRefresh", plugins::refresh)?;
 
     cx.export_function("configRead", config::read)?;
     cx.export_function("configWrite", config::write)?;

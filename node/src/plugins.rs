@@ -85,6 +85,28 @@ pub fn upgrade(mut cx: FunctionContext) -> JsResult<JsString> {
     }
 }
 
+/// Refresh plugins
+pub fn refresh(mut cx: FunctionContext) -> JsResult<JsString> {
+    let arg = cx.argument::<JsArray>(0)?.to_vec(&mut cx)?;
+    let list = arg
+        .iter()
+        .map(|item| {
+            item.to_string(&mut cx)
+                .expect("Unable to convert to string")
+                .value(&mut cx)
+        })
+        .collect();
+
+    let config = &config::obtain(&mut cx)?;
+    let aliases = &config.plugins.aliases;
+    let plugins = &mut *obtain(&mut cx)?;
+
+    match runtime(&mut cx)?.block_on(async { Plugin::refresh_list(list, aliases, plugins).await }) {
+        Ok(_) => to_json(cx, plugins.list_plugins(aliases)),
+        Err(error) => cx.throw_error(error.to_string()),
+    }
+}
+
 /// Get the `installations` argument, falling back to the array in `config.plugins.installations`
 pub fn installations(
     cx: &mut FunctionContext,

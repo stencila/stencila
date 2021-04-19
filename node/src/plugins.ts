@@ -1,26 +1,39 @@
+// Node.js bindings for ../../rust/src/plugins.rs, see there for more documentation.
+
 import { fromJSON } from './prelude'
 
 const addon = require('../index.node')
 
-export type Installation = 'binary' | 'docker' | 'package'
+export type Installation =
+  | 'docker'
+  | 'binary'
+  | 'npm'
+  | 'pypi'
+  | 'cran'
+  | 'link'
 
 export interface Plugin {
-  // Properties from the plugin's codemeta.json file
+  // Properties from the plugin's manifest file
+
   name: string
   softwareVersion: string
   description: string
   installUrl: string[]
   featureList: Record<string, unknown>[]
 
-  // If installed, the installation type
-  installation?: Installation
+  // Properties that are derived / updated
 
-  // The current alias for this plugin, if any
+  installation?: Installation
+  refreshed?: string
+  next?: Plugin
   alias?: string
 }
 
 /**
- * List the installed plugins
+ * List plugins in registry and/or installed
+ *
+ * Consider using `plugins.refresh` instead to get a list of plugins that
+ * has been updated with latest available version etc.
  *
  * @returns An array of plugins
  */
@@ -31,9 +44,9 @@ export function list(): Plugin[] {
 /**
  * Install a plugin
  *
- * @param spec A plugin identifier e.g. `javascript@0.50.1`
+ * @param spec A plugin identifier or spec e.g. `javascript`, `stencila/jesta@0.5.1`
  * @param installations An array of installation methods to try
- * @return An array of installed plugins
+ * @return An array of plugins
  */
 export function install(
   spec: string,
@@ -46,7 +59,7 @@ export function install(
  * Uninstall a plugin
  *
  * @param alias The alias or name of the plugin
- * @returns An array of installed plugins
+ * @returns An array of plugins
  */
 export function uninstall(alias: string): Plugin[] {
   return fromJSON<Plugin[]>(addon.pluginsUninstall(alias))
@@ -55,9 +68,20 @@ export function uninstall(alias: string): Plugin[] {
 /**
  * Upgrade a plugin
  *
- * @param spec A plugin identifier e.g. `javascript`
- * @return An array of installed plugins
+ * @param spec A plugin identifier or spec e.g. `javascript`
+ * @return An array of plugins
  */
 export function upgrade(spec: string): Plugin[] {
   return fromJSON<Plugin[]>(addon.pluginsUpgrade(spec))
+}
+
+/**
+ * Refresh plugins
+ *
+ * @param list A list of plugin aliases or names to refresh.
+ *             Use an empty array to refresh all plugins
+ * @return An array of plugins
+ */
+export function refresh(list: string[]): Plugin[] {
+  return fromJSON<Plugin[]>(addon.pluginsRefresh(list))
 }

@@ -1,3 +1,5 @@
+// Node.js bindings for ../../rust/src/config.rs, see there for more documentation.
+
 import { fromJSON, toJSON } from './prelude'
 
 const addon = require('../index.node')
