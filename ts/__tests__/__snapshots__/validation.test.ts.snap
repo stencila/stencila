@@ -1,0 +1,857 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`invalid.Cite.json 1`] = `
+Array [
+  Object {
+    "instancePath": "",
+    "keyword": "required",
+    "message": "must have required property 'target'",
+    "params": Object {
+      "missingProperty": "target",
+    },
+    "schemaPath": "#/required",
+  },
+  Object {
+    "instancePath": "/citationMode",
+    "keyword": "enum",
+    "message": "must be equal to one of the allowed values",
+    "params": Object {
+      "allowedValues": Array [
+        "Parenthetical",
+        "Narrative",
+        "NarrativeAuthor",
+        "NarrativeYear",
+        "normal",
+        "suppressAuthor",
+      ],
+    },
+    "schemaPath": "#/properties/citationMode/enum",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "AgreesWith",
+    },
+    "schemaPath": "#/anyOf/0/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "CitesAsAuthority",
+    },
+    "schemaPath": "#/anyOf/1/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "CitesAsDataSource",
+    },
+    "schemaPath": "#/anyOf/2/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "CitesAsEvidence",
+    },
+    "schemaPath": "#/anyOf/3/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "CitesAsMetadataDocument",
+    },
+    "schemaPath": "#/anyOf/4/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "CitesAsPotentialSolution",
+    },
+    "schemaPath": "#/anyOf/5/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "CitesAsRecommendedReading",
+    },
+    "schemaPath": "#/anyOf/6/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "CitesAsRelated",
+    },
+    "schemaPath": "#/anyOf/7/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "CitesAsSourceDocument",
+    },
+    "schemaPath": "#/anyOf/8/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "CitesForInformation",
+    },
+    "schemaPath": "#/anyOf/9/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Compiles",
+    },
+    "schemaPath": "#/anyOf/10/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Confirms",
+    },
+    "schemaPath": "#/anyOf/11/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "ContainsAssertionFrom",
+    },
+    "schemaPath": "#/anyOf/12/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Corrects",
+    },
+    "schemaPath": "#/anyOf/13/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Credits",
+    },
+    "schemaPath": "#/anyOf/14/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Critiques",
+    },
+    "schemaPath": "#/anyOf/15/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Derides",
+    },
+    "schemaPath": "#/anyOf/16/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Describes",
+    },
+    "schemaPath": "#/anyOf/17/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "DisagreesWith",
+    },
+    "schemaPath": "#/anyOf/18/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Discusses",
+    },
+    "schemaPath": "#/anyOf/19/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Disputes",
+    },
+    "schemaPath": "#/anyOf/20/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Documents",
+    },
+    "schemaPath": "#/anyOf/21/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Extends",
+    },
+    "schemaPath": "#/anyOf/22/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "GivesBackgroundTo",
+    },
+    "schemaPath": "#/anyOf/23/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "GivesSupportTo",
+    },
+    "schemaPath": "#/anyOf/24/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "HasReplyFrom",
+    },
+    "schemaPath": "#/anyOf/25/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IncludesExcerptFrom",
+    },
+    "schemaPath": "#/anyOf/26/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IncludesQuotationFrom",
+    },
+    "schemaPath": "#/anyOf/27/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsAgreedWithBy",
+    },
+    "schemaPath": "#/anyOf/28/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCitedAsAuthorityBy",
+    },
+    "schemaPath": "#/anyOf/29/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCitedAsDataSourceBy",
+    },
+    "schemaPath": "#/anyOf/30/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCitedAsEvidenceBy",
+    },
+    "schemaPath": "#/anyOf/31/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCitedAsMetadataDocumentBy",
+    },
+    "schemaPath": "#/anyOf/32/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCitedAsPontentialSolutionBy",
+    },
+    "schemaPath": "#/anyOf/33/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCitedAsRecommendedReadingBy",
+    },
+    "schemaPath": "#/anyOf/34/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCitedAsRelatedBy",
+    },
+    "schemaPath": "#/anyOf/35/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCitedAsSourceDocumentBy",
+    },
+    "schemaPath": "#/anyOf/36/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCitedBy",
+    },
+    "schemaPath": "#/anyOf/37/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCitedForInformationBy",
+    },
+    "schemaPath": "#/anyOf/38/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCompiledBy",
+    },
+    "schemaPath": "#/anyOf/39/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsConfirmedBy",
+    },
+    "schemaPath": "#/anyOf/40/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCorrectedBy",
+    },
+    "schemaPath": "#/anyOf/41/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCreditedBy",
+    },
+    "schemaPath": "#/anyOf/42/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsCritiquedBy",
+    },
+    "schemaPath": "#/anyOf/43/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsDeridedBy",
+    },
+    "schemaPath": "#/anyOf/44/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsDescribedBy",
+    },
+    "schemaPath": "#/anyOf/45/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsDisagreedWithBy",
+    },
+    "schemaPath": "#/anyOf/46/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsDiscussedBy",
+    },
+    "schemaPath": "#/anyOf/47/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsDisputedBy",
+    },
+    "schemaPath": "#/anyOf/48/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsDocumentedBy",
+    },
+    "schemaPath": "#/anyOf/49/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsExtendedBy",
+    },
+    "schemaPath": "#/anyOf/50/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsLinkedToBy",
+    },
+    "schemaPath": "#/anyOf/51/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsParodiedBy",
+    },
+    "schemaPath": "#/anyOf/52/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsPlagiarizedBy",
+    },
+    "schemaPath": "#/anyOf/53/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsQualifiedBy",
+    },
+    "schemaPath": "#/anyOf/54/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsRefutedBy",
+    },
+    "schemaPath": "#/anyOf/55/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsRetractedBy",
+    },
+    "schemaPath": "#/anyOf/56/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsReviewedBy",
+    },
+    "schemaPath": "#/anyOf/57/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsRidiculedBy",
+    },
+    "schemaPath": "#/anyOf/58/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsSpeculatedOnBy",
+    },
+    "schemaPath": "#/anyOf/59/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsSupportedBy",
+    },
+    "schemaPath": "#/anyOf/60/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "IsUpdatedBy",
+    },
+    "schemaPath": "#/anyOf/61/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Likes",
+    },
+    "schemaPath": "#/anyOf/62/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "LinksTo",
+    },
+    "schemaPath": "#/anyOf/63/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "ObtainsBackgroundFrom",
+    },
+    "schemaPath": "#/anyOf/64/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "ObtainsSupportFrom",
+    },
+    "schemaPath": "#/anyOf/65/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Parodies",
+    },
+    "schemaPath": "#/anyOf/66/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Plagiarizes",
+    },
+    "schemaPath": "#/anyOf/67/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "ProvidesAssertionFor",
+    },
+    "schemaPath": "#/anyOf/68/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "ProvidesConclusionsFor",
+    },
+    "schemaPath": "#/anyOf/69/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "ProvidesDataFor",
+    },
+    "schemaPath": "#/anyOf/70/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "ProvidesExcerptFor",
+    },
+    "schemaPath": "#/anyOf/71/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "ProvidesMethodFor",
+    },
+    "schemaPath": "#/anyOf/72/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "ProvidesQuotationFor",
+    },
+    "schemaPath": "#/anyOf/73/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Qualifies",
+    },
+    "schemaPath": "#/anyOf/74/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Refutes",
+    },
+    "schemaPath": "#/anyOf/75/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "RepliesTo",
+    },
+    "schemaPath": "#/anyOf/76/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Retracts",
+    },
+    "schemaPath": "#/anyOf/77/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Reviews",
+    },
+    "schemaPath": "#/anyOf/78/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Ridicules",
+    },
+    "schemaPath": "#/anyOf/79/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "SharesAuthorInstitutionWith",
+    },
+    "schemaPath": "#/anyOf/80/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "SharesAuthorWith",
+    },
+    "schemaPath": "#/anyOf/81/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "SharesFundingAgencyWith",
+    },
+    "schemaPath": "#/anyOf/82/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "SharesJournalWith",
+    },
+    "schemaPath": "#/anyOf/83/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "SharesPublicationVenueWith",
+    },
+    "schemaPath": "#/anyOf/84/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "SpeculatesOn",
+    },
+    "schemaPath": "#/anyOf/85/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Supports",
+    },
+    "schemaPath": "#/anyOf/86/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "Updates",
+    },
+    "schemaPath": "#/anyOf/87/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "UsesConclusionsFrom",
+    },
+    "schemaPath": "#/anyOf/88/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "UsesDataFrom",
+    },
+    "schemaPath": "#/anyOf/89/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "const",
+    "message": "must be equal to constant",
+    "params": Object {
+      "allowedValue": "UsesMethodIn",
+    },
+    "schemaPath": "#/anyOf/90/const",
+  },
+  Object {
+    "instancePath": "/citationIntent/0",
+    "keyword": "anyOf",
+    "message": "must match a schema in anyOf",
+    "params": Object {},
+    "schemaPath": "#/anyOf",
+  },
+]
+`;

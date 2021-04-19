@@ -98,10 +98,9 @@ export const build = async (): Promise<void> => {
     // conflict with https://schema.org/value.
 
     // Other contexts referred to, including this one
-    // Note that http vs https is important!
+    // Note that http vs https, and trailing slashes are important!
     schema: 'http://schema.org/',
-    bioschemas: 'http://bioschemas.org/',
-    codemeta: 'http://doi.org/10.5063/schema/codemeta-2.0#',
+    cito: 'http://purl.org/spar/cito/',
     stencila: STENCILA_CONTEXT_URL,
 
     // Define that in this context all terms derive from this vocabulary
@@ -150,4 +149,4 @@ export const build = async (): Promise<void> => {
  * Run `build()` when this file is run as a Node script
  */
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-if (module.parent === null) build()
+if (require.main) build()

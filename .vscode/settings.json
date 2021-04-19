@@ -1,45 +1,474 @@
 {
+  "cSpell.words": [
+    "stencila",
+    "transclude"
+  ],
+  "python.formatting.provider": "black",
   "yaml.schemas": {
-    "./public/Article.schema.json": "*.article.yaml",
-    "./public/AudioObject.schema.json": "*audioObject.yaml",
-    "./public/Brand.schema.json": "*.brand.yaml",
-    "./public/Collection.schema.json": "collection.*.yaml",
-    "./public/ContactPoint.schema.json": "*.contactPoint.yaml",
-    "./public/CreativeWork.schema.json": "*.creativeWork.yaml",
-    "./public/Datatable.schema.json": "*.datatable.yaml",
-    "./public/DatatableColumn.json": "*.datatableColumn.yaml",
-    "./public/Document.schema.json": "*.document.yaml",
-    "./public/Environment.schema.json": "*.environ.yaml",
-    "./public/Heading.schema.json": "*.heading.yaml",
-    "./public/ImageObject.schema.json": "*.imageObject.yaml",
-    "./public/Include.schema.json": "*.include.yaml",
-    "./public/Link.schema.json": "*.link.yaml",
-    "./public/List.schema.json": "*.list.yaml",
-    "./public/ListItem.schema.json": "*.listItem.yaml",
-    "./public/MediaObject.schema.json": "*mediaObject.yaml",
-    "./public/Mount.schema.json": "*.mount.yaml",
-    "./public/Organization.schema.json": "*.organization.yaml",
-    "./public/Package.schema.json": "*.package.yaml",
-    "./public/Paragraph.schema.json": "*.paragraph.yaml",
-    "./public/Person.schema.json": "*.person.yaml",
-    "./public/Product.schema.json": "*.product.yaml",
-    "./public/Resource.schema.json": "*.resource.yaml",
-    "./public/Session.schema.json": "*.session.yaml",
-    "./public/Sheet.schema.json": "*.sheet.yaml",
-    "./public/SoftwareApplication.schema.json": "*.softwareApplication.yaml",
-    "./public/SoftwareSession.schema.json": "*.softwareSession.yaml",
-    "./public/SoftwareSourceCode.json": "*.softwareSourceCode.yaml",
-    "./public/Strong.schema.json": "*.strong.yaml",
-    "./public/Table.schema.json": "*.table.yaml",
-    "./public/TableCell.schema.json": "*.tableCell.yaml",
-    "./public/TableRow.schema.json": "*.tableRow.yaml",
-    "./public/ThematicBreak.schema.json": "*.thematicBreak.yaml",
-    "./public/VideoObject.schema.json": "*videoObject.yaml",
-    "./public/Quote.schema.json": "*quote.yaml",
-    "./public/QuoteBlock.schema.json": "*quoteBlock.yaml",
     "https://json-schema.org/draft-07/schema": "*.schema.yaml"
   },
-  "cSpell.words": ["stencila", "transclude"],
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "python.formatting.provider": "black"
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "*.Entity.json"
+      ],
+      "url": "./public/Entity.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.ArrayValidator.json"
+      ],
+      "url": "./public/ArrayValidator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.BooleanValidator.json"
+      ],
+      "url": "./public/BooleanValidator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Cite.json"
+      ],
+      "url": "./public/Cite.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.CiteGroup.json"
+      ],
+      "url": "./public/CiteGroup.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Code.json"
+      ],
+      "url": "./public/Code.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.CodeBlock.json"
+      ],
+      "url": "./public/CodeBlock.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.CodeChunk.json"
+      ],
+      "url": "./public/CodeChunk.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.CodeFragment.json"
+      ],
+      "url": "./public/CodeFragment.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.CodeExpression.json"
+      ],
+      "url": "./public/CodeExpression.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.CodeError.json"
+      ],
+      "url": "./public/CodeError.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.ConstantValidator.json"
+      ],
+      "url": "./public/ConstantValidator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Date.json"
+      ],
+      "url": "./public/Date.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Mark.json"
+      ],
+      "url": "./public/Mark.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Delete.json"
+      ],
+      "url": "./public/Delete.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Emphasis.json"
+      ],
+      "url": "./public/Emphasis.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Thing.json"
+      ],
+      "url": "./public/Thing.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Brand.json"
+      ],
+      "url": "./public/Brand.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.ContactPoint.json"
+      ],
+      "url": "./public/ContactPoint.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.CreativeWork.json"
+      ],
+      "url": "./public/CreativeWork.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Article.json"
+      ],
+      "url": "./public/Article.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Claim.json"
+      ],
+      "url": "./public/Claim.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Collection.json"
+      ],
+      "url": "./public/Collection.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Comment.json"
+      ],
+      "url": "./public/Comment.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Datatable.json"
+      ],
+      "url": "./public/Datatable.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.MediaObject.json"
+      ],
+      "url": "./public/MediaObject.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.AudioObject.json"
+      ],
+      "url": "./public/AudioObject.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.DatatableColumn.json"
+      ],
+      "url": "./public/DatatableColumn.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.DefinedTerm.json"
+      ],
+      "url": "./public/DefinedTerm.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.EnumValidator.json"
+      ],
+      "url": "./public/EnumValidator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Enumeration.json"
+      ],
+      "url": "./public/Enumeration.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Figure.json"
+      ],
+      "url": "./public/Figure.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Function.json"
+      ],
+      "url": "./public/Function.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Grant.json"
+      ],
+      "url": "./public/Grant.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Heading.json"
+      ],
+      "url": "./public/Heading.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.ImageObject.json"
+      ],
+      "url": "./public/ImageObject.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Include.json"
+      ],
+      "url": "./public/Include.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.NumberValidator.json"
+      ],
+      "url": "./public/NumberValidator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.IntegerValidator.json"
+      ],
+      "url": "./public/IntegerValidator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Link.json"
+      ],
+      "url": "./public/Link.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.List.json"
+      ],
+      "url": "./public/List.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.ListItem.json"
+      ],
+      "url": "./public/ListItem.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Math.json"
+      ],
+      "url": "./public/Math.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.MathBlock.json"
+      ],
+      "url": "./public/MathBlock.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.MathFragment.json"
+      ],
+      "url": "./public/MathFragment.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.MonetaryGrant.json"
+      ],
+      "url": "./public/MonetaryGrant.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.NontextualAnnotation.json"
+      ],
+      "url": "./public/NontextualAnnotation.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Note.json"
+      ],
+      "url": "./public/Note.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Organization.json"
+      ],
+      "url": "./public/Organization.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Paragraph.json"
+      ],
+      "url": "./public/Paragraph.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Variable.json"
+      ],
+      "url": "./public/Variable.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Parameter.json"
+      ],
+      "url": "./public/Parameter.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Periodical.json"
+      ],
+      "url": "./public/Periodical.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Person.json"
+      ],
+      "url": "./public/Person.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.PostalAddress.json"
+      ],
+      "url": "./public/PostalAddress.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Product.json"
+      ],
+      "url": "./public/Product.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.PropertyValue.json"
+      ],
+      "url": "./public/PropertyValue.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.PublicationIssue.json"
+      ],
+      "url": "./public/PublicationIssue.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.PublicationVolume.json"
+      ],
+      "url": "./public/PublicationVolume.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Quote.json"
+      ],
+      "url": "./public/Quote.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.QuoteBlock.json"
+      ],
+      "url": "./public/QuoteBlock.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Review.json"
+      ],
+      "url": "./public/Review.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.SoftwareApplication.json"
+      ],
+      "url": "./public/SoftwareApplication.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.SoftwareEnvironment.json"
+      ],
+      "url": "./public/SoftwareEnvironment.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.SoftwareSession.json"
+      ],
+      "url": "./public/SoftwareSession.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.SoftwareSourceCode.json"
+      ],
+      "url": "./public/SoftwareSourceCode.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.StringValidator.json"
+      ],
+      "url": "./public/StringValidator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Strong.json"
+      ],
+      "url": "./public/Strong.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Subscript.json"
+      ],
+      "url": "./public/Subscript.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Superscript.json"
+      ],
+      "url": "./public/Superscript.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.Table.json"
+      ],
+      "url": "./public/Table.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.TableCell.json"
+      ],
+      "url": "./public/TableCell.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.TableRow.json"
+      ],
+      "url": "./public/TableRow.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.ThematicBreak.json"
+      ],
+      "url": "./public/ThematicBreak.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.TupleValidator.json"
+      ],
+      "url": "./public/TupleValidator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.VideoObject.json"
+      ],
+      "url": "./public/VideoObject.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.VolumeMount.json"
+      ],
+      "url": "./public/VolumeMount.schema.json"
+    }
+  ]
 }

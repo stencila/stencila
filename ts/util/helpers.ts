@@ -36,17 +36,12 @@ export async function readSchemas(
 }
 
 /**
- * Is a schema for a primitive type.
- */
-export function isPrimitiveSchema(schema: JsonSchema): boolean {
-  return schema.properties === undefined && schema.anyOf === undefined
-}
-
-/**
  * Get the 'primitive' schemas
  */
 export function filterPrimitiveSchemas(schemas: JsonSchema[]): JsonSchema[] {
-  return schemas.filter(isPrimitiveSchema)
+  return schemas.filter(
+    (schema) => schema.properties === undefined && schema.anyOf === undefined
+  )
 }
 
 /**
@@ -57,7 +52,10 @@ export function filterPrimitiveSchemas(schemas: JsonSchema[]): JsonSchema[] {
  * any of their descendants.
  */
 export function filterInterfaceSchemas(schemas: JsonSchema[]): JsonSchema[] {
-  const types = schemas.filter((schema) => schema.properties !== undefined)
+  const types = schemas.filter(
+    (schema) =>
+      schema.properties !== undefined && schema.extends !== 'Enumeration'
+  )
   const map = new Map(schemas.map((schema) => [schema.title, schema]))
 
   const edges = types.map((schema): [string, string] => [
@@ -78,7 +76,16 @@ export function filterInterfaceSchemas(schemas: JsonSchema[]): JsonSchema[] {
  * Get the union types from the schemas
  */
 export function filterUnionSchemas(schemas: JsonSchema[]): JsonSchema[] {
-  return schemas.filter((schema) => schema.anyOf !== undefined)
+  return schemas.filter(
+    (schema) => schema.anyOf !== undefined && schema.extends !== 'Enumeration'
+  )
+}
+
+/**
+ * Get enumeration schemas
+ */
+export function filterEnumSchemas(schemas: JsonSchema[]): JsonSchema[] {
+  return schemas.filter((schema) => schema.extends === 'Enumeration')
 }
 
 /**
