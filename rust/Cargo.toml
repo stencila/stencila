@@ -34,6 +34,7 @@ plugins-docker = ["plugins", "bollard"]
 plugins-binary = ["plugins", "self_update"]
 plugins-npm = ["plugins"]
 plugins-pypi = ["plugins"]
+plugins-cran = ["plugins"]
 plugins-link = ["plugins"]
 
 upgrade = ["self_update"]
@@ -70,6 +71,7 @@ default = [
     "plugins-link",
     "plugins-npm",
     "plugins-pypi",
+    "plugins-cran",
     "upgrade",
     "config",
     "inspect",
