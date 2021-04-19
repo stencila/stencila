@@ -1,6 +1,6 @@
 [package]
 name = "stencila-node"
-version = "0.51.0"
+version = "0.52.0"
 description = "Stencila in Node.js"
 authors = ["Nokome Bentley <nokome@stenci.la>"]
 license = "Apache-2.0"
@@ -12,8 +12,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 stencila = { path = "../rust" }
-
-[dependencies.neon]
-version = "0.8"
-default-features = false
-features = ["napi-6"]
+neon = { version = "0.8", default-features = false, features = ["napi-6"] }
