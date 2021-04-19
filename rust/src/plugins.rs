@@ -1,8 +1,10 @@
 use crate::util::dirs;
 use anyhow::{anyhow, bail, Result};
+use chrono::{DateTime, Utc};
 use futures::StreamExt;
 use jsonschema::JSONSchema;
 use rand::Rng;
+use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fs, path::PathBuf, process::Command, thread};
 use strum::{Display, EnumString, EnumVariantNames};
@@ -34,6 +36,7 @@ pub enum Installation {
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Plugin {
+    // Properties that are read from the plugin's manifest file
     /// The name of the plugin
     name: String,
 
@@ -51,10 +54,25 @@ pub struct Plugin {
     /// (including its parameters).
     feature_list: Vec<serde_json::Value>,
 
+    // Properties set / derived at runtime (should all be optional)
     /// If the plugin is installed, the installation type
+    #[serde(skip_serializing_if = "Option::is_none")]
     installation: Option<Installation>,
 
+    /// The last time that the plugin manifest was updated.
+    /// Used to determine if a refresh is necessary.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    refreshed: Option<DateTime<Utc>>,
+
+    /// The next version of the plugin, if any.
+    /// If the plugin is installed and there is a newer version of
+    /// the plugin then this property should be set at the
+    /// time of refresh.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    next: Option<Box<Plugin>>,
+
     /// The current alias for this plugin, if any
+    #[serde(skip_serializing_if = "Option::is_none")]
     alias: Option<String>,
 }
 
@@ -125,7 +143,7 @@ impl Plugin {
         local: &HashMap<String, String>,
     ) -> HashMap<String, String> {
         let mut aliases = global.clone();
-        aliases.extend(local.into_iter().map(|(k, v)| (k.clone(), v.clone())));
+        aliases.extend(local.iter().map(|(k, v)| (k.clone(), v.clone())));
         aliases
     }
 
@@ -628,21 +646,46 @@ impl Plugin {
     ) -> Result<()> {
         let name = Plugin::alias_to_name(&alias, aliases);
 
+        let plugin = plugins.plugins.get(&name);
+
         // If the plugin is linked then there is nothing more to do
         // (we don't want to write anything into the directory)
-        if let Some(plugin) = plugins.plugins.get(&name) {
+        if let Some(plugin) = plugin {
             if let Some(Installation::Link) = plugin.installation {
                 return Ok(());
             }
         }
 
-        // Load the plugin's latest manifest file and store it on disk
+        // Load the plugin's latest manifest from its URL
         let url = match plugins.registry.get(&name) {
             None => bail!("No plugin registered with alias or name '{}'", alias),
             Some(url) => url,
         };
         let json = reqwest::get(url).await?.text().await?;
-        let plugin = Plugin::load(&json)?;
+        let latest = Plugin::load(&json)?;
+
+        let mut plugin = if let Some(plugin) = plugin {
+            // This plugin is previously known. if it is installed and
+            // the latest version is greater than the current then, indicate
+            // it can be upgraded using `next`, otherwise just use the latest version.
+            if plugin.installation.is_some()
+                && Version::parse(&latest.software_version)
+                    > Version::parse(&plugin.software_version)
+            {
+                let mut plugin = plugin.clone();
+                plugin.next = Some(Box::new(latest));
+                plugin
+            } else {
+                latest
+            }
+        } else {
+            // This plugin is previously "unknown" locally so just use the latest
+            latest
+        };
+
+        // Write the plugin to disk and update in memory
+        plugin.refreshed = Some(Utc::now());
+        Plugin::write(&name, &plugin)?;
         plugins.plugins.insert(name, plugin);
 
         tracing::info!("Refreshed plugin {}", alias);
@@ -850,9 +893,9 @@ impl Plugins {
         }
 
         let head = r#"
-| ----- | ------ | ------- | ------- | ----------- |
-| Name  | Plugin | Version | Install | Description |
-| :---- | :----- | ------: | :------ | :---------- |
+| ----- | ------ | --------- | --------- | ----------- |
+|       | Plugin | Installed | Latest    | Description |
+| :---- | :----- | --------: | :-------- | :---------- |
     "#
         .trim();
         let body = self
@@ -864,18 +907,24 @@ impl Plugins {
                     software_version,
                     installation,
                     description,
+                    next,
                     ..
                 } = plugin.clone();
                 let installation = match installation {
                     None => "None".to_string(),
                     Some(value) => value.to_string(),
                 };
+                let next = match next {
+                    None => software_version.clone(),
+                    Some(plugin) => plugin.software_version,
+                };
                 format!(
-                    "| **{}** | {} | {} | {} | {} |",
+                    "| **{}** | {} | {} ({}) | {} | {} |",
                     Plugin::name_to_alias(&name, aliases),
                     name,
                     software_version,
                     installation,
+                    next,
                     description
                 )
             })
@@ -1303,7 +1352,7 @@ pub mod cli {
             Action::Link(action) => {
                 let Link { path } = action;
 
-                Plugin::install(&path, &vec![Installation::Link], aliases, plugins, None).await
+                Plugin::install(&path, &[Installation::Link], aliases, plugins, None).await
             }
             Action::Upgrade(action) => {
                 let Upgrade { plugins: list } = action;
