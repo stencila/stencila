@@ -22,6 +22,8 @@ pub enum Installation {
     Binary,
     #[cfg(any(feature = "plugins-npm"))]
     Npm,
+    #[cfg(any(feature = "plugins-pypi"))]
+    PyPI,
     #[cfg(any(feature = "plugins-link"))]
     Link,
 }
@@ -274,6 +276,7 @@ impl Plugin {
                     true,
                 ),
                 Installation::Npm => Plugin::install_npm(owner, name, version),
+                Installation::PyPI => Plugin::install_pypi(name, version),
                 Installation::Link => Plugin::install_link(spec),
             };
             match result {
@@ -353,7 +356,44 @@ impl Plugin {
                 Ok(plugin)
             }
             Err(error) => {
-                bail!("There was an error running `npm`: {}", error.to_string())
+                bail!("When running `npm`: {}", error.to_string())
+            }
+        }
+    }
+
+    /// Add a plugin as a PyPI package
+    ///
+    /// Installs the package globally for the user.
+    #[cfg(any(feature = "plugins-pypi"))]
+    pub fn install_pypi(name: &str, version: &str) -> Result<Plugin> {
+        tracing::debug!("Installing PyPi package '{}@{}'", name, version);
+
+        match Command::new("python3")
+            .arg("-mpip")
+            .arg("install")
+            .arg(if version != "latest" {
+                format!("{}=={}", name, version)
+            } else {
+                name.to_string()
+            })
+            .spawn()
+        {
+            Ok(mut child) => {
+                child.wait()?;
+                tracing::info!("PyPi package '{}@{}' installed", name, version);
+
+                tracing::debug!("Obtaining manifest from Python module {}", name);
+                let mut plugin = Plugin::load_from_command(
+                    Command::new("python3")
+                        .arg(format!("-m{}", name))
+                        .arg("manifest"),
+                )?;
+                plugin.installation = Some(Installation::PyPI);
+                Plugin::write(&name, &plugin)?;
+                Ok(plugin)
+            }
+            Err(error) => {
+                bail!("When running `pip`: {}", error.to_string())
             }
         }
     }
@@ -1204,9 +1244,13 @@ pub mod cli {
         #[structopt(short, long)]
         pub binary: bool,
 
-        /// Install plugins as an NPM package
+        /// Install plugins as a NPM package
         #[structopt(short, long)]
         pub npm: bool,
+
+        /// Install plugins as a PyPI package
+        #[structopt(short, long)]
+        pub pypi: bool,
 
         /// Install plugins as soft links
         #[structopt(short, long)]
@@ -1385,6 +1429,7 @@ pub mod cli {
                     docker,
                     binary,
                     npm,
+                    pypi,
                     link,
                     plugins: list,
                 } = action;
@@ -1398,6 +1443,9 @@ pub mod cli {
                 }
                 if npm {
                     installs.push(Installation::Npm)
+                }
+                if pypi {
+                    installs.push(Installation::PyPI)
                 }
                 if link {
                     installs.push(Installation::Link)
@@ -1485,6 +1533,7 @@ mod tests {
                     docker: false,
                     binary: false,
                     npm: false,
+                    pypi: false,
                     link: false,
                 }),
             },

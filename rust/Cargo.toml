@@ -33,6 +33,7 @@ plugins = ["jsonschema", "semver"]
 plugins-docker = ["plugins", "bollard"]
 plugins-binary = ["plugins", "self_update"]
 plugins-npm = ["plugins"]
+plugins-pypi = ["plugins"]
 plugins-link = ["plugins"]
 
 upgrade = ["self_update"]
@@ -68,6 +69,7 @@ default = [
     "plugins-docker",
     "plugins-link",
     "plugins-npm",
+    "plugins-pypi",
     "upgrade",
     "config",
     "inspect",
