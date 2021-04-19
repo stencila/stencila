@@ -603,7 +603,8 @@ impl Plugin {
             plugins
                 .plugins
                 .iter()
-                .map(|(key, ..)| key.clone())
+                .filter(|(.., plugin)| plugin.installation.is_some())
+                .map(|(name, ..)| name.clone())
                 .collect()
         } else {
             list
