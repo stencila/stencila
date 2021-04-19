@@ -565,24 +565,31 @@ impl Plugin {
 
         let plugin = match plugins.plugins.get(name) {
             None => {
-                tracing::info!("Plugin {} is not installed yet", spec);
+                tracing::info!(
+                    "Plugin is not installed or registered, will attempt to install using spec: {}",
+                    spec
+                );
                 return Plugin::install(spec, installs, &aliases, plugins, None).await;
             }
             Some(plugin) => plugin.clone(),
         };
 
-        let installs = match plugin.installation {
-            Some(install) => vec![install],
-            None => Vec::from(installs),
+        let (installs, current_version) = match plugin.installation {
+            Some(install) => {
+                tracing::debug!(
+                    "Plugin will be upgraded from {} ({})",
+                    plugin.software_version,
+                    install
+                );
+                (vec![install], Some(plugin.software_version))
+            }
+            None => {
+                tracing::debug!("Plugin is not yet installed");
+                (Vec::from(installs), None)
+            }
         };
-        Plugin::install(
-            spec,
-            &installs,
-            &aliases,
-            plugins,
-            Some(plugin.software_version),
-        )
-        .await
+
+        Plugin::install(spec, &installs, &aliases, plugins, current_version).await
     }
 
     /// Upgrade a list of plugins
