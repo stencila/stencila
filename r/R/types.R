@@ -92,7 +92,7 @@ BooleanValidator <- function(
 #' @param citationMode Determines how the citation is shown within the surrounding text.
 #' @param citationPrefix Text to show before the citation.
 #' @param citationSuffix Text to show after the citation.
-#' @param citationType The type/s of the citation, both factually and rhetorically.
+#' @param citationIntent The type/s of the citation, both factually and rhetorically.
 #' @param content Optional structured content/text of this citation.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
@@ -107,7 +107,7 @@ Cite <- function(
   citationMode,
   citationPrefix,
   citationSuffix,
-  citationType,
+  citationIntent,
   content,
   id,
   meta,
@@ -124,7 +124,7 @@ Cite <- function(
   self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("Parenthetical", "Narrative", "NarrativeAuthor", "NarrativeYear", "normal", "suppressAuthor"), citationMode)
   self[["citationPrefix"]] <- check_property("Cite", "citationPrefix", FALSE, missing(citationPrefix), "character", citationPrefix)
   self[["citationSuffix"]] <- check_property("Cite", "citationSuffix", FALSE, missing(citationSuffix), "character", citationSuffix)
-  self[["citationType"]] <- check_property("Cite", "citationType", FALSE, missing(citationType), Array(CitationTypeEnumeration), citationType)
+  self[["citationIntent"]] <- check_property("Cite", "citationIntent", FALSE, missing(citationIntent), Array(CitationIntentEnumeration), citationIntent)
   self[["content"]] <- check_property("Cite", "content", FALSE, missing(content), Array(InlineContent), content)
   self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("numeric", "character"), pageEnd)
   self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("numeric", "character"), pageStart)
@@ -4406,7 +4406,7 @@ VolumeMount <- function(
 #'
 #' @return A `list` of class `Enum` describing valid members of this enumeration
 #' @export
-CitationTypeEnumeration <- Enum("AffilationSelfCitation", "AgreesWith", "AuthorNetworkSelfCitation", "AuthorSelfCitation", "CitesAsAuthority", "CitesAsDataSource", "CitesAsEvidence", "CitesAsMetadataDocument", "CitesAsPotentialSolution", "CitesAsRecommendedReading", "CitesAsRelated", "CitesAsSourceDocument", "CitesForInformation", "Compiles", "Confirms", "ContainsAssertionFrom", "Corrects", "Credits", "Critiques", "Derides", "Describes", "DisagreesWith", "Discusses", "Disputes", "DistantCitation", "Documents", "Extends", "FunderSelfCitation", "GivesBackgroundTo", "GivesSupportTo", "HasReplyFrom", "IncludesExcerptFrom", "IncludesQuotationFrom", "IsAgreedWithBy", "IsCitedAsAuthorityBy", "IsCitedAsDataSourceBy", "IsCitedAsEvidenceBy", "IsCitedAsMetadataDocumentBy", "IsCitedAsPontentialSolutionBy", "IsCitedAsRecommendedReadingBy", "IsCitedAsRelatedBy", "IsCitedAsSourceDocumentBy", "IsCitedBy", "IsCitedForInformationBy", "IsCompiledBy", "IsConfirmedBy", "IsCorrectedBy", "IsCreditedBy", "IsCritiquedBy", "IsDeridedBy", "IsDescribedBy", "IsDisagreedWithBy", "IsDiscussedBy", "IsDisputedBy", "IsDocumentedBy", "IsExtendedBy", "IsLinkedToBy", "IsParodiedBy", "IsPlagiarizedBy", "IsQualifiedBy", "IsRefutedBy", "IsRetractedBy", "IsReviewedBy", "IsRidiculedBy", "IsSpeculatedOnBy", "IsSupportedBy", "IsUpdatedBy", "JournalCartelCitation", "JournalSelfCitation", "Likes", "LinksTo", "ObtainsBackgroundFrom", "ObtainsSupportFrom", "Parodies", "Plagiarizes", "ProvidesAssertionFor", "ProvidesConclusionsFor", "ProvidesDataFor", "ProvidesExcerptFor", "ProvidesMethodFor", "ProvidesQuotationFor", "Qualifies", "Refutes", "RepliesTo", "Retracts", "Reviews", "Ridicules", "SelfCitation", "SharesAuthorInstitutionWith", "SharesAuthorWith", "SharesFundingAgencyWith", "SharesJournalWith", "SharesPublicationVenueWith", "SpeculatesOn", "Supports", "Updates", "UsesConclusionsFrom", "UsesDataFrom", "UsesMethodIn")
+CitationIntentEnumeration <- Enum("AffilationSelfCitation", "AgreesWith", "AuthorNetworkSelfCitation", "AuthorSelfCitation", "CitesAsAuthority", "CitesAsDataSource", "CitesAsEvidence", "CitesAsMetadataDocument", "CitesAsPotentialSolution", "CitesAsRecommendedReading", "CitesAsRelated", "CitesAsSourceDocument", "CitesForInformation", "Compiles", "Confirms", "ContainsAssertionFrom", "Corrects", "Credits", "Critiques", "Derides", "Describes", "DisagreesWith", "Discusses", "Disputes", "DistantCitation", "Documents", "Extends", "FunderSelfCitation", "GivesBackgroundTo", "GivesSupportTo", "HasReplyFrom", "IncludesExcerptFrom", "IncludesQuotationFrom", "IsAgreedWithBy", "IsCitedAsAuthorityBy", "IsCitedAsDataSourceBy", "IsCitedAsEvidenceBy", "IsCitedAsMetadataDocumentBy", "IsCitedAsPontentialSolutionBy", "IsCitedAsRecommendedReadingBy", "IsCitedAsRelatedBy", "IsCitedAsSourceDocumentBy", "IsCitedBy", "IsCitedForInformationBy", "IsCompiledBy", "IsConfirmedBy", "IsCorrectedBy", "IsCreditedBy", "IsCritiquedBy", "IsDeridedBy", "IsDescribedBy", "IsDisagreedWithBy", "IsDiscussedBy", "IsDisputedBy", "IsDocumentedBy", "IsExtendedBy", "IsLinkedToBy", "IsParodiedBy", "IsPlagiarizedBy", "IsQualifiedBy", "IsRefutedBy", "IsRetractedBy", "IsReviewedBy", "IsRidiculedBy", "IsSpeculatedOnBy", "IsSupportedBy", "IsUpdatedBy", "JournalCartelCitation", "JournalSelfCitation", "Likes", "LinksTo", "ObtainsBackgroundFrom", "ObtainsSupportFrom", "Parodies", "Plagiarizes", "ProvidesAssertionFor", "ProvidesConclusionsFor", "ProvidesDataFor", "ProvidesExcerptFor", "ProvidesMethodFor", "ProvidesQuotationFor", "Qualifies", "Refutes", "RepliesTo", "Retracts", "Reviews", "Ridicules", "SelfCitation", "SharesAuthorInstitutionWith", "SharesAuthorWith", "SharesFundingAgencyWith", "SharesJournalWith", "SharesPublicationVenueWith", "SpeculatesOn", "Supports", "Updates", "UsesConclusionsFrom", "UsesDataFrom", "UsesMethodIn")
 
 
 #' Union type for valid block content.
@@ -4455,14 +4455,14 @@ CreativeWorkTypes <- Union(CreativeWork, Article, AudioObject, Claim, Collection
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationTypeEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
+EntityTypes <- Union(Entity, ArrayValidator, Article, AudioObject, BooleanValidator, Brand, CitationIntentEnumeration, Cite, CiteGroup, Claim, Code, CodeBlock, CodeChunk, CodeError, CodeExpression, CodeFragment, Collection, Comment, ConstantValidator, ContactPoint, CreativeWork, Datatable, DatatableColumn, Date, DefinedTerm, Delete, Emphasis, EnumValidator, Enumeration, Figure, Function, Grant, Heading, ImageObject, Include, IntegerValidator, Link, List, ListItem, Mark, Math, MathBlock, MathFragment, MediaObject, MonetaryGrant, NontextualAnnotation, Note, NumberValidator, Organization, Paragraph, Parameter, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Quote, QuoteBlock, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, StringValidator, Strong, Subscript, Superscript, Table, TableCell, TableRow, ThematicBreak, Thing, TupleValidator, Variable, VideoObject, VolumeMount)
 
 
 #' All type schemas that are derived from Enumeration
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-EnumerationTypes <- Union(Enumeration, CitationTypeEnumeration)
+EnumerationTypes <- Union(Enumeration, CitationIntentEnumeration)
 
 
 #' All type schemas that are derived from Grant
@@ -4518,7 +4518,7 @@ NumberValidatorTypes <- Union(NumberValidator, IntegerValidator)
 #'
 #' @return A `list` of class `Union` describing valid subtypes of this type
 #' @export
-ThingTypes <- Union(Thing, Article, AudioObject, Brand, CitationTypeEnumeration, Claim, Collection, Comment, ContactPoint, CreativeWork, Datatable, DatatableColumn, DefinedTerm, Enumeration, Figure, Grant, ImageObject, ListItem, MediaObject, MonetaryGrant, Organization, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
+ThingTypes <- Union(Thing, Article, AudioObject, Brand, CitationIntentEnumeration, Claim, Collection, Comment, ContactPoint, CreativeWork, Datatable, DatatableColumn, DefinedTerm, Enumeration, Figure, Grant, ImageObject, ListItem, MediaObject, MonetaryGrant, Organization, Periodical, Person, PostalAddress, Product, PropertyValue, PublicationIssue, PublicationVolume, Review, SoftwareApplication, SoftwareEnvironment, SoftwareSession, SoftwareSourceCode, Table, VideoObject, VolumeMount)
 
 
 #' Union type for all validator types.

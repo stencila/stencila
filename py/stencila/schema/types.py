@@ -113,6 +113,9 @@ class Cite(Entity):
     target: str
     """The target of the citation (URL or reference ID)."""
 
+    citationIntent: Optional[Array["CitationIntentEnumeration"]] = None
+    """The type/s of the citation, both factually and rhetorically."""
+
     citationMode: Optional["ECitationMode"] = None
     """Determines how the citation is shown within the surrounding text."""
 
@@ -121,9 +124,6 @@ class Cite(Entity):
 
     citationSuffix: Optional[str] = None
     """Text to show after the citation."""
-
-    citationType: Optional[Array["CitationTypeEnumeration"]] = None
-    """The type/s of the citation, both factually and rhetorically."""
 
     content: Optional[Array["InlineContent"]] = None
     """Optional structured content/text of this citation."""
@@ -143,10 +143,10 @@ for example, "1-6, 9, 55".
     def __init__(
         self,
         target: str,
+        citationIntent: Optional[Array["CitationIntentEnumeration"]] = None,
         citationMode: Optional["ECitationMode"] = None,
         citationPrefix: Optional[str] = None,
         citationSuffix: Optional[str] = None,
-        citationType: Optional[Array["CitationTypeEnumeration"]] = None,
         content: Optional[Array["InlineContent"]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
@@ -160,14 +160,14 @@ for example, "1-6, 9, 55".
         )
         if target is not None:
             self.target = target
+        if citationIntent is not None:
+            self.citationIntent = citationIntent
         if citationMode is not None:
             self.citationMode = citationMode
         if citationPrefix is not None:
             self.citationPrefix = citationPrefix
         if citationSuffix is not None:
             self.citationSuffix = citationSuffix
-        if citationType is not None:
-            self.citationType = citationType
         if content is not None:
             self.content = content
         if pageEnd is not None:
@@ -4049,21 +4049,12 @@ class VolumeMount(Thing):
             self.mountType = mountType
 
 
-class CitationTypeEnumeration(Enum):
+class CitationIntentEnumeration(Enum):
     """
     The type or nature of a citation, both factually and rhetorically.
     """
-    # A citation in which at least one author from each of the citing and the cited entities is affiliated with the same academic institution
-    AffilationSelfCitation = "AffilationSelfCitation"
-
     # The citing entity agrees with statements, ideas or conclusions presented in the cited entity
     AgreesWith = "AgreesWith"
-
-    # A citation in which at least one author of the citing entity has direct or indirect co-authorship links with one of the authors of the cited entity
-    AuthorNetworkSelfCitation = "AuthorNetworkSelfCitation"
-
-    # A citation in which the citing and the cited entities have at least one author in common
-    AuthorSelfCitation = "AuthorSelfCitation"
 
     # The citing entity cites the cited entity as one that provides an authoritative description or definition of the subject under discussion
     CitesAsAuthority = "CitesAsAuthority"
@@ -4125,17 +4116,11 @@ class CitationTypeEnumeration(Enum):
     # The citing entity disputes statements, ideas or conclusions presented in the cited entity
     Disputes = "Disputes"
 
-    # A citation in which the citing and the cited entities have nothing significant in common with one another (for example authors, journal, institutional affiliation, or funding agency) over and beyond their subject matter
-    DistantCitation = "DistantCitation"
-
     # The citing entity documents information about the cited entity
     Documents = "Documents"
 
     # The citing entity extends facts, ideas or understandings presented in the cited entity
     Extends = "Extends"
-
-    # A citation in which the works reported in the citing and the cited entities were funded by the same funding agency
-    FunderSelfCitation = "FunderSelfCitation"
 
     # The cited entity provides background information for the citing entity
     GivesBackgroundTo = "GivesBackgroundTo"
@@ -4254,12 +4239,6 @@ class CitationTypeEnumeration(Enum):
     # The cited entity presents statements, ideas, hypotheses or understanding that are updated by the cited entity
     IsUpdatedBy = "IsUpdatedBy"
 
-    # A citation from one journal to another journal which forms one of a very large number of citations from the citing journal to recent articles in the cited journal, possibly undertaken as part of a citation cartel for the purpose of gaming the impact factor of the cited journal
-    JournalCartelCitation = "JournalCartelCitation"
-
-    # A citation in which the citing and the cited entities are published in the same journal
-    JournalSelfCitation = "JournalSelfCitation"
-
     # A property that permits you to express appreciation of or interest in something that is the object of the RDF triple, or to express that it is worth thinking about even if you do not agree with its content, enabling social media 'likes' statements to be encoded in RDF
     Likes = "Likes"
 
@@ -4313,9 +4292,6 @@ class CitationTypeEnumeration(Enum):
 
     # The citing entity ridicules the cited entity or aspects of its contents
     Ridicules = "Ridicules"
-
-    # A citation in which the citing and the cited entities have something significant in common with one another, over and beyond their subject matter, for example authors, journal, institutional affiliation, or funding agency
-    SelfCitation = "SelfCitation"
 
     # Each entity has at least one author that shares a common institutional affiliation with an author of the other entity
     SharesAuthorInstitutionWith = "SharesAuthorInstitutionWith"
@@ -4391,13 +4367,13 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Co
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationTypeEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
 All type schemas that are derived from Enumeration
 """
-EnumerationTypes = Union["Enumeration", "CitationTypeEnumeration"]
+EnumerationTypes = Union["Enumeration", "CitationIntentEnumeration"]
 
 
 """
@@ -4445,7 +4421,7 @@ NumberValidatorTypes = Union["NumberValidator", "IntegerValidator"]
 """
 All type schemas that are derived from Thing
 """
-ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "CitationTypeEnumeration", "Claim", "Collection", "Comment", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Enumeration", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
+ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "CitationIntentEnumeration", "Claim", "Collection", "Comment", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Enumeration", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
 
 
 """

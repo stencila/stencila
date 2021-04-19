@@ -1,6 +1,6 @@
 /**
  * Script to imports [Citation Typing Ontology (CiTO)](http://www.sparontologies.net/ontologies/cito)
- * citation types as the `CitationTypeEnumeration`.
+ * citation types as the `CitationIntentEnumeration`.
  *
  * Fetches the CiTO JSON spec from GitHub and converts it into a type that extends `Enumeration`.
  * The names of citation types are all made PascalCase, linked to their CiTo `@id`, and description
@@ -89,10 +89,10 @@ import { pascalCase, sentenceCase } from 'change-case'
       '..',
       '..',
       'schema',
-      'CitationTypeEnumeration.schema.yaml'
+      'CitationIntentEnumeration.schema.yaml'
     ),
-    `title: CitationTypeEnumeration
-'@id': stencila:CitationTypeEnumeration
+    `title: CitationIntentEnumeration
+'@id': stencila:CitationIntentEnumeration
 status: unstable
 role: secondary
 category: metadata

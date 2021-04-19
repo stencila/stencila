@@ -37,12 +37,12 @@ properties:
       LaTeX's `natbib` package has `\citep{}` (for `parenthetical`), `\citet{}` (for `textual`),
       `\citeauthor{}` (for `textual-author`), `\citeyear{}` (for `textual-year`).
       See https://www.overleaf.com/learn/latex/Natbib_citation_styles.
-  citationType:
-    '@id': stencila:citationType
+  citationIntent:
+    '@id': stencila:citationIntent
     description: The type/s of the citation, both factually and rhetorically.
     type: array
     items:
-      $ref: CitationTypeEnumeration
+      $ref: CitationIntentEnumeration
   content:
     '@id': stencila:content
     description: Optional structured content/text of this citation.

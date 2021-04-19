@@ -2,5 +2,5 @@
   "type": "Cite",
   "target": "URL or ID of reference",
   "citationMode": "NarrativeAuthor",
-  "citationType": ["DisagreesWith"]
+  "citationIntent": ["DisagreesWith"]
 }
