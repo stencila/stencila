@@ -2170,9 +2170,9 @@ dependencies = [
 
 [[package]]
 name = "serde_with"
-version = "1.8.0"
+version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e557c650adfb38b32a5aec07082053253c703bc3cec654b27a5dbcf61995bb9b"
+checksum = "26b0b98f61935da47683bf5c46b965ce1642ef1db78860b8a1defb68bf1b5b43"
 dependencies = [
  "rustversion",
  "serde",
@@ -2298,7 +2298,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.51.0"
+version = "0.52.0"
 dependencies = [
  "anyhow",
  "bollard",
@@ -2340,7 +2340,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.51.0"
+version = "0.52.0"
 dependencies = [
  "ansi_term 0.12.1",
  "exitcode",
@@ -2352,7 +2352,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.51.0"
+version = "0.52.0"
 dependencies = [
  "neon",
  "stencila",

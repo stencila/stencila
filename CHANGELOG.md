@@ -1,3 +1,21 @@
+# [0.52.0](https://github.com/stencila/stencila/compare/v0.51.0...v0.52.0) (2021-04-19)
+
+
+### Bug Fixes
+
+* **Plugins:** Ensure global aliases are merged with local aliases ([93112b9](https://github.com/stencila/stencila/commit/93112b9e5efe85a708adf8a32dfbf8999e9265b9))
+* **Plugins:** Handle alternative plugin states when upgrading ([b109818](https://github.com/stencila/stencila/commit/b10981896f52e09dfda859e4294ae4c661607160))
+* **Plugins:** Make updates when plugin is refreshed ([a429629](https://github.com/stencila/stencila/commit/a4296296eb19eb18cc08657e811c05200fac6358))
+* **Plugins:** Only upgrade plugins that are currently installed ([f63af68](https://github.com/stencila/stencila/commit/f63af68bb04a413515c0531fb3551e2fdb0f96cc))
+
+
+### Features
+
+* **Node:** Update Node bindings for plugins ([a0b0c97](https://github.com/stencila/stencila/commit/a0b0c972b621ef4ce2714a16e16502ae0283905c))
+* **Plugins:** Implement install from CRAN ([1d561a3](https://github.com/stencila/stencila/commit/1d561a3b79d81cbb22cdf4848983674b2cd238d7))
+* **Plugins:** Implement install from NPM ([0e2c0ae](https://github.com/stencila/stencila/commit/0e2c0ae343034082b592d90e2a69a32b19f889ef))
+* **Plugins:** Implement install from PyPI ([51f0478](https://github.com/stencila/stencila/commit/51f0478eb20534991bfc33ea366e2e761e79b52a))
+
 # [0.51.0](https://github.com/stencila/stencila/compare/v0.50.0...v0.51.0) (2021-04-17)
 
 
