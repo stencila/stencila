@@ -3,6 +3,7 @@ use neon::prelude::*;
 mod config;
 mod plugins;
 mod prelude;
+mod subscriptions;
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
@@ -17,6 +18,10 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("configValidate", config::validate)?;
     cx.export_function("configSet", config::set)?;
     cx.export_function("configReset", config::reset)?;
+
+    cx.export_function("subscribe", subscriptions::subscribe)?;
+    cx.export_function("unsubscribe", subscriptions::unsubscribe)?;
+    cx.export_function("publish", subscriptions::publish)?;
 
     Ok(())
 }
