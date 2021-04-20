@@ -24,14 +24,8 @@ commit_docs() {
 
 deploy_typescript_docs_to_pages() {
   checkout_pages
-
-  cp public/packages-index.html index.html
-  git add index.html
-  git commit --message "docs(Package index): Update"
-
   cd ts
-  commit_docs "docs(Typescript): Update"
-
+  commit_docs "docs(TypeScript): Update"
   push_pages
 }
 
