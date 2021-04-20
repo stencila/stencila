@@ -64,6 +64,7 @@
     "jest-file-snapshot": "0.5.0",
     "js-yaml": "4.1.0",
     "json-schema": "0.3.0",
+    "lodash": "^4.17.21",
     "microbundle": "0.13.0",
     "rimraf": "3.0.2",
     "toposort": "2.0.2",
@@ -172,8 +173,5 @@
     "schedule": [
       "before 1am on Monday"
     ]
-  },
-  "dependencies": {
-    "lodash": "^4.17.21"
   }
 }
