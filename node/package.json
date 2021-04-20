@@ -11,7 +11,7 @@
     "build:rust:debug": "cargo-cp-artifact --artifact cdylib stencila-node index.node -- cargo build --message-format=json-render-diagnostics",
     "build:rust": "npm run build:rust:debug -- --release",
     "build:ts": "tsc -p tsconfig.prod.json",
-    "test": "npm run build:rust:debug && jest",
+    "test": "npm run build:rust:debug && jest --forceExit",
     "docs": "typedoc src/index.ts"
   },
   "devDependencies": {

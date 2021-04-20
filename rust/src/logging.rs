@@ -120,3 +120,52 @@ pub fn init(
 
     Ok([stderr_guard, file_guard])
 }
+
+
+/// A tracing subscriber which passes on events to a pubsub function
+struct PublishSubscriber {
+    publish: fn(topic: String, data: serde_json::Value) -> (),
+}
+
+use tracing::{
+    span::{Attributes, Id, Record},
+    Event, Metadata,
+};
+impl tracing::Subscriber for PublishSubscriber {
+    /// Convert the even to a JSON object and send to
+    /// the function
+    fn event(&self, event: &Event) {
+        use tracing_serde::AsSerde;
+        let data = serde_json::json!(event.as_serde());
+        (self.publish)("logging".to_string(), data);
+    }
+
+    // Methods that must be implemented fo a Subscriber
+    fn enabled(&self, _: &Metadata) -> bool {
+        true
+    }
+    fn new_span(&self, _: &Attributes) -> Id {
+        Id::from_u64(1)
+    }
+    fn record(&self, _: &Id, _: &Record) {}
+    fn record_follows_from(&self, _: &Id, _: &Id) {}
+    fn enter(&self, _: &Id) {}
+    fn exit(&self, _: &Id) {}
+}
+
+/// Initialize function to publish log events
+pub fn init_publish(publish: fn(topic: String, data: serde_json::Value) -> ()) -> Result<()> {
+    let subscriber = PublishSubscriber { publish };
+    tracing::subscriber::set_global_default(subscriber)?;
+    Ok(())
+}
+
+/// Generate some tracing events that can be used for testing
+/// that they are propograted to subscribers
+#[tracing::instrument]
+pub fn test_events() {
+    tracing::debug!("A debug event");
+    tracing::info!("An info event");
+    tracing::warn!("A warn event");
+    tracing::error!("An error event");
+}

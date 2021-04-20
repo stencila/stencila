@@ -1,6 +1,7 @@
 use neon::prelude::*;
 
 mod config;
+mod logging;
 mod plugins;
 mod prelude;
 mod subscriptions;
@@ -22,6 +23,9 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("subscribe", subscriptions::subscribe)?;
     cx.export_function("unsubscribe", subscriptions::unsubscribe)?;
     cx.export_function("publish", subscriptions::publish)?;
+
+    cx.export_function("loggingInit", logging::init)?;
+    cx.export_function("loggingTest", logging::test)?;
 
     Ok(())
 }

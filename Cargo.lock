@@ -2331,6 +2331,7 @@ dependencies = [
  "toml",
  "tracing",
  "tracing-appender",
+ "tracing-serde",
  "tracing-subscriber",
  "url",
  "validator",

@@ -34,7 +34,7 @@ pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let callback = cx.argument::<JsFunction>(1)?.root(&mut cx);
 
     let queue = cx.queue();
-    if let Err(_) = QUEUE.set(queue) {
+    if QUEUE.set(queue).is_err() {
         // Ignore because it just means queue was already set
     }
 
@@ -68,7 +68,7 @@ pub fn publish(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 ///
 /// This function is intended to be called by Rust to send data to
 /// Node.js subscribers.
-fn publish_topic_data(topic: String, data: serde_json::Value) -> () {
+pub fn publish_topic_data(topic: String, data: serde_json::Value) {
     // If the queue is not sent then it means that there are
     // no subscribers and so no need to do anything
     if let Some(queue) = QUEUE.get() {
