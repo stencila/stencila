@@ -1,3 +1,21 @@
+# [1.4.0](https://github.com/stencila/schema/compare/v1.3.1...v1.4.0) (2021-04-20)
+
+
+### Bug Fixes
+
+* **Citation intent:** Rename schema file ([9a77e54](https://github.com/stencila/schema/commit/9a77e5403d61387ab473c19b4ed9e70a4f088837))
+* **CitationTypeEnumeration:** Excludes members that are related to citation distance ([dbfcd12](https://github.com/stencila/schema/commit/dbfcd1288807b0772baaac5274179c238b36db28))
+* **CitationTypeEnumeration:** Use correct title and file extension ([4d9ca2b](https://github.com/stencila/schema/commit/4d9ca2b4df4f1e24507c023ae751ed5c03b202ce))
+* **JSON-LD:** Add CiTO to context ([3bdfe23](https://github.com/stencila/schema/commit/3bdfe2320d8bfe9ae79f07fa5181d65883d53507))
+* **Language bindings:** Handle enumeration types ([a524c92](https://github.com/stencila/schema/commit/a524c927ea6a502773affe017ea83e277c0f7424))
+* **VSCode bindings:** Preserve case for easier matching during tests ([c272d28](https://github.com/stencila/schema/commit/c272d282b58e39a264443359bfd54e1e8629e251))
+
+
+### Features
+
+* **CitationTypeEnumeration:** Add an enumeration for CiTO citation types ([dcc3344](https://github.com/stencila/schema/commit/dcc33442b7429835514250ba1c882835e5c2e973))
+* **VSCode bindings:** Add maapings between file types and schemas ([2544b6e](https://github.com/stencila/schema/commit/2544b6ea755239cef67cbaaf236a92ebcce1f6c6))
+
 ## [1.3.1](https://github.com/stencila/schema/compare/v1.3.0...v1.3.1) (2021-04-14)
 
 

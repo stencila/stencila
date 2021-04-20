@@ -89,10 +89,10 @@ BooleanValidator <- function(
 #'
 #' @name Cite
 #' @param target The target of the citation (URL or reference ID). \bold{Required}.
+#' @param citationIntent The type/s of the citation, both factually and rhetorically.
 #' @param citationMode Determines how the citation is shown within the surrounding text.
 #' @param citationPrefix Text to show before the citation.
 #' @param citationSuffix Text to show after the citation.
-#' @param citationIntent The type/s of the citation, both factually and rhetorically.
 #' @param content Optional structured content/text of this citation.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
@@ -104,10 +104,10 @@ BooleanValidator <- function(
 #' @export
 Cite <- function(
   target,
+  citationIntent,
   citationMode,
   citationPrefix,
   citationSuffix,
-  citationIntent,
   content,
   id,
   meta,
@@ -121,10 +121,10 @@ Cite <- function(
   )
   self$type <- as_scalar("Cite")
   self[["target"]] <- check_property("Cite", "target", TRUE, missing(target), "character", target)
+  self[["citationIntent"]] <- check_property("Cite", "citationIntent", FALSE, missing(citationIntent), Array(CitationIntentEnumeration), citationIntent)
   self[["citationMode"]] <- check_property("Cite", "citationMode", FALSE, missing(citationMode), Enum("Parenthetical", "Narrative", "NarrativeAuthor", "NarrativeYear", "normal", "suppressAuthor"), citationMode)
   self[["citationPrefix"]] <- check_property("Cite", "citationPrefix", FALSE, missing(citationPrefix), "character", citationPrefix)
   self[["citationSuffix"]] <- check_property("Cite", "citationSuffix", FALSE, missing(citationSuffix), "character", citationSuffix)
-  self[["citationIntent"]] <- check_property("Cite", "citationIntent", FALSE, missing(citationIntent), Array(CitationIntentEnumeration), citationIntent)
   self[["content"]] <- check_property("Cite", "content", FALSE, missing(content), Array(InlineContent), content)
   self[["pageEnd"]] <- check_property("Cite", "pageEnd", FALSE, missing(pageEnd), Union("numeric", "character"), pageEnd)
   self[["pageStart"]] <- check_property("Cite", "pageStart", FALSE, missing(pageStart), Union("numeric", "character"), pageStart)
@@ -4406,7 +4406,7 @@ VolumeMount <- function(
 #'
 #' @return A `list` of class `Enum` describing valid members of this enumeration
 #' @export
-CitationIntentEnumeration <- Enum("AffilationSelfCitation", "AgreesWith", "AuthorNetworkSelfCitation", "AuthorSelfCitation", "CitesAsAuthority", "CitesAsDataSource", "CitesAsEvidence", "CitesAsMetadataDocument", "CitesAsPotentialSolution", "CitesAsRecommendedReading", "CitesAsRelated", "CitesAsSourceDocument", "CitesForInformation", "Compiles", "Confirms", "ContainsAssertionFrom", "Corrects", "Credits", "Critiques", "Derides", "Describes", "DisagreesWith", "Discusses", "Disputes", "DistantCitation", "Documents", "Extends", "FunderSelfCitation", "GivesBackgroundTo", "GivesSupportTo", "HasReplyFrom", "IncludesExcerptFrom", "IncludesQuotationFrom", "IsAgreedWithBy", "IsCitedAsAuthorityBy", "IsCitedAsDataSourceBy", "IsCitedAsEvidenceBy", "IsCitedAsMetadataDocumentBy", "IsCitedAsPontentialSolutionBy", "IsCitedAsRecommendedReadingBy", "IsCitedAsRelatedBy", "IsCitedAsSourceDocumentBy", "IsCitedBy", "IsCitedForInformationBy", "IsCompiledBy", "IsConfirmedBy", "IsCorrectedBy", "IsCreditedBy", "IsCritiquedBy", "IsDeridedBy", "IsDescribedBy", "IsDisagreedWithBy", "IsDiscussedBy", "IsDisputedBy", "IsDocumentedBy", "IsExtendedBy", "IsLinkedToBy", "IsParodiedBy", "IsPlagiarizedBy", "IsQualifiedBy", "IsRefutedBy", "IsRetractedBy", "IsReviewedBy", "IsRidiculedBy", "IsSpeculatedOnBy", "IsSupportedBy", "IsUpdatedBy", "JournalCartelCitation", "JournalSelfCitation", "Likes", "LinksTo", "ObtainsBackgroundFrom", "ObtainsSupportFrom", "Parodies", "Plagiarizes", "ProvidesAssertionFor", "ProvidesConclusionsFor", "ProvidesDataFor", "ProvidesExcerptFor", "ProvidesMethodFor", "ProvidesQuotationFor", "Qualifies", "Refutes", "RepliesTo", "Retracts", "Reviews", "Ridicules", "SelfCitation", "SharesAuthorInstitutionWith", "SharesAuthorWith", "SharesFundingAgencyWith", "SharesJournalWith", "SharesPublicationVenueWith", "SpeculatesOn", "Supports", "Updates", "UsesConclusionsFrom", "UsesDataFrom", "UsesMethodIn")
+CitationIntentEnumeration <- Enum("AgreesWith", "CitesAsAuthority", "CitesAsDataSource", "CitesAsEvidence", "CitesAsMetadataDocument", "CitesAsPotentialSolution", "CitesAsRecommendedReading", "CitesAsRelated", "CitesAsSourceDocument", "CitesForInformation", "Compiles", "Confirms", "ContainsAssertionFrom", "Corrects", "Credits", "Critiques", "Derides", "Describes", "DisagreesWith", "Discusses", "Disputes", "Documents", "Extends", "GivesBackgroundTo", "GivesSupportTo", "HasReplyFrom", "IncludesExcerptFrom", "IncludesQuotationFrom", "IsAgreedWithBy", "IsCitedAsAuthorityBy", "IsCitedAsDataSourceBy", "IsCitedAsEvidenceBy", "IsCitedAsMetadataDocumentBy", "IsCitedAsPontentialSolutionBy", "IsCitedAsRecommendedReadingBy", "IsCitedAsRelatedBy", "IsCitedAsSourceDocumentBy", "IsCitedBy", "IsCitedForInformationBy", "IsCompiledBy", "IsConfirmedBy", "IsCorrectedBy", "IsCreditedBy", "IsCritiquedBy", "IsDeridedBy", "IsDescribedBy", "IsDisagreedWithBy", "IsDiscussedBy", "IsDisputedBy", "IsDocumentedBy", "IsExtendedBy", "IsLinkedToBy", "IsParodiedBy", "IsPlagiarizedBy", "IsQualifiedBy", "IsRefutedBy", "IsRetractedBy", "IsReviewedBy", "IsRidiculedBy", "IsSpeculatedOnBy", "IsSupportedBy", "IsUpdatedBy", "Likes", "LinksTo", "ObtainsBackgroundFrom", "ObtainsSupportFrom", "Parodies", "Plagiarizes", "ProvidesAssertionFor", "ProvidesConclusionsFor", "ProvidesDataFor", "ProvidesExcerptFor", "ProvidesMethodFor", "ProvidesQuotationFor", "Qualifies", "Refutes", "RepliesTo", "Retracts", "Reviews", "Ridicules", "SharesAuthorInstitutionWith", "SharesAuthorWith", "SharesFundingAgencyWith", "SharesJournalWith", "SharesPublicationVenueWith", "SpeculatesOn", "Supports", "Updates", "UsesConclusionsFrom", "UsesDataFrom", "UsesMethodIn")
 
 
 #' Union type for valid block content.
