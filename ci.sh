@@ -31,12 +31,14 @@ deploy_typescript_docs_to_pages() {
 
 deploy_python_docs_to_pages() {
   checkout_pages
+  cd py
   commit_docs "docs(Python): Update"
   push_pages
 }
 
 deploy_r_docs_to_pages() {
   checkout_pages
+  cd r
   commit_docs "docs(R): Update"
   push_pages
 }

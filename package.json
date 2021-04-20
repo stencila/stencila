@@ -163,7 +163,8 @@
           ]
         }
       ],
-      "@semantic-release/github"
+      "@semantic-release/github",
+      "@qiwi/semantic-release-gh-pages-plugin"
     ]
   },
   "renovate": {
