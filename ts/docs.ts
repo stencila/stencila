@@ -42,7 +42,7 @@ if (require.main) build()
 /**
  * The destination directory for generated `*.md` files
  */
-const DOCS_DEST_DIR = path.join(__dirname, '..', 'public')
+const DOCS_DEST_DIR = path.join(__dirname, '..', 'docs')
 
 /**
  * Generate docs for each `public/*.schema.json` file and
