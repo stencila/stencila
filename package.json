@@ -26,10 +26,9 @@
     "build:browser": "microbundle --tsconfig tsconfig.browser.json -o dist/browser --format es,umd ts/index.browser.ts",
     "build:node": "microbundle --tsconfig tsconfig.lib.json --target node --format es,cjs ts/index.ts",
     "build:dist": "npm run build:node && npm run build:browser && cp public/*.schema.json dist && cp public/*.jsonld dist",
-    "docs": "npm run docs:build && npm run docs:api",
-    "docs:build": "ts-node ts/docs.ts",
-    "docs:api": "ts-node ts/bindings/typescript.ts && typedoc ts --readme ts/README.md --tsconfig tsconfig.docs.json --out ts/docs/",
-    "docs:serve": "npx browser-sync ./public -f ./public --directory --no-ui --reload-debounce 750",
+    "docs": "npm run docs:md && npm run docs:api",
+    "docs:md": "ts-node ts/docs.ts",
+    "docs:api": "ts-node ts/bindings/typescript.ts && typedoc ts/index.ts --readme ts/README.md --tsconfig tsconfig.docs.json --out ts/docs/",
     "clean": "rimraf coverage dist public ts/types.ts ts/docs py/docs r/docs"
   },
   "repository": {
@@ -50,14 +49,12 @@
     "@types/fs-extra": "9.0.11",
     "@types/jest": "26.0.22",
     "@types/js-yaml": "4.0.0",
-    "@types/lodash.clonedeep": "4.5.6",
-    "@types/lodash.flatten": "4.4.6",
+    "@types/lodash": "^4.14.168",
     "@types/node": "14.14.41",
     "@types/prettier": "2.2.3",
     "@types/toposort": "2.0.3",
     "ajv": "8.1.0",
     "ajv-formats": "^2.0.2",
-    "browser-sync": "2.26.14",
     "change-case": "^4.1.2",
     "del": "6.0.0",
     "fs-extra": "9.1.0",
@@ -67,8 +64,6 @@
     "jest-file-snapshot": "0.5.0",
     "js-yaml": "4.1.0",
     "json-schema": "0.3.0",
-    "lodash.clonedeep": "4.5.0",
-    "lodash.flatten": "4.4.0",
     "microbundle": "0.13.0",
     "rimraf": "3.0.2",
     "toposort": "2.0.2",
@@ -177,5 +172,8 @@
     "schedule": [
       "before 1am on Monday"
     ]
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }

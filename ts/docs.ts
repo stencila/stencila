@@ -9,10 +9,7 @@
  */
 
 import * as encoda from '@stencila/encoda'
-import fs from 'fs-extra'
-import globby from 'globby'
-import { flow, groupBy, sortBy, startCase, uniq } from 'lodash'
-import flatten from 'lodash.flatten'
+import { flow, groupBy, sortBy, startCase, uniq, flatten } from 'lodash'
 import path from 'path'
 import { readSchemas } from './util/helpers'
 import log from './log'
@@ -31,39 +28,21 @@ import {
   listItem,
   paragraph,
   strong,
-  superscript,
   table,
   tableCell,
   tableRow,
 } from './types'
 
 /**
- * Preconfigured wrapper for the Encoda `write` function for generating consistent HTML documentation.
- */
-const writeHtml = (contents: Article, path: string): Promise<void> =>
-  encoda.write(contents, path, { isStandalone: true, theme: 'stencila' })
-
-/**
  * Run `build()` when this file is run as a Node script
  */
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-if (module.parent === null) build()
+if (require.main) build()
 
 /**
- * The source directory for docs e.g. `*.md` files
- */
-const DOCS_SOURCE_DIR = path.join(__dirname, '..', 'schema')
-
-/**
- * The destination directory for docs e.g. `*.html` and `*.md` files
+ * The destination directory for generated `*.md` files
  */
 const DOCS_DEST_DIR = path.join(__dirname, '..', 'public')
-
-/**
- * String marker appended to Schema links in the documentation to indicate
- * Unstable status, and that the underlying schema may change at any time.
- */
-const unstableMarker = superscript({ content: ['U'] })
 
 /**
  * Generate docs for each `public/*.schema.json` file and
@@ -82,40 +61,11 @@ async function build(): Promise<void> {
   await Promise.all(
     schemas.map(async (schema) => {
       const { title = '' } = schema
-
-      // 1. Generate a summary article for the schema and write it
-      // to disk so that it can be transcluded in manually written
-      // Markdown files if desired.
-      const summaryArticle = schema2SummaryArticle(schema)
+      const summaryArticle = schema2Article(schema)
       await encoda.write(
         summaryArticle,
         path.join(DOCS_DEST_DIR, `${title}.schema.md`)
       )
-
-      // 2. If the schema has a manually main Article then use
-      // that, otherwise generate it
-      // TODO: Reinstate this when manually written docs can be
-      // better converted by Encoda
-      /*
-      const mdFile = path.join(DOCS_SOURCE_DIR, `${title}.md`)
-      const mainArticle = (await fs.pathExists(mdFile))
-        ? await encoda.read(mdFile)
-        : schema2MainArticle(schema, summaryArticle)
-      */
-      const mainArticle = schema2MainArticle(schema, summaryArticle)
-
-      // 3. Write the main article as HTML
-      await writeHtml(mainArticle, path.join(DOCS_DEST_DIR, `${title}.html`))
-    })
-  )
-
-  // Copy over any output files that may have been generated
-  // when running `encoda compile` on the main Article so that
-  // links to those files in HTML files are not broken
-  const outputs = await globby('schema/*.out.*')
-  await Promise.all(
-    outputs.map(async (file) => {
-      return fs.copy(file, path.join(DOCS_DEST_DIR, path.basename(file)))
     })
   )
 
@@ -168,42 +118,11 @@ async function build(): Promise<void> {
     order: 'unordered',
   })
 
-  const readme = (await encoda.read(
-    path.join(DOCS_SOURCE_DIR, '..', 'README.md')
-  )) as Article
-  const readmeContent = readme.content !== undefined ? readme.content : []
-
   const indexPage = article({
-    authors: [],
-    title: 'Stencila Schema',
-    content: [
-      ...readmeContent,
-      heading({ content: ['Available types'], depth: 2 }),
-      paragraph({
-        content: [
-          emphasis({
-            content: [
-              'Schemas marked with “',
-              unstableMarker,
-              '” are considered unstable and have a higher likelihood of changes.',
-            ],
-          }),
-        ],
-      }),
-      schemaList,
-    ],
+    content: [heading({ content: ['Stencila Schema'], depth: 1 }), schemaList],
   })
 
-  await writeHtml(indexPage, path.join(DOCS_DEST_DIR, `index.html`))
-
-  // Convert other documentation to HTML
-  const others = await globby('docs/*')
-  await Promise.all(
-    others.map((file) => {
-      const { name } = path.parse(file)
-      return encoda.convert(file, path.join(DOCS_DEST_DIR, `${name}.html`))
-    })
-  )
+  await encoda.write(indexPage, path.join(DOCS_DEST_DIR, `index.md`))
 }
 
 /**
@@ -330,55 +249,9 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
 }
 
 /**
- * Create a  main documentation `Article` for a JSON Schema.
- *
- * Ideally these articles will be written manually, but this functions provides
- * for the cases in which it has not.
- *
- * As well as the generated summary we could automatically insert examples here as
- * @100ideas did in https://github.com/stencila/schema/pull/142
- */
-function schema2MainArticle(
-  schema: JsonSchema,
-  summaryArticle?: Article
-): Article {
-  const { title = 'Untitled' } = schema
-  const { content: summary = [] } =
-    summaryArticle !== undefined
-      ? summaryArticle
-      : schema2SummaryArticle(schema)
-
-  return article({
-    title,
-    authors: [],
-    content: [
-      ...summary,
-      paragraph({
-        content: [
-          strong({ content: ['Note:'] }),
-          ' This documentation was autogenerated from ',
-          link({
-            content: [codeFragment({ text: `${title}.schema.yaml` })],
-            target: `https://github.com/stencila/schema/blob/master/schema/${title}.schema.yaml`,
-          }),
-          '. ',
-          'Please help improve these docs (and show how we humans 💁 can do better than bots 🤖!) by ',
-          link({
-            content: ['creating a Markdown documentation file'],
-            target:
-              'https://github.com/stencila/schema/blob/master/docs/writing-schema-docs.md',
-          }),
-          '🙏',
-        ],
-      }),
-    ],
-  })
-}
-
-/**
  * Create a summary documentation `Article` for a JSON Schema.
  */
-function schema2SummaryArticle(schema: JsonSchema): Article {
+function schema2Article(schema: JsonSchema): Article {
   const {
     title = 'Untitled',
     '@id': id = '',
@@ -426,36 +299,56 @@ function schema2SummaryArticle(schema: JsonSchema): Article {
     })
 
   return article({
-    authors: [],
-    title,
     content: [
+      heading({ content: [title], depth: 1 }),
       paragraph({ content: [description] }),
+
+      heading({ content: ['Properties'], depth: 2 }),
       ...(Object.keys(properties).length > 0
         ? [table({ rows: [tableHeader, ...tableData] })]
         : []),
-      paragraph({
-        content: [
-          strong({ content: ['Parent'] }),
-          ': ',
-          parent !== undefined ? typeName2Link(parent) : 'None',
+
+      heading({ content: ['Related'], depth: 2 }),
+      list({
+        items: [
+          listItem({
+            content: [
+              paragraph({
+                content: [
+                  'Parent: ',
+                  parent !== undefined ? typeName2Link(parent) : 'None',
+                ],
+              }),
+            ],
+          }),
+          listItem({
+            content: [
+              paragraph({
+                content: [
+                  'Descendants: ',
+                  ...(descendants.length !== 0
+                    ? intersperse(descendants.map(typeName2Link), ', ')
+                    : ['None']),
+                ],
+              }),
+            ],
+          }),
         ],
       }),
+
       paragraph({
         content: [
-          strong({ content: ['Descendants'] }),
-          ': ',
-          ...(descendants.length !== 0
-            ? intersperse(descendants.map(typeName2Link), ', ')
-            : ['None']),
-        ],
-      }),
-      paragraph({
-        content: [
-          strong({ content: ['As'] }),
-          ': ',
+          strong({ content: ['Note:'] }),
+          ' This documentation was autogenerated from ',
+          link({
+            content: [codeFragment({ text: `${title}.schema.yaml` })],
+            target: `https://github.com/stencila/schema/blob/master/schema/${title}.schema.yaml`,
+          }),
+          '. This type is also available in ',
           typeId2JsonldLink(id),
-          ' ',
+          ' and ',
           typeId2JsonSchemaLink(id),
+          '.',
         ],
       }),
     ],
@@ -486,7 +379,7 @@ function typeId2JsonldLink(id: string): Link {
  * @param id The id of the type, including it's context e.g. `schema:Article`
  */
 function typeId2JsonSchemaLink(id: string): Link {
-  const [context, name] = id.split(':')
+  const [_context, name] = id.split(':')
   const target = `./${name}.schema.json`
   return link({
     content: ['JSON-Schema'],
@@ -516,12 +409,10 @@ function propertyId2Link(id: string): Link {
  */
 function schema2ListItem(schema: JsonSchema): ListItem {
   const { title = 'Untitled' } = schema
-  const status = schema.status === 'unstable' ? [unstableMarker] : []
-
   return listItem({
     content: [
       link({
-        content: [startCase(title), ...status],
+        content: [startCase(title)],
         target: `${title}.html`,
       }),
     ],

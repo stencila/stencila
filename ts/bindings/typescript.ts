@@ -3,7 +3,7 @@
  */
 
 import fs from 'fs-extra'
-import camelCase from 'lodash/camelCase'
+import { camelCase } from 'lodash'
 import path from 'path'
 import prettier from 'prettier'
 import {

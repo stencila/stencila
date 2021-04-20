@@ -6,6 +6,7 @@ CHANGELOG.md
 CONTRIBUTING.md
 coverage
 dist
+docs
 node_modules
 package-lock.json
 public

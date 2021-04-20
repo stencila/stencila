@@ -60,6 +60,7 @@ import { pascalCase, sentenceCase } from 'change-case'
         return prev
 
       const title = pascalCase(id)
+      // eslint-disable-next-line
       const rdfComment =
         // eslint-disable-next-line
         type['http://www.w3.org/2000/01/rdf-schema#comment']?.[0]?.['@value']
