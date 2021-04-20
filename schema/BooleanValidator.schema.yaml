@@ -1,6 +1,6 @@
 title: BooleanValidator
 '@id': stencila:BooleanValidator
-extends: Entity
+extends: Validator
 role: validation
 status: unstable
 category: data

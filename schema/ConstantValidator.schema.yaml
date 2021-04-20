@@ -1,6 +1,6 @@
 title: ConstantValidator
 '@id': stencila:ConstantValidator
-extends: Entity
+extends: Validator
 role: validation
 status: unstable
 category: data

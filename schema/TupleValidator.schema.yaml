@@ -1,6 +1,6 @@
 title: TupleValidator
 '@id': stencila:TupleValidator
-extends: Entity
+extends: Validator
 role: validation
 status: unstable
 category: data

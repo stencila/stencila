@@ -1,6 +1,6 @@
 title: IntegerValidator
 '@id': stencila:IntegerValidator
-extends: NumberValidator
+extends: Validator
 role: validation
 status: unstable
 category: data

@@ -1,6 +1,6 @@
 title: ArrayValidator
 '@id': stencila:ArrayValidator
-extends: Entity
+extends: Validator
 role: validation
 status: unstable
 category: data
