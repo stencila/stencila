@@ -1,5 +1,5 @@
 /**
- * Generate documentation
+ * Generate Markdown documentation from JSON Schema files.
  *
  * Note that this script requires `public/*.schema.json`
  * and `./types.ts` files. To generate those:
@@ -9,14 +9,14 @@
  */
 
 import * as encoda from '@stencila/encoda'
-import { flow, groupBy, sortBy, startCase, uniq, flatten } from 'lodash'
+import { flatten, flow, groupBy, sortBy, startCase, uniq } from 'lodash'
 import path from 'path'
-import { readSchemas } from './util/helpers'
-import log from './log'
 import { JsonSchema } from './JsonSchema'
+import log from './log'
 import {
   Article,
   article,
+  BlockContent,
   codeFragment,
   emphasis,
   heading,
@@ -24,7 +24,6 @@ import {
   Link,
   link,
   list,
-  ListItem,
   listItem,
   paragraph,
   strong,
@@ -32,6 +31,7 @@ import {
   tableCell,
   tableRow,
 } from './types'
+import { filterInterfaceSchemas, readSchemas } from './util/helpers'
 
 /**
  * Run `build()` when this file is run as a Node script
@@ -55,7 +55,7 @@ async function build(): Promise<void> {
   log.info('Building docs')
 
   // Read in all the schemas
-  const schemas = await readSchemas()
+  const schemas = filterInterfaceSchemas(await readSchemas())
 
   // For each schema...
   await Promise.all(
@@ -100,26 +100,34 @@ async function build(): Promise<void> {
       ),
   ])(schemas)
 
-  // Generate the index page list of links
-  const schemaList = list({
-    items: Object.entries(groupedSchemas).map(([group, items]) =>
-      listItem({
-        content: [
-          strong({
+  const indexPage = article({
+    content: [
+      heading({ content: ['Stencila Schema'], depth: 1 }),
+      ...Object.entries(groupedSchemas).reduce(
+        (prev: BlockContent[], [group, items]) => [
+          ...prev,
+          heading({
             content: [group],
+            depth: 2,
           }),
           list({
-            items: items.map(schema2ListItem),
+            items: items.map((schema) => {
+              const { title = 'Untitled' } = schema
+              return listItem({
+                content: [
+                  link({
+                    content: [startCase(title)],
+                    target: `./${title}.md`,
+                  }),
+                ],
+              })
+            }),
             order: 'unordered',
           }),
         ],
-      })
-    ),
-    order: 'unordered',
-  })
-
-  const indexPage = article({
-    content: [heading({ content: ['Stencila Schema'], depth: 1 }), schemaList],
+        []
+      ),
+    ],
   })
 
   await encoda.write(indexPage, path.join(DOCS_DEST_DIR, `index.md`))
@@ -167,14 +175,6 @@ const intersperse = <T, S>(array: T[], separator: S): (T | S)[] =>
   array
     .reduce((a: (T | S)[], v: T): (T | S)[] => [...a, v, separator], [])
     .slice(0, -1)
-
-const linkifyReference = (ref: string): Link => {
-  const value = ref.replace('.schema.json', '')
-  return link({
-    content: [codeFragment({ text: value })],
-    target: `./${value}.html`,
-  })
-}
 
 /**
  * Formats a sub-schema inside with the correct formatting. Primarily used for
@@ -243,7 +243,7 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
     return flatten(intersperse(anyOf.map(schema2Inlines), orSeparator))
   if (allOf !== undefined)
     return flatten(intersperse(allOf.map(schema2Inlines), andSeparator))
-  if ($ref !== undefined) return [linkifyReference($ref)]
+  if ($ref !== undefined) return [ref2Link($ref)]
   if (parser !== undefined) return [codeFragment({ text: `parser:${parser}` })]
   return [codeFragment({ text: `${type}` })]
 }
@@ -288,11 +288,13 @@ function schema2Article(schema: JsonSchema): Article {
                 : name,
             ],
           }),
-          tableCell({ content: [propertyId2Link(id)] }),
+          tableCell({
+            content: [link({ content: [id], target: id2JsonldUrl(id) })],
+          }),
           tableCell({ content: schema2Inlines(propSchema) }),
           tableCell({ content: [description] }),
           tableCell({
-            content: [link({ content: [from], target: `./${from}.html` })],
+            content: [link({ content: [from], target: `./${from}.md` })],
           }),
         ],
       })
@@ -345,9 +347,15 @@ function schema2Article(schema: JsonSchema): Article {
             target: `https://github.com/stencila/schema/blob/master/schema/${title}.schema.yaml`,
           }),
           '. This type is also available in ',
-          typeId2JsonldLink(id),
+          link({
+            content: ['JSON-LD'],
+            target: id2JsonldUrl(id),
+          }),
           ' and ',
-          typeId2JsonSchemaLink(id),
+          link({
+            content: ['JSON Schema'],
+            target: id2JsonSchemaUrl(id),
+          }),
           '.',
         ],
       }),
@@ -356,65 +364,48 @@ function schema2Article(schema: JsonSchema): Article {
 }
 
 /**
- * Generate a link to the JSON-LD for a type
+ * Generate a link to the Markdown document for a `$ref`
  *
- * Note that we only generate JSON-LD files for extension types and properties
- * so generate a Schema.org URL for others.
- *
- * @param id The id of the type, including it's context e.g. `schema:Article`
+ * @param ref e.g. "Article.schema.json"
  */
-function typeId2JsonldLink(id: string): Link {
-  const [context, name] = id.split(':')
-  const target =
-    context === 'schema' ? `https://schema.org/${name}` : `./${name}.jsonld`
+const ref2Link = (ref: string): Link => {
+  const value = ref.replace('.schema.json', '')
   return link({
-    content: ['JSON-LD'],
-    target,
+    content: [codeFragment({ text: value })],
+    target: `./${value}.md`,
   })
 }
 
 /**
- * Generate a link to the JSON Schema for a type
+ * Generate a link to the Markdown document for a type
  *
- * @param id The id of the type, including it's context e.g. `schema:Article`
+ * @param name of the type e.g. "Article"
  */
-function typeId2JsonSchemaLink(id: string): Link {
-  const [_context, name] = id.split(':')
-  const target = `./${name}.schema.json`
-  return link({
-    content: ['JSON-Schema'],
-    target,
-  })
-}
-
 function typeName2Link(name: string): Link {
   return link({
     content: [name],
-    target: `./${name}.html`,
-  })
-}
-
-function propertyId2Link(id: string): Link {
-  const [context, name] = id.split(':')
-  const target =
-    context === 'schema' ? `https://schema.org/${name}` : `./${name}.jsonld`
-  return link({
-    content: [id],
-    target,
+    target: `./${name}.md`,
   })
 }
 
 /**
- * Create a list item for a schema to be used in a list of links.
+ * Generate a URL for the JSON-LD for an id
+ *
+ * @param id The id of the type or property, including it's context e.g. `schema:Article`
  */
-function schema2ListItem(schema: JsonSchema): ListItem {
-  const { title = 'Untitled' } = schema
-  return listItem({
-    content: [
-      link({
-        content: [startCase(title)],
-        target: `${title}.html`,
-      }),
-    ],
-  })
+function id2JsonldUrl(id: string): string {
+  const [context, name] = id.split(':')
+  return context === 'schema'
+    ? `https://schema.org/${name}`
+    : `https://schema.stenci.la/${name}.jsonld`
+}
+
+/**
+ * Generate a URL for the JSON Schema for a type, using it's id
+ *
+ * @param id The id of the type, including it's context e.g. `schema:Article`
+ */
+function id2JsonSchemaUrl(id: string): string {
+  const [_context, name] = id.split(':')
+  return `https://schema.stenci.la/${name}.schema.json`
 }
