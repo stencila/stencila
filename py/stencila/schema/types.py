@@ -47,66 +47,6 @@ class Entity:
             self.meta = meta
 
 
-class ArrayValidator(Entity):
-    """A validator specifying constraints on an array node."""
-
-    contains: Optional["ValidatorTypes"] = None
-    """An array node is valid if at least one of its items is valid against the `contains` schema."""
-
-    itemsValidator: Optional["ValidatorTypes"] = None
-    """Another validator node specifying the constraints on all items in the array."""
-
-    maxItems: Optional[float] = None
-    """An array node is valid if its size is less than, or equal to, this value."""
-
-    minItems: Optional[float] = None
-    """An array node is valid if its size is greater than, or equal to, this value."""
-
-    uniqueItems: Optional[bool] = None
-    """A flag to indicate that each value in the array should be unique."""
-
-
-    def __init__(
-        self,
-        contains: Optional["ValidatorTypes"] = None,
-        id: Optional[str] = None,
-        itemsValidator: Optional["ValidatorTypes"] = None,
-        maxItems: Optional[float] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        minItems: Optional[float] = None,
-        uniqueItems: Optional[bool] = None
-    ) -> None:
-        super().__init__(
-            id=id,
-            meta=meta
-        )
-        if contains is not None:
-            self.contains = contains
-        if itemsValidator is not None:
-            self.itemsValidator = itemsValidator
-        if maxItems is not None:
-            self.maxItems = maxItems
-        if minItems is not None:
-            self.minItems = minItems
-        if uniqueItems is not None:
-            self.uniqueItems = uniqueItems
-
-
-class BooleanValidator(Entity):
-    """A schema specifying that a node must be a boolean value."""
-
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None
-    ) -> None:
-        super().__init__(
-            id=id,
-            meta=meta
-        )
-
-
-
 class Cite(Entity):
     """A reference to a CreativeWork that is cited in another CreativeWork."""
 
@@ -447,27 +387,6 @@ class CodeError(Entity):
             self.errorType = errorType
         if stackTrace is not None:
             self.stackTrace = stackTrace
-
-
-class ConstantValidator(Entity):
-    """A validator specifying a constant value that a node must have."""
-
-    value: Optional["Node"] = None
-    """The value that the node must have."""
-
-
-    def __init__(
-        self,
-        id: Optional[str] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        value: Optional["Node"] = None
-    ) -> None:
-        super().__init__(
-            id=id,
-            meta=meta
-        )
-        if value is not None:
-            self.value = value
 
 
 class Date(Entity):
@@ -1589,7 +1508,103 @@ class DefinedTerm(Thing):
             self.termCode = termCode
 
 
-class EnumValidator(Entity):
+class Validator(Entity):
+    """A base for all validator types."""
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+
+
+
+class ArrayValidator(Validator):
+    """A validator specifying constraints on an array node."""
+
+    contains: Optional["ValidatorTypes"] = None
+    """An array node is valid if at least one of its items is valid against the `contains` schema."""
+
+    itemsValidator: Optional["ValidatorTypes"] = None
+    """Another validator node specifying the constraints on all items in the array."""
+
+    maxItems: Optional[float] = None
+    """An array node is valid if its size is less than, or equal to, this value."""
+
+    minItems: Optional[float] = None
+    """An array node is valid if its size is greater than, or equal to, this value."""
+
+    uniqueItems: Optional[bool] = None
+    """A flag to indicate that each value in the array should be unique."""
+
+
+    def __init__(
+        self,
+        contains: Optional["ValidatorTypes"] = None,
+        id: Optional[str] = None,
+        itemsValidator: Optional["ValidatorTypes"] = None,
+        maxItems: Optional[float] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        minItems: Optional[float] = None,
+        uniqueItems: Optional[bool] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if contains is not None:
+            self.contains = contains
+        if itemsValidator is not None:
+            self.itemsValidator = itemsValidator
+        if maxItems is not None:
+            self.maxItems = maxItems
+        if minItems is not None:
+            self.minItems = minItems
+        if uniqueItems is not None:
+            self.uniqueItems = uniqueItems
+
+
+class BooleanValidator(Validator):
+    """A schema specifying that a node must be a boolean value."""
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+
+
+
+class ConstantValidator(Validator):
+    """A validator specifying a constant value that a node must have."""
+
+    value: Optional["Node"] = None
+    """The value that the node must have."""
+
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        value: Optional["Node"] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if value is not None:
+            self.value = value
+
+
+class EnumValidator(Validator):
     """A schema specifying that a node must be one of several values."""
 
     values: Optional[Array["Node"]] = None
@@ -1961,72 +1976,17 @@ class Include(Entity):
             self.format = format
 
 
-class NumberValidator(Entity):
-    """A validator specifying the constraints on a numeric node."""
-
-    exclusiveMaximum: Optional[float] = None
-    """The exclusive upper limit for a numeric node."""
-
-    exclusiveMinimum: Optional[float] = None
-    """The exclusive lower limit for a numeric node."""
-
-    maximum: Optional[float] = None
-    """The inclusive upper limit for a numeric node."""
-
-    minimum: Optional[float] = None
-    """The inclusive lower limit for a numeric node."""
-
-    multipleOf: Optional[float] = None
-    """A number that a numeric node must be a multiple of."""
-
-
-    def __init__(
-        self,
-        exclusiveMaximum: Optional[float] = None,
-        exclusiveMinimum: Optional[float] = None,
-        id: Optional[str] = None,
-        maximum: Optional[float] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        minimum: Optional[float] = None,
-        multipleOf: Optional[float] = None
-    ) -> None:
-        super().__init__(
-            id=id,
-            meta=meta
-        )
-        if exclusiveMaximum is not None:
-            self.exclusiveMaximum = exclusiveMaximum
-        if exclusiveMinimum is not None:
-            self.exclusiveMinimum = exclusiveMinimum
-        if maximum is not None:
-            self.maximum = maximum
-        if minimum is not None:
-            self.minimum = minimum
-        if multipleOf is not None:
-            self.multipleOf = multipleOf
-
-
-class IntegerValidator(NumberValidator):
+class IntegerValidator(Validator):
     """A validator specifying the constraints on an integer node."""
 
     def __init__(
         self,
-        exclusiveMaximum: Optional[float] = None,
-        exclusiveMinimum: Optional[float] = None,
         id: Optional[str] = None,
-        maximum: Optional[float] = None,
-        meta: Optional[Dict[str, Any]] = None,
-        minimum: Optional[float] = None,
-        multipleOf: Optional[float] = None
+        meta: Optional[Dict[str, Any]] = None
     ) -> None:
         super().__init__(
-            exclusiveMaximum=exclusiveMaximum,
-            exclusiveMinimum=exclusiveMinimum,
             id=id,
-            maximum=maximum,
-            meta=meta,
-            minimum=minimum,
-            multipleOf=multipleOf
+            meta=meta
         )
 
 
@@ -2338,6 +2298,51 @@ class Note(Entity):
             self.content = content
         if noteType is not None:
             self.noteType = noteType
+
+
+class NumberValidator(Validator):
+    """A validator specifying the constraints on a numeric node."""
+
+    exclusiveMaximum: Optional[float] = None
+    """The exclusive upper limit for a numeric node."""
+
+    exclusiveMinimum: Optional[float] = None
+    """The exclusive lower limit for a numeric node."""
+
+    maximum: Optional[float] = None
+    """The inclusive upper limit for a numeric node."""
+
+    minimum: Optional[float] = None
+    """The inclusive lower limit for a numeric node."""
+
+    multipleOf: Optional[float] = None
+    """A number that a numeric node must be a multiple of."""
+
+
+    def __init__(
+        self,
+        exclusiveMaximum: Optional[float] = None,
+        exclusiveMinimum: Optional[float] = None,
+        id: Optional[str] = None,
+        maximum: Optional[float] = None,
+        meta: Optional[Dict[str, Any]] = None,
+        minimum: Optional[float] = None,
+        multipleOf: Optional[float] = None
+    ) -> None:
+        super().__init__(
+            id=id,
+            meta=meta
+        )
+        if exclusiveMaximum is not None:
+            self.exclusiveMaximum = exclusiveMaximum
+        if exclusiveMinimum is not None:
+            self.exclusiveMinimum = exclusiveMinimum
+        if maximum is not None:
+            self.maximum = maximum
+        if minimum is not None:
+            self.minimum = minimum
+        if multipleOf is not None:
+            self.multipleOf = multipleOf
 
 
 class Organization(Thing):
@@ -3606,7 +3611,7 @@ Python2.3, .Net Framework 3.0).
             self.targetProducts = targetProducts
 
 
-class StringValidator(Entity):
+class StringValidator(Validator):
     """A schema specifying constraints on a string node."""
 
     maxLength: Optional[float] = None
@@ -3874,7 +3879,7 @@ class ThematicBreak(Entity):
 
 
 
-class TupleValidator(Entity):
+class TupleValidator(Validator):
     """
     A validator specifying constraints on an array of heterogeneous items.
     """
@@ -4367,7 +4372,7 @@ CreativeWorkTypes = Union["CreativeWork", "Article", "AudioObject", "Claim", "Co
 """
 All type schemas that are derived from Entity
 """
-EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Variable", "VideoObject", "VolumeMount"]
+EntityTypes = Union["Entity", "ArrayValidator", "Article", "AudioObject", "BooleanValidator", "Brand", "CitationIntentEnumeration", "Cite", "CiteGroup", "Claim", "Code", "CodeBlock", "CodeChunk", "CodeError", "CodeExpression", "CodeFragment", "Collection", "Comment", "ConstantValidator", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "Date", "DefinedTerm", "Delete", "Emphasis", "EnumValidator", "Enumeration", "Figure", "Function", "Grant", "Heading", "ImageObject", "Include", "IntegerValidator", "Link", "List", "ListItem", "Mark", "Math", "MathBlock", "MathFragment", "MediaObject", "MonetaryGrant", "NontextualAnnotation", "Note", "NumberValidator", "Organization", "Paragraph", "Parameter", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Quote", "QuoteBlock", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "StringValidator", "Strong", "Subscript", "Superscript", "Table", "TableCell", "TableRow", "ThematicBreak", "Thing", "TupleValidator", "Validator", "Variable", "VideoObject", "VolumeMount"]
 
 
 """
@@ -4413,21 +4418,15 @@ Node = Union["Entity", None, bool, int, float, str, Dict[str, Any], Array[Any]]
 
 
 """
-All type schemas that are derived from NumberValidator
-"""
-NumberValidatorTypes = Union["NumberValidator", "IntegerValidator"]
-
-
-"""
 All type schemas that are derived from Thing
 """
 ThingTypes = Union["Thing", "Article", "AudioObject", "Brand", "CitationIntentEnumeration", "Claim", "Collection", "Comment", "ContactPoint", "CreativeWork", "Datatable", "DatatableColumn", "DefinedTerm", "Enumeration", "Figure", "Grant", "ImageObject", "ListItem", "MediaObject", "MonetaryGrant", "Organization", "Periodical", "Person", "PostalAddress", "Product", "PropertyValue", "PublicationIssue", "PublicationVolume", "Review", "SoftwareApplication", "SoftwareEnvironment", "SoftwareSession", "SoftwareSourceCode", "Table", "VideoObject", "VolumeMount"]
 
 
 """
-Union type for all validator types.
+All type schemas that are derived from Validator
 """
-ValidatorTypes = Union["ConstantValidator", "EnumValidator", "BooleanValidator", "NumberValidator", "IntegerValidator", "StringValidator", "ArrayValidator", "TupleValidator"]
+ValidatorTypes = Union["Validator", "ArrayValidator", "BooleanValidator", "ConstantValidator", "EnumValidator", "IntegerValidator", "NumberValidator", "StringValidator", "TupleValidator"]
 
 
 """

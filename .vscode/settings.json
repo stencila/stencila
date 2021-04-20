@@ -16,18 +16,6 @@
     },
     {
       "fileMatch": [
-        "*.ArrayValidator.json"
-      ],
-      "url": "./public/ArrayValidator.schema.json"
-    },
-    {
-      "fileMatch": [
-        "*.BooleanValidator.json"
-      ],
-      "url": "./public/BooleanValidator.schema.json"
-    },
-    {
-      "fileMatch": [
         "*.Cite.json"
       ],
       "url": "./public/Cite.schema.json"
@@ -73,12 +61,6 @@
         "*.CodeError.json"
       ],
       "url": "./public/CodeError.schema.json"
-    },
-    {
-      "fileMatch": [
-        "*.ConstantValidator.json"
-      ],
-      "url": "./public/ConstantValidator.schema.json"
     },
     {
       "fileMatch": [
@@ -184,6 +166,30 @@
     },
     {
       "fileMatch": [
+        "*.Validator.json"
+      ],
+      "url": "./public/Validator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.ArrayValidator.json"
+      ],
+      "url": "./public/ArrayValidator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.BooleanValidator.json"
+      ],
+      "url": "./public/BooleanValidator.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.ConstantValidator.json"
+      ],
+      "url": "./public/ConstantValidator.schema.json"
+    },
+    {
+      "fileMatch": [
         "*.EnumValidator.json"
       ],
       "url": "./public/EnumValidator.schema.json"
@@ -229,12 +235,6 @@
         "*.Include.json"
       ],
       "url": "./public/Include.schema.json"
-    },
-    {
-      "fileMatch": [
-        "*.NumberValidator.json"
-      ],
-      "url": "./public/NumberValidator.schema.json"
     },
     {
       "fileMatch": [
@@ -295,6 +295,12 @@
         "*.Note.json"
       ],
       "url": "./public/Note.schema.json"
+    },
+    {
+      "fileMatch": [
+        "*.NumberValidator.json"
+      ],
+      "url": "./public/NumberValidator.schema.json"
     },
     {
       "fileMatch": [

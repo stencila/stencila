@@ -1,3 +1,11 @@
+## [1.4.1](https://github.com/stencila/schema/compare/v1.4.0...v1.4.1) (2021-04-20)
+
+
+### Bug Fixes
+
+* **Prose types:** Specifiy category ([6b72da5](https://github.com/stencila/schema/commit/6b72da529f5b22331ad4af5348cad46f051978a2))
+* **Validator:** Use a base Validator type ([ed53b4d](https://github.com/stencila/schema/commit/ed53b4db09d9e8d5269b8445da2daeca767456a3))
+
 # [1.4.0](https://github.com/stencila/schema/compare/v1.3.1...v1.4.0) (2021-04-20)
 
 
