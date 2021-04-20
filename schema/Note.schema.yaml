@@ -1,6 +1,7 @@
 title: Note
 '@id': stencila:Note
 extends: Entity
+category: prose
 role: secondary
 status: unstable
 description: Additional content which is not part of the main content of a document.

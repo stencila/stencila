@@ -1,6 +1,7 @@
 title: Cite
 '@id': stencila:Cite
 extends: Entity
+category: prose
 role: secondary
 status: unstable
 description: |

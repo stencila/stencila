@@ -1,6 +1,7 @@
 title: Claim
 '@id': schema:Claim
 extends: CreativeWork
+category: prose
 role: secondary
 status: unstable
 description: A claim represents specific reviewable facts or statements.

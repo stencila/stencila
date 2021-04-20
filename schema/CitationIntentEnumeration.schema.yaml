@@ -1,8 +1,8 @@
 title: CitationIntentEnumeration
 '@id': stencila:CitationIntentEnumeration
 status: unstable
+category: prose
 role: secondary
-category: metadata
 extends: Enumeration
 description: The type or nature of a citation, both factually and rhetorically.
 $comment: |
