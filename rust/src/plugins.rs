@@ -3,6 +3,7 @@ use anyhow::{anyhow, bail, Result};
 use chrono::{DateTime, Utc};
 use dirs::plugins;
 use futures::StreamExt;
+use humantime::format_duration;
 use jsonschema::JSONSchema;
 use rand::Rng;
 use semver::Version;
@@ -302,7 +303,7 @@ impl Plugin {
                 Installation::Link => Plugin::install_link(spec),
             };
             match result {
-                // Success, so add plugin to the store
+                // Success, so add the plugin to the in-memory store
                 Ok(plugin) => {
                     plugins.add(plugin)?;
                     return Ok(());
@@ -800,7 +801,10 @@ impl Plugin {
         Plugin::upgrade_list(Vec::new(), &Vec::new(), &HashMap::new(), plugins).await
     }
 
-    /// Remove a plugin
+    /// Uninstall a plugin
+    ///
+    /// Removes the plugin directory and marks it as not installed in the plugins
+    /// in-memory store.
     pub fn uninstall(
         alias: &str,
         aliases: &HashMap<String, String>,
@@ -810,7 +814,7 @@ impl Plugin {
         let name = Plugin::alias_to_name(alias, &aliases);
 
         Plugin::remove(&name)?;
-        plugins.remove(&name)?;
+        plugins.uninstall(&name)?;
 
         Ok(())
     }
@@ -969,6 +973,16 @@ impl Plugins {
     pub fn load() -> Result<Self> {
         let mut plugins: Plugins = serde_json::from_str(include_str!("../../plugins.json"))?;
 
+        // Create an entry for all plugins in the registry
+        for (name, _url) in plugins.registry.clone() {
+            let plugin = Plugin {
+                name,
+                ..Default::default()
+            };
+            plugins.add(plugin)?
+        }
+
+        // Add / update using any manifests that are stored locally in plugins directory
         let dir = dirs::plugins(true)?;
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
@@ -986,11 +1000,9 @@ impl Plugins {
         Ok(plugins)
     }
 
-    /// Load a plugin from JSON into memory
+    /// Add / update a plugin
     ///
-    /// Deserialize a plugin from JSON and compile the
-    /// JSON Schema in each item in its `featureList`.
-    /// Should be called when a plugin is installed.
+    /// Compiles the JSON Schema for each item in its `featureList`.
     pub fn add(&mut self, plugin: Plugin) -> Result<()> {
         let name = plugin.name.as_str();
 
@@ -1038,17 +1050,15 @@ impl Plugins {
         Ok(())
     }
 
-    /// Unload a plugin from memory
+    /// Uninstall a plugin
     ///
-    /// De-registers the plugin so it will no longer be delegated to.
-    /// Should be called when a plugin is uninstalled.
-    pub fn remove(&mut self, name: &str) -> Result<()> {
-        self.plugins.remove(name);
-
-        for method in self.methods.values_mut() {
-            method.retain(|implem| implem.plugin != name)
+    /// Does not remove the plugin, simply marks it as not installed.
+    pub fn uninstall(&mut self, name: &str) -> Result<()> {
+        if let Some(mut plugin) = self.plugins.get_mut(name) {
+            plugin.installation = None
+        } else {
+            tracing::warn!("Plugin with name '{}' is not known", name)
         }
-
         Ok(())
     }
 
@@ -1081,18 +1091,18 @@ impl Plugins {
         }
     }
 
-    /// Create a Markdown table of all the installed plugins
+    /// Create a Markdown table of all the registered and/or installed plugins
     pub fn display_plugins(&self, aliases: &HashMap<String, String>) -> Result<String> {
         let aliases = Plugin::merge_aliases(&self.aliases, aliases);
 
         if self.plugins.is_empty() {
-            return Ok("No plugins installed. See `stencila plugins install --help`.".to_string());
+            return Ok("No plugins registered or installed.".to_string());
         }
 
         let head = r#"
-| ----- | ------ | --------- | --------- | ----------- |
-|       | Plugin | Installed | Latest    | Description |
-| :---- | :----- | --------: | :-------- | :---------- |
+| ----- | ------ | --------- | --------- | ----------- | ---------- |
+|       | Plugin | Installed | Latest    | Description | Refreshed  |
+| :---- | :----- | --------: | --------: | :---------- | ---------: |
     "#
         .trim();
         let body = self
@@ -1105,6 +1115,7 @@ impl Plugins {
                     installation,
                     description,
                     next,
+                    refreshed,
                     ..
                 } = plugin.clone();
                 let installation = match installation {
@@ -1115,13 +1126,28 @@ impl Plugins {
                     None => String::new(),
                     Some(next) => next.software_version,
                 };
+                let refreshed = match refreshed {
+                    None => String::new(),
+                    Some(refreshed) => {
+                        use std::convert::TryFrom;
+                        let duration = Utc::now() - refreshed;
+                        format_duration(std::time::Duration::new(
+                            u64::try_from(duration.num_seconds())
+                                .expect("Unable to convert i64 to u64"),
+                            0,
+                        ))
+                        .to_string()
+                            + " ago"
+                    }
+                };
                 format!(
-                    "| **{}** | {} | {} | {} | {} |",
+                    "| **{}** | {} | {} | {} | {} | {} |",
                     Plugin::name_to_alias(&name, &aliases),
                     name,
                     installation,
                     next,
-                    description
+                    description,
+                    refreshed
                 )
             })
             .collect::<Vec<String>>()
@@ -1178,7 +1204,7 @@ impl Plugins {
     pub fn display_aliases(&self, aliases: &HashMap<String, String>) -> Result<String> {
         let aliases = Plugin::merge_aliases(&self.aliases, aliases);
         if aliases.is_empty() {
-            return Ok("No aliases registered".to_string());
+            return Ok("No aliases registered".into());
         }
 
         let head = r#"
@@ -1199,7 +1225,7 @@ impl Plugins {
     /// Create a Markdown table of all the registered methods
     pub fn display_methods(&self) -> Result<String> {
         if self.methods.is_empty() {
-            return Ok("No methods registered. See `stencila plugins install --help`.".to_string());
+            return Ok("No methods registered.".into());
         }
 
         let head = r#"
