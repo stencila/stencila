@@ -5,6 +5,6 @@
 stencilaschema_*.tar.gz
 /coverage
 /dist
-/docs
+/docs/*.md
 /node_modules
 /public
