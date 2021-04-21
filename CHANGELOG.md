@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/stencila/schema/compare/v1.4.2...v1.4.3) (2021-04-21)
+
+
+### Bug Fixes
+
+* **Docs:** Add redirect path for CSS ([9d7a977](https://github.com/stencila/schema/commit/9d7a97790d913948388b06face17b4b3d450530d))
+
 ## [1.4.2](https://github.com/stencila/schema/compare/v1.4.1...v1.4.2) (2021-04-21)
 
 
