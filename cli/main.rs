@@ -255,6 +255,54 @@ mod interact {
         pub command: Command,
     }
 
+    fn help() -> String {
+        use ansi_term::{
+            Colour::{Green, Yellow},
+            Style,
+        };
+
+        let mut help = Style::new()
+            .bold()
+            .paint("Stencila CLI interactive mode\n\n")
+            .to_string();
+
+        help += &Yellow.paint("ABOUT:").to_string();
+        help += r#"
+    Interactive mode allows you to interact with one or more of the CLIs
+    commands without having to restart the application. It is particularly
+    useful for exploring the structure of documents using `select`,
+    running code within them using `execute`, and inspecting variables
+    using `list` and `get`.
+
+    Interactive mode has the concept of a command prefix to save you having
+    to retype the same command and its options. For example, to interactively
+    execute code within the context of a RMarkdown document:
+
+        stencila execute report.Rmd --interact
+
+    You can also print, set and clear the command prefix during the
+    interactive session (see the shortcut keystrokes below).
+
+"#;
+
+        help += &Yellow.paint("SHORTCUTS:\n").to_string();
+        for (keys, desc) in &[
+            ("--help", "Get help for the current command prefix"),
+            ("^     ", "Prints the current command prefix"),
+            ("<     ", "Sets the command prefix"),
+            (">     ", "Clears the command prefix"),
+            ("↑     ", "Go back through command history"),
+            ("↓     ", "Go forward through command history"),
+            ("?     ", "Prints this message"),
+            ("Ctrl+C", "Cancels the current command"),
+            ("Ctrl+D", "Exits interactive application"),
+        ] {
+            help += &format!("    {} {}\n", Green.paint(*keys), desc)
+        }
+
+        help
+    }
+
     /// Run the interactive REPL
     #[tracing::instrument(skip(config, plugins))]
     pub async fn run(
@@ -269,32 +317,7 @@ mod interact {
             tracing::debug!("No previous history found")
         }
 
-        let help = r#"Stencila CLI interactive mode
-
-Interactive mode allows you to interact with one or more of the CLIs
-commands without having to restart the application. It is particularly
-useful for exploring the structure of documents using `select`,
-running code within them using `execute`, and inspecting variables
-using `list` and `get`.
-
-Interactive mode has the concept of a command prefix to save you having
-to retype the same command and its options. For example, to interactively
-execute code within the context of a RMarkdown document:
-
-  stencila execute report.Rmd --interact
-
-
---help      Get help for the current command prefix
-^           Prints the current command prefix
-<           Sets the command prefix
->           Clears the command prefix
-?           Prints this message
-↑           Go back through command history
-↓           Go forward through command history
-Ctrl+C      Cancels the current command
-Ctrl+D      Exits interactive application
-"#;
-        println!("{}", help);
+        println!("{}", help());
 
         let mut prefix = prefix.clone();
         if !prefix.is_empty() {
@@ -325,7 +348,7 @@ Ctrl+D      Exits interactive application
                             println!("Command prefix was cleared");
                             continue;
                         } else if first == '?' {
-                            println!("{}", help);
+                            println!("{}", help());
                             continue;
                         }
                     };
