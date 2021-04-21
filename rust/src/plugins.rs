@@ -1108,18 +1108,17 @@ impl Plugins {
                     ..
                 } = plugin.clone();
                 let installation = match installation {
-                    None => "None".to_string(),
-                    Some(value) => value.to_string(),
+                    None => "".to_string(),
+                    Some(value) => format!("{} ({})", software_version, value),
                 };
                 let next = match next {
-                    None => software_version.clone(),
+                    None => software_version,
                     Some(plugin) => plugin.software_version,
                 };
                 format!(
-                    "| **{}** | {} | {} ({}) | {} | {} |",
+                    "| **{}** | {} | {} | {} | {} |",
                     Plugin::name_to_alias(&name, &aliases),
                     name,
-                    software_version,
                     installation,
                     next,
                     description
