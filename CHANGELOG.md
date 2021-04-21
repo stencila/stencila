@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/stencila/schema/compare/v1.4.1...v1.4.2) (2021-04-21)
+
+
+### Bug Fixes
+
+* **Docs:** Fix file names and link paths ([efb8c55](https://github.com/stencila/schema/commit/efb8c55ef557130efa8749044138654a41761da0))
+
 ## [1.4.1](https://github.com/stencila/schema/compare/v1.4.0...v1.4.1) (2021-04-20)
 
 
