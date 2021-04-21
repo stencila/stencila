@@ -71,3 +71,12 @@
   from = "/v1/*"
   to = "https://unpkg.com/@stencila/schema@1/dist/:splat"
   force = true
+
+# Redirect (well actually, rewrite) content not found here to
+# GitHub pages. This is primarily for Markdown and API documentation
+# that is served from there
+
+[[redirects]]
+  from = "/*"
+  to = "https://stencila.github.io/schema/:splat"
+  status = 200
