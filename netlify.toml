@@ -77,6 +77,11 @@
 # that is served from there
 
 [[redirects]]
+  from = "/schema/*" # For CSS
+  to = "https://stencila.github.io/schema/:splat"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "https://stencila.github.io/schema/:splat"
   status = 200
