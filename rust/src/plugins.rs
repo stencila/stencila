@@ -1108,12 +1108,12 @@ impl Plugins {
                     ..
                 } = plugin.clone();
                 let installation = match installation {
-                    None => "".to_string(),
+                    None => String::new(),
                     Some(value) => format!("{} ({})", software_version, value),
                 };
                 let next = match next {
-                    None => software_version,
-                    Some(plugin) => plugin.software_version,
+                    None => String::new(),
+                    Some(next) => next.software_version,
                 };
                 format!(
                     "| **{}** | {} | {} | {} | {} |",
