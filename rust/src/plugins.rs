@@ -351,6 +351,17 @@ impl Plugin {
         let node_modules = npm_prefix.join("node_modules");
         fs::create_dir_all(&node_modules)?;
 
+        // Ensure we have a package.json in npm_prefix to avoid warnings
+        let package_json = npm_prefix.join("package.json");
+        if !package_json.exists() {
+            let json = r#"{
+  "description": "Stencila plugins installed as NPM packages",
+  "repository": "https://github.com/stencila/stencila",
+  "license": "Apache-2.0"
+}"#;
+            fs::write(package_json, json)?;
+        }
+
         tracing::debug!(
             "Installing NPM package '{}/{}@{}' to '{}'",
             owner,
