@@ -1,11 +1,14 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, protocol } from 'electron'
 import { main } from './main'
+import { requestHandler, scheme } from './main/app-protocol'
 import { initStore } from './main/store/bootstrap'
 
 let store: ReturnType<typeof initStore>
 
-declare const MAIN_WINDOW_WEBPACK_ENTRY: string
+// declare const MAIN_WINDOW_WEBPACK_ENTRY: string
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
+
+const isDevelopment = process.env.NODE_ENV === 'development'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -13,6 +16,9 @@ if (require('electron-squirrel-startup')) {
 }
 
 const createWindow = (): void => {
+  /* eng-disable PROTOCOL_HANDLER_JS_CHECK */
+  protocol.registerBufferProtocol(scheme, requestHandler)
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 860,
@@ -30,12 +36,27 @@ const createWindow = (): void => {
 
   store = initStore(mainWindow)
 
-  // mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
-  mainWindow.loadURL('http://localhost:3333')
+  if (isDevelopment) {
+    mainWindow.loadURL('http://localhost:3333')
+  } else {
+    mainWindow.loadURL(`${scheme}://rse/`)
+  }
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  if (isDevelopment) {
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools()
+  }
 }
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: scheme,
+    privileges: {
+      standard: true,
+      secure: true,
+    },
+  },
+])
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

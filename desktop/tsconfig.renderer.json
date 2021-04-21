@@ -3,5 +3,5 @@
   "compilerOptions": {
     "module": "commonjs"
   },
-  "include": ["src/renderer", "src/preload"]
+  "include": ["src/preload"]
 }

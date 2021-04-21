@@ -12,7 +12,11 @@ export class AppRoot {
     return (
       <main>
         <Router.Switch>
-          <Route path="/">
+          <Route
+            path={(path) =>
+              path === '/' || path === '/renderer/main_window/index.html'
+            }
+          >
             <app-home></app-home>
           </Route>
 
