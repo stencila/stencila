@@ -121,7 +121,6 @@ pub fn init(
     Ok([stderr_guard, file_guard])
 }
 
-
 /// A tracing subscriber which passes on events to a pubsub function
 struct PublishSubscriber {
     publish: fn(topic: String, data: serde_json::Value) -> (),
