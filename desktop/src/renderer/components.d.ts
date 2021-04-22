@@ -13,6 +13,8 @@ export namespace Components {
     }
     interface AppRoot {
     }
+    interface AppSettings {
+    }
 }
 declare global {
     interface HTMLAppHomeElement extends Components.AppHome, HTMLStencilElement {
@@ -33,10 +35,17 @@ declare global {
         prototype: HTMLAppRootElement;
         new (): HTMLAppRootElement;
     };
+    interface HTMLAppSettingsElement extends Components.AppSettings, HTMLStencilElement {
+    }
+    var HTMLAppSettingsElement: {
+        prototype: HTMLAppSettingsElement;
+        new (): HTMLAppSettingsElement;
+    };
     interface HTMLElementTagNameMap {
         "app-home": HTMLAppHomeElement;
         "app-project": HTMLAppProjectElement;
         "app-root": HTMLAppRootElement;
+        "app-settings": HTMLAppSettingsElement;
     }
 }
 declare namespace LocalJSX {
@@ -47,10 +56,13 @@ declare namespace LocalJSX {
     }
     interface AppRoot {
     }
+    interface AppSettings {
+    }
     interface IntrinsicElements {
         "app-home": AppHome;
         "app-project": AppProject;
         "app-root": AppRoot;
+        "app-settings": AppSettings;
     }
 }
 export { LocalJSX as JSX };
@@ -60,6 +72,7 @@ declare module "@stencil/core" {
             "app-home": LocalJSX.AppHome & JSXBase.HTMLAttributes<HTMLAppHomeElement>;
             "app-project": LocalJSX.AppProject & JSXBase.HTMLAttributes<HTMLAppProjectElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+            "app-settings": LocalJSX.AppSettings & JSXBase.HTMLAttributes<HTMLAppSettingsElement>;
         }
     }
 }

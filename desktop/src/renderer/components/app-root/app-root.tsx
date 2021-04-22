@@ -20,6 +20,10 @@ export class AppRoot {
             <app-home></app-home>
           </Route>
 
+          <Route path="/settings">
+            <app-settings></app-settings>
+          </Route>
+
           <Route
             path={match('/project/:path*')}
             render={({ path }) => <app-project projectDir={path}></app-project>}

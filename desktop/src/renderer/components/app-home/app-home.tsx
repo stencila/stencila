@@ -30,6 +30,11 @@ export class AppHome {
     })
   }
 
+  private showConfig = (event: MouseEvent) => {
+    event.preventDefault()
+    window.api.invoke(CHANNEL.SHOW_CONFIG_WINDOW)
+  }
+
   render() {
     return (
       <div class="app-home">
@@ -47,6 +52,10 @@ export class AppHome {
         <h2>Recent projects</h2>
 
         <hr />
+
+        <stencila-button onClick={this.showConfig}>
+          Show Settings
+        </stencila-button>
       </div>
     )
   }

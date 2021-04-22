@@ -1,4 +1,5 @@
 import { app, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
+import { showSettings } from '../config/window'
 
 const isMac = process.platform === 'darwin'
 
@@ -10,6 +11,15 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
           label: app.name,
           submenu: [
             { role: 'about' as const },
+            { type: 'separator' as const },
+            {
+              label: 'Preferences…',
+              // TODO: Support cross-platform shortcuts
+              accelerator: 'CommandOrControl+,',
+              click: async () => {
+                showSettings()
+              },
+            },
             { type: 'separator' as const },
             { role: 'services' as const },
             { type: 'separator' as const },
