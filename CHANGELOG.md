@@ -1,3 +1,24 @@
+# [0.53.0](https://github.com/stencila/stencila/compare/v0.52.0...v0.53.0) (2021-04-22)
+
+
+### Bug Fixes
+
+* **CLI:** Improve presentation of interactive help ([e442ead](https://github.com/stencila/stencila/commit/e442ead69e3f44764921bdc0f32d6549fc81445e))
+* **dependencies:** update rust crate notify to 4.0.16 ([ca05744](https://github.com/stencila/stencila/commit/ca0574419d94fdc7fcde59b0db99b64472e4a2ce))
+* **Plugins:** Avoid warning about missing package.json on NPM install ([c6d4256](https://github.com/stencila/stencila/commit/c6d4256d017b5cd942ceb5f298e5cfd6a0e30e79))
+* **Plugins:** Only show next if there is one ([cf41d74](https://github.com/stencila/stencila/commit/cf41d74382ed17b17b88e9eb141e399b48d0fe44))
+* **Plugins:** Replace plugin folders when installing as package ([a184f00](https://github.com/stencila/stencila/commit/a184f009fa0f63002706d7d9fe9fef1a7d189ea4))
+* **Plugins:** Show blank when not installed ([0c5c60e](https://github.com/stencila/stencila/commit/0c5c60e54408ab05d52f54f5ec09a1ab0dc7fa5b))
+* **Plugins:** Show registered and installed in list ([db39e48](https://github.com/stencila/stencila/commit/db39e48ce35928c9b6401f6cb1724d5e77bafdf4))
+* **Plugins:** Sort list by alias ([670bd9d](https://github.com/stencila/stencila/commit/670bd9df2ff65c68fa4e31c7dd4ed0e6f752d133))
+
+
+### Features
+
+* **Node bindings:** Add ability to subscribe to logging events ([5b6421e](https://github.com/stencila/stencila/commit/5b6421e6b91c0ab53935296b6e480084c44f51cc))
+* **Node bindings:** Add subscriptions module ([926eab7](https://github.com/stencila/stencila/commit/926eab78fb3ec31f5bf0cec1e8f4f5f77417c689))
+* **Plugins:** Install using plugin's installUrl array ([eb4899e](https://github.com/stencila/stencila/commit/eb4899e1db2de5b2794fe8726ddf3fdb9d9a421f))
+
 # [0.52.0](https://github.com/stencila/stencila/compare/v0.51.0...v0.52.0) (2021-04-19)
 
 
