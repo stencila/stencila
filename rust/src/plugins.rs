@@ -5,7 +5,9 @@ use dirs::plugins;
 use futures::StreamExt;
 use humantime::format_duration;
 use jsonschema::JSONSchema;
+use once_cell::sync::Lazy;
 use rand::Rng;
+use regex::Regex;
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -282,7 +284,7 @@ impl Plugin {
         Plugin::write(name, plugin)
     }
 
-    /// Install the plugin
+    /// Install a plugin
     pub async fn install(
         spec: &str,
         installs: &[Installation],
@@ -290,15 +292,25 @@ impl Plugin {
         plugins: &mut Plugins,
         current_version: Option<String>,
     ) -> Result<()> {
-        let aliases = Plugin::merge_aliases(&plugins.aliases, aliases);
-        let name_or_spec = Plugin::alias_to_name(spec, &aliases);
+        // Parse the spec to get it's parts.
+        // If there is no matching plugin then we'll attempt to use these parts
+        // to install using each of the installation methods.
+        let (owner, name, version) = Plugin::spec_to_parts(&spec);
 
-        let (owner, name, version) = Plugin::spec_to_parts(&name_or_spec);
+        // Attempt to convert the parsed name using aliases
+        let aliases = Plugin::merge_aliases(&plugins.aliases, aliases);
+        let name = Plugin::alias_to_name(name, &aliases);
+        let name = name.as_str();
+
+        // Attempt to get the matching plugin so we can use it's `installUrl` property
+        // if possible
+        let plugin = &plugins.plugins.get(name);
 
         for install in installs {
             let result = match install {
-                Installation::Docker => Plugin::install_docker(owner, name, version).await,
+                Installation::Docker => Plugin::install_docker(plugin, owner, name, version).await,
                 Installation::Binary => Plugin::install_binary(
+                    plugin,
                     owner,
                     name,
                     version,
@@ -306,9 +318,9 @@ impl Plugin {
                     false,
                     true,
                 ),
-                Installation::Npm => Plugin::install_npm(owner, name, version),
-                Installation::Pypi => Plugin::install_pypi(name, version),
-                Installation::Cran => Plugin::install_cran(name, version),
+                Installation::Npm => Plugin::install_npm(plugin, owner, name, version),
+                Installation::Pypi => Plugin::install_pypi(plugin, name, version),
+                Installation::Cran => Plugin::install_cran(plugin, name, version),
                 Installation::Link => Plugin::install_link(spec),
             };
             match result {
@@ -350,12 +362,51 @@ impl Plugin {
         Ok(())
     }
 
+    /// Parse a plugin's NPM install URL (if any)
+    #[cfg(any(feature = "plugins-npm"))]
+    pub fn parse_npm_install_url(self: &Plugin) -> Option<(String, String)> {
+        static REGEX: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r"^https?://www.npmjs.com/package/@([a-z]+)/([a-z]+)")
+                .expect("Unable to create regex")
+        });
+        for url in &self.install_url {
+            if let Some(captures) = REGEX.captures(&url) {
+                return Some((
+                    captures.get(1).map_or("", |matc| matc.as_str()).into(),
+                    captures.get(2).map_or("", |matc| matc.as_str()).into(),
+                ));
+            }
+        }
+        None
+    }
+
     /// Add a plugin as a NPM package
     ///
     /// Installs the package within the `plugins/node_modules` directory so that it
     /// is not necessary to run as root (the NPM `--global` flag requires sudo).
     #[cfg(any(feature = "plugins-npm"))]
-    pub fn install_npm(owner: &str, name: &str, version: &str) -> Result<Plugin> {
+    pub fn install_npm(
+        plugin: &Option<&Plugin>,
+        owner: &str,
+        name: &str,
+        version: &str,
+    ) -> Result<Plugin> {
+        // If this is a known, registered plugin then check that it can be installed
+        // as a NPM package and use declared repo owner and name.
+        // Otherwise, use the repo owner and name parsed from the spec.
+        let (owner, name) = if let Some(plugin) = plugin {
+            if let Some((owner, name)) = plugin.parse_npm_install_url() {
+                (owner, name)
+            } else {
+                return Err(anyhow!(
+                    "Install as NPM package is not supported by plugin '{}'",
+                    plugin.name
+                ));
+            }
+        } else {
+            (owner.into(), name.into())
+        };
+
         let npm_prefix = plugins(false)?;
         let node_modules = npm_prefix.join("node_modules");
         fs::create_dir_all(&node_modules)?;
@@ -391,7 +442,7 @@ impl Plugin {
                 if output.status.success() {
                     tracing::info!("NPM package '{}/{}@{}' installed", owner, name, version);
 
-                    let bin = node_modules.join(".bin").join(name).display().to_string();
+                    let bin = node_modules.join(".bin").join(&name).display().to_string();
                     tracing::debug!("Obtaining manifest from {}", bin);
 
                     let mut plugin =
@@ -417,11 +468,41 @@ impl Plugin {
         }
     }
 
+    /// Parse a plugin's PyPI install URL (if any)
+    #[cfg(any(feature = "plugins-pypi"))]
+    pub fn parse_pypi_install_url(self: &Plugin) -> Option<String> {
+        static REGEX: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r"^https?://pypi.org/project/([\w\-\.]+)").expect("Unable to create regex")
+        });
+        for url in &self.install_url {
+            if let Some(captures) = REGEX.captures(&url) {
+                return Some(captures.get(1).map_or("", |matc| matc.as_str()).into());
+            }
+        }
+        None
+    }
+
     /// Add a plugin as a Python package from PyPI
     ///
     /// Installs the package globally for the user.
     #[cfg(any(feature = "plugins-pypi"))]
-    pub fn install_pypi(name: &str, version: &str) -> Result<Plugin> {
+    pub fn install_pypi(plugin: &Option<&Plugin>, name: &str, version: &str) -> Result<Plugin> {
+        // If this is a known, registered plugin then check that it can be installed
+        // as a Python package and use declared package name.
+        // Otherwise, use the name parsed from the spec.
+        let name = if let Some(plugin) = plugin {
+            if let Some(name) = plugin.parse_pypi_install_url() {
+                name
+            } else {
+                return Err(anyhow!(
+                    "Install as Python package is not supported by plugin '{}'",
+                    plugin.name
+                ));
+            }
+        } else {
+            name.into()
+        };
+
         tracing::debug!("Installing PyPi package '{}@{}'", name, version);
 
         match Command::new("python3")
@@ -467,9 +548,39 @@ impl Plugin {
         }
     }
 
+    /// Parse a plugin's CRAN install URL (if any)
+    #[cfg(any(feature = "plugins-cran"))]
+    pub fn parse_cran_install_url(self: &Plugin) -> Option<String> {
+        static REGEX: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r"^https://cran.r-project.org/web/packages/([\w\-\.]+)")
+                .expect("Unable to create regex")
+        });
+        for url in &self.install_url {
+            if let Some(captures) = REGEX.captures(&url) {
+                return Some(captures.get(1).map_or("", |matc| matc.as_str()).into());
+            }
+        }
+        None
+    }
+
     /// Add a plugin as a R package from CRAN
     #[cfg(any(feature = "plugins-cran"))]
-    pub fn install_cran(name: &str, version: &str) -> Result<Plugin> {
+    pub fn install_cran(plugin: &Option<&Plugin>, name: &str, version: &str) -> Result<Plugin> {
+        // If this is a known, registered plugin then check that it can be installed
+        // as a R package and use declared package name. Otherwise, use the name parsed from the spec.
+        let name = if let Some(plugin) = plugin {
+            if let Some(name) = plugin.parse_cran_install_url() {
+                name
+            } else {
+                return Err(anyhow!(
+                    "Install as R package is not supported by plugin '{}'",
+                    plugin.name
+                ));
+            }
+        } else {
+            name.into()
+        };
+
         tracing::debug!("Installing CRAN package '{}'", name);
         if version != "latest" {
             tracing::warn!("Installing specific versions of CRAN package is not currently support; will install latest version");
@@ -513,9 +624,31 @@ impl Plugin {
         }
     }
 
+    /// Parse a plugin's binary install URL (if any)
+    ///
+    /// Currently this will parse a GitHub URL. In the future is may also
+    /// parse other URLs used for distributing URLs.
+    #[cfg(any(feature = "plugins-binary"))]
+    pub fn parse_binary_install_url(self: &Plugin) -> Option<(String, String)> {
+        static REGEX: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r"^https?://github.com/([a-z]+)/([a-z]+)/releases")
+                .expect("Unable to create regex")
+        });
+        for url in &self.install_url {
+            if let Some(captures) = REGEX.captures(&url) {
+                return Some((
+                    captures.get(1).map_or("", |matc| matc.as_str()).into(),
+                    captures.get(2).map_or("", |matc| matc.as_str()).into(),
+                ));
+            }
+        }
+        None
+    }
+
     /// Add a plugin as a downloaded binary
     #[cfg(any(feature = "plugins-binary"))]
     pub fn install_binary(
+        plugin: &Option<&Plugin>,
         owner: &str,
         name: &str,
         version: &str,
@@ -523,6 +656,22 @@ impl Plugin {
         confirm: bool,
         verbose: bool,
     ) -> Result<Plugin> {
+        // If this is a known, registered plugin then check that it can be installed
+        // as a binary and use declared repo owner and name.
+        // Otherwise, use the repo owner and name parsed from the spec.
+        let (owner, name) = if let Some(plugin) = plugin {
+            if let Some((owner, name)) = plugin.parse_binary_install_url() {
+                (owner, name)
+            } else {
+                return Err(anyhow!(
+                    "Binary install is not supported by plugin '{}'",
+                    plugin.name
+                ));
+            }
+        } else {
+            (owner.into(), name.into())
+        };
+
         // Remove the plugin directory if this is not an upgrade
         // (we don't want it remove if the user aborts download)
         if current_version.is_none() {
@@ -536,7 +685,7 @@ impl Plugin {
 
         let mut builder = self_update::backends::github::Update::configure();
         builder
-            .repo_owner(owner)
+            .repo_owner(&owner)
             .repo_name(&name)
             .bin_name(&name)
             .current_version(&current_version.unwrap_or_else(|| "0.0.0".into()))
@@ -579,13 +728,55 @@ impl Plugin {
         Ok(plugin)
     }
 
+    /// Parse a plugin's Docker install URL (if any)
+    ///
+    /// Currently this will parse a Docker Hub URL. In the future is may also
+    /// parse container registry URLs e.g. gcr.io
+    #[cfg(any(feature = "plugins-docker"))]
+    pub fn parse_docker_install_url(self: &Plugin) -> Option<(String, String)> {
+        for url in &self.install_url {
+            static REGEX: Lazy<Regex> = Lazy::new(|| {
+                Regex::new(r"^https?://hub.docker.com/r/([a-z]+)/([a-z]+)")
+                    .expect("Unable to create regex")
+            });
+            if let Some(captures) = REGEX.captures(&url) {
+                return Some((
+                    captures.get(1).map_or("", |matc| matc.as_str()).into(),
+                    captures.get(2).map_or("", |matc| matc.as_str()).into(),
+                ));
+            }
+        }
+        None
+    }
+
     /// Add a plugin as a pulled Docker image
     ///
     /// For this to succeed must be able to connect to the local
     /// Docker server and be able to pull an image with corresponding
     /// name.
     #[cfg(any(feature = "plugins-docker"))]
-    pub async fn install_docker(owner: &str, name: &str, version: &str) -> Result<Plugin> {
+    pub async fn install_docker(
+        plugin: &Option<&Plugin>,
+        owner: &str,
+        name: &str,
+        version: &str,
+    ) -> Result<Plugin> {
+        // If this is a known, registered plugin then check that it can be installed
+        // as a Docker image and use the declared image owner and name.
+        // Otherwise, use the owner and name parsed from the spec.
+        let (owner, name) = if let Some(plugin) = plugin {
+            if let Some((owner, name)) = plugin.parse_docker_install_url() {
+                (owner, name)
+            } else {
+                return Err(anyhow!(
+                    "Docker install is not supported by plugin '{}'",
+                    plugin.name
+                ));
+            }
+        } else {
+            (owner.into(), name.into())
+        };
+
         let docker = bollard::Docker::connect_with_local_defaults()?;
 
         // Pull the image (by creating an image from it)
