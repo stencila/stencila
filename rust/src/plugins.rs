@@ -273,6 +273,15 @@ impl Plugin {
         Ok(())
     }
 
+    /// Replace a plugin
+    ///
+    /// Removes any existing plugin directory and then recreates it
+    /// with the new plugin file
+    pub fn replace(name: &str, plugin: &Plugin) -> Result<()> {
+        Plugin::remove(name)?;
+        Plugin::write(name, plugin)
+    }
+
     /// Install the plugin
     pub async fn install(
         spec: &str,
@@ -388,7 +397,7 @@ impl Plugin {
                     let mut plugin =
                         Plugin::load_from_command(Command::new("node").arg(bin).arg("manifest"))?;
                     plugin.installation = Some(Installation::Npm);
-                    Plugin::write(&name, &plugin)?;
+                    Plugin::replace(&name, &plugin)?;
                     Ok(plugin)
                 } else {
                     bail!(
@@ -438,7 +447,7 @@ impl Plugin {
                             .arg("manifest"),
                     )?;
                     plugin.installation = Some(Installation::Pypi);
-                    Plugin::write(&name, &plugin)?;
+                    Plugin::replace(&name, &plugin)?;
                     Ok(plugin)
                 } else {
                     bail!(
@@ -487,7 +496,7 @@ impl Plugin {
                             .arg(format!("{}::manifest()", name)),
                     )?;
                     plugin.installation = Some(Installation::Cran);
-                    Plugin::write(&name, &plugin)?;
+                    Plugin::replace(&name, &plugin)?;
                     Ok(plugin)
                 } else {
                     bail!(
@@ -688,13 +697,10 @@ impl Plugin {
             )
         };
 
-        // Remove the plugin directory
-        Plugin::remove(&name)?;
-
         // Load and write the plugin file
         let mut plugin = Plugin::load(json)?;
         plugin.installation = Some(Installation::Docker);
-        Plugin::write(&name, &plugin)?;
+        Plugin::replace(&name, &plugin)?;
         Ok(plugin)
     }
 
@@ -1129,13 +1135,21 @@ impl Plugins {
                     refreshed,
                     ..
                 } = plugin.clone();
+                let latest = match next {
+                    // If not installed, then this is the latest known version
+                    None => {
+                        if installation.is_none() {
+                            software_version.clone()
+                        } else {
+                            String::new()
+                        }
+                    }
+                    // Use the version in `next`.
+                    Some(next) => next.software_version,
+                };
                 let installation = match installation {
                     None => String::new(),
                     Some(value) => format!("{} ({})", software_version, value),
-                };
-                let next = match next {
-                    None => String::new(),
-                    Some(next) => next.software_version,
                 };
                 let refreshed = match refreshed {
                     None => String::new(),
@@ -1156,7 +1170,7 @@ impl Plugins {
                     Plugin::name_to_alias(&name, &aliases),
                     name,
                     installation,
-                    next,
+                    latest,
                     description,
                     refreshed
                 )
