@@ -20,6 +20,7 @@ test:
 
 cover:
 	make -C rust cover
+	make -C node cover
 
 audit:
 	make -C rust audit

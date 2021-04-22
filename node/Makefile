@@ -15,6 +15,9 @@ lint:
 test: setup
 	npm run test
 
+cover: setup
+	npm run cover
+
 audit:
 	cargo +nightly udeps
 
