@@ -470,10 +470,11 @@ fn respond(request: Request) -> Response {
 #[cfg(feature = "config")]
 pub mod config {
     use defaults::Defaults;
+    use schemars::JsonSchema;
     use serde::{Deserialize, Serialize};
     use validator::Validate;
 
-    #[derive(Debug, Defaults, PartialEq, Clone, Deserialize, Serialize, Validate)]
+    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
     pub struct Config {
         /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)

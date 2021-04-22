@@ -8,6 +8,7 @@ use jsonschema::JSONSchema;
 use once_cell::sync::Lazy;
 use rand::Rng;
 use regex::Regex;
+use schemars::JsonSchema;
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -20,7 +21,16 @@ use std::{
 use strum::{Display, EnumString, EnumVariantNames};
 
 #[derive(
-    Debug, Display, Clone, Copy, EnumString, EnumVariantNames, PartialEq, Deserialize, Serialize,
+    Debug,
+    Display,
+    Clone,
+    Copy,
+    EnumString,
+    EnumVariantNames,
+    PartialEq,
+    JsonSchema,
+    Deserialize,
+    Serialize,
 )]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
@@ -1527,7 +1537,7 @@ pub mod config {
     use defaults::Defaults;
     use validator::Validate;
 
-    #[derive(Debug, Defaults, PartialEq, Clone, Deserialize, Serialize, Validate)]
+    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
     pub struct Config {
         #[def = "vec![Installation::Docker, Installation::Binary, Installation::Js, Installation::Py, Installation::R, Installation::Link]"]

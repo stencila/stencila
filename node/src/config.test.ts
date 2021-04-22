@@ -1,6 +1,23 @@
-import { read, validate, set, reset } from './config'
+import { read, validate, set, reset, schema } from './config'
 
 describe('config', () => {
+  test('schema', () => {
+    expect(schema()).toEqual(
+      expect.objectContaining({
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        title: 'Config',
+        type: 'object',
+        definitions: expect.objectContaining({}),
+        properties: expect.objectContaining({
+          logging: expect.objectContaining({}),
+          plugins: expect.objectContaining({}),
+          serve: expect.objectContaining({}),
+          upgrade: expect.objectContaining({}),
+        }),
+      })
+    )
+  })
+
   const conf = read()
 
   expect(conf).toEqual(

@@ -1,8 +1,8 @@
 use stencila::{
     anyhow::{Error, Result},
-    config, logging, plugins,
+    config, convert, inspect, logging, open, plugins,
     regex::Regex,
-    tokio, tracing,
+    serve, tokio, tracing, upgrade,
 };
 use structopt::StructOpt;
 
@@ -50,25 +50,25 @@ pub const GLOBAL_ARGS: [&str; 6] = ["--debug", "--info", "--warn", "--error", "-
 )]
 pub enum Command {
     #[cfg(feature = "open")]
-    Open(stencila::open::cli::Args),
+    Open(open::cli::Args),
 
     #[cfg(feature = "convert")]
-    Convert(stencila::convert::cli::Args),
+    Convert(convert::cli::Args),
 
     #[cfg(feature = "serve")]
-    Serve(stencila::serve::cli::Args),
+    Serve(serve::cli::Args),
 
     #[cfg(feature = "plugins")]
-    Plugins(stencila::plugins::cli::Args),
+    Plugins(plugins::cli::Args),
 
     #[cfg(feature = "config")]
-    Config(stencila::config::cli::Args),
+    Config(config::cli::Args),
 
     #[cfg(feature = "upgrade")]
-    Upgrade(stencila::upgrade::cli::Args),
+    Upgrade(upgrade::cli::Args),
 
     #[cfg(feature = "inspect")]
-    Inspect(stencila::inspect::cli::Args),
+    Inspect(inspect::cli::Args),
 }
 
 #[tracing::instrument(skip(config, plugins))]
@@ -80,32 +80,25 @@ pub async fn run_command(
 ) -> Result<()> {
     match command {
         #[cfg(feature = "open")]
-        Command::Open(args) => stencila::open::cli::run(args).await,
+        Command::Open(args) => open::cli::run(args).await,
 
         #[cfg(feature = "convert")]
-        Command::Convert(args) => stencila::convert::cli::run(args),
+        Command::Convert(args) => convert::cli::run(args),
 
         #[cfg(feature = "serve")]
-        Command::Serve(args) => stencila::serve::cli::run(args, &config.serve).await,
+        Command::Serve(args) => serve::cli::run(args, &config.serve).await,
 
         #[cfg(feature = "plugins")]
-        Command::Plugins(args) => stencila::plugins::cli::run(args, &config.plugins, plugins).await,
+        Command::Plugins(args) => plugins::cli::run(args, &config.plugins, plugins).await,
 
         #[cfg(feature = "upgrade")]
-        Command::Upgrade(args) => stencila::upgrade::cli::run(args, &config.upgrade, plugins).await,
+        Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade, plugins).await,
 
         #[cfg(feature = "config")]
-        Command::Config(args) => match config::cli::run(args, &config) {
-            Ok(config_changed) => {
-                // Update the configuration (may have been changed by `set` and `reset`)
-                *config = config_changed;
-                Ok(())
-            }
-            Err(err) => Err(err),
-        },
+        Command::Config(args) => config::cli::run(args, config),
 
         #[cfg(feature = "inspect")]
-        Command::Inspect(args) => stencila::inspect::cli::run(args, plugins).await,
+        Command::Inspect(args) => inspect::cli::run(args, plugins).await,
     }
 }
 
@@ -190,7 +183,7 @@ pub async fn main() -> Result<()> {
     let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
         None
     } else {
-        Some(stencila::upgrade::upgrade_auto(&config.upgrade, &plugins))
+        Some(upgrade::upgrade_auto(&config.upgrade, &plugins))
     };
 
     // Get the result of running the command

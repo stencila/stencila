@@ -1,28 +1,35 @@
-use crate::util;
+use crate::{logging, plugins, serve, upgrade, util};
 use anyhow::{bail, Result};
+use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 use validator::Validate;
 
-#[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, Validate)]
+#[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
 #[serde(default)]
 pub struct Config {
     #[validate]
-    pub logging: crate::logging::config::Config,
+    pub logging: logging::config::Config,
 
     #[validate]
-    pub serve: crate::serve::config::Config,
+    pub serve: serve::config::Config,
 
     #[validate]
-    pub plugins: crate::plugins::config::Config,
+    pub plugins: plugins::config::Config,
 
     #[validate]
-    pub upgrade: crate::upgrade::config::Config,
+    pub upgrade: upgrade::config::Config,
 }
 
 const CONFIG_FILE: &str = "config.toml";
+
+/// Get the JSON Schema for the configuration
+pub fn schema() -> String {
+    let schema = schema_for!(Config);
+    serde_json::to_string_pretty(&schema).unwrap()
+}
 
 /// Get the path of the configuration file
 #[tracing::instrument]
@@ -222,6 +229,12 @@ pub mod cli {
             setting = structopt::clap::AppSettings::ColoredHelp
         )]
         Dirs,
+
+        #[structopt(
+            about = "Get the JSON Schema for the configuration",
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        Schema,
     }
 
     #[derive(Debug, StructOpt)]
@@ -257,25 +270,23 @@ pub mod cli {
         pub property: String,
     }
 
-    pub fn run(args: Args, config: &Config) -> Result<Config> {
+    pub fn run(args: Args, config: &mut Config) -> Result<()> {
         let Args { action } = args;
         match action {
             Action::Get(action) => {
                 let Get { pointer } = action;
-                println!("{}", super::display(config, pointer)?);
-                Ok(config.clone())
+                println!("{}", display(config, pointer)?);
+                Ok(())
             }
             Action::Set(action) => {
                 let Set { pointer, value } = action;
-                let config = super::set(config, &pointer, &value)?;
-                write(&config)?;
-                Ok(config)
+                *config = set(config, &pointer, &value)?;
+                write(config)
             }
             Action::Reset(action) => {
                 let Reset { property } = action;
-                let config = super::reset(config, &property)?;
-                write(&config)?;
-                Ok(config)
+                *config = reset(config, &property)?;
+                write(config)
             }
             Action::Dirs => {
                 let config_dir = util::dirs::config(false)?.display().to_string();
@@ -285,7 +296,11 @@ pub mod cli {
                     "config: {}\nlogs: {}\nplugins: {}",
                     config_dir, logs_dir, plugins_dir
                 );
-                Ok(config.clone())
+                Ok(())
+            }
+            Action::Schema => {
+                println!("{}", schema());
+                Ok(())
             }
         }
     }

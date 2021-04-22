@@ -132,10 +132,11 @@ pub fn upgrade_auto(
 #[cfg(feature = "config")]
 pub mod config {
     use defaults::Defaults;
+    use schemars::JsonSchema;
     use serde::{Deserialize, Serialize};
     use validator::{Validate, ValidationError};
 
-    #[derive(Debug, Defaults, PartialEq, Clone, Deserialize, Serialize, Validate)]
+    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
     pub struct Config {
         /// Plugins should also be upgraded to latest version

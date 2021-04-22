@@ -1,5 +1,6 @@
 // Node.js bindings for ../../rust/src/config.rs, see there for more documentation.
 
+import { JSONSchema7 } from 'json-schema'
 import { fromJSON, toJSON } from './prelude'
 
 const addon = require('../index.node')
@@ -31,6 +32,16 @@ export interface Config {
     verbose: boolean
     auto: string
   }
+}
+
+/**
+ * Get the JSON schema for the configuration object
+ *
+ * @returns A JSON Schema v7 object describing the properties of
+ *          the configuration object
+ */
+export function schema(): JSONSchema7 {
+  return fromJSON<JSONSchema7>(addon.configSchema())
 }
 
 /**

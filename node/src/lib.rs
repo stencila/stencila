@@ -14,6 +14,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("pluginsUpgrade", plugins::upgrade)?;
     cx.export_function("pluginsRefresh", plugins::refresh)?;
 
+    cx.export_function("configSchema", config::schema)?;
     cx.export_function("configRead", config::read)?;
     cx.export_function("configWrite", config::write)?;
     cx.export_function("configValidate", config::validate)?;

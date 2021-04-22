@@ -1,11 +1,12 @@
 use anyhow::Result;
 use defaults::Defaults;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use strum::ToString;
 use validator::Validate;
 
-#[derive(Debug, PartialEq, Clone, Copy, Deserialize, Serialize, ToString)]
+#[derive(Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, ToString)]
 #[serde(rename_all = "lowercase")]
 pub enum Level {
     Debug,
@@ -15,7 +16,7 @@ pub enum Level {
     Never,
 }
 
-#[derive(Debug, PartialEq, Clone, Copy, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Format {
     Plain,
@@ -28,7 +29,9 @@ pub mod config {
     use super::*;
     use crate::util::dirs;
 
-    #[derive(Debug, Defaults, PartialEq, Clone, Copy, Deserialize, Serialize, Validate)]
+    #[derive(
+        Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
+    )]
     pub struct StdErr {
         /// The maximum log level to emit
         #[def = "Level::Info"]
@@ -39,7 +42,7 @@ pub mod config {
         pub format: Format,
     }
 
-    #[derive(Debug, Defaults, PartialEq, Clone, Deserialize, Serialize, Validate)]
+    #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     pub struct File {
         /// The path of the log file
         #[def = "default_file_path()"]
@@ -60,7 +63,7 @@ pub mod config {
             .expect("Unable to convert path to string")
     }
 
-    #[derive(Debug, Default, PartialEq, Clone, Deserialize, Serialize, Validate)]
+    #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     pub struct Config {
         pub stderr: StdErr,
         pub file: File,
