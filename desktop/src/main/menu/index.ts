@@ -109,10 +109,27 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
     role: 'help',
     submenu: [
       {
+        label: 'Stencila Help',
+        click: async () => {
+          const { shell } = require('electron')
+          await shell.openExternal('http://help.stenci.la')
+        },
+      },
+      {
         label: 'Learn More',
         click: async () => {
           const { shell } = require('electron')
-          await shell.openExternal('https://electronjs.org')
+          await shell.openExternal('https://stenci.la')
+        },
+      },
+      { type: 'separator' },
+      {
+        label: 'Report a Problem or Feature Request…',
+        click: async () => {
+          const { shell } = require('electron')
+          await shell.openExternal(
+            'https://github.com/stencila/stencila/issues/new'
+          )
         },
       },
     ],
