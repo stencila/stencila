@@ -1083,13 +1083,19 @@ impl Plugins {
     ///
     /// Populates the alias of the plugin based on the passed aliases map
     pub fn list_plugins(&self, aliases: &HashMap<String, String>) -> Vec<Plugin> {
-        self.plugins
+        let aliases = Plugin::merge_aliases(&self.aliases, aliases);
+
+        let mut plugins = self
+            .plugins
             .iter()
             .map(|(name, plugin)| Plugin {
-                alias: Some(Plugin::name_to_alias(&name, aliases)),
+                alias: Some(Plugin::name_to_alias(&name, &aliases)),
                 ..plugin.clone()
             })
-            .collect::<Vec<Plugin>>()
+            .collect::<Vec<Plugin>>();
+
+        plugins.sort_by(|a, b| a.alias.cmp(&b.alias));
+        plugins
     }
 
     /// Display an individual plugin
@@ -1110,9 +1116,9 @@ impl Plugins {
 
     /// Create a Markdown table of all the registered and/or installed plugins
     pub fn display_plugins(&self, aliases: &HashMap<String, String>) -> Result<String> {
-        let aliases = Plugin::merge_aliases(&self.aliases, aliases);
+        let plugins = self.list_plugins(aliases);
 
-        if self.plugins.is_empty() {
+        if plugins.is_empty() {
             return Ok("No plugins registered or installed.".to_string());
         }
 
@@ -1122,11 +1128,11 @@ impl Plugins {
 | :---- | :----- | --------: | --------: | :---------- | ---------: |
     "#
         .trim();
-        let body = self
-            .plugins
+        let body = plugins
             .iter()
-            .map(|(_name, plugin)| {
+            .map(|plugin| {
                 let Plugin {
+                    alias,
                     name,
                     software_version,
                     installation,
@@ -1149,7 +1155,7 @@ impl Plugins {
                 };
                 let installation = match installation {
                     None => String::new(),
-                    Some(value) => format!("{} ({})", software_version, value),
+                    Some(value) => format!("{:>8} *{:>6}*", software_version, value),
                 };
                 let refreshed = match refreshed {
                     None => String::new(),
@@ -1167,7 +1173,7 @@ impl Plugins {
                 };
                 format!(
                     "| **{}** | {} | {} | {} | {} | {} |",
-                    Plugin::name_to_alias(&name, &aliases),
+                    alias.unwrap_or_else(|| name.clone()),
                     name,
                     installation,
                     latest,
