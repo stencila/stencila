@@ -15,7 +15,7 @@ test('logging', async () => {
   testEvents()
 
   // Wait a little until all events are published
-  await new Promise((resolve) => setTimeout(resolve, 300))
+  await new Promise((resolve) => setTimeout(resolve, 500))
 
   expect(events).toEqual(
     expect.arrayContaining([
