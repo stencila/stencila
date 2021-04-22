@@ -1,6 +1,6 @@
 use crate::util::dirs;
 use anyhow::{anyhow, bail, Result};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, TimeZone, Utc};
 use dirs::plugins;
 use futures::StreamExt;
 use humantime::format_duration;
@@ -303,14 +303,37 @@ impl Plugin {
         let name = name.as_str();
 
         // Attempt to get the matching plugin so we can use it's `installUrl` property
-        // if possible
-        let plugin = &plugins.plugins.get(name);
+        // if possible.
+        let plugin = plugins.plugins.get(name);
+
+        // If the plugin hasn't been refreshed for a while then do that
+        let plugin = if let Some(plugin) = plugin {
+            if Utc::now()
+                > plugin
+                    .refreshed
+                    .unwrap_or_else(|| Utc.ymd(1900, 1, 1).and_hms(0, 0, 0))
+                    + Duration::from_std(humantime::parse_duration("1 day")?)?
+            {
+                // Load the plugin's latest manifest from its URL
+                let url = match plugins.registry.get::<str>(&name) {
+                    None => bail!("No plugin registered with alias or name '{}'", name),
+                    Some(url) => url,
+                };
+                let json = reqwest::get(url).await?.text().await?;
+                let latest = Plugin::load(&json)?;
+                Some(latest)
+            } else {
+                Some(plugin.clone())
+            }
+        } else {
+            None
+        };
 
         for install in installs {
             let result = match install {
-                Installation::Docker => Plugin::install_docker(plugin, owner, name, version).await,
+                Installation::Docker => Plugin::install_docker(&plugin, owner, name, version).await,
                 Installation::Binary => Plugin::install_binary(
-                    plugin,
+                    &plugin,
                     owner,
                     name,
                     version,
@@ -318,9 +341,9 @@ impl Plugin {
                     false,
                     true,
                 ),
-                Installation::Js => Plugin::install_npm(plugin, owner, name, version),
-                Installation::Py => Plugin::install_pypi(plugin, name, version),
-                Installation::R => Plugin::install_cran(plugin, name, version),
+                Installation::Js => Plugin::install_js(&plugin, owner, name, version),
+                Installation::Py => Plugin::install_py(&plugin, name, version),
+                Installation::R => Plugin::install_r(&plugin, name, version),
                 Installation::Link => Plugin::install_link(spec),
             };
             match result {
@@ -364,7 +387,7 @@ impl Plugin {
 
     /// Parse a plugin's NPM install URL (if any)
     #[cfg(any(feature = "plugins-js"))]
-    pub fn parse_npm_install_url(self: &Plugin) -> Option<(String, String)> {
+    pub fn parse_js_install_url(self: &Plugin) -> Option<(String, String)> {
         static REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"^https?://www.npmjs.com/package/@([a-z]+)/([a-z]+)")
                 .expect("Unable to create regex")
@@ -385,8 +408,8 @@ impl Plugin {
     /// Installs the package within the `plugins/node_modules` directory so that it
     /// is not necessary to run as root (the NPM `--global` flag requires sudo).
     #[cfg(any(feature = "plugins-js"))]
-    pub fn install_npm(
-        plugin: &Option<&Plugin>,
+    pub fn install_js(
+        plugin: &Option<Plugin>,
         owner: &str,
         name: &str,
         version: &str,
@@ -395,7 +418,7 @@ impl Plugin {
         // as a NPM package and use declared repo owner and name.
         // Otherwise, use the repo owner and name parsed from the spec.
         let (owner, name) = if let Some(plugin) = plugin {
-            if let Some((owner, name)) = plugin.parse_npm_install_url() {
+            if let Some((owner, name)) = plugin.parse_js_install_url() {
                 (owner, name)
             } else {
                 return Err(anyhow!(
@@ -470,7 +493,7 @@ impl Plugin {
 
     /// Parse a plugin's PyPI install URL (if any)
     #[cfg(any(feature = "plugins-py"))]
-    pub fn parse_pypi_install_url(self: &Plugin) -> Option<String> {
+    pub fn parse_py_install_url(self: &Plugin) -> Option<String> {
         static REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"^https?://pypi.org/project/([\w\-\.]+)").expect("Unable to create regex")
         });
@@ -486,12 +509,12 @@ impl Plugin {
     ///
     /// Installs the package globally for the user.
     #[cfg(any(feature = "plugins-py"))]
-    pub fn install_pypi(plugin: &Option<&Plugin>, name: &str, version: &str) -> Result<Plugin> {
+    pub fn install_py(plugin: &Option<Plugin>, name: &str, version: &str) -> Result<Plugin> {
         // If this is a known, registered plugin then check that it can be installed
         // as a Python package and use declared package name.
         // Otherwise, use the name parsed from the spec.
         let name = if let Some(plugin) = plugin {
-            if let Some(name) = plugin.parse_pypi_install_url() {
+            if let Some(name) = plugin.parse_py_install_url() {
                 name
             } else {
                 return Err(anyhow!(
@@ -550,7 +573,7 @@ impl Plugin {
 
     /// Parse a plugin's CRAN install URL (if any)
     #[cfg(any(feature = "plugins-r"))]
-    pub fn parse_cran_install_url(self: &Plugin) -> Option<String> {
+    pub fn parse_r_install_url(self: &Plugin) -> Option<String> {
         static REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"^https://cran.r-project.org/web/packages/([\w\-\.]+)")
                 .expect("Unable to create regex")
@@ -565,11 +588,11 @@ impl Plugin {
 
     /// Add a plugin as a R package from CRAN
     #[cfg(any(feature = "plugins-r"))]
-    pub fn install_cran(plugin: &Option<&Plugin>, name: &str, version: &str) -> Result<Plugin> {
+    pub fn install_r(plugin: &Option<Plugin>, name: &str, version: &str) -> Result<Plugin> {
         // If this is a known, registered plugin then check that it can be installed
         // as a R package and use declared package name. Otherwise, use the name parsed from the spec.
         let name = if let Some(plugin) = plugin {
-            if let Some(name) = plugin.parse_cran_install_url() {
+            if let Some(name) = plugin.parse_r_install_url() {
                 name
             } else {
                 return Err(anyhow!(
@@ -648,7 +671,7 @@ impl Plugin {
     /// Add a plugin as a downloaded binary
     #[cfg(any(feature = "plugins-binary"))]
     pub fn install_binary(
-        plugin: &Option<&Plugin>,
+        plugin: &Option<Plugin>,
         owner: &str,
         name: &str,
         version: &str,
@@ -756,7 +779,7 @@ impl Plugin {
     /// name.
     #[cfg(any(feature = "plugins-docker"))]
     pub async fn install_docker(
-        plugin: &Option<&Plugin>,
+        plugin: &Option<Plugin>,
         owner: &str,
         name: &str,
         version: &str,
