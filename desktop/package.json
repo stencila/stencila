@@ -61,7 +61,8 @@
   },
   "dependencies": {
     "@stencila/components": "0.30.1",
-    "electron-squirrel-startup": "1.0.0"
+    "electron-squirrel-startup": "1.0.0",
+    "stencila": "file:../node"
   },
   "config": {
     "forge": {
