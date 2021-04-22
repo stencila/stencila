@@ -15,20 +15,14 @@ test('logging', async () => {
   testEvents()
 
   // Wait a little until all events are published
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  await new Promise((resolve) => setTimeout(resolve, 300))
 
   expect(events).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
         message: 'A debug event',
         metadata: expect.objectContaining({
-          fields: ['message'],
-          file: 'rust/src/logging.rs',
-          is_event: true,
-          is_span: false,
           level: 'DEBUG',
-          module_path: 'stencila::logging',
-          target: 'stencila::logging',
         }),
       }),
       expect.objectContaining({
