@@ -4,13 +4,7 @@ import { fromJSON } from './prelude'
 
 const addon = require('../index.node')
 
-export type Installation =
-  | 'docker'
-  | 'binary'
-  | 'npm'
-  | 'pypi'
-  | 'cran'
-  | 'link'
+export type Installation = 'docker' | 'binary' | 'js' | 'py' | 'r' | 'link'
 
 export interface Plugin {
   // Properties from the plugin's manifest file

@@ -29,12 +29,12 @@ pub enum Installation {
     Docker,
     #[cfg(any(feature = "plugins-binary"))]
     Binary,
-    #[cfg(any(feature = "plugins-npm"))]
-    Npm,
-    #[cfg(any(feature = "plugins-pypi"))]
-    Pypi,
-    #[cfg(any(feature = "plugins-cran"))]
-    Cran,
+    #[cfg(any(feature = "plugins-js"))]
+    Js,
+    #[cfg(any(feature = "plugins-py"))]
+    Py,
+    #[cfg(any(feature = "plugins-r"))]
+    R,
     #[cfg(any(feature = "plugins-link"))]
     Link,
 }
@@ -318,9 +318,9 @@ impl Plugin {
                     false,
                     true,
                 ),
-                Installation::Npm => Plugin::install_npm(plugin, owner, name, version),
-                Installation::Pypi => Plugin::install_pypi(plugin, name, version),
-                Installation::Cran => Plugin::install_cran(plugin, name, version),
+                Installation::Js => Plugin::install_npm(plugin, owner, name, version),
+                Installation::Py => Plugin::install_pypi(plugin, name, version),
+                Installation::R => Plugin::install_cran(plugin, name, version),
                 Installation::Link => Plugin::install_link(spec),
             };
             match result {
@@ -363,7 +363,7 @@ impl Plugin {
     }
 
     /// Parse a plugin's NPM install URL (if any)
-    #[cfg(any(feature = "plugins-npm"))]
+    #[cfg(any(feature = "plugins-js"))]
     pub fn parse_npm_install_url(self: &Plugin) -> Option<(String, String)> {
         static REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"^https?://www.npmjs.com/package/@([a-z]+)/([a-z]+)")
@@ -384,7 +384,7 @@ impl Plugin {
     ///
     /// Installs the package within the `plugins/node_modules` directory so that it
     /// is not necessary to run as root (the NPM `--global` flag requires sudo).
-    #[cfg(any(feature = "plugins-npm"))]
+    #[cfg(any(feature = "plugins-js"))]
     pub fn install_npm(
         plugin: &Option<&Plugin>,
         owner: &str,
@@ -447,7 +447,7 @@ impl Plugin {
 
                     let mut plugin =
                         Plugin::load_from_command(Command::new("node").arg(bin).arg("manifest"))?;
-                    plugin.installation = Some(Installation::Npm);
+                    plugin.installation = Some(Installation::Js);
                     Plugin::replace(&name, &plugin)?;
                     Ok(plugin)
                 } else {
@@ -469,7 +469,7 @@ impl Plugin {
     }
 
     /// Parse a plugin's PyPI install URL (if any)
-    #[cfg(any(feature = "plugins-pypi"))]
+    #[cfg(any(feature = "plugins-py"))]
     pub fn parse_pypi_install_url(self: &Plugin) -> Option<String> {
         static REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"^https?://pypi.org/project/([\w\-\.]+)").expect("Unable to create regex")
@@ -485,7 +485,7 @@ impl Plugin {
     /// Add a plugin as a Python package from PyPI
     ///
     /// Installs the package globally for the user.
-    #[cfg(any(feature = "plugins-pypi"))]
+    #[cfg(any(feature = "plugins-py"))]
     pub fn install_pypi(plugin: &Option<&Plugin>, name: &str, version: &str) -> Result<Plugin> {
         // If this is a known, registered plugin then check that it can be installed
         // as a Python package and use declared package name.
@@ -527,7 +527,7 @@ impl Plugin {
                             .arg(format!("-m{}", name))
                             .arg("manifest"),
                     )?;
-                    plugin.installation = Some(Installation::Pypi);
+                    plugin.installation = Some(Installation::Py);
                     Plugin::replace(&name, &plugin)?;
                     Ok(plugin)
                 } else {
@@ -549,7 +549,7 @@ impl Plugin {
     }
 
     /// Parse a plugin's CRAN install URL (if any)
-    #[cfg(any(feature = "plugins-cran"))]
+    #[cfg(any(feature = "plugins-r"))]
     pub fn parse_cran_install_url(self: &Plugin) -> Option<String> {
         static REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"^https://cran.r-project.org/web/packages/([\w\-\.]+)")
@@ -564,7 +564,7 @@ impl Plugin {
     }
 
     /// Add a plugin as a R package from CRAN
-    #[cfg(any(feature = "plugins-cran"))]
+    #[cfg(any(feature = "plugins-r"))]
     pub fn install_cran(plugin: &Option<&Plugin>, name: &str, version: &str) -> Result<Plugin> {
         // If this is a known, registered plugin then check that it can be installed
         // as a R package and use declared package name. Otherwise, use the name parsed from the spec.
@@ -606,7 +606,7 @@ impl Plugin {
                             .arg("-e")
                             .arg(format!("{}::manifest()", name)),
                     )?;
-                    plugin.installation = Some(Installation::Cran);
+                    plugin.installation = Some(Installation::R);
                     Plugin::replace(&name, &plugin)?;
                     Ok(plugin)
                 } else {
@@ -1507,7 +1507,7 @@ pub mod config {
     #[derive(Debug, Defaults, PartialEq, Clone, Deserialize, Serialize, Validate)]
     #[serde(default)]
     pub struct Config {
-        #[def = "vec![Installation::Docker, Installation::Binary, Installation::Npm, Installation::Pypi, Installation::Cran, Installation::Link]"]
+        #[def = "vec![Installation::Docker, Installation::Binary, Installation::Js, Installation::Py, Installation::R, Installation::Link]"]
         pub installations: Vec<Installation>,
 
         pub aliases: HashMap<String, String>,
@@ -1585,17 +1585,17 @@ pub mod cli {
         #[structopt(short, long)]
         pub binary: bool,
 
-        /// Install plugins as NPM packages
+        /// Install plugins as Javascript packages
         #[structopt(short, long)]
-        pub npm: bool,
+        pub js: bool,
 
-        /// Install plugins as PyPI packages
+        /// Install plugins as Python packages
         #[structopt(short, long)]
-        pub pypi: bool,
+        pub py: bool,
 
-        /// Install plugins as CRAN packages
+        /// Install plugins as R packages
         #[structopt(short, long)]
-        pub cran: bool,
+        pub r: bool,
 
         /// Install plugins as soft links
         #[structopt(short, long)]
@@ -1773,9 +1773,9 @@ pub mod cli {
                 let Install {
                     docker,
                     binary,
-                    npm,
-                    pypi,
-                    cran,
+                    js,
+                    py,
+                    r,
                     link,
                     plugins: list,
                 } = action;
@@ -1787,14 +1787,14 @@ pub mod cli {
                 if binary {
                     installs.push(Installation::Binary)
                 }
-                if npm {
-                    installs.push(Installation::Npm)
+                if js {
+                    installs.push(Installation::Js)
                 }
-                if pypi {
-                    installs.push(Installation::Pypi)
+                if py {
+                    installs.push(Installation::Py)
                 }
-                if cran {
-                    installs.push(Installation::Cran)
+                if r {
+                    installs.push(Installation::R)
                 }
                 if link {
                     installs.push(Installation::Link)

@@ -32,9 +32,9 @@ request-ws = ["tokio-tungstenite", "jsonwebtoken"]
 plugins = ["jsonschema", "semver"]
 plugins-docker = ["plugins", "bollard"]
 plugins-binary = ["plugins", "self_update"]
-plugins-npm = ["plugins"]
-plugins-pypi = ["plugins"]
-plugins-cran = ["plugins"]
+plugins-js = ["plugins"]
+plugins-py = ["plugins"]
+plugins-r = ["plugins"]
 plugins-link = ["plugins"]
 
 upgrade = ["self_update"]
@@ -69,9 +69,9 @@ default = [
     "plugins-binary",
     "plugins-docker",
     "plugins-link",
-    "plugins-npm",
-    "plugins-pypi",
-    "plugins-cran",
+    "plugins-js",
+    "plugins-py",
+    "plugins-r",
     "upgrade",
     "config",
     "inspect",
