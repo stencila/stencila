@@ -1,5 +1,5 @@
 {
-  "name": "stencila",
+  "name": "@stencila/stencila",
   "version": "0.53.0",
   "description": "Stencila in Node.js",
   "main": "dist/index.js",
