@@ -2,10 +2,10 @@
 
 const addon = require('../index.node')
 
-export function init(): Plugin[] {
+export function init(): void {
   return addon.loggingInit()
 }
 
-export function test(): Plugin[] {
+export function test(): void {
   return addon.loggingTest()
 }

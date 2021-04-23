@@ -8,7 +8,7 @@ use jsonschema::JSONSchema;
 use once_cell::sync::Lazy;
 use rand::Rng;
 use regex::Regex;
-use schemars::JsonSchema;
+use schemars::{schema_for, JsonSchema};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -49,7 +49,7 @@ pub enum PluginInstallation {
 ///
 /// Property names use the Rust convention of snake_case but are renamed
 /// to schema.org camelCase on serialization.
-#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, JsonSchema, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Plugin {
     // Properties that are read from the plugin's manifest file
@@ -90,6 +90,12 @@ pub struct Plugin {
     /// The current alias for this plugin, if any
     #[serde(skip_serializing_if = "Option::is_none")]
     alias: Option<String>,
+}
+
+/// Get the JSON Schema for a plugin
+pub fn schema() -> String {
+    let schema = schema_for!(Plugin);
+    serde_json::to_string_pretty(&schema).unwrap()
 }
 
 impl Plugin {
@@ -1571,18 +1577,26 @@ pub mod cli {
             setting = structopt::clap::AppSettings::ColoredHelp
         )]
         List,
+
         Show(Show),
-        #[structopt(
-            about = "List registered plugin aliases",
-            setting = structopt::clap::AppSettings::ColoredHelp
-        )]
-        Aliases,
         Install(Install),
         Link(Link),
         Upgrade(Upgrade),
         Uninstall(Uninstall),
         Unlink(Unlink),
         Refresh(Refresh),
+
+        #[structopt(
+            about = "List registered plugin aliases",
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        Aliases,
+
+        #[structopt(
+            about = "Get the JSON Schema for plugins",
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        Schema,
     }
 
     #[derive(Debug, StructOpt)]
@@ -1799,11 +1813,6 @@ pub mod cli {
                 }
                 Ok(())
             }
-            Action::Aliases => {
-                let md = plugins.display_aliases(aliases)?;
-                println!("{}", skin.term_text(md.as_str()));
-                Ok(())
-            }
             Action::Install(action) => {
                 let Install {
                     docker,
@@ -1867,6 +1876,15 @@ pub mod cli {
                 let Refresh { plugins: list } = action;
 
                 Plugin::refresh_list(list, aliases, plugins).await
+            }
+            Action::Aliases => {
+                let md = plugins.display_aliases(aliases)?;
+                println!("{}", skin.term_text(md.as_str()));
+                Ok(())
+            }
+            Action::Schema => {
+                println!("{}", schema());
+                Ok(())
             }
         }
     }

@@ -1,6 +1,19 @@
-import { list, install, uninstall, upgrade } from './plugins'
+import { install, list, schema, uninstall, upgrade } from './plugins'
 
 describe('plugins', () => {
+  test('schema', () => {
+    expect(schema()).toEqual(
+      expect.objectContaining({
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        title: 'Plugin',
+        type: 'object',
+        properties: expect.objectContaining({
+          name: { description: 'The name of the plugin', type: 'string' },
+        }),
+      })
+    )
+  })
+
   test('list', () => {
     expect(list()).toEqual(expect.arrayContaining([]))
   })

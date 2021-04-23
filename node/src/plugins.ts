@@ -1,10 +1,22 @@
 // Node.js bindings for ../../rust/src/plugins.rs, see there for more documentation.
 
+import { JSONSchema7 } from 'json-schema'
 import { fromJSON } from './prelude'
 
 const addon = require('../index.node')
 
-export type Installation = 'docker' | 'binary' | 'js' | 'py' | 'r' | 'link'
+// Warning: The following types are hand written and may become out of sync
+// with the actual JSON data returned by the functions below.
+// Use the `schema()` function as the authoritative source of the shape of
+// the plugin objects.
+
+export type PluginInstallation =
+  | 'docker'
+  | 'binary'
+  | 'javascript'
+  | 'python'
+  | 'r'
+  | 'link'
 
 export interface Plugin {
   // Properties from the plugin's manifest file
@@ -17,10 +29,20 @@ export interface Plugin {
 
   // Properties that are derived / updated
 
-  installation?: Installation
+  installation?: PluginInstallation
   refreshed?: string
   next?: Plugin
   alias?: string
+}
+
+/**
+ * Get the JSON schema for a plugin object
+ *
+ * @returns A JSON Schema v7 object describing the properties of
+ *          a plugin object
+ */
+export function schema(): JSONSchema7 {
+  return fromJSON<JSONSchema7>(addon.pluginsSchema())
 }
 
 /**
@@ -44,7 +66,7 @@ export function list(): Plugin[] {
  */
 export function install(
   spec: string,
-  installations?: Installation | Installation[]
+  installations?: PluginInstallation | PluginInstallation[]
 ): Plugin[] {
   return fromJSON<Plugin[]>(addon.pluginsInstall(spec, installations ?? []))
 }

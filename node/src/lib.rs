@@ -8,6 +8,7 @@ mod subscriptions;
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
+    cx.export_function("pluginsSchema", plugins::schema)?;
     cx.export_function("pluginsList", plugins::list)?;
     cx.export_function("pluginsInstall", plugins::install)?;
     cx.export_function("pluginsUninstall", plugins::uninstall)?;
