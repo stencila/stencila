@@ -7,7 +7,12 @@ describe('config', () => {
         $schema: 'http://json-schema.org/draft-07/schema#',
         title: 'Config',
         type: 'object',
-        definitions: expect.objectContaining({}),
+        definitions: expect.objectContaining({
+          LoggingConfig: expect.objectContaining({}),
+          PluginsConfig: expect.objectContaining({}),
+          ServeConfig: expect.objectContaining({}),
+          UpgradeConfig: expect.objectContaining({}),
+        }),
         properties: expect.objectContaining({
           logging: expect.objectContaining({}),
           plugins: expect.objectContaining({}),

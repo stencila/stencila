@@ -1,6 +1,6 @@
 use crate::{logging, plugins, serve, upgrade, util};
 use anyhow::{bail, Result};
-use schemars::{schema_for, JsonSchema};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::io::Write;
@@ -11,23 +11,27 @@ use validator::Validate;
 #[serde(default)]
 pub struct Config {
     #[validate]
-    pub logging: logging::config::Config,
+    pub logging: logging::config::LoggingConfig,
 
     #[validate]
-    pub serve: serve::config::Config,
+    pub serve: serve::config::ServeConfig,
 
     #[validate]
-    pub plugins: plugins::config::Config,
+    pub plugins: plugins::config::PluginsConfig,
 
     #[validate]
-    pub upgrade: upgrade::config::Config,
+    pub upgrade: upgrade::config::UpgradeConfig,
 }
 
 const CONFIG_FILE: &str = "config.toml";
 
 /// Get the JSON Schema for the configuration
 pub fn schema() -> String {
-    let schema = schema_for!(Config);
+    use schemars::gen::SchemaSettings;
+
+    let settings = SchemaSettings::default();
+    let generator = settings.into_generator();
+    let schema = generator.into_root_schema_for::<Config>();
     serde_json::to_string_pretty(&schema).unwrap()
 }
 
@@ -408,7 +412,7 @@ mod tests {
     fn test_cli() -> Result<()> {
         use super::cli::*;
 
-        let config = Config {
+        let mut config = Config {
             ..Default::default()
         };
 
@@ -416,7 +420,7 @@ mod tests {
             Args {
                 action: Action::Get(Get { pointer: None }),
             },
-            &config,
+            &mut config,
         )?;
 
         run(
@@ -426,7 +430,7 @@ mod tests {
                     value: "true".to_string(),
                 }),
             },
-            &config,
+            &mut config,
         )?;
 
         run(
@@ -435,14 +439,14 @@ mod tests {
                     property: "upgrade".to_string(),
                 }),
             },
-            &config,
+            &mut config,
         )?;
 
         run(
             Args {
                 action: Action::Dirs,
             },
-            &config,
+            &mut config,
         )?;
 
         Ok(())

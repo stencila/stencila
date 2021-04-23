@@ -153,15 +153,15 @@ pub async fn main() -> Result<()> {
 
     // Determine the log level to use on stderr
     let level = if debug {
-        logging::Level::Debug
+        logging::LoggingLevel::Debug
     } else if info {
-        logging::Level::Info
+        logging::LoggingLevel::Info
     } else if warn {
-        logging::Level::Warn
+        logging::LoggingLevel::Warn
     } else if error {
-        logging::Level::Error
+        logging::LoggingLevel::Error
     } else {
-        logging::Level::Info
+        logging::LoggingLevel::Info
     };
 
     // Create a preliminary logging subscriber to be able to log any issues

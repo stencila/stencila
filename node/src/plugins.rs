@@ -8,7 +8,7 @@ use std::sync::{Mutex, MutexGuard};
 use stencila::{
     config::Config,
     once_cell::sync::Lazy,
-    plugins::{self, Installation, Plugin, Plugins},
+    plugins::{self, Plugin, PluginInstallation, Plugins},
 };
 
 /// A global plugins store
@@ -112,7 +112,7 @@ pub fn installations(
     cx: &mut FunctionContext,
     position: i32,
     config: &Config,
-) -> Result<Vec<Installation>, Throw> {
+) -> Result<Vec<PluginInstallation>, Throw> {
     let arg = cx.argument::<JsArray>(position)?.to_vec(cx)?;
     if arg.is_empty() {
         Ok(config.plugins.installations.clone())
@@ -120,7 +120,7 @@ pub fn installations(
         let mut installations = Vec::new();
         for value in arg {
             let str = value.to_string(cx)?.value(cx);
-            let installation = match plugins::Installation::from_str(&str) {
+            let installation = match plugins::PluginInstallation::from_str(&str) {
                 Ok(value) => value,
                 Err(error) => return cx.throw_error(error.to_string()),
             };

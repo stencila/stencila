@@ -18,31 +18,23 @@ use std::{
     process::{Command, Stdio},
     thread,
 };
-use strum::{Display, EnumString, EnumVariantNames};
+use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
+/// Plugin installation method
 #[derive(
-    Debug,
-    Display,
-    Clone,
-    Copy,
-    EnumString,
-    EnumVariantNames,
-    PartialEq,
-    JsonSchema,
-    Deserialize,
-    Serialize,
+    Debug, Display, Clone, Copy, EnumString, EnumIter, PartialEq, JsonSchema, Deserialize, Serialize,
 )]
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
-pub enum Installation {
+pub enum PluginInstallation {
     #[cfg(any(feature = "plugins-docker"))]
     Docker,
     #[cfg(any(feature = "plugins-binary"))]
     Binary,
-    #[cfg(any(feature = "plugins-js"))]
-    Js,
-    #[cfg(any(feature = "plugins-py"))]
-    Py,
+    #[cfg(any(feature = "plugins-javascript"))]
+    Javascript,
+    #[cfg(any(feature = "plugins-python"))]
+    Python,
     #[cfg(any(feature = "plugins-r"))]
     R,
     #[cfg(any(feature = "plugins-link"))]
@@ -81,7 +73,7 @@ pub struct Plugin {
     // Properties set / derived at runtime (should all be optional)
     /// If the plugin is installed, the installation type
     #[serde(skip_serializing_if = "Option::is_none")]
-    installation: Option<Installation>,
+    installation: Option<PluginInstallation>,
 
     /// The last time that the plugin manifest was updated.
     /// Used to determine if a refresh is necessary.
@@ -250,7 +242,7 @@ impl Plugin {
             .file_type()
             .is_symlink()
         {
-            plugin.installation = Some(Installation::Link);
+            plugin.installation = Some(PluginInstallation::Link);
         }
 
         Ok(plugin)
@@ -297,7 +289,7 @@ impl Plugin {
     /// Install a plugin
     pub async fn install(
         spec: &str,
-        installs: &[Installation],
+        installs: &[PluginInstallation],
         aliases: &HashMap<String, String>,
         plugins: &mut Plugins,
         current_version: Option<String>,
@@ -341,8 +333,10 @@ impl Plugin {
 
         for install in installs {
             let result = match install {
-                Installation::Docker => Plugin::install_docker(&plugin, owner, name, version).await,
-                Installation::Binary => Plugin::install_binary(
+                PluginInstallation::Docker => {
+                    Plugin::install_docker(&plugin, owner, name, version).await
+                }
+                PluginInstallation::Binary => Plugin::install_binary(
                     &plugin,
                     owner,
                     name,
@@ -351,10 +345,10 @@ impl Plugin {
                     false,
                     true,
                 ),
-                Installation::Js => Plugin::install_js(&plugin, owner, name, version),
-                Installation::Py => Plugin::install_py(&plugin, name, version),
-                Installation::R => Plugin::install_r(&plugin, name, version),
-                Installation::Link => Plugin::install_link(spec),
+                PluginInstallation::Javascript => Plugin::install_js(&plugin, owner, name, version),
+                PluginInstallation::Python => Plugin::install_py(&plugin, name, version),
+                PluginInstallation::R => Plugin::install_r(&plugin, name, version),
+                PluginInstallation::Link => Plugin::install_link(spec),
             };
             match result {
                 // Success, so add the plugin to the in-memory store
@@ -382,7 +376,7 @@ impl Plugin {
     /// Install a list of plugins
     pub async fn install_list(
         specs: Vec<String>,
-        installs: &[Installation],
+        installs: &[PluginInstallation],
         aliases: &HashMap<String, String>,
         plugins: &mut Plugins,
     ) -> Result<()> {
@@ -396,7 +390,7 @@ impl Plugin {
     }
 
     /// Parse a plugin's NPM install URL (if any)
-    #[cfg(any(feature = "plugins-js"))]
+    #[cfg(any(feature = "plugins-javascript"))]
     pub fn parse_js_install_url(self: &Plugin) -> Option<(String, String)> {
         static REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"^https?://www.npmjs.com/package/@([a-z]+)/([a-z]+)")
@@ -417,7 +411,7 @@ impl Plugin {
     ///
     /// Installs the package within the `plugins/node_modules` directory so that it
     /// is not necessary to run as root (the NPM `--global` flag requires sudo).
-    #[cfg(any(feature = "plugins-js"))]
+    #[cfg(any(feature = "plugins-javascript"))]
     pub fn install_js(
         plugin: &Option<Plugin>,
         owner: &str,
@@ -480,7 +474,7 @@ impl Plugin {
 
                     let mut plugin =
                         Plugin::load_from_command(Command::new("node").arg(bin).arg("manifest"))?;
-                    plugin.installation = Some(Installation::Js);
+                    plugin.installation = Some(PluginInstallation::Javascript);
                     Plugin::replace(&name, &plugin)?;
                     Ok(plugin)
                 } else {
@@ -502,7 +496,7 @@ impl Plugin {
     }
 
     /// Parse a plugin's PyPI install URL (if any)
-    #[cfg(any(feature = "plugins-py"))]
+    #[cfg(any(feature = "plugins-python"))]
     pub fn parse_py_install_url(self: &Plugin) -> Option<String> {
         static REGEX: Lazy<Regex> = Lazy::new(|| {
             Regex::new(r"^https?://pypi.org/project/([\w\-\.]+)").expect("Unable to create regex")
@@ -518,7 +512,7 @@ impl Plugin {
     /// Add a plugin as a Python package from PyPI
     ///
     /// Installs the package globally for the user.
-    #[cfg(any(feature = "plugins-py"))]
+    #[cfg(any(feature = "plugins-python"))]
     pub fn install_py(plugin: &Option<Plugin>, name: &str, version: &str) -> Result<Plugin> {
         // If this is a known, registered plugin then check that it can be installed
         // as a Python package and use declared package name.
@@ -560,7 +554,7 @@ impl Plugin {
                             .arg(format!("-m{}", name))
                             .arg("manifest"),
                     )?;
-                    plugin.installation = Some(Installation::Py);
+                    plugin.installation = Some(PluginInstallation::Python);
                     Plugin::replace(&name, &plugin)?;
                     Ok(plugin)
                 } else {
@@ -639,7 +633,7 @@ impl Plugin {
                             .arg("-e")
                             .arg(format!("{}::manifest()", name)),
                     )?;
-                    plugin.installation = Some(Installation::R);
+                    plugin.installation = Some(PluginInstallation::R);
                     Plugin::replace(&name, &plugin)?;
                     Ok(plugin)
                 } else {
@@ -756,7 +750,7 @@ impl Plugin {
         // Get plugin JSON manifest and write it to disk
         let mut plugin =
             Plugin::load_from_command(&mut Command::new(&install_path).arg("manifest"))?;
-        plugin.installation = Some(Installation::Binary);
+        plugin.installation = Some(PluginInstallation::Binary);
         Plugin::write(&name, &plugin)?;
         Ok(plugin)
     }
@@ -923,7 +917,7 @@ impl Plugin {
 
         // Load and write the plugin file
         let mut plugin = Plugin::load(json)?;
-        plugin.installation = Some(Installation::Docker);
+        plugin.installation = Some(PluginInstallation::Docker);
         Plugin::replace(&name, &plugin)?;
         Ok(plugin)
     }
@@ -952,7 +946,7 @@ impl Plugin {
         // Check that the plugin's file can be loaded
         let json = fs::read_to_string(plugin_file)?;
         let mut plugin = Plugin::load(&json)?;
-        plugin.installation = Some(Installation::Link);
+        plugin.installation = Some(PluginInstallation::Link);
         let name = plugin.name.as_str();
 
         // Remove the plugin directory
@@ -971,7 +965,7 @@ impl Plugin {
     /// Upgrade a plugin
     pub async fn upgrade(
         spec: &str,
-        installs: &[Installation],
+        installs: &[PluginInstallation],
         aliases: &HashMap<String, String>,
         plugins: &mut Plugins,
     ) -> Result<()> {
@@ -1011,7 +1005,7 @@ impl Plugin {
     /// Upgrade a list of plugins
     pub async fn upgrade_list(
         list: Vec<String>,
-        installs: &[Installation],
+        installs: &[PluginInstallation],
         aliases: &HashMap<String, String>,
         plugins: &mut Plugins,
     ) -> Result<()> {
@@ -1089,7 +1083,7 @@ impl Plugin {
         // If the plugin is linked then there is nothing more to do
         // (we don't want to write anything into the directory)
         if let Some(plugin) = plugin {
-            if let Some(Installation::Link) = plugin.installation {
+            if let Some(PluginInstallation::Link) = plugin.installation {
                 return Ok(());
             }
         }
@@ -1537,12 +1531,16 @@ pub mod config {
     use defaults::Defaults;
     use validator::Validate;
 
+    /// Configuration settings for plugin installation and management
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
-    pub struct Config {
-        #[def = "vec![Installation::Docker, Installation::Binary, Installation::Js, Installation::Py, Installation::R, Installation::Link]"]
-        pub installations: Vec<Installation>,
+    pub struct PluginsConfig {
+        /// The order of preference of plugin installation method.
+        #[def = "PluginInstallation::iter().collect()"]
+        pub installations: Vec<PluginInstallation>,
 
+        /// The local plugin aliases that extends and/or override those in the
+        /// global aliases at https://github.com/stencila/stencila/blob/master/plugins.json
         pub aliases: HashMap<String, String>,
     }
 }
@@ -1620,11 +1618,11 @@ pub mod cli {
 
         /// Install plugins as Javascript packages
         #[structopt(short, long)]
-        pub js: bool,
+        pub javascript: bool,
 
         /// Install plugins as Python packages
         #[structopt(short, long)]
-        pub py: bool,
+        pub python: bool,
 
         /// Install plugins as R packages
         #[structopt(short, long)]
@@ -1772,9 +1770,13 @@ pub mod cli {
         }
     }
 
-    pub async fn run(args: Args, config: &config::Config, plugins: &mut Plugins) -> Result<()> {
+    pub async fn run(
+        args: Args,
+        config: &config::PluginsConfig,
+        plugins: &mut Plugins,
+    ) -> Result<()> {
         let Args { action } = args;
-        let config::Config {
+        let config::PluginsConfig {
             aliases,
             installations,
         } = config;
@@ -1806,8 +1808,8 @@ pub mod cli {
                 let Install {
                     docker,
                     binary,
-                    js,
-                    py,
+                    javascript,
+                    python,
                     r,
                     link,
                     plugins: list,
@@ -1815,22 +1817,22 @@ pub mod cli {
 
                 let mut installs = vec![];
                 if docker {
-                    installs.push(Installation::Docker)
+                    installs.push(PluginInstallation::Docker)
                 }
                 if binary {
-                    installs.push(Installation::Binary)
+                    installs.push(PluginInstallation::Binary)
                 }
-                if js {
-                    installs.push(Installation::Js)
+                if javascript {
+                    installs.push(PluginInstallation::Javascript)
                 }
-                if py {
-                    installs.push(Installation::Py)
+                if python {
+                    installs.push(PluginInstallation::Python)
                 }
                 if r {
-                    installs.push(Installation::R)
+                    installs.push(PluginInstallation::R)
                 }
                 if link {
-                    installs.push(Installation::Link)
+                    installs.push(PluginInstallation::Link)
                 }
 
                 let installs = if installs.is_empty() {
@@ -1844,7 +1846,7 @@ pub mod cli {
             Action::Link(action) => {
                 let Link { path } = action;
 
-                Plugin::install(&path, &[Installation::Link], aliases, plugins, None).await
+                Plugin::install(&path, &[PluginInstallation::Link], aliases, plugins, None).await
             }
             Action::Upgrade(action) => {
                 let Upgrade { plugins: list } = action;
@@ -1881,7 +1883,7 @@ mod tests {
 
         use super::cli::*;
 
-        let config = config::Config {
+        let config = config::PluginsConfig {
             ..Default::default()
         };
         let mut plugins = Plugins::empty();

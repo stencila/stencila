@@ -474,9 +474,10 @@ pub mod config {
     use serde::{Deserialize, Serialize};
     use validator::Validate;
 
+    /// Configuration settings for running as a server
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
-    pub struct Config {
+    pub struct ServeConfig {
         /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
         #[def = "\"ws://127.0.0.1:9000\".to_string()"]
         #[validate(url(message = "Not a valid URL"))]
@@ -518,7 +519,7 @@ pub mod cli {
         insecure: bool,
     }
 
-    pub async fn run(args: Args, config: &config::Config) -> Result<()> {
+    pub async fn run(args: Args, config: &config::ServeConfig) -> Result<()> {
         let Args { url, key, insecure } = args;
 
         let url = url.or_else(|| Some(config.url.clone()));

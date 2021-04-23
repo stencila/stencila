@@ -8,7 +8,7 @@ use validator::Validate;
 
 #[derive(Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, ToString)]
 #[serde(rename_all = "lowercase")]
-pub enum Level {
+pub enum LoggingLevel {
     Debug,
     Info,
     Warn,
@@ -18,7 +18,7 @@ pub enum Level {
 
 #[derive(Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
-pub enum Format {
+pub enum LoggingFormat {
     Plain,
     Pretty,
     Json,
@@ -29,28 +29,40 @@ pub mod config {
     use super::*;
     use crate::util::dirs;
 
+    /// Configuration settings for log entries printed to stderr when using the CLI
     #[derive(
         Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
     )]
-    pub struct StdErr {
+    pub struct LoggingStdErrConfig {
         /// The maximum log level to emit
-        #[def = "Level::Info"]
-        pub level: Level,
+        #[def = "LoggingLevel::Info"]
+        pub level: LoggingLevel,
 
         /// The format for the logs entries
-        #[def = "Format::Pretty"]
-        pub format: Format,
+        #[def = "LoggingFormat::Pretty"]
+        pub format: LoggingFormat,
     }
 
+    /// Configuration settings for log entries shown to the user in the desktop
+    #[derive(
+        Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
+    )]
+    pub struct LoggingDesktopConfig {
+        /// The maximum log level to emit
+        #[def = "LoggingLevel::Info"]
+        pub level: LoggingLevel,
+    }
+
+    /// Configuration settings for logs entries written to file
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-    pub struct File {
+    pub struct LoggingFileConfig {
         /// The path of the log file
         #[def = "default_file_path()"]
         pub path: String,
 
         /// The maximum log level to emit
-        #[def = "Level::Debug"]
-        pub level: Level,
+        #[def = "LoggingLevel::Debug"]
+        pub level: LoggingLevel,
     }
 
     /// Get the default value for `logging.file.path`
@@ -63,10 +75,12 @@ pub mod config {
             .expect("Unable to convert path to string")
     }
 
+    /// Configuration settings for logging
     #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
-    pub struct Config {
-        pub stderr: StdErr,
-        pub file: File,
+    pub struct LoggingConfig {
+        pub stderr: LoggingStdErrConfig,
+        pub desktop: LoggingDesktopConfig,
+        pub file: LoggingFileConfig,
     }
 }
 
@@ -85,16 +99,16 @@ pub fn prelim() -> tracing::subscriber::DefaultGuard {
 
 /// Initialize a logging subscriber based on passed args and read config.
 pub fn init(
-    level: Option<Level>,
-    config: &config::Config,
+    level: Option<LoggingLevel>,
+    config: &config::LoggingConfig,
 ) -> Result<[tracing_appender::non_blocking::WorkerGuard; 2]> {
     use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 
-    let config::Config { stderr, file } = config;
+    let config::LoggingConfig { stderr, file, .. } = config;
 
     let level = level.unwrap_or(stderr.level);
 
-    let (stderr_writer, stderr_guard) = if level != Level::Never {
+    let (stderr_writer, stderr_guard) = if level != LoggingLevel::Never {
         tracing_appender::non_blocking(std::io::stderr())
     } else {
         tracing_appender::non_blocking(std::io::sink())
@@ -104,7 +118,7 @@ pub fn init(
         .without_time()
         .with_writer(stderr_writer);
 
-    let (file_writer, file_guard) = if file.level != Level::Never {
+    let (file_writer, file_guard) = if file.level != LoggingLevel::Never {
         let path = Path::new(&file.path);
         let file_appender =
             tracing_appender::rolling::daily(&path.parent().unwrap(), &path.file_name().unwrap());

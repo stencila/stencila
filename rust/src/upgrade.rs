@@ -85,13 +85,13 @@ const UPGRADE_FILE: &str = "cli-upgrade.txt";
 /// that `feature = "config"` is enabled.
 #[cfg(feature = "config")]
 pub fn upgrade_auto(
-    config: &config::Config,
+    config: &config::UpgradeConfig,
     plugins: &plugins::Plugins,
 ) -> std::thread::JoinHandle<Result<()>> {
     let config = config.clone();
     let mut plugins = plugins.clone();
     thread::spawn(move || -> Result<()> {
-        let config::Config {
+        let config::UpgradeConfig {
             auto,
             confirm,
             plugins: include_plugins,
@@ -136,18 +136,19 @@ pub mod config {
     use serde::{Deserialize, Serialize};
     use validator::{Validate, ValidationError};
 
+    /// Configuration settings for upgrading the application and plugins
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
-    pub struct Config {
+    pub struct UpgradeConfig {
         /// Plugins should also be upgraded to latest version
         #[def = "true"]
         pub plugins: bool,
 
-        /// Prompt the user to confirm an upgrade
+        /// Prompt to confirm an upgrade
         #[def = "true"]
         pub confirm: bool,
 
-        /// Print information on the upgrade process
+        /// Show information on the upgrade process
         #[def = "false"]
         pub verbose: bool,
 
@@ -209,7 +210,7 @@ pub mod cli {
     /// version and plugin versions.
     pub async fn run(
         args: Args,
-        config: &config::Config,
+        config: &config::UpgradeConfig,
         plugins: &mut plugins::Plugins,
     ) -> Result<()> {
         let Args {
@@ -253,7 +254,7 @@ mod tests {
 
     #[test]
     fn test_upgrade_auto() -> Result<()> {
-        let config = config::Config::default();
+        let config = config::UpgradeConfig::default();
         let mut plugins = plugins::Plugins::empty();
         upgrade_auto(&config, &mut plugins).join().expect("Failed")
     }
@@ -262,7 +263,7 @@ mod tests {
     #[ignore]
     #[tokio::test]
     async fn test_cli() -> Result<()> {
-        let config = config::Config::default();
+        let config = config::UpgradeConfig::default();
         let mut plugins = plugins::Plugins::empty();
         cli::run(
             cli::Args {
