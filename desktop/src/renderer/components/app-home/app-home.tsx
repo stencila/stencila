@@ -22,9 +22,7 @@ export class AppHome {
           : undefined
 
         if (path) {
-          const p = `/project${path}`
-          console.log(p)
-          Router.push(p)
+          Router.push(`/project${path}`)
         }
       }
     })
