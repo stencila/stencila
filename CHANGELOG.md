@@ -1,3 +1,17 @@
+# [0.54.0](https://github.com/stencila/stencila/compare/v0.53.0...v0.54.0) (2021-04-23)
+
+
+### Bug Fixes
+
+* **Config:** Renaming of config options to correctly generate schema; add docs ([2466e20](https://github.com/stencila/stencila/commit/2466e20c5c1ee5aa832e03d41c29c4483db13829))
+* **Plugins:** Get latest manifest before attempting install ([af1e624](https://github.com/stencila/stencila/commit/af1e62440e273f1ff6abe65f26860e1bd4014653))
+
+
+### Features
+
+* **Config:** Generate JSOn Schema and expose on CLI and in Node.js bindings ([7869a92](https://github.com/stencila/stencila/commit/7869a9208ea65225202d6d240b5851ad716a6028))
+* **Plugins:** Add schema function for obtaining schema of plugins; fix typings ([360f551](https://github.com/stencila/stencila/commit/360f551b56f2e02dc04e0ac58f8b80f77805352d))
+
 # [0.53.0](https://github.com/stencila/stencila/compare/v0.52.0...v0.53.0) (2021-04-22)
 
 

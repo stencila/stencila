@@ -908,9 +908,9 @@ checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
 
 [[package]]
 name = "hyper"
-version = "0.14.6"
+version = "0.14.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f006b8784cfb01fe7aa9c46f5f5cd4cf5c85a8c612a0653ec97642979062665"
+checksum = "1e5f105c494081baa3bf9e200b279e27ec1623895cd504c7dbef8d0b080fcf54"
 dependencies = [
  "bytes",
  "futures-channel",
@@ -1879,9 +1879,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.4.5"
+version = "1.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "957056ecddbeba1b26965114e191d2e8589ce74db242b6ea25fc4062427a5c19"
+checksum = "2a26af418b574bd56588335b3a3659a65725d4e636eb1016c2f9e3b38c7cc759"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -2342,7 +2342,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.53.0"
+version = "0.54.0"
 dependencies = [
  "anyhow",
  "bollard",
@@ -2386,7 +2386,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.53.0"
+version = "0.54.0"
 dependencies = [
  "ansi_term 0.12.1",
  "exitcode",
@@ -2398,7 +2398,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.52.0"
+version = "0.54.0"
 dependencies = [
  "neon",
  "stencila",
