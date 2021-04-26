@@ -145,7 +145,7 @@ impl Error {
     /// An error when one of more parameters are invalid
     pub fn invalid_param_error(message: &str) -> Self {
         Self {
-            code: -32000,
+            code: -32602,
             message: message.to_string(),
             data: None,
         }
