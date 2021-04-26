@@ -118,6 +118,16 @@ pub fn print_error(error: Error) {
 /// Main entry point function
 #[tokio::main]
 pub async fn main() -> Result<()> {
+    eprintln!(
+        "{}",
+        ansi_term::Color::Red.paint(
+            r#"Stencila CLI is in alpha testing. 
+        
+Please send your bug reports and suggestions to https://github.com/stencila/stencila/issues
+"#
+        )
+    );
+
     let args: Vec<String> = std::env::args().collect();
 
     // Parse args into a command
