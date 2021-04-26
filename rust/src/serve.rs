@@ -474,6 +474,8 @@ pub mod config {
     use serde::{Deserialize, Serialize};
     use validator::Validate;
 
+    /// # Server
+    ///
     /// Configuration settings for running as a server
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]

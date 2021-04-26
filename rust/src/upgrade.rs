@@ -136,6 +136,8 @@ pub mod config {
     use serde::{Deserialize, Serialize};
     use validator::{Validate, ValidationError};
 
+    /// # Upgrade
+    ///
     /// Configuration settings for upgrading the application and plugins
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]

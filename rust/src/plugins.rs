@@ -20,7 +20,9 @@ use std::{
 };
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
-/// Plugin installation method
+/// # Plugin installation method
+///
+/// Which method to use to install a plugin.
 #[derive(
     Debug, Display, Clone, Copy, EnumString, EnumIter, PartialEq, JsonSchema, Deserialize, Serialize,
 )]
@@ -41,17 +43,17 @@ pub enum PluginInstallation {
     Link,
 }
 
-/// Description of a plugin
+/// # Description of a plugin
 ///
 /// As far as possible using existing properties defined in schema.org
 /// [`SoftwareApplication`](https://schema.org/SoftwareApplication) but extensions
 /// added where necessary.
-///
-/// Property names use the Rust convention of snake_case but are renamed
-/// to schema.org camelCase on serialization.
 #[derive(Debug, Default, Clone, JsonSchema, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Plugin {
+    // Property names use the Rust convention of snake_case but are renamed
+    // to schema.org camelCase on serialization.
+
     // Properties that are read from the plugin's manifest file
     /// The name of the plugin
     name: String,
@@ -1537,6 +1539,8 @@ pub mod config {
     use defaults::Defaults;
     use validator::Validate;
 
+    /// # Plugins
+    ///
     /// Configuration settings for plugin installation and management
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]

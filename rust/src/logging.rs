@@ -6,6 +6,7 @@ use std::path::Path;
 use strum::ToString;
 use validator::Validate;
 
+/// # Logging level
 #[derive(Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, ToString)]
 #[serde(rename_all = "lowercase")]
 pub enum LoggingLevel {
@@ -16,6 +17,7 @@ pub enum LoggingLevel {
     Never,
 }
 
+/// # Logging format
 #[derive(Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum LoggingFormat {
@@ -29,6 +31,8 @@ pub mod config {
     use super::*;
     use crate::util::dirs;
 
+    /// # Logging to standard error stream
+    ///
     /// Configuration settings for log entries printed to stderr when using the CLI
     #[derive(
         Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
@@ -43,6 +47,8 @@ pub mod config {
         pub format: LoggingFormat,
     }
 
+    /// # Logging to desktop notifications
+    ///
     /// Configuration settings for log entries shown to the user in the desktop
     #[derive(
         Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
@@ -53,6 +59,8 @@ pub mod config {
         pub level: LoggingLevel,
     }
 
+    /// # Logging to file
+    ///
     /// Configuration settings for logs entries written to file
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     pub struct LoggingFileConfig {
@@ -75,6 +83,8 @@ pub mod config {
             .expect("Unable to convert path to string")
     }
 
+    /// # Logging
+    /// 
     /// Configuration settings for logging
     #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     pub struct LoggingConfig {
