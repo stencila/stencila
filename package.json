@@ -115,7 +115,7 @@
             "Cargo.lock",
             "cli/Cargo.toml",
             "node/package.json",
-            "node/native/Cargo.toml",
+            "node/Cargo.toml",
             "python/Cargo.toml",
             "r/Cargo.toml",
             "rust/Cargo.toml"
