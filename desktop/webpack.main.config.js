@@ -9,10 +9,11 @@ module.exports = {
   module: {
     rules: [
       // Add support for native node modules
-      {
-        test: /\.node$/,
-        use: 'node-loader',
-      },
+      // TODO: Investigate. Seems to cause issues, and things seem to work without this loader
+      // {
+      //   test: /\.node$/,
+      //   use: 'node-loader',
+      // },
       {
         test: /\.(m?js|node)$/,
         parser: { amd: false },
@@ -20,6 +21,7 @@ module.exports = {
           loader: '@marshallofsound/webpack-asset-relocator-loader',
           options: {
             outputAssetBase: 'native_modules',
+            debugLog: true,
           },
         },
       },
