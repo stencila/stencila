@@ -3,8 +3,8 @@ title: Files vs Sources
 published: true
 description: Difference between project files and sources
 relatedArticles:
-  - ../hub/sources/upload.md
-  - ../hub/sources/elife.md
+  - ./sources/upload.md
+  - ./sources/elife.md
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
 ---

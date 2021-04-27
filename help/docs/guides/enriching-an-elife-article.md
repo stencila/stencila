@@ -2,7 +2,7 @@
 title: Enriching an eLife article
 description: A user guide for enriching a published eLife article
 relatedArticles:
-  - ../hub/projects/publish-a-project.md
+  - ./projects/publish-a-project.md
 authors:
   - Colette Doughty<colette@stenci.la> (https://stenci.la)
   - Alexander Ketchakmadze<alexander@stenci.la> (https://stenci.la)
@@ -42,7 +42,7 @@ The enrichment process will consist of:
 ## Getting started
 
 This guide assumes that you are already signed in to Stencila, and have set up a new project for your eLife article. If
-you haven't signed up yet, see the [creating an account](../hub/getting-started.md) and [creating a project](../hub/projects/create-a-project.md) guides to get started.
+you haven't signed up yet, see the [creating an account](./getting-started.md) and [creating a project](./projects/create-a-project.md) guides to get started.
 
 _There is an interactive version of this guide if you'd rather follow along on the Hub._
 
@@ -64,7 +64,7 @@ You can go to the sources tab and update the local copies of your source files b
 For this guide, we will be linking to the published version of the article. This will allow you to save the article in
 one of several formats so that you can replace the static tables and figures with reproducible code chunks.
 
-[Add an eLife source to your project](../hub/sources/elife.md)
+[Add an eLife source to your project](./sources/elife.md)
 
 ## Converting article to another format for editing
 
@@ -74,7 +74,7 @@ it into a reproducible article. See the available formats, under the **Actions**
 There are two primary pathways for enriching an article:
 
 1. Save the article as a Google Doc and use the Stencila plugin for Google Docs to replace static tables and figures with reproducible versions
-2. Save the article as a Jupyter Notebook or R Markdown document, [download it](../hub/projects/publish-a-project.md), and edit it locally. (See further notes below).
+2. Save the article as a Jupyter Notebook or R Markdown document, [download it](./projects/publish-a-project.md), and edit it locally. (See further notes below).
 
 ![](https://i.imgur.com/Kq0iDix.png)
 
@@ -93,7 +93,7 @@ a new entry in the project’s list of files:
 
 ## Create an editable manuscript to publish
 
-If you use editable formats such as R Studio or Jupyter Notebooks and you've successsfully converted the article into your chosen format, your next step is to [download the file to your computer](../hub/projects/publish-a-project.md), find the static figures in the article and replace them with Code Chunks to create an editable manuscript to publish.
+If you use editable formats such as R Studio or Jupyter Notebooks and you've successsfully converted the article into your chosen format, your next step is to [download the file to your computer](./projects/publish-a-project.md), find the static figures in the article and replace them with Code Chunks to create an editable manuscript to publish.
 
 Please refer to the help documentation of [R Studio](https://bookdown.org/yihui/rmarkdown/r-code.html), [Jupyter
 Notebooks](https://jupyter-notebook.readthedocs.io/en/stable/notebook.html), or your editor for specific instructions.

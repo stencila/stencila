@@ -3,7 +3,7 @@ title: What is the Stencila Hub?
 published: true
 description: The core Stencila platform
 relatedArticles:
-  - ../hub/getting-started.md
+  - ./getting-started.md
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
 ---

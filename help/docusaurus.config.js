@@ -22,11 +22,6 @@ module.exports = {
           position: 'left',
           label: 'Welcome',
         },
-        {
-          href: 'https://github.com/stencila/stencila',
-          label: 'GitHub',
-          position: 'right',
-        },
       ],
     },
     algolia: {
@@ -37,29 +32,51 @@ module.exports = {
       style: 'dark',
       links: [
         {
-          title: 'Tutorials',
+          title: 'Hub',
           items: [
             {
-              label: 'README',
-              to: '/tutorials/README',
+              label: 'Gallery',
+              href: 'https://hub.stenci.la',
+            },
+            {
+              label: 'Sign in',
+              href: 'https://hub.stenci.la/me/signin',
+            },
+            {
+              label: 'Sign up',
+              href: 'https://hub.stenci.la/me/signup',
             },
           ],
         },
         {
-          title: 'Guides',
+          title: 'Download',
           items: [
             {
-              label: 'Organizations',
-              to: '/guides/organizations',
+              label: 'CLI',
+              href:
+                'https://github.com/stencila/stencila/tree/master/cli#-install',
+            },
+            {
+              label: 'Desktop',
+              href:
+                'https://github.com/stencila/stencila/tree/master/desktop#-install',
             },
           ],
         },
         {
-          title: 'Reference',
+          title: 'Tools & Plugins',
           items: [
             {
-              label: 'README',
-              to: '/reference/README',
+              label: 'Schema',
+              href: 'https://github.com/stencila/schema#readme',
+            },
+            {
+              label: 'Encoda',
+              href: 'https://github.com/stencila/encoda#readme',
+            },
+            {
+              label: 'Thema',
+              href: 'https://github.com/stencila/thema#readme',
             },
           ],
         },
@@ -90,15 +107,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/',
-        },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/blog/',
+          editUrl: 'https://github.com/stencila/stencila/edit/master/help/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
