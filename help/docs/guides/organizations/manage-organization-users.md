@@ -1,5 +1,4 @@
 ---
-id: 4170086
 title: Manage organization users
 description: Once your organization is created you can add users to work collaboratively on projects
 published: true

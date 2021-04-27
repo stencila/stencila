@@ -1,5 +1,4 @@
 ---
-id: 4170096
 title: Share a project
 description: Share your public or private project URL with others
 published: true

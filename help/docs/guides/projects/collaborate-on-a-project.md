@@ -1,5 +1,4 @@
 ---
-id: 4330662
 title: Collaborate on a project
 description: Invite others to collaborate on your project
 published: true

@@ -1,6 +1,4 @@
 ---
-id: 4184684
-collectionId: 2422090
 title: Enriching an eLife article
 description: A user guide for enriching a published eLife article
 relatedArticles:

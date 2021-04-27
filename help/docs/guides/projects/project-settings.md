@@ -1,5 +1,4 @@
 ---
-id: 4330629
 title: Project settings
 description: How to update your project details, choose a theme, pin your project & delete your project
 published: true

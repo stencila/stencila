@@ -1,11 +1,9 @@
 ---
 title: Installing Stencila for Google Docs
 description: How to install & open the Google Docs add-on
-collectionId: 2378614
 published: true
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
-id: 4857019
 relatedArticles:
   - ./getting-started.md
   - ./interface-overview.md

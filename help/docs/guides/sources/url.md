@@ -1,12 +1,10 @@
 ---
 title: URL Sources
 description: Add a URL to your Stencila project
-id: 4170128
 relatedArticles:
   - ../projects/manage-project-sources.md
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
-collectionId: 2414017
 published: true
 ---
 

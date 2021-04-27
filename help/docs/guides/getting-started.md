@@ -1,5 +1,4 @@
 ---
-id: 4170065
 title: Getting started
 description: Welcome to Stencila! Let’s quickly create your Stencila account and show you around so you can get started
 published: true

@@ -1,5 +1,4 @@
 ---
-id: 4170077
 title: Manage your organization settings
 description: Update your organization profile information, set a image and choose your project theme
 published: true

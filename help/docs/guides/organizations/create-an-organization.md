@@ -1,5 +1,4 @@
 ---
-id: 4170083
 title: Create an organization
 description: Setting up an organization enables you to work collaboratively with your colleagues
 published: true

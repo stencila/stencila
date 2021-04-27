@@ -1,5 +1,4 @@
 ---
-id: 4321162
 title: Publish a project
 description: Select your main file, take a snapshot and create an editable manuscript to publish
 authors:

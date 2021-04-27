@@ -1,5 +1,4 @@
 ---
-id: 4458566
 title: R Markdown
 description: Authoring executable documents with R Markdown
 published: true

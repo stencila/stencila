@@ -1,5 +1,4 @@
 ---
-id: 4624378
 title: Jupyter Notebooks
 description: Authoring executable documents with Jupyter Notebooks
 published: true

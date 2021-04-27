@@ -1,5 +1,4 @@
 ---
-id: 4170098
 title: Manage project sources
 description: How to link a source, upload a file and convert
 relatedArticles:

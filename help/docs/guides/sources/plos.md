@@ -1,10 +1,8 @@
 ---
-id: 4170124
 title: PLOS Sources
 description: Add a PLOS article to your Stencila project
 authors:
   - Colette Doughty <colette@stenci.la> (https://stenci.la)
-collectionId: 2414017
 published: true
 ---
 

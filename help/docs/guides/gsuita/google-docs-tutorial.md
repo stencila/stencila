@@ -1,7 +1,6 @@
 ---
 title: Google Docs Tutorial
 description: How to install & open the Google Doc add-on, execute & insert code into your Google document
-id: 4170136
 relatedArticles:
   - ../hub/projects/manage-project-sources.md
   - ../hub/projects/publish-a-project.md

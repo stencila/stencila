@@ -2,8 +2,6 @@
 title: Files vs Sources
 published: true
 description: Difference between project files and sources
-id: 4278920
-collectionId: 2470979
 relatedArticles:
   - ../hub/sources/upload.md
   - ../hub/sources/elife.md

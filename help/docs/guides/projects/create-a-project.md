@@ -1,5 +1,4 @@
 ---
-id: 4170095
 title: Create a project
 description: Projects are where you upload and link data sources and publish files
 published: true

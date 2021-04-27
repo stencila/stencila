@@ -1,11 +1,9 @@
 ---
 title: Add-on interface overview
 description: 'A look at the add-on interface, buttons, and what they do'
-collectionId: 2378614
 published: true
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
-id: 4857020
 relatedArticles:
   - ./installation.md
   - ./getting-started.md
