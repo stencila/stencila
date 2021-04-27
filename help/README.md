@@ -1,8 +1,25 @@
 # Help
 
-This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
+**Stencila help and documentation**
 
-## Development
+## ✨ Introduction
+
+This folder contains content and code used to build https://help.stenci.la.
+
+We broadly follow the [Diátaxis](https://diataxis.fr/) framework for structuring (and guiding) documentation.
+The `docs` folder is divided into four subfolders, three of which represent quadrants of the [Diátaxis](https://diataxis.fr/) system (`tutorials`, `guides`, `reference`), as well as `demos` for demonstration screencasts.
+
+1. [Tutorials](https://diataxis.fr/tutorials/) are _lessons_ that take the reader by the hand through a series of steps to complete a project of some kind. Tutorials are **learning-oriented**. They are aimed at users who are new to Stencila.
+
+2. [Guides](https://diataxis.fr/how-to-guides/) are _directions_ or _recipes_ that take the reader through the steps required to solve a real-world problem or use-case. Guides are **goal-oriented**. They are more advanced than tutorials and assume some knowledge of how Stencila works.
+
+3. [References](https://diataxis.fr/reference/) are _technical descriptions_ of the machinery and how to operate it. References are **information-oriented**.
+
+4. Demos are audio / visual demonstrations of functionality and user experience. Demos are primarily aimed at engaging and enthusing users.
+
+## 🛠️ Development
+
+This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
 ```console
 npm install
@@ -11,7 +28,9 @@ npm start
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
-## Build
+To build the CLI demos in [docs/demos/cli](docs/demos/cli) you will need to have
+
+## 🏗️ Build
 
 ```console
 npm build
@@ -19,7 +38,7 @@ npm build
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
 
-## Deployment
+## 🚀 Deployment
 
 ```console
 GIT_USER=<Your GitHub username> USE_SSH=true npm deploy

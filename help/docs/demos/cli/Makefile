@@ -1,32 +1,49 @@
+# Recipes for converting Mrkdown demo scripts into Asciinema "consolecasts"
+#
+# Requires pv and asciinema. On Debian:
+#    sudo apt-get install pv asciinema
+# To generate GIFs requires `docker`.
+
+all: $(patsubst %.md,%.gif,$(wildcard *.md))
+
 # Make a Demo Magic script from Markdown source
 %.sh: %.md
-	npx encoda convert ./$< ./$@ --to demo-magic
+	csplit -f temp $< /Script/6
+	npx encoda convert --from md temp01 --to demo-magic $@
 	chmod +x $@
+.PRECIOUS: %.sh
 
 # Run a demo interactively e.g. for a tutorial
 # Requires that you press enter when you want the demo
 # to progress. This turns off simulated typing.
-run-%: %.sh
-	PATH=$$PATH:$$(pwd) ./$*.sh -d
+%.run: %.sh
+	./$*.sh -d
 
 # Preview a demo before recording it
-preview-%: %.sh
-	PATH=$$PATH:$$(pwd) ./$*.sh -n
+%.preview: %.sh
+	./$*.sh -n
 
-# Records an asciinema cast
-record-%: %.sh asciinema
-	asciinema rec -c "PATH=$$PATH:$$(pwd) ./$*.sh -n" --overwrite $*.cast
+# Record an asciinema cast
+%.cast: %.sh
+	asciinema rec -c "./$*.sh -n" --overwrite $*.cast
+.PRECIOUS: %.cast
 
 # Play an asciinema cast
-play-%: asciinema
+%.play: %.cast
 	asciinema play $*.cast
 
+# Convert a cast to an animated SVG
+%.svg: %.cast
+	cat $*.cast | npx svg-term --window --height 25 --width 90 --out $*.svg
+
+# Convert a cast to an animated GIF
+%.gif: %.cast
+	docker run --rm -v $$PWD:/data asciinema/asciicast2gif $*.cast $*.gif
+
 # Upload an asciinema cast
-upload-%: asciinema
+%.upload: %.cast
 	asciinema upload $*.cast
 
-# Check if asciinema is installed
-asciinema:
-	@if ! [ -x "$$(command -v asciinema)" ]; then \
-		echo "Error: asciinemas is not installed. See https://asciinema.org/docs/installation"; \
-	fi
+# Remove temporary files
+clean:
+	rm -f temp* *.sh *.cast *.svg

@@ -94,11 +94,17 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - script: cd help && npm ci
+      - script: |
+          set -e
+          sudo apt-get install pv asciinema
+          cd help && npm ci
         displayName: Install dependencies
 
       # Build on all branches, including PRs
-      - script: make -C help build
+      - script: |
+          set -e
+          make -C help demos
+          make -C help build
         displayName: Build help site
 
       # Only deploy if build was successful and on master
