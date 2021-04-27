@@ -12,5 +12,5 @@
 }
 
 label {
-  @apply font-bold;
+  @apply block font-bold mt-4 mb-2;
 }
