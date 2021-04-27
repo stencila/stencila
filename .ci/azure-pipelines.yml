@@ -94,6 +94,9 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
+      - script: cd help && npm ci
+        displayName: Install dependencies
+
       # Build on all branches, including PRs
       - script: make -C help build
         displayName: Build help site
