@@ -31,7 +31,7 @@ import {
   tableCell,
   tableRow,
 } from './types'
-import { filterInterfaceSchemas, readSchemas } from './util/helpers'
+import { readSchemas } from './util/helpers'
 
 /**
  * Run `build()` when this file is run as a Node script
@@ -45,6 +45,11 @@ if (require.main) build()
 const DOCS_DEST_DIR = path.join(__dirname, '..', 'docs')
 
 /**
+ * All the schemas as a map
+ */
+let SCHEMAS: Record<string, JsonSchema>
+
+/**
  * Generate docs for each `public/*.schema.json` file and
  * convert any `schema/*.md` files to HTML.
  *
@@ -55,7 +60,15 @@ async function build(): Promise<void> {
   log.info('Building docs')
 
   // Read in all the schemas
-  const schemas = filterInterfaceSchemas(await readSchemas())
+  const schemas = await readSchemas()
+
+  // Create a map of schemas, so we can refer to them later
+  SCHEMAS = schemas.reduce(
+    (prev: Record<string, JsonSchema>, curr: JsonSchema) => {
+      return { ...prev, [curr.title ?? 'undef']: curr }
+    },
+    {}
+  )
 
   // For each schema...
   await Promise.all(
@@ -64,7 +77,7 @@ async function build(): Promise<void> {
       const summaryArticle = schema2Article(schema)
       await encoda.write(
         summaryArticle,
-        path.join(DOCS_DEST_DIR, `${title}.md`)
+        path.join(DOCS_DEST_DIR, title2Path(title))
       )
     })
   )
@@ -74,9 +87,8 @@ async function build(): Promise<void> {
     'Prose',
     'Code',
     'Data',
-    'Validation',
     'Metadata',
-    'Miscellaneous',
+    'Other',
     // Any other categories should be listed at the end
     ...Object.values(schemas).map((schema) => startCase(schema.category)),
   ])
@@ -84,9 +96,7 @@ async function build(): Promise<void> {
   // Group schemas by category, and within each group sort schemas by `status`, and then `name`.
   const groupedSchemas: { [category: string]: JsonSchema[] } = flow([
     (_schemas: JsonSchema[]) =>
-      groupBy(_schemas, (schema) =>
-        startCase(schema.category ?? 'Miscellaneous')
-      ),
+      groupBy(_schemas, (schema) => startCase(schema.category ?? 'Other')),
     (_schemas: typeof groupedSchemas) =>
       orderedCategories.reduce(
         (categories: typeof groupedSchemas, category) =>
@@ -115,7 +125,7 @@ async function build(): Promise<void> {
               content: [
                 link({
                   content: [startCase(title)],
-                  target: `./${title}`,
+                  target: title2Path(title),
                 }),
               ],
             })
@@ -174,30 +184,6 @@ const intersperse = <T, S>(array: T[], separator: S): (T | S)[] =>
     .slice(0, -1)
 
 /**
- * Formats a sub-schema inside with the correct formatting. Primarily used for
- * encoding allowed types inside an `array` or an `enum`
- *
- * @param {string} prefix
- * @param {Node[]} subTypes
- * @param {string} suffix
- * @returns {Node[]} Stencila Node tree
- */
-const subType = (
-  prefix: string,
-  subTypes: InlineContent[],
-  suffix: string
-): InlineContent[] => [
-  codeFragment({ text: prefix }),
-  '​', // These quotes are not empty, they contain a zero-width space character to prevent Markdown decoding errors
-  ...subTypes,
-  '​', // These quotes are not empty, they contain a zero-width space character to prevent Markdown decoding errors
-  codeFragment({ text: suffix }),
-]
-
-const orSeparator = ' | '
-const andSeparator = ' & '
-
-/**
  * Create a short `InlineContent[]` representation for a JSON Schema.
  * e.g. to be used within a table cell
  *
@@ -216,33 +202,44 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
     parser,
   } = schema
 
-  if (format !== undefined) return [codeFragment({ text: `${type}:${format}` })]
-  if (type === 'array' && items !== undefined)
+  if (type === 'array' && items !== undefined) {
     // Items of an `array` type can either be a single schema object or an
     // array of schemas to validate each item against
-    return subType(
-      'array[',
-      Array.isArray(items)
-        ? flatten(items.map(schema2Inlines))
-        : schema2Inlines(items),
-      ']'
-    )
+    const inner = Array.isArray(items)
+      ? flatten(items.map(schema2Inlines))
+      : schema2Inlines(items)
+    return [
+      'Array of ',
+      inner.length > 1 ? '(' : '',
+      ...inner,
+      inner.length > 1 ? ')' : '',
+    ]
+  }
   if (enumeration !== undefined)
-    return subType(
-      'enum{',
-      intersperse(
-        enumeration.map((value) => codeFragment({ text: `${value}` })),
-        ', '
-      ),
-      '}'
+    return intersperse(
+      enumeration.map((value) => `'${value}'`),
+      ', '
     )
   if (anyOf !== undefined)
-    return flatten(intersperse(anyOf.map(schema2Inlines), orSeparator))
+    return flatten(
+      intersperse(anyOf.map(schema2Inlines), [
+        ' ',
+        emphasis({ content: ['or'] }),
+        ' ',
+      ])
+    )
   if (allOf !== undefined)
-    return flatten(intersperse(allOf.map(schema2Inlines), andSeparator))
+    return flatten(
+      intersperse(allOf.map(schema2Inlines), [
+        ' ',
+        emphasis({ content: ['and'] }),
+        ' ',
+      ])
+    )
   if ($ref !== undefined) return [ref2Link($ref)]
-  if (parser !== undefined) return [codeFragment({ text: `parser:${parser}` })]
-  return [codeFragment({ text: `${type}` })]
+  if (parser !== undefined) return [`Parser '${parser}'`]
+  if (format !== undefined) return [`Format '${format}'`]
+  return [`${type}`]
 }
 
 /**
@@ -278,11 +275,7 @@ function schema2Article(schema: JsonSchema): Article {
         cells: [
           tableCell({
             content: [
-              required.includes(name)
-                ? strong({
-                    content: [name, ' ', emphasis({ content: ['(required)'] })],
-                  })
-                : name,
+              required.includes(name) ? strong({ content: [name] }) : name,
             ],
           }),
           tableCell({
@@ -290,9 +283,7 @@ function schema2Article(schema: JsonSchema): Article {
           }),
           tableCell({ content: schema2Inlines(propSchema) }),
           tableCell({ content: [description] }),
-          tableCell({
-            content: [link({ content: [from], target: `./${from}` })],
-          }),
+          tableCell({ content: [title2Link(from)] }),
         ],
       })
     })
@@ -315,7 +306,7 @@ function schema2Article(schema: JsonSchema): Article {
               paragraph({
                 content: [
                   'Parent: ',
-                  parent !== undefined ? typeName2Link(parent) : 'None',
+                  parent !== undefined ? title2Link(parent) : 'None',
                 ],
               }),
             ],
@@ -326,7 +317,7 @@ function schema2Article(schema: JsonSchema): Article {
                 content: [
                   'Descendants: ',
                   ...(descendants.length !== 0
-                    ? intersperse(descendants.map(typeName2Link), ', ')
+                    ? intersperse(descendants.map(title2Link), ', ')
                     : ['None']),
                 ],
               }),
@@ -360,28 +351,35 @@ function schema2Article(schema: JsonSchema): Article {
 }
 
 /**
+ * Generate a path to the Markdown document for a schema
+ *
+ * @param title of the schema e.g. "Article"
+ */
+function title2Path(title: string, prefix = './'): string {
+  const { category = 'other' } = SCHEMAS[title]
+  return `${prefix}${category}/${title}.md`
+}
+
+/**
+ * Generate a link to the Markdown document for a schema
+ *
+ * @param title of the type e.g. "Article"
+ */
+function title2Link(title: string): Link {
+  return link({
+    content: [title],
+    target: title2Path(title, '../'),
+  })
+}
+
+/**
  * Generate a link to the Markdown document for a `$ref`
  *
  * @param ref e.g. "Article.schema.json"
  */
 const ref2Link = (ref: string): Link => {
-  const value = ref.replace('.schema.json', '')
-  return link({
-    content: [codeFragment({ text: value })],
-    target: `./${value}`,
-  })
-}
-
-/**
- * Generate a link to the Markdown document for a type
- *
- * @param name of the type e.g. "Article"
- */
-function typeName2Link(name: string): Link {
-  return link({
-    content: [name],
-    target: `./${name}`,
-  })
+  const title = ref.replace('.schema.json', '')
+  return title2Link(title)
 }
 
 /**
