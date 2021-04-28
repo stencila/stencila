@@ -17,7 +17,6 @@ import {
   Article,
   article,
   BlockContent,
-  codeFragment,
   emphasis,
   heading,
   InlineContent,
@@ -25,6 +24,7 @@ import {
   link,
   list,
   listItem,
+  Paragraph,
   paragraph,
   strong,
   table,
@@ -195,6 +195,7 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
     type = '',
     format,
     items,
+    const: const_,
     enum: enumeration,
     anyOf,
     allOf,
@@ -215,6 +216,7 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
       inner.length > 1 ? ')' : '',
     ]
   }
+  if (const_ !== undefined) return [`'${const_}'`]
   if (enumeration !== undefined)
     return intersperse(
       enumeration.map((value) => `'${value}'`),
@@ -245,105 +247,193 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
 /**
  * Create a summary documentation `Article` for a JSON Schema.
  */
-function schema2Article(schema: JsonSchema): Article {
+async function schema2Article(schema: JsonSchema): Promise<Article> {
   const {
     title = 'Untitled',
     '@id': id = '',
+    anyOf = [],
     description = '',
     properties = {},
     required = [],
     extends: parent,
     descendants = [],
+    $comment,
   } = schema
 
-  const tableHeader = tableRow({
-    cells: [
-      tableCell({ content: ['Name'] }),
-      tableCell({ content: ['@id'] }),
-      tableCell({ content: ['Type'] }),
-      tableCell({ content: ['Description'] }),
-      tableCell({ content: ['Inherited from'] }),
-    ],
-    rowType: 'header',
-  })
+  const notes: Paragraph[] = []
 
-  const tableData = Object.entries(properties)
-    .sort(([a], [b]) => requiredPropsFirst(required)(a, b))
-    .map(([name, propSchema]) => {
-      const { '@id': id = '', description = '', from = '' } = propSchema
+  if ($comment !== undefined) {
+    const para = ((await encoda.load($comment, 'md')) as Article)
+      .content?.[0] as Paragraph
+    notes.push(para)
+  }
+
+  let membersTable
+  if (anyOf.length > 0) {
+    const tableHeader = tableRow({
+      cells: [
+        tableCell({ content: ['@id'] }),
+        tableCell({ content: ['Type'] }),
+        tableCell({ content: ['Description'] }),
+      ],
+      rowType: 'header',
+    })
+    const tableData = anyOf.map((memberSchema) => {
+      let { $ref, '@id': id, description = '' } = memberSchema
+      if ($ref !== undefined) {
+        ;({ '@id': id, description = '' } = ref2Schema($ref))
+      }
       return tableRow({
         cells: [
-          tableCell({
-            content: [
-              required.includes(name) ? strong({ content: [name] }) : name,
-            ],
-          }),
-          tableCell({
-            content: [link({ content: [id], target: id2JsonldUrl(id) })],
-          }),
-          tableCell({ content: schema2Inlines(propSchema) }),
+          tableCell({ content: id !== undefined ? [id2Link(id)] : [] }),
+          tableCell({ content: schema2Inlines(memberSchema) }),
           tableCell({ content: [description] }),
-          tableCell({ content: [title2Link(from)] }),
         ],
       })
     })
+    membersTable = table({ rows: [tableHeader, ...tableData] })
+  }
+
+  let propertiesTable
+  if (Object.keys(properties).length > 0) {
+    const tableHeader = tableRow({
+      cells: [
+        tableCell({ content: ['Name'] }),
+        tableCell({ content: ['@id'] }),
+        tableCell({ content: ['Type'] }),
+        tableCell({ content: ['Description'] }),
+        tableCell({ content: ['Inherited from'] }),
+      ],
+      rowType: 'header',
+    })
+    const tableData = await Promise.all(
+      Object.entries(properties)
+        .sort(([a], [b]) => requiredPropsFirst(required)(a, b))
+        .map(async ([name, propSchema]) => {
+          const {
+            '@id': id = '',
+            description = '',
+            from = '',
+            $comment,
+          } = propSchema
+
+          let note: InlineContent[] = []
+          if ($comment !== undefined) {
+            const para = ((await encoda.load($comment, 'md')) as Article)
+              .content?.[0] as Paragraph
+            notes.push(
+              paragraph({
+                content: [strong({ content: [name] }), ' : ', ...para?.content],
+              })
+            )
+            note = [
+              ' See note ',
+              link({ content: [notes.length.toString()], target: '#notes' }),
+              '.',
+            ]
+          }
+
+          return tableRow({
+            cells: [
+              tableCell({
+                content: [
+                  required.includes(name) ? strong({ content: [name] }) : name,
+                ],
+              }),
+              tableCell({ content: [id2Link(id)] }),
+              tableCell({ content: schema2Inlines(propSchema) }),
+              tableCell({ content: [description, ...note] }),
+              tableCell({ content: [title2Link(from)] }),
+            ],
+          })
+        })
+    )
+    propertiesTable = table({ rows: [tableHeader, ...tableData] })
+  }
 
   return article({
     content: [
       heading({ content: [title], depth: 1 }),
       paragraph({ content: [description] }),
 
-      heading({ content: ['Properties'], depth: 2 }),
-      ...(Object.keys(properties).length > 0
-        ? [table({ rows: [tableHeader, ...tableData] })]
+      ...(membersTable !== undefined
+        ? [heading({ content: ['Members'], depth: 2 }), membersTable]
         : []),
 
-      heading({ content: ['Related'], depth: 2 }),
-      list({
-        items: [
-          listItem({
-            content: [
-              paragraph({
-                content: [
-                  'Parent: ',
-                  parent !== undefined ? title2Link(parent) : 'None',
-                ],
-              }),
-            ],
-          }),
-          listItem({
-            content: [
-              paragraph({
-                content: [
-                  'Descendants: ',
-                  ...(descendants.length !== 0
-                    ? intersperse(descendants.map(title2Link), ', ')
-                    : ['None']),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
+      ...(propertiesTable !== undefined
+        ? [heading({ content: ['Properties'], depth: 2 }), propertiesTable]
+        : []),
 
-      paragraph({
-        content: [
-          ' This documentation was autogenerated from ',
-          link({
-            content: [codeFragment({ text: `${title}.schema.yaml` })],
-            target: `https://github.com/stencila/schema/blob/master/schema/${title}.schema.yaml`,
+      ...(parent !== undefined || descendants.length > 0
+        ? [
+            heading({ content: ['Related'], depth: 2 }),
+            list({
+              items: [
+                listItem({
+                  content: [
+                    paragraph({
+                      content: [
+                        'Parent: ',
+                        parent !== undefined ? title2Link(parent) : 'None',
+                      ],
+                    }),
+                  ],
+                }),
+                listItem({
+                  content: [
+                    paragraph({
+                      content: [
+                        'Descendants: ',
+                        ...(descendants.length !== 0
+                          ? intersperse(descendants.map(title2Link), ', ')
+                          : ['None']),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ]
+        : []),
+
+      heading({ content: ['Notes'], depth: 2 }),
+      list({
+        order: 'ascending',
+        items: [
+          ...notes.map((note) => listItem({ content: [note] })),
+          listItem({
+            content: [
+              paragraph({
+                content: [
+                  'This type is also available in ',
+                  link({
+                    content: ['JSON-LD'],
+                    target: id2JsonldUrl(id),
+                  }),
+                  ' and ',
+                  link({
+                    content: ['JSON Schema'],
+                    target: id2JsonSchemaUrl(id),
+                  }),
+                  '.',
+                ],
+              }),
+            ],
           }),
-          '. This type is also available in ',
-          link({
-            content: ['JSON-LD'],
-            target: id2JsonldUrl(id),
+          listItem({
+            content: [
+              paragraph({
+                content: [
+                  'This documentation was generated from ',
+                  link({
+                    content: [`${title}.schema.yaml`],
+                    target: `https://github.com/stencila/schema/blob/master/schema/${title}.schema.yaml`,
+                  }),
+                  '.',
+                ],
+              }),
+            ],
           }),
-          ' and ',
-          link({
-            content: ['JSON Schema'],
-            target: id2JsonSchemaUrl(id),
-          }),
-          '.',
         ],
       }),
     ],
@@ -383,15 +473,44 @@ const ref2Link = (ref: string): Link => {
 }
 
 /**
+ * Get the schema from a `$ref`
+ *
+ * @param ref e.g. "Article.schema.json"
+ */
+const ref2Schema = (ref: string): JsonSchema => {
+  const title = ref.replace('.schema.json', '')
+  return SCHEMAS[title]
+}
+
+/**
+ * Generate a link for an @id, often to an external site
+ */
+const id2Link = (id: string): Link => {
+  const [context, name] = id.split(':')
+  const target = (() => {
+    switch (context) {
+      case 'cito':
+        // Appears to be difficult to link to a specific id
+        return `https://sparontologies.github.io/cito/current/cito.html`
+      case 'schema':
+        return `https://schema.org/${name}`
+      case 'stencila':
+        return id2JsonldUrl(id)
+      default:
+        return ''
+    }
+  })()
+  return link({ content: [id], target })
+}
+
+/**
  * Generate a URL for the JSON-LD for an id
  *
  * @param id The id of the type or property, including it's context e.g. `schema:Article`
  */
 function id2JsonldUrl(id: string): string {
-  const [context, name] = id.split(':')
-  return context === 'schema'
-    ? `https://schema.org/${name}`
-    : `https://schema.stenci.la/${name}.jsonld`
+  const [_context, name] = id.split(':')
+  return `https://schema.stenci.la/${name}.jsonld`
 }
 
 /**
