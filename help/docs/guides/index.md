@@ -6,4 +6,4 @@ slug: /guides
 description: Stencila Demos
 ---
 
-![](/img/guides.svg)
+![](/img/illustrations/guides.svg)

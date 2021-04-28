@@ -1,4 +1,5 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
+
 module.exports = {
   title: 'Stencila Help',
   url: 'https://stencila.github.io/stencila',
@@ -10,15 +11,31 @@ module.exports = {
   projectName: 'stencila',
   themeConfig: {
     navbar: {
-      title: 'Stencila Help',
+      title: 'Help',
       logo: {
         alt: 'Stencila Logo',
-        src: 'img/logo.svg',
+        src: 'img/stencilaLogo.svg',
+        srcDark: 'img/stencilaLogoDarkBG.svg',
       },
     },
-    algolia: {
-      apiKey: 'YOUR_API_KEY',
-      indexName: 'YOUR_INDEX_NAME',
+    // algolia: {
+    //   apiKey: 'YOUR_API_KEY',
+    //   indexName: 'YOUR_INDEX_NAME',
+    // },
+    colorMode: {
+      defaultMode: 'light',
+      // Respect user's system preferences for `prefers-color-scheme` media-query
+      respectPrefersColorScheme: true,
+      switchConfig: {
+        darkIcon: '🌙',
+        darkIconStyle: {
+          fontSize: '80%',
+        },
+        lightIcon: '☀️',
+        lightIconStyle: {
+          fontSize: '80%',
+        },
+      },
     },
     footer: {
       style: 'dark',
@@ -32,11 +49,11 @@ module.exports = {
             },
             {
               label: 'Sign in',
-              href: 'https://hub.stenci.la/me/signin',
+              href: 'https://hub.stenci.la/me/signin/',
             },
             {
               label: 'Sign up',
-              href: 'https://hub.stenci.la/me/signup',
+              href: 'https://hub.stenci.la/me/signup/',
             },
           ],
         },

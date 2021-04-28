@@ -6,4 +6,4 @@ slug: /reference
 description: Stencila reference guides and other materials
 ---
 
-![](/img/reference.svg)
+![](/img/illustrations/reference.svg)

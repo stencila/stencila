@@ -5,16 +5,100 @@
  * work well for content-centric websites.
  */
 
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,600;1,600&display=swap');
+
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: rgb(33, 175, 144);
-  --ifm-color-primary-darker: rgb(31, 165, 136);
-  --ifm-color-primary-darkest: rgb(26, 136, 112);
-  --ifm-color-primary-light: rgb(70, 203, 174);
-  --ifm-color-primary-lighter: rgb(102, 212, 189);
-  --ifm-color-primary-lightest: rgb(146, 224, 208);
-  --ifm-code-font-size: 95%;
+  --ifm-font-family-base: 'Lato', system-ui, -apple-system, Segoe UI, Roboto,
+    Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI',
+    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol';
+
+  --ifm-font-family-monospace: 'IBM Plex Mono', 'Fira Code', SFMono-Regular,
+    Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  --ifm-heading-font-family: 'Montserrat', 'sans-serif';
+
+  --ifm-line-height-base: 1.65;
+
+  --ifm-dark-value: 10%;
+  --ifm-darker-value: 15%;
+  --ifm-darkest-value: 30%;
+  --ifm-light-value: 15%;
+  --ifm-lighter-value: 30%;
+  --ifm-lightest-value: 50%;
+
+  --ifm-color-white: #fff;
+  --ifm-color-black: #4a4a4a;
+  --ifm-color-black: #000;
+
+  --ifm-color-gray-0: var(--ifm-color-white);
+  --ifm-color-gray-100: #f7fafc;
+  --ifm-color-gray-200: #edf2f7;
+  --ifm-color-gray-300: #e2e8f0;
+  --ifm-color-gray-400: #cbd5e0;
+  --ifm-color-gray-500: #a0aec0;
+  --ifm-color-gray-600: #718096;
+  --ifm-color-gray-700: #4a5568;
+  --ifm-color-gray-800: #2d3748;
+  --ifm-color-gray-900: #1a202c;
+
+  --ifm-color-primary: #2568ef;
+  --ifm-color-primary-dark: #164ebf;
+  --ifm-color-primary-darker: #12409d;
+  --ifm-color-primary-darkest: #0d2d6f;
+  --ifm-color-primary-light: #8db0f8;
+  --ifm-color-primary-lighter: #b0c8fa;
+  --ifm-color-primary-lightest: #cdddfc;
+
+  --ifm-color-secondary: var(--ifm-color-gray-500);
+  --ifm-color-secondary-dark: var(--ifm-color-gray-700);
+  --ifm-color-secondary-darker: var(--ifm-color-gray-800);
+  --ifm-color-secondary-darkest: var(--ifm-color-gray-900);
+  --ifm-color-secondary-light: var(--ifm-color-gray-400);
+  --ifm-color-secondary-lighter: var(--ifm-color-gray-300);
+  --ifm-color-secondary-lightest: var(--ifm-color-gray-100);
+
+  --ifm-color-success: #48bb78;
+  --ifm-color-success-dark: #2f855a;
+  --ifm-color-success-darker: #276749;
+  --ifm-color-success-darkest: #22543d;
+  --ifm-color-success-light: #68d391;
+  --ifm-color-success-lighter: #9ae6b4;
+  --ifm-color-success-lightest: #c6f6d5;
+
+  --ifm-color-info: #54c7ec;
+  --ifm-color-info-dark: rgb(76, 179, 212);
+  --ifm-color-info-darker: rgb(71, 169, 201);
+  --ifm-color-info-darkest: rgb(59, 139, 165);
+  --ifm-color-info-light: rgb(110, 207, 239);
+  --ifm-color-info-lighter: rgb(135, 216, 242);
+  --ifm-color-info-lightest: rgb(170, 227, 246);
+
+  --ifm-color-warning: #ecc94b;
+  --ifm-color-warning-dark: #b7791f;
+  --ifm-color-warning-darker: #975a16;
+  --ifm-color-warning-darkest: #744210;
+  --ifm-color-warning-light: #faf089;
+  --ifm-color-warning-lighter: #fefcbf;
+  --ifm-color-warning-lightest: #fffff0;
+
+  --ifm-color-danger: #f56565;
+  --ifm-color-danger-dark: #c53030;
+  --ifm-color-danger-darker: #9b2c2c;
+  --ifm-color-danger-darkest: #742a2a;
+  --ifm-color-danger-light: #fc8181;
+  --ifm-color-danger-lighter: #feb2b2;
+  --ifm-color-danger-lightest: #fed7d7;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--ifm-heading-font-family);
 }
 
 .docusaurus-highlight-code-line {

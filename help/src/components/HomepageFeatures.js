@@ -6,7 +6,7 @@ const FeatureList = [
   {
     title: 'Tutorials',
     link: '/docs/tutorials',
-    Svg: require('../../static/img/tutorials.svg').default,
+    Svg: require('../../static/img/illustrations/tutorials.svg').default,
     description: (
       <>
         Sed ut perspiciatis, unde omnis iste natus error sit voluptatem
@@ -16,7 +16,7 @@ const FeatureList = [
   },
   {
     title: 'Guides',
-    Svg: require('../../static/img/guides.svg').default,
+    Svg: require('../../static/img/illustrations/guides.svg').default,
     link: '/docs/guides',
     description: (
       <>
@@ -29,7 +29,7 @@ const FeatureList = [
   },
   {
     title: 'Demos',
-    Svg: require('../../static/img/demos.svg').default,
+    Svg: require('../../static/img/illustrations/demos.svg').default,
     link: '/docs/demos',
     description: (
       <>
@@ -40,7 +40,7 @@ const FeatureList = [
   },
   {
     title: 'Reference',
-    Svg: require('../../static/img/reference.svg').default,
+    Svg: require('../../static/img/illustrations/reference.svg').default,
     link: '/docs/reference',
     description: (
       <>
@@ -54,7 +54,7 @@ const FeatureList = [
 
 function Feature({ Svg, link, title, description }) {
   return (
-    <div className={clsx('col col--4')}>
+    <div className={clsx('col col--6 feature', styles.feature)}>
       <div className="text--center">
         <Svg className={styles.featureSvg} alt={title} />
       </div>

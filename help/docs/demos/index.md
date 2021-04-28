@@ -6,4 +6,4 @@ slug: /demos
 description: Stencila demos
 ---
 
-![](/img/demos.svg)
+![](/img/illustrations/demos.svg)

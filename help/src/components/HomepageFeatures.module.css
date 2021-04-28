@@ -7,7 +7,11 @@
   width: 100%;
 }
 
+.feature {
+  margin-bottom: 2rem;
+}
+
 .featureSvg {
-  height: 200px;
-  width: 200px;
+  height: 260px;
+  width: 260px;
 }

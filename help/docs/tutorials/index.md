@@ -6,4 +6,4 @@ slug: /tutorials
 description: Stencila tutorials
 ---
 
-![](/img/tutorials.svg)
+![](/img/illustrations/tutorials.svg)
