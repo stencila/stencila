@@ -30,7 +30,10 @@ jobs:
       - script: npm run build
         displayName: Generate language bindings and build TypeScript package
 
-      - script: npm run docs
+      - script: |
+          set -e
+          npm run docs
+          tar -czvf docs.tar.gz docs
         displayName: Build docs
 
       - script: npx semantic-release

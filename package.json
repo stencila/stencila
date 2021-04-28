@@ -163,7 +163,16 @@
           ]
         }
       ],
-      "@semantic-release/github",
+      [
+        "@semantic-release/github",
+        {
+          "assets": [
+            {
+              "path": "docs.tar.gz"
+            }
+          ]
+        }
+      ],
       "@qiwi/semantic-release-gh-pages-plugin"
     ]
   },
