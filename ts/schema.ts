@@ -28,7 +28,7 @@ const ID_BASE_URL = `${SCHEMA_DEST_URL}/v${versionMajor}`
 /**
  * The base URL for source files.
  */
-const SOURCE_BASE_URL = `https://github.com/stencila/schema/blob/master`
+const SOURCE_BASE_URL = `https://github.com/stencila/schema/blob/master/schema`
 
 // Create a validation function for JSON Schema for use in `checkSchema`
 const ajv = new Ajv()
@@ -455,13 +455,14 @@ const parentSchema = (
  */
 const addTypesSchemas = (schemas: Map<string, JsonSchema>): void => {
   for (const [title, schema] of schemas.entries()) {
-    const { descendants } = schema
+    const { descendants, category = 'other' } = schema
     if (descendants !== undefined && descendants.length > 0) {
       const typesTitle = title + 'Types'
       schemas.set(typesTitle, {
         $schema: 'http://json-schema.org/draft-07/schema#',
         $id: `${ID_BASE_URL}/${typesTitle}.schema.json`,
         title: typesTitle,
+        category,
         description: `All type schemas that are derived from ${title}`,
         anyOf: [title, ...descendants].map((descendant) => ({
           $ref: `${descendant}.schema.json`,
