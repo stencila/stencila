@@ -3,7 +3,6 @@ title: eLife Sources
 description: Add an eLife article to your Stencila project
 authors:
   - Nokome Bentley <nokome@stenci.la> (https://stenci.la)
-published: true
 ---
 
 ![](https://elifesciences.org/assets/patterns/img/patterns/organisms/elife-logo-xs@1x.24c98c55.png)

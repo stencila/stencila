@@ -1,9 +1,9 @@
 ---
+sidebar_position: 6
 title: Publish a project
 description: Select your main file, take a snapshot and create an editable manuscript to publish
 authors:
   - Colette Doughty <colette@stenci.la> (https://stenci.la)
-published: true
 ---
 
 This guide presumes you have already:

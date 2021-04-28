@@ -1,6 +1,5 @@
 ---
 title: Files vs Sources
-published: true
 description: Difference between project files and sources
 relatedArticles:
   - ./sources/upload.md

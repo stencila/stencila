@@ -1,7 +1,7 @@
 ---
+sidebar_position: 5
 title: Share a project
 description: Share your public or private project URL with others
-published: true
 ---
 
 As soon as you have [published a project](./publish-a-project.md) you can share it with others.

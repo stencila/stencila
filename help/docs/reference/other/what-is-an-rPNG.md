@@ -1,6 +1,5 @@
 ---
 title: What is an rPNG?
-published: true
 description: A Reproducible PNG is an image in a PNG format
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'

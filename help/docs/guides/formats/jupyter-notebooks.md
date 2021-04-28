@@ -1,7 +1,6 @@
 ---
 title: Jupyter Notebooks
 description: Authoring executable documents with Jupyter Notebooks
-published: true
 ---
 
 Jupyter Notebooks are a popular format for data science and reproducible research. This article provides a guide to how to write, and collaborate on, a reproducible research article using Jupyter Notebooks and Stencila.

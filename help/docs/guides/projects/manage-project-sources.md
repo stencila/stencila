@@ -1,9 +1,9 @@
 ---
+sidebar_position: 4
 title: Manage project sources
 description: How to link a source, upload a file and convert
 relatedArticles:
   - ./publish-a-project.md
-published: true
 ---
 
 Once you've [created a project](./create-a-project.md) and updated your settings to [choose your theme](../organizations/manage-organization-settings.md) you are ready to start working.

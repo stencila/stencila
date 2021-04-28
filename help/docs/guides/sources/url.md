@@ -5,7 +5,6 @@ relatedArticles:
   - ../projects/manage-project-sources.md
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
-published: true
 ---
 
 A URL source lets you pull content from a website or API into your project. Useful when you wish to fetch and analysis data such as from data repositories or Github. Quite often these are CSV files.

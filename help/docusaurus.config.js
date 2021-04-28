@@ -15,14 +15,6 @@ module.exports = {
         alt: 'Stencila Logo',
         src: 'img/logo.svg',
       },
-      items: [
-        {
-          type: 'doc',
-          docId: 'welcome',
-          position: 'left',
-          label: 'Welcome',
-        },
-      ],
     },
     algolia: {
       apiKey: 'YOUR_API_KEY',

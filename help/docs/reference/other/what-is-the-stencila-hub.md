@@ -1,6 +1,5 @@
 ---
 title: What is the Stencila Hub?
-published: true
 description: The core Stencila platform
 relatedArticles:
   - ./getting-started.md

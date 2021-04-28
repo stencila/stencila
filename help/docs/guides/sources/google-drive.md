@@ -5,7 +5,6 @@ relatedArticles:
   - ../projects/manage-project-sources.md
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
-published: true
 ---
 
 A Google Drive source lets you pull files from your Google Drive into your project so that you can convert files to other formats (e.g. a Word document), use them in compute sessions (e.g. CSV files) or publish. This allows you to take full advantage of Google Drive's many benefits such a cloud-based storage solution and real-time collaboration which you might already be using with your colleagues and to easily pull this information into your Stencila project at any time.

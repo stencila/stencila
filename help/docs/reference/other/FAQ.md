@@ -1,6 +1,5 @@
 ---
 title: FAQ and troubleshooting
-published: true
 ---
 
 Answers to frequently asked questions users have.

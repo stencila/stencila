@@ -4,45 +4,64 @@ import styles from './HomepageFeatures.module.css'
 
 const FeatureList = [
   {
-    title: 'Easy to Use',
-    Svg: require('../../static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'Tutorials',
+    link: '/docs/tutorials',
+    Svg: require('../../static/img/tutorials.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Sed ut perspiciatis, unde omnis iste natus error sit voluptatem
+        accusantium doloremque laudantium.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
-    Svg: require('../../static/img/undraw_docusaurus_tree.svg').default,
+    title: 'Guides',
+    Svg: require('../../static/img/guides.svg').default,
+    link: '/docs/guides',
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Sed ut perspiciatis, unde omnis iste natus error sit voluptatem
+        accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab
+        illo inventore veritatis et quasi architecto beatae vitae dicta sunt,
+        explicabo.
       </>
     ),
   },
   {
-    title: 'Powered by React',
-    Svg: require('../../static/img/undraw_docusaurus_react.svg').default,
+    title: 'Demos',
+    Svg: require('../../static/img/demos.svg').default,
+    link: '/docs/demos',
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Sed ut perspiciatis, unde omnis iste natus error sit voluptatem
+        accusantium doloremque laudantium, totam.
+      </>
+    ),
+  },
+  {
+    title: 'Reference',
+    Svg: require('../../static/img/reference.svg').default,
+    link: '/docs/reference',
+    description: (
+      <>
+        Sed ut perspiciatis, unde omnis iste natus error sit voluptatem
+        accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab
+        illo inventore.
       </>
     ),
   },
 ]
 
-function Feature({ Svg, title, description }) {
+function Feature({ Svg, link, title, description }) {
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
         <Svg className={styles.featureSvg} alt={title} />
       </div>
       <div className="text--center padding-horiz--md">
-        <h3>{title}</h3>
+        <h3>
+          <a href={link}>{title}</a>
+        </h3>
         <p>{description}</p>
       </div>
     </div>

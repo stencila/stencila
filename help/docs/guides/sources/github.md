@@ -5,7 +5,6 @@ relatedArticles:
   - ../projects/manage-project-sources.md
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
-published: true
 ---
 
 You can link a GitHub repository to your project as a source (both public and private). This allows you to take full advantage of all of GitHub's great source code management, version control and collaboration and to easily pull this information into your Stencila project.

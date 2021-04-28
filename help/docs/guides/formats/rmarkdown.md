@@ -1,7 +1,6 @@
 ---
 title: R Markdown
 description: Authoring executable documents with R Markdown
-published: true
 ---
 
 R Markdown is a popular format for reproducible research. This article provides a guide to how to write, and collaborate on, a reproducible research article using R Markdown and Stencila. As well as describing the basics of embedding R code in your article, it covers how to include meta-data (such as author names and affiliations), citations and references. Finally, we discuss how you can preview your article and convert it to other formats using Stencila.

@@ -6,7 +6,6 @@ relatedArticles:
 authors:
   - Colette Doughty<colette@stenci.la> (https://stenci.la)
   - Alexander Ketchakmadze<alexander@stenci.la> (https://stenci.la)
-published: true
 ---
 
 👋 _This guide is under active development. Please feel free to contribute using the link at the bottom of the page!_

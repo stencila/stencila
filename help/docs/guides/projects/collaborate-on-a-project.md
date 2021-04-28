@@ -1,7 +1,7 @@
 ---
+sidebar_position: 3
 title: Collaborate on a project
 description: Invite others to collaborate on your project
-published: true
 ---
 
 As soon as you have [created a project](./create-a-project.md) you can invite others to work collaboratively with you on it.

@@ -3,7 +3,6 @@ title: PLOS Sources
 description: Add a PLOS article to your Stencila project
 authors:
   - Colette Doughty <colette@stenci.la> (https://stenci.la)
-published: true
 ---
 
 ![](https://i.imgur.com/1qehB1B.png)

@@ -5,7 +5,6 @@ authors:
   - Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)
 relatedArticles:
   - ../projects/manage-project-sources.md
-published: true
 ---
 
 You can upload one more files directly to your Stencila project. You can then convert them to other formats or use them as data in you executable documents.

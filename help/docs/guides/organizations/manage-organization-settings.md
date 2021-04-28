@@ -1,7 +1,7 @@
 ---
+sidebar_position: 2
 title: Manage your organization settings
 description: Update your organization profile information, set a image and choose your project theme
-published: true
 resolveArticles:
   - ../projects/create-a-project.md
 ---

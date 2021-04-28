@@ -5,7 +5,6 @@ relatedArticles:
   - ../projects/manage-project-sources.md
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
-published: true
 ---
 
 A Google Docs Source lets you pull a Google Doc into your project so that you can convert it to other formats or to publish it! This allows you to take full advantage of Google Doc's many benefits such real-time collaboration which you might already be using with your colleagues and to easily pull this information into your Stencila project at any time.
