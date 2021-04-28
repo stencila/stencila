@@ -5,7 +5,7 @@ describe('plugins', () => {
     expect(schema()).toEqual(
       expect.objectContaining({
         $schema: 'http://json-schema.org/draft-07/schema#',
-        title: 'Plugin',
+        title: 'Description of a plugin',
         type: 'object',
         properties: expect.objectContaining({
           name: { description: 'The name of the plugin', type: 'string' },
