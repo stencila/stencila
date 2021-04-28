@@ -1,6 +1,6 @@
 {
   "name": "@stencila/schema",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "description": "Extensions to schema.org to support semantic, composable, parameterize-able and executable documents",
   "files": [
     "dist"

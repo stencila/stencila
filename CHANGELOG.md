@@ -1,3 +1,15 @@
+# [1.5.0](https://github.com/stencila/schema/compare/v1.4.3...v1.5.0) (2021-04-28)
+
+
+### Bug Fixes
+
+* **JSON Schemas:** Fix source URL and apply category to union types ([05aa171](https://github.com/stencila/schema/commit/05aa171a463765d8aac57974122b5a1ffdba9bb2))
+
+
+### Features
+
+* **Person:** Add example to Person schema ([2e17892](https://github.com/stencila/schema/commit/2e178928c0fa3e760309de4053ad34e505488e0b))
+
 ## [1.4.3](https://github.com/stencila/schema/compare/v1.4.2...v1.4.3) (2021-04-21)
 
 
