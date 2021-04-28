@@ -84,7 +84,7 @@ pub mod config {
     }
 
     /// # Logging
-    /// 
+    ///
     /// Configuration settings for logging
     #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     pub struct LoggingConfig {
