@@ -1,3 +1,11 @@
+## [0.54.1](https://github.com/stencila/stencila/compare/v0.54.0...v0.54.1) (2021-04-28)
+
+
+### Bug Fixes
+
+* **CLI:** Add banner warning about alpha state ([c66663a](https://github.com/stencila/stencila/commit/c66663ab046205b0db8b24e292dc2101729ccc62))
+* **JSON-RPC:** Use correct code for invalid params error ([e4d6650](https://github.com/stencila/stencila/commit/e4d6650a7ded284dac6b3c4caf0c5e82b8fff763))
+
 # [0.54.0](https://github.com/stencila/stencila/compare/v0.53.0...v0.54.0) (2021-04-23)
 
 

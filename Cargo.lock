@@ -1129,9 +1129,9 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
 name = "libc"
-version = "0.2.93"
+version = "0.2.94"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9385f66bf6105b241aa65a61cb923ef20efc665cb9f9bb50ac2f0c4b7f378d41"
+checksum = "18794a8ad5b29321f790b55d93dfba91e125cb1a9edbd4f8e3150acc771c1a5e"
 
 [[package]]
 name = "libloading"
@@ -2342,7 +2342,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.54.0"
+version = "0.54.1"
 dependencies = [
  "anyhow",
  "bollard",
@@ -2386,7 +2386,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.54.0"
+version = "0.54.1"
 dependencies = [
  "ansi_term 0.12.1",
  "exitcode",
@@ -2398,7 +2398,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.54.0"
+version = "0.54.1"
 dependencies = [
  "neon",
  "stencila",
@@ -2463,9 +2463,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.70"
+version = "1.0.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9505f307c872bab8eb46f77ae357c8eba1fdacead58ee5a850116b1d7f82883"
+checksum = "ad184cc9470f9117b2ac6817bfe297307418819ba40552f9b3846f05c33d5373"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2499,9 +2499,9 @@ dependencies = [
 
 [[package]]
 name = "termimad"
-version = "0.10.1"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d26fdb7dae513c61d25496c42fc586511419e41696ce019ef4cb672e6f70e8f"
+checksum = "d8a3f169ff365f3c0de035b25c7de126fde5f4eb393c16b53cbc8c6ff4474aa6"
 dependencies = [
  "crossbeam",
  "crossterm",
