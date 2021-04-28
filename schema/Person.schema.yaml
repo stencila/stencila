@@ -95,3 +95,12 @@ properties:
     type: array
     items:
       type: string
+examples:
+  - type: Person
+    honorificPrefix: Dr
+    givenNames:
+      - Marie
+      - Skłodowska
+    familyNames:
+      - Curie
+    honorificSuffix: PhD
