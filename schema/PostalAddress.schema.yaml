@@ -3,7 +3,7 @@ title: PostalAddress
 extends: ContactPoint
 role: tertiary
 status: stable
-category: metadata
+category: other
 description: A physical mailing address.
 properties:
   streetAddress:

@@ -3,7 +3,7 @@ title: DefinedTerm
 extends: Thing
 status: stable
 role: secondary
-category: metadata
+category: other
 description: A word, name, acronym, phrase, etc. with a formal definition.
 $comment: |
   Often used in the context of category or subject classification,  glossaries or dictionaries, product or creative work types, etc.

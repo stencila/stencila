@@ -3,7 +3,7 @@ title: Article
 extends: CreativeWork
 role: primary
 status: unstable
-category: metadata
+category: other
 description: An article, including news and scholarly articles.
 properties:
   content:

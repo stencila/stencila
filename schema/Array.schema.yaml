@@ -1,4 +1,5 @@
 title: Array
 '@id': stencila:Array
+category: data
 description: A value comprised of several other values.
 type: array

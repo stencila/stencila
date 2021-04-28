@@ -3,7 +3,7 @@ title: Brand
 extends: Thing
 role: tertiary
 status: unstable
-category: metadata
+category: other
 description: |
   A brand used by an organization or person for labeling a product,
   product group, or similar.

@@ -3,7 +3,7 @@ title: Periodical
 extends: CreativeWork
 role: secondary
 status: unstable
-category: metadata
+category: other
 description: A periodical publication.
 properties:
   dateStart:

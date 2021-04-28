@@ -3,7 +3,7 @@ title: Grant
 extends: Thing
 role: tertiary
 status: unstable
-category: metadata
+category: other
 description: A grant, typically financial or otherwise quantifiable, of resources.
 properties:
   fundedItems:

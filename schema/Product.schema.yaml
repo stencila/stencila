@@ -3,7 +3,7 @@ title: Product
 extends: Thing
 role: tertiary
 status: stable
-category: metadata
+category: other
 description: |
   Any offered product or service. For example, a pair of shoes;
   a haircut; or an episode of a TV show streamed online.

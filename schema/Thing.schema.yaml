@@ -3,7 +3,7 @@ title: Thing
 extends: Entity
 status: stable
 role: base
-category: metadata
+category: other
 description: The most generic type of item.
 properties:
   alternateNames:

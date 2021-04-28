@@ -3,7 +3,7 @@ title: Review
 extends: CreativeWork
 role: secondary
 status: stable
-category: metadata
+category: other
 description: A review of an item, e.g of an Article, or SoftwareSourceCode.
 $comment: |
   Use the `content` property for the structured content of the review in

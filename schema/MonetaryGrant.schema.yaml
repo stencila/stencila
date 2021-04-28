@@ -3,7 +3,7 @@ title: MonetaryGrant
 extends: Grant
 role: tertiary
 status: unstable
-category: metadata
+category: other
 description: A monetary grant.
 properties:
   amounts:

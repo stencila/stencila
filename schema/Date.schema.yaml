@@ -3,7 +3,7 @@ title: Date
 extends: Entity
 role: tertiary
 status: stable
-category: metadata
+category: data
 description: A date encoded as a ISO 8601 string.
 $comment: |
   This type serves mainly to disambiguate an ISO 8601 date string from

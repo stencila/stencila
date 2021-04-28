@@ -2,7 +2,7 @@ title: Entity
 '@id': stencila:Entity
 status: stable
 role: base
-category: metadata
+category: other
 description: The most simple compound (ie. non-atomic like `number`, `string` etc) type.
 $comment: |
   This type exists mainly to have a more simple base class than schema.org's `Thing`.

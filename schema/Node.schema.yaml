@@ -1,5 +1,5 @@
 title: Node
-category: metadata
+category: other
 description: Union type for all valid nodes.
 $comment: |
   The order of these types is important because it determines the
