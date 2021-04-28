@@ -28,12 +28,22 @@ npm start
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
-To build the CLI demos in [docs/demos/cli](docs/demos/cli) you will need to have
+To preview the CLI demos in [docs/demos/cli](docs/demos/cli) build them first (some prerequisites required):
+
+```console
+make demos
+```
+
+To preview external references (e.g. [docs/references/schema](docs/references/schema)) fetch them first:
+
+```console
+make resources
+```
 
 ## 🏗️ Build
 
 ```console
-npm build
+make demos resources build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
