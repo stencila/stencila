@@ -17,6 +17,7 @@ import {
   Article,
   article,
   BlockContent,
+  codeBlock,
   emphasis,
   heading,
   InlineContent,
@@ -263,6 +264,10 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
     source,
   } = schema
 
+  // According to https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.5
+  // this should always be an array
+  const examples = schema.examples as Array<unknown>
+
   const notes: Paragraph[] = []
 
   if ($comment !== undefined) {
@@ -354,7 +359,7 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
     propertiesTable = table({ rows: [tableHeader, ...tableData] })
   }
 
-  if (id) {
+  if (id !== undefined) {
     notes.push(
       paragraph({
         content: [
@@ -369,7 +374,7 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
     )
   }
 
-  if ($id) {
+  if ($id !== undefined) {
     notes.push(
       paragraph({
         content: [
@@ -446,6 +451,18 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
                 }),
               ],
             }),
+          ]
+        : []),
+
+      ...(examples !== undefined && examples.length > 0
+        ? [
+            heading({ content: ['Examples'], depth: 2 }),
+            ...examples.map((example) =>
+              codeBlock({
+                programmingLanguage: 'json',
+                text: JSON.stringify(example, null, '  '),
+              })
+            ),
           ]
         : []),
 
