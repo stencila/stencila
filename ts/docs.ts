@@ -258,6 +258,9 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
     extends: parent,
     descendants = [],
     $comment,
+    $id,
+    file,
+    source,
   } = schema
 
   const notes: Paragraph[] = []
@@ -351,7 +354,57 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
     propertiesTable = table({ rows: [tableHeader, ...tableData] })
   }
 
+  if (id) {
+    notes.push(
+      paragraph({
+        content: [
+          'Available as ',
+          link({
+            content: ['JSON-LD'],
+            target: id2JsonldUrl(id),
+          }),
+          '.',
+        ],
+      })
+    )
+  }
+
+  if ($id) {
+    notes.push(
+      paragraph({
+        content: [
+          'Available as ',
+          link({
+            content: ['JSON Schema'],
+            target: $id,
+          }),
+          '.',
+        ],
+      })
+    )
+  }
+
+  if (file !== undefined && source !== undefined) {
+    notes.push(
+      paragraph({
+        content: [
+          'This documentation was generated from ',
+          link({
+            content: [file],
+            target: source,
+          }),
+          '.',
+        ],
+      })
+    )
+  }
+
   return article({
+    // @ts-expect-error Not a property but used for Docusaurus compatibility
+    custom_edit_url:
+      source !== undefined
+        ? source.replace('/blob/', '/edit/')
+        : `https://github.com/stencila/schema`,
     content: [
       heading({ content: [title], depth: 1 }),
       paragraph({ content: [description] }),
@@ -399,42 +452,7 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
       heading({ content: ['Notes'], depth: 2 }),
       list({
         order: 'ascending',
-        items: [
-          ...notes.map((note) => listItem({ content: [note] })),
-          listItem({
-            content: [
-              paragraph({
-                content: [
-                  'This type is also available in ',
-                  link({
-                    content: ['JSON-LD'],
-                    target: id2JsonldUrl(id),
-                  }),
-                  ' and ',
-                  link({
-                    content: ['JSON Schema'],
-                    target: id2JsonSchemaUrl(id),
-                  }),
-                  '.',
-                ],
-              }),
-            ],
-          }),
-          listItem({
-            content: [
-              paragraph({
-                content: [
-                  'This documentation was generated from ',
-                  link({
-                    content: [`${title}.schema.yaml`],
-                    target: `https://github.com/stencila/schema/blob/master/schema/${title}.schema.yaml`,
-                  }),
-                  '.',
-                ],
-              }),
-            ],
-          }),
-        ],
+        items: [...notes.map((note) => listItem({ content: [note] }))],
       }),
     ],
   })
@@ -511,14 +529,4 @@ const id2Link = (id: string): Link => {
 function id2JsonldUrl(id: string): string {
   const [_context, name] = id.split(':')
   return `https://schema.stenci.la/${name}.jsonld`
-}
-
-/**
- * Generate a URL for the JSON Schema for a type, using it's id
- *
- * @param id The id of the type, including it's context e.g. `schema:Article`
- */
-function id2JsonSchemaUrl(id: string): string {
-  const [_context, name] = id.split(':')
-  return `https://schema.stenci.la/${name}.schema.json`
 }
