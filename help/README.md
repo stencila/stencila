@@ -21,8 +21,16 @@ The `docs` folder is divided into four subfolders, three of which represent quad
 
 This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
+### Requirements
+
+- [Asciinema](https://asciinema.org/docs/installation)
+- [`pv` Pipe Viewer](http://www.ivarch.com/programs/pv.shtml)
+- [Docker](https://www.docker.com/get-started)
+
 ```console
 npm install
+make resources
+make demos resources build
 npm start
 ```
 
