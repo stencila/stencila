@@ -106,6 +106,8 @@ jobs:
           make -C help demos
           make -C help build
         displayName: Build help site
+        env:
+          TERM: dumb
 
       # Only deploy if build was successful and on master
       - script: |
