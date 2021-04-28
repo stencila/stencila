@@ -101,10 +101,7 @@ jobs:
         displayName: Install dependencies
 
       # Build on all branches, including PRs
-      - script: |
-          set -e
-          make -C help demos
-          make -C help build
+      - script: make -C help demos resources build
         displayName: Build help site
         env:
           TERM: dumb
