@@ -1,0 +1,7 @@
+# Exclude everything (because it is fetched)
+*
+
+# Except for...
+!Makefile
+!.gitignore
+!*.tpl

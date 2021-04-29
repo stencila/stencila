@@ -90,6 +90,34 @@ jobs:
           GIT_COMMITTER_EMAIL: ci@stenci.la
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
+  - job: Help
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: |
+          set -e
+          sudo apt-get install pv asciinema
+          cd help && npm ci
+        displayName: Install dependencies
+
+      # Build on all branches, including PRs
+      - script: make -C help demos resources build
+        displayName: Build help site
+        env:
+          TERM: dumb
+
+      # Only deploy if build was successful and on master
+      - script: |
+          set -e
+          git config --global user.name "Stencila CI Bot"
+          git config --global user.email "ci@stenci.la"
+          echo "machine github.com login stencila-ci password ${GITHUB_TOKEN}" > ~/.netrc
+          GIT_USER="stencila-ci" make -C help deploy
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        displayName: Deploy help site
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
   - job: Images
     # Will only run once the Linux job has succeeded and uploaded binary
     dependsOn: [Linux]

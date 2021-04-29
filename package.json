@@ -22,12 +22,8 @@
     "url": "https://github.com/stencila/stencila/issues"
   },
   "devDependencies": {
-    "@actions/core": "1.2.7",
     "@semantic-release/exec": "5.0.0",
-    "@stencila/dev-config": "2.0.7",
-    "@stencila/encoda": "0.116.0",
-    "@stencila/schema": "1.5.0",
-    "typescript": "4.2.4"
+    "@stencila/dev-config": "2.0.7"
   },
   "prettier": "@stencila/dev-config/prettier-config.json",
   "husky": {

@@ -1,0 +1,6 @@
+*.sh
+*.cast
+*.svg
+*.gif
+node_modules
+temp*

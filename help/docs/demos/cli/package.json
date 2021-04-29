@@ -1,0 +1,9 @@
+{
+  "name": "@stencila/help-demos-cli",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "@stencila/encoda": "^0.116.0",
+    "svg-term-cli": "^2.1.1"
+  }
+}
