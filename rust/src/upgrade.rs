@@ -138,7 +138,9 @@ pub mod config {
 
     /// # Upgrade
     ///
-    /// Configuration settings for upgrading the application and plugins
+    /// Configuration settings used when upgrading the application (and optionally plugins)
+    /// automatically, in the background. These settings are NOT used as defaults when
+    /// using the CLI `upgrade` command directly.
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
     pub struct UpgradeConfig {
@@ -212,7 +214,7 @@ pub mod cli {
     /// version and plugin versions.
     pub async fn run(
         args: Args,
-        config: &config::UpgradeConfig,
+        _config: &config::UpgradeConfig,
         plugins: &mut plugins::Plugins,
     ) -> Result<()> {
         let Args {
@@ -222,10 +224,6 @@ pub mod cli {
             verbose,
             ..
         } = args;
-
-        let include_plugins = include_plugins || config.plugins;
-        let confirm = confirm || config.confirm;
-        let verbose = verbose || config.verbose;
 
         upgrade(None, to, include_plugins, confirm, verbose, plugins).await
     }
