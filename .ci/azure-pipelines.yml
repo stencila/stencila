@@ -11,9 +11,11 @@ jobs:
   - job: Changes
     steps:
       - script: |
+          PREV=$(git describe --tags --abbrev=0)
+
           for FOLDER in cli desktop docker help node rust
           do
-              git diff --quiet HEAD HEAD~ -- $FOLDER
+              git diff --quiet HEAD $PREV -- $FOLDER
               if [ $? -eq 1 ]
               then
                   echo "$FOLDER: has changes"
@@ -28,6 +30,7 @@ jobs:
 
   # Rust crate is built only if there are changes in the `rust` folder
   - job: Rust
+    dependsOn: [Changes]
     strategy:
       matrix:
         Linux:
@@ -75,9 +78,9 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-  # CLI is built if there are changes in the `node` or `cli` folders.
+  # CLI is built if there are changes in the `rust` or `cli` folders.
   - job: CLI
-    dependsOn: [Rust]
+    dependsOn: [Changes, Rust]
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -88,9 +91,9 @@ jobs:
         condition: succeeded()
         displayName: Build
 
-  # Node.js package is built if there are changes in the `node` or `rust` folders.
+  # Node.js package is built if there are changes in the `rust` or `node` folders.
   - job: Node
-    dependsOn: [Rust]
+    dependsOn: [Changes, Rust]
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -111,7 +114,7 @@ jobs:
   # Desktop client is built if there are changes in the `desktop`, `node`, or
   # `rust` folders.
   - job: Desktop
-    dependsOn: [Node]
+    dependsOn: [Changes, Node]
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -128,6 +131,7 @@ jobs:
   # Help site is only built if there are changes in the `help` folder
   # and only published on `master` branch
   - job: Help
+    dependsOn: [Changes]
     pool:
       vmImage: ubuntu-latest
     steps:
