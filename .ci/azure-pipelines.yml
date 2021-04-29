@@ -11,13 +11,14 @@ jobs:
   - job: Changes
     steps:
       - script: |
+          set -e
           PREV=$(git describe --tags --abbrev=0)
           CHANGED=""
           for FOLDER in cli desktop docker help node rust
           do
             git diff --quiet HEAD $PREV -- $FOLDER
             if [ $? -eq 1 ]; then
-              $CHANGED = "$CHANGED $FOLDER"
+              CHANGED="$CHANGED $FOLDER"
             fi
           done
           echo "Folders with changes: $CHANGED"
