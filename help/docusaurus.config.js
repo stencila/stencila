@@ -2,8 +2,8 @@
 
 module.exports = {
   title: 'Stencila Help',
-  url: 'https://stencila.github.io/stencila',
-  baseUrl: '/',
+  url: 'https://stencila.github.io',
+  baseUrl: '/stencila/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
