@@ -2,79 +2,160 @@ trigger:
   branches:
     include:
       - master
-      # Ensure that CI is triggered for tags to build and upload binaries
+      # Ensure that CI is triggered for tags
       - refs/tags/*
 
 jobs:
-  - job: Linux
+  # Create variables indicating whether or not there are changes in
+  # each product folder
+  - job: Changes
+    steps:
+      - script: |
+          for FOLDER in cli desktop docker help node rust
+          do
+              git diff --quiet HEAD HEAD~ -- $FOLDER
+              if [ $? -eq 1 ]
+              then
+                  echo "$FOLDER: has changes"
+                  echo "##vso[task.setvariable variable=$FOLDER;isOutput=true]true"
+              else
+                  echo "$FOLDER: no changes"
+                  echo "##vso[task.setvariable variable=$FOLDER;isOutput=true]false"
+              fi
+          done
+        name: Folders
+        displayName: Check which folders have changed
+
+  # Rust crate is built only if there are changes in the `rust` folder
+  - job: Rust
+    strategy:
+      matrix:
+        Linux:
+          vmImage: ubuntu-latest
+          targetPath: target/release/stencila
+          archiveName: x86_64-unknown-linux-gnu.tar.gz
+        Mac:
+          vmImage: macOS-latest
+          targetPath: target/release/stencila
+          archiveName: x86_64-apple-darwin.tar.gz
+        Windows:
+          vmImage: windows-latest
+          targetPath: target/release/stencila.exe
+          archiveName: x86_64-pc-windows-msvc.zip
+    pool:
+      vmImage: $(vmImage)
+    steps:
+      - script: make -C rust lint
+        condition: eq(variables['agent.os'], 'Linux')
+        displayName: Lint
+
+      - script: cargo install cargo-tarpaulin && make -C rust cover
+        condition: and(succeeded(), eq(variables['agent.os'], 'Linux'))
+        displayName: Test with coverage
+
+      - script: bash <(curl -s https://codecov.io/bash)
+        condition: and(succeeded(), eq(variables['agent.os'], 'Linux'))
+        displayName: Upload coverage
+
+      - script: cargo install cargo-audit && cargo audit
+        condition: and(succeeded(), eq(variables['agent.os'], 'Linux'))
+        displayName: Dependency audit
+
+      - script: make -C rust test
+        condition: not(eq(variables['agent.os'], 'Linux'))
+        displayName: Test
+
+      - script: |
+          set -e
+          cargo install cargo-strip
+          make build
+          bash .ci/upload-release.sh $(targetPath) stencila $(archiveName)
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        displayName: Build and upload binaries
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  # CLI is built if there are changes in the `node` or `cli` folders.
+  - job: CLI
+    dependsOn: [Rust]
     pool:
       vmImage: ubuntu-latest
     steps:
-      - script: cargo install cargo-audit cargo-strip cargo-tarpaulin
-        displayName: Install Rust dev deps
+      - script: make -C cli lint
+        displayName: Lint
 
-      - script: make lint
-        displayName: Run linting
+      - script: make -C cli build
+        condition: succeeded()
+        displayName: Build
 
-      - script: make cover
-        displayName: Run tests with coverage
+  # Node.js package is built if there are changes in the `node` or `rust` folders.
+  - job: Node
+    dependsOn: [Rust]
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: cd node && npm ci
+        displayName: Install dependencies
+
+      - script: make -C node cover
+        displayName: Test with coverage
 
       - script: bash <(curl -s https://codecov.io/bash)
-        displayName: Upload coverage
         condition: succeeded()
+        displayName: Upload coverage
 
-      - script: cargo audit
-        displayName: Run dependency audit
+      - script: make -C node build
+        condition: succeeded()
+        displayName: Build
 
-      - script: |
-          set -e
-          make build
-          bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
-        displayName: Build and upload binaries
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
-
-  - job: MacOS
+  # Desktop client is built if there are changes in the `desktop`, `node`, or
+  # `rust` folders.
+  - job: Desktop
+    dependsOn: [Node]
     pool:
-      vmImage: macOS-latest
+      vmImage: ubuntu-latest
     steps:
-      - script: cargo install cargo-strip
-        displayName: Install Rust dev deps
-
-      - script: make test
-        displayName: Run tests
+      - script: cd desktop && npm ci
+        displayName: Install dependencies
 
       - script: |
           set -e
-          make build
-          bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
-        displayName: Build and upload binaries
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
+          cd desktop
+          npm run ui:build
+          npm run package
+        displayName: Build
 
-  - job: Windows
+  # Help site is only built if there are changes in the `help` folder
+  # and only published on `master` branch
+  - job: Help
     pool:
-      vmImage: windows-latest
+      vmImage: ubuntu-latest
     steps:
-      - script: cargo install cargo-strip
-        displayName: Install Rust dev deps
+      - script: |
+          set -e
+          sudo apt-get install pv asciinema
+          cd help && npm ci
+        displayName: Install dependencies
 
-      - script: make test
-        displayName: Run tests
+      - script: make -C help demos resources build
+        displayName: Build
+        env:
+          TERM: dumb
 
       - script: |
           set -e
-          make build
-          bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
-        displayName: Upload and upload binaries
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+          git config --global user.name "Stencila CI Bot"
+          git config --global user.email "ci@stenci.la"
+          echo "machine github.com login stencila-ci password ${GITHUB_TOKEN}" > ~/.netrc
+          GIT_USER="stencila-ci" make -C help deploy
+        condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+        displayName: Publish
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
+  # Releases are only made if all products have succeeded and on the `master` branch
   - job: Release
-    dependsOn: [Linux, MacOS, Windows]
+    dependsOn: [Rust, CLI, Node, Desktop, Help]
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     pool:
       vmImage: ubuntu-latest
@@ -90,9 +171,8 @@ jobs:
           GIT_COMMITTER_EMAIL: ci@stenci.la
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
+  # Docker images are only built on tags (i.e. after a Release job)
   - job: Docker
-    # Will only run once the Linux job has succeeded and uploaded binary
-    dependsOn: [Linux]
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     pool:
       vmImage: ubuntu-latest
@@ -128,46 +208,3 @@ jobs:
             $(Build.BuildNumber)
             $(GitVersion.SemVer)
             latest
-
-  - job: Desktop
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - script: cd desktop && npm ci
-        displayName: Install dependencies
-
-      - script: cd desktop && npm run ui:test
-        displayName: Rust tests
-
-      - script: |
-          set -e
-          cd desktop
-          npm run ui:build
-          npm run package
-        displayName: Build
-
-  - job: Help
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - script: |
-          set -e
-          sudo apt-get install pv asciinema
-          cd help && npm ci
-        displayName: Install dependencies
-
-      - script: make -C help demos resources build
-        displayName: Build help site
-        env:
-          TERM: dumb
-
-      - script: |
-          set -e
-          git config --global user.name "Stencila CI Bot"
-          git config --global user.email "ci@stenci.la"
-          echo "machine github.com login stencila-ci password ${GITHUB_TOKEN}" > ~/.netrc
-          GIT_USER="stencila-ci" make -C help deploy
-        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-        displayName: Deploy help site
-        env:
-          GITHUB_TOKEN: $(GITHUB_TOKEN)
