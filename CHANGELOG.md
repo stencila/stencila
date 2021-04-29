@@ -1,3 +1,19 @@
+# [0.55.0](https://github.com/stencila/stencila/compare/v0.54.1...v0.55.0) (2021-04-29)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate jsonschema to 0.8.0 ([675ae18](https://github.com/stencila/stencila/commit/675ae18be29a788c18add78ec2efd843b29e3e0d))
+* **dependencies:** update rust crate regex to 1.4.6 ([83357b0](https://github.com/stencila/stencila/commit/83357b093deb2cecc2249845460c5a1832d5a04b))
+* **dependencies:** update rust crate termimad to 0.10.2 ([1b9a9ca](https://github.com/stencila/stencila/commit/1b9a9ca837e96fa5400f960bbdf61b5b7ee7c819))
+* **Plugins:** Do not attempt to upgrade linked plugins ([f2450e1](https://github.com/stencila/stencila/commit/f2450e1a395f4b07cb211363abb6b4a44bc792c8))
+* **Upgrade:** Use config settings only for automatic upgrades ([8c2c405](https://github.com/stencila/stencila/commit/8c2c405967e3af6f188f866735801624c1f6f1bb))
+
+
+### Features
+
+* **Rust & CLI:** Migrate to eyre for errors ([c704f02](https://github.com/stencila/stencila/commit/c704f024d0d823c1e052bd7caea46c175ca8c84d))
+
 ## [0.54.1](https://github.com/stencila/stencila/compare/v0.54.0...v0.54.1) (2021-04-28)
 
 
