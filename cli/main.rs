@@ -187,7 +187,9 @@ pub async fn main() -> Result<()> {
     if std::env::var("RUST_BACKTRACE").is_err() {
         std::env::set_var("RUST_BACKTRACE", if debug { "full" } else { "0" });
     }
-    color_eyre::install()?;
+    color_eyre::config::HookBuilder::default()
+        .display_env_section(false)
+        .install()?;
 
     // Load plugins
     let mut plugins = plugins::Plugins::load()?;
