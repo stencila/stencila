@@ -133,7 +133,7 @@ jobs:
   # and only published on `master` branch
   - job: Help
     dependsOn: [Changes]
-    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'help'))
+    condition: contains(dependencies.Changes.outputs['folders.changed'], 'help')
     pool:
       vmImage: ubuntu-latest
     steps:
