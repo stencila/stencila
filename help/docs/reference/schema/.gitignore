@@ -4,3 +4,4 @@
 # Except for...
 !Makefile
 !.gitignore
+!*.tpl
