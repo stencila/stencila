@@ -1,3 +1,11 @@
+# [0.56.0](https://github.com/stencila/stencila/compare/v0.55.0...v0.56.0) (2021-04-29)
+
+
+### Features
+
+* **Desktop:** Add Stencila CLI as a dependency ([ac3e30d](https://github.com/stencila/stencila/commit/ac3e30d9fe16058393d636b5dee4627e2737a81e))
+* **Desktop:** Bootstrap client using electron-forge ([12c5099](https://github.com/stencila/stencila/commit/12c5099e90cc61c06dc34837f6bec67c443f94e0))
+
 # [0.55.0](https://github.com/stencila/stencila/compare/v0.54.1...v0.55.0) (2021-04-29)
 
 
