@@ -10,19 +10,7 @@ jobs:
   # each product folder
   - job: Changes
     steps:
-      - script: |
-          set -e
-          PREV=$(git describe --tags --abbrev=0)
-          CHANGED=""
-          for FOLDER in cli desktop docker help node rust
-          do
-            git diff --quiet HEAD $PREV -- $FOLDER
-            if [ $? -eq 1 ]; then
-              CHANGED="$CHANGED $FOLDER"
-            fi
-          done
-          echo "Folders with changes: $CHANGED"
-          echo "##vso[task.setvariable variable=changed;isOutput=true]$CHANGED"
+      - script: bash .ci/folder-changes.sh
         name: folders
         displayName: Check which folders have changed
 
