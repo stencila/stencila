@@ -17,6 +17,12 @@ module.exports = {
         src: 'img/stencilaLogo.svg',
         srcDark: 'img/stencilaLogoDarkBG.svg',
       },
+      items: [
+        { to: 'docs/tutorials', label: 'Tutorials', position: 'left' },
+        { to: 'docs/guides', label: 'Guides', position: 'left' },
+        { to: 'docs/demos', label: 'Demos', position: 'left' },
+        { to: 'docs/reference', label: 'Reference', position: 'left' },
+      ],
     },
     // algolia: {
     //   apiKey: 'YOUR_API_KEY',
