@@ -6,8 +6,12 @@
 
 all: $(patsubst %.md,%.gif,$(wildcard *.md))
 
+# Install node deps
+node_modules: package.json
+	npm install
+
 # Make a Demo Magic script from Markdown source
-%.sh: %.md
+%.sh: %.md node_modules
 	csplit -f temp $< /Script/6
 	npx encoda convert --from md temp01 --to demo-magic $@
 	chmod +x $@
@@ -33,7 +37,7 @@ all: $(patsubst %.md,%.gif,$(wildcard *.md))
 	asciinema play $*.cast
 
 # Convert a cast to an animated SVG
-%.svg: %.cast
+%.svg: %.cast node_modules
 	cat $*.cast | npx svg-term --window --height 25 --width 90 --out $*.svg
 
 # Convert a cast to an animated GIF
