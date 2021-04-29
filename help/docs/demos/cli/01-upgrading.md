@@ -5,7 +5,7 @@ title: Upgrade the CLI and plugins
 
 ## Demo
 
-![](01-upgrading.gif)
+<img src="01-upgrading.gif" />
 
 ## Script
 

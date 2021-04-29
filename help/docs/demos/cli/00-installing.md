@@ -5,7 +5,7 @@ title: Install the CLI
 
 ## Demo
 
-![Recording](00-installing.gif)
+<img src="00-installing.gif" />
 
 ## Script
 
