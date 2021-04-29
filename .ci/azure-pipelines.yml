@@ -162,7 +162,7 @@ jobs:
   # Linux `stencila` binary is available to install into the image.
   - job: Docker
     dependsOn: [Changes, Linux]
-    condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), contains(dependencies.Changes.outputs['folders.changed'], 'docker'))
+    condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), contains(dependencies.Changes.outputs['folders.changed'], 'docker')))
     pool:
       vmImage: ubuntu-latest
     steps:
