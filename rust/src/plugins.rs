@@ -993,6 +993,13 @@ impl Plugin {
         };
 
         let (installs, current_version) = match plugin.installation {
+            Some(PluginInstallation::Link) => {
+                tracing::info!(
+                    "Plugin '{}' is installed as a local link so can not be upgraded",
+                    plugin.name
+                );
+                return Ok(());
+            }
             Some(install) => {
                 tracing::debug!(
                     "Plugin '{}' will be upgraded from version '{}' installation '{}'",
@@ -1008,7 +1015,10 @@ impl Plugin {
             }
         };
 
-        Plugin::install(spec, &installs, &aliases, plugins, current_version).await
+        Plugin::install(spec, &installs, &aliases, plugins, current_version).await?;
+
+        tracing::info!("Upgraded plugin '{}'", spec);
+        Ok(())
     }
 
     /// Upgrade a list of plugins
@@ -1022,17 +1032,21 @@ impl Plugin {
             plugins
                 .plugins
                 .iter()
-                .filter(|(.., plugin)| plugin.installation.is_some())
+                .filter(|(.., plugin)| {
+                    if let Some(install) = plugin.installation {
+                        if install != PluginInstallation::Link {
+                            return true;
+                        }
+                    }
+                    return false;
+                })
                 .map(|(name, ..)| name.clone())
                 .collect()
         } else {
             list
         };
         for spec in list {
-            match Plugin::upgrade(&spec, installs, aliases, plugins).await {
-                Ok(_) => tracing::info!("Upgraded plugin {}", spec),
-                Err(error) => bail!(error),
-            }
+            Plugin::upgrade(&spec, installs, aliases, plugins).await?;
         }
         Ok(())
     }
