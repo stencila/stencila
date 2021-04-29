@@ -3,9 +3,6 @@ title: Getting started
 description: Overview of the workflows for executing code in your documents
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
-relatedArticles:
-  - ./installation.md
-  - ./interface-overview.md
 ---
 
 ## Overview

@@ -3,9 +3,6 @@ title: Add-on interface overview
 description: 'A look at the add-on interface, buttons, and what they do'
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
-relatedArticles:
-  - ./installation.md
-  - ./getting-started.md
 ---
 
 ## Main view

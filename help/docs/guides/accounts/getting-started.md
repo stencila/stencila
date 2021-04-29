@@ -2,9 +2,6 @@
 sidebar_position: 1
 title: Getting started
 description: Welcome to Stencila! Let’s quickly create your Stencila account and show you around so you can get started
-relatedArticles:
-  - ./organizations/create-an-organization.md
-  - ./projects/create-a-project.md
 ---
 
 Stencila offers user accounts for individuals and also for organizations so people can work together. Signing up with Stencila as a user is the first step on your journey. Once you've joined you can work on your own and create your first project, or you can set up your organization and collabrate with others.

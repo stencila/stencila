@@ -3,8 +3,6 @@ title: Upload Sources
 description: Upload a file from your computer to your Stencila project
 authors:
   - Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)
-relatedArticles:
-  - ../projects/manage-project-sources.md
 ---
 
 You can upload one more files directly to your Stencila project. You can then convert them to other formats or use them as data in you executable documents.

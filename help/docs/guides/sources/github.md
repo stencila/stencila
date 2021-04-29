@@ -1,8 +1,6 @@
 ---
 title: GitHub Sources
 description: Add a GitHub Repository to your Stencila project
-relatedArticles:
-  - ../projects/manage-project-sources.md
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
 ---

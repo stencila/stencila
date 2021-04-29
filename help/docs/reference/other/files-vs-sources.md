@@ -1,9 +1,6 @@
 ---
 title: Files vs Sources
 description: Difference between project files and sources
-relatedArticles:
-  - ./sources/upload.md
-  - ./sources/elife.md
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
 ---

@@ -1,8 +1,6 @@
 ---
 title: Google Docs Sources
 description: Add a Google Doc to your Stencila project
-relatedArticles:
-  - ../projects/manage-project-sources.md
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
 ---

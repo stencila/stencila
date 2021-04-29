@@ -1,8 +1,6 @@
 ---
 title: Google Drive Sources
 description: Add a Google Drive to your Stencila project
-relatedArticles:
-  - ../projects/manage-project-sources.md
 authors:
   - 'Colette Doughty <colette@stenci.la> (https://stenci.la)'
 ---

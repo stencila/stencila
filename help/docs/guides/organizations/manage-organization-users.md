@@ -2,8 +2,6 @@
 sidebar_position: 3
 title: Manage organization users
 description: Once your organization is created you can add users to work collaboratively on projects
-relatedArticles:
-  - ../projects/create-a-project.md
 ---
 
 The advance of [creating an organization](./create-an-organization.md) is so that a collection of user accounts can be associated with it and work collaboratively on projects.

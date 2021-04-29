@@ -3,9 +3,6 @@ title: Installing Stencila for Google Docs
 description: How to install & open the Google Docs add-on
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
-relatedArticles:
-  - ./getting-started.md
-  - ./interface-overview.md
 ---
 
 Stencila for Google Docs enables you to execute and embed reproducible figures inside Google Docs.
