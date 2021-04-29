@@ -12,25 +12,23 @@ jobs:
     steps:
       - script: |
           PREV=$(git describe --tags --abbrev=0)
-
+          CHANGED=""
           for FOLDER in cli desktop docker help node rust
           do
-              git diff --quiet HEAD $PREV -- $FOLDER
-              if [ $? -eq 1 ]
-              then
-                  echo "$FOLDER: has changes"
-                  echo "##vso[task.setvariable variable=$FOLDER;isOutput=true]true"
-              else
-                  echo "$FOLDER: no changes"
-                  echo "##vso[task.setvariable variable=$FOLDER;isOutput=true]false"
-              fi
+            git diff --quiet HEAD $PREV -- $FOLDER
+            if [ $? -eq 1 ]; then
+              $CHANGED = "$CHANGED $FOLDER"
+            fi
           done
-        name: Folders
+          echo "Folders with changes: $CHANGED"
+          echo "##vso[task.setvariable variable=changed;isOutput=true]$CHANGED"
+        name: folders
         displayName: Check which folders have changed
 
   # Rust crate is built only if there are changes in the `rust` folder
   - job: Rust
     dependsOn: [Changes]
+    condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
     strategy:
       matrix:
         Linux:
@@ -81,19 +79,21 @@ jobs:
   # CLI is built if there are changes in the `rust` or `cli` folders.
   - job: CLI
     dependsOn: [Changes, Rust]
+    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'cli'))
     pool:
       vmImage: ubuntu-latest
     steps:
       - script: make -C cli lint
         displayName: Lint
 
-      - script: make -C cli build
+      - script: cargo install cargo-strip && make -C cli build
         condition: succeeded()
         displayName: Build
 
   # Node.js package is built if there are changes in the `rust` or `node` folders.
   - job: Node
     dependsOn: [Changes, Rust]
+    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'node'))
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -115,10 +115,11 @@ jobs:
   # `rust` folders.
   - job: Desktop
     dependsOn: [Changes, Node]
+    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'node'), contains(dependencies.Changes.outputs['folders.changed'], 'desktop'))
     pool:
       vmImage: ubuntu-latest
     steps:
-      - script: cd desktop && npm ci
+      - script: cd desktop && npm install
         displayName: Install dependencies
 
       - script: |
@@ -132,6 +133,7 @@ jobs:
   # and only published on `master` branch
   - job: Help
     dependsOn: [Changes]
+    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'help'))
     pool:
       vmImage: ubuntu-latest
     steps:
