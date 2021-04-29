@@ -1,5 +1,5 @@
 use crate::{encode::encode, nodes::Node, write::write};
-use anyhow::Result;
+use eyre::Result;
 use std::path::Path;
 
 /// Export a node to a URL (including a `file://` or `string://` URL)

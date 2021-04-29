@@ -1,5 +1,5 @@
-use anyhow::Result;
 use defaults::Defaults;
+use eyre::Result;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -112,12 +112,14 @@ pub fn init(
     level: Option<LoggingLevel>,
     config: &config::LoggingConfig,
 ) -> Result<[tracing_appender::non_blocking::WorkerGuard; 2]> {
+    use tracing_error::ErrorLayer;
     use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 
     let config::LoggingConfig { stderr, file, .. } = config;
 
     let level = level.unwrap_or(stderr.level);
 
+    // Stderr logging layer
     let (stderr_writer, stderr_guard) = if level != LoggingLevel::Never {
         tracing_appender::non_blocking(std::io::stderr())
     } else {
@@ -128,6 +130,7 @@ pub fn init(
         .without_time()
         .with_writer(stderr_writer);
 
+    // File logging layer
     let (file_writer, file_guard) = if file.level != LoggingLevel::Never {
         let path = Path::new(&file.path);
         let file_appender =
@@ -138,10 +141,14 @@ pub fn init(
     };
     let file_layer = fmt::Layer::new().json().with_writer(file_writer);
 
+    // Error reporting layer, necessary for using `eyre` crate
+    let error_layer = ErrorLayer::default();
+
     let subscriber = tracing_subscriber::registry()
         .with(EnvFilter::new(level.to_string()))
         .with(stderr_layer)
-        .with(file_layer);
+        .with(file_layer)
+        .with(error_layer);
 
     tracing::subscriber::set_global_default(subscriber)?;
 

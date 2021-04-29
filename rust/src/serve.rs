@@ -2,7 +2,7 @@ use crate::jwt;
 use crate::protocols::Protocol;
 use crate::rpc::{Error, Request, Response};
 use crate::urls;
-use anyhow::{bail, Result};
+use eyre::{bail, Result};
 use futures::{FutureExt, StreamExt};
 use jwt::JwtError;
 use reqwest::StatusCode;

@@ -1,5 +1,5 @@
 use crate::nodes::Node;
-use anyhow::Result;
+use eyre::Result;
 
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod rpc {
@@ -27,5 +27,5 @@ pub fn execute(node: Node) -> Result<Node> {
     );
 
     #[cfg(not(feature = "request"))]
-    anyhow::bail!("Unable to execute node")
+    eyre::bail!("Unable to execute node")
 }

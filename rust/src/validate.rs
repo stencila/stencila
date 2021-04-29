@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use eyre::{bail, Result};
 use jsonschema::JSONSchema;
 use once_cell::sync::Lazy;
 use serde_json::{json, Value};

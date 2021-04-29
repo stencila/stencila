@@ -1,5 +1,5 @@
 use crate::nodes::Node;
-use anyhow::Result;
+use eyre::Result;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -66,7 +66,7 @@ pub struct Response {
 }
 
 impl Response {
-    pub fn new(id: Option<u64>, result: Option<Node>, error: Option<anyhow::Error>) -> Self {
+    pub fn new(id: Option<u64>, result: Option<Node>, error: Option<eyre::Error>) -> Self {
         Response {
             id,
             result,

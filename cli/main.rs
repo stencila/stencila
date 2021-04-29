@@ -1,6 +1,9 @@
+use ansi_term::Color::{Blue, Red};
+use color_eyre::SectionExt;
 use stencila::{
-    anyhow::{Error, Result},
-    config, convert, inspect, logging, open, plugins,
+    config, convert,
+    eyre::{Error, Result},
+    inspect, logging, open, plugins,
     regex::Regex,
     serve, tokio, tracing, upgrade,
 };
@@ -118,15 +121,7 @@ pub fn print_error(error: Error) {
 /// Main entry point function
 #[tokio::main]
 pub async fn main() -> Result<()> {
-    eprintln!(
-        "{}",
-        ansi_term::Color::Red.paint(
-            r#"Stencila CLI is in alpha testing. 
-        
-Please send your bug reports and suggestions to https://github.com/stencila/stencila/issues
-"#
-        )
-    );
+    eprintln!("{}", Red.paint("Stencila CLI is in alpha testing.\n"));
 
     let args: Vec<String> = std::env::args().collect();
 
@@ -185,6 +180,15 @@ Please send your bug reports and suggestions to https://github.com/stencila/sten
     // See https://tracing.rs/tracing_appender/non_blocking/struct.workerguard
     let _logging_guards = logging::init(Some(level), &config.logging)?;
 
+    // Setup `color_eyre` crate for better error reporting with span and back traces
+    if std::env::var("RUST_SPANTRACE").is_err() {
+        std::env::set_var("RUST_SPANTRACE", if debug { "1" } else { "0" });
+    }
+    if std::env::var("RUST_BACKTRACE").is_err() {
+        std::env::set_var("RUST_BACKTRACE", if debug { "full" } else { "0" });
+    }
+    color_eyre::install()?;
+
     // Load plugins
     let mut plugins = plugins::Plugins::load()?;
 
@@ -229,8 +233,15 @@ Please send your bug reports and suggestions to https://github.com/stencila/sten
     match result {
         Ok(_) => Ok(()),
         Err(error) => {
-            print_error(error);
-            std::process::exit(exitcode::SOFTWARE)
+            use color_eyre::Help;
+            Err(error).with_section(move || {
+                format!(
+                    "Get help at {}.\nReport bugs at {}.",
+                    Blue.paint("https://help.stenci.la"),
+                    Blue.paint("https://github.com/stencila/stencila/issues")
+                )
+                .header("Help:")
+            })?
         }
     }
 }
@@ -243,7 +254,7 @@ mod interact {
     use super::*;
     use rustyline::error::ReadlineError;
     use stencila::{
-        anyhow::{anyhow, bail},
+        eyre::{bail, eyre},
         util,
     };
 
@@ -382,7 +393,7 @@ mod interact {
                                 print!("{}", lines)
                             } else {
                                 tracing::debug!("{:?}", error.kind);
-                                print_error(anyhow!(error))
+                                print_error(eyre!(error))
                             }
                         }
                     }

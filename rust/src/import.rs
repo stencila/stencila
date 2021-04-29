@@ -1,5 +1,5 @@
 use crate::{decode::decode, nodes::Node, read::read};
-use anyhow::Result;
+use eyre::Result;
 
 /// Import a node from a URL (including `file://` or `string://` URL)
 ///

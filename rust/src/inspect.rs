@@ -9,7 +9,7 @@
 
 #[cfg(feature = "cli")]
 pub mod cli {
-    use anyhow::Result;
+    use eyre::Result;
     use structopt::StructOpt;
 
     use crate::{plugins, request};

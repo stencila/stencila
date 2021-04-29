@@ -1,4 +1,4 @@
-use anyhow::Result;
+use eyre::Result;
 use std::fs;
 
 /// Write content to a URL.

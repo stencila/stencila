@@ -1,6 +1,6 @@
 use crate::export::export;
 use crate::import::import;
-use anyhow::Result;
+use eyre::Result;
 
 pub fn convert(input: &str, output: &str, from: Option<String>, to: Option<String>) -> Result<()> {
     let imported = import(input, from)?;

@@ -1,5 +1,5 @@
 use crate::serve::{generate_key, login_url, serve};
-use anyhow::Result;
+use eyre::Result;
 
 /// Serve JSON-RPC requests at a URL
 ///

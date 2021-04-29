@@ -1,5 +1,5 @@
 use crate::{logging, plugins, serve, upgrade, util};
-use anyhow::{bail, Result};
+use eyre::{bail, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::fs;

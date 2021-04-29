@@ -1,5 +1,5 @@
 use crate::nodes::Node;
-use anyhow::Result;
+use eyre::Result;
 
 // Allow these for when no features are enabled
 #[allow(unused_variables, unreachable_code)]
@@ -24,7 +24,7 @@ pub fn encode(node: Node, format: &str) -> Result<String> {
             };
 
             #[cfg(not(feature = "request"))]
-            anyhow::bail!("Unable to encode a node to format \"{}\"", format)
+            eyre::bail!("Unable to encode a node to format \"{}\"", format)
         }
     };
     Ok(content)

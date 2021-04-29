@@ -2,7 +2,7 @@ use crate::jwt;
 use crate::methods::Method;
 use crate::nodes::Node;
 use crate::rpc::{Error, Response};
-use anyhow::{anyhow, bail, Context, Result};
+use eyre::{bail, eyre, Context, Result};
 use std::env;
 use strum::VariantNames;
 use tokio::io::AsyncWriteExt;
@@ -60,15 +60,15 @@ impl Stdio {
         let stdin = child
             .stdin
             .take()
-            .ok_or_else(|| anyhow!("Child has no stdin handle"))?;
+            .ok_or_else(|| eyre!("Child has no stdin handle"))?;
         let stdout = child
             .stdout
             .take()
-            .ok_or_else(|| anyhow!("Child has no stdout handle"))?;
+            .ok_or_else(|| eyre!("Child has no stdout handle"))?;
         let stderr = child
             .stderr
             .take()
-            .ok_or_else(|| anyhow!("Child has no stderr handle"))?;
+            .ok_or_else(|| eyre!("Child has no stderr handle"))?;
 
         self.writer = Some(BufWriter::new(stdin));
         self.reader = Some(BufReader::new(stdout));
@@ -300,7 +300,7 @@ pub async fn request_url(
     match result {
         Some(result) => Ok(result),
         None => match error {
-            Some(error) => Err(anyhow!(error.message)),
+            Some(error) => Err(eyre!(error.message)),
             None => bail!("Response has neither a result nor an error"),
         },
     }

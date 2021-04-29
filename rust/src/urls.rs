@@ -1,4 +1,4 @@
-use anyhow::Result;
+use eyre::Result;
 use regex::Regex;
 
 pub fn parse(url: &str) -> Result<url::Url> {

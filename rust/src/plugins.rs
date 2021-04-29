@@ -1,7 +1,7 @@
 use crate::util::dirs;
-use anyhow::{anyhow, bail, Result};
 use chrono::{DateTime, Duration, TimeZone, Utc};
 use dirs::plugins;
+use eyre::{bail, eyre, Result};
 use futures::StreamExt;
 use humantime::format_duration;
 use jsonschema::JSONSchema;
@@ -433,7 +433,7 @@ impl Plugin {
             if let Some((owner, name)) = plugin.parse_js_install_url() {
                 (owner, name)
             } else {
-                return Err(anyhow!(
+                return Err(eyre!(
                     "Install as NPM package is not supported by plugin '{}'",
                     plugin.name
                 ));
@@ -529,7 +529,7 @@ impl Plugin {
             if let Some(name) = plugin.parse_py_install_url() {
                 name
             } else {
-                return Err(anyhow!(
+                return Err(eyre!(
                     "Install as Python package is not supported by plugin '{}'",
                     plugin.name
                 ));
@@ -607,7 +607,7 @@ impl Plugin {
             if let Some(name) = plugin.parse_r_install_url() {
                 name
             } else {
-                return Err(anyhow!(
+                return Err(eyre!(
                     "Install as R package is not supported by plugin '{}'",
                     plugin.name
                 ));
@@ -698,7 +698,7 @@ impl Plugin {
             if let Some((owner, name)) = plugin.parse_binary_install_url() {
                 (owner, name)
             } else {
-                return Err(anyhow!(
+                return Err(eyre!(
                     "Binary install is not supported by plugin '{}'",
                     plugin.name
                 ));
@@ -753,7 +753,7 @@ impl Plugin {
             }
         })
         .join()
-        .map_err(|_| anyhow!("Error joining thread"))??;
+        .map_err(|_| eyre!("Error joining thread"))??;
 
         // Get plugin JSON manifest and write it to disk
         let mut plugin =
@@ -803,7 +803,7 @@ impl Plugin {
             if let Some((owner, name)) = plugin.parse_docker_install_url() {
                 (owner, name)
             } else {
-                return Err(anyhow!(
+                return Err(eyre!(
                     "Docker install is not supported by plugin '{}'",
                     plugin.name
                 ));
@@ -995,7 +995,8 @@ impl Plugin {
         let (installs, current_version) = match plugin.installation {
             Some(install) => {
                 tracing::debug!(
-                    "Plugin will be upgraded from {} ({})",
+                    "Plugin '{}' will be upgraded from version '{}' installation '{}'",
+                    plugin.name,
                     plugin.software_version,
                     install
                 );

@@ -1,6 +1,6 @@
 use crate::plugins;
-use anyhow::{anyhow, bail, Result};
 use chrono::{DateTime, Duration, Utc};
+use eyre::{bail, eyre, Result};
 use std::{fs, thread};
 
 /// Upgrade the application
@@ -61,7 +61,7 @@ pub async fn upgrade(
         }
     })
     .join()
-    .map_err(|_| anyhow!("Error joining thread"))??;
+    .map_err(|_| eyre!("Error joining thread"))??;
 
     if include_plugins {
         plugins::Plugin::upgrade_all(plugins).await?;

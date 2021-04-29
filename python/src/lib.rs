@@ -2,7 +2,7 @@ use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use stencila::{
-    anyhow::{bail, Result},
+    eyre::{bail, Result},
     delegate::DELEGATOR,
     logging,
     methods::Method,
@@ -58,7 +58,7 @@ fn init(_manifest: PyObject, dispatch: PyObject, log_level: Option<String>) -> P
                     let node = serde_json::from_str(&json)?;
                     Ok(node)
                 }
-                // Convert any raised Python error into an `anyhow:Error`
+                // Convert any raised Python error into an `eyre:Error`
                 Err(error) => bail!(error),
             }
         },

@@ -1,7 +1,7 @@
 //use crate::methods::Method;
 use crate::methods::Method;
 use crate::nodes::Node;
-use anyhow::Result;
+use eyre::Result;
 use once_cell::sync::OnceCell;
 
 type Delegator = dyn Fn(Method, serde_json::Value) -> Result<Node> + Send + Sync;
