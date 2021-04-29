@@ -1038,7 +1038,7 @@ impl Plugin {
                             return true;
                         }
                     }
-                    return false;
+                    false
                 })
                 .map(|(name, ..)| name.clone())
                 .collect()
