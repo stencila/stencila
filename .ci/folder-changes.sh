@@ -1,15 +1,23 @@
 #!/bin/sh
 
 # Script used to create a list of folders that have changes in
-# them since the last tag.
+# them compared to a base.
+#
+# If on `master` branch then the latest tag is the base.
+# If on another branch then `master` branch is the base.
+#
 # Used by `azure-pipelines.yml`.
 
-PREV=$(git describe --tags --abbrev=0)
+if [ $(git branch --show-current) == "master" ]; then
+    BASE=$(git describe --tags --abbrev=0)
+else
+    BASE="master"
+fi
+echo "Comparing against: $BASE"
 
 CHANGED=""
-for FOLDER in cli desktop docker help node rust
-do
-    git diff --quiet HEAD $PREV -- $FOLDER
+for FOLDER in cli desktop docker help node rust; do
+    git diff --quiet HEAD $BASE -- $FOLDER
     if [ $? -eq 1 ]; then
         CHANGED="$CHANGED$FOLDER,"
     fi
