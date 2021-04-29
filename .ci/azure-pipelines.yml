@@ -14,143 +14,134 @@ jobs:
         name: folders
         displayName: Check which folders have changed
 
-  # Rust crate is built only if there are changes in the `rust` folder
-  - job: Rust
+  # Rather than using a job for each product folder, we use a job for
+  # each platform and steps within those for each product (as necessary).
+  # This is preferable because jobs run on different VMs and so each have to recompile
+  # the Rust crate upon which many on the products depend.
+
+  # On Linux, run tests and build for all product folders having changes
+  - job: Linux
     dependsOn: [Changes]
-    condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
-    strategy:
-      matrix:
-        Linux:
-          vmImage: ubuntu-latest
-          targetPath: target/release/stencila
-          archiveName: x86_64-unknown-linux-gnu.tar.gz
-        Mac:
-          vmImage: macOS-latest
-          targetPath: target/release/stencila
-          archiveName: x86_64-apple-darwin.tar.gz
-        Windows:
-          vmImage: windows-latest
-          targetPath: target/release/stencila.exe
-          archiveName: x86_64-pc-windows-msvc.zip
     pool:
-      vmImage: $(vmImage)
+      vmImage: ubuntu-latest
     steps:
+      # This is split into several steps even thought they often share the same
+      # condition simply to improve visibility (ie. its quicker to discover where
+      # a build fails if it is broken into several steps)
+
+      # Rust crate is linted if there are changes in the `rust` folder.
       - script: make -C rust lint
-        condition: eq(variables['agent.os'], 'Linux')
-        displayName: Lint
+        condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
+        displayName: 'Rust: Lint'
 
-      - script: cargo install cargo-tarpaulin && make -C rust cover
-        condition: and(succeeded(), eq(variables['agent.os'], 'Linux'))
-        displayName: Test with coverage
+      # Rust crate is tested if there are changes in the `rust` folder.
+      - script: |
+          set -e
+          cd rust
+          cargo install cargo-tarpaulin
+          make cover
+          bash <(curl -s https://codecov.io/bash)
+        condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
+        displayName: 'Rust: Test'
 
-      - script: bash <(curl -s https://codecov.io/bash)
-        condition: and(succeeded(), eq(variables['agent.os'], 'Linux'))
-        displayName: Upload coverage
-
+      # Rust crate is audited if there are changes in the `rust` folder.
+      # However, given that this is run at the top level is will audit all dependencies
+      # including those used by `cli`, `node` etc
       - script: cargo install cargo-audit && cargo audit
-        condition: and(succeeded(), eq(variables['agent.os'], 'Linux'))
-        displayName: Dependency audit
+        condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
+        displayName: 'Rust: Audit'
 
+      # CLI is linted if there are changes in the `cli` folder.
+      - script: make -c cli lint
+        condition: contains(dependencies.Changes.outputs['folders.changed'], 'cli')
+        displayName: 'CLI: Lint and test'
+
+      # CLI is tested if there are changes in the `rust` or `cli` folders.
+      - script: |
+          set -e
+          cd cli
+          cargo install cargo-tarpaulin
+          make cover
+          bash <(curl -s https://codecov.io/bash)
+        condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'cli'))
+        displayName: 'CLI: Test'
+
+      # Node.js package is tested if there are changes in the `rust` or `node` folders.
+      - script: |
+          set -e
+          cd node
+          npm install
+          make cover
+          bash <(curl -s https://codecov.io/bash)
+        condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'node'))
+        displayName: 'Node.js: Test'
+
+      # Desktop is tested if there are changes in the `rust`, `node`, or `desktop` folders
+      - script: |
+          set -e
+          cd desktop
+          npm install
+          npm run ui:build
+          npm run package
+        condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'node'), contains(dependencies.Changes.outputs['folders.changed'], 'desktop'))
+        displayName: 'Desktop: Test'
+
+      # CLI is built and published on tags
+      - script: |
+          set -e
+          cargo install cargo-strip
+          make -C cli build
+          bash .ci/upload-release.sh ubuntu-latest stencila x86_64-unknown-linux-gnu.tar.gz
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'CLI: Build and publish'
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  # On MacOS, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on on tags.
+  - job: MacOS
+    dependsOn: [Changes]
+    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    pool:
+      vmImage: macOS-latest
+    steps:
       - script: make -C rust test
-        condition: not(eq(variables['agent.os'], 'Linux'))
-        displayName: Test
+        condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
+        displayName: 'Rust: Test'
 
       - script: |
           set -e
           cargo install cargo-strip
-          make build
-          bash .ci/upload-release.sh $(targetPath) stencila $(archiveName)
-        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-        displayName: Build and upload binaries
+          make -C cli build
+          bash .ci/upload-release.sh target/release/stencila stencila x86_64-apple-darwin.tar.gz
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-  # CLI is built if there are changes in the `rust` or `cli` folders.
-  - job: CLI
-    dependsOn: [Changes, Rust]
-    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'cli'))
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - script: make -C cli lint
-        displayName: Lint
-
-      - script: cargo install cargo-strip && make -C cli build
-        condition: succeeded()
-        displayName: Build
-
-  # Node.js package is built if there are changes in the `rust` or `node` folders.
-  - job: Node
-    dependsOn: [Changes, Rust]
-    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'node'))
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - script: cd node && npm ci
-        displayName: Install dependencies
-
-      - script: make -C node cover
-        displayName: Test with coverage
-
-      - script: bash <(curl -s https://codecov.io/bash)
-        condition: succeeded()
-        displayName: Upload coverage
-
-      - script: make -C node build
-        condition: succeeded()
-        displayName: Build
-
-  # Desktop client is built if there are changes in the `desktop`, `node`, or
-  # `rust` folders.
-  - job: Desktop
-    dependsOn: [Changes, Node]
-    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'node'), contains(dependencies.Changes.outputs['folders.changed'], 'desktop'))
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-      - script: cd desktop && npm install
-        displayName: Install dependencies
-
-      - script: |
-          set -e
-          cd desktop
-          npm run ui:build
-          npm run package
-        displayName: Build
-
-  # Help site is only built if there are changes in the `help` folder
-  # and only published on `master` branch
-  - job: Help
+  # On Windows, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on on tags.
+  - job: Windows
     dependsOn: [Changes]
-    condition: contains(dependencies.Changes.outputs['folders.changed'], 'help')
+    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/')
     pool:
-      vmImage: ubuntu-latest
+      vmImage: windows-latest
     steps:
-      - script: |
-          set -e
-          sudo apt-get install pv asciinema
-          cd help && npm ci
-        displayName: Install dependencies
-
-      - script: make -C help demos resources build
-        displayName: Build
-        env:
-          TERM: dumb
+      - script: make -C rust test
+        condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
+        displayName: 'Rust: Test'
 
       - script: |
           set -e
-          git config --global user.name "Stencila CI Bot"
-          git config --global user.email "ci@stenci.la"
-          echo "machine github.com login stencila-ci password ${GITHUB_TOKEN}" > ~/.netrc
-          GIT_USER="stencila-ci" make -C help deploy
-        condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
-        displayName: Publish
+          cargo install cargo-strip
+          make -C cli build
+          bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-  # Releases are only made if all products have succeeded and on the `master` branch
+  # Releases are only made if all three platform builds have succeeded and on the `master` branch.
   - job: Release
-    dependsOn: [Rust, CLI, Node, Desktop, Help]
+    dependsOn: [Linux, MacOS, Windows]
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     pool:
       vmImage: ubuntu-latest
@@ -166,9 +157,12 @@ jobs:
           GIT_COMMITTER_EMAIL: ci@stenci.la
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-  # Docker images are only built on tags (i.e. after a Release job)
+  # Docker images are built on tags (i.e. after a Release job) or if there is a
+  # change in the `docker` folder. It depends on Linux job to ensure that the latest
+  # Linux `stencila` binary is available to install into the image.
   - job: Docker
-    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    dependsOn: [Changes, Linux]
+    condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), contains(dependencies.Changes.outputs['folders.changed'], 'docker'))
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -203,3 +197,33 @@ jobs:
             $(Build.BuildNumber)
             $(GitVersion.SemVer)
             latest
+
+  # Help site is only built if there are changes in the `help` folder
+  # and only published on `master` branch
+  - job: Help
+    dependsOn: [Changes]
+    condition: contains(dependencies.Changes.outputs['folders.changed'], 'help')
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - script: |
+          set -e
+          sudo apt-get install pv asciinema
+          cd help && npm ci
+        displayName: Install dependencies
+
+      - script: make -C help demos resources build
+        displayName: Build
+        env:
+          TERM: dumb
+
+      - script: |
+          set -e
+          git config --global user.name "Stencila CI Bot"
+          git config --global user.email "ci@stenci.la"
+          echo "machine github.com login stencila-ci password ${GITHUB_TOKEN}" > ~/.netrc
+          GIT_USER="stencila-ci" make -C help deploy
+        condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+        displayName: Publish
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
