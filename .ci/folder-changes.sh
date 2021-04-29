@@ -8,10 +8,10 @@
 #
 # Used by `azure-pipelines.yml`.
 
-if [ $(git branch --show-current) == "master" ]; then
+if [[ $(git branch --show-current) == "master" ]]; then
     BASE=$(git describe --tags --abbrev=0)
 else
-    BASE="master"
+    BASE=$(git rev-parse master)
 fi
 echo "Comparing against: $BASE"
 
