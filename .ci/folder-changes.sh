@@ -11,7 +11,9 @@
 if [[ $(git branch --show-current) == "master" ]]; then
     BASE=$(git describe --tags --abbrev=0)
 else
-    BASE=$(git rev-parse master)
+    # On CI it is necessary to fetch master
+    git fetch origin master:refs/remotes/origin/master
+    BASE="master"
 fi
 echo "Comparing against: $BASE"
 
