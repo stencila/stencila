@@ -17,4 +17,4 @@ build:
 
 # Publish site to GitHub pages
 deploy:
-	npm deploy
+	npm run deploy
