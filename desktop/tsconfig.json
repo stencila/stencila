@@ -1,0 +1,20 @@
+{
+  "extends": "@stencila/dev-config/tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "declaration": false,
+    "module": "esnext",
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "paths": {
+      "*": ["node_modules/*"]
+    }
+  },
+  "include": ["./src/main", "./src/preload", "./src/lib.d.ts"]
+}

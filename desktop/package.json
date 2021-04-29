@@ -1,0 +1,137 @@
+{
+  "name": "stencila-desktop",
+  "productName": "Stencila",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Desktop client for Stencila tools",
+  "main": ".webpack/main",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts,.tsx .",
+    "ui:build": "stencil build",
+    "ui:start": "stencil build --dev --watch --serve",
+    "ui:test": "stencil test --spec --e2e",
+    "ui:test:watch": "stencil test --spec --e2e --watchAll",
+    "ui:generate": "stencil generate"
+  },
+  "keywords": [],
+  "author": "Stencila",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/stencila/stencila/issues"
+  },
+  "homepage": "https://github.com/stencila/stencila#readme",
+  "devDependencies": {
+    "@electron-forge/cli": "6.0.0-beta.54",
+    "@electron-forge/maker-deb": "6.0.0-beta.54",
+    "@electron-forge/maker-rpm": "6.0.0-beta.54",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.54",
+    "@electron-forge/maker-zip": "6.0.0-beta.54",
+    "@electron-forge/plugin-electronegativity": "6.0.0-beta.54",
+    "@electron-forge/plugin-webpack": "^6.0.0-beta.54",
+    "@marshallofsound/webpack-asset-relocator-loader": "0.5.0",
+    "@msgpack/msgpack": "^2.6.0",
+    "@stencil/core": "^2.5.2",
+    "@stencil/postcss": "2.0.0",
+    "@stencil/router": "^2.0.0-2",
+    "@stencil/store": "^1.4.1",
+    "@types/jest": "26.0.22",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "copy-webpack-plugin": "^6.4.1",
+    "csp-html-webpack-plugin": "^5.1.0",
+    "css-loader": "4.3.0",
+    "electron": "12.0.3",
+    "eslint": "^7.24.0",
+    "eslint-plugin-import": "2.22.1",
+    "fork-ts-checker-webpack-plugin": "5.2.1",
+    "html-insert-tag-webpack-plugin": "0.0.1",
+    "node-loader": "1.0.3",
+    "postcss": "^8.2.10",
+    "postcss-nested": "5.0.5",
+    "rollup-plugin-node-polyfills": "0.2.1",
+    "secure-electron-store": "^1.4.0",
+    "style-loader": "1.3.0",
+    "tailwindcss": "2.1.1",
+    "ts-loader": "8.1.0",
+    "typescript": "4.2.4"
+  },
+  "dependencies": {
+    "@stencila/components": "0.30.1",
+    "electron-squirrel-startup": "1.0.0",
+    "stencila": "file:../node"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "appCategoryType": "public.app-category.productivity",
+        "icon": "src/assets/icon/stencila"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "desktop",
+            "icon": ""
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ],
+      "plugins": [
+        [
+          "@electron-forge/plugin-webpack",
+          {
+            "mainConfig": "./webpack.main.config.js",
+            "renderer": {
+              "config": "./webpack.renderer.config.js",
+              "entryPoints": [
+                {
+                  "html": "./src/renderer/index.html",
+                  "js": "./src/renderer/renderer.ts",
+                  "name": "main_window",
+                  "preload": {
+                    "js": "./src/preload/preload.ts"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        [
+          "@electron-forge/plugin-electronegativity",
+          {
+            "isSarif": true,
+            "parserPlugins": []
+          }
+        ]
+      ]
+    }
+  },
+  "browserslist": [
+    "Electron"
+  ],
+  "eslintConfig": {
+    "extends": "@stencila/eslint-config",
+    "env": {
+      "browser": true,
+      "es6": true,
+      "node": true
+    }
+  }
+}

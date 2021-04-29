@@ -2,3 +2,4 @@ CHANGELOG.md
 dist
 node_modules
 target
+components.d.ts

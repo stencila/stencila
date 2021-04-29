@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "skipLibCheck": true,
+    "jsx": "react",
+    "jsxFactory": "h"
+  },
+  "include": [
+    "./src/renderer",
+    "./src/preload/index.ts",
+    "./src/preload/types.d.ts"
+  ]
+}
