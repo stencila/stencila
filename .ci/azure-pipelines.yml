@@ -100,7 +100,7 @@ jobs:
   # On MacOS, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on on tags.
   - job: MacOS
     dependsOn: [Changes]
-    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     pool:
       vmImage: macOS-latest
     steps:
@@ -121,7 +121,7 @@ jobs:
   # On Windows, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on on tags.
   - job: Windows
     dependsOn: [Changes]
-    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     pool:
       vmImage: windows-latest
     steps:
