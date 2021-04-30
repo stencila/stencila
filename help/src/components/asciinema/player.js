@@ -36,4 +36,5 @@ export default class Asciinema extends React.Component {
 Asciinema.defaultProps = {
   theme: 'asciinema',
   idleTimeLimit: 2,
+  fontSize: '15px',
 }

@@ -7,7 +7,7 @@ all: $(patsubst %.md,%.gif,$(wildcard *.md))
 
 # Make a Demo Magic script from Markdown source
 %.sh: %.md
-	csplit -f temp $< /Script/6
+	csplit --quiet --prefix temp $< /Script/6
 	npx encoda convert --from md temp01 --to demo-magic $@
 	chmod +x $@
 .PRECIOUS: %.sh
@@ -23,7 +23,9 @@ all: $(patsubst %.md,%.gif,$(wildcard *.md))
 	./$*.sh -n
 
 # Record an asciinema cast
+# Set the terminal window dimensions to those used in playback
 %.cast: %.sh
+	stty cols 80 rows 24
 	asciinema rec -c "./$*.sh -n" --overwrite $*.cast
 .PRECIOUS: %.cast
 
