@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>Stencila Help Blog</title>
-        <link>https://stencila.github.io/stencila/blog</link>
+        <link>https://stencila.github.io/blog</link>
         <description>Stencila Help Blog</description>
         <lastBuildDate>Sun, 25 Oct 2015 23:29:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>

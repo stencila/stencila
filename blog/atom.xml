@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://stencila.github.io/stencila/blog</id>
+    <id>https://stencila.github.io/blog</id>
     <title>Stencila Help Blog</title>
     <updated>2015-10-25T23:29:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://stencila.github.io/stencila/blog"/>
+    <link rel="alternate" href="https://stencila.github.io/blog"/>
     <subtitle>Stencila Help Blog</subtitle>
-    <icon>https://stencila.github.io/stencila/img/favicon.ico</icon>
+    <icon>https://stencila.github.io/img/favicon.ico</icon>
 </feed>
