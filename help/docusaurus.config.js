@@ -1,9 +1,12 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
+const path = require('path')
+
+const baseUrl = '/stencila/'
 
 module.exports = {
   title: 'Stencila Help',
   url: 'https://stencila.github.io',
-  baseUrl: '/stencila/',
+  baseUrl: baseUrl,
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
@@ -133,4 +136,10 @@ module.exports = {
       },
     ],
   ],
+  scripts: [
+    {
+      src: `${baseUrl}asciinema-player.js`,
+    },
+  ],
+  plugins: [path.resolve(__dirname, './plugins/assetLoader')],
 }

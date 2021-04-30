@@ -1,0 +1,1 @@
+../node_modules/asciinema-player/resources/public/js/asciinema-player.js

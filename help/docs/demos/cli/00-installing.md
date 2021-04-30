@@ -9,13 +9,16 @@ description: |
   See how to quickly install the Stencila CLI on MacOS or Linux.
 ---
 
+import AsciinemaPlayer from '../../../src/components/asciinema/player'
+import installingDemo from './00-installing.cast'
+
 :::info
 This quick little demo shows you how to install the Stencila CLI using the install script if you are on MacOS or Linux. For Windows, please see [these instructions](https://github.com/stencila/stencila/tree/master/cli#-install).
 :::
 
 ## Demo
 
-<img src="/docs/demos/cli/00-installing.gif" />
+<AsciinemaPlayer src={installingDemo} />
 
 ## Script
 

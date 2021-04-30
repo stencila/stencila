@@ -9,13 +9,16 @@ description: |
   See how to upgrade the Stencila CLI to the latest version, or a specific version, and which configuration settings to adjust for automatic upgrades.
 ---
 
+import AsciinemaPlayer from '../../../src/components/asciinema/player'
+import upgradingDemo from './01-upgrading.cast'
+
 :::info
 This demo shows you how to upgrade the Stencila CLI to the latest version, or a specific version, and which configuration settings to adjust for automatic upgrades.
 :::
 
 ## Demo
 
-<img src="/docs/demos/cli/01-upgrading.gif" />
+<AsciinemaPlayer src={upgradingDemo} />
 
 ## Script
 
