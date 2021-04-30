@@ -29,6 +29,8 @@ Let's get started by checking out the help for the `upgrade` command:
 stencila upgrade --help
 ```
 
+### Manual upgrades
+
 When you run the `upgrade` command, `stencila` will check to see if there is newer version available, and download it if there is. Use `--verbose` to get more information and `--confirm` to prevent an automatic upgrade.
 
 ```bash pause=1
@@ -45,4 +47,44 @@ Add the `--plugins` option to also check for new versions of installed plugins.
 
 ```bash pause=1
 stencila upgrade --plugins
+```
+
+### Automatic upgrades
+
+Stencila can be configured to do automatic upgrades. Each time the `stencila` CLI tool is run it will check for a newer version (if it has not already checked within a configured duration, by default, one day). If a newer version is available, by default, you will be asked to confirm the upgrade.
+
+See your current settings using,
+
+```bash pause=2
+stencila config get upgrade
+```
+
+To turn off automatic upgrades,
+
+```bash
+stencila config set upgrade.auto off
+```
+
+To make them less frequent,
+
+```bash
+stencila config set upgrade.auto '1 week'
+```
+
+To allow upgrades to happen without your confirmation,
+
+```bash
+stencila config set upgrade.confirm false
+```
+
+To not upgrade plugins as well,
+
+```bash
+stencila config set upgrade.plugins false
+```
+
+To reset them to defaults,
+
+```bash
+stencila config reset upgrade
 ```
