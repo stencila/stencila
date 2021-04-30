@@ -21,9 +21,11 @@ jobs:
 
   # On Linux, run tests and build for all product folders having changes
   - job: Linux
-    dependsOn: [Changes]
     pool:
       vmImage: ubuntu-latest
+    dependsOn: [Changes]
+    variables:
+      changed: $[ dependencies.Changes.outputs['folders.changed'] ]
     steps:
       # This is split into several steps even thought they often share the same
       # condition simply to improve visibility (ie. its quicker to discover where
@@ -31,7 +33,7 @@ jobs:
 
       # Rust crate is linted if there are changes in the `rust` folder.
       - script: make -C rust lint
-        condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
+        condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Lint'
 
       # Rust crate is tested if there are changes in the `rust` folder.
@@ -41,19 +43,19 @@ jobs:
           cargo install cargo-tarpaulin
           make cover
           bash <(curl -s https://codecov.io/bash)
-        condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
+        condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
       # Rust crate is audited if there are changes in the `rust` folder.
       # However, given that this is run at the top level is will audit all dependencies
       # including those used by `cli`, `node` etc
       - script: cargo install cargo-audit && cargo audit
-        condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
+        condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Audit'
 
       # CLI is linted if there are changes in the `cli` folder.
       - script: make -c cli lint
-        condition: contains(dependencies.Changes.outputs['folders.changed'], 'cli')
+        condition: contains(variables.changed, 'cli')
         displayName: 'CLI: Lint and test'
 
       # CLI is tested if there are changes in the `rust` or `cli` folders.
@@ -63,7 +65,7 @@ jobs:
           cargo install cargo-tarpaulin
           make cover
           bash <(curl -s https://codecov.io/bash)
-        condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'cli'))
+        condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'cli'))
         displayName: 'CLI: Test'
 
       # Node.js package is tested if there are changes in the `rust` or `node` folders.
@@ -73,7 +75,7 @@ jobs:
           npm install
           make cover
           bash <(curl -s https://codecov.io/bash)
-        condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'node'))
+        condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'node'))
         displayName: 'Node.js: Test'
 
       # Desktop is tested if there are changes in the `rust`, `node`, or `desktop` folders
@@ -83,7 +85,7 @@ jobs:
           npm install
           npm run ui:build
           npm run package
-        condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), contains(dependencies.Changes.outputs['folders.changed'], 'node'), contains(dependencies.Changes.outputs['folders.changed'], 'desktop'))
+        condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'node'), contains(variables.changed, 'desktop'))
         displayName: 'Desktop: Test'
 
       # CLI is built and published on tags
@@ -99,13 +101,15 @@ jobs:
 
   # On MacOS, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on on tags.
   - job: MacOS
-    dependsOn: [Changes]
-    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     pool:
       vmImage: macOS-latest
+    dependsOn: [Changes]
+    variables:
+      changed: $[ dependencies.Changes.outputs['folders.changed'] ]
+    condition: or(contains(variables.changed, 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     steps:
       - script: make -C rust test
-        condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
+        condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
       - script: |
@@ -120,13 +124,15 @@ jobs:
 
   # On Windows, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on on tags.
   - job: Windows
-    dependsOn: [Changes]
-    condition: or(contains(dependencies.Changes.outputs['folders.changed'], 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     pool:
       vmImage: windows-latest
+    dependsOn: [Changes]
+    variables:
+      changed: $[ dependencies.Changes.outputs['folders.changed'] ]
+    condition: or(contains(variables.changed, 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     steps:
       - script: make -C rust test
-        condition: contains(dependencies.Changes.outputs['folders.changed'], 'rust')
+        condition: contains(variables.changed, 'rust')
         displayName: 'Rust: Test'
 
       - script: |
