@@ -118,8 +118,7 @@
           ]
         }
       ],
-      "@semantic-release/github",
-      "@qiwi/semantic-release-gh-pages-plugin"
+      "@semantic-release/github"
     ]
   }
 }
