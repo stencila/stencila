@@ -1,3 +1,10 @@
+## [0.56.2](https://github.com/stencila/stencila/compare/v0.56.1...v0.56.2) (2021-04-30)
+
+
+### Bug Fixes
+
+* **Release:** Publish the correct file for Linux ([ec958c8](https://github.com/stencila/stencila/commit/ec958c8ed92d6bb9cb9897b96a8b0ac19c0cc099))
+
 ## [0.56.1](https://github.com/stencila/stencila/compare/v0.56.0...v0.56.1) (2021-04-30)
 
 
