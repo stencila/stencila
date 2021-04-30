@@ -34,11 +34,11 @@ all: $(patsubst %.md,%.gif,$(wildcard *.md))
 
 # Convert a cast to an animated SVG
 %.svg: %.cast
-	cat $*.cast | npx svg-term --window --height 25 --width 90 --out $*.svg
+	cat $*.cast | npx svg-term --window --height 30 --width 90 --out $*.svg
 
 # Convert a cast to an animated GIF
 %.gif: %.cast
-	docker run --rm -v $$PWD:/data asciinema/asciicast2gif $*.cast $*.gif
+	docker run --rm -v $$PWD:/data asciinema/asciicast2gif -h 30 -w 90 $*.cast $*.gif
 
 # Upload an asciinema cast
 %.upload: %.cast
