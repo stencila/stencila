@@ -19,13 +19,22 @@ jobs:
   # This is preferable because jobs run on different VMs and so each have to recompile
   # the Rust crate upon which many on the products depend.
 
-  # On Linux, run tests and build for all product folders having changes
+  # On Linux, run tests and build for all product folders having changes;
+  # CLI is built and published on tags.
   - job: Linux
     pool:
       vmImage: ubuntu-latest
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
+    condition: |
+      or(
+        contains(variables.changed, 'rust'),
+        contains(variables.changed, 'cli'),
+        contains(variables.changed, 'node'),
+        contains(variables.changed, 'desktop'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      )
     steps:
       # This is split into several steps even thought they often share the same
       # condition simply to improve visibility (ie. its quicker to discover where
@@ -87,7 +96,12 @@ jobs:
           # npm install
           # npm run ui:build
           # npm run package
-        condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'node'), contains(variables.changed, 'desktop'))
+        condition: |
+          or(
+            contains(variables.changed, 'rust'),
+            contains(variables.changed, 'node'),
+            contains(variables.changed, 'desktop')
+          )
         displayName: 'Desktop: Test'
 
       # CLI is built and published on tags
@@ -101,7 +115,7 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-  # On MacOS, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on on tags.
+  # On MacOS, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on tags.
   - job: MacOS
     pool:
       vmImage: macOS-latest
@@ -128,7 +142,7 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-  # On Windows, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on on tags.
+  # On Windows, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on tags.
   - job: Windows
     pool:
       vmImage: windows-latest
