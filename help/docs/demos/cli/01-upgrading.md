@@ -6,8 +6,7 @@ keywords:
   - Stencila
   - CLI
 description: |
-  See how to upgrade the Stencila CLI to the latest version, or a specific version, and which configuration settings to adjust for automatic
-  upgrades.
+  See how to upgrade the Stencila CLI to the latest version, or a specific version, and which configuration settings to adjust for automatic upgrades.
 ---
 
 :::info
