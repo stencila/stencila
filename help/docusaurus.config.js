@@ -10,6 +10,9 @@ module.exports = {
   organizationName: 'stencila',
   projectName: 'stencila',
   themeConfig: {
+    // Default image used for meta tags e.g og:image and twitter:image
+    // Can't be an SVG.
+    image: 'img/stencila.png',
     navbar: {
       title: 'Help',
       logo: {
