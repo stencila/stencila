@@ -68,7 +68,7 @@ To turn off automatic upgrades,
 stencila config set upgrade.auto off
 ```
 
-To make them less frequent,
+To make them less frequent e.g. one week
 
 ```bash
 stencila config set upgrade.auto '1 week'
@@ -86,7 +86,7 @@ To not upgrade plugins as well,
 stencila config set upgrade.plugins false
 ```
 
-To reset them to defaults,
+To reset upgrade settings to defaults,
 
 ```bash
 stencila config reset upgrade
