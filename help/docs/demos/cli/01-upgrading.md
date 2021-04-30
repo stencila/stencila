@@ -10,11 +10,11 @@ description: |
   upgrades.
 ---
 
-## Demo
-
 :::info
 This demo shows you how to upgrade the Stencila CLI to the latest version, or a specific version, and which configuration settings to adjust for automatic upgrades.
 :::
+
+## Demo
 
 <img src="/docs/demos/cli/01-upgrading.gif" />
 
