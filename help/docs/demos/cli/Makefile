@@ -1,8 +1,7 @@
-# Recipes for converting Mrkdown demo scripts into Asciinema "consolecasts"
+# Recipes for converting Markdown demo scripts into Asciinema "consolecasts"
 #
 # Requires pv and asciinema. On Debian:
 #    sudo apt-get install pv asciinema
-# To generate GIFs requires `docker`.
 
 all: $(patsubst %.md,%.gif,$(wildcard *.md))
 
@@ -31,18 +30,6 @@ all: $(patsubst %.md,%.gif,$(wildcard *.md))
 # Play an asciinema cast
 %.play: %.cast
 	asciinema play $*.cast
-
-# Convert a cast to an animated SVG
-%.svg: %.cast
-	cat $*.cast | npx svg-term --window --height 30 --width 90 --out $*.svg
-
-# Convert a cast to an animated GIF
-%.gif: %.cast
-	docker run --rm -v $$PWD:/data asciinema/asciicast2gif -h 30 -w 90 $*.cast $*.gif
-
-# Upload an asciinema cast
-%.upload: %.cast
-	asciinema upload $*.cast
 
 # Remove temporary files
 clean:
