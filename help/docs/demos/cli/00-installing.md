@@ -1,11 +1,21 @@
 ---
 sidebar_label: Installing
-title: Install the CLI
+title: Install the Stencila CLI
+keywords:
+  - install
+  - Stencila
+  - CLI
+description: |
+  See how to quickly install the Stencila CLI on MacOS or Linux.
 ---
+
+:::info
+This quick little demo shows you how to install the Stencila CLI using the install script if you are on MacOS or Linux. For Windows, please see [these instructions](https://github.com/stencila/stencila/tree/master/cli#-install).
+:::
 
 ## Demo
 
-<img src="00-installing.gif" />
+<img src="/docs/demos/cli/00-installing.gif" />
 
 ## Script
 
@@ -13,7 +23,7 @@ title: Install the CLI
 The above recording was automatically generated from the following Markdown. Copy the code blocks to run the demo yourself.
 :::
 
-The easiest way to install the Stencila CLI on Mac or Linux is to run the install script:
+The easiest way to install the Stencila CLI on MacOS or Linux is to run the install script:
 
 ```bash
 curl -L https://raw.githubusercontent.com/stencila/stencila/master/install.sh | bash
