@@ -8,12 +8,15 @@
 #
 # Used by `azure-pipelines.yml`.
 
-if [[ $(git branch --show-current) == "master" ]]; then
+# On CI, we may be in "detached HEAD" state so
+# use `git rev-parse` instead of `git branch` to
+# determin if on master.
+HEAD=$(git rev-parse HEAD)
+MASTER=$(git rev-parse origin/master)
+if [[ $HEAD == $MASTER ]]; then
     BASE=$(git describe --tags --abbrev=0)
 else
-    # On CI it is necessary to fetch master
-    git fetch origin master:refs/remotes/origin/master
-    BASE="master"
+    BASE=$MASTER
 fi
 echo "Comparing against: $BASE"
 
