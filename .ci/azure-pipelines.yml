@@ -95,7 +95,7 @@ jobs:
           set -e
           cargo install cargo-strip
           make -C cli build
-          bash .ci/upload-release.sh ubuntu-latest stencila x86_64-unknown-linux-gnu.tar.gz
+          bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
         env:
