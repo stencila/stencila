@@ -108,7 +108,11 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    condition: or(contains(variables.changed, 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    condition: |
+      or(
+        contains(variables.changed, 'rust'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      )
     steps:
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
@@ -131,7 +135,11 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    condition: or(contains(variables.changed, 'rust'), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    condition: |
+      or(
+        contains(variables.changed, 'rust'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      )
     steps:
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
@@ -150,7 +158,16 @@ jobs:
   # Releases are only made if all three platform builds have succeeded and on the `master` branch.
   - job: Release
     dependsOn: [Linux, MacOS, Windows]
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    condition: |
+      and(
+        in(dependencies.Linux.result, 'Succeeded', 'Skipped'),
+        in(dependencies.MacOS.result, 'Succeeded', 'Skipped'),
+        in(dependencies.Windows.result, 'Succeeded', 'Skipped'),
+        or(
+          eq(variables['Build.SourceBranch'], 'refs/heads/master'),
+          contains(dependencies.Changes.outputs['folders.changed'], 'docker')
+        )
+      )
     pool:
       vmImage: ubuntu-latest
     steps:
@@ -170,7 +187,14 @@ jobs:
   # Linux `stencila` binary is available to install into the image.
   - job: Docker
     dependsOn: [Changes, Linux]
-    condition: and(succeeded(), or(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), contains(dependencies.Changes.outputs['folders.changed'], 'docker')))
+    condition: |
+      and(
+        in(dependencies.Linux.result, 'Succeeded', 'Skipped'),
+        or(
+          startsWith(variables['Build.SourceBranch'], 'refs/tags/'),
+          contains(dependencies.Changes.outputs['folders.changed'], 'docker')
+        )
+      )
     pool:
       vmImage: ubuntu-latest
     steps:
