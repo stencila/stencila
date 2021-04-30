@@ -1,3 +1,10 @@
+## [0.56.1](https://github.com/stencila/stencila/compare/v0.56.0...v0.56.1) (2021-04-30)
+
+
+### Bug Fixes
+
+* **CLI:** Do not should env var section on errors ([a3eb92d](https://github.com/stencila/stencila/commit/a3eb92d41aee10d328420edb3031cdb999cf6ccd))
+
 # [0.56.0](https://github.com/stencila/stencila/compare/v0.55.0...v0.56.0) (2021-04-29)
 
 
