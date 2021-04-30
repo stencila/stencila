@@ -22,11 +22,11 @@ If you know someone is already a user of Stencila you can easily search and add 
 
 Click **Users** under your organization image.
 
-![](http://stencila.github.io/hub/manager/snaps/org-users-menu-item.png)
+![](https://stencila.github.io/hub/manager/snaps/org-users-menu-item.png)
 
 Type their username, or full name, into the search bar.
 
-![](http://stencila.github.io/hub/manager/snaps/org-users-add-user.png)
+![](https://stencila.github.io/hub/manager/snaps/org-users-add-user.png)
 
 ## Invite a user
 
@@ -40,4 +40,4 @@ You can change the role of a user at any time.
 
 Delete a user from your organisation by selecting the eclipse button at the end of their name and **remove from account**.
 
-![](http://stencila.github.io/hub/manager/snaps/org-users-change-user.png)
+![](https://stencila.github.io/hub/manager/snaps/org-users-change-user.png)

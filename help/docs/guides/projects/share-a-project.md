@@ -8,17 +8,17 @@ As soon as you have [published a project](./publish-a-project.md) you can share 
 
 Click **sharing** on the left hand side bar.
 
-![](http://stencila.github.io/hub/manager/snaps/project-sharing-menu-item.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sharing-menu-item.png)
 
 Check if your project is **public** or **private**.
 
-![](http://stencila.github.io/hub/manager/snaps/project-sharing-public.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sharing-public.png)
 
 ## Public project
 
 If your project is set as public then anyone can already view it.
 
-![](http://stencila.github.io/hub/manager/snaps/project-sharing-add-agent.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sharing-add-agent.png)
 
 You can also copy the URL and share it. Anyone can read it and execute code chunks but they won't be able to modify the project.
 

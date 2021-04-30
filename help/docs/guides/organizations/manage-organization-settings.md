@@ -12,13 +12,13 @@ After [creating an organization](./create-an-organization.md) it's a great idea 
 
 By customizing your profile other users get a better sense of who you are and what you do. It also helps make your page look awesome ⭐
 
-![](http://stencila.github.io/hub/manager/snaps/org-new-profile-fields.png)
+![](https://stencila.github.io/hub/manager/snaps/org-new-profile-fields.png)
 
 ## Change your profile picture
 
 Your profile picture helps identify you across Stencila 😺
 
-![](http://stencila.github.io/hub/manager/snaps/org-settings-image-form.png)
+![](https://stencila.github.io/hub/manager/snaps/org-settings-image-form.png)
 
 ## Choose your theme
 
@@ -30,6 +30,6 @@ Once chosen, you are still able to make edits and changes to the theme if you wa
 
 Through **settings** scroll down to **Content** and click **Theme** to select your template and **Upload**.
 
-![](http://stencila.github.io/hub/manager/snaps/org-settings-theme-field.png)
+![](https://stencila.github.io/hub/manager/snaps/org-settings-theme-field.png)
 
 If you choose to leave this section untouched the default style theme assigned to your projects with be the **Stencila** theme.

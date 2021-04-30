@@ -16,11 +16,11 @@ Go to https://hub.stenci.la/
 
 Or, **Sign up** as a user with your email address and a username. Check your inbox for an email and select the link within it to **verify your address**.
 
-![](http://stencila.github.io/hub/manager/snaps/user-signup-form.png)
+![](https://stencila.github.io/hub/manager/snaps/user-signup-form.png)
 
 If you have previously registered with the Stencila Hub simply **Sign in**.
 
-![](http://stencila.github.io/hub/manager/snaps/user-signin-username-password-form.png)
+![](https://stencila.github.io/hub/manager/snaps/user-signin-username-password-form.png)
 
 ## Personalise your page
 
@@ -28,13 +28,13 @@ Once you've logged in you will arrive on your dashboard ✨
 
 If you want to add a little extra information it helps make your page look awesome. Simply click **settings** and fill in whatever imformation you wish to be displayed about yourself.
 
-![](http://stencila.github.io/hub/manager/snaps/org-new-profile-fields.png)
+![](https://stencila.github.io/hub/manager/snaps/org-new-profile-fields.png)
 
 ## Change your profile picture
 
 Your profile picture helps identify you across Stencila ⚡
 
-![](http://stencila.github.io/hub/manager/snaps/org-settings-image-form.png)
+![](https://stencila.github.io/hub/manager/snaps/org-settings-image-form.png)
 
 ## Choose your theme
 
@@ -46,6 +46,6 @@ Once chosen, you are still able to make edits and changes to the theme if you wa
 
 Through **settings** scroll down to **Content** and click **Theme** to select your template and **Upload**.
 
-![](http://stencila.github.io/hub/manager/snaps/org-settings-theme-field.png)
+![](https://stencila.github.io/hub/manager/snaps/org-settings-theme-field.png)
 
 If you choose to leave this section untouched the default style theme assigned to your projects with be the **Stencila** theme.

@@ -17,25 +17,25 @@ To add a Google Drive file or folder as a project source:
 
 - Go to the project **Sources** page
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
 
 - Press the **New** button and select **Google Drive**
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
 
 - Enter the **File or Folder URL**
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledrive-url.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-googledrive-url.png)
 
 - Or **id**
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledrive-id.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-googledrive-id.png)
 
 - Add the **Path** that you want to link it to within the project (what you want to name your source)
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-path-field.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-path-field.png)
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-create-button.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-create-button.png)
 
 ## Your Google Drive source
 

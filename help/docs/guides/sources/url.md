@@ -13,15 +13,15 @@ To add an URL as a project source:
 
 - Go to the project **Sources** page
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
 
 - Press the **New** button and select **URL**
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
 
 - Enter the source **URL** and the **Path** that you want to link it to within the project (what you want to name your source) and **Create Source**
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-url.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-url.png)
 
 Your URL source is automatically **pulled** into your project and stores in your project's working directory.
 
