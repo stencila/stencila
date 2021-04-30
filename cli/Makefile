@@ -7,6 +7,12 @@ lint:
 	touch *.rs
 	cargo clippy
 
+test:
+	cargo test
+
+cover:
+	cargo tarpaulin --ignore-tests --out Xml --out Html --output-dir coverages
+
 audit:
 	cargo +nightly udeps
 

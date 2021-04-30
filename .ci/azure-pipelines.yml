@@ -54,9 +54,9 @@ jobs:
         displayName: 'Rust: Audit'
 
       # CLI is linted if there are changes in the `cli` folder.
-      - script: make -c cli lint
+      - script: make -C cli lint
         condition: contains(variables.changed, 'cli')
-        displayName: 'CLI: Lint and test'
+        displayName: 'CLI: Lint'
 
       # CLI is tested if there are changes in the `rust` or `cli` folders.
       - script: |
