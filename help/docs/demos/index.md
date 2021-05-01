@@ -8,4 +8,4 @@ description: Stencila demos
 
 <img align="right" width="30%" src="/img/illustrations/demos.svg" />
 
-Demonstrations of functionality and user experience. Start here is you want to get a taste of the capabilities of Stencila.
+Demonstrations of functionality and user experience. Start here for a taste of the capabilities of Stencila.
