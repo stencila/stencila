@@ -157,6 +157,10 @@ module.exports = {
             to: '/docs/tutorials/enriching-an-elife-article',
           },
           {
+            from: '/en/collections/2549573-formats',
+            to: '/docs/guides',
+          },
+          {
             from: '/en/collections/2549573-formats-syntax-references',
             to: '/docs/guides',
           },
