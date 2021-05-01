@@ -11,7 +11,9 @@ function HomepageHeader() {
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
         <h1 className="hero__title">{siteConfig.title}</h1>
-        <p className="hero__subtitle">For all your help needs</p>
+        <p className="hero__subtitle">
+          Tutorials, guides, demos and references for Stencila
+        </p>
       </div>
     </header>
   )
@@ -21,8 +23,8 @@ export default function Home() {
   const { siteConfig } = useDocusaurusContext()
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />"
+      title={`${siteConfig.title}`}
+      description="Tutorials, guides, demos and references for Stencila"
     >
       <HomepageHeader />
       <main>
