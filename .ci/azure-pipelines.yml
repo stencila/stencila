@@ -244,7 +244,7 @@ jobs:
           cd help && npm ci
         displayName: Install dependencies
 
-      - script: make -C help demos resources build
+      - script: make -C help demos reference build
         displayName: Build
         env:
           TERM: dumb

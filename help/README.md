@@ -31,10 +31,10 @@ This command starts a local development server and opens up a browser window. Mo
 
 ### References
 
-Much of the content in the references section [docs/references/](docs/references) is obtained from other repos. To fetch and unzip those run,
+Much of the content in the reference section [docs/reference/](docs/reference) is obtained from other repos. To fetch and unzip those run,
 
 ```console
-make resources
+make reference
 ```
 
 ### Demos
@@ -55,7 +55,7 @@ make demos
 To build the entire site,
 
 ```console
-make resources demos build
+make reference demos build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
