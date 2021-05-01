@@ -141,5 +141,50 @@ module.exports = {
       src: `${baseUrl}asciinema-player.js`,
     },
   ],
-  plugins: [path.resolve(__dirname, './plugins/assetLoader')],
+  plugins: [
+    [
+      '@docusaurus/plugin-client-redirects',
+      // Note that these redirects do not work on the development server, only
+      // by creating index.html files for the prod build
+      {
+        redirects: [
+          // Redirects from some of the circa 2020-21 Intercom-hosted
+          // help articles and collections
+          {
+            from: '/en/articles/4184684-enriching-an-elife-article',
+            to: '/docs/tutorials/enriching-an-elife-article',
+          },
+          {
+            from: '/en/collections/2549573-formats-syntax-references',
+            to: '/docs/guides',
+          },
+          {
+            from: '/en/articles/4458566-r-markdown',
+            to: '/docs/guides/formats/rmarkdown',
+          },
+          {
+            from: '/en/articles/4624378-jupyter-notebooks',
+            to: '/docs/guides/formats/jupyter-notebooks',
+          },
+          {
+            from: '/en/collections/2378614-stencila-for-gsuite',
+            to: '/docs/tutorials',
+          },
+          {
+            from: '/en/articles/4857017-getting-started',
+            to: '/docs/tutorials',
+          },
+          {
+            from: '/en/articles/4857019-installing-stencila-for-google-docs',
+            to: '/docs/tutorials',
+          },
+          {
+            from: '/en/articles/4857020-add-on-interface-overview',
+            to: '/docs/tutorials',
+          },
+        ],
+      },
+    ],
+    path.resolve(__dirname, './plugins/assetLoader'),
+  ],
 }
