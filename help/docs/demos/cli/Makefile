@@ -3,7 +3,7 @@
 # Requires pv and asciinema. On Debian:
 #    sudo apt-get install pv asciinema
 
-all: $(patsubst %.md,%.gif,$(wildcard *.md))
+all: $(patsubst %.md,%.cast,$(wildcard *.md))
 
 # Make a Demo Magic script from Markdown source
 %.sh: %.md
@@ -25,7 +25,7 @@ all: $(patsubst %.md,%.gif,$(wildcard *.md))
 # Record an asciinema cast
 # Set the terminal window dimensions to those used in playback
 %.cast: %.sh
-	stty cols 80 rows 24
+	stty cols 90 rows 30
 	asciinema rec -c "./$*.sh -n" --overwrite $*.cast
 .PRECIOUS: %.cast
 
