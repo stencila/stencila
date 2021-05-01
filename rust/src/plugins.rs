@@ -1396,7 +1396,7 @@ impl Plugins {
                 };
                 let installation = match installation {
                     None => String::new(),
-                    Some(value) => format!("{:>8} *{:>6}*", software_version, value),
+                    Some(value) => format!("{} *{}*", software_version, value),
                 };
                 let refreshed = match refreshed {
                     None => String::new(),
