@@ -22,7 +22,10 @@ echo "Comparing against: $BASE"
 
 CHANGED=""
 for FOLDER in cli desktop docker help node rust; do
-    git diff --quiet HEAD $BASE -- $FOLDER
+    # Use three dots so that when on a branch get the differences
+    # starting at the last common commit (in case master has had commits
+    # in the meantime). See https://matthew-brett.github.io/pydagogue/git_diff_dots.html
+    git diff --quiet HEAD...$BASE -- $FOLDER
     if [ $? -eq 1 ]; then
         CHANGED="$CHANGED$FOLDER,"
     fi
