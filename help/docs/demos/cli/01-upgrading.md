@@ -26,12 +26,6 @@ This demo shows you how to upgrade the Stencila CLI to the latest version, or a 
 The above recording was automatically generated from the following Markdown. Copy the code blocks to run the demo yourself.
 :::
 
-Let's get started by checking out the help for the `upgrade` command:
-
-```bash pause=2
-stencila upgrade --help
-```
-
 ### Manual upgrades
 
 When you run the `upgrade` command, `stencila` will check to see if there is newer version available, and download it if there is. Use `--verbose` to get more information and `--confirm` to prevent an automatic upgrade.
