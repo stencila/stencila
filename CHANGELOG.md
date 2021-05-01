@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/stencila/schema/compare/v1.5.0...v1.5.1) (2021-05-01)
+
+
+### Bug Fixes
+
+* Capitalize folder names for better integration with help site ([cbec688](https://github.com/stencila/schema/commit/cbec688ac01f14829c26c91943fb1d97d52b32f7))
+
 # [1.5.0](https://github.com/stencila/schema/compare/v1.4.3...v1.5.0) (2021-04-28)
 
 
