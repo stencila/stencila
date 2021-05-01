@@ -88,13 +88,13 @@ async function build(): Promise<void> {
     'Prose',
     'Code',
     'Data',
-    'Metadata',
+    'Media',
     'Other',
     // Any other categories should be listed at the end
     ...Object.values(schemas).map((schema) => startCase(schema.category)),
   ])
 
-  // Group schemas by category, and within each group sort schemas by `status`, and then `name`.
+  // Group schemas by category, and within each group sort schemas by `name`.
   const groupedSchemas: { [category: string]: JsonSchema[] } = flow([
     (_schemas: JsonSchema[]) =>
       groupBy(_schemas, (schema) => startCase(schema.category ?? 'Other')),
@@ -104,7 +104,7 @@ async function build(): Promise<void> {
           _schemas[category] !== undefined
             ? {
                 ...categories,
-                [category]: sortBy(_schemas[category], ['status', 'name']),
+                [category]: sortBy(_schemas[category], ['name']),
               }
             : categories,
         {}
@@ -138,7 +138,7 @@ async function build(): Promise<void> {
     ),
   })
 
-  await encoda.write(indexPage, path.join(DOCS_DEST_DIR, `index.md`))
+  await encoda.write(indexPage, path.join(DOCS_DEST_DIR, 'Index.md'))
 }
 
 /**
@@ -481,8 +481,8 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
  * @param title of the schema e.g. "Article"
  */
 function title2Path(title: string, prefix = './'): string {
-  const { category = 'other' } = SCHEMAS[title]
-  return `${prefix}${category}/${title}.md`
+  const { category = 'Other' } = SCHEMAS[title]
+  return `${prefix}${startCase(category)}/${title}.md`
 }
 
 /**
