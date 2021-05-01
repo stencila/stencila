@@ -2,12 +2,12 @@
 run:
 	npm start
 
-# Build demos
+# Build demos folder
 demos:
 	make -C docs/demos/cli
 
-# Build resources
-resources:
+# Build reference folder
+reference:
 	make -C docs/reference/schema
 
 # Bundle site into static files for production
