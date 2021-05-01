@@ -8,15 +8,15 @@ As soon as you have [created a project](./create-a-project.md) you can invite ot
 
 Click **sharing** on the left hand side bar.
 
-![](http://stencila.github.io/hub/manager/snaps/project-sharing-menu-item.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sharing-menu-item.png)
 
 Type the name of the person you wish to share your project with. If they are already a Stencila user their name will appear below the search field. Select them.
 
-![](http://stencila.github.io/hub/manager/snaps/org-users-add-user.png)
+![](https://stencila.github.io/hub/manager/snaps/org-users-add-user.png)
 
 You can assign then a role as either an **author**, **manager** or **owner** before you **add** them.
 
-![](http://stencila.github.io/hub/manager/snaps/project-sharing-change-agent.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sharing-change-agent.png)
 
 **Author**: can create and update.
 

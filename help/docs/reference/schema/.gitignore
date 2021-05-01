@@ -2,6 +2,6 @@
 *
 
 # Except for...
-!Makefile
-!.gitignore
-!*.tpl
+!/Makefile
+!/.gitignore
+!/*.md

@@ -3,7 +3,9 @@ sidebar_position: 1
 sidebar_label: Introduction
 title: Guides
 slug: /guides
-description: Stencila Demos
+description: Stencila Guides
 ---
 
-![](/img/illustrations/guides.svg)
+<img align="right" width="30%" src="/img/illustrations/guides.svg" />
+
+Step-by-step guides to help you achieve a specific goal. Start here when you're trying to get a specific task done.

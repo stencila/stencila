@@ -1,14 +1,13 @@
-# Recipes for converting Mrkdown demo scripts into Asciinema "consolecasts"
+# Recipes for converting Markdown demo scripts into Asciinema "consolecasts"
 #
 # Requires pv and asciinema. On Debian:
 #    sudo apt-get install pv asciinema
-# To generate GIFs requires `docker`.
 
-all: $(patsubst %.md,%.gif,$(wildcard *.md))
+all: $(patsubst %.md,%.cast,$(wildcard *.md))
 
 # Make a Demo Magic script from Markdown source
 %.sh: %.md
-	csplit -f temp $< /Script/6
+	csplit --quiet --prefix temp $< /Script/6
 	npx encoda convert --from md temp01 --to demo-magic $@
 	chmod +x $@
 .PRECIOUS: %.sh
@@ -24,6 +23,7 @@ all: $(patsubst %.md,%.gif,$(wildcard *.md))
 	./$*.sh -n
 
 # Record an asciinema cast
+# Set the terminal window dimensions to those used in playback
 %.cast: %.sh
 	asciinema rec -c "./$*.sh -n" --overwrite $*.cast
 .PRECIOUS: %.cast
@@ -31,18 +31,6 @@ all: $(patsubst %.md,%.gif,$(wildcard *.md))
 # Play an asciinema cast
 %.play: %.cast
 	asciinema play $*.cast
-
-# Convert a cast to an animated SVG
-%.svg: %.cast
-	cat $*.cast | npx svg-term --window --height 30 --width 90 --out $*.svg
-
-# Convert a cast to an animated GIF
-%.gif: %.cast
-	docker run --rm -v $$PWD:/data asciinema/asciicast2gif -h 30 -w 90 $*.cast $*.gif
-
-# Upload an asciinema cast
-%.upload: %.cast
-	asciinema upload $*.cast
 
 # Remove temporary files
 clean:

@@ -17,25 +17,25 @@ To add a GitHub repository as a project source:
 
 - Go to the project **Sources** page
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
 
 - Press the **New** button and select **GitHub**
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
 
 - Enter the repository **name** and **subpath** directly
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-github-repo.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-github-repo.png)
 
 - Or the **URL**
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-github-url.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-github-url.png)
 
 - Add the **Path** that you want to link it to within the project (what you want to name your source)
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-path-field.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-path-field.png)
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-create-button.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-create-button.png)
 
 Your Github repository is automatically **pulled** into your project and stores in your project's working directory.
 

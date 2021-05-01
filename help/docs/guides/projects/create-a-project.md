@@ -10,19 +10,19 @@ Once you're [set up](guides/accounts/getting-started.md) as a Stencila account u
 
 Navigate to **projects** on the top header bar.
 
-![](http://stencila.github.io/hub/manager/snaps/project-new-button.png)
+![](https://stencila.github.io/hub/manager/snaps/project-new-button.png)
 
 Choose the account which the project will be owned by.
 
-![](http://stencila.github.io/hub/manager/snaps/project-new-account-field.png)
+![](https://stencila.github.io/hub/manager/snaps/project-new-account-field.png)
 
 Create a **project name**. All lower case and unique for your account. Note it will be used in the URLs. e.g. https://hub.stenci.la/awesome-org/great-project
 
-![](http://stencila.github.io/hub/manager/snaps/project-new-name-field.png)
+![](https://stencila.github.io/hub/manager/snaps/project-new-name-field.png)
 
 Your project will automatically be **public** which means any Stencila users can view it. Click if you want your project to be **private**.
 
-![](http://stencila.github.io/hub/manager/snaps/project-sharing-public.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sharing-public.png)
 
 As the creator of the project you automatically become the project **owner**. This gives you full authority to make changes or delete the project.
 

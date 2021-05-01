@@ -8,10 +8,7 @@ const FeatureList = [
     link: '/docs/tutorials',
     Svg: require('../../static/img/illustrations/tutorials.svg').default,
     description: (
-      <>
-        Sed ut perspiciatis, unde omnis iste natus error sit voluptatem
-        accusantium doloremque laudantium.
-      </>
+      <>First steps for learning what Stencila does and how to use it.</>
     ),
   },
   {
@@ -20,10 +17,8 @@ const FeatureList = [
     link: '/docs/guides',
     description: (
       <>
-        Sed ut perspiciatis, unde omnis iste natus error sit voluptatem
-        accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab
-        illo inventore veritatis et quasi architecto beatae vitae dicta sunt,
-        explicabo.
+        Step-by-step guides to help you achieve a specific goal. Start here when
+        you're trying to get a specific task done.
       </>
     ),
   },
@@ -33,8 +28,8 @@ const FeatureList = [
     link: '/docs/demos',
     description: (
       <>
-        Sed ut perspiciatis, unde omnis iste natus error sit voluptatem
-        accusantium doloremque laudantium, totam.
+        Demonstrations of functionality and user experience. Start here is you
+        want to get a taste of the capabilities of Stencila.
       </>
     ),
   },
@@ -44,9 +39,8 @@ const FeatureList = [
     link: '/docs/reference',
     description: (
       <>
-        Sed ut perspiciatis, unde omnis iste natus error sit voluptatem
-        accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab
-        illo inventore.
+        Technical descriptions and references. Most useful when you need
+        detailed information about how Stencila works.
       </>
     ),
   },

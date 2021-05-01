@@ -17,15 +17,15 @@ To add a Google Doc as a project source:
 
 - Go to the project **Sources** page
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
 
 - Press the **New** button and select **Google Doc**
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
 
 - Enter the **Doc id** by copy and pasting the document URL or link. Add the **Path** that you want to link it to within the project (what you want to name your source)
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-googledocs.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-googledocs.png)
 
 Your Google Doc source is automatically **pulled** into your project and stores in your project's working directory.
 

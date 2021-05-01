@@ -17,15 +17,15 @@ To add an PLOS article as a project source:
 
 - Go to the project **Sources** page
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-menu-item.png)
 
 - Press the **New** button and select **From journal** > **PLOS**
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-button.png)
 
 - Enter the number of the PLOS article (The article's DOI e.g. 10.1371/journal.pcbi.1007676) and the path that you want to link it to within the project (What you want to name your source).
 
-![](http://stencila.github.io/hub/manager/snaps/project-sources-new-plos.png)
+![](https://stencila.github.io/hub/manager/snaps/project-sources-new-plos.png)
 
 ## Pulling
 

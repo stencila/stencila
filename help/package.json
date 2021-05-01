@@ -15,23 +15,21 @@
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-alpha.73",
+    "@docusaurus/plugin-client-redirects": "2.0.0-alpha.73",
     "@docusaurus/preset-classic": "2.0.0-alpha.73",
     "@mdx-js/react": "^1.6.21",
     "@stencila/encoda": "^0.116.0",
+    "asciinema-player": "^2.6.1",
     "clsx": "^1.1.1",
+    "create-react-class": "^15.7.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   },
   "browserslist": {
-    "production": [
-      ">0.5%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
+    "browserslist": [
+      "defaults",
+      "not IE 11",
+      "not IE_Mob 11"
     ]
   }
 }

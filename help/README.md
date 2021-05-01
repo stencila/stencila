@@ -39,11 +39,10 @@ make reference
 
 ### Demos
 
-To generate the animated GIFs for the demos in [docs/demos/cli](docs/demos/cli) you need the following prerequisites installed:
+To generate the demos in [docs/demos/cli](docs/demos/cli) you need the following prerequisites installed:
 
 - [Asciinema](https://asciinema.org/docs/installation)
 - [`pv` Pipe Viewer](http://www.ivarch.com/programs/pv.shtml)
-- [Docker](https://www.docker.com/get-started)
 
 Then run,
 
