@@ -36,10 +36,10 @@ export default class Asciinema extends React.Component {
 Asciinema.defaultProps = {
   theme: 'asciinema',
   idleTimeLimit: 2,
-  // These defaults are based on experimenting with what worked best
+  // These defaults are based on experimenting with what worked best.
   // Override the rows and cols if the cast was recording was made in
-  // terminal window with different dimensions.
-  fontSize: '14px',
-  cols: 90,
-  rows: 30,
+  // terminal window with different dimensions. 80x24 is the usual default.
+  cols: 80,
+  rows: 24,
+  fontSize: '13px',
 }

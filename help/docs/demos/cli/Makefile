@@ -25,7 +25,6 @@ all: $(patsubst %.md,%.cast,$(wildcard *.md))
 # Record an asciinema cast
 # Set the terminal window dimensions to those used in playback
 %.cast: %.sh
-	stty cols 90 rows 30
 	asciinema rec -c "./$*.sh -n" --overwrite $*.cast
 .PRECIOUS: %.cast
 
