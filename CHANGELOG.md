@@ -1,3 +1,10 @@
+# [0.57.0](https://github.com/stencila/stencila/compare/v0.56.2...v0.57.0) (2021-05-01)
+
+
+### Features
+
+* **Docs:** Add Asciicasts player component ([d95db64](https://github.com/stencila/stencila/commit/d95db6434bc5014595dcafa94a3637384c39f9ee))
+
 ## [0.56.2](https://github.com/stencila/stencila/compare/v0.56.1...v0.56.2) (2021-04-30)
 
 
