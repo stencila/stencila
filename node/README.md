@@ -16,9 +16,7 @@ npm install stencila
 import * as stencila from 'stencila'
 ```
 
-See the in-code doc comment and the tests for more examples of usage.
-
-See the Neon docs for advice on using in [Electron apps](https://neon-bindings.com/docs/electron-apps).
+See the in-code doc comment and the tests for more examples of usage. See the Neon docs for advice on using in [Electron apps](https://neon-bindings.com/docs/electron-apps).
 
 ## 🛠️ Develop
 
