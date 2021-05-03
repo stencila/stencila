@@ -1,3 +1,5 @@
+all: clean demos reference build
+
 # Start the development server
 run:
 	npm start

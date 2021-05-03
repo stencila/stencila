@@ -30,10 +30,10 @@ module.exports = {
         { to: 'docs/reference', label: 'Reference', position: 'right' },
       ],
     },
-    // algolia: {
-    //   apiKey: 'YOUR_API_KEY',
-    //   indexName: 'YOUR_INDEX_NAME',
-    // },
+    algolia: {
+      apiKey: '8f59224393d852be19f51abd67a9fbbb',
+      indexName: 'stenci',
+    },
     colorMode: {
       defaultMode: 'light',
       // Respect user's system preferences for `prefers-color-scheme` media-query
