@@ -60,7 +60,13 @@
   },
   "renovate": {
     "extends": [
-      "@stencila"
+      "config:base"
+    ],
+    "dependencyDashboard": true,
+    "dependencyDashboardTitle": "Update dependencies",
+    "timezone": "UTC",
+    "schedule": [
+      "before 5pm on Sunday"
     ],
     "packageRules": [
       {
@@ -85,6 +91,21 @@
           "patch",
           "pin"
         ],
+        "automerge": true
+      },
+      {
+        "groupName": "Help dependencies",
+        "groupSlug": "help-deps",
+        "matchPaths": [
+          "+(./help/package.json)"
+        ],
+        "matchDepTypes": [
+          "dependencies"
+        ],
+        "rangeStrategy": "pin",
+        "semanticCommitType": "chore",
+        "semanticCommitScope": "Help",
+        "commitMessageTopic": "update dependencies",
         "automerge": true
       }
     ]
