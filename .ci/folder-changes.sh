@@ -22,15 +22,16 @@ MASTER=$(git rev-parse origin/master)
 if [[ $HEAD == $MASTER ]]; then
     DOTS=".."
     BASE=$(git describe --tags --abbrev=0)
+    echo "On master ($MASTER), comparing to tag $BASE using '$DOTS'"
 else
     DOTS="..."
     BASE=$MASTER
+    echo "On branch ($HEAD), comparing to master ($BASE) using '$DOTS'"
 fi
-echo "Comparing against: $BASE"
 
 CHANGED=""
 for FOLDER in cli desktop docker help node rust; do
-    git diff --quiet HEAD$DOTS$BASE -- $FOLDER
+    git diff --quiet $BASE$DOTS$HEAD -- $FOLDER
     if [ $? -eq 1 ]; then
         CHANGED="$CHANGED$FOLDER,"
     fi
