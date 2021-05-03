@@ -1,4 +1,4 @@
-import { subscribe, unsubscribe, publish } from './subscriptions'
+import { subscribe, unsubscribe, publish } from './pubsub'
 
 describe('subscriptions', () => {
   test('subscribe, publish, unsubscribe', async () => {

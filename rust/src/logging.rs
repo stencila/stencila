@@ -132,11 +132,14 @@ struct PubSubLayer {
 }
 
 impl<S: tracing::subscriber::Subscriber> tracing_subscriber::layer::Layer<S> for PubSubLayer {
-    fn on_event(&self, event: &Event<'_>, _ctx: tracing_subscriber::layer::Context<'_, S>) {
+    fn on_event(&self, event: &Event<'_>, _ctx: tracing_subscriber::layer::Context<'_, S>) {    
         use tracing_serde::AsSerde;
-        if *event.metadata().level() >= self.level.as_tracing_level() {
+        if *event.metadata().level() <= self.level.as_tracing_level() {
             let value = serde_json::json!(event.as_serde());
-            publish("logging", &value)
+            if publish("logging", value).is_err() {
+                // Ignore any error in publishing logging event
+                // Doing otherwise (e.g. logging another event) could be very circular
+            }
         }
     }
 }
@@ -247,6 +250,7 @@ pub fn init(
 /// to subscribers as expected.
 #[tracing::instrument]
 pub fn test_events() {
+    tracing::trace!("A trace event");
     tracing::debug!("A debug event");
     tracing::info!("An info event");
     tracing::warn!("A warn event");

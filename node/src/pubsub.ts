@@ -2,6 +2,9 @@ import { fromJSON, toJSON } from './prelude'
 
 const addon = require('../index.node')
 
+// Initialize this module
+addon.pubsubInit()
+
 /**
  * Subscribe to a topic
  *
@@ -11,7 +14,7 @@ export function subscribe(
   topic: string,
   callback: (topic: string, data: unknown) => unknown
 ): void {
-  return addon.subscribe(topic, (topic: string, json: string) =>
+  return addon.pubsubSubscribe(topic, (topic: string, json: string) =>
     callback(topic, fromJSON(json))
   )
 }
@@ -22,7 +25,7 @@ export function subscribe(
  * @param topic The topic to unsubscribe from
  */
 export function unsubscribe(topic: string): void {
-  return addon.unsubscribe(topic)
+  return addon.pubsubUnsubscribe(topic)
 }
 
 /**
@@ -34,5 +37,5 @@ export function unsubscribe(topic: string): void {
  * @param topic The topic to publish data for
  */
 export function publish(topic: string, data: unknown): void {
-  return addon.publish(topic, toJSON(data))
+  return addon.pubsubPublish(topic, toJSON(data))
 }

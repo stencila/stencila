@@ -41,7 +41,7 @@ describe('config', () => {
       validate({ logging: { file: { level: 'foo' } } })
     } catch (error) {
       expect(error.toString()).toMatch(
-        'unknown variant `foo`, expected one of `debug`, `info`, `warn`, `error`, `never` at line 1 column 33'
+        'unknown variant `foo`, expected one of `trace`, `debug`, `info`, `warn`, `error`, `never` at line 1 column 33'
       )
     }
   })

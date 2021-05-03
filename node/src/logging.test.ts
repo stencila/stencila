@@ -1,9 +1,27 @@
 import { init, test as testEvents } from './logging'
-import { subscribe } from './subscriptions'
+import { subscribe } from './pubsub'
 
 test('logging', async () => {
   // Initialize logging so it publishes events on the `logging` topic
-  init()
+  // down to debug level
+  init(
+    // @ts-expect-error because not supplying entire object
+    {
+      logging: {
+        desktop: {
+          level: 'debug',
+        },
+        stderr: {
+          level: 'debug',
+          format: 'pretty',
+        },
+        file: {
+          level: 'debug',
+          path: 'foo',
+        },
+      },
+    }
+  )
 
   // Subscribe to topic, storing any events
   let events: unknown[] = []

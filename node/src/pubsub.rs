@@ -5,15 +5,20 @@ use std::{
 };
 use stencila::{
     once_cell::sync::{Lazy, OnceCell},
-    serde_json,
+    pubsub, serde_json,
 };
 
 use crate::prelude::from_json;
 
-static QUEUE: OnceCell<EventQueue> = OnceCell::new();
-
+/// JavaScript subscribers
+///
+/// As in Rust, a subscriber is a function that is subscribed to a topic.
+/// This hash map stores that mapping
 static SUBSCRIPTIONS: Lazy<Mutex<HashMap<String, Root<JsFunction>>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
+
+/// The Neon event queue to which published events will be sent
+static QUEUE: OnceCell<EventQueue> = OnceCell::new();
 
 /// Obtain the subscriptions store
 pub fn obtain(
@@ -59,16 +64,17 @@ pub fn publish(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let topic = cx.argument::<JsString>(0)?.value(&mut cx);
     let json = cx.argument::<JsString>(1)?.value(&mut cx);
 
-    publish_topic_data(topic, from_json::<serde_json::Value>(&mut cx, &json)?);
+    bridging_subscriber(topic, from_json::<serde_json::Value>(&mut cx, &json)?);
 
     Ok(cx.undefined())
 }
 
-/// Publish data for a topic
+/// A subscriber that acts as a bridge between Rust events and Javascript events
+/// (i.e. takes a Rust event and turns it into a Javascript one)
 ///
-/// This function is intended to be called by Rust to send data to
-/// Node.js subscribers.
-pub fn publish_topic_data(topic: String, data: serde_json::Value) {
+/// This function is called by Rust for ALL topics and sends data to
+/// Node.js subscribers that have subscribed to the particular topic.
+pub fn bridging_subscriber(topic: String, data: serde_json::Value) {
     // If the queue is not sent then it means that there are
     // no subscribers and so no need to do anything
     if let Some(queue) = QUEUE.get() {
@@ -87,4 +93,16 @@ pub fn publish_topic_data(topic: String, data: serde_json::Value) {
             Ok(())
         });
     }
+}
+
+/// Initialize the pubsub module by registering the `bridging_subscriber`
+/// as a subscriber to all topics.
+pub fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    if let Err(error) = pubsub::subscribe("*", bridging_subscriber) {
+        return cx.throw_error(format!(
+            "While attempting to initialize pubsub: {}",
+            error.to_string()
+        ));
+    }
+    Ok(cx.undefined())
 }
