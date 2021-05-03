@@ -113,6 +113,7 @@ pub fn init(
     config: &config::LoggingConfig,
 ) -> Result<[tracing_appender::non_blocking::WorkerGuard; 2]> {
     use tracing_error::ErrorLayer;
+    use tracing_subscriber::prelude::*;
     use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 
     let config::LoggingConfig { stderr, file, .. } = config;
@@ -125,10 +126,7 @@ pub fn init(
     } else {
         tracing_appender::non_blocking(std::io::sink())
     };
-    let stderr_layer = fmt::Layer::new()
-        .pretty()
-        .without_time()
-        .with_writer(stderr_writer);
+    let stderr_layer = fmt::Layer::new().with_writer(stderr_writer);
 
     // File logging layer
     let (file_writer, file_guard) = if file.level != LoggingLevel::Never {
@@ -144,13 +142,23 @@ pub fn init(
     // Error reporting layer, necessary for using `eyre` crate
     let error_layer = ErrorLayer::default();
 
-    let subscriber = tracing_subscriber::registry()
+    let registry = tracing_subscriber::registry()
         .with(EnvFilter::new(level.to_string()))
-        .with(stderr_layer)
         .with(file_layer)
         .with(error_layer);
 
-    tracing::subscriber::set_global_default(subscriber)?;
+    if level == LoggingLevel::Debug {
+        let stderr = stderr_layer.pretty();
+        registry.with(stderr).init();
+    } else {
+        let stderr = stderr_layer
+            .without_time()
+            .with_thread_names(false)
+            .with_thread_ids(false)
+            .with_target(false)
+            .compact();
+        registry.with(stderr).init();
+    }
 
     Ok([stderr_guard, file_guard])
 }
