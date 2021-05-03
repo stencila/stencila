@@ -23,20 +23,24 @@ pub struct Args {
     #[structopt(subcommand)]
     pub command: Option<Command>,
 
+    /// Show trace level log events (and above)
+    #[structopt(long, global = true, conflicts_with_all = &["debug", "info", "warn", "error"])]
+    pub trace: bool,
+
     /// Show debug level log events (and above)
-    #[structopt(long, global = true, conflicts_with_all = &["info", "warn", "error"])]
+    #[structopt(long, global = true, conflicts_with_all = &["trace", "info", "warn", "error"])]
     pub debug: bool,
 
     /// Show info level log events (and above; default)
-    #[structopt(long, global = true, conflicts_with_all = &["debug", "warn", "error"])]
+    #[structopt(long, global = true, conflicts_with_all = &["trace", "debug", "warn", "error"])]
     pub info: bool,
 
     /// Show warning level log events (and above)
-    #[structopt(long, global = true, conflicts_with_all = &["debug", "info", "error"])]
+    #[structopt(long, global = true, conflicts_with_all = &["trace", "debug", "info", "error"])]
     pub warn: bool,
 
     /// Show error level log entries only
-    #[structopt(long, global = true, conflicts_with_all = &["debug", "info", "warn"])]
+    #[structopt(long, global = true, conflicts_with_all = &["trace", "debug", "info", "warn"])]
     pub error: bool,
 
     /// Enter interactive mode (with any command and options as the prefix)
@@ -129,6 +133,7 @@ pub async fn main() -> Result<()> {
     let parsed_args = Args::from_iter_safe(args.clone());
     let Args {
         command,
+        trace,
         debug,
         info,
         warn,
@@ -142,6 +147,7 @@ pub async fn main() -> Result<()> {
                 // pass an incomplete command prefix to interactive mode
                 Args {
                     command: None,
+                    trace: args.contains(&"--trace".to_string()),
                     debug: args.contains(&"--debug".to_string()),
                     info: args.contains(&"--info".to_string()),
                     warn: args.contains(&"--warn".to_string()),
@@ -157,7 +163,9 @@ pub async fn main() -> Result<()> {
     };
 
     // Determine the log level to use on stderr
-    let level = if debug {
+    let level = if trace {
+        logging::LoggingLevel::Trace
+    } else if debug {
         logging::LoggingLevel::Debug
     } else if info {
         logging::LoggingLevel::Info
@@ -178,7 +186,7 @@ pub async fn main() -> Result<()> {
     // To ensure all log events get written to file, take guards here, so that
     // non blocking writers do not get dropped until the end of this function.
     // See https://tracing.rs/tracing_appender/non_blocking/struct.workerguard
-    let _logging_guards = logging::init(Some(level), &config.logging)?;
+    let _logging_guards = logging::init(Some(level), true, false, true, &config.logging)?;
 
     // Setup `color_eyre` crate for better error reporting with span and back traces
     if std::env::var("RUST_SPANTRACE").is_err() {

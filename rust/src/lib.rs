@@ -59,6 +59,7 @@ pub mod util {
 }
 pub mod logging;
 pub mod nodes;
+pub mod pubsub;
 
 // Re-export packages (mainly for use by stencila-* language packages in this workspace)
 

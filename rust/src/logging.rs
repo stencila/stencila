@@ -1,20 +1,38 @@
+use crate::pubsub::publish;
 use defaults::Defaults;
 use eyre::Result;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use strum::ToString;
+use tracing::Event;
 use validator::Validate;
 
 /// # Logging level
-#[derive(Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, ToString)]
+#[derive(
+    Debug, PartialEq, PartialOrd, Clone, Copy, JsonSchema, Deserialize, Serialize, ToString,
+)]
 #[serde(rename_all = "lowercase")]
 pub enum LoggingLevel {
-    Debug,
-    Info,
-    Warn,
-    Error,
-    Never,
+    Trace = 0,
+    Debug = 1,
+    Info = 2,
+    Warn = 3,
+    Error = 4,
+    Never = 9,
+}
+
+impl LoggingLevel {
+    pub fn as_tracing_level(&self) -> tracing::Level {
+        match self {
+            Self::Trace => tracing::Level::TRACE,
+            Self::Debug => tracing::Level::DEBUG,
+            Self::Info => tracing::Level::INFO,
+            Self::Warn => tracing::Level::WARN,
+            Self::Error => tracing::Level::ERROR,
+            Self::Never => tracing::Level::ERROR,
+        }
+    }
 }
 
 /// # Logging format
@@ -69,7 +87,7 @@ pub mod config {
         pub path: String,
 
         /// The maximum log level to emit
-        #[def = "LoggingLevel::Debug"]
+        #[def = "LoggingLevel::Info"]
         pub level: LoggingLevel,
     }
 
@@ -107,30 +125,76 @@ pub fn prelim() -> tracing::subscriber::DefaultGuard {
     tracing::subscriber::set_default(subscriber)
 }
 
-/// Initialize a logging subscriber based on passed args and read config.
+/// Custom tracing_subscriber layer that publishes events
+/// under the pubsub "logging" topic as a JSON value.
+struct PubSubLayer {
+    level: LoggingLevel,
+}
+
+impl<S: tracing::subscriber::Subscriber> tracing_subscriber::layer::Layer<S> for PubSubLayer {
+    fn on_event(&self, event: &Event<'_>, _ctx: tracing_subscriber::layer::Context<'_, S>) {
+        use tracing_serde::AsSerde;
+        if *event.metadata().level() >= self.level.as_tracing_level() {
+            let value = serde_json::json!(event.as_serde());
+            publish("logging", &value)
+        }
+    }
+}
+
+/// Initialize logging
+///
+/// This initializes a logging subscriber based on configuration and
+/// context (e.g. stderr should not be written to if the context
+/// is the desktop application).
+///
+/// # Arguments
+///
+/// - `level`: the override stderr logging level for example set by the `--debug` flag
+/// - `stderr`: should stderr logging be enabled
+/// - `pubsub`: should pubsub logging be enabled (for desktop notifications)
+/// - `file`: should file logging be enabled
 pub fn init(
     level: Option<LoggingLevel>,
+    stderr: bool,
+    pubsub: bool,
+    file: bool,
     config: &config::LoggingConfig,
 ) -> Result<[tracing_appender::non_blocking::WorkerGuard; 2]> {
     use tracing_error::ErrorLayer;
     use tracing_subscriber::prelude::*;
     use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 
-    let config::LoggingConfig { stderr, file, .. } = config;
-
-    let level = level.unwrap_or(stderr.level);
-
     // Stderr logging layer
-    let (stderr_writer, stderr_guard) = if level != LoggingLevel::Never {
+    let stderr_level = if level.is_some() || stderr {
+        level.unwrap_or(config.stderr.level)
+    } else {
+        LoggingLevel::Never
+    };
+    let (stderr_writer, stderr_guard) = if stderr_level != LoggingLevel::Never {
         tracing_appender::non_blocking(std::io::stderr())
     } else {
         tracing_appender::non_blocking(std::io::sink())
     };
     let stderr_layer = fmt::Layer::new().with_writer(stderr_writer);
 
+    // Pubsub logging layer (used for desktop notifications)
+    let pubsub_level = if pubsub {
+        config.desktop.level
+    } else {
+        LoggingLevel::Never
+    };
+    let pubsub_layer = PubSubLayer {
+        level: pubsub_level,
+    };
+
     // File logging layer
-    let (file_writer, file_guard) = if file.level != LoggingLevel::Never {
-        let path = Path::new(&file.path);
+    let file_level = if file {
+        config.file.level
+    } else {
+        LoggingLevel::Never
+    };
+    let (file_writer, file_guard) = if file_level != LoggingLevel::Never {
+        let path = Path::new(&config.file.path);
         let file_appender =
             tracing_appender::rolling::daily(&path.parent().unwrap(), &path.file_name().unwrap());
         tracing_appender::non_blocking(file_appender)
@@ -139,15 +203,29 @@ pub fn init(
     };
     let file_layer = fmt::Layer::new().json().with_writer(file_writer);
 
-    // Error reporting layer, necessary for using `eyre` crate
+    // Error reporting layer (necessary for using `eyre` crate)
     let error_layer = ErrorLayer::default();
 
+    // tracing_subscriber does not currently allow for different layers to have different
+    // so work out the minimal debug level and filter by that in the root subscriber.
+    let mut min_level = LoggingLevel::Never;
+    if stderr_level < min_level {
+        min_level = stderr_level
+    }
+    if pubsub_level < min_level {
+        min_level = pubsub_level
+    }
+    if file_level < min_level {
+        min_level = file_level
+    }
+
     let registry = tracing_subscriber::registry()
-        .with(EnvFilter::new(level.to_string()))
+        .with(EnvFilter::new(min_level.to_string()))
+        .with(pubsub_layer)
         .with(file_layer)
         .with(error_layer);
 
-    if level == LoggingLevel::Debug {
+    if stderr_level == LoggingLevel::Debug {
         let stderr = stderr_layer.pretty();
         registry.with(stderr).init();
     } else {
@@ -163,46 +241,10 @@ pub fn init(
     Ok([stderr_guard, file_guard])
 }
 
-/// A tracing subscriber which passes on events to a pubsub function
-struct PublishSubscriber {
-    publish: fn(topic: String, data: serde_json::Value) -> (),
-}
-
-use tracing::{
-    span::{Attributes, Id, Record},
-    Event, Metadata,
-};
-impl tracing::Subscriber for PublishSubscriber {
-    /// Convert the even to a JSON object and send to
-    /// the function
-    fn event(&self, event: &Event) {
-        use tracing_serde::AsSerde;
-        let data = serde_json::json!(event.as_serde());
-        (self.publish)("logging".to_string(), data);
-    }
-
-    // Methods that must be implemented fo a Subscriber
-    fn enabled(&self, _: &Metadata) -> bool {
-        true
-    }
-    fn new_span(&self, _: &Attributes) -> Id {
-        Id::from_u64(1)
-    }
-    fn record(&self, _: &Id, _: &Record) {}
-    fn record_follows_from(&self, _: &Id, _: &Id) {}
-    fn enter(&self, _: &Id) {}
-    fn exit(&self, _: &Id) {}
-}
-
-/// Initialize function to publish log events
-pub fn init_publish(publish: fn(topic: String, data: serde_json::Value) -> ()) -> Result<()> {
-    let subscriber = PublishSubscriber { publish };
-    tracing::subscriber::set_global_default(subscriber)?;
-    Ok(())
-}
-
-/// Generate some tracing events that can be used for testing
-/// that they are propograted to subscribers
+/// Generate some test tracing events.
+///
+/// Can be used for testing that events are propagated
+/// to subscribers as expected.
 #[tracing::instrument]
 pub fn test_events() {
     tracing::debug!("A debug event");
