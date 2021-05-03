@@ -1,3 +1,11 @@
+## [0.57.1](https://github.com/stencila/stencila/compare/v0.57.0...v0.57.1) (2021-05-03)
+
+
+### Bug Fixes
+
+* **CLI:** Make log output more compact ([49b5589](https://github.com/stencila/stencila/commit/49b55892a76c31ba337fe2645b567a03324e7d09)), closes [#892](https://github.com/stencila/stencila/issues/892)
+* **Rust:** Update dependencies ([fdb032e](https://github.com/stencila/stencila/commit/fdb032e4c476213b070feff0a5e89faa75d19237))
+
 # [0.57.0](https://github.com/stencila/stencila/compare/v0.56.2...v0.57.0) (2021-05-01)
 
 
