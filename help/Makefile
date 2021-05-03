@@ -18,3 +18,9 @@ build:
 # Publish site to GitHub pages
 deploy:
 	npm run deploy
+
+# Remove cached / fetched files
+clean:
+	npm run clear
+	make -C docs/demos/cli clean
+	make -C docs/reference/schema clean
