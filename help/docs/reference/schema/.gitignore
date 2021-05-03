@@ -4,4 +4,3 @@
 # Except for...
 !/Makefile
 !/.gitignore
-!/*.md
