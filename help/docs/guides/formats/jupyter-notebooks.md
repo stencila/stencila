@@ -46,12 +46,12 @@ As with static figures and tables, Stencila also supports more structured labels
 
 To add a label and/or caption to a code cell in a Jupyter Notebook you need to add it to the cell's metadata. To do that, within the notebook interface's menu select **View > Cell Toolbar > Edit Metadata**:
 
-![](https://github.com/stencila/stencila/raw/master/help/formats/jupyter-cell-toolbar-edit-metadata.png)
+![](jupyter-cell-toolbar-edit-metadata.png)
 
 This should result in the **Edit Metadata** button showing in the top-right corner of each code cell:
 
-![](https://github.com/stencila/stencila/raw/master/help/formats/jupyter-cell-edit-metadata-button.png)
+![](jupyter-cell-edit-metadata-button.png)
 
 You can then add `id` (so that you can link to the figure from elsewhere in the document), `label` and `caption` properties of the code cell. The `caption` property can be Markdown in which case, Stencila will parse into a structured caption. For example, Figure 2 of [this executable article](https://elife.stencila.io/article-57067/#fig2):
 
-![](https://github.com/stencila/stencila/raw/master/help/formats/jupyter-cell-edit-metadata-dialog.png)
+![](jupyter-cell-edit-metadata-dialog.png)
