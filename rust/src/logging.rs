@@ -55,6 +55,7 @@ pub mod config {
     #[derive(
         Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
     )]
+    #[serde(default)]
     pub struct LoggingStdErrConfig {
         /// The maximum log level to emit
         #[def = "LoggingLevel::Info"]
@@ -71,6 +72,7 @@ pub mod config {
     #[derive(
         Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
     )]
+    #[serde(default)]
     pub struct LoggingDesktopConfig {
         /// The maximum log level to emit
         #[def = "LoggingLevel::Info"]
@@ -81,6 +83,7 @@ pub mod config {
     ///
     /// Configuration settings for logs entries written to file
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[serde(default)]
     pub struct LoggingFileConfig {
         /// The path of the log file
         #[def = "default_file_path()"]
@@ -105,6 +108,7 @@ pub mod config {
     ///
     /// Configuration settings for logging
     #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
+    #[serde(default)]
     pub struct LoggingConfig {
         pub stderr: LoggingStdErrConfig,
         pub desktop: LoggingDesktopConfig,

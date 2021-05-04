@@ -15,29 +15,29 @@ type LoggingLevel = 'debug' | 'info' | 'warn' | 'error' | 'never'
 
 type LoggingFormat = 'plain' | 'pretty' | 'json'
 export interface Config {
-  logging: {
-    stderr: {
-      level: LoggingLevel
-      format: LoggingFormat
+  logging?: {
+    stderr?: {
+      level?: LoggingLevel
+      format?: LoggingFormat
     }
-    desktop: {
-      level: LoggingLevel
+    desktop?: {
+      level?: LoggingLevel
     }
-    file: {
-      path: string
-      level: LoggingLevel
+    file?: {
+      path?: string
+      level?: LoggingLevel
     }
   }
-  serve: {
+  serve?: {
     url: string
     key?: string
     insecure: boolean
   }
-  plugins: {
+  plugins?: {
     installations: Array<PluginInstallation>
     aliases: Record<string, string>
   }
-  upgrade: {
+  upgrade?: {
     plugins: boolean
     confirm: boolean
     verbose: boolean
