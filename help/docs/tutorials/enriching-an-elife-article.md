@@ -68,7 +68,7 @@ one of several formats so that you can replace the static tables and figures wit
 Now that you have a link to the published version of your article, you can decide which format you will use to transform
 it into a reproducible article. See the available formats by clicking the **Actions** menu, represented by the vertical ellipsis "...".
 
-![](https://github.com/stencila/stencila/blob/master/help/docs/guides/formats/elife_tutorial_action.png)
+![](elife-tutorial-action.png)
 
 There are two primary pathways for enriching an article:
 
@@ -86,13 +86,13 @@ Click on your desired format to begin the conversion process.
 Don’t worry if the **Save** button spins for some time after you press it. When the conversion is complete, you’ll have
 a new entry in the project’s list of files:
 
-![](https://github.com/stencila/stencila/blob/master/help/docs/guides/formats/elife_tutorial_converted.png)
+![](elife-tutorial-converted.png)
 
 ## Create an editable manuscript to publish
 
 If you use editable formats such as R Studio or Jupyter Notebooks and you've successsfully converted the article into your chosen format, your next step is to [download the file to your computer](guides/projects/publish-a-project.md):
 
-![](https://github.com/stencila/stencila/blob/master/help/docs/guides/formats/elife_tutorial_download1.png)
+![](elife-tutorial-download.png)
 
 The next step is to find the static figures in the article and replace them with Code Chunks. This will make your manuscript executable.
 
