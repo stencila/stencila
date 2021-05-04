@@ -53,8 +53,8 @@ impl From<&tracing::Level> for LoggingLevel {
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 pub enum LoggingFormat {
-    Plain,
-    Pretty,
+    Simple,
+    Detail,
     Json,
 }
 
@@ -76,7 +76,7 @@ pub mod config {
         pub level: LoggingLevel,
 
         /// The format for the logs entries
-        #[def = "LoggingFormat::Plain"]
+        #[def = "LoggingFormat::Simple"]
         pub format: LoggingFormat,
     }
 
@@ -288,7 +288,7 @@ pub fn init(
         .with(file_layer)
         .with(error_layer);
 
-    if config.stderr.format == LoggingFormat::Pretty {
+    if config.stderr.format == LoggingFormat::Detail {
         registry.with(fmt::Layer::new().pretty()).init();
     } else if config.stderr.format == LoggingFormat::Json {
         registry.with(fmt::Layer::new().json()).init();

@@ -13,7 +13,7 @@ const addon = require('../index.node')
 
 type LoggingLevel = 'debug' | 'info' | 'warn' | 'error' | 'never'
 
-type LoggingFormat = 'plain' | 'pretty' | 'json'
+type LoggingFormat = 'simple' | 'detail' | 'json'
 export interface Config {
   logging?: {
     stderr?: {
