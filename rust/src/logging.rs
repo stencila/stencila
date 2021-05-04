@@ -4,15 +4,26 @@ use eyre::Result;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
-use strum::ToString;
+use strum::{EnumString, EnumVariantNames, ToString};
 use tracing::Event;
 use validator::Validate;
 
 /// # Logging level
 #[derive(
-    Debug, Clone, Copy, PartialEq, PartialOrd, JsonSchema, Deserialize, Serialize, ToString,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    PartialOrd,
+    JsonSchema,
+    Deserialize,
+    Serialize,
+    EnumString,
+    EnumVariantNames,
+    ToString,
 )]
 #[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
 pub enum LoggingLevel {
     Trace,
     Debug,
@@ -36,8 +47,11 @@ impl From<&tracing::Level> for LoggingLevel {
 }
 
 /// # Logging format
-#[derive(Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize)]
+#[derive(
+    Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, EnumString, EnumVariantNames,
+)]
 #[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
 pub enum LoggingFormat {
     Plain,
     Pretty,
@@ -62,7 +76,7 @@ pub mod config {
         pub level: LoggingLevel,
 
         /// The format for the logs entries
-        #[def = "LoggingFormat::Pretty"]
+        #[def = "LoggingFormat::Plain"]
         pub format: LoggingFormat,
     }
 
@@ -129,6 +143,55 @@ pub fn prelim() -> tracing::subscriber::DefaultGuard {
     tracing::subscriber::set_default(subscriber)
 }
 
+/// Custom tracing_subscriber layer that prints events to stderr filtered
+/// by level for the "plain" format. Other formats are handled by `tracing_subscriber`
+/// formatters (see below).
+struct StderrPlainLayer {
+    level: LoggingLevel,
+}
+
+#[derive(Default)]
+struct StderrVisitor {
+    message: String,
+}
+
+impl tracing::field::Visit for StderrVisitor {
+    fn record_debug(&mut self, field: &tracing::field::Field, value: &dyn std::fmt::Debug) {
+        if field.name() == "message" {
+            self.message = format!("{:?}", value);
+        }
+    }
+}
+
+impl<S: tracing::subscriber::Subscriber> tracing_subscriber::layer::Layer<S> for StderrPlainLayer {
+    fn on_event(&self, event: &Event<'_>, _ctx: tracing_subscriber::layer::Context<'_, S>) {
+        use ansi_term::Color::{Blue, Green, Purple, Red, White, Yellow};
+
+        let level = LoggingLevel::from(event.metadata().level());
+        if level >= self.level {
+            let level_name = level.to_string().to_uppercase();
+            let level_color = match level {
+                LoggingLevel::Trace => Purple,
+                LoggingLevel::Debug => Blue,
+                LoggingLevel::Info => Green,
+                LoggingLevel::Warn => Yellow,
+                LoggingLevel::Error => Red,
+                _ => White,
+            };
+
+            let mut visitor = StderrVisitor::default();
+            event.record(&mut visitor);
+
+            let content = format!(
+                "{:<5} {}",
+                level_color.bold().paint(level_name),
+                visitor.message
+            );
+            eprintln!("{}", content);
+        }
+    }
+}
+
 /// Custom tracing_subscriber layer that publishes events
 /// under the pubsub "logging" topic as a JSON value.
 struct PubSubLayer {
@@ -156,33 +219,26 @@ impl<S: tracing::subscriber::Subscriber> tracing_subscriber::layer::Layer<S> for
 ///
 /// # Arguments
 ///
-/// - `level`: the override stderr logging level for example set by the `--debug` flag
 /// - `stderr`: should stderr logging be enabled
 /// - `pubsub`: should pubsub logging be enabled (for desktop notifications)
 /// - `file`: should file logging be enabled
+/// - `config`: the logging configuration
 pub fn init(
-    level: Option<LoggingLevel>,
     stderr: bool,
     pubsub: bool,
     file: bool,
     config: &config::LoggingConfig,
-) -> Result<[tracing_appender::non_blocking::WorkerGuard; 2]> {
+) -> Result<tracing_appender::non_blocking::WorkerGuard> {
     use tracing_error::ErrorLayer;
     use tracing_subscriber::prelude::*;
     use tracing_subscriber::{fmt, layer::SubscriberExt, EnvFilter};
 
     // Stderr logging layer
-    let stderr_level = if level.is_some() || stderr {
-        level.unwrap_or(config.stderr.level)
+    let stderr_level = if stderr {
+        config.stderr.level
     } else {
         LoggingLevel::Never
     };
-    let (stderr_writer, stderr_guard) = if stderr_level != LoggingLevel::Never {
-        tracing_appender::non_blocking(std::io::stderr())
-    } else {
-        tracing_appender::non_blocking(std::io::sink())
-    };
-    let stderr_layer = fmt::Layer::new().with_writer(stderr_writer);
 
     // Pubsub logging layer (used for desktop notifications)
     let pubsub_level = if pubsub {
@@ -232,20 +288,19 @@ pub fn init(
         .with(file_layer)
         .with(error_layer);
 
-    if stderr_level == LoggingLevel::Debug {
-        let stderr = stderr_layer.pretty();
-        registry.with(stderr).init();
+    if config.stderr.format == LoggingFormat::Pretty {
+        registry.with(fmt::Layer::new().pretty()).init();
+    } else if config.stderr.format == LoggingFormat::Json {
+        registry.with(fmt::Layer::new().json()).init();
     } else {
-        let stderr = stderr_layer
-            .without_time()
-            .with_thread_names(false)
-            .with_thread_ids(false)
-            .with_target(false)
-            .compact();
-        registry.with(stderr).init();
+        registry
+            .with(StderrPlainLayer {
+                level: stderr_level,
+            })
+            .init();
     }
 
-    Ok([stderr_guard, file_guard])
+    Ok(file_guard)
 }
 
 /// Generate some test tracing events.

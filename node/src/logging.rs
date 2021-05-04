@@ -10,7 +10,7 @@ pub fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
         crate::config::obtain(&mut cx)?.clone()
     };
 
-    if let Err(error) = logging::init(None, false, true, true, &conf.logging) {
+    if let Err(error) = logging::init(false, true, true, &conf.logging) {
         return cx.throw_error(format!(
             "When attempting to initialize logging: {}",
             error.to_string()
