@@ -66,14 +66,14 @@ one of several formats so that you can replace the static tables and figures wit
 ## Converting article to another format for editing
 
 Now that you have a link to the published version of your article, you can decide which format you will use to transform
-it into a reproducible article. See the available formats, under the **Actions** menu for the linked article.
+it into a reproducible article. See the available formats by clicking the **Actions** menu, represented by the vertical ellipsis "...".
+
+![](https://github.com/stencila/stencila/blob/master/help/docs/guides/formats/elife_tutorial_action.png)
 
 There are two primary pathways for enriching an article:
 
 1. Save the article as a Google Doc and use the Stencila plugin for Google Docs to replace static tables and figures with reproducible versions
 2. Save the article as a Jupyter Notebook or R Markdown document, [download it](guides/projects/publish-a-project.md), and edit it locally. (See further notes below).
-
-![](https://i.imgur.com/Kq0iDix.png)
 
 Click on your desired format to begin the conversion process.
 **The conversion process can take some time.** In the background, Stencila Encoda needs to do several things:
@@ -86,11 +86,15 @@ Click on your desired format to begin the conversion process.
 Don’t worry if the **Save** button spins for some time after you press it. When the conversion is complete, you’ll have
 a new entry in the project’s list of files:
 
-![](https://i.imgur.com/y8pmshl.png)
+![](https://github.com/stencila/stencila/blob/master/help/docs/guides/formats/elife_tutorial_converted.png)
 
 ## Create an editable manuscript to publish
 
-If you use editable formats such as R Studio or Jupyter Notebooks and you've successsfully converted the article into your chosen format, your next step is to [download the file to your computer](guides/projects/publish-a-project.md), find the static figures in the article and replace them with Code Chunks to create an editable manuscript to publish.
+If you use editable formats such as R Studio or Jupyter Notebooks and you've successsfully converted the article into your chosen format, your next step is to [download the file to your computer](guides/projects/publish-a-project.md):
+
+![](https://github.com/stencila/stencila/blob/master/help/docs/guides/formats/elife_tutorial_download1.png)
+
+The next step is to find the static figures in the article and replace them with Code Chunks. This will make your manuscript executable.
 
 Please refer to the help documentation of [R Studio](https://bookdown.org/yihui/rmarkdown/r-code.html), [Jupyter
 Notebooks](https://jupyter-notebook.readthedocs.io/en/stable/notebook.html), or your editor for specific instructions.
