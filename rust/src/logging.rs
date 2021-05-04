@@ -10,27 +10,27 @@ use validator::Validate;
 
 /// # Logging level
 #[derive(
-    Debug, PartialEq, PartialOrd, Clone, Copy, JsonSchema, Deserialize, Serialize, ToString,
+    Debug, Clone, Copy, PartialEq, PartialOrd, JsonSchema, Deserialize, Serialize, ToString,
 )]
 #[serde(rename_all = "lowercase")]
 pub enum LoggingLevel {
-    Trace = 0,
-    Debug = 1,
-    Info = 2,
-    Warn = 3,
-    Error = 4,
-    Never = 9,
+    Trace,
+    Debug,
+    Info,
+    Warn,
+    Error,
+    Never,
 }
 
-impl LoggingLevel {
-    pub fn as_tracing_level(&self) -> tracing::Level {
-        match self {
-            Self::Trace => tracing::Level::TRACE,
-            Self::Debug => tracing::Level::DEBUG,
-            Self::Info => tracing::Level::INFO,
-            Self::Warn => tracing::Level::WARN,
-            Self::Error => tracing::Level::ERROR,
-            Self::Never => tracing::Level::ERROR,
+/// Create a `LoggingLevel` from a `tracing::Level`
+impl From<&tracing::Level> for LoggingLevel {
+    fn from(level: &tracing::Level) -> Self {
+        match *level {
+            tracing::Level::TRACE => Self::Trace,
+            tracing::Level::DEBUG => Self::Debug,
+            tracing::Level::INFO => Self::Info,
+            tracing::Level::WARN => Self::Warn,
+            tracing::Level::ERROR => Self::Error,
         }
     }
 }
@@ -132,9 +132,9 @@ struct PubSubLayer {
 }
 
 impl<S: tracing::subscriber::Subscriber> tracing_subscriber::layer::Layer<S> for PubSubLayer {
-    fn on_event(&self, event: &Event<'_>, _ctx: tracing_subscriber::layer::Context<'_, S>) {    
+    fn on_event(&self, event: &Event<'_>, _ctx: tracing_subscriber::layer::Context<'_, S>) {
         use tracing_serde::AsSerde;
-        if *event.metadata().level() <= self.level.as_tracing_level() {
+        if LoggingLevel::from(event.metadata().level()) >= self.level {
             let value = serde_json::json!(event.as_serde());
             if publish("logging", value).is_err() {
                 // Ignore any error in publishing logging event
@@ -255,4 +255,23 @@ pub fn test_events() {
     tracing::info!("An info event");
     tracing::warn!("A warn event");
     tracing::error!("An error event");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_logging_level_ordering() -> Result<()> {
+        assert!(LoggingLevel::Debug > LoggingLevel::Trace);
+        assert!(LoggingLevel::Debug >= LoggingLevel::Debug);
+        assert!(LoggingLevel::Debug == LoggingLevel::Debug);
+        assert!(LoggingLevel::Trace <= LoggingLevel::Debug);
+        assert!(LoggingLevel::Trace < LoggingLevel::Debug);
+
+        assert!(LoggingLevel::Info > LoggingLevel::Debug);
+        assert!(LoggingLevel::Warn > LoggingLevel::Info);
+        assert!(LoggingLevel::Error > LoggingLevel::Warn);
+        Ok(())
+    }
 }
