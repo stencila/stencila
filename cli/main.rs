@@ -3,9 +3,17 @@ use color_eyre::SectionExt;
 use stencila::{
     config, convert,
     eyre::{Error, Result},
-    inspect, logging, open, plugins,
+    inspect,
+    logging::{
+        self,
+        config::{LoggingConfig, LoggingStdErrConfig},
+        LoggingFormat, LoggingLevel,
+    },
+    open, plugins,
     regex::Regex,
-    serve, tokio, tracing, upgrade,
+    serve,
+    strum::VariantNames,
+    tokio, tracing, upgrade,
 };
 use structopt::StructOpt;
 
@@ -23,25 +31,20 @@ pub struct Args {
     #[structopt(subcommand)]
     pub command: Option<Command>,
 
-    /// Show trace level log events (and above)
-    #[structopt(long, global = true, conflicts_with_all = &["debug", "info", "warn", "error"])]
-    pub trace: bool,
-
-    /// Show debug level log events (and above)
-    #[structopt(long, global = true, conflicts_with_all = &["trace", "info", "warn", "error"])]
+    /// Print debug level log events and additional diagnostics
+    ///
+    /// This flag overrides the `--log-level` and `--log-format` options
+    /// as well as any configured settings for logging on standard error stream.
+    #[structopt(long, global = true)]
     pub debug: bool,
 
-    /// Show info level log events (and above; default)
-    #[structopt(long, global = true, conflicts_with_all = &["trace", "debug", "warn", "error"])]
-    pub info: bool,
+    /// The minimum log level to print
+    #[structopt(long, global = true, possible_values = LoggingLevel::VARIANTS, case_insensitive = true)]
+    pub log_level: Option<LoggingLevel>,
 
-    /// Show warning level log events (and above)
-    #[structopt(long, global = true, conflicts_with_all = &["trace", "debug", "info", "error"])]
-    pub warn: bool,
-
-    /// Show error level log entries only
-    #[structopt(long, global = true, conflicts_with_all = &["trace", "debug", "info", "warn"])]
-    pub error: bool,
+    /// The format to print log events
+    #[structopt(long, global = true, possible_values = LoggingFormat::VARIANTS, case_insensitive = true)]
+    pub log_format: Option<LoggingFormat>,
 
     /// Enter interactive mode (with any command and options as the prefix)
     #[structopt(short, long, global = true)]
@@ -133,11 +136,9 @@ pub async fn main() -> Result<()> {
     let parsed_args = Args::from_iter_safe(args.clone());
     let Args {
         command,
-        trace,
         debug,
-        info,
-        warn,
-        error,
+        log_level,
+        log_format,
         ..
     } = match parsed_args {
         Ok(args) => args,
@@ -147,11 +148,9 @@ pub async fn main() -> Result<()> {
                 // pass an incomplete command prefix to interactive mode
                 Args {
                     command: None,
-                    trace: args.contains(&"--trace".to_string()),
                     debug: args.contains(&"--debug".to_string()),
-                    info: args.contains(&"--info".to_string()),
-                    warn: args.contains(&"--warn".to_string()),
-                    error: args.contains(&"--error".to_string()),
+                    log_level: None,
+                    log_format: None,
                     interact: true,
                 }
             } else {
@@ -162,31 +161,34 @@ pub async fn main() -> Result<()> {
         }
     };
 
-    // Determine the log level to use on stderr
-    let level = if trace {
-        logging::LoggingLevel::Trace
-    } else if debug {
-        logging::LoggingLevel::Debug
-    } else if info {
-        logging::LoggingLevel::Info
-    } else if warn {
-        logging::LoggingLevel::Warn
-    } else if error {
-        logging::LoggingLevel::Error
-    } else {
-        logging::LoggingLevel::Info
-    };
-
     // Create a preliminary logging subscriber to be able to log any issues
     // when reading the config.
     let prelim_subscriber_guard = logging::prelim();
     let mut config = config::read()?;
     drop(prelim_subscriber_guard);
 
+    // Create a logging config with local overrides
+    let logging_config = config.logging.clone();
+    let logging_config = LoggingConfig {
+        stderr: LoggingStdErrConfig {
+            level: if debug {
+                LoggingLevel::Debug
+            } else {
+                log_level.unwrap_or(logging_config.stderr.level)
+            },
+            format: if debug {
+                LoggingFormat::Pretty
+            } else {
+                log_format.unwrap_or(logging_config.stderr.format)
+            },
+        },
+        ..logging_config
+    };
+
     // To ensure all log events get written to file, take guards here, so that
     // non blocking writers do not get dropped until the end of this function.
     // See https://tracing.rs/tracing_appender/non_blocking/struct.workerguard
-    let _logging_guards = logging::init(Some(level), true, false, true, &config.logging)?;
+    let _logging_guards = logging::init(true, false, true, &logging_config)?;
 
     // Setup `color_eyre` crate for better error reporting with span and back traces
     if std::env::var("RUST_SPANTRACE").is_err() {
