@@ -15,7 +15,8 @@ config = []
 plugins = []
 upgrade = []
 inspect = []
-interact = ["rustyline", "rustyline-derive"]
+feedback = ["ansi_term", "color-eyre", "indicatif"]
+interact = ["ansi_term", "rustyline", "rustyline-derive"]
 default = [
     "open",
     "convert",
@@ -24,14 +25,16 @@ default = [
     "plugins",
     "upgrade",
     "inspect",
+    "feedback",
     "interact",
 ]
 
 [dependencies]
-ansi_term = "0.12.1"
+ansi_term = {version="0.12.1", optional=true}
+color-eyre = {version="0.5.11", optional=true}
 exitcode = "1.1.2"
-stencila = { path = "../rust" }
+indicatif = { version = "0.16.0", optional = true }
 rustyline = { version = "8.0.0", optional = true }
 rustyline-derive = { version = "0.4.0", optional = true }
+stencila = { path = "../rust" }
 structopt = "0.3.21"
-color-eyre = "0.5.11"
