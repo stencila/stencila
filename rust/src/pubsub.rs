@@ -73,5 +73,5 @@ pub struct ProgressEvent {
 
 /// Publish an event on the "progress" topic channel
 pub fn publish_progress(event: ProgressEvent) -> Result<()> {
-    return publish("progress", serde_json::to_value(event)?);
+    publish("progress", serde_json::to_value(event)?)
 }
