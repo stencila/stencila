@@ -116,7 +116,7 @@ jobs:
           make -C node build
           sudo apt-get install rpm
           make -C desktop build
-        # For on this PR, we do it always :)
+        # REMOVE COMMENT BEFORE MERGING THIS PR
         # condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
@@ -130,11 +130,12 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    condition: |
-      or(
-        contains(variables.changed, 'rust'),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-      )
+    # REMOVE COMMENT BEFORE MERGING THIS PR
+    #condition: |
+    #  or(
+    #    contains(variables.changed, 'rust'),
+    #    startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    #  )
     steps:
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
@@ -154,7 +155,7 @@ jobs:
           set -e
           make -C node build
           make -C desktop build
-        # For on this PR, we do it always :)
+        # REMOVE COMMENT BEFORE MERGING THIS PR
         # condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
@@ -168,11 +169,12 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    condition: |
-      or(
-        contains(variables.changed, 'rust'),
-        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-      )
+    # REMOVE COMMENT BEFORE MERGING THIS PR
+    #condition: |
+    #  or(
+    #    contains(variables.changed, 'rust'),
+    #    startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+    #  )
     steps:
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
@@ -192,7 +194,7 @@ jobs:
           set -e
           make -C node build
           make -C desktop build
-        # For on this PR, we do it always :)
+        # REMOVE COMMENT BEFORE MERGING THIS PR
         # condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
