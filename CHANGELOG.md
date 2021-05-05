@@ -1,3 +1,20 @@
+# [0.58.0](https://github.com/stencila/stencila/compare/v0.57.1...v0.58.0) (2021-05-05)
+
+
+### Bug Fixes
+
+* **Logging:** Improve formatting of plain and filter levels properly ([63e80cb](https://github.com/stencila/stencila/commit/63e80cb10de59267cabfc4f05fa822a80c2a8313))
+* **Logging & Config:** Make config properties optional ([b3fa8ae](https://github.com/stencila/stencila/commit/b3fa8aeb4929f0a607253dc2a12166e1edc44426))
+* **Plugins:** Remove Docker container when collecting plugin manifest ([ee488ef](https://github.com/stencila/stencila/commit/ee488efa60480fbe85e3290f1ef38fa08a1a0e27))
+* **Rust:** Update dependencies ([7e2dcf4](https://github.com/stencila/stencila/commit/7e2dcf4519f63c4bebe8b2791c5212a5dd6108af))
+
+
+### Features
+
+* **CLI:** Add display of progress events ([f925b5f](https://github.com/stencila/stencila/commit/f925b5fa694f94cd1f30dfca23a4907be6700826))
+* **CLI:** Add log level and log format options ([67d87a7](https://github.com/stencila/stencila/commit/67d87a71dce95eb99460a42df02ec2db770564c4))
+* **Logging:** Add --trace flag ([7122b19](https://github.com/stencila/stencila/commit/7122b1990a714c522e916da42f9aeba6dbe704a8))
+
 ## [0.57.1](https://github.com/stencila/stencila/compare/v0.57.0...v0.57.1) (2021-05-03)
 
 
