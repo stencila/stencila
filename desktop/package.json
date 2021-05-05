@@ -38,6 +38,7 @@
     "@stencil/postcss": "2.0.0",
     "@stencil/router": "^2.0.0-2",
     "@stencil/store": "^1.4.1",
+    "@stencila/dev-config": "2.0.7",
     "@types/jest": "26.0.22",
     "@types/puppeteer": "^5.4.3",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
