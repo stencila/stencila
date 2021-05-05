@@ -90,12 +90,12 @@ jobs:
       # Desktop is tested if there are changes in the `rust`, `node`, or `desktop` folders
       - script: |
           set -e
+          make -C node build
           cd desktop
-          # Skipped due to this error during install
-          # https://dev.azure.com/stencila/stencila/_build/results?buildId=11995&view=logs&j=0da5d1d9-276d-5173-c4c4-9d4d4ed14fdb&t=7794d18b-cfd2-5210-600d-a7cd2a9183da&l=503
-          # npm install
-          # npm run ui:build
-          # npm run package
+          npm install
+          npm run ui:build
+          sudo apt-get install rpm
+          npm run make
         condition: |
           or(
             contains(variables.changed, 'rust'),
