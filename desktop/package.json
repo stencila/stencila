@@ -3,7 +3,7 @@
   "productName": "Stencila",
   "private": true,
   "version": "0.0.1",
-  "description": "Desktop client for Stencila tools",
+  "description": "Stencila desktop interface",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
