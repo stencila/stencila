@@ -2,7 +2,7 @@ use crate::{
     pubsub::{publish_progress, ProgressEvent},
     util::dirs,
 };
-use bollard::models::CreateImageInfo;
+use bollard::{container::RemoveContainerOptions, models::CreateImageInfo};
 use chrono::{DateTime, Duration, TimeZone, Utc};
 use dirs::plugins;
 use eyre::{bail, eyre, Result};
@@ -964,6 +964,18 @@ impl Plugin {
                 }
             }
         }
+
+        // Remove the container so it does not pollute the user's
+        // container list.
+        docker
+            .remove_container(
+                &container_name,
+                Some(RemoveContainerOptions {
+                    force: true,
+                    ..Default::default()
+                }),
+            )
+            .await?;
 
         if !stderr.is_empty() {
             tracing::warn!("{}", std::str::from_utf8(&stderr)?);
