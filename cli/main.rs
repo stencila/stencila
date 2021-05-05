@@ -1,11 +1,15 @@
-use ansi_term::Color::{Blue, Red};
-use color_eyre::SectionExt;
 use stencila::{
-    config, convert,
+    config,
     eyre::{Error, Result},
-    inspect, logging, open, plugins,
+    logging::{
+        self,
+        config::{LoggingConfig, LoggingStdErrConfig},
+        LoggingFormat, LoggingLevel,
+    },
+    plugins,
     regex::Regex,
-    serve, tokio, tracing, upgrade,
+    strum::VariantNames,
+    tokio, tracing,
 };
 use structopt::StructOpt;
 
@@ -23,25 +27,25 @@ pub struct Args {
     #[structopt(subcommand)]
     pub command: Option<Command>,
 
-    /// Show debug level log events (and above)
-    #[structopt(long, global = true, conflicts_with_all = &["info", "warn", "error"])]
-    pub debug: bool,
-
-    /// Show info level log events (and above; default)
-    #[structopt(long, global = true, conflicts_with_all = &["debug", "warn", "error"])]
-    pub info: bool,
-
-    /// Show warning level log events (and above)
-    #[structopt(long, global = true, conflicts_with_all = &["debug", "info", "error"])]
-    pub warn: bool,
-
-    /// Show error level log entries only
-    #[structopt(long, global = true, conflicts_with_all = &["debug", "info", "warn"])]
-    pub error: bool,
-
     /// Enter interactive mode (with any command and options as the prefix)
     #[structopt(short, long, global = true)]
     pub interact: bool,
+
+    /// Print debug level log events and additional diagnostics
+    ///
+    /// Equivalent to setting `--log-level=debug` and `--log-format=detail`.
+    /// Overrides the both of those options and any configuration settings
+    /// for logging on standard error stream.
+    #[structopt(long, global = true)]
+    pub debug: bool,
+
+    /// The minimum log level to print
+    #[structopt(long, global = true, possible_values = LoggingLevel::VARIANTS, case_insensitive = true)]
+    pub log_level: Option<LoggingLevel>,
+
+    /// The format to print log events
+    #[structopt(long, global = true, possible_values = LoggingFormat::VARIANTS, case_insensitive = true)]
+    pub log_format: Option<LoggingFormat>,
 }
 
 /// Global arguments that should be removed when entering interactive mode
@@ -53,25 +57,25 @@ pub const GLOBAL_ARGS: [&str; 6] = ["--debug", "--info", "--warn", "--error", "-
 )]
 pub enum Command {
     #[cfg(feature = "open")]
-    Open(open::cli::Args),
+    Open(stencila::open::cli::Args),
 
     #[cfg(feature = "convert")]
-    Convert(convert::cli::Args),
+    Convert(stencila::convert::cli::Args),
 
     #[cfg(feature = "serve")]
-    Serve(serve::cli::Args),
+    Serve(stencila::serve::cli::Args),
 
     #[cfg(feature = "plugins")]
-    Plugins(plugins::cli::Args),
+    Plugins(stencila::plugins::cli::Args),
 
     #[cfg(feature = "config")]
-    Config(config::cli::Args),
+    Config(stencila::config::cli::Args),
 
     #[cfg(feature = "upgrade")]
-    Upgrade(upgrade::cli::Args),
+    Upgrade(stencila::upgrade::cli::Args),
 
     #[cfg(feature = "inspect")]
-    Inspect(inspect::cli::Args),
+    Inspect(stencila::inspect::cli::Args),
 }
 
 #[tracing::instrument(skip(config, plugins))]
@@ -83,25 +87,25 @@ pub async fn run_command(
 ) -> Result<()> {
     match command {
         #[cfg(feature = "open")]
-        Command::Open(args) => open::cli::run(args).await,
+        Command::Open(args) => stencila::open::cli::run(args).await,
 
         #[cfg(feature = "convert")]
-        Command::Convert(args) => convert::cli::run(args),
+        Command::Convert(args) => stencila::convert::cli::run(args),
 
         #[cfg(feature = "serve")]
-        Command::Serve(args) => serve::cli::run(args, &config.serve).await,
+        Command::Serve(args) => stencila::serve::cli::run(args, &config.serve).await,
 
         #[cfg(feature = "plugins")]
-        Command::Plugins(args) => plugins::cli::run(args, &config.plugins, plugins).await,
+        Command::Plugins(args) => stencila::plugins::cli::run(args, &config.plugins, plugins).await,
 
         #[cfg(feature = "upgrade")]
-        Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade, plugins).await,
+        Command::Upgrade(args) => stencila::upgrade::cli::run(args, &config.upgrade, plugins).await,
 
         #[cfg(feature = "config")]
-        Command::Config(args) => config::cli::run(args, config),
+        Command::Config(args) => stencila::config::cli::run(args, config),
 
         #[cfg(feature = "inspect")]
-        Command::Inspect(args) => inspect::cli::run(args, plugins).await,
+        Command::Inspect(args) => stencila::inspect::cli::run(args, plugins).await,
     }
 }
 
@@ -121,7 +125,11 @@ pub fn print_error(error: Error) {
 /// Main entry point function
 #[tokio::main]
 pub async fn main() -> Result<()> {
-    eprintln!("{}", Red.paint("Stencila CLI is in alpha testing.\n"));
+    #[cfg(feature = "feedback")]
+    {
+        use ansi_term::Color::Red;
+        println!("{}", Red.paint("Stencila CLI is in alpha testing.\n"));
+    }
 
     let args: Vec<String> = std::env::args().collect();
 
@@ -130,9 +138,8 @@ pub async fn main() -> Result<()> {
     let Args {
         command,
         debug,
-        info,
-        warn,
-        error,
+        log_level,
+        log_format,
         ..
     } = match parsed_args {
         Ok(args) => args,
@@ -143,9 +150,8 @@ pub async fn main() -> Result<()> {
                 Args {
                     command: None,
                     debug: args.contains(&"--debug".to_string()),
-                    info: args.contains(&"--info".to_string()),
-                    warn: args.contains(&"--warn".to_string()),
-                    error: args.contains(&"--error".to_string()),
+                    log_level: None,
+                    log_format: None,
                     interact: true,
                 }
             } else {
@@ -156,40 +162,52 @@ pub async fn main() -> Result<()> {
         }
     };
 
-    // Determine the log level to use on stderr
-    let level = if debug {
-        logging::LoggingLevel::Debug
-    } else if info {
-        logging::LoggingLevel::Info
-    } else if warn {
-        logging::LoggingLevel::Warn
-    } else if error {
-        logging::LoggingLevel::Error
-    } else {
-        logging::LoggingLevel::Info
-    };
-
     // Create a preliminary logging subscriber to be able to log any issues
     // when reading the config.
     let prelim_subscriber_guard = logging::prelim();
     let mut config = config::read()?;
     drop(prelim_subscriber_guard);
 
+    // Create a logging config with local overrides
+    let logging_config = config.logging.clone();
+    let logging_config = LoggingConfig {
+        stderr: LoggingStdErrConfig {
+            level: if debug {
+                LoggingLevel::Debug
+            } else {
+                log_level.unwrap_or(logging_config.stderr.level)
+            },
+            format: if debug {
+                LoggingFormat::Detail
+            } else {
+                log_format.unwrap_or(logging_config.stderr.format)
+            },
+        },
+        ..logging_config
+    };
+
     // To ensure all log events get written to file, take guards here, so that
     // non blocking writers do not get dropped until the end of this function.
     // See https://tracing.rs/tracing_appender/non_blocking/struct.workerguard
-    let _logging_guards = logging::init(Some(level), &config.logging)?;
+    let _logging_guards = logging::init(true, false, true, &logging_config)?;
 
-    // Setup `color_eyre` crate for better error reporting with span and back traces
-    if std::env::var("RUST_SPANTRACE").is_err() {
-        std::env::set_var("RUST_SPANTRACE", if debug { "1" } else { "0" });
+    // Set up error reporting and progress indicators for better feedback to user
+    #[cfg(feature = "feedback")]
+    {
+        // Setup `color_eyre` crate for better error reporting with span and back traces
+        if std::env::var("RUST_SPANTRACE").is_err() {
+            std::env::set_var("RUST_SPANTRACE", if debug { "1" } else { "0" });
+        }
+        if std::env::var("RUST_BACKTRACE").is_err() {
+            std::env::set_var("RUST_BACKTRACE", if debug { "full" } else { "0" });
+        }
+        color_eyre::config::HookBuilder::default()
+            .display_env_section(false)
+            .install()?;
+
+        // Subscribe to progress events and display them on console
+        stencila::pubsub::subscribe("progress", feedback::progress_subscriber)?;
     }
-    if std::env::var("RUST_BACKTRACE").is_err() {
-        std::env::set_var("RUST_BACKTRACE", if debug { "full" } else { "0" });
-    }
-    color_eyre::config::HookBuilder::default()
-        .display_env_section(false)
-        .install()?;
 
     // Load plugins
     let mut plugins = plugins::Plugins::load()?;
@@ -199,7 +217,7 @@ pub async fn main() -> Result<()> {
     let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
         None
     } else {
-        Some(upgrade::upgrade_auto(&config.upgrade, &plugins))
+        Some(stencila::upgrade::upgrade_auto(&config.upgrade, &plugins))
     };
 
     // Get the result of running the command
@@ -232,19 +250,92 @@ pub async fn main() -> Result<()> {
         }
     }
 
+    #[cfg(feature = "feedback")]
     match result {
         Ok(_) => Ok(()),
-        Err(error) => {
-            use color_eyre::Help;
-            Err(error).with_section(move || {
-                format!(
-                    "Get help at {}.\nReport bugs at {}.",
-                    Blue.paint("https://help.stenci.la"),
-                    Blue.paint("https://github.com/stencila/stencila/issues")
-                )
-                .header("Help:")
-            })?
+        Err(error) => feedback::error_reporter(error),
+    }
+
+    #[cfg(not(feature = "feedback"))]
+    result
+}
+
+/// Module for feedback features
+///
+/// These features are aimed at providing better feedback on
+/// errors and progress
+#[cfg(feature = "feedback")]
+mod feedback {
+    use std::{collections::HashMap, sync::Mutex};
+
+    use ansi_term::{
+        Color::{Blue, Purple},
+        Style,
+    };
+    use color_eyre::{Help, SectionExt};
+    use linya::{Bar, Progress};
+    use stencila::{eyre, once_cell::sync::Lazy, pubsub::ProgressEvent, serde_json};
+
+    pub static PROGRESS: Lazy<Mutex<Progress>> = Lazy::new(|| Mutex::new(Progress::new()));
+
+    pub static PROGRESS_BARS: Lazy<Mutex<HashMap<String, Bar>>> =
+        Lazy::new(|| Mutex::new(HashMap::new()));
+
+    pub fn progress_subscriber(_topic: String, event: serde_json::Value) {
+        let mut progress = PROGRESS.lock().expect("Unable to lock progress");
+
+        let ProgressEvent {
+            parent,
+            id,
+            message,
+            current,
+            expected,
+            ..
+        } = serde_json::from_value(event).expect("Unable to deserialize event");
+
+        // If the event is for a tasks with no parent then prefix line with PROG,
+        // otherwise indent it, so it appears below parent
+        let prefix = Purple
+            .bold()
+            .paint(if parent.is_none() { "PROG  " } else { "      " });
+
+        // Should we draw / update a progress bar, or just print a message
+        if let (Some(current), Some(expected)) = (current, expected) {
+            if let Some(id) = id {
+                let mut bars = PROGRESS_BARS.lock().expect("Unable to lock progress bars");
+
+                // Get the current bar for this id, or create a new one
+                let bar = match bars.get(&id) {
+                    Some(bar) => bar,
+                    None => {
+                        let msg = format!("{}{}", prefix, message.unwrap_or(String::new()));
+
+                        let bar = progress.bar(expected as usize, msg);
+                        bars.insert(id.clone(), bar);
+                        &bars[&id]
+                    }
+                };
+
+                // Set the bar's current value
+                progress.set_and_draw(bar, current as usize)
+            }
+        } else {
+            if let Some(message) = message {
+                // Just print the message
+                eprintln!("{}{}", prefix, message);
+            }
         }
+    }
+
+    pub fn error_reporter(error: eyre::Report) -> eyre::Result<()> {
+        Err(error).with_section(move || {
+            format!(
+                "Get help at {}.\nReport bugs at {}.",
+                Blue.paint("https://help.stenci.la"),
+                Blue.paint("https://github.com/stencila/stencila/issues")
+            )
+            .header("Help:")
+        })?
     }
 }
 
@@ -328,7 +419,7 @@ mod interact {
     ) -> Result<()> {
         let history_file = util::dirs::config(true)?.join("history.txt");
 
-        let mut rl = editor::new();
+        let mut rl = interact_editor::new();
         if rl.load_history(&history_file).is_err() {
             tracing::debug!("No previous history found")
         }
@@ -416,12 +507,11 @@ mod interact {
         Ok(())
     }
 }
-
 /// Module for interactive mode line editor
 ///
 /// Implements traits for `rustyline`
 #[cfg(feature = "interact")]
-mod editor {
+mod interact_editor {
     use ansi_term::Colour::{Blue, White, Yellow};
     use rustyline::{
         completion::{Completer, FilenameCompleter, Pair},

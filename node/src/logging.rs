@@ -1,8 +1,16 @@
+use crate::prelude::*;
 use neon::prelude::*;
-use stencila::logging::{init_publish, test_events};
+use stencila::{config::Config, logging};
 
 pub fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    if let Err(error) = init_publish(crate::subscriptions::publish_topic_data) {
+    let json = cx.argument::<JsString>(0)?.value(&mut cx);
+    let conf = if json.len() > 0 {
+        from_json::<Config>(&mut cx, &json)?
+    } else {
+        crate::config::obtain(&mut cx)?.clone()
+    };
+
+    if let Err(error) = logging::init(false, true, true, &conf.logging) {
         return cx.throw_error(format!(
             "When attempting to initialize logging: {}",
             error.to_string()
@@ -12,6 +20,6 @@ pub fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 }
 
 pub fn test(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    test_events();
+    logging::test_events();
     Ok(cx.undefined())
 }

@@ -1,4 +1,8 @@
-use crate::util::dirs;
+use crate::{
+    pubsub::{publish_progress, ProgressEvent},
+    util::dirs,
+};
+use bollard::models::CreateImageInfo;
 use chrono::{DateTime, Duration, TimeZone, Utc};
 use dirs::plugins;
 use eyre::{bail, eyre, Result};
@@ -824,19 +828,73 @@ impl Plugin {
             None,
             None,
         );
+
+        // Publish progress of image pull
+        let parent = Some(format!(
+            "pull-docker-image-{}-{}",
+            image,
+            chrono::Utc::now().timestamp()
+        ));
+        publish_progress(ProgressEvent {
+            id: parent.clone(),
+            message: Some(format!("Downloading Docker image {}", image)),
+            ..Default::default()
+        })?;
         while let Some(item) = stream.next().await {
             match item {
                 Ok(info) => {
                     if let Some(error) = info.error {
                         bail!("{}", error)
-                    } else if let Some(status) = info.status {
-                        // TODO display of status and progress could be improved and displayed
-                        // per id (layer) as in docker CLI
-                        // println!("{:?} {:?} {:?}", info.id, info.progress, info.progress_detail);
-                        if let Some(progress) = info.progress {
-                            tracing::info!("{} {}", status, progress)
-                        } else {
-                            tracing::info!("{}", status)
+                    } else {
+                        let CreateImageInfo {
+                            id,
+                            status,
+                            progress_detail,
+                            ..
+                        } = info;
+                        let (current, expected) = match progress_detail {
+                            None => (None, None),
+                            Some(detail) => (detail.current, detail.total),
+                        };
+
+                        // We create task ids based on the layer id and status
+                        // to fit with our progress events.
+                        let (id, message) =
+                            if let (Some(id), Some(status)) = (id.clone(), status.clone()) {
+                                let (id, message) = if status == "Pulling fs layer"
+                                    || status == "Waiting"
+                                    || status.starts_with("Verifying")
+                                    || status.ends_with(" complete")
+                                {
+                                    // Ignore these events, they are not that useful and complicate progress reporting
+                                    (None, None)
+                                } else if status == "Downloading" {
+                                    (
+                                        Some(format!("download-docker-layer-{}", id)),
+                                        Some(format!("Downloading: {}", id)),
+                                    )
+                                } else if status == "Extracting" {
+                                    (
+                                        Some(format!("extract-docker-layer-{}", id)),
+                                        Some(format!("Extracting: {}", id)),
+                                    )
+                                } else {
+                                    (Some(id), Some(status))
+                                };
+                                (id, message)
+                            } else {
+                                (id, status)
+                            };
+
+                        if id.is_some() || message.is_some() {
+                            publish_progress(ProgressEvent {
+                                parent: parent.clone(),
+                                id,
+                                message,
+                                current,
+                                expected,
+                                ..Default::default()
+                            })?
                         }
                     }
                 }

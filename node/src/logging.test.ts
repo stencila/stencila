@@ -1,9 +1,16 @@
 import { init, test as testEvents } from './logging'
-import { subscribe } from './subscriptions'
+import { subscribe } from './pubsub'
 
 test('logging', async () => {
   // Initialize logging so it publishes events on the `logging` topic
-  init()
+  // down to debug level
+  init({
+    logging: {
+      desktop: {
+        level: 'debug',
+      },
+    },
+  })
 
   // Subscribe to topic, storing any events
   let events: unknown[] = []

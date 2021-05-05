@@ -4,7 +4,7 @@ mod config;
 mod logging;
 mod plugins;
 mod prelude;
-mod subscriptions;
+mod pubsub;
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
@@ -22,9 +22,10 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("configSet", config::set)?;
     cx.export_function("configReset", config::reset)?;
 
-    cx.export_function("subscribe", subscriptions::subscribe)?;
-    cx.export_function("unsubscribe", subscriptions::unsubscribe)?;
-    cx.export_function("publish", subscriptions::publish)?;
+    cx.export_function("pubsubInit", pubsub::init)?;
+    cx.export_function("pubsubSubscribe", pubsub::subscribe)?;
+    cx.export_function("pubsubUnsubscribe", pubsub::unsubscribe)?;
+    cx.export_function("pubsubPublish", pubsub::publish)?;
 
     cx.export_function("loggingInit", logging::init)?;
     cx.export_function("loggingTest", logging::test)?;
