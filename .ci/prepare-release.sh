@@ -25,6 +25,9 @@ sed -i -e "s!^version = .*!version = \"$VERSION\"!" rust/Cargo.toml
 # Update the version in the CLI app
 sed -i -e "s!^version = .*!version = \"$VERSION\"!" cli/Cargo.toml
 
+# Update the version in the Desktop app
+sed -i -e "s!\"version\": .*!\"version\": \"$VERSION\",!" desktop/package.json
+
 # Update the workspace Cargo.lock file so that above version changes
 # are propagated to it 
 cargo generate-lockfile
