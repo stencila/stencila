@@ -20,10 +20,12 @@ export type PluginInstallation =
 
 export interface Plugin {
   // Properties from the plugin's manifest file
+  // See Rust docs and help.stenci.la for descriptions of these
 
   name: string
   softwareVersion: string
   description: string
+  image: string
   installUrl: string[]
   featureList: Record<string, unknown>[]
 
@@ -92,7 +94,11 @@ export function upgrade(spec: string): Plugin[] {
 }
 
 /**
- * Refresh plugins
+ * Refresh the metadata for one or more plugins
+ * 
+ * This does not upgrade installed plugins. It fetches the
+ * latest manifest for the plugin, which if it is already
+ * installed will be installed in the `next` property.
  *
  * @param list A list of plugin aliases or names to refresh.
  *             Use an empty array to refresh all plugins

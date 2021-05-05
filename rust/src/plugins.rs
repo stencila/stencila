@@ -53,7 +53,7 @@ pub enum PluginInstallation {
 /// [`SoftwareApplication`](https://schema.org/SoftwareApplication) but extensions
 /// added where necessary.
 #[derive(Debug, Default, Clone, JsonSchema, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(default, rename_all = "camelCase")]
 pub struct Plugin {
     // Property names use the Rust convention of snake_case but are renamed
     // to schema.org camelCase on serialization.
@@ -67,6 +67,9 @@ pub struct Plugin {
 
     /// A description of the plugin
     description: String,
+
+    /// URL of the image to be used when displaying the plugin
+    image: String,
 
     /// A list of URLS that the plugin can be installed from
     install_url: Vec<String>,
