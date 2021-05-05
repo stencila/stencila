@@ -5,7 +5,7 @@ import { CHANNEL } from '../../../preload/index'
 @Component({
   tag: 'app-project',
   styleUrl: 'app-project.css',
-  shadow: true,
+  scoped: true,
 })
 export class AppProject {
   @State()

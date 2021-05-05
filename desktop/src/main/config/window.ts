@@ -9,7 +9,7 @@ export const showSettings = () => {
   const parent = BrowserWindow.getAllWindows()[0]
 
   settingsWindow = createWindow(settingsUrl, {
-    width: 400,
+    width: 800,
     height: 800,
     show: false,
     parent,

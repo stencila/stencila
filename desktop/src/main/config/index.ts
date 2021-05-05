@@ -1,12 +1,18 @@
+import $RefParser from '@apidevtools/json-schema-ref-parser'
 import { ipcMain } from 'electron'
 import { config, plugins } from 'stencila'
 import { CHANNEL } from '../../preload'
 import { showSettings } from './window'
 
-export const getConfig = () => {
+const parser = new $RefParser()
+
+export const getConfig = async () => {
+  const schemaRaw = config.schema()
+  const schema = await parser.dereference(schemaRaw as $RefParser.JSONSchema)
+
   return {
     config: config.read(),
-    schema: config.schema(),
+    schema: schema,
   }
 }
 
