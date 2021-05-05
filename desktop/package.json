@@ -81,7 +81,6 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "desktop",
             "icon": ""
           }
         },
