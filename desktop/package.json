@@ -11,6 +11,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
+    "test": "npm run ui:test",
     "ui:build": "stencil build",
     "ui:start": "stencil build --dev --watch --serve",
     "ui:test": "stencil test --spec --e2e",

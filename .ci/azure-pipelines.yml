@@ -81,7 +81,6 @@ jobs:
       - script: |
           set -e
           cd node
-          npm install
           make cover
           bash <(curl -s https://codecov.io/bash)
         condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'node'))
@@ -91,11 +90,7 @@ jobs:
       - script: |
           set -e
           make -C node build
-          cd desktop
-          npm install
-          npm run ui:build
-          sudo apt-get install rpm
-          npm run make
+          make -C desktop test
         condition: |
           or(
             contains(variables.changed, 'rust'),
@@ -112,6 +107,19 @@ jobs:
           bash .ci/upload-release.sh target/release/stencila stencila x86_64-unknown-linux-gnu.tar.gz
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+      # Desktop is built and published on tags
+      - script: |
+          set -e
+          make -C node build
+          sudo apt-get install rpm
+          make -C desktop build
+        # For on this PR, we do it always :)
+        condition: contains(variables.changed, 'desktop')
+        # condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'Desktop: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
