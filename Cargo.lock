@@ -1071,19 +1071,7 @@ checksum = "7baab56125e25686df467fe470785512329883aab42696d661247aca2a2896e4"
 dependencies = [
  "console",
  "lazy_static",
- "number_prefix 0.3.0",
- "regex",
-]
-
-[[package]]
-name = "indicatif"
-version = "0.16.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "507cf157a0dab3c837bef6e2086466255d9de4a6b1af69e62b62c54cd52f6062"
-dependencies = [
- "console",
- "lazy_static",
- "number_prefix 0.4.0",
+ "number_prefix",
  "regex",
 ]
 
@@ -1234,6 +1222,15 @@ name = "linked-hash-map"
 version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fb9b38af92608140b86b693604b9ffcc5824240a484d1ecd4795bacb2fe88f3"
+
+[[package]]
+name = "linya"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "17da0877fe876f8ad44acb54efc37f069db25d66e93baa18367bc556eec0bdd2"
+dependencies = [
+ "terminal_size",
+]
 
 [[package]]
 name = "lock_api"
@@ -1576,12 +1573,6 @@ name = "number_prefix"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "17b02fc0ff9a9e4b35b3342880f48e896ebf69f2967921fe8646bf5b7125956a"
-
-[[package]]
-name = "number_prefix"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3"
 
 [[package]]
 name = "object"
@@ -2223,7 +2214,7 @@ dependencies = [
  "either",
  "flate2",
  "hyper",
- "indicatif 0.15.0",
+ "indicatif",
  "log",
  "quick-xml",
  "regex",
@@ -2503,7 +2494,7 @@ dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
  "exitcode",
- "indicatif 0.16.0",
+ "linya",
  "rustyline",
  "rustyline-derive",
  "stencila",

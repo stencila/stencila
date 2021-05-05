@@ -15,7 +15,7 @@ config = []
 plugins = []
 upgrade = []
 inspect = []
-feedback = ["ansi_term", "color-eyre", "indicatif"]
+feedback = ["ansi_term", "color-eyre", "linya"]
 interact = ["ansi_term", "rustyline", "rustyline-derive"]
 default = [
     "open",
@@ -33,7 +33,7 @@ default = [
 ansi_term = {version="0.12.1", optional=true}
 color-eyre = {version="0.5.11", optional=true}
 exitcode = "1.1.2"
-indicatif = { version = "0.16.0", optional = true }
+linya = { version = "0.1.1", optional = true }
 rustyline = { version = "8.0.0", optional = true }
 rustyline-derive = { version = "0.4.0", optional = true }
 stencila = { path = "../rust" }

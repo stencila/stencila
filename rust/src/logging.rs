@@ -182,12 +182,11 @@ impl<S: tracing::subscriber::Subscriber> tracing_subscriber::layer::Layer<S> for
             let mut visitor = StderrVisitor::default();
             event.record(&mut visitor);
 
-            let content = format!(
-                "{:<5} {}",
-                level_color.bold().paint(level_name),
+            eprintln!(
+                "{} {}",
+                level_color.bold().paint(format!("{:5}", level_name)),
                 visitor.message
-            );
-            eprintln!("{}", content);
+            )
         }
     }
 }
