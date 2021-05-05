@@ -1,6 +1,6 @@
 all: format lint test build docs
 
-node_modules:
+node_modules: package.json
 	npm install
 
 setup: node_modules
