@@ -71,6 +71,7 @@
   "config": {
     "forge": {
       "packagerConfig": {
+        "executableName": "stencila-desktop",
         "appCategoryType": "public.app-category.productivity",
         "icon": "src/assets/icon/stencila"
       },
