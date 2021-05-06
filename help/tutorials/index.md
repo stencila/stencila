@@ -1,8 +1,8 @@
 ---
 sidebar_position: 1
-sidebar_label: Introduction
+sidebar_label: Tutorials
 title: Tutorials
-slug: /tutorials
+slug: /
 description: Stencila tutorials
 ---
 

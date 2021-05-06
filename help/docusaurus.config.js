@@ -30,7 +30,7 @@ module.exports = {
         srcDark: 'img/stencilaLogoDarkBG.svg',
       },
       items: [
-        { to: 'docs/tutorials', label: 'Tutorials', position: 'right' },
+        { to: 'tutorials', label: 'Tutorials', position: 'right' },
         { to: 'guides', label: 'Guides', position: 'right' },
         { to: 'demos', label: 'Demos', position: 'right' },
         { to: 'references', label: 'References', position: 'right' },
@@ -132,12 +132,6 @@ module.exports = {
     [
       '@docusaurus/preset-classic',
       {
-        docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/stencila/stencila/edit/master/help/',
-          showLastUpdateAuthor: true,
-          showLastUpdateTime: true,
-        },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -145,6 +139,16 @@ module.exports = {
     ],
   ],
   plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'tutorials',
+        path: 'tutorials',
+        routeBasePath: 'tutorials',
+        sidebarPath: require.resolve('./tutorials/sidebars.js'),
+        ...commonPluginContentDocsOptions,
+      },
+    ],
     [
       '@docusaurus/plugin-content-docs',
       {
