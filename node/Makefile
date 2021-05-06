@@ -21,6 +21,11 @@ cover: setup
 audit:
 	cargo +nightly udeps
 
+try:
+	npm run build:rust:debug
+	npm run build:ts
+	node
+
 build: setup
 	npm run build
 
