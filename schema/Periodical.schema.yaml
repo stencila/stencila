@@ -1,9 +1,9 @@
 title: Periodical
 '@id': schema:Periodical
 extends: CreativeWork
+category: works
 role: secondary
 status: unstable
-category: other
 description: A periodical publication.
 properties:
   dateStart:

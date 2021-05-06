@@ -1,9 +1,9 @@
 title: CreativeWork
 '@id': schema:CreativeWork
 extends: Thing
+category: works
 role: base
 status: stable
-category: other
 description: |
   A creative work, including books, movies, photographs, software programs, etc.
 properties:

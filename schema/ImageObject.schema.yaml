@@ -1,9 +1,9 @@
 title: ImageObject
 '@id': schema:ImageObject
 extends: MediaObject
+category: works
 role: secondary
 status: stable
-category: media
 description: An image file.
 properties:
   caption:

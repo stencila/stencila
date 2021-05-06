@@ -1,9 +1,9 @@
 title: Review
 '@id': schema:Review
 extends: CreativeWork
+category: works
 role: secondary
 status: stable
-category: other
 description: A review of an item, e.g of an Article, or SoftwareSourceCode.
 $comment: |
   Use the `content` property for the structured content of the review in

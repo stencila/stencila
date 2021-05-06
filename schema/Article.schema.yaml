@@ -1,9 +1,9 @@
 title: Article
 '@id': schema:Article
 extends: CreativeWork
+category: works
 role: primary
 status: unstable
-category: other
 description: An article, including news and scholarly articles.
 properties:
   content:

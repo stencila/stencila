@@ -3,7 +3,7 @@ title: AudioObject
 extends: MediaObject
 role: secondary
 status: stable
-category: media
+category: works
 description: An audio file
 properties:
   caption:

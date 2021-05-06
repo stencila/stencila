@@ -1,9 +1,9 @@
 title: MediaObject
 '@id': schema:MediaObject
 extends: CreativeWork
+category: works
 role: base
 status: stable
-category: media
 description: |
   A media object, such as an image, video, or audio object embedded in a web page or a
   downloadable dataset.

@@ -1,9 +1,9 @@
 title: Collection
 '@id': schema:Collection
 extends: CreativeWork
+category: works
 role: secondary
 status: stable
-category: other
 description: A created collection of CreativeWorks or other artefacts.
 # The [schema.org defintion](https://schema.org/Collection) adds
 # `collectionSize` but has not been added here because that feels

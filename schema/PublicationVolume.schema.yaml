@@ -1,9 +1,9 @@
 title: PublicationVolume
 '@id': schema:PublicationVolume
 extends: CreativeWork
+category: works
 role: secondary
 status: unstable
-category: other
 description: |
   A part of a successively published publication such as a periodical or multi-volume work.
 properties:

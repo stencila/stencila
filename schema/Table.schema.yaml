@@ -1,9 +1,9 @@
 title: Table
 '@id': schema:Table
 extends: CreativeWork
+category: works
 role: primary
 status: unstable
-category: prose
 description: A table.
 properties:
   caption:

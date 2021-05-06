@@ -1,9 +1,9 @@
 title: Datatable
 '@id': stencila:Datatable
 extends: CreativeWork
+category: works
 role: primary
 status: unstable
-category: data
 description: A table of data.
 properties:
   columns:
