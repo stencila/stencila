@@ -1,8 +1,8 @@
 ---
 sidebar_position: 1
-sidebar_label: Introduction
+sidebar_label: Guides
 title: Guides
-slug: /guides
+slug: /
 description: Stencila Guides
 ---
 

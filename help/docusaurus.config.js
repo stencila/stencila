@@ -3,6 +3,12 @@ const path = require('path')
 
 const baseUrl = '/'
 
+const commonPluginContentDocsOptions = {
+  editUrl: 'https://github.com/stencila/stencila/edit/master/help',
+  showLastUpdateAuthor: true,
+  showLastUpdateTime: true,
+}
+
 module.exports = {
   title: 'Stencila Help',
   url: 'https://stencila.github.io',
@@ -25,7 +31,7 @@ module.exports = {
       },
       items: [
         { to: 'docs/tutorials', label: 'Tutorials', position: 'right' },
-        { to: 'docs/guides', label: 'Guides', position: 'right' },
+        { to: 'guides', label: 'Guides', position: 'right' },
         { to: 'demos', label: 'Demos', position: 'right' },
         { to: 'references', label: 'References', position: 'right' },
       ],
@@ -142,13 +148,21 @@ module.exports = {
     [
       '@docusaurus/plugin-content-docs',
       {
+        id: 'guides',
+        path: 'guides',
+        routeBasePath: 'guides',
+        sidebarPath: require.resolve('./guides/sidebars.js'),
+        ...commonPluginContentDocsOptions,
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
         id: 'demos',
         path: 'demos',
         routeBasePath: 'demos',
         sidebarPath: require.resolve('./demos/sidebars.js'),
-        editUrl: 'https://github.com/stencila/stencila/edit/master/help',
-        showLastUpdateAuthor: true,
-        showLastUpdateTime: true,
+        ...commonPluginContentDocsOptions,
       },
     ],
     [
@@ -158,9 +172,7 @@ module.exports = {
         path: 'references',
         routeBasePath: 'references',
         sidebarPath: require.resolve('./references/sidebars.js'),
-        editUrl: 'https://github.com/stencila/stencila/edit/master/help',
-        showLastUpdateAuthor: true,
-        showLastUpdateTime: true,
+        ...commonPluginContentDocsOptions,
       },
     ],
     [
