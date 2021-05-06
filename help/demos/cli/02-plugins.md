@@ -15,7 +15,7 @@ Plugins provide a lot of Stencila's functionality. This demo shows you how to us
 
 ## Demo
 
-import AsciinemaPlayer from '../../../src/components/asciinema/player'
+import AsciinemaPlayer from '../../src/components/asciinema/player'
 import pluginsDemo from './02-plugins.cast'
 
 <AsciinemaPlayer src={pluginsDemo} />

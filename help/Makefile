@@ -1,16 +1,21 @@
-all: clean demos reference build
+all: clean demos references build
 
 # Start the development server
+# Generates fake CLI demo .cast files if necessary so
+# does not fail if these have not yet been created
 run:
+	make -C demos/cli touch
 	npm start
 
 # Build demos folder
 demos:
-	make -C docs/demos/cli
+	make -C demos/cli
+.PHONY: demos
 
-# Build reference folder
-reference:
-	make -C docs/reference/schema
+# Build references folder
+references:
+	make -C references/schema
+.PHONY: references
 
 # Bundle site into static files for production
 build:
@@ -24,5 +29,5 @@ deploy:
 # Remove cached / fetched files
 clean:
 	npm run clear
-	make -C docs/demos/cli clean
-	make -C docs/reference/schema clean
+	make -C demos/cli clean
+	make -C references/schema clean
