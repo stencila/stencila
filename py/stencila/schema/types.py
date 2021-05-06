@@ -119,7 +119,7 @@ for example, "1-6, 9, 55".
 
 
 class CiteGroup(Entity):
-    """A group of `Cite` nodes"""
+    """A group of Cite nodes."""
 
     items: Array["Cite"]
     """One or more `Cite`s to be referenced in the same surrounding text."""
@@ -140,7 +140,7 @@ class CiteGroup(Entity):
 
 
 class Code(Entity):
-    """Base type for code nodes e.g. `CodeBlock`, `CodeExpression`."""
+    """Base type for code nodes e.g. CodeBlock, CodeExpression."""
 
     text: str
     """The text of the code."""
@@ -977,7 +977,7 @@ class Claim(CreativeWork):
 
 
 class Collection(CreativeWork):
-    """A created collection of CreativeWorks or other artefacts."""
+    """A collection of CreativeWorks or other artifacts."""
 
     parts: Array["CreativeWorkTypes"] # type: ignore
     """Elements of the collection which can be a variety of different elements,

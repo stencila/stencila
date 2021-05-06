@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/stencila/schema/compare/v1.5.2...v1.5.3) (2021-05-06)
+
+
+### Bug Fixes
+
+* **Works:** Put all types derived from CreativeWork in works category ([1b72009](https://github.com/stencila/schema/commit/1b720096ce7d0b7c9ac617129b2ad911a28d8aa6))
+
 ## [1.5.2](https://github.com/stencila/schema/compare/v1.5.1...v1.5.2) (2021-05-06)
 
 

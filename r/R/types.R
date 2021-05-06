@@ -74,7 +74,7 @@ Cite <- function(
 }
 
 
-#' A group of `Cite` nodes
+#' A group of Cite nodes.
 #'
 #' @name CiteGroup
 #' @param items One or more `Cite`s to be referenced in the same surrounding text. \bold{Required}.
@@ -99,7 +99,7 @@ CiteGroup <- function(
 }
 
 
-#' Base type for code nodes e.g. `CodeBlock`, `CodeExpression`.
+#' Base type for code nodes e.g. CodeBlock, CodeExpression.
 #'
 #' @name Code
 #' @param text The text of the code. \bold{Required}.
@@ -937,7 +937,7 @@ Claim <- function(
 }
 
 
-#' A created collection of CreativeWorks or other artefacts.
+#' A collection of CreativeWorks or other artifacts.
 #'
 #' @name Collection
 #' @param parts Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.  \bold{Required}.
