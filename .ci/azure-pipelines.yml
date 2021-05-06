@@ -116,8 +116,7 @@ jobs:
           make -C node build
           sudo apt-get install rpm
           make -C desktop build
-        # REMOVE COMMENT BEFORE MERGING THIS PR
-        # condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
@@ -130,12 +129,11 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    # REMOVE COMMENT BEFORE MERGING THIS PR
-    #condition: |
-    #  or(
-    #    contains(variables.changed, 'rust'),
-    #    startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-    #  )
+    condition: |
+      or(
+        contains(variables.changed, 'rust'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      )
     steps:
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
@@ -155,8 +153,7 @@ jobs:
           set -e
           make -C node build
           make -C desktop build
-        # REMOVE COMMENT BEFORE MERGING THIS PR
-        # condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
@@ -169,12 +166,11 @@ jobs:
     dependsOn: [Changes]
     variables:
       changed: $[ dependencies.Changes.outputs['folders.changed'] ]
-    # REMOVE COMMENT BEFORE MERGING THIS PR
-    #condition: |
-    #  or(
-    #    contains(variables.changed, 'rust'),
-    #    startsWith(variables['Build.SourceBranch'], 'refs/tags/')
-    #  )
+    condition: |
+      or(
+        contains(variables.changed, 'rust'),
+        startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+      )
     steps:
       - script: make -C rust test
         condition: contains(variables.changed, 'rust')
@@ -193,9 +189,9 @@ jobs:
       - script: |
           set -e
           make -C node build
-          make -C desktop build
-        # REMOVE COMMENT BEFORE MERGING THIS PR
-        # condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+          # Desktop build currently fails due to issue with executable name
+          # make -C desktop build
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
