@@ -1,4 +1,4 @@
-all: clean demos reference build
+all: clean demos references build
 
 # Start the development server
 run:
@@ -7,10 +7,12 @@ run:
 # Build demos folder
 demos:
 	make -C docs/demos/cli
+.PHONY: demos
 
-# Build reference folder
-reference:
-	make -C docs/reference/schema
+# Build references folder
+references:
+	make -C references/schema
+.PHONY: references
 
 # Bundle site into static files for production
 build:
@@ -25,4 +27,4 @@ deploy:
 clean:
 	npm run clear
 	make -C docs/demos/cli clean
-	make -C docs/reference/schema clean
+	make -C references/schema clean

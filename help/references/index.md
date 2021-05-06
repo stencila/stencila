@@ -1,8 +1,8 @@
 ---
 sidebar_position: 1
-sidebar_label: Introduction
-title: Reference
-slug: /reference
+sidebar_label: References
+title: References
+slug: /
 description: Stencila reference guides and other materials
 ---
 

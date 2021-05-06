@@ -27,7 +27,7 @@ module.exports = {
         { to: 'docs/tutorials', label: 'Tutorials', position: 'right' },
         { to: 'docs/guides', label: 'Guides', position: 'right' },
         { to: 'docs/demos', label: 'Demos', position: 'right' },
-        { to: 'docs/reference', label: 'Reference', position: 'right' },
+        { to: 'references', label: 'References', position: 'right' },
       ],
     },
     algolia: {
@@ -138,12 +138,19 @@ module.exports = {
       },
     ],
   ],
-  scripts: [
-    {
-      src: `${baseUrl}asciinema-player.js`,
-    },
-  ],
   plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'references',
+        path: 'references',
+        routeBasePath: 'references',
+        sidebarPath: require.resolve('./references/sidebars.js'),
+        editUrl: 'https://github.com/stencila/stencila/edit/master/help',
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
+      },
+    ],
     [
       '@docusaurus/plugin-client-redirects',
       // Note that these redirects do not work on the development server, only
@@ -191,6 +198,11 @@ module.exports = {
         ],
       },
     ],
-    path.resolve(__dirname, './plugins/assetLoader'),
+    path.resolve(__dirname, './src/plugins/assetLoader'),
+  ],
+  scripts: [
+    {
+      src: `${baseUrl}asciinema-player.js`,
+    },
   ],
 }
