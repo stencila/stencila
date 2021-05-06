@@ -6,7 +6,11 @@ const addon = require('../index.node')
 addon.pubsubInit()
 
 /**
- * Subscribe to a topic
+ * Subscribe to a topic.
+ * 
+ * Note: Currently we only allow for one subscriber per topic
+ * so if you subscribe a second time to a topic the first
+ * subscription will be cancelled.
  *
  * @param topic The topic to subscribe to e.g. `logging`
  */

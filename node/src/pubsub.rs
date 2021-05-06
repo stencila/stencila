@@ -13,7 +13,8 @@ use crate::prelude::from_json;
 /// JavaScript subscribers
 ///
 /// As in Rust, a subscriber is a function that is subscribed to a topic.
-/// This hash map stores that mapping
+/// This hash map stores that mapping. Currently we only allow
+/// for one subscriber per topic
 static SUBSCRIPTIONS: Lazy<Mutex<HashMap<String, Root<JsFunction>>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
 

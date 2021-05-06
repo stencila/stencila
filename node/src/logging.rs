@@ -3,13 +3,18 @@ use neon::prelude::*;
 use stencila::{config::Config, logging};
 
 pub fn init(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let json = cx.argument::<JsString>(0)?.value(&mut cx);
-    let conf = if json.len() > 0 {
-        from_json::<Config>(&mut cx, &json)?
-    } else {
-        crate::config::obtain(&mut cx)?.clone()
+    let conf = match cx.argument_opt(0) {
+        Some(arg) => {
+            let json = arg
+                .downcast::<JsString, FunctionContext>(&mut cx)
+                .or_throw(&mut cx)?
+                .value(&mut cx);
+            from_json::<Config>(&mut cx, &json)?
+        }
+        None => crate::config::obtain(&mut cx)?.clone(),
     };
 
+    // Do not emit log events to stderr, instead enable pubsub and file handlers
     if let Err(error) = logging::init(false, true, true, &conf.logging) {
         return cx.throw_error(format!(
             "When attempting to initialize logging: {}",
