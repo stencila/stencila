@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/stencila/schema/compare/v1.5.1...v1.5.2) (2021-05-06)
+
+
+### Bug Fixes
+
+* **Docs:** Improve Markdown documents and generate category listing ([a522e14](https://github.com/stencila/schema/commit/a522e14bd595860857811f9ac8a72aa82d21e9cc))
+
 ## [1.5.1](https://github.com/stencila/schema/compare/v1.5.0...v1.5.1) (2021-05-01)
 
 
