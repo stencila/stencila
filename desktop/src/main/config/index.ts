@@ -30,4 +30,8 @@ export const registerConfigHandlers = () => {
   ipcMain.handle(CHANNEL.READ_PLUGINS, async () => {
     return getPlugins()
   })
+
+  ipcMain.handle(CHANNEL.LIST_AVAILABLE_PLUGINS, async () => {
+    return getPlugins()
+  })
 }

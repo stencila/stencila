@@ -8,6 +8,8 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
     interface AppHome {
     }
+    interface AppPlugins {
+    }
     interface AppProject {
         "projectDir": string;
     }
@@ -24,6 +26,12 @@ declare global {
     var HTMLAppHomeElement: {
         prototype: HTMLAppHomeElement;
         new (): HTMLAppHomeElement;
+    };
+    interface HTMLAppPluginsElement extends Components.AppPlugins, HTMLStencilElement {
+    }
+    var HTMLAppPluginsElement: {
+        prototype: HTMLAppPluginsElement;
+        new (): HTMLAppPluginsElement;
     };
     interface HTMLAppProjectElement extends Components.AppProject, HTMLStencilElement {
     }
@@ -49,16 +57,26 @@ declare global {
         prototype: HTMLAppSideNavElement;
         new (): HTMLAppSideNavElement;
     };
+    interface HTMLSettingsGeneralElement extends Components.SettingsGeneral, HTMLStencilElement {
+    }
+    var HTMLSettingsGeneralElement: {
+        prototype: HTMLSettingsGeneralElement;
+        new (): HTMLSettingsGeneralElement;
+    };
     interface HTMLElementTagNameMap {
         "app-home": HTMLAppHomeElement;
+        "app-plugins": HTMLAppPluginsElement;
         "app-project": HTMLAppProjectElement;
         "app-root": HTMLAppRootElement;
         "app-settings": HTMLAppSettingsElement;
         "app-side-nav": HTMLAppSideNavElement;
+        "settings-general": HTMLSettingsGeneralElement;
     }
 }
 declare namespace LocalJSX {
     interface AppHome {
+    }
+    interface AppPlugins {
     }
     interface AppProject {
         "projectDir"?: string;
@@ -69,12 +87,16 @@ declare namespace LocalJSX {
     }
     interface AppSideNav {
     }
+    interface SettingsGeneral {
+    }
     interface IntrinsicElements {
         "app-home": AppHome;
+        "app-plugins": AppPlugins;
         "app-project": AppProject;
         "app-root": AppRoot;
         "app-settings": AppSettings;
         "app-side-nav": AppSideNav;
+        "settings-general": SettingsGeneral;
     }
 }
 export { LocalJSX as JSX };
@@ -82,10 +104,12 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "app-home": LocalJSX.AppHome & JSXBase.HTMLAttributes<HTMLAppHomeElement>;
+            "app-plugins": LocalJSX.AppPlugins & JSXBase.HTMLAttributes<HTMLAppPluginsElement>;
             "app-project": LocalJSX.AppProject & JSXBase.HTMLAttributes<HTMLAppProjectElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
             "app-settings": LocalJSX.AppSettings & JSXBase.HTMLAttributes<HTMLAppSettingsElement>;
             "app-side-nav": LocalJSX.AppSideNav & JSXBase.HTMLAttributes<HTMLAppSideNavElement>;
+            "settings-general": LocalJSX.SettingsGeneral & JSXBase.HTMLAttributes<HTMLSettingsGeneralElement>;
         }
     }
 }
