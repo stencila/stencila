@@ -14,3 +14,10 @@ properties:
     '@id': schema:transcript
     description: The transcript of this audio recording.
     type: string
+examples:
+  - type: AudioObject
+    caption: Example Audio File
+    contentSize: 54321
+    contentUrl: http://www.example.com/file.mp3
+    encodingFormat: audio/mpeg3
+    transcript: This is the transcript for the audio file...

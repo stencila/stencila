@@ -5,6 +5,10 @@ category: works
 role: secondary
 status: unstable
 description: A periodical publication.
+$comment: |
+  A publication in any medium issued in successive parts bearing numerical or chronological designations and intended,
+  such as a magazine, scholarly journal, or newspaper to continue indefinitely. Often embedded as the `isPartOf` property
+  in a [`PublicationVolume`](./PublicationVolume).
 properties:
   dateStart:
     '@id': schema:startDate
@@ -24,3 +28,11 @@ properties:
     type: array
     items:
       type: string
+examples:
+  - type: Periodical
+    title: Nature
+    issns:
+      - 0028-0836
+      - 1476-4687
+    dateStart: 1869-11-04
+    url: https://www.nature.com/

@@ -32,3 +32,14 @@ properties:
       Any description of pages that is not separated into pageStart and pageEnd;
       for example, "1-6, 9, 55".
     type: string
+examples:
+  - type: PublicationIssue
+    url: https://www.nature.com/nature/volumes/571/issues/7766
+    issueNumber: 571
+    datePublished: 2019-07-25
+    isPartOf:
+      type: PublicationVolume
+      volumeNumber: 571
+      isPartOf:
+        type: Periodical
+        title: Nature

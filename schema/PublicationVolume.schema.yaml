@@ -6,6 +6,8 @@ role: secondary
 status: unstable
 description: |
   A part of a successively published publication such as a periodical or multi-volume work.
+$comment: |
+  Often embedded as the `isPartOf` property in a [`PublicationIssue`](./PublicationIssue).
 properties:
   pageStart:
     '@id': schema:pageStart
@@ -32,3 +34,9 @@ properties:
     anyOf:
       - type: integer
       - type: string
+examples:
+  - type: PublicationVolume
+    volumeNumber: 571
+    isPartOf:
+      type: Periodical
+      title: Nature

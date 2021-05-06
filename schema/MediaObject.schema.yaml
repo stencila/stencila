@@ -51,3 +51,10 @@ required:
   # `contentUrl` is required since it seems to make little sense to have a `MediaObject`
   # that does not have it
   - contentUrl
+examples:
+  - type: MediaObject
+    bitrate: '44'
+    contentSize: '2'
+    contentUrl: http://www.example.com/file.mp3
+    encodingFormat: audio/mpeg3
+    embedUrl: http://www.example.com/full_size/file.mp3

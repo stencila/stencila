@@ -6,6 +6,10 @@ role: base
 status: stable
 description: |
   A creative work, including books, movies, photographs, software programs, etc.
+$comment: |
+  This is an implementation, and extension, of schema.org [`CreativeWork`](https://schema.org/CreativeWork).
+  It extends schema.org `CreativeWork` by, adding several properties including `dateAccepted`
+  and `fundedBy`.
 properties:
   about:
     '@id': schema:about

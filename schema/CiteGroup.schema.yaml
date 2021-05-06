@@ -4,9 +4,13 @@ extends: Entity
 category: prose
 role: secondary
 status: unstable
-description: A group of `Cite` nodes
+description: A group of Cite nodes.
 $comment: |
-  This type allows us to group associated citations together.
+  This type allows you to group associated citations together.
+  When some content in a [`Creative Work`](./CreativeWork) cites more than one
+  reference for a particular piece of text, use a `CiteGroup` to encapsulate
+  multiple [`Cite`](./Cite) nodes.
+
   At present we do not give a `citationMode` property to a `CiteGroup` since
   they will almost always be parenthetical as opposed to narrative.
   In other words, it usually only makes sense for individual `Cite` nodes to be
@@ -21,3 +25,46 @@ properties:
       $ref: Cite
 required:
   - items
+examples:
+  - type: Article
+    title: An example of using the CiteGroup node type
+    authors:
+      - type: Person
+        givenNames:
+          - Joe
+        familyNames:
+          - Bloggs
+    content:
+      - type: Paragraph
+        content:
+          - 'Citing two articles '
+          - type: CiteGroup
+            items:
+              - type: Cite
+                target: some-one-else-1991
+              - type: Cite
+                target: updated-works-2009
+          - .
+    references:
+      - type: Article
+        id: some-one-else-1991
+        title: Another article by someone else
+        authors:
+          - type: Person
+            givenNames:
+              - Some
+              - One
+            familyNames:
+              - Else
+        datePublished: '1991'
+      - type: Article
+        id: update-works-2009
+        title: A Better Updated Work
+        authors:
+          - type: Person
+            givenNames:
+              - Some
+              - Better
+            familyNames:
+              - Person
+        datePublished: '2009'

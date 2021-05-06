@@ -5,6 +5,15 @@ category: works
 role: primary
 status: unstable
 description: An article, including news and scholarly articles.
+$comment: |
+  This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).
+  It extends schema.org `Article` by, adding a `content` property which must be
+  an array of [`BlockContent`](./BlockContent), as well as the properties added by
+  [`CreativeWork`](./CreativeWork) which it extends.
+
+  An `Article` is analogous, and structurally similar to, the JATS XML
+  [`<article>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/article.html)
+  element.
 properties:
   content:
     '@id': stencila:content
@@ -33,3 +42,14 @@ properties:
       Any description of pages that is not separated into pageStart and pageEnd;
       for example, "1-6, 9, 55".
     type: string
+examples:
+  - type: Article
+    title: 'Recherches sur les substances radioactives'
+    authors:
+      - type: 'Person'
+        honorificPrefix: Dr
+        givenNames: ['Marie', 'Skłodowska']
+        familyNames: ['Curie']
+        honorificSuffix: PhD
+    content:
+      - Le présent travail a pour but d'exposer les recherches que je poursuis depuis

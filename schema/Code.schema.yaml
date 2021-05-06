@@ -4,14 +4,20 @@ extends: Entity
 role: base
 status: stable
 category: code
-description: Base type for code nodes e.g. `CodeBlock`, `CodeExpression`.
+description: Base type for code nodes e.g. CodeBlock, CodeExpression.
+$comment: |
+  The most important, and only required, property of a `Code` node is `text`.
+  This property is a `string` of the source code.
+  There are no restrictions on the length or content of `text`
+  and it is possible for it to be syntactically invalid for the
+  specified `programmingLanguage`.
 properties:
   programmingLanguage:
     '@id': schema:programmingLanguage
     description: The programming language of the code.
     type: string
   format:
-    # See MediaObject for not on use of format vs encodingFormat.
+    # See MediaObject for note on use of format vs encodingFormat.
     '@id': schema:encodingFormat
     aliases:
       - encoding

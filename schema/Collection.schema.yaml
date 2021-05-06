@@ -4,10 +4,14 @@ extends: CreativeWork
 category: works
 role: secondary
 status: stable
-description: A created collection of CreativeWorks or other artefacts.
-# The [schema.org defintion](https://schema.org/Collection) adds
-# `collectionSize` but has not been added here because that feels
-# redudant e.g. a developer could use `collection.parts.length` instead
+description: A collection of CreativeWorks or other artifacts.
+$comment: |
+  This is an implementation of schema.org [`Collection`](https://schema.org/Collection).
+  The `Collection` type allows you to represent a collection of various `CreativeWork`
+  node types, such as [`Article`](./Article), [`Datatable`](./Datatable) or [`Table`](./Table).
+
+  The schema.org `Collection` has a `collectionSize` property but has not been added here
+  because it is somewhat redundant e.g. a developer could use `collection.parts.length` instead.
 properties: {}
 required:
   # Note that `parts` is defined in `CreativeWork` but made
