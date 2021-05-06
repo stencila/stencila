@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, protocol } from 'electron'
+import { debug } from './debug'
 import { createWindow } from './app/window'
 import { main } from './main'
 import { requestHandler, scheme } from './main/app-protocol'
@@ -30,6 +31,10 @@ protocol.registerSchemesAsPrivileged([
     },
   },
 ])
+
+if (process.env.NODE_ENV === 'development') {
+  debug()
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

@@ -1,18 +1,4 @@
-.app-settings {
-  @apply flex flex-row max-h-screen overflow-hidden;
-  background-color: var(--color-neutral-800);
-
-  main {
-    @apply px-4 py-12 w-full;
-    background-color: var(--color-stock);
-    max-height: 100vh;
-    overflow: auto;
-  }
-
-  form {
-    @apply mx-auto;
-    max-width: 640px;
-  }
+.settingsGeneral {
 }
 
 h2,

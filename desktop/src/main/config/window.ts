@@ -11,6 +11,9 @@ export const showSettings = () => {
   settingsWindow = createWindow(settingsUrl, {
     width: 800,
     height: 800,
+    maxWidth: 1000,
+    minWidth: 600,
+    minHeight: 600,
     show: false,
     parent,
   })
