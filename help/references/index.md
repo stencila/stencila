@@ -6,6 +6,6 @@ slug: /
 description: Stencila reference guides and other materials
 ---
 
-<img align="right" width="30%" src="/img/illustrations/reference.svg" />
+<img align="right" width="30%" src="/img/illustrations/references.svg" />
 
 Technical descriptions and references. Most useful when you need detailed information about how Stencila works.

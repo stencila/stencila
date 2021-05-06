@@ -34,9 +34,9 @@ const FeatureList = [
     ),
   },
   {
-    title: 'Reference',
-    Svg: require('../../static/img/illustrations/reference.svg').default,
-    link: '/reference',
+    title: 'References',
+    Svg: require('../../static/img/illustrations/references.svg').default,
+    link: '/references',
     description: (
       <>
         Technical descriptions and references. Most useful when you need
