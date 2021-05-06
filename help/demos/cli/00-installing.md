@@ -9,7 +9,7 @@ description: |
   See how to quickly install the Stencila CLI on MacOS or Linux.
 ---
 
-import AsciinemaPlayer from '../../../src/components/asciinema/player'
+import AsciinemaPlayer from '../../src/components/asciinema/player'
 import installingDemo from './00-installing.cast'
 
 :::info

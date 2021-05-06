@@ -26,7 +26,7 @@ module.exports = {
       items: [
         { to: 'docs/tutorials', label: 'Tutorials', position: 'right' },
         { to: 'docs/guides', label: 'Guides', position: 'right' },
-        { to: 'docs/demos', label: 'Demos', position: 'right' },
+        { to: 'demos', label: 'Demos', position: 'right' },
         { to: 'references', label: 'References', position: 'right' },
       ],
     },
@@ -139,6 +139,18 @@ module.exports = {
     ],
   ],
   plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'demos',
+        path: 'demos',
+        routeBasePath: 'demos',
+        sidebarPath: require.resolve('./demos/sidebars.js'),
+        editUrl: 'https://github.com/stencila/stencila/edit/master/help',
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
+      },
+    ],
     [
       '@docusaurus/plugin-content-docs',
       {

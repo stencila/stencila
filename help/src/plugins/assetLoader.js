@@ -2,7 +2,7 @@
 // This allows usage in Markdown/MDX files like so:
 //
 // ```md
-// import AsciinemaPlayer from '../../../src/components/asciinema/player'
+// import AsciinemaPlayer from '../../src/components/asciinema/player'
 // import upgradeCast from './01-upgrading.cast'
 //
 // # My document title

@@ -6,7 +6,7 @@ run:
 
 # Build demos folder
 demos:
-	make -C docs/demos/cli
+	make -C demos/cli
 .PHONY: demos
 
 # Build references folder
@@ -26,5 +26,5 @@ deploy:
 # Remove cached / fetched files
 clean:
 	npm run clear
-	make -C docs/demos/cli clean
+	make -C demos/cli clean
 	make -C references/schema clean

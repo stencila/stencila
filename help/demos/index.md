@@ -1,8 +1,8 @@
 ---
 sidebar_position: 1
-sidebar_label: Introduction
+sidebar_label: Demos
 title: Demos
-slug: /demos
+slug: /
 description: Stencila demos
 ---
 
