@@ -9,6 +9,7 @@
  */
 
 import * as encoda from '@stencila/encoda'
+import fs from 'fs-extra'
 import { flatten, flow, groupBy, sortBy, startCase, uniq } from 'lodash'
 import path from 'path'
 import { JsonSchema } from './JsonSchema'
@@ -137,8 +138,20 @@ async function build(): Promise<void> {
       []
     ),
   })
+  await encoda.write(indexPage, path.join(DOCS_DEST_DIR, 'index.md'))
 
-  await encoda.write(indexPage, path.join(DOCS_DEST_DIR, 'Index.md'))
+  const categories = Object.entries(groupedSchemas).map(
+    ([category, schemas]) => {
+      return {
+        type: 'category',
+        label: category,
+        items: schemas.map((schema) => `schema/docs/${schema.title}`),
+      }
+    }
+  )
+  await fs.writeJSON(path.join(DOCS_DEST_DIR, 'categories.json'), categories, {
+    spaces: 2,
+  })
 }
 
 /**
@@ -250,6 +263,7 @@ const schema2Inlines = (schema: JsonSchema): InlineContent[] => {
  */
 async function schema2Article(schema: JsonSchema): Promise<Article> {
   const {
+    category = 'Other',
     title = 'Untitled',
     '@id': id = '',
     anyOf = [],
@@ -267,6 +281,8 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
   // According to https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9.5
   // this should always be an array
   const examples = schema.examples as Array<unknown>
+
+  const hasProperties = Object.keys(properties).length > 0
 
   const notes: Paragraph[] = []
 
@@ -303,7 +319,7 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
   }
 
   let propertiesTable
-  if (Object.keys(properties).length > 0) {
+  if (hasProperties) {
     const tableHeader = tableRow({
       cells: [
         tableCell({ content: ['Name'] }),
@@ -316,6 +332,8 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
     })
     const tableData = await Promise.all(
       Object.entries(properties)
+        // Don't show the `type` property, it's not interesting
+        .filter(([name, _propSchema]) => name !== 'type')
         .sort(([a], [b]) => requiredPropsFirst(required)(a, b))
         .map(async ([name, propSchema]) => {
           const {
@@ -359,53 +377,43 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
     propertiesTable = table({ rows: [tableHeader, ...tableData] })
   }
 
+  const availableAs = []
   if (id !== undefined) {
-    notes.push(
-      paragraph({
-        content: [
-          'Available as ',
-          link({
-            content: ['JSON-LD'],
-            target: id2JsonldUrl(id),
-          }),
-          '.',
-        ],
+    availableAs.push(
+      link({
+        content: ['JSON-LD'],
+        target: id2JsonldUrl(id),
       })
     )
   }
-
   if ($id !== undefined) {
-    notes.push(
-      paragraph({
-        content: [
-          'Available as ',
-          link({
-            content: ['JSON Schema'],
-            target: $id,
-          }),
-          '.',
-        ],
+    availableAs.push(
+      link({
+        content: ['JSON Schema'],
+        target: $id,
       })
     )
   }
-
-  if (file !== undefined && source !== undefined) {
-    notes.push(
-      paragraph({
-        content: [
-          'This documentation was generated from ',
-          link({
-            content: [file],
-            target: source,
-          }),
-          '.',
-        ],
+  if (id !== undefined && hasProperties) {
+    availableAs.push(
+      link({
+        content: ['Python class'],
+        target: id2PythonDocs(id),
+      }),
+      link({
+        content: ['TypeScript class'],
+        target: id2TypeScriptDocs(id),
+      }),
+      link({
+        content: ['R class'],
+        target: id2RDocs(id),
       })
     )
   }
 
   return article({
-    // @ts-expect-error Not a property but used for Docusaurus compatibility
+    // @ts-expect-error Not valid properties but used for Docusaurus compatibility
+    category: startCase(category),
     custom_edit_url:
       source !== undefined
         ? source.replace('/blob/', '/edit/')
@@ -413,6 +421,14 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
     content: [
       heading({ content: [title], depth: 1 }),
       paragraph({ content: [description] }),
+
+      ...(!id.startsWith('stencila:') && hasProperties
+        ? [
+            paragraph({
+              content: ['This type is an extension of ', id2Link(id), '.'],
+            }),
+          ]
+        : []),
 
       ...(membersTable !== undefined
         ? [heading({ content: ['Members'], depth: 2 }), membersTable]
@@ -466,11 +482,48 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
           ]
         : []),
 
-      heading({ content: ['Notes'], depth: 2 }),
-      list({
-        order: 'ascending',
-        items: [...notes.map((note) => listItem({ content: [note] }))],
-      }),
+      ...(notes.length > 0
+        ? [
+            heading({ content: ['Notes'], depth: 2 }),
+            list({
+              order: 'ascending',
+              items: [...notes.map((note) => listItem({ content: [note] }))],
+            }),
+          ]
+        : []),
+
+      ...(availableAs.length > 0
+        ? [
+            heading({ content: ['Available as'], depth: 2 }),
+            list({
+              items: availableAs.map((link) =>
+                listItem({
+                  content: [
+                    paragraph({
+                      content: [link],
+                    }),
+                  ],
+                })
+              ),
+            }),
+          ]
+        : []),
+
+      ...(file !== undefined && source !== undefined
+        ? [
+            heading({ content: ['Source'], depth: 2 }),
+            paragraph({
+              content: [
+                'This documentation was generated from ',
+                link({
+                  content: [file],
+                  target: source,
+                }),
+                '.',
+              ],
+            }),
+          ]
+        : []),
     ],
   })
 }
@@ -480,9 +533,8 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
  *
  * @param title of the schema e.g. "Article"
  */
-function title2Path(title: string, prefix = './'): string {
-  const { category = 'Other' } = SCHEMAS[title]
-  return `${prefix}${startCase(category)}/${title}.md`
+function title2Path(title: string): string {
+  return `${title}.md`
 }
 
 /**
@@ -493,7 +545,7 @@ function title2Path(title: string, prefix = './'): string {
 function title2Link(title: string): Link {
   return link({
     content: [title],
-    target: title2Path(title, '../'),
+    target: title2Path(title),
   })
 }
 
@@ -544,6 +596,35 @@ const id2Link = (id: string): Link => {
  * @param id The id of the type or property, including it's context e.g. `schema:Article`
  */
 function id2JsonldUrl(id: string): string {
-  const [_context, name] = id.split(':')
+  const [_context, name = 'stencila'] = id.split(':')
   return `https://schema.stenci.la/${name}.jsonld`
+}
+
+/**
+ * Generate a URL for the Python docs for an id
+ *
+ * @param id The id of the type, including it's context e.g. `schema:Article`
+ */
+function id2PythonDocs(id: string): string {
+  const [_context, name = ''] = id.split(':')
+  return `https://stencila.github.io/schema/py/docs/types.html#schema.types.${name}`
+}
+
+/**
+ * Generate a URL for the TypeScript docs for an id
+ *
+ * @param id The id of the type, including it's context e.g. `schema:Article`
+ */
+function id2TypeScriptDocs(id: string): string {
+  const [_context, name = ''] = id.split(':')
+  return `https://stencila.github.io/schema/ts/docs/interfaces/${name.toLowerCase()}.html`
+}
+
+/**
+ * Generate a URL for the Python docs for an id
+ *
+ * @param id The id of the type, including it's context e.g. `schema:Article`
+ */
+function id2RDocs(_id: string): string {
+  return `https://cran.r-project.org/web/packages/stencilaschema/stencilaschema.pdf`
 }
