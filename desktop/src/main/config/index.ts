@@ -61,4 +61,8 @@ export const registerConfigHandlers = () => {
   ipcMain.handle(CHANNEL.UPGRADE_PLUGIN, async (_event, name) => {
     return plugins.upgrade(name)
   })
+
+  ipcMain.handle(CHANNEL.REFRESH_PLUGINS, async () => {
+    return plugins.refresh(plugins.list().map((plugin) => plugin.name))
+  })
 }

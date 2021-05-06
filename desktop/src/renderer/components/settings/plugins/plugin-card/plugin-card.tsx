@@ -16,7 +16,7 @@ export class AppPlugins {
   @State() inProgress: boolean
 
   componentWillLoad() {
-    this.plugin = pluginStore.plugins.entities[this.pluginName]
+    this.refreshPluginState()
   }
 
   private refreshPluginState = () =>
