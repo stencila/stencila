@@ -19,6 +19,11 @@ export namespace Components {
     }
     interface AppSideNav {
     }
+    interface PluginCard {
+        "pluginName": string;
+    }
+    interface SettingsGeneral {
+    }
 }
 declare global {
     interface HTMLAppHomeElement extends Components.AppHome, HTMLStencilElement {
@@ -57,6 +62,12 @@ declare global {
         prototype: HTMLAppSideNavElement;
         new (): HTMLAppSideNavElement;
     };
+    interface HTMLPluginCardElement extends Components.PluginCard, HTMLStencilElement {
+    }
+    var HTMLPluginCardElement: {
+        prototype: HTMLPluginCardElement;
+        new (): HTMLPluginCardElement;
+    };
     interface HTMLSettingsGeneralElement extends Components.SettingsGeneral, HTMLStencilElement {
     }
     var HTMLSettingsGeneralElement: {
@@ -70,6 +81,7 @@ declare global {
         "app-root": HTMLAppRootElement;
         "app-settings": HTMLAppSettingsElement;
         "app-side-nav": HTMLAppSideNavElement;
+        "plugin-card": HTMLPluginCardElement;
         "settings-general": HTMLSettingsGeneralElement;
     }
 }
@@ -87,6 +99,9 @@ declare namespace LocalJSX {
     }
     interface AppSideNav {
     }
+    interface PluginCard {
+        "pluginName"?: string;
+    }
     interface SettingsGeneral {
     }
     interface IntrinsicElements {
@@ -96,6 +111,7 @@ declare namespace LocalJSX {
         "app-root": AppRoot;
         "app-settings": AppSettings;
         "app-side-nav": AppSideNav;
+        "plugin-card": PluginCard;
         "settings-general": SettingsGeneral;
     }
 }
@@ -109,6 +125,7 @@ declare module "@stencil/core" {
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
             "app-settings": LocalJSX.AppSettings & JSXBase.HTMLAttributes<HTMLAppSettingsElement>;
             "app-side-nav": LocalJSX.AppSideNav & JSXBase.HTMLAttributes<HTMLAppSideNavElement>;
+            "plugin-card": LocalJSX.PluginCard & JSXBase.HTMLAttributes<HTMLPluginCardElement>;
             "settings-general": LocalJSX.SettingsGeneral & JSXBase.HTMLAttributes<HTMLSettingsGeneralElement>;
         }
     }

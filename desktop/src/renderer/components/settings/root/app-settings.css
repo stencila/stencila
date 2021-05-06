@@ -7,5 +7,9 @@
     background-color: var(--color-stock);
     max-height: 100vh;
     overflow: auto;
+
+    & > * {
+      @apply block mx-auto;
+    }
   }
 }

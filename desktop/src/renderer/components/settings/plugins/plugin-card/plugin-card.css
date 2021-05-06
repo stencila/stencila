@@ -1,0 +1,26 @@
+.pluginCard {
+  @apply p-4 rounded mb-4 border border-solid;
+  border-color: var(--color-neutral-300);
+}
+
+.title {
+  @apply flex justify-between items-center;
+}
+
+h2 {
+  @apply text-xl m-0 inline;
+}
+
+.meta {
+  @apply text-xs ml-2;
+  color: var(--color-neutral-700);
+}
+
+p {
+  @apply text-sm;
+  color: var(--color-neutral-700);
+
+  &:first-of-type {
+    @apply mt-0;
+  }
+}
