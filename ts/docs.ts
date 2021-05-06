@@ -19,6 +19,7 @@ import {
   article,
   BlockContent,
   codeBlock,
+  codeFragment,
   emphasis,
   heading,
   InlineContent,
@@ -52,11 +53,7 @@ const DOCS_DEST_DIR = path.join(__dirname, '..', 'docs')
 let SCHEMAS: Record<string, JsonSchema>
 
 /**
- * Generate docs for each `public/*.schema.json` file and
- * convert any `schema/*.md` files to HTML.
- *
- * The generated `public/*.schema.md` file should normally
- * in `include`d into the `schema/*.md` file for the type.
+ * Generate docs for each `public/*.schema.json` file.
  */
 async function build(): Promise<void> {
   log.info('Building docs')
@@ -72,7 +69,7 @@ async function build(): Promise<void> {
     {}
   )
 
-  // For each schema...
+  // Generate articles for each schema
   await Promise.all(
     schemas.map(async (schema) => {
       const { title = '' } = schema
@@ -84,12 +81,13 @@ async function build(): Promise<void> {
     })
   )
 
-  // This determines the order in which Schema categories are listed in the Table of Contents
+  // This determines the order in which Schema categories are listed in the
+  // index.md & categories.json files
   const orderedCategories = uniq([
+    'Works',
     'Prose',
     'Code',
     'Data',
-    'Media',
     'Other',
     // Any other categories should be listed at the end
     ...Object.values(schemas).map((schema) => startCase(schema.category)),
@@ -112,34 +110,49 @@ async function build(): Promise<void> {
       ),
   ])(schemas)
 
+  // Generate index.md
   const indexPage = article({
-    content: Object.entries(groupedSchemas).reduce(
-      (prev: BlockContent[], [group, items]) => [
-        ...prev,
-        heading({
-          content: [group],
-          depth: 2,
-        }),
-        list({
-          items: items.map((schema) => {
-            const { title = 'Untitled' } = schema
-            return listItem({
-              content: [
-                link({
-                  content: [startCase(title)],
-                  target: title2Path(title),
-                }),
-              ],
-            })
+    title: 'Index',
+    content: [
+      paragraph({
+        content: [
+          'All the schemas in ',
+          link({
+            content: ['Stencila Schema'],
+            target: 'https://schema.stenci.la',
           }),
-          order: 'unordered',
-        }),
-      ],
-      []
-    ),
+          ' by category.',
+        ],
+      }),
+      ...Object.entries(groupedSchemas).reduce(
+        (prev: BlockContent[], [group, items]) => [
+          ...prev,
+          heading({
+            content: [group],
+            depth: 2,
+          }),
+          list({
+            items: items.map((schema) => {
+              const { title = 'Untitled' } = schema
+              return listItem({
+                content: [
+                  link({
+                    content: [startCase(title)],
+                    target: title2Path(title),
+                  }),
+                ],
+              })
+            }),
+            order: 'unordered',
+          }),
+        ],
+        []
+      ),
+    ],
   })
   await encoda.write(indexPage, path.join(DOCS_DEST_DIR, 'index.md'))
 
+  // Generate categories.json for use by Docusaurus
   const categories = Object.entries(groupedSchemas).map(
     ([category, schemas]) => {
       return {
@@ -284,13 +297,17 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
 
   const hasProperties = Object.keys(properties).length > 0
 
-  const notes: Paragraph[] = []
-
-  if ($comment !== undefined) {
-    const para = ((await encoda.load($comment, 'md')) as Article)
-      .content?.[0] as Paragraph
-    notes.push(para)
-  }
+  let commentContent =
+    $comment !== undefined
+      ? (((await encoda.load($comment, 'md')) as Article)
+          .content as BlockContent[])
+      : !id.startsWith('stencila:') && hasProperties
+      ? [
+          paragraph({
+            content: ['This type is an implementation of ', id2Link(id), '.'],
+          }),
+        ]
+      : []
 
   let membersTable
   if (anyOf.length > 0) {
@@ -318,6 +335,7 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
     membersTable = table({ rows: [tableHeader, ...tableData] })
   }
 
+  const notes: Paragraph[] = []
   let propertiesTable
   if (hasProperties) {
     const tableHeader = tableRow({
@@ -396,17 +414,32 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
   }
   if (id !== undefined && hasProperties) {
     availableAs.push(
-      link({
-        content: ['Python class'],
-        target: id2PythonDocs(id),
+      paragraph({
+        content: [
+          'Python ',
+          link({
+            content: [codeFragment({ text: `class ${title}` })],
+            target: id2PythonDocs(id),
+          }),
+        ],
       }),
-      link({
-        content: ['TypeScript class'],
-        target: id2TypeScriptDocs(id),
+      paragraph({
+        content: [
+          'TypeScript ',
+          link({
+            content: [codeFragment({ text: `interface ${title}` })],
+            target: id2TypeScriptDocs(id),
+          }),
+        ],
       }),
-      link({
-        content: ['R class'],
-        target: id2RDocs(id),
+      paragraph({
+        content: [
+          'R ',
+          link({
+            content: [codeFragment({ text: `class ${title}` })],
+            target: id2RDocs(id),
+          }),
+        ],
       })
     )
   }
@@ -414,21 +447,17 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
   return article({
     // @ts-expect-error Not valid properties but used for Docusaurus compatibility
     category: startCase(category),
+    slug: `/schema/${title}`,
     custom_edit_url:
       source !== undefined
         ? source.replace('/blob/', '/edit/')
         : `https://github.com/stencila/schema`,
+    // Main article content
     content: [
-      heading({ content: [title], depth: 1 }),
-      paragraph({ content: [description] }),
+      heading({ content: [startCase(title)], depth: 1 }),
+      paragraph({ content: [strong({ content: [description] })] }),
 
-      ...(!id.startsWith('stencila:') && hasProperties
-        ? [
-            paragraph({
-              content: ['This type is an extension of ', id2Link(id), '.'],
-            }),
-          ]
-        : []),
+      ...commentContent,
 
       ...(membersTable !== undefined
         ? [heading({ content: ['Members'], depth: 2 }), membersTable]
@@ -436,6 +465,28 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
 
       ...(propertiesTable !== undefined
         ? [heading({ content: ['Properties'], depth: 2 }), propertiesTable]
+        : []),
+
+      ...(notes.length > 0
+        ? [
+            heading({ content: ['Notes'], depth: 2 }),
+            list({
+              order: 'ascending',
+              items: [...notes.map((note) => listItem({ content: [note] }))],
+            }),
+          ]
+        : []),
+
+      ...(examples !== undefined && examples.length > 0
+        ? [
+            heading({ content: ['Examples'], depth: 2 }),
+            ...examples.map((example) =>
+              codeBlock({
+                programmingLanguage: 'json',
+                text: JSON.stringify(example, null, '  '),
+              })
+            ),
+          ]
         : []),
 
       ...(parent !== undefined || descendants.length > 0
@@ -470,39 +521,13 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
           ]
         : []),
 
-      ...(examples !== undefined && examples.length > 0
-        ? [
-            heading({ content: ['Examples'], depth: 2 }),
-            ...examples.map((example) =>
-              codeBlock({
-                programmingLanguage: 'json',
-                text: JSON.stringify(example, null, '  '),
-              })
-            ),
-          ]
-        : []),
-
-      ...(notes.length > 0
-        ? [
-            heading({ content: ['Notes'], depth: 2 }),
-            list({
-              order: 'ascending',
-              items: [...notes.map((note) => listItem({ content: [note] }))],
-            }),
-          ]
-        : []),
-
       ...(availableAs.length > 0
         ? [
             heading({ content: ['Available as'], depth: 2 }),
             list({
-              items: availableAs.map((link) =>
+              items: availableAs.map((item) =>
                 listItem({
-                  content: [
-                    paragraph({
-                      content: [link],
-                    }),
-                  ],
+                  content: [item],
                 })
               ),
             }),
