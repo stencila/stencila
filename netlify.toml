@@ -72,16 +72,10 @@
   to = "https://unpkg.com/@stencila/schema@1/dist/:splat"
   force = true
 
-# Redirect (well actually, rewrite) content not found here to
-# GitHub pages. This is primarily for Markdown and API documentation
-# that is served from there
-
-[[redirects]]
-  from = "/schema/*" # For CSS
-  to = "https://stencila.github.io/schema/:splat"
-  status = 200
+# Redirect content not found here to https://help.stenci.la/references/schema
+# This is primarily intended for documentation e.g.
+#   https://schema.stenci.la/CodeChunk -> https://help.stenci.la/references/schema/CodeChunk
 
 [[redirects]]
   from = "/*"
-  to = "https://stencila.github.io/schema/:splat"
-  status = 200
+  to = "https://help.stenci.la/references/schema/:splat"

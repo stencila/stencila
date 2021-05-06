@@ -172,8 +172,7 @@
             }
           ]
         }
-      ],
-      "@qiwi/semantic-release-gh-pages-plugin"
+      ]
     ]
   },
   "renovate": {
