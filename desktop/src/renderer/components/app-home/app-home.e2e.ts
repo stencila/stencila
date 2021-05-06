@@ -9,7 +9,7 @@ describe('app-home', () => {
     expect(element).toHaveClass('hydrated')
   })
 
-  it('contains a "Profile Page" button', async () => {
+  it.skip('contains a "Profile Page" button', async () => {
     const page = await newE2EPage()
     await page.setContent('<app-home></app-home>')
 

@@ -6,7 +6,6 @@
   "author": "Nokome Bentley <nokome@stenci.la>",
   "license": "Apache-2.0",
   "scripts": {
-    "install": "npm run build",
     "build": "npm run build:rust && npm run build:ts",
     "build:rust:debug": "cargo-cp-artifact --artifact cdylib stencila-node index.node -- cargo build --message-format=json-render-diagnostics",
     "build:rust": "npm run build:rust:debug -- --release",

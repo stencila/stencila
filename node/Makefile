@@ -1,6 +1,6 @@
 all: format lint test build docs
 
-node_modules:
+node_modules: package.json
 	npm install
 
 setup: node_modules
@@ -12,10 +12,13 @@ lint:
 	touch src/*.rs
 	cargo clippy
 
-test: setup
+build-debug: setup
+	npm run build:rust:debug
+
+test: setup build-debug
 	npm run test
 
-cover: setup
+cover: setup build-debug
 	npm run cover
 
 audit:

@@ -81,7 +81,6 @@ jobs:
       - script: |
           set -e
           cd node
-          npm install
           make cover
           bash <(curl -s https://codecov.io/bash)
         condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'node'))
@@ -90,12 +89,8 @@ jobs:
       # Desktop is tested if there are changes in the `rust`, `node`, or `desktop` folders
       - script: |
           set -e
-          cd desktop
-          # Skipped due to this error during install
-          # https://dev.azure.com/stencila/stencila/_build/results?buildId=11995&view=logs&j=0da5d1d9-276d-5173-c4c4-9d4d4ed14fdb&t=7794d18b-cfd2-5210-600d-a7cd2a9183da&l=503
-          # npm install
-          # npm run ui:build
-          # npm run package
+          make -C node build
+          make -C desktop test
         condition: |
           or(
             contains(variables.changed, 'rust'),
@@ -115,7 +110,19 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-  # On MacOS, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on tags.
+      # Desktop is built and published on tags
+      - script: |
+          set -e
+          make -C node build
+          sudo apt-get install rpm
+          make -C desktop build
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'Desktop: Build and publish'
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  # On MacOS, Rust crate is tested if there are changes in `rust` folder,
+  # CLI and desktop are built and published on tags.
   - job: MacOS
     pool:
       vmImage: macOS-latest
@@ -142,7 +149,17 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
-  # On Windows, Rust crate is tested if there are changes in `rust` folder, CLI is built and published on tags.
+      - script: |
+          set -e
+          make -C node build
+          make -C desktop build
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'Desktop: Build and publish'
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+  # On Windows, Rust crate is tested if there are changes in `rust` folder,
+  # CLI and desktop are built and published on tags.
   - job: Windows
     pool:
       vmImage: windows-latest
@@ -166,6 +183,16 @@ jobs:
           bash .ci/upload-release.sh target/release/stencila.exe stencila x86_64-pc-windows-msvc.zip
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'CLI: Build and publish'
+        env:
+          GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+      - script: |
+          set -e
+          make -C node build
+          # Desktop build currently fails due to issue with executable name
+          # make -C desktop build
+        condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+        displayName: 'Desktop: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 

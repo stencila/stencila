@@ -3,7 +3,7 @@
   "productName": "Stencila",
   "private": true,
   "version": "0.0.1",
-  "description": "Desktop client for Stencila tools",
+  "description": "Stencila desktop interface",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
@@ -11,6 +11,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
+    "test": "npm run ui:test",
     "ui:build": "stencil build",
     "ui:start": "stencil build --dev --watch --serve",
     "ui:test": "stencil test --spec --e2e",
@@ -38,6 +39,7 @@
     "@stencil/postcss": "2.0.0",
     "@stencil/router": "^2.0.0-2",
     "@stencil/store": "^1.4.1",
+    "@stencila/dev-config": "2.0.7",
     "@types/jest": "26.0.22",
     "@types/puppeteer": "^5.4.3",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
@@ -72,6 +74,7 @@
   "config": {
     "forge": {
       "packagerConfig": {
+        "executableName": "stencila-desktop",
         "appCategoryType": "public.app-category.productivity",
         "icon": "src/assets/icon/stencila"
       },
@@ -79,7 +82,6 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "desktop",
             "icon": ""
           }
         },
