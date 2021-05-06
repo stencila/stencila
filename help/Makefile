@@ -1,7 +1,10 @@
 all: clean demos references build
 
 # Start the development server
+# Generates fake CLI demo .cast files if necessary so
+# does not fail if these have not yet been created
 run:
+	make -C demos/cli touch
 	npm start
 
 # Build demos folder

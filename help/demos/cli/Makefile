@@ -23,7 +23,6 @@ all: $(patsubst %.md,%.cast,$(wildcard *.md))
 	./$*.sh -n
 
 # Record an asciinema cast
-# Set the terminal window dimensions to those used in playback
 %.cast: %.sh
 	asciinema rec -c "./$*.sh -n" --overwrite $*.cast
 .PRECIOUS: %.cast
@@ -35,3 +34,10 @@ all: $(patsubst %.md,%.cast,$(wildcard *.md))
 # Remove temporary files
 clean:
 	rm -f temp* *.sh *.cast *.svg
+
+# If the .cast files are not created then create them
+# Useful for running dev server locallly without having
+# to build demos
+%.touch:
+	touch $*.cast
+touch: $(patsubst %.md,%.touch,$(wildcard *.md))
