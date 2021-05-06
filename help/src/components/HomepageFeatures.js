@@ -5,7 +5,7 @@ import styles from './HomepageFeatures.module.css'
 const FeatureList = [
   {
     title: 'Tutorials',
-    link: '/docs/tutorials',
+    link: '/tutorials',
     Svg: require('../../static/img/illustrations/tutorials.svg').default,
     description: (
       <>First steps for learning what Stencila does and how to use it.</>
@@ -14,7 +14,7 @@ const FeatureList = [
   {
     title: 'Guides',
     Svg: require('../../static/img/illustrations/guides.svg').default,
-    link: '/docs/guides',
+    link: '/guides',
     description: (
       <>
         Step-by-step guides to help you achieve a specific goal. Start here when
@@ -25,7 +25,7 @@ const FeatureList = [
   {
     title: 'Demos',
     Svg: require('../../static/img/illustrations/demos.svg').default,
-    link: '/docs/demos',
+    link: '/demos',
     description: (
       <>
         Demonstrations of functionality and user experience. Start here for a
@@ -36,7 +36,7 @@ const FeatureList = [
   {
     title: 'Reference',
     Svg: require('../../static/img/illustrations/reference.svg').default,
-    link: '/docs/reference',
+    link: '/reference',
     description: (
       <>
         Technical descriptions and references. Most useful when you need

@@ -39,7 +39,7 @@ The enrichment process will consist of:
 ## Getting started
 
 This guide assumes that you are already signed in to Stencila, and have set up a new project for your eLife article. If
-you haven't signed up yet, see the [creating an account](guides/accounts/getting-started.md) and [creating a project](guides/projects/create-a-project.md) guides to get started.
+you haven't signed up yet, see the [creating an account](../guides/accounts/getting-started) and [creating a project](../guides/projects/create-a-project) guides to get started.
 
 _There is an interactive version of this guide if you'd rather follow along on the Hub._
 
@@ -61,7 +61,7 @@ You can go to the sources tab and update the local copies of your source files b
 For this guide, we will be linking to the published version of the article. This will allow you to save the article in
 one of several formats so that you can replace the static tables and figures with reproducible code chunks.
 
-[Add an eLife source to your project](guides/sources/elife.md)
+[Add an eLife source to your project](../guides/sources/elife)
 
 ## Converting article to another format for editing
 
@@ -73,7 +73,7 @@ it into a reproducible article. See the available formats by clicking the **Acti
 There are two primary pathways for enriching an article:
 
 1. Save the article as a Google Doc and use the Stencila plugin for Google Docs to replace static tables and figures with reproducible versions
-2. Save the article as a Jupyter Notebook or R Markdown document, [download it](guides/projects/publish-a-project.md), and edit it locally. (See further notes below).
+2. Save the article as a Jupyter Notebook or R Markdown document, download it, and edit it locally. (See further notes below).
 
 Click on your desired format to begin the conversion process.
 **The conversion process can take some time.** In the background, Stencila Encoda needs to do several things:
@@ -90,7 +90,7 @@ a new entry in the project’s list of files:
 
 ## Create an editable manuscript to publish
 
-If you use editable formats such as R Studio or Jupyter Notebooks and you've successsfully converted the article into your chosen format, your next step is to [download the file to your computer](guides/projects/publish-a-project.md):
+If you use editable formats such as R Studio or Jupyter Notebooks and you've successsfully converted the article into your chosen format, your next step is to [download the file to your computer](../guides/projects/publish-a-project):
 
 ![](elife-tutorial-download.png)
 

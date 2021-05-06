@@ -192,39 +192,39 @@ module.exports = {
           // help articles and collections
           {
             from: '/en/articles/4184684-enriching-an-elife-article',
-            to: '/docs/tutorials/enriching-an-elife-article',
+            to: '/tutorials/enriching-an-elife-article',
           },
           {
             from: '/en/collections/2549573-formats',
-            to: '/docs/guides',
+            to: '/guides/',
           },
           {
             from: '/en/collections/2549573-formats-syntax-references',
-            to: '/docs/guides',
+            to: '/guides/',
           },
           {
             from: '/en/articles/4458566-r-markdown',
-            to: '/docs/guides/formats/rmarkdown',
+            to: '/guides/formats/rmarkdown',
           },
           {
             from: '/en/articles/4624378-jupyter-notebooks',
-            to: '/docs/guides/formats/jupyter-notebooks',
+            to: '/guides/formats/jupyter-notebooks',
           },
           {
             from: '/en/collections/2378614-stencila-for-gsuite',
-            to: '/docs/tutorials',
+            to: '/guides/',
           },
           {
             from: '/en/articles/4857017-getting-started',
-            to: '/docs/tutorials',
+            to: '/guides/',
           },
           {
             from: '/en/articles/4857019-installing-stencila-for-google-docs',
-            to: '/docs/tutorials',
+            to: '/guides/',
           },
           {
             from: '/en/articles/4857020-add-on-interface-overview',
-            to: '/docs/tutorials',
+            to: '/guides/',
           },
         ],
       },
