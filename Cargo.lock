@@ -321,10 +321,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea221b5284a47e40033bf9b66f35f984ec0ea2931eb03505246cd27a963f981b"
 
 [[package]]
-name = "cpuid-bool"
-version = "0.1.2"
+name = "cpufeatures"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8aebca1129a03dc6dc2b127edd729435bbc4a37e1d5f4d7513165089ceb02634"
+checksum = "5cd5a7748210e7ec1a9696610b1015e6e31fbf58f77a160801f124bd1c36592a"
 
 [[package]]
 name = "crc32fast"
@@ -906,7 +906,7 @@ dependencies = [
  "headers-core",
  "http",
  "mime",
- "sha-1 0.9.4",
+ "sha-1 0.9.5",
  "time",
 ]
 
@@ -1155,9 +1155,9 @@ dependencies = [
 
 [[package]]
 name = "jsonschema"
-version = "0.8.2"
+version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f279fa1ef0c4a1ad9470f38806972734ca17ee3d44aa51b2837239e32b268bb"
+checksum = "c5a9723d24101a298f0c00be94015c90b56e905b571c66ee01d207df92b24679"
 dependencies = [
  "ahash",
  "base64 0.13.0",
@@ -2420,13 +2420,13 @@ dependencies = [
 
 [[package]]
 name = "sha-1"
-version = "0.9.4"
+version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dfebf75d25bd900fd1e7d11501efab59bc846dbc76196839663e6637bba9f25f"
+checksum = "b659df5fc3ce22274daac600ffb845300bd2125bcfaec047823075afdab81c00"
 dependencies = [
  "block-buffer 0.9.0",
  "cfg-if 1.0.0",
- "cpuid-bool",
+ "cpufeatures",
  "digest 0.9.0",
  "opaque-debug 0.3.0",
 ]
@@ -2501,7 +2501,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.58.0"
+version = "0.59.0"
 dependencies = [
  "ansi_term 0.12.1",
  "bollard",
@@ -2547,7 +2547,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.58.0"
+version = "0.59.0"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -2561,7 +2561,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.58.0"
+version = "0.59.0"
 dependencies = [
  "neon",
  "stencila",
@@ -2972,7 +2972,7 @@ dependencies = [
  "input_buffer",
  "log",
  "rand 0.8.3",
- "sha-1 0.9.4",
+ "sha-1 0.9.5",
  "url",
  "utf-8",
 ]
@@ -2991,7 +2991,7 @@ dependencies = [
  "input_buffer",
  "log",
  "rand 0.8.3",
- "sha-1 0.9.4",
+ "sha-1 0.9.5",
  "thiserror",
  "url",
  "utf-8",

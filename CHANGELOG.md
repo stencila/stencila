@@ -1,3 +1,16 @@
+# [0.59.0](https://github.com/stencila/stencila/compare/v0.58.0...v0.59.0) (2021-05-06)
+
+
+### Bug Fixes
+
+* **Plugins:** Make image optional ([182bbcd](https://github.com/stencila/stencila/commit/182bbcd00f819012fffd0ef249733bb1db72a506))
+
+
+### Features
+
+* **Desktop:** Initial foundation for adding settings views ([81d7a09](https://github.com/stencila/stencila/commit/81d7a090b2396db4f4dd3519c4a37386eb5a0e02))
+* **Plugins:** Add image property to plugin manifest struct ([9d72e21](https://github.com/stencila/stencila/commit/9d72e21c2c4c4adaae5ca1b8b0521e023420d1e9))
+
 # [0.58.0](https://github.com/stencila/stencila/compare/v0.57.1...v0.58.0) (2021-05-05)
 
 
