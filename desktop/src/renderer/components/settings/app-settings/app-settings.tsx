@@ -1,6 +1,6 @@
 import { Component, h, State } from '@stencil/core'
-import { CHANNEL } from '../../../preload/index'
-import { build, ConfigSchema } from './settingsBuilder'
+import { CHANNEL } from '../../../../preload/index'
+import { build, ConfigSchema } from '../../forms/formBuilder'
 
 type Config = Record<string, unknown>
 type Settings = {
@@ -11,7 +11,7 @@ type Settings = {
 @Component({
   tag: 'app-settings',
   styleUrl: 'app-settings.css',
-  shadow: true,
+  scoped: true,
 })
 export class AppSettings {
   @State() settings: Settings | undefined
@@ -26,9 +26,10 @@ export class AppSettings {
   render() {
     return (
       <div class="app-settings">
-        <h1>Settings</h1>
-
-        {this.settings && <div>{build(this.settings.schema)}</div>}
+        <app-side-nav></app-side-nav>
+        <main>
+          <form>{this.settings && build(this.settings.schema)}</form>
+        </main>
       </div>
     )
   }

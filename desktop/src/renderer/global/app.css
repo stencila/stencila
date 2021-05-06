@@ -8,6 +8,21 @@
   Any global CSS variables should also be applied here.
 */
 
+/* @import 'remixicon/fonts/remixicon.css'; */
+@import url('https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css');
+
+:root {
+  --font-family-display: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol';
+  --font-family-body: var(--font-family-display);
+  --font-family-mono: 'IBM Plex Mono', 'Fira Code', 'monospace';
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0px;
   padding: 0px;

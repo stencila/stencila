@@ -1,0 +1,61 @@
+.app-settings {
+  @apply flex flex-row max-h-screen overflow-hidden;
+  background-color: var(--color-neutral-800);
+
+  main {
+    @apply px-4 py-12 w-full;
+    background-color: var(--color-stock);
+    max-height: 100vh;
+    overflow: auto;
+  }
+
+  form {
+    @apply mx-auto;
+    max-width: 640px;
+  }
+}
+
+h2,
+h3 {
+  @apply mt-8 mb-2;
+
+  &:not(:first-of-type) {
+    @apply pt-6;
+    border-top: 1px solid var(--color-neutral-400);
+  }
+}
+
+h2 {
+  @apply text-xl m-0 mt-8;
+
+  &:first-of-type {
+    @apply mt-0;
+  }
+
+  & + p {
+    @apply mt-0;
+  }
+}
+
+h3 {
+  @apply text-base;
+}
+
+label {
+  @apply block font-bold mt-4 mb-1 text-sm;
+  color: var(--color-neutral-800);
+}
+
+.helpText {
+  @apply mt-1 mb-0 text-xs;
+  color: var(--color-neutral-700);
+}
+
+input:not([type='checkbox']),
+textarea {
+  width: 100%;
+}
+
+textarea {
+  min-height: 6rem;
+}

@@ -5,7 +5,7 @@ import { Router } from '../../router'
 @Component({
   tag: 'app-home',
   styleUrl: 'app-home.css',
-  shadow: true,
+  scoped: true,
 })
 export class AppHome {
   private selectFiles = () => {
