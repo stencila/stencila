@@ -268,10 +268,7 @@ pub async fn main() -> Result<()> {
 mod feedback {
     use std::{collections::HashMap, sync::Mutex};
 
-    use ansi_term::{
-        Color::{Blue, Purple},
-        Style,
-    };
+    use ansi_term::Color::{Blue, Purple};
     use color_eyre::{Help, SectionExt};
     use linya::{Bar, Progress};
     use stencila::{eyre, once_cell::sync::Lazy, pubsub::ProgressEvent, serde_json};
@@ -308,7 +305,7 @@ mod feedback {
                 let bar = match bars.get(&id) {
                     Some(bar) => bar,
                     None => {
-                        let msg = format!("{}{}", prefix, message.unwrap_or(String::new()));
+                        let msg = format!("{}{}", prefix, message.unwrap_or_default());
 
                         let bar = progress.bar(expected as usize, msg);
                         bars.insert(id.clone(), bar);
@@ -319,11 +316,9 @@ mod feedback {
                 // Set the bar's current value
                 progress.set_and_draw(bar, current as usize)
             }
-        } else {
-            if let Some(message) = message {
-                // Just print the message
-                eprintln!("{}{}", prefix, message);
-            }
+        } else if let Some(message) = message {
+            // Just print the message
+            eprintln!("{}{}", prefix, message);
         }
     }
 
