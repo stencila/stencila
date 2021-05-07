@@ -7,6 +7,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import { JsonSchema } from '../JsonSchema'
 import {
+  filterEnumSchemas,
   filterInterfaceSchemas,
   filterUnionSchemas,
   getSchemaProperties,
@@ -31,7 +32,9 @@ const propertyAttributes: Record<string, string[]> = {
     '#[def = "chrono::Utc::now()"]',
     '#[serde(with = "date_serializer")]',
   ],
-  'PropertyValue.value': ['#[def = "Node::Null(Value::Null)"]'],
+  'PropertyValue.value': [
+    '#[def = "PropertyValueValue::String(String::new())"]',
+  ],
 }
 
 // Manually defined types for properties of some types
@@ -70,6 +73,10 @@ async function build(): Promise<void> {
     .map((schema) => interfaceSchemaToEnum(schema, context))
     .join('\n')
 
+  const enumEnums = filterEnumSchemas(schemas)
+    .map((schema) => enumSchemaToEnum(schema, context))
+    .join('\n')
+
   const unionEnums = filterUnionSchemas(schemas)
     .map((schema) => unionSchemaToEnum(schema, context))
     .join('\n')
@@ -81,21 +88,35 @@ async function build(): Promise<void> {
 use crate::impl_type;
 use crate::prelude::*;
 
-// Structs for each type
+/*********************************************************************
+ * Structs for "interface" schemas
+ ********************************************************************/
 
 ${structs}
 
-// Types for properties that are manually defined
+/********************************************************************* 
+ * Types for properties that are manually defined
+ ********************************************************************/
 
 ${Object.entries(propertyTypes).map(
   ([key, value]) => `type ${key} = ${value};\n`
 )}
 
-// Enums for properties which use JSON Schema 'enum' or 'anyOf'
+/********************************************************************* 
+ * Enums for struct properties which use JSON Schema 'enum' or 'anyOf'
+ ********************************************************************/
 
 ${Object.values(context.anonEnums).join('\n')}
 
-// Enums for "union" types
+/********************************************************************* 
+ * Enums for "enum" schemas
+ ********************************************************************/
+
+${enumEnums}
+
+/********************************************************************* 
+ * Enums for "union" schemas
+ ********************************************************************/
   
 ${unionEnums}`
 
@@ -183,6 +204,25 @@ impl_type!(${title});`
 }
 
 /**
+ * Generate a Rust `enum` from a "enum" schema.
+ */
+export function enumSchemaToEnum(schema: JsonSchema, context: Context): string {
+  const { title = '', description = title, anyOf } = schema
+
+  const variants = anyOf
+    ?.map((schema) => {
+      const { description = '', const: const_ = '' } = schema
+      return `    /// ${description}\n    ${const_ as string}`
+    })
+    .join(',\n')
+
+  return `${docComment(description)}
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ${title} {\n${variants}}\n`
+}
+
+/**
  * Generate a Rust `enum` from a "union" schema.
  *
  * Needs to use `serde(untagged)` because the union may include
@@ -202,7 +242,7 @@ export function unionSchemaToEnum(
     })
     .join('')
 
-  return `${docComment(description)}\n
+  return `${docComment(description)}
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${title} {\n${variants}}\n`

@@ -5,7 +5,9 @@
 use crate::impl_type;
 use crate::prelude::*;
 
-// Structs for each type
+/*********************************************************************
+ * Structs for "interface" schemas
+ ********************************************************************/
 
 /// Entity
 ///
@@ -28,71 +30,6 @@ pub struct Entity {
 }
 impl_type!(Entity);
 
-/// ArrayValidator
-///
-/// A validator specifying constraints on an array node.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
-pub struct ArrayValidator {
-    /// The name of this type
-    #[def = "\"ArrayValidator\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "ArrayValidator::deserialize_type")]
-    pub type_: String,
-
-    /// An array node is valid if at least one of its items is valid against the `contains` schema.
-    #[serde(skip)]
-    pub contains: Option<Arc<ValidatorTypes>>,
-
-    /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<String>,
-
-    /// Another validator node specifying the constraints on all items in the array.
-    #[serde(skip)]
-    pub items_validator: Option<Arc<ValidatorTypes>>,
-
-    /// An array node is valid if its size is less than, or equal to, this value.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_items: Option<Number>,
-
-    /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub meta: Option<Object>,
-
-    /// An array node is valid if its size is greater than, or equal to, this value.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub min_items: Option<Number>,
-
-    /// A flag to indicate that each value in the array should be unique.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub unique_items: Option<Bool>,
-}
-impl_type!(ArrayValidator);
-
-/// BooleanValidator
-///
-/// A schema specifying that a node must be a boolean value.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
-pub struct BooleanValidator {
-    /// The name of this type
-    #[def = "\"BooleanValidator\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "BooleanValidator::deserialize_type"
-    )]
-    pub type_: String,
-
-    /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<String>,
-
-    /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub meta: Option<Object>,
-}
-impl_type!(BooleanValidator);
-
 /// Cite
 ///
 /// A reference to a CreativeWork that is cited in another CreativeWork.
@@ -106,6 +43,10 @@ pub struct Cite {
 
     /// The target of the citation (URL or reference ID).
     pub target: String,
+
+    /// The type/s of the citation, both factually and rhetorically.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub citation_intent: Option<Vec<CitationIntentEnumeration>>,
 
     /// Determines how the citation is shown within the surrounding text.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -147,7 +88,7 @@ impl_type!(Cite);
 
 /// CiteGroup
 ///
-/// A group of `Cite` nodes
+/// A group of Cite nodes.
 #[derive(Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CiteGroup {
@@ -171,7 +112,7 @@ impl_type!(CiteGroup);
 
 /// Code
 ///
-/// Base type for code nodes e.g. `CodeBlock`, `CodeExpression`.
+/// Base type for code nodes e.g. CodeBlock, CodeExpression.
 #[derive(Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Code {
@@ -428,34 +369,6 @@ pub struct CodeError {
     pub stack_trace: Option<String>,
 }
 impl_type!(CodeError);
-
-/// ConstantValidator
-///
-/// A validator specifying a constant value that a node must have.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
-pub struct ConstantValidator {
-    /// The name of this type
-    #[def = "\"ConstantValidator\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "ConstantValidator::deserialize_type"
-    )]
-    pub type_: String,
-
-    /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<String>,
-
-    /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub meta: Option<Object>,
-
-    /// The value that the node must have.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub value: Option<Node>,
-}
-impl_type!(ConstantValidator);
 
 /// Date
 ///
@@ -995,9 +908,153 @@ pub struct Article {
 }
 impl_type!(Article);
 
+/// Claim
+///
+/// A claim represents specific reviewable facts or statements.
+#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Claim {
+    /// The name of this type
+    #[def = "\"Claim\".to_string()"]
+    #[serde(rename = "type", deserialize_with = "Claim::deserialize_type")]
+    pub type_: String,
+
+    /// Content of the claim, usually a single paragraph.
+    pub content: Vec<BlockContent>,
+
+    /// The subject matter of the content.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub about: Option<Vec<Thing>>,
+
+    /// Alternate names (aliases) for the item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub alternate_names: Option<Vec<String>>,
+
+    /// The authors of this creative work.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub authors: Option<Vec<ClaimAuthors>>,
+
+    /// Kind of the claim.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub claim_type: Option<ClaimClaimType>,
+
+    /// Comments about this creative work.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub comments: Option<Vec<Comment>>,
+
+    /// Date/time of acceptance.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub date_accepted: Option<Date>,
+
+    /// Date/time of creation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub date_created: Option<Date>,
+
+    /// Date/time of most recent modification.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub date_modified: Option<Date>,
+
+    /// Date of first publication.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub date_published: Option<Date>,
+
+    /// Date/time that work was received.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub date_received: Option<Date>,
+
+    /// A description of the item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<ClaimDescription>,
+
+    /// People who edited the `CreativeWork`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub editors: Option<Vec<Person>>,
+
+    /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub funded_by: Option<Vec<ClaimFundedBy>>,
+
+    /// People or organizations that funded the `CreativeWork`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub funders: Option<Vec<ClaimFunders>>,
+
+    /// Genre of the creative work, broadcast channel or group.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub genre: Option<Vec<String>>,
+
+    /// The identifier for this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Any kind of identifier for any kind of Thing.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub identifiers: Option<Vec<ClaimIdentifiers>>,
+
+    /// Images of the item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub images: Option<Vec<ClaimImages>>,
+
+    /// An item or other CreativeWork that this CreativeWork is a part of.
+    #[serde(skip)]
+    pub is_part_of: Option<Arc<CreativeWorkTypes>>,
+
+    /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub keywords: Option<Vec<String>>,
+
+    /// A short label for the claim.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+
+    /// License documents that applies to this content, typically indicated by URL.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub licenses: Option<Vec<ClaimLicenses>>,
+
+    /// The people or organizations who maintain this CreativeWork.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maintainers: Option<Vec<ClaimMaintainers>>,
+
+    /// Metadata associated with this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Object>,
+
+    /// The name of the item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parts: Option<Vec<CreativeWorkTypes>>,
+
+    /// A publisher of the CreativeWork.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub publisher: Option<ClaimPublisher>,
+
+    /// References to other creative works, such as another publication, web page, scholarly article, etc.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub references: Option<Vec<ClaimReferences>>,
+
+    /// The textual content of this creative work.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<String>,
+
+    /// The title of the creative work.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<ClaimTitle>,
+
+    /// The URL of the item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+
+    /// The version of the creative work.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<ClaimVersion>,
+}
+impl_type!(Claim);
+
 /// Collection
 ///
-/// A created collection of CreativeWorks or other artefacts.
+/// A collection of CreativeWorks or other artifacts.
 #[derive(Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Collection {
@@ -1838,6 +1895,120 @@ pub struct DefinedTerm {
 }
 impl_type!(DefinedTerm);
 
+/// Validator
+///
+/// A base for all validator types.
+#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Validator {
+    /// The name of this type
+    #[def = "\"Validator\".to_string()"]
+    #[serde(rename = "type", deserialize_with = "Validator::deserialize_type")]
+    pub type_: String,
+
+    /// The identifier for this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Metadata associated with this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Object>,
+}
+impl_type!(Validator);
+
+/// ArrayValidator
+///
+/// A validator specifying constraints on an array node.
+#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct ArrayValidator {
+    /// The name of this type
+    #[def = "\"ArrayValidator\".to_string()"]
+    #[serde(rename = "type", deserialize_with = "ArrayValidator::deserialize_type")]
+    pub type_: String,
+
+    /// An array node is valid if at least one of its items is valid against the `contains` schema.
+    #[serde(skip)]
+    pub contains: Option<Arc<ValidatorTypes>>,
+
+    /// The identifier for this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Another validator node specifying the constraints on all items in the array.
+    #[serde(skip)]
+    pub items_validator: Option<Arc<ValidatorTypes>>,
+
+    /// An array node is valid if its size is less than, or equal to, this value.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_items: Option<Number>,
+
+    /// Metadata associated with this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Object>,
+
+    /// An array node is valid if its size is greater than, or equal to, this value.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min_items: Option<Number>,
+
+    /// A flag to indicate that each value in the array should be unique.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unique_items: Option<Bool>,
+}
+impl_type!(ArrayValidator);
+
+/// BooleanValidator
+///
+/// A schema specifying that a node must be a boolean value.
+#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct BooleanValidator {
+    /// The name of this type
+    #[def = "\"BooleanValidator\".to_string()"]
+    #[serde(
+        rename = "type",
+        deserialize_with = "BooleanValidator::deserialize_type"
+    )]
+    pub type_: String,
+
+    /// The identifier for this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Metadata associated with this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Object>,
+}
+impl_type!(BooleanValidator);
+
+/// ConstantValidator
+///
+/// A validator specifying a constant value that a node must have.
+#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct ConstantValidator {
+    /// The name of this type
+    #[def = "\"ConstantValidator\".to_string()"]
+    #[serde(
+        rename = "type",
+        deserialize_with = "ConstantValidator::deserialize_type"
+    )]
+    pub type_: String,
+
+    /// The identifier for this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Metadata associated with this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Object>,
+
+    /// The value that the node must have.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub value: Option<Node>,
+}
+impl_type!(ConstantValidator);
+
 /// EnumValidator
 ///
 /// A schema specifying that a node must be one of several values.
@@ -1862,6 +2033,51 @@ pub struct EnumValidator {
     pub values: Option<Vec<Node>>,
 }
 impl_type!(EnumValidator);
+
+/// Enumeration
+///
+/// Lists or enumerations, for example, a list of cuisines or music genres, etc.
+#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Enumeration {
+    /// The name of this type
+    #[def = "\"Enumeration\".to_string()"]
+    #[serde(rename = "type", deserialize_with = "Enumeration::deserialize_type")]
+    pub type_: String,
+
+    /// Alternate names (aliases) for the item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub alternate_names: Option<Vec<String>>,
+
+    /// A description of the item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<EnumerationDescription>,
+
+    /// The identifier for this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Any kind of identifier for any kind of Thing.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub identifiers: Option<Vec<EnumerationIdentifiers>>,
+
+    /// Images of the item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub images: Option<Vec<EnumerationImages>>,
+
+    /// Metadata associated with this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Object>,
+
+    /// The name of the item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+
+    /// The URL of the item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+}
+impl_type!(Enumeration);
 
 /// Figure
 ///
@@ -2318,50 +2534,6 @@ pub struct Include {
 }
 impl_type!(Include);
 
-/// NumberValidator
-///
-/// A validator specifying the constraints on a numeric node.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
-#[serde(default, rename_all = "camelCase")]
-pub struct NumberValidator {
-    /// The name of this type
-    #[def = "\"NumberValidator\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "NumberValidator::deserialize_type"
-    )]
-    pub type_: String,
-
-    /// The exclusive upper limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub exclusive_maximum: Option<Number>,
-
-    /// The exclusive lower limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub exclusive_minimum: Option<Number>,
-
-    /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<String>,
-
-    /// The inclusive upper limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub maximum: Option<Number>,
-
-    /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub meta: Option<Object>,
-
-    /// The inclusive lower limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub minimum: Option<Number>,
-
-    /// A number that a numeric node must be a multiple of.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub multiple_of: Option<Number>,
-}
-impl_type!(NumberValidator);
-
 /// IntegerValidator
 ///
 /// A validator specifying the constraints on an integer node.
@@ -2376,33 +2548,13 @@ pub struct IntegerValidator {
     )]
     pub type_: String,
 
-    /// The exclusive upper limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub exclusive_maximum: Option<Number>,
-
-    /// The exclusive lower limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub exclusive_minimum: Option<Number>,
-
     /// The identifier for this item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
-    /// The inclusive upper limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub maximum: Option<Number>,
-
     /// Metadata associated with this item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
-
-    /// The inclusive lower limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub minimum: Option<Number>,
-
-    /// A number that a numeric node must be a multiple of.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub multiple_of: Option<Number>,
 }
 impl_type!(IntegerValidator);
 
@@ -2725,6 +2877,78 @@ pub struct NontextualAnnotation {
     pub meta: Option<Object>,
 }
 impl_type!(NontextualAnnotation);
+
+/// Note
+///
+/// Additional content which is not part of the main content of a document.
+#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Note {
+    /// The name of this type
+    #[def = "\"Note\".to_string()"]
+    #[serde(rename = "type", deserialize_with = "Note::deserialize_type")]
+    pub type_: String,
+
+    /// Content of the note, usually a paragraph.
+    pub content: Vec<BlockContent>,
+
+    /// The identifier for this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Metadata associated with this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Object>,
+
+    /// Determines where the note content is displayed within the document.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub note_type: Option<NoteNoteType>,
+}
+impl_type!(Note);
+
+/// NumberValidator
+///
+/// A validator specifying the constraints on a numeric node.
+#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct NumberValidator {
+    /// The name of this type
+    #[def = "\"NumberValidator\".to_string()"]
+    #[serde(
+        rename = "type",
+        deserialize_with = "NumberValidator::deserialize_type"
+    )]
+    pub type_: String,
+
+    /// The exclusive upper limit for a numeric node.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exclusive_maximum: Option<Number>,
+
+    /// The exclusive lower limit for a numeric node.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exclusive_minimum: Option<Number>,
+
+    /// The identifier for this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// The inclusive upper limit for a numeric node.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maximum: Option<Number>,
+
+    /// Metadata associated with this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub meta: Option<Object>,
+
+    /// The inclusive lower limit for a numeric node.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub minimum: Option<Number>,
+
+    /// A number that a numeric node must be a multiple of.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub multiple_of: Option<Number>,
+}
+impl_type!(NumberValidator);
 
 /// Organization
 ///
@@ -3307,8 +3531,8 @@ pub struct PropertyValue {
     pub type_: String,
 
     /// The value of the property.
-    #[def = "Node::Null(Value::Null)"]
-    pub value: Node,
+    #[def = "PropertyValueValue::String(String::new())"]
+    pub value: PropertyValueValue,
 
     /// Alternate names (aliases) for the item.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4946,11 +5170,15 @@ pub struct VolumeMount {
 }
 impl_type!(VolumeMount);
 
-// Types for properties that are manually defined
+/*********************************************************************
+ * Types for properties that are manually defined
+ ********************************************************************/
 
 type DateValue = chrono::DateTime<chrono::Utc>;
 
-// Enums for properties which use JSON Schema 'enum' or 'anyOf'
+/*********************************************************************
+ * Enums for struct properties which use JSON Schema 'enum' or 'anyOf'
+ ********************************************************************/
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum CiteCitationMode {
@@ -4979,38 +5207,38 @@ pub enum CitePageStart {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkAssigns {
-    String(String),
     Variable(Variable),
+    String(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkCaption {
+    VecBlockContent(Vec<BlockContent>),
     String(String),
-    VecNode(Vec<Node>),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkDeclares {
-    String(String),
     Variable(Variable),
     Function(Function),
+    String(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkImports {
-    String(String),
     SoftwareSourceCode(SoftwareSourceCode),
     SoftwareApplication(SoftwareApplication),
+    String(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkUses {
-    String(String),
     Variable(Variable),
+    String(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -5060,8 +5288,8 @@ pub enum BrandImages {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BrandLogo {
-    String(String),
     ImageObject(ImageObject),
+    String(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -5266,6 +5494,103 @@ pub enum ArticleTitle {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleVersion {
+    String(String),
+    Number(Number),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimAuthors {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum ClaimClaimType {
+    Statement,
+    Theorem,
+    Lemma,
+    Proof,
+    Postulate,
+    Hypothesis,
+    Proposition,
+    Corollary,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimFundedBy {
+    Grant(Grant),
+    MonetaryGrant(MonetaryGrant),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimFunders {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimLicenses {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimMaintainers {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimPublisher {
+    Person(Person),
+    Organization(Organization),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimReferences {
+    CreativeWorkTypes(CreativeWorkTypes),
+    String(String),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimTitle {
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ClaimVersion {
     String(String),
     Number(Number),
 }
@@ -5741,6 +6066,28 @@ pub enum DefinedTermImages {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
+pub enum EnumerationDescription {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum EnumerationIdentifiers {
+    PropertyValue(PropertyValue),
+    String(String),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum EnumerationImages {
+    ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum FigureAuthors {
     Person(Person),
     Organization(Organization),
@@ -5749,8 +6096,8 @@ pub enum FigureAuthors {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureCaption {
+    VecBlockContent(Vec<BlockContent>),
     String(String),
-    VecNode(Vec<Node>),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -6011,10 +6358,17 @@ pub enum MonetaryGrantSponsors {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub enum NoteNoteType {
+    Footnote,
+    Endnote,
+    Sidenote,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationAddress {
-    String(String),
     PostalAddress(PostalAddress),
+    String(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -6049,8 +6403,8 @@ pub enum OrganizationImages {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationLogo {
-    String(String),
     ImageObject(ImageObject),
+    String(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -6148,8 +6502,8 @@ pub enum PeriodicalVersion {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonAddress {
-    String(String),
     PostalAddress(PostalAddress),
+    String(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -6228,8 +6582,17 @@ pub enum ProductImages {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProductLogo {
-    String(String),
     ImageObject(ImageObject),
+    String(String),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum PropertyValueValue {
+    Bool(Bool),
+    Integer(Integer),
+    Number(Number),
+    String(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -6807,8 +7170,8 @@ pub enum TableAuthors {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableCaption {
+    VecBlockContent(Vec<BlockContent>),
     String(String),
-    VecNode(Vec<Node>),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -7008,13 +7371,207 @@ pub enum VolumeMountImages {
     String(String),
 }
 
-// Enums for "union" types
+/*********************************************************************
+ * Enums for "enum" schemas
+ ********************************************************************/
+
+/// The type or nature of a citation, both factually and rhetorically.
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CitationIntentEnumeration {
+    /// The citing entity agrees with statements, ideas or conclusions presented in the cited entity
+    AgreesWith,
+    /// The citing entity cites the cited entity as one that provides an authoritative description or definition of the subject under discussion
+    CitesAsAuthority,
+    /// The citing entity cites the cited entity as source of data
+    CitesAsDataSource,
+    /// The citing entity cites the cited entity as source of factual evidence for statements it contains
+    CitesAsEvidence,
+    /// The citing entity cites the cited entity as being the container of metadata describing the citing entity
+    CitesAsMetadataDocument,
+    /// The citing entity cites the cited entity as providing or containing a possible solution to the issues being discussed
+    CitesAsPotentialSolution,
+    /// The citing entity cites the cited entity as an item of recommended reading
+    CitesAsRecommendedReading,
+    /// The citing entity cites the cited entity as one that is related
+    CitesAsRelated,
+    /// The citing entity cites the cited entity as being the entity from which the citing entity is derived, or about which the citing entity contains metadata
+    CitesAsSourceDocument,
+    /// The citing entity cites the cited entity as a source of information on the subject under discussion
+    CitesForInformation,
+    /// The citing entity is used to create or compile the cited entity
+    Compiles,
+    /// The citing entity confirms facts, ideas or statements presented in the cited entity
+    Confirms,
+    /// The citing entity contains a statement of fact or a logical assertion (or a collection of such facts and/or assertions) originally present in the cited entity
+    ContainsAssertionFrom,
+    /// The citing entity corrects statements, ideas or conclusions presented in the cited entity
+    Corrects,
+    /// The citing entity acknowledges contributions made by the cited entity
+    Credits,
+    /// The citing entity critiques statements, ideas or conclusions presented in the cited entity
+    Critiques,
+    /// The citing entity express derision for the cited entity, or for ideas or conclusions contained within it
+    Derides,
+    /// The citing entity describes the cited entity
+    Describes,
+    /// The citing entity disagrees with statements, ideas or conclusions presented in the cited entity
+    DisagreesWith,
+    /// The citing entity discusses statements, ideas or conclusions presented in the cited entity
+    Discusses,
+    /// The citing entity disputes statements, ideas or conclusions presented in the cited entity
+    Disputes,
+    /// The citing entity documents information about the cited entity
+    Documents,
+    /// The citing entity extends facts, ideas or understandings presented in the cited entity
+    Extends,
+    /// The cited entity provides background information for the citing entity
+    GivesBackgroundTo,
+    /// The cited entity provides intellectual or factual support for the citing entity
+    GivesSupportTo,
+    /// The cited entity evokes a reply from the citing entity
+    HasReplyFrom,
+    /// The citing entity includes one or more excerpts from the cited entity
+    IncludesExcerptFrom,
+    /// The citing entity includes one or more quotations from the cited entity
+    IncludesQuotationFrom,
+    /// The cited entity contains statements, ideas or conclusions with which the citing entity agrees
+    IsAgreedWithBy,
+    /// The cited entity is cited as providing an authoritative description or definition of the subject under discussion in the citing entity
+    IsCitedAsAuthorityBy,
+    /// The cited entity is cited as a data source by the citing entity
+    IsCitedAsDataSourceBy,
+    /// The cited entity is cited for providing factual evidence to the citing entity
+    IsCitedAsEvidenceBy,
+    /// The cited entity is cited as being the container of metadata relating to the citing entity
+    IsCitedAsMetadataDocumentBy,
+    /// The cited entity is cited as providing or containing a possible solution to the issues being discussed in the citing entity
+    IsCitedAsPontentialSolutionBy,
+    /// The cited entity is cited by the citing entity as an item of recommended reading
+    IsCitedAsRecommendedReadingBy,
+    /// The cited entity is cited as being related to the citing entity
+    IsCitedAsRelatedBy,
+    /// The cited entity is cited as being the entity from which the citing entity is derived, or about which the citing entity contains metadata
+    IsCitedAsSourceDocumentBy,
+    /// The cited entity (the subject of the RDF triple) is cited by the citing entity (the object of the triple)
+    IsCitedBy,
+    /// The cited entity is cited as a source of information on the subject under discussion in the citing entity
+    IsCitedForInformationBy,
+    /// The cited entity is the result of a compile or creation event using the citing entity
+    IsCompiledBy,
+    /// The cited entity presents facts, ideas or statements that are confirmed by the citing entity
+    IsConfirmedBy,
+    /// The cited entity presents statements, ideas or conclusions that are corrected by the citing entity
+    IsCorrectedBy,
+    /// The cited entity makes contributions that are acknowledged by the citing entity
+    IsCreditedBy,
+    /// The cited entity presents statements, ideas or conclusions that are critiqued by the citing entity
+    IsCritiquedBy,
+    /// The cited entity contains ideas or conclusions for which the citing entity express derision
+    IsDeridedBy,
+    /// The cited entity is described by the citing entity
+    IsDescribedBy,
+    /// The cited entity presents statements, ideas or conclusions that are disagreed with by the citing entity
+    IsDisagreedWithBy,
+    /// The cited entity presents statements, ideas or conclusions that are discussed by the citing entity
+    IsDiscussedBy,
+    /// The cited entity presents statements, ideas or conclusions that are disputed by the citing entity
+    IsDisputedBy,
+    /// Information about the cited entity is documented by the citing entity
+    IsDocumentedBy,
+    /// The cited entity presents facts, ideas or understandings that are extended by the citing entity
+    IsExtendedBy,
+    /// The cited entity is the target for an HTTP Uniform Resource Locator (URL) link within the citing entity
+    IsLinkedToBy,
+    /// The characteristic style or content of the cited entity is imitated by the citing entity for comic effect, usually without explicit citation
+    IsParodiedBy,
+    /// The cited entity is plagiarized by the author of the citing entity, who includes within the citing entity textual or other elements from the cited entity without formal acknowledgement of their source
+    IsPlagiarizedBy,
+    /// The cited entity presents statements, ideas or conclusions that are qualified or have conditions placed upon them by the citing entity
+    IsQualifiedBy,
+    /// The cited entity presents statements, ideas or conclusions that are refuted by the citing entity
+    IsRefutedBy,
+    /// The cited entity is formally retracted by the citing entity
+    IsRetractedBy,
+    /// The cited entity presents statements, ideas or conclusions that are reviewed by the citing entity
+    IsReviewedBy,
+    /// The cited entity or aspects of its contents are ridiculed by the citing entity
+    IsRidiculedBy,
+    /// The cited entity is cited because the citing article contains speculations on its content or ideas
+    IsSpeculatedOnBy,
+    /// The cited entity receives intellectual or factual support from the citing entity
+    IsSupportedBy,
+    /// The cited entity presents statements, ideas, hypotheses or understanding that are updated by the cited entity
+    IsUpdatedBy,
+    /// A property that permits you to express appreciation of or interest in something that is the object of the RDF triple, or to express that it is worth thinking about even if you do not agree with its content, enabling social media 'likes' statements to be encoded in RDF
+    Likes,
+    /// The citing entity provides a link, in the form of an HTTP Uniform Resource Locator (URL), to the cited entity
+    LinksTo,
+    /// The citing entity obtains background information from the cited entity
+    ObtainsBackgroundFrom,
+    /// The citing entity obtains intellectual or factual support from the cited entity
+    ObtainsSupportFrom,
+    /// The citing entity imitates the characteristic style or content of the cited entity for comic effect, usually without explicit citation
+    Parodies,
+    /// A property indicating that the author of the citing entity plagiarizes the cited entity, by including textual or other elements from the cited entity without formal acknowledgement of their source
+    Plagiarizes,
+    /// The cited entity contains and is the original source of a statement of fact or a logical assertion (or a collection of such facts and/or assertions) that is to be found in the citing entity
+    ProvidesAssertionFor,
+    /// The cited entity presents conclusions that are used in work described in the citing entity
+    ProvidesConclusionsFor,
+    /// The cited entity presents data that are used in work described in the citing entity
+    ProvidesDataFor,
+    /// The cited entity contains information, usually of a textual nature, that is excerpted by (used as an excerpt within) the citing entity
+    ProvidesExcerptFor,
+    /// The cited entity details a method that is used in work described by the citing entity
+    ProvidesMethodFor,
+    /// The cited entity contains information, usually of a textual nature, that is quoted by (used as a quotation within) the citing entity
+    ProvidesQuotationFor,
+    /// The citing entity qualifies or places conditions or restrictions upon statements, ideas or conclusions presented in the cited entity
+    Qualifies,
+    /// The citing entity refutes statements, ideas or conclusions presented in the cited entity
+    Refutes,
+    /// The citing entity replies to statements, ideas or criticisms presented in the cited entity
+    RepliesTo,
+    /// The citing entity constitutes a formal retraction of the cited entity
+    Retracts,
+    /// The citing entity reviews statements, ideas or conclusions presented in the cited entity
+    Reviews,
+    /// The citing entity ridicules the cited entity or aspects of its contents
+    Ridicules,
+    /// Each entity has at least one author that shares a common institutional affiliation with an author of the other entity
+    SharesAuthorInstitutionWith,
+    /// Each entity has at least one author in common with the other entity
+    SharesAuthorWith,
+    /// The two entities result from activities that have been funded by the same funding agency
+    SharesFundingAgencyWith,
+    /// The citing and cited bibliographic resources are published in the same journal
+    SharesJournalWith,
+    /// The citing and cited bibliographic resources are published in same publication venue
+    SharesPublicationVenueWith,
+    /// The citing entity speculates on something within or related to the cited entity, without firm evidence
+    SpeculatesOn,
+    /// The citing entity provides intellectual or factual support for statements, ideas or conclusions presented in the cited entity
+    Supports,
+    /// The citing entity updates statements, ideas, hypotheses or understanding presented in the cited entity
+    Updates,
+    /// The citing entity describes work that uses conclusions presented in the cited entity
+    UsesConclusionsFrom,
+    /// The citing entity describes work that uses data presented in the cited entity
+    UsesDataFrom,
+    /// The citing entity describes work that uses a method detailed in the cited entity
+    UsesMethodIn,
+}
+
+/*********************************************************************
+ * Enums for "union" schemas
+ ********************************************************************/
 
 /// Union type for valid block content.
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BlockContent {
+    Claim(Claim),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
     Collection(Collection),
@@ -7030,7 +7587,6 @@ pub enum BlockContent {
 }
 
 /// All type schemas that are derived from CodeBlock
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeBlockTypes {
@@ -7039,7 +7595,6 @@ pub enum CodeBlockTypes {
 }
 
 /// All type schemas that are derived from CodeFragment
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeFragmentTypes {
@@ -7048,7 +7603,6 @@ pub enum CodeFragmentTypes {
 }
 
 /// All type schemas that are derived from Code
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeTypes {
@@ -7060,7 +7614,6 @@ pub enum CodeTypes {
 }
 
 /// All type schemas that are derived from ContactPoint
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointTypes {
@@ -7069,13 +7622,13 @@ pub enum ContactPointTypes {
 }
 
 /// All type schemas that are derived from CreativeWork
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkTypes {
     CreativeWork(CreativeWork),
     Article(Article),
     AudioObject(AudioObject),
+    Claim(Claim),
     Collection(Collection),
     Comment(Comment),
     Datatable(Datatable),
@@ -7093,7 +7646,6 @@ pub enum CreativeWorkTypes {
 }
 
 /// All type schemas that are derived from Entity
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EntityTypes {
@@ -7103,8 +7655,10 @@ pub enum EntityTypes {
     AudioObject(AudioObject),
     BooleanValidator(BooleanValidator),
     Brand(Brand),
+    CitationIntentEnumeration(CitationIntentEnumeration),
     Cite(Cite),
     CiteGroup(CiteGroup),
+    Claim(Claim),
     Code(Code),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
@@ -7123,6 +7677,7 @@ pub enum EntityTypes {
     Delete(Delete),
     Emphasis(Emphasis),
     EnumValidator(EnumValidator),
+    Enumeration(Enumeration),
     Figure(Figure),
     Function(Function),
     Grant(Grant),
@@ -7140,6 +7695,7 @@ pub enum EntityTypes {
     MediaObject(MediaObject),
     MonetaryGrant(MonetaryGrant),
     NontextualAnnotation(NontextualAnnotation),
+    Note(Note),
     NumberValidator(NumberValidator),
     Organization(Organization),
     Paragraph(Paragraph),
@@ -7168,13 +7724,21 @@ pub enum EntityTypes {
     ThematicBreak(ThematicBreak),
     Thing(Thing),
     TupleValidator(TupleValidator),
+    Validator(Validator),
     Variable(Variable),
     VideoObject(VideoObject),
     VolumeMount(VolumeMount),
 }
 
-/// All type schemas that are derived from Grant
+/// All type schemas that are derived from Enumeration
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum EnumerationTypes {
+    Enumeration(Enumeration),
+    CitationIntentEnumeration(CitationIntentEnumeration),
+}
 
+/// All type schemas that are derived from Grant
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantTypes {
@@ -7183,15 +7747,10 @@ pub enum GrantTypes {
 }
 
 /// Union type for valid inline content.
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineContent {
-    Null(Null),
-    Bool(Bool),
-    Integer(Integer),
-    Number(Number),
-    String(String),
+    AudioObject(AudioObject),
     Cite(Cite),
     CiteGroup(CiteGroup),
     CodeExpression(CodeExpression),
@@ -7201,15 +7760,22 @@ pub enum InlineContent {
     ImageObject(ImageObject),
     Link(Link),
     MathFragment(MathFragment),
+    MediaObject(MediaObject),
     NontextualAnnotation(NontextualAnnotation),
+    Note(Note),
     Quote(Quote),
     Strong(Strong),
     Subscript(Subscript),
     Superscript(Superscript),
+    VideoObject(VideoObject),
+    Null(Null),
+    Bool(Bool),
+    Integer(Integer),
+    Number(Number),
+    String(String),
 }
 
 /// All type schemas that are derived from Mark
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MarkTypes {
@@ -7224,7 +7790,6 @@ pub enum MarkTypes {
 }
 
 /// All type schemas that are derived from Math
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MathTypes {
@@ -7234,7 +7799,6 @@ pub enum MathTypes {
 }
 
 /// All type schemas that are derived from MediaObject
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectTypes {
@@ -7245,31 +7809,20 @@ pub enum MediaObjectTypes {
 }
 
 /// Union type for all valid nodes.
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Node {
     Entity(Entity),
+    Null(Null),
+    Bool(Bool),
     Integer(Integer),
     Number(Number),
-    Bool(Bool),
-    Null(Null),
     String(String),
-    Array(Array),
     Object(Object),
-}
-
-/// All type schemas that are derived from NumberValidator
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum NumberValidatorTypes {
-    NumberValidator(NumberValidator),
-    IntegerValidator(IntegerValidator),
+    Array(Array),
 }
 
 /// All type schemas that are derived from Thing
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingTypes {
@@ -7277,6 +7830,8 @@ pub enum ThingTypes {
     Article(Article),
     AudioObject(AudioObject),
     Brand(Brand),
+    CitationIntentEnumeration(CitationIntentEnumeration),
+    Claim(Claim),
     Collection(Collection),
     Comment(Comment),
     ContactPoint(ContactPoint),
@@ -7284,6 +7839,7 @@ pub enum ThingTypes {
     Datatable(Datatable),
     DatatableColumn(DatatableColumn),
     DefinedTerm(DefinedTerm),
+    Enumeration(Enumeration),
     Figure(Figure),
     Grant(Grant),
     ImageObject(ImageObject),
@@ -7308,23 +7864,22 @@ pub enum ThingTypes {
     VolumeMount(VolumeMount),
 }
 
-/// Union type for all validator types.
-
+/// All type schemas that are derived from Validator
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ValidatorTypes {
+    Validator(Validator),
+    ArrayValidator(ArrayValidator),
+    BooleanValidator(BooleanValidator),
     ConstantValidator(ConstantValidator),
     EnumValidator(EnumValidator),
-    BooleanValidator(BooleanValidator),
-    NumberValidator(NumberValidator),
     IntegerValidator(IntegerValidator),
+    NumberValidator(NumberValidator),
     StringValidator(StringValidator),
-    ArrayValidator(ArrayValidator),
     TupleValidator(TupleValidator),
 }
 
 /// All type schemas that are derived from Variable
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VariableTypes {
