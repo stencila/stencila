@@ -9,6 +9,7 @@ use crate::prelude::*;
  * Structs for "interface" schemas
  ********************************************************************/
 
+
 /// Entity
 ///
 /// The most simple compound (ie. non-atomic like `number`, `string` etc) type.
@@ -1801,10 +1802,7 @@ impl_type!(AudioObject);
 pub struct DatatableColumn {
     /// The name of this type
     #[def = "\"DatatableColumn\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "DatatableColumn::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "DatatableColumn::deserialize_type")]
     pub type_: String,
 
     /// The name of the item.
@@ -1965,10 +1963,7 @@ impl_type!(ArrayValidator);
 pub struct BooleanValidator {
     /// The name of this type
     #[def = "\"BooleanValidator\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "BooleanValidator::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "BooleanValidator::deserialize_type")]
     pub type_: String,
 
     /// The identifier for this item.
@@ -1989,10 +1984,7 @@ impl_type!(BooleanValidator);
 pub struct ConstantValidator {
     /// The name of this type
     #[def = "\"ConstantValidator\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "ConstantValidator::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "ConstantValidator::deserialize_type")]
     pub type_: String,
 
     /// The identifier for this item.
@@ -2542,10 +2534,7 @@ impl_type!(Include);
 pub struct IntegerValidator {
     /// The name of this type
     #[def = "\"IntegerValidator\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "IntegerValidator::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "IntegerValidator::deserialize_type")]
     pub type_: String,
 
     /// The identifier for this item.
@@ -2859,10 +2848,7 @@ impl_type!(MonetaryGrant);
 pub struct NontextualAnnotation {
     /// The name of this type
     #[def = "\"NontextualAnnotation\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "NontextualAnnotation::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "NontextualAnnotation::deserialize_type")]
     pub type_: String,
 
     /// The content that is marked.
@@ -2914,10 +2900,7 @@ impl_type!(Note);
 pub struct NumberValidator {
     /// The name of this type
     #[def = "\"NumberValidator\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "NumberValidator::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "NumberValidator::deserialize_type")]
     pub type_: String,
 
     /// The exclusive upper limit for a numeric node.
@@ -3580,10 +3563,7 @@ impl_type!(PropertyValue);
 pub struct PublicationIssue {
     /// The name of this type
     #[def = "\"PublicationIssue\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "PublicationIssue::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "PublicationIssue::deserialize_type")]
     pub type_: String,
 
     /// The subject matter of the content.
@@ -3736,10 +3716,7 @@ impl_type!(PublicationIssue);
 pub struct PublicationVolume {
     /// The name of this type
     #[def = "\"PublicationVolume\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "PublicationVolume::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "PublicationVolume::deserialize_type")]
     pub type_: String,
 
     /// The subject matter of the content.
@@ -4093,10 +4070,7 @@ impl_type!(Review);
 pub struct SoftwareApplication {
     /// The name of this type
     #[def = "\"SoftwareApplication\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "SoftwareApplication::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "SoftwareApplication::deserialize_type")]
     pub type_: String,
 
     /// The subject matter of the content.
@@ -4241,10 +4215,7 @@ impl_type!(SoftwareApplication);
 pub struct SoftwareEnvironment {
     /// The name of this type
     #[def = "\"SoftwareEnvironment\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "SoftwareEnvironment::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "SoftwareEnvironment::deserialize_type")]
     pub type_: String,
 
     /// The name of the item.
@@ -4300,10 +4271,7 @@ impl_type!(SoftwareEnvironment);
 pub struct SoftwareSession {
     /// The name of this type
     #[def = "\"SoftwareSession\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "SoftwareSession::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "SoftwareSession::deserialize_type")]
     pub type_: String,
 
     /// Alternate names (aliases) for the item.
@@ -4416,10 +4384,7 @@ impl_type!(SoftwareSession);
 pub struct SoftwareSourceCode {
     /// The name of this type
     #[def = "\"SoftwareSourceCode\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "SoftwareSourceCode::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "SoftwareSourceCode::deserialize_type")]
     pub type_: String,
 
     /// The subject matter of the content.
@@ -4580,10 +4545,7 @@ impl_type!(SoftwareSourceCode);
 pub struct StringValidator {
     /// The name of this type
     #[def = "\"StringValidator\".to_string()"]
-    #[serde(
-        rename = "type",
-        deserialize_with = "StringValidator::deserialize_type"
-    )]
+    #[serde(rename = "type", deserialize_with = "StringValidator::deserialize_type")]
     pub type_: String,
 
     /// The identifier for this item.
@@ -5174,7 +5136,8 @@ impl_type!(VolumeMount);
  * Types for properties that are manually defined
  ********************************************************************/
 
-type DateValue = chrono::DateTime<chrono::Utc>;
+type DateValue = chrono::DateTime::<chrono::Utc>;
+
 
 /*********************************************************************
  * Enums for struct properties which use JSON Schema 'enum' or 'anyOf'
@@ -7371,6 +7334,7 @@ pub enum VolumeMountImages {
     String(String),
 }
 
+
 /*********************************************************************
  * Enums for "enum" schemas
  ********************************************************************/
@@ -7563,10 +7527,11 @@ pub enum CitationIntentEnumeration {
     UsesMethodIn,
 }
 
+
 /*********************************************************************
  * Enums for "union" schemas
  ********************************************************************/
-
+  
 /// Union type for valid block content.
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]

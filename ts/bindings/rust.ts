@@ -94,7 +94,7 @@ use crate::prelude::*;
 
 ${structs}
 
-/********************************************************************* 
+/*********************************************************************
  * Types for properties that are manually defined
  ********************************************************************/
 
@@ -102,19 +102,19 @@ ${Object.entries(propertyTypes).map(
   ([key, value]) => `type ${key} = ${value};\n`
 )}
 
-/********************************************************************* 
+/*********************************************************************
  * Enums for struct properties which use JSON Schema 'enum' or 'anyOf'
  ********************************************************************/
 
 ${Object.values(context.anonEnums).join('\n')}
 
-/********************************************************************* 
+/*********************************************************************
  * Enums for "enum" schemas
  ********************************************************************/
 
 ${enumEnums}
 
-/********************************************************************* 
+/*********************************************************************
  * Enums for "union" schemas
  ********************************************************************/
   
@@ -212,9 +212,9 @@ export function enumSchemaToEnum(schema: JsonSchema, context: Context): string {
   const variants = anyOf
     ?.map((schema) => {
       const { description = '', const: const_ = '' } = schema
-      return `    /// ${description}\n    ${const_ as string}`
+      return `    /// ${description}\n    ${const_ as string},\n`
     })
-    .join(',\n')
+    .join('')
 
   return `${docComment(description)}
 #[derive(Debug, Serialize, Deserialize)]
