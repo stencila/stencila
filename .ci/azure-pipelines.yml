@@ -77,6 +77,12 @@ jobs:
         condition: or(contains(variables.changed, 'rust'), contains(variables.changed, 'cli'))
         displayName: 'CLI: Test'
 
+      # Use Node.js 16.x for `node` and `desktop` tests and builds
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '16.x' 
+        displayName: 'Node.js: Use 16.x'
+
       # Node.js package is tested if there are changes in the `rust` or `node` folders.
       - script: |
           set -e
