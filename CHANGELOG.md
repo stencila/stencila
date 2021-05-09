@@ -1,3 +1,21 @@
+# [0.60.0](https://github.com/stencila/stencila/compare/v0.59.0...v0.60.0) (2021-05-09)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency @mdx-js/react to v1.6.22 ([48c673f](https://github.com/stencila/stencila/commit/48c673fabb4f8a941d5e4cd4d2ea7c31b9ac24d0))
+* **dependencies:** update rust crate jsonschema to 0.9.0 ([b574365](https://github.com/stencila/stencila/commit/b5743654fa18a0e048f09f9fe9cb94608a863dd8))
+* **dependencies:** update rust crate neon to 0.8.1 ([664e534](https://github.com/stencila/stencila/commit/664e5345e4f965f144ad046eb8a4e6cbe20c5e68))
+* **dependencies:** update rust crate regex to 1.5.4 ([bb12f1a](https://github.com/stencila/stencila/commit/bb12f1a552ea26f9928605eb1ab8b0292c3eeee3))
+* **dependencies:** update rust crate url to 2.2.2 ([80e8b8e](https://github.com/stencila/stencila/commit/80e8b8ed850010c4a0dfb05a8941fe1ce8176977))
+
+
+### Features
+
+* **Desktop:** Add ability to check for plugin updates ([45fd4b0](https://github.com/stencila/stencila/commit/45fd4b00f6259d23bba6804ef548e53480ff4250))
+* **Desktop:** Add ability to manage plugin installations ([1969153](https://github.com/stencila/stencila/commit/196915379a3719bfb8d46b54eb2c271cc87c287c))
+* **Desktop:** Add Settings window router ([65e9ca0](https://github.com/stencila/stencila/commit/65e9ca0c69194f32d254c253b4dcbfa5f4c268d0))
+
 # [0.59.0](https://github.com/stencila/stencila/compare/v0.58.0...v0.59.0) (2021-05-06)
 
 
