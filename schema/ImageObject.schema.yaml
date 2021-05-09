@@ -15,3 +15,12 @@ properties:
     description: Thumbnail image of this image.
     allOf:
       - $ref: ImageObject
+examples:
+  - type: ImageObject
+    caption: Kiwi
+    contentSize: '10.4'
+    contentUrl: http://www.example.com/kiwi.png
+    encodingFormat: image/png
+    thumbnail:
+      type: ImageObject
+      contentUrl: http://www.example.com/kiwi_mini.png

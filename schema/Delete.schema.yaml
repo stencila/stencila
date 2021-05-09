@@ -5,4 +5,18 @@ role: secondary
 status: stable
 category: prose
 description: Content that is marked for deletion
+$comment: |
+  Analogues of `Delete` in other schema include:
+    - HTML [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del)
+    - JATS XML [`<strike>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/strike.html)
+    - MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete)
+    - Pandoc [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258)
 properties: {}
+examples:
+  - type: Paragraph
+    content:
+      - 'The following is '
+      - type: Delete
+        content:
+          - marked for deletion
+      - .

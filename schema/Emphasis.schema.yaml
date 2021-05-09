@@ -5,4 +5,17 @@ role: secondary
 status: stable
 category: prose
 description: Emphasised content.
+$comment: |
+  Analogues of `Delete` in other schema include:
+    - HTML [`<em>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em)
+    - JATS XML [`<italic>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/italic.html)
+    - MDAST [`Emphasis`](https://github.com/syntax-tree/mdast#emphasis)
+    - Pandoc [`Emph`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L256)
 properties: {}
+examples:
+  - type: Paragraph
+    content:
+      - 'The following content has extra '
+      - type: Emphasis
+        content:
+          - emphasis

@@ -4,7 +4,16 @@ extends: Thing
 role: tertiary
 status: unstable
 category: other
-description: A contact point, for example, a R&D department.
+description: A contact point, usually within an organization.
+$comment:
+  This is an implementation of schema.org [`ContactPoint`](https://schema.org/ContactPoint).
+  It extends schema.org `ContactPoint` by, adding a `content` property which must be
+  an array of [`BlockContent`](./BlockContent), as well as the properties added by
+  [`CreativeWork`](./CreativeWork) which it extends.
+
+  `ContactPoint` is analogous, and structurally similar to, the JATS XML
+  [`<corresp>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/corresp.html) element
+  and the HTML5 [`<address>`](https://dev.w3.org/html5/html-author/#the-address-element) element.
 properties:
   availableLanguages:
     '@id': schema:availableLanguage
@@ -29,3 +38,11 @@ properties:
     type: array
     items:
       type: string
+examples:
+  - type: ContactPoint
+    availableLanguages:
+      - English
+      - Māori
+    emails:
+      - welcome@example.org
+    telephone: '00641234567'

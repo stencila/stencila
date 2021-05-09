@@ -5,6 +5,15 @@ role: tertiary
 status: stable
 category: prose
 description: A single item in a list.
+$comment: |
+  This is an implementation, and extension, of schema.org [`ListItem`](https://schema.org/ListItem).
+  It extends schema.ord `ListItem` by adding `content` and `isChecked` properties.
+
+  Analogues of `ListItem` in other schema include:
+    - JATS XML `<list-item>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/list-item.html)
+    - HTML [`<li>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li)
+    - MDAST [`ListItem`](https://github.com/syntax-tree/mdast#listitem)
+    - OpenDocument [`<text:list-item>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415154_253892949)
 properties:
   content:
     '@id': stencila:content
@@ -28,3 +37,18 @@ properties:
     '@id': schema:position
     description: The position of the item in a series or sequence of items.
     type: number
+examples:
+  - type: ListItem
+    content:
+      - List Item Content
+  - type: ListItem
+    content:
+      - List Item Content
+      - type: List
+        order: ordered
+        items:
+          - Nested Item One
+  - type: ListItem
+    isChecked: true
+    content:
+      - Completed todo item

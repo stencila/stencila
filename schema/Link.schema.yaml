@@ -5,6 +5,13 @@ role: secondary
 status: unstable
 category: prose
 description: A hyperlink to other pages, sections within the same document, resources, or any URL.
+$comment: |
+  Analogues of `Link` in other schema include:
+    - HTML [`<a>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a)
+    - JATS XML [`<ext-link>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/ext-link.html)
+    - MDAST [`Link`](https://github.com/syntax-tree/mdast#link)
+    - OpenDocument [`<text:a>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415212_253892949)
+    - Pandoc [`Link`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L270)
 properties:
   content:
     '@id': stencila:content
@@ -52,3 +59,8 @@ properties:
 required:
   - content
   - target
+examples:
+  - type: Link
+    content:
+      - Stencila’s website
+    target: https://stenci.la

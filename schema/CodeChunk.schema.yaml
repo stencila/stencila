@@ -1,10 +1,26 @@
 title: CodeChunk
 '@id': stencila:CodeChunk
 extends: CodeBlock
+category: code
 role: secondary
 status: unstable
-category: code
 description: A executable chunk of code.
+$comment: |
+  A `CodeChunk` has two 'source' properties, `text` and `programmingLanguage`, from which it's other properties
+  are derived during compilation (e.g. `import`, `declares`) or execution (e.g. `outputs`).
+
+  All `CodeChunk`s are required to have a `text` property, containing the actual code,
+  and most will also specify the `programmingLanguage`. If `programmingLanguage` is not specified
+  then it defaults to the language of the previous `CodeChunk` or `CodeExpression` in the document.
+
+  The `imports` property lists the packages that a `CodeChunk` imports into the execution context.
+  It is used by the compiler to populate the `requires` property of the document containing the
+  chunk so that it can build an execution environment for it (e.g. a Docker container).
+
+  The `declares` property lists the variables that a `CodeChunk` declares.
+  It is used by the compiler to build a graph of the dependencies among `CodeChunk`s and `CodeExpressions`.
+  This in turn allows for reactivity. When a user changes a chunk containing a declaration,
+  all of the other chunks or expressions that use that variable will be re-executed.
 properties:
   caption:
     '@id': schema:caption
@@ -104,3 +120,26 @@ properties:
     description: Duration in seconds of the last execution of the chunk.
     type: number
     minimum: 0
+examples:
+  - type: CodeChunk
+    language: python
+    text: print('Hello world')
+  - type: CodeChunk
+    language: r
+    text: |
+      superdoopa::func("beep", "boop")
+    imports:
+      - superdoopa
+  - type: CodeChunk
+    language: python
+    text: |
+      def greet(who: str):
+        return 'Hello %s!' % who
+    declares:
+      - type: Function
+        name: greet
+        parameters:
+          - type: Parameter
+            name: who
+            schema:
+              - type: StringValidator
