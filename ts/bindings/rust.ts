@@ -121,7 +121,7 @@ ${enumEnums}
 ${unionEnums}`
 
   await fs.writeFile(
-    path.join(__dirname, '..', '..', 'rust', 'src', 'types.rs'),
+    path.join(__dirname, '..', '..', 'rs', 'src', 'types.rs'),
     code
   )
 }
