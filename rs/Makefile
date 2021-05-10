@@ -1,4 +1,4 @@
-all: regen format lint test
+all: regen format lint test docs
 
 regen:
 	npm run build:rust
@@ -11,3 +11,9 @@ lint:
 
 test:
 	cargo test
+
+docs:
+	cargo doc --no-deps
+
+clean:
+	cargo clean

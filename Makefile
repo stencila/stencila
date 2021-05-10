@@ -11,16 +11,19 @@ setup:
 
 format:
 	npm run format
+	make -C rs format
 
 lint:
 	npm run lint
 	make -C py lint
 	make -C r lint
+	make -C rs lint
 
 test:
 	npm test
 	make -C py test
 	make -C r test
+	make -C rs test
 
 build:
 	npm run build
@@ -31,12 +34,14 @@ docs:
 	npm run docs
 	make -C py docs
 	make -C r docs
+	make -C rs docs
 .PHONY: docs
 
 clean:
 	npm run clean
 	make -C py clean
 	make -C r clean
+	make -C rs clean
 
 # Build Docker image for development
 build-image:
