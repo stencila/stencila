@@ -297,7 +297,7 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
 
   const hasProperties = Object.keys(properties).length > 0
 
-  let commentContent =
+  const commentContent =
     $comment !== undefined
       ? (((await encoda.load($comment, 'md')) as Article)
           .content as BlockContent[])
