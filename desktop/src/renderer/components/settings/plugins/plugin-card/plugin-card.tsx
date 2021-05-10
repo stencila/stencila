@@ -2,6 +2,7 @@ import { Component, h, Prop, State } from '@stencil/core'
 import { plugins } from 'stencila'
 import { CHANNEL } from '../../../../../preload/index'
 import { getAvailablePlugins, pluginStore } from '../pluginStore'
+import { i18n } from '../../../../../i18n'
 
 @Component({
   tag: 'plugin-card',
@@ -54,7 +55,7 @@ export class AppPlugins {
           icon="refresh"
           size="small"
         >
-          Upgrade
+          {i18n.t('settings.plugins.upgrade')}
         </stencila-button>
       )
     }
@@ -68,7 +69,7 @@ export class AppPlugins {
           onClick={() => this.uninstall(this.pluginName)}
           size="small"
         >
-          Uninstall
+          {i18n.t('settings.plugins.uninstall')}
         </stencila-button>
       )
     }
@@ -81,7 +82,7 @@ export class AppPlugins {
         onClick={() => this.install(this.pluginName)}
         size="small"
       >
-        Install
+        {i18n.t('settings.plugins.install')}
       </stencila-button>
     )
   }

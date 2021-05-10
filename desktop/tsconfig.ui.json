@@ -9,6 +9,7 @@
   },
   "include": [
     "./src/renderer",
+    "./src/i18n",
     "./src/preload/index.ts",
     "./src/preload/types.d.ts"
   ]

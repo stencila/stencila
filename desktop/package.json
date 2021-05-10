@@ -69,6 +69,7 @@
     "@apidevtools/json-schema-ref-parser": "^9.0.7",
     "@stencila/components": "0.30.1",
     "electron-squirrel-startup": "1.0.0",
+    "i18next": "^20.2.2",
     "stencila": "file:../node"
   },
   "config": {

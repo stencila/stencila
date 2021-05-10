@@ -1,0 +1,19 @@
+{
+  "translation": {
+    "core": {
+      "welcome": "Hello {{user}}"
+    },
+    "settings": {
+      "general": {
+        "title": "General"
+      },
+      "plugins": {
+        "checkUpdates": "Check for Updates",
+        "title": "Plugins",
+        "install": "Install",
+        "uninstall": "Uninstall",
+        "upgrade": "Upgrade"
+      }
+    }
+  }
+}

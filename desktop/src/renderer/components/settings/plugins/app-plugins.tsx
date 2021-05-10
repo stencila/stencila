@@ -1,6 +1,7 @@
 import { Component, h, State } from '@stencil/core'
 import { CHANNEL } from '../../../../preload/index'
 import { getAvailablePlugins, pluginStore } from './pluginStore'
+import { i18n } from '../../../../i18n'
 
 @Component({
   tag: 'app-plugins',
@@ -28,13 +29,13 @@ export class AppPlugins {
     return (
       <div class="appPlugins">
         <div class="title">
-          <h1>Plugins</h1>
+          <h1>{i18n.t('core.welcome')}</h1>
           <stencila-button
             onClick={this.checkForUpdates}
             size="xsmall"
             color="neutral"
           >
-            Check for updates
+            {i18n.t('settings.plugins.checkUpdates')}
           </stencila-button>
         </div>
         {pluginStore.plugins.ids.map((pluginName) => (

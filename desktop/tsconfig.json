@@ -16,5 +16,5 @@
       "*": ["node_modules/*"]
     }
   },
-  "include": ["./src/main", "./src/preload", "./src/lib.d.ts"]
+  "include": ["./src/main", "./src/preload", "./src/i18n", "./src/lib.d.ts"]
 }
