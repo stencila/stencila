@@ -5,6 +5,13 @@ role: secondary
 status: stable
 category: text
 description: Paragraph
+$comment: |
+  Analogues of `Paragraph` in other schema include:
+    - HTML [`<p>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p)
+    - JATS XML [`<p>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/p.html)
+    - MDAST [`Paragraph`](https://github.com/syntax-tree/mdast#Paragraph)
+    - OpenDocument [`<text:p>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415138_253892949)
+    - Pandoc [`Para`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L220)
 properties:
   content:
     '@id': 'stencila:content'
@@ -14,3 +21,17 @@ properties:
       $ref: InlineContent
 required:
   - content
+examples:
+  - type: Paragraph
+    content:
+      - Some text content representing ideas expressed as words.
+  - type: Paragraph
+    content:
+      - Some text with some
+      - type: Emphasis
+        content:
+          - emphasized words
+      - ' and '
+      - type: Strong
+        content:
+          - some strongly emphasized words

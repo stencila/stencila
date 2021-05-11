@@ -5,6 +5,13 @@ role: secondary
 status: stable
 category: other
 description: An organization such as a school, NGO, corporation, club, etc.
+$comment: |
+  This is an implementation of schema.org [`Organization`](https://schema.org/Organization).
+
+  An `Organization` node is analogous, and structurally similar to:
+  - Crossref Organization element [`<crossref:organization>`](https://data.crossref.org/reports/help/schema_doc/4.4.0/relations_xsd.html#http___www.crossref.org_relations.xsd_organization)
+  - JATS XML [`<institution-wrap>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/institution-wrap.html)
+  - Open Document [`<text:organizations>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1419060_253892949) and [`<text:institutions>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1418948_253892949)
 properties:
   address:
     '@id': schema:address
@@ -74,3 +81,36 @@ properties:
       Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
     allOf:
       - $ref: Organization
+examples:
+  - type: Organization
+    address: Sciences Building, Dunedin, New Zealand
+    legalName: Department of Natural Sciences
+    parentOrganization:
+      type: Organization
+      legalName: The University of Otago
+  - type: Organization
+    address: 362 Leith Street, Dunedin 9054, New Zealand
+    brands:
+      - type: Brand
+        logo: http://www.otago.ac.nz/logo
+    contactPoints:
+      - type: ContactPoint
+        availableLanguages:
+          - English
+          - Māori
+        emails:
+          - office@otago.ac.nz
+        telephone: '00641234567'
+    departments:
+      - type: Organization
+        legalName: Commerce
+      - type: Organization
+        legalName: Health_Sciences
+      - type: Organization
+        legalName: Humanities
+    funders:
+      - type: Organization
+        legalName: MBIE
+      - type: Organization
+        legalName: CancerSociety
+    legalName: The University of Otago
