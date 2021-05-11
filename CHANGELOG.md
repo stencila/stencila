@@ -1,3 +1,11 @@
+## [1.6.1](https://github.com/stencila/schema/compare/v1.6.0...v1.6.1) (2021-05-11)
+
+
+### Bug Fixes
+
+* Update status properties, add note on status to docs and publish experimental schemas ([7fe6693](https://github.com/stencila/schema/commit/7fe6693af95980c925c60b793c43e3c3d124a760))
+* **String:** Rename from Text for better consistency with other data types and languages ([a944fea](https://github.com/stencila/schema/commit/a944fea47e7da8ea43a3e57b8611709220864c61))
+
 # [1.6.0](https://github.com/stencila/schema/compare/v1.5.3...v1.6.0) (2021-05-11)
 
 
