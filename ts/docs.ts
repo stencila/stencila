@@ -440,6 +440,15 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
             target: id2RDocs(id),
           }),
         ],
+      }),
+      paragraph({
+        content: [
+          'Rust ',
+          link({
+            content: [codeFragment({ text: `struct ${title}` })],
+            target: id2RustDocs(id),
+          }),
+        ],
       })
     )
   }
@@ -652,4 +661,14 @@ function id2TypeScriptDocs(id: string): string {
  */
 function id2RDocs(_id: string): string {
   return `https://cran.r-project.org/web/packages/stencilaschema/stencilaschema.pdf`
+}
+
+/**
+ * Generate a URL for the Rust docs for an id
+ *
+ * @param id The id of the type, including it's context e.g. `schema:Article`
+ */
+function id2RustDocs(id: string): string {
+  const [_context, name = ''] = id.split(':')
+  return `https://docs.rs/stencila_schema/latest/struct.${name}.html`
 }
