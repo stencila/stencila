@@ -141,10 +141,10 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - script: make -C rust lint
+      - script: make -C rs lint
         displayName: Run linting
 
-      - script: make -C rust test
+      - script: make -C rs test
         displayName: Run tests
 
       - script: cd rs && cargo login $(CRATES_TOKEN) && cargo publish
