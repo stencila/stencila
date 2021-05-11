@@ -1,5 +1,6 @@
 title: Number
 '@id': schema:Number
 category: data
+status: stable
 description: A value that is a number
 type: number

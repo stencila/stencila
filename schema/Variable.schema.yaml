@@ -2,7 +2,7 @@ title: Variable
 '@id': stencila:Variable
 extends: Entity
 role: secondary
-status: unstable
+status: experimental
 category: code
 description: A variable representing a name / value pair.
 properties:

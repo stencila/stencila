@@ -1,9 +1,9 @@
 title: CitationIntentEnumeration
 '@id': stencila:CitationIntentEnumeration
-status: unstable
-category: text
-role: secondary
 extends: Enumeration
+category: text
+status: unstable
+role: secondary
 description: The type or nature of a citation, both factually and rhetorically.
 $comment: |
   The members of this enumeration map directly on to the types in the [Citation Typing Ontology (CiTO)](http://www.sparontologies.net/ontologies/cito).

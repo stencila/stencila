@@ -2,7 +2,7 @@ title: Parameter
 '@id': stencila:Parameter
 extends: Variable
 role: secondary
-status: unstable
+status: experimental
 category: code
 description: A parameter that can be set and used in evaluated code.
 properties:

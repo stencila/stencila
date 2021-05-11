@@ -2,7 +2,7 @@ title: MathBlock
 '@id': stencila:MathBlock
 extends: Math
 role: secondary
-status: unstable
+status: stable
 category: math
 description: A block of math, e.g an equation, to be treated as block content.
 properties:

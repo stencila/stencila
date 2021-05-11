@@ -3,7 +3,7 @@ title: SoftwareApplication
 extends: CreativeWork
 category: works
 role: primary
-status: unstable
+status: stable
 description: |
   A software application.
 $comment: |

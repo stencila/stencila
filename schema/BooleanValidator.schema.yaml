@@ -1,9 +1,9 @@
 title: BooleanValidator
 '@id': stencila:BooleanValidator
 extends: Validator
+category: data
 role: validation
 status: unstable
-category: data
 description: A schema specifying that a node must be a boolean value.
 $comment: |
   A node will be valid against this schema if it is either `true` or `false.

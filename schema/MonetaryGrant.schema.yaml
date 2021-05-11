@@ -2,7 +2,7 @@ title: MonetaryGrant
 '@id': schema:MonetaryGrant
 extends: Grant
 role: tertiary
-status: unstable
+status: stable
 category: other
 description: A monetary grant.
 properties:

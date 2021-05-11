@@ -3,7 +3,7 @@ title: List
 extends: Entity
 category: text
 role: secondary
-status: unstable
+status: stable
 description: A list of items.
 $comment: |
   This is an implementation, and renaming, of schema.org [`ItemList`](https://schema.org/ItemList).

@@ -281,6 +281,7 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
     title = 'Untitled',
     '@id': id = '',
     anyOf = [],
+    status = 'experimental',
     description = '',
     properties = {},
     required = [],
@@ -306,6 +307,20 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
       ? [
           paragraph({
             content: ['This type is an implementation of ', id2Link(id), '.'],
+          }),
+        ]
+      : []
+
+  const statusNote =
+    status !== 'stable'
+      ? [
+          paragraph({
+            content: [
+              'This schema type is marked as ',
+              strong({ content: [status] }),
+              status === 'experimental' ? ' 🧪' : ' ⚠️',
+              ' and is subject to change.',
+            ],
           }),
         ]
       : []
@@ -468,6 +483,8 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
       paragraph({ content: [strong({ content: [description] })] }),
 
       ...commentContent,
+
+      ...statusNote,
 
       ...(membersTable !== undefined
         ? [heading({ content: ['Members'], depth: 2 }), membersTable]

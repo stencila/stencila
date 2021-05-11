@@ -2,7 +2,7 @@ title: VolumeMount
 '@id': stencila:VolumeMount
 extends: Thing
 role: tertiary
-status: unstable
+status: experimental
 category: code
 description: |
   Describes a volume mount from a host to container.

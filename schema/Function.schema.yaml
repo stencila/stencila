@@ -2,7 +2,7 @@ title: Function
 '@id': stencila:Function
 extends: Entity
 role: secondary
-status: unstable
+status: experimental
 category: code
 description: A function with a name, which might take Parameters and return a value of a certain type.
 properties:

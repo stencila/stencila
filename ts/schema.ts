@@ -44,10 +44,6 @@ const recordGuard = (a: unknown): a is Record<string | number, unknown> =>
 
 /**
  * Generate `public/*.schema.json` files from `schema/*.schema.yaml` files.
- *
- * Does NOT write out `status: experimental` schemas, since
- * they are likely to cause more breaking changes than `stable`, or `unstable`
- * schemas.
  */
 export async function build(cleanup = true): Promise<void> {
   // Clean up old files
@@ -105,12 +101,6 @@ export async function build(cleanup = true): Promise<void> {
   await fs.ensureDir('public')
   await Promise.all(
     Array.from(schemas.entries()).map(async ([title, schema]) => {
-      if (schema.status === 'experimental') {
-        log.info(
-          `Schema "${title}" is marked as status experimental so will not be published`
-        )
-        return
-      }
       const destPath = path.join(SCHEMA_DEST_DIR, title + '.schema.json')
       await fs.writeJSON(destPath, schema, { spaces: 2 })
     })
@@ -150,7 +140,7 @@ const checkSchema = (
   allIds: { [key: string]: string }
 ): boolean => {
   let valid = true
-  const { title, extends: extends_, description, properties } = schema
+  const { title, extends: extends_, description, status, properties } = schema
 
   log.debug(`Checking type schema "${title}".`)
   if (title === undefined) return true
@@ -168,12 +158,17 @@ const checkSchema = (
     error(`${title} is not a valid JSON Schema:\n${ajv.errors}`)
   }
 
+  // Should have a valid description
   const maxDescriptionLength = 120
-
-  // All schemas should have a description
-  if (description === undefined) error(`${title} is missing description`)
+  if (description === undefined) error(`${title} schema is missing description`)
   else if (description.length > maxDescriptionLength)
     error(`${title}.description is too long`)
+
+  // Should have a valid status
+  const validStatuses = ['stable', 'unstable', 'experimental']
+  if (status === undefined) error(`${title} schema is missing status`)
+  else if (!validStatuses.includes(status))
+    error(`${title}.status should be in ${validStatuses}`)
 
   // Type schemas have necessary properties and extends is valid
   if (properties !== undefined) {
@@ -376,10 +371,6 @@ const processSchema = (
           default: title,
         }
       }
-
-      // Do not affect parent or other ancestors if this
-      // schema is experimental
-      if (schema.status === 'experimental') return
 
       // Add to parent's children
       parent.children =

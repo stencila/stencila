@@ -1,5 +1,6 @@
 title: Object
 '@id': stencila:Object
 category: data
+status: stable
 description: A value comprised of keyed values.
 type: object

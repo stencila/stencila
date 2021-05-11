@@ -2,7 +2,7 @@ title: SoftwareEnvironment
 '@id': stencila:SoftwareEnvironment
 extends: Thing
 role: primary
-status: unstable
+status: experimental
 category: code
 description: A computational environment.
 properties:

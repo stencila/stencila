@@ -2,7 +2,7 @@ title: CodeExpression
 '@id': stencila:CodeExpression
 extends: CodeFragment
 role: secondary
-status: stable
+status: unstable
 category: code
 description: An expression defined in programming language source code.
 properties:

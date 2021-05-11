@@ -2,7 +2,7 @@ title: Brand
 '@id': schema:Brand
 extends: Thing
 role: tertiary
-status: unstable
+status: stable
 category: other
 description: |
   A brand used by an organization or person for labeling a product,

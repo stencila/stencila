@@ -1,5 +1,6 @@
 title: InlineContent
 category: text
+status: stable
 description: Union type for valid inline content.
 $comment: |
   Note that this definition currently does not include

@@ -2,7 +2,7 @@ title: Grant
 '@id': schema:Grant
 extends: Thing
 role: tertiary
-status: unstable
+status: stable
 category: other
 description: A grant, typically financial or otherwise quantifiable, of resources.
 properties:

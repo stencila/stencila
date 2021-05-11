@@ -1,5 +1,6 @@
 title: Node
 category: other
+status: unstable
 description: Union type for all valid nodes.
 $comment: |
   The order of these types is important because it determines the

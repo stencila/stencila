@@ -2,7 +2,7 @@ title: Math
 '@id': stencila:Math
 extends: Entity
 role: base
-status: unstable
+status: stable
 category: math
 description: A mathematical variable or equation.
 $comment: |

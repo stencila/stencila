@@ -2,7 +2,7 @@ title: SoftwareSession
 '@id': stencila:SoftwareSession
 extends: Thing
 role: primary
-status: unstable
+status: experimental
 category: code
 description: |
   Definition of a compute session, including its software and compute resource

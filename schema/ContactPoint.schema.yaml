@@ -2,7 +2,7 @@ title: ContactPoint
 '@id': schema:ContactPoint
 extends: Thing
 role: tertiary
-status: unstable
+status: stable
 category: other
 description: A contact point, usually within an organization.
 $comment:

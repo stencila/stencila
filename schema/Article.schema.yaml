@@ -3,7 +3,7 @@ title: Article
 extends: CreativeWork
 category: works
 role: primary
-status: unstable
+status: stable
 description: An article, including news and scholarly articles.
 $comment: |
   This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).
