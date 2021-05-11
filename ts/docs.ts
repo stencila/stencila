@@ -670,5 +670,5 @@ function id2RDocs(_id: string): string {
  */
 function id2RustDocs(id: string): string {
   const [_context, name = ''] = id.split(':')
-  return `https://docs.rs/stencila_schema/latest/struct.${name}.html`
+  return `https://docs.rs/stencila-schema/latest/stencila_schema/struct.${name}.html`
 }
