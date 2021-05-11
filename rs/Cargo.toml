@@ -1,9 +1,14 @@
 [package]
-name = "stencila_schema"
+name = "stencila-schema"
 version = "1.5.3"
-authors = ["Nokome Bentley <nokome@stenci.la>"]
 edition = "2018"
+description = "Rust bindings for Stencila Schema"
+authors = ["Nokome Bentley <nokome@stenci.la>"]
+license = "Apache-2.0"
 readme = "README.md"
+homepage = "https://schema.stenci.la"
+repository = "https://github.com/stencila/schema"
+keywords = ["schema", "executable", "documents"]
 
 [dependencies]
 chrono = "0.4.19"
