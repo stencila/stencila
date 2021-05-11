@@ -43,6 +43,7 @@
   },
   "homepage": "https://github.com/stencila/schema#readme",
   "devDependencies": {
+    "@semantic-release/exec": "5.0.0",
     "@stencila/dev-config": "2.0.7",
     "@stencila/encoda": "0.116.1",
     "@stencila/logga": "4.0.0",
@@ -150,16 +151,28 @@
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
       "@semantic-release/changelog",
+      [
+        "@semantic-release/exec",
+        {
+          "prepareCmd": "./.ci/prepare-release.sh ${nextRelease.version}"
+        }
+      ],
       "@semantic-release/npm",
       [
         "@semantic-release/git",
         {
           "assets": [
-            "package.json",
             "CHANGELOG.md",
+            "package.json",
+            "package-lock.json",
             "py/stencila/schema/types.py",
+            "py/setup.py",
             "r/R/types.R",
             "r/NAMESPACE",
+            "r/DESCRIPTION",
+            "rs/src/types.rs",
+            "rs/Cargo.toml",
+            "rs/Cargo.lock",
             ".vscode/settings.json"
           ]
         }

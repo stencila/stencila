@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Bash functions for doing things as part of CI build
 

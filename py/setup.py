@@ -5,7 +5,6 @@ import sys
 
 import io
 import os
-import subprocess
 from setuptools import setup, Command
 from shutil import rmtree
 
@@ -13,31 +12,6 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 with io.open(os.path.join(HERE, "README.md"), encoding="utf-8") as f:
     long_description = "\n" + f.read()
-
-VERSION_PATH = os.path.join(HERE, "version")
-
-
-def get_tag_version() -> str:
-    """Get the version by parsing git tag."""
-    result = subprocess.run(
-        ["git", "describe", "--tags", "--abbrev=0"],
-        stdout=subprocess.PIPE,
-        encoding="ascii",
-    )
-    version = result.stdout
-    return version[1:] if version.startswith("v") else version
-
-
-def get_version():
-    """On build (in CI), the version should be written out, then included and be available during install."""
-    if os.path.exists(VERSION_PATH):
-        with open(VERSION_PATH) as vf:
-            return vf.read().strip()
-
-    tag_version = get_tag_version().strip()
-    with open(VERSION_PATH, "w") as vf:
-        vf.write(tag_version)
-    return tag_version
 
 
 class UploadCommand(Command):
@@ -86,7 +60,7 @@ class UploadCommand(Command):
 
 setup(
     name="stencila-schema",
-    version=get_version(),
+    version="1.5.3",
     description="",
     long_description=long_description,
     long_description_content_type="text/markdown",

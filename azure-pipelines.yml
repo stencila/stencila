@@ -47,7 +47,7 @@ jobs:
           NPM_TOKEN: $(NPM_TOKEN)
         displayName: Release package
 
-      - script: bash ci.sh deploy_typescript_docs_to_pages
+      - script: bash .ci/publish-docs.sh deploy_typescript_docs_to_pages
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: Release docs
         env:
@@ -88,7 +88,7 @@ jobs:
           TWINE_PASSWORD: $(TWINE_PASSWORD)
         displayName: Release package
 
-      - script: bash ci.sh deploy_python_docs_to_pages
+      - script: bash .ci/publish-docs.sh deploy_python_docs_to_pages
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         displayName: Release docs
         env:
@@ -131,7 +131,7 @@ jobs:
       - script: make -C r docs
         displayName: Build docs
   # Git is not available in rstudio/r-base:4.0-focal currently being used
-  #      - script: bash ci.sh deploy_r_docs_to_pages
+  #      - script: bash .ci/publish-docs.sh deploy_r_docs_to_pages
   #        condition: condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   #        displayName: Release docs
   #        env:
