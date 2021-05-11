@@ -1,6 +1,8 @@
 # Stencila Schema for Rust
 
 [![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.schema?branchName=master)](https://dev.azure.com/stencila/stencila/_build/latest?definitionId=9&branchName=master)
+[![Crates.io](https://img.shields.io/crates/v/stencila-schema)](https://crates.io/crates/stencila-schema)
+[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.rs/stencila-schema/latest/stencila_schema/)
 
 This crate provides Rust bindings for the [Stencila Schema](https://schema.stenci.la). It is primarily aimed at Rust developers wanting to programmatically generate or modify documents, particularly executable documents. For example, it is used in the [Stencila Rust library](https://github.com/stencila/stencila/tree/master/rust).
 

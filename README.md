@@ -12,11 +12,12 @@
 
 |  |||
 |--|-------|-------------|
-JSON-LD | [![Context](https://img.shields.io/badge/json--ld-%40context-success)](https://schema.stenci.la/stencila.jsonld) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/)
-JSON Schema | [![Schema](https://img.shields.io/badge/json%20schema-v1-success)](https://unpkg.com/browse/@stencila/schema@1/dist/) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/)
+JSON-LD | [![Context](https://img.shields.io/badge/json--ld-%40context-success)](https://schema.stenci.la/stencila.jsonld) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://schema.stenci.la)
+JSON Schema | [![Schema](https://img.shields.io/badge/json%20schema-v1-success)](https://unpkg.com/browse/@stencila/schema@1/dist/) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://schema.stenci.la)
 TypeScript/JavaScript | [![NPM](https://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/ts/docs) |
 Python | [![PyPI](https://img.shields.io/pypi/v/stencila-schema.svg)](https://pypi.org/project/stencila-schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/py/docs) |
 R | [![CRAN](https://www.r-pkg.org/badges/version/stencilaschema)](https://cran.r-project.org/web/packages/stencilaschema/) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/r/docs) |
+Rust | [![Crates.io](https://img.shields.io/crates/v/stencila-schema)](https://crates.io/crates/stencila-schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.rs/stencila-schema/latest/stencila_schema/)
 
 <br>
 
