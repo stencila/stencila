@@ -45,11 +45,11 @@ jobs:
           GIT_COMMITTER_EMAIL: ci@stenci.la
           GITHUB_TOKEN: $(GITHUB_TOKEN)
           NPM_TOKEN: $(NPM_TOKEN)
-        displayName: Release package
+        displayName: Publish package
 
       - script: bash .ci/publish-docs.sh deploy_typescript_docs_to_pages
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-        displayName: Release docs
+        displayName: Publish docs
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
@@ -86,11 +86,11 @@ jobs:
         env:
           TWINE_USERNAME: stencila
           TWINE_PASSWORD: $(TWINE_PASSWORD)
-        displayName: Release package
+        displayName: Publish package
 
       - script: bash .ci/publish-docs.sh deploy_python_docs_to_pages
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-        displayName: Release docs
+        displayName: Publish docs
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
@@ -133,7 +133,7 @@ jobs:
   # Git is not available in rstudio/r-base:4.0-focal currently being used
   #      - script: bash .ci/publish-docs.sh deploy_r_docs_to_pages
   #        condition: condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-  #        displayName: Release docs
+  #        displayName: Publish docs
   #        env:
   #          GITHUB_TOKEN: $(GITHUB_TOKEN)
 
@@ -146,3 +146,9 @@ jobs:
 
       - script: make -C rust test
         displayName: Run tests
+
+      - script: cd rs && cargo login $(CRATES_TOKEN) && cargo publish
+        condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+        env:
+          CRATES_TOKEN: $(CRATES_TOKEN)
+        displayName: Publish crate
