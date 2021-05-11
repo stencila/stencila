@@ -10,7 +10,7 @@ export const nodeType = (node: Node): keyof Types => {
   if (node === null) return 'Null'
   if (typeof node === 'boolean') return 'Boolean'
   if (typeof node === 'number') return 'Number'
-  if (typeof node === 'string') return 'Text'
+  if (typeof node === 'string') return 'String'
   if (Array.isArray(node)) return 'Array'
   if (isEntity(node)) return node.type
   return 'Object'
