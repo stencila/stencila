@@ -546,7 +546,7 @@ Brand <- function(
 }
 
 
-#' A contact point, for example, a R&D department.
+#' A contact point, usually within an organization.
 #'
 #' @name ContactPoint
 #' @param alternateNames Alternate names (aliases) for the item.
@@ -1985,7 +1985,7 @@ Grant <- function(
 }
 
 
-#' Heading
+#' A heading.
 #'
 #' @name Heading
 #' @param content Content of the heading. \bold{Required}.

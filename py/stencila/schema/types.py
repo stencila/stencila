@@ -567,7 +567,7 @@ class Brand(Thing):
 
 
 class ContactPoint(Thing):
-    """A contact point, for example, a R&D department."""
+    """A contact point, usually within an organization."""
 
     availableLanguages: Optional[Array[str]] = None
     """Languages (human not programming) in which it is possible to communicate
@@ -1819,7 +1819,7 @@ class Grant(Thing):
 
 
 class Heading(Entity):
-    """Heading"""
+    """A heading."""
 
     content: Array["InlineContent"]
     """Content of the heading."""

@@ -1,3 +1,18 @@
+# [1.6.0](https://github.com/stencila/schema/compare/v1.5.3...v1.6.0) (2021-05-11)
+
+
+### Bug Fixes
+
+* **Rust:** Expose enum schemas, fix other types ([7c13871](https://github.com/stencila/schema/commit/7c138713df1f9ed999deb0cedf46822ec06aba8f))
+* **Rust:** Fix casing and visibility ([47486cf](https://github.com/stencila/schema/commit/47486cf7fdbfed61ee51fcd09abdaea206df25c1))
+* **Rust bindings:** Use pointers to avoid recursive types ([40e27ee](https://github.com/stencila/schema/commit/40e27eeade71bf6584bc3d8c129c55e2d28ec5c6))
+
+
+### Features
+
+* **Rust bindings:** Add  JSON serialization and deserialization ([7bee60f](https://github.com/stencila/schema/commit/7bee60f515a5a2280fc92d9ef93cf98bb6f9f868))
+* **Rust bindings:** Add bindings for Rust ([34d789f](https://github.com/stencila/schema/commit/34d789f0b171c9383e6b59b0d956629209c3bb13))
+
 ## [1.5.3](https://github.com/stencila/schema/compare/v1.5.2...v1.5.3) (2021-05-06)
 
 
