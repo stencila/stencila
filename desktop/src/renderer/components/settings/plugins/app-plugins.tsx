@@ -29,7 +29,7 @@ export class AppPlugins {
     return (
       <div class="appPlugins">
         <div class="title">
-          <h1>{i18n.t('core.welcome')}</h1>
+          <h1>{i18n.t('settings.plugins.title')}</h1>
           <stencila-button
             onClick={this.checkForUpdates}
             size="xsmall"
