@@ -3,7 +3,7 @@ title: Paragraph
 extends: Entity
 role: secondary
 status: stable
-category: prose
+category: text
 description: Paragraph
 properties:
   content:

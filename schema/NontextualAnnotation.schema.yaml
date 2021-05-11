@@ -3,7 +3,7 @@ title: NontextualAnnotation
 extends: Mark
 role: secondary
 status: stable
-category: prose
+category: text
 description: Inline text that has a non-textual annotation.
 $comment: |
   Use cases include annotating spelling errors, denoting proper names in Chinese text,

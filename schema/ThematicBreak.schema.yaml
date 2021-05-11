@@ -3,7 +3,7 @@ title: ThematicBreak
 extends: Entity
 role: secondary
 status: stable
-category: prose
+category: text
 description: |
   A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
 properties: {}

@@ -1,5 +1,5 @@
 title: InlineContent
-category: prose
+category: text
 description: Union type for valid inline content.
 $comment: |
   Note that this definition currently does not include

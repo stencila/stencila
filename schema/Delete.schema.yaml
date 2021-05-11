@@ -3,7 +3,7 @@ title: Delete
 extends: Mark
 role: secondary
 status: stable
-category: prose
+category: text
 description: Content that is marked for deletion
 $comment: |
   Analogues of `Delete` in other schema include:

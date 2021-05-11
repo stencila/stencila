@@ -3,7 +3,7 @@ title: Math
 extends: Entity
 role: base
 status: unstable
-category: prose
+category: math
 description: A mathematical variable or equation.
 $comment: |
   This is a base type for `MathFragment` and `MathBlock` and should not

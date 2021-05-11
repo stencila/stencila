@@ -3,6 +3,6 @@ title: Superscript
 extends: Mark
 role: secondary
 status: stable
-category: prose
+category: text
 description: Superscripted content.
 properties: {}

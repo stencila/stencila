@@ -85,7 +85,8 @@ async function build(): Promise<void> {
   // index.md & categories.json files
   const orderedCategories = uniq([
     'Works',
-    'Prose',
+    'Text',
+    'Math',
     'Code',
     'Data',
     'Other',

@@ -3,6 +3,6 @@ title: Strong
 extends: Mark
 role: secondary
 status: stable
-category: prose
+category: text
 description: Strongly emphasised content.
 properties: {}

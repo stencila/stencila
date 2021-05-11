@@ -3,6 +3,6 @@ title: Subscript
 extends: Mark
 role: secondary
 status: stable
-category: prose
+category: text
 description: Subscripted content.
 properties: {}

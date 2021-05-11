@@ -3,7 +3,7 @@ title: MathBlock
 extends: Math
 role: secondary
 status: unstable
-category: prose
+category: math
 description: A block of math, e.g an equation, to be treated as block content.
 properties:
   label:

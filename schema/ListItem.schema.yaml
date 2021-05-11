@@ -3,7 +3,7 @@ title: ListItem
 extends: Thing
 role: tertiary
 status: stable
-category: prose
+category: text
 description: A single item in a list.
 $comment: |
   This is an implementation, and extension, of schema.org [`ListItem`](https://schema.org/ListItem).

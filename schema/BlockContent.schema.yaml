@@ -1,5 +1,5 @@
 title: BlockContent
-category: prose
+category: text
 description: Union type for valid block content.
 anyOf:
   - $ref: Claim

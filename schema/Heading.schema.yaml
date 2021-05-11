@@ -3,7 +3,7 @@ title: Heading
 extends: Entity
 role: secondary
 status: stable
-category: prose
+category: text
 description: A heading.
 $comment: |
   Analogues of `Delete` in other schema include:

@@ -1,7 +1,7 @@
 title: Cite
 '@id': stencila:Cite
 extends: Entity
-category: prose
+category: text
 role: secondary
 status: unstable
 description: A reference to a CreativeWork that is cited in another CreativeWork.

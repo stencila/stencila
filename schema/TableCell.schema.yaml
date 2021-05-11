@@ -3,7 +3,7 @@ title: TableCell
 extends: Entity
 role: secondary
 status: unstable
-category: prose
+category: text
 description: |
   A cell within a `Table`.
 properties:

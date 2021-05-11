@@ -1,7 +1,7 @@
 title: CiteGroup
 '@id': stencila:CiteGroup
 extends: Entity
-category: prose
+category: text
 role: secondary
 status: unstable
 description: A group of Cite nodes.

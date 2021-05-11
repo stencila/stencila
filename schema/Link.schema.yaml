@@ -3,7 +3,7 @@ title: Link
 extends: Entity
 role: secondary
 status: unstable
-category: prose
+category: text
 description: A hyperlink to other pages, sections within the same document, resources, or any URL.
 $comment: |
   Analogues of `Link` in other schema include:

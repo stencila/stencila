@@ -3,7 +3,7 @@ title: Emphasis
 extends: Mark
 role: secondary
 status: stable
-category: prose
+category: text
 description: Emphasised content.
 $comment: |
   Analogues of `Delete` in other schema include:
