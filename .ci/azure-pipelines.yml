@@ -155,6 +155,12 @@ jobs:
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
 
+      # Use Node.js 16.x for `node` and `desktop` builds
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '16.x' 
+        displayName: 'Node.js: Use 16.x'
+
       - script: |
           set -e
           make -C node build
@@ -191,6 +197,12 @@ jobs:
         displayName: 'CLI: Build and publish'
         env:
           GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+      # Use Node.js 16.x for `node` and `desktop` builds
+      - task: NodeTool@0
+        inputs:
+          versionSpec: '16.x' 
+        displayName: 'Node.js: Use 16.x'
 
       - script: |
           set -e
