@@ -1,9 +1,11 @@
 {
   "translation": {
     "core": {
+      "title": "Stencila",
       "welcome": "Hello {{user}}"
     },
     "settings": {
+      "title": "Settings",
       "general": {
         "title": "General"
       },
