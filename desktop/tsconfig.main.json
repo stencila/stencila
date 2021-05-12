@@ -3,5 +3,5 @@
   "compilerOptions": {
     "module": "commonjs"
   },
-  "include": ["src/main", "src/preload"]
+  "include": ["src/main", "src/preload", "./src/i18n"]
 }

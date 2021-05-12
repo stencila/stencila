@@ -1,5 +1,6 @@
 import { BrowserWindow } from 'electron'
 import { createWindow } from '../../app/window'
+import { i18n } from '../../i18n'
 
 let settingsWindow: BrowserWindow | null
 
@@ -16,6 +17,7 @@ export const showSettings = () => {
     minHeight: 600,
     show: false,
     parent,
+    title: i18n.t('settings.title'),
   })
 
   settingsWindow.on('closed', () => {

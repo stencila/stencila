@@ -1,5 +1,6 @@
 import { app, BrowserWindow, BrowserWindowConstructorOptions } from 'electron'
 import { scheme } from '../main/app-protocol'
+import { i18n } from '../i18n'
 
 // declare const MAIN_WINDOW_WEBPACK_ENTRY: string
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
@@ -13,6 +14,7 @@ export const createWindow = (
   const win = new BrowserWindow({
     height: 860,
     width: 1024,
+    title: i18n.t('core.title'),
     ...options,
     webPreferences: {
       // TODO: Fix sandboxing, currently prevents `preload` script access

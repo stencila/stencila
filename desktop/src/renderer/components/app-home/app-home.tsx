@@ -1,6 +1,5 @@
 import { Component, h } from '@stencil/core'
 import { CHANNEL } from '../../../preload/index'
-import { Router } from '../../router'
 
 @Component({
   tag: 'app-home',
@@ -9,7 +8,7 @@ import { Router } from '../../router'
 })
 export class AppHome {
   private selectFiles = () => {
-    window.api.invoke(CHANNEL.SELECT_DIRS).then((selectedFiles) => {
+    window.api.invoke(CHANNEL.SELECT_PROJECT_DIR).then((selectedFiles) => {
       // TODO: Get type inference on IPC calls
       if (
         typeof selectedFiles === 'object' &&
@@ -22,15 +21,10 @@ export class AppHome {
           : undefined
 
         if (path) {
-          Router.push(`/project${path}`)
+          window.api.invoke(CHANNEL.SHOW_PROJECT_WINDOW, path)
         }
       }
     })
-  }
-
-  private showConfig = (event: MouseEvent) => {
-    event.preventDefault()
-    window.api.invoke(CHANNEL.SHOW_CONFIG_WINDOW)
   }
 
   render() {
@@ -38,22 +32,24 @@ export class AppHome {
       <div class="app-home">
         <h1>Stencila</h1>
 
-        <stencila-button>New document</stencila-button>
-        <stencila-button>New project</stencila-button>
+        <main>
+          <div>
+            <stencila-button>New document</stencila-button>
+            <stencila-button>New project</stencila-button>
 
-        <hr />
+            <hr />
 
-        <stencila-button onClick={this.selectFiles}>Open…</stencila-button>
+            <stencila-button onClick={this.selectFiles}>
+              Open folder…
+            </stencila-button>
+          </div>
 
-        <hr />
+          <hr />
 
-        <h2>Recent projects</h2>
+          <h2>Recent projects</h2>
 
-        <hr />
-
-        <stencila-button onClick={this.showConfig}>
-          Show Settings
-        </stencila-button>
+          <hr />
+        </main>
       </div>
     )
   }

@@ -1,0 +1,13 @@
+.projectWindow {
+  @apply flex flex-row max-h-screen overflow-hidden min-h-screen;
+  background-color: var(--color-neutral-800);
+
+  main {
+    @apply px-4 py-8 w-full max-h-screen overflow-auto;
+    background-color: var(--color-stock);
+
+    & > * {
+      @apply block mx-auto;
+    }
+  }
+}

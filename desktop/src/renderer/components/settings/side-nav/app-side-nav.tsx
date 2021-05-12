@@ -1,5 +1,6 @@
 import { Component, h } from '@stencil/core'
 import { href } from '@stencil/router'
+import { i18n } from '../../../../i18n'
 import { SettingsRouter } from '../settingsRouter'
 
 @Component({
@@ -20,7 +21,7 @@ export class AppSideNav {
               class={{ active: activePath === '/settings' }}
             >
               <stencila-icon icon="settings-2"></stencila-icon>
-              <span>General</span>
+              <span>{i18n.t('settings.general.title')}</span>
             </a>
 
             <ul>
@@ -55,7 +56,7 @@ export class AppSideNav {
               }}
             >
               <stencila-icon icon="plug"></stencila-icon>
-              Plugins
+              {i18n.t('settings.plugins.title')}
             </a>
           </li>
 
