@@ -2596,6 +2596,7 @@ dependencies = [
  "humantime",
  "jsonschema",
  "jsonwebtoken",
+ "mime_guess",
  "notify",
  "once_cell",
  "pretty_assertions",

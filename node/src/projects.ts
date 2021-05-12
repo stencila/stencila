@@ -10,6 +10,11 @@ const addon = require('../index.node')
 // Use the `schema()` function as the authoritative source of the shape of
 // the project objects.
 
+export interface File {
+  path: string,
+  isDir: boolean,
+  mediaType: String
+}
 export interface Project {
   // Properties from the project's manifest file
   // See Rust docs and help.stenci.la for descriptions of these
@@ -19,6 +24,9 @@ export interface Project {
   image?: string
   main?: string
   theme?: string
+
+  // Other properties
+  files: Record<string, File>
 }
 
 /**

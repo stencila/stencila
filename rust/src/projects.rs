@@ -10,14 +10,56 @@ use std::{
 };
 use strum::{EnumString, EnumVariantNames, ToString, VariantNames};
 
-/// # Description of a project
+/// # A file or directory within a project
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, JsonSchema, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct File {
+    /// The relative path of the file within the project folder
+    path: String,
+
+    /// Whether the entry is a directory or not
+    is_dir: bool,
+
+    /// The media type (aka MIME type) of the file
+    media_type: Option<String>,
+
+    /// The SHA1 hash of the contents of the file
+    sha1: Option<String>,
+}
+
+impl File {
+    pub fn from_path(folder: &Path, path: &Path) -> (PathBuf, File) {
+        let canonical_path = path.canonicalize().expect("Unable to canonicalize path");
+        let relative_path = path
+            .strip_prefix(folder)
+            .expect("Unable to strip prefix")
+            .display()
+            .to_string();
+
+        let media_type = mime_guess::from_path(path)
+            .first()
+            .map(|mime| mime.essence_str().to_string());
+
+        let file = File {
+            path: relative_path,
+            is_dir: path.is_dir(),
+            media_type,
+            ..Default::default()
+        };
+
+        (canonical_path, file)
+    }
+}
+
+/// # Details of a project
 ///
 /// An implementation, and extension, of schema.org [`Project`](https://schema.org/Project).
 /// Uses schema.org properties where possible but adds extension properties
 /// where needed (e.g. `theme`).
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, JsonSchema, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(default, rename_all = "camelCase")]
 pub struct Project {
     /// The name of the project
     name: Option<String>,
@@ -42,6 +84,9 @@ pub struct Project {
     /// If not specified, will default to the default theme in the
     /// configuration settings.
     theme: Option<String>,
+
+    /// The files in the project directory
+    files: HashMap<PathBuf, File>,
 }
 
 /// A format to display a plugin using
@@ -129,8 +174,20 @@ impl Project {
             None => Some("Unnamed".to_string()),
         });
 
-        // Main defaults to the first file that matches configured patterns
-        // If there are no matching files then defaults to the first (if any)
+        // Get all the files in the project
+        let folder = Path::new(folder);
+        let files: Vec<(PathBuf, File)> = walkdir::WalkDir::new(folder)
+            .into_iter()
+            .filter_map(|entry| {
+                let entry = match entry.ok() {
+                    Some(entry) => entry,
+                    None => return None,
+                };
+                Some(File::from_path(folder, entry.path()))
+            })
+            .collect();
+
+        // Main defaults to the first file that matches configured patterns (if any)
         let main = main.or_else(|| {
             // See if there are any files matching patterns
             for pattern in &config.main_patterns {
@@ -141,51 +198,21 @@ impl Project {
                         continue;
                     }
                 };
-                for entry in walkdir::WalkDir::new(folder) {
-                    let entry = match entry.ok() {
-                        Some(entry) => entry,
-                        None => continue,
-                    };
-
-                    let path = entry.path();
-                    if path.is_dir() {
+                for (_, file) in &files {
+                    let File { is_dir, path, .. } = file;
+                    if *is_dir {
                         continue;
                     }
-
-                    let path = path
-                        .strip_prefix(folder)
-                        .expect("Unable to strip prefix")
-                        .display()
-                        .to_string();
-                    if re.is_match(&path) {
-                        return Some(path);
+                    if re.is_match(path) {
+                        return Some(path.clone());
                     }
                 }
             }
 
-            // Get the first file at the top level
-            fs::read_dir(folder)
-                .expect("Unable to read folder")
-                .filter_map(|entry| {
-                    let entry = match entry.ok() {
-                        Some(entry) => entry,
-                        None => return None,
-                    };
-
-                    let path = entry.path();
-                    if path.is_file() {
-                        Some(
-                            path.strip_prefix(folder)
-                                .expect("Unable to strip prefix")
-                                .display()
-                                .to_string(),
-                        )
-                    } else {
-                        None
-                    }
-                })
-                .next()
+            None
         });
+
+        let files = files.into_iter().collect();
 
         // Name defaults to the configured default
         let theme = theme.or_else(|| Some(config.theme.clone()));
@@ -194,6 +221,7 @@ impl Project {
             name,
             main,
             theme,
+            files,
             ..project
         })
     }
