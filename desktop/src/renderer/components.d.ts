@@ -10,9 +10,6 @@ export namespace Components {
     }
     interface AppPlugins {
     }
-    interface AppProject {
-        "projectDir": string;
-    }
     interface AppRoot {
     }
     interface AppSettings {
@@ -21,6 +18,13 @@ export namespace Components {
     }
     interface PluginCard {
         "pluginName": string;
+    }
+    interface ProjectFilePreview {
+    }
+    interface ProjectRoot {
+    }
+    interface ProjectSidebarFiles {
+        "projectDir": string;
     }
     interface SettingsGeneral {
     }
@@ -37,12 +41,6 @@ declare global {
     var HTMLAppPluginsElement: {
         prototype: HTMLAppPluginsElement;
         new (): HTMLAppPluginsElement;
-    };
-    interface HTMLAppProjectElement extends Components.AppProject, HTMLStencilElement {
-    }
-    var HTMLAppProjectElement: {
-        prototype: HTMLAppProjectElement;
-        new (): HTMLAppProjectElement;
     };
     interface HTMLAppRootElement extends Components.AppRoot, HTMLStencilElement {
     }
@@ -68,6 +66,24 @@ declare global {
         prototype: HTMLPluginCardElement;
         new (): HTMLPluginCardElement;
     };
+    interface HTMLProjectFilePreviewElement extends Components.ProjectFilePreview, HTMLStencilElement {
+    }
+    var HTMLProjectFilePreviewElement: {
+        prototype: HTMLProjectFilePreviewElement;
+        new (): HTMLProjectFilePreviewElement;
+    };
+    interface HTMLProjectRootElement extends Components.ProjectRoot, HTMLStencilElement {
+    }
+    var HTMLProjectRootElement: {
+        prototype: HTMLProjectRootElement;
+        new (): HTMLProjectRootElement;
+    };
+    interface HTMLProjectSidebarFilesElement extends Components.ProjectSidebarFiles, HTMLStencilElement {
+    }
+    var HTMLProjectSidebarFilesElement: {
+        prototype: HTMLProjectSidebarFilesElement;
+        new (): HTMLProjectSidebarFilesElement;
+    };
     interface HTMLSettingsGeneralElement extends Components.SettingsGeneral, HTMLStencilElement {
     }
     var HTMLSettingsGeneralElement: {
@@ -77,11 +93,13 @@ declare global {
     interface HTMLElementTagNameMap {
         "app-home": HTMLAppHomeElement;
         "app-plugins": HTMLAppPluginsElement;
-        "app-project": HTMLAppProjectElement;
         "app-root": HTMLAppRootElement;
         "app-settings": HTMLAppSettingsElement;
         "app-side-nav": HTMLAppSideNavElement;
         "plugin-card": HTMLPluginCardElement;
+        "project-file-preview": HTMLProjectFilePreviewElement;
+        "project-root": HTMLProjectRootElement;
+        "project-sidebar-files": HTMLProjectSidebarFilesElement;
         "settings-general": HTMLSettingsGeneralElement;
     }
 }
@@ -89,9 +107,6 @@ declare namespace LocalJSX {
     interface AppHome {
     }
     interface AppPlugins {
-    }
-    interface AppProject {
-        "projectDir"?: string;
     }
     interface AppRoot {
     }
@@ -102,16 +117,25 @@ declare namespace LocalJSX {
     interface PluginCard {
         "pluginName"?: string;
     }
+    interface ProjectFilePreview {
+    }
+    interface ProjectRoot {
+    }
+    interface ProjectSidebarFiles {
+        "projectDir"?: string;
+    }
     interface SettingsGeneral {
     }
     interface IntrinsicElements {
         "app-home": AppHome;
         "app-plugins": AppPlugins;
-        "app-project": AppProject;
         "app-root": AppRoot;
         "app-settings": AppSettings;
         "app-side-nav": AppSideNav;
         "plugin-card": PluginCard;
+        "project-file-preview": ProjectFilePreview;
+        "project-root": ProjectRoot;
+        "project-sidebar-files": ProjectSidebarFiles;
         "settings-general": SettingsGeneral;
     }
 }
@@ -121,11 +145,13 @@ declare module "@stencil/core" {
         interface IntrinsicElements {
             "app-home": LocalJSX.AppHome & JSXBase.HTMLAttributes<HTMLAppHomeElement>;
             "app-plugins": LocalJSX.AppPlugins & JSXBase.HTMLAttributes<HTMLAppPluginsElement>;
-            "app-project": LocalJSX.AppProject & JSXBase.HTMLAttributes<HTMLAppProjectElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
             "app-settings": LocalJSX.AppSettings & JSXBase.HTMLAttributes<HTMLAppSettingsElement>;
             "app-side-nav": LocalJSX.AppSideNav & JSXBase.HTMLAttributes<HTMLAppSideNavElement>;
             "plugin-card": LocalJSX.PluginCard & JSXBase.HTMLAttributes<HTMLPluginCardElement>;
+            "project-file-preview": LocalJSX.ProjectFilePreview & JSXBase.HTMLAttributes<HTMLProjectFilePreviewElement>;
+            "project-root": LocalJSX.ProjectRoot & JSXBase.HTMLAttributes<HTMLProjectRootElement>;
+            "project-sidebar-files": LocalJSX.ProjectSidebarFiles & JSXBase.HTMLAttributes<HTMLProjectSidebarFilesElement>;
             "settings-general": LocalJSX.SettingsGeneral & JSXBase.HTMLAttributes<HTMLSettingsGeneralElement>;
         }
     }

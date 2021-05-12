@@ -1,9 +1,9 @@
 import { registerConfigHandlers } from './config'
 import { registerMenu } from './menu'
-import { registerFileHandlers } from './selectFiles'
+import { registerProjectHandlers } from './project'
 
 export const main = () => {
   registerMenu()
-  registerFileHandlers()
   registerConfigHandlers()
+  registerProjectHandlers()
 }

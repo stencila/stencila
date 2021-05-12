@@ -1,5 +1,5 @@
 import { Component, h } from '@stencil/core'
-import { match, Route } from '@stencil/router'
+import { Route } from '@stencil/router'
 import { Router } from '../../router'
 
 @Component({
@@ -24,10 +24,9 @@ export class AppRoot {
             <app-settings></app-settings>
           </Route>
 
-          <Route
-            path={match('/project/:path*')}
-            render={({ path }) => <app-project projectDir={path}></app-project>}
-          />
+          <Route path={/^\/project/}>
+            <project-root></project-root>
+          </Route>
         </Router.Switch>
       </main>
     )
