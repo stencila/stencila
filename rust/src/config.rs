@@ -1,4 +1,4 @@
-use crate::{logging, plugins, serve, upgrade, util};
+use crate::{logging, plugins, projects, serve, upgrade, util};
 use eyre::{bail, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -10,6 +10,9 @@ use validator::Validate;
 #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
 #[serde(default)]
 pub struct Config {
+    #[validate]
+    pub projects: projects::config::ProjectsConfig,
+
     #[validate]
     pub logging: logging::config::LoggingConfig,
 
