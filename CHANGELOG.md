@@ -1,3 +1,16 @@
+# [0.61.0](https://github.com/stencila/stencila/compare/v0.60.0...v0.61.0) (2021-05-12)
+
+
+### Bug Fixes
+
+* **Desktop:** Fix plugins settings view title ([35835b0](https://github.com/stencila/stencila/commit/35835b04773a53137d002f4d024f80c194424679))
+
+
+### Features
+
+* **Desktop:** Set customized window title for different views ([c1dfdf1](https://github.com/stencila/stencila/commit/c1dfdf124becb507255c2055b7f5eb96faf80ceb))
+* **i18n:** Add foundation for internationalization ([8b868cb](https://github.com/stencila/stencila/commit/8b868cbb09288aaa374c17bb40588aa9183f48ac))
+
 # [0.60.0](https://github.com/stencila/stencila/compare/v0.59.0...v0.60.0) (2021-05-09)
 
 
