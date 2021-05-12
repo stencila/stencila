@@ -3,7 +3,7 @@ use regex::Regex;
 use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::{collections::HashMap, str::FromStr};
+use std::{collections::{BTreeMap, HashMap}, str::FromStr};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -86,7 +86,7 @@ pub struct Project {
     theme: Option<String>,
 
     /// The files in the project directory
-    files: HashMap<PathBuf, File>,
+    files: BTreeMap<PathBuf, File>,
 }
 
 /// A format to display a plugin using
@@ -174,9 +174,9 @@ impl Project {
             None => Some("Unnamed".to_string()),
         });
 
-        // Get all the files in the project
+        // Get all the files in the project (use `min_depth` to ignore the folder itself)
         let folder = Path::new(folder);
-        let files: Vec<(PathBuf, File)> = walkdir::WalkDir::new(folder)
+        let files: Vec<(PathBuf, File)> = walkdir::WalkDir::new(folder).min_depth(1)
             .into_iter()
             .filter_map(|entry| {
                 let entry = match entry.ok() {
