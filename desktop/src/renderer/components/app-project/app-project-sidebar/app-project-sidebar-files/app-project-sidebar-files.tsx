@@ -2,11 +2,11 @@ import { Component, h, Host, Prop, State } from '@stencil/core'
 import { CHANNEL } from '../../../../../preload/index'
 
 @Component({
-  tag: 'project-sidebar-files',
-  styleUrl: 'files.css',
+  tag: 'app-project-sidebar-files',
+  styleUrl: 'app-project-sidebar-files.css',
   scoped: true,
 })
-export class ProjectSidebarFiles {
+export class AppProjectSidebarFiles {
   @State()
   private files: string[] = []
 
@@ -29,7 +29,7 @@ export class ProjectSidebarFiles {
   render() {
     return (
       <Host>
-        <div class="project-sidebar-files">
+        <div class="app-project-sidebar-files">
           <ul>
             {this.files.map((file) => (
               <li title={file}>{file}</li>

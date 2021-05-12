@@ -4,11 +4,11 @@ import { getAvailablePlugins, pluginStore } from './pluginStore'
 import { i18n } from '../../../../i18n'
 
 @Component({
-  tag: 'app-plugins',
-  styleUrl: 'app-plugins.css',
+  tag: 'app-settings-plugins',
+  styleUrl: 'app-settings-plugins.css',
   scoped: true,
 })
-export class AppPlugins {
+export class AppSettingsPlugins {
   @State() plugins: Plugin[] = []
 
   @State() inProgress: boolean
@@ -27,7 +27,7 @@ export class AppPlugins {
 
   render() {
     return (
-      <div class="appPlugins">
+      <div class="appSettingsPlugins">
         <div class="title">
           <h1>{i18n.t('settings.plugins.title')}</h1>
           <stencila-button

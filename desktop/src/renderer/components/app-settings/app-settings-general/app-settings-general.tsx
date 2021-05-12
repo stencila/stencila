@@ -1,6 +1,6 @@
 import { Component, h, State } from '@stencil/core'
 import { CHANNEL } from '../../../../preload/index'
-import { build, ConfigSchema } from '../../forms/formBuilder'
+import { build, ConfigSchema } from '../../utils/forms/formBuilder'
 
 type Config = Record<string, unknown>
 type Settings = {
@@ -9,8 +9,8 @@ type Settings = {
 }
 
 @Component({
-  tag: 'settings-general',
-  styleUrl: 'general.css',
+  tag: 'app-settings-general',
+  styleUrl: 'app-settings-general.css',
   scoped: true,
 })
 export class AppSettingsGeneral {

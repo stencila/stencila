@@ -3,11 +3,11 @@ import { match, Route } from '@stencil/router'
 import { ProjectRouter } from '../projectRouter'
 
 @Component({
-  tag: 'project-root',
-  styleUrl: 'projectRoot.css',
+  tag: 'app-project-root',
+  styleUrl: 'app-project-root.css',
   scoped: true,
 })
-export class AppProject {
+export class AppProjectRoot {
   render() {
     return (
       <div class="projectWindow">
@@ -15,11 +15,11 @@ export class AppProject {
           <Route
             path={match('/project/:projectDir*')}
             render={({ projectDir = '' }) => [
-              <project-sidebar-files
+              <app-project-sidebar-files
                 projectDir={decodeURI(projectDir)}
-              ></project-sidebar-files>,
+              ></app-project-sidebar-files>,
               <main>
-                <project-file-preview></project-file-preview>
+                <app-project-file-preview></app-project-file-preview>
               </main>,
             ]}
           ></Route>

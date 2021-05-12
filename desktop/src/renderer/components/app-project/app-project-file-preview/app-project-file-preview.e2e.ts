@@ -1,18 +1,18 @@
 import { newE2EPage } from '@stencil/core/testing'
 
-describe('project-sidebar-files', () => {
+describe('app-project-file-preview', () => {
   it('renders', async () => {
     const page = await newE2EPage()
-    await page.setContent('<project-sidebar-files></project-sidebar-files>')
+    await page.setContent('<app-project-file-preview></app-project-file-preview>')
 
-    const element = await page.find('project-sidebar-files')
+    const element = await page.find('app-project-file-preview')
     expect(element).toHaveClass('hydrated')
   })
 
   it.skip('displays the specified name', async () => {
     const page = await newE2EPage({ url: '/project/joseph' })
 
-    const projectElement = await page.find('app-root >>> project-sidebar-files')
+    const projectElement = await page.find('app-root >>> app-project-file-preview')
     const element = projectElement.shadowRoot.querySelector('div')
     expect(element?.textContent).toContain('Hello! My name is Joseph.')
   })

@@ -3,26 +3,26 @@ import { Route } from '@stencil/router'
 import { SettingsRouter } from '../settingsRouter'
 
 @Component({
-  tag: 'app-settings',
-  styleUrl: 'app-settings.css',
+  tag: 'app-settings-root',
+  styleUrl: 'app-settings-root.css',
   scoped: true,
 })
 export class AppSettings {
   render() {
     return (
       <div class="settingsWindow">
-        <app-side-nav></app-side-nav>
+        <app-settings-sidebar></app-settings-sidebar>
 
         <main>
           <SettingsRouter.Switch>
             <Route path="/settings" to="/settings/general" />
 
             <Route path="/settings/general">
-              <settings-general></settings-general>
+              <app-settings-general></app-settings-general>
             </Route>
 
             <Route path="/settings/plugins">
-              <app-plugins></app-plugins>
+              <app-settings-plugins></app-settings-plugins>
             </Route>
           </SettingsRouter.Switch>
         </main>

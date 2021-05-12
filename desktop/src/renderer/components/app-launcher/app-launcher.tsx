@@ -2,11 +2,11 @@ import { Component, h } from '@stencil/core'
 import { CHANNEL } from '../../../preload/index'
 
 @Component({
-  tag: 'app-home',
-  styleUrl: 'app-home.css',
+  tag: 'app-launcher',
+  styleUrl: 'app-launcher.css',
   scoped: true,
 })
-export class AppHome {
+export class AppLauncher {
   private selectFiles = () => {
     window.api.invoke(CHANNEL.SELECT_PROJECT_DIR).then((selectedFiles) => {
       // TODO: Get type inference on IPC calls

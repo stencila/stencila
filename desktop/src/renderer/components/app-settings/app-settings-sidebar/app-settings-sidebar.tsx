@@ -4,11 +4,11 @@ import { i18n } from '../../../../i18n'
 import { SettingsRouter } from '../settingsRouter'
 
 @Component({
-  tag: 'app-side-nav',
-  styleUrl: 'app-side-nav.css',
+  tag: 'app-settings-sidebar',
+  styleUrl: 'app-settings-sidebar.css',
   scoped: true,
 })
-export class AppSideNav {
+export class AppSettingsSidebar {
   render() {
     const activePath = SettingsRouter.path
 
