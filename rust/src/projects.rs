@@ -1,81 +1,16 @@
+use crate::files::{File, Files};
 use eyre::{bail, Result};
 use regex::Regex;
 use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::{
-    collections::{BTreeMap, HashMap},
-    str::FromStr,
-    time::{UNIX_EPOCH},
-};
-use std::{
+    collections::HashMap,
     fs,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 use strum::{EnumString, EnumVariantNames, ToString, VariantNames};
-
-/// # A file or directory within a project
-#[skip_serializing_none]
-#[derive(Debug, Default, Clone, JsonSchema, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct File {
-    /// The relative path of the file within the project folder
-    path: String,
-
-    /// Whether the entry is a directory or not
-    is_dir: bool,
-
-    /// Time that the file was last modified (seconds since Unix Epoch)
-    modified: Option<u64>,
-
-    /// Size of the file in bytes
-    size: Option<u64>,
-
-    /// The media type (aka MIME type) of the file
-    media_type: Option<String>,
-
-    /// The SHA1 hash of the contents of the file
-    sha1: Option<String>,
-}
-
-impl File {
-    pub fn from_path(folder: &Path, path: &Path) -> (PathBuf, File) {
-        let canonical_path = path.canonicalize().expect("Unable to canonicalize path");
-        let relative_path = path
-            .strip_prefix(folder)
-            .expect("Unable to strip prefix")
-            .display()
-            .to_string();
-
-        let (modified, size) = match path.metadata() {
-            Ok(metadata) => {
-                let modified = metadata
-                    .modified()
-                    .ok()
-                    .and_then(|time| time.duration_since(UNIX_EPOCH).ok())
-                    .and_then(|duration| Some(duration.as_secs()));
-                let size = Some(metadata.len());
-                (modified, size)
-            }
-            Err(_) => (None, None),
-        };
-
-        let media_type = mime_guess::from_path(path)
-            .first()
-            .map(|mime| mime.essence_str().to_string());
-
-        let file = File {
-            path: relative_path,
-            is_dir: path.is_dir(),
-            modified,
-            size,
-            media_type,
-            ..Default::default()
-        };
-
-        (canonical_path, file)
-    }
-}
 
 /// # Details of a project
 ///
@@ -110,8 +45,15 @@ pub struct Project {
     /// configuration settings.
     theme: Option<String>,
 
-    /// The files in the project directory
-    files: BTreeMap<PathBuf, File>,
+    // The following properties are derived from the filesystem
+    // and should never be read from, or written to, the `project.json` file
+    /// The filesystem path of the project folder
+    #[serde(skip_deserializing)]
+    path: PathBuf,
+
+    /// The files in the project folder
+    #[serde(skip_deserializing)]
+    files: Files,
 }
 
 /// A format to display a plugin using
@@ -147,12 +89,13 @@ impl Project {
         }
 
         let file = Project::file(folder);
-        let project = if file.exists() {
+        let mut project = if file.exists() {
             let json = fs::read_to_string(file)?;
             serde_json::from_str(&json)?
         } else {
             Project::default()
         };
+        project.path = Path::new(folder).canonicalize()?.to_path_buf();
 
         Ok(project)
     }
@@ -173,16 +116,16 @@ impl Project {
     /// Initialize a project in a new, or existing, folder
     ///
     /// If the project has already been initialized (i.e. has a manifest file)
-    /// then this function will do nothing
-    pub fn init(folder: &str) -> Result<Project> {
+    /// then this function will do nothing.
+    pub fn init(folder: &str) -> Result<()> {
         if Project::file(folder).exists() {
-            return Project::read(folder);
+            return Ok(());
         }
 
         let project = Project::default();
         Project::write(folder, &project)?;
 
-        Ok(project)
+        Ok(())
     }
 
     /// Load a project including creating default values for properties
@@ -193,26 +136,13 @@ impl Project {
             name, main, theme, ..
         } = project;
 
-        // Name defaults to the name of the folder
-        let name = name.or_else(|| match Path::new(folder).components().last() {
-            Some(last) => Some(last.as_os_str().to_string_lossy().to_string()),
-            None => Some("Unnamed".to_string()),
-        });
-
-        // Get all the files in the project (use `min_depth` to ignore the folder itself)
         let folder = Path::new(folder);
-        let files: Vec<(PathBuf, File)> = walkdir::WalkDir::new(folder)
-            .min_depth(1)
-            .into_iter()
-            .filter_map(|entry| {
-                let entry = match entry.ok() {
-                    Some(entry) => entry,
-                    None => return None,
-                };
-                Some(File::from_path(folder, entry.path()))
-            })
-            .collect();
 
+        // Get all the files in the project
+        let files = Files::from_path(folder);
+
+        // Resolve the main file first as some of the other project properties
+        // may be defined there (e.g. in the YAML header of a Markdown file)
         // Main defaults to the first file that matches configured patterns (if any)
         let main = main.or_else(|| {
             // See if there are any files matching patterns
@@ -224,9 +154,9 @@ impl Project {
                         continue;
                     }
                 };
-                for (_, file) in &files {
-                    let File { is_dir, path, .. } = file;
-                    if *is_dir {
+                for (_, file) in &files.files {
+                    let File { path, children, .. } = file;
+                    if children.is_some() {
                         continue;
                     }
                     if re.is_match(path) {
@@ -238,9 +168,13 @@ impl Project {
             None
         });
 
-        let files = files.into_iter().collect();
+        // Name defaults to the name of the folder
+        let name = name.or_else(|| match folder.components().last() {
+            Some(last) => Some(last.as_os_str().to_string_lossy().to_string()),
+            None => Some("Unnamed".to_string()),
+        });
 
-        // Name defaults to the configured default
+        // Theme defaults to the configured default
         let theme = theme.or_else(|| Some(config.theme.clone()));
 
         Ok(Project {

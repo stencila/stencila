@@ -47,7 +47,6 @@ describe('projects', () => {
           files: expect.objectContaining({
             [path.join(folder, 'project.json')]: expect.objectContaining({
               path: 'project.json',
-              isDir: false,
               mediaType: 'application/json'
             }),
           }),

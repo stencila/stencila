@@ -2,8 +2,9 @@
 
 // Objects
 //
-// Core Stencila objects e.g `Article`, `Table`, `Project`
+// Core Stencila objects e.g `File`, `Article`, `Project`
 
+pub mod files;
 pub mod projects;
 
 // Methods
