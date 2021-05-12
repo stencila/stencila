@@ -1,5 +1,6 @@
 use neon::{prelude::*, result::Throw};
 use stencila::{
+    eyre,
     serde::{Deserialize, Serialize},
     serde_json, tokio,
 };
@@ -15,6 +16,19 @@ where
 {
     match serde_json::to_string(&value) {
         Ok(json) => Ok(cx.string(json)),
+        Err(error) => cx.throw_error(error.to_string()),
+    }
+}
+
+pub fn to_json_or_throw<Type>(
+    mut cx: FunctionContext,
+    result: eyre::Result<Type>,
+) -> JsResult<JsString>
+where
+    Type: Serialize,
+{
+    match result {
+        Ok(value) => to_json(cx, value),
         Err(error) => cx.throw_error(error.to_string()),
     }
 }

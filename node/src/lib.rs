@@ -4,10 +4,16 @@ mod config;
 mod logging;
 mod plugins;
 mod prelude;
+mod projects;
 mod pubsub;
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
+    cx.export_function("projectsSchema", projects::schema)?;
+    cx.export_function("projectsList", projects::list)?;
+    cx.export_function("projectsOpen", projects::open)?;
+    cx.export_function("projectsClose", projects::close)?;
+
     cx.export_function("pluginsSchema", plugins::schema)?;
     cx.export_function("pluginsList", plugins::list)?;
     cx.export_function("pluginsInstall", plugins::install)?;
