@@ -1,6 +1,6 @@
 use stencila::{
     config,
-    eyre::{Error, Result},
+    eyre::{bail, Error, Result},
     logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
@@ -56,6 +56,12 @@ pub const GLOBAL_ARGS: [&str; 6] = ["--debug", "--info", "--warn", "--error", "-
     setting = structopt::clap::AppSettings::DeriveDisplayOrder
 )]
 pub enum Command {
+    #[cfg(feature = "projects")]
+    Init(stencila::projects::cli::Init),
+
+    #[cfg(feature = "projects")]
+    Show(stencila::projects::cli::Show),
+
     #[cfg(feature = "open")]
     Open(stencila::open::cli::Args),
 
@@ -86,6 +92,12 @@ pub async fn run_command(
     plugins: &mut plugins::Plugins,
 ) -> Result<()> {
     match command {
+        #[cfg(feature = "projects")]
+        Command::Init(init) => init.run(),
+
+        #[cfg(feature = "projects")]
+        Command::Show(show) => display::display(show.run(&config.projects)?),
+
         #[cfg(feature = "open")]
         Command::Open(args) => stencila::open::cli::run(args).await,
 
@@ -334,6 +346,62 @@ mod feedback {
     }
 }
 
+#[cfg(feature = "pretty")]
+mod display {
+    use super::*;
+
+    pub fn display(what: (String, String)) -> Result<()> {
+        let (format, content) = &what;
+
+        match format.as_str() {
+            "md" => render(format, content),
+            _ => highlight(format, content),
+        }
+
+        Ok(())
+    }
+
+    //
+    pub fn render(_format: &str, content: &str) {
+        let skin = termimad::MadSkin::default();
+        println!("{}", skin.term_text(content))
+    }
+
+    pub fn highlight(format: &str, content: &str) {
+        use syntect::easy::HighlightLines;
+        use syntect::highlighting::{Style, ThemeSet};
+        use syntect::parsing::SyntaxSet;
+        use syntect::util::as_24_bit_terminal_escaped;
+
+        let syntaxes = SyntaxSet::load_defaults_newlines();
+        let themes = ThemeSet::load_defaults();
+
+        let syntax = syntaxes
+            .find_syntax_by_extension(format)
+            .unwrap_or_else(|| syntaxes.find_syntax_by_extension("txt").unwrap());
+
+        let theme = &themes.themes["base16-eighties.dark"];
+
+        let mut highlighter = HighlightLines::new(syntax, theme);
+        for line in content.lines() {
+            let ranges: Vec<(Style, &str)> = highlighter.highlight(line, &syntaxes);
+            let escaped = as_24_bit_terminal_escaped(&ranges[..], false);
+            println!("{}", escaped);
+        }
+    }
+}
+
+#[cfg(not(feature = "pretty"))]
+mod display {
+    use super::*;
+
+    pub fn display(what: (String, String)) -> Result<()> {
+        let (_format, content) = what;
+        println!("{}", content);
+        Ok(())
+    }
+}
+
 /// Module for interactive mode
 ///
 /// Implements the the parsing and handling of user input when in interactive mode
@@ -341,10 +409,7 @@ mod feedback {
 mod interact {
     use super::*;
     use rustyline::error::ReadlineError;
-    use stencila::{
-        eyre::{bail, eyre},
-        util,
-    };
+    use stencila::{eyre::eyre, util};
 
     #[derive(Debug, StructOpt)]
     #[structopt(
