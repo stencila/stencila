@@ -3,7 +3,11 @@ use regex::Regex;
 use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::{collections::{BTreeMap, HashMap}, str::FromStr};
+use std::{
+    collections::{BTreeMap, HashMap},
+    str::FromStr,
+    time::{UNIX_EPOCH},
+};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -21,6 +25,12 @@ struct File {
     /// Whether the entry is a directory or not
     is_dir: bool,
 
+    /// Time that the file was last modified (seconds since Unix Epoch)
+    modified: Option<u64>,
+
+    /// Size of the file in bytes
+    size: Option<u64>,
+
     /// The media type (aka MIME type) of the file
     media_type: Option<String>,
 
@@ -37,6 +47,19 @@ impl File {
             .display()
             .to_string();
 
+        let (modified, size) = match path.metadata() {
+            Ok(metadata) => {
+                let modified = metadata
+                    .modified()
+                    .ok()
+                    .and_then(|time| time.duration_since(UNIX_EPOCH).ok())
+                    .and_then(|duration| Some(duration.as_secs()));
+                let size = Some(metadata.len());
+                (modified, size)
+            }
+            Err(_) => (None, None),
+        };
+
         let media_type = mime_guess::from_path(path)
             .first()
             .map(|mime| mime.essence_str().to_string());
@@ -44,6 +67,8 @@ impl File {
         let file = File {
             path: relative_path,
             is_dir: path.is_dir(),
+            modified,
+            size,
             media_type,
             ..Default::default()
         };
@@ -176,7 +201,8 @@ impl Project {
 
         // Get all the files in the project (use `min_depth` to ignore the folder itself)
         let folder = Path::new(folder);
-        let files: Vec<(PathBuf, File)> = walkdir::WalkDir::new(folder).min_depth(1)
+        let files: Vec<(PathBuf, File)> = walkdir::WalkDir::new(folder)
+            .min_depth(1)
             .into_iter()
             .filter_map(|entry| {
                 let entry = match entry.ok() {
