@@ -12,7 +12,7 @@ use std::{
     time::UNIX_EPOCH,
 };
 
-use crate::pubsub::{self, ProjectEvent};
+use crate::pubsub::{self, ProjectFileEvent};
 
 /// # A file or directory within a `Project`
 #[skip_serializing_none]
@@ -165,8 +165,8 @@ impl Files {
 
         // Watch files and make updates as needed
         let watcher = if watch {
-            let project = path.display().to_string();
-            let registry_ = Arc::clone(&registry);
+            let project = path.clone();
+            let registry = Arc::clone(&registry);
             let (thread_sender, thread_receiver) = channel();
             std::thread::spawn(move || -> Result<()> {
                 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
@@ -177,15 +177,16 @@ impl Files {
                 watcher.watch(&path, RecursiveMode::Recursive).unwrap();
 
                 let handle_event = |event| match event {
-                    DebouncedEvent::Create(path) => Files::created(&project, &registry_, path),
-                    DebouncedEvent::Remove(path) => Files::removed(&project, &registry_, path),
+                    DebouncedEvent::Create(path) => Files::created(&project, &registry, &path),
+                    DebouncedEvent::Remove(path) => Files::removed(&project, &registry, &path),
                     DebouncedEvent::Rename(from, to) => {
-                        Files::renamed(&project, &registry_, from, to)
+                        Files::renamed(&project, &registry, &from, &to)
                     }
-                    DebouncedEvent::Write(path) => Files::modified(&project, &registry_, path),
+                    DebouncedEvent::Write(path) => Files::modified(&project, &registry, &path),
                     _ => {}
                 };
 
+                let project = path.display().to_string();
                 let span = tracing::info_span!("file_watch", project = project.as_str());
                 let _enter = span.enter();
                 tracing::debug!("Starting project file watch: {}", project);
@@ -220,36 +221,71 @@ impl Files {
         }
     }
 
-    pub fn created(_project: &str, registry: &FileRegistry, _path: PathBuf) {
-        let _registry = registry.lock().unwrap();
-        // TODO
-        //Projects::publish(project, "FileCreated", path, None)
+    pub fn created(project: &Path, registry: &FileRegistry, path: &Path) {
+        let mut registry = registry.lock().unwrap();
+
+        let file = if let Ok((path, file)) = File::load(project, path) {
+            registry.insert(path, file.clone());
+            // TODO: resolve parent/child
+            Some(file)
+        } else {
+            None
+        };
+
+        pubsub::publish_project_file(ProjectFileEvent {
+            project: project.into(),
+            path: path.into(),
+            kind: "created".into(),
+            file,
+            files: Some(registry.clone()),
+        })
     }
 
-    pub fn removed(_project: &str, registry: &FileRegistry, _path: PathBuf) {
-        let _registry = registry.lock().unwrap();
-        // TODO
-        //Projects::publish(project, "FileRemoved", path, None)
+    pub fn removed(project: &Path, registry: &FileRegistry, path: &Path) {
+        let mut registry = registry.lock().unwrap();
+
+        registry.remove(path.into());
+        // TODO: Update parents
+
+        pubsub::publish_project_file(ProjectFileEvent {
+            project: project.into(),
+            path: path.into(),
+            kind: "removed".into(),
+            file: None,
+            files: Some(registry.clone()),
+        })
     }
 
-    pub fn renamed(_project: &str, registry: &FileRegistry, _path: PathBuf, _to: PathBuf) {
-        let _registry = registry.lock().unwrap();
-        // TODO
-        //Projects::publish(project, "FileRenamed", path, Some(to))
-    }
-
-    pub fn modified(project: &str, registry: &FileRegistry, _path: PathBuf) {
+    pub fn renamed(project: &Path, registry: &FileRegistry, path: &Path, _to: &Path) {
         let registry = registry.lock().unwrap();
 
         // TODO
 
-        pubsub::publish_project(
-            project,
-            ProjectEvent {
-                kind: "file:modified".into(),
-                path: project.into(),
-                files: Some(registry.clone()),
-            },
-        )
+        pubsub::publish_project_file(ProjectFileEvent {
+            project: project.into(),
+            path: path.into(),
+            kind: "renamed".into(),
+            file: None,
+            files: Some(registry.clone()),
+        })
+    }
+
+    pub fn modified(project: &Path, registry: &FileRegistry, path: &Path) {
+        let mut registry = registry.lock().unwrap();
+
+        let file = if let Ok((path, file)) = File::load(project, path) {
+            registry.insert(path, file.clone());
+            Some(file)
+        } else {
+            None
+        };
+
+        pubsub::publish_project_file(ProjectFileEvent {
+            project: project.into(),
+            path: path.into(),
+            kind: "modified".into(),
+            file,
+            files: Some(registry.clone()),
+        })
     }
 }

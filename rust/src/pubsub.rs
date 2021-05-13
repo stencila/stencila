@@ -112,18 +112,31 @@ pub fn publish_progress(event: ProgressEvent) {
 /// this `struct` provides expectations around the shape of those values
 /// both for publishers and subscribers.
 #[derive(Debug, Serialize)]
-pub struct ProjectEvent {
-    /// The path of the project for which the event is for
-    pub path: String,
+pub struct ProjectFileEvent {
+    /// The path of the project (absolute)
+    pub project: PathBuf,
 
-    /// The kind of event e.g. `file:created`
+    /// The path of the file (absolute)
+    pub path: PathBuf,
+
+    /// The kind of event e.g. `modified`, `created`
     pub kind: String,
 
-    /// The updated files in the project (for `file:*` events)
+    /// The updated file, if relevant
+    pub file: Option<File>,
+
+    /// The updated files in the project
     pub files: Option<BTreeMap<PathBuf, File>>,
 }
 
-/// Publish an event on the "project" topic channel
-pub fn publish_project(path: &str, event: ProjectEvent) {
-    publish(&format!("project:{}", path), &event)
+/// Publish an event on the "project:<project-path>:file:<file-path>" topic channel
+pub fn publish_project_file(event: ProjectFileEvent) {
+    publish(
+        &format!(
+            "project:{}:file:{}",
+            event.project.display(),
+            event.path.display()
+        ),
+        &event,
+    )
 }
