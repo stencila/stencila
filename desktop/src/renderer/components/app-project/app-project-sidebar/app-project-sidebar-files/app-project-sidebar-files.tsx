@@ -1,5 +1,9 @@
 import { Component, h, Host, Prop, State } from '@stencil/core'
+import { projects } from 'stencila'
 import { CHANNEL } from '../../../../../preload/index'
+
+type Project = projects.Project
+type File = projects.File
 
 @Component({
   tag: 'app-project-sidebar-files',
@@ -7,18 +11,15 @@ import { CHANNEL } from '../../../../../preload/index'
   scoped: true,
 })
 export class AppProjectSidebarFiles {
-  @State()
-  private files: string[] = []
-
   @Prop()
   projectDir: string
 
+  @State()
+  private project: Project | undefined
+
   private getFileList = (path: string) => {
-    window.api.invoke(CHANNEL.GET_PROJECT_FILES, path).then((files) => {
-      // TODO: Get type inference on IPC calls
-      if (Array.isArray(files) && files.every((i) => typeof i === 'string')) {
-        this.files = files
-      }
+    window.api.invoke(CHANNEL.GET_PROJECT_FILES, path).then((project) => {
+      this.project = project as Project
     })
   }
 
@@ -26,14 +27,42 @@ export class AppProjectSidebarFiles {
     return this.getFileList(`/${this.projectDir}`)
   }
 
+  private formatPath = (file: File): string => {
+    const relativeParent =
+      (file.parent?.replace((this.project?.path ?? '') + '/', '') ?? '') + '/'
+
+    return file.path.replace(relativeParent, '')
+  }
+
+  private pathToFileTree = (path: string) => {
+    const file = this.project?.files[path]
+    const isDir = file?.children !== undefined
+
+    return (
+      <li>
+        <a
+          href="#"
+          class={{
+            isDir,
+            isFile: !isDir,
+          }}
+        >
+          <stencila-icon icon={isDir ? 'folder' : 'file'}></stencila-icon>
+          {file ? this.formatPath(file) : ''}
+        </a>
+        {file?.children && <ul>{file.children.map(this.pathToFileTree)}</ul>}
+      </li>
+    )
+  }
+
   render() {
     return (
       <Host>
         <div class="app-project-sidebar-files">
           <ul>
-            {this.files.map((file) => (
-              <li title={file}>{file}</li>
-            ))}
+            {this.project?.files[this.project?.path]?.children?.map(
+              this.pathToFileTree
+            )}
           </ul>
         </div>
       </Host>

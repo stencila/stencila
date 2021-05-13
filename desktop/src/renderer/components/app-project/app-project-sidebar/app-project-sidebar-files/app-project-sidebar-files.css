@@ -5,8 +5,31 @@
 ul {
   @apply list-none p-4 m-0;
   color: var(--color-neutral-400);
+
+  ul {
+    @apply p-0 pl-4;
+  }
 }
 
 li {
-  @apply py-1 text-sm overflow-ellipsis overflow-hidden max-w-full whitespace-nowrap;
+  @apply overflow-ellipsis overflow-hidden max-w-full;
+}
+
+a {
+  &,
+  &:link,
+  &:visited {
+    @apply block px-1 text-sm whitespace-nowrap rounded no-underline align-bottom leading-none max-w-full overflow-hidden overflow-ellipsis;
+    color: var(--color-neutral-400);
+    padding-bottom: 0.375rem;
+    padding-top: 0.375rem;
+  }
+
+  &:hover {
+    background: var(--color-neutral-700);
+  }
+
+  stencila-icon {
+    @apply pr-1;
+  }
 }

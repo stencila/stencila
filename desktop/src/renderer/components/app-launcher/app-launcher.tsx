@@ -8,23 +8,7 @@ import { CHANNEL } from '../../../preload/index'
 })
 export class AppLauncher {
   private selectFiles = () => {
-    window.api.invoke(CHANNEL.SELECT_PROJECT_DIR).then((selectedFiles) => {
-      // TODO: Get type inference on IPC calls
-      if (
-        typeof selectedFiles === 'object' &&
-        Object.prototype.hasOwnProperty.call(selectedFiles, 'filePaths')
-      ) {
-        // @ts-ignore
-        const path = selectedFiles.filePaths
-          ? // @ts-ignore
-            selectedFiles?.filePaths[0]
-          : undefined
-
-        if (path) {
-          window.api.invoke(CHANNEL.SHOW_PROJECT_WINDOW, path)
-        }
-      }
-    })
+    window.api.invoke(CHANNEL.SELECT_PROJECT_DIR)
   }
 
   render() {
