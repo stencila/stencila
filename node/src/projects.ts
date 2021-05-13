@@ -12,8 +12,12 @@ const addon = require('../index.node')
 
 export interface File {
   path: string,
-  isDir: boolean,
-  mediaType: String
+  modified?: number,
+  size?: number,
+  format?: string,
+  mediaType?: string,
+  parent?: string,
+  children?: string[]
 }
 export interface Project {
   // Properties from the project's manifest file
@@ -26,6 +30,7 @@ export interface Project {
   theme?: string
 
   // Other properties
+  path: string,
   files: Record<string, File>
 }
 
