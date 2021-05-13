@@ -21,6 +21,13 @@ pub struct File {
     /// Size of the file in bytes
     pub size: Option<u64>,
 
+    /// Format of the file
+    ///
+    /// Usually this is the lower cased filename extension (if any)
+    /// but may also be normalized. May be more convenient,
+    /// and usually more available, than the `media_type` property.
+    pub format: Option<String>,
+
     /// The media type (aka MIME type) of the file
     pub media_type: Option<String>,
 
@@ -57,10 +64,24 @@ impl File {
             Err(_) => (None, None),
         };
 
+        let format = path
+            .extension()
+            .map(|ext| ext.to_string_lossy().to_lowercase());
+
         let (media_type, children) = if path.is_file() {
-            let media_type = mime_guess::from_path(path)
-                .first()
-                .map(|mime| mime.essence_str().to_string());
+            let media_type = if let Some(ext) = &format {
+                mime_guess::from_ext(&ext)
+                    .first()
+                    .map(|mime| mime.essence_str().to_string())
+                    .or_else(|| match ext.as_str() {
+                        // Add MIME types that are not registered
+                        // See https://github.com/jupyter/jupyter/issues/68
+                        "ipynb" => Some("application/ipynb+json".to_string()),
+                        _ => None,
+                    })
+            } else {
+                None
+            };
 
             (media_type, None)
         } else {
@@ -71,6 +92,7 @@ impl File {
             path: relative_path,
             modified,
             size,
+            format,
             media_type,
             children,
             ..Default::default()
