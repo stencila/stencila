@@ -201,11 +201,7 @@ impl<S: tracing::subscriber::Subscriber> tracing_subscriber::layer::Layer<S> for
     fn on_event(&self, event: &Event<'_>, _ctx: tracing_subscriber::layer::Context<'_, S>) {
         use tracing_serde::AsSerde;
         if LoggingLevel::from(event.metadata().level()) >= self.level {
-            let value = serde_json::json!(event.as_serde());
-            if publish("logging", value).is_err() {
-                // Ignore any error in publishing logging event
-                // Doing otherwise (e.g. logging another event) could be very circular
-            }
+            publish("logging", &event.as_serde())
         }
     }
 }
