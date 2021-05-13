@@ -26,32 +26,28 @@ describe('projects', () => {
   test('open: empty', () => {
     let folder = fixture('empty')
     expect(open(folder)).toEqual(
-      expect.arrayContaining([
-        expect.stringMatching(folder),
-        expect.objectContaining({
-          name: 'empty',
-          theme: 'stencila',
-        }),
-      ])
+      expect.objectContaining({
+        path: folder,
+        name: 'empty',
+        theme: 'stencila',
+      })
     )
   })
 
   test('open: manifest', () => {
     let folder = fixture('manifest')
     expect(open(folder)).toEqual(
-      expect.arrayContaining([
-        expect.stringMatching(folder),
-        expect.objectContaining({
-          name: 'A project with a project.json file',
-          theme: 'wilmore',
-          files: expect.objectContaining({
-            [path.join(folder, 'project.json')]: expect.objectContaining({
-              path: 'project.json',
-              mediaType: 'application/json'
-            }),
+      expect.objectContaining({
+        path: folder,
+        name: 'A project with a project.json file',
+        theme: 'wilmore',
+        files: expect.objectContaining({
+          [path.join(folder, 'project.json')]: expect.objectContaining({
+            path: 'project.json',
+            mediaType: 'application/json',
           }),
         }),
-      ])
+      })
     )
   })
 })

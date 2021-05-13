@@ -40,7 +40,7 @@ pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
     let folder = &cx.argument::<JsString>(0)?.value(&mut cx);
     let projects = &mut *obtain(&mut cx)?;
     let config = &*config::obtain(&mut cx)?;
-    to_json_or_throw(cx, projects.open(folder, &config.projects))
+    to_json_or_throw(cx, projects.open(folder, &config.projects, true))
 }
 
 /// Close a project

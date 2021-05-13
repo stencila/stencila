@@ -5,7 +5,7 @@ use schemars::{schema_for, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::{
-    collections::HashMap,
+    collections::{hash_map::Entry, HashMap},
     fs,
     path::{Path, PathBuf},
     str::FromStr,
@@ -95,7 +95,7 @@ impl Project {
         } else {
             Project::default()
         };
-        project.path = Path::new(folder).canonicalize()?.to_path_buf();
+        project.path = Path::new(folder).canonicalize()?;
 
         Ok(project)
     }
@@ -130,22 +130,21 @@ impl Project {
 
     /// Load a project including creating default values for properties
     /// where necessary
-    pub fn load(folder: &str, config: &config::ProjectsConfig) -> Result<Project> {
+    pub fn open(folder: &str, config: &config::ProjectsConfig, watch: bool) -> Result<Project> {
         let project = Project::read(folder)?;
         let Project {
             name, main, theme, ..
         } = project;
 
-        let folder = Path::new(folder);
-
         // Get all the files in the project
-        let files = Files::from_path(folder);
+        let files = Files::load(folder, watch)?;
 
         // Resolve the main file first as some of the other project properties
         // may be defined there (e.g. in the YAML header of a Markdown file)
         // Main defaults to the first file that matches configured patterns (if any)
         let main = main.or_else(|| {
             // See if there are any files matching patterns
+            let files = &*files.obtain().expect("Unable to get files");
             for pattern in &config.main_patterns {
                 let re = match Regex::new(&pattern.to_lowercase()) {
                     Ok(re) => re,
@@ -154,12 +153,13 @@ impl Project {
                         continue;
                     }
                 };
-                for (_, file) in &files.files {
+                #[allow(clippy::for_kv_map)]
+                for (_, file) in files {
                     let File { path, children, .. } = file;
                     if children.is_some() {
                         continue;
                     }
-                    if re.is_match(path) {
+                    if re.is_match(&path) {
                         return Some(path.clone());
                     }
                 }
@@ -169,7 +169,7 @@ impl Project {
         });
 
         // Name defaults to the name of the folder
-        let name = name.or_else(|| match folder.components().last() {
+        let name = name.or_else(|| match Path::new(folder).components().last() {
             Some(last) => Some(last.as_os_str().to_string_lossy().to_string()),
             None => Some("Unnamed".to_string()),
         });
@@ -218,13 +218,13 @@ impl Project {
 #[serde(default)]
 pub struct Projects {
     /// The projects, stored by absolute path
-    pub projects: HashMap<String, Project>,
+    pub registry: HashMap<String, Project>,
 }
 
 impl Default for Projects {
     fn default() -> Self {
         Projects {
-            projects: HashMap::new(),
+            registry: HashMap::new(),
         }
     }
 }
@@ -237,7 +237,7 @@ impl Projects {
 
     /// List projects that are open
     pub fn list(&self) -> Result<HashMap<String, Project>> {
-        Ok(self.projects.clone())
+        Ok(self.registry.clone())
     }
 
     /// Open a project
@@ -249,17 +249,24 @@ impl Projects {
         &mut self,
         folder: &str,
         config: &config::ProjectsConfig,
-    ) -> Result<(String, Project)> {
+        watch: bool,
+    ) -> Result<Project> {
         let path = Projects::path(folder)?;
-        let project = Project::load(folder, config)?;
-        self.projects.insert(path.clone(), project.clone());
-        Ok((path, project))
+
+        let project = match self.registry.entry(path) {
+            Entry::Occupied(entry) => entry.into_mut(),
+            Entry::Vacant(entry) => match Project::open(folder, config, watch) {
+                Ok(project) => entry.insert(project),
+                Err(error) => return Err(error),
+            },
+        };
+        Ok(project.clone())
     }
 
     /// Close a project
     pub fn close(&mut self, folder: &str) -> Result<()> {
         let path = Projects::path(folder)?;
-        self.projects.remove(&path);
+        self.registry.remove(&path);
         Ok(())
     }
 }
@@ -299,6 +306,48 @@ pub mod cli {
 
     #[derive(Debug, StructOpt)]
     #[structopt(
+        about = "Manage projects",
+        setting = structopt::clap::AppSettings::ColoredHelp,
+        setting = structopt::clap::AppSettings::VersionlessSubcommands
+    )]
+    pub struct Command {
+        #[structopt(subcommand)]
+        pub action: Action,
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder
+    )]
+    pub enum Action {
+        Init(Init),
+        List(List),
+        Open(Open),
+        Close(Close),
+        Show(Show),
+        Schema(Schema),
+    }
+
+    impl Command {
+        pub fn run(
+            &self,
+            projects: &mut Projects,
+            config: &config::ProjectsConfig,
+        ) -> Result<Option<(String, String)>> {
+            let Self { action } = self;
+            match action {
+                Action::Init(action) => action.run(),
+                Action::List(action) => action.run(projects),
+                Action::Open(action) => action.run(projects, config),
+                Action::Close(action) => action.run(projects),
+                Action::Show(action) => action.run(projects, config),
+                Action::Schema(action) => action.run(),
+            }
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
         about = "Initialize a project in a new, or existing, folder",
         setting = structopt::clap::AppSettings::DeriveDisplayOrder,
         setting = structopt::clap::AppSettings::ColoredHelp
@@ -314,10 +363,70 @@ pub mod cli {
     }
 
     impl Init {
-        pub fn run(&self) -> Result<()> {
+        pub fn run(&self) -> Result<Option<(String, String)>> {
             let Self { folder } = self;
             Project::init(folder)?;
-            Ok(())
+            Ok(None)
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        about = "List open projects",
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct List {}
+
+    impl List {
+        pub fn run(&self, projects: &mut Projects) -> Result<Option<(String, String)>> {
+            Ok(Some((
+                "json".into(),
+                format!("{:?}", projects.list()?.keys()),
+            )))
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        about = "Open a project",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Open {
+        /// The path of the project folder
+        #[structopt(default_value = ".")]
+        pub folder: String,
+    }
+
+    impl Open {
+        pub fn run(
+            &self,
+            projects: &mut Projects,
+            config: &config::ProjectsConfig,
+        ) -> Result<Option<(String, String)>> {
+            let Self { folder } = self;
+            projects.open(folder, config, true)?;
+            Ok(None)
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        about = "Close a project",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Close {
+        /// The path of the project folder
+        #[structopt(default_value = ".")]
+        pub folder: String,
+    }
+
+    impl Close {
+        pub fn run(&self, projects: &mut Projects) -> Result<Option<(String, String)>> {
+            let Self { folder } = self;
+            projects.close(folder)?;
+            Ok(None)
         }
     }
 
@@ -338,10 +447,28 @@ pub mod cli {
     }
 
     impl Show {
-        pub fn run(&self, config: &config::ProjectsConfig) -> Result<(String, String)> {
+        pub fn run(
+            &self,
+            projects: &mut Projects,
+            config: &config::ProjectsConfig,
+        ) -> Result<Option<(String, String)>> {
             let Self { folder, format } = self;
             let format = ShowFormat::from_str(&format)?;
-            Project::load(folder, config)?.show(format)
+            let content = projects.open(folder, config, false)?.show(format)?;
+            Ok(Some(content))
+        }
+    }
+
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        about = "Get the JSON Schema for projects",
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Schema {}
+
+    impl Schema {
+        pub fn run(&self) -> Result<Option<(String, String)>> {
+            Ok(Some(("json".into(), Project::schema())))
         }
     }
 }

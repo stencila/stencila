@@ -2,6 +2,7 @@
 
 import { JSONSchema7 } from 'json-schema'
 import { fromJSON } from './prelude'
+import { subscribe } from './pubsub'
 
 const addon = require('../index.node')
 
@@ -11,12 +12,12 @@ const addon = require('../index.node')
 // the project objects.
 
 export interface File {
-  path: string,
-  modified?: number,
-  size?: number,
-  format?: string,
-  mediaType?: string,
-  parent?: string,
+  path: string
+  modified?: number
+  size?: number
+  format?: string
+  mediaType?: string
+  parent?: string
   children?: string[]
 }
 export interface Project {
@@ -30,7 +31,7 @@ export interface Project {
   theme?: string
 
   // Other properties
-  path: string,
+  path: string
   files: Record<string, File>
 }
 
@@ -57,12 +58,17 @@ export function list(): Project[] {
  * Open a project
  *
  * @param path Path to the project folder
+ * @param subscriber A subscriber function that will receive published
+ *                   events for the project
  * @return A project
  */
 export function open(
-  path: string
+  folder: string,
+  subscriber?: (topic: string, event: unknown) => unknown
 ): Project {
-  return fromJSON<Project>(addon.projectsOpen(path))
+  const project = fromJSON<Project>(addon.projectsOpen(folder))
+  if (subscriber !== undefined) subscribe(`project:${project.path}`, subscriber)
+  return project as Project
 }
 
 /**
@@ -70,6 +76,6 @@ export function open(
  *
  * @param Path to the project folder
  */
-export function uninstall(path: string): void {
-  addon.projectsClose(path)
+export function close(folder: string): void {
+  addon.projectsClose(folder)
 }

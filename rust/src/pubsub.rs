@@ -1,7 +1,12 @@
+use crate::files::File;
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
-use std::sync::{Mutex, MutexGuard};
+use std::{
+    collections::BTreeMap,
+    path::PathBuf,
+    sync::{Mutex, MutexGuard},
+};
 
 pub type Subscriber = fn(topic: String, event: serde_json::Value) -> ();
 
@@ -50,7 +55,10 @@ where
     match obtain() {
         Ok(subscriptions) => {
             for subscription in &*subscriptions {
-                if subscription.topic == "*" || subscription.topic == topic {
+                if subscription.topic == "*"
+                    || subscription.topic == topic
+                    || topic.starts_with(&subscription.topic)
+                {
                     let value = serde_json::to_value(event).unwrap_or(serde_json::Value::Null);
                     (subscription.subscriber)(topic.into(), value)
                 }
@@ -103,16 +111,19 @@ pub fn publish_progress(event: ProgressEvent) {
 /// "project" topic channel. Although all events are simply `serde_json::Value`,
 /// this `struct` provides expectations around the shape of those values
 /// both for publishers and subscribers.
-#[derive(Default, Debug, Deserialize, Serialize)]
+#[derive(Debug, Serialize)]
 pub struct ProjectEvent {
-    /// The project that this event is for
-    pub project: String,
+    /// The path of the project for which the event is for
+    pub path: String,
 
-    /// The kind of event
+    /// The kind of event e.g. `file:created`
     pub kind: String,
+
+    /// The updated files in the project (for `file:*` events)
+    pub files: Option<BTreeMap<PathBuf, File>>,
 }
 
 /// Publish an event on the "project" topic channel
-pub fn publish_project(event: ProjectEvent) {
-    publish(&format!("project:{}", event.project), &event)
+pub fn publish_project(path: &str, event: ProjectEvent) {
+    publish(&format!("project:{}", path), &event)
 }

@@ -1,16 +1,8 @@
-use stencila::{
-    config,
-    eyre::{bail, Error, Result},
-    logging::{
+use stencila::{config, eyre::{bail, Error, Result}, logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
         LoggingFormat, LoggingLevel,
-    },
-    plugins,
-    regex::Regex,
-    strum::VariantNames,
-    tokio, tracing,
-};
+    }, plugins, projects, regex::Regex, strum::VariantNames, tokio, tracing};
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -56,12 +48,6 @@ pub const GLOBAL_ARGS: [&str; 6] = ["--debug", "--info", "--warn", "--error", "-
     setting = structopt::clap::AppSettings::DeriveDisplayOrder
 )]
 pub enum Command {
-    #[cfg(feature = "projects")]
-    Init(stencila::projects::cli::Init),
-
-    #[cfg(feature = "projects")]
-    Show(stencila::projects::cli::Show),
-
     #[cfg(feature = "open")]
     Open(stencila::open::cli::Args),
 
@@ -70,6 +56,9 @@ pub enum Command {
 
     #[cfg(feature = "serve")]
     Serve(stencila::serve::cli::Args),
+
+    #[cfg(feature = "projects")]
+    Projects(stencila::projects::cli::Command),
 
     #[cfg(feature = "plugins")]
     Plugins(stencila::plugins::cli::Args),
@@ -88,16 +77,11 @@ pub enum Command {
 /// Run a command
 pub async fn run_command(
     command: Command,
-    config: &mut config::Config,
+    projects: &mut projects::Projects,
     plugins: &mut plugins::Plugins,
+    config: &mut config::Config,
 ) -> Result<()> {
     match command {
-        #[cfg(feature = "projects")]
-        Command::Init(init) => init.run(),
-
-        #[cfg(feature = "projects")]
-        Command::Show(show) => display::display(show.run(&config.projects)?),
-
         #[cfg(feature = "open")]
         Command::Open(args) => stencila::open::cli::run(args).await,
 
@@ -107,14 +91,17 @@ pub async fn run_command(
         #[cfg(feature = "serve")]
         Command::Serve(args) => stencila::serve::cli::run(args, &config.serve).await,
 
+        #[cfg(feature = "projects")]
+        Command::Projects(command) => display::display(command.run(projects, &config.projects)?),
+
         #[cfg(feature = "plugins")]
         Command::Plugins(args) => stencila::plugins::cli::run(args, &config.plugins, plugins).await,
 
-        #[cfg(feature = "upgrade")]
-        Command::Upgrade(args) => stencila::upgrade::cli::run(args, &config.upgrade, plugins).await,
-
         #[cfg(feature = "config")]
         Command::Config(args) => stencila::config::cli::run(args, config),
+
+        #[cfg(feature = "upgrade")]
+        Command::Upgrade(args) => stencila::upgrade::cli::run(args, &config.upgrade, plugins).await,
 
         #[cfg(feature = "inspect")]
         Command::Inspect(args) => stencila::inspect::cli::run(args, plugins).await,
@@ -224,6 +211,9 @@ pub async fn main() -> Result<()> {
     // Load plugins
     let mut plugins = plugins::Plugins::load()?;
 
+    // Initialize projects
+    let mut projects = projects::Projects::default();
+
     // If not explicitly upgrading then run an upgrade check in the background
     #[cfg(feature = "upgrade")]
     let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
@@ -234,7 +224,7 @@ pub async fn main() -> Result<()> {
 
     // Get the result of running the command
     let result = if let Some(command) = command {
-        run_command(command, &mut config, &mut plugins).await
+        run_command(command, &mut projects, &mut plugins, &mut config).await
     } else {
         #[cfg(feature = "interact")]
         {
@@ -245,7 +235,7 @@ pub async fn main() -> Result<()> {
                 // Remove the global args which can not be applied to each interactive line
                 .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
                 .collect();
-            interact::run(prefix, &mut config, &mut plugins).await
+            interact::run(prefix, &mut projects, &mut plugins, &mut config).await
         }
         #[cfg(not(feature = "interact"))]
         {
@@ -350,8 +340,11 @@ mod feedback {
 mod display {
     use super::*;
 
-    pub fn display(what: (String, String)) -> Result<()> {
-        let (format, content) = &what;
+    pub fn display(what: Option<(String, String)>) -> Result<()> {
+        let (format, content) = match &what {
+            None => return Ok(()),
+            Some(pair) => pair
+        };
 
         match format.as_str() {
             "md" => render(format, content),
@@ -474,8 +467,9 @@ mod interact {
     #[tracing::instrument(skip(config, plugins))]
     pub async fn run(
         prefix: Vec<String>,
-        config: &mut config::Config,
+        projects: &mut projects::Projects,
         plugins: &mut plugins::Plugins,
+        config: &mut config::Config,
     ) -> Result<()> {
         let history_file = util::dirs::config(true)?.join("history.txt");
 
@@ -524,7 +518,9 @@ mod interact {
                     match Line::clap().get_matches_from_safe(args) {
                         Ok(matches) => {
                             let Line { command } = Line::from_clap(&matches);
-                            if let Err(error) = run_command(command, config, plugins).await {
+                            if let Err(error) =
+                                run_command(command, projects, plugins, config).await
+                            {
                                 print_error(error);
                             };
                         }
