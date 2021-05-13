@@ -41,10 +41,17 @@ describe('projects', () => {
         path: folder,
         name: 'A project with a project.json file',
         theme: 'wilmore',
+        mainPath: path.join(folder, 'my-main-file.md'),
         files: expect.objectContaining({
           [path.join(folder, 'project.json')]: expect.objectContaining({
-            path: 'project.json',
+            name: 'project.json',
+            format: 'json',
             mediaType: 'application/json',
+          }),
+          [path.join(folder, 'my-main-file.md')]: expect.objectContaining({
+            name: 'my-main-file.md',
+            format: 'md',
+            mediaType: 'text/markdown',
           }),
         }),
       })

@@ -19,10 +19,13 @@ use crate::pubsub::{self, ProjectFileEvent};
 #[derive(Debug, Default, Clone, JsonSchema, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct File {
-    /// The relative path of the file within the project folder
-    pub path: String,
+    /// The absolute path of the file or directory
+    pub path: PathBuf,
 
-    /// Time that the file was last modified (seconds since Unix Epoch)
+    /// The name of the file or directory
+    pub name: String,
+
+    /// Time that the file was last modified (Unix Epoch timestamp)
     pub modified: Option<u64>,
 
     /// Size of the file in bytes
@@ -50,9 +53,14 @@ pub struct File {
 }
 
 impl File {
-    pub fn load(parent: &Path, path: &Path) -> Result<(PathBuf, File)> {
-        let canonical_path = path.canonicalize()?;
-        let relative_path = path.strip_prefix(parent)?.display().to_string();
+    pub fn load(path: &Path) -> Result<(PathBuf, File)> {
+        let path = path.canonicalize()?;
+
+        let name = path
+            .file_name()
+            .map(|os_str| os_str.to_string_lossy())
+            .unwrap_or_default()
+            .into();
 
         let (modified, size) = match path.metadata() {
             Ok(metadata) => {
@@ -93,7 +101,8 @@ impl File {
         };
 
         let file = File {
-            path: relative_path,
+            path,
+            name,
             modified,
             size,
             format,
@@ -102,7 +111,7 @@ impl File {
             ..Default::default()
         };
 
-        Ok((canonical_path, file))
+        Ok((file.path.clone(), file))
     }
 }
 
@@ -126,19 +135,17 @@ impl Files {
         let path = Path::new(folder).canonicalize()?;
 
         // Collect all the files
-        let path_ = path.clone();
-        let mut files = walkdir::WalkDir::new(path)
+        let mut files = walkdir::WalkDir::new(&path)
             .into_iter()
             .filter_map(|entry| {
                 let entry = match entry.ok() {
                     Some(entry) => entry,
                     None => return None,
                 };
-                File::load(path_.as_path(), entry.path()).ok()
+                File::load(entry.path()).ok()
             })
             .into_iter()
             .collect::<BTreeMap<PathBuf, File>>();
-        let path = path_;
 
         // Resolve `parent` and `children` properties
         // This needs to clone the files to avoid mutable borrow twice,
@@ -224,7 +231,7 @@ impl Files {
     pub fn created(project: &Path, registry: &FileRegistry, path: &Path) {
         let mut registry = registry.lock().unwrap();
 
-        let file = if let Ok((path, file)) = File::load(project, path) {
+        let file = if let Ok((path, file)) = File::load(path) {
             registry.insert(path, file.clone());
             // TODO: resolve parent/child
             Some(file)
@@ -244,7 +251,7 @@ impl Files {
     pub fn removed(project: &Path, registry: &FileRegistry, path: &Path) {
         let mut registry = registry.lock().unwrap();
 
-        registry.remove(path.into());
+        registry.remove(path);
         // TODO: Update parents
 
         pubsub::publish_project_file(ProjectFileEvent {
@@ -273,7 +280,7 @@ impl Files {
     pub fn modified(project: &Path, registry: &FileRegistry, path: &Path) {
         let mut registry = registry.lock().unwrap();
 
-        let file = if let Ok((path, file)) = File::load(project, path) {
+        let file = if let Ok((path, file)) = File::load(path) {
             registry.insert(path, file.clone());
             Some(file)
         } else {

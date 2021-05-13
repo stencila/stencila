@@ -1,4 +1,4 @@
-use crate::files::{File, Files};
+use crate::files::Files;
 use eyre::{bail, Result};
 use regex::Regex;
 use schemars::{schema_for, JsonSchema};
@@ -27,7 +27,7 @@ pub struct Project {
     /// A description of the project
     description: Option<String>,
 
-    /// URL of the image to be used when displaying the project
+    /// The path (within the project) of the project's image
     ///
     /// If not specified, will default to the most recently
     /// modified image in the project (if any).
@@ -50,6 +50,14 @@ pub struct Project {
     /// The filesystem path of the project folder
     #[serde(skip_deserializing)]
     path: PathBuf,
+
+    /// The resolved path of the project's image file
+    #[serde(skip_deserializing)]
+    image_path: Option<PathBuf>,
+
+    /// The resolved path of the project's main file
+    #[serde(skip_deserializing)]
+    main_path: Option<PathBuf>,
 
     /// The files in the project folder
     #[serde(skip_deserializing)]
@@ -131,59 +139,74 @@ impl Project {
     /// Load a project including creating default values for properties
     /// where necessary
     pub fn open(folder: &str, config: &config::ProjectsConfig, watch: bool) -> Result<Project> {
-        let project = Project::read(folder)?;
-        let Project {
-            name, main, theme, ..
-        } = project;
+        let mut project = Project::read(folder)?;
 
         // Get all the files in the project
-        let files = Files::load(folder, watch)?;
+        project.files = Files::load(folder, watch)?;
 
-        // Resolve the main file first as some of the other project properties
+        // Resolve the main file path first as some of the other project properties
         // may be defined there (e.g. in the YAML header of a Markdown file)
-        // Main defaults to the first file that matches configured patterns (if any)
-        let main = main.or_else(|| {
-            // See if there are any files matching patterns
-            let files = &*files.obtain().expect("Unable to get files");
-            for pattern in &config.main_patterns {
-                let re = match Regex::new(&pattern.to_lowercase()) {
-                    Ok(re) => re,
-                    Err(_) => {
-                        tracing::warn!("Project main file pattern is invalid: {}", pattern);
-                        continue;
-                    }
-                };
-                #[allow(clippy::for_kv_map)]
-                for (_, file) in files {
-                    let File { path, children, .. } = file;
-                    if children.is_some() {
-                        continue;
-                    }
-                    if re.is_match(&path) {
-                        return Some(path.clone());
+        project.main_path = project.resolve_main_path(&config.main_patterns);
+
+        // Name defaults to the name of the folder
+        project.name = project
+            .name
+            .or_else(|| match Path::new(folder).components().last() {
+                Some(last) => Some(last.as_os_str().to_string_lossy().to_string()),
+                None => Some("Unnamed".to_string()),
+            });
+
+        // Theme defaults to the configured default
+        project.theme = project.theme.or_else(|| Some(config.theme.clone()));
+
+        Ok(project)
+    }
+
+    /// Attempt to resolve the path of the main file for a project
+    ///
+    /// Attempts to use the projects `main` property. If that is not specified, or
+    /// there is no matching file in the project, attempts to match one of the
+    /// project's files against the `main_patterns`.
+    fn resolve_main_path(&self, main_patterns: &[String]) -> Option<PathBuf> {
+        let files = &*self.files.obtain().expect("Unable to get files");
+
+        // Check that there is a file with the specified main path
+        if let Some(main) = &self.main {
+            let main_path = self.path.join(main);
+            if files.contains_key(&main_path) {
+                return Some(main_path);
+            } else {
+                tracing::warn!("Project main file specified could not be found: {}", main);
+                // Will attempt to find using patterns
+            }
+        }
+
+        // For each `main_pattern` (in order)...
+        for pattern in main_patterns {
+            // Make matching case insensitive
+            let re = match Regex::new(&pattern.to_lowercase()) {
+                Ok(re) => re,
+                Err(_) => {
+                    tracing::warn!("Project main file pattern is invalid: {}", pattern);
+                    continue;
+                }
+            };
+
+            for file in files.values() {
+                // Ignore directories
+                if file.children.is_some() {
+                    continue;
+                }
+                // Match relative path to pattern
+                if let Ok(relative_path) = file.path.strip_prefix(&self.path) {
+                    if re.is_match(&relative_path.to_string_lossy().to_lowercase()) {
+                        return Some(file.path.clone());
                     }
                 }
             }
+        }
 
-            None
-        });
-
-        // Name defaults to the name of the folder
-        let name = name.or_else(|| match Path::new(folder).components().last() {
-            Some(last) => Some(last.as_os_str().to_string_lossy().to_string()),
-            None => Some("Unnamed".to_string()),
-        });
-
-        // Theme defaults to the configured default
-        let theme = theme.or_else(|| Some(config.theme.clone()));
-
-        Ok(Project {
-            name,
-            main,
-            theme,
-            files,
-            ..project
-        })
+        None
     }
 
     /// Show a project in a format
