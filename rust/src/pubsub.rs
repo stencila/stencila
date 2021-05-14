@@ -1,12 +1,7 @@
-use crate::files::File;
 use eyre::{bail, Result};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
-use std::{
-    collections::BTreeMap,
-    path::PathBuf,
-    sync::{Mutex, MutexGuard},
-};
+use std::sync::{Mutex, MutexGuard};
 
 pub type Subscriber = fn(topic: String, event: serde_json::Value) -> ();
 
@@ -103,40 +98,4 @@ pub struct ProgressEvent {
 /// Publish an event on the "progress" topic channel
 pub fn publish_progress(event: ProgressEvent) {
     publish("progress", &event)
-}
-
-/// A project event
-///
-/// This is the expected structure of events published on the
-/// "project" topic channel. Although all events are simply `serde_json::Value`,
-/// this `struct` provides expectations around the shape of those values
-/// both for publishers and subscribers.
-#[derive(Debug, Serialize)]
-pub struct ProjectFileEvent {
-    /// The path of the project (absolute)
-    pub project: PathBuf,
-
-    /// The path of the file (absolute)
-    pub path: PathBuf,
-
-    /// The kind of event e.g. `modified`, `created`
-    pub kind: String,
-
-    /// The updated file, if relevant
-    pub file: Option<File>,
-
-    /// The updated files in the project
-    pub files: Option<BTreeMap<PathBuf, File>>,
-}
-
-/// Publish an event on the "project:<project-path>:file:<file-path>" topic channel
-pub fn publish_project_file(event: ProjectFileEvent) {
-    publish(
-        &format!(
-            "project:{}:file:{}",
-            event.project.display(),
-            event.path.display()
-        ),
-        &event,
-    )
 }

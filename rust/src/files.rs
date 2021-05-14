@@ -12,7 +12,7 @@ use std::{
     time::UNIX_EPOCH,
 };
 
-use crate::pubsub::{self, ProjectFileEvent};
+use crate::pubsub::publish;
 
 /// # A file or directory within a `Project`
 #[skip_serializing_none]
@@ -120,15 +120,45 @@ impl File {
     }
 }
 
-/// A registry of `File`s within a `Project` including ignore files
+/// An event associated with a `File`
+///
+/// This is the expected structure of events published under the
+/// "project:<project-name>:file" topic. Although all events are simply `serde_json::Value`,
+/// this `struct` provides expectations around the shape of those values
+/// both for publishers and subscribers.
+#[derive(Debug, Serialize)]
+pub struct FileEvent {
+    /// The path of the project (absolute)
+    pub project: PathBuf,
+
+    /// The path of the file (absolute)
+    pub path: PathBuf,
+
+    /// The kind of event e.g. `modified`, `created`
+    pub kind: String,
+
+    /// The updated file, if relevant
+    pub file: Option<File>,
+
+    /// The updated set of files in the project
+    pub files: BTreeMap<PathBuf, File>,
+}
+
+/// A registry of `File`s within a `Project`
 #[derive(Debug, Default, JsonSchema, Serialize)]
 pub struct FileRegistry {
+    /// The root path of the project
     #[serde(skip)]
     path: PathBuf,
 
+    /// The map of files in the project
     #[serde(flatten)]
     pub files: BTreeMap<PathBuf, File>,
 
+    /// The set of gitignore style files in the project
+    ///
+    /// Used to avoid adding ignored file when notified
+    /// of changes by the watcher thread.
     #[serde(skip)]
     ignores: BTreeSet<PathBuf>,
 }
@@ -181,6 +211,24 @@ impl FileRegistry {
             files,
             ignores,
         }
+    }
+
+    /// Publish a `FileEvent` under the project's topic
+    pub fn publish_file_event(&self, path: &Path, kind: &str, file: Option<File>) {
+        let topic = &format!(
+            "project:{}:file:{}:{}",
+            self.path.display(),
+            path.display(),
+            kind
+        );
+        let event = FileEvent {
+            project: self.path.clone(),
+            path: path.into(),
+            kind: "created".into(),
+            file,
+            files: self.files.clone(),
+        };
+        publish(topic, &event)
     }
 
     /// Refresh the file registry
@@ -239,7 +287,7 @@ impl FileRegistry {
     }
 
     // Update a project file registry when a file is created
-    pub fn created(&mut self, project: &Path, path: &Path) {
+    pub fn created(&mut self, path: &Path) {
         if self.should_ignore(path) || self.did_refresh(path) {
             return;
         }
@@ -258,17 +306,11 @@ impl FileRegistry {
             None
         };
 
-        pubsub::publish_project_file(ProjectFileEvent {
-            project: project.into(),
-            path: path.into(),
-            kind: "created".into(),
-            file,
-            files: Some(self.files.clone()),
-        })
+        self.publish_file_event(path, "created", file)
     }
 
     // Update a project file registry when a file is removed
-    pub fn removed(&mut self, project: &Path, path: &Path) {
+    pub fn removed(&mut self, path: &Path) {
         if self.should_ignore(path) || self.did_refresh(path) {
             return;
         }
@@ -281,17 +323,11 @@ impl FileRegistry {
             }
         }
 
-        pubsub::publish_project_file(ProjectFileEvent {
-            project: project.into(),
-            path: path.into(),
-            kind: "removed".into(),
-            file: None,
-            files: Some(self.files.clone()),
-        })
+        self.publish_file_event(path, "removed", None)
     }
 
     // Update a project file registry when a file is renamed
-    pub fn renamed(&mut self, project: &Path, old_path: &Path, new_path: &Path) {
+    pub fn renamed(&mut self, old_path: &Path, new_path: &Path) {
         if self.should_refresh(old_path) || self.should_refresh(new_path) {
             return self.refresh();
         }
@@ -301,9 +337,9 @@ impl FileRegistry {
         if ignore_old && ignore_new {
             return;
         } else if ignore_new {
-            return self.removed(project, old_path);
+            return self.removed(old_path);
         } else if ignore_old {
-            return self.created(project, new_path);
+            return self.created(new_path);
         }
 
         // Move the file
@@ -380,17 +416,11 @@ impl FileRegistry {
             }
         }
 
-        pubsub::publish_project_file(ProjectFileEvent {
-            project: project.into(),
-            path: old_path.into(),
-            kind: "renamed".into(),
-            file,
-            files: Some(self.files.clone()),
-        })
+        self.publish_file_event(old_path, "renamed", file)
     }
 
     // Update a project file registry when a file is modified
-    pub fn modified(&mut self, project: &Path, path: &Path) {
+    pub fn modified(&mut self, path: &Path) {
         if self.should_ignore(path) || self.did_refresh(path) {
             return;
         }
@@ -403,13 +433,7 @@ impl FileRegistry {
             None
         };
 
-        pubsub::publish_project_file(ProjectFileEvent {
-            project: project.into(),
-            path: path.into(),
-            kind: "modified".into(),
-            file,
-            files: Some(self.files.clone()),
-        })
+        self.publish_file_event(path, "modified", file)
     }
 }
 
@@ -433,7 +457,6 @@ impl Files {
 
         // Watch files and make updates as needed
         let watcher = if watch {
-            let project = path.clone();
             let registry = Arc::clone(&registry);
             let (thread_sender, thread_receiver) = channel();
             std::thread::spawn(move || -> Result<()> {
@@ -447,10 +470,10 @@ impl Files {
                 let handle_event = |event| {
                     let registry = &mut *registry.lock().unwrap();
                     match event {
-                        DebouncedEvent::Create(path) => registry.created(&project, &path),
-                        DebouncedEvent::Remove(path) => registry.removed(&project, &path),
-                        DebouncedEvent::Rename(from, to) => registry.renamed(&project, &from, &to),
-                        DebouncedEvent::Write(path) => registry.modified(&project, &path),
+                        DebouncedEvent::Create(path) => registry.created(&path),
+                        DebouncedEvent::Remove(path) => registry.removed(&path),
+                        DebouncedEvent::Rename(from, to) => registry.renamed(&from, &to),
+                        DebouncedEvent::Write(path) => registry.modified(&path),
                         _ => {}
                     }
                 };
