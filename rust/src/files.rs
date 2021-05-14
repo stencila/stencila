@@ -3,7 +3,7 @@ use schemars::JsonSchema;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
-    collections::BTreeMap,
+    collections::{btree_map::Entry, BTreeMap, BTreeSet},
     path::{Path, PathBuf},
     sync::{
         mpsc::{channel, TryRecvError},
@@ -49,7 +49,11 @@ pub struct File {
 
     /// If a directory, a list of the canonical paths of the files within it.
     /// Otherwise, `None`.
-    pub children: Option<Vec<PathBuf>>,
+    ///
+    /// A `BTreeSet` rather than a `Vec` so that paths are ordered without
+    /// having to be resorted after insertions. Another option is `BinaryHeap`
+    /// but `BinaryHeap::retain` is  only on nightly and so is awkward to use.
+    pub children: Option<BTreeSet<PathBuf>>,
 }
 
 impl File {
@@ -97,7 +101,7 @@ impl File {
 
             (media_type, None)
         } else {
-            (None, Some(Vec::new()))
+            (None, Some(BTreeSet::new()))
         };
 
         let file = File {
@@ -150,15 +154,15 @@ impl Files {
         // Resolve `parent` and `children` properties
         // This needs to clone the files to avoid mutable borrow twice,
         // there may be a more efficient alternative
-        let mut children: BTreeMap<PathBuf, Vec<PathBuf>> = BTreeMap::new();
+        let mut children: BTreeMap<PathBuf, BTreeSet<PathBuf>> = BTreeMap::new();
         for (path, file) in &mut files {
             if let Some(parent_path) = path.parent() {
                 let parent_path = parent_path.to_path_buf();
                 file.parent = Some(parent_path.clone());
                 children
                     .entry(parent_path)
-                    .or_insert_with(Vec::new)
-                    .push(path.clone());
+                    .or_insert_with(BTreeSet::new)
+                    .insert(path.clone());
             }
         }
         for (path, vec) in children {
@@ -221,6 +225,7 @@ impl Files {
         Ok(files)
     }
 
+    // Obtain the file registry
     pub fn obtain(&self) -> Result<MutexGuard<BTreeMap<PathBuf, File>>> {
         match self.registry.try_lock() {
             Ok(registry) => Ok(registry),
@@ -228,12 +233,19 @@ impl Files {
         }
     }
 
+    // Update a project file registry when a file is created
     pub fn created(project: &Path, registry: &FileRegistry, path: &Path) {
         let mut registry = registry.lock().unwrap();
 
+        // Load the file, insert it and add it to it's parent's children
         let file = if let Ok((path, file)) = File::load(path) {
-            registry.insert(path, file.clone());
-            // TODO: resolve parent/child
+            registry.insert(path.clone(), file.clone());
+            if let Some(parent) = path.parent().and_then(|parent| registry.get_mut(parent)) {
+                if let Some(children) = &mut parent.children {
+                    children.insert(path);
+                }
+            }
+
             Some(file)
         } else {
             None
@@ -248,11 +260,17 @@ impl Files {
         })
     }
 
+    // Update a project file registry when a file is removed
     pub fn removed(project: &Path, registry: &FileRegistry, path: &Path) {
         let mut registry = registry.lock().unwrap();
 
+        // Remove the file and remove it from its parent's children
         registry.remove(path);
-        // TODO: Update parents
+        if let Some(parent) = path.parent().and_then(|parent| registry.get_mut(parent)) {
+            if let Some(children) = &mut parent.children {
+                children.remove(path);
+            }
+        }
 
         pubsub::publish_project_file(ProjectFileEvent {
             project: project.into(),
@@ -263,23 +281,98 @@ impl Files {
         })
     }
 
-    pub fn renamed(project: &Path, registry: &FileRegistry, path: &Path, _to: &Path) {
-        let registry = registry.lock().unwrap();
+    // Update a project file registry when a file is renamed
+    pub fn renamed(project: &Path, registry: &FileRegistry, old_path: &Path, new_path: &Path) {
+        let mut registry = registry.lock().unwrap();
 
-        // TODO
+        // Recursively rename children of a file
+        fn rename_children(
+            registry: &mut BTreeMap<PathBuf, File>,
+            file: &mut File,
+            old_path: &Path,
+            new_path: &Path,
+        ) {
+            if let Some(children) = &mut file.children {
+                let mut new_children = BTreeSet::new();
+                for child_old_path in children.iter() {
+                    let child_new_path = new_path.join(
+                        child_old_path
+                            .strip_prefix(old_path)
+                            .expect("Unable to strip old path"),
+                    );
+
+                    if let Entry::Occupied(entry) = registry.entry(child_old_path.into()) {
+                        let mut file = entry.remove();
+                        file.path = child_new_path.clone();
+                        file.parent = child_new_path.parent().map(|parent| parent.into());
+                        rename_children(registry, &mut file, child_old_path, &child_new_path);
+                        registry.insert(child_new_path.clone(), file);
+                    }
+
+                    new_children.insert(child_new_path);
+                }
+                file.children = Some(new_children);
+            }
+        }
+
+        // Move the file
+        let file = match registry.entry(old_path.into()) {
+            Entry::Occupied(entry) => {
+                // Update it's path and parent properties, and the paths of
+                // all it's descendants. Move the file from old to new path.
+                let mut file = entry.remove();
+                file.path = new_path.into();
+                file.parent = new_path.parent().map(|parent| parent.into());
+                rename_children(&mut *registry, &mut file, old_path, new_path);
+                registry.insert(new_path.into(), file.clone());
+                Some(file)
+            }
+            Entry::Vacant(_) => {
+                // The entry should not be empty, but in case it is, load the file from,
+                // and insert it at, the new path
+                if let Ok((_path, file)) = File::load(new_path) {
+                    registry.insert(new_path.into(), file.clone());
+                    Some(file)
+                } else {
+                    None
+                }
+            }
+        };
+
+        // Remove the old path from the old parent's children
+        if let Some(parent) = old_path
+            .parent()
+            .and_then(|parent| registry.get_mut(parent))
+        {
+            if let Some(children) = &mut parent.children {
+                children.remove(old_path);
+            }
+        }
+
+        // Insert the new path to the new parent's children
+        if let Some(parent) = new_path
+            .parent()
+            .and_then(|parent| registry.get_mut(parent))
+        {
+            if let Some(children) = &mut parent.children {
+                children.insert(new_path.into());
+            }
+        }
 
         pubsub::publish_project_file(ProjectFileEvent {
             project: project.into(),
-            path: path.into(),
+            path: old_path.into(),
             kind: "renamed".into(),
-            file: None,
+            file,
             files: Some(registry.clone()),
         })
     }
 
+    // Update a project file registry when a file is modified
     pub fn modified(project: &Path, registry: &FileRegistry, path: &Path) {
         let mut registry = registry.lock().unwrap();
 
+        // Insert the file
         let file = if let Ok((path, file)) = File::load(path) {
             registry.insert(path, file.clone());
             Some(file)
