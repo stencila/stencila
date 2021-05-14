@@ -120,27 +120,45 @@ impl File {
     }
 }
 
-/// An event associated with a `File`
+/// An event associated with a `File` or a set of `File`s
 ///
-/// This is the expected structure of events published under the
-/// "project:<project-name>:file" topic. Although all events are simply `serde_json::Value`,
-/// this `struct` provides expectations around the shape of those values
-/// both for publishers and subscribers.
+/// These events published under the `project:<project-path>:file` topic.
+/// Specific child topics include:
+///
+/// - `project:<project-path>:file:*:refreshed`
+/// - `project:<project-path>:file:<file-path>:created`
+/// - `project:<project-path>:file:<file-path>:removed`
+/// - `project:<project-path>:file:<file-path>:renamed`
+/// - `project:<project-path>:file:<file-path>:modified`
+///
 #[derive(Debug, Serialize)]
 pub struct FileEvent {
     /// The path of the project (absolute)
     pub project: PathBuf,
 
     /// The path of the file (absolute)
+    ///
+    /// For `renamed` events this is the _old_ path.
     pub path: PathBuf,
 
-    /// The kind of event e.g. `modified`, `created`
+    /// The kind of event e.g. `refreshed`, `modified`, `created`
+    ///
+    /// A `refreshed` event is emitted when the entire set of
+    /// files is updated.
     pub kind: String,
 
-    /// The updated file, if relevant
+    /// The updated file
+    ///
+    /// Will be `None` for for `refreshed` and `removed` events,
+    /// or if for some reason it was not possible to fetch metadata
+    /// about the file.
     pub file: Option<File>,
 
     /// The updated set of files in the project
+    ///
+    /// Represents the new state of the file tree after the
+    /// event including updated `parent` and `children`
+    /// properties of files affects by the event.
     pub files: BTreeMap<PathBuf, File>,
 }
 
@@ -231,11 +249,6 @@ impl FileRegistry {
         publish(topic, &event)
     }
 
-    /// Refresh the file registry
-    fn refresh(&mut self) {
-        *self = FileRegistry::new(self.path.as_path());
-    }
-
     /// Should the registry be refreshed in response to a change in a file
     ///
     /// For example if a `.gitignore` file is added, removed, moved or modified.
@@ -284,6 +297,13 @@ impl FileRegistry {
             }
         }
         false
+    }
+
+    /// Refresh the file registry
+    fn refresh(&mut self) {
+        *self = FileRegistry::new(self.path.as_path());
+
+        self.publish_file_event(Path::new("*"), "refresh", None)
     }
 
     // Update a project file registry when a file is created
