@@ -843,7 +843,7 @@ impl Plugin {
             id: parent.clone(),
             message: Some(format!("Downloading Docker image {}", image)),
             ..Default::default()
-        })?;
+        });
         while let Some(item) = stream.next().await {
             match item {
                 Ok(info) => {
@@ -898,7 +898,7 @@ impl Plugin {
                                 current,
                                 expected,
                                 ..Default::default()
-                            })?
+                            })
                         }
                     }
                 }

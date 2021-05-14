@@ -1,8 +1,5 @@
 use neon::prelude::*;
-use std::{
-    collections::HashMap,
-    sync::{Mutex, MutexGuard},
-};
+use std::sync::{Mutex, MutexGuard};
 use stencila::{
     once_cell::sync::{Lazy, OnceCell},
     pubsub, serde_json,
@@ -10,21 +7,18 @@ use stencila::{
 
 use crate::prelude::from_json;
 
-/// JavaScript subscribers
-///
-/// As in Rust, a subscriber is a function that is subscribed to a topic.
-/// This hash map stores that mapping. Currently we only allow
-/// for one subscriber per topic
-static SUBSCRIPTIONS: Lazy<Mutex<HashMap<String, Root<JsFunction>>>> =
-    Lazy::new(|| Mutex::new(HashMap::new()));
+pub struct JsSubscription {
+    topic: String,
+    subscriber: Root<JsFunction>,
+}
+
+static SUBSCRIPTIONS: Lazy<Mutex<Vec<JsSubscription>>> = Lazy::new(|| Mutex::new(Vec::new()));
 
 /// The Neon event queue to which published events will be sent
 static QUEUE: OnceCell<EventQueue> = OnceCell::new();
 
 /// Obtain the subscriptions store
-pub fn obtain(
-    cx: &mut FunctionContext,
-) -> NeonResult<MutexGuard<'static, HashMap<String, Root<JsFunction>>>> {
+pub fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Vec<JsSubscription>>> {
     match SUBSCRIPTIONS.try_lock() {
         Ok(guard) => Ok(guard),
         Err(error) => cx.throw_error(format!(
@@ -37,7 +31,7 @@ pub fn obtain(
 /// Subscribe to a topic
 pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let topic = cx.argument::<JsString>(0)?.value(&mut cx);
-    let callback = cx.argument::<JsFunction>(1)?.root(&mut cx);
+    let subscriber = cx.argument::<JsFunction>(1)?.root(&mut cx);
 
     let queue = cx.queue();
     if QUEUE.set(queue).is_err() {
@@ -45,7 +39,7 @@ pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     }
 
     let mut subscriptions = obtain(&mut cx)?;
-    subscriptions.insert(topic, callback);
+    subscriptions.push(JsSubscription { topic, subscriber });
 
     Ok(cx.undefined())
 }
@@ -55,7 +49,7 @@ pub fn unsubscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let topic = cx.argument::<JsString>(0)?.value(&mut cx);
 
     let mut subscriptions = obtain(&mut cx)?;
-    subscriptions.remove(&topic);
+    subscriptions.retain(|subscription| subscription.topic != topic);
 
     Ok(cx.undefined())
 }
@@ -73,23 +67,29 @@ pub fn publish(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 /// A subscriber that acts as a bridge between Rust events and Javascript events
 /// (i.e. takes a Rust event and turns it into a Javascript one)
 ///
-/// This function is called by Rust for ALL topics and sends data to
+/// This function is called by Rust for ALL topics and it passes on events to
 /// Node.js subscribers that have subscribed to the particular topic.
 pub fn bridging_subscriber(topic: String, data: serde_json::Value) {
-    // If the queue is not sent then it means that there are
+    // If the queue is not set then it means that there are
     // no subscribers and so no need to do anything
     if let Some(queue) = QUEUE.get() {
         queue.send(move |mut cx| {
-            if let Some(func) = SUBSCRIPTIONS
+            let subscriptions = &*SUBSCRIPTIONS
                 .lock()
-                .expect("Unable to obtain subscriptions lock")
-                .get(&topic)
+                .expect("Unable to obtain subscriptions lock");
+
+            for JsSubscription {
+                topic: sub_topic,
+                subscriber,
+            } in subscriptions
             {
-                let callback = func.to_inner(&mut cx);
-                let this = cx.undefined();
-                let json = serde_json::to_string(&data).expect("Unable to convert to JSON");
-                let args = vec![cx.string(topic), cx.string(json)];
-                callback.call(&mut cx, this, args)?;
+                if sub_topic == "*" || topic.starts_with(sub_topic) {
+                    let callback = subscriber.to_inner(&mut cx);
+                    let this = cx.undefined();
+                    let json = serde_json::to_string(&data).expect("Unable to convert to JSON");
+                    let args = vec![cx.string(&topic), cx.string(json)];
+                    callback.call(&mut cx, this, args)?;
+                }
             }
             Ok(())
         });

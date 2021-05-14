@@ -1,5 +1,36 @@
 #![deny(unsafe_code)]
 
+// Objects
+//
+// Core Stencila objects e.g `File`, `Article`, `Project`
+
+pub mod files;
+pub mod projects;
+
+// Methods
+//
+// Core functions that operate on Stencila objects and which
+// may be delegated to plugins
+
+pub mod read;
+pub mod write;
+
+pub mod decode;
+pub mod encode;
+
+pub mod export;
+pub mod import;
+
+pub mod convert;
+
+pub mod validate;
+
+pub mod execute;
+
+// Features
+//
+// Features that can be turned on or off
+
 #[cfg(feature = "open")]
 pub mod open;
 
@@ -34,23 +65,6 @@ pub mod rpc;
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod urls;
 
-// Methods
-
-pub mod read;
-pub mod write;
-
-pub mod decode;
-pub mod encode;
-
-pub mod export;
-pub mod import;
-
-pub mod convert;
-
-pub mod validate;
-
-pub mod execute;
-
 // Utilities
 
 pub mod util {
@@ -61,7 +75,9 @@ pub mod logging;
 pub mod nodes;
 pub mod pubsub;
 
-// Re-export packages (mainly for use by stencila-* language packages in this workspace)
+// Re-export packages
+//
+// Mainly for use by stencila-* language packages in this workspace
 
 pub use eyre;
 pub use once_cell;

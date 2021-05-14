@@ -1,12 +1,12 @@
 use stencila::{
     config,
-    eyre::{Error, Result},
+    eyre::{bail, Error, Result},
     logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
         LoggingFormat, LoggingLevel,
     },
-    plugins,
+    plugins, projects,
     regex::Regex,
     strum::VariantNames,
     tokio, tracing,
@@ -65,6 +65,9 @@ pub enum Command {
     #[cfg(feature = "serve")]
     Serve(stencila::serve::cli::Args),
 
+    #[cfg(feature = "projects")]
+    Projects(stencila::projects::cli::Command),
+
     #[cfg(feature = "plugins")]
     Plugins(stencila::plugins::cli::Args),
 
@@ -82,8 +85,9 @@ pub enum Command {
 /// Run a command
 pub async fn run_command(
     command: Command,
-    config: &mut config::Config,
+    projects: &mut projects::Projects,
     plugins: &mut plugins::Plugins,
+    config: &mut config::Config,
 ) -> Result<()> {
     match command {
         #[cfg(feature = "open")]
@@ -95,14 +99,17 @@ pub async fn run_command(
         #[cfg(feature = "serve")]
         Command::Serve(args) => stencila::serve::cli::run(args, &config.serve).await,
 
+        #[cfg(feature = "projects")]
+        Command::Projects(command) => display::display(command.run(projects, &config.projects)?),
+
         #[cfg(feature = "plugins")]
         Command::Plugins(args) => stencila::plugins::cli::run(args, &config.plugins, plugins).await,
 
-        #[cfg(feature = "upgrade")]
-        Command::Upgrade(args) => stencila::upgrade::cli::run(args, &config.upgrade, plugins).await,
-
         #[cfg(feature = "config")]
         Command::Config(args) => stencila::config::cli::run(args, config),
+
+        #[cfg(feature = "upgrade")]
+        Command::Upgrade(args) => stencila::upgrade::cli::run(args, &config.upgrade, plugins).await,
 
         #[cfg(feature = "inspect")]
         Command::Inspect(args) => stencila::inspect::cli::run(args, plugins).await,
@@ -212,6 +219,9 @@ pub async fn main() -> Result<()> {
     // Load plugins
     let mut plugins = plugins::Plugins::load()?;
 
+    // Initialize projects
+    let mut projects = projects::Projects::default();
+
     // If not explicitly upgrading then run an upgrade check in the background
     #[cfg(feature = "upgrade")]
     let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
@@ -222,7 +232,7 @@ pub async fn main() -> Result<()> {
 
     // Get the result of running the command
     let result = if let Some(command) = command {
-        run_command(command, &mut config, &mut plugins).await
+        run_command(command, &mut projects, &mut plugins, &mut config).await
     } else {
         #[cfg(feature = "interact")]
         {
@@ -233,7 +243,7 @@ pub async fn main() -> Result<()> {
                 // Remove the global args which can not be applied to each interactive line
                 .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
                 .collect();
-            interact::run(prefix, &mut config, &mut plugins).await
+            interact::run(prefix, &mut projects, &mut plugins, &mut config).await
         }
         #[cfg(not(feature = "interact"))]
         {
@@ -334,6 +344,65 @@ mod feedback {
     }
 }
 
+#[cfg(feature = "pretty")]
+mod display {
+    use super::*;
+
+    pub fn display(what: Option<(String, String)>) -> Result<()> {
+        let (format, content) = match &what {
+            None => return Ok(()),
+            Some(pair) => pair,
+        };
+
+        match format.as_str() {
+            "md" => render(format, content),
+            _ => highlight(format, content),
+        }
+
+        Ok(())
+    }
+
+    //
+    pub fn render(_format: &str, content: &str) {
+        let skin = termimad::MadSkin::default();
+        println!("{}", skin.term_text(content))
+    }
+
+    pub fn highlight(format: &str, content: &str) {
+        use syntect::easy::HighlightLines;
+        use syntect::highlighting::{Style, ThemeSet};
+        use syntect::parsing::SyntaxSet;
+        use syntect::util::as_24_bit_terminal_escaped;
+
+        let syntaxes = SyntaxSet::load_defaults_newlines();
+        let themes = ThemeSet::load_defaults();
+
+        let syntax = syntaxes
+            .find_syntax_by_extension(format)
+            .unwrap_or_else(|| syntaxes.find_syntax_by_extension("txt").unwrap());
+
+        let theme = &themes.themes["base16-eighties.dark"];
+
+        let mut highlighter = HighlightLines::new(syntax, theme);
+        for line in content.lines() {
+            let ranges: Vec<(Style, &str)> = highlighter.highlight(line, &syntaxes);
+            let escaped = as_24_bit_terminal_escaped(&ranges[..], false);
+            println!("{}", escaped);
+        }
+    }
+}
+
+#[cfg(not(feature = "pretty"))]
+mod display {
+    use super::*;
+
+    pub fn display(what: (String, String)) -> Result<()> {
+        let (_format, content) = what;
+        println!("{}", content);
+        Ok(())
+    }
+}
+
 /// Module for interactive mode
 ///
 /// Implements the the parsing and handling of user input when in interactive mode
@@ -341,10 +410,7 @@ mod feedback {
 mod interact {
     use super::*;
     use rustyline::error::ReadlineError;
-    use stencila::{
-        eyre::{bail, eyre},
-        util,
-    };
+    use stencila::{eyre::eyre, util};
 
     #[derive(Debug, StructOpt)]
     #[structopt(
@@ -409,8 +475,9 @@ mod interact {
     #[tracing::instrument(skip(config, plugins))]
     pub async fn run(
         prefix: Vec<String>,
-        config: &mut config::Config,
+        projects: &mut projects::Projects,
         plugins: &mut plugins::Plugins,
+        config: &mut config::Config,
     ) -> Result<()> {
         let history_file = util::dirs::config(true)?.join("history.txt");
 
@@ -459,7 +526,9 @@ mod interact {
                     match Line::clap().get_matches_from_safe(args) {
                         Ok(matches) => {
                             let Line { command } = Line::from_clap(&matches);
-                            if let Err(error) = run_command(command, config, plugins).await {
+                            if let Err(error) =
+                                run_command(command, projects, plugins, config).await
+                            {
                                 print_error(error);
                             };
                         }
