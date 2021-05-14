@@ -1,3 +1,25 @@
+# [0.62.0](https://github.com/stencila/stencila/compare/v0.61.0...v0.62.0) (2021-05-14)
+
+
+### Bug Fixes
+
+* **Files:** Use a BTreeMap and ignore project folder ([a153c9c](https://github.com/stencila/stencila/commit/a153c9c8ba1884a3629037ab98c7dfaf9d8161a7))
+* **Pubsub:** Make publish "fire and forget" ([ed10073](https://github.com/stencila/stencila/commit/ed10073c276b2c5bccb7e6b243161fd480d750a7))
+
+
+### Features
+
+* **Files:** Add file watching with publishing events ([7781645](https://github.com/stencila/stencila/commit/7781645cad72d08abb46e666bb036c4966ad412c))
+* **Files:** Add files to project properties ([7e52b57](https://github.com/stencila/stencila/commit/7e52b57be6b1888e3b5749024256831068fa1c91))
+* **Files:** Add format property and media type fallbacks ([287a732](https://github.com/stencila/stencila/commit/287a73249598d6bac2071f8f94f7b0b0f3848afc))
+* **Files:** Add modified and size properties ([5f78cb4](https://github.com/stencila/stencila/commit/5f78cb442280e83503fbe121e5198341a9473a64))
+* **Files:** Mirror file system changes in memory ([6f027c4](https://github.com/stencila/stencila/commit/6f027c4c72b7cac33cafa3223ced9f10d95f6fcc))
+* **Files:** Respect gitignore files including during watching ([7ca11bb](https://github.com/stencila/stencila/commit/7ca11bb8321d597237c99661adf4fc7161de94aa))
+* **Projects:**  Add CLI commands for initializing and showing projects ([bf8c34c](https://github.com/stencila/stencila/commit/bf8c34c231aeffbee78115949e9766096ee44a1a))
+* **Projects:** Add Node bindings for projects ([063d4ea](https://github.com/stencila/stencila/commit/063d4ea1acf3e7d77affabea6f6939d1f3d8acbf))
+* **Projects:** Add Rust projects module ([253c00c](https://github.com/stencila/stencila/commit/253c00cb4f10b62149f67f91f62a194a2a45aab7))
+* **Projects:** Resolve main file path; add name to file description ([dcfb3f1](https://github.com/stencila/stencila/commit/dcfb3f12b3694e8ec2f3903dd7e57d688cc38e3d))
+
 # [0.61.0](https://github.com/stencila/stencila/compare/v0.60.0...v0.61.0) (2021-05-12)
 
 
