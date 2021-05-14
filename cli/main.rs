@@ -1,8 +1,16 @@
-use stencila::{config, eyre::{bail, Error, Result}, logging::{
+use stencila::{
+    config,
+    eyre::{bail, Error, Result},
+    logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
         LoggingFormat, LoggingLevel,
-    }, plugins, projects, regex::Regex, strum::VariantNames, tokio, tracing};
+    },
+    plugins, projects,
+    regex::Regex,
+    strum::VariantNames,
+    tokio, tracing,
+};
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -343,7 +351,7 @@ mod display {
     pub fn display(what: Option<(String, String)>) -> Result<()> {
         let (format, content) = match &what {
             None => return Ok(()),
-            Some(pair) => pair
+            Some(pair) => pair,
         };
 
         match format.as_str() {
