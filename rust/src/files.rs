@@ -173,12 +173,21 @@ pub struct FileRegistry {
     #[serde(flatten)]
     pub files: BTreeMap<PathBuf, File>,
 
-    /// The set of gitignore style files in the project
+    /// The set of Git ignore style files in the project
     ///
     /// Used to avoid adding ignored file when notified
     /// of changes by the watcher thread.
     #[serde(skip)]
-    ignores: BTreeSet<PathBuf>,
+    ignore_files: BTreeSet<PathBuf>,
+
+    /// The set of files that, according to `ignore_files`
+    /// should be ignored.
+    ///
+    /// Used as a cache to avoid reading and processing
+    /// ignore files when notified of changes by the
+    /// watcher thread.
+    #[serde(skip)]
+    files_ignored: BTreeSet<PathBuf>,
 }
 
 impl FileRegistry {
@@ -206,11 +215,11 @@ impl FileRegistry {
             .into_iter()
             .collect::<BTreeMap<PathBuf, File>>();
 
-        // Resolve `children` properties and read any `ignore` files
-        let mut ignores = BTreeSet::new();
+        // Resolve `children` properties and `ignore_files` files
+        let mut ignore_files = BTreeSet::new();
         for path in files.keys().cloned().collect::<Vec<PathBuf>>() {
-            if FileRegistry::is_gitignore(&path) {
-                ignores.insert(path.clone());
+            if FileRegistry::is_ignore_file(&path) {
+                ignore_files.insert(path.clone());
             }
 
             if let Some(parent) = path.parent() {
@@ -227,7 +236,8 @@ impl FileRegistry {
         FileRegistry {
             path,
             files,
-            ignores,
+            ignore_files,
+            ..Default::default()
         }
     }
 
@@ -253,7 +263,7 @@ impl FileRegistry {
     ///
     /// For example if a `.gitignore` file is added, removed, moved or modified.
     fn should_refresh(&mut self, path: &Path) -> bool {
-        FileRegistry::is_gitignore(&path)
+        FileRegistry::is_ignore_file(&path)
     }
 
     /// Refresh the registry if it should be
@@ -267,7 +277,7 @@ impl FileRegistry {
     }
 
     /// Is the file a Git ignore file?
-    fn is_gitignore(path: &Path) -> bool {
+    fn is_ignore_file(path: &Path) -> bool {
         if let Some(name) = path
             .file_name()
             .map(|os_str| os_str.to_string_lossy().to_string())
@@ -285,17 +295,26 @@ impl FileRegistry {
     /// in the registry. Tries to be consistent with the `ignore` crate (which
     /// is used to initially load all the files).
     ///
-    /// Checks against any of the `ignores` files that are "above" the file.
-    fn should_ignore(&self, path: &Path) -> bool {
-        for ignore_file_path in &self.ignores {
+    /// Checks against any of the `ignore_files` that are "above" the file in
+    /// the file tree. Caches result to minimize re-reading the ignore file.
+    fn should_ignore(&mut self, path: &Path) -> bool {
+        if self.files_ignored.contains(path) {
+            return true;
+        }
+
+        for ignore_file_path in &self.ignore_files {
             if let Some(ignore_file_dir) = ignore_file_path.parent() {
                 if path.starts_with(ignore_file_dir) {
                     if let Ok(ignore_file) = gitignore::File::new(&ignore_file_path) {
-                        return ignore_file.is_excluded(path).unwrap_or(false);
+                        if ignore_file.is_excluded(path).unwrap_or(false) {
+                            self.files_ignored.insert(path.into());
+                            return true;
+                        }
                     }
                 }
             }
         }
+
         false
     }
 
