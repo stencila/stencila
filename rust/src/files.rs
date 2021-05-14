@@ -57,6 +57,7 @@ pub struct File {
 }
 
 impl File {
+    // Load a file from a path
     pub fn load(path: &Path) -> Result<(PathBuf, File)> {
         let path = path.canonicalize()?;
 
@@ -119,27 +120,33 @@ impl File {
     }
 }
 
-/// # The set of `File`s within a `Project`
-#[derive(Debug, Default, Clone, JsonSchema, Serialize)]
-pub struct Files {
-    /// A mutual exclusion lock used by a watcher thread
-    /// when updating this file set
+/// A registry of `File`s within a `Project` including ignore files
+#[derive(Debug, Default, JsonSchema, Serialize)]
+pub struct FileRegistry {
+    #[serde(skip)]
+    path: PathBuf,
+
     #[serde(flatten)]
-    pub registry: FileRegistry,
+    pub files: BTreeMap<PathBuf, File>,
 
     #[serde(skip)]
-    pub watcher: Option<std::sync::mpsc::Sender<()>>,
+    ignores: BTreeSet<PathBuf>,
 }
 
-type FileRegistry = Arc<Mutex<BTreeMap<PathBuf, File>>>;
+impl FileRegistry {
+    const GITIGNORE_NAMES: [&'static str; 2] = [".ignore", ".gitignore"];
 
-impl Files {
-    /// Load files from a folder
-    pub fn load(folder: &str, watch: bool) -> Result<Files> {
-        let path = Path::new(folder).canonicalize()?;
+    pub fn new(path: &Path) -> FileRegistry {
+        // Build walker
+        let walker = ignore::WalkBuilder::new(&path)
+            // Consider .ignore files
+            .ignore(true)
+            // Consider .gitignore files
+            .git_ignore(true)
+            .build();
 
-        // Collect all the files
-        let mut files = walkdir::WalkDir::new(&path)
+        // Collect files
+        let mut files = walker
             .into_iter()
             .filter_map(|entry| {
                 let entry = match entry.ok() {
@@ -151,96 +158,96 @@ impl Files {
             .into_iter()
             .collect::<BTreeMap<PathBuf, File>>();
 
-        // Resolve `parent` and `children` properties
-        // This needs to clone the files to avoid mutable borrow twice,
-        // there may be a more efficient alternative
-        let mut children: BTreeMap<PathBuf, BTreeSet<PathBuf>> = BTreeMap::new();
-        for (path, file) in &mut files {
-            if let Some(parent_path) = path.parent() {
-                let parent_path = parent_path.to_path_buf();
-                file.parent = Some(parent_path.clone());
-                children
-                    .entry(parent_path)
-                    .or_insert_with(BTreeSet::new)
-                    .insert(path.clone());
+        // Resolve `children` properties and read any `ignore` files
+        let mut ignores = BTreeSet::new();
+        for path in files.keys().cloned().collect::<Vec<PathBuf>>() {
+            if FileRegistry::is_gitignore(&path) {
+                ignores.insert(path.clone());
             }
-        }
-        for (path, vec) in children {
-            if let Some(parent) = files.get_mut(&path) {
-                parent.children = Some(vec)
-            }
-        }
 
-        // Create a registry of the files
-        let registry = Arc::new(Mutex::new(files));
-
-        // Watch files and make updates as needed
-        let watcher = if watch {
-            let project = path.clone();
-            let registry = Arc::clone(&registry);
-            let (thread_sender, thread_receiver) = channel();
-            std::thread::spawn(move || -> Result<()> {
-                use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
-                use std::time::Duration;
-
-                let (watcher_sender, watcher_receiver) = channel();
-                let mut watcher = watcher(watcher_sender, Duration::from_secs(1))?;
-                watcher.watch(&path, RecursiveMode::Recursive).unwrap();
-
-                let handle_event = |event| match event {
-                    DebouncedEvent::Create(path) => Files::created(&project, &registry, &path),
-                    DebouncedEvent::Remove(path) => Files::removed(&project, &registry, &path),
-                    DebouncedEvent::Rename(from, to) => {
-                        Files::renamed(&project, &registry, &from, &to)
-                    }
-                    DebouncedEvent::Write(path) => Files::modified(&project, &registry, &path),
-                    _ => {}
-                };
-
-                let project = path.display().to_string();
-                let span = tracing::info_span!("file_watch", project = project.as_str());
-                let _enter = span.enter();
-                tracing::debug!("Starting project file watch: {}", project);
-
-                loop {
-                    if let Err(TryRecvError::Disconnected) = thread_receiver.try_recv() {
-                        tracing::debug!("Ending project file watch: {}", project);
-                        break;
-                    }
-                    match watcher_receiver.recv() {
-                        Ok(event) => handle_event(event),
-                        Err(error) => tracing::error!("Watch error: {:?}", error),
+            if let Some(parent) = path.parent() {
+                if let Entry::Occupied(mut parent) = files.entry(parent.into()) {
+                    let parent = parent.get_mut();
+                    if let Some(children) = &mut parent.children {
+                        children.insert(path);
                     }
                 }
+            }
+        }
 
-                Ok(())
-            });
-
-            Some(thread_sender)
-        } else {
-            None
-        };
-
-        let files = Files { registry, watcher };
-        Ok(files)
+        let path = path.to_path_buf();
+        FileRegistry {
+            path,
+            files,
+            ignores,
+        }
     }
 
-    // Obtain the file registry
-    pub fn obtain(&self) -> Result<MutexGuard<BTreeMap<PathBuf, File>>> {
-        match self.registry.try_lock() {
-            Ok(registry) => Ok(registry),
-            Err(error) => bail!("Unable to get file registry: {}", error),
+    /// Refresh the file registry
+    fn refresh(&mut self) {
+        *self = FileRegistry::new(self.path.as_path());
+    }
+
+    /// Should the registry be refreshed in response to a change in a file
+    ///
+    /// For example if a `.gitignore` file is added, removed, moved or modified.
+    fn should_refresh(&mut self, path: &Path) -> bool {
+        FileRegistry::is_gitignore(&path)
+    }
+
+    /// Refresh the registry if it should be
+    fn did_refresh(&mut self, path: &Path) -> bool {
+        if self.should_refresh(&path) {
+            self.refresh();
+            true
+        } else {
+            false
         }
+    }
+
+    /// Is the file a Git ignore file?
+    fn is_gitignore(path: &Path) -> bool {
+        if let Some(name) = path
+            .file_name()
+            .map(|os_str| os_str.to_string_lossy().to_string())
+        {
+            if FileRegistry::GITIGNORE_NAMES.contains(&name.as_str()) {
+                return true;
+            }
+        }
+        false
+    }
+
+    /// Should a path be ignored?
+    ///
+    /// Used by the following functions to decide whether to update a file
+    /// in the registry. Tries to be consistent with the `ignore` crate (which
+    /// is used to initially load all the files).
+    ///
+    /// Checks against any of the `ignores` files that are "above" the file.
+    fn should_ignore(&self, path: &Path) -> bool {
+        for ignore_file_path in &self.ignores {
+            if let Some(ignore_file_dir) = ignore_file_path.parent() {
+                if path.starts_with(ignore_file_dir) {
+                    if let Ok(ignore_file) = gitignore::File::new(&ignore_file_path) {
+                        return ignore_file.is_excluded(path).unwrap_or(false);
+                    }
+                }
+            }
+        }
+        false
     }
 
     // Update a project file registry when a file is created
-    pub fn created(project: &Path, registry: &FileRegistry, path: &Path) {
-        let mut registry = registry.lock().unwrap();
+    pub fn created(&mut self, project: &Path, path: &Path) {
+        if self.should_ignore(path) || self.did_refresh(path) {
+            return;
+        }
 
         // Load the file, insert it and add it to it's parent's children
         let file = if let Ok((path, file)) = File::load(path) {
-            registry.insert(path.clone(), file.clone());
-            if let Some(parent) = path.parent().and_then(|parent| registry.get_mut(parent)) {
+            self.files.insert(path.clone(), file.clone());
+            if let Some(parent) = path.parent().and_then(|parent| self.files.get_mut(parent)) {
                 if let Some(children) = &mut parent.children {
                     children.insert(path);
                 }
@@ -256,17 +263,19 @@ impl Files {
             path: path.into(),
             kind: "created".into(),
             file,
-            files: Some(registry.clone()),
+            files: Some(self.files.clone()),
         })
     }
 
     // Update a project file registry when a file is removed
-    pub fn removed(project: &Path, registry: &FileRegistry, path: &Path) {
-        let mut registry = registry.lock().unwrap();
+    pub fn removed(&mut self, project: &Path, path: &Path) {
+        if self.should_ignore(path) || self.did_refresh(path) {
+            return;
+        }
 
         // Remove the file and remove it from its parent's children
-        registry.remove(path);
-        if let Some(parent) = path.parent().and_then(|parent| registry.get_mut(parent)) {
+        self.files.remove(path);
+        if let Some(parent) = path.parent().and_then(|parent| self.files.get_mut(parent)) {
             if let Some(children) = &mut parent.children {
                 children.remove(path);
             }
@@ -277,13 +286,49 @@ impl Files {
             path: path.into(),
             kind: "removed".into(),
             file: None,
-            files: Some(registry.clone()),
+            files: Some(self.files.clone()),
         })
     }
 
     // Update a project file registry when a file is renamed
-    pub fn renamed(project: &Path, registry: &FileRegistry, old_path: &Path, new_path: &Path) {
-        let mut registry = registry.lock().unwrap();
+    pub fn renamed(&mut self, project: &Path, old_path: &Path, new_path: &Path) {
+        if self.should_refresh(old_path) || self.should_refresh(new_path) {
+            return self.refresh();
+        }
+
+        let ignore_old = self.should_ignore(old_path);
+        let ignore_new = self.should_ignore(new_path);
+        if ignore_old && ignore_new {
+            return;
+        } else if ignore_new {
+            return self.removed(project, old_path);
+        } else if ignore_old {
+            return self.created(project, new_path);
+        }
+
+        // Move the file
+        let file = match self.files.entry(old_path.into()) {
+            Entry::Occupied(entry) => {
+                // Update it's path and parent properties, and the paths of
+                // all it's descendants. Move the file from old to new path.
+                let mut file = entry.remove();
+                file.path = new_path.into();
+                file.parent = new_path.parent().map(|parent| parent.into());
+                rename_children(&mut self.files, &mut file, old_path, new_path);
+                self.files.insert(new_path.into(), file.clone());
+                Some(file)
+            }
+            Entry::Vacant(_) => {
+                // The entry should not be empty, but in case it is, load the file from,
+                // and insert it at, the new path
+                if let Ok((_path, file)) = File::load(new_path) {
+                    self.files.insert(new_path.into(), file.clone());
+                    Some(file)
+                } else {
+                    None
+                }
+            }
+        };
 
         // Recursively rename children of a file
         fn rename_children(
@@ -315,34 +360,10 @@ impl Files {
             }
         }
 
-        // Move the file
-        let file = match registry.entry(old_path.into()) {
-            Entry::Occupied(entry) => {
-                // Update it's path and parent properties, and the paths of
-                // all it's descendants. Move the file from old to new path.
-                let mut file = entry.remove();
-                file.path = new_path.into();
-                file.parent = new_path.parent().map(|parent| parent.into());
-                rename_children(&mut *registry, &mut file, old_path, new_path);
-                registry.insert(new_path.into(), file.clone());
-                Some(file)
-            }
-            Entry::Vacant(_) => {
-                // The entry should not be empty, but in case it is, load the file from,
-                // and insert it at, the new path
-                if let Ok((_path, file)) = File::load(new_path) {
-                    registry.insert(new_path.into(), file.clone());
-                    Some(file)
-                } else {
-                    None
-                }
-            }
-        };
-
         // Remove the old path from the old parent's children
         if let Some(parent) = old_path
             .parent()
-            .and_then(|parent| registry.get_mut(parent))
+            .and_then(|parent| self.files.get_mut(parent))
         {
             if let Some(children) = &mut parent.children {
                 children.remove(old_path);
@@ -352,7 +373,7 @@ impl Files {
         // Insert the new path to the new parent's children
         if let Some(parent) = new_path
             .parent()
-            .and_then(|parent| registry.get_mut(parent))
+            .and_then(|parent| self.files.get_mut(parent))
         {
             if let Some(children) = &mut parent.children {
                 children.insert(new_path.into());
@@ -364,17 +385,19 @@ impl Files {
             path: old_path.into(),
             kind: "renamed".into(),
             file,
-            files: Some(registry.clone()),
+            files: Some(self.files.clone()),
         })
     }
 
     // Update a project file registry when a file is modified
-    pub fn modified(project: &Path, registry: &FileRegistry, path: &Path) {
-        let mut registry = registry.lock().unwrap();
+    pub fn modified(&mut self, project: &Path, path: &Path) {
+        if self.should_ignore(path) || self.did_refresh(path) {
+            return;
+        }
 
         // Insert the file
         let file = if let Ok((path, file)) = File::load(path) {
-            registry.insert(path, file.clone());
+            self.files.insert(path, file.clone());
             Some(file)
         } else {
             None
@@ -385,7 +408,86 @@ impl Files {
             path: path.into(),
             kind: "modified".into(),
             file,
-            files: Some(registry.clone()),
+            files: Some(self.files.clone()),
         })
+    }
+}
+
+/// # The set of `File`s within a `Project`
+#[derive(Debug, Default, Clone, JsonSchema, Serialize)]
+pub struct Files {
+    #[serde(flatten)]
+    pub registry: Arc<Mutex<FileRegistry>>,
+
+    #[serde(skip)]
+    pub watcher: Option<std::sync::mpsc::Sender<()>>,
+}
+
+impl Files {
+    /// Load files from a folder
+    pub fn load(folder: &str, watch: bool) -> Result<Files> {
+        let path = Path::new(folder).canonicalize()?;
+
+        // Create a registry of the files
+        let registry = Arc::new(Mutex::new(FileRegistry::new(&path)));
+
+        // Watch files and make updates as needed
+        let watcher = if watch {
+            let project = path.clone();
+            let registry = Arc::clone(&registry);
+            let (thread_sender, thread_receiver) = channel();
+            std::thread::spawn(move || -> Result<()> {
+                use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
+                use std::time::Duration;
+
+                let (watcher_sender, watcher_receiver) = channel();
+                let mut watcher = watcher(watcher_sender, Duration::from_secs(1))?;
+                watcher.watch(&path, RecursiveMode::Recursive).unwrap();
+
+                let handle_event = |event| {
+                    let registry = &mut *registry.lock().unwrap();
+                    match event {
+                        DebouncedEvent::Create(path) => registry.created(&project, &path),
+                        DebouncedEvent::Remove(path) => registry.removed(&project, &path),
+                        DebouncedEvent::Rename(from, to) => registry.renamed(&project, &from, &to),
+                        DebouncedEvent::Write(path) => registry.modified(&project, &path),
+                        _ => {}
+                    }
+                };
+
+                let project = path.display().to_string();
+                let span = tracing::info_span!("file_watch", project = project.as_str());
+                let _enter = span.enter();
+                tracing::debug!("Starting project file watch: {}", project);
+
+                loop {
+                    if let Err(TryRecvError::Disconnected) = thread_receiver.try_recv() {
+                        tracing::debug!("Ending project file watch: {}", project);
+                        break;
+                    }
+                    match watcher_receiver.recv() {
+                        Ok(event) => handle_event(event),
+                        Err(error) => tracing::error!("Watch error: {:?}", error),
+                    }
+                }
+
+                Ok(())
+            });
+
+            Some(thread_sender)
+        } else {
+            None
+        };
+
+        let files = Files { registry, watcher };
+        Ok(files)
+    }
+
+    // Obtain the file registry
+    pub fn registry(&self) -> Result<MutexGuard<FileRegistry>> {
+        match self.registry.try_lock() {
+            Ok(registry) => Ok(registry),
+            Err(error) => bail!("Unable to get file registry: {}", error),
+        }
     }
 }

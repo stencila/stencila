@@ -168,7 +168,7 @@ impl Project {
     /// there is no matching file in the project, attempts to match one of the
     /// project's files against the `main_patterns`.
     fn resolve_main_path(&self, main_patterns: &[String]) -> Option<PathBuf> {
-        let files = self.files.obtain().expect("Unable to get files");
+        let files = &self.files.registry().expect("Unable to get files").files;
 
         // Check that there is a file with the specified main path
         if let Some(main) = &self.main {
