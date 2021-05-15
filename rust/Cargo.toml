@@ -92,6 +92,7 @@ dirs-next = "2.0.0"
 eyre = "0.6.5"
 futures = "0.3.14"
 gitignore = "1.0.7"
+glob = "0.3.0"
 handlebars = { version = "3.5.5", optional = true }
 humantime = { version = "2.1.0", optional = true }
 ignore = "0.4.17"

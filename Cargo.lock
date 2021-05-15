@@ -2650,6 +2650,7 @@ dependencies = [
  "eyre",
  "futures",
  "gitignore",
+ "glob",
  "handlebars",
  "humantime",
  "ignore",
