@@ -45,6 +45,14 @@ pub struct Project {
     /// configuration settings.
     theme: Option<String>,
 
+    /// Glob patterns for paths to be excluded from file watching
+    ///
+    /// As a performance optimization, paths that match these patterns are
+    /// excluded from file watching updates.
+    /// If not specified, will default to the patterns in the
+    /// configuration settings.
+    watch_exclude_patterns: Option<Vec<String>>,
+
     // The following properties are derived from the filesystem
     // and should never be read from, or written to, the `project.json` file
     /// The filesystem path of the project folder
@@ -141,8 +149,14 @@ impl Project {
     pub fn open(folder: &str, config: &config::ProjectsConfig, watch: bool) -> Result<Project> {
         let mut project = Project::read(folder)?;
 
+        // Watch exclude patterns default to the configured defaults
+        let watch_exclude_patterns = project
+            .watch_exclude_patterns
+            .clone()
+            .unwrap_or_else(|| config.watch_exclude_patterns.clone());
+
         // Get all the files in the project
-        project.files = Files::load(folder, watch)?;
+        project.files = Files::load(folder, watch, watch_exclude_patterns)?;
 
         // Resolve the main file path first as some of the other project properties
         // may be defined there (e.g. in the YAML header of a Markdown file)
@@ -265,8 +279,8 @@ impl Projects {
 
     /// Open a project
     ///
-    /// This function `loads` a project, stores it, watches the project folder,
-    /// updates the project on changes and publishes the updates on the "projects"
+    /// This function `loads` a project, stores it, optionally watches the project folder,
+    /// updates the project on changes and publishes the updates on the "project"
     /// pubsub topic channel.
     pub fn open(
         &mut self,
@@ -319,6 +333,16 @@ pub mod config {
         /// Will be applied to all projects that do not specify a theme
         #[def = r#"String::from("stencila")"#]
         pub theme: String,
+
+        /// Default glob patterns for paths to be excluded from file watching
+        ///
+        /// Used for projects that do not specify their own watch exclude patterns.
+        /// As a performance optimization, paths that match these patterns are
+        /// excluded from file watching updates.
+        /// The default list includes common directories that often have many files
+        /// that are often updated.
+        #[def = r#"vec!["*/.git".to_string(), "^*/node_modules".to_string()]"#]
+        pub watch_exclude_patterns: Vec<String>,
     }
 }
 

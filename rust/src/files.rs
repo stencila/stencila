@@ -488,7 +488,7 @@ pub struct Files {
 
 impl Files {
     /// Load files from a folder
-    pub fn load(folder: &str, watch: bool) -> Result<Files> {
+    pub fn load(folder: &str, watch: bool, watch_exclude_patterns: Vec<String>) -> Result<Files> {
         let path = Path::new(folder).canonicalize()?;
 
         // Create a registry of the files
@@ -506,15 +506,58 @@ impl Files {
                 let mut watcher = watcher(watcher_sender, Duration::from_secs(1))?;
                 watcher.watch(&path, RecursiveMode::Recursive).unwrap();
 
-                let handle_event = |event| {
-                    let registry = &mut *registry.lock().unwrap();
-                    match event {
-                        DebouncedEvent::Create(path) => registry.created(&path),
-                        DebouncedEvent::Remove(path) => registry.removed(&path),
-                        DebouncedEvent::Rename(from, to) => registry.renamed(&from, &to),
-                        DebouncedEvent::Write(path) => registry.modified(&path),
-                        _ => {}
+                let exclude_globs: Vec<glob::Pattern> = watch_exclude_patterns
+                    .iter()
+                    .filter_map(|pattern| match glob::Pattern::new(pattern) {
+                        Ok(glob) => Some(glob),
+                        Err(error) => {
+                            tracing::warn!(
+                                "Invalid watch exclude glob pattern; will ignore: {} : {}",
+                                pattern,
+                                error
+                            );
+                            None
+                        }
+                    })
+                    .collect();
+
+                let should_include = |event_path: &PathBuf| {
+                    if let Ok(event_path) = event_path.strip_prefix(&path) {
+                        for glob in &exclude_globs {
+                            if glob.matches(&event_path.display().to_string()) {
+                                return false;
+                            }
+                        }
                     }
+                    true
+                };
+
+                let handle_event = |event| match event {
+                    DebouncedEvent::Create(path) => {
+                        if should_include(&path) {
+                            let registry = &mut *registry.lock().unwrap();
+                            registry.created(&path)
+                        }
+                    }
+                    DebouncedEvent::Remove(path) => {
+                        if should_include(&path) {
+                            let registry = &mut *registry.lock().unwrap();
+                            registry.modified(&path)
+                        }
+                    }
+                    DebouncedEvent::Rename(from, to) => {
+                        if should_include(&from) || should_include(&to) {
+                            let registry = &mut *registry.lock().unwrap();
+                            registry.renamed(&from, &to);
+                        }
+                    }
+                    DebouncedEvent::Write(path) => {
+                        if should_include(&path) {
+                            let registry = &mut *registry.lock().unwrap();
+                            registry.modified(&path)
+                        }
+                    }
+                    _ => {}
                 };
 
                 let project = path.display().to_string();
