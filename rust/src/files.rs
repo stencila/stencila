@@ -200,20 +200,29 @@ impl FileRegistry {
             .ignore(true)
             // Consider .gitignore files
             .git_ignore(true)
-            .build();
+            .build_parallel();
 
-        // Collect files
-        let mut files = walker
-            .into_iter()
-            .filter_map(|entry| {
-                let entry = match entry.ok() {
-                    Some(entry) => entry,
-                    None => return None,
-                };
-                File::load(entry.path()).ok()
+        // Collect files in parallel using a collector thread and several walker thread
+        // (number of which is chosen by the `ignore` walker)
+        let (sender, receiver) = channel();
+        let join_handle =
+            std::thread::spawn(move || -> BTreeMap<PathBuf, File> { receiver.iter().collect() });
+        walker.run(|| {
+            let sender = sender.clone();
+            Box::new(move |result| {
+                use ignore::WalkState::*;
+
+                if let Some(entry) = result.ok() {
+                    if let Some(file) = File::load(entry.path()).ok() {
+                        sender.send(file).expect("Unable to send to collector");
+                    }
+                }
+
+                Continue
             })
-            .into_iter()
-            .collect::<BTreeMap<PathBuf, File>>();
+        });
+        drop(sender);
+        let mut files = join_handle.join().expect("Unable to join collector thread");
 
         // Resolve `children` properties and `ignore_files` files
         let mut ignore_files = BTreeSet::new();
