@@ -1,3 +1,17 @@
+## [0.62.1](https://github.com/stencila/stencila/compare/v0.62.0...v0.62.1) (2021-05-16)
+
+
+### Bug Fixes
+
+* **File watching:** Allow glob patterns to be excluded ([37a33c3](https://github.com/stencila/stencila/commit/37a33c337cae4b76d417020c110fb849a0933cfb))
+* **Files:** Publish a refresh event when file registry is refreshed ([57d9190](https://github.com/stencila/stencila/commit/57d91906008b1920eb5fb7bc0951507398a34923))
+
+
+### Performance Improvements
+
+* **Files:** Use cache of files ignored ([f4c0308](https://github.com/stencila/stencila/commit/f4c0308bfae40bd76fa57d477095bc991860ff1c))
+* **Files:** Use parallel walk to do initial collection of files for a project ([c953b05](https://github.com/stencila/stencila/commit/c953b0554a65ef6eb48dd7722e1d0d71cca0f986))
+
 # [0.62.0](https://github.com/stencila/stencila/compare/v0.61.0...v0.62.0) (2021-05-14)
 
 
