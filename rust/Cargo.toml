@@ -90,7 +90,7 @@ chrono = "0.4.19"
 defaults = "0.2.0"
 dirs-next = "2.0.0"
 eyre = "0.6.5"
-futures = "0.3.14"
+futures = "0.3.15"
 gitignore = "1.0.7"
 glob = "0.3.0"
 handlebars = { version = "3.5.5", optional = true }
