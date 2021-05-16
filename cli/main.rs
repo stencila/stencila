@@ -49,7 +49,7 @@ pub struct Args {
 }
 
 /// Global arguments that should be removed when entering interactive mode
-pub const GLOBAL_ARGS: [&str; 6] = ["--debug", "--info", "--warn", "--error", "--interact", "-i"];
+pub const GLOBAL_ARGS: [&str; 5] = ["--interact", "-i", "--debug", "--log-level", "--log-format"];
 
 #[derive(Debug, StructOpt)]
 #[structopt(
