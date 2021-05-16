@@ -1,3 +1,16 @@
+## [0.62.2](https://github.com/stencila/stencila/compare/v0.62.1...v0.62.2) (2021-05-16)
+
+
+### Bug Fixes
+
+* **CLI:** Update the list of global args ([93f0a61](https://github.com/stencila/stencila/commit/93f0a61827ba928edf8b774d9984fcb471eeb3cd))
+* **dependencies:** update rust crate futures to 0.3.15 ([1cd8a38](https://github.com/stencila/stencila/commit/1cd8a38670f572b46cf09a37c39f05ed7f8eba1a))
+* **dependencies:** update rust crate notify to 4.0.17 ([0ca93a1](https://github.com/stencila/stencila/commit/0ca93a1c2a52a440eff2791b9923a7c41f2ac917))
+* **dependencies:** update rust crate self_update to 0.27.0 ([75a71fc](https://github.com/stencila/stencila/commit/75a71fcebd4a1b8f6e3e508f5faf137680f391ed))
+* **dependencies:** update rust crate serde to 1.0.126 ([b2ca64f](https://github.com/stencila/stencila/commit/b2ca64f5b9acb4b407a4ad96aebf5f8be877cd81))
+* **dependencies:** update rust crate serde_with to 1.9.1 ([b32479b](https://github.com/stencila/stencila/commit/b32479b282ce0798e23bf0aa334bfef3ec862c74))
+* **dependencies:** update rust crate tokio to 1.6.0 ([50b485c](https://github.com/stencila/stencila/commit/50b485c30b8e354e57fce97238ec78b1a911984f))
+
 ## [0.62.1](https://github.com/stencila/stencila/compare/v0.62.0...v0.62.1) (2021-05-16)
 
 
