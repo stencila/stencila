@@ -136,6 +136,7 @@
             "node/package.json",
             "node/package-lock.json",
             "node/Cargo.toml",
+            "node/src/types.ts",
             "python/Cargo.toml",
             "r/Cargo.toml",
             "rust/Cargo.toml"
