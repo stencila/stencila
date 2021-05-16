@@ -2,40 +2,9 @@
 
 import { JSONSchema7 } from 'json-schema'
 import { fromJSON } from './prelude'
+import { Plugin } from './types'
 
 const addon = require('../index.node')
-
-// Warning: The following types are hand written and may become out of sync
-// with the actual JSON data returned by the functions below.
-// Use the `schema()` function as the authoritative source of the shape of
-// the plugin objects.
-
-export type PluginInstallation =
-  | 'docker'
-  | 'binary'
-  | 'javascript'
-  | 'python'
-  | 'r'
-  | 'link'
-
-export interface Plugin {
-  // Properties from the plugin's manifest file
-  // See Rust docs and help.stenci.la for descriptions of these
-
-  name: string
-  softwareVersion: string
-  description: string
-  image: string
-  installUrl: string[]
-  featureList: Record<string, unknown>[]
-
-  // Properties that are derived / updated
-
-  installation?: PluginInstallation
-  refreshed?: string
-  next?: Plugin
-  alias?: string
-}
 
 /**
  * Get the JSON schema for a plugin object
@@ -68,7 +37,7 @@ export function list(): Plugin[] {
  */
 export function install(
   spec: string,
-  installations?: PluginInstallation | PluginInstallation[]
+  installations?: Plugin['installation'] | Plugin['installation'][]
 ): Plugin[] {
   return fromJSON<Plugin[]>(addon.pluginsInstall(spec, installations ?? []))
 }
@@ -95,7 +64,7 @@ export function upgrade(spec: string): Plugin[] {
 
 /**
  * Refresh the metadata for one or more plugins
- * 
+ *
  * This does not upgrade installed plugins. It fetches the
  * latest manifest for the plugin, which if it is already
  * installed will be installed in the `next` property.

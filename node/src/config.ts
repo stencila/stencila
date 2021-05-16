@@ -2,48 +2,9 @@
 
 import { JSONSchema7 } from 'json-schema'
 import { fromJSON, toJSON } from './prelude'
-import { PluginInstallation } from './plugins'
+import { Config } from './types'
 
 const addon = require('../index.node')
-
-// Warning: The following types are hand written and may become out of sync
-// with the actual JSON data returned by the functions below.
-// Use the `schema()` function as the authoritative source of the shape of
-// the config object.
-
-type LoggingLevel = 'debug' | 'info' | 'warn' | 'error' | 'never'
-
-type LoggingFormat = 'simple' | 'detail' | 'json'
-export interface Config {
-  logging?: {
-    stderr?: {
-      level?: LoggingLevel
-      format?: LoggingFormat
-    }
-    desktop?: {
-      level?: LoggingLevel
-    }
-    file?: {
-      path?: string
-      level?: LoggingLevel
-    }
-  }
-  serve?: {
-    url: string
-    key?: string
-    insecure: boolean
-  }
-  plugins?: {
-    installations: Array<PluginInstallation>
-    aliases: Record<string, string>
-  }
-  upgrade?: {
-    plugins: boolean
-    confirm: boolean
-    verbose: boolean
-    auto: string
-  }
-}
 
 /**
  * Get the JSON schema for the configuration object
