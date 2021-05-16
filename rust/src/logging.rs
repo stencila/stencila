@@ -8,7 +8,7 @@ use strum::{EnumString, EnumVariantNames, ToString};
 use tracing::Event;
 use validator::Validate;
 
-/// # Logging level
+/// Logging level
 #[derive(
     Debug,
     Clone,
@@ -46,7 +46,7 @@ impl From<&tracing::Level> for LoggingLevel {
     }
 }
 
-/// # Logging format
+/// Logging format
 #[derive(
     Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, EnumString, EnumVariantNames,
 )]
@@ -77,13 +77,14 @@ pub mod config {
         Ok(dir)
     }
 
-    /// # Logging to standard error stream
+    /// Logging to standard error stream
     ///
     /// Configuration settings for log entries printed to stderr when using the CLI
     #[derive(
         Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
     )]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct LoggingStdErrConfig {
         /// The maximum log level to emit
         #[def = "LoggingLevel::Info"]
@@ -94,24 +95,26 @@ pub mod config {
         pub format: LoggingFormat,
     }
 
-    /// # Logging to desktop notifications
+    /// Logging to desktop notifications
     ///
     /// Configuration settings for log entries shown to the user in the desktop
     #[derive(
         Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
     )]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct LoggingDesktopConfig {
         /// The maximum log level to emit
         #[def = "LoggingLevel::Info"]
         pub level: LoggingLevel,
     }
 
-    /// # Logging to file
+    /// Logging to file
     ///
     /// Configuration settings for logs entries written to file
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct LoggingFileConfig {
         /// The path of the log file
         #[def = "default_file_path()"]
@@ -132,11 +135,12 @@ pub mod config {
             .expect("Unable to convert path to string")
     }
 
-    /// # Logging
+    /// Logging
     ///
     /// Configuration settings for logging
     #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct LoggingConfig {
         pub stderr: LoggingStdErrConfig,
         pub desktop: LoggingDesktopConfig,

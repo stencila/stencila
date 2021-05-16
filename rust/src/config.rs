@@ -10,6 +10,7 @@ use validator::Validate;
 
 #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
 #[serde(default)]
+#[schemars(deny_unknown_fields)]
 pub struct Config {
     #[validate]
     pub projects: projects::config::ProjectsConfig,
@@ -29,11 +30,7 @@ pub struct Config {
 
 /// Get the JSON Schema for the configuration
 pub fn schema() -> String {
-    use schemars::gen::SchemaSettings;
-
-    let settings = SchemaSettings::default();
-    let generator = settings.into_generator();
-    let schema = generator.into_root_schema_for::<Config>();
+    let schema = util::schemas::generate::<Config>();
     serde_json::to_string_pretty(&schema).unwrap()
 }
 

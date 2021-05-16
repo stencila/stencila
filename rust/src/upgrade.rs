@@ -136,13 +136,14 @@ pub mod config {
     use serde::{Deserialize, Serialize};
     use validator::{Validate, ValidationError};
 
-    /// # Upgrade
+    /// Upgrade
     ///
     /// Configuration settings used when upgrading the application (and optionally plugins)
     /// automatically, in the background. These settings are NOT used as defaults when
     /// using the CLI `upgrade` command directly.
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct UpgradeConfig {
         /// Plugins should also be upgraded to latest version
         #[def = "true"]

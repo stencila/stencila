@@ -2,7 +2,7 @@ use crate::cli::display;
 use crate::files::Files;
 use eyre::{bail, Result};
 use regex::Regex;
-use schemars::{schema_for, JsonSchema};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::{
@@ -13,7 +13,7 @@ use std::{
 };
 use strum::{EnumString, EnumVariantNames, ToString, VariantNames};
 
-/// # Details of a project
+/// Details of a project
 ///
 /// An implementation, and extension, of schema.org [`Project`](https://schema.org/Project).
 /// Uses schema.org properties where possible but adds extension properties
@@ -21,6 +21,7 @@ use strum::{EnumString, EnumVariantNames, ToString, VariantNames};
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, JsonSchema, Deserialize, Serialize)]
 #[serde(default, rename_all = "camelCase")]
+#[schemars(deny_unknown_fields)]
 pub struct Project {
     /// The name of the project
     name: Option<String>,
@@ -88,7 +89,7 @@ impl Project {
 
     /// Get the JSON Schema for a project
     pub fn schema() -> String {
-        let schema = schema_for!(Project);
+        let schema = util::schemas::generate::<Project>();
         serde_json::to_string_pretty(&schema).unwrap()
     }
 
@@ -315,11 +316,12 @@ pub mod config {
     use defaults::Defaults;
     use validator::Validate;
 
-    /// # Projects
+    /// Projects
     ///
     /// Configuration settings for project defaults
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default, rename_all = "camelCase")]
+    #[schemars(deny_unknown_fields)]
     pub struct ProjectsConfig {
         /// Patterns used to infer the main file of projects
         ///
