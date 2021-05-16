@@ -80,7 +80,7 @@ jobs:
       # Use Node.js 16.x for `node` and `desktop` tests and builds
       - task: NodeTool@0
         inputs:
-          versionSpec: '16.x' 
+          versionSpec: '16.x'
         displayName: 'Node.js: Use 16.x'
 
       # Node.js package is tested if there are changes in the `rust` or `node` folders.
@@ -158,7 +158,7 @@ jobs:
       # Use Node.js 16.x for `node` and `desktop` builds
       - task: NodeTool@0
         inputs:
-          versionSpec: '16.x' 
+          versionSpec: '16.x'
         displayName: 'Node.js: Use 16.x'
 
       - script: |
@@ -201,14 +201,13 @@ jobs:
       # Use Node.js 16.x for `node` and `desktop` builds
       - task: NodeTool@0
         inputs:
-          versionSpec: '16.x' 
+          versionSpec: '16.x'
         displayName: 'Node.js: Use 16.x'
 
       - script: |
           set -e
           make -C node build
-          # Desktop build currently fails due to issue with executable name
-          # make -C desktop build
+          make -C desktop build
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
