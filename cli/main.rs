@@ -236,7 +236,6 @@ pub async fn main() -> Result<()> {
     let mut projects = projects::Projects::default();
 
     // If not explicitly upgrading then run an upgrade check in the background
-    #[cfg(feature = "upgrade")]
     let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
         None
     } else {
@@ -266,7 +265,6 @@ pub async fn main() -> Result<()> {
     };
 
     // Join the upgrade thread and log any errors
-    #[cfg(feature = "upgrade")]
     if let Some(upgrade_thread) = upgrade_thread {
         if let Err(_error) = upgrade_thread.join() {
             tracing::warn!("Error while attempting to join upgrade thread")
@@ -373,26 +371,24 @@ mod feedback {
 mod display {
     use super::*;
 
-    pub fn display(what: Option<(String, String)>) -> Result<()> {
-        let (format, content) = match &what {
-            None => return Ok(()),
-            Some(pair) => pair,
-        };
-
-        match format.as_str() {
-            "md" => render(format, content),
-            _ => highlight(format, content),
+    // Display the result of a command prettily
+    pub fn display(result: Option<(String, String)>) -> Result<()> {
+        if let Some((format, content)) = result {
+            match format.as_str() {
+                "md" => render(&format, &content),
+                _ => highlight(&format, &content),
+            }
         }
-
         Ok(())
     }
 
-    //
+    // Render Markdown to the terminal
     pub fn render(_format: &str, content: &str) {
         let skin = termimad::MadSkin::default();
         println!("{}", skin.term_text(content))
     }
 
+    // Apply syntax highlighting and print to terminal
     pub fn highlight(format: &str, content: &str) {
         use syntect::easy::HighlightLines;
         use syntect::highlighting::{Style, ThemeSet};
@@ -421,9 +417,11 @@ mod display {
 mod display {
     use super::*;
 
-    pub fn display(what: (String, String)) -> Result<()> {
-        let (_format, content) = what;
-        println!("{}", content);
+    // Display the result of a command without prettiness
+    pub fn display(result: Option<(String, String)>) -> Result<()> {
+        if let Some((_format, content)) = result {
+            println!("{}", content);
+        }
         Ok(())
     }
 }
