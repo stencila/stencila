@@ -18,7 +18,7 @@ use crate::pubsub::publish;
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, JsonSchema, Serialize)]
 #[serde(rename_all = "camelCase")]
-#[schemars(deny_unknown_fields)]
+#[schemars(title = "File", deny_unknown_fields)]
 pub struct File {
     /// The absolute path of the file or directory
     pub path: PathBuf,

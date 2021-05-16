@@ -54,52 +54,53 @@ export interface Project {
    * The files in the project folder
    */
   files?: {
-    /**
-     * A file or directory within a `Project`
-     */
-    [k: string]: {
-      /**
-       * The absolute path of the file or directory
-       */
-      path: string
-      /**
-       * The name of the file or directory
-       */
-      name: string
-      /**
-       * Time that the file was last modified (Unix Epoch timestamp)
-       */
-      modified?: number
-      /**
-       * Size of the file in bytes
-       */
-      size?: number
-      /**
-       * Format of the file
-       *
-       * Usually this is the lower cased filename extension (if any) but may also be normalized. May be more convenient, and usually more available, than the `media_type` property.
-       */
-      format?: string
-      /**
-       * The media type (aka MIME type) of the file
-       */
-      mediaType?: string
-      /**
-       * The SHA1 hash of the contents of the file
-       */
-      sha1?: string
-      /**
-       * The parent `File`, if any
-       */
-      parent?: string
-      /**
-       * If a directory, a list of the canonical paths of the files within it. Otherwise, `None`.
-       *
-       * A `BTreeSet` rather than a `Vec` so that paths are ordered without having to be resorted after insertions. Another option is `BinaryHeap` but `BinaryHeap::retain` is  only on nightly and so is awkward to use.
-       */
-      children?: string[]
-    }
+    [k: string]: File
   }
+}
+/**
+ * A file or directory within a `Project`
+ */
+export interface File {
+  /**
+   * The absolute path of the file or directory
+   */
+  path: string
+  /**
+   * The name of the file or directory
+   */
+  name: string
+  /**
+   * Time that the file was last modified (Unix Epoch timestamp)
+   */
+  modified?: number
+  /**
+   * Size of the file in bytes
+   */
+  size?: number
+  /**
+   * Format of the file
+   *
+   * Usually this is the lower cased filename extension (if any) but may also be normalized. May be more convenient, and usually more available, than the `media_type` property.
+   */
+  format?: string
+  /**
+   * The media type (aka MIME type) of the file
+   */
+  mediaType?: string
+  /**
+   * The SHA1 hash of the contents of the file
+   */
+  sha1?: string
+  /**
+   * The parent `File`, if any
+   */
+  parent?: string
+  /**
+   * If a directory, a list of the canonical paths of the files within it. Otherwise, `None`.
+   *
+   * A `BTreeSet` rather than a `Vec` so that paths are ordered without having to be resorted after insertions. Another option is `BinaryHeap` but `BinaryHeap::retain` is  only on nightly and so is awkward to use.
+   */
+  children?: string[]
 }
 
 /* Generated from 'pluginsSchema' by '../schemas.ts'. */
