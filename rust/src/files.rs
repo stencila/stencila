@@ -212,8 +212,8 @@ impl FileRegistry {
             Box::new(move |result| {
                 use ignore::WalkState::*;
 
-                if let Some(entry) = result.ok() {
-                    if let Some(file) = File::load(entry.path()).ok() {
+                if let Ok(entry) = result {
+                    if let Ok(file) = File::load(entry.path()) {
                         sender.send(file).expect("Unable to send to collector");
                     }
                 }
