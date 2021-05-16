@@ -31,9 +31,6 @@ pub mod execute;
 //
 // Features that can be turned on or off
 
-#[cfg(feature = "open")]
-pub mod open;
-
 #[cfg(feature = "plugins")]
 pub mod plugins;
 

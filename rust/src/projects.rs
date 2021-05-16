@@ -65,7 +65,7 @@ pub struct Project {
 
     /// The resolved path of the project's main file
     #[serde(skip_deserializing)]
-    main_path: Option<PathBuf>,
+    pub main_path: Option<PathBuf>,
 
     /// The files in the project folder
     #[serde(skip_deserializing)]

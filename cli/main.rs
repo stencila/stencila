@@ -1,6 +1,9 @@
+use std::path::Path;
+
 use stencila::{
-    config,
+    config, convert,
     eyre::{bail, Error, Result},
+    inspect,
     logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
@@ -8,8 +11,9 @@ use stencila::{
     },
     plugins, projects,
     regex::Regex,
+    serve,
     strum::VariantNames,
-    tokio, tracing,
+    tokio, tracing, upgrade,
 };
 use structopt::StructOpt;
 
@@ -56,29 +60,20 @@ pub const GLOBAL_ARGS: [&str; 5] = ["--interact", "-i", "--debug", "--log-level"
     setting = structopt::clap::AppSettings::DeriveDisplayOrder
 )]
 pub enum Command {
-    #[cfg(feature = "open")]
-    Open(stencila::open::cli::Args),
+    // Commands, defined in this file, that often delegate
+    // to one of the `stencila` library functions.
+    //
+    Open(OpenCommand),
 
-    #[cfg(feature = "convert")]
-    Convert(stencila::convert::cli::Args),
-
-    #[cfg(feature = "serve")]
-    Serve(stencila::serve::cli::Args),
-
-    #[cfg(feature = "projects")]
-    Projects(stencila::projects::cli::Command),
-
-    #[cfg(feature = "plugins")]
-    Plugins(stencila::plugins::cli::Args),
-
-    #[cfg(feature = "config")]
-    Config(stencila::config::cli::Args),
-
-    #[cfg(feature = "upgrade")]
-    Upgrade(stencila::upgrade::cli::Args),
-
-    #[cfg(feature = "inspect")]
-    Inspect(stencila::inspect::cli::Args),
+    // Commands defined the `stencila` library
+    //
+    Convert(convert::cli::Args),
+    Serve(serve::cli::Args),
+    Projects(projects::cli::Command),
+    Plugins(plugins::cli::Args),
+    Config(config::cli::Args),
+    Upgrade(upgrade::cli::Args),
+    Inspect(inspect::cli::Args),
 }
 
 #[tracing::instrument(skip(config, plugins))]
@@ -90,43 +85,61 @@ pub async fn run_command(
     config: &mut config::Config,
 ) -> Result<()> {
     match command {
-        #[cfg(feature = "open")]
-        Command::Open(args) => stencila::open::cli::run(args).await,
-
-        #[cfg(feature = "convert")]
-        Command::Convert(args) => stencila::convert::cli::run(args),
-
-        #[cfg(feature = "serve")]
-        Command::Serve(args) => stencila::serve::cli::run(args, &config.serve).await,
-
-        #[cfg(feature = "projects")]
+        Command::Open(command) => command.run(projects, config).await,
+        Command::Convert(args) => convert::cli::run(args),
+        Command::Serve(args) => serve::cli::run(args, &config.serve).await,
         Command::Projects(command) => display::display(command.run(projects, &config.projects)?),
-
-        #[cfg(feature = "plugins")]
-        Command::Plugins(args) => stencila::plugins::cli::run(args, &config.plugins, plugins).await,
-
-        #[cfg(feature = "config")]
-        Command::Config(args) => stencila::config::cli::run(args, config),
-
-        #[cfg(feature = "upgrade")]
-        Command::Upgrade(args) => stencila::upgrade::cli::run(args, &config.upgrade, plugins).await,
-
-        #[cfg(feature = "inspect")]
-        Command::Inspect(args) => stencila::inspect::cli::run(args, plugins).await,
+        Command::Plugins(args) => plugins::cli::run(args, &config.plugins, plugins).await,
+        Command::Config(args) => config::cli::run(args, config),
+        Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade, plugins).await,
+        Command::Inspect(args) => inspect::cli::run(args, plugins).await,
     }
 }
 
-/// Print an error
-pub fn print_error(error: Error) {
-    // Remove any error label already in error string
-    let re = Regex::new(r"\s*error\s*:?").unwrap();
-    let error = error.to_string();
-    let error = if let Some(captures) = re.captures(error.as_str()) {
-        error.replace(&captures[0], "").trim().into()
-    } else {
-        error
-    };
-    eprintln!("ERROR: {}", error);
+/// Open a project or document in your web browser
+///
+/// If the path is a directory, then Stencila will attempt to
+/// open it as a project (i.e. open it's main document).
+/// If it's a file, then Stencila will open it as an orphan
+/// document (i.e. not associated with any project).
+///
+/// In the future, this command will open the project/document
+/// in the Stencila Desktop if that is available.
+#[derive(Debug, StructOpt)]
+#[structopt(
+    setting = structopt::clap::AppSettings::NoBinaryName,
+    setting = structopt::clap::AppSettings::ColoredHelp,
+)]
+pub struct OpenCommand {
+    /// The file or directory to open
+    #[structopt(default_value = ".")]
+    path: String,
+}
+
+impl OpenCommand {
+    pub async fn run(
+        self,
+        projects: &mut projects::Projects,
+        config: &config::Config,
+    ) -> Result<()> {
+        let Self { path } = self;
+
+        let next_path = if Path::new(&path.clone()).is_dir() {
+            let project = projects.open(&path, &config.projects, true)?;
+            project.main_path.map(|path| path.display().to_string())
+        } else {
+            // TODO documents.open etc
+            unimplemented!("opening a file; try opening a project directory")
+        };
+
+        // Generate a key and a login URL
+        let key = serve::generate_key();
+        let login_url = serve::login_url(&key, next_path)?;
+
+        // Open browser at the login page and start serving
+        webbrowser::open(login_url.as_str())?;
+        serve::serve(None, Some(key)).await
+    }
 }
 
 /// Main entry point function
@@ -270,6 +283,18 @@ pub async fn main() -> Result<()> {
     result
 }
 
+/// Print an error
+pub fn print_error(error: Error) {
+    // Remove any error label already in error string
+    let re = Regex::new(r"\s*error\s*:?").unwrap();
+    let error = error.to_string();
+    let error = if let Some(captures) = re.captures(error.as_str()) {
+        error.replace(&captures[0], "").trim().into()
+    } else {
+        error
+    };
+    eprintln!("ERROR: {}", error);
+}
 /// Module for feedback features
 ///
 /// These features are aimed at providing better feedback on

@@ -8,30 +8,10 @@ name = "stencila"
 path = "main.rs"
 
 [features]
-projects = []
-open = []
-convert = []
-serve = []
-config = []
-plugins = []
-upgrade = []
-inspect = []
 feedback = ["ansi_term", "color-eyre", "linya"]
 pretty = ["syntect", "termimad"]
 interact = ["ansi_term", "rustyline", "rustyline-derive"]
-default = [
-    "projects",
-    "open",
-    "convert",
-    "serve",
-    "config",
-    "plugins",
-    "upgrade",
-    "inspect",
-    "feedback",
-    "pretty",
-    "interact",
-]
+default = ["feedback", "pretty", "interact"]
 
 [dependencies]
 ansi_term = { version = "0.12.1", optional = true }
@@ -41,6 +21,7 @@ linya = { version = "0.1.1", optional = true }
 rustyline = { version = "8.0.0", optional = true }
 rustyline-derive = { version = "0.4.0", optional = true }
 stencila = { path = "../rust" }
-structopt = "0.3.21"
+structopt = { version = "0.3.21", features = ["wrap_help"] }
 syntect = { version = "4.5.0", optional = true }
 termimad = { version = "0.10.2", optional = true }
+webbrowser = "0.5.5"
