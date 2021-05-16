@@ -17,15 +17,15 @@ use stencila::{
 };
 use structopt::StructOpt;
 
+/// Stencila, in a terminal console, on your own machine
+///
+/// Enter interactive mode by using the `--interact` option with any command.
 #[derive(Debug, StructOpt)]
 #[structopt(
     setting = structopt::clap::AppSettings::DeriveDisplayOrder,
     setting = structopt::clap::AppSettings::ColoredHelp,
     setting = structopt::clap::AppSettings::VersionlessSubcommands
 )]
-/// Stencila, in a terminal console, on your own machine
-///
-/// Enter interactive mode by using the `--interact` option with any command.
 pub struct Args {
     /// The command to run
     #[structopt(subcommand)]
@@ -61,11 +61,11 @@ pub const GLOBAL_ARGS: [&str; 5] = ["--interact", "-i", "--debug", "--log-level"
 )]
 pub enum Command {
     // Commands, defined in this file, that often delegate
-    // to one of the `stencila` library functions.
+    // to one or more of the `stencila` library functions
     //
     Open(OpenCommand),
 
-    // Commands defined the `stencila` library
+    // Commands defined in the `stencila` library
     //
     Convert(convert::cli::Args),
     Serve(serve::cli::Args),
@@ -76,8 +76,8 @@ pub enum Command {
     Inspect(inspect::cli::Args),
 }
 
-#[tracing::instrument(skip(config, plugins))]
 /// Run a command
+#[tracing::instrument(skip(config, plugins))]
 pub async fn run_command(
     command: Command,
     projects: &mut projects::Projects,
@@ -129,7 +129,7 @@ impl OpenCommand {
             project.main_path.map(|path| path.display().to_string())
         } else {
             // TODO documents.open etc
-            unimplemented!("opening a file; try opening a project directory")
+            unimplemented!("opening a file; try opening a project directory.")
         };
 
         // Generate a key and a login URL
@@ -367,6 +367,7 @@ mod feedback {
     }
 }
 
+/// Module for displaying command results prettily
 #[cfg(feature = "pretty")]
 mod display {
     use super::*;
@@ -413,6 +414,7 @@ mod display {
     }
 }
 
+/// Module for displaying command results plainly
 #[cfg(not(feature = "pretty"))]
 mod display {
     use super::*;
