@@ -79,6 +79,7 @@ pub enum Command {
 /// Run a command
 #[tracing::instrument(skip(config, plugins))]
 pub async fn run_command(
+    interactive: bool,
     command: Command,
     projects: &mut projects::Projects,
     plugins: &mut plugins::Plugins,
@@ -88,7 +89,9 @@ pub async fn run_command(
         Command::Open(command) => command.run(projects, config).await,
         Command::Convert(args) => convert::cli::run(args),
         Command::Serve(args) => serve::cli::run(args, &config.serve).await,
-        Command::Projects(command) => display::display(command.run(projects, &config.projects)?),
+        Command::Projects(command) => {
+            display::display(interactive, command.run(projects, &config.projects)?)
+        }
         Command::Plugins(args) => plugins::cli::run(args, &config.plugins, plugins).await,
         Command::Config(args) => config::cli::run(args, config),
         Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade, plugins).await,
@@ -244,7 +247,7 @@ pub async fn main() -> Result<()> {
 
     // Get the result of running the command
     let result = if let Some(command) = command {
-        run_command(command, &mut projects, &mut plugins, &mut config).await
+        run_command(false, command, &mut projects, &mut plugins, &mut config).await
     } else {
         #[cfg(feature = "interact")]
         {
@@ -371,13 +374,24 @@ mod feedback {
 #[cfg(feature = "pretty")]
 mod display {
     use super::*;
+    use stencila::once_cell::sync::Lazy;
+    use syntect::easy::HighlightLines;
+    use syntect::highlighting::{Style, ThemeSet};
+    use syntect::parsing::SyntaxSet;
+    use syntect::util::as_24_bit_terminal_escaped;
 
     // Display the result of a command prettily
-    pub fn display(result: Option<(String, String)>) -> Result<()> {
+    pub fn display(interactive: bool, result: Option<(String, String)>) -> Result<()> {
         if let Some((format, content)) = result {
             match format.as_str() {
                 "md" => render(&format, &content),
-                _ => highlight(&format, &content),
+                _ => {
+                    if interactive {
+                        highlight(&format, &content)
+                    } else {
+                        println!("{}", content)
+                    }
+                }
             }
         }
         Ok(())
@@ -391,23 +405,22 @@ mod display {
 
     // Apply syntax highlighting and print to terminal
     pub fn highlight(format: &str, content: &str) {
-        use syntect::easy::HighlightLines;
-        use syntect::highlighting::{Style, ThemeSet};
-        use syntect::parsing::SyntaxSet;
-        use syntect::util::as_24_bit_terminal_escaped;
+        // Loading syntaxes and themes is slow. The following lazily loads both once.
+        // This is fine in interactive mode because subsequent calls of this function
+        // do not need to load again. However, for normal usage it is still slow.
+        // TODO: Only bake in a subset of syntaxes and themes. See the following for examples of this
+        // https://github.com/ducaale/xh/blob/master/build.rs
+        // https://github.com/sharkdp/bat/blob/0b44aa6f68ab967dd5d74b7e02d306f2b8388928/src/assets.rs
+        static SYNTAXES: Lazy<SyntaxSet> = Lazy::new(|| SyntaxSet::load_defaults_newlines());
+        static THEMES: Lazy<ThemeSet> = Lazy::new(|| ThemeSet::load_defaults());
 
-        let syntaxes = SyntaxSet::load_defaults_newlines();
-        let themes = ThemeSet::load_defaults();
-
-        let syntax = syntaxes
+        let syntax = SYNTAXES
             .find_syntax_by_extension(format)
-            .unwrap_or_else(|| syntaxes.find_syntax_by_extension("txt").unwrap());
+            .unwrap_or_else(|| SYNTAXES.find_syntax_by_extension("txt").unwrap());
 
-        let theme = &themes.themes["base16-eighties.dark"];
-
-        let mut highlighter = HighlightLines::new(syntax, theme);
+        let mut highlighter = HighlightLines::new(syntax, &THEMES.themes["base16-eighties.dark"]);
         for line in content.lines() {
-            let ranges: Vec<(Style, &str)> = highlighter.highlight(line, &syntaxes);
+            let ranges: Vec<(Style, &str)> = highlighter.highlight(line, &SYNTAXES);
             let escaped = as_24_bit_terminal_escaped(&ranges[..], false);
             println!("{}", escaped);
         }
@@ -552,7 +565,7 @@ mod interact {
                         Ok(matches) => {
                             let Line { command } = Line::from_clap(&matches);
                             if let Err(error) =
-                                run_command(command, projects, plugins, config).await
+                                run_command(true, command, projects, plugins, config).await
                             {
                                 print_error(error);
                             };
