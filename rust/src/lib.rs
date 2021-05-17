@@ -5,6 +5,7 @@
 // Core Stencila objects e.g `File`, `Article`, `Project`
 
 pub mod files;
+pub mod nodes;
 pub mod projects;
 
 // Methods
@@ -64,13 +65,8 @@ pub mod urls;
 
 // Utilities
 
-pub mod util {
-    pub mod dirs;
-    pub mod display;
-    pub mod params;
-}
+pub mod cli;
 pub mod logging;
-pub mod nodes;
 pub mod pubsub;
 
 // Re-export packages

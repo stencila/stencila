@@ -1,7 +1,8 @@
-use crate::{logging, plugins, projects, serve, upgrade, util};
+use crate::{logging, plugins, projects, serve, upgrade};
 use eyre::{bail, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use std::env;
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
@@ -26,8 +27,6 @@ pub struct Config {
     pub upgrade: upgrade::config::UpgradeConfig,
 }
 
-const CONFIG_FILE: &str = "config.toml";
-
 /// Get the JSON Schema for the configuration
 pub fn schema() -> String {
     use schemars::gen::SchemaSettings;
@@ -38,11 +37,27 @@ pub fn schema() -> String {
     serde_json::to_string_pretty(&schema).unwrap()
 }
 
+/// Get the directory where configuration data is stored
+pub fn dir(ensure: bool) -> Result<PathBuf> {
+    let config_base = dirs_next::config_dir().unwrap_or_else(|| env::current_dir().unwrap());
+    let dir = match env::consts::OS {
+        "macos" => config_base.join("Stencila"),
+        "windows" => config_base.join("Stencila").join("Config"),
+        _ => config_base.join("stencila"),
+    };
+    if ensure {
+        fs::create_dir_all(&dir)?;
+    }
+    Ok(dir)
+}
+
+const CONFIG_FILE: &str = "config.toml";
+
 /// Get the path of the configuration file
 #[tracing::instrument]
 fn path() -> Result<PathBuf> {
     #[cfg(not(test))]
-    return Ok(util::dirs::config(true)?.join(CONFIG_FILE));
+    return Ok(dir(true)?.join(CONFIG_FILE));
 
     // When running tests, avoid messing with users existing config
     #[cfg(test)]
@@ -296,9 +311,9 @@ pub mod cli {
                 write(config)
             }
             Action::Dirs => {
-                let config_dir = util::dirs::config(false)?.display().to_string();
-                let logs_dir = util::dirs::logs(false)?.display().to_string();
-                let plugins_dir = util::dirs::plugins(false)?.display().to_string();
+                let config_dir = dir(false)?.display().to_string();
+                let logs_dir = crate::logging::config::dir(false)?.display().to_string();
+                let plugins_dir = crate::plugins::config::dir(false)?.display().to_string();
                 println!(
                     "config: {}\nlogs: {}\nplugins: {}",
                     config_dir, logs_dir, plugins_dir

@@ -1,10 +1,6 @@
-use crate::{
-    pubsub::{publish_progress, ProgressEvent},
-    util::dirs,
-};
+use crate::pubsub::{publish_progress, ProgressEvent};
 use bollard::{container::RemoveContainerOptions, models::CreateImageInfo};
 use chrono::{DateTime, Duration, TimeZone, Utc};
-use dirs::plugins;
 use eyre::{bail, eyre, Result};
 use futures::StreamExt;
 use humantime::format_duration;
@@ -203,7 +199,7 @@ impl Plugin {
 
     /// Get the path of the plugin's directory
     pub fn dir(name: &str) -> Result<PathBuf> {
-        Ok(dirs::plugins(false)?.join(name))
+        Ok(config::dir(false)?.join(name))
     }
 
     /// Get the path of the plugin's manifest file
@@ -450,7 +446,7 @@ impl Plugin {
             (owner.into(), name.into())
         };
 
-        let npm_prefix = plugins(false)?;
+        let npm_prefix = config::dir(false)?;
         let node_modules = npm_prefix.join("node_modules");
         fs::create_dir_all(&node_modules)?;
 
@@ -722,7 +718,7 @@ impl Plugin {
         }
 
         // (Re)create the directory where the binary will be downloaded to
-        let install_dir = dirs::plugins(false)?.join(&name);
+        let install_dir = config::dir(false)?.join(&name);
         fs::create_dir_all(&install_dir)?;
         let install_path = install_dir.join(&name);
 
@@ -1315,7 +1311,7 @@ impl Plugins {
         }
 
         // Add / update using any manifests that are stored locally in plugins directory
-        let dir = dirs::plugins(true)?;
+        let dir = config::dir(true)?;
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
             let path = entry.path();
@@ -1626,7 +1622,21 @@ impl Plugins {
 pub mod config {
     use super::*;
     use defaults::Defaults;
+    use std::env;
     use validator::Validate;
+
+    /// Get the directory within which plugins and their configurations are installed
+    pub fn dir(ensure: bool) -> Result<PathBuf> {
+        let config = crate::config::dir(false)?;
+        let dir = match env::consts::OS {
+            "macos" | "windows" => config.join("Plugins"),
+            _ => config.join("plugins"),
+        };
+        if ensure {
+            fs::create_dir_all(&dir)?;
+        }
+        Ok(dir)
+    }
 
     /// # Plugins
     ///
@@ -1866,7 +1876,7 @@ pub mod cli {
                 plugin,
                 params,
             } = self;
-            let params = crate::util::params::parse(params);
+            let params = crate::cli::args::params(params);
             let result = match plugin {
                 Some(plugin) => plugins.delegate_to(&plugin, &method, &params).await?,
                 None => plugins.delegate(&method, &params).await?,

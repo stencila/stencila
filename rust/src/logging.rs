@@ -61,7 +61,21 @@ pub enum LoggingFormat {
 #[cfg(feature = "config")]
 pub mod config {
     use super::*;
-    use crate::util::dirs;
+    use std::fs;
+    use std::{env, path::PathBuf};
+
+    /// Get the directory where logs are stored
+    pub fn dir(ensure: bool) -> Result<PathBuf> {
+        let config = crate::config::dir(false)?;
+        let dir = match env::consts::OS {
+            "macos" | "windows" => config.join("Logs"),
+            _ => config.join("logs"),
+        };
+        if ensure {
+            fs::create_dir_all(&dir)?;
+        }
+        Ok(dir)
+    }
 
     /// # Logging to standard error stream
     ///
@@ -110,7 +124,7 @@ pub mod config {
 
     /// Get the default value for `logging.file.path`
     pub fn default_file_path() -> String {
-        dirs::logs(true)
+        dir(true)
             .expect("Unable to get logs directory")
             .join("log.json")
             .into_os_string()

@@ -98,7 +98,7 @@ pub async fn run_command(
         Command::Open(command) => command.run(projects, config).await,
         Command::Convert(args) => convert::cli::run(args),
         Command::Serve(args) => serve::cli::run(args, &config.serve).await,
-        Command::Projects(command) => display::display(
+        Command::Projects(command) => display::render(
             interactive,
             formats,
             command.run(projects, &config.projects)?,
@@ -401,14 +401,14 @@ mod feedback {
 #[cfg(feature = "pretty")]
 mod display {
     use super::*;
-    use stencila::{once_cell::sync::Lazy, util::display::Display};
+    use stencila::{cli::display::Display, once_cell::sync::Lazy};
     use syntect::easy::HighlightLines;
     use syntect::highlighting::{Style, ThemeSet};
     use syntect::parsing::SyntaxSet;
     use syntect::util::as_24_bit_terminal_escaped;
 
     // Display the result of a command prettily
-    pub fn display(interactive: bool, formats: &[String], display: Display) -> Result<()> {
+    pub fn render(interactive: bool, formats: &[String], display: Display) -> Result<()> {
         let Display {
             content,
             format,
@@ -425,7 +425,7 @@ mod display {
             if let (Some(content), Some(format)) = (content, format) {
                 if format == preference {
                     return match format.as_str() {
-                        "md" => render(&format, &content),
+                        "md" => print(&format, &content),
                         _ => highlight(interactive, &format, &content),
                     };
                 }
@@ -445,7 +445,7 @@ mod display {
         // Fallback to displaying content if available, otherwise value as JSON.
         if let (Some(content), Some(format)) = (content, format) {
             match format.as_str() {
-                "md" => return render(&format, &content),
+                "md" => return print(&format, &content),
                 _ => return highlight(interactive, &format, &content),
             };
         } else if let Some(value) = value {
@@ -457,7 +457,7 @@ mod display {
     }
 
     // Render Markdown to the terminal
-    pub fn render(_format: &str, content: &str) -> Result<()> {
+    pub fn print(_format: &str, content: &str) -> Result<()> {
         let skin = termimad::MadSkin::default();
         println!("{}", skin.term_text(content));
         Ok(())
@@ -515,7 +515,7 @@ mod displays {
 mod interact {
     use super::*;
     use rustyline::error::ReadlineError;
-    use stencila::{eyre::eyre, util};
+    use stencila::{config, eyre::eyre};
 
     #[derive(Debug, StructOpt)]
     #[structopt(
@@ -591,7 +591,7 @@ mod interact {
         plugins: &mut plugins::Plugins,
         config: &mut config::Config,
     ) -> Result<()> {
-        let history_file = util::dirs::config(true)?.join("history.txt");
+        let history_file = config::dir(true)?.join("history.txt");
 
         let mut rl = interact_editor::new();
         if rl.load_history(&history_file).is_err() {

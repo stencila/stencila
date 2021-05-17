@@ -104,7 +104,7 @@ pub fn upgrade_auto(
         }
 
         // Check if within the time since the last check was done
-        let upgrade_file = crate::util::dirs::config(true)?.join(UPGRADE_FILE);
+        let upgrade_file = crate::config::dir(true)?.join(UPGRADE_FILE);
         let last = match fs::read_to_string(upgrade_file.clone()) {
             Ok(date) => DateTime::parse_from_rfc3339(date.as_str())?.with_timezone(&Utc),
             Err(_) => Utc::now(),
