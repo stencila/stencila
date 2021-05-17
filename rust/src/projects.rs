@@ -1,4 +1,5 @@
 use crate::files::Files;
+use crate::util::display;
 use eyre::{bail, Result};
 use regex::Regex;
 use schemars::{schema_for, JsonSchema};
@@ -380,7 +381,7 @@ pub mod cli {
             &self,
             projects: &mut Projects,
             config: &config::ProjectsConfig,
-        ) -> Result<Option<(String, String)>> {
+        ) -> display::Result {
             let Self { action } = self;
             match action {
                 Action::Init(action) => action.run(),
@@ -410,10 +411,10 @@ pub mod cli {
     }
 
     impl Init {
-        pub fn run(&self) -> Result<Option<(String, String)>> {
+        pub fn run(&self) -> display::Result {
             let Self { folder } = self;
             Project::init(folder)?;
-            Ok(None)
+            display::nothing()
         }
     }
 
@@ -425,11 +426,8 @@ pub mod cli {
     pub struct List {}
 
     impl List {
-        pub fn run(&self, projects: &mut Projects) -> Result<Option<(String, String)>> {
-            Ok(Some((
-                "json".into(),
-                format!("{:?}", projects.list()?.keys()),
-            )))
+        pub fn run(&self, projects: &mut Projects) -> display::Result {
+            display::value(projects.list()?.keys().cloned().collect::<Vec<String>>())
         }
     }
 
@@ -450,10 +448,10 @@ pub mod cli {
             &self,
             projects: &mut Projects,
             config: &config::ProjectsConfig,
-        ) -> Result<Option<(String, String)>> {
+        ) -> display::Result {
             let Self { folder } = self;
-            projects.open(folder, config, true)?;
-            Ok(None)
+            let Project { name, .. } = projects.open(folder, config, true)?;
+            display::value(name)
         }
     }
 
@@ -470,10 +468,10 @@ pub mod cli {
     }
 
     impl Close {
-        pub fn run(&self, projects: &mut Projects) -> Result<Option<(String, String)>> {
+        pub fn run(&self, projects: &mut Projects) -> display::Result {
             let Self { folder } = self;
             projects.close(folder)?;
-            Ok(None)
+            display::nothing()
         }
     }
 
@@ -498,11 +496,11 @@ pub mod cli {
             &self,
             projects: &mut Projects,
             config: &config::ProjectsConfig,
-        ) -> Result<Option<(String, String)>> {
+        ) -> display::Result {
             let Self { folder, format } = self;
             let format = ShowFormat::from_str(&format)?;
             let content = projects.open(folder, config, false)?.show(format)?;
-            Ok(Some(content))
+            display::content(content.0, content.1)
         }
     }
 
@@ -514,8 +512,8 @@ pub mod cli {
     pub struct Schema {}
 
     impl Schema {
-        pub fn run(&self) -> Result<Option<(String, String)>> {
-            Ok(Some(("json".into(), Project::schema())))
+        pub fn run(&self) -> display::Result {
+            display::content("json".to_string(), Project::schema())
         }
     }
 }

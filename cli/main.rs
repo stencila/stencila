@@ -11,7 +11,7 @@ use stencila::{
     },
     plugins, projects,
     regex::Regex,
-    serve,
+    serde_json, serde_yaml, serve,
     strum::VariantNames,
     tokio, tracing, upgrade,
 };
@@ -30,6 +30,12 @@ pub struct Args {
     /// The command to run
     #[structopt(subcommand)]
     pub command: Option<Command>,
+
+    /// Display format
+    ///
+    /// The format used to display results of commands (if possible)
+    #[structopt(long, global = true)]
+    pub display: Option<String>,
 
     /// Enter interactive mode (with any command and options as the prefix)
     #[structopt(short, long, global = true)]
@@ -53,6 +59,8 @@ pub struct Args {
 }
 
 /// Global arguments that should be removed when entering interactive mode
+/// because they can only be set / are relevant at startup. Other global arguments,
+/// which need to be accessible at the line level, should be added to `interact::Line` below.
 pub const GLOBAL_ARGS: [&str; 5] = ["--interact", "-i", "--debug", "--log-level", "--log-format"];
 
 #[derive(Debug, StructOpt)]
@@ -80,6 +88,7 @@ pub enum Command {
 #[tracing::instrument(skip(config, plugins))]
 pub async fn run_command(
     interactive: bool,
+    formats: &[String],
     command: Command,
     projects: &mut projects::Projects,
     plugins: &mut plugins::Plugins,
@@ -89,9 +98,11 @@ pub async fn run_command(
         Command::Open(command) => command.run(projects, config).await,
         Command::Convert(args) => convert::cli::run(args),
         Command::Serve(args) => serve::cli::run(args, &config.serve).await,
-        Command::Projects(command) => {
-            display::display(interactive, command.run(projects, &config.projects)?)
-        }
+        Command::Projects(command) => display::display(
+            interactive,
+            formats,
+            command.run(projects, &config.projects)?,
+        ),
         Command::Plugins(args) => plugins::cli::run(args, &config.plugins, plugins).await,
         Command::Config(args) => config::cli::run(args, config),
         Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade, plugins).await,
@@ -160,6 +171,7 @@ pub async fn main() -> Result<()> {
     let parsed_args = Args::from_iter_safe(args.clone());
     let Args {
         command,
+        display,
         debug,
         log_level,
         log_format,
@@ -172,6 +184,7 @@ pub async fn main() -> Result<()> {
                 // pass an incomplete command prefix to interactive mode
                 Args {
                     command: None,
+                    display: None,
                     debug: args.contains(&"--debug".to_string()),
                     log_level: None,
                     log_format: None,
@@ -245,9 +258,23 @@ pub async fn main() -> Result<()> {
         Some(stencila::upgrade::upgrade_auto(&config.upgrade, &plugins))
     };
 
+    // Use the desired display format, falling back to configured values
+    let formats = match display {
+        Some(display) => vec![display],
+        None => vec!["md".to_string(), "yaml".to_string(), "json".to_string()],
+    };
+
     // Get the result of running the command
     let result = if let Some(command) = command {
-        run_command(false, command, &mut projects, &mut plugins, &mut config).await
+        run_command(
+            false,
+            &formats,
+            command,
+            &mut projects,
+            &mut plugins,
+            &mut config,
+        )
+        .await
     } else {
         #[cfg(feature = "interact")]
         {
@@ -258,7 +285,7 @@ pub async fn main() -> Result<()> {
                 // Remove the global args which can not be applied to each interactive line
                 .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
                 .collect();
-            interact::run(prefix, &mut projects, &mut plugins, &mut config).await
+            interact::run(prefix, &formats, &mut projects, &mut plugins, &mut config).await
         }
         #[cfg(not(feature = "interact"))]
         {
@@ -374,45 +401,82 @@ mod feedback {
 #[cfg(feature = "pretty")]
 mod display {
     use super::*;
-    use stencila::once_cell::sync::Lazy;
+    use stencila::{once_cell::sync::Lazy, util::display::Display};
     use syntect::easy::HighlightLines;
     use syntect::highlighting::{Style, ThemeSet};
     use syntect::parsing::SyntaxSet;
     use syntect::util::as_24_bit_terminal_escaped;
 
     // Display the result of a command prettily
-    pub fn display(interactive: bool, result: Option<(String, String)>) -> Result<()> {
-        if let Some((format, content)) = result {
-            match format.as_str() {
-                "md" => render(&format, &content),
-                _ => {
-                    if interactive {
-                        highlight(&format, &content)
-                    } else {
-                        println!("{}", content)
-                    }
+    pub fn display(interactive: bool, formats: &[String], display: Display) -> Result<()> {
+        let Display {
+            content,
+            format,
+            value,
+        } = &display;
+
+        // Nothing to display
+        if content.is_none() && value.is_none() {
+            return Ok(());
+        }
+
+        // Try to display in preferred format
+        for preference in formats {
+            if let (Some(content), Some(format)) = (content, format) {
+                if format == preference {
+                    return match format.as_str() {
+                        "md" => render(&format, &content),
+                        _ => highlight(interactive, &format, &content),
+                    };
+                }
+            } else if let Some(value) = value {
+                if let Some(content) = match preference.as_str() {
+                    "json" => serde_json::to_string_pretty(&value).ok(),
+                    "yaml" => serde_yaml::to_string(&value)
+                        .map(|yaml| yaml.trim_start_matches("---\n").to_string())
+                        .ok(),
+                    _ => None,
+                } {
+                    return highlight(interactive, &preference, &content);
                 }
             }
         }
+
+        // Fallback to displaying content if available, otherwise value as JSON.
+        if let (Some(content), Some(format)) = (content, format) {
+            match format.as_str() {
+                "md" => return render(&format, &content),
+                _ => return highlight(interactive, &format, &content),
+            };
+        } else if let Some(value) = value {
+            let json = serde_json::to_string_pretty(&value)?;
+            return highlight(interactive, "json", &json);
+        }
+
         Ok(())
     }
 
     // Render Markdown to the terminal
-    pub fn render(_format: &str, content: &str) {
+    pub fn render(_format: &str, content: &str) -> Result<()> {
         let skin = termimad::MadSkin::default();
-        println!("{}", skin.term_text(content))
+        println!("{}", skin.term_text(content));
+        Ok(())
     }
 
     // Apply syntax highlighting and print to terminal
-    pub fn highlight(format: &str, content: &str) {
+    pub fn highlight(interactive: bool, format: &str, content: &str) -> Result<()> {
+        if !interactive {
+            println!("{}", content)
+        }
+
         // Loading syntaxes and themes is slow. The following lazily loads both once.
         // This is fine in interactive mode because subsequent calls of this function
         // do not need to load again. However, for normal usage it is still slow.
         // TODO: Only bake in a subset of syntaxes and themes. See the following for examples of this
         // https://github.com/ducaale/xh/blob/master/build.rs
         // https://github.com/sharkdp/bat/blob/0b44aa6f68ab967dd5d74b7e02d306f2b8388928/src/assets.rs
-        static SYNTAXES: Lazy<SyntaxSet> = Lazy::new(|| SyntaxSet::load_defaults_newlines());
-        static THEMES: Lazy<ThemeSet> = Lazy::new(|| ThemeSet::load_defaults());
+        static SYNTAXES: Lazy<SyntaxSet> = Lazy::new(SyntaxSet::load_defaults_newlines);
+        static THEMES: Lazy<ThemeSet> = Lazy::new(ThemeSet::load_defaults);
 
         let syntax = SYNTAXES
             .find_syntax_by_extension(format)
@@ -424,16 +488,19 @@ mod display {
             let escaped = as_24_bit_terminal_escaped(&ranges[..], false);
             println!("{}", escaped);
         }
+
+        Ok(())
     }
 }
 
 /// Module for displaying command results plainly
 #[cfg(not(feature = "pretty"))]
-mod display {
+mod displays {
     use super::*;
+    use stencila::util::display;
 
     // Display the result of a command without prettiness
-    pub fn display(result: Option<(String, String)>) -> Result<()> {
+    pub fn display(result: display::Result) -> Result<()> {
         if let Some((_format, content)) = result {
             println!("{}", content);
         }
@@ -459,6 +526,12 @@ mod interact {
     pub struct Line {
         #[structopt(subcommand)]
         pub command: Command,
+
+        /// Display format
+        ///
+        /// The format used to display results of commands (if possible)
+        #[structopt(long, global = true)]
+        pub display: Option<String>,
     }
 
     fn help() -> String {
@@ -513,6 +586,7 @@ mod interact {
     #[tracing::instrument(skip(config, plugins))]
     pub async fn run(
         prefix: Vec<String>,
+        formats: &[String],
         projects: &mut projects::Projects,
         plugins: &mut plugins::Plugins,
         config: &mut config::Config,
@@ -563,9 +637,18 @@ mod interact {
                     let args = [prefix.as_slice(), args.as_slice()].concat();
                     match Line::clap().get_matches_from_safe(args) {
                         Ok(matches) => {
-                            let Line { command } = Line::from_clap(&matches);
+                            let Line { command, display } = Line::from_clap(&matches);
+
+                            // Use current display format or fallback to configured preferences
+                            let formats = if let Some(display) = display {
+                                vec![display]
+                            } else {
+                                formats.into()
+                            };
+
                             if let Err(error) =
-                                run_command(true, command, projects, plugins, config).await
+                                run_command(true, &formats, command, projects, plugins, config)
+                                    .await
                             {
                                 print_error(error);
                             };
