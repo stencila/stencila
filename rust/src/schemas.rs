@@ -1,3 +1,9 @@
+//! Functions for consistently generating JSON Schemata from
+//! internal Rust `struct`s.
+//!
+//! Not to be confused with the `stencila-schema` crate which
+//! provides Rust `struct`s generated from Stencila's JSON Schema ;)
+
 use schemars::{
     gen::{SchemaGenerator, SchemaSettings},
     schema::RootSchema,

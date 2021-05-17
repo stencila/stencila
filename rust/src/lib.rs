@@ -68,6 +68,7 @@ pub mod urls;
 pub mod cli;
 pub mod logging;
 pub mod pubsub;
+pub mod schemas;
 
 // Re-export packages
 //

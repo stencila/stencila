@@ -1,4 +1,4 @@
-use crate::cli::display;
+use crate::{cli::display, schemas};
 use crate::files::Files;
 use eyre::{bail, Result};
 use regex::Regex;
@@ -89,7 +89,7 @@ impl Project {
 
     /// Get the JSON Schema for a project
     pub fn schema() -> String {
-        let schema = util::schemas::generate::<Project>();
+        let schema = schemas::generate::<Project>();
         serde_json::to_string_pretty(&schema).unwrap()
     }
 

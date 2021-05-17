@@ -1,4 +1,4 @@
-use crate::{logging, plugins, projects, serve, upgrade};
+use crate::{logging, plugins, projects, schemas, serve, upgrade};
 use eyre::{bail, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -30,7 +30,7 @@ pub struct Config {
 
 /// Get the JSON Schema for the configuration
 pub fn schema() -> String {
-    let schema = util::schemas::generate::<Config>();
+    let schema = schemas::generate::<Config>();
     serde_json::to_string_pretty(&schema).unwrap()
 }
 
