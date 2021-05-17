@@ -1,3 +1,20 @@
+# [0.63.0](https://github.com/stencila/stencila/compare/v0.62.2...v0.63.0) (2021-05-17)
+
+
+### Bug Fixes
+
+* **CLI:** Remove flag gates; implement plain display ([37a9c66](https://github.com/stencila/stencila/commit/37a9c66c65a3872e5eb0fea3d8f1773a4324c44f))
+
+
+### Features
+
+* **CLI:** Allow alternative user specified formats for displaying results ([277bdf2](https://github.com/stencila/stencila/commit/277bdf2057d2d73c46d598f55f2088f78d19292a))
+
+
+### Performance Improvements
+
+* **CLI:** Lazily load syntaxes and themes; only highlight in interactive mode ([206da6c](https://github.com/stencila/stencila/commit/206da6cc69a3ae3429113cda724a901062f19b88))
+
 ## [0.62.2](https://github.com/stencila/stencila/compare/v0.62.1...v0.62.2) (2021-05-16)
 
 
