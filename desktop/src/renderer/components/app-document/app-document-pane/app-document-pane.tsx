@@ -9,15 +9,22 @@ import { selectPane } from '../../../store/documentPane/documentPaneSelectors'
 })
 export class AppDocumentPane {
   render() {
+    const activeDocument = selectPane(state)?.activeDocument
+
     return (
       <div class="documentPane">
-        <app-document-pane-tabs
-          documents={[selectPane(state)?.activeDocument ?? '']}
-        ></app-document-pane-tabs>
-
-        <app-document-preview
-          filePath={selectPane(state)?.activeDocument}
-        ></app-document-preview>
+        {activeDocument ? (
+          [
+            <app-document-pane-tabs
+              documents={[activeDocument]}
+            ></app-document-pane-tabs>,
+            <app-document-preview
+              filePath={activeDocument}
+            ></app-document-preview>,
+          ]
+        ) : (
+          <app-document-pane-empty></app-document-pane-empty>
+        )}
       </div>
     )
   }

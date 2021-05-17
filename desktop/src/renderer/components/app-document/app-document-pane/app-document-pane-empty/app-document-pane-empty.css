@@ -1,0 +1,16 @@
+:host {
+  @apply flex flex-grow items-center justify-center;
+}
+
+.documentPaneEmpty {
+  @apply p-4 text-center;
+  color: var(--color-neutral-500);
+}
+
+h2 {
+  @apply m-0;
+}
+
+stencila-icon {
+  @apply text-3xl;
+}
