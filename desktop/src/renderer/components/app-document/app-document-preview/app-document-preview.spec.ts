@@ -1,11 +1,11 @@
 import { newSpecPage } from '@stencil/core/testing'
-import { AppProjectFilePreview } from './app-project-file-preview'
+import { AppDocumentPreview } from './app-document-preview'
 
 describe('app-project-file-preview', () => {
   describe.skip('normalization', () => {
     it('returns a blank string if the name is undefined', async () => {
       const { rootInstance } = await newSpecPage({
-        components: [AppProjectFilePreview],
+        components: [AppDocumentPreview],
         html: '<app-project-file-preview></app-project-file-preview>',
       })
       expect(rootInstance.normalize(undefined)).toEqual('')
@@ -13,7 +13,7 @@ describe('app-project-file-preview', () => {
 
     it('returns a blank string if the name is null', async () => {
       const { rootInstance } = await newSpecPage({
-        components: [AppProjectFilePreview],
+        components: [AppDocumentPreview],
         html: '<app-project-file-preview></app-project-file-preview>',
       })
       expect(rootInstance.normalize(null)).toEqual('')
@@ -21,7 +21,7 @@ describe('app-project-file-preview', () => {
 
     it('capitalizes the first letter', async () => {
       const { rootInstance } = await newSpecPage({
-        components: [AppProjectFilePreview],
+        components: [AppDocumentPreview],
         html: '<app-project-file-preview></app-project-file-preview>',
       })
       expect(rootInstance.normalize('quincy')).toEqual('Quincy')
@@ -29,7 +29,7 @@ describe('app-project-file-preview', () => {
 
     it('lower-cases the following letters', async () => {
       const { rootInstance } = await newSpecPage({
-        components: [AppProjectFilePreview],
+        components: [AppDocumentPreview],
         html: '<app-project-file-preview></app-project-file-preview>',
       })
       expect(rootInstance.normalize('JOSEPH')).toEqual('Joseph')
@@ -37,7 +37,7 @@ describe('app-project-file-preview', () => {
 
     it('handles single letter names', async () => {
       const { rootInstance } = await newSpecPage({
-        components: [AppProjectFilePreview],
+        components: [AppDocumentPreview],
         html: '<app-project-file-preview></app-project-file-preview>',
       })
       expect(rootInstance.normalize('q')).toEqual('Q')

@@ -1,0 +1,7 @@
+:host {
+  @apply block;
+}
+
+.documentPaneTabs {
+  @apply p-0 m-0 h-full;
+}

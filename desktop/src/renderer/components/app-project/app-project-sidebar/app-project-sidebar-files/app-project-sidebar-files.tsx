@@ -1,9 +1,11 @@
-import { Component, h, Host, Prop, State } from '@stencil/core'
-import { projects } from 'stencila'
-import { CHANNEL } from '../../../../../preload/index'
-
-type Project = projects.Project
-type File = projects.File
+import { Component, h, Host, Prop } from '@stencil/core'
+import { state } from '../../../../store'
+import { setActiveDocument } from '../../../../store/documentPane/documentPaneActions'
+import { selectPaneId } from '../../../../store/documentPane/documentPaneSelectors'
+import {
+  selectProject,
+  selectProjectFiles,
+} from '../../../../store/project/projectSelectors'
 
 @Component({
   tag: 'app-project-sidebar-files',
@@ -14,28 +16,20 @@ export class AppProjectSidebarFiles {
   @Prop()
   projectDir: string
 
-  @State()
-  private project: Project | undefined
-
-  private getFileList = (path: string) => {
-    window.api.invoke(CHANNEL.GET_PROJECT_FILES, path).then((project) => {
-      this.project = project as Project
-    })
-  }
-
-  componentWillLoad() {
-    return this.getFileList(`/${this.projectDir}`)
-  }
-
-  private formatPath = (file: File): string => {
-    const relativeParent =
-      (file.parent?.replace((this.project?.path ?? '') + '/', '') ?? '') + '/'
-
-    return file.path.replace(relativeParent, '')
+  setActiveFile = (path: string) => (e: MouseEvent) => {
+    e.preventDefault()
+    const paneId = selectPaneId(state)
+    if (paneId) {
+      setActiveDocument(paneId.toString(), path)
+    }
   }
 
   private pathToFileTree = (path: string) => {
-    const file = this.project?.files[path]
+    const files = selectProject(state)?.files
+
+    if (!files) return
+
+    const file = files[path]
     const isDir = file?.children !== undefined
 
     return (
@@ -46,9 +40,10 @@ export class AppProjectSidebarFiles {
             isDir,
             isFile: !isDir,
           }}
+          onClick={isDir ? undefined : this.setActiveFile(path)}
         >
           <stencila-icon icon={isDir ? 'folder' : 'file'}></stencila-icon>
-          {file ? this.formatPath(file) : ''}
+          {file?.name}
         </a>
         {file?.children && <ul>{file.children.map(this.pathToFileTree)}</ul>}
       </li>
@@ -60,9 +55,7 @@ export class AppProjectSidebarFiles {
       <Host>
         <div class="app-project-sidebar-files">
           <ul>
-            {this.project?.files[this.project?.path]?.children?.map(
-              this.pathToFileTree
-            )}
+            {selectProjectFiles(state)?.children?.map(this.pathToFileTree)}
           </ul>
         </div>
       </Host>

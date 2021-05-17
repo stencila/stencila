@@ -1,10 +1,10 @@
 import { createStore } from '@stencil/store'
-import { plugins } from 'stencila'
+import { Plugin } from 'stencila'
 import { CHANNEL } from '../../../../preload/index'
 
 interface PluginStore {
   plugins: {
-    entities: Record<string, plugins.Plugin>
+    entities: Record<string, Plugin>
     ids: string[]
   }
 }

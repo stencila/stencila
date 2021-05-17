@@ -1,5 +1,7 @@
 import { Component, h } from '@stencil/core'
-import { match, Route } from '@stencil/router'
+import { Route } from '@stencil/router'
+import { initPane } from '../../../store/documentPane/documentPaneActions'
+import { getProjectDetails } from '../../../store/project/projectActions'
 import { ProjectRouter } from '../projectRouter'
 
 @Component({
@@ -8,20 +10,27 @@ import { ProjectRouter } from '../projectRouter'
   scoped: true,
 })
 export class AppProjectRoot {
+  componentWillLoad() {
+    const projectPath = decodeURI(
+      window.location.pathname.replace('/project', '')
+    )
+    initPane(projectPath)
+    getProjectDetails(projectPath)
+  }
+
   render() {
     return (
       <div class="projectWindow">
+        <app-project-sidebar-files></app-project-sidebar-files>
+
         <ProjectRouter.Switch>
           <Route
-            path={match('/project/:projectDir*')}
-            render={({ projectDir = '' }) => [
-              <app-project-sidebar-files
-                projectDir={decodeURI(projectDir)}
-              ></app-project-sidebar-files>,
+            path={() => true}
+            render={() =>
               <main>
-                <app-project-file-preview></app-project-file-preview>
-              </main>,
-            ]}
+                <app-document-pane></app-document-pane>
+              </main>
+            }
           ></Route>
         </ProjectRouter.Switch>
       </div>

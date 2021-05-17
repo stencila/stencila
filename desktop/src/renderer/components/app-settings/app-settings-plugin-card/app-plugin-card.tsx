@@ -1,8 +1,11 @@
 import { Component, h, Prop, State } from '@stencil/core'
-import { plugins } from 'stencila'
-import { CHANNEL } from '../../../../preload/index'
-import { getAvailablePlugins, pluginStore } from '../app-settings-plugins/pluginStore'
+import { Plugin } from 'stencila'
 import { i18n } from '../../../../i18n'
+import { CHANNEL } from '../../../../preload/index'
+import {
+  getAvailablePlugins,
+  pluginStore,
+} from '../app-settings-plugins/pluginStore'
 
 @Component({
   tag: 'app-settings-plugin-card',
@@ -12,7 +15,7 @@ import { i18n } from '../../../../i18n'
 export class AppSettingsPluginCard {
   @Prop() pluginName: string
 
-  @State() plugin?: plugins.Plugin
+  @State() plugin?: Plugin
 
   @State() inProgress: boolean
 

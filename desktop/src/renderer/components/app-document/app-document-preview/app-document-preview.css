@@ -1,0 +1,13 @@
+:host,
+.app-document-preview {
+  @apply flex-grow flex max-h-full overflow-hidden;
+}
+
+stencila-editor {
+  @apply w-full;
+  --border-width: 0;
+
+  ::slotted(.editor-container:focus-within) {
+    box-shadow: none;
+  }
+}

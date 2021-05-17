@@ -1,6 +1,6 @@
 import $RefParser from '@apidevtools/json-schema-ref-parser'
 import { ipcMain } from 'electron'
-import { config, plugins } from 'stencila'
+import { config, Plugin, plugins } from 'stencila'
 import { CHANNEL } from '../../preload'
 import { showSettings } from './window'
 
@@ -17,7 +17,7 @@ export const getConfig = async () => {
 }
 
 interface NormalizedPlugins {
-  entities: Record<string, plugins.Plugin>
+  entities: Record<string, Plugin>
   ids: string[]
 }
 

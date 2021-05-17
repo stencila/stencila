@@ -6,9 +6,18 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
-    interface AppLauncher {
+    interface AppDocumentPane {
     }
-    interface AppProjectFilePreview {
+    interface AppDocumentPaneTab {
+        "documentPath": string;
+    }
+    interface AppDocumentPaneTabs {
+        "documents": string[];
+    }
+    interface AppDocumentPreview {
+        "filePath": string;
+    }
+    interface AppLauncher {
     }
     interface AppProjectRoot {
     }
@@ -30,17 +39,35 @@ export namespace Components {
     }
 }
 declare global {
+    interface HTMLAppDocumentPaneElement extends Components.AppDocumentPane, HTMLStencilElement {
+    }
+    var HTMLAppDocumentPaneElement: {
+        prototype: HTMLAppDocumentPaneElement;
+        new (): HTMLAppDocumentPaneElement;
+    };
+    interface HTMLAppDocumentPaneTabElement extends Components.AppDocumentPaneTab, HTMLStencilElement {
+    }
+    var HTMLAppDocumentPaneTabElement: {
+        prototype: HTMLAppDocumentPaneTabElement;
+        new (): HTMLAppDocumentPaneTabElement;
+    };
+    interface HTMLAppDocumentPaneTabsElement extends Components.AppDocumentPaneTabs, HTMLStencilElement {
+    }
+    var HTMLAppDocumentPaneTabsElement: {
+        prototype: HTMLAppDocumentPaneTabsElement;
+        new (): HTMLAppDocumentPaneTabsElement;
+    };
+    interface HTMLAppDocumentPreviewElement extends Components.AppDocumentPreview, HTMLStencilElement {
+    }
+    var HTMLAppDocumentPreviewElement: {
+        prototype: HTMLAppDocumentPreviewElement;
+        new (): HTMLAppDocumentPreviewElement;
+    };
     interface HTMLAppLauncherElement extends Components.AppLauncher, HTMLStencilElement {
     }
     var HTMLAppLauncherElement: {
         prototype: HTMLAppLauncherElement;
         new (): HTMLAppLauncherElement;
-    };
-    interface HTMLAppProjectFilePreviewElement extends Components.AppProjectFilePreview, HTMLStencilElement {
-    }
-    var HTMLAppProjectFilePreviewElement: {
-        prototype: HTMLAppProjectFilePreviewElement;
-        new (): HTMLAppProjectFilePreviewElement;
     };
     interface HTMLAppProjectRootElement extends Components.AppProjectRoot, HTMLStencilElement {
     }
@@ -91,8 +118,11 @@ declare global {
         new (): HTMLAppSettingsSidebarElement;
     };
     interface HTMLElementTagNameMap {
+        "app-document-pane": HTMLAppDocumentPaneElement;
+        "app-document-pane-tab": HTMLAppDocumentPaneTabElement;
+        "app-document-pane-tabs": HTMLAppDocumentPaneTabsElement;
+        "app-document-preview": HTMLAppDocumentPreviewElement;
         "app-launcher": HTMLAppLauncherElement;
-        "app-project-file-preview": HTMLAppProjectFilePreviewElement;
         "app-project-root": HTMLAppProjectRootElement;
         "app-project-sidebar-files": HTMLAppProjectSidebarFilesElement;
         "app-root": HTMLAppRootElement;
@@ -104,9 +134,18 @@ declare global {
     }
 }
 declare namespace LocalJSX {
-    interface AppLauncher {
+    interface AppDocumentPane {
     }
-    interface AppProjectFilePreview {
+    interface AppDocumentPaneTab {
+        "documentPath"?: string;
+    }
+    interface AppDocumentPaneTabs {
+        "documents"?: string[];
+    }
+    interface AppDocumentPreview {
+        "filePath"?: string;
+    }
+    interface AppLauncher {
     }
     interface AppProjectRoot {
     }
@@ -127,8 +166,11 @@ declare namespace LocalJSX {
     interface AppSettingsSidebar {
     }
     interface IntrinsicElements {
+        "app-document-pane": AppDocumentPane;
+        "app-document-pane-tab": AppDocumentPaneTab;
+        "app-document-pane-tabs": AppDocumentPaneTabs;
+        "app-document-preview": AppDocumentPreview;
         "app-launcher": AppLauncher;
-        "app-project-file-preview": AppProjectFilePreview;
         "app-project-root": AppProjectRoot;
         "app-project-sidebar-files": AppProjectSidebarFiles;
         "app-root": AppRoot;
@@ -143,8 +185,11 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "app-document-pane": LocalJSX.AppDocumentPane & JSXBase.HTMLAttributes<HTMLAppDocumentPaneElement>;
+            "app-document-pane-tab": LocalJSX.AppDocumentPaneTab & JSXBase.HTMLAttributes<HTMLAppDocumentPaneTabElement>;
+            "app-document-pane-tabs": LocalJSX.AppDocumentPaneTabs & JSXBase.HTMLAttributes<HTMLAppDocumentPaneTabsElement>;
+            "app-document-preview": LocalJSX.AppDocumentPreview & JSXBase.HTMLAttributes<HTMLAppDocumentPreviewElement>;
             "app-launcher": LocalJSX.AppLauncher & JSXBase.HTMLAttributes<HTMLAppLauncherElement>;
-            "app-project-file-preview": LocalJSX.AppProjectFilePreview & JSXBase.HTMLAttributes<HTMLAppProjectFilePreviewElement>;
             "app-project-root": LocalJSX.AppProjectRoot & JSXBase.HTMLAttributes<HTMLAppProjectRootElement>;
             "app-project-sidebar-files": LocalJSX.AppProjectSidebarFiles & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFilesElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
