@@ -7,47 +7,57 @@
 
 This is the main repository of [Stencila](https://stenci.la), a platform for authoring, collaborating on, and publishing executable documents.
 
-Stencila is comprised of several open source packages, written in a variety of programming languages. This repo acts as an entry point to these other packages (as well as having some of its own code too).
+Stencila is comprised of several open source packages, written in a variety of programming languages. This repo acts as an entry point to these other packages (as well as having its own code too).
 
 We 💕 contributions! All types of contributions: ideas 🤔, examples 💡, bug reports 🐛, documentation 📖, code 💻, questions 💬. If you are unsure of where to make a contribution feel free to open a new [issue](https://github.com/stencila/stencila/issues/new) or [discussion](https://github.com/stencila/stencila/discussions/new) in this repository (we can always move them elsewhere if need be).
 
-We are in the process of re-organizing in which repositories various parts of Stencila live. In this repo we are using [README Driven Development](https://tom.preston-werner.com/2010/08/23/readme-driven-development.html) to plan that reorganization. That means, depending on when you read this, some (a lot!) of the features described below don't actually exist here yet. As far as possible, we indicate non-existing features using a unicorn emoji with either square brackets e.g. 🦄 [a cool feature that's not yet implemented], or a link to an issue about the feature e.g. 🦄 [a link to the issue for the feature](https://github.com/stencila/stencila/issues).
+<br>
+
+## 📜 Help
+
+For documentation, including demos and reference guides, please go to our Help site https://help.stenci.la/. That site is developed in the [`help`](help#readme) folder of this repository and contributions are always welcome.
 
 <br>
 
 ## 🎁 Hub
 
-If you don't want to install anything, or just want to try out Stencila, https://hub.stenci.la is the best place to start. It's a web application that makes all our software available via intuitive browser-based interfaces. You can contribute to the Hub at [`stencila/hub`](https://github.com/stencila/hub).
+If you don't want to install anything, or just want to try out Stencila, https://hub.stenci.la is the best place to start. It's a web application that makes all our software available via intuitive browser-based interfaces. You can contribute to Stencila Hub at [`stencila/hub`](https://github.com/stencila/hub).
+
+<br>
+
+## 🖥️ Desktop
+
+If you'd prefer to use Stencila on your own computer, the Stencila Desktop is a great place to start. It is still in the early stages of (re)development but please see the [`desktop`](desktop#readme) folder for its current status and how you can help out!
 
 <br>
 
 ## ⌨️ Command line tool
 
-If you want to use Stencila on your own machine in a terminal console, then the `stencila` command line tool (CLI) is for you. Please see the [`cli`](cli#readme) folder for installation and usage instructions.
+Prefer to work on the command line? The `stencila` command line tool (CLI) is for you! Please see the [`cli`](cli#readme) folder for installation and usage instructions.
 
 <br>
 
 ## 🔌 Plugins
 
-The `stencila` CLI tool relies on _plugins_ to provide much of its functionality. You can install plugins using the `stencila` CLI tool using it's name or an alias,
+The `stencila` Hub, Desktop and CLI all rely on _plugins_ to provide much of their functionality. You can install plugins using the `stencila` Desktop or CLI tool using it's name or an alias,
 
 ```sh
 stencila plugins install <name or alias>
 ```
 
-The following table lists the main plugins. These plugins are in various stages of development and not all of them are compatible with the CLI. Generally, it won't be worth installing them prior to `v1` and coverage of at least 90%.
+The following table lists the main plugins. These plugins are in various stages of development and not all of them are compatible with the Desktop and CLI. Generally, it won't be worth installing them prior to `v1` and coverage of at least 90%.
 
 We are currently focussed on the integration between `jesta` and the `stencila` CLI and will then use `jesta` as the base for other Node.js based plugins `encoda`, `jupita` and `nixta`.
 
-| Plugin   | Aliases                    | Version     | Coverage    | Primary functionality                                    |
-| -------- | -------------------------- | ----------- | ----------- | -------------------------------------------------------- |
-| [encoda] | `converter`                | ![encoda-v] | ![encoda-c] | Convert documents between file formats                   |
-| [jesta]  | `node`, `javascript`, `js` | ![jesta-v]  | ![jesta-c]  | Compile, build and execute documents that use JavaScript |
-| [rasta]  | `r`                        | ![rasta-v]  | ![rasta-c]  | Compile, build and execute documents that use R          |
-| [pyla]   | `python`                   | ![pyla-v]   | ![pyla-c]   | Compile, build and execute documents that use Python     |
-| [jupita] | `jupyter`                  | ![jupita-v] | ![jupita-c] | Execute documents that use Jupyter kernels               |
-| [dockta] | `docker`                   | ![dockta-v] | ![dockta-c] | Build Docker images for executable documents             |
-| [nixta]  | `nix`                      | ![nixta-v]  | ![nixta-c]  | Build Nix environments for executable documents          |
+| Plugin   | Aliases      | Version     | Coverage    | Primary functionality                                    |
+| -------- | ------------ | ----------- | ----------- | -------------------------------------------------------- |
+| [encoda] | `converter`  | ![encoda-v] | ![encoda-c] | Convert documents between file formats                   |
+| [jesta]  | `javascript` | ![jesta-v]  | ![jesta-c]  | Compile, build and execute documents that use JavaScript |
+| [rasta]  | `r`          | ![rasta-v]  | ![rasta-c]  | Compile, build and execute documents that use R          |
+| [pyla]   | `python`     | ![pyla-v]   | ![pyla-c]   | Compile, build and execute documents that use Python     |
+| [jupita] | `jupyter`    | ![jupita-v] | ![jupita-c] | Execute documents that use Jupyter kernels               |
+| [dockta] | `docker`     | ![dockta-v] | ![dockta-c] | Build Docker images for executable documents             |
+| [nixta]  | `nix`        | ![nixta-v]  | ![nixta-c]  | Build Nix environments for executable documents          |
 
 <br>
 
@@ -55,7 +65,7 @@ We are currently focussed on the integration between `jesta` and the `stencila` 
 
 You can use Stencila as a Docker image. We provide several images of varying sizes and capabilities. All include the `stencila` CLI as the image `ENTRYPOINT` but add varying numbers of plugins and packages.
 
-🦄 At present the number of images listed below is limited. We plan to move the generic images e.g. [`stencila/executa-midi`](https://hub.docker.com/r/stencila/executa-midi) (which are currently built in the `dockta` repository), to this repository as we reach plugin compatibility for the relevant language packages.
+At present the number of images listed below is limited. We plan to move the generic images e.g. [`stencila/executa-midi`](https://hub.docker.com/r/stencila/executa-midi) (which are currently built in the `dockta` repository), to this repository as we reach plugin compatibility for the relevant language packages.
 
 | Image               | Size                   | Description                          |
 | ------------------- | ---------------------- | ------------------------------------ |
@@ -64,55 +74,15 @@ You can use Stencila as a Docker image. We provide several images of varying siz
 
 <br>
 
-## 👩‍💻 Language packages
+## 👩‍💻 Language bindings
 
-If you prefer, you can use Stencila from within your favorite programming language. 🦄 These language packages are in an early, proof-of-concept state and are likely to be developed further only as the need arises.
+If you prefer, you can use Stencila from within your favorite programming language. Some of these language bindings are in an early, proof-of-concept state and are likely to be developed further only based on demand. If your favorite language is missing, or you would like to help us develop the bindings, [let us know!](https://github.com/stencila/stencila/discussions/new)
 
-The following `stencila` packages for each language 🦄[include the same functionality as the CLI], including the ability to delegate to plugins, but accessible via functions e.g. `convert`, `execute` etc
-
-### JavaScript / TypeScript
-
-The `stencila` Node.js package is available from NPM,
-
-```sh
-npm install stencila
-```
-
-### Python
-
-The `stencila` Python package 🦄 [is available from PyPI],
-
-```sh
-python3 -m pip install stencila
-```
-
-### R
-
-The `stencila` R package 🦄 [is available from CRAN]. To install it from within R,
-
-```r
-install.packages("stencila")
-```
-
-Or, from the command line,
-
-```sh
-Rscript -e 'install.packages("stencila")'
-```
-
-The R package 🦄 [includes an RStudio Add-in] that makes it even easier to get started using Stencila with R.
-
-### Rust
-
-The `stencila` Rust package 🦄 [is available via crates.io],
-
-```sh
-cargo add stencila
-```
-
-### Other
-
-Is your favorite language missing from the above list? [Let us know!](https://github.com/stencila/stencila/discussions/new)
+| Language | Bindings                | Status                            |
+| -------- | ----------------------- | --------------------------------- |
+| Node     | [node](node#readme)     | In-development (used for Desktop) |
+| Python   | [python](python#readme) | Experimental                      |
+| R        | [r](r#readme)           | Experimental                      |
 
 [encoda]: https://github.com/stencila/encoda#readme
 [jesta]: https://github.com/stencila/jesta#readme

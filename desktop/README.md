@@ -1,8 +1,6 @@
-# 🖥 Stencila Desktop
+# 🖥️ Stencila Desktop
 
-**⚠️ Coming soon**
-
-**Use Stencila on your own machine**
+**Use Stencila on your own computer**
 
 <!-- TODO: Add screenshot of the application -->
 
