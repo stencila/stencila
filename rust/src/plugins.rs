@@ -132,11 +132,8 @@ impl Plugin {
     }
 
     /// Create a Markdown document describing a plugin
-    pub fn display(&self, format: &str) -> Result<String> {
-        let content = match format {
-            #[cfg(any(feature = "template-handlebars"))]
-            "md" => {
-                let template = r#"
+    pub fn display(&self) -> Result<String> {
+        let template = r#"
 # {{name}} {{softwareVersion}}
 
 {{description}}
@@ -159,13 +156,9 @@ impl Plugin {
 {{/each}}
 
 "#;
-                use handlebars::Handlebars;
-                let hb = Handlebars::new();
-                hb.render_template(template, self)?
-            }
-            _ => serde_json::to_string_pretty(self)?,
-        };
-        Ok(content)
+        let hb = handlebars::Handlebars::new();
+        let md = hb.render_template(template, self)?;
+        Ok(md)
     }
 
     /// Split a plugin spec into `owner`, `name`, and `version`
@@ -1436,22 +1429,19 @@ impl Plugins {
     pub fn display_plugin(
         &self,
         alias: &str,
-        format: &str,
         aliases: &HashMap<String, String>,
-    ) -> Result<String> {
+    ) -> Result<(Plugin, String)> {
         let aliases = Plugin::merge_aliases(&self.aliases, aliases);
         let name = Plugin::alias_to_name(alias, &aliases);
 
-        match self.plugins.get(&name) {
+        Ok(match self.plugins.get(&name) {
             None => bail!("Plugin with name or alias '{}' is not loaded", alias),
-            Some(plugin) => plugin.display(format),
-        }
+            Some(plugin) => (plugin.clone(), plugin.display()?),
+        })
     }
 
     /// Create a Markdown table of all the registered and/or installed plugins
-    pub fn display_plugins(&self, aliases: &HashMap<String, String>) -> Result<String> {
-        let plugins = self.list_plugins(aliases);
-
+    pub fn display_plugins(plugins: &[Plugin]) -> Result<String> {
         if plugins.is_empty() {
             return Ok("No plugins registered or installed.".to_string());
         }
@@ -1522,7 +1512,7 @@ impl Plugins {
     }
 
     /// Create a Markdown document describing a method and the plugins that implement it
-    pub fn display_method(&self, name: &str, format: &str) -> Result<String> {
+    pub fn display_method(&self, name: &str) -> Result<String> {
         let plugins = match self.methods.get(name) {
             None => bail!("No implementations for method `{}`", name),
             Some(implems) => implems
@@ -1538,10 +1528,8 @@ impl Plugins {
 
         let method = &serde_json::json!({ "name": name, "plugins": plugins });
 
-        let content = match format {
-            #[cfg(any(feature = "template-handlebars"))]
-            "md" => {
-                let template = r#"
+        let md = {
+            let template = r#"
 # {{name}}
 
 {{#each plugins}}
@@ -1555,14 +1543,12 @@ impl Plugins {
 {{/with}}
 {{/each}}
     "#
-                .trim();
-                use handlebars::Handlebars;
-                let hb = Handlebars::new();
-                hb.render_template(template, &method)?
-            }
-            _ => serde_json::to_string_pretty(&method)?,
+            .trim();
+            use handlebars::Handlebars;
+            let hb = Handlebars::new();
+            hb.render_template(template, &method)?
         };
-        Ok(content)
+        Ok(md)
     }
 
     /// Create a Markdown table of all the registered aliases
@@ -1680,6 +1666,8 @@ pub mod config {
 
 #[cfg(feature = "cli")]
 pub mod cli {
+    use crate::cli::display;
+
     use super::*;
     use structopt::StructOpt;
 
@@ -1689,7 +1677,7 @@ pub mod cli {
         setting = structopt::clap::AppSettings::ColoredHelp,
         setting = structopt::clap::AppSettings::VersionlessSubcommands
     )]
-    pub struct Args {
+    pub struct Command {
         #[structopt(subcommand)]
         pub action: Action,
     }
@@ -1736,10 +1724,6 @@ pub mod cli {
         /// The name of the plugin to show
         #[structopt()]
         pub plugin: String,
-
-        /// The format to show the plugin in
-        #[structopt(short, long, default_value = "md")]
-        pub format: String,
     }
 
     #[derive(Debug, Default, StructOpt)]
@@ -1849,26 +1833,17 @@ pub mod cli {
         /// The name of the method to display
         #[structopt()]
         pub method: Option<String>,
-
-        /// The format to show the method using
-        #[structopt(short, long, default_value = "md")]
-        pub format: String,
     }
 
     impl Methods {
         pub async fn run(&self, plugins: &mut Plugins) -> Result<()> {
-            let Methods { method, format } = self;
+            let Methods { method } = self;
 
             let content = match method {
                 None => plugins.display_methods()?,
-                Some(method) => plugins.display_method(&method, &format)?,
+                Some(method) => plugins.display_method(&method)?,
             };
-            if format == "json" {
-                println!("{}", content)
-            } else {
-                let skin = termimad::MadSkin::default();
-                println!("{}", skin.term_text(content.as_str()))
-            }
+            println!("{}", content);
             Ok(())
         }
     }
@@ -1912,33 +1887,27 @@ pub mod cli {
     }
 
     pub async fn run(
-        args: Args,
+        args: Command,
         config: &config::PluginsConfig,
         plugins: &mut Plugins,
-    ) -> Result<()> {
-        let Args { action } = args;
+    ) -> display::Result {
+        let Command { action } = args;
         let config::PluginsConfig {
             aliases,
             installations,
         } = config;
 
-        let skin = termimad::MadSkin::default();
         match action {
             Action::List => {
-                let md = plugins.display_plugins(aliases)?;
-                println!("{}", skin.term_text(md.as_str()));
-                Ok(())
+                let list = plugins.list_plugins(aliases);
+                let content = Plugins::display_plugins(&list)?;
+                display::new("md", &content, list)
             }
             Action::Show(action) => {
-                let Show { plugin, format } = action;
+                let Show { plugin } = action;
 
-                let content = plugins.display_plugin(&plugin, &format, aliases)?;
-                if format == "json" {
-                    println!("{}", content)
-                } else {
-                    println!("{}", skin.term_text(content.as_str()))
-                }
-                Ok(())
+                let (plugin, content) = plugins.display_plugin(&plugin, aliases)?;
+                display::new("md", &content, plugin)
             }
             Action::Install(action) => {
                 let Install {
@@ -1977,41 +1946,46 @@ pub mod cli {
                     &installs
                 };
 
-                Plugin::install_list(list, installs, aliases, plugins).await
+                Plugin::install_list(list, installs, aliases, plugins).await?;
+                display::nothing()
             }
             Action::Link(action) => {
                 let Link { path } = action;
 
-                Plugin::install(&path, &[PluginInstallation::Link], aliases, plugins, None).await
+                Plugin::install(&path, &[PluginInstallation::Link], aliases, plugins, None).await?;
+                display::nothing()
             }
             Action::Upgrade(action) => {
                 let Upgrade { plugins: list } = action;
 
-                Plugin::upgrade_list(list, &installations, aliases, plugins).await
+                Plugin::upgrade_list(list, &installations, aliases, plugins).await?;
+                display::nothing()
             }
             Action::Uninstall(action) => {
                 let Uninstall { plugins: list } = action;
 
-                Plugin::uninstall_list(list, aliases, plugins)
+                Plugin::uninstall_list(list, aliases, plugins)?;
+                display::nothing()
             }
             Action::Unlink(action) => {
                 let Unlink { plugin } = action;
 
-                Plugin::uninstall(&plugin, aliases, plugins)
+                Plugin::uninstall(&plugin, aliases, plugins)?;
+                display::nothing()
             }
             Action::Refresh(action) => {
                 let Refresh { plugins: list } = action;
 
-                Plugin::refresh_list(list, aliases, plugins).await
+                Plugin::refresh_list(list, aliases, plugins).await?;
+                display::nothing()
             }
             Action::Aliases => {
                 let md = plugins.display_aliases(aliases)?;
-                println!("{}", skin.term_text(md.as_str()));
-                Ok(())
+                display::content("md", &md)
             }
             Action::Schema => {
-                println!("{}", Plugin::schema()?);
-                Ok(())
+                let value = Plugin::schema()?;
+                display::value(value)
             }
         }
     }
@@ -2034,7 +2008,7 @@ mod tests {
         let mut plugins = Plugins::empty();
 
         run(
-            Args {
+            Command {
                 action: Action::List,
             },
             &config,
@@ -2043,10 +2017,9 @@ mod tests {
         .await?;
 
         run(
-            Args {
+            Command {
                 action: Action::Show(Show {
                     plugin: "foo".to_string(),
-                    format: "md".to_string(),
                 }),
             },
             &config,
@@ -2056,7 +2029,7 @@ mod tests {
         .expect_err("Expected an error!");
 
         run(
-            Args {
+            Command {
                 action: Action::Install(Install {
                     plugins: vec![],
                     ..Default::default()
@@ -2068,7 +2041,7 @@ mod tests {
         .await?;
 
         run(
-            Args {
+            Command {
                 action: Action::Link(Link {
                     path: "../foo".to_string(),
                 }),
@@ -2080,7 +2053,7 @@ mod tests {
         .expect_err("Expected an error!");
 
         run(
-            Args {
+            Command {
                 action: Action::Upgrade(Upgrade { plugins: vec![] }),
             },
             &config,
@@ -2089,7 +2062,7 @@ mod tests {
         .await?;
 
         run(
-            Args {
+            Command {
                 action: Action::Uninstall(Uninstall { plugins: vec![] }),
             },
             &config,

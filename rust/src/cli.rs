@@ -69,7 +69,7 @@ pub mod display {
     }
 
     /// A result with content or value to be displayed
-    pub fn new<Type>(format: &str, content: &str, value: Option<Type>) -> Result
+    pub fn new<Type>(format: &str, content: &str, value: Type) -> Result
     where
         Type: Serialize,
     {
