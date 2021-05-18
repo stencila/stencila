@@ -1,3 +1,17 @@
+# [0.64.0](https://github.com/stencila/stencila/compare/v0.63.0...v0.64.0) (2021-05-18)
+
+
+### Bug Fixes
+
+* **CLI:** Only print once; fix non-pretty rendering ([4e3d32d](https://github.com/stencila/stencila/commit/4e3d32dcc715ab508a9cb3c211bfc0868c5bf69f))
+* **CLI:** Print alpha message to stderr, not stdout ([44d661c](https://github.com/stencila/stencila/commit/44d661c5d5dd398ae0b4bc81d6a9341676446ef0))
+* **JSON Schemas:** Improves JSON Schema generation: ([81ecd0f](https://github.com/stencila/stencila/commit/81ecd0fa91cea487424432cd8a71759be12e4886))
+
+
+### Features
+
+* **Node.js:** Generate TypeScript types from JSON Schemas ([3d1358b](https://github.com/stencila/stencila/commit/3d1358b296652403f14a75f52628ac377fe3693d))
+
 # [0.63.0](https://github.com/stencila/stencila/compare/v0.62.2...v0.63.0) (2021-05-17)
 
 
