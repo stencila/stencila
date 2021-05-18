@@ -1,7 +1,8 @@
 import { Component, h } from '@stencil/core'
 import { Route } from '@stencil/router'
+import { store } from '../../../store'
 import { initPane } from '../../../store/documentPane/documentPaneActions'
-import { getProjectDetails } from '../../../store/project/projectActions'
+import { fetchProject } from '../../../store/project/projectActions'
 import { ProjectRouter } from '../projectRouter'
 
 @Component({
@@ -15,7 +16,7 @@ export class AppProjectRoot {
       window.location.pathname.replace('/project', '')
     )
     initPane(projectPath)
-    getProjectDetails(projectPath)
+    store.dispatch(fetchProject(projectPath))
   }
 
   render() {
@@ -26,11 +27,11 @@ export class AppProjectRoot {
         <ProjectRouter.Switch>
           <Route
             path={() => true}
-            render={() =>
+            render={() => (
               <main>
                 <app-document-pane></app-document-pane>
               </main>
-            }
+            )}
           ></Route>
         </ProjectRouter.Switch>
       </div>

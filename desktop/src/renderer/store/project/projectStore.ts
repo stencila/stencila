@@ -1,27 +1,45 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Project } from '../../types'
+import { createSlice, EntityId } from '@reduxjs/toolkit'
+import { File } from '../../types'
+import { NormalizedProject } from './entities'
+import { fetchProject } from './projectActions'
 
-type ProjectState = {
-  activeProject?: Project
-  panes: []
+export type ProjectStoreEntities = {
+  projects: Record<EntityId, NormalizedProject | undefined>
+  files: Record<EntityId, File | undefined>
 }
 
-const initialState: ProjectState = {
-  panes: [],
+export type NormalizedProjectStore = {
+  entities: ProjectStoreEntities
+  ids: string[]
 }
 
-type SetProjectAction = PayloadAction<{
-  project: Project
-}>
+const initialState: NormalizedProjectStore = {
+  entities: {
+    projects: {},
+    files: {},
+  },
+  ids: [],
+}
 
-// TODO: Think about how to handle multiple Project windows
 export const projectSlice = createSlice({
-  name: 'project',
+  name: 'projects',
   initialState,
-  reducers: {
-    insert: (state, action: SetProjectAction) => {
-      state.activeProject = action.payload.project
-    },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(fetchProject.fulfilled, (state, { payload }) => {
+      state = {
+        ...state,
+        entities: {
+          projects: payload.entities.projects,
+          files: payload.entities.files,
+        },
+        ids:
+          typeof payload.result === 'string'
+            ? [payload.result]
+            : payload.result,
+      }
+      return state
+    })
   },
 })
 

@@ -3,8 +3,8 @@ import { state } from '../../../../store'
 import { setActiveDocument } from '../../../../store/documentPane/documentPaneActions'
 import { selectPaneId } from '../../../../store/documentPane/documentPaneSelectors'
 import {
-  selectProject,
-  selectProjectFiles,
+  selectProjectFile,
+  selectProjectRootFiles,
 } from '../../../../store/project/projectSelectors'
 import { getFileIcon } from './iconMap'
 
@@ -25,11 +25,10 @@ export class AppProjectSidebarFiles {
   }
 
   private pathToFileTree = (path: string) => {
-    const files = selectProject(state)?.files
+    const file = selectProjectFile(state)(path)
 
-    if (!files) return
+    if (!file) return
 
-    const file = files[path]
     const isDir = file?.children !== undefined
 
     return (
@@ -59,9 +58,7 @@ export class AppProjectSidebarFiles {
     return (
       <Host>
         <div class="app-project-sidebar-files">
-          <ul>
-            {selectProjectFiles(state)?.children?.map(this.pathToFileTree)}
-          </ul>
+          <ul>{selectProjectRootFiles(state)?.map(this.pathToFileTree)}</ul>
         </div>
       </Host>
     )

@@ -1,19 +1,39 @@
 import { RootState } from '..'
 
-export const selectProject = (state: RootState) => state.projects.activeProject
+export const selectProject = (state: RootState) => {
+  const id = state.projects.ids[0]
+  if (id) {
+    return state.projects.entities.projects[id]?.path
+  }
+}
 
-export const selectProjectPath = (state: RootState) =>
-  state.projects.activeProject?.path
+export const selectProjectPath = (state: RootState) => {
+  const id = state.projects.ids[0]
+  if (id) {
+    return state.projects.entities.projects[id]?.path
+  }
+}
 
 export const selectProjectFiles = (state: RootState) => {
-  const rootPath = state.projects.activeProject?.path
-  const files = state.projects.activeProject?.files
-  if (rootPath && files) {
-    return files[rootPath]
+  const rootPath = selectProjectPath(state)
+  if (rootPath) {
+    const project = state.projects.entities.projects[rootPath]
+    return project?.files
   }
 }
 
 export const selectProjectFile = (state: RootState) => (filePath: string) => {
-  const files = state.projects.activeProject?.files
+  const files = state.projects.entities.files
   return files ? files[filePath] : undefined
+}
+
+export const selectProjectRootFiles = (state: RootState) => {
+  const rootPath = selectProjectPath(state)
+  if (rootPath) {
+    const projectFiles = selectProjectFile(state)(rootPath)
+
+    if (projectFiles) {
+      return projectFiles.children
+    }
+  }
 }

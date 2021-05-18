@@ -1,10 +1,16 @@
+import { createAsyncThunk } from '@reduxjs/toolkit'
+import { normalize } from 'normalizr'
 import { CHANNEL } from '../../../preload'
-import { Project } from '../../types'
-import { store } from '../index'
-import { projectSlice } from './projectStore'
+import { projectEntity } from './entities'
+import { ProjectStoreEntities } from './projectStore'
 
-export const getProjectDetails = (path: string) => {
-  window.api.invoke(CHANNEL.GET_PROJECT_FILES, path).then((project) => {
-    store.dispatch(projectSlice.actions.insert({ project: project as Project }))
-  })
-}
+export const fetchProject = createAsyncThunk(
+  'projects/fetchProject',
+  async (path: string) => {
+    const data = await window.api.invoke(CHANNEL.GET_PROJECT_FILES, path)
+
+    const normalized = normalize<any, ProjectStoreEntities>(data, projectEntity)
+
+    return normalized
+  }
+)
