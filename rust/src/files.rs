@@ -552,7 +552,7 @@ impl Files {
                     DebouncedEvent::Remove(path) => {
                         if should_include(&path) {
                             let registry = &mut *registry.lock().unwrap();
-                            registry.modified(&path)
+                            registry.removed(&path)
                         }
                     }
                     DebouncedEvent::Rename(from, to) => {
