@@ -6,6 +6,7 @@ import {
   selectProject,
   selectProjectFiles,
 } from '../../../../store/project/projectSelectors'
+import { getFileIcon } from './iconMap'
 
 @Component({
   tag: 'app-project-sidebar-files',
@@ -16,8 +17,7 @@ export class AppProjectSidebarFiles {
   @Prop()
   projectDir: string
 
-  setActiveFile = (path: string) => (e: MouseEvent) => {
-    e.preventDefault()
+  setActiveFile = (path: string) => {
     const paneId = selectPaneId(state)
     if (paneId) {
       setActiveDocument(paneId.toString(), path)
@@ -40,9 +40,14 @@ export class AppProjectSidebarFiles {
             isDir,
             isFile: !isDir,
           }}
-          onClick={isDir ? undefined : this.setActiveFile(path)}
+          onClick={(e: MouseEvent) => {
+            e.preventDefault()
+            if (!isDir) {
+              this.setActiveFile(path)
+            }
+          }}
         >
-          <stencila-icon icon={isDir ? 'folder' : 'file'}></stencila-icon>
+          <stencila-icon icon={getFileIcon(file)}></stencila-icon>
           {file?.name}
         </a>
         {file?.children && <ul>{file.children.map(this.pathToFileTree)}</ul>}
