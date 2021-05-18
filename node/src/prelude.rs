@@ -9,6 +9,8 @@ use stencila::{
 // and Node.js. That's because, at the time of writing, the `neon-serde` crate
 // (which provides a more convenient mechanism) was not compatible with the most
 // recent `neon` version. These function just reduce some boilerplate associated with that.
+// See https://github.com/neon-bindings/neon/pull/701 for progress on "native" neon serde
+// compatibility.
 
 pub fn to_json<Type>(mut cx: FunctionContext, value: Type) -> JsResult<JsString>
 where
