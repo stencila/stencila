@@ -79,7 +79,7 @@ pub enum Command {
     Serve(serve::cli::Args),
     Projects(projects::cli::Command),
     Plugins(plugins::cli::Args),
-    Config(config::cli::Args),
+    Config(config::cli::Command),
     Upgrade(upgrade::cli::Args),
     Inspect(inspect::cli::Args),
 }
@@ -104,7 +104,9 @@ pub async fn run_command(
             command.run(projects, &config.projects)?,
         ),
         Command::Plugins(args) => plugins::cli::run(args, &config.plugins, plugins).await,
-        Command::Config(args) => config::cli::run(args, config),
+        Command::Config(args) => {
+            display::render(interactive, formats, config::cli::run(args, config)?)
+        }
         Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade, plugins).await,
         Command::Inspect(args) => inspect::cli::run(args, plugins).await,
     }
