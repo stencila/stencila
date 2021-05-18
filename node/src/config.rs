@@ -31,9 +31,9 @@ fn save_then_to_json(cx: FunctionContext, conf: Config) -> JsResult<JsString> {
     to_json(cx, guard.to_owned())
 }
 
-pub fn schema(mut cx: FunctionContext) -> JsResult<JsString> {
+pub fn schema(cx: FunctionContext) -> JsResult<JsString> {
     let schema = config::schema();
-    Ok(cx.string(schema))
+    to_json_or_throw(cx, schema)
 }
 
 pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {

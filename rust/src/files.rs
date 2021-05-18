@@ -14,10 +14,11 @@ use std::{
 
 use crate::pubsub::publish;
 
-/// # A file or directory within a `Project`
+/// A file or directory within a `Project`
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, JsonSchema, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[schemars(title = "File", deny_unknown_fields)]
 pub struct File {
     /// The absolute path of the file or directory
     pub path: PathBuf,
@@ -485,7 +486,7 @@ impl FileRegistry {
     }
 }
 
-/// # The set of `File`s within a `Project`
+/// The set of `File`s within a `Project`
 #[derive(Debug, Default, Clone, JsonSchema, Serialize)]
 pub struct Files {
     #[serde(flatten)]

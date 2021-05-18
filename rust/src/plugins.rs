@@ -1,10 +1,9 @@
 use crate::{
     pubsub::{publish_progress, ProgressEvent},
-    util::dirs,
+    schemas,
 };
 use bollard::{container::RemoveContainerOptions, models::CreateImageInfo};
 use chrono::{DateTime, Duration, TimeZone, Utc};
-use dirs::plugins;
 use eyre::{bail, eyre, Result};
 use futures::StreamExt;
 use humantime::format_duration;
@@ -12,9 +11,13 @@ use jsonschema::JSONSchema;
 use once_cell::sync::Lazy;
 use rand::Rng;
 use regex::Regex;
-use schemars::{schema_for, JsonSchema};
+use schemars::{
+    schema::{Schema, SchemaObject},
+    JsonSchema, Map,
+};
 use semver::Version;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::{
     collections::HashMap,
     fs,
@@ -24,7 +27,7 @@ use std::{
 };
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
 
-/// # Plugin installation method
+/// Plugin installation method
 ///
 /// Which method to use to install a plugin.
 #[derive(
@@ -47,13 +50,14 @@ pub enum PluginInstallation {
     Link,
 }
 
-/// # Description of a plugin
+/// Description of a plugin
 ///
 /// As far as possible using existing properties defined in schema.org
 /// [`SoftwareApplication`](https://schema.org/SoftwareApplication) but extensions
 /// added where necessary.
 #[derive(Debug, Default, Clone, JsonSchema, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[schemars(deny_unknown_fields)]
 pub struct Plugin {
     // Property names use the Rust convention of snake_case but are renamed
     // to schema.org camelCase on serialization.
@@ -91,10 +95,12 @@ pub struct Plugin {
     refreshed: Option<DateTime<Utc>>,
 
     /// The next version of the plugin, if any.
+    ///
     /// If the plugin is installed and there is a newer version of
     /// the plugin then this property should be set at the
     /// time of refresh.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[schemars(schema_with = "Plugin::schema_next")]
     next: Option<Box<Plugin>>,
 
     /// The current alias for this plugin, if any
@@ -102,15 +108,28 @@ pub struct Plugin {
     alias: Option<String>,
 }
 
-/// Get the JSON Schema for a plugin
-pub fn schema() -> String {
-    let schema = schema_for!(Plugin);
-    serde_json::to_string_pretty(&schema).unwrap()
-}
-
 impl Plugin {
     /// The name of the plugin file within the plugin directory
     const FILE_NAME: &'static str = "codemeta.json";
+
+    /// Get the JSON Schema for a plugin
+    pub fn schema() -> Result<serde_json::Value> {
+        schemas::generate::<Plugin>()
+    }
+
+    /// Generate the JSON Schema for the `next` property
+    ///
+    /// This is necessary because `schemars` does not seem to handle the
+    /// self-referencing / recursive type. So here, we specify the
+    /// TypeScript type to use.
+    fn schema_next(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        let mut extensions = Map::new();
+        extensions.insert("tsType".to_string(), json!("Plugin"));
+        Schema::Object(SchemaObject {
+            extensions,
+            ..Default::default()
+        })
+    }
 
     /// Create a Markdown document describing a plugin
     pub fn display(&self, format: &str) -> Result<String> {
@@ -203,7 +222,7 @@ impl Plugin {
 
     /// Get the path of the plugin's directory
     pub fn dir(name: &str) -> Result<PathBuf> {
-        Ok(dirs::plugins(false)?.join(name))
+        Ok(config::dir(false)?.join(name))
     }
 
     /// Get the path of the plugin's manifest file
@@ -450,7 +469,7 @@ impl Plugin {
             (owner.into(), name.into())
         };
 
-        let npm_prefix = plugins(false)?;
+        let npm_prefix = config::dir(false)?;
         let node_modules = npm_prefix.join("node_modules");
         fs::create_dir_all(&node_modules)?;
 
@@ -722,7 +741,7 @@ impl Plugin {
         }
 
         // (Re)create the directory where the binary will be downloaded to
-        let install_dir = dirs::plugins(false)?.join(&name);
+        let install_dir = config::dir(false)?.join(&name);
         fs::create_dir_all(&install_dir)?;
         let install_path = install_dir.join(&name);
 
@@ -1315,7 +1334,7 @@ impl Plugins {
         }
 
         // Add / update using any manifests that are stored locally in plugins directory
-        let dir = dirs::plugins(true)?;
+        let dir = config::dir(true)?;
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
             let path = entry.path();
@@ -1626,13 +1645,28 @@ impl Plugins {
 pub mod config {
     use super::*;
     use defaults::Defaults;
+    use std::env;
     use validator::Validate;
 
-    /// # Plugins
+    /// Get the directory within which plugins and their configurations are installed
+    pub fn dir(ensure: bool) -> Result<PathBuf> {
+        let config = crate::config::dir(false)?;
+        let dir = match env::consts::OS {
+            "macos" | "windows" => config.join("Plugins"),
+            _ => config.join("plugins"),
+        };
+        if ensure {
+            fs::create_dir_all(&dir)?;
+        }
+        Ok(dir)
+    }
+
+    /// Plugins
     ///
     /// Configuration settings for plugin installation and management
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct PluginsConfig {
         /// The order of preference of plugin installation method.
         #[def = "PluginInstallation::iter().collect()"]
@@ -1866,7 +1900,7 @@ pub mod cli {
                 plugin,
                 params,
             } = self;
-            let params = crate::util::params::parse(params);
+            let params = crate::cli::args::params(params);
             let result = match plugin {
                 Some(plugin) => plugins.delegate_to(&plugin, &method, &params).await?,
                 None => plugins.delegate(&method, &params).await?,
@@ -1976,7 +2010,7 @@ pub mod cli {
                 Ok(())
             }
             Action::Schema => {
-                println!("{}", schema());
+                println!("{}", Plugin::schema()?);
                 Ok(())
             }
         }

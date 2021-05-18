@@ -104,7 +104,7 @@ pub fn upgrade_auto(
         }
 
         // Check if within the time since the last check was done
-        let upgrade_file = crate::util::dirs::config(true)?.join(UPGRADE_FILE);
+        let upgrade_file = crate::config::dir(true)?.join(UPGRADE_FILE);
         let last = match fs::read_to_string(upgrade_file.clone()) {
             Ok(date) => DateTime::parse_from_rfc3339(date.as_str())?.with_timezone(&Utc),
             Err(_) => Utc::now(),
@@ -136,13 +136,14 @@ pub mod config {
     use serde::{Deserialize, Serialize};
     use validator::{Validate, ValidationError};
 
-    /// # Upgrade
+    /// Upgrade
     ///
     /// Configuration settings used when upgrading the application (and optionally plugins)
     /// automatically, in the background. These settings are NOT used as defaults when
     /// using the CLI `upgrade` command directly.
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct UpgradeConfig {
         /// Plugins should also be upgraded to latest version
         #[def = "true"]

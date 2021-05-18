@@ -474,11 +474,12 @@ pub mod config {
     use serde::{Deserialize, Serialize};
     use validator::Validate;
 
-    /// # Server
+    /// Server
     ///
     /// Configuration settings for running as a server
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct ServeConfig {
         /// The URL to serve on (defaults to `ws://127.0.0.1:9000`)
         #[def = "\"ws://127.0.0.1:9000\".to_string()"]

@@ -24,9 +24,9 @@ pub fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Projec
 }
 
 /// Get project schema
-pub fn schema(mut cx: FunctionContext) -> JsResult<JsString> {
+pub fn schema(cx: FunctionContext) -> JsResult<JsString> {
     let schema = Project::schema();
-    Ok(cx.string(schema))
+    to_json_or_throw(cx, schema)
 }
 
 /// List projects

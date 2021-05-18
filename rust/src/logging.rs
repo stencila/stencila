@@ -8,7 +8,7 @@ use strum::{EnumString, EnumVariantNames, ToString};
 use tracing::Event;
 use validator::Validate;
 
-/// # Logging level
+/// Logging level
 #[derive(
     Debug,
     Clone,
@@ -46,7 +46,7 @@ impl From<&tracing::Level> for LoggingLevel {
     }
 }
 
-/// # Logging format
+/// Logging format
 #[derive(
     Debug, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, EnumString, EnumVariantNames,
 )]
@@ -61,15 +61,30 @@ pub enum LoggingFormat {
 #[cfg(feature = "config")]
 pub mod config {
     use super::*;
-    use crate::util::dirs;
+    use std::fs;
+    use std::{env, path::PathBuf};
 
-    /// # Logging to standard error stream
+    /// Get the directory where logs are stored
+    pub fn dir(ensure: bool) -> Result<PathBuf> {
+        let config = crate::config::dir(false)?;
+        let dir = match env::consts::OS {
+            "macos" | "windows" => config.join("Logs"),
+            _ => config.join("logs"),
+        };
+        if ensure {
+            fs::create_dir_all(&dir)?;
+        }
+        Ok(dir)
+    }
+
+    /// Logging to standard error stream
     ///
     /// Configuration settings for log entries printed to stderr when using the CLI
     #[derive(
         Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
     )]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct LoggingStdErrConfig {
         /// The maximum log level to emit
         #[def = "LoggingLevel::Info"]
@@ -80,24 +95,26 @@ pub mod config {
         pub format: LoggingFormat,
     }
 
-    /// # Logging to desktop notifications
+    /// Logging to desktop notifications
     ///
     /// Configuration settings for log entries shown to the user in the desktop
     #[derive(
         Debug, Defaults, PartialEq, Clone, Copy, JsonSchema, Deserialize, Serialize, Validate,
     )]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct LoggingDesktopConfig {
         /// The maximum log level to emit
         #[def = "LoggingLevel::Info"]
         pub level: LoggingLevel,
     }
 
-    /// # Logging to file
+    /// Logging to file
     ///
     /// Configuration settings for logs entries written to file
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct LoggingFileConfig {
         /// The path of the log file
         #[def = "default_file_path()"]
@@ -110,7 +127,7 @@ pub mod config {
 
     /// Get the default value for `logging.file.path`
     pub fn default_file_path() -> String {
-        dirs::logs(true)
+        dir(true)
             .expect("Unable to get logs directory")
             .join("log.json")
             .into_os_string()
@@ -118,11 +135,12 @@ pub mod config {
             .expect("Unable to convert path to string")
     }
 
-    /// # Logging
+    /// Logging
     ///
     /// Configuration settings for logging
     #[derive(Debug, Default, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]
     #[serde(default)]
+    #[schemars(deny_unknown_fields)]
     pub struct LoggingConfig {
         pub stderr: LoggingStdErrConfig,
         pub desktop: LoggingDesktopConfig,

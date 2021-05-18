@@ -46,6 +46,7 @@
     "Pyla",
     "Rscript",
     "Stencila",
+    "schemars",
     "structopt"
   ]
 }
