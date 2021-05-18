@@ -466,7 +466,8 @@ mod display {
     // Apply syntax highlighting and print to terminal
     pub fn highlight(interactive: bool, format: &str, content: &str) -> Result<()> {
         if !interactive {
-            println!("{}", content)
+            println!("{}", content);
+            return Ok(());
         }
 
         // Loading syntaxes and themes is slow. The following lazily loads both once.
@@ -495,15 +496,22 @@ mod display {
 
 /// Module for displaying command results plainly
 #[cfg(not(feature = "pretty"))]
-mod displays {
+mod display {
     use super::*;
-    use stencila::util::display;
+    use stencila::cli::display::Display;
 
     // Display the result of a command without prettiness
-    pub fn display(result: display::Result) -> Result<()> {
-        if let Some((_format, content)) = result {
-            println!("{}", content);
-        }
+    pub fn render(_interactive: bool, _formats: &[String], display: Display) -> Result<()> {
+        match display {
+            Display {
+                content: Some(content),
+                ..
+            } => println!("{}", content),
+            Display {
+                value: Some(value), ..
+            } => println!("{}", serde_json::to_string_pretty(&value)?),
+            _ => (),
+        };
         Ok(())
     }
 }
