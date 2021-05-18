@@ -5,12 +5,12 @@ describe('config', () => {
     expect(schema()).toEqual(
       expect.objectContaining({
         $schema: 'https://json-schema.org/draft/2019-09/schema',
-        title: 'Config',
+        $id: 'Config',
         type: 'object',
         properties: expect.objectContaining({
           projects: expect.objectContaining({
-            description:
-              'Projects\n\nConfiguration settings for project defaults',
+            title: 'Projects',
+            description: 'Configuration settings for project defaults',
           }),
           logging: expect.objectContaining({}),
           plugins: expect.objectContaining({}),

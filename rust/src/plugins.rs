@@ -1661,7 +1661,7 @@ pub mod config {
         Ok(dir)
     }
 
-    /// # Plugins
+    /// Plugins
     ///
     /// Configuration settings for plugin installation and management
     #[derive(Debug, Defaults, PartialEq, Clone, JsonSchema, Deserialize, Serialize, Validate)]

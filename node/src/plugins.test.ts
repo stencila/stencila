@@ -5,8 +5,8 @@ describe('plugins', () => {
     expect(schema()).toEqual(
       expect.objectContaining({
         $schema: 'https://json-schema.org/draft/2019-09/schema',
-        title: 'Plugin',
-        description: expect.stringMatching(/^Description of a plugin\s+/),
+        $id: 'Plugin',
+        title: expect.stringMatching(/^Description of a plugin$/),
         type: 'object',
         properties: expect.objectContaining({
           name: { description: 'The name of the plugin', type: 'string' },
