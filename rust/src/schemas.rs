@@ -52,16 +52,14 @@ where
                     }
                     // Parse any `description` and if multi-line, put
                     // the first "paragraph" into the `title`
-                    if let Some(description) = object.get("description") {
-                        if let JsonValue::String(description) = description {
-                            let paras = description.split("\n\n").collect::<Vec<&str>>();
-                            if paras.len() > 1 {
-                                modified.insert("title".into(), JsonValue::String(paras[0].into()));
-                                modified.insert(
-                                    "description".into(),
-                                    JsonValue::String(paras[1..].join("\n\n")),
-                                );
-                            }
+                    if let Some(JsonValue::String(description)) = object.get("description") {
+                        let paras = description.split("\n\n").collect::<Vec<&str>>();
+                        if paras.len() > 1 {
+                            modified.insert("title".into(), JsonValue::String(paras[0].into()));
+                            modified.insert(
+                                "description".into(),
+                                JsonValue::String(paras[1..].join("\n\n")),
+                            );
                         }
                     }
                 }
