@@ -162,7 +162,7 @@ pub async fn main() -> Result<()> {
     #[cfg(feature = "feedback")]
     {
         use ansi_term::Color::Red;
-        println!("{}", Red.paint("Stencila CLI is in alpha testing.\n"));
+        eprintln!("{}", Red.paint("Stencila CLI is in alpha testing.\n"));
     }
 
     let args: Vec<String> = std::env::args().collect();
