@@ -1,4 +1,7 @@
-use crate::{pubsub::{publish_progress, ProgressEvent}, schemas};
+use crate::{
+    pubsub::{publish_progress, ProgressEvent},
+    schemas,
+};
 use bollard::{container::RemoveContainerOptions, models::CreateImageInfo};
 use chrono::{DateTime, Duration, TimeZone, Utc};
 use eyre::{bail, eyre, Result};
@@ -110,9 +113,8 @@ impl Plugin {
     const FILE_NAME: &'static str = "codemeta.json";
 
     /// Get the JSON Schema for a plugin
-    pub fn schema() -> String {
-        let schema = schemas::generate::<Plugin>();
-        serde_json::to_string_pretty(&schema).unwrap()
+    pub fn schema() -> Result<serde_json::Value> {
+        schemas::generate::<Plugin>()
     }
 
     /// Generate the JSON Schema for the `next` property
@@ -2008,7 +2010,7 @@ pub mod cli {
                 Ok(())
             }
             Action::Schema => {
-                println!("{}", Plugin::schema());
+                println!("{}", Plugin::schema()?);
                 Ok(())
             }
         }

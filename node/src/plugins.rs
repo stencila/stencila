@@ -33,9 +33,9 @@ pub fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Plugin
 }
 
 /// Get plugin schema
-pub fn schema(mut cx: FunctionContext) -> JsResult<JsString> {
+pub fn schema(cx: FunctionContext) -> JsResult<JsString> {
     let schema = Plugin::schema();
-    Ok(cx.string(schema))
+    to_json_or_throw(cx, schema)
 }
 
 /// List plugins

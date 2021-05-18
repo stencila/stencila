@@ -29,9 +29,8 @@ pub struct Config {
 }
 
 /// Get the JSON Schema for the configuration
-pub fn schema() -> String {
-    let schema = schemas::generate::<Config>();
-    serde_json::to_string_pretty(&schema).unwrap()
+pub fn schema() -> Result<serde_json::Value> {
+    schemas::generate::<Config>()
 }
 
 /// Get the directory where configuration data is stored
@@ -318,7 +317,7 @@ pub mod cli {
                 Ok(())
             }
             Action::Schema => {
-                println!("{}", schema());
+                println!("{}", schema()?);
                 Ok(())
             }
         }

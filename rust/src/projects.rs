@@ -1,5 +1,5 @@
-use crate::{cli::display, schemas};
 use crate::files::Files;
+use crate::{cli::display, schemas};
 use eyre::{bail, Result};
 use regex::Regex;
 use schemars::JsonSchema;
@@ -88,9 +88,8 @@ impl Project {
     const FILE_NAME: &'static str = "project.json";
 
     /// Get the JSON Schema for a project
-    pub fn schema() -> String {
-        let schema = schemas::generate::<Project>();
-        serde_json::to_string_pretty(&schema).unwrap()
+    pub fn schema() -> Result<serde_json::Value> {
+        schemas::generate::<Project>()
     }
 
     /// Get the path to a projects' manifest file
@@ -515,7 +514,8 @@ pub mod cli {
 
     impl Schema {
         pub fn run(&self) -> display::Result {
-            display::content("json".to_string(), Project::schema())
+            let schema = Project::schema()?;
+            display::value(schema)
         }
     }
 }
