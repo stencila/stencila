@@ -1,10 +1,11 @@
 import { BrowserWindow } from 'electron'
 import { parse } from 'path'
+import { projects } from 'stencila'
 import { createWindow } from '../../app/window'
 
 const getProjectName = (path: string): string => parse(path).base
 
-let projectWindow: BrowserWindow | null
+export let projectWindow: BrowserWindow | null
 
 const projectUrl = '/project'
 
@@ -20,6 +21,7 @@ export const openProjectWindow = (directoryPath: string) => {
 
   projectWindow.on('closed', () => {
     projectWindow = null
+    projects.close(directoryPath)
   })
 
   projectWindow.webContents.on('did-finish-load', () => {
@@ -27,4 +29,6 @@ export const openProjectWindow = (directoryPath: string) => {
   })
 
   projectWindow?.loadURL(projectUrl)
+
+  return projectWindow
 }

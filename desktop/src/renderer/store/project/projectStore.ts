@@ -1,7 +1,8 @@
-import { createSlice, EntityId } from '@reduxjs/toolkit'
+import { createSlice, EntityId, PayloadAction } from '@reduxjs/toolkit'
 import { File } from '../../types'
 import { NormalizedProject } from './entities'
 import { fetchProject } from './projectActions'
+import produce from 'immer'
 
 export type ProjectStoreEntities = {
   projects: Record<EntityId, NormalizedProject | undefined>
@@ -24,21 +25,19 @@ const initialState: NormalizedProjectStore = {
 export const projectSlice = createSlice({
   name: 'projects',
   initialState,
-  reducers: {},
+  reducers: {
+    updateProjectFiles: (
+      state,
+      { payload }: PayloadAction<Record<string, File>>
+    ) => {
+      state.entities.files = payload
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchProject.fulfilled, (state, { payload }) => {
-      state = {
-        ...state,
-        entities: {
-          projects: payload.entities.projects,
-          files: payload.entities.files,
-        },
-        ids:
-          typeof payload.result === 'string'
-            ? [payload.result]
-            : payload.result,
-      }
-      return state
+      state.entities = payload.entities
+      state.ids =
+        typeof payload.result === 'string' ? [payload.result] : payload.result
     })
   },
 })
