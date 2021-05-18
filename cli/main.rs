@@ -429,7 +429,8 @@ mod display {
                         _ => highlight(interactive, &format, &content),
                     };
                 }
-            } else if let Some(value) = value {
+            }
+            if let Some(value) = value {
                 if let Some(content) = match preference.as_str() {
                     "json" => serde_json::to_string_pretty(&value).ok(),
                     "yaml" => serde_yaml::to_string(&value)
