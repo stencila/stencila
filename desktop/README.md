@@ -21,7 +21,8 @@ The desktop client is built using [ElectronJS](https://www.electronjs.org), and 
 We use [Electron Forge](https://stenciljs.com) for bootstrapping the project.
 
 The desktop client uses the [Stencila Node bindings](../node) under the hood, so make sure you have
-followed the [development installations steps there](../node#%EF%B8%8F-develop).
+followed the [development installations steps there](../node#%EF%B8%8F-develop). In particular, you'll have to run `npm run build` in the `../node` folder so that it is available as a built package here.
+
 Once ready, run the following commands.
 
 ```sh
