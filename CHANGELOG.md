@@ -1,3 +1,16 @@
+# [0.65.0](https://github.com/stencila/stencila/compare/v0.64.0...v0.65.0) (2021-05-18)
+
+
+### Bug Fixes
+
+* **CLI:** Match requested value format ([fa43114](https://github.com/stencila/stencila/commit/fa43114ab9ef1ada3124624f8510f9a66934f0de))
+
+
+### Features
+
+* **Config:** Return display result ([b4999df](https://github.com/stencila/stencila/commit/b4999df5d0071cb4fbbbb5ffadd3faed15ca4497))
+* **Plugins:** Return display results ([b40b7ed](https://github.com/stencila/stencila/commit/b40b7ed9f0c079f969520343922a0b5ddd624840))
+
 # [0.64.0](https://github.com/stencila/stencila/compare/v0.63.0...v0.64.0) (2021-05-18)
 
 
