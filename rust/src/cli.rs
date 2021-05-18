@@ -60,11 +60,23 @@ pub mod display {
     }
 
     /// A result with content to be displayed
-    pub fn content(format: String, content: String) -> Result {
+    pub fn content(format: &str, content: &str) -> Result {
         Ok(Display {
-            format: Some(format),
-            content: Some(content),
+            format: Some(format.into()),
+            content: Some(content.into()),
             ..Default::default()
+        })
+    }
+
+    /// A result with content or value to be displayed
+    pub fn new<Type>(format: &str, content: &str, value: Option<Type>) -> Result
+    where
+        Type: Serialize,
+    {
+        Ok(Display {
+            format: Some(format.into()),
+            content: Some(content.into()),
+            value: Some(serde_json::to_value(&value)?),
         })
     }
 }

@@ -9,9 +9,7 @@ use std::{
     collections::{hash_map::Entry, HashMap},
     fs,
     path::{Path, PathBuf},
-    str::FromStr,
 };
-use strum::{EnumString, EnumVariantNames, ToString, VariantNames};
 
 /// Details of a project
 ///
@@ -72,15 +70,6 @@ pub struct Project {
     /// The files in the project folder
     #[serde(skip_deserializing)]
     files: Files,
-}
-
-/// A format to display a plugin using
-#[derive(Debug, EnumString, EnumVariantNames, PartialEq, ToString)]
-#[strum(serialize_all = "lowercase")]
-pub enum ShowFormat {
-    Md,
-    Toml,
-    Json,
 }
 
 impl Project {
@@ -224,29 +213,23 @@ impl Project {
         None
     }
 
-    /// Show a project in a format
+    /// Show a project
     ///
-    /// Used for displaying a project in CLI and possibly elsewhere.
-    pub fn show(&self, format: ShowFormat) -> Result<(String, String)> {
-        let content = match format {
-            ShowFormat::Json => serde_json::to_string_pretty(self)?,
-            ShowFormat::Toml => toml::to_string(self)?,
-            ShowFormat::Md => {
-                use handlebars::Handlebars;
+    /// Generates a Markdown representation of a project.
+    /// Used for by `stencila projects show` and possibly elsewhere.
+    pub fn show(&self) -> Result<String> {
+        use handlebars::Handlebars;
 
-                let template = r#"
+        let template = r#"
 # {{name}}
 
 **Main**: {{ main }}
 **Theme**: {{ theme }}
 
 "#;
-                let hb = Handlebars::new();
-                hb.render_template(template.trim(), self)?
-            }
-        };
-
-        Ok((format.to_string(), content))
+        let hb = Handlebars::new();
+        let md = hb.render_template(template.trim(), self)?;
+        Ok(md)
     }
 }
 
@@ -428,7 +411,8 @@ pub mod cli {
 
     impl List {
         pub fn run(&self, projects: &mut Projects) -> display::Result {
-            display::value(projects.list()?.keys().cloned().collect::<Vec<String>>())
+            let list = projects.list()?.keys().cloned().collect::<Vec<String>>();
+            display::value(list)
         }
     }
 
@@ -486,10 +470,6 @@ pub mod cli {
         /// The path of the project folder
         #[structopt(default_value = ".")]
         pub folder: String,
-
-        /// The format to display the project in
-        #[structopt(short, long, default_value = "md", possible_values = ShowFormat::VARIANTS, case_insensitive = true)]
-        pub format: String,
     }
 
     impl Show {
@@ -498,10 +478,10 @@ pub mod cli {
             projects: &mut Projects,
             config: &config::ProjectsConfig,
         ) -> display::Result {
-            let Self { folder, format } = self;
-            let format = ShowFormat::from_str(&format)?;
-            let content = projects.open(folder, config, false)?.show(format)?;
-            display::content(content.0, content.1)
+            let Self { folder } = self;
+            let project = projects.open(folder, config, false)?;
+            let content = project.show()?;
+            display::new("md", &content, Some(project))
         }
     }
 
