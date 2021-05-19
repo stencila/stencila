@@ -9,7 +9,7 @@ export const getFileIcon = (file?: File): IconNames => {
 
   // Handle folders
   if (file.children) {
-    return 'folder'
+    return 'folder-open'
   }
 
   // Don't differentiate between image formats for now
@@ -18,6 +18,10 @@ export const getFileIcon = (file?: File): IconNames => {
   }
 
   switch (file.format) {
+    case 'csv':
+      return 'layout-grid'
+    case 'json':
+      return 'braces'
     case 'zip':
       return 'file-zip'
     case 'r':
@@ -29,9 +33,11 @@ export const getFileIcon = (file?: File): IconNames => {
     case 'word':
       return 'file-word'
     case 'pdf':
-      return 'article'
+      return 'newspaper'
     case 'txt':
       return 'file-text'
+    case 'md':
+      return 'markdown'
     default:
       return 'file-2'
   }
