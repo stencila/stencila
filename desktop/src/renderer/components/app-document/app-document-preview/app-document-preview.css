@@ -1,0 +1,18 @@
+app-document-preview,
+.app-document-preview {
+  @apply flex-grow flex max-h-full overflow-hidden;
+
+  stencila-editor {
+    @apply w-full h-full max-h-full;
+    --border-width: 0;
+
+    .cm-editor,
+    .cm-wrap {
+      @apply h-full max-h-full;
+    }
+
+    .editorContainer:focus-within {
+      box-shadow: none !important;
+    }
+  }
+}

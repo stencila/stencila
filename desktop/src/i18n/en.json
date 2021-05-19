@@ -4,6 +4,11 @@
       "title": "Stencila",
       "welcome": "Hello {{user}}"
     },
+    "document": {
+      "pane": {
+        "empty": "Select a file from the sidebar to get started"
+      }
+    },
     "settings": {
       "title": "Settings",
       "general": {

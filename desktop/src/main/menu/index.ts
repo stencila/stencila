@@ -40,6 +40,11 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
       { type: 'separator' },
       { label: 'Open…' },
       { label: 'Open Recent' },
+      {
+        label: 'Preferences…',
+        accelerator: 'CommandOrControl+,',
+        click: showSettings,
+      },
       isMac ? { role: 'close' as const } : { role: 'quit' as const },
     ],
   },

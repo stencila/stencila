@@ -1,0 +1,3 @@
+.documentPane {
+  @apply h-screen w-full flex flex-col;
+}

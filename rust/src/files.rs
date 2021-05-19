@@ -58,9 +58,17 @@ pub struct File {
 }
 
 impl File {
-    // Load a file from a path
-    pub fn load(path: &Path) -> Result<(PathBuf, File)> {
-        let path = path.canonicalize()?;
+    /// Load a file from a path
+    ///
+    /// Note: this function is infallible, in that it will always return a
+    /// `File`. However, if there were errors obtaining a field it will be
+    /// `None`, or possible erroneous (e.g. in the unlikely event that
+    /// `path.canonicalize()` fails for example). Having this function return
+    /// a `File`, instead of a `Result<File>` simplifies other code substantially.
+    pub fn load(path: &Path) -> File {
+        let path = path.canonicalize().unwrap_or_else(|_error| path.into());
+
+        let parent = path.parent().map(|path| path.into());
 
         let name = path
             .file_name()
@@ -106,8 +114,9 @@ impl File {
             (None, Some(BTreeSet::new()))
         };
 
-        let file = File {
+        File {
             path,
+            parent,
             name,
             modified,
             size,
@@ -115,9 +124,7 @@ impl File {
             media_type,
             children,
             ..Default::default()
-        };
-
-        Ok((file.path.clone(), file))
+        }
     }
 }
 
@@ -195,11 +202,23 @@ impl FileRegistry {
     const GITIGNORE_NAMES: [&'static str; 2] = [".ignore", ".gitignore"];
 
     pub fn new(path: &Path) -> FileRegistry {
+        let (files, ignore_files) = FileRegistry::walk(path);
+        let path = path.into();
+        FileRegistry {
+            path,
+            files,
+            ignore_files,
+            ..Default::default()
+        }
+    }
+
+    /// Walk a path and collect file and Git ignore files from it
+    pub fn walk(path: &Path) -> (BTreeMap<PathBuf, File>, BTreeSet<PathBuf>) {
         // Build walker
         let walker = ignore::WalkBuilder::new(&path)
-            // Consider .ignore files
+            // Respect .ignore files
             .ignore(true)
-            // Consider .gitignore files
+            // Respect .gitignore files
             .git_ignore(true)
             .build_parallel();
 
@@ -214,9 +233,11 @@ impl FileRegistry {
                 use ignore::WalkState::*;
 
                 if let Ok(entry) = result {
-                    if let Ok(file) = File::load(entry.path()) {
-                        sender.send(file).expect("Unable to send to collector");
-                    }
+                    let path = entry.path();
+                    let file = File::load(path);
+                    sender
+                        .send((file.path.clone(), file))
+                        .expect("Unable to send to collector");
                 }
 
                 Continue
@@ -242,13 +263,7 @@ impl FileRegistry {
             }
         }
 
-        let path = path.to_path_buf();
-        FileRegistry {
-            path,
-            files,
-            ignore_files,
-            ..Default::default()
-        }
+        (files, ignore_files)
     }
 
     /// Publish a `FileEvent` under the project's topic
@@ -328,6 +343,36 @@ impl FileRegistry {
         false
     }
 
+    /// Get the parent `File` of a path, ensure that all it's
+    /// ancestors exist, and add the path as a child.
+    ///
+    /// This is used to ensure that the ancestor `File`s of a path exists
+    /// in the registry (e.g. when a new file is created or renamed in a sub folder)
+    /// and that the current path is added as a child.
+    /// It will return `None` if the path has no parent (i.e is outside of the root)
+    fn ensure_ancestors(&mut self, path: &Path) -> Option<&mut File> {
+        if let Some(parent) = path.parent() {
+            if !parent.starts_with(&self.path) {
+                return None;
+            }
+
+            self.ensure_ancestors(parent);
+
+            let parent = self
+                .files
+                .entry(parent.into())
+                .or_insert_with(|| File::load(parent));
+
+            if let Some(children) = &mut parent.children {
+                children.insert(path.into());
+            }
+
+            Some(parent)
+        } else {
+            None
+        }
+    }
+
     /// Refresh the file registry
     fn refresh(&mut self) {
         *self = FileRegistry::new(self.path.as_path());
@@ -342,20 +387,29 @@ impl FileRegistry {
         }
 
         // Load the file, insert it and add it to it's parent's children
-        let file = if let Ok((path, file)) = File::load(path) {
-            self.files.insert(path.clone(), file.clone());
-            if let Some(parent) = path.parent().and_then(|parent| self.files.get_mut(parent)) {
-                if let Some(children) = &mut parent.children {
-                    children.insert(path);
-                }
-            }
+        let file = File::load(path);
+        self.files.insert(path.into(), file.clone());
+        self.ensure_ancestors(path);
 
-            Some(file)
+        if path.is_dir() {
+            // If the path created is a directory with empty sub-directories
+            // we only get an event for the top level.
+            // e.g. for `mkdir -p a/b/c` we only get an event for `a` being created.
+            // So we have to walk it. This is potentially wasteful because we may
+            // already loaded files when getting individual file `created` events
+            // or when walking subdirectories (e.g. when a zip file is extracted).
+            // But there does not seem to be an easy, safe alternative.
+            let (files, ignore_files) = &mut FileRegistry::walk(path);
+            self.files.append(files);
+            self.ignore_files.append(ignore_files);
         } else {
-            None
-        };
+            // If it's a file, we may need to add it to the ignore files
+            if FileRegistry::is_ignore_file(path) {
+                self.ignore_files.insert(path.into());
+            }
+        }
 
-        self.publish_file_event(path, "created", file)
+        self.publish_file_event(path, "created", Some(file))
     }
 
     // Update a project file registry when a file is removed
@@ -366,7 +420,7 @@ impl FileRegistry {
 
         // Remove the file and remove it from its parent's children
         self.files.remove(path);
-        if let Some(parent) = path.parent().and_then(|parent| self.files.get_mut(parent)) {
+        if let Some(parent) = self.files.get_mut(path) {
             if let Some(children) = &mut parent.children {
                 children.remove(path);
             }
@@ -401,17 +455,14 @@ impl FileRegistry {
                 file.parent = new_path.parent().map(|parent| parent.into());
                 rename_children(&mut self.files, &mut file, old_path, new_path);
                 self.files.insert(new_path.into(), file.clone());
-                Some(file)
+                file
             }
             Entry::Vacant(_) => {
                 // The entry should not be empty, but in case it is, load the file from,
                 // and insert it at, the new path
-                if let Ok((_path, file)) = File::load(new_path) {
-                    self.files.insert(new_path.into(), file.clone());
-                    Some(file)
-                } else {
-                    None
-                }
+                let file = File::load(new_path);
+                self.files.insert(new_path.into(), file.clone());
+                file
             }
         };
 
@@ -446,26 +497,16 @@ impl FileRegistry {
         }
 
         // Remove the old path from the old parent's children
-        if let Some(parent) = old_path
-            .parent()
-            .and_then(|parent| self.files.get_mut(parent))
-        {
+        if let Some(parent) = self.files.get_mut(old_path) {
             if let Some(children) = &mut parent.children {
                 children.remove(old_path);
             }
         }
 
         // Insert the new path to the new parent's children
-        if let Some(parent) = new_path
-            .parent()
-            .and_then(|parent| self.files.get_mut(parent))
-        {
-            if let Some(children) = &mut parent.children {
-                children.insert(new_path.into());
-            }
-        }
+        self.ensure_ancestors(new_path);
 
-        self.publish_file_event(old_path, "renamed", file)
+        self.publish_file_event(old_path, "renamed", Some(file))
     }
 
     // Update a project file registry when a file is modified
@@ -475,14 +516,10 @@ impl FileRegistry {
         }
 
         // Insert the file
-        let file = if let Ok((path, file)) = File::load(path) {
-            self.files.insert(path, file.clone());
-            Some(file)
-        } else {
-            None
-        };
+        let file = File::load(path);
+        self.files.insert(path.into(), file.clone());
 
-        self.publish_file_event(path, "modified", file)
+        self.publish_file_event(path, "modified", Some(file))
     }
 }
 
@@ -552,7 +589,7 @@ impl Files {
                     DebouncedEvent::Remove(path) => {
                         if should_include(&path) {
                             let registry = &mut *registry.lock().unwrap();
-                            registry.modified(&path)
+                            registry.removed(&path)
                         }
                     }
                     DebouncedEvent::Rename(from, to) => {

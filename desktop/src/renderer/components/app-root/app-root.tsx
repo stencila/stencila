@@ -17,15 +17,15 @@ export class AppRoot {
               path === '/' || path === '/renderer/main_window/index.html'
             }
           >
-            <app-home></app-home>
+            <app-launcher></app-launcher>
           </Route>
 
           <Route path="/settings">
-            <app-settings></app-settings>
+            <app-settings-root></app-settings-root>
           </Route>
 
           <Route path={/^\/project/}>
-            <project-root></project-root>
+            <app-project-root></app-project-root>
           </Route>
         </Router.Switch>
       </main>

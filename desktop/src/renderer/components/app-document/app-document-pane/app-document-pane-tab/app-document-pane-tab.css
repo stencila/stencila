@@ -1,0 +1,4 @@
+:host {
+  @apply inline-block list-none h-full text-xs py-1 px-2 leading-none flex-grow-0 align-middle;
+  background: var(--color-neutral-300);
+}
