@@ -15,10 +15,10 @@ export class AppSettings {
 
         <main>
           <SettingsRouter.Switch>
-            <Route path="/settings" to="/settings/general" />
+            <Route path="/settings" to="/settings/advanced" />
 
-            <Route path="/settings/general">
-              <app-settings-general></app-settings-general>
+            <Route path="/settings/advanced">
+              <app-settings-advanced></app-settings-advanced>
             </Route>
 
             <Route path="/settings/plugins">

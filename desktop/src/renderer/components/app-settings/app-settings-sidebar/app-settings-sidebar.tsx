@@ -18,19 +18,24 @@ export class AppSettingsSidebar {
           <li>
             <a
               {...href('/settings')}
-              class={{ active: activePath === '/settings' }}
+              class={{ active: activePath === '/settings', disabled: true }}
             >
-              <stencila-icon icon="settings-2"></stencila-icon>
+              <stencila-icon icon="settings-3"></stencila-icon>
               <span>{i18n.t('settings.general.title')}</span>
             </a>
+          </li>
 
-            <ul>
-              <li>
-                <a {...href('/settings/advanced')} class={{ navItem: true }}>
-                  <span>Advanced</span>
-                </a>
-              </li>
-            </ul>
+          <li>
+            <a
+              {...href('/settings/advanced')}
+              class={{
+                navItem: true,
+                active: activePath === '/settings/advanced',
+              }}
+            >
+              <stencila-icon icon="list-settings"></stencila-icon>
+              <span>Advanced</span>
+            </a>
           </li>
 
           <li>
@@ -43,7 +48,7 @@ export class AppSettingsSidebar {
           <li>
             <a {...href('/settings/')} class={{ disabled: true }}>
               <stencila-icon icon="palette"></stencila-icon>
-              Appearances
+              Appearance
             </a>
           </li>
 
@@ -63,7 +68,7 @@ export class AppSettingsSidebar {
           <li>
             <a {...href('/settings/')} class={{ disabled: true }}>
               <stencila-icon icon="file-edit"></stencila-icon>
-              Editors
+              Editor
             </a>
           </li>
 
