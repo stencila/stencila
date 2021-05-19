@@ -85,7 +85,8 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "icon": ""
+            "icon": "",
+            "exe": "stencila-desktop.exe"
           }
         },
         {
