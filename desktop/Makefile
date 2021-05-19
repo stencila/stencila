@@ -12,3 +12,7 @@ test: setup
 build: setup
 	npm run ui:build
 	npm run make
+
+publish: setup
+	npm run ui:build
+	npm run publish

@@ -121,7 +121,7 @@ jobs:
           set -e
           make -C node build
           sudo apt-get install rpm
-          make -C desktop build
+          make -C desktop publish
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
@@ -164,7 +164,7 @@ jobs:
       - script: |
           set -e
           make -C node build
-          make -C desktop build
+          make -C desktop publish
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
@@ -207,7 +207,7 @@ jobs:
       - script: |
           set -e
           make -C node build
-          make -C desktop build
+          make -C desktop publish
         condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
         displayName: 'Desktop: Build and publish'
         env:
