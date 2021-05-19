@@ -1,3 +1,20 @@
+# [0.66.0](https://github.com/stencila/stencila/compare/v0.65.0...v0.66.0) (2021-05-19)
+
+
+### Bug Fixes
+
+* **Desktop:** Add a preferences menu item ([ed2ed86](https://github.com/stencila/stencila/commit/ed2ed86066f34686b434ad8c65ac6c8d7c5df61d))
+* **Editor:** Fix UI jumping around when clicking into code editor ([3eec143](https://github.com/stencila/stencila/commit/3eec143c5f4740d7f2c0b8d57898d45e2ca8f3ad))
+* **Files:** Call correct registry function on remove event ([8397e8f](https://github.com/stencila/stencila/commit/8397e8f67ffccfa37b53e24158ed77c880bf4d93))
+* **Files:** Handle creation of empty nested dirs; improve robustness of updates ([425045b](https://github.com/stencila/stencila/commit/425045b9a48da06a286e96d6089a8d638200f4d4))
+
+
+### Features
+
+* **Desktop:** Add empty state message for new Project windows ([f9bc0ea](https://github.com/stencila/stencila/commit/f9bc0eaba2a6ec61d4c6747009330674173c8c52))
+* **Files:** Add custom icons for various file formats ([ca133c7](https://github.com/stencila/stencila/commit/ca133c7fdd24cc4078cbe5535be133d4ba8df421))
+* **Project:** Listen to project file change events and update sidebar ([dc067aa](https://github.com/stencila/stencila/commit/dc067aabbfecff772a4a8790479bc38f6b7c66d3))
+
 # [0.65.0](https://github.com/stencila/stencila/compare/v0.64.0...v0.65.0) (2021-05-18)
 
 
