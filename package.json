@@ -92,7 +92,7 @@
     "extract-loader": "5.1.0",
     "file-loader": "6.2.0",
     "filemanager-webpack-plugin": "4.0.0",
-    "geckodriver": "1.22.3",
+    "geckodriver": "2.0.0",
     "globby": "11.0.3",
     "html-loader": "2.1.2",
     "html-webpack-plugin": "5.3.1",
