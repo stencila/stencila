@@ -13,6 +13,7 @@ use crate::prelude::*;
 /// Entity
 ///
 /// The most simple compound (ie. non-atomic like `number`, `string` etc) type.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Entity {
@@ -22,11 +23,9 @@ pub struct Entity {
     pub type_: String,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Entity);
@@ -34,6 +33,7 @@ impl_type!(Entity);
 /// Cite
 ///
 /// A reference to a CreativeWork that is cited in another CreativeWork.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Cite {
@@ -46,43 +46,33 @@ pub struct Cite {
     pub target: String,
 
     /// The type/s of the citation, both factually and rhetorically.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub citation_intent: Option<Vec<CitationIntentEnumeration>>,
 
     /// Determines how the citation is shown within the surrounding text.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub citation_mode: Option<CiteCitationMode>,
 
     /// Text to show before the citation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub citation_prefix: Option<String>,
 
     /// Text to show after the citation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub citation_suffix: Option<String>,
 
     /// Optional structured content/text of this citation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<InlineContent>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The page on which the work ends; for example "138" or "xvi".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub page_end: Option<CitePageEnd>,
 
     /// The page on which the work starts; for example "135" or "xiii".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub page_start: Option<CitePageStart>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub pagination: Option<String>,
 }
 impl_type!(Cite);
@@ -90,6 +80,7 @@ impl_type!(Cite);
 /// CiteGroup
 ///
 /// A group of Cite nodes.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CiteGroup {
@@ -102,11 +93,9 @@ pub struct CiteGroup {
     pub items: Vec<Cite>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(CiteGroup);
@@ -114,6 +103,7 @@ impl_type!(CiteGroup);
 /// Code
 ///
 /// Base type for code nodes e.g. CodeBlock, CodeExpression.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Code {
@@ -126,19 +116,15 @@ pub struct Code {
     pub text: String,
 
     /// Media type, typically expressed using a MIME format, of the code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The programming language of the code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub programming_language: Option<String>,
 }
 impl_type!(Code);
@@ -146,6 +132,7 @@ impl_type!(Code);
 /// CodeBlock
 ///
 /// A code block.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeBlock {
@@ -158,27 +145,21 @@ pub struct CodeBlock {
     pub text: String,
 
     /// A compilation directive giving the name of the variable to export into the content of the code block.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub export_from: Option<String>,
 
     /// Media type, typically expressed using a MIME format, of the code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// A compilation directive giving the name of the variable to import the content of the code block as.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub import_to: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The programming language of the code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub programming_language: Option<String>,
 }
 impl_type!(CodeBlock);
@@ -186,6 +167,7 @@ impl_type!(CodeBlock);
 /// CodeChunk
 ///
 /// A executable chunk of code.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeChunk {
@@ -198,71 +180,54 @@ pub struct CodeChunk {
     pub text: String,
 
     /// Names of variables that the code chunk alters.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alters: Option<Vec<String>>,
 
     /// Variables that the code chunk assigns to.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub assigns: Option<Vec<CodeChunkAssigns>>,
 
     /// A caption for the CodeChunk.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<CodeChunkCaption>,
 
     /// Variables that the code chunk declares.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub declares: Option<Vec<CodeChunkDeclares>>,
 
     /// Duration in seconds of the last execution of the chunk.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub duration: Option<Number>,
 
     /// Errors when compiling or executing the chunk.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub errors: Option<Vec<CodeError>>,
 
     /// A compilation directive giving the name of the variable to export into the content of the code block.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub export_from: Option<String>,
 
     /// Media type, typically expressed using a MIME format, of the code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// A compilation directive giving the name of the variable to import the content of the code block as.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub import_to: Option<String>,
 
     /// Software packages that the code chunk imports
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub imports: Option<Vec<CodeChunkImports>>,
 
     /// A short label for the CodeChunk.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// Outputs from executing the chunk.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub outputs: Option<Vec<Node>>,
 
     /// The programming language of the code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub programming_language: Option<String>,
 
     /// Filesystem paths that this code chunk reads from.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub reads: Option<Vec<String>>,
 
     /// Names of variables that the code chunk uses (but does not alter).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub uses: Option<Vec<CodeChunkUses>>,
 }
 impl_type!(CodeChunk);
@@ -270,6 +235,7 @@ impl_type!(CodeChunk);
 /// CodeFragment
 ///
 /// Inline code.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeFragment {
@@ -282,19 +248,15 @@ pub struct CodeFragment {
     pub text: String,
 
     /// Media type, typically expressed using a MIME format, of the code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The programming language of the code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub programming_language: Option<String>,
 }
 impl_type!(CodeFragment);
@@ -302,6 +264,7 @@ impl_type!(CodeFragment);
 /// CodeExpression
 ///
 /// An expression defined in programming language source code.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeExpression {
@@ -314,27 +277,21 @@ pub struct CodeExpression {
     pub text: String,
 
     /// Errors when compiling or executing the chunk.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub errors: Option<Vec<CodeError>>,
 
     /// Media type, typically expressed using a MIME format, of the code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The value of the expression when it was last evaluated.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub output: Option<Node>,
 
     /// The programming language of the code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub programming_language: Option<String>,
 }
 impl_type!(CodeExpression);
@@ -342,6 +299,7 @@ impl_type!(CodeExpression);
 /// CodeError
 ///
 /// An error that occurred when parsing, compiling or executing a Code node.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeError {
@@ -354,19 +312,15 @@ pub struct CodeError {
     pub error_message: String,
 
     /// The type of error e.g. "SyntaxError", "ZeroDivisionError".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub error_type: Option<String>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// Stack trace leading up to the error.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub stack_trace: Option<String>,
 }
 impl_type!(CodeError);
@@ -374,6 +328,7 @@ impl_type!(CodeError);
 /// Date
 ///
 /// A date encoded as a ISO 8601 string.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Date {
@@ -388,11 +343,9 @@ pub struct Date {
     pub value: DateValue,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Date);
@@ -400,6 +353,7 @@ impl_type!(Date);
 /// Mark
 ///
 /// A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Mark {
@@ -412,11 +366,9 @@ pub struct Mark {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Mark);
@@ -424,6 +376,7 @@ impl_type!(Mark);
 /// Delete
 ///
 /// Content that is marked for deletion
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Delete {
@@ -436,11 +389,9 @@ pub struct Delete {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Delete);
@@ -448,6 +399,7 @@ impl_type!(Delete);
 /// Emphasis
 ///
 /// Emphasised content.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Emphasis {
@@ -460,11 +412,9 @@ pub struct Emphasis {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Emphasis);
@@ -472,6 +422,7 @@ impl_type!(Emphasis);
 /// Thing
 ///
 /// The most generic type of item.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Thing {
@@ -481,35 +432,27 @@ pub struct Thing {
     pub type_: String,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<ThingDescription>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<ThingIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(Thing);
@@ -517,6 +460,7 @@ impl_type!(Thing);
 /// Brand
 ///
 /// A brand used by an organization or person for labeling a product, product group, or similar.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Brand {
@@ -529,39 +473,30 @@ pub struct Brand {
     pub name: String,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<BrandDescription>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<BrandIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<BrandImages>>,
 
     /// A logo associated with the brand.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub logo: Option<BrandLogo>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// Reviews of the brand.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub reviews: Option<Vec<String>>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(Brand);
@@ -569,6 +504,7 @@ impl_type!(Brand);
 /// ContactPoint
 ///
 /// A contact point, usually within an organization.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ContactPoint {
@@ -578,47 +514,36 @@ pub struct ContactPoint {
     pub type_: String,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// Languages (human not programming) in which it is possible to communicate with the organization/department etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub available_languages: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<ContactPointDescription>,
 
     /// Email address for correspondence.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub emails: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<ContactPointIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<ContactPointImages>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Telephone numbers for the contact point.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub telephone_numbers: Option<Vec<String>>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(ContactPoint);
@@ -626,6 +551,7 @@ impl_type!(ContactPoint);
 /// CreativeWork
 ///
 /// A creative work, including books, movies, photographs, software programs, etc.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CreativeWork {
@@ -635,75 +561,57 @@ pub struct CreativeWork {
     pub type_: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<CreativeWorkDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<CreativeWorkFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<CreativeWorkIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<CreativeWorkImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -711,51 +619,39 @@ pub struct CreativeWork {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<CreativeWorkLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<CreativeWorkPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<CreativeWorkTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<CreativeWorkVersion>,
 }
 impl_type!(CreativeWork);
@@ -763,6 +659,7 @@ impl_type!(CreativeWork);
 /// Article
 ///
 /// An article, including news and scholarly articles.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Article {
@@ -772,75 +669,57 @@ pub struct Article {
     pub type_: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<ArticleAuthors>>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this article.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<BlockContent>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<ArticleDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<ArticleFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<ArticleFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<ArticleIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<ArticleImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -848,63 +727,48 @@ pub struct Article {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<ArticleLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<ArticleMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// The page on which the article ends; for example "138" or "xvi".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub page_end: Option<ArticlePageEnd>,
 
     /// The page on which the article starts; for example "135" or "xiii".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub page_start: Option<ArticlePageStart>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub pagination: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<ArticlePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<ArticleReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<ArticleTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<ArticleVersion>,
 }
 impl_type!(Article);
@@ -912,6 +776,7 @@ impl_type!(Article);
 /// Claim
 ///
 /// A claim represents specific reviewable facts or statements.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Claim {
@@ -924,75 +789,57 @@ pub struct Claim {
     pub content: Vec<BlockContent>,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<ClaimAuthors>>,
 
     /// Kind of the claim.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub claim_type: Option<ClaimClaimType>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<ClaimDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<ClaimFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<ClaimFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<ClaimIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<ClaimImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -1000,55 +847,42 @@ pub struct Claim {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// A short label for the claim.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<ClaimLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<ClaimMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<ClaimPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<ClaimReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<ClaimTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<ClaimVersion>,
 }
 impl_type!(Claim);
@@ -1056,6 +890,7 @@ impl_type!(Claim);
 /// Collection
 ///
 /// A collection of CreativeWorks or other artifacts.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Collection {
@@ -1068,75 +903,57 @@ pub struct Collection {
     pub parts: Vec<CreativeWorkTypes>,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<CollectionAuthors>>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<CollectionDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<CollectionFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<CollectionFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<CollectionIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<CollectionImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -1144,47 +961,36 @@ pub struct Collection {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<CollectionLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<CollectionMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<CollectionPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<CollectionReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<CollectionTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<CollectionVersion>,
 }
 impl_type!(Collection);
@@ -1192,6 +998,7 @@ impl_type!(Collection);
 /// Comment
 ///
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Comment {
@@ -1201,79 +1008,60 @@ pub struct Comment {
     pub type_: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<CommentAuthors>>,
 
     /// The part or facet of the item that is being commented on.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comment_aspect: Option<String>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<CommentDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<CommentFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<CommentFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<CommentIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<CommentImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -1281,23 +1069,18 @@ pub struct Comment {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<CommentLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<CommentMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// The parent comment of this comment.
@@ -1305,31 +1088,24 @@ pub struct Comment {
     pub parent_item: Option<Arc<Comment>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<CommentPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<CommentReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<CommentTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<CommentVersion>,
 }
 impl_type!(Comment);
@@ -1337,6 +1113,7 @@ impl_type!(Comment);
 /// Datatable
 ///
 /// A table of data.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Datatable {
@@ -1349,75 +1126,57 @@ pub struct Datatable {
     pub columns: Vec<DatatableColumn>,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<DatatableAuthors>>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<DatatableDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<DatatableFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<DatatableFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<DatatableIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<DatatableImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -1425,51 +1184,39 @@ pub struct Datatable {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<DatatableLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<DatatableMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<DatatablePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<DatatableReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<DatatableTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<DatatableVersion>,
 }
 impl_type!(Datatable);
@@ -1477,6 +1224,7 @@ impl_type!(Datatable);
 /// MediaObject
 ///
 /// A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MediaObject {
@@ -1489,91 +1237,69 @@ pub struct MediaObject {
     pub content_url: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<MediaObjectAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub bitrate: Option<Number>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// File size in megabits (Mbit, Mb).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content_size: Option<Number>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<MediaObjectDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub embed_url: Option<String>,
 
     /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<MediaObjectFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<MediaObjectFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<MediaObjectIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<MediaObjectImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -1581,51 +1307,39 @@ pub struct MediaObject {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<MediaObjectLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<MediaObjectMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<MediaObjectPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<MediaObjectReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<MediaObjectTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<MediaObjectVersion>,
 }
 impl_type!(MediaObject);
@@ -1633,6 +1347,7 @@ impl_type!(MediaObject);
 /// AudioObject
 ///
 /// An audio file
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct AudioObject {
@@ -1645,95 +1360,72 @@ pub struct AudioObject {
     pub content_url: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<AudioObjectAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub bitrate: Option<Number>,
 
     /// The caption for this audio recording.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<String>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// File size in megabits (Mbit, Mb).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content_size: Option<Number>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<AudioObjectDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub embed_url: Option<String>,
 
     /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<AudioObjectFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<AudioObjectFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<AudioObjectIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<AudioObjectImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -1741,55 +1433,42 @@ pub struct AudioObject {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<AudioObjectLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<AudioObjectMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<AudioObjectPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<AudioObjectReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<AudioObjectTitle>,
 
     /// The transcript of this audio recording.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub transcript: Option<String>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<AudioObjectVersion>,
 }
 impl_type!(AudioObject);
@@ -1797,6 +1476,7 @@ impl_type!(AudioObject);
 /// DatatableColumn
 ///
 /// A column of data within a Datatable.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct DatatableColumn {
@@ -1812,35 +1492,27 @@ pub struct DatatableColumn {
     pub values: Array,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<DatatableColumnDescription>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<DatatableColumnIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<DatatableColumnImages>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The validator to use to validate data in the column.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub validator: Option<ArrayValidator>,
 }
 impl_type!(DatatableColumn);
@@ -1848,6 +1520,7 @@ impl_type!(DatatableColumn);
 /// DefinedTerm
 ///
 /// A word, name, acronym, phrase, etc. with a formal definition.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct DefinedTerm {
@@ -1860,35 +1533,27 @@ pub struct DefinedTerm {
     pub name: String,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<DefinedTermDescription>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<DefinedTermIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<DefinedTermImages>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// A code that identifies this DefinedTerm within a DefinedTermSet
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub term_code: Option<String>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(DefinedTerm);
@@ -1896,6 +1561,7 @@ impl_type!(DefinedTerm);
 /// Validator
 ///
 /// A base for all validator types.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Validator {
@@ -1905,11 +1571,9 @@ pub struct Validator {
     pub type_: String,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Validator);
@@ -1917,6 +1581,7 @@ impl_type!(Validator);
 /// ArrayValidator
 ///
 /// A validator specifying constraints on an array node.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ArrayValidator {
@@ -1930,7 +1595,6 @@ pub struct ArrayValidator {
     pub contains: Option<Arc<ValidatorTypes>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Another validator node specifying the constraints on all items in the array.
@@ -1938,19 +1602,15 @@ pub struct ArrayValidator {
     pub items_validator: Option<Arc<ValidatorTypes>>,
 
     /// An array node is valid if its size is less than, or equal to, this value.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_items: Option<Number>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// An array node is valid if its size is greater than, or equal to, this value.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub min_items: Option<Number>,
 
     /// A flag to indicate that each value in the array should be unique.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub unique_items: Option<Bool>,
 }
 impl_type!(ArrayValidator);
@@ -1958,6 +1618,7 @@ impl_type!(ArrayValidator);
 /// BooleanValidator
 ///
 /// A schema specifying that a node must be a boolean value.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct BooleanValidator {
@@ -1967,11 +1628,9 @@ pub struct BooleanValidator {
     pub type_: String,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(BooleanValidator);
@@ -1979,6 +1638,7 @@ impl_type!(BooleanValidator);
 /// ConstantValidator
 ///
 /// A validator specifying a constant value that a node must have.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ConstantValidator {
@@ -1988,15 +1648,12 @@ pub struct ConstantValidator {
     pub type_: String,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The value that the node must have.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<Node>,
 }
 impl_type!(ConstantValidator);
@@ -2004,6 +1661,7 @@ impl_type!(ConstantValidator);
 /// EnumValidator
 ///
 /// A schema specifying that a node must be one of several values.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct EnumValidator {
@@ -2013,15 +1671,12 @@ pub struct EnumValidator {
     pub type_: String,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// A node is valid if it is equal to any of these values.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub values: Option<Vec<Node>>,
 }
 impl_type!(EnumValidator);
@@ -2029,6 +1684,7 @@ impl_type!(EnumValidator);
 /// Enumeration
 ///
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Enumeration {
@@ -2038,35 +1694,27 @@ pub struct Enumeration {
     pub type_: String,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<EnumerationDescription>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<EnumerationIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<EnumerationImages>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(Enumeration);
@@ -2074,6 +1722,7 @@ impl_type!(Enumeration);
 /// Figure
 ///
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Figure {
@@ -2083,79 +1732,60 @@ pub struct Figure {
     pub type_: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<FigureAuthors>>,
 
     /// A caption for the figure.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<FigureCaption>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<FigureDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<FigureFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<FigureFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<FigureIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<FigureImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -2163,55 +1793,42 @@ pub struct Figure {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// A short label for the figure.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<FigureLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<FigureMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<FigurePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<FigureReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<FigureTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<FigureVersion>,
 }
 impl_type!(Figure);
@@ -2219,6 +1836,7 @@ impl_type!(Figure);
 /// Function
 ///
 /// A function with a name, which might take Parameters and return a value of a certain type.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Function {
@@ -2228,23 +1846,18 @@ pub struct Function {
     pub type_: String,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the function.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// The parameters of the function.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<Vec<Parameter>>,
 
     /// The return type of the function.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub returns: Option<ValidatorTypes>,
 }
 impl_type!(Function);
@@ -2252,6 +1865,7 @@ impl_type!(Function);
 /// Grant
 ///
 /// A grant, typically financial or otherwise quantifiable, of resources.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Grant {
@@ -2261,43 +1875,33 @@ pub struct Grant {
     pub type_: String,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<GrantDescription>,
 
     /// Indicates an item funded or sponsored through a Grant.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_items: Option<Vec<Thing>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<GrantIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<GrantImages>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// A person or organization that supports a thing through a pledge, promise, or financial contribution.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub sponsors: Option<Vec<GrantSponsors>>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(Grant);
@@ -2305,6 +1909,7 @@ impl_type!(Grant);
 /// Heading
 ///
 /// A heading.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Heading {
@@ -2317,15 +1922,12 @@ pub struct Heading {
     pub content: Vec<InlineContent>,
 
     /// The depth of the heading.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub depth: Option<Number>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Heading);
@@ -2333,6 +1935,7 @@ impl_type!(Heading);
 /// ImageObject
 ///
 /// An image file.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ImageObject {
@@ -2345,95 +1948,72 @@ pub struct ImageObject {
     pub content_url: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<ImageObjectAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub bitrate: Option<Number>,
 
     /// The caption for this image.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<String>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// File size in megabits (Mbit, Mb).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content_size: Option<Number>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<ImageObjectDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub embed_url: Option<String>,
 
     /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<ImageObjectFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<ImageObjectFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<ImageObjectIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<ImageObjectImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -2441,27 +2021,21 @@ pub struct ImageObject {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<ImageObjectLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<ImageObjectMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
@@ -2469,11 +2043,9 @@ pub struct ImageObject {
     pub publisher: Option<Arc<ImageObjectPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<ImageObjectReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// Thumbnail image of this image.
@@ -2481,15 +2053,12 @@ pub struct ImageObject {
     pub thumbnail: Option<Arc<ImageObject>>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<ImageObjectTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<ImageObjectVersion>,
 }
 impl_type!(ImageObject);
@@ -2497,6 +2066,7 @@ impl_type!(ImageObject);
 /// Include
 ///
 /// A directive to include content from an external source (e.g. file, URL) or content.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Include {
@@ -2509,19 +2079,15 @@ pub struct Include {
     pub source: String,
 
     /// The content to be included.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<BlockContent>>,
 
     /// Media type, typically expressed using a MIME format, of the source content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Include);
@@ -2529,6 +2095,7 @@ impl_type!(Include);
 /// IntegerValidator
 ///
 /// A validator specifying the constraints on an integer node.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct IntegerValidator {
@@ -2538,11 +2105,9 @@ pub struct IntegerValidator {
     pub type_: String,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(IntegerValidator);
@@ -2550,6 +2115,7 @@ impl_type!(IntegerValidator);
 /// Link
 ///
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Link {
@@ -2565,27 +2131,21 @@ pub struct Link {
     pub target: String,
 
     /// A compilation directive giving the name of the variable to export to the link target.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub export_from: Option<String>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// A compilation directive giving the name of the variable to import the link target as.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub import_to: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The relation between the target and the current thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<String>,
 
     /// A title for the link.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
 }
 impl_type!(Link);
@@ -2593,6 +2153,7 @@ impl_type!(Link);
 /// List
 ///
 /// A list of items.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct List {
@@ -2605,15 +2166,12 @@ pub struct List {
     pub items: Vec<ListItem>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// Type of ordering.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub order: Option<ListOrder>,
 }
 impl_type!(List);
@@ -2621,6 +2179,7 @@ impl_type!(List);
 /// ListItem
 ///
 /// A single item in a list.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ListItem {
@@ -2630,51 +2189,39 @@ pub struct ListItem {
     pub type_: String,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The content of the list item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<ListItemDescription>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<ListItemIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<ListItemImages>>,
 
     /// A flag to indicate if this list item is checked.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_checked: Option<Bool>,
 
     /// The item represented by this list item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub item: Option<Node>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// The position of the item in a series or sequence of items.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub position: Option<Number>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(ListItem);
@@ -2682,6 +2229,7 @@ impl_type!(ListItem);
 /// Math
 ///
 /// A mathematical variable or equation.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Math {
@@ -2694,19 +2242,15 @@ pub struct Math {
     pub text: String,
 
     /// Errors that occurred when parsing the math equation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub errors: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub math_language: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Math);
@@ -2714,6 +2258,7 @@ impl_type!(Math);
 /// MathBlock
 ///
 /// A block of math, e.g an equation, to be treated as block content.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MathBlock {
@@ -2726,23 +2271,18 @@ pub struct MathBlock {
     pub text: String,
 
     /// Errors that occurred when parsing the math equation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub errors: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// A short label for the math block.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub math_language: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(MathBlock);
@@ -2750,6 +2290,7 @@ impl_type!(MathBlock);
 /// MathFragment
 ///
 /// A fragment of math, e.g a variable name, to be treated as inline content.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MathFragment {
@@ -2762,19 +2303,15 @@ pub struct MathFragment {
     pub text: String,
 
     /// Errors that occurred when parsing the math equation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub errors: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub math_language: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(MathFragment);
@@ -2782,6 +2319,7 @@ impl_type!(MathFragment);
 /// MonetaryGrant
 ///
 /// A monetary grant.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MonetaryGrant {
@@ -2791,51 +2329,39 @@ pub struct MonetaryGrant {
     pub type_: String,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The amount of money.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub amounts: Option<Number>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<MonetaryGrantDescription>,
 
     /// Indicates an item funded or sponsored through a Grant.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_items: Option<Vec<Thing>>,
 
     /// A person or organization that supports (sponsors) something through some kind of financial contribution.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<MonetaryGrantFunders>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<MonetaryGrantIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<MonetaryGrantImages>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// A person or organization that supports a thing through a pledge, promise, or financial contribution.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub sponsors: Option<Vec<MonetaryGrantSponsors>>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(MonetaryGrant);
@@ -2843,6 +2369,7 @@ impl_type!(MonetaryGrant);
 /// NontextualAnnotation
 ///
 /// Inline text that has a non-textual annotation.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct NontextualAnnotation {
@@ -2855,11 +2382,9 @@ pub struct NontextualAnnotation {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(NontextualAnnotation);
@@ -2867,6 +2392,7 @@ impl_type!(NontextualAnnotation);
 /// Note
 ///
 /// Additional content which is not part of the main content of a document.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Note {
@@ -2879,15 +2405,12 @@ pub struct Note {
     pub content: Vec<BlockContent>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// Determines where the note content is displayed within the document.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub note_type: Option<NoteNoteType>,
 }
 impl_type!(Note);
@@ -2895,6 +2418,7 @@ impl_type!(Note);
 /// NumberValidator
 ///
 /// A validator specifying the constraints on a numeric node.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct NumberValidator {
@@ -2904,31 +2428,24 @@ pub struct NumberValidator {
     pub type_: String,
 
     /// The exclusive upper limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub exclusive_maximum: Option<Number>,
 
     /// The exclusive lower limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub exclusive_minimum: Option<Number>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// The inclusive upper limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<Number>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The inclusive lower limit for a numeric node.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum: Option<Number>,
 
     /// A number that a numeric node must be a multiple of.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub multiple_of: Option<Number>,
 }
 impl_type!(NumberValidator);
@@ -2936,6 +2453,7 @@ impl_type!(NumberValidator);
 /// Organization
 ///
 /// An organization such as a school, NGO, corporation, club, etc.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Organization {
@@ -2945,63 +2463,48 @@ pub struct Organization {
     pub type_: String,
 
     /// Postal address for the organization.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<OrganizationAddress>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// Brands that the organization is connected with.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub brands: Option<Vec<Brand>>,
 
     /// Correspondence/Contact points for the organization.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub contact_points: Option<Vec<ContactPoint>>,
 
     /// Departments within the organization. For example, Department of Computer Science, Research & Development etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub departments: Option<Vec<Organization>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<OrganizationDescription>,
 
     /// Organization(s) or person(s) funding the organization.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<OrganizationFunders>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<OrganizationIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<OrganizationImages>>,
 
     /// Legal name for the Organization. Should only include letters and spaces.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub legal_name: Option<String>,
 
     /// The logo of the organization.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub logo: Option<OrganizationLogo>,
 
     /// Person(s) or organization(s) who are members of this organization.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub members: Option<Vec<OrganizationMembers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
@@ -3009,7 +2512,6 @@ pub struct Organization {
     pub parent_organization: Option<Arc<Organization>>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(Organization);
@@ -3017,6 +2519,7 @@ impl_type!(Organization);
 /// Paragraph
 ///
 /// Paragraph
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Paragraph {
@@ -3029,11 +2532,9 @@ pub struct Paragraph {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Paragraph);
@@ -3041,6 +2542,7 @@ impl_type!(Paragraph);
 /// Variable
 ///
 /// A variable representing a name / value pair.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Variable {
@@ -3053,23 +2555,18 @@ pub struct Variable {
     pub name: String,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Whether or not a property is mutable. Default is false.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_readonly: Option<Bool>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The validator that the value is validated against.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub validator: Option<ValidatorTypes>,
 
     /// The value of the variable.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<Node>,
 }
 impl_type!(Variable);
@@ -3077,6 +2574,7 @@ impl_type!(Variable);
 /// Parameter
 ///
 /// A parameter that can be set and used in evaluated code.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Parameter {
@@ -3089,39 +2587,30 @@ pub struct Parameter {
     pub name: String,
 
     /// The default value of the parameter.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<Node>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Indicates that this parameter is variadic and can accept multiple named arguments.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_extensible: Option<Bool>,
 
     /// Whether or not a property is mutable. Default is false.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_readonly: Option<Bool>,
 
     /// Is this parameter required, if not it should have a default or default is assumed to be null.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_required: Option<Bool>,
 
     /// Indicates that this parameter is variadic and can accept multiple arguments.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub is_variadic: Option<Bool>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The validator that the value is validated against.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub validator: Option<ValidatorTypes>,
 
     /// The value of the variable.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<Node>,
 }
 impl_type!(Parameter);
@@ -3129,6 +2618,7 @@ impl_type!(Parameter);
 /// Periodical
 ///
 /// A periodical publication.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Periodical {
@@ -3138,83 +2628,63 @@ pub struct Periodical {
     pub type_: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<PeriodicalAuthors>>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// The date this Periodical ceased publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_end: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// The date this Periodical was first published.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_start: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<PeriodicalDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<PeriodicalFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<PeriodicalFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<PeriodicalIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<PeriodicalImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -3222,55 +2692,42 @@ pub struct Periodical {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// The International Standard Serial Number(s) (ISSN) that identifies this serial publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub issns: Option<Vec<String>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<PeriodicalLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<PeriodicalMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<PeriodicalPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<PeriodicalReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<PeriodicalTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<PeriodicalVersion>,
 }
 impl_type!(Periodical);
@@ -3278,6 +2735,7 @@ impl_type!(Periodical);
 /// Person
 ///
 /// A person (alive, dead, undead, or fictional).
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Person {
@@ -3287,79 +2745,60 @@ pub struct Person {
     pub type_: String,
 
     /// Postal address for the person.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<PersonAddress>,
 
     /// Organizations that the person is affiliated with.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub affiliations: Option<Vec<Organization>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<PersonDescription>,
 
     /// Email addresses for the person.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub emails: Option<Vec<String>>,
 
     /// Family name. In the U.S., the last name of a person.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub family_names: Option<Vec<String>>,
 
     /// A person or organization that supports (sponsors) something through some kind of financial contribution.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<PersonFunders>>,
 
     /// Given name. In the U.S., the first name of a person.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub given_names: Option<Vec<String>>,
 
     /// An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub honorific_prefix: Option<String>,
 
     /// An honorific suffix after a person's name such as MD/PhD/MSCSW.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub honorific_suffix: Option<String>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<PersonIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<PersonImages>>,
 
     /// The job title of the person (for example, Financial Manager).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub job_title: Option<String>,
 
     /// An organization (or program membership) to which this person belongs.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub member_of: Option<Vec<Organization>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Telephone numbers for the person.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub telephone_numbers: Option<Vec<String>>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(Person);
@@ -3367,6 +2806,7 @@ impl_type!(Person);
 /// PostalAddress
 ///
 /// A physical mailing address.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PostalAddress {
@@ -3376,71 +2816,54 @@ pub struct PostalAddress {
     pub type_: String,
 
     /// The country.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub address_country: Option<String>,
 
     /// The locality in which the street address is, and which is in the region.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub address_locality: Option<String>,
 
     /// The region in which the locality is, and which is in the country.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub address_region: Option<String>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// Languages (human not programming) in which it is possible to communicate with the organization/department etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub available_languages: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<PostalAddressDescription>,
 
     /// Email address for correspondence.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub emails: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<PostalAddressIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<PostalAddressImages>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// The post office box number.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub post_office_box_number: Option<String>,
 
     /// The postal code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub postal_code: Option<String>,
 
     /// The street address.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub street_address: Option<String>,
 
     /// Telephone numbers for the contact point.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub telephone_numbers: Option<Vec<String>>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(PostalAddress);
@@ -3448,6 +2871,7 @@ impl_type!(PostalAddress);
 /// Product
 ///
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Product {
@@ -3457,47 +2881,36 @@ pub struct Product {
     pub type_: String,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// Brands that the product is labelled with.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub brands: Option<Vec<Brand>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<ProductDescription>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<ProductIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<ProductImages>>,
 
     /// The logo of the product.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub logo: Option<ProductLogo>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Product identification code.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub product_id: Option<String>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(Product);
@@ -3505,6 +2918,7 @@ impl_type!(Product);
 /// PropertyValue
 ///
 /// A property-value pair.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PropertyValue {
@@ -3518,39 +2932,30 @@ pub struct PropertyValue {
     pub value: PropertyValueValue,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<PropertyValueDescription>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<PropertyValueIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<PropertyValueImages>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// A commonly used identifier for the characteristic represented by the property.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub property_id: Option<String>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(PropertyValue);
@@ -3558,6 +2963,7 @@ impl_type!(PropertyValue);
 /// PublicationIssue
 ///
 /// A part of a successively published publication such as a periodical or publication volume, often numbered.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PublicationIssue {
@@ -3567,75 +2973,57 @@ pub struct PublicationIssue {
     pub type_: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<PublicationIssueAuthors>>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<PublicationIssueDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<PublicationIssueFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<PublicationIssueFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<PublicationIssueIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<PublicationIssueImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -3643,67 +3031,51 @@ pub struct PublicationIssue {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Identifies the issue of publication; for example, "iii" or "2".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub issue_number: Option<PublicationIssueIssueNumber>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<PublicationIssueLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<PublicationIssueMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// The page on which the issue ends; for example "138" or "xvi".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub page_end: Option<PublicationIssuePageEnd>,
 
     /// The page on which the issue starts; for example "135" or "xiii".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub page_start: Option<PublicationIssuePageStart>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub pagination: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<PublicationIssuePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<PublicationIssueReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<PublicationIssueTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<PublicationIssueVersion>,
 }
 impl_type!(PublicationIssue);
@@ -3711,6 +3083,7 @@ impl_type!(PublicationIssue);
 /// PublicationVolume
 ///
 /// A part of a successively published publication such as a periodical or multi-volume work.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PublicationVolume {
@@ -3720,75 +3093,57 @@ pub struct PublicationVolume {
     pub type_: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<PublicationVolumeAuthors>>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<PublicationVolumeDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<PublicationVolumeFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<PublicationVolumeFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<PublicationVolumeIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<PublicationVolumeImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -3796,67 +3151,51 @@ pub struct PublicationVolume {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<PublicationVolumeLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<PublicationVolumeMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// The page on which the volume ends; for example "138" or "xvi".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub page_end: Option<PublicationVolumePageEnd>,
 
     /// The page on which the volume starts; for example "135" or "xiii".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub page_start: Option<PublicationVolumePageStart>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub pagination: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<PublicationVolumePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<PublicationVolumeReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<PublicationVolumeTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<PublicationVolumeVersion>,
 
     /// Identifies the volume of publication or multi-part work; for example, "iii" or "2".
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub volume_number: Option<PublicationVolumeVolumeNumber>,
 }
 impl_type!(PublicationVolume);
@@ -3864,6 +3203,7 @@ impl_type!(PublicationVolume);
 /// Quote
 ///
 /// Inline, quoted content.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Quote {
@@ -3876,15 +3216,12 @@ pub struct Quote {
     pub content: Vec<InlineContent>,
 
     /// The source of the quote.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub cite: Option<QuoteCite>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Quote);
@@ -3892,6 +3229,7 @@ impl_type!(Quote);
 /// QuoteBlock
 ///
 /// A section quoted from somewhere else.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct QuoteBlock {
@@ -3904,15 +3242,12 @@ pub struct QuoteBlock {
     pub content: Vec<BlockContent>,
 
     /// The source of the quote.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub cite: Option<QuoteBlockCite>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(QuoteBlock);
@@ -3920,6 +3255,7 @@ impl_type!(QuoteBlock);
 /// Review
 ///
 /// A review of an item, e.g of an Article, or SoftwareSourceCode.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Review {
@@ -3929,75 +3265,57 @@ pub struct Review {
     pub type_: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<ReviewAuthors>>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<ReviewDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<ReviewFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<ReviewFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<ReviewIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<ReviewImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -4005,59 +3323,45 @@ pub struct Review {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// The item that is being reviewed.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub item_reviewed: Option<Thing>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<ReviewLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<ReviewMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<ReviewPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<ReviewReferences>>,
 
     /// The part or facet of the item that is being reviewed.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub review_aspect: Option<String>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<ReviewTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<ReviewVersion>,
 }
 impl_type!(Review);
@@ -4065,6 +3369,7 @@ impl_type!(Review);
 /// SoftwareApplication
 ///
 /// A software application.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareApplication {
@@ -4074,75 +3379,57 @@ pub struct SoftwareApplication {
     pub type_: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<SoftwareApplicationAuthors>>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<SoftwareApplicationDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<SoftwareApplicationFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<SoftwareApplicationFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<SoftwareApplicationIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<SoftwareApplicationImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -4150,59 +3437,45 @@ pub struct SoftwareApplication {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<SoftwareApplicationLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<SoftwareApplicationMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<SoftwareApplicationPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<SoftwareApplicationReferences>>,
 
     /// Requirements for application, including shared libraries that are not included in the application distribution.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub software_requirements: Option<Vec<SoftwareApplication>>,
 
     /// Version of the software.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub software_version: Option<String>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<SoftwareApplicationTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<SoftwareApplicationVersion>,
 }
 impl_type!(SoftwareApplication);
@@ -4210,6 +3483,7 @@ impl_type!(SoftwareApplication);
 /// SoftwareEnvironment
 ///
 /// A computational environment.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareEnvironment {
@@ -4222,43 +3496,33 @@ pub struct SoftwareEnvironment {
     pub name: String,
 
     /// The packages that this environment adds to the base environments listed under `extends` (if any).,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub adds: Option<Vec<SoftwareSourceCode>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<SoftwareEnvironmentDescription>,
 
     /// Other environments that this environment extends by adding or removing packages.,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub extends: Option<Vec<SoftwareEnvironment>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<SoftwareEnvironmentIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<SoftwareEnvironmentImages>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The packages that this environment removes from the base environments listed under `extends` (if any).,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub removes: Option<Vec<SoftwareSourceCode>>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(SoftwareEnvironment);
@@ -4266,6 +3530,7 @@ impl_type!(SoftwareEnvironment);
 /// SoftwareSession
 ///
 /// Definition of a compute session, including its software and compute resource requirements and status.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareSession {
@@ -4275,103 +3540,78 @@ pub struct SoftwareSession {
     pub type_: String,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The maximum number of concurrent clients the session is limited to.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub clients_limit: Option<Number>,
 
     /// The maximum number of concurrent clients requested for the session.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub clients_request: Option<Number>,
 
     /// The amount of CPU the session is limited to.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub cpu_limit: Option<Number>,
 
     /// The amount of CPU requested for the session.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub cpu_request: Option<Number>,
 
     /// The date-time that the session ended.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_end: Option<Date>,
 
     /// The date-time that the session began.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_start: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<SoftwareSessionDescription>,
 
     /// The maximum duration (seconds) the session is limited to.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub duration_limit: Option<Number>,
 
     /// The maximum duration (seconds) requested for the session.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub duration_request: Option<Number>,
 
     /// The software environment to execute this session in.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub environment: Option<SoftwareEnvironment>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<SoftwareSessionIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<SoftwareSessionImages>>,
 
     /// The amount of memory that the session is limited to.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub memory_limit: Option<Number>,
 
     /// The amount of memory requested for the session.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub memory_request: Option<Number>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// The amount of network data transfer (GiB) that the session is limited to.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub network_transfer_limit: Option<Number>,
 
     /// The amount of network data transfer (GiB) requested for the session.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub network_transfer_request: Option<Number>,
 
     /// The status of the session (starting, stopped, etc).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<SoftwareSessionStatus>,
 
     /// The inactivity timeout (seconds) the session is limited to.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub timeout_limit: Option<Number>,
 
     /// The inactivity timeout (seconds) requested for the session.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub timeout_request: Option<Number>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// Volumes to mount in the session.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub volume_mounts: Option<Vec<VolumeMount>>,
 }
 impl_type!(SoftwareSession);
@@ -4379,6 +3619,7 @@ impl_type!(SoftwareSession);
 /// SoftwareSourceCode
 ///
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareSourceCode {
@@ -4388,83 +3629,63 @@ pub struct SoftwareSourceCode {
     pub type_: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<SoftwareSourceCodeAuthors>>,
 
     /// Link to the repository where the un-compiled, human readable code and related code is located.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub code_repository: Option<String>,
 
     /// What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub code_sample_type: Option<String>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<SoftwareSourceCodeDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<SoftwareSourceCodeFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<SoftwareSourceCodeFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<SoftwareSourceCodeIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<SoftwareSourceCodeImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -4472,67 +3693,51 @@ pub struct SoftwareSourceCode {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<SoftwareSourceCodeLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<SoftwareSourceCodeMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// The computer programming language.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub programming_language: Option<String>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<SoftwareSourceCodePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<SoftwareSourceCodeReferences>>,
 
     /// Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub runtime_platform: Option<Vec<String>>,
 
     /// Dependency requirements for the software.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub software_requirements: Option<Vec<SoftwareSourceCodeSoftwareRequirements>>,
 
     /// Target operating system or product to which the code applies.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub target_products: Option<Vec<SoftwareApplication>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<SoftwareSourceCodeTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<SoftwareSourceCodeVersion>,
 }
 impl_type!(SoftwareSourceCode);
@@ -4540,6 +3745,7 @@ impl_type!(SoftwareSourceCode);
 /// StringValidator
 ///
 /// A schema specifying constraints on a string node.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct StringValidator {
@@ -4549,23 +3755,18 @@ pub struct StringValidator {
     pub type_: String,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// The maximum length for a string node.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_length: Option<Number>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The minimum length for a string node.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub min_length: Option<Number>,
 
     /// A regular expression that a string node must match.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub pattern: Option<String>,
 }
 impl_type!(StringValidator);
@@ -4573,6 +3774,7 @@ impl_type!(StringValidator);
 /// Strong
 ///
 /// Strongly emphasised content.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Strong {
@@ -4585,11 +3787,9 @@ pub struct Strong {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Strong);
@@ -4597,6 +3797,7 @@ impl_type!(Strong);
 /// Subscript
 ///
 /// Subscripted content.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Subscript {
@@ -4609,11 +3810,9 @@ pub struct Subscript {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Subscript);
@@ -4621,6 +3820,7 @@ impl_type!(Subscript);
 /// Superscript
 ///
 /// Superscripted content.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Superscript {
@@ -4633,11 +3833,9 @@ pub struct Superscript {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(Superscript);
@@ -4645,6 +3843,7 @@ impl_type!(Superscript);
 /// Table
 ///
 /// A table.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Table {
@@ -4657,79 +3856,60 @@ pub struct Table {
     pub rows: Vec<TableRow>,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<TableAuthors>>,
 
     /// A caption for the table.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<TableCaption>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<TableDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<TableFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<TableFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<TableIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<TableImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -4737,55 +3917,42 @@ pub struct Table {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// A short label for the table.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<String>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<TableLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<TableMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<TablePublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<TableReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<TableTitle>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<TableVersion>,
 }
 impl_type!(Table);
@@ -4793,6 +3960,7 @@ impl_type!(Table);
 /// TableCell
 ///
 /// A cell within a `Table`.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct TableCell {
@@ -4805,27 +3973,21 @@ pub struct TableCell {
     pub content: Vec<Node>,
 
     /// Indicates whether the cell is a header or data.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub cell_type: Option<TableCellCellType>,
 
     /// How many columns the cell extends.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub colspan: Option<Integer>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the cell.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// How many columns the cell extends.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub rowspan: Option<Integer>,
 }
 impl_type!(TableCell);
@@ -4833,6 +3995,7 @@ impl_type!(TableCell);
 /// TableRow
 ///
 /// A row within a Table.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct TableRow {
@@ -4845,15 +4008,12 @@ pub struct TableRow {
     pub cells: Vec<TableCell>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// If present, indicates that all cells in this row should be treated as header cells.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub row_type: Option<TableRowRowType>,
 }
 impl_type!(TableRow);
@@ -4861,6 +4021,7 @@ impl_type!(TableRow);
 /// ThematicBreak
 ///
 /// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ThematicBreak {
@@ -4870,11 +4031,9 @@ pub struct ThematicBreak {
     pub type_: String,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(ThematicBreak);
@@ -4882,6 +4041,7 @@ impl_type!(ThematicBreak);
 /// TupleValidator
 ///
 /// A validator specifying constraints on an array of heterogeneous items.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct TupleValidator {
@@ -4891,15 +4051,12 @@ pub struct TupleValidator {
     pub type_: String,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// An array of validators specifying the constraints on each successive item in the array.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub items: Option<Vec<ValidatorTypes>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 }
 impl_type!(TupleValidator);
@@ -4907,6 +4064,7 @@ impl_type!(TupleValidator);
 /// VideoObject
 ///
 /// A video file.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct VideoObject {
@@ -4919,95 +4077,72 @@ pub struct VideoObject {
     pub content_url: String,
 
     /// The subject matter of the content.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub about: Option<Vec<Thing>>,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// The authors of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub authors: Option<Vec<VideoObjectAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub bitrate: Option<Number>,
 
     /// The caption for this video recording.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub caption: Option<String>,
 
     /// Comments about this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
 
     /// File size in megabits (Mbit, Mb).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub content_size: Option<Number>,
 
     /// Date/time of acceptance.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of creation.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_created: Option<Date>,
 
     /// Date/time of most recent modification.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_published: Option<Date>,
 
     /// Date/time that work was received.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub date_received: Option<Date>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<VideoObjectDescription>,
 
     /// People who edited the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub editors: Option<Vec<Person>>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub embed_url: Option<String>,
 
     /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funded_by: Option<Vec<VideoObjectFundedBy>>,
 
     /// People or organizations that funded the `CreativeWork`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub funders: Option<Vec<VideoObjectFunders>>,
 
     /// Genre of the creative work, broadcast channel or group.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<VideoObjectIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<VideoObjectImages>>,
 
     /// An item or other CreativeWork that this CreativeWork is a part of.
@@ -5015,59 +4150,45 @@ pub struct VideoObject {
     pub is_part_of: Option<Arc<CreativeWorkTypes>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub keywords: Option<Vec<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub licenses: Option<Vec<VideoObjectLicenses>>,
 
     /// The people or organizations who maintain this CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub maintainers: Option<Vec<VideoObjectMaintainers>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub publisher: Option<VideoObjectPublisher>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<VideoObjectReferences>>,
 
     /// The textual content of this creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<String>,
 
     /// Thumbnail image of this video recording.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub thumbnail: Option<ImageObject>,
 
     /// The title of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<VideoObjectTitle>,
 
     /// The transcript of this video recording.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub transcript: Option<String>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     /// The version of the creative work.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<VideoObjectVersion>,
 }
 impl_type!(VideoObject);
@@ -5075,6 +4196,7 @@ impl_type!(VideoObject);
 /// VolumeMount
 ///
 /// Describes a volume mount from a host to container.
+#[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct VolumeMount {
@@ -5087,47 +4209,36 @@ pub struct VolumeMount {
     pub mount_destination: String,
 
     /// Alternate names (aliases) for the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<VolumeMountDescription>,
 
     /// The identifier for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
 
     /// Any kind of identifier for any kind of Thing.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<Vec<VolumeMountIdentifiers>>,
 
     /// Images of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<VolumeMountImages>>,
 
     /// Metadata associated with this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub meta: Option<Object>,
 
     /// A list of options to use when applying the mount.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub mount_options: Option<Vec<String>>,
 
     /// The mount source directory on the host.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub mount_source: Option<String>,
 
     /// The type of mount.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub mount_type: Option<String>,
 
     /// The name of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 
     /// The URL of the item.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 }
 impl_type!(VolumeMount);

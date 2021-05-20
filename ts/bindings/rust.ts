@@ -172,8 +172,6 @@ export function interfaceSchemaToEnum(
 
       let attrs = propertyAttributes[propertyPath] ?? []
       if (isPointer) attrs = [...attrs, '#[serde(skip)]']
-      else if (optional)
-        attrs = [...attrs, '#[serde(skip_serializing_if = "Option::is_none")]']
 
       return `    ${docComment(description)}
 ${attrs.map((attr) => `    ${attr}\n`).join('')}    pub ${snakeCase(
@@ -194,6 +192,7 @@ ${attrs.map((attr) => `    ${attr}\n`).join('')}    pub ${snakeCase(
 /// ${title}
 ///
 ${docComment(description)}
+#[skip_serializing_none]
 #[derive(${derives})]
 #[serde(default, rename_all = "camelCase")]
 pub struct ${title} {
