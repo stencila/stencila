@@ -1,7 +1,6 @@
 use std::path::Path;
-
 use stencila::{
-    config, convert,
+    config, convert, documents,
     eyre::{bail, Error, Result},
     inspect,
     logging::{
@@ -31,9 +30,10 @@ pub struct Args {
     #[structopt(subcommand)]
     pub command: Option<Command>,
 
-    /// Display format
+    /// Format to display results of commands (e.g. json, yaml, md)
     ///
-    /// The format used to display results of commands (if possible)
+    /// If the command result can be displayed in the specified format
+    /// it will be. Display format preferences can be configured.
     #[structopt(long, global = true)]
     pub display: Option<String>,
 
@@ -76,20 +76,32 @@ pub enum Command {
     // Commands defined in the `stencila` library
     //
     Convert(convert::cli::Args),
+
     Serve(serve::cli::Args),
+
+    #[structopt(aliases = &["document", "docs", "doc"])]
+    Documents(documents::cli::Command),
+
+    #[structopt(aliases = &["project"])]
     Projects(projects::cli::Command),
+
+    #[structopt(aliases = &["plugin"])]
     Plugins(plugins::cli::Command),
+
     Config(config::cli::Command),
+
     Upgrade(upgrade::cli::Args),
+
     Inspect(inspect::cli::Args),
 }
 
 /// Run a command
-#[tracing::instrument(skip(config, plugins))]
+#[tracing::instrument(skip(documents, plugins, config))]
 pub async fn run_command(
     interactive: bool,
-    formats: &[String],
     command: Command,
+    formats: &[String],
+    documents: &mut documents::Documents,
     projects: &mut projects::Projects,
     plugins: &mut plugins::Plugins,
     config: &mut config::Config,
@@ -98,6 +110,9 @@ pub async fn run_command(
         Command::Open(command) => command.run(projects, config).await,
         Command::Convert(args) => convert::cli::run(args),
         Command::Serve(args) => serve::cli::run(args, &config.serve).await,
+        Command::Documents(command) => {
+            display::render(interactive, formats, command.run(documents)?)
+        }
         Command::Projects(command) => display::render(
             interactive,
             formats,
@@ -251,6 +266,9 @@ pub async fn main() -> Result<()> {
         stencila::pubsub::subscribe("progress", feedback::progress_subscriber)?;
     }
 
+    // Create document store
+    let mut documents = documents::Documents::default();
+
     // Load plugins
     let mut plugins = plugins::Plugins::load()?;
 
@@ -274,8 +292,9 @@ pub async fn main() -> Result<()> {
     let result = if let Some(command) = command {
         run_command(
             false,
-            &formats,
             command,
+            &formats,
+            &mut documents,
             &mut projects,
             &mut plugins,
             &mut config,
@@ -291,7 +310,15 @@ pub async fn main() -> Result<()> {
                 // Remove the global args which can not be applied to each interactive line
                 .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
                 .collect();
-            interact::run(prefix, &formats, &mut projects, &mut plugins, &mut config).await
+            interact::run(
+                prefix,
+                &formats,
+                &mut documents,
+                &mut projects,
+                &mut plugins,
+                &mut config,
+            )
+            .await
         }
         #[cfg(not(feature = "interact"))]
         {
@@ -598,10 +625,11 @@ mod interact {
     }
 
     /// Run the interactive REPL
-    #[tracing::instrument(skip(config, plugins))]
+    #[tracing::instrument(skip(documents, plugins, config))]
     pub async fn run(
         prefix: Vec<String>,
         formats: &[String],
+        documents: &mut documents::Documents,
         projects: &mut projects::Projects,
         plugins: &mut plugins::Plugins,
         config: &mut config::Config,
@@ -661,9 +689,10 @@ mod interact {
                                 formats.into()
                             };
 
-                            if let Err(error) =
-                                run_command(true, &formats, command, projects, plugins, config)
-                                    .await
+                            if let Err(error) = run_command(
+                                true, command, &formats, documents, projects, plugins, config,
+                            )
+                            .await
                             {
                                 print_error(error);
                             };
