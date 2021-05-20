@@ -12,6 +12,13 @@ if (require('electron-squirrel-startup')) {
   app.quit()
 }
 
+if (process.platform === 'linux') {
+  // This is necessary to avoid UI rendering glitches on Ubuntu, and possibly other Linux distributions.
+  // TODO: Investigate the root cause and see if the OS targeting can be reduced to only apply to
+  // specific OS distributions where needed.
+  app.disableHardwareAcceleration()
+}
+
 const createMainWindow = (): void => {
   /* eng-disable PROTOCOL_HANDLER_JS_CHECK */
   protocol.registerBufferProtocol(scheme, requestHandler)
