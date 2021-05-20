@@ -1,5 +1,6 @@
 :host {
   @apply block overflow-scroll resize-x max-w-xs;
+  min-width: 12rem;
 }
 
 ul {

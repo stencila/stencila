@@ -55,10 +55,18 @@ export class AppProjectSidebarFiles {
   }
 
   render() {
+    const files = selectProjectRootFiles(state)
     return (
       <Host>
         <div class="app-project-sidebar-files">
-          <ul>{selectProjectRootFiles(state)?.map(this.pathToFileTree)}</ul>
+          {files && files.length > 0 ? (
+            <ul>{files.map(this.pathToFileTree)}</ul>
+          ) : (
+            <app-sidebar-empty>
+              <stencila-icon icon="seedling"></stencila-icon>
+              <h2>This project doesn't contain any files yet…</h2>
+            </app-sidebar-empty>
+          )}
         </div>
       </Host>
     )

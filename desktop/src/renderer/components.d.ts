@@ -39,6 +39,8 @@ export namespace Components {
     }
     interface AppSettingsSidebar {
     }
+    interface AppSidebarEmpty {
+    }
 }
 declare global {
     interface HTMLAppDocumentPaneElement extends Components.AppDocumentPane, HTMLStencilElement {
@@ -125,6 +127,12 @@ declare global {
         prototype: HTMLAppSettingsSidebarElement;
         new (): HTMLAppSettingsSidebarElement;
     };
+    interface HTMLAppSidebarEmptyElement extends Components.AppSidebarEmpty, HTMLStencilElement {
+    }
+    var HTMLAppSidebarEmptyElement: {
+        prototype: HTMLAppSidebarEmptyElement;
+        new (): HTMLAppSidebarEmptyElement;
+    };
     interface HTMLElementTagNameMap {
         "app-document-pane": HTMLAppDocumentPaneElement;
         "app-document-pane-empty": HTMLAppDocumentPaneEmptyElement;
@@ -140,6 +148,7 @@ declare global {
         "app-settings-plugins": HTMLAppSettingsPluginsElement;
         "app-settings-root": HTMLAppSettingsRootElement;
         "app-settings-sidebar": HTMLAppSettingsSidebarElement;
+        "app-sidebar-empty": HTMLAppSidebarEmptyElement;
     }
 }
 declare namespace LocalJSX {
@@ -176,6 +185,8 @@ declare namespace LocalJSX {
     }
     interface AppSettingsSidebar {
     }
+    interface AppSidebarEmpty {
+    }
     interface IntrinsicElements {
         "app-document-pane": AppDocumentPane;
         "app-document-pane-empty": AppDocumentPaneEmpty;
@@ -191,6 +202,7 @@ declare namespace LocalJSX {
         "app-settings-plugins": AppSettingsPlugins;
         "app-settings-root": AppSettingsRoot;
         "app-settings-sidebar": AppSettingsSidebar;
+        "app-sidebar-empty": AppSidebarEmpty;
     }
 }
 export { LocalJSX as JSX };
@@ -211,6 +223,7 @@ declare module "@stencil/core" {
             "app-settings-plugins": LocalJSX.AppSettingsPlugins & JSXBase.HTMLAttributes<HTMLAppSettingsPluginsElement>;
             "app-settings-root": LocalJSX.AppSettingsRoot & JSXBase.HTMLAttributes<HTMLAppSettingsRootElement>;
             "app-settings-sidebar": LocalJSX.AppSettingsSidebar & JSXBase.HTMLAttributes<HTMLAppSettingsSidebarElement>;
+            "app-sidebar-empty": LocalJSX.AppSidebarEmpty & JSXBase.HTMLAttributes<HTMLAppSidebarEmptyElement>;
         }
     }
 }
