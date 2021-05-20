@@ -1,3 +1,20 @@
+# [0.67.0](https://github.com/stencila/stencila/compare/v0.66.0...v0.67.0) (2021-05-20)
+
+
+### Bug Fixes
+
+* **Desktop:** Fix client rendering issues when building on Ubuntu ([a12fa66](https://github.com/stencila/stencila/commit/a12fa669d796a6b36547b2f976b9447c77bf5d75))
+* **Desktop:** Use OS specific location when adding Preferences menu item ([81724f4](https://github.com/stencila/stencila/commit/81724f4336d8c30442529ae61e7ed9d0442881de))
+* **Plugins:** Fix rendering of available plugins ([fa4bc79](https://github.com/stencila/stencila/commit/fa4bc79cecb2488032c5e581f8b1227d00a712a3))
+
+
+### Features
+
+* **Desktop:** Add custom scrollbar styles ([9df42dd](https://github.com/stencila/stencila/commit/9df42dd34c91296076e8b404dc77579dc3bf8662))
+* **Files:** Add more filetype icons ([3265995](https://github.com/stencila/stencila/commit/3265995f15cd17c1c1abe18ea239fd8d12d62757))
+* **Files Sidebar:** Show empty state when project contains no files ([eaac750](https://github.com/stencila/stencila/commit/eaac7508afa10b325756427f9b406fcb1126e557))
+* **Launcher:** Add support for "Recent Projects", add initial styles ([5933396](https://github.com/stencila/stencila/commit/59333968849428d420cdcf0924c6c171890f3eb9))
+
 # [0.66.0](https://github.com/stencila/stencila/compare/v0.65.0...v0.66.0) (2021-05-19)
 
 
