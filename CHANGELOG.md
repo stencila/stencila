@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/stencila/schema/compare/v1.6.1...v1.7.0) (2021-05-20)
+
+
+### Features
+
+* **Rust:** Add Clone derive ([5f1cfb5](https://github.com/stencila/schema/commit/5f1cfb5650902d4ab909191036f27e0e85a334bc))
+
 ## [1.6.1](https://github.com/stencila/schema/compare/v1.6.0...v1.6.1) (2021-05-11)
 
 
