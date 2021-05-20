@@ -2,6 +2,8 @@
  * Module for generating Rust language bindings.
  */
 
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 import { pascalCase, snakeCase } from 'change-case'
 import fs from 'fs-extra'
 import path from 'path'
@@ -55,11 +57,6 @@ const pointerProperties = [
   'ArrayValidator.contains',
   'ArrayValidator.itemsValidator',
 ]
-
-// Types to NOT derive from Default
-// This usually have a property that is required that
-// does not have a default itself
-const skipDefaultTypes = ['Date', 'PropertyValue']
 
 /**
  * Generate `../../rust/types.rs` from schemas.
@@ -213,7 +210,10 @@ impl_type!(${title});`
 /**
  * Generate a Rust `enum` from a "enum" schema.
  */
-export function enumSchemaToEnum(schema: JsonSchema, context: Context): string {
+export function enumSchemaToEnum(
+  schema: JsonSchema,
+  _context: Context
+): string {
   const { title = '', description = title, anyOf } = schema
 
   const variants = anyOf

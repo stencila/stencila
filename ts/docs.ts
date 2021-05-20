@@ -8,6 +8,8 @@
  *     npm run build:ts
  */
 
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 import * as encoda from '@stencila/encoda'
 import fs from 'fs-extra'
 import { flatten, flow, groupBy, sortBy, startCase, uniq } from 'lodash'
@@ -95,7 +97,7 @@ async function build(): Promise<void> {
   ])
 
   // Group schemas by category, and within each group sort schemas by `name`.
-  const groupedSchemas: { [category: string]: JsonSchema[] } = flow([
+  const groupedSchemas = flow([
     (_schemas: JsonSchema[]) =>
       groupBy(_schemas, (schema) => startCase(schema.category ?? 'Other')),
     (_schemas: typeof groupedSchemas) =>
@@ -109,7 +111,7 @@ async function build(): Promise<void> {
             : categories,
         {}
       ),
-  ])(schemas)
+  ])(schemas) as { [category: string]: JsonSchema[] }
 
   // Generate index.md
   const indexPage = article({
