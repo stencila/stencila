@@ -28,7 +28,7 @@ export namespace Components {
     }
     interface AppRoot {
     }
-    interface AppSettingsGeneral {
+    interface AppSettingsAdvanced {
     }
     interface AppSettingsPluginCard {
         "pluginName": string;
@@ -38,6 +38,8 @@ export namespace Components {
     interface AppSettingsRoot {
     }
     interface AppSettingsSidebar {
+    }
+    interface AppSidebarEmpty {
     }
 }
 declare global {
@@ -95,11 +97,11 @@ declare global {
         prototype: HTMLAppRootElement;
         new (): HTMLAppRootElement;
     };
-    interface HTMLAppSettingsGeneralElement extends Components.AppSettingsGeneral, HTMLStencilElement {
+    interface HTMLAppSettingsAdvancedElement extends Components.AppSettingsAdvanced, HTMLStencilElement {
     }
-    var HTMLAppSettingsGeneralElement: {
-        prototype: HTMLAppSettingsGeneralElement;
-        new (): HTMLAppSettingsGeneralElement;
+    var HTMLAppSettingsAdvancedElement: {
+        prototype: HTMLAppSettingsAdvancedElement;
+        new (): HTMLAppSettingsAdvancedElement;
     };
     interface HTMLAppSettingsPluginCardElement extends Components.AppSettingsPluginCard, HTMLStencilElement {
     }
@@ -125,6 +127,12 @@ declare global {
         prototype: HTMLAppSettingsSidebarElement;
         new (): HTMLAppSettingsSidebarElement;
     };
+    interface HTMLAppSidebarEmptyElement extends Components.AppSidebarEmpty, HTMLStencilElement {
+    }
+    var HTMLAppSidebarEmptyElement: {
+        prototype: HTMLAppSidebarEmptyElement;
+        new (): HTMLAppSidebarEmptyElement;
+    };
     interface HTMLElementTagNameMap {
         "app-document-pane": HTMLAppDocumentPaneElement;
         "app-document-pane-empty": HTMLAppDocumentPaneEmptyElement;
@@ -135,11 +143,12 @@ declare global {
         "app-project-root": HTMLAppProjectRootElement;
         "app-project-sidebar-files": HTMLAppProjectSidebarFilesElement;
         "app-root": HTMLAppRootElement;
-        "app-settings-general": HTMLAppSettingsGeneralElement;
+        "app-settings-advanced": HTMLAppSettingsAdvancedElement;
         "app-settings-plugin-card": HTMLAppSettingsPluginCardElement;
         "app-settings-plugins": HTMLAppSettingsPluginsElement;
         "app-settings-root": HTMLAppSettingsRootElement;
         "app-settings-sidebar": HTMLAppSettingsSidebarElement;
+        "app-sidebar-empty": HTMLAppSidebarEmptyElement;
     }
 }
 declare namespace LocalJSX {
@@ -165,7 +174,7 @@ declare namespace LocalJSX {
     }
     interface AppRoot {
     }
-    interface AppSettingsGeneral {
+    interface AppSettingsAdvanced {
     }
     interface AppSettingsPluginCard {
         "pluginName"?: string;
@@ -175,6 +184,8 @@ declare namespace LocalJSX {
     interface AppSettingsRoot {
     }
     interface AppSettingsSidebar {
+    }
+    interface AppSidebarEmpty {
     }
     interface IntrinsicElements {
         "app-document-pane": AppDocumentPane;
@@ -186,11 +197,12 @@ declare namespace LocalJSX {
         "app-project-root": AppProjectRoot;
         "app-project-sidebar-files": AppProjectSidebarFiles;
         "app-root": AppRoot;
-        "app-settings-general": AppSettingsGeneral;
+        "app-settings-advanced": AppSettingsAdvanced;
         "app-settings-plugin-card": AppSettingsPluginCard;
         "app-settings-plugins": AppSettingsPlugins;
         "app-settings-root": AppSettingsRoot;
         "app-settings-sidebar": AppSettingsSidebar;
+        "app-sidebar-empty": AppSidebarEmpty;
     }
 }
 export { LocalJSX as JSX };
@@ -206,11 +218,12 @@ declare module "@stencil/core" {
             "app-project-root": LocalJSX.AppProjectRoot & JSXBase.HTMLAttributes<HTMLAppProjectRootElement>;
             "app-project-sidebar-files": LocalJSX.AppProjectSidebarFiles & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFilesElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
-            "app-settings-general": LocalJSX.AppSettingsGeneral & JSXBase.HTMLAttributes<HTMLAppSettingsGeneralElement>;
+            "app-settings-advanced": LocalJSX.AppSettingsAdvanced & JSXBase.HTMLAttributes<HTMLAppSettingsAdvancedElement>;
             "app-settings-plugin-card": LocalJSX.AppSettingsPluginCard & JSXBase.HTMLAttributes<HTMLAppSettingsPluginCardElement>;
             "app-settings-plugins": LocalJSX.AppSettingsPlugins & JSXBase.HTMLAttributes<HTMLAppSettingsPluginsElement>;
             "app-settings-root": LocalJSX.AppSettingsRoot & JSXBase.HTMLAttributes<HTMLAppSettingsRootElement>;
             "app-settings-sidebar": LocalJSX.AppSettingsSidebar & JSXBase.HTMLAttributes<HTMLAppSettingsSidebarElement>;
+            "app-sidebar-empty": LocalJSX.AppSidebarEmpty & JSXBase.HTMLAttributes<HTMLAppSidebarEmptyElement>;
         }
     }
 }

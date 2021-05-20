@@ -1,19 +1,19 @@
 import { newE2EPage } from '@stencil/core/testing'
 
-describe('app-settings', () => {
-  it.skip('renders', async () => {
+describe('app-settings-root', () => {
+  it('renders', async () => {
     const page = await newE2EPage()
-    await page.setContent('<app-settings></app-settings>')
+    await page.setContent('<app-settings-root></app-settings-root>')
 
-    const element = await page.find('app-settings')
+    const element = await page.find('app-settings-root')
     expect(element).toHaveClass('hydrated')
   })
 
-  it.skip('contains a "Profile Page" button', async () => {
+  it('contains sidebar navigation', async () => {
     const page = await newE2EPage()
-    await page.setContent('<app-settings></app-settings>')
+    await page.setContent('<app-settings-root></app-settings-root>')
 
-    const element = await page.find('app-settings >>> button')
-    expect(element.textContent).toEqual('Profile page')
+    const element = await page.find('app-settings-root app-settings-sidebar')
+    expect(element).toBeDefined()
   })
 })

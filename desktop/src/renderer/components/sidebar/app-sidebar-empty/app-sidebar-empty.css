@@ -1,0 +1,12 @@
+:host {
+  @apply block text-xs text-center p-4;
+
+  ::slotted(*) {
+    @apply text-xs text-center font-normal;
+    color: var(--color-neutral-500);
+  }
+
+  ::slotted(stencila-icon) {
+    @apply text-lg;
+  }
+}

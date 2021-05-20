@@ -4,10 +4,39 @@ import { CHANNEL } from '../../../preload'
 import { projectEntity } from './entities'
 import { ProjectStoreEntities } from './projectStore'
 
+const StoreKeys = {
+  recentProjects: 'recentProjects',
+}
+
+export const fetchRecentProjects = (): string[] => {
+  const paths = window.localStorage.getItem(StoreKeys.recentProjects) ?? '[]'
+  try {
+    const parsedPaths = JSON.parse(paths)
+    if (Array.isArray(parsedPaths)) {
+      return parsedPaths.slice(0, 9)
+    } else {
+      return []
+    }
+  } catch {
+    return []
+  }
+}
+
+const saveRecentProjects = (path: string) => {
+  const existingPaths = fetchRecentProjects()
+  const dedupedPaths = new Set([...existingPaths, path])
+  window.localStorage.setItem(
+    StoreKeys.recentProjects,
+    JSON.stringify([...dedupedPaths])
+  )
+}
+
 export const fetchProject = createAsyncThunk(
   'projects/fetchProject',
   async (path: string) => {
     const data = await window.api.invoke(CHANNEL.GET_PROJECT_FILES, path)
+
+    saveRecentProjects(path)
 
     const normalized = normalize<any, ProjectStoreEntities>(data, projectEntity)
 

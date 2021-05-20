@@ -39,7 +39,7 @@ export class AppSettingsPlugins {
           </stencila-button>
         </div>
         {pluginStore.plugins.ids.map((pluginName) => (
-          <plugin-card pluginName={pluginName}></plugin-card>
+          <app-settings-plugin-card pluginName={pluginName}></app-settings-plugin-card>
         ))}
       </div>
     )

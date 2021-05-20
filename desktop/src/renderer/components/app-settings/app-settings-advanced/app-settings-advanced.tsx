@@ -9,11 +9,11 @@ type Settings = {
 }
 
 @Component({
-  tag: 'app-settings-general',
-  styleUrl: 'app-settings-general.css',
+  tag: 'app-settings-advanced',
+  styleUrl: 'app-settings-advanced.css',
   scoped: true,
 })
-export class AppSettingsGeneral {
+export class AppSettingsAdvanced {
   @State() settings: Settings | undefined
 
   private readConfig = () =>
@@ -25,7 +25,7 @@ export class AppSettingsGeneral {
 
   render() {
     return (
-      <form class="settingsGeneral">
+      <form class="settingsAdvanced">
         {this.settings && build(this.settings.schema)}
       </form>
     )
