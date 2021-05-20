@@ -57,7 +57,7 @@ export class AppProjectSidebarFiles {
   render() {
     const files = selectProjectRootFiles(state)
     return (
-      <Host>
+      <Host class="customScrollbar">
         <div class="app-project-sidebar-files">
           {files && files.length > 0 ? (
             <ul>{files.map(this.pathToFileTree)}</ul>

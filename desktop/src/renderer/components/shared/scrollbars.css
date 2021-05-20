@@ -1,0 +1,30 @@
+.customScrollbar {
+  &::-webkit-scrollbar {
+    width: 0.75rem;
+    @apply px-px;
+  }
+
+  &::-webkit-scrollbar-button {
+  }
+
+  &::-webkit-scrollbar-track {
+  }
+
+  &::-webkit-scrollbar-track-piece {
+    @apply rounded bg-transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(113, 128, 150, .75);
+    transition-property: background, width, opacity;
+    transition-duration: 12500ms;
+    transition-timing-function: ease-out;
+  }
+
+  &::-webkit-scrollbar-corner {
+  }
+
+  &::-webkit-resizer {
+    background: var(--color-neutral-700);
+  }
+}

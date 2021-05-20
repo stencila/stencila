@@ -1,6 +1,14 @@
 :host {
-  @apply block overflow-scroll resize-x max-w-xs;
+  @apply block overflow-y-scroll resize-x max-w-xs;
   min-width: 12rem;
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(113, 128, 150, 0) !important;
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background: rgba(113, 128, 150, .75) !important;
+  }
 }
 
 ul {
