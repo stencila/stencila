@@ -2693,6 +2693,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "serde_yaml",
+ "stencila-schema",
  "structopt",
  "strum",
  "strum_macros",
@@ -2733,6 +2734,19 @@ version = "0.67.0"
 dependencies = [
  "neon",
  "stencila",
+]
+
+[[package]]
+name = "stencila-schema"
+version = "1.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2f9f0fd2afa995c5815277aa1cb9a472ee17ad20ce190ed73845df4845c0deb2"
+dependencies = [
+ "chrono",
+ "defaults",
+ "serde",
+ "serde_json",
+ "serde_with",
 ]
 
 [[package]]

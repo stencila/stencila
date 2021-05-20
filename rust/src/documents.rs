@@ -13,9 +13,7 @@ use std::{
         Arc, Mutex, MutexGuard,
     },
 };
-
-// use stencila_schema::CreativeWorkTypes;
-type CreativeWorkTypes = serde_json::Value;
+use stencila_schema::CreativeWorkTypes;
 
 #[derive(JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
