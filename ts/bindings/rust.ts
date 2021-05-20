@@ -22,6 +22,8 @@ if (require.main) build()
 
 // Code generation context
 interface Context {
+  propertyName?: string
+  typeName?: string
   propertyTypeName?: string
   anonEnums: Record<string, string>
 }
@@ -157,6 +159,8 @@ export function interfaceSchemaToEnum(
       const propertyPath = `${title}.${name}`
       const propertyTypeName = pascalCase(`${title} ${name}`)
       context.propertyTypeName = propertyTypeName
+      context.propertyName = name
+      context.typeName = title
 
       let type =
         propertyTypeName in propertyTypes
@@ -189,8 +193,6 @@ ${attrs.map((attr) => `    ${attr}\n`).join('')}    pub ${snakeCase(
   ].join(', ')
 
   const code = `
-/// ${title}
-///
 ${docComment(description)}
 #[skip_serializing_none]
 #[derive(${derives})]
@@ -283,8 +285,6 @@ function schemaToType(schema: JsonSchema, context: Context): string {
  * be tagged. Tagging is done within structs.
  */
 function anyOfToEnum(anyOf: JsonSchema[], context: Context): string {
-  const name = context.propertyTypeName ?? ''
-
   const variants = anyOf
     .map((schema) => {
       const type = schemaToType(schema, context)
@@ -293,7 +293,10 @@ function anyOfToEnum(anyOf: JsonSchema[], context: Context): string {
     })
     .join('')
 
-  const definition = `#[derive(Clone, Debug, Serialize, Deserialize)]
+  const name = context.propertyTypeName ?? ''
+
+  const definition = `/// Types permitted for the \`${context.propertyName}\` property of a \`${context.typeName}\` node.
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${name} {\n${variants}}\n`
   context.anonEnums[name] = definition

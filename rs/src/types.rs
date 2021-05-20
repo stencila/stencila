@@ -10,8 +10,6 @@ use crate::prelude::*;
  ********************************************************************/
 
 
-/// Entity
-///
 /// The most simple compound (ie. non-atomic like `number`, `string` etc) type.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -30,8 +28,6 @@ pub struct Entity {
 }
 impl_type!(Entity);
 
-/// Cite
-///
 /// A reference to a CreativeWork that is cited in another CreativeWork.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -77,8 +73,6 @@ pub struct Cite {
 }
 impl_type!(Cite);
 
-/// CiteGroup
-///
 /// A group of Cite nodes.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -100,8 +94,6 @@ pub struct CiteGroup {
 }
 impl_type!(CiteGroup);
 
-/// Code
-///
 /// Base type for code nodes e.g. CodeBlock, CodeExpression.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -129,8 +121,6 @@ pub struct Code {
 }
 impl_type!(Code);
 
-/// CodeBlock
-///
 /// A code block.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -164,8 +154,6 @@ pub struct CodeBlock {
 }
 impl_type!(CodeBlock);
 
-/// CodeChunk
-///
 /// A executable chunk of code.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -232,8 +220,6 @@ pub struct CodeChunk {
 }
 impl_type!(CodeChunk);
 
-/// CodeFragment
-///
 /// Inline code.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -261,8 +247,6 @@ pub struct CodeFragment {
 }
 impl_type!(CodeFragment);
 
-/// CodeExpression
-///
 /// An expression defined in programming language source code.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -296,8 +280,6 @@ pub struct CodeExpression {
 }
 impl_type!(CodeExpression);
 
-/// CodeError
-///
 /// An error that occurred when parsing, compiling or executing a Code node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -325,8 +307,6 @@ pub struct CodeError {
 }
 impl_type!(CodeError);
 
-/// Date
-///
 /// A date encoded as a ISO 8601 string.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -350,8 +330,6 @@ pub struct Date {
 }
 impl_type!(Date);
 
-/// Mark
-///
 /// A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -373,8 +351,6 @@ pub struct Mark {
 }
 impl_type!(Mark);
 
-/// Delete
-///
 /// Content that is marked for deletion
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -396,8 +372,6 @@ pub struct Delete {
 }
 impl_type!(Delete);
 
-/// Emphasis
-///
 /// Emphasised content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -419,8 +393,6 @@ pub struct Emphasis {
 }
 impl_type!(Emphasis);
 
-/// Thing
-///
 /// The most generic type of item.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -457,8 +429,6 @@ pub struct Thing {
 }
 impl_type!(Thing);
 
-/// Brand
-///
 /// A brand used by an organization or person for labeling a product, product group, or similar.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -501,8 +471,6 @@ pub struct Brand {
 }
 impl_type!(Brand);
 
-/// ContactPoint
-///
 /// A contact point, usually within an organization.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -548,8 +516,6 @@ pub struct ContactPoint {
 }
 impl_type!(ContactPoint);
 
-/// CreativeWork
-///
 /// A creative work, including books, movies, photographs, software programs, etc.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -656,8 +622,6 @@ pub struct CreativeWork {
 }
 impl_type!(CreativeWork);
 
-/// Article
-///
 /// An article, including news and scholarly articles.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -773,8 +737,6 @@ pub struct Article {
 }
 impl_type!(Article);
 
-/// Claim
-///
 /// A claim represents specific reviewable facts or statements.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -887,8 +849,6 @@ pub struct Claim {
 }
 impl_type!(Claim);
 
-/// Collection
-///
 /// A collection of CreativeWorks or other artifacts.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -995,8 +955,6 @@ pub struct Collection {
 }
 impl_type!(Collection);
 
-/// Comment
-///
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1110,8 +1068,6 @@ pub struct Comment {
 }
 impl_type!(Comment);
 
-/// Datatable
-///
 /// A table of data.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1221,8 +1177,6 @@ pub struct Datatable {
 }
 impl_type!(Datatable);
 
-/// MediaObject
-///
 /// A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1344,8 +1298,6 @@ pub struct MediaObject {
 }
 impl_type!(MediaObject);
 
-/// AudioObject
-///
 /// An audio file
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1473,8 +1425,6 @@ pub struct AudioObject {
 }
 impl_type!(AudioObject);
 
-/// DatatableColumn
-///
 /// A column of data within a Datatable.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1517,8 +1467,6 @@ pub struct DatatableColumn {
 }
 impl_type!(DatatableColumn);
 
-/// DefinedTerm
-///
 /// A word, name, acronym, phrase, etc. with a formal definition.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1558,8 +1506,6 @@ pub struct DefinedTerm {
 }
 impl_type!(DefinedTerm);
 
-/// Validator
-///
 /// A base for all validator types.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1578,8 +1524,6 @@ pub struct Validator {
 }
 impl_type!(Validator);
 
-/// ArrayValidator
-///
 /// A validator specifying constraints on an array node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1615,8 +1559,6 @@ pub struct ArrayValidator {
 }
 impl_type!(ArrayValidator);
 
-/// BooleanValidator
-///
 /// A schema specifying that a node must be a boolean value.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1635,8 +1577,6 @@ pub struct BooleanValidator {
 }
 impl_type!(BooleanValidator);
 
-/// ConstantValidator
-///
 /// A validator specifying a constant value that a node must have.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1658,8 +1598,6 @@ pub struct ConstantValidator {
 }
 impl_type!(ConstantValidator);
 
-/// EnumValidator
-///
 /// A schema specifying that a node must be one of several values.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1681,8 +1619,6 @@ pub struct EnumValidator {
 }
 impl_type!(EnumValidator);
 
-/// Enumeration
-///
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1719,8 +1655,6 @@ pub struct Enumeration {
 }
 impl_type!(Enumeration);
 
-/// Figure
-///
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1833,8 +1767,6 @@ pub struct Figure {
 }
 impl_type!(Figure);
 
-/// Function
-///
 /// A function with a name, which might take Parameters and return a value of a certain type.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1862,8 +1794,6 @@ pub struct Function {
 }
 impl_type!(Function);
 
-/// Grant
-///
 /// A grant, typically financial or otherwise quantifiable, of resources.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1906,8 +1836,6 @@ pub struct Grant {
 }
 impl_type!(Grant);
 
-/// Heading
-///
 /// A heading.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -1932,8 +1860,6 @@ pub struct Heading {
 }
 impl_type!(Heading);
 
-/// ImageObject
-///
 /// An image file.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2063,8 +1989,6 @@ pub struct ImageObject {
 }
 impl_type!(ImageObject);
 
-/// Include
-///
 /// A directive to include content from an external source (e.g. file, URL) or content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2092,8 +2016,6 @@ pub struct Include {
 }
 impl_type!(Include);
 
-/// IntegerValidator
-///
 /// A validator specifying the constraints on an integer node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2112,8 +2034,6 @@ pub struct IntegerValidator {
 }
 impl_type!(IntegerValidator);
 
-/// Link
-///
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2150,8 +2070,6 @@ pub struct Link {
 }
 impl_type!(Link);
 
-/// List
-///
 /// A list of items.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2176,8 +2094,6 @@ pub struct List {
 }
 impl_type!(List);
 
-/// ListItem
-///
 /// A single item in a list.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2226,8 +2142,6 @@ pub struct ListItem {
 }
 impl_type!(ListItem);
 
-/// Math
-///
 /// A mathematical variable or equation.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2255,8 +2169,6 @@ pub struct Math {
 }
 impl_type!(Math);
 
-/// MathBlock
-///
 /// A block of math, e.g an equation, to be treated as block content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2287,8 +2199,6 @@ pub struct MathBlock {
 }
 impl_type!(MathBlock);
 
-/// MathFragment
-///
 /// A fragment of math, e.g a variable name, to be treated as inline content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2316,8 +2226,6 @@ pub struct MathFragment {
 }
 impl_type!(MathFragment);
 
-/// MonetaryGrant
-///
 /// A monetary grant.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2366,8 +2274,6 @@ pub struct MonetaryGrant {
 }
 impl_type!(MonetaryGrant);
 
-/// NontextualAnnotation
-///
 /// Inline text that has a non-textual annotation.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2389,8 +2295,6 @@ pub struct NontextualAnnotation {
 }
 impl_type!(NontextualAnnotation);
 
-/// Note
-///
 /// Additional content which is not part of the main content of a document.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2415,8 +2319,6 @@ pub struct Note {
 }
 impl_type!(Note);
 
-/// NumberValidator
-///
 /// A validator specifying the constraints on a numeric node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2450,8 +2352,6 @@ pub struct NumberValidator {
 }
 impl_type!(NumberValidator);
 
-/// Organization
-///
 /// An organization such as a school, NGO, corporation, club, etc.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2517,8 +2417,6 @@ pub struct Organization {
 impl_type!(Organization);
 
 /// Paragraph
-///
-/// Paragraph
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
@@ -2539,8 +2437,6 @@ pub struct Paragraph {
 }
 impl_type!(Paragraph);
 
-/// Variable
-///
 /// A variable representing a name / value pair.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2571,8 +2467,6 @@ pub struct Variable {
 }
 impl_type!(Variable);
 
-/// Parameter
-///
 /// A parameter that can be set and used in evaluated code.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2615,8 +2509,6 @@ pub struct Parameter {
 }
 impl_type!(Parameter);
 
-/// Periodical
-///
 /// A periodical publication.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2732,8 +2624,6 @@ pub struct Periodical {
 }
 impl_type!(Periodical);
 
-/// Person
-///
 /// A person (alive, dead, undead, or fictional).
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2803,8 +2693,6 @@ pub struct Person {
 }
 impl_type!(Person);
 
-/// PostalAddress
-///
 /// A physical mailing address.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2868,8 +2756,6 @@ pub struct PostalAddress {
 }
 impl_type!(PostalAddress);
 
-/// Product
-///
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2915,8 +2801,6 @@ pub struct Product {
 }
 impl_type!(Product);
 
-/// PropertyValue
-///
 /// A property-value pair.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -2960,8 +2844,6 @@ pub struct PropertyValue {
 }
 impl_type!(PropertyValue);
 
-/// PublicationIssue
-///
 /// A part of a successively published publication such as a periodical or publication volume, often numbered.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3080,8 +2962,6 @@ pub struct PublicationIssue {
 }
 impl_type!(PublicationIssue);
 
-/// PublicationVolume
-///
 /// A part of a successively published publication such as a periodical or multi-volume work.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3200,8 +3080,6 @@ pub struct PublicationVolume {
 }
 impl_type!(PublicationVolume);
 
-/// Quote
-///
 /// Inline, quoted content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3226,8 +3104,6 @@ pub struct Quote {
 }
 impl_type!(Quote);
 
-/// QuoteBlock
-///
 /// A section quoted from somewhere else.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3252,8 +3128,6 @@ pub struct QuoteBlock {
 }
 impl_type!(QuoteBlock);
 
-/// Review
-///
 /// A review of an item, e.g of an Article, or SoftwareSourceCode.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3366,8 +3240,6 @@ pub struct Review {
 }
 impl_type!(Review);
 
-/// SoftwareApplication
-///
 /// A software application.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3480,8 +3352,6 @@ pub struct SoftwareApplication {
 }
 impl_type!(SoftwareApplication);
 
-/// SoftwareEnvironment
-///
 /// A computational environment.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3527,8 +3397,6 @@ pub struct SoftwareEnvironment {
 }
 impl_type!(SoftwareEnvironment);
 
-/// SoftwareSession
-///
 /// Definition of a compute session, including its software and compute resource requirements and status.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3616,8 +3484,6 @@ pub struct SoftwareSession {
 }
 impl_type!(SoftwareSession);
 
-/// SoftwareSourceCode
-///
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3742,8 +3608,6 @@ pub struct SoftwareSourceCode {
 }
 impl_type!(SoftwareSourceCode);
 
-/// StringValidator
-///
 /// A schema specifying constraints on a string node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3771,8 +3635,6 @@ pub struct StringValidator {
 }
 impl_type!(StringValidator);
 
-/// Strong
-///
 /// Strongly emphasised content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3794,8 +3656,6 @@ pub struct Strong {
 }
 impl_type!(Strong);
 
-/// Subscript
-///
 /// Subscripted content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3817,8 +3677,6 @@ pub struct Subscript {
 }
 impl_type!(Subscript);
 
-/// Superscript
-///
 /// Superscripted content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3840,8 +3698,6 @@ pub struct Superscript {
 }
 impl_type!(Superscript);
 
-/// Table
-///
 /// A table.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3957,8 +3813,6 @@ pub struct Table {
 }
 impl_type!(Table);
 
-/// TableCell
-///
 /// A cell within a `Table`.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -3992,8 +3846,6 @@ pub struct TableCell {
 }
 impl_type!(TableCell);
 
-/// TableRow
-///
 /// A row within a Table.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4018,8 +3870,6 @@ pub struct TableRow {
 }
 impl_type!(TableRow);
 
-/// ThematicBreak
-///
 /// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4038,8 +3888,6 @@ pub struct ThematicBreak {
 }
 impl_type!(ThematicBreak);
 
-/// TupleValidator
-///
 /// A validator specifying constraints on an array of heterogeneous items.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4061,8 +3909,6 @@ pub struct TupleValidator {
 }
 impl_type!(TupleValidator);
 
-/// VideoObject
-///
 /// A video file.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4193,8 +4039,6 @@ pub struct VideoObject {
 }
 impl_type!(VideoObject);
 
-/// VolumeMount
-///
 /// Describes a volume mount from a host to container.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
@@ -4264,6 +4108,7 @@ pub enum CiteCitationMode {
     SuppressAuthor,
 }
 
+/// Types permitted for the `pageEnd` property of a `Cite` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CitePageEnd {
@@ -4271,6 +4116,7 @@ pub enum CitePageEnd {
     String(String),
 }
 
+/// Types permitted for the `pageStart` property of a `Cite` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CitePageStart {
@@ -4278,6 +4124,7 @@ pub enum CitePageStart {
     String(String),
 }
 
+/// Types permitted for the `assigns` property of a `CodeChunk` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkAssigns {
@@ -4285,6 +4132,7 @@ pub enum CodeChunkAssigns {
     String(String),
 }
 
+/// Types permitted for the `caption` property of a `CodeChunk` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkCaption {
@@ -4292,6 +4140,7 @@ pub enum CodeChunkCaption {
     String(String),
 }
 
+/// Types permitted for the `declares` property of a `CodeChunk` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkDeclares {
@@ -4300,6 +4149,7 @@ pub enum CodeChunkDeclares {
     String(String),
 }
 
+/// Types permitted for the `imports` property of a `CodeChunk` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkImports {
@@ -4308,6 +4158,7 @@ pub enum CodeChunkImports {
     String(String),
 }
 
+/// Types permitted for the `uses` property of a `CodeChunk` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkUses {
@@ -4315,6 +4166,7 @@ pub enum CodeChunkUses {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `Thing` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingDescription {
@@ -4323,6 +4175,7 @@ pub enum ThingDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `Thing` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingIdentifiers {
@@ -4330,6 +4183,7 @@ pub enum ThingIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Thing` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingImages {
@@ -4337,6 +4191,7 @@ pub enum ThingImages {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `Brand` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BrandDescription {
@@ -4345,6 +4200,7 @@ pub enum BrandDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `Brand` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BrandIdentifiers {
@@ -4352,6 +4208,7 @@ pub enum BrandIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Brand` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BrandImages {
@@ -4359,6 +4216,7 @@ pub enum BrandImages {
     String(String),
 }
 
+/// Types permitted for the `logo` property of a `Brand` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BrandLogo {
@@ -4366,6 +4224,7 @@ pub enum BrandLogo {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `ContactPoint` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointDescription {
@@ -4374,6 +4233,7 @@ pub enum ContactPointDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `ContactPoint` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointIdentifiers {
@@ -4381,6 +4241,7 @@ pub enum ContactPointIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `ContactPoint` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointImages {
@@ -4388,6 +4249,7 @@ pub enum ContactPointImages {
     String(String),
 }
 
+/// Types permitted for the `authors` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkAuthors {
@@ -4395,6 +4257,7 @@ pub enum CreativeWorkAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkDescription {
@@ -4403,6 +4266,7 @@ pub enum CreativeWorkDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkFundedBy {
@@ -4410,6 +4274,7 @@ pub enum CreativeWorkFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkFunders {
@@ -4417,6 +4282,7 @@ pub enum CreativeWorkFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkIdentifiers {
@@ -4424,6 +4290,7 @@ pub enum CreativeWorkIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkImages {
@@ -4431,6 +4298,7 @@ pub enum CreativeWorkImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkLicenses {
@@ -4438,6 +4306,7 @@ pub enum CreativeWorkLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkMaintainers {
@@ -4445,6 +4314,7 @@ pub enum CreativeWorkMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkPublisher {
@@ -4452,6 +4322,7 @@ pub enum CreativeWorkPublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkReferences {
@@ -4459,6 +4330,7 @@ pub enum CreativeWorkReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkTitle {
@@ -4466,6 +4338,7 @@ pub enum CreativeWorkTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `CreativeWork` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkVersion {
@@ -4473,6 +4346,7 @@ pub enum CreativeWorkVersion {
     Number(Number),
 }
 
+/// Types permitted for the `authors` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleAuthors {
@@ -4480,6 +4354,7 @@ pub enum ArticleAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleDescription {
@@ -4488,6 +4363,7 @@ pub enum ArticleDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleFundedBy {
@@ -4495,6 +4371,7 @@ pub enum ArticleFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleFunders {
@@ -4502,6 +4379,7 @@ pub enum ArticleFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleIdentifiers {
@@ -4509,6 +4387,7 @@ pub enum ArticleIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleImages {
@@ -4516,6 +4395,7 @@ pub enum ArticleImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleLicenses {
@@ -4523,6 +4403,7 @@ pub enum ArticleLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleMaintainers {
@@ -4530,6 +4411,7 @@ pub enum ArticleMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `pageEnd` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticlePageEnd {
@@ -4537,6 +4419,7 @@ pub enum ArticlePageEnd {
     String(String),
 }
 
+/// Types permitted for the `pageStart` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticlePageStart {
@@ -4544,6 +4427,7 @@ pub enum ArticlePageStart {
     String(String),
 }
 
+/// Types permitted for the `publisher` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticlePublisher {
@@ -4551,6 +4435,7 @@ pub enum ArticlePublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleReferences {
@@ -4558,6 +4443,7 @@ pub enum ArticleReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleTitle {
@@ -4565,6 +4451,7 @@ pub enum ArticleTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `Article` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleVersion {
@@ -4572,6 +4459,7 @@ pub enum ArticleVersion {
     Number(Number),
 }
 
+/// Types permitted for the `authors` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimAuthors {
@@ -4591,6 +4479,7 @@ pub enum ClaimClaimType {
     Corollary,
 }
 
+/// Types permitted for the `description` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimDescription {
@@ -4599,6 +4488,7 @@ pub enum ClaimDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimFundedBy {
@@ -4606,6 +4496,7 @@ pub enum ClaimFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimFunders {
@@ -4613,6 +4504,7 @@ pub enum ClaimFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimIdentifiers {
@@ -4620,6 +4512,7 @@ pub enum ClaimIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimImages {
@@ -4627,6 +4520,7 @@ pub enum ClaimImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimLicenses {
@@ -4634,6 +4528,7 @@ pub enum ClaimLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimMaintainers {
@@ -4641,6 +4536,7 @@ pub enum ClaimMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimPublisher {
@@ -4648,6 +4544,7 @@ pub enum ClaimPublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimReferences {
@@ -4655,6 +4552,7 @@ pub enum ClaimReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimTitle {
@@ -4662,6 +4560,7 @@ pub enum ClaimTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `Claim` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimVersion {
@@ -4669,6 +4568,7 @@ pub enum ClaimVersion {
     Number(Number),
 }
 
+/// Types permitted for the `authors` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionAuthors {
@@ -4676,6 +4576,7 @@ pub enum CollectionAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionDescription {
@@ -4684,6 +4585,7 @@ pub enum CollectionDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionFundedBy {
@@ -4691,6 +4593,7 @@ pub enum CollectionFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionFunders {
@@ -4698,6 +4601,7 @@ pub enum CollectionFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionIdentifiers {
@@ -4705,6 +4609,7 @@ pub enum CollectionIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionImages {
@@ -4712,6 +4617,7 @@ pub enum CollectionImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionLicenses {
@@ -4719,6 +4625,7 @@ pub enum CollectionLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionMaintainers {
@@ -4726,6 +4633,7 @@ pub enum CollectionMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionPublisher {
@@ -4733,6 +4641,7 @@ pub enum CollectionPublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionReferences {
@@ -4740,6 +4649,7 @@ pub enum CollectionReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionTitle {
@@ -4747,6 +4657,7 @@ pub enum CollectionTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `Collection` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionVersion {
@@ -4754,6 +4665,7 @@ pub enum CollectionVersion {
     Number(Number),
 }
 
+/// Types permitted for the `authors` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentAuthors {
@@ -4761,6 +4673,7 @@ pub enum CommentAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentDescription {
@@ -4769,6 +4682,7 @@ pub enum CommentDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentFundedBy {
@@ -4776,6 +4690,7 @@ pub enum CommentFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentFunders {
@@ -4783,6 +4698,7 @@ pub enum CommentFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentIdentifiers {
@@ -4790,6 +4706,7 @@ pub enum CommentIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentImages {
@@ -4797,6 +4714,7 @@ pub enum CommentImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentLicenses {
@@ -4804,6 +4722,7 @@ pub enum CommentLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentMaintainers {
@@ -4811,6 +4730,7 @@ pub enum CommentMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentPublisher {
@@ -4818,6 +4738,7 @@ pub enum CommentPublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentReferences {
@@ -4825,6 +4746,7 @@ pub enum CommentReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentTitle {
@@ -4832,6 +4754,7 @@ pub enum CommentTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `Comment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentVersion {
@@ -4839,6 +4762,7 @@ pub enum CommentVersion {
     Number(Number),
 }
 
+/// Types permitted for the `authors` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableAuthors {
@@ -4846,6 +4770,7 @@ pub enum DatatableAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableDescription {
@@ -4854,6 +4779,7 @@ pub enum DatatableDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableFundedBy {
@@ -4861,6 +4787,7 @@ pub enum DatatableFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableFunders {
@@ -4868,6 +4795,7 @@ pub enum DatatableFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableIdentifiers {
@@ -4875,6 +4803,7 @@ pub enum DatatableIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableImages {
@@ -4882,6 +4811,7 @@ pub enum DatatableImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableLicenses {
@@ -4889,6 +4819,7 @@ pub enum DatatableLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableMaintainers {
@@ -4896,6 +4827,7 @@ pub enum DatatableMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatablePublisher {
@@ -4903,6 +4835,7 @@ pub enum DatatablePublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableReferences {
@@ -4910,6 +4843,7 @@ pub enum DatatableReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableTitle {
@@ -4917,6 +4851,7 @@ pub enum DatatableTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `Datatable` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableVersion {
@@ -4924,6 +4859,7 @@ pub enum DatatableVersion {
     Number(Number),
 }
 
+/// Types permitted for the `authors` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectAuthors {
@@ -4931,6 +4867,7 @@ pub enum MediaObjectAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectDescription {
@@ -4939,6 +4876,7 @@ pub enum MediaObjectDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectFundedBy {
@@ -4946,6 +4884,7 @@ pub enum MediaObjectFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectFunders {
@@ -4953,6 +4892,7 @@ pub enum MediaObjectFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectIdentifiers {
@@ -4960,6 +4900,7 @@ pub enum MediaObjectIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectImages {
@@ -4967,6 +4908,7 @@ pub enum MediaObjectImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectLicenses {
@@ -4974,6 +4916,7 @@ pub enum MediaObjectLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectMaintainers {
@@ -4981,6 +4924,7 @@ pub enum MediaObjectMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectPublisher {
@@ -4988,6 +4932,7 @@ pub enum MediaObjectPublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectReferences {
@@ -4995,6 +4940,7 @@ pub enum MediaObjectReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectTitle {
@@ -5002,6 +4948,7 @@ pub enum MediaObjectTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `MediaObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectVersion {
@@ -5009,6 +4956,7 @@ pub enum MediaObjectVersion {
     Number(Number),
 }
 
+/// Types permitted for the `authors` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectAuthors {
@@ -5016,6 +4964,7 @@ pub enum AudioObjectAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectDescription {
@@ -5024,6 +4973,7 @@ pub enum AudioObjectDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectFundedBy {
@@ -5031,6 +4981,7 @@ pub enum AudioObjectFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectFunders {
@@ -5038,6 +4989,7 @@ pub enum AudioObjectFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectIdentifiers {
@@ -5045,6 +4997,7 @@ pub enum AudioObjectIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectImages {
@@ -5052,6 +5005,7 @@ pub enum AudioObjectImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectLicenses {
@@ -5059,6 +5013,7 @@ pub enum AudioObjectLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectMaintainers {
@@ -5066,6 +5021,7 @@ pub enum AudioObjectMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectPublisher {
@@ -5073,6 +5029,7 @@ pub enum AudioObjectPublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectReferences {
@@ -5080,6 +5037,7 @@ pub enum AudioObjectReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectTitle {
@@ -5087,6 +5045,7 @@ pub enum AudioObjectTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `AudioObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectVersion {
@@ -5094,6 +5053,7 @@ pub enum AudioObjectVersion {
     Number(Number),
 }
 
+/// Types permitted for the `description` property of a `DatatableColumn` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableColumnDescription {
@@ -5102,6 +5062,7 @@ pub enum DatatableColumnDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `DatatableColumn` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableColumnIdentifiers {
@@ -5109,6 +5070,7 @@ pub enum DatatableColumnIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `DatatableColumn` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableColumnImages {
@@ -5116,6 +5078,7 @@ pub enum DatatableColumnImages {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `DefinedTerm` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DefinedTermDescription {
@@ -5124,6 +5087,7 @@ pub enum DefinedTermDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `DefinedTerm` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DefinedTermIdentifiers {
@@ -5131,6 +5095,7 @@ pub enum DefinedTermIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `DefinedTerm` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DefinedTermImages {
@@ -5138,6 +5103,7 @@ pub enum DefinedTermImages {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `Enumeration` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnumerationDescription {
@@ -5146,6 +5112,7 @@ pub enum EnumerationDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `Enumeration` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnumerationIdentifiers {
@@ -5153,6 +5120,7 @@ pub enum EnumerationIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Enumeration` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnumerationImages {
@@ -5160,6 +5128,7 @@ pub enum EnumerationImages {
     String(String),
 }
 
+/// Types permitted for the `authors` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureAuthors {
@@ -5167,6 +5136,7 @@ pub enum FigureAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `caption` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureCaption {
@@ -5174,6 +5144,7 @@ pub enum FigureCaption {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureDescription {
@@ -5182,6 +5153,7 @@ pub enum FigureDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureFundedBy {
@@ -5189,6 +5161,7 @@ pub enum FigureFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureFunders {
@@ -5196,6 +5169,7 @@ pub enum FigureFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureIdentifiers {
@@ -5203,6 +5177,7 @@ pub enum FigureIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureImages {
@@ -5210,6 +5185,7 @@ pub enum FigureImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureLicenses {
@@ -5217,6 +5193,7 @@ pub enum FigureLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureMaintainers {
@@ -5224,6 +5201,7 @@ pub enum FigureMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigurePublisher {
@@ -5231,6 +5209,7 @@ pub enum FigurePublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureReferences {
@@ -5238,6 +5217,7 @@ pub enum FigureReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureTitle {
@@ -5245,6 +5225,7 @@ pub enum FigureTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `Figure` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureVersion {
@@ -5252,6 +5233,7 @@ pub enum FigureVersion {
     Number(Number),
 }
 
+/// Types permitted for the `description` property of a `Grant` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantDescription {
@@ -5260,6 +5242,7 @@ pub enum GrantDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `Grant` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantIdentifiers {
@@ -5267,6 +5250,7 @@ pub enum GrantIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Grant` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantImages {
@@ -5274,6 +5258,7 @@ pub enum GrantImages {
     String(String),
 }
 
+/// Types permitted for the `sponsors` property of a `Grant` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantSponsors {
@@ -5281,6 +5266,7 @@ pub enum GrantSponsors {
     Organization(Organization),
 }
 
+/// Types permitted for the `authors` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectAuthors {
@@ -5288,6 +5274,7 @@ pub enum ImageObjectAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectDescription {
@@ -5296,6 +5283,7 @@ pub enum ImageObjectDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectFundedBy {
@@ -5303,6 +5291,7 @@ pub enum ImageObjectFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectFunders {
@@ -5310,6 +5299,7 @@ pub enum ImageObjectFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectIdentifiers {
@@ -5317,6 +5307,7 @@ pub enum ImageObjectIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectImages {
@@ -5324,6 +5315,7 @@ pub enum ImageObjectImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectLicenses {
@@ -5331,6 +5323,7 @@ pub enum ImageObjectLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectMaintainers {
@@ -5338,6 +5331,7 @@ pub enum ImageObjectMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectPublisher {
@@ -5345,6 +5339,7 @@ pub enum ImageObjectPublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectReferences {
@@ -5352,6 +5347,7 @@ pub enum ImageObjectReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectTitle {
@@ -5359,6 +5355,7 @@ pub enum ImageObjectTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `ImageObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectVersion {
@@ -5373,6 +5370,7 @@ pub enum ListOrder {
     Unordered,
 }
 
+/// Types permitted for the `description` property of a `ListItem` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ListItemDescription {
@@ -5381,6 +5379,7 @@ pub enum ListItemDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `ListItem` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ListItemIdentifiers {
@@ -5388,6 +5387,7 @@ pub enum ListItemIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `ListItem` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ListItemImages {
@@ -5395,6 +5395,7 @@ pub enum ListItemImages {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `MonetaryGrant` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantDescription {
@@ -5403,6 +5404,7 @@ pub enum MonetaryGrantDescription {
     String(String),
 }
 
+/// Types permitted for the `funders` property of a `MonetaryGrant` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantFunders {
@@ -5410,6 +5412,7 @@ pub enum MonetaryGrantFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `MonetaryGrant` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantIdentifiers {
@@ -5417,6 +5420,7 @@ pub enum MonetaryGrantIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `MonetaryGrant` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantImages {
@@ -5424,6 +5428,7 @@ pub enum MonetaryGrantImages {
     String(String),
 }
 
+/// Types permitted for the `sponsors` property of a `MonetaryGrant` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantSponsors {
@@ -5438,6 +5443,7 @@ pub enum NoteNoteType {
     Sidenote,
 }
 
+/// Types permitted for the `address` property of a `Organization` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationAddress {
@@ -5445,6 +5451,7 @@ pub enum OrganizationAddress {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `Organization` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationDescription {
@@ -5453,6 +5460,7 @@ pub enum OrganizationDescription {
     String(String),
 }
 
+/// Types permitted for the `funders` property of a `Organization` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationFunders {
@@ -5460,6 +5468,7 @@ pub enum OrganizationFunders {
     Person(Person),
 }
 
+/// Types permitted for the `identifiers` property of a `Organization` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationIdentifiers {
@@ -5467,6 +5476,7 @@ pub enum OrganizationIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Organization` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationImages {
@@ -5474,6 +5484,7 @@ pub enum OrganizationImages {
     String(String),
 }
 
+/// Types permitted for the `logo` property of a `Organization` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationLogo {
@@ -5481,6 +5492,7 @@ pub enum OrganizationLogo {
     String(String),
 }
 
+/// Types permitted for the `members` property of a `Organization` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationMembers {
@@ -5488,6 +5500,7 @@ pub enum OrganizationMembers {
     Person(Person),
 }
 
+/// Types permitted for the `authors` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalAuthors {
@@ -5495,6 +5508,7 @@ pub enum PeriodicalAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalDescription {
@@ -5503,6 +5517,7 @@ pub enum PeriodicalDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalFundedBy {
@@ -5510,6 +5525,7 @@ pub enum PeriodicalFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalFunders {
@@ -5517,6 +5533,7 @@ pub enum PeriodicalFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalIdentifiers {
@@ -5524,6 +5541,7 @@ pub enum PeriodicalIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalImages {
@@ -5531,6 +5549,7 @@ pub enum PeriodicalImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalLicenses {
@@ -5538,6 +5557,7 @@ pub enum PeriodicalLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalMaintainers {
@@ -5545,6 +5565,7 @@ pub enum PeriodicalMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalPublisher {
@@ -5552,6 +5573,7 @@ pub enum PeriodicalPublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalReferences {
@@ -5559,6 +5581,7 @@ pub enum PeriodicalReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalTitle {
@@ -5566,6 +5589,7 @@ pub enum PeriodicalTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `Periodical` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalVersion {
@@ -5573,6 +5597,7 @@ pub enum PeriodicalVersion {
     Number(Number),
 }
 
+/// Types permitted for the `address` property of a `Person` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonAddress {
@@ -5580,6 +5605,7 @@ pub enum PersonAddress {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `Person` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonDescription {
@@ -5588,6 +5614,7 @@ pub enum PersonDescription {
     String(String),
 }
 
+/// Types permitted for the `funders` property of a `Person` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonFunders {
@@ -5595,6 +5622,7 @@ pub enum PersonFunders {
     Person(Person),
 }
 
+/// Types permitted for the `identifiers` property of a `Person` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonIdentifiers {
@@ -5602,6 +5630,7 @@ pub enum PersonIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Person` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonImages {
@@ -5609,6 +5638,7 @@ pub enum PersonImages {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `PostalAddress` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PostalAddressDescription {
@@ -5617,6 +5647,7 @@ pub enum PostalAddressDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `PostalAddress` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PostalAddressIdentifiers {
@@ -5624,6 +5655,7 @@ pub enum PostalAddressIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `PostalAddress` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PostalAddressImages {
@@ -5631,6 +5663,7 @@ pub enum PostalAddressImages {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `Product` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProductDescription {
@@ -5639,6 +5672,7 @@ pub enum ProductDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `Product` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProductIdentifiers {
@@ -5646,6 +5680,7 @@ pub enum ProductIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Product` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProductImages {
@@ -5653,6 +5688,7 @@ pub enum ProductImages {
     String(String),
 }
 
+/// Types permitted for the `logo` property of a `Product` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProductLogo {
@@ -5660,6 +5696,7 @@ pub enum ProductLogo {
     String(String),
 }
 
+/// Types permitted for the `value` property of a `PropertyValue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValueValue {
@@ -5669,6 +5706,7 @@ pub enum PropertyValueValue {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `PropertyValue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValueDescription {
@@ -5677,6 +5715,7 @@ pub enum PropertyValueDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `PropertyValue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValueIdentifiers {
@@ -5684,6 +5723,7 @@ pub enum PropertyValueIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `PropertyValue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValueImages {
@@ -5691,6 +5731,7 @@ pub enum PropertyValueImages {
     String(String),
 }
 
+/// Types permitted for the `authors` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueAuthors {
@@ -5698,6 +5739,7 @@ pub enum PublicationIssueAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueDescription {
@@ -5706,6 +5748,7 @@ pub enum PublicationIssueDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueFundedBy {
@@ -5713,6 +5756,7 @@ pub enum PublicationIssueFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueFunders {
@@ -5720,6 +5764,7 @@ pub enum PublicationIssueFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueIdentifiers {
@@ -5727,6 +5772,7 @@ pub enum PublicationIssueIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueImages {
@@ -5734,6 +5780,7 @@ pub enum PublicationIssueImages {
     String(String),
 }
 
+/// Types permitted for the `issueNumber` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueIssueNumber {
@@ -5741,6 +5788,7 @@ pub enum PublicationIssueIssueNumber {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueLicenses {
@@ -5748,6 +5796,7 @@ pub enum PublicationIssueLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueMaintainers {
@@ -5755,6 +5804,7 @@ pub enum PublicationIssueMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `pageEnd` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssuePageEnd {
@@ -5762,6 +5812,7 @@ pub enum PublicationIssuePageEnd {
     String(String),
 }
 
+/// Types permitted for the `pageStart` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssuePageStart {
@@ -5769,6 +5820,7 @@ pub enum PublicationIssuePageStart {
     String(String),
 }
 
+/// Types permitted for the `publisher` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssuePublisher {
@@ -5776,6 +5828,7 @@ pub enum PublicationIssuePublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueReferences {
@@ -5783,6 +5836,7 @@ pub enum PublicationIssueReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueTitle {
@@ -5790,6 +5844,7 @@ pub enum PublicationIssueTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `PublicationIssue` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueVersion {
@@ -5797,6 +5852,7 @@ pub enum PublicationIssueVersion {
     Number(Number),
 }
 
+/// Types permitted for the `authors` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeAuthors {
@@ -5804,6 +5860,7 @@ pub enum PublicationVolumeAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeDescription {
@@ -5812,6 +5869,7 @@ pub enum PublicationVolumeDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeFundedBy {
@@ -5819,6 +5877,7 @@ pub enum PublicationVolumeFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeFunders {
@@ -5826,6 +5885,7 @@ pub enum PublicationVolumeFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeIdentifiers {
@@ -5833,6 +5893,7 @@ pub enum PublicationVolumeIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeImages {
@@ -5840,6 +5901,7 @@ pub enum PublicationVolumeImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeLicenses {
@@ -5847,6 +5909,7 @@ pub enum PublicationVolumeLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeMaintainers {
@@ -5854,6 +5917,7 @@ pub enum PublicationVolumeMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `pageEnd` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumePageEnd {
@@ -5861,6 +5925,7 @@ pub enum PublicationVolumePageEnd {
     String(String),
 }
 
+/// Types permitted for the `pageStart` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumePageStart {
@@ -5868,6 +5933,7 @@ pub enum PublicationVolumePageStart {
     String(String),
 }
 
+/// Types permitted for the `publisher` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumePublisher {
@@ -5875,6 +5941,7 @@ pub enum PublicationVolumePublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeReferences {
@@ -5882,6 +5949,7 @@ pub enum PublicationVolumeReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeTitle {
@@ -5889,6 +5957,7 @@ pub enum PublicationVolumeTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeVersion {
@@ -5896,6 +5965,7 @@ pub enum PublicationVolumeVersion {
     Number(Number),
 }
 
+/// Types permitted for the `volumeNumber` property of a `PublicationVolume` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeVolumeNumber {
@@ -5903,6 +5973,7 @@ pub enum PublicationVolumeVolumeNumber {
     String(String),
 }
 
+/// Types permitted for the `cite` property of a `Quote` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum QuoteCite {
@@ -5910,6 +5981,7 @@ pub enum QuoteCite {
     String(String),
 }
 
+/// Types permitted for the `cite` property of a `QuoteBlock` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum QuoteBlockCite {
@@ -5917,6 +5989,7 @@ pub enum QuoteBlockCite {
     String(String),
 }
 
+/// Types permitted for the `authors` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewAuthors {
@@ -5924,6 +5997,7 @@ pub enum ReviewAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewDescription {
@@ -5932,6 +6006,7 @@ pub enum ReviewDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewFundedBy {
@@ -5939,6 +6014,7 @@ pub enum ReviewFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewFunders {
@@ -5946,6 +6022,7 @@ pub enum ReviewFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewIdentifiers {
@@ -5953,6 +6030,7 @@ pub enum ReviewIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewImages {
@@ -5960,6 +6038,7 @@ pub enum ReviewImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewLicenses {
@@ -5967,6 +6046,7 @@ pub enum ReviewLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewMaintainers {
@@ -5974,6 +6054,7 @@ pub enum ReviewMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewPublisher {
@@ -5981,6 +6062,7 @@ pub enum ReviewPublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewReferences {
@@ -5988,6 +6070,7 @@ pub enum ReviewReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewTitle {
@@ -5995,6 +6078,7 @@ pub enum ReviewTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `Review` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewVersion {
@@ -6002,6 +6086,7 @@ pub enum ReviewVersion {
     Number(Number),
 }
 
+/// Types permitted for the `authors` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationAuthors {
@@ -6009,6 +6094,7 @@ pub enum SoftwareApplicationAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationDescription {
@@ -6017,6 +6103,7 @@ pub enum SoftwareApplicationDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationFundedBy {
@@ -6024,6 +6111,7 @@ pub enum SoftwareApplicationFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationFunders {
@@ -6031,6 +6119,7 @@ pub enum SoftwareApplicationFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationIdentifiers {
@@ -6038,6 +6127,7 @@ pub enum SoftwareApplicationIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationImages {
@@ -6045,6 +6135,7 @@ pub enum SoftwareApplicationImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationLicenses {
@@ -6052,6 +6143,7 @@ pub enum SoftwareApplicationLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationMaintainers {
@@ -6059,6 +6151,7 @@ pub enum SoftwareApplicationMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationPublisher {
@@ -6066,6 +6159,7 @@ pub enum SoftwareApplicationPublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationReferences {
@@ -6073,6 +6167,7 @@ pub enum SoftwareApplicationReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationTitle {
@@ -6080,6 +6175,7 @@ pub enum SoftwareApplicationTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `SoftwareApplication` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationVersion {
@@ -6087,6 +6183,7 @@ pub enum SoftwareApplicationVersion {
     Number(Number),
 }
 
+/// Types permitted for the `description` property of a `SoftwareEnvironment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareEnvironmentDescription {
@@ -6095,6 +6192,7 @@ pub enum SoftwareEnvironmentDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `SoftwareEnvironment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareEnvironmentIdentifiers {
@@ -6102,6 +6200,7 @@ pub enum SoftwareEnvironmentIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `SoftwareEnvironment` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareEnvironmentImages {
@@ -6109,6 +6208,7 @@ pub enum SoftwareEnvironmentImages {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `SoftwareSession` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSessionDescription {
@@ -6117,6 +6217,7 @@ pub enum SoftwareSessionDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `SoftwareSession` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSessionIdentifiers {
@@ -6124,6 +6225,7 @@ pub enum SoftwareSessionIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `SoftwareSession` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSessionImages {
@@ -6141,6 +6243,7 @@ pub enum SoftwareSessionStatus {
     Failed,
 }
 
+/// Types permitted for the `authors` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeAuthors {
@@ -6148,6 +6251,7 @@ pub enum SoftwareSourceCodeAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeDescription {
@@ -6156,6 +6260,7 @@ pub enum SoftwareSourceCodeDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeFundedBy {
@@ -6163,6 +6268,7 @@ pub enum SoftwareSourceCodeFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeFunders {
@@ -6170,6 +6276,7 @@ pub enum SoftwareSourceCodeFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeIdentifiers {
@@ -6177,6 +6284,7 @@ pub enum SoftwareSourceCodeIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeImages {
@@ -6184,6 +6292,7 @@ pub enum SoftwareSourceCodeImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeLicenses {
@@ -6191,6 +6300,7 @@ pub enum SoftwareSourceCodeLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeMaintainers {
@@ -6198,6 +6308,7 @@ pub enum SoftwareSourceCodeMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodePublisher {
@@ -6205,6 +6316,7 @@ pub enum SoftwareSourceCodePublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeReferences {
@@ -6212,6 +6324,7 @@ pub enum SoftwareSourceCodeReferences {
     String(String),
 }
 
+/// Types permitted for the `softwareRequirements` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeSoftwareRequirements {
@@ -6220,6 +6333,7 @@ pub enum SoftwareSourceCodeSoftwareRequirements {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeTitle {
@@ -6227,6 +6341,7 @@ pub enum SoftwareSourceCodeTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `SoftwareSourceCode` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeVersion {
@@ -6234,6 +6349,7 @@ pub enum SoftwareSourceCodeVersion {
     Number(Number),
 }
 
+/// Types permitted for the `authors` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableAuthors {
@@ -6241,6 +6357,7 @@ pub enum TableAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `caption` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableCaption {
@@ -6248,6 +6365,7 @@ pub enum TableCaption {
     String(String),
 }
 
+/// Types permitted for the `description` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableDescription {
@@ -6256,6 +6374,7 @@ pub enum TableDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableFundedBy {
@@ -6263,6 +6382,7 @@ pub enum TableFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableFunders {
@@ -6270,6 +6390,7 @@ pub enum TableFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableIdentifiers {
@@ -6277,6 +6398,7 @@ pub enum TableIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableImages {
@@ -6284,6 +6406,7 @@ pub enum TableImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableLicenses {
@@ -6291,6 +6414,7 @@ pub enum TableLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableMaintainers {
@@ -6298,6 +6422,7 @@ pub enum TableMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TablePublisher {
@@ -6305,6 +6430,7 @@ pub enum TablePublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableReferences {
@@ -6312,6 +6438,7 @@ pub enum TableReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableTitle {
@@ -6319,6 +6446,7 @@ pub enum TableTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `Table` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableVersion {
@@ -6338,6 +6466,7 @@ pub enum TableRowRowType {
     Footer,
 }
 
+/// Types permitted for the `authors` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectAuthors {
@@ -6345,6 +6474,7 @@ pub enum VideoObjectAuthors {
     Organization(Organization),
 }
 
+/// Types permitted for the `description` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectDescription {
@@ -6353,6 +6483,7 @@ pub enum VideoObjectDescription {
     String(String),
 }
 
+/// Types permitted for the `fundedBy` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectFundedBy {
@@ -6360,6 +6491,7 @@ pub enum VideoObjectFundedBy {
     MonetaryGrant(MonetaryGrant),
 }
 
+/// Types permitted for the `funders` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectFunders {
@@ -6367,6 +6499,7 @@ pub enum VideoObjectFunders {
     Organization(Organization),
 }
 
+/// Types permitted for the `identifiers` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectIdentifiers {
@@ -6374,6 +6507,7 @@ pub enum VideoObjectIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectImages {
@@ -6381,6 +6515,7 @@ pub enum VideoObjectImages {
     String(String),
 }
 
+/// Types permitted for the `licenses` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectLicenses {
@@ -6388,6 +6523,7 @@ pub enum VideoObjectLicenses {
     String(String),
 }
 
+/// Types permitted for the `maintainers` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectMaintainers {
@@ -6395,6 +6531,7 @@ pub enum VideoObjectMaintainers {
     Organization(Organization),
 }
 
+/// Types permitted for the `publisher` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectPublisher {
@@ -6402,6 +6539,7 @@ pub enum VideoObjectPublisher {
     Organization(Organization),
 }
 
+/// Types permitted for the `references` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectReferences {
@@ -6409,6 +6547,7 @@ pub enum VideoObjectReferences {
     String(String),
 }
 
+/// Types permitted for the `title` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectTitle {
@@ -6416,6 +6555,7 @@ pub enum VideoObjectTitle {
     String(String),
 }
 
+/// Types permitted for the `version` property of a `VideoObject` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectVersion {
@@ -6423,6 +6563,7 @@ pub enum VideoObjectVersion {
     Number(Number),
 }
 
+/// Types permitted for the `description` property of a `VolumeMount` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VolumeMountDescription {
@@ -6431,6 +6572,7 @@ pub enum VolumeMountDescription {
     String(String),
 }
 
+/// Types permitted for the `identifiers` property of a `VolumeMount` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VolumeMountIdentifiers {
@@ -6438,6 +6580,7 @@ pub enum VolumeMountIdentifiers {
     String(String),
 }
 
+/// Types permitted for the `images` property of a `VolumeMount` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VolumeMountImages {
