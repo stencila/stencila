@@ -1,5 +1,7 @@
-import { Component, h } from '@stencil/core'
+import { Component, h, State } from '@stencil/core'
+import Logo from '@stencila/brand/dist/logos/stencilaLogo.svg'
 import { CHANNEL } from '../../../preload/index'
+import { fetchRecentProjects } from '../../store/project/projectActions'
 
 @Component({
   tag: 'app-launcher',
@@ -7,32 +9,57 @@ import { CHANNEL } from '../../../preload/index'
   scoped: true,
 })
 export class AppLauncher {
+  @State() recentProjects: string[] = []
+
   private selectFiles = () => {
     window.api.invoke(CHANNEL.SELECT_PROJECT_DIR)
+  }
+
+  private openProject = (path: string) => (e: Event) => {
+    e.preventDefault()
+    window.api.invoke(CHANNEL.OPEN_PROJECT, path)
+  }
+
+  componentWillLoad() {
+    this.recentProjects = fetchRecentProjects()
   }
 
   render() {
     return (
       <div class="app-home">
-        <h1>Stencila</h1>
+        <img src={Logo} class="logo" />
 
         <main>
-          <div>
-            <stencila-button>New document</stencila-button>
-            <stencila-button>New project</stencila-button>
-
-            <hr />
-
-            <stencila-button onClick={this.selectFiles}>
+          <div class="launcherActions">
+            <stencila-button size="small" fill={true} onClick={this.selectFiles}>
               Open folder…
+            </stencila-button>
+
+            <stencila-button size="small" fill={true} disabled={true}>
+              New document
+            </stencila-button>
+
+            <stencila-button size="small" fill={true} disabled={true}>
+              New project
             </stencila-button>
           </div>
 
-          <hr />
-
-          <h2>Recent projects</h2>
-
-          <hr />
+          <div class="recentProjects">
+            <h2>Recent projects</h2>
+            <ul>
+              {this.recentProjects.map((projectPath) => (
+                <li>
+                  <a
+                    onClick={this.openProject(projectPath)}
+                    class="recentProjectItem"
+                  >
+                    <stencila-icon icon="folder"></stencila-icon>
+                    {projectPath}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </main>
       </div>
     )

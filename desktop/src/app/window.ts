@@ -12,8 +12,12 @@ export const createWindow = (
   options: Omit<BrowserWindowConstructorOptions, 'webPreferences'> = {}
 ): BrowserWindow => {
   const win = new BrowserWindow({
-    height: 860,
-    width: 1024,
+    height: 430,
+    width: 860,
+    maxHeight: 860,
+    maxWidth: 1200,
+    minHeight: 350,
+    minWidth: 600,
     title: i18n.t('core.title'),
     ...options,
     webPreferences: {

@@ -24,6 +24,13 @@ export const registerProjectHandlers = () => {
   })
 
   ipcMain.handle(
+    CHANNEL.OPEN_PROJECT,
+    async (_event, directoryPath: string) => {
+      return openProjectWindow(directoryPath)
+    }
+  )
+
+  ipcMain.handle(
     CHANNEL.GET_PROJECT_FILES,
     async (_event, directoryPath: string) => {
       return projects.open(directoryPath, (_topic, event) => {

@@ -2,7 +2,58 @@
   @apply text-center;
 }
 
+main {
+  @apply px-4 flex justify-center;
+}
+
+.launcherActions {
+  @apply flex flex-col items-stretch;
+  flex-basis: 30%;
+}
+
+.recentProjects {
+  @apply border-0 border-l border-solid ml-4 text-left  px-4;
+  border-color: var(--color-neutral-300);
+  flex-basis: 70%;
+
+  ul {
+    @apply list-none p-0 m-0;
+  }
+
+  li {
+    @apply overflow-ellipsis overflow-hidden max-w-full -ml-2;
+
+    a {
+      &,
+      &:link,
+      &:visited {
+        @apply block px-2 text-sm whitespace-nowrap rounded no-underline align-bottom leading-none max-w-full overflow-hidden overflow-ellipsis cursor-pointer;
+        color: var(--color-neutral-800);
+        padding-bottom: 0.375rem;
+        padding-top: 0.375rem;
+      }
+
+      &:hover {
+        background: var(--color-neutral-300);
+      }
+
+      stencila-icon {
+        @apply pr-1;
+      }
+    }
+  }
+}
+
+.logo {
+  width: 200px;
+  @apply my-8;
+}
+
 stencila-button {
-  display: block;
   @apply block mb-4;
+}
+
+h2 {
+  @apply mt-0 mb-1 text-sm;
+  color: var(--color-neutral-600);
 }
