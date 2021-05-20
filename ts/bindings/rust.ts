@@ -182,7 +182,13 @@ ${attrs.map((attr) => `    ${attr}\n`).join('')}    pub ${snakeCase(
     })
     .join('\n\n')
 
-  const derives = ['Debug', 'Defaults', 'Serialize', 'Deserialize'].join(', ')
+  const derives = [
+    'Clone',
+    'Debug',
+    'Defaults',
+    'Serialize',
+    'Deserialize',
+  ].join(', ')
 
   const code = `
 /// ${title}
@@ -217,7 +223,7 @@ export function enumSchemaToEnum(schema: JsonSchema, context: Context): string {
     .join('')
 
   return `${docComment(description)}
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${title} {\n${variants}}\n`
 }
@@ -243,7 +249,7 @@ export function unionSchemaToEnum(
     .join('')
 
   return `${docComment(description)}
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${title} {\n${variants}}\n`
 }
@@ -288,7 +294,7 @@ function anyOfToEnum(anyOf: JsonSchema[], context: Context): string {
     })
     .join('')
 
-  const definition = `#[derive(Debug, Serialize, Deserialize)]
+  const definition = `#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${name} {\n${variants}}\n`
   context.anonEnums[name] = definition
@@ -308,7 +314,7 @@ export function enumToEnum(enu: (string | number)[], context: Context): string {
     .join('')
 
   const name = context.propertyTypeName ?? ''
-  const definition = `#[derive(Debug, Serialize, Deserialize)]
+  const definition = `#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ${name} {\n${lines}}\n`
   context.anonEnums[name] = definition
 

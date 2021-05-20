@@ -13,7 +13,7 @@ use crate::prelude::*;
 /// Entity
 ///
 /// The most simple compound (ie. non-atomic like `number`, `string` etc) type.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Entity {
     /// The name of this type
@@ -34,7 +34,7 @@ impl_type!(Entity);
 /// Cite
 ///
 /// A reference to a CreativeWork that is cited in another CreativeWork.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Cite {
     /// The name of this type
@@ -90,7 +90,7 @@ impl_type!(Cite);
 /// CiteGroup
 ///
 /// A group of Cite nodes.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CiteGroup {
     /// The name of this type
@@ -114,7 +114,7 @@ impl_type!(CiteGroup);
 /// Code
 ///
 /// Base type for code nodes e.g. CodeBlock, CodeExpression.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Code {
     /// The name of this type
@@ -146,7 +146,7 @@ impl_type!(Code);
 /// CodeBlock
 ///
 /// A code block.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeBlock {
     /// The name of this type
@@ -186,7 +186,7 @@ impl_type!(CodeBlock);
 /// CodeChunk
 ///
 /// A executable chunk of code.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeChunk {
     /// The name of this type
@@ -270,7 +270,7 @@ impl_type!(CodeChunk);
 /// CodeFragment
 ///
 /// Inline code.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeFragment {
     /// The name of this type
@@ -302,7 +302,7 @@ impl_type!(CodeFragment);
 /// CodeExpression
 ///
 /// An expression defined in programming language source code.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeExpression {
     /// The name of this type
@@ -342,7 +342,7 @@ impl_type!(CodeExpression);
 /// CodeError
 ///
 /// An error that occurred when parsing, compiling or executing a Code node.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeError {
     /// The name of this type
@@ -374,7 +374,7 @@ impl_type!(CodeError);
 /// Date
 ///
 /// A date encoded as a ISO 8601 string.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Date {
     /// The name of this type
@@ -400,7 +400,7 @@ impl_type!(Date);
 /// Mark
 ///
 /// A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Mark {
     /// The name of this type
@@ -424,7 +424,7 @@ impl_type!(Mark);
 /// Delete
 ///
 /// Content that is marked for deletion
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Delete {
     /// The name of this type
@@ -448,7 +448,7 @@ impl_type!(Delete);
 /// Emphasis
 ///
 /// Emphasised content.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Emphasis {
     /// The name of this type
@@ -472,7 +472,7 @@ impl_type!(Emphasis);
 /// Thing
 ///
 /// The most generic type of item.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Thing {
     /// The name of this type
@@ -517,7 +517,7 @@ impl_type!(Thing);
 /// Brand
 ///
 /// A brand used by an organization or person for labeling a product, product group, or similar.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Brand {
     /// The name of this type
@@ -568,8 +568,8 @@ impl_type!(Brand);
 
 /// ContactPoint
 ///
-/// A contact point, for example, a R&D department.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+/// A contact point, usually within an organization.
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ContactPoint {
     /// The name of this type
@@ -626,7 +626,7 @@ impl_type!(ContactPoint);
 /// CreativeWork
 ///
 /// A creative work, including books, movies, photographs, software programs, etc.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct CreativeWork {
     /// The name of this type
@@ -763,7 +763,7 @@ impl_type!(CreativeWork);
 /// Article
 ///
 /// An article, including news and scholarly articles.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Article {
     /// The name of this type
@@ -912,7 +912,7 @@ impl_type!(Article);
 /// Claim
 ///
 /// A claim represents specific reviewable facts or statements.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Claim {
     /// The name of this type
@@ -1056,7 +1056,7 @@ impl_type!(Claim);
 /// Collection
 ///
 /// A collection of CreativeWorks or other artifacts.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Collection {
     /// The name of this type
@@ -1192,7 +1192,7 @@ impl_type!(Collection);
 /// Comment
 ///
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Comment {
     /// The name of this type
@@ -1337,7 +1337,7 @@ impl_type!(Comment);
 /// Datatable
 ///
 /// A table of data.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Datatable {
     /// The name of this type
@@ -1477,7 +1477,7 @@ impl_type!(Datatable);
 /// MediaObject
 ///
 /// A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MediaObject {
     /// The name of this type
@@ -1633,7 +1633,7 @@ impl_type!(MediaObject);
 /// AudioObject
 ///
 /// An audio file
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct AudioObject {
     /// The name of this type
@@ -1797,7 +1797,7 @@ impl_type!(AudioObject);
 /// DatatableColumn
 ///
 /// A column of data within a Datatable.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct DatatableColumn {
     /// The name of this type
@@ -1848,7 +1848,7 @@ impl_type!(DatatableColumn);
 /// DefinedTerm
 ///
 /// A word, name, acronym, phrase, etc. with a formal definition.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct DefinedTerm {
     /// The name of this type
@@ -1896,7 +1896,7 @@ impl_type!(DefinedTerm);
 /// Validator
 ///
 /// A base for all validator types.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Validator {
     /// The name of this type
@@ -1917,7 +1917,7 @@ impl_type!(Validator);
 /// ArrayValidator
 ///
 /// A validator specifying constraints on an array node.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ArrayValidator {
     /// The name of this type
@@ -1958,7 +1958,7 @@ impl_type!(ArrayValidator);
 /// BooleanValidator
 ///
 /// A schema specifying that a node must be a boolean value.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct BooleanValidator {
     /// The name of this type
@@ -1979,7 +1979,7 @@ impl_type!(BooleanValidator);
 /// ConstantValidator
 ///
 /// A validator specifying a constant value that a node must have.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ConstantValidator {
     /// The name of this type
@@ -2004,7 +2004,7 @@ impl_type!(ConstantValidator);
 /// EnumValidator
 ///
 /// A schema specifying that a node must be one of several values.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct EnumValidator {
     /// The name of this type
@@ -2029,7 +2029,7 @@ impl_type!(EnumValidator);
 /// Enumeration
 ///
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Enumeration {
     /// The name of this type
@@ -2074,7 +2074,7 @@ impl_type!(Enumeration);
 /// Figure
 ///
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Figure {
     /// The name of this type
@@ -2219,7 +2219,7 @@ impl_type!(Figure);
 /// Function
 ///
 /// A function with a name, which might take Parameters and return a value of a certain type.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Function {
     /// The name of this type
@@ -2252,7 +2252,7 @@ impl_type!(Function);
 /// Grant
 ///
 /// A grant, typically financial or otherwise quantifiable, of resources.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Grant {
     /// The name of this type
@@ -2304,8 +2304,8 @@ impl_type!(Grant);
 
 /// Heading
 ///
-/// Heading
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+/// A heading.
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Heading {
     /// The name of this type
@@ -2333,7 +2333,7 @@ impl_type!(Heading);
 /// ImageObject
 ///
 /// An image file.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ImageObject {
     /// The name of this type
@@ -2497,7 +2497,7 @@ impl_type!(ImageObject);
 /// Include
 ///
 /// A directive to include content from an external source (e.g. file, URL) or content.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Include {
     /// The name of this type
@@ -2529,7 +2529,7 @@ impl_type!(Include);
 /// IntegerValidator
 ///
 /// A validator specifying the constraints on an integer node.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct IntegerValidator {
     /// The name of this type
@@ -2550,7 +2550,7 @@ impl_type!(IntegerValidator);
 /// Link
 ///
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Link {
     /// The name of this type
@@ -2593,7 +2593,7 @@ impl_type!(Link);
 /// List
 ///
 /// A list of items.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct List {
     /// The name of this type
@@ -2621,7 +2621,7 @@ impl_type!(List);
 /// ListItem
 ///
 /// A single item in a list.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ListItem {
     /// The name of this type
@@ -2682,7 +2682,7 @@ impl_type!(ListItem);
 /// Math
 ///
 /// A mathematical variable or equation.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Math {
     /// The name of this type
@@ -2714,7 +2714,7 @@ impl_type!(Math);
 /// MathBlock
 ///
 /// A block of math, e.g an equation, to be treated as block content.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MathBlock {
     /// The name of this type
@@ -2750,7 +2750,7 @@ impl_type!(MathBlock);
 /// MathFragment
 ///
 /// A fragment of math, e.g a variable name, to be treated as inline content.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MathFragment {
     /// The name of this type
@@ -2782,7 +2782,7 @@ impl_type!(MathFragment);
 /// MonetaryGrant
 ///
 /// A monetary grant.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct MonetaryGrant {
     /// The name of this type
@@ -2843,7 +2843,7 @@ impl_type!(MonetaryGrant);
 /// NontextualAnnotation
 ///
 /// Inline text that has a non-textual annotation.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct NontextualAnnotation {
     /// The name of this type
@@ -2867,7 +2867,7 @@ impl_type!(NontextualAnnotation);
 /// Note
 ///
 /// Additional content which is not part of the main content of a document.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Note {
     /// The name of this type
@@ -2895,7 +2895,7 @@ impl_type!(Note);
 /// NumberValidator
 ///
 /// A validator specifying the constraints on a numeric node.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct NumberValidator {
     /// The name of this type
@@ -2936,7 +2936,7 @@ impl_type!(NumberValidator);
 /// Organization
 ///
 /// An organization such as a school, NGO, corporation, club, etc.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Organization {
     /// The name of this type
@@ -3017,7 +3017,7 @@ impl_type!(Organization);
 /// Paragraph
 ///
 /// Paragraph
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Paragraph {
     /// The name of this type
@@ -3041,7 +3041,7 @@ impl_type!(Paragraph);
 /// Variable
 ///
 /// A variable representing a name / value pair.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Variable {
     /// The name of this type
@@ -3077,7 +3077,7 @@ impl_type!(Variable);
 /// Parameter
 ///
 /// A parameter that can be set and used in evaluated code.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Parameter {
     /// The name of this type
@@ -3129,7 +3129,7 @@ impl_type!(Parameter);
 /// Periodical
 ///
 /// A periodical publication.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Periodical {
     /// The name of this type
@@ -3278,7 +3278,7 @@ impl_type!(Periodical);
 /// Person
 ///
 /// A person (alive, dead, undead, or fictional).
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Person {
     /// The name of this type
@@ -3367,7 +3367,7 @@ impl_type!(Person);
 /// PostalAddress
 ///
 /// A physical mailing address.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PostalAddress {
     /// The name of this type
@@ -3448,7 +3448,7 @@ impl_type!(PostalAddress);
 /// Product
 ///
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Product {
     /// The name of this type
@@ -3505,7 +3505,7 @@ impl_type!(Product);
 /// PropertyValue
 ///
 /// A property-value pair.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PropertyValue {
     /// The name of this type
@@ -3558,7 +3558,7 @@ impl_type!(PropertyValue);
 /// PublicationIssue
 ///
 /// A part of a successively published publication such as a periodical or publication volume, often numbered.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PublicationIssue {
     /// The name of this type
@@ -3711,7 +3711,7 @@ impl_type!(PublicationIssue);
 /// PublicationVolume
 ///
 /// A part of a successively published publication such as a periodical or multi-volume work.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct PublicationVolume {
     /// The name of this type
@@ -3864,7 +3864,7 @@ impl_type!(PublicationVolume);
 /// Quote
 ///
 /// Inline, quoted content.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Quote {
     /// The name of this type
@@ -3892,7 +3892,7 @@ impl_type!(Quote);
 /// QuoteBlock
 ///
 /// A section quoted from somewhere else.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct QuoteBlock {
     /// The name of this type
@@ -3920,7 +3920,7 @@ impl_type!(QuoteBlock);
 /// Review
 ///
 /// A review of an item, e.g of an Article, or SoftwareSourceCode.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Review {
     /// The name of this type
@@ -4065,7 +4065,7 @@ impl_type!(Review);
 /// SoftwareApplication
 ///
 /// A software application.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareApplication {
     /// The name of this type
@@ -4210,7 +4210,7 @@ impl_type!(SoftwareApplication);
 /// SoftwareEnvironment
 ///
 /// A computational environment.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareEnvironment {
     /// The name of this type
@@ -4266,7 +4266,7 @@ impl_type!(SoftwareEnvironment);
 /// SoftwareSession
 ///
 /// Definition of a compute session, including its software and compute resource requirements and status.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareSession {
     /// The name of this type
@@ -4379,7 +4379,7 @@ impl_type!(SoftwareSession);
 /// SoftwareSourceCode
 ///
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareSourceCode {
     /// The name of this type
@@ -4540,7 +4540,7 @@ impl_type!(SoftwareSourceCode);
 /// StringValidator
 ///
 /// A schema specifying constraints on a string node.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct StringValidator {
     /// The name of this type
@@ -4573,7 +4573,7 @@ impl_type!(StringValidator);
 /// Strong
 ///
 /// Strongly emphasised content.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Strong {
     /// The name of this type
@@ -4597,7 +4597,7 @@ impl_type!(Strong);
 /// Subscript
 ///
 /// Subscripted content.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Subscript {
     /// The name of this type
@@ -4621,7 +4621,7 @@ impl_type!(Subscript);
 /// Superscript
 ///
 /// Superscripted content.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Superscript {
     /// The name of this type
@@ -4645,7 +4645,7 @@ impl_type!(Superscript);
 /// Table
 ///
 /// A table.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Table {
     /// The name of this type
@@ -4793,7 +4793,7 @@ impl_type!(Table);
 /// TableCell
 ///
 /// A cell within a `Table`.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct TableCell {
     /// The name of this type
@@ -4833,7 +4833,7 @@ impl_type!(TableCell);
 /// TableRow
 ///
 /// A row within a Table.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct TableRow {
     /// The name of this type
@@ -4861,7 +4861,7 @@ impl_type!(TableRow);
 /// ThematicBreak
 ///
 /// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ThematicBreak {
     /// The name of this type
@@ -4882,7 +4882,7 @@ impl_type!(ThematicBreak);
 /// TupleValidator
 ///
 /// A validator specifying constraints on an array of heterogeneous items.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct TupleValidator {
     /// The name of this type
@@ -4907,7 +4907,7 @@ impl_type!(TupleValidator);
 /// VideoObject
 ///
 /// A video file.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct VideoObject {
     /// The name of this type
@@ -5075,7 +5075,7 @@ impl_type!(VideoObject);
 /// VolumeMount
 ///
 /// Describes a volume mount from a host to container.
-#[derive(Debug, Defaults, Serialize, Deserialize)]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
 #[serde(default, rename_all = "camelCase")]
 pub struct VolumeMount {
     /// The name of this type
@@ -5143,7 +5143,7 @@ type DateValue = chrono::DateTime::<chrono::Utc>;
  * Enums for struct properties which use JSON Schema 'enum' or 'anyOf'
  ********************************************************************/
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum CiteCitationMode {
     Parenthetical,
     Narrative,
@@ -5153,35 +5153,35 @@ pub enum CiteCitationMode {
     SuppressAuthor,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CitePageEnd {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CitePageStart {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkAssigns {
     Variable(Variable),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkCaption {
     VecBlockContent(Vec<BlockContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkDeclares {
     Variable(Variable),
@@ -5189,7 +5189,7 @@ pub enum CodeChunkDeclares {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkImports {
     SoftwareSourceCode(SoftwareSourceCode),
@@ -5197,14 +5197,14 @@ pub enum CodeChunkImports {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeChunkUses {
     Variable(Variable),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5212,21 +5212,21 @@ pub enum ThingDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BrandDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5234,28 +5234,28 @@ pub enum BrandDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BrandIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BrandImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BrandLogo {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5263,28 +5263,28 @@ pub enum ContactPointDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5292,84 +5292,84 @@ pub enum CreativeWorkDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkPublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5377,98 +5377,98 @@ pub enum ArticleDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticlePageEnd {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticlePageStart {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticlePublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ArticleVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ClaimClaimType {
     Statement,
     Theorem,
@@ -5480,7 +5480,7 @@ pub enum ClaimClaimType {
     Corollary,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5488,84 +5488,84 @@ pub enum ClaimDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimPublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ClaimVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5573,84 +5573,84 @@ pub enum CollectionDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionPublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CollectionVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5658,84 +5658,84 @@ pub enum CommentDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentPublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CommentVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5743,84 +5743,84 @@ pub enum DatatableDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatablePublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5828,84 +5828,84 @@ pub enum MediaObjectDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectPublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5913,77 +5913,77 @@ pub enum AudioObjectDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectPublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AudioObjectVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableColumnDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -5991,21 +5991,21 @@ pub enum DatatableColumnDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableColumnIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DatatableColumnImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DefinedTermDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6013,21 +6013,21 @@ pub enum DefinedTermDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DefinedTermIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DefinedTermImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnumerationDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6035,35 +6035,35 @@ pub enum EnumerationDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnumerationIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnumerationImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureCaption {
     VecBlockContent(Vec<BlockContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6071,77 +6071,77 @@ pub enum FigureDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigurePublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum FigureVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6149,35 +6149,35 @@ pub enum GrantDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantSponsors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6185,84 +6185,84 @@ pub enum ImageObjectDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectPublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ImageObjectVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ListOrder {
     Ascending,
     Descending,
     Unordered,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ListItemDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6270,21 +6270,21 @@ pub enum ListItemDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ListItemIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ListItemImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6292,49 +6292,49 @@ pub enum MonetaryGrantDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MonetaryGrantSponsors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum NoteNoteType {
     Footnote,
     Endnote,
     Sidenote,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationAddress {
     PostalAddress(PostalAddress),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6342,49 +6342,49 @@ pub enum OrganizationDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationFunders {
     Organization(Organization),
     Person(Person),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationLogo {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OrganizationMembers {
     Organization(Organization),
     Person(Person),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6392,84 +6392,84 @@ pub enum PeriodicalDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalPublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PeriodicalVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonAddress {
     PostalAddress(PostalAddress),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6477,28 +6477,28 @@ pub enum PersonDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonFunders {
     Organization(Organization),
     Person(Person),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PersonImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PostalAddressDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6506,21 +6506,21 @@ pub enum PostalAddressDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PostalAddressIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PostalAddressImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProductDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6528,28 +6528,28 @@ pub enum ProductDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProductIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProductImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ProductLogo {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValueValue {
     Bool(Bool),
@@ -6558,7 +6558,7 @@ pub enum PropertyValueValue {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValueDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6566,28 +6566,28 @@ pub enum PropertyValueDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValueIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValueImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6595,105 +6595,105 @@ pub enum PublicationIssueDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueIssueNumber {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssuePageEnd {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssuePageStart {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssuePublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationIssueVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6701,119 +6701,119 @@ pub enum PublicationVolumeDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumePageEnd {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumePageStart {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumePublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PublicationVolumeVolumeNumber {
     Integer(Integer),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum QuoteCite {
     Cite(Cite),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum QuoteBlockCite {
     Cite(Cite),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6821,84 +6821,84 @@ pub enum ReviewDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewPublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReviewVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6906,77 +6906,77 @@ pub enum SoftwareApplicationDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationPublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareApplicationVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareEnvironmentDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -6984,21 +6984,21 @@ pub enum SoftwareEnvironmentDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareEnvironmentIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareEnvironmentImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSessionDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -7006,21 +7006,21 @@ pub enum SoftwareSessionDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSessionIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSessionImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum SoftwareSessionStatus {
     Unknown,
     Starting,
@@ -7030,14 +7030,14 @@ pub enum SoftwareSessionStatus {
     Failed,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -7045,63 +7045,63 @@ pub enum SoftwareSourceCodeDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodePublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeSoftwareRequirements {
     SoftwareSourceCode(SoftwareSourceCode),
@@ -7109,35 +7109,35 @@ pub enum SoftwareSourceCodeSoftwareRequirements {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SoftwareSourceCodeVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableCaption {
     VecBlockContent(Vec<BlockContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -7145,96 +7145,96 @@ pub enum TableDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TablePublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TableVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum TableCellCellType {
     Data,
     Header,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum TableRowRowType {
     Header,
     Footer,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectAuthors {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -7242,77 +7242,77 @@ pub enum VideoObjectDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectFundedBy {
     Grant(Grant),
     MonetaryGrant(MonetaryGrant),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectFunders {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectImages {
     ImageObject(ImageObject),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectLicenses {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectMaintainers {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectPublisher {
     Person(Person),
     Organization(Organization),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectReferences {
     CreativeWorkTypes(CreativeWorkTypes),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectTitle {
     VecInlineContent(Vec<InlineContent>),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VideoObjectVersion {
     String(String),
     Number(Number),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VolumeMountDescription {
     VecBlockContent(Vec<BlockContent>),
@@ -7320,14 +7320,14 @@ pub enum VolumeMountDescription {
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VolumeMountIdentifiers {
     PropertyValue(PropertyValue),
     String(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VolumeMountImages {
     ImageObject(ImageObject),
@@ -7340,7 +7340,7 @@ pub enum VolumeMountImages {
  ********************************************************************/
 
 /// The type or nature of a citation, both factually and rhetorically.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CitationIntentEnumeration {
     /// The citing entity agrees with statements, ideas or conclusions presented in the cited entity
@@ -7533,7 +7533,7 @@ pub enum CitationIntentEnumeration {
  ********************************************************************/
   
 /// Union type for valid block content.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BlockContent {
     Claim(Claim),
@@ -7552,7 +7552,7 @@ pub enum BlockContent {
 }
 
 /// All type schemas that are derived from CodeBlock
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeBlockTypes {
     CodeBlock(CodeBlock),
@@ -7560,7 +7560,7 @@ pub enum CodeBlockTypes {
 }
 
 /// All type schemas that are derived from CodeFragment
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeFragmentTypes {
     CodeFragment(CodeFragment),
@@ -7568,7 +7568,7 @@ pub enum CodeFragmentTypes {
 }
 
 /// All type schemas that are derived from Code
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeTypes {
     Code(Code),
@@ -7579,7 +7579,7 @@ pub enum CodeTypes {
 }
 
 /// All type schemas that are derived from ContactPoint
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointTypes {
     ContactPoint(ContactPoint),
@@ -7587,7 +7587,7 @@ pub enum ContactPointTypes {
 }
 
 /// All type schemas that are derived from CreativeWork
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkTypes {
     CreativeWork(CreativeWork),
@@ -7611,7 +7611,7 @@ pub enum CreativeWorkTypes {
 }
 
 /// All type schemas that are derived from Entity
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EntityTypes {
     Entity(Entity),
@@ -7696,7 +7696,7 @@ pub enum EntityTypes {
 }
 
 /// All type schemas that are derived from Enumeration
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnumerationTypes {
     Enumeration(Enumeration),
@@ -7704,7 +7704,7 @@ pub enum EnumerationTypes {
 }
 
 /// All type schemas that are derived from Grant
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantTypes {
     Grant(Grant),
@@ -7712,7 +7712,7 @@ pub enum GrantTypes {
 }
 
 /// Union type for valid inline content.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineContent {
     AudioObject(AudioObject),
@@ -7741,7 +7741,7 @@ pub enum InlineContent {
 }
 
 /// All type schemas that are derived from Mark
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MarkTypes {
     Mark(Mark),
@@ -7755,7 +7755,7 @@ pub enum MarkTypes {
 }
 
 /// All type schemas that are derived from Math
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MathTypes {
     Math(Math),
@@ -7764,7 +7764,7 @@ pub enum MathTypes {
 }
 
 /// All type schemas that are derived from MediaObject
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectTypes {
     MediaObject(MediaObject),
@@ -7774,7 +7774,7 @@ pub enum MediaObjectTypes {
 }
 
 /// Union type for all valid nodes.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Node {
     Entity(Entity),
@@ -7788,7 +7788,7 @@ pub enum Node {
 }
 
 /// All type schemas that are derived from Thing
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingTypes {
     Thing(Thing),
@@ -7830,7 +7830,7 @@ pub enum ThingTypes {
 }
 
 /// All type schemas that are derived from Validator
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ValidatorTypes {
     Validator(Validator),
@@ -7845,7 +7845,7 @@ pub enum ValidatorTypes {
 }
 
 /// All type schemas that are derived from Variable
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VariableTypes {
     Variable(Variable),

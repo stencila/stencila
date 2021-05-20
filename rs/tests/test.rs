@@ -1,3 +1,6 @@
+//! These tests are intentionally simple and just test that
+//! node types have expected traits e.g. `Clone`, `Serialize` etc.
+
 use pretty_assertions::assert_eq;
 use serde_json::{json, Result, Value};
 use stencila_schema::{
@@ -5,12 +8,8 @@ use stencila_schema::{
     Person,
 };
 
-#[test]
-fn article() -> Result<()> {
-    let article: Article = Default::default();
-    assert!(article.title.is_none());
-
-    let article = Article {
+fn article_fixture() -> Article {
+    Article {
         title: Some(ArticleTitle::String("The article title".into())),
         authors: Some(vec![ArticleAuthors::Person({
             Person {
@@ -31,11 +30,26 @@ fn article() -> Result<()> {
             ..Default::default()
         })]),
         ..Default::default()
-    };
-    assert!(!article.title.is_none());
-    assert!(!article.authors.is_none());
+    }
+}
 
-    let json_expected = json!({
+#[test]
+fn is_clonable() {
+    let article1 = article_fixture();
+    let _article2 = article1.clone();
+}
+
+#[test]
+fn is_debugable() {
+    let article = article_fixture();
+
+    assert!(format!("{:?}", article).starts_with("Article {"))
+}
+
+#[test]
+fn can_serdeable() -> Result<()> {
+    let article = article_fixture();
+    let json = json!({
       "type": "Article",
       "authors": [
         {
@@ -68,7 +82,7 @@ fn article() -> Result<()> {
 
     let json_str1 = serde_json::to_string_pretty(&article)?;
     let json_val1: Value = serde_json::from_str(json_str1.as_str())?;
-    assert_eq!(json_val1, json_expected);
+    assert_eq!(json_val1, json);
 
     // Test deserialization
 
