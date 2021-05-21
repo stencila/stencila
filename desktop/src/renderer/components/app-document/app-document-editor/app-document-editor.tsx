@@ -5,13 +5,13 @@ import { state } from '../../../store'
 import { selectProjectFile } from '../../../store/project/projectSelectors'
 
 @Component({
-  tag: 'app-document-preview',
-  styleUrl: 'app-document-preview.css',
+  tag: 'app-document-editor',
+  styleUrl: 'app-document-editor.css',
   // Scoped must be off for this component to avoid mangling class names
   // for the CodeEditor selectors.
   scoped: false,
 })
-export class AppDocumentPreview {
+export class AppDocumentEditor {
   @Element() el: HTMLElement
 
   private editorRef: HTMLStencilaEditorElement | null = null
@@ -59,7 +59,7 @@ export class AppDocumentPreview {
   render() {
     return (
       <Host>
-        <div class="app-document-preview">
+        <div class="app-document-editor">
           <stencila-editor
             activeLanguage={this.fileFormatToLanguage()}
           ></stencila-editor>

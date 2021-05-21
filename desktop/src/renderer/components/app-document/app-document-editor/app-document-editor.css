@@ -1,5 +1,5 @@
-app-document-preview,
-.app-document-preview {
+app-document-editor,
+.app-document-editor {
   @apply flex-grow flex max-h-full overflow-hidden;
 
   stencila-editor {

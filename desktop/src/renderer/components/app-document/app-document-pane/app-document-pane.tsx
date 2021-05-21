@@ -18,9 +18,9 @@ export class AppDocumentPane {
             <app-document-pane-tabs
               documents={[activeDocument]}
             ></app-document-pane-tabs>,
-            <app-document-preview
+            <app-document-editor
               filePath={activeDocument}
-            ></app-document-preview>,
+            ></app-document-editor>,
           ]
         ) : (
           <app-document-pane-empty></app-document-pane-empty>
