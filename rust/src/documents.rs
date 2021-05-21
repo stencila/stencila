@@ -1,11 +1,11 @@
-use crate::{pubsub::publish, schemas};
+use crate::{pubsub::publish, schemas, uuids};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use schemars::JsonSchema;
 use serde::Serialize;
 use std::{
     collections::{hash_map::Entry, HashMap},
-    fs,
+    env, fs,
     io::Write,
     path::{Path, PathBuf},
     sync::{
@@ -73,14 +73,16 @@ impl DocumentEvent {
 #[derive(Debug, Clone, JsonSchema, Defaults, Serialize)]
 pub struct Document {
     /// The absolute path of the document's file.
-    ///
-    /// May be `None` if the document has not yet been written
-    /// to a file.
-    path: Option<PathBuf>,
+    path: PathBuf,
 
     /// The name of the document
-    #[def = "\"Unnamed\".into()"]
+    ///
+    /// Usually the filename from the `path` but "Unnamed"
+    /// for temporary documents.
     name: String,
+
+    /// Whether of not the document is temporary
+    temporary: bool,
 
     /// The current content of the document.
     ///
@@ -104,7 +106,7 @@ pub struct Document {
 }
 
 impl Document {
-    /// Create an empty document.
+    /// Create a new empty document.
     ///
     /// # Arguments
     ///
@@ -112,9 +114,13 @@ impl Document {
     ///    not possible to provide previews.
     ///
     /// This function is intended to be used by editors when creating
-    /// a new document.
+    /// a new document. The created document will be `temporary: true`
+    /// and have a temporary file path.
     fn new(format: Option<String>) -> Document {
         Document {
+            path: env::temp_dir().join(uuids::generate(uuids::Family::File)),
+            name: "Unnamed".into(),
+            temporary: true,
             format,
             ..Default::default()
         }
@@ -124,10 +130,8 @@ impl Document {
     ///
     /// If the document does not have a `path` yet, then this is a no op.
     fn read(&mut self) -> Result<String> {
-        if let Some(path) = &self.path {
-            let content = fs::read_to_string(path)?;
-            self.load(content, None)?;
-        }
+        let content = fs::read_to_string(&self.path)?;
+        self.load(content, None)?;
         Ok(self.content.clone())
     }
 
@@ -165,13 +169,11 @@ impl Document {
             self.format = Some(format)
         }
 
-        if let Some(path) = &self.path {
-            if let Ok(preview) = self.preview() {
-                DocumentEvent::publish(
-                    path.clone(),
-                    DocumentEventType::PreviewUpdated(DocumentPreviewUpdated { preview }),
-                )
-            }
+        if let Ok(preview) = self.preview() {
+            DocumentEvent::publish(
+                self.path.clone(),
+                DocumentEventType::PreviewUpdated(DocumentPreviewUpdated { preview }),
+            )
         }
 
         Ok(self)
@@ -191,10 +193,10 @@ impl Document {
         if let Some(content) = content {
             self.load(content, format)?;
         }
-        if let Some(path) = &self.path {
-            let mut file = fs::File::create(path)?;
-            file.write_all(self.content.as_bytes())?;
-        }
+
+        let mut file = fs::File::create(&self.path)?;
+        file.write_all(self.content.as_bytes())?;
+
         Ok(self)
     }
 
@@ -344,7 +346,7 @@ impl DocumentHandle {
             .map(|ext| ext.to_string_lossy().to_lowercase());
 
         let mut document = Document {
-            path: Some(path.clone()),
+            path: path.clone(),
             name,
             ..Document::new(format)
         };
