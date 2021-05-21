@@ -42,7 +42,11 @@ module.exports = {
           'https://fonts.googleapis.com/',
         ],
         'connect-src': "'self'",
-        'font-src': ["'self'", 'https://fonts.gstatic.com/'],
+        'font-src': [
+          "'self'",
+          'https://fonts.gstatic.com/',
+          'https://unpkg.com/',
+        ],
       },
       {
         hashEnabled: {

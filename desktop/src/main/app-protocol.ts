@@ -46,7 +46,9 @@ export const requestHandler: RequestHandler = (req, next) => {
   const reqUrl = new URL(req.url)
   let reqPath = path.resolve(reqUrl.pathname)
 
-  if (reqPath === '/') {
+  // This is necessary to avoid trying to resolve dynamic routes as file on the filesystem
+  // TODO: Investigate a more refined way of detecting if we’re loading an asset or a route within the app.
+  if (reqPath === '/' || !reqPath.includes('.')) {
     reqPath = '/main_window/index.html'
   }
 
