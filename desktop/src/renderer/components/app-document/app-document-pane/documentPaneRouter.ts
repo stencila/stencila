@@ -1,3 +1,3 @@
-import { createStaticRouter } from '@stencil/router'
+import { createRouter } from '@stencil/router'
 
-export const DocumentPaneRouter = createStaticRouter()
+export const DocumentPaneRouter = createRouter()
