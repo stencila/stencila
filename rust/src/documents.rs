@@ -69,8 +69,9 @@ impl DocumentEvent {
     }
 }
 
-/// An in-memory representation of a documents
+/// An in-memory representation of a document
 #[derive(Debug, Clone, JsonSchema, Defaults, Serialize)]
+#[schemars(deny_unknown_fields)]
 pub struct Document {
     /// The absolute path of the document's file.
     path: PathBuf,
@@ -434,8 +435,8 @@ impl Documents {
 /// Get JSON Schemas for this modules
 pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![
-        schemas::generate::<DocumentEvent>()?,
         schemas::generate::<Document>()?,
+        schemas::generate::<DocumentEvent>()?
     ]);
     Ok(schemas)
 }
