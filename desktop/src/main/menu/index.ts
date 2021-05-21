@@ -3,6 +3,7 @@ import { showSettings } from '../config/window'
 import { openLauncherWindow } from '../launcher/window'
 import { openOnboardingWindow } from '../onboarding/window'
 import { openProject } from '../project/handlers'
+import { checkForUpdates } from '../utils/update'
 import { closeActiveTab, saveActiveDoc } from '../window/windowUtils'
 
 const isMac = process.platform === 'darwin'
@@ -16,6 +17,7 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
           label: app.name,
           submenu: [
             { role: 'about' as const },
+            { label: 'Check For Updates…', click: checkForUpdates },
             { type: 'separator' as const },
             {
               label: 'Preferences…',
@@ -165,6 +167,7 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
         },
       },
       { type: 'separator' },
+      { label: 'Check For Updates…', click: checkForUpdates },
       {
         label: 'Open initial setup screen',
         click: openOnboardingWindow,
