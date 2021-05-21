@@ -79,7 +79,8 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "executableName": "Stencila",
+        "$comment": "The executableName seems to needs to be the same as the various `exe` and `bin` properties in the makers below",
+        "executableName": "stencila-desktop",
         "appCategoryType": "public.app-category.productivity",
         "icon": "./src/assets/icon/stencila"
       },
@@ -110,7 +111,12 @@
         },
         {
           "name": "@electron-forge/maker-deb",
-          "config": {}
+          "config": {
+            "name": "stencila-desktop",
+            "icon": "./src/assets/icon/stencila.png",
+            "productName": "Stencila",
+            "homepage": "https://stenci.la"
+          }
         },
         {
           "name": "@electron-forge/maker-rpm",
