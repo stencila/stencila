@@ -1,3 +1,11 @@
+## [0.67.1](https://github.com/stencila/stencila/compare/v0.67.0...v0.67.1) (2021-05-21)
+
+
+### Bug Fixes
+
+* **Desktop:** Improve configuration of `deb` builds ([de3f939](https://github.com/stencila/stencila/commit/de3f9392a046db9b8720d752a2feaa1bff095bac))
+* **Routing:** Avoid resolving client-side routes as filepaths ([41408be](https://github.com/stencila/stencila/commit/41408beebac03e7770d36915c20f30448cc5bcd8))
+
 # [0.67.0](https://github.com/stencila/stencila/compare/v0.66.0...v0.67.0) (2021-05-20)
 
 

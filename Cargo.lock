@@ -2663,7 +2663,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.67.0"
+version = "0.67.1"
 dependencies = [
  "ansi_term 0.12.1",
  "bollard",
@@ -2712,7 +2712,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.67.0"
+version = "0.67.1"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -2729,7 +2729,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.67.0"
+version = "0.67.1"
 dependencies = [
  "neon",
  "stencila",
