@@ -1,6 +1,6 @@
 app-document-editor,
 .app-document-editor {
-  @apply flex-grow flex max-h-full overflow-hidden;
+  @apply flex-grow flex max-h-full overflow-hidden resize-x;
 
   stencila-editor {
     @apply w-full h-full max-h-full;

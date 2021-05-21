@@ -1,10 +1,11 @@
+import { DOCUMENT_CHANNEL } from '../main/document/channel'
 import { CONFIG_CHANNEL } from '../main/config/channels'
 import { PROJECT_CHANNEL } from '../main/project/channels'
 
 export const CHANNEL = {
-  TO_MAIN: 'TO_MAIN',
   ...CONFIG_CHANNEL,
   ...PROJECT_CHANNEL,
+  ...DOCUMENT_CHANNEL,
 } as const
 
 export type Channel = keyof typeof CHANNEL

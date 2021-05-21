@@ -1,0 +1,4 @@
+:host {
+  @apply border-0 border-l border-solid p-4 flex-grow;
+  border-color: var(--color-neutral-300);
+}

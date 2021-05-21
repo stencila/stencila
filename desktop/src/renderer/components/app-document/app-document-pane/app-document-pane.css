@@ -1,3 +1,7 @@
 .documentPane {
   @apply h-screen w-full flex flex-col;
 }
+
+.documentPaneContents {
+  @apply flex-grow flex max-h-full overflow-hidden;;
+}

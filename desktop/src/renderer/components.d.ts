@@ -19,6 +19,9 @@ export namespace Components {
     interface AppDocumentPaneTabs {
         "documents": string[];
     }
+    interface AppDocumentPreview {
+        "filePath": string;
+    }
     interface AppLauncher {
     }
     interface AppProjectRoot {
@@ -72,6 +75,12 @@ declare global {
     var HTMLAppDocumentPaneTabsElement: {
         prototype: HTMLAppDocumentPaneTabsElement;
         new (): HTMLAppDocumentPaneTabsElement;
+    };
+    interface HTMLAppDocumentPreviewElement extends Components.AppDocumentPreview, HTMLStencilElement {
+    }
+    var HTMLAppDocumentPreviewElement: {
+        prototype: HTMLAppDocumentPreviewElement;
+        new (): HTMLAppDocumentPreviewElement;
     };
     interface HTMLAppLauncherElement extends Components.AppLauncher, HTMLStencilElement {
     }
@@ -139,6 +148,7 @@ declare global {
         "app-document-pane-empty": HTMLAppDocumentPaneEmptyElement;
         "app-document-pane-tab": HTMLAppDocumentPaneTabElement;
         "app-document-pane-tabs": HTMLAppDocumentPaneTabsElement;
+        "app-document-preview": HTMLAppDocumentPreviewElement;
         "app-launcher": HTMLAppLauncherElement;
         "app-project-root": HTMLAppProjectRootElement;
         "app-project-sidebar-files": HTMLAppProjectSidebarFilesElement;
@@ -164,6 +174,9 @@ declare namespace LocalJSX {
     }
     interface AppDocumentPaneTabs {
         "documents"?: string[];
+    }
+    interface AppDocumentPreview {
+        "filePath"?: string;
     }
     interface AppLauncher {
     }
@@ -193,6 +206,7 @@ declare namespace LocalJSX {
         "app-document-pane-empty": AppDocumentPaneEmpty;
         "app-document-pane-tab": AppDocumentPaneTab;
         "app-document-pane-tabs": AppDocumentPaneTabs;
+        "app-document-preview": AppDocumentPreview;
         "app-launcher": AppLauncher;
         "app-project-root": AppProjectRoot;
         "app-project-sidebar-files": AppProjectSidebarFiles;
@@ -214,6 +228,7 @@ declare module "@stencil/core" {
             "app-document-pane-empty": LocalJSX.AppDocumentPaneEmpty & JSXBase.HTMLAttributes<HTMLAppDocumentPaneEmptyElement>;
             "app-document-pane-tab": LocalJSX.AppDocumentPaneTab & JSXBase.HTMLAttributes<HTMLAppDocumentPaneTabElement>;
             "app-document-pane-tabs": LocalJSX.AppDocumentPaneTabs & JSXBase.HTMLAttributes<HTMLAppDocumentPaneTabsElement>;
+            "app-document-preview": LocalJSX.AppDocumentPreview & JSXBase.HTMLAttributes<HTMLAppDocumentPreviewElement>;
             "app-launcher": LocalJSX.AppLauncher & JSXBase.HTMLAttributes<HTMLAppLauncherElement>;
             "app-project-root": LocalJSX.AppProjectRoot & JSXBase.HTMLAttributes<HTMLAppProjectRootElement>;
             "app-project-sidebar-files": LocalJSX.AppProjectSidebarFiles & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFilesElement>;
