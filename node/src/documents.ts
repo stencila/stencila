@@ -40,7 +40,7 @@ export function open(
 ): Document {
   const document = fromJSON<Document>(addon.documentsOpen(path))
   if (subscriber !== undefined)
-    subscribe(`document:${document.path}`, subscriber as Subscriber)
+    subscribe(`documents:${document.path}`, subscriber as Subscriber)
   return document
 }
 

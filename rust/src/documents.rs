@@ -63,7 +63,7 @@ struct DocumentEvent {
 impl DocumentEvent {
     fn publish(path: PathBuf, type_: DocumentEventType) {
         publish(
-            &format!("document:{}", path.display()),
+            &format!("documents:{}", path.display()),
             &Self { path, type_ },
         )
     }
@@ -436,7 +436,7 @@ impl Documents {
 pub fn schemas() -> Result<serde_json::Value> {
     let schemas = serde_json::Value::Array(vec![
         schemas::generate::<Document>()?,
-        schemas::generate::<DocumentEvent>()?
+        schemas::generate::<DocumentEvent>()?,
     ]);
     Ok(schemas)
 }
