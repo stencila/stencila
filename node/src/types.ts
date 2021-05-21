@@ -21,15 +21,15 @@ export interface Document {
    */
   path: string
   /**
-   * The set of unique subscriptions to this document
-   *
    * Keeps track of the number of subscribers to each of the document's topic channels. Events will only be published on channels that have at least one subscriber.
    *
    * Valid subscription topics are the names of the `DocumentEvent` types:
    *
    * - `removed`: published when document file is deleted - `renamed`: published when document file is renamed - `modified`: published when document file is modified - `converted:<format>` published when a document's content is changed internally or externally and  conversions have been completed e.g. `converted:html`
    */
-  subscriptions: string[]
+  subscriptions: {
+    [k: string]: number
+  }
   /**
    * Whether or not the document is temporary
    */
