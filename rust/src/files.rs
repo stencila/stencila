@@ -178,12 +178,12 @@ pub struct FileEvent {
 impl FileEvent {
     /// Generate the JSON Schema for the `file` property
     fn schema_file(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("File | undefined")
+        schemas::typescript("File", false)
     }
 
     /// Generate the JSON Schema for the `files` property
     fn schema_files(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Record<string, File>")
+        schemas::typescript("Record<string, File>", true)
     }
 
     pub fn publish(

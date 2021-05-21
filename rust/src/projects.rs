@@ -57,6 +57,7 @@ pub struct Project {
     // and should never be read from, or written to, the `project.json` file
     /// The filesystem path of the project folder
     #[serde(skip_deserializing)]
+    #[schemars(schema_with = "Project::schema_path")]
     path: PathBuf,
 
     /// The resolved path of the project's image file
@@ -74,9 +75,16 @@ pub struct Project {
 }
 
 impl Project {
-    /// Generate the JSON Schema for the `file` property
+    /// Generate the JSON Schema for the `path` property to avoid optionality
+    /// due to `skip_deserializing`
+    fn schema_path(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("string", true)
+    }
+
+    /// Generate the JSON Schema for the `file` property to avoid duplicated
+    /// inline type and optionality due to `skip_deserializing`
     fn schema_files(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Record<string, File>")
+        schemas::typescript("Record<string, File>", true)
     }
 
     /// The name of the project's manifest file within the project directory

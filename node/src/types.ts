@@ -72,7 +72,7 @@ export interface Project {
   /**
    * The files in the project folder
    */
-  files?: Record<string, File>
+  files: Record<string, File>
   /**
    * The path (within the project) of the project's image
    *
@@ -100,7 +100,7 @@ export interface Project {
   /**
    * The filesystem path of the project folder
    */
-  path?: string
+  path: string
   /**
    * The default theme to use when viewing documents in this project
    *
@@ -174,7 +174,7 @@ export interface FileEvent {
    *
    * Will be `None` for for `refreshed` and `removed` events, or if for some reason it was not possible to fetch metadata about the file.
    */
-  file: File | undefined
+  file?: File
   /**
    * The updated set of files in the project
    *
@@ -238,7 +238,7 @@ export interface Plugin {
    *
    * If the plugin is installed and there is a newer version of the plugin then this property should be set at the time of refresh.
    */
-  next: Plugin | undefined
+  next?: Plugin
   /**
    * The last time that the plugin manifest was updated. Used to determine if a refresh is necessary.
    */

@@ -119,7 +119,7 @@ impl Plugin {
     /// self-referencing / recursive type. So here, we specify the
     /// TypeScript type to use.
     fn schema_next(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        schemas::typescript("Plugin | undefined")
+        schemas::typescript("Plugin", false)
     }
 
     /// Create a Markdown document describing a plugin
