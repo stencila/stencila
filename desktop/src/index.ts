@@ -24,7 +24,14 @@ const createMainWindow = (): void => {
   protocol.registerBufferProtocol(scheme, requestHandler)
 
   const mainWindowUrl = '/'
-  const mainWindow = createWindow(mainWindowUrl)
+  const mainWindow = createWindow(mainWindowUrl, {
+    height: 430,
+    width: 860,
+    maxHeight: 860,
+    maxWidth: 1200,
+    minHeight: 350,
+    minWidth: 600,
+  })
 
   store = initStore(mainWindow)
 }

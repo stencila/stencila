@@ -8,7 +8,7 @@
   Any global CSS variables should also be applied here.
 */
 
-@import url('https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css');
+@import url('https://unpkg.com/remixicon@2.5.0/fonts/remixicon.css');
 @import '../components/shared/scrollbars.css';
 
 :root {
