@@ -71,6 +71,7 @@ pub mod cli;
 pub mod logging;
 pub mod pubsub;
 pub mod schemas;
+pub mod uuids;
 
 // Re-export packages
 //
