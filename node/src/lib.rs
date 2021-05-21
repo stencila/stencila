@@ -21,7 +21,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("documentsLoad", documents::load)?;
     cx.export_function("documentsWrite", documents::write)?;
 
-    cx.export_function("projectsSchema", projects::schema)?;
+    cx.export_function("projectsSchemas", projects::schemas)?;
     cx.export_function("projectsList", projects::list)?;
     cx.export_function("projectsOpen", projects::open)?;
     cx.export_function("projectsClose", projects::close)?;

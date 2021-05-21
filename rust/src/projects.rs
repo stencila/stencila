@@ -1,8 +1,8 @@
-use crate::files::Files;
+use crate::files::{File, FileEvent, Files};
 use crate::{cli::display, schemas};
 use eyre::{bail, Result};
 use regex::Regex;
-use schemars::JsonSchema;
+use schemars::{schema::Schema, JsonSchema};
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use std::{
@@ -69,17 +69,18 @@ pub struct Project {
 
     /// The files in the project folder
     #[serde(skip_deserializing)]
+    #[schemars(schema_with = "Project::schema_files")]
     files: Files,
 }
 
 impl Project {
+    /// Generate the JSON Schema for the `file` property
+    fn schema_files(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("Record<string, File>")
+    }
+
     /// The name of the project's manifest file within the project directory
     const FILE_NAME: &'static str = "project.json";
-
-    /// Get the JSON Schema for a project
-    pub fn schema() -> Result<serde_json::Value> {
-        schemas::generate::<Project>()
-    }
 
     /// Get the path to a projects' manifest file
     fn file(folder: &str) -> PathBuf {
@@ -292,6 +293,16 @@ impl Projects {
     }
 }
 
+/// Get JSON Schemas for this modules
+pub fn schemas() -> Result<serde_json::Value> {
+    let schemas = serde_json::Value::Array(vec![
+        schemas::generate::<Project>()?,
+        schemas::generate::<File>()?,
+        schemas::generate::<FileEvent>()?,
+    ]);
+    Ok(schemas)
+}
+
 #[cfg(feature = "config")]
 pub mod config {
     use super::*;
@@ -357,7 +368,7 @@ pub mod cli {
         Open(Open),
         Close(Close),
         Show(Show),
-        Schema(Schema),
+        Schemas(Schemas),
     }
 
     impl Command {
@@ -373,7 +384,7 @@ pub mod cli {
                 Action::Open(action) => action.run(projects, config),
                 Action::Close(action) => action.run(projects),
                 Action::Show(action) => action.run(projects, config),
-                Action::Schema(action) => action.run(),
+                Action::Schemas(action) => action.run(),
             }
         }
     }
@@ -487,14 +498,14 @@ pub mod cli {
 
     #[derive(Debug, StructOpt)]
     #[structopt(
-        about = "Get the JSON Schema for projects",
+        about = "Get JSON Schemas for documents and associated types",
         setting = structopt::clap::AppSettings::ColoredHelp
     )]
-    pub struct Schema {}
+    pub struct Schemas {}
 
-    impl Schema {
+    impl Schemas {
         pub fn run(&self) -> display::Result {
-            let schema = Project::schema()?;
+            let schema = schemas()?;
             display::value(schema)
         }
     }

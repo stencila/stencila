@@ -7,9 +7,10 @@
 use eyre::Result;
 use schemars::{
     gen::{SchemaGenerator, SchemaSettings},
-    JsonSchema,
+    schema::{Schema, SchemaObject},
+    JsonSchema, Map,
 };
-use serde_json::Value as JsonValue;
+use serde_json::{json, Value as JsonValue};
 
 /// Create a `schemars` JSON Schema generator
 ///
@@ -23,6 +24,16 @@ pub fn generator() -> SchemaGenerator {
     settings.into_generator()
 }
 
+/// Generate the JSON Schema for a property with a specified TypeScript type.
+pub fn typescript(typescript_type: &str) -> Schema {
+    let mut extensions = Map::new();
+    extensions.insert("tsType".to_string(), json!(typescript_type));
+    Schema::Object(SchemaObject {
+        extensions,
+        ..Default::default()
+    })
+}
+
 /// Generate a JSON Schema for a type using the generator
 pub fn generate<Type>() -> Result<JsonValue>
 where
@@ -32,7 +43,7 @@ where
     let schema = serde_json::to_value(schema)?;
 
     // Modify `$id`, `title` and `description` for compatibility with TypeScript
-    // type generation.
+    // and UI form generation.
     // See https://github.com/stencila/stencila/pull/929#issuecomment-842623228
     fn modify(value: JsonValue) -> JsonValue {
         if let JsonValue::Object(object) = value {
