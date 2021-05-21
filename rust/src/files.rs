@@ -13,6 +13,7 @@ use std::{
 };
 
 use crate::{pubsub::publish, schemas};
+use strum::ToString;
 
 /// A file or directory within a `Project`
 #[skip_serializing_none]
@@ -128,7 +129,8 @@ impl File {
     }
 }
 
-#[derive(JsonSchema, Serialize)]
+#[derive(JsonSchema, Serialize, ToString)]
+#[serde(rename_all = "lowercase")]
 pub enum FileEventType {
     Refreshed,
     Created,
@@ -193,7 +195,12 @@ impl FileEvent {
         file: Option<File>,
         files: &BTreeMap<PathBuf, File>,
     ) {
-        let topic = &format!("projects:{}:files", project.display());
+        let topic = &format!(
+            "projects:{}:files:{}:{}",
+            project.display(),
+            path.display(),
+            type_.to_string()
+        );
         let event = FileEvent {
             project: project.into(),
             path: path.into(),

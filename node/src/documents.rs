@@ -49,6 +49,28 @@ pub fn close(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     }
 }
 
+/// Subscribe to a document topic
+pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
+    let documents = &mut *obtain(&mut cx)?;
+    match documents.subscribe(path, topic) {
+        Ok(_) => Ok(cx.undefined()),
+        Err(error) => cx.throw_error(error.to_string()),
+    }
+}
+
+/// Unsubscribe from a document topic
+pub fn unsubscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
+    let documents = &mut *obtain(&mut cx)?;
+    match documents.unsubscribe(path, topic) {
+        Ok(_) => Ok(cx.undefined()),
+        Err(error) => cx.throw_error(error.to_string()),
+    }
+}
+
 /// Read a document
 pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {
     let path = &cx.argument::<JsString>(0)?.value(&mut cx);

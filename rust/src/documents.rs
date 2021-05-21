@@ -14,41 +14,39 @@ use std::{
     },
 };
 use stencila_schema::CreativeWorkTypes;
+use strum::{EnumVariantNames, ToString};
 
 #[derive(JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
-struct DocumentRemoved {}
+struct DocumentRemovedEvent {}
 
 #[derive(JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
-struct DocumentRenamed {
+struct DocumentRenamedEvent {
     to: PathBuf,
 }
 
 #[derive(JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
-struct DocumentModified {}
-
-#[derive(JsonSchema, Serialize)]
-#[schemars(deny_unknown_fields)]
-struct DocumentContentUpdated {
+struct DocumentModifiedEvent {
     content: String,
 }
 
 #[derive(JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
-struct DocumentPreviewUpdated {
-    preview: String,
+struct DocumentConvertedEvent {
+    format: String,
+    content: String,
 }
 
-#[derive(JsonSchema, Serialize)]
-#[serde(tag = "type")]
+#[derive(JsonSchema, Serialize, ToString, EnumVariantNames)]
+#[serde(tag = "type", rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
 enum DocumentEventType {
-    Removed(DocumentRemoved),
-    Renamed(DocumentRenamed),
-    Modified(DocumentModified),
-    ContentUpdated(DocumentContentUpdated),
-    PreviewUpdated(DocumentPreviewUpdated),
+    Removed(DocumentRemovedEvent),
+    Renamed(DocumentRenamedEvent),
+    Modified(DocumentModifiedEvent),
+    Converted(DocumentConvertedEvent),
 }
 
 #[derive(JsonSchema, Serialize)]
@@ -62,8 +60,14 @@ struct DocumentEvent {
 
 impl DocumentEvent {
     fn publish(path: PathBuf, type_: DocumentEventType) {
+        let topic = match &type_ {
+            DocumentEventType::Converted(converted) => {
+                format!("converted:{}", converted.format)
+            }
+            _ => type_.to_string(),
+        };
         publish(
-            &format!("documents:{}", path.display()),
+            &format!("documents:{}:{}", path.display(), topic),
             &Self { path, type_ },
         )
     }
@@ -82,7 +86,7 @@ pub struct Document {
     /// for temporary documents.
     name: String,
 
-    /// Whether of not the document is temporary
+    /// Whether or not the document is temporary
     temporary: bool,
 
     /// The current content of the document.
@@ -92,6 +96,7 @@ pub struct Document {
     /// of the file. The `content` may subsequently be changed using
     /// the `load()` function. A call to `write()` will write the content
     /// back to `path`.
+    #[serde(skip)]
     content: String,
 
     /// The format of the document's `content`.
@@ -100,6 +105,22 @@ pub struct Document {
     /// of the document's `path`. However, it may change whilst the document is
     /// open in memory (e.g. if the `load` function sets a different format).
     format: Option<String>,
+
+    /// The set of unique subscriptions to this document
+    ///
+    /// Keeps track of the number of subscribers to each of the document's
+    /// topic channels. Events will only be published on channels that
+    /// have at least one subscriber.
+    ///
+    /// Valid subscription topics are the names of the `DocumentEvent` types:
+    ///
+    /// - `removed`: published when document file is deleted
+    /// - `renamed`: published when document file is renamed
+    /// - `modified`: published when document file is modified
+    /// - `converted:<format>` published when a document's content
+    ///   is changed internally or externally and  conversions have been
+    ///   completed e.g. `converted:html`
+    subscriptions: HashMap<String, u32>,
 
     /// The root Stencila Schema node of the document
     #[serde(skip)]
@@ -125,6 +146,35 @@ impl Document {
             format,
             ..Default::default()
         }
+    }
+
+    /// Add a subscriber to one of the document's topics
+    fn subscribe(&mut self, topic: &str) -> Result<()> {
+        match self.subscriptions.entry(topic.into()) {
+            Entry::Occupied(mut entry) => {
+                let subscribers = entry.get_mut();
+                *subscribers += 1;
+            }
+            Entry::Vacant(entry) => {
+                entry.insert(1);
+            }
+        }
+        Ok(())
+    }
+
+    /// Remove a subscriber to one of the document's topics
+    fn unsubscribe(&mut self, topic: &str) -> Result<()> {
+        match self.subscriptions.entry(topic.into()) {
+            Entry::Occupied(mut entry) => {
+                let subscribers = entry.get_mut();
+                *subscribers -= 1;
+                if *subscribers == 0 {
+                    entry.remove();
+                }
+            }
+            Entry::Vacant(_) => {}
+        }
+        Ok(())
     }
 
     /// Read the document from the file system and return its content.
@@ -161,20 +211,28 @@ impl Document {
     /// - `format`: the format of the content; if not supplied assumed to be
     ///    the document's existing format.
     ///
-    /// Publishes `ContentChanged` and `PreviewChanged` events.
-    /// In the future, this will trigger an `import()` to convert the `content`
-    /// into a Stencila `CreativeWork` nodes and set the document's `root`.
+    /// Publishes `Conversion` events for each of the conversions subscribed to.
+    /// In the future, this will also trigger an `import()` to convert the `content`
+    /// into a Stencila `CreativeWork` nodes and set the document's `root` (from which
+    /// the conversions will be done).
     fn load(&mut self, content: String, format: Option<String>) -> Result<&Self> {
         self.content = content;
         if let Some(format) = format {
             self.format = Some(format)
         }
 
-        if let Ok(preview) = self.preview() {
-            DocumentEvent::publish(
-                self.path.clone(),
-                DocumentEventType::PreviewUpdated(DocumentPreviewUpdated { preview }),
-            )
+        for (subscription, _) in &self.subscriptions {
+            if let Some(format) = subscription.strip_prefix("converted:") {
+                if let Ok(content) = self.convert(format) {
+                    DocumentEvent::publish(
+                        self.path.clone(),
+                        DocumentEventType::Converted(DocumentConvertedEvent {
+                            format: format.into(),
+                            content,
+                        }),
+                    )
+                }
+            }
         }
 
         Ok(self)
@@ -217,13 +275,14 @@ impl Document {
         Ok(())
     }
 
-    /// Generate a HTML preview of the document
-    fn preview(&self) -> Result<String> {
-        let html = format!(
-            "<p>TODO. Preview updated at {:?}</p>",
+    /// Convert the document's content to another format
+    fn convert(&self, format: &str) -> Result<String> {
+        let content = format!(
+            "TODO: Convert to {} at {:?}",
+            format,
             chrono::offset::Utc::now()
         );
-        Ok(html)
+        Ok(content)
     }
 
     /// Called when the file is removed from the file system
@@ -231,7 +290,7 @@ impl Document {
     /// Publishes a `Removed` event so that, for example, a document's
     /// tab can be updated to indicate it is deleted.
     fn removed(&self, path: PathBuf) {
-        DocumentEvent::publish(path, DocumentEventType::Removed(DocumentRemoved {}))
+        DocumentEvent::publish(path, DocumentEventType::Removed(DocumentRemovedEvent {}))
     }
 
     /// Called when the file is renamed
@@ -239,28 +298,27 @@ impl Document {
     /// Publishes a `Renamed` event so that, for example, a document's
     /// tab can be updated with the new file name.
     fn renamed(&self, from: PathBuf, to: PathBuf) {
-        DocumentEvent::publish(from, DocumentEventType::Renamed(DocumentRenamed { to }))
+        DocumentEvent::publish(
+            from,
+            DocumentEventType::Renamed(DocumentRenamedEvent { to }),
+        )
     }
 
     /// Called when the file is modified
     ///
     /// Reads the file into `content` and emits both a `Modified` and
-    /// `ContentUpdated` event so that the user can be asked if they
+    /// `Content` event so that the user can be asked if they
     /// want to load the new content into editor, or overwrite with
     /// existing editor content. Read only views may wish to only
-    /// subscribe to `ContentUpdated` events.
+    /// subscribe to `Content` events.
     ///
     /// If there are any subscribers to `PreviewUpdated` events
     /// will regenerate previews and emit those.
     fn modified(&mut self, path: PathBuf) {
-        DocumentEvent::publish(
-            path.clone(),
-            DocumentEventType::Modified(DocumentModified {}),
-        );
         match self.read() {
             Ok(content) => DocumentEvent::publish(
                 path,
-                DocumentEventType::ContentUpdated(DocumentContentUpdated { content }),
+                DocumentEventType::Modified(DocumentModifiedEvent { content }),
             ),
             Err(error) => tracing::error!("While attempting to read modified file: {}", error),
         }
@@ -349,6 +407,7 @@ impl DocumentHandle {
         let mut document = Document {
             path: path.clone(),
             name,
+            temporary: false,
             ..Document::new(format)
         };
         document.read()?;
@@ -400,7 +459,7 @@ impl Documents {
         Ok(())
     }
 
-    fn get(&mut self, path: &str) -> Result<MutexGuard<Document>> {
+    pub fn get(&mut self, path: &str) -> Result<MutexGuard<Document>> {
         let path = Path::new(path).canonicalize()?;
         if let Some(handle) = self.registry.get(&path) {
             if let Ok(guard) = handle.document.lock() {
@@ -411,6 +470,14 @@ impl Documents {
         } else {
             bail!("Document has not been opened yet")
         }
+    }
+
+    pub fn subscribe(&mut self, path: &str, topic: &str) -> Result<()> {
+        self.get(&path)?.subscribe(topic)
+    }
+
+    pub fn unsubscribe(&mut self, path: &str, topic: &str) -> Result<()> {
+        self.get(&path)?.unsubscribe(topic)
     }
 
     pub fn read(&mut self, path: &str) -> Result<String> {

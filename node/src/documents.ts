@@ -2,7 +2,7 @@
 
 import { JSONSchema7 } from 'json-schema'
 import { fromJSON } from './prelude'
-import { subscribe, Subscriber } from './pubsub'
+import * as pubsub from './pubsub'
 import { Document, DocumentEvent } from './types'
 
 const addon = require('../index.node')
@@ -29,19 +29,14 @@ export function list(): Document[] {
 /**
  * Open a document
  *
+ * If you want the document's content you need to `open(<path>)` it
+ * and then `subscribe(<path>, ['content'], (topic, event) => ...)` it.
+ *
  * @param path Path to the document's file
- * @param subscriber A subscriber function that will receive published
- *                   events for the document
  * @return A document
  */
-export function open(
-  path: string,
-  subscriber?: (topic: string, event: DocumentEvent) => unknown
-): Document {
-  const document = fromJSON<Document>(addon.documentsOpen(path))
-  if (subscriber !== undefined)
-    subscribe(`documents:${document.path}`, subscriber as Subscriber)
-  return document
+export function open(path: string): Document {
+  return fromJSON<Document>(addon.documentsOpen(path))
 }
 
 /**
@@ -51,6 +46,49 @@ export function open(
  */
 export function close(path: string): void {
   addon.documentsClose(path)
+}
+
+/**
+ * Get a document
+ *
+ * Currently, the same as open but may change.
+ */
+export const get = open
+
+/**
+ * Subscribe to one or more of the document's topics
+ *
+ * @param path Path to the document's file
+ * @param topic See docs for `Document#subscriptions` for valid values
+ * @param subscriber A subscriber function that will receive published
+ *                   events for the document topic/s
+ */
+export function subscribe(
+  path: string,
+  topics: string[],
+  subscriber: (topic: string, event: DocumentEvent) => unknown
+): void {
+  for (const topic of topics) {
+    addon.documentsSubscribe(path, topic)
+    pubsub.subscribe(
+      `documents:${path}:${topic}`,
+      subscriber as pubsub.Subscriber
+    )
+  }
+}
+
+/**
+ * Unsubscribe from one or more of the document's topics
+ *
+ * @param path Path to the document's file
+ * @param subscriber A subscriber function that will receive published
+ *                   events for the document topic/s
+ */
+export function unsubscribe(path: string, topics: string[]): void {
+  for (const topic of topics) {
+    addon.documentsUnsubscribe(path, topic)
+    pubsub.unsubscribe(`documents:${path}:${topic}`)
+  }
 }
 
 /**

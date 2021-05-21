@@ -16,6 +16,8 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("documentsList", documents::list)?;
     cx.export_function("documentsOpen", documents::open)?;
     cx.export_function("documentsClose", documents::close)?;
+    cx.export_function("documentsSubscribe", documents::subscribe)?;
+    cx.export_function("documentsUnsubscribe", documents::unsubscribe)?;
     cx.export_function("documentsRead", documents::read)?;
     cx.export_function("documentsDump", documents::dump)?;
     cx.export_function("documentsLoad", documents::load)?;
