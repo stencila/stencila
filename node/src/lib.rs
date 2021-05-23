@@ -1,6 +1,9 @@
+#![recursion_limit = "256"]
+
 use neon::prelude::*;
 
 mod config;
+mod documents;
 mod logging;
 mod plugins;
 mod prelude;
@@ -9,7 +12,18 @@ mod pubsub;
 
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
-    cx.export_function("projectsSchema", projects::schema)?;
+    cx.export_function("documentsSchemas", documents::schemas)?;
+    cx.export_function("documentsList", documents::list)?;
+    cx.export_function("documentsOpen", documents::open)?;
+    cx.export_function("documentsClose", documents::close)?;
+    cx.export_function("documentsSubscribe", documents::subscribe)?;
+    cx.export_function("documentsUnsubscribe", documents::unsubscribe)?;
+    cx.export_function("documentsRead", documents::read)?;
+    cx.export_function("documentsDump", documents::dump)?;
+    cx.export_function("documentsLoad", documents::load)?;
+    cx.export_function("documentsWrite", documents::write)?;
+
+    cx.export_function("projectsSchemas", projects::schemas)?;
     cx.export_function("projectsList", projects::list)?;
     cx.export_function("projectsOpen", projects::open)?;
     cx.export_function("projectsClose", projects::close)?;

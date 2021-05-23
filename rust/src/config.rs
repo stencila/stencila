@@ -354,15 +354,15 @@ mod tests {
             ..Default::default()
         };
 
-        let all = get(&config, None)?;
+        let _all = get(&config, None)?;
         //assert!(all.contains("[serve]\n"));
         //assert!(all.contains("[upgrade]\n"));
 
-        let serve = get(&config, Some("serve".to_string()))?;
+        let _serve = get(&config, Some("serve".to_string()))?;
         //assert!(!serve.contains("[serve]\n"));
         //assert!(serve.contains("url = "));
 
-        let upgrade = get(&config, Some("upgrade".to_string()))?;
+        let _upgrade = get(&config, Some("upgrade".to_string()))?;
         //assert!(!upgrade.contains("[upgrade]\n"));
         //assert!(upgrade.contains("auto = "));
 

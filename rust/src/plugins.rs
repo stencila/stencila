@@ -11,13 +11,9 @@ use jsonschema::JSONSchema;
 use once_cell::sync::Lazy;
 use rand::Rng;
 use regex::Regex;
-use schemars::{
-    schema::{Schema, SchemaObject},
-    JsonSchema, Map,
-};
+use schemars::{schema::Schema, JsonSchema};
 use semver::Version;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::{
     collections::HashMap,
     fs,
@@ -123,12 +119,7 @@ impl Plugin {
     /// self-referencing / recursive type. So here, we specify the
     /// TypeScript type to use.
     fn schema_next(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
-        let mut extensions = Map::new();
-        extensions.insert("tsType".to_string(), json!("Plugin"));
-        Schema::Object(SchemaObject {
-            extensions,
-            ..Default::default()
-        })
+        schemas::typescript("Plugin", false)
     }
 
     /// Create a Markdown document describing a plugin

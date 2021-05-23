@@ -1,5 +1,5 @@
 use eyre::{bail, Result};
-use schemars::JsonSchema;
+use schemars::{schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::{
@@ -12,13 +12,14 @@ use std::{
     time::UNIX_EPOCH,
 };
 
-use crate::pubsub::publish;
+use crate::{pubsub::publish, schemas};
+use strum::ToString;
 
 /// A file or directory within a `Project`
 #[skip_serializing_none]
 #[derive(Debug, Default, Clone, JsonSchema, Serialize)]
 #[serde(rename_all = "camelCase")]
-#[schemars(title = "File", deny_unknown_fields)]
+#[schemars(deny_unknown_fields)]
 pub struct File {
     /// The absolute path of the file or directory
     pub path: PathBuf,
@@ -128,18 +129,21 @@ impl File {
     }
 }
 
+#[derive(JsonSchema, Serialize, ToString)]
+#[serde(rename_all = "lowercase")]
+pub enum FileEventType {
+    Refreshed,
+    Created,
+    Removed,
+    Renamed,
+    Modified,
+}
+
 /// An event associated with a `File` or a set of `File`s
 ///
-/// These events published under the `project:<project-path>:file` topic.
-/// Specific child topics include:
-///
-/// - `project:<project-path>:file:*:refreshed`
-/// - `project:<project-path>:file:<file-path>:created`
-/// - `project:<project-path>:file:<file-path>:removed`
-/// - `project:<project-path>:file:<file-path>:renamed`
-/// - `project:<project-path>:file:<file-path>:modified`
-///
-#[derive(Debug, Serialize)]
+/// These events published under the `projects:<project-path>:files` topic.
+#[derive(JsonSchema, Serialize)]
+#[schemars(deny_unknown_fields)]
 pub struct FileEvent {
     /// The path of the project (absolute)
     pub project: PathBuf,
@@ -149,17 +153,19 @@ pub struct FileEvent {
     /// For `renamed` events this is the _old_ path.
     pub path: PathBuf,
 
-    /// The kind of event e.g. `refreshed`, `modified`, `created`
+    /// The type of event e.g. `Refreshed`, `Modified`, `Created`
     ///
     /// A `refreshed` event is emitted when the entire set of
     /// files is updated.
-    pub kind: String,
+    #[serde(rename = "type")]
+    pub type_: FileEventType,
 
     /// The updated file
     ///
     /// Will be `None` for for `refreshed` and `removed` events,
     /// or if for some reason it was not possible to fetch metadata
     /// about the file.
+    #[schemars(schema_with = "FileEvent::schema_file")]
     pub file: Option<File>,
 
     /// The updated set of files in the project
@@ -167,7 +173,43 @@ pub struct FileEvent {
     /// Represents the new state of the file tree after the
     /// event including updated `parent` and `children`
     /// properties of files affects by the event.
+    #[schemars(schema_with = "FileEvent::schema_files")]
     pub files: BTreeMap<PathBuf, File>,
+}
+
+impl FileEvent {
+    /// Generate the JSON Schema for the `file` property
+    fn schema_file(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("File", false)
+    }
+
+    /// Generate the JSON Schema for the `files` property
+    fn schema_files(_generator: &mut schemars::gen::SchemaGenerator) -> Schema {
+        schemas::typescript("Record<string, File>", true)
+    }
+
+    pub fn publish(
+        project: &Path,
+        path: &Path,
+        type_: FileEventType,
+        file: Option<File>,
+        files: &BTreeMap<PathBuf, File>,
+    ) {
+        let topic = &format!(
+            "projects:{}:files:{}:{}",
+            project.display(),
+            path.display(),
+            type_.to_string()
+        );
+        let event = FileEvent {
+            project: project.into(),
+            path: path.into(),
+            type_,
+            file,
+            files: files.clone(),
+        };
+        publish(topic, &event)
+    }
 }
 
 /// A registry of `File`s within a `Project`
@@ -266,24 +308,6 @@ impl FileRegistry {
         (files, ignore_files)
     }
 
-    /// Publish a `FileEvent` under the project's topic
-    pub fn publish_file_event(&self, path: &Path, kind: &str, file: Option<File>) {
-        let topic = &format!(
-            "project:{}:file:{}:{}",
-            self.path.display(),
-            path.display(),
-            kind
-        );
-        let event = FileEvent {
-            project: self.path.clone(),
-            path: path.into(),
-            kind: "created".into(),
-            file,
-            files: self.files.clone(),
-        };
-        publish(topic, &event)
-    }
-
     /// Should the registry be refreshed in response to a change in a file
     ///
     /// For example if a `.gitignore` file is added, removed, moved or modified.
@@ -377,7 +401,13 @@ impl FileRegistry {
     fn refresh(&mut self) {
         *self = FileRegistry::new(self.path.as_path());
 
-        self.publish_file_event(Path::new("*"), "refresh", None)
+        FileEvent::publish(
+            &self.path,
+            Path::new("*"),
+            FileEventType::Refreshed,
+            None,
+            &self.files,
+        )
     }
 
     // Update a project file registry when a file is created
@@ -409,7 +439,13 @@ impl FileRegistry {
             }
         }
 
-        self.publish_file_event(path, "created", Some(file))
+        FileEvent::publish(
+            &self.path,
+            path,
+            FileEventType::Created,
+            Some(file),
+            &self.files,
+        )
     }
 
     // Update a project file registry when a file is removed
@@ -426,7 +462,7 @@ impl FileRegistry {
             }
         }
 
-        self.publish_file_event(path, "removed", None)
+        FileEvent::publish(&self.path, path, FileEventType::Removed, None, &self.files)
     }
 
     // Update a project file registry when a file is renamed
@@ -506,7 +542,13 @@ impl FileRegistry {
         // Insert the new path to the new parent's children
         self.ensure_ancestors(new_path);
 
-        self.publish_file_event(old_path, "renamed", Some(file))
+        FileEvent::publish(
+            &self.path,
+            old_path,
+            FileEventType::Renamed,
+            Some(file),
+            &self.files,
+        )
     }
 
     // Update a project file registry when a file is modified
@@ -519,7 +561,13 @@ impl FileRegistry {
         let file = File::load(path);
         self.files.insert(path.into(), file.clone());
 
-        self.publish_file_event(path, "modified", Some(file))
+        FileEvent::publish(
+            &self.path,
+            path,
+            FileEventType::Modified,
+            Some(file),
+            &self.files,
+        )
     }
 }
 

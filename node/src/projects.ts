@@ -13,8 +13,8 @@ const addon = require('../index.node')
  * @returns A JSON Schema v7 object describing the properties of
  *          a project object
  */
-export function schema(): JSONSchema7 {
-  return fromJSON<JSONSchema7>(addon.projectsSchema())
+export function schemas(): JSONSchema7[] {
+  return fromJSON<JSONSchema7[]>(addon.projectsSchemas())
 }
 
 /**
@@ -39,7 +39,7 @@ export function open(
   subscriber?: (topic: string, event: unknown) => unknown
 ): Project {
   const project = fromJSON<Project>(addon.projectsOpen(folder))
-  if (subscriber !== undefined) subscribe(`project:${project.path}`, subscriber)
+  if (subscriber !== undefined) subscribe(`projects:${project.path}`, subscriber)
   return project as Project
 }
 

@@ -6,7 +6,7 @@ use neon::prelude::*;
 use std::sync::{Mutex, MutexGuard};
 use stencila::{
     once_cell::sync::Lazy,
-    projects::{Project, Projects},
+    projects::{self, Projects},
 };
 
 /// A global projects store
@@ -24,8 +24,8 @@ pub fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Projec
 }
 
 /// Get project schema
-pub fn schema(cx: FunctionContext) -> JsResult<JsString> {
-    let schema = Project::schema();
+pub fn schemas(cx: FunctionContext) -> JsResult<JsString> {
+    let schema = projects::schemas();
     to_json_or_throw(cx, schema)
 }
 

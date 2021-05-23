@@ -1,9 +1,11 @@
+#![recursion_limit = "256"]
 #![deny(unsafe_code)]
 
 // Objects
 //
 // Core Stencila objects e.g `File`, `Article`, `Project`
 
+pub mod documents;
 pub mod files;
 pub mod nodes;
 pub mod projects;
@@ -69,6 +71,7 @@ pub mod cli;
 pub mod logging;
 pub mod pubsub;
 pub mod schemas;
+pub mod uuids;
 
 // Re-export packages
 //

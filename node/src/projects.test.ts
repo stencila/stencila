@@ -1,4 +1,4 @@
-import { open, schema } from './projects'
+import { open, schemas } from './projects'
 import path from 'path'
 
 function fixture(folder: string) {
@@ -9,7 +9,7 @@ function fixture(folder: string) {
 
 describe('projects', () => {
   test('schema', () => {
-    expect(schema()).toEqual(
+    expect(schemas()[0]).toEqual(
       expect.objectContaining({
         $schema: 'https://json-schema.org/draft/2019-09/schema',
         $id: 'Project',

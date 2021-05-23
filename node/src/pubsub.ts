@@ -5,6 +5,8 @@ const addon = require('../index.node')
 // Initialize this module
 addon.pubsubInit()
 
+export type Subscriber = (topic: string, data: unknown) => unknown
+
 /**
  * Subscribe to a topic.
  * 
@@ -16,10 +18,10 @@ addon.pubsubInit()
  */
 export function subscribe(
   topic: string,
-  callback: (topic: string, data: unknown) => unknown
+  subscriber: Subscriber
 ): void {
   return addon.pubsubSubscribe(topic, (topic: string, json: string) =>
-    callback(topic, fromJSON(json))
+    subscriber(topic, fromJSON(json))
   )
 }
 
