@@ -1,3 +1,26 @@
+# [0.68.0](https://github.com/stencila/stencila/compare/v0.67.1...v0.68.0) (2021-05-23)
+
+
+### Bug Fixes
+
+* **dependencies:** update dependency i18next to v20.3.0 ([f97f78f](https://github.com/stencila/stencila/commit/f97f78f808d48d9886f7c9a028557eb8aca9ba18))
+* **dependencies:** update rust crate neon to 0.8.2 ([be11c89](https://github.com/stencila/stencila/commit/be11c89f074c7dfc7f452181f568afc6d94ce1a1))
+* **dependencies:** update rust crate rustyline to 8.2.0 ([168d060](https://github.com/stencila/stencila/commit/168d06027554e8f2e0a6afa73d3a74b3c5b18601))
+* **dependencies:** update rust crate thiserror to 1.0.25 ([8858729](https://github.com/stencila/stencila/commit/88587293b831c2d177638e45faccea23966cb116))
+* **Documents:** Make document path required; create temp path for new docs ([a8e8a4d](https://github.com/stencila/stencila/commit/a8e8a4d503031b9530e9796de1fbc4d81bb0ff61))
+* **Documents:** Pluralize topic as for projects ([457d82e](https://github.com/stencila/stencila/commit/457d82e09bc78a40cd43f0da827f47e1c78e4b43))
+* **Documents:** Use stencila-schema ([d379615](https://github.com/stencila/stencila/commit/d3796152970646a6e2cd3056132a91089aefd420))
+* **Node.js:** Improve document type ([1c0ea25](https://github.com/stencila/stencila/commit/1c0ea250ba03fb2c87092e73ff8dbd375e84c486))
+* **Projects:** Generate type for file events ([ee4e69e](https://github.com/stencila/stencila/commit/ee4e69e7309724c77acc05b90281c03652fd27b6))
+* **TYpings:** Allow override of property optionality ([ac24ef7](https://github.com/stencila/stencila/commit/ac24ef734e88a0d606a19511ca58525cd23d8b9e))
+
+
+### Features
+
+* **Documents:** Add documents modules to Rust and Node ([b5bfc93](https://github.com/stencila/stencila/commit/b5bfc93cfe8c171f88a8b52b9f190aa349439829))
+* **Documents:** Add sepate subscription topics ([fe3563f](https://github.com/stencila/stencila/commit/fe3563f8192fa659995fd8f9d2eb2cdfd86e7074))
+* **Identifiers:** Add uuids module ([34270cf](https://github.com/stencila/stencila/commit/34270cf51e0e8ecb713e6bbc3d26d27a2a400813))
+
 ## [0.67.1](https://github.com/stencila/stencila/compare/v0.67.0...v0.67.1) (2021-05-21)
 
 
