@@ -1,69 +1,50 @@
-import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
-import { File } from 'stencila'
+import { Component, h, Host, Prop, State, Watch } from '@stencil/core'
 import { CHANNEL } from '../../../../preload'
-import { state } from '../../../store'
-import { selectProjectFile } from '../../../store/project/projectSelectors'
+import { DocumentEvent } from 'stencila'
 
 @Component({
   tag: 'app-document-preview',
   styleUrl: 'app-document-preview.css',
-  // Scoped must be off for this component to avoid mangling class names
-  // for the CodeEditor selectors.
-  scoped: false,
+  scoped: true,
 })
 export class AppDocumentPreview {
-  @Element() el: HTMLElement
-
-  private editorRef: HTMLStencilaEditorElement | null = null
-
   @Prop() filePath: string
-
-  private file?: File
 
   @Watch('filePath')
   filePathWatchHandler(newValue: string, prevValue: string) {
     if (newValue !== prevValue) {
-      this.updateEditorContents()
-    }
-  }
-
-  private updateEditorContents = () => {
-    this.file = selectProjectFile(state)(this.filePath)
-
-    window.api
-      .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, this.filePath)
-      .then((contents) => {
-        if (typeof contents === 'string') {
-          this.editorRef?.setContents(contents)
-        }
+      this.closeDoc(prevValue).then(() => {
+        this.subscribeToUpdates(newValue)
       })
-  }
-
-  private fileFormatToLanguage = (): string => {
-    switch (this.file?.format) {
-      case 'bash':
-        return 'bash'
-      case 'py':
-      case 'ipynb':
-        return 'python'
-      default:
-        return 'r'
     }
   }
 
-  componentDidLoad() {
-    this.editorRef = this.el.querySelector('stencila-editor')
-    this.updateEditorContents()
+  @State() previewContents: string
+
+  private subscribeToUpdates = (filePath = this.filePath) => {
+    window.api.invoke(CHANNEL.DOCUMENT_GET_PREVIEW, filePath)
+    window.api.receive(CHANNEL.DOCUMENT_GET_PREVIEW, (event) => {
+      const e = event as DocumentEvent
+      if (e.type === 'converted' && e.path === filePath) {
+        this.previewContents = e.content
+      }
+    })
+  }
+
+  private closeDoc = (filePath = this.filePath) =>
+    window.api.invoke(CHANNEL.CLOSE_DOCUMENT, filePath)
+
+  componentWillLoad() {
+    this.subscribeToUpdates()
   }
 
   render() {
     return (
       <Host>
-        <div class="app-document-preview">
-          <stencila-editor
-            activeLanguage={this.fileFormatToLanguage()}
-          ></stencila-editor>
-        </div>
+        <div
+          class="app-document-preview"
+          innerHTML={this.previewContents}
+        ></div>
       </Host>
     )
   }

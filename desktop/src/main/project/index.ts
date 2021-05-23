@@ -1,5 +1,4 @@
 import { dialog, ipcMain } from 'electron'
-import fs from 'fs'
 import { projects } from 'stencila'
 import { CHANNEL } from '../../preload'
 import { openProjectWindow, projectWindow } from './window'
@@ -37,10 +36,5 @@ export const registerProjectHandlers = () => {
         projectWindow?.webContents.send(CHANNEL.GET_PROJECT_FILES, event)
       })
     }
-  )
-
-  ipcMain.handle(
-    CHANNEL.GET_DOCUMENT_CONTENTS,
-    async (_event, filePath: string) => fs.readFileSync(filePath).toString()
   )
 }

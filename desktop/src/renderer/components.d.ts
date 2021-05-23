@@ -6,6 +6,9 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface AppDocumentEditor {
+        "filePath": string;
+    }
     interface AppDocumentPane {
     }
     interface AppDocumentPaneEmpty {
@@ -43,6 +46,12 @@ export namespace Components {
     }
 }
 declare global {
+    interface HTMLAppDocumentEditorElement extends Components.AppDocumentEditor, HTMLStencilElement {
+    }
+    var HTMLAppDocumentEditorElement: {
+        prototype: HTMLAppDocumentEditorElement;
+        new (): HTMLAppDocumentEditorElement;
+    };
     interface HTMLAppDocumentPaneElement extends Components.AppDocumentPane, HTMLStencilElement {
     }
     var HTMLAppDocumentPaneElement: {
@@ -134,6 +143,7 @@ declare global {
         new (): HTMLAppSidebarEmptyElement;
     };
     interface HTMLElementTagNameMap {
+        "app-document-editor": HTMLAppDocumentEditorElement;
         "app-document-pane": HTMLAppDocumentPaneElement;
         "app-document-pane-empty": HTMLAppDocumentPaneEmptyElement;
         "app-document-pane-tab": HTMLAppDocumentPaneTabElement;
@@ -152,6 +162,9 @@ declare global {
     }
 }
 declare namespace LocalJSX {
+    interface AppDocumentEditor {
+        "filePath"?: string;
+    }
     interface AppDocumentPane {
     }
     interface AppDocumentPaneEmpty {
@@ -188,6 +201,7 @@ declare namespace LocalJSX {
     interface AppSidebarEmpty {
     }
     interface IntrinsicElements {
+        "app-document-editor": AppDocumentEditor;
         "app-document-pane": AppDocumentPane;
         "app-document-pane-empty": AppDocumentPaneEmpty;
         "app-document-pane-tab": AppDocumentPaneTab;
@@ -209,6 +223,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "app-document-editor": LocalJSX.AppDocumentEditor & JSXBase.HTMLAttributes<HTMLAppDocumentEditorElement>;
             "app-document-pane": LocalJSX.AppDocumentPane & JSXBase.HTMLAttributes<HTMLAppDocumentPaneElement>;
             "app-document-pane-empty": LocalJSX.AppDocumentPaneEmpty & JSXBase.HTMLAttributes<HTMLAppDocumentPaneEmptyElement>;
             "app-document-pane-tab": LocalJSX.AppDocumentPaneTab & JSXBase.HTMLAttributes<HTMLAppDocumentPaneTabElement>;
