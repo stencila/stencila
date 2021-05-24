@@ -318,8 +318,7 @@ pub struct Date {
     pub type_: String,
 
     /// The date as an ISO 8601 string.
-    #[def = "chrono::Utc::now()"]
-    #[serde(with = "date_serializer")]
+    #[def = "chrono::Utc::now().to_rfc3339()"]
     pub value: DateValue,
 
     /// The identifier for this item.
@@ -4091,7 +4090,7 @@ impl_type!(VolumeMount);
  * Types for properties that are manually defined
  ********************************************************************/
 
-type DateValue = chrono::DateTime::<chrono::Utc>;
+type DateValue = String;
 
 
 /*********************************************************************

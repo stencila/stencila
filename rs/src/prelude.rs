@@ -35,26 +35,3 @@ macro_rules! impl_type {
         }
     };
 }
-
-// Date serialiser necessary for the `Date.value` property.
-pub mod date_serializer {
-
-    use chrono::{DateTime, Utc};
-    use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
-    pub fn serialize<S: Serializer>(
-        date: &DateTime<Utc>,
-        serializer: S,
-    ) -> Result<S::Ok, S::Error> {
-        date.to_rfc3339().serialize(serializer)
-    }
-
-    pub fn deserialize<'de, D: Deserializer<'de>>(
-        deserializer: D,
-    ) -> Result<DateTime<Utc>, D::Error> {
-        let s: String = Deserialize::deserialize(deserializer)?;
-        Ok(DateTime::parse_from_rfc3339(&s)
-            .map_err(serde::de::Error::custom)?
-            .into())
-    }
-}

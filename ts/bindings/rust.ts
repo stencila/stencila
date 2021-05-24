@@ -32,10 +32,7 @@ interface Context {
 
 // Attributes to add to properties of some types
 const propertyAttributes: Record<string, string[]> = {
-  'Date.value': [
-    '#[def = "chrono::Utc::now()"]',
-    '#[serde(with = "date_serializer")]',
-  ],
+  'Date.value': ['#[def = "chrono::Utc::now().to_rfc3339()"]'],
   'PropertyValue.value': [
     '#[def = "PropertyValueValue::String(String::new())"]',
   ],
@@ -43,7 +40,7 @@ const propertyAttributes: Record<string, string[]> = {
 
 // Manually defined types for properties of some types
 const propertyTypes: Record<string, [string, string]> = {
-  'Date.value': ['DateValue', 'chrono::DateTime::<chrono::Utc>'],
+  'Date.value': ['DateValue', 'String'],
 }
 
 // Properties that need to use a pointer to prevent circular references
