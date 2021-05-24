@@ -16,7 +16,7 @@
     "lint": "npx eslint 'ts/**/*.{js,ts}' --fix",
     "test": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && jest",
     "test:cover": "npm test -- --coverage",
-    "build": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && npm run build:python && npm run build:r && npm run build:vscode && npm run build:dist",
+    "build": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && npm run build:python && npm run build:r && npm run build:rust && npm run build:vscode && npm run build:dist",
     "build:jsonschema": "ts-node ts/schema.ts",
     "build:jsonld": "ts-node ts/bindings/jsonld.ts",
     "build:python": "ts-node ts/bindings/python.ts",
