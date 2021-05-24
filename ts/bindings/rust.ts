@@ -42,8 +42,8 @@ const propertyAttributes: Record<string, string[]> = {
 }
 
 // Manually defined types for properties of some types
-const propertyTypes = {
-  DateValue: 'chrono::DateTime::<chrono::Utc>',
+const propertyTypes: Record<string, [string, string]> = {
+  'Date.value': ['DateValue', 'chrono::DateTime::<chrono::Utc>'],
 }
 
 // Properties that need to use a pointer to prevent circular references
@@ -98,7 +98,7 @@ ${structs}
  ********************************************************************/
 
 ${Object.entries(propertyTypes).map(
-  ([key, value]) => `type ${key} = ${value};\n`
+  ([key, [name, type]]) => `type ${name} = ${type};\n`
 )}
 
 /*********************************************************************
@@ -157,17 +157,15 @@ export function interfaceSchemaToEnum(
       // use the name of the type that this property was defined on)
       context.propertyName = name
       context.typeName = inherited && !override ? from : title
-      const propertyTypeName = pascalCase(
+      context.propertyTypeName = pascalCase(
         `${context.typeName} ${context.propertyName}`
       )
-      context.propertyTypeName = propertyTypeName
-
-      let type =
-        propertyTypeName in propertyTypes
-          ? propertyTypeName
-          : schemaToType(schema, context)
 
       const propertyPath = `${title}.${name}`
+
+      let type =
+        propertyTypes[propertyPath]?.[0] ?? schemaToType(schema, context)
+
       const isPointer =
         pointerProperties.includes(propertyPath) ||
         pointerProperties.includes(`*.${name}`)
