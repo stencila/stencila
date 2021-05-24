@@ -13,6 +13,9 @@ import { Superscript } from './Superscript'
 export function InlineContent(props: { node: schema.InlineContent }) {
   const component = () => {
     switch (schema.nodeType(props.node)) {
+      case 'Null':
+      case 'Boolean':
+      case 'Number':
       case 'String':
         return () => props.node
       case 'Cite':

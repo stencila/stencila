@@ -5,7 +5,7 @@ import { ContentArray } from './Content'
 
 export function Table(props: { node: schema.Table }) {
   return (
-    <table itemtype="https://schema.org/Table" itemscope id={props.node.id}>
+    <table itemtype="http://schema.org/Table" itemscope id={props.node.id}>
       {props.node.label && <label data-itemprop="label">{props.node.label}</label>}
       {props.node.caption && (
         <figcaption>

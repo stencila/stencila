@@ -4,7 +4,7 @@ import { CreativeWorkReferences } from './CreativeWork'
 
 export function Article(props: { node: schema.Article }) {
   return (
-    <article itemtype="https://schema.org/Article" itemscope>
+    <article itemtype="http://schema.org/Article" itemscope>
       {(props.node.content ?? []).length ? (
         <BlockContentArray nodes={props.node.content}></BlockContentArray>
       ) : (

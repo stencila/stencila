@@ -3,7 +3,7 @@ import { InlineContentArray } from './InlineContent'
 
 export function Link(props: { node: schema.Link }) {
   return (
-    <a itemtype="https://schema.stenci.la/Link" href={props.node.target}>
+    <a itemtype="http://schema.stenci.la/Link" href={props.node.target}>
       <InlineContentArray nodes = {props.node.content}></InlineContentArray>
     </a>
   )

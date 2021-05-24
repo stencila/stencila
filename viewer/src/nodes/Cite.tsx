@@ -6,7 +6,7 @@ import { DocumentContext } from '../Document'
 export function Cite(props: { node: schema.Cite }) {
   const content = () => props.node.content ?? []
   return (
-    <cite itemtype="https://schema.stenci.la/Cite">
+    <cite itemtype="http://schema.stenci.la/Cite">
       <a href={props.node.target}>
         <Switch>
           <Match when={content().length > 0}>
@@ -22,10 +22,10 @@ export function Cite(props: { node: schema.Cite }) {
 }
 
 function CiteContent(props: { node: schema.Cite }) {
-  const document = useContext(DocumentContext)
+  const documentContext = useContext(DocumentContext)
   
   const content = () => {
-    const references = document?.references ?? []
+    const references = documentContext?.root.references ?? []
     const target = props.node.target
 
     const reference = references.find((ref, index) =>

@@ -4,7 +4,7 @@ import { CreativeWork } from './CreativeWork'
 
 export function Collection(props: { node: schema.Collection }) {
   return (
-    <div itemtype="https://schema.org/Collection">
+    <div itemtype="http://schema.org/Collection">
       <For each={props.node.parts}>
         {(node) => <CreativeWork node={node}></CreativeWork>}
       </For>

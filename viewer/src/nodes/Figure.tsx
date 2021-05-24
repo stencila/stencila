@@ -4,7 +4,7 @@ import { ContentArray } from './Content'
 
 export function Figure(props: { node: schema.Figure }) {
   return (
-    <figure itemtype="https://schema.org/Figure" itemscope id={props.node.id}>
+    <figure itemtype="http://schema.stenci.la/Figure" itemscope id={props.node.id}>
       {props.node.label && <label data-itemprop="label">{props.node.label}</label>}
       {props.node.content && (
         <ContentArray

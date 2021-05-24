@@ -3,7 +3,7 @@ import { InlineContentArray } from './InlineContent'
 
 export function Delete(props: { node: schema.Delete }) {
   return (
-    <del itemtype="https://schema.stenci.la/Delete">
+    <del itemtype="http://schema.stenci.la/Delete">
       <InlineContentArray nodes = {props.node.content}></InlineContentArray>
     </del>
   )

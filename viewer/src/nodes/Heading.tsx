@@ -3,7 +3,7 @@ import { Match, Switch } from 'solid-js'
 import { InlineContentArray } from './InlineContent'
 
 export function Heading(props: { node: schema.Heading }) {
-  const itemtype = 'https://schema.stenci.la/Heading'
+  const itemtype = 'http://schema.stenci.la/Heading'
   const depth = () => props.node.depth ?? 1
   const content = () => props.node.content
 
