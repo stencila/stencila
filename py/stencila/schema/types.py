@@ -619,7 +619,7 @@ class CreativeWork(Thing):
     etc.
     """
 
-    about: Optional[Array["Thing"]] = None
+    about: Optional[Array["ThingTypes"]] = None
     """The subject matter of the content."""
 
     authors: Optional[Array[Union["Person", "Organization"]]] = None
@@ -700,7 +700,7 @@ web page, scholarly article, etc.
 
     def __init__(
         self,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
@@ -810,7 +810,7 @@ for example, "1-6, 9, 55".
 
     def __init__(
         self,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
@@ -903,7 +903,7 @@ class Claim(CreativeWork):
     def __init__(
         self,
         content: Array["BlockContent"],
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         claimType: Optional["EClaimType"] = None,
@@ -988,7 +988,7 @@ such as Articles, Datatables, Tables and more.
     def __init__(
         self,
         parts: Array["CreativeWorkTypes"],
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
@@ -1068,7 +1068,7 @@ class Comment(CreativeWork):
 
     def __init__(
         self,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         commentAspect: Optional[str] = None,
@@ -1151,7 +1151,7 @@ class Datatable(CreativeWork):
     def __init__(
         self,
         columns: Array["DatatableColumn"],
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
@@ -1250,7 +1250,7 @@ class MediaObject(CreativeWork):
     def __init__(
         self,
         contentUrl: str,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
@@ -1344,7 +1344,7 @@ class AudioObject(MediaObject):
     def __init__(
         self,
         contentUrl: str,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
@@ -1670,7 +1670,7 @@ class Figure(CreativeWork):
 
     def __init__(
         self,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         caption: Optional[Union[Array["BlockContent"], str]] = None,
@@ -1858,7 +1858,7 @@ class ImageObject(MediaObject):
     def __init__(
         self,
         contentUrl: str,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,
@@ -2556,7 +2556,7 @@ class Periodical(CreativeWork):
 
     def __init__(
         self,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
@@ -2906,7 +2906,7 @@ for example, "1-6, 9, 55".
 
     def __init__(
         self,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
@@ -3009,7 +3009,7 @@ for example, "1-6, 9, 55".
 
     def __init__(
         self,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
@@ -3150,7 +3150,7 @@ class Review(CreativeWork):
 
     def __init__(
         self,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
@@ -3237,7 +3237,7 @@ are not included in the application distribution.
 
     def __init__(
         self,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         comments: Optional[Array["Comment"]] = None,
@@ -3526,7 +3526,7 @@ Python2.3, .Net Framework 3.0).
 
     def __init__(
         self,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         codeRepository: Optional[str] = None,
@@ -3712,7 +3712,7 @@ class Table(CreativeWork):
     def __init__(
         self,
         rows: Array["TableRow"],
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         caption: Optional[Union[Array["BlockContent"], str]] = None,
@@ -3918,7 +3918,7 @@ class VideoObject(MediaObject):
     def __init__(
         self,
         contentUrl: str,
-        about: Optional[Array["Thing"]] = None,
+        about: Optional[Array["ThingTypes"]] = None,
         alternateNames: Optional[Array[str]] = None,
         authors: Optional[Array[Union["Person", "Organization"]]] = None,
         bitrate: Optional[float] = None,

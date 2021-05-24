@@ -676,7 +676,7 @@ CreativeWork <- function(
     url = url
   )
   self$type <- as_scalar("CreativeWork")
-  self[["about"]] <- check_property("CreativeWork", "about", FALSE, missing(about), Array(Thing), about)
+  self[["about"]] <- check_property("CreativeWork", "about", FALSE, missing(about), Array(ThingTypes), about)
   self[["authors"]] <- check_property("CreativeWork", "authors", FALSE, missing(authors), Array(Union(Person, Organization)), authors)
   self[["comments"]] <- check_property("CreativeWork", "comments", FALSE, missing(comments), Array(Comment), comments)
   self[["content"]] <- check_property("CreativeWork", "content", FALSE, missing(content), Array(Node), content)

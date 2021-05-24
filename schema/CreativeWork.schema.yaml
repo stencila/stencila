@@ -21,7 +21,7 @@ properties:
       subject areas the creative work relates to).
     type: array
     items:
-      $ref: Thing
+      $ref: ThingTypes
   authors:
     '@id': schema:author
     description: The authors of this creative work.
