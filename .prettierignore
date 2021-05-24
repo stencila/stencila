@@ -12,4 +12,4 @@ package-lock.json
 public
 py/htmlcov
 README.md
-rs/target
+rust/target

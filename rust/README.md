@@ -49,7 +49,7 @@ Get started by cloning this repository and using `cargo` to run the tests,
 
 ```bash
 git clone git@github.com:stencila/schema
-cd schema/rs
+cd schema/rust
 cargo test
 ```
 

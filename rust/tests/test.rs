@@ -4,8 +4,8 @@
 use pretty_assertions::assert_eq;
 use serde_json::{json, Result, Value};
 use stencila_schema::{
-    Article, BlockContent, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle,
-    CreativeWorkTypes, InlineContent, Paragraph, Person,
+    Article, BlockContent, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle, InlineContent,
+    Paragraph, Person,
 };
 
 fn article_fixture() -> Article {

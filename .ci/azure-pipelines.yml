@@ -141,13 +141,13 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     steps:
-      - script: make -C rs lint
+      - script: make -C rust lint
         displayName: Run linting
 
-      - script: make -C rs test
+      - script: make -C rust test
         displayName: Run tests
 
-      - script: cd rs && cargo login $(CRATES_TOKEN) && cargo publish
+      - script: cd rust && cargo login $(CRATES_TOKEN) && cargo publish
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
           CRATES_TOKEN: $(CRATES_TOKEN)
