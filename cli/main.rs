@@ -1,6 +1,6 @@
 #![recursion_limit = "256"]
 
-use std::path::Path;
+use std::{env, path::Path};
 use stencila::{
     config, convert, documents,
     eyre::{bail, Error, Result},
@@ -109,9 +109,9 @@ pub async fn run_command(
     config: &mut config::Config,
 ) -> Result<()> {
     match command {
-        Command::Open(command) => command.run(projects, config).await,
+        Command::Open(command) => command.run(projects, documents, config).await,
         Command::Convert(args) => convert::cli::run(args),
-        Command::Serve(args) => serve::cli::run(args, &config.serve).await,
+        Command::Serve(args) => serve::cli::run(args, documents, &config.serve).await,
         Command::Documents(command) => {
             display::render(interactive, formats, command.run(documents)?)
         }
@@ -157,25 +157,33 @@ impl OpenCommand {
     pub async fn run(
         self,
         projects: &mut projects::Projects,
+        documents: &mut documents::Documents,
         config: &config::Config,
     ) -> Result<()> {
         let Self { path } = self;
 
-        let next_path = if Path::new(&path.clone()).is_dir() {
+        let doc_path = if Path::new(&path.clone()).is_dir() {
             let project = projects.open(&path, &config.projects, true)?;
-            project.main_path.map(|path| path.display().to_string())
+            project.main_path
         } else {
-            // TODO documents.open etc
-            unimplemented!("opening a file; try opening a project directory.")
+            let document = documents.open(&path)?;
+            Some(document.path)
+        };
+
+        let doc_path = if let Some(path) = doc_path {
+            let rel_path = path.strip_prefix(env::current_dir()?)?.to_path_buf();
+            Some(rel_path)
+        } else {
+            None
         };
 
         // Generate a key and a login URL
         let key = serve::generate_key();
-        let login_url = serve::login_url(&key, next_path)?;
+        let login_url = serve::login_url(&key, doc_path.map(|path| path.display().to_string()))?;
 
         // Open browser at the login page and start serving
         webbrowser::open(login_url.as_str())?;
-        serve::serve(None, Some(key)).await
+        serve::serve(documents, None, Some(key)).await
     }
 }
 

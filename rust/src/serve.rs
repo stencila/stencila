@@ -1,14 +1,16 @@
-use crate::jwt;
-use crate::protocols::Protocol;
 use crate::rpc::{Error, Request, Response};
 use crate::urls;
+use crate::{documents, jwt};
+use crate::{documents::Documents, protocols::Protocol};
 use eyre::{bail, Result};
 use futures::{FutureExt, StreamExt};
 use jwt::JwtError;
 use reqwest::StatusCode;
+use rust_embed::RustEmbed;
 use serde::Deserialize;
-use std::env;
 use std::str::FromStr;
+use std::sync::Mutex;
+use std::{env, fmt::Debug, sync::Arc};
 use warp::{Filter, Reply};
 
 /// Serve JSON-RPC requests at a URL
@@ -26,7 +28,11 @@ use warp::{Filter, Reply};
 /// use stencila::serve::serve;
 /// serve(Some("ws://0.0.0.0:1234".to_string()), None);
 /// ```
-pub async fn serve(url: Option<String>, key: Option<String>) -> Result<()> {
+pub async fn serve(
+    documents: &mut Documents,
+    url: Option<String>,
+    key: Option<String>,
+) -> Result<()> {
     let url = urls::parse(
         url.unwrap_or_else(|| "ws://127.0.0.1:9000".to_string())
             .as_str(),
@@ -34,22 +40,33 @@ pub async fn serve(url: Option<String>, key: Option<String>) -> Result<()> {
     let protocol = Protocol::from_str(url.scheme())?;
     let address = url.host().unwrap().to_string();
     let port = url.port_or_known_default();
-    serve_on(Some(protocol), Some(address), port, key).await
+
+    let documents = Arc::new(Mutex::new(documents.clone()));
+    serve_on(documents, Some(protocol), Some(address), port, key).await
 }
 
 /// Run a server in the current thread.
 #[tracing::instrument]
-pub fn serve_blocking(url: Option<String>, key: Option<String>) -> Result<()> {
+pub fn serve_blocking(
+    documents: &mut Documents,
+    url: Option<String>,
+    key: Option<String>,
+) -> Result<()> {
     let runtime = tokio::runtime::Runtime::new()?;
-    runtime.block_on(async { serve(url, key).await })
+    runtime.block_on(async { serve(documents, url, key).await })
 }
 
 /// Run a server on another thread.
 #[tracing::instrument]
-pub fn serve_background(url: Option<String>, key: Option<String>) -> Result<()> {
+pub fn serve_background(
+    documents: &mut Documents,
+    url: Option<String>,
+    key: Option<String>,
+) -> Result<()> {
     // Spawn a thread, start a runtime in it, and serve using that runtime.
     // Any errors within the thread are logged because we can't return a
     // `Result` from the thread to the caller of this function.
+    let mut documents = documents.clone();
     std::thread::spawn(move || {
         let _span = tracing::trace_span!("serve_in_background");
 
@@ -60,7 +77,7 @@ pub fn serve_background(url: Option<String>, key: Option<String>) -> Result<()> 
                 return;
             }
         };
-        match runtime.block_on(async { serve(url, key).await }) {
+        match runtime.block_on(async { serve(&mut documents, url, key).await }) {
             Ok(_) => {}
             Err(error) => tracing::error!("{}", error.to_string()),
         };
@@ -68,6 +85,12 @@ pub fn serve_background(url: Option<String>, key: Option<String>) -> Result<()> 
 
     Ok(())
 }
+
+/// Static assets for the `viewer`
+#[cfg(feature = "serve-viewer")]
+#[derive(RustEmbed)]
+#[folder = "../viewer/build/"]
+struct Viewer;
 
 /// Serve JSON-RPC requests over one of alternative transport protocols
 ///
@@ -103,6 +126,7 @@ pub fn serve_background(url: Option<String>, key: Option<String>) -> Result<()> 
 /// serve_on(Some(Protocol::Ws), None, None, None);
 /// ```
 pub async fn serve_on(
+    documents: Arc<Mutex<Documents>>,
     protocol: Option<Protocol>,
     address: Option<String>,
     port: Option<u16>,
@@ -170,6 +194,7 @@ pub async fn serve_on(
         }
         Protocol::Http | Protocol::Ws => {
             let key_clone = key.clone();
+
             let login = warp::get()
                 .and(warp::path("login"))
                 .and(warp::query::<LoginParams>())
@@ -178,8 +203,17 @@ pub async fn serve_on(
 
             let authorize = || jwt_filter(key.clone());
 
+            fn with_documents(
+                documents: Arc<Mutex<Documents>>,
+            ) -> impl Filter<Extract = (Arc<Mutex<Documents>>,), Error = std::convert::Infallible> + Clone
+            {
+                warp::any().map(move || documents.clone())
+            }
+
             let get = warp::get()
-                .and(warp::path::end())
+                .and(with_documents(documents))
+                .and(warp::path::full())
+                .and(warp::header::optional::<String>("accept"))
                 .and(authorize())
                 .map(get_handler);
 
@@ -365,9 +399,95 @@ fn login_handler(key_and_params: (Option<String>, LoginParams)) -> warp::reply::
     }
 }
 
-/// Handle a HTTP `GET /` request
-fn get_handler(_claims: jwt::Claims) -> impl warp::Reply {
-    warp::reply::html("👋")
+/// Handle a HTTP `GET` request
+///
+/// If the requested path starts with `/static` then returns the static asset.
+/// Otherwise, if the requested `Accept` header includes "text/html", viewer's index.html is
+/// returned (which, in the background will request the document as JSON). Otherwise,
+/// will attempt to determine the desired format from the `Accept` header and convert the
+/// document to that.
+#[tracing::instrument(skip(documents))]
+fn get_handler(
+    documents: Arc<Mutex<Documents>>,
+    path: warp::path::FullPath,
+    accept: Option<String>,
+    _claims: jwt::Claims,
+) -> impl warp::Reply {
+    let path = path.as_str();
+    let path = path.strip_prefix("/").unwrap_or(path);
+    let accept = accept.unwrap_or_default();
+
+    tracing::info!("GET /{}", path);
+
+    if path.starts_with("static/") {
+        if let Some(asset) = Viewer::get(path) {
+            let mime = mime_guess::from_path(path).first_or_octet_stream();
+
+            let mut response = warp::reply::Response::new(asset.into());
+            response.headers_mut().insert(
+                "content-type",
+                warp::http::header::HeaderValue::from_str(mime.as_ref()).unwrap(),
+            );
+            return response;
+        }
+    } else if accept.contains("text/html") {
+        if let Some(asset) = Viewer::get("index.html") {
+            return warp::reply::html(asset).into_response();
+        }
+    } else {
+        let mut documents = documents.lock().expect("Unable to obtain lock");
+        match documents.open(path) {
+            Ok(document) => {
+                let mime = accept.split(",").next().unwrap_or("text/plain");
+                let parts: Vec<&str> = mime.split("/").collect();
+                if parts.len() == 2 {
+                    if let Some(format) = mime_guess::get_extensions(parts[0], parts[1]) {
+                        let format = format[0].to_string();
+                        if let Ok(content) = document.dump(Some(format)) {
+                            let mut response = warp::reply::Response::new(content.into());
+                            response.headers_mut().insert(
+                                "content-type",
+                                warp::http::header::HeaderValue::from_str(mime).unwrap(),
+                            );
+                            return response;
+                        } else {
+                            return warp::reply::with_status(
+                                warp::reply::json(&serde_json::json!({
+                                    "message": format!("error converting document")
+                                })),
+                                StatusCode::INTERNAL_SERVER_ERROR,
+                            )
+                            .into_response();
+                        }
+                    }
+                }
+                return warp::reply::with_status(
+                    warp::reply::json(&serde_json::json!({
+                        "message": format!("unknown content type: {}", mime)
+                    })),
+                    StatusCode::BAD_REQUEST,
+                )
+                .into_response();
+            }
+            Err(error) => {
+                return warp::reply::with_status(
+                    warp::reply::json(&serde_json::json!({
+                        "message": format!("when opening document: {}", error.to_string())
+                    })),
+                    StatusCode::NOT_FOUND,
+                )
+                .into_response()
+            }
+        }
+    }
+
+    warp::reply::with_status(
+        warp::reply::json(&serde_json::json!({
+            "message": "not found"
+        })),
+        StatusCode::NOT_FOUND,
+    )
+    .into_response()
 }
 
 /// Handle a HTTP `POST /` request
@@ -522,7 +642,11 @@ pub mod cli {
         insecure: bool,
     }
 
-    pub async fn run(args: Args, config: &config::ServeConfig) -> Result<()> {
+    pub async fn run(
+        args: Args,
+        documents: &mut Documents,
+        config: &config::ServeConfig,
+    ) -> Result<()> {
         let Args { url, key, insecure } = args;
 
         let url = url.or_else(|| Some(config.url.clone()));
@@ -530,6 +654,7 @@ pub mod cli {
         let insecure = insecure || config.insecure;
 
         super::serve(
+            documents,
             url,
             if insecure {
                 Some("insecure".to_string())

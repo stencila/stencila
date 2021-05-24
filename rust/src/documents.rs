@@ -13,7 +13,7 @@ use std::{
         Arc, Mutex, MutexGuard,
     },
 };
-use stencila_schema::CreativeWorkTypes;
+use stencila_schema::{Article, CreativeWorkTypes};
 use strum::{EnumVariantNames, ToString};
 
 #[derive(JsonSchema, Serialize)]
@@ -78,7 +78,7 @@ impl DocumentEvent {
 #[schemars(deny_unknown_fields)]
 pub struct Document {
     /// The absolute path of the document's file.
-    path: PathBuf,
+    pub path: PathBuf,
 
     /// The name of the document
     ///
@@ -124,7 +124,7 @@ pub struct Document {
 
     /// The root Stencila Schema node of the document
     #[serde(skip)]
-    root: Option<CreativeWorkTypes>,
+    root: Option<Article>,
 }
 
 impl Document {
@@ -193,10 +193,13 @@ impl Document {
     ///
     /// - `format`: the format to dump the content as; if not supplied assumed to be
     ///    the document's existing format.
-    fn dump(&self, format: Option<String>) -> Result<String> {
-        let content = if let Some(_format) = format {
-            // TODO convert to the requested format
-            "TODO".into()
+    pub fn dump(&self, format: Option<String>) -> Result<String> {
+        let content = if let Some(format) = format {
+            if format == "json" {
+                serde_json::to_string(&self.root)?
+            } else {
+                "TODO".into()
+            }
         } else {
             self.content.clone()
         };
@@ -211,16 +214,25 @@ impl Document {
     /// - `format`: the format of the content; if not supplied assumed to be
     ///    the document's existing format.
     ///
-    /// Publishes `Conversion` events for each of the conversions subscribed to.
+    /// Publishes `converted:` events for each of the conversions subscribed to.
     /// In the future, this will also trigger an `import()` to convert the `content`
     /// into a Stencila `CreativeWork` nodes and set the document's `root` (from which
     /// the conversions will be done).
     fn load(&mut self, content: String, format: Option<String>) -> Result<&Self> {
+        // Set the content of the document
         self.content = content;
         if let Some(format) = format {
             self.format = Some(format)
         }
 
+        // Import the content into the root of the document
+        if let Some(format) = self.format.clone() {
+            if format == "json" {
+                self.root = serde_json::from_str(&self.content)?
+            }
+        }
+
+        // Notify subscribers
         for (subscription, _) in &self.subscriptions {
             if let Some(format) = subscription.strip_prefix("converted:") {
                 if let Ok(content) = self.convert(format) {
@@ -290,6 +302,8 @@ impl Document {
     /// Publishes a `Removed` event so that, for example, a document's
     /// tab can be updated to indicate it is deleted.
     fn removed(&self, path: PathBuf) {
+        tracing::debug!("Document removed: {}", path.display());
+
         DocumentEvent::publish(path, DocumentEventType::Removed(DocumentRemovedEvent {}))
     }
 
@@ -298,6 +312,8 @@ impl Document {
     /// Publishes a `Renamed` event so that, for example, a document's
     /// tab can be updated with the new file name.
     fn renamed(&self, from: PathBuf, to: PathBuf) {
+        tracing::debug!("Document renamed: {} to {}", from.display(), to.display());
+
         DocumentEvent::publish(
             from,
             DocumentEventType::Renamed(DocumentRenamedEvent { to }),
@@ -315,6 +331,8 @@ impl Document {
     /// If there are any subscribers to `PreviewUpdated` events
     /// will regenerate previews and emit those.
     fn modified(&mut self, path: PathBuf) {
+        tracing::debug!("Document modified: {}", path.display());
+
         match self.read() {
             Ok(content) => DocumentEvent::publish(
                 path,
@@ -425,7 +443,7 @@ impl DocumentHandle {
 }
 
 /// An in-memory store of documents
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct Documents {
     /// A mapping of file paths to open documents
     registry: HashMap<PathBuf, DocumentHandle>,

@@ -10,18 +10,20 @@ path = "main.rs"
 [features]
 feedback = ["ansi_term", "color-eyre", "linya"]
 pretty = ["syntect", "termimad"]
+view = ["rust-embed", "webbrowser"]
 interact = ["ansi_term", "rustyline", "rustyline-derive"]
-default = ["feedback", "pretty", "interact"]
+default = ["feedback", "pretty", "view", "interact"]
 
 [dependencies]
 ansi_term = { version = "0.12.1", optional = true }
 color-eyre = { version = "0.5.11", optional = true }
 exitcode = "1.1.2"
 linya = { version = "0.1.1", optional = true }
+rust-embed = { version = "5.9.0", features = ["compression"], optional = true }
 rustyline = { version = "8.2.0", optional = true }
 rustyline-derive = { version = "0.4.0", optional = true }
 stencila = { path = "../rust" }
 structopt = { version = "0.3.21", features = ["wrap_help"] }
 syntect = { version = "4.5.0", optional = true }
 termimad = { version = "0.10.2", optional = true }
-webbrowser = "0.5.5"
+webbrowser = { version = "0.5.5", optional = true }
