@@ -150,20 +150,24 @@ export function interfaceSchemaToEnum(
   const { all } = getSchemaProperties(schema)
 
   const fields = all
-    .map(({ name, schema, optional }) => {
-      const { description = name } = schema
+    .map(({ name, schema, optional, inherited, override }) => {
+      const { description = name, from } = schema
 
-      const propertyPath = `${title}.${name}`
-      const propertyTypeName = pascalCase(`${title} ${name}`)
-      context.propertyTypeName = propertyTypeName
+      // Generate a type name for this property (to avoid duplication
+      // use the name of the type that this property was defined on)
       context.propertyName = name
-      context.typeName = title
+      context.typeName = inherited && !override ? from : title
+      const propertyTypeName = pascalCase(
+        `${context.typeName} ${context.propertyName}`
+      )
+      context.propertyTypeName = propertyTypeName
 
       let type =
         propertyTypeName in propertyTypes
           ? propertyTypeName
           : schemaToType(schema, context)
 
+      const propertyPath = `${title}.${name}`
       const isPointer =
         pointerProperties.includes(propertyPath) ||
         pointerProperties.includes(`*.${name}`)
@@ -294,7 +298,6 @@ function anyOfToEnum(anyOf: JsonSchema[], context: Context): string {
     .join('')
 
   const name = context.propertyTypeName ?? ''
-
   const definition = `/// Types permitted for the \`${context.propertyName}\` property of a \`${context.typeName}\` node.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]

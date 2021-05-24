@@ -4,14 +4,14 @@
 use pretty_assertions::assert_eq;
 use serde_json::{json, Result, Value};
 use stencila_schema::{
-    Article, ArticleAuthors, ArticleTitle, BlockContent, CodeExpression, InlineContent, Paragraph,
-    Person,
+    Article, BlockContent, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle,
+    CreativeWorkTypes, InlineContent, Paragraph, Person,
 };
 
 fn article_fixture() -> Article {
     Article {
-        title: Some(ArticleTitle::String("The article title".into())),
-        authors: Some(vec![ArticleAuthors::Person({
+        title: Some(CreativeWorkTitle::String("The article title".into())),
+        authors: Some(vec![CreativeWorkAuthors::Person({
             Person {
                 given_names: Some(vec!["Jane".into()]),
                 family_names: Some(vec!["Jones".into()]),
@@ -47,7 +47,7 @@ fn is_debugable() {
 }
 
 #[test]
-fn can_serdeable() -> Result<()> {
+fn is_serdeable() -> Result<()> {
     let article = article_fixture();
     let json = json!({
       "type": "Article",
