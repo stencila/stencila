@@ -7,7 +7,7 @@ install:
 	python3 setup.py install
 
 regen:
-	npm run build:py
+	npm run build:python
 
 lint:
 	python3 -m pylint stencila/schema

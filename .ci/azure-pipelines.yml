@@ -62,26 +62,26 @@ jobs:
           versionSpec: 3.8
         displayName: Install Python
 
-      - script: make -C py setup
+      - script: make -C python setup
         displayName: Install dependencies
 
-      - script: make -C py lint
+      - script: make -C python lint
         displayName: Run linting
 
-      - script: make -C py test
+      - script: make -C python test
         displayName: Run tests
 
-      - script: bash <(curl -s https://codecov.io/bash) -cF py
+      - script: bash <(curl -s https://codecov.io/bash) -cF python
         condition: succeeded()
         displayName: Upload coverage
 
-      - script: make -C py build
+      - script: make -C python build
         displayName: Build package
 
-      - script: make -C py docs
+      - script: make -C python docs
         displayName: Build docs
 
-      - script: cd py && twine upload dist/*
+      - script: cd python && twine upload dist/*
         condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
         env:
           TWINE_USERNAME: stencila

@@ -15,7 +15,7 @@
 JSON-LD | [![Context](https://img.shields.io/badge/json--ld-%40context-success)](https://schema.stenci.la/stencila.jsonld) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://schema.stenci.la)
 JSON Schema | [![Schema](https://img.shields.io/badge/json%20schema-v1-success)](https://unpkg.com/browse/@stencila/schema@1/dist/) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://schema.stenci.la)
 TypeScript/JavaScript | [![NPM](https://img.shields.io/npm/v/@stencila/schema.svg?style=flat)](https://www.npmjs.com/package/@stencila/schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/ts/docs) |
-Python | [![PyPI](https://img.shields.io/pypi/v/stencila-schema.svg)](https://pypi.org/project/stencila-schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/py/docs) |
+Python | [![PyPI](https://img.shields.io/pypi/v/stencila-schema.svg)](https://pypi.org/project/stencila-schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/python/docs) |
 R | [![CRAN](https://www.r-pkg.org/badges/version/stencilaschema)](https://cran.r-project.org/web/packages/stencilaschema/) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/r/docs) |
 Rust | [![Crates.io](https://img.shields.io/crates/v/stencila-schema)](https://crates.io/crates/stencila-schema) | [![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://docs.rs/stencila-schema/latest/stencila_schema/)
 
@@ -175,7 +175,7 @@ Individual files are published for each extension type e.g. https://schema.stenc
 
 Binding for this schema, in the form of installable packages, are currently generated for:
 
-- [Python](https://stencila.github.io/schema/py/docs)
+- [Python](https://stencila.github.io/schema/python/docs)
 - [R](https://stencila.github.io/schema/r/docs)
 - [Typescript](https://stencila.github.io/schema/ts/docs)
 
@@ -185,7 +185,7 @@ Depending on the capabilities of the host language, these packages expose type d
 
 We 💕 contributions! All contributions: ideas 🤔, examples 💡, bug reports 🐛, documentation 📖, code 💻, questions 💬.
 
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for a guide on how to contribute to the schema definitions. See the `README.md` files of each language sub-folder e.g. [`py`](py) for advice on development of language bindings and [issue](https://github.com/stencila/schema/issues/256) for how to add you or others to the following _important_ table:
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for a guide on how to contribute to the schema definitions. See the `README.md` files of each language sub-folder e.g. [`python`](python) for advice on development of language bindings and [issue](https://github.com/stencila/schema/issues/256) for how to add you or others to the following _important_ table:
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->

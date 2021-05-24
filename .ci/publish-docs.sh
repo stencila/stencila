@@ -31,7 +31,7 @@ deploy_typescript_docs_to_pages() {
 
 deploy_python_docs_to_pages() {
   checkout_pages
-  cd py
+  cd python
   commit_docs "docs(Python): Update"
   push_pages
 }

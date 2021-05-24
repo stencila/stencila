@@ -16,10 +16,10 @@
     "lint": "npx eslint 'ts/**/*.{js,ts}' --fix",
     "test": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && jest",
     "test:cover": "npm test -- --coverage",
-    "build": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && npm run build:py && npm run build:r && npm run build:vscode && npm run build:dist",
+    "build": "npm run build:jsonschema && npm run build:ts && npm run build:jsonld && npm run build:python && npm run build:r && npm run build:vscode && npm run build:dist",
     "build:jsonschema": "ts-node ts/schema.ts",
     "build:jsonld": "ts-node ts/bindings/jsonld.ts",
-    "build:py": "ts-node ts/bindings/python.ts",
+    "build:python": "ts-node ts/bindings/python.ts",
     "build:r": "ts-node ts/bindings/r.ts",
     "build:rust": "ts-node ts/bindings/rust.ts",
     "build:ts": "ts-node ts/bindings/typescript.ts",
@@ -30,7 +30,7 @@
     "docs": "npm run docs:md && npm run docs:api",
     "docs:md": "ts-node ts/docs.ts",
     "docs:api": "ts-node ts/bindings/typescript.ts && typedoc ts/index.ts --readme ts/README.md --tsconfig tsconfig.docs.json --out ts/docs/",
-    "clean": "rimraf coverage dist public ts/types.ts ts/docs py/docs r/docs"
+    "clean": "rimraf coverage dist public ts/types.ts ts/docs python/docs r/docs"
   },
   "repository": {
     "type": "git",
@@ -165,8 +165,8 @@
             "CHANGELOG.md",
             "package.json",
             "package-lock.json",
-            "py/stencila/schema/types.py",
-            "py/setup.py",
+            "python/stencila/schema/types.py",
+            "python/setup.py",
             "r/R/types.R",
             "r/NAMESPACE",
             "r/DESCRIPTION",

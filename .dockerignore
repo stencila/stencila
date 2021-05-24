@@ -7,8 +7,8 @@
 !/Makefile
 !/package*.json
 
-!/py/Makefile
-!/py/requirements-dev.txt
+!/python/Makefile
+!/python/requirements-dev.txt
 
 !/r/Makefile
 !/r/DESCRIPTION

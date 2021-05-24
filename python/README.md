@@ -1,10 +1,10 @@
 # Stencila Schema for Python
 
 [![Build Status](https://dev.azure.com/stencila/stencila/_apis/build/status/stencila.schema?branchName=master)](https://dev.azure.com/stencila/stencila/_build/latest?definitionId=9&branchName=master)
-[![Code coverage](https://badger.nokome.now.sh/codecov-folder/stencila/schema/py)](https://codecov.io/gh/stencila/schema/tree/master/py)
+[![Code coverage](https://badger.nokome.now.sh/codecov-folder/stencila/schema/python)](https://codecov.io/gh/stencila/schema/tree/master/python)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![PyPI](https://img.shields.io/pypi/v/stencila-schema.svg)](https://pypi.org/project/stencila-schema)
-[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/py/docs)
+[![Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://stencila.github.io/schema/python/docs)
 
 This package provides Python bindings for the [Stencila Schema](https://schema.stenci.la) for executable documents.
 It is primarily aimed at Python developers wanting to programmatically generate, or modify, executable documents. For example, it is used in [`pyla`](https://github.com/stencila/pyla), a Stencila plugin for Python.

@@ -10,6 +10,6 @@ docs
 node_modules
 package-lock.json
 public
-py/htmlcov
+python/htmlcov
 README.md
 rust/target

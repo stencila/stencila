@@ -10,7 +10,7 @@ echo "Preparing release $VERSION"
 # by the "@semantic-release/npm" so does not need to be dealt with here.
 
 # Update the version in the Python package
-sed -i -e "s!^    version=.*!    version=\"$VERSION\",!" py/setup.py
+sed -i -e "s!^    version=.*!    version=\"$VERSION\",!" python/setup.py
 
 # Update the version in the R package
 sed -i -e "s!^Version:.*!Version: $VERSION!" r/DESCRIPTION

@@ -661,7 +661,7 @@ function id2JsonldUrl(id: string): string {
  */
 function id2PythonDocs(id: string): string {
   const [_context, name = ''] = id.split(':')
-  return `https://stencila.github.io/schema/py/docs/types.html#schema.types.${name}`
+  return `https://stencila.github.io/schema/python/docs/types.html#schema.types.${name}`
 }
 
 /**
