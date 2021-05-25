@@ -63,11 +63,19 @@ export function DocumentFetcher(props: { url?: string }) {
 
   let url = props.url
   if (url === undefined) {
+    // Fallback to using URL parameter
+    const params = new URLSearchParams(window.location.search)
+    url = params.get('url') ?? undefined
+  }
+  if (url === undefined) {
+    // Fallback to getting URL from current path
     const path = window.location.pathname.slice(1)
-    if (path.startsWith('/http://') || path.startsWith('/https://')) {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      // Remote URL, use as is
       url = path
     } else {
-      url = path
+      // Local path, so need to reinstate the leading slash
+      url = '/' + path
     }
   }
 
