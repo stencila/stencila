@@ -28,8 +28,12 @@ use warp::{Filter, Reply};
 /// Listen on ws://0.0.0.0:1234,
 ///
 /// ```
+/// # #![recursion_limit = "256"]
+/// use stencila::documents::Documents;
 /// use stencila::serve::serve;
-/// serve(Some("ws://0.0.0.0:1234".to_string()), None);
+///
+/// let mut documents = Documents::default();
+/// serve(&mut documents, Some("ws://0.0.0.0:1234".to_string()), None);
 /// ```
 pub async fn serve(
     documents: &mut Documents,
@@ -105,28 +109,22 @@ struct Viewer;
 ///
 /// # Examples
 ///
-/// Listen on http://127.0.0.1:9000,
+/// Listen on both http://127.0.0.1:9000 and ws://127.0.0.1:9000,
 ///
 /// ```
-/// use stencila::serve::serve_on;
+/// # #![recursion_limit = "256"]
+/// use std::sync::{Arc, Mutex};
+/// use stencila::documents::Documents;
 /// use stencila::protocols::Protocol;
-/// serve_on(Some(Protocol::Http), Some("127.0.0.1".to_string()), Some(9000), None);
-/// ```
-///
-/// Which is equivalent to,
-///
-/// ```
 /// use stencila::serve::serve_on;
-/// use stencila::protocols::Protocol;
-/// serve_on(Some(Protocol::Http), None, None, None);
-/// ```
 ///
-/// Listen on both http://127.0.0.1:8000 and ws://127.0.0.1:9000,
-///
-/// ```
-/// use stencila::serve::serve_on;
-/// use stencila::protocols::Protocol;
-/// serve_on(Some(Protocol::Ws), None, None, None);
+/// serve_on(
+///     Arc::new(Mutex::new(Documents::default())),
+///     Some(Protocol::Ws),
+///     Some("127.0.0.1".to_string()),
+///     Some(9000),
+///     None
+/// );
 /// ```
 pub async fn serve_on(
     documents: Arc<Mutex<Documents>>,
