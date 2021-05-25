@@ -9297,7 +9297,7 @@
               ]
             }
           ],
-          "rowType": "header"
+          "rowType": "Header"
         },
         {
           "type": "TableRow",
@@ -12525,7 +12525,7 @@
           ]
         }
       ],
-      "order": "unordered"
+      "order": "Unordered"
     },
     {
       "type": "Heading",
