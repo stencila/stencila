@@ -13,7 +13,7 @@ use std::{
         Arc, Mutex, MutexGuard,
     },
 };
-use stencila_schema::{Article, CreativeWorkTypes};
+use stencila_schema::CreativeWorkTypes;
 use strum::{EnumVariantNames, ToString};
 
 #[derive(JsonSchema, Serialize)]
@@ -124,7 +124,7 @@ pub struct Document {
 
     /// The root Stencila Schema node of the document
     #[serde(skip)]
-    root: Option<Article>,
+    root: Option<CreativeWorkTypes>,
 }
 
 impl Document {
