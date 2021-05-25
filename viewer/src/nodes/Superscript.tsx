@@ -3,7 +3,7 @@ import { InlineContentArray } from './InlineContent'
 
 export function Superscript(props: { node: schema.Superscript }) {
   return (
-    <sup itemtype="https://schema.stenci.la/Superscript">
+    <sup itemtype="http://schema.stenci.la/Superscript">
       <InlineContentArray nodes={props.node.content}></InlineContentArray>
     </sup>
   )

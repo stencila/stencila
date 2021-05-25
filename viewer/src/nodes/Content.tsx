@@ -25,7 +25,7 @@ export function Content(props: {
 }
 
 export function ContentArray(props: {
-  nodes: (schema.BlockContent | schema.BlockContent)[] | undefined
+  nodes: schema.InlineContent[] | schema.BlockContent[] | undefined
 }) {
   return (
     props.nodes && (

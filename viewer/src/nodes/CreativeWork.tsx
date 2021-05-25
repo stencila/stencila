@@ -1,5 +1,5 @@
 import * as schema from '@stencila/schema'
-import { For, Match, Switch } from 'solid-js'
+import { Match, Switch } from 'solid-js'
 import { Article } from './Article'
 import { Collection } from './Collection'
 import { Figure } from './Figure'
@@ -27,20 +27,5 @@ export function CreativeWork(props: { node: schema.CreativeWork }) {
         <Table node={props.node as schema.Table} />
       </Match>
     </Switch>
-  )
-}
-
-export function CreativeWorkReferences(props: {
-  references: Exclude<schema.CreativeWork['references'], undefined>
-}) {
-  return (
-    <>
-      <h1>References</h1>
-      <ol>
-        <For each={props.references}>
-          {(reference) => <li>{reference.toString()}</li>}
-        </For>
-      </ol>
-    </>
   )
 }

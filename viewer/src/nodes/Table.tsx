@@ -6,7 +6,9 @@ import { ContentArray } from './Content'
 export function Table(props: { node: schema.Table }) {
   return (
     <table itemtype="http://schema.org/Table" itemscope id={props.node.id}>
-      {props.node.label && <label data-itemprop="label">{props.node.label}</label>}
+      {props.node.label && (
+        <label data-itemprop="label">{props.node.label}</label>
+      )}
       {props.node.caption && (
         <figcaption>
           {typeof props.node.caption === 'string' ? (
@@ -26,10 +28,9 @@ export function Table(props: { node: schema.Table }) {
                     {
                       <ContentArray
                         nodes={
-                          cell.content as (
-                            | schema.InlineContent
-                            | schema.BlockContent
-                          )[]
+                          cell.content as
+                            | schema.InlineContent[]
+                            | schema.BlockContent[]
                         }
                       ></ContentArray>
                     }
