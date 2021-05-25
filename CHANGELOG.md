@@ -1,3 +1,12 @@
+## [1.7.1](https://github.com/stencila/schema/compare/v1.7.0...v1.7.1) (2021-05-25)
+
+
+### Bug Fixes
+
+* **CreativeWork:** Make about property refer to ThingTypes ([3d38a3e](https://github.com/stencila/schema/commit/3d38a3ec02e5b98a36cd42e28817f45c994d0260))
+* **Rust:** Reuse property types from base types ([7518b31](https://github.com/stencila/schema/commit/7518b31e16a88c2f66617f4bc5db4e48cf0daa2c))
+* **Rust:** Use String for date value to avoid errors when deserializing partial date strings ([1b892b9](https://github.com/stencila/schema/commit/1b892b9f26b62e00227950cbef1b1e2cd70c07d1))
+
 # [1.7.0](https://github.com/stencila/schema/compare/v1.6.1...v1.7.0) (2021-05-20)
 
 
