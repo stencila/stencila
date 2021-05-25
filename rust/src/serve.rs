@@ -1,7 +1,10 @@
-use crate::rpc::{Error, Request, Response};
-use crate::urls;
-use crate::{documents, jwt};
-use crate::{documents::Documents, protocols::Protocol};
+use crate::{
+    documents::Documents,
+    jwt,
+    protocols::Protocol,
+    rpc::{Error, Request, Response},
+    urls,
+};
 use eyre::{bail, Result};
 use futures::{FutureExt, StreamExt};
 use jwt::JwtError;
@@ -401,7 +404,9 @@ fn login_handler(key_and_params: (Option<String>, LoginParams)) -> warp::reply::
 
 /// Handle a HTTP `GET` request
 ///
-/// If the requested path starts with `/static` then returns the static asset.
+/// If the requested path starts with `/static` or is not one of the registered file types,
+/// then returns the static asset with the
+/// `Content-Type` header set.
 /// Otherwise, if the requested `Accept` header includes "text/html", viewer's index.html is
 /// returned (which, in the background will request the document as JSON). Otherwise,
 /// will attempt to determine the desired format from the `Accept` header and convert the
@@ -419,8 +424,13 @@ fn get_handler(
 
     tracing::info!("GET /{}", path);
 
-    if path.starts_with("static/") {
-        if let Some(asset) = Viewer::get(path) {
+    if path.starts_with("static/") || !path.ends_with(".json") {
+        let content = if path.starts_with("static/") {
+            Viewer::get(path)
+        } else {
+            std::fs::read(path).ok().map(|content| content.into())
+        };
+        if let Some(asset) = content {
             let mime = mime_guess::from_path(path).first_or_octet_stream();
 
             let mut response = warp::reply::Response::new(asset.into());
