@@ -1,0 +1,13 @@
+[data-itemscope="root"]{
+  font-family: Lato, sans;
+  max-width: 50em;
+  margin: 0 auto;
+}
+
+.empty {
+  color: #ccc;
+}
+
+.unsupported {
+  color: red;
+}

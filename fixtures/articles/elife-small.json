@@ -1,0 +1,857 @@
+{
+  "type": "Article",
+  "about": [
+    {
+      "type": "DefinedTerm",
+      "name": "Ecology"
+    },
+    {
+      "type": "DefinedTerm",
+      "name": "Evolutionary Biology"
+    }
+  ],
+  "authors": [
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "address": {
+            "type": "PostalAddress",
+            "addressCountry": "Republic of Korea",
+            "addressLocality": "Cheongju"
+          },
+          "name": "Department of Biology, Chungbuk National University"
+        }
+      ],
+      "familyNames": [
+        "Joo"
+      ],
+      "givenNames": [
+        "Youngsung"
+      ]
+    },
+    {
+      "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "address": {
+            "type": "PostalAddress",
+            "addressCountry": "Switzerland",
+            "addressLocality": "Zürich"
+          },
+          "name": "Department of Geography, University of Zurich"
+        },
+        {
+          "type": "Organization",
+          "address": {
+            "type": "PostalAddress",
+            "addressCountry": "Switzerland",
+            "addressLocality": "Zurich"
+          },
+          "name": "Department of Chemistry, University of Zurich"
+        }
+      ],
+      "emails": [
+        "meredith.schuman@geo.uzh.ch"
+      ],
+      "familyNames": [
+        "Schuman"
+      ],
+      "givenNames": [
+        "Meredith",
+        "C"
+      ]
+    }
+  ],
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2020-08-06"
+  },
+  "datePublished": {
+    "type": "Date",
+    "value": "2020-08-11"
+  },
+  "dateReceived": {
+    "type": "Date",
+    "value": "2020-08-06"
+  },
+  "description": "A common rice pest can avoid its natural parasite by settling on plants that smell like they have been damaged by a species of caterpillar.",
+  "genre": [
+    "Insight"
+  ],
+  "identifiers": [
+    {
+      "type": "PropertyValue",
+      "name": "publisher-id",
+      "propertyID": "https://registry.identifiers.org/registry/publisher-id",
+      "value": 60912
+    },
+    {
+      "type": "PropertyValue",
+      "name": "doi",
+      "propertyID": "https://registry.identifiers.org/registry/doi",
+      "value": "10.7554/eLife.60912"
+    },
+    {
+      "type": "PropertyValue",
+      "name": "elocation-id",
+      "propertyID": "https://registry.identifiers.org/registry/elocation-id",
+      "value": "e60912"
+    }
+  ],
+  "isPartOf": {
+    "type": "PublicationVolume",
+    "isPartOf": {
+      "type": "Periodical",
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "nlm-ta",
+          "propertyID": "https://registry.identifiers.org/registry/nlm-ta",
+          "value": "elife"
+        },
+        {
+          "type": "PropertyValue",
+          "name": "publisher-id",
+          "propertyID": "https://registry.identifiers.org/registry/publisher-id",
+          "value": "eLife"
+        }
+      ],
+      "issns": [
+        "2050-084X"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "eLife Sciences Publications, Ltd"
+      },
+      "title": "eLife"
+    },
+    "volumeNumber": 9
+  },
+  "keywords": [
+    "oryza",
+    "nilaparvata lugens",
+    "chilo suppressalis",
+    "anagrus nilaparvatae",
+    "Other"
+  ],
+  "licenses": [
+    {
+      "type": "CreativeWork",
+      "url": "http://creativecommons.org/licenses/by/4.0/",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            "This article is distributed under the terms of the ",
+            {
+              "type": "Link",
+              "target": "http://creativecommons.org/licenses/by/4.0/",
+              "content": [
+                "Creative Commons Attribution License"
+              ]
+            },
+            ", which permits unrestricted use and redistribution provided that the original author and source are credited."
+          ]
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "type": "Article",
+      "id": "bib1",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bruce"
+          ],
+          "givenNames": [
+            "TJ"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wadhams"
+          ],
+          "givenNames": [
+            "LJ"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Woodcock"
+          ],
+          "givenNames": [
+            "CM"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2005"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.tplants.2005.04.003"
+        },
+        {
+          "type": "PropertyValue",
+          "name": "pmid",
+          "propertyID": "https://registry.identifiers.org/registry/pmid",
+          "value": 15949760
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Trends in Plant Science"
+        },
+        "volumeNumber": 10
+      },
+      "pageEnd": 274,
+      "pageStart": 269,
+      "title": "Insect host location: a volatile situation"
+    },
+    {
+      "type": "Article",
+      "id": "bib2",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dicke"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Baldwin"
+          ],
+          "givenNames": [
+            "IT"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.tplants.2009.12.002"
+        },
+        {
+          "type": "PropertyValue",
+          "name": "pmid",
+          "propertyID": "https://registry.identifiers.org/registry/pmid",
+          "value": 20047849
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Trends in Plant Science"
+        },
+        "volumeNumber": 15
+      },
+      "pageEnd": 175,
+      "pageStart": 167,
+      "title": "The evolutionary context for herbivore-induced plant volatiles: beyond the 'cry for help'"
+    },
+    {
+      "type": "Article",
+      "id": "bib3",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Duncan"
+          ],
+          "givenNames": [
+            "FM"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "1922"
+      },
+      "isPartOf": {
+        "type": "Periodical",
+        "name": "The Quiver"
+      },
+      "pageEnd": 1113,
+      "pageStart": 1111,
+      "title": "Insect camouflage"
+    },
+    {
+      "type": "Article",
+      "id": "bib4",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hu"
+          ],
+          "givenNames": [
+            "X"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Su"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "Q"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jiao"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Peng"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Turlings"
+          ],
+          "givenNames": [
+            "TCJ"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.7554/eLife.55421"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "eLife"
+        },
+        "volumeNumber": 9
+      },
+      "title": "Caterpillar-induced volatiles provide enemy-free space for the offspring of the brown planthopper"
+    },
+    {
+      "type": "Article",
+      "id": "bib5",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ruxton"
+          ],
+          "givenNames": [
+            "GD"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1098/rstb.2008.0228"
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Philosophical Transactions of the Royal Society B: Biological Sciences"
+        },
+        "volumeNumber": 364
+      },
+      "pageEnd": 557,
+      "pageStart": 549,
+      "title": "Non-visual crypsis: a review of the empirical evidence for camouflage to senses other than vision"
+    },
+    {
+      "type": "Article",
+      "id": "bib6",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Turlings"
+          ],
+          "givenNames": [
+            "TCJ"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Erb"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2018"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1146/annurev-ento-020117-043507"
+        },
+        {
+          "type": "PropertyValue",
+          "name": "pmid",
+          "propertyID": "https://registry.identifiers.org/registry/pmid",
+          "value": 29324043
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Annual Review of Entomology"
+        },
+        "volumeNumber": 63
+      },
+      "pageEnd": 452,
+      "pageStart": 433,
+      "title": "Tritrophic interactions mediated by herbivore-induced plant volatiles: mechanisms, ecological relevance, and application potential"
+    },
+    {
+      "type": "Article",
+      "id": "bib7",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zu"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Boege"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Del-Val"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schuman"
+          ],
+          "givenNames": [
+            "MC"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Stevenson"
+          ],
+          "givenNames": [
+            "PC"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zaldivar-Riverón"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Saavedra"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        }
+      ],
+      "datePublished": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "identifiers": [
+        {
+          "type": "PropertyValue",
+          "name": "doi",
+          "propertyID": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1126/science.aba2965"
+        },
+        {
+          "type": "PropertyValue",
+          "name": "pmid",
+          "propertyID": "https://registry.identifiers.org/registry/pmid",
+          "value": 32554595
+        }
+      ],
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Science"
+        },
+        "volumeNumber": 368
+      },
+      "pageEnd": 1381,
+      "pageStart": 1377,
+      "title": "Information arms race explains plant-herbivore chemical communication in ecological communities"
+    }
+  ],
+  "title": "Hiding in plain smell",
+  "meta": {},
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Strong",
+          "content": [
+            "Related research article"
+          ]
+        },
+        " Hu X, Su S, Liu Q, Jiao Y, Peng Y, Li Y, Turlings TCJ. 2020. Caterpillar-induced volatiles provide enemy-free space for the offspring of the brown planthopper. ",
+        {
+          "type": "Emphasis",
+          "content": [
+            "eLife"
+          ]
+        },
+        {
+          "type": "Strong",
+          "content": [
+            9
+          ]
+        },
+        ":e55421. doi: ",
+        {
+          "type": "Link",
+          "target": "http://doi.org/10.7554/eLife.55421",
+          "content": [
+            "10.7554/eLife.55421"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "If you look carefully at a plant, you may start to notice a few telltale signs of feeding insects: holes chewed in a leaf, little mazes of trails, shiny spots of honeydew. You might even catch a caterpillar hiding along a leaf’s midvein – one of many strategies that plant-eating insects have evolved to camouflage themselves ",
+        {
+          "type": "Cite",
+          "target": "bib3",
+          "content": [
+            "Duncan, 1922"
+          ]
+        },
+        ". If you lean in, you will smell a planty scent, which herbivores use to choose the plants they eat ",
+        {
+          "type": "Cite",
+          "target": "bib1",
+          "content": [
+            "Bruce et al., 2005"
+          ]
+        },
+        ". At the same time, plants also release smells to attract species that prey on these herbivores ",
+        {
+          "type": "Cite",
+          "target": "bib6",
+          "content": [
+            "Turlings and Erb, 2018"
+          ]
+        },
+        "."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "In fact, recent evidence suggests that plant odors are the subject of an ‘information arms race’, which plants seem to be winning so far. In this arms race, plants evolve new scents to become harder for herbivores to 'sniff out' in a crowd, while herbivores evolve to use more odors to find the plants they eat ",
+        {
+          "type": "Cite",
+          "target": "bib7",
+          "content": [
+            "Zu et al., 2020"
+          ]
+        },
+        ". In addition, plants also attract predators of herbivores, using smells that change depending on the herbivores feeding on the plant ",
+        {
+          "type": "Cite",
+          "target": "bib2",
+          "content": [
+            "Dicke and Baldwin, 2010"
+          ]
+        },
+        ". Together, these observations may explain why all plants studied so far produce rich, situation-dependent odor bouquets."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Now, in eLife, Yunhe Li from the Chinese Academy of Agricultural Sciences and colleagues from Switzerland and China – including Xiaoyun Hu as first author – report that a common crop pest can use the plant odors released by the feeding of another herbivore to hide from its own enemies (",
+        {
+          "type": "Link",
+          "relation": "fig",
+          "target": "#fig1",
+          "content": [
+            "Figure 1"
+          ]
+        },
+        "; ",
+        {
+          "type": "Cite",
+          "target": "bib4",
+          "content": [
+            "Hu et al., 2020"
+          ]
+        },
+        "). This strategy is known as ‘olfactory camouflage’ ",
+        {
+          "type": "Cite",
+          "target": "bib5",
+          "content": [
+            "Ruxton, 2009"
+          ]
+        },
+        "."
+      ]
+    },
+    {
+      "type": "Figure",
+      "id": "fig1",
+      "caption": [
+        {
+          "type": "Heading",
+          "depth": 1,
+          "content": [
+            "The level of infestation by striped stem borer caterpillars influences how brown planthoppers and the parasitoid wasp ",
+            {
+              "type": "Emphasis",
+              "content": [
+                "Anagrus nilaparvatae"
+              ]
+            },
+            " choose the rice plants on which to settle."
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            "(",
+            {
+              "type": "Strong",
+              "content": [
+                "A"
+              ]
+            },
+            ") Brown planthoppers placed in the middle of a tube between an intact plant and a plant infested with striped stem borer caterpillars (SSB) usually choose the infested plant. This choice is likely based on the smell that the plant releases when being eaten by the caterpillars. (",
+            {
+              "type": "Strong",
+              "content": [
+                "B"
+              ]
+            },
+            ") The parasitoid wasp ",
+            {
+              "type": "Emphasis",
+              "content": [
+                "Anagrus nilaparvatae"
+              ]
+            },
+            ", which lays its eggs inside planthopper eggs, prefers plants infested with ten brown planthoppers (BPH) over those infested with just five (left). However, if a striped stem borer caterpillar is added to the plant with ten brown planthoppers, the wasp has no significant preference for either plant. If a second caterpillar is added to the plant with ten brown planthoppers, the wasp then prefers the plant with five brown planthoppers (right). (",
+            {
+              "type": "Strong",
+              "content": [
+                "C"
+              ]
+            },
+            ") Wasps placed in the middle of a tube between two synthetic scent blends never preferred the blends that smelled like striped stem borer caterpillars. (",
+            {
+              "type": "Strong",
+              "content": [
+                "D"
+              ]
+            },
+            ") The results were consistent both in the wild and in the glasshouse, with wasps always preferring plants with brown planthoppers that were not infested with striped stem borer caterpillars."
+          ]
+        }
+      ],
+      "label": "Figure 1.",
+      "content": [
+        {
+          "type": "ImageObject",
+          "contentUrl": "elife-small.json.media/fig1.jpg",
+          "format": "image/jpeg",
+          "meta": {
+            "inline": false
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Hu et al. focused on two widespread rice pests: the striped stem borer caterpillar and the brown planthopper. Rice can make different blends of odors to attract animals that rid the plant of feeding herbivores. One such animal is a species of wasp called ",
+        {
+          "type": "Emphasis",
+          "content": [
+            "Anagrus nilaparvatae"
+          ]
+        },
+        ", which lays its eggs inside planthopper eggs. Hu et al. first observed that brown planthoppers preferred to lay their eggs on caterpillar-infested rice plants rather than undamaged plants (",
+        {
+          "type": "Link",
+          "relation": "fig",
+          "target": "#fig1",
+          "content": [
+            "Figure 1A"
+          ]
+        },
+        "). Next, experiments were performed to test whether ",
+        {
+          "type": "Emphasis",
+          "content": [
+            "Anagrus nilaparvatae"
+          ]
+        },
+        " wasps chose the plant on which to lay their eggs based on the presence of caterpillars. The results showed that, in the absence of caterpillars, wasps preferred plants with more planthoppers. However, when the plants had both planthoppers and caterpillars, the wasps instead preferred plants with fewer caterpillars (",
+        {
+          "type": "Link",
+          "relation": "fig",
+          "target": "#fig1",
+          "content": [
+            "Figure 1B"
+          ]
+        },
+        "). This indicates that one or more odors emitted by the caterpillar-infested plants were masking the presence of planthoppers."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "To test this hypothesis, Hu et al. identified 20 odor compounds whose levels varied depending on the densities of planthoppers and caterpillars on the plants. These compounds were then used to test which odors the wasps preferred. Finally, to test whether odor alone was sufficient to explain the wasps’ choice, Hu et al. made synthetic blends of 13 odors that affected the wasps’ behavior. This experiment had exactly the same results as using infested plants: wasps did not choose any odor blends that smelled like plants eaten by caterpillars, with or without planthoppers (",
+        {
+          "type": "Link",
+          "relation": "fig",
+          "target": "#fig1",
+          "content": [
+            "Figure 1C"
+          ]
+        },
+        "). In fact, both in the glasshouse and in the field, wasps parasitize a smaller share of eggs on caterpillar-infested plants, even when the larger number of eggs on those plants is accounted for (",
+        {
+          "type": "Link",
+          "relation": "fig",
+          "target": "#fig1",
+          "content": [
+            "Figure 1D"
+          ]
+        },
+        "). This corresponds to wasps’ preference for the odors of plants hosting only planthoppers, and not caterpillars."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "Hu et al.’s results suggest that planthoppers currently have the advantage in their information arms race with rice plants and wasps. How did this happen? The blend of odors that rice produces to encode ‘caterpillar’ appears to be more complex than the blend for ‘planthopper’, so when both are present, information about the planthoppers may be lost. However, the information arms race model indicates that rice plants should evolve a counter-strategy ",
+        {
+          "type": "Cite",
+          "target": "bib7",
+          "content": [
+            "Zu et al., 2020"
+          ]
+        },
+        "; and indeed, Hu et al. further showed that olfactory camouflage is less effective in wild rice than in cultivated plants. Unlike wild rice, cultivated rice is under artificial selection pressure by humans and is not free to respond to natural selection."
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        "These results indicate that reducing striped stem borer caterpillar infestations in rice can yield additional benefits, as it may promote biological control of the brown planthopper by parasitoid wasps. From an evolutionary perspective, however, this is shortsighted: if efforts to reduce caterpillar populations fail, planthoppers will continue using the caterpillars as camouflage unless rice plants and wasps evolve ways to elude this mechanism. Unfortunately, waiting for rice plants to evolve a response would entail several generations of reduced rice yield – a disaster for our food supply. An alternative may be to artificially select plants with an advantage in this evolutionary arms race. Doing so will first require dissecting exactly how the planthopper’s olfactory camouflage works, and better understanding how plant odors direct interactions between species."
+      ]
+    }
+  ]
+}
