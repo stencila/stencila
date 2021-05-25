@@ -1,0 +1,6 @@
+# Ignore everything in this folder.
+# This file exists so that this folder exists in the repo.
+# Without it the build of `../rust` will fail because it
+# attempts to embed this folder in compiled binaries.
+
+*
