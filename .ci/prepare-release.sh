@@ -16,5 +16,5 @@ sed -i -e "s!^    version=.*!    version=\"$VERSION\",!" python/setup.py
 sed -i -e "s!^Version:.*!Version: $VERSION!" r/DESCRIPTION
 
 # Update the version in the Rust crate (including lock file)
-sed -i -e "s!^version = .*!version = \"$VERSION\"!" rs/Cargo.toml
+sed -i -e "s!^version = .*!version = \"$VERSION\"!" rust/Cargo.toml
 (cd rust && cargo generate-lockfile)
