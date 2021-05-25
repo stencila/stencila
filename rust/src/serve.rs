@@ -11,9 +11,9 @@ use jwt::JwtError;
 use reqwest::StatusCode;
 use rust_embed::RustEmbed;
 use serde::Deserialize;
-use std::str::FromStr;
 use std::sync::Mutex;
 use std::{env, fmt::Debug, sync::Arc};
+use std::{path::Path, str::FromStr};
 use warp::{Filter, Reply};
 
 /// Serve JSON-RPC requests at a URL
@@ -420,9 +420,30 @@ fn get_handler(
 ) -> impl warp::Reply {
     let path = path.as_str();
     let path = path.strip_prefix("/").unwrap_or(path);
-    let accept = accept.unwrap_or_default();
 
     tracing::info!("GET /{}", path);
+
+    // Check early on that the path either starts with `static/` or
+    // exists within the current directory
+    fn ok(path: &str) -> Result<()> {
+        if path.starts_with("static/") {
+            return Ok(());
+        };
+        let path = Path::new(path).canonicalize()?; // also checks exists
+        path.strip_prefix(env::current_dir()?)?;
+        Ok(())
+    }
+    if ok(path).is_err() {
+        return warp::reply::with_status(
+            warp::reply::json(&serde_json::json!({
+                "message": "not found"
+            })),
+            StatusCode::NOT_FOUND,
+        )
+        .into_response();
+    }
+
+    let accept = accept.unwrap_or_default();
 
     if path.starts_with("static/") || !path.ends_with(".json") {
         let content = if path.starts_with("static/") {
@@ -448,8 +469,8 @@ fn get_handler(
         let mut documents = documents.lock().expect("Unable to obtain lock");
         match documents.open(path) {
             Ok(document) => {
-                let mime = accept.split(",").next().unwrap_or("text/plain");
-                let parts: Vec<&str> = mime.split("/").collect();
+                let mime = accept.split(',').next().unwrap_or("text/plain");
+                let parts: Vec<&str> = mime.split('/').collect();
                 if parts.len() == 2 {
                     if let Some(format) = mime_guess::get_extensions(parts[0], parts[1]) {
                         let format = format[0].to_string();
@@ -463,7 +484,7 @@ fn get_handler(
                         } else {
                             return warp::reply::with_status(
                                 warp::reply::json(&serde_json::json!({
-                                    "message": format!("error converting document")
+                                    "message": "error converting document"
                                 })),
                                 StatusCode::INTERNAL_SERVER_ERROR,
                             )
@@ -493,9 +514,9 @@ fn get_handler(
 
     warp::reply::with_status(
         warp::reply::json(&serde_json::json!({
-            "message": "not found"
+            "message": "unable to provide requested resource"
         })),
-        StatusCode::NOT_FOUND,
+        StatusCode::BAD_REQUEST,
     )
     .into_response()
 }
