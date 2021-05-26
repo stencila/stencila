@@ -25,7 +25,7 @@ export interface Document {
    *
    * Valid subscription topics are the names of the `DocumentEvent` types:
    *
-   * - `removed`: published when document file is deleted - `renamed`: published when document file is renamed - `modified`: published when document file is modified - `converted:<format>` published when a document's content is changed internally or externally and  conversions have been completed e.g. `converted:html`
+   * - `removed`: published when document file is deleted - `renamed`: published when document file is renamed - `modified`: published when document file is modified - `encoded:<format>` published when a document's content is changed internally or externally and  conversions have been completed e.g. `encoded:html`
    */
   subscriptions: {
     [k: string]: number
@@ -54,7 +54,7 @@ export type DocumentEvent1 =
   | {
       content: string
       format: string
-      type: 'converted'
+      type: 'encoded'
     }
 
 export interface DocumentEvent2 {

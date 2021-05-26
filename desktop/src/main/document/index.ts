@@ -18,7 +18,7 @@ const getDocument = (filePath: string): Document => {
 }
 
 const closeDocument = (filePath: string) => {
-  documents.unsubscribe(filePath, ['converted:html'])
+  documents.unsubscribe(filePath, ['encoded:html'])
   documents.close(filePath)
   delete documentRefs[filePath]
 }
@@ -36,7 +36,7 @@ export const registerDocumentHandlers = () => {
     CHANNEL.DOCUMENT_GET_PREVIEW,
     async (_event, filePath: string) => {
       getDocument(filePath)
-      documents.subscribe(filePath, ['converted:html'], (_topic, event) => {
+      documents.subscribe(filePath, ['encoded:html'], (_topic, event) => {
         projectWindow?.webContents.send(CHANNEL.DOCUMENT_GET_PREVIEW, event)
       })
     }

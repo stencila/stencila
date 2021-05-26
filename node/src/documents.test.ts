@@ -7,7 +7,7 @@ import {
   load,
   open,
   subscribe,
-  unsubscribe
+  unsubscribe,
 } from './documents'
 import { DocumentEvent } from './types'
 
@@ -36,31 +36,29 @@ test('workflow', async () => {
     modified: 1,
   })
 
-  // Subscribe a preview panel to the the `converted:html` topic
-  subscribe(path, ['converted:html'], (_topic, event) => events.push(event))
+  // Subscribe a preview panel to the the `encoded:json` topic
+  subscribe(path, ['encoded:json'], (_topic, event) => events.push(event))
   expect(get(path).subscriptions).toEqual({
     removed: 1,
     renamed: 1,
     modified: 1,
-    'converted:html': 1,
+    'encoded:json': 1,
   })
 
   // Load some new content into the document (and wait a bit for events)
   load(path, 'Some content')
   await new Promise((resolve) => setTimeout(resolve, 300))
-  expect(events).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        type: 'converted',
-        format: 'html',
-        content: expect.stringMatching(/TODO: Convert to html/),
-      }),
-    ])
-  )
+  expect(events).toEqual([
+    expect.objectContaining({
+      type: 'encoded',
+      format: 'json',
+    }),
+  ])
 
   // Modify the file on disk (and wait a bit for events)
+  events = []
   fs.writeFileSync(path, 'Some newer content that gets written to disk')
-  await new Promise((resolve) => setTimeout(resolve, 600))
+  await new Promise((resolve) => setTimeout(resolve, 3000))
   expect(events).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
@@ -68,14 +66,14 @@ test('workflow', async () => {
         content: expect.stringMatching(/Some newer content/),
       }),
       expect.objectContaining({
-        type: 'converted',
-        format: 'html',
+        type: 'encoded',
+        format: 'json',
       }),
     ])
   )
 
-  // Unsubscribe from `converted:html` because say we closed the preview panel
-  unsubscribe(path, ['converted:html'])
+  // Unsubscribe from `encoded:json` because say we closed the preview panel
+  unsubscribe(path, ['encoded:json'])
   expect(get(path).subscriptions).toEqual({
     removed: 1,
     renamed: 1,

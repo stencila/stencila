@@ -25,7 +25,7 @@ export class AppDocumentPreview {
     window.api.invoke(CHANNEL.DOCUMENT_GET_PREVIEW, filePath)
     window.api.receive(CHANNEL.DOCUMENT_GET_PREVIEW, (event) => {
       const e = event as DocumentEvent
-      if (e.type === 'converted' && e.path === filePath) {
+      if (e.type === 'encoded' && e.path === filePath) {
         this.previewContents = e.content
       }
     })
