@@ -272,7 +272,7 @@ impl Document {
     ///
     /// In contrast to `convert()`, this does not rely on the presence of the file
     /// on the file system. It converts the current in-memory `root` node of the document
-    /// to some other format and does not touch the file system. 
+    /// to some other format and does not touch the file system.
     /// Intended mainly for in-application display of the document in alternative formats.
     fn encode(&self, format: &str) -> Result<String> {
         // Shortcut encoding to JSON
@@ -380,7 +380,7 @@ impl Document {
     /// will regenerate previews and emit those.
     fn modified(&mut self, path: PathBuf) {
         tracing::debug!("Document modified: {}", path.display());
-        
+
         match self.read() {
             Ok(content) => DocumentEvent::publish(
                 path,
