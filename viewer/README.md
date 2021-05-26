@@ -48,9 +48,9 @@ The `--insecure` flag is necessary to turn off the requirement to pass authoriza
 Alternatively you could use a specialized static file server e.g. the `serve` NPM package:
 
 ```sh
-npx serve --cors
+npx serve -l 9000 -C
 ```
 
 Then you will be able to open fixtures using the `url` query parameter e.g.
 
-http://localhost:3000/?url=http://127.0.0.1:5000/fixtures/articles/era-plotly.json&theme=wilmore
+http://localhost:3000/?url=http://127.0.0.1:9000/fixtures/articles/elife-small.json&theme=wilmore
