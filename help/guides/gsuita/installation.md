@@ -1,6 +1,6 @@
 ---
-title: Installing Stencila for Google Docs
-description: How to install & open the Google Docs add-on
+title: Installing Stencila for Google Workspace
+description: How to install & open the Google Workspace add-on
 authors:
   - 'Alexander Ketchakmadze <alexander@stenci.la> (https://stenci.la)'
 ---
@@ -15,10 +15,7 @@ Outlined below are the permissions we ask for, and the explanations for why they
 We strive to request the least amount of permissions needed while still being able to provide
 a feature rich add-on. If you notice areas for improvement, please let us know.
 
-figure:
-:::
 ![Stencila for Google Docs Permissions request](https://user-images.githubusercontent.com/1646307/109692342-6792a600-7b56-11eb-86f1-730d92ae9417.png)
-:::
 
 | Permission                                                                                   | Reason                                                                                         |
 | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
@@ -32,7 +29,4 @@ figure:
 
 Once installed, you can find the add-on in the `Add-ons` menu bar.
 
-figure:
-:::
 ![Open Add-on](https://user-images.githubusercontent.com/1646307/106334554-eb582a80-6258-11eb-9027-71239e16151f.png)
-:::

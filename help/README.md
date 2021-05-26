@@ -34,7 +34,7 @@ This command starts a local development server and opens up a browser window. Mo
 Much of the content in the reference section [docs/reference/](docs/reference) is obtained from other repos. To fetch and unzip those run,
 
 ```console
-make reference
+make references
 ```
 
 ### Demos
