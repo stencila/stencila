@@ -1,6 +1,7 @@
 import * as schema from '@stencila/schema'
-import { For, Match, Switch } from 'solid-js'
+import { For } from 'solid-js'
 import { Dynamic } from 'solid-js/web'
+import { CodeChunk } from './CodeChunk'
 import { Collection } from './Collection'
 import { Figure } from './Figure'
 import { Heading } from './Heading'
@@ -10,6 +11,8 @@ import { Table } from './Table'
 export function BlockContent(props: { node: schema.BlockContent }) {
   const component = () => {
     switch (props.node.type) {
+      case 'CodeChunk':
+        return CodeChunk
       case 'Collection':
         return Collection
       case 'Heading':
