@@ -166,10 +166,10 @@ pub async fn serve_on(
 
     tracing::info!(%protocol, %address, %port);
     if let Some(key) = key.clone() {
-        tracing::info!("To sign JWTs use key:\n\n  {}", key);
+        tracing::info!("To sign JWTs use this key: {}", key);
         tracing::info!(
-            "To login visit:\n\n  {}\n\nNote: Link valid for one use within 5 minutes.",
-            login_url(&key, None)?
+            "To login visit this URL (valid for 5 minutes): {}",
+            login_url(&key, Some(300), None)?
         );
     }
 
@@ -292,8 +292,8 @@ pub fn generate_key() -> String {
 
 /// Generate the login URL given a key, and optionally, the path to redirect to
 /// on successful login.
-pub fn login_url(key: &str, next: Option<String>) -> Result<String> {
-    let token = jwt::encode(key.to_string(), Some(300))?;
+pub fn login_url(key: &str, expiry_seconds: Option<i64>, next: Option<String>) -> Result<String> {
+    let token = jwt::encode(key.to_string(), expiry_seconds)?;
     let next = next.unwrap_or_else(|| "/".to_string());
     Ok(format!(
         "http://127.0.0.1:9000/login?token={}&next={}",

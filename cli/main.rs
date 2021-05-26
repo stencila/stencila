@@ -179,7 +179,7 @@ impl OpenCommand {
 
         // Generate a key and a login URL
         let key = serve::generate_key();
-        let login_url = serve::login_url(&key, doc_path.map(|path| path.display().to_string()))?;
+        let login_url = serve::login_url(&key, Some(60), doc_path.map(|path| path.display().to_string()))?;
 
         // Open browser at the login page and start serving
         webbrowser::open(login_url.as_str())?;
