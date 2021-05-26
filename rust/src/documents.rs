@@ -8,6 +8,7 @@ use std::{
     env, fs,
     io::Write,
     path::{Path, PathBuf},
+    process::Command,
     sync::{
         mpsc::{channel, TryRecvError},
         Arc, Mutex, MutexGuard,
@@ -34,7 +35,7 @@ struct DocumentModifiedEvent {
 
 #[derive(JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
-struct DocumentConvertedEvent {
+struct DocumentEncodedEvent {
     format: String,
     content: String,
 }
@@ -46,7 +47,7 @@ enum DocumentEventType {
     Removed(DocumentRemovedEvent),
     Renamed(DocumentRenamedEvent),
     Modified(DocumentModifiedEvent),
-    Converted(DocumentConvertedEvent),
+    Encoded(DocumentEncodedEvent),
 }
 
 #[derive(JsonSchema, Serialize)]
@@ -61,8 +62,8 @@ struct DocumentEvent {
 impl DocumentEvent {
     fn publish(path: PathBuf, type_: DocumentEventType) {
         let topic = match &type_ {
-            DocumentEventType::Converted(converted) => {
-                format!("converted:{}", converted.format)
+            DocumentEventType::Encoded(encoded) => {
+                format!("encoded:{}", encoded.format)
             }
             _ => type_.to_string(),
         };
@@ -117,9 +118,9 @@ pub struct Document {
     /// - `removed`: published when document file is deleted
     /// - `renamed`: published when document file is renamed
     /// - `modified`: published when document file is modified
-    /// - `converted:<format>` published when a document's content
+    /// - `encoded:<format>` published when a document's content
     ///   is changed internally or externally and  conversions have been
-    ///   completed e.g. `converted:html`
+    ///   completed e.g. `encoded:html`
     subscriptions: HashMap<String, u32>,
 
     /// The root Stencila Schema node of the document
@@ -149,6 +150,7 @@ impl Document {
     }
 
     /// Add a subscriber to one of the document's topics
+    #[allow(clippy::unnecessary_wraps)]
     fn subscribe(&mut self, topic: &str) -> Result<()> {
         match self.subscriptions.entry(topic.into()) {
             Entry::Occupied(mut entry) => {
@@ -163,6 +165,7 @@ impl Document {
     }
 
     /// Remove a subscriber to one of the document's topics
+    #[allow(clippy::unnecessary_wraps)]
     fn unsubscribe(&mut self, topic: &str) -> Result<()> {
         match self.subscriptions.entry(topic.into()) {
             Entry::Occupied(mut entry) => {
@@ -214,7 +217,7 @@ impl Document {
     /// - `format`: the format of the content; if not supplied assumed to be
     ///    the document's existing format.
     ///
-    /// Publishes `converted:` events for each of the conversions subscribed to.
+    /// Publishes `encoded:` events for each of the formats subscribed to.
     /// In the future, this will also trigger an `import()` to convert the `content`
     /// into a Stencila `CreativeWork` nodes and set the document's `root` (from which
     /// the conversions will be done).
@@ -232,17 +235,11 @@ impl Document {
             }
         }
 
-        // Notify subscribers
-        for (subscription, _) in &self.subscriptions {
-            if let Some(format) = subscription.strip_prefix("converted:") {
-                if let Ok(content) = self.convert(format) {
-                    DocumentEvent::publish(
-                        self.path.clone(),
-                        DocumentEventType::Converted(DocumentConvertedEvent {
-                            format: format.into(),
-                            content,
-                        }),
-                    )
+        // Encode to each of the formats for which there are subscriptions
+        for subscription in self.subscriptions.keys() {
+            if let Some(format) = subscription.strip_prefix("encoded:") {
+                if let Err(error) = self.encode(format) {
+                    tracing::warn!("Unable to encode to format \"{}\": {}", format, error)
                 }
             }
         }
@@ -271,6 +268,67 @@ impl Document {
         Ok(self)
     }
 
+    /// Encode the document's content to another format
+    ///
+    /// In contrast to `convert()`, this does not rely on the presence of the file
+    /// on the file system. It converts the current in-memory `root` node of the document
+    /// to some other format and does not touch the file system. 
+    /// Intended mainly for in-application display of the document in alternative formats.
+    fn encode(&self, format: &str) -> Result<String> {
+        // Shortcut encoding to JSON
+        if format == "json" {
+            if let Some(node) = &self.root {
+                return Ok(serde_json::to_string(node)?);
+            }
+        }
+
+        // TODO: replace this use of temp files and convert with delegation of `encode` call
+        let input = env::temp_dir().join(uuids::generate(uuids::Family::File));
+        fs::write(input, self.content.clone())?;
+        let output = env::temp_dir().join(uuids::generate(uuids::Family::File));
+        self.convert(&output.display().to_string(), Some(format.into()))?;
+        let content = fs::read_to_string(output)?;
+
+        // Publish an event for this encoding
+        DocumentEvent::publish(
+            self.path.clone(),
+            DocumentEventType::Encoded(DocumentEncodedEvent {
+                format: format.into(),
+                content: content.clone(),
+            }),
+        );
+
+        Ok(content)
+    }
+
+    /// Convert the document's file to another format
+    fn convert(&self, output: &str, format: Option<String>) -> Result<()> {
+        let mut command = Command::new("encoda");
+        command
+            .arg("convert")
+            .arg(self.path.display().to_string())
+            .arg(output);
+
+        if let Some(from) = self.format.clone() {
+            command.arg(format!("--from={}", from));
+        }
+
+        if let Some(to) = format {
+            command.arg(format!("--to={}", to));
+        }
+
+        let output = command.output()?;
+        if !output.status.success() {
+            bail!(
+                "While attempting to convert: {} {}",
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            )
+        } else {
+            Ok(())
+        }
+    }
+
     /// Save the document to another file, possibly in another format
     ///
     /// # Arguments
@@ -285,16 +343,6 @@ impl Document {
         let mut file = fs::File::create(path)?;
         file.write_all(self.dump(format)?.as_bytes())?;
         Ok(())
-    }
-
-    /// Convert the document's content to another format
-    fn convert(&self, format: &str) -> Result<String> {
-        let content = format!(
-            "TODO: Convert to {} at {:?}",
-            format,
-            chrono::offset::Utc::now()
-        );
-        Ok(content)
     }
 
     /// Called when the file is removed from the file system
@@ -332,7 +380,7 @@ impl Document {
     /// will regenerate previews and emit those.
     fn modified(&mut self, path: PathBuf) {
         tracing::debug!("Document modified: {}", path.display());
-
+        
         match self.read() {
             Ok(content) => DocumentEvent::publish(
                 path,
@@ -356,7 +404,7 @@ impl DocumentWatcher {
             use std::time::Duration;
 
             let (watcher_sender, watcher_receiver) = channel();
-            let mut watcher = watcher(watcher_sender, Duration::from_millis(300))?;
+            let mut watcher = watcher(watcher_sender, Duration::from_millis(100))?;
             watcher.watch(&path, RecursiveMode::NonRecursive).unwrap();
 
             let path = path.display().to_string();
@@ -407,7 +455,7 @@ impl DocumentHandle {
     /// # Arguments
     ///
     /// - `path`: the path of the file to create the document from
-    fn open(path: PathBuf, watch: bool) -> Result<DocumentHandle> {
+    fn open(path: PathBuf, format: Option<String>, watch: bool) -> Result<DocumentHandle> {
         if path.is_dir() {
             bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
         }
@@ -418,9 +466,10 @@ impl DocumentHandle {
             .unwrap_or_else(|| "Untitled".into())
             .into();
 
-        let format = path
-            .extension()
-            .map(|ext| ext.to_string_lossy().to_lowercase());
+        let format = format.or_else(|| {
+            path.extension()
+                .map(|ext| ext.to_string_lossy().to_lowercase())
+        });
 
         let mut document = Document {
             path: path.clone(),
@@ -458,11 +507,11 @@ impl Documents {
             .collect::<Vec<String>>())
     }
 
-    pub fn open(&mut self, path: &str) -> Result<Document> {
+    pub fn open(&mut self, path: &str, format: Option<String>) -> Result<Document> {
         let path = Path::new(path).canonicalize()?;
         let handle = match self.registry.entry(path.clone()) {
             Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => match DocumentHandle::open(path, true) {
+            Entry::Vacant(entry) => match DocumentHandle::open(path, format, true) {
                 Ok(handle) => entry.insert(handle),
                 Err(error) => return Err(error),
             },
@@ -552,6 +601,7 @@ pub mod cli {
         Open(Open),
         Close(Close),
         Show(Show),
+        Convert(Convert),
         Schemas(Schemas),
     }
 
@@ -563,6 +613,7 @@ pub mod cli {
                 Action::Open(action) => action.run(documents),
                 Action::Close(action) => action.run(documents),
                 Action::Show(action) => action.run(documents),
+                Action::Convert(action) => action.run(documents),
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -597,7 +648,7 @@ pub mod cli {
     impl Open {
         pub fn run(&self, documents: &mut Documents) -> display::Result {
             let Self { file } = self;
-            documents.open(file)?;
+            documents.open(file, None)?;
             display::nothing()
         }
     }
@@ -631,16 +682,55 @@ pub mod cli {
     pub struct Show {
         /// The path of the document file
         pub file: String,
+
+        /// The format of the file
+        #[structopt(short, long)]
+        format: Option<String>,
     }
 
     impl Show {
         pub fn run(&self, documents: &mut Documents) -> display::Result {
-            let Self { file } = self;
-            let document = documents.open(file)?;
+            let Self { file, format } = self;
+            let document = documents.open(file, format.clone())?;
             display::value(document)
         }
     }
 
+    #[derive(Debug, StructOpt)]
+    #[structopt(
+        about = "Convert a document to another format",
+        setting = structopt::clap::AppSettings::DeriveDisplayOrder,
+        setting = structopt::clap::AppSettings::ColoredHelp
+    )]
+    pub struct Convert {
+        /// The path of the input document
+        pub input: String,
+
+        /// The path of the output document
+        pub output: String,
+
+        /// The format of the input (defaults to being inferred from the file extension or content type)
+        #[structopt(short, long)]
+        from: Option<String>,
+
+        /// The format of the output (defaults to being inferred from the file extension)
+        #[structopt(short, long)]
+        to: Option<String>,
+    }
+
+    impl Convert {
+        pub fn run(&self, documents: &mut Documents) -> display::Result {
+            let Self {
+                input,
+                output,
+                from,
+                to,
+            } = self;
+            let document = documents.open(input, from.clone())?;
+            document.convert(output, to.clone())?;
+            display::nothing()
+        }
+    }
     #[derive(Debug, StructOpt)]
     #[structopt(
         about = "Get JSON Schemas for documents and associated types",

@@ -24,8 +24,6 @@ pub mod encode;
 pub mod export;
 pub mod import;
 
-pub mod convert;
-
 pub mod validate;
 
 pub mod execute;

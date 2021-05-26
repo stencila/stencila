@@ -36,7 +36,7 @@ pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
     let path = &cx.argument::<JsString>(0)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    to_json_or_throw(cx, documents.open(path))
+    to_json_or_throw(cx, documents.open(path, None))
 }
 
 /// Close a document

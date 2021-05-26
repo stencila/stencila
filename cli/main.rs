@@ -2,7 +2,7 @@
 
 use std::{env, path::Path};
 use stencila::{
-    config, convert, documents,
+    config, documents,
     eyre::{bail, Error, Result},
     inspect,
     logging::{
@@ -77,7 +77,6 @@ pub enum Command {
 
     // Commands defined in the `stencila` library
     //
-    Convert(convert::cli::Args),
 
     Serve(serve::cli::Args),
 
@@ -110,7 +109,6 @@ pub async fn run_command(
 ) -> Result<()> {
     match command {
         Command::Open(command) => command.run(projects, documents, config).await,
-        Command::Convert(args) => convert::cli::run(args),
         Command::Serve(args) => serve::cli::run(args, documents, &config.serve).await,
         Command::Documents(command) => {
             display::render(interactive, formats, command.run(documents)?)
@@ -166,7 +164,7 @@ impl OpenCommand {
             let project = projects.open(&path, &config.projects, true)?;
             project.main_path
         } else {
-            let document = documents.open(&path)?;
+            let document = documents.open(&path, None)?;
             Some(document.path)
         };
 

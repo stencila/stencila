@@ -465,7 +465,7 @@ fn get_handler(
         }
     } else {
         let mut documents = documents.lock().expect("Unable to obtain lock");
-        match documents.open(path) {
+        match documents.open(path, None) {
             Ok(document) => {
                 let mime = accept.split(',').next().unwrap_or("text/plain");
                 let parts: Vec<&str> = mime.split('/').collect();
