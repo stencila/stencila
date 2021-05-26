@@ -2,6 +2,7 @@ import * as schema from '@stencila/schema'
 import { BlockContentArray } from './BlockContent'
 import { For, Switch, Match } from 'solid-js'
 import { ContentArray } from './Content'
+import { CreativeWork } from '@stencila/schema'
 
 export function Article(props: { node: schema.Article }) {
   return (
@@ -62,7 +63,9 @@ export function ArticleDescription(props: {
           {props.description as string}
         </Match>
         <Match when={typeof props.description != 'string'}>
-          <ContentArray nodes={props.description as schema.InlineContent[] }></ContentArray>
+          <ContentArray
+            nodes={props.description as schema.InlineContent[]}
+          ></ContentArray>
         </Match>
       </Switch>
     </section>
@@ -73,19 +76,60 @@ export function ArticleReferences(props: {
   references: Exclude<schema.Article['references'], undefined>
 }) {
   return (
-    <>
-      <h1>References</h1>
+    <section attr:data-itemprop="data-references">
+      <h2 itemtype="http://schema.stenci.la/Heading">References</h2>
       <ol>
         <For each={props.references}>
-          {(reference) => <ArticleReference reference={reference} />}
+          {(reference, index) => (
+            <Switch>
+              <Match when={typeof reference === 'string'}>
+                <ArticleReferenceString
+                  reference={reference as string}
+                  index={index()}
+                />
+              </Match>
+              <Match when={schema.isCreativeWork(reference)}>
+                <ArticleReferenceCreativeWork
+                  reference={reference as CreativeWork}
+                  index={index()}
+                />
+              </Match>
+            </Switch>
+          )}
         </For>
       </ol>
-    </>
+    </section>
   )
 }
 
-export function ArticleReference(props: {
-  reference: string | schema.CreativeWork
+export function ArticleReferenceString(props: {
+  reference: string
+  index: number
 }) {
-  return <li>TODO</li>
+  return (
+    <li itemprop="citation" id={`ref${props.index}`}>
+      {props.reference}
+    </li>
+  )
+}
+
+export function ArticleReferenceCreativeWork(props: {
+  reference: schema.CreativeWork
+  index: number
+}) {
+  return (
+    <li
+      itemprop="citation"
+      itemtype="http://schema.org/Article"
+      itemscope
+      id={props.reference.id ? props.reference.id : `ref${props.index}`}
+    >
+      {props.reference.authors && (
+        <ol data-itemprop="authors">TODO: authors</ol>
+      )}
+      {props.reference.title && (
+        <span itemprop="headline">{props.reference.title}</span>
+      )}
+    </li>
+  )
 }

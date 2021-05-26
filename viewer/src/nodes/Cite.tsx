@@ -7,7 +7,7 @@ export function Cite(props: { node: schema.Cite }) {
   const content = () => props.node.content ?? []
   return (
     <cite itemtype="http://schema.stenci.la/Cite">
-      <a href={props.node.target}>
+      <a href={'#' + props.node.target}>
         <Switch>
           <Match when={content().length > 0}>
             <InlineContentArray nodes={content()}></InlineContentArray>
