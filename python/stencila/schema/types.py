@@ -10,15 +10,15 @@ ECitationMode = Enum("CitationMode", ["Parenthetical", "Narrative", "NarrativeAu
 
 EClaimType = Enum("ClaimType", ["Statement", "Theorem", "Lemma", "Proof", "Postulate", "Hypothesis", "Proposition", "Corollary"])
 
-EItemListOrder = Enum("ItemListOrder", ["ascending", "descending", "unordered"])
+EItemListOrder = Enum("ItemListOrder", ["Ascending", "Descending", "Unordered"])
 
 ENoteType = Enum("NoteType", ["Footnote", "Endnote", "Sidenote"])
 
-ESessionStatus = Enum("SessionStatus", ["unknown", "starting", "started", "stopping", "stopped", "failed"])
+ESessionStatus = Enum("SessionStatus", ["Unknown", "Starting", "Started", "Stopping", "Stopped", "Failed"])
 
-ECellType = Enum("CellType", ["data", "header"])
+ECellType = Enum("CellType", ["Data", "Header"])
 
-ERowType = Enum("RowType", ["header", "footer"])
+ERowType = Enum("RowType", ["Header", "Footer"])
 
 
 class Entity:

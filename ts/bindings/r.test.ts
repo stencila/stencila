@@ -23,6 +23,6 @@ test('generators', async () => {
 
   const list = await schema('List.schema.json')
   expect(enumToType(list.properties?.order.enum ?? [])).toEqual(
-    'Enum("ascending", "descending", "unordered")'
+    'Enum("Ascending", "Descending", "Unordered")'
   )
 })

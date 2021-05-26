@@ -2259,7 +2259,7 @@ List <- function(
   )
   self$type <- as_scalar("List")
   self[["items"]] <- check_property("List", "items", TRUE, missing(items), Array(ListItem), items)
-  self[["order"]] <- check_property("List", "order", FALSE, missing(order), Enum("ascending", "descending", "unordered"), order)
+  self[["order"]] <- check_property("List", "order", FALSE, missing(order), Enum("Ascending", "Descending", "Unordered"), order)
   class(self) <- c(class(self), "List")
   self
 }
@@ -3748,7 +3748,7 @@ SoftwareSession <- function(
   self[["memoryRequest"]] <- check_property("SoftwareSession", "memoryRequest", FALSE, missing(memoryRequest), "numeric", memoryRequest)
   self[["networkTransferLimit"]] <- check_property("SoftwareSession", "networkTransferLimit", FALSE, missing(networkTransferLimit), "numeric", networkTransferLimit)
   self[["networkTransferRequest"]] <- check_property("SoftwareSession", "networkTransferRequest", FALSE, missing(networkTransferRequest), "numeric", networkTransferRequest)
-  self[["status"]] <- check_property("SoftwareSession", "status", FALSE, missing(status), Enum("unknown", "starting", "started", "stopping", "stopped", "failed"), status)
+  self[["status"]] <- check_property("SoftwareSession", "status", FALSE, missing(status), Enum("Unknown", "Starting", "Started", "Stopping", "Stopped", "Failed"), status)
   self[["timeoutLimit"]] <- check_property("SoftwareSession", "timeoutLimit", FALSE, missing(timeoutLimit), "numeric", timeoutLimit)
   self[["timeoutRequest"]] <- check_property("SoftwareSession", "timeoutRequest", FALSE, missing(timeoutRequest), "numeric", timeoutRequest)
   self[["volumeMounts"]] <- check_property("SoftwareSession", "volumeMounts", FALSE, missing(volumeMounts), Array(VolumeMount), volumeMounts)
@@ -4139,7 +4139,7 @@ TableCell <- function(
   )
   self$type <- as_scalar("TableCell")
   self[["content"]] <- check_property("TableCell", "content", TRUE, missing(content), Array(Node), content)
-  self[["cellType"]] <- check_property("TableCell", "cellType", FALSE, missing(cellType), Enum("data", "header"), cellType)
+  self[["cellType"]] <- check_property("TableCell", "cellType", FALSE, missing(cellType), Enum("Data", "Header"), cellType)
   self[["colspan"]] <- check_property("TableCell", "colspan", FALSE, missing(colspan), "numeric", colspan)
   self[["name"]] <- check_property("TableCell", "name", FALSE, missing(name), "character", name)
   self[["rowspan"]] <- check_property("TableCell", "rowspan", FALSE, missing(rowspan), "numeric", rowspan)
@@ -4170,7 +4170,7 @@ TableRow <- function(
   )
   self$type <- as_scalar("TableRow")
   self[["cells"]] <- check_property("TableRow", "cells", TRUE, missing(cells), Array(TableCell), cells)
-  self[["rowType"]] <- check_property("TableRow", "rowType", FALSE, missing(rowType), Enum("header", "footer"), rowType)
+  self[["rowType"]] <- check_property("TableRow", "rowType", FALSE, missing(rowType), Enum("Header", "Footer"), rowType)
   class(self) <- c(class(self), "TableRow")
   self
 }

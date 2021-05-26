@@ -18,7 +18,7 @@ properties:
       If present, indicates that all cells in this row should be treated as header cells.
     type: string
     enum:
-      - header
-      - footer
+      - Header
+      - Footer
 required:
   - cells

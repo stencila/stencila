@@ -32,8 +32,8 @@ properties:
       When `data`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
     type: string
     enum:
-      - data
-      - header
+      - Data
+      - Header
     default: data
   rowspan:
     '@id': stencila:rowspan

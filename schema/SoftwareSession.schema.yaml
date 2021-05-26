@@ -37,12 +37,12 @@ properties:
     '@id': stencila:sessionStatus
     description: The status of the session (starting, stopped, etc).
     enum:
-      - unknown
-      - starting
-      - started
-      - stopping
-      - stopped
-      - failed
+      - Unknown
+      - Starting
+      - Started
+      - Stopping
+      - Stopped
+      - Failed
   clientsRequest:
     '@id': stencila:clientsRequest
     description: The maximum number of concurrent clients requested for the session.
