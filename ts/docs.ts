@@ -146,7 +146,7 @@ async function build(): Promise<void> {
                 ],
               })
             }),
-            order: 'unordered',
+            order: 'Unordered',
           }),
         ],
         []
@@ -335,7 +335,7 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
         tableCell({ content: ['Type'] }),
         tableCell({ content: ['Description'] }),
       ],
-      rowType: 'header',
+      rowType: 'Header',
     })
     const tableData = anyOf.map((memberSchema) => {
       let { $ref, '@id': id, description = '' } = memberSchema
@@ -364,7 +364,7 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
         tableCell({ content: ['Description'] }),
         tableCell({ content: ['Inherited from'] }),
       ],
-      rowType: 'header',
+      rowType: 'Header',
     })
     const tableData = await Promise.all(
       Object.entries(properties)
@@ -500,7 +500,7 @@ async function schema2Article(schema: JsonSchema): Promise<Article> {
         ? [
             heading({ content: ['Notes'], depth: 2 }),
             list({
-              order: 'ascending',
+              order: 'Ascending',
               items: [...notes.map((note) => listItem({ content: [note] }))],
             }),
           ]
