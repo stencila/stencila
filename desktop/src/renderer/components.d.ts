@@ -26,6 +26,9 @@ export namespace Components {
     }
     interface AppProjectRoot {
     }
+    interface AppProjectSidebarFile {
+        "filePath": string;
+    }
     interface AppProjectSidebarFiles {
         "projectDir": string;
     }
@@ -94,6 +97,12 @@ declare global {
         prototype: HTMLAppProjectRootElement;
         new (): HTMLAppProjectRootElement;
     };
+    interface HTMLAppProjectSidebarFileElement extends Components.AppProjectSidebarFile, HTMLStencilElement {
+    }
+    var HTMLAppProjectSidebarFileElement: {
+        prototype: HTMLAppProjectSidebarFileElement;
+        new (): HTMLAppProjectSidebarFileElement;
+    };
     interface HTMLAppProjectSidebarFilesElement extends Components.AppProjectSidebarFiles, HTMLStencilElement {
     }
     var HTMLAppProjectSidebarFilesElement: {
@@ -151,6 +160,7 @@ declare global {
         "app-document-preview": HTMLAppDocumentPreviewElement;
         "app-launcher": HTMLAppLauncherElement;
         "app-project-root": HTMLAppProjectRootElement;
+        "app-project-sidebar-file": HTMLAppProjectSidebarFileElement;
         "app-project-sidebar-files": HTMLAppProjectSidebarFilesElement;
         "app-root": HTMLAppRootElement;
         "app-settings-advanced": HTMLAppSettingsAdvancedElement;
@@ -182,6 +192,9 @@ declare namespace LocalJSX {
     }
     interface AppProjectRoot {
     }
+    interface AppProjectSidebarFile {
+        "filePath"?: string;
+    }
     interface AppProjectSidebarFiles {
         "projectDir"?: string;
     }
@@ -209,6 +222,7 @@ declare namespace LocalJSX {
         "app-document-preview": AppDocumentPreview;
         "app-launcher": AppLauncher;
         "app-project-root": AppProjectRoot;
+        "app-project-sidebar-file": AppProjectSidebarFile;
         "app-project-sidebar-files": AppProjectSidebarFiles;
         "app-root": AppRoot;
         "app-settings-advanced": AppSettingsAdvanced;
@@ -231,6 +245,7 @@ declare module "@stencil/core" {
             "app-document-preview": LocalJSX.AppDocumentPreview & JSXBase.HTMLAttributes<HTMLAppDocumentPreviewElement>;
             "app-launcher": LocalJSX.AppLauncher & JSXBase.HTMLAttributes<HTMLAppLauncherElement>;
             "app-project-root": LocalJSX.AppProjectRoot & JSXBase.HTMLAttributes<HTMLAppProjectRootElement>;
+            "app-project-sidebar-file": LocalJSX.AppProjectSidebarFile & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFileElement>;
             "app-project-sidebar-files": LocalJSX.AppProjectSidebarFiles & JSXBase.HTMLAttributes<HTMLAppProjectSidebarFilesElement>;
             "app-root": LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
             "app-settings-advanced": LocalJSX.AppSettingsAdvanced & JSXBase.HTMLAttributes<HTMLAppSettingsAdvancedElement>;
