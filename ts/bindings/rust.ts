@@ -309,7 +309,7 @@ export function enumToEnum(enu: (string | number)[], context: Context): string {
   const lines = enu
     .map((variant) => {
       variant = typeof variant === 'string' ? variant : `V${variant}`
-      return `    ${pascalCase(variant)},\n`
+      return `    ${variant},\n`
     })
     .join('')
 

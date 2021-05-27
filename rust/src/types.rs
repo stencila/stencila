@@ -4103,8 +4103,8 @@ pub enum CiteCitationMode {
     Narrative,
     NarrativeAuthor,
     NarrativeYear,
-    Normal,
-    SuppressAuthor,
+    normal,
+    suppressAuthor,
 }
 
 /// Types permitted for the `pageEnd` property of a `Cite` node.
