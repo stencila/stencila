@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/stencila/schema/compare/v1.7.1...v1.7.2) (2021-05-27)
+
+
+### Bug Fixes
+
+* **Schema:** For consistency capitalize all enum variants ([c94405d](https://github.com/stencila/schema/commit/c94405de352f79258e48f44f6fd50e3ce8a450e3))
+
 ## [1.7.1](https://github.com/stencila/schema/compare/v1.7.0...v1.7.1) (2021-05-25)
 
 
