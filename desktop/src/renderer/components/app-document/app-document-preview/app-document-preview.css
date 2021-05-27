@@ -1,4 +1,4 @@
 :host {
-  @apply border-0 border-l border-solid p-4 flex-grow;
+  @apply border-0 border-l border-solid p-4 flex-grow overflow-y-auto;
   border-color: var(--color-neutral-300);
 }
