@@ -3,7 +3,7 @@ import path from 'path'
 
 function fixture(folder: string) {
   return path.normalize(
-    path.join(__dirname, '..', '..', 'test', 'fixtures', 'projects', folder)
+    path.join(__dirname, '..', '..', 'fixtures', 'projects', folder)
   )
 }
 
