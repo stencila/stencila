@@ -1,3 +1,27 @@
+# [0.69.0](https://github.com/stencila/stencila/compare/v0.68.0...v0.69.0) (2021-05-28)
+
+
+### Bug Fixes
+
+* **Desktop:** Update editor contents when file changes on disk ([6f1cdd4](https://github.com/stencila/stencila/commit/6f1cdd41e3bc837250d83bcbdd1bfc8b5cf97950))
+* **Documents:** Use CreativeWorkTypes for root ([91592ff](https://github.com/stencila/stencila/commit/91592ff4d511d37144c0e5019cbcbdf5fb6e9b3c))
+* **Rust:** Preserve order on JSON maps ([7eaff66](https://github.com/stencila/stencila/commit/7eaff6665cb106d89c488e5ca45b5fd0be589c92))
+* **Rust:** Upgrade Schema version ([301548c](https://github.com/stencila/stencila/commit/301548c65acf109fa2193adc2486767e783f78d8))
+* **Serve:** Check early that path is in current working directory ([9385f44](https://github.com/stencila/stencila/commit/9385f44d38136d938a107fbec2c291284041dc47))
+* **Serving:** Serve unknown file types as raw ([7d4e73c](https://github.com/stencila/stencila/commit/7d4e73ceff15c1a1120ed935c723e497c235cf93))
+* **Viewer:** Fallback URLs ([331b394](https://github.com/stencila/stencila/commit/331b394fb433ca346e249929601290bbab299fac))
+* **Viewer:** Implement more article content components ([ac66ec5](https://github.com/stencila/stencila/commit/ac66ec506c4f295c2a7d62ea9abe3b31f3ae8eb7))
+* **Viewer:** Use correct itemtypes ([968bbae](https://github.com/stencila/stencila/commit/968bbae134ea13aabc70515c5fe031d890c6060e))
+
+
+### Features
+
+* **CLI:** Open viewer for documents ([a9bfa90](https://github.com/stencila/stencila/commit/a9bfa90fc996e58d89e5d95c1e117a6f80bb24b6))
+* **Desktop:** Add collapsible folders to the file tree sidebar ([8a16343](https://github.com/stencila/stencila/commit/8a163431d6022359db53ffb72c6578f97dc560ae))
+* **Plugins:** Add Encoda to plugin registry ([2ebe178](https://github.com/stencila/stencila/commit/2ebe178b8109c439c38c39dfa0abdfd399b53b0c))
+* **Viewer:** Add theme switcher ([49e492b](https://github.com/stencila/stencila/commit/49e492b27d66fcb1832faf552b4bff4c8b4ad0ac))
+* **Viewer:** Inital version of document viewer ([cec8d78](https://github.com/stencila/stencila/commit/cec8d7807e22da238c26ba0ac6a3c6ce273befc9))
+
 # [0.68.0](https://github.com/stencila/stencila/compare/v0.67.1...v0.68.0) (2021-05-23)
 
 
