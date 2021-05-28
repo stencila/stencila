@@ -1,8 +1,10 @@
 {
   "aliases": {
+    "converter": "encoda",
     "javascript": "jesta"
   },
   "registry": {
+    "encoda": "https://raw.githubusercontent.com/stencila/encoda/master/codemeta.json",
     "jesta": "https://raw.githubusercontent.com/stencila/jesta/main/codemeta.json"
   }
 }
