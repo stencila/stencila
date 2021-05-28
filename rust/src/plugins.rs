@@ -1193,7 +1193,7 @@ impl Plugin {
             None => bail!("No plugin registered with alias or name '{}'", alias),
             Some(url) => url,
         };
-        let json = reqwest::get(url).await?.text().await?;
+        let json = reqwest::get(url).await?.error_for_status()?.text().await?;
         let latest = Plugin::load(&json)?;
 
         let mut plugin = if let Some(plugin) = plugin {
@@ -1238,7 +1238,7 @@ impl Plugin {
 
         for alias in list {
             if let Err(error) = Plugin::refresh(&alias, aliases, plugins).await {
-                tracing::error!("When refreshing plugin {}: {}", alias, error)
+                tracing::warn!("While refreshing plugin {}: {}", alias, error)
             }
         }
         Ok(())
