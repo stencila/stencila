@@ -17,30 +17,30 @@ use std::{
 use stencila_schema::CreativeWorkTypes;
 use strum::{EnumVariantNames, ToString};
 
-#[derive(JsonSchema, Serialize)]
+#[derive(Debug, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 struct DocumentRemovedEvent {}
 
-#[derive(JsonSchema, Serialize)]
+#[derive(Debug, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 struct DocumentRenamedEvent {
     to: PathBuf,
 }
 
-#[derive(JsonSchema, Serialize)]
+#[derive(Debug, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 struct DocumentModifiedEvent {
     content: String,
 }
 
-#[derive(JsonSchema, Serialize)]
+#[derive(Debug, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 struct DocumentEncodedEvent {
     format: String,
     content: String,
 }
 
-#[derive(JsonSchema, Serialize, ToString, EnumVariantNames)]
+#[derive(Debug, JsonSchema, Serialize, ToString, EnumVariantNames)]
 #[serde(tag = "type", rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 enum DocumentEventType {
@@ -50,7 +50,7 @@ enum DocumentEventType {
     Encoded(DocumentEncodedEvent),
 }
 
-#[derive(JsonSchema, Serialize)]
+#[derive(Debug, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 struct DocumentEvent {
     path: PathBuf,
@@ -238,8 +238,20 @@ impl Document {
         // Encode to each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {
             if let Some(format) = subscription.strip_prefix("encoded:") {
-                if let Err(error) = self.encode(format) {
-                    tracing::warn!("Unable to encode to format \"{}\": {}", format, error)
+                match self.encode(format) {
+                    Ok(content) => {
+                        // Publish an event for this encoding
+                        DocumentEvent::publish(
+                            self.path.clone(),
+                            DocumentEventType::Encoded(DocumentEncodedEvent {
+                                format: format.into(),
+                                content: content.clone(),
+                            }),
+                        );
+                    }
+                    Err(error) => {
+                        tracing::warn!("Unable to encode to format \"{}\": {}", format, error)
+                    }
                 }
             }
         }
@@ -288,15 +300,6 @@ impl Document {
         let output = env::temp_dir().join(uuids::generate(uuids::Family::File));
         self.convert(&output.display().to_string(), Some(format.into()))?;
         let content = fs::read_to_string(output)?;
-
-        // Publish an event for this encoding
-        DocumentEvent::publish(
-            self.path.clone(),
-            DocumentEventType::Encoded(DocumentEncodedEvent {
-                format: format.into(),
-                content: content.clone(),
-            }),
-        );
 
         Ok(content)
     }

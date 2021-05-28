@@ -11,16 +11,22 @@ import {
 } from './documents'
 import { DocumentEvent } from './types'
 
-test.skip('workflow', async () => {
-  const path = tmp.fileSync({ postfix: '.md' }).name
-  fs.writeFileSync(path, '')
+/**
+ * Test of a workflow involving opening and modifying a document
+ * 
+ * Uses a JSON document as input so that this test is not dependant
+ * on having a converter plugin installed.
+ */
+test('workflow', async () => {
+  const path = tmp.fileSync({ postfix: '.json' }).name
+  fs.writeFileSync(path, '{"type": "Article"}')
 
   let events: DocumentEvent[] = []
 
   // Open the document
   expect(open(path)).toEqual(
     expect.objectContaining({
-      format: 'md',
+      format: 'json',
       temporary: false,
       subscriptions: {},
     })
@@ -46,8 +52,14 @@ test.skip('workflow', async () => {
   })
 
   // Load some new content into the document (and wait a bit for events)
-  load(path, 'Some content')
-  await new Promise((resolve) => setTimeout(resolve, 300))
+  load(path, `{
+    "type": "Article",
+    "content": [{
+      "type": "Paragraph",
+      "content": ["Some content"]
+    }]
+  }`)
+  await new Promise((resolve) => setTimeout(resolve, 1000))
   expect(events).toEqual([
     expect.objectContaining({
       type: 'encoded',
@@ -57,13 +69,19 @@ test.skip('workflow', async () => {
 
   // Modify the file on disk (and wait a bit for events)
   events = []
-  fs.writeFileSync(path, 'Some newer content that gets written to disk')
-  await new Promise((resolve) => setTimeout(resolve, 3000))
+  fs.writeFileSync(path,  `{
+    "type": "Article",
+    "content": [{
+      "type": "Paragraph",
+      "content": ["Some new content"]
+    }]
+  }`)
+  await new Promise((resolve) => setTimeout(resolve, 1000))
   expect(events).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
         type: 'modified',
-        content: expect.stringMatching(/Some newer content/),
+        content: expect.stringMatching(/Some new content/),
       }),
       expect.objectContaining({
         type: 'encoded',
