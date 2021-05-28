@@ -71,6 +71,7 @@
     "@stencila/brand": "0.6.10",
     "@stencila/components": "0.31.5",
     "electron-squirrel-startup": "1.0.0",
+    "fp-ts": "2.10.5",
     "i18next": "20.3.0",
     "normalizr": "3.6.1",
     "redux-thunk": "2.3.0",

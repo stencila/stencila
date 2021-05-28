@@ -1,6 +1,10 @@
 import { Component, h } from '@stencil/core'
 import { state } from '../../../store'
-import { selectPane } from '../../../store/documentPane/documentPaneSelectors'
+import {
+  selectPane,
+  selectPaneDocs,
+  selectPaneId,
+} from '../../../store/documentPane/documentPaneSelectors'
 
 @Component({
   tag: 'app-document-pane',
@@ -13,20 +17,21 @@ export class AppDocumentPane {
 
     return (
       <div class="documentPane">
+        <app-document-pane-tabs
+          activeDocument={activeDocument}
+          paneId={selectPaneId(state)}
+          documents={selectPaneDocs(state)(selectPaneId(state))}
+        ></app-document-pane-tabs>
+
         {activeDocument ? (
-          [
-            <app-document-pane-tabs
-              documents={[activeDocument]}
-            ></app-document-pane-tabs>,
-            <div class="documentPaneContents">
-              <app-document-editor
-                filePath={activeDocument}
-              ></app-document-editor>
-              <app-document-preview
-                filePath={activeDocument}
-              ></app-document-preview>
-            </div>,
-          ]
+          <div class="documentPaneContents">
+            <app-document-editor
+              filePath={activeDocument}
+            ></app-document-editor>
+            <app-document-preview
+              filePath={activeDocument}
+            ></app-document-preview>
+          </div>
         ) : (
           <app-document-pane-empty></app-document-pane-empty>
         )}

@@ -1,7 +1,7 @@
 import { Component, h, Host, Prop, State } from '@stencil/core'
 import { File } from 'stencila'
 import { state } from '../../../../store'
-import { setActiveDocument } from '../../../../store/documentPane/documentPaneActions'
+import { addDocumentToPane } from '../../../../store/documentPane/documentPaneActions'
 import { selectPaneId } from '../../../../store/documentPane/documentPaneSelectors'
 import { selectProjectFile } from '../../../../store/project/projectSelectors'
 import { getFileIcon } from './iconMap'
@@ -23,7 +23,7 @@ export class AppProjectSidebarFile {
   setActiveFile = (path: string) => {
     const paneId = selectPaneId(state)
     if (paneId) {
-      setActiveDocument(paneId.toString(), path)
+      addDocumentToPane(paneId.toString(), path)
     }
   }
 

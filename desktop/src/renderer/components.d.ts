@@ -5,6 +5,7 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { EntityId } from "@reduxjs/toolkit";
 export namespace Components {
     interface AppDocumentEditor {
         "filePath": string;
@@ -15,9 +16,13 @@ export namespace Components {
     }
     interface AppDocumentPaneTab {
         "documentPath": string;
+        "isActive": boolean;
+        "paneId": EntityId;
     }
     interface AppDocumentPaneTabs {
+        "activeDocument": string;
         "documents": string[];
+        "paneId": EntityId;
     }
     interface AppDocumentPreview {
         "filePath": string;
@@ -181,9 +186,13 @@ declare namespace LocalJSX {
     }
     interface AppDocumentPaneTab {
         "documentPath"?: string;
+        "isActive"?: boolean;
+        "paneId"?: EntityId;
     }
     interface AppDocumentPaneTabs {
+        "activeDocument"?: string;
         "documents"?: string[];
+        "paneId"?: EntityId;
     }
     interface AppDocumentPreview {
         "filePath"?: string;

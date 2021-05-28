@@ -1,7 +1,11 @@
 :host {
-  @apply block;
+  @apply flex;
+
+  ::-webkit-scrollbar {
+    height: 0;
+  }
 }
 
 .documentPaneTabs {
-  @apply p-0 m-0 h-full;
+  @apply p-0 m-0 h-full w-full flex flex-nowrap overflow-x-auto;
 }

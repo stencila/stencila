@@ -1,4 +1,43 @@
 :host {
-  @apply inline-block list-none h-full text-xs py-1 px-2 leading-none flex-grow-0 align-middle;
+  @apply inline-block list-none h-full text-xs text-center pl-1 pr-4 leading-none flex-grow border;
   background: var(--color-neutral-300);
+  color: var(--color-neutral-700);
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: var(--color-neutral-500);
+
+  &:not(:last-of-type) {
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-color: var(--color-neutral-500);
+  }
+
+  &.isActive {
+    border-bottom-color: var(--color-neutral-300);
+  }
+
+  & > * {
+    @apply align-middle;
+  }
+
+  &:hover,
+  &:focus {
+    stencila-icon {
+      @apply opacity-100;
+    }
+  }
+}
+
+li {
+  @apply flex list-none align-middle flex-row flex-nowrap items-center;
+}
+
+stencila-icon {
+  @apply opacity-0;
+}
+
+a,
+a:link,
+a:visited {
+  @apply block p-1 no-underline whitespace-nowrap leading-none text-current flex-grow;
 }
