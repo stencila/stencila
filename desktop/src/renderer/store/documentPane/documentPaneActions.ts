@@ -1,10 +1,15 @@
 import { EntityId } from '@reduxjs/toolkit'
+import { option as O } from 'fp-ts'
 import { store } from '../index'
 import { documentPaneActions } from './documentPaneStore'
 
 export const initPane = (path: string) => {
   store.dispatch(
-    documentPaneActions.createPane({ id: path + 'main', documents: [] })
+    documentPaneActions.createPane({
+      id: path + 'main',
+      documents: [],
+      activeDocument: O.none,
+    })
   )
 }
 
@@ -30,7 +35,7 @@ export const setActiveDocument = (paneId: EntityId, filePath: string) => {
   store.dispatch(
     documentPaneActions.updatePane({
       id: paneId,
-      changes: { activeDocument: filePath },
+      changes: { activeDocument: O.some(filePath) },
     })
   )
 }

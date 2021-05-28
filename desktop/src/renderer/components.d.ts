@@ -6,6 +6,7 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { EntityId } from "@reduxjs/toolkit";
+import { O } from "fp-ts";
 export namespace Components {
     interface AppDocumentEditor {
         "filePath": string;
@@ -20,7 +21,7 @@ export namespace Components {
         "paneId": EntityId;
     }
     interface AppDocumentPaneTabs {
-        "activeDocument": string;
+        "activeDocument": O.Option<string>;
         "documents": string[];
         "paneId": EntityId;
     }
@@ -190,7 +191,7 @@ declare namespace LocalJSX {
         "paneId"?: EntityId;
     }
     interface AppDocumentPaneTabs {
-        "activeDocument"?: string;
+        "activeDocument"?: O.Option<string>;
         "documents"?: string[];
         "paneId"?: EntityId;
     }

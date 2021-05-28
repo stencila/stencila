@@ -1,10 +1,12 @@
 import { Component, h } from '@stencil/core'
 import { state } from '../../../store'
 import {
-  selectPane,
+  selectActiveDoc,
   selectPaneDocs,
   selectPaneId,
 } from '../../../store/documentPane/documentPaneSelectors'
+import { option as O } from 'fp-ts'
+import { pipe } from 'fp-ts/function'
 
 @Component({
   tag: 'app-document-pane',
@@ -13,7 +15,7 @@ import {
 })
 export class AppDocumentPane {
   render() {
-    const activeDocument = selectPane(state)?.activeDocument
+    const activeDocument = selectActiveDoc(state)
 
     return (
       <div class="documentPane">
@@ -23,17 +25,19 @@ export class AppDocumentPane {
           documents={selectPaneDocs(state)(selectPaneId(state))}
         ></app-document-pane-tabs>
 
-        {activeDocument ? (
-          <div class="documentPaneContents">
-            <app-document-editor
-              filePath={activeDocument}
-            ></app-document-editor>
-            <app-document-preview
-              filePath={activeDocument}
-            ></app-document-preview>
-          </div>
-        ) : (
-          <app-document-pane-empty></app-document-pane-empty>
+        {pipe(
+          activeDocument,
+          O.map((activeFilePath) => (
+            <div class="documentPaneContents">
+              <app-document-editor
+                filePath={activeFilePath}
+              ></app-document-editor>
+              <app-document-preview
+                filePath={activeFilePath}
+              ></app-document-preview>
+            </div>
+          )),
+          O.getOrElse(() => <app-document-pane-empty></app-document-pane-empty>)
         )}
       </div>
     )

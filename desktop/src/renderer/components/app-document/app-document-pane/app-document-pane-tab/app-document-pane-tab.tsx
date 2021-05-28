@@ -25,18 +25,17 @@ export class AppDocumentPaneTab {
   }
 
   private closeDoc = (e: MouseEvent) => {
+    e.stopPropagation()
     e.preventDefault()
     closeDocument(this.paneId, this.documentPath)
   }
 
   render() {
     return (
-      <Host class={{ isActive: this.isActive }}>
+      <Host class={{ isActive: this.isActive }} onClick={this.activateDoc}>
         <li>
           <stencila-icon icon="close" onClick={this.closeDoc}></stencila-icon>
-          <a href="#" onClick={this.activateDoc}>
-            {selectProjectFile(state)(this.documentPath)?.name}
-          </a>
+          <a href="#">{selectProjectFile(state)(this.documentPath)?.name}</a>
         </li>
       </Host>
     )

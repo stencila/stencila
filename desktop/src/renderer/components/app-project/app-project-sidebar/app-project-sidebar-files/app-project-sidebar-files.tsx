@@ -1,7 +1,5 @@
 import { Component, h, Host, Prop } from '@stencil/core'
 import { state } from '../../../../store'
-import { setActiveDocument } from '../../../../store/documentPane/documentPaneActions'
-import { selectPaneId } from '../../../../store/documentPane/documentPaneSelectors'
 import { selectProjectRootFiles } from '../../../../store/project/projectSelectors'
 
 @Component({
@@ -12,13 +10,6 @@ import { selectProjectRootFiles } from '../../../../store/project/projectSelecto
 export class AppProjectSidebarFiles {
   @Prop()
   projectDir: string
-
-  setActiveFile = (path: string) => {
-    const paneId = selectPaneId(state)
-    if (paneId) {
-      setActiveDocument(paneId.toString(), path)
-    }
-  }
 
   render() {
     const files = selectProjectRootFiles(state)

@@ -2,15 +2,15 @@ import {
   createEntityAdapter,
   createSlice,
   EntityId,
-  PayloadAction,
+  PayloadAction
 } from '@reduxjs/toolkit'
-import { array as A, option as O } from 'fp-ts'
+import { array as A, option as O, string } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
 
 type DocumentPane = {
   id: string
   documents: string[]
-  activeDocument?: string
+  activeDocument: O.Option<string>
 }
 
 const documentPaneAdapter = createEntityAdapter<DocumentPane>()
@@ -30,7 +30,7 @@ export const documentPaneSlice = createSlice({
         if (!pane.documents.includes(payload.docPath)) {
           pane.documents = [...pane.documents, payload.docPath]
         }
-        pane.activeDocument = payload.docPath
+        pane.activeDocument = O.some(payload.docPath)
       }
       return state
     },
@@ -53,12 +53,17 @@ export const documentPaneSlice = createSlice({
         }
 
         // If document being closed is not the currently active document,
-        // change focus to the next closest tab
-        if (pane.activeDocument === payload.docPath) {
-          pane.activeDocument =
-            pane.documents[docIndex - 1] ??
-            pane.documents[docIndex + 1] ??
-            undefined
+        // change focus to the closest tab
+        if (
+          O.getEq(string.Eq).equals(
+            pane.activeDocument,
+            O.some(payload.docPath)
+          )
+        ) {
+          pane.activeDocument = pipe(
+            A.lookup(docIndex)(pane.documents),
+            O.alt(() => A.lookup(docIndex - 1)(pane.documents))
+          )
         }
       }
 
