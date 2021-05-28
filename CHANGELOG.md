@@ -1,3 +1,15 @@
+# [0.70.0](https://github.com/stencila/stencila/compare/v0.69.0...v0.70.0) (2021-05-28)
+
+
+### Bug Fixes
+
+* **Sidebar:** Fix spacing around file tree ([26d76af](https://github.com/stencila/stencila/commit/26d76afeade9056d521d43af78bca4c598694a81))
+
+
+### Features
+
+* **Desktop:** Open files in separate tabs ([7ff3114](https://github.com/stencila/stencila/commit/7ff31149a6de2b3f6f71177b33ee8dee27d13175))
+
 # [0.69.0](https://github.com/stencila/stencila/compare/v0.68.0...v0.69.0) (2021-05-28)
 
 
