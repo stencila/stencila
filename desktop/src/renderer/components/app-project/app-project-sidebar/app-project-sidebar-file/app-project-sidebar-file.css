@@ -2,13 +2,13 @@
   @apply block;
 }
 
-li {
-  @apply overflow-ellipsis overflow-hidden max-w-full;
-}
-
 ul {
   @apply list-none p-0 pl-4 m-0;
   color: var(--color-neutral-400);
+}
+
+li {
+  @apply overflow-ellipsis overflow-hidden max-w-full;
 }
 
 a {

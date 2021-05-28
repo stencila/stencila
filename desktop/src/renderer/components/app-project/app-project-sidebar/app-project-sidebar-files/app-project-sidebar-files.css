@@ -12,6 +12,6 @@
 }
 
 ul {
-  @apply list-none p-4 m-0;
+  @apply list-none py-4 pl-4 m-0;
   color: var(--color-neutral-400);
 }
