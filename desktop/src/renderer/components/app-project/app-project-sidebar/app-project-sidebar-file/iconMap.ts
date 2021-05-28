@@ -1,7 +1,7 @@
 import { IconNames } from '@stencila/components'
 import { File } from 'stencila'
 
-export const getFileIcon = (file?: File): IconNames => {
+export const getFileIcon = (file?: File, isCollapsed?: boolean): IconNames => {
   // Generic file fallback
   if (!file) {
     return 'file-2'
@@ -9,7 +9,7 @@ export const getFileIcon = (file?: File): IconNames => {
 
   // Handle folders
   if (file.children) {
-    return 'folder-open'
+    return isCollapsed ? 'folder' : 'folder-open'
   }
 
   // Don't differentiate between image formats for now

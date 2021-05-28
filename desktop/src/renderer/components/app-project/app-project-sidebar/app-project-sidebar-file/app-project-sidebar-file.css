@@ -1,0 +1,31 @@
+:host {
+  @apply block;
+}
+
+li {
+  @apply overflow-ellipsis overflow-hidden max-w-full;
+}
+
+ul {
+  @apply list-none p-0 pl-4 m-0;
+  color: var(--color-neutral-400);
+}
+
+a {
+  &,
+  &:link,
+  &:visited {
+    @apply block px-1 text-sm whitespace-nowrap rounded no-underline align-bottom leading-none max-w-full overflow-hidden overflow-ellipsis;
+    color: var(--color-neutral-400);
+    padding-bottom: 0.375rem;
+    padding-top: 0.375rem;
+  }
+
+  &:hover {
+    background: var(--color-neutral-700);
+  }
+
+  stencila-icon {
+    @apply pr-1;
+  }
+}

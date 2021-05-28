@@ -2,11 +2,7 @@ import { Component, h, Host, Prop } from '@stencil/core'
 import { state } from '../../../../store'
 import { setActiveDocument } from '../../../../store/documentPane/documentPaneActions'
 import { selectPaneId } from '../../../../store/documentPane/documentPaneSelectors'
-import {
-  selectProjectFile,
-  selectProjectRootFiles,
-} from '../../../../store/project/projectSelectors'
-import { getFileIcon } from './iconMap'
+import { selectProjectRootFiles } from '../../../../store/project/projectSelectors'
 
 @Component({
   tag: 'app-project-sidebar-files',
@@ -24,43 +20,19 @@ export class AppProjectSidebarFiles {
     }
   }
 
-  private pathToFileTree = (path: string) => {
-    const file = selectProjectFile(state)(path)
-
-    if (!file) return
-
-    const isDir = file?.children !== undefined
-
-    return (
-      <li>
-        <a
-          href="#"
-          class={{
-            isDir,
-            isFile: !isDir,
-          }}
-          onClick={(e: MouseEvent) => {
-            e.preventDefault()
-            if (!isDir) {
-              this.setActiveFile(path)
-            }
-          }}
-        >
-          <stencila-icon icon={getFileIcon(file)}></stencila-icon>
-          {file?.name}
-        </a>
-        {file?.children && <ul>{file.children.map(this.pathToFileTree)}</ul>}
-      </li>
-    )
-  }
-
   render() {
     const files = selectProjectRootFiles(state)
     return (
       <Host class="customScrollbar">
         <div class="app-project-sidebar-files">
           {files && files.length > 0 ? (
-            <ul>{files.map(this.pathToFileTree)}</ul>
+            <ul>
+              {files.map((filePath) => (
+                <app-project-sidebar-file
+                  filePath={filePath}
+                ></app-project-sidebar-file>
+              ))}
+            </ul>
           ) : (
             <app-sidebar-empty>
               <stencila-icon icon="seedling"></stencila-icon>

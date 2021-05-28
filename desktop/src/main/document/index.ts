@@ -28,6 +28,10 @@ export const registerDocumentHandlers = () => {
     CHANNEL.GET_DOCUMENT_CONTENTS,
     async (_event, filePath: string) => {
       getDocument(filePath)
+      documents.subscribe(filePath, ['modified'], (_topic, event) => {
+        projectWindow?.webContents.send(CHANNEL.GET_DOCUMENT_CONTENTS, event)
+      })
+
       return documents.read(filePath)
     }
   )
@@ -42,7 +46,9 @@ export const registerDocumentHandlers = () => {
     }
   )
 
-  ipcMain.handle(CHANNEL.CLOSE_DOCUMENT, async (_event, filePath: string) =>
-    closeDocument(filePath)
-  )
+  ipcMain.handle(CHANNEL.CLOSE_DOCUMENT, async (_event, filePath: string) => {
+    try {
+      closeDocument(filePath)
+    } catch (e) {}
+  })
 }
