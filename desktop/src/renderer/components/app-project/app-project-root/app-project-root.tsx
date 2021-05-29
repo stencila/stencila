@@ -4,7 +4,7 @@ import { store } from '../../../store'
 import { initPane } from '../../../store/documentPane/documentPaneActions'
 import { fetchProject } from '../../../store/project/projectActions'
 import { ProjectRouter } from '../projectRouter'
-import { listenForProjectEvents } from './projectEvents'
+import { listenForFileEvents } from './projectEvents'
 
 @Component({
   tag: 'app-project-root',
@@ -18,7 +18,7 @@ export class AppProjectRoot {
     )
     initPane(projectPath)
     store.dispatch(fetchProject(projectPath))
-    listenForProjectEvents()
+    listenForFileEvents()
   }
 
   render() {
