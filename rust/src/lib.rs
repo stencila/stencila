@@ -15,23 +15,32 @@ pub mod projects;
 // Core functions that operate on Stencila objects and which
 // may be delegated to plugins
 
-pub mod read;
-pub mod write;
+pub mod methods {
+    pub mod prelude;
+    pub use prelude::*;
 
-pub mod decode;
-pub mod encode;
+    pub mod read;
+    pub mod write;
 
-pub mod export;
-pub mod import;
+    pub mod decode;
+    pub mod encode;
 
-pub mod validate;
+    pub mod export;
+    pub mod import;
 
-pub mod execute;
+    pub mod validate;
+
+    pub mod execute;
+
+    pub mod delegate;
+}
 
 // Features
 //
-// Features that can be turned on or off
+// Features that can be turned off
 
+#[cfg(feature = "cli")]
+pub mod cli;
 #[cfg(feature = "plugins")]
 pub mod plugins;
 
@@ -51,25 +60,26 @@ pub mod request;
 pub mod serve;
 
 #[cfg(any(feature = "request", feature = "serve"))]
-pub mod delegate;
-#[cfg(any(feature = "request", feature = "serve"))]
 pub mod jwt;
-#[cfg(any(feature = "request", feature = "serve"))]
-pub mod methods;
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod protocols;
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod rpc;
-#[cfg(any(feature = "request", feature = "serve"))]
-pub mod urls;
 
-// Utilities
+// Internal messaging
 
-pub mod cli;
 pub mod logging;
 pub mod pubsub;
-pub mod schemas;
-pub mod uuids;
+
+// Utilities
+//
+// Usually just small functions that are often wrappers around other crates.
+
+pub mod utils {
+    pub mod schemas;
+    pub mod urls;
+    pub mod uuids;
+}
 
 // Re-export packages
 //

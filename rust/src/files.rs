@@ -12,7 +12,7 @@ use std::{
     time::UNIX_EPOCH,
 };
 
-use crate::{pubsub::publish, schemas};
+use crate::{pubsub::publish, utils::schemas};
 use strum::ToString;
 
 /// A file or directory within a `Project`

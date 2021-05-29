@@ -1,4 +1,4 @@
-use crate::{logging, plugins, projects, schemas, serve, upgrade};
+use crate::{logging, plugins, projects, serve, upgrade, utils::schemas};
 use eyre::{bail, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

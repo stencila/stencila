@@ -12,8 +12,8 @@ pub fn encode(node: Node, format: &str) -> Result<String> {
         _ => {
             #[cfg(feature = "request")]
             {
-                let node = crate::delegate::delegate(
-                    crate::methods::Method::Encode,
+                let node = super::delegate::delegate(
+                    super::Method::Encode,
                     serde_json::json!({
                         "node": node,
                         "format": format,

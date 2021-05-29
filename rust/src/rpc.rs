@@ -23,8 +23,8 @@ pub struct GenericRequest<P> {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "method", rename_all = "lowercase")]
 pub enum Request {
-    Decode(GenericRequest<crate::decode::rpc::Params>),
-    Execute(GenericRequest<crate::execute::rpc::Params>),
+    Decode(GenericRequest<crate::methods::decode::rpc::Params>),
+    Execute(GenericRequest<crate::methods::execute::rpc::Params>),
 }
 
 impl Request {
@@ -37,8 +37,8 @@ impl Request {
 
     pub fn dispatch(self) -> Result<Node> {
         match self {
-            Request::Decode(request) => crate::decode::rpc::decode(request.params),
-            Request::Execute(request) => crate::execute::rpc::execute(request.params),
+            Request::Decode(request) => crate::methods::decode::rpc::decode(request.params),
+            Request::Execute(request) => crate::methods::execute::rpc::execute(request.params),
         }
     }
 }

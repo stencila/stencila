@@ -1,4 +1,5 @@
-use crate::{encode::encode, nodes::Node, write::write};
+use super::{encode::encode, write::write};
+use crate::nodes::Node;
 use eyre::Result;
 use std::path::Path;
 

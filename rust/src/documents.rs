@@ -1,4 +1,7 @@
-use crate::{pubsub::publish, schemas, uuids};
+use crate::{
+    pubsub::publish,
+    utils::{schemas, uuids},
+};
 use defaults::Defaults;
 use eyre::{bail, Result};
 use schemars::JsonSchema;

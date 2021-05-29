@@ -1,5 +1,5 @@
-//use crate::methods::Method;
-use crate::methods::Method;
+//use super::Method;
+use super::Method;
 use crate::nodes::Node;
 use eyre::Result;
 use once_cell::sync::OnceCell;

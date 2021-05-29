@@ -11,8 +11,8 @@ pub fn decode(content: String, format: &str) -> Result<Node> {
         "yaml" => serde_yaml::from_str::<Node>(content.as_str())?,
         _ => {
             #[cfg(feature = "request")]
-            return crate::delegate::delegate(
-                crate::methods::Method::Decode,
+            return super::delegate::delegate(
+                super::Method::Decode,
                 serde_json::json!({
                     "content": content,
                     "format": format

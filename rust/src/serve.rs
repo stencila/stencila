@@ -3,7 +3,7 @@ use crate::{
     jwt,
     protocols::Protocol,
     rpc::{Error, Request, Response},
-    urls,
+    utils::urls,
 };
 use eyre::{bail, Result};
 use futures::{FutureExt, StreamExt};

@@ -21,10 +21,7 @@ pub mod rpc {
 #[allow(unused_variables, unreachable_code)]
 pub fn execute(node: Node) -> Result<Node> {
     #[cfg(feature = "request")]
-    return crate::delegate::delegate(
-        crate::methods::Method::Execute,
-        serde_json::json!({ "node": node }),
-    );
+    return super::delegate::delegate(super::Method::Execute, serde_json::json!({ "node": node }));
 
     #[cfg(not(feature = "request"))]
     eyre::bail!("Unable to execute node")

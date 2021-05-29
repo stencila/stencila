@@ -1,5 +1,5 @@
 use crate::jwt;
-use crate::methods::Method;
+use crate::methods::prelude::Method;
 use crate::nodes::Node;
 use crate::rpc::{Error, Response};
 use eyre::{bail, eyre, Context, Result};

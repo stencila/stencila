@@ -1,5 +1,6 @@
+use crate::cli::display;
 use crate::files::{File, FileEvent, Files};
-use crate::{cli::display, schemas};
+use crate::utils::schemas;
 use eyre::{bail, Result};
 use regex::Regex;
 use schemars::{schema::Schema, JsonSchema};

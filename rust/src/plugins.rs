@@ -1,6 +1,6 @@
 use crate::{
     pubsub::{publish_progress, ProgressEvent},
-    schemas,
+    utils::schemas,
 };
 use bollard::{container::RemoveContainerOptions, models::CreateImageInfo};
 use chrono::{DateTime, Duration, TimeZone, Utc};
