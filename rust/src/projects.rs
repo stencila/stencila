@@ -245,22 +245,18 @@ impl Project {
 
 /// An in-memory store of projects and associated
 /// data (e.g. file system watchers)
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
 #[serde(default)]
 pub struct Projects {
     /// The projects, stored by absolute path
     pub registry: HashMap<String, Project>,
 }
 
-impl Default for Projects {
-    fn default() -> Self {
-        Projects {
-            registry: HashMap::new(),
-        }
-    }
-}
-
 impl Projects {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     /// Get the canonical absolute path of a project folder
     fn path(folder: &str) -> Result<String> {
         Ok(Path::new(folder).canonicalize()?.display().to_string())

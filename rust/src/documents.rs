@@ -505,6 +505,10 @@ pub struct Documents {
 }
 
 impl Documents {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     pub fn list(&self) -> Result<Vec<String>> {
         Ok(self
             .registry

@@ -275,13 +275,13 @@ pub async fn main() -> Result<()> {
     }
 
     // Create document store
-    let mut documents = documents::Documents::default();
+    let mut documents = documents::Documents::new();
 
     // Load plugins
     let mut plugins = plugins::Plugins::load()?;
 
     // Initialize projects
-    let mut projects = projects::Projects::default();
+    let mut projects = projects::Projects::new();
 
     // If not explicitly upgrading then run an upgrade check in the background
     let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
