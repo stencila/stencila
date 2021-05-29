@@ -97,14 +97,13 @@ pub enum Command {
 }
 
 /// Run a command
-#[tracing::instrument(skip(documents, plugins, config))]
+#[tracing::instrument(skip(documents, config))]
 pub async fn run_command(
     interactive: bool,
     command: Command,
     formats: &[String],
     documents: &mut documents::Documents,
     projects: &mut projects::Projects,
-    plugins: &mut plugins::Plugins,
     config: &mut config::Config,
 ) -> Result<()> {
     match command {
@@ -121,13 +120,13 @@ pub async fn run_command(
         Command::Plugins(command) => display::render(
             interactive,
             formats,
-            plugins::cli::run(command, &config.plugins, plugins).await?,
+            plugins::cli::run(command, &config.plugins).await?,
         ),
         Command::Config(command) => {
             display::render(interactive, formats, config::cli::run(command, config)?)
         }
-        Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade, plugins).await,
-        Command::Inspect(args) => inspect::cli::run(args, plugins).await,
+        Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade).await,
+        Command::Inspect(args) => inspect::cli::run(args).await,
     }
 }
 
@@ -287,7 +286,7 @@ pub async fn main() -> Result<()> {
     let upgrade_thread = if let Some(Command::Upgrade(_)) = command {
         None
     } else {
-        Some(stencila::upgrade::upgrade_auto(&config.upgrade, &plugins))
+        Some(stencila::upgrade::upgrade_auto(&config.upgrade))
     };
 
     // Use the desired display format, falling back to configured values
@@ -304,7 +303,6 @@ pub async fn main() -> Result<()> {
             &formats,
             &mut documents,
             &mut projects,
-            &mut plugins,
             &mut config,
         )
         .await
@@ -698,7 +696,7 @@ mod interact {
                             };
 
                             if let Err(error) = run_command(
-                                true, command, &formats, documents, projects, plugins, config,
+                                true, command, &formats, documents, projects, config,
                             )
                             .await
                             {

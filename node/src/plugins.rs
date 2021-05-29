@@ -4,25 +4,14 @@ use crate::{
 };
 use neon::{prelude::*, result::Throw};
 use std::str::FromStr;
-use std::sync::{Mutex, MutexGuard};
+use std::sync::MutexGuard;
 use stencila::{
     config::Config,
-    once_cell::sync::Lazy,
-    plugins::{self, Plugin, PluginInstallation, Plugins},
+    plugins::{self, Plugin, PluginInstallation, Plugins, PLUGINS},
 };
 
-/// A global plugins store
-///
-/// The plugins store needs to be read on startup and then passed to various
-/// functions in other modules on each invocation (for delegation to each plugin).
-/// As for config, we want to avoid exposing that implementation detail in these bindings
-/// so have this global mutable plugins store that gets loaded when the module is loaded,
-/// updated in the functions below and then passed on to other functions
-pub static PLUGINS: Lazy<Mutex<Plugins>> =
-    Lazy::new(|| Mutex::new(Plugins::load().expect("Unable to load plugins")));
-
-/// Obtain the plugins store
-pub fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Plugins>> {
+/// Lock the global plugins store
+pub fn lock(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Plugins>> {
     match PLUGINS.try_lock() {
         Ok(guard) => Ok(guard),
         Err(error) => cx.throw_error(format!(
@@ -41,7 +30,7 @@ pub fn schema(cx: FunctionContext) -> JsResult<JsString> {
 /// List plugins
 pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
     let aliases = &config::obtain(&mut cx)?.plugins.aliases;
-    let plugins = &*obtain(&mut cx)?;
+    let plugins = &*lock(&mut cx)?;
 
     to_json(cx, plugins.list_plugins(aliases))
 }
@@ -53,7 +42,7 @@ pub fn install(mut cx: FunctionContext) -> JsResult<JsString> {
     let config = &config::obtain(&mut cx)?;
     let installs = &installations(&mut cx, 1, &config)?;
     let aliases = &config.plugins.aliases;
-    let plugins = &mut *obtain(&mut cx)?;
+    let plugins = &mut *lock(&mut cx)?;
 
     match runtime(&mut cx)?
         .block_on(async { Plugin::install(spec, installs, aliases, plugins, None).await })
@@ -67,7 +56,7 @@ pub fn install(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn uninstall(mut cx: FunctionContext) -> JsResult<JsString> {
     let alias = &cx.argument::<JsString>(0)?.value(&mut cx);
     let aliases = &config::obtain(&mut cx)?.plugins.aliases;
-    let plugins = &mut *obtain(&mut cx)?;
+    let plugins = &mut *lock(&mut cx)?;
 
     match Plugin::uninstall(alias, aliases, plugins) {
         Ok(_) => to_json(cx, plugins.list_plugins(aliases)),
@@ -81,7 +70,7 @@ pub fn upgrade(mut cx: FunctionContext) -> JsResult<JsString> {
     let config = &config::obtain(&mut cx)?;
     let installs = &config.plugins.installations;
     let aliases = &config.plugins.aliases;
-    let plugins = &mut *obtain(&mut cx)?;
+    let plugins = &mut *lock(&mut cx)?;
 
     match runtime(&mut cx)?
         .block_on(async { Plugin::upgrade(spec, installs, aliases, plugins).await })
@@ -105,7 +94,7 @@ pub fn refresh(mut cx: FunctionContext) -> JsResult<JsString> {
 
     let config = &config::obtain(&mut cx)?;
     let aliases = &config.plugins.aliases;
-    let plugins = &mut *obtain(&mut cx)?;
+    let plugins = &mut *lock(&mut cx)?;
 
     match runtime(&mut cx)?.block_on(async { Plugin::refresh_list(list, aliases, plugins).await }) {
         Ok(_) => to_json(cx, plugins.list_plugins(aliases)),

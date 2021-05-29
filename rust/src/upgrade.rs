@@ -24,7 +24,6 @@ pub async fn upgrade(
     include_plugins: bool,
     confirm: bool,
     verbose: bool,
-    plugins: &mut plugins::Plugins,
 ) -> Result<()> {
     let mut builder = self_update::backends::github::Update::configure();
     builder
@@ -64,7 +63,7 @@ pub async fn upgrade(
     .map_err(|_| eyre!("Error joining thread"))??;
 
     if include_plugins {
-        plugins::Plugin::upgrade_all(plugins).await?;
+        plugins::Plugin::upgrade_all(&mut *plugins::lock()).await?;
     }
 
     Ok(())
@@ -84,12 +83,8 @@ const UPGRADE_FILE: &str = "cli-upgrade.txt";
 /// Because this function use values form the config file, requires
 /// that `feature = "config"` is enabled.
 #[cfg(feature = "config")]
-pub fn upgrade_auto(
-    config: &config::UpgradeConfig,
-    plugins: &plugins::Plugins,
-) -> std::thread::JoinHandle<Result<()>> {
+pub fn upgrade_auto(config: &config::UpgradeConfig) -> std::thread::JoinHandle<Result<()>> {
     let config = config.clone();
-    let mut plugins = plugins.clone();
     thread::spawn(move || -> Result<()> {
         let config::UpgradeConfig {
             auto,
@@ -116,9 +111,8 @@ pub fn upgrade_auto(
 
         // Attempt an upgrade
         let runtime = tokio::runtime::Runtime::new()?;
-        runtime.block_on(async move {
-            upgrade(None, None, include_plugins, confirm, false, &mut plugins).await
-        })?;
+        runtime
+            .block_on(async move { upgrade(None, None, include_plugins, confirm, false).await })?;
 
         // Record the time of the upgrade check, so another check
         // is not made within the `auto`.
@@ -213,11 +207,7 @@ pub mod cli {
     /// Note that the in-memory state of application and plugins is unchanged after this call
     /// (e.g. if called in interactive mode). A restart is required to upload both the new
     /// version and plugin versions.
-    pub async fn run(
-        args: Args,
-        _config: &config::UpgradeConfig,
-        plugins: &mut plugins::Plugins,
-    ) -> Result<()> {
+    pub async fn run(args: Args, _config: &config::UpgradeConfig) -> Result<()> {
         let Args {
             to,
             plugins: include_plugins,
@@ -226,7 +216,7 @@ pub mod cli {
             ..
         } = args;
 
-        upgrade(None, to, include_plugins, confirm, verbose, plugins).await
+        upgrade(None, to, include_plugins, confirm, verbose).await
     }
 }
 
@@ -241,23 +231,13 @@ mod tests {
 
     #[tokio::test]
     async fn test_upgrade() -> Result<()> {
-        let mut plugins = plugins::Plugins::empty();
-        upgrade(
-            Some("100.0.0".to_string()),
-            None,
-            false,
-            false,
-            false,
-            &mut plugins,
-        )
-        .await
+        upgrade(Some("100.0.0".to_string()), None, false, false, false).await
     }
 
     #[test]
     fn test_upgrade_auto() -> Result<()> {
         let config = config::UpgradeConfig::default();
-        let mut plugins = plugins::Plugins::empty();
-        upgrade_auto(&config, &mut plugins).join().expect("Failed")
+        upgrade_auto(&config).join().expect("Failed")
     }
 
     /// This hangs so is currently ignored
@@ -265,7 +245,6 @@ mod tests {
     #[tokio::test]
     async fn test_cli() -> Result<()> {
         let config = config::UpgradeConfig::default();
-        let mut plugins = plugins::Plugins::empty();
         cli::run(
             cli::Args {
                 to: None,
@@ -274,7 +253,6 @@ mod tests {
                 verbose: false,
             },
             &config,
-            &mut plugins,
         )
         .await
     }

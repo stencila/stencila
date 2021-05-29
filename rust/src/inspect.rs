@@ -12,7 +12,7 @@ pub mod cli {
     use eyre::Result;
     use structopt::StructOpt;
 
-    use crate::{plugins, request};
+    use crate::request;
 
     #[derive(Debug, StructOpt)]
     #[structopt(
@@ -30,17 +30,17 @@ pub mod cli {
         setting = structopt::clap::AppSettings::DeriveDisplayOrder
     )]
     pub enum Action {
-        Methods(plugins::cli::Methods),
-        Delegate(plugins::cli::Delegate),
+        //Methods(plugins::cli::Methods),
+        //Delegate(plugins::cli::Delegate),
         Request(request::cli::Args),
     }
 
-    pub async fn run(args: Args, plugins: &mut plugins::Plugins) -> Result<()> {
+    pub async fn run(args: Args) -> Result<()> {
         let Args { action } = args;
 
         match action {
-            Action::Methods(methods) => methods.run(plugins).await,
-            Action::Delegate(delegate) => delegate.run(plugins).await,
+            //Action::Methods(methods) => methods.run(plugins).await,
+            //Action::Delegate(delegate) => delegate.run(plugins).await,
             Action::Request(args) => request::cli::run(args).await,
         }
     }

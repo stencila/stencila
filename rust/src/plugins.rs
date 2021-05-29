@@ -19,6 +19,7 @@ use std::{
     fs,
     path::PathBuf,
     process::{Command, Stdio},
+    sync::{Arc, Mutex, MutexGuard},
     thread,
 };
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
@@ -1618,6 +1619,21 @@ impl Plugins {
         Ok(params.clone())
     }
 }
+
+/// A global plugins store
+///
+/// Previously, we loaded plugins on startup and then passed them to various
+/// functions in other modules on each invocation (for delegation to each plugin).
+/// However, this proved complicated for things like delegating method calls from
+/// within documents. For that reason, we introduced this global.
+pub static PLUGINS: Lazy<Arc<Mutex<Plugins>>> =
+    Lazy::new(|| Arc::new(Mutex::new(Plugins::load().expect("Unable to load plugins"))));
+
+/// Lock the global plugins store
+pub fn lock() -> MutexGuard<'static, Plugins> {
+    PLUGINS.lock().expect("Unable to lock PLUGINS")
+}
+
 #[cfg(feature = "config")]
 pub mod config {
     use super::*;
@@ -1877,16 +1893,14 @@ pub mod cli {
         }
     }
 
-    pub async fn run(
-        args: Command,
-        config: &config::PluginsConfig,
-        plugins: &mut Plugins,
-    ) -> display::Result {
+    pub async fn run(args: Command, config: &config::PluginsConfig) -> display::Result {
         let Command { action } = args;
         let config::PluginsConfig {
             aliases,
             installations,
         } = config;
+
+        let plugins = &mut *lock();
 
         match action {
             Action::List => {
@@ -1996,14 +2010,12 @@ mod tests {
         let config = config::PluginsConfig {
             ..Default::default()
         };
-        let mut plugins = Plugins::empty();
 
         run(
             Command {
                 action: Action::List,
             },
             &config,
-            &mut plugins,
         )
         .await?;
 
@@ -2014,7 +2026,6 @@ mod tests {
                 }),
             },
             &config,
-            &mut plugins,
         )
         .await
         .expect_err("Expected an error!");
@@ -2027,7 +2038,6 @@ mod tests {
                 }),
             },
             &config,
-            &mut plugins,
         )
         .await?;
 
@@ -2038,7 +2048,6 @@ mod tests {
                 }),
             },
             &config,
-            &mut plugins,
         )
         .await
         .expect_err("Expected an error!");
@@ -2048,7 +2057,6 @@ mod tests {
                 action: Action::Upgrade(Upgrade { plugins: vec![] }),
             },
             &config,
-            &mut plugins,
         )
         .await?;
 
@@ -2057,7 +2065,6 @@ mod tests {
                 action: Action::Uninstall(Uninstall { plugins: vec![] }),
             },
             &config,
-            &mut plugins,
         )
         .await?;
 
