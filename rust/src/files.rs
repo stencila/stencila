@@ -59,6 +59,25 @@ pub struct File {
 }
 
 impl File {
+    /// Get a file's name from it's path
+    pub fn name(path: &Path) -> String {
+        path.file_name()
+            .map(|os_str| os_str.to_string_lossy())
+            .unwrap_or_default()
+            .into()
+    }
+
+    /// Get a file's parent from it's path
+    pub fn parent(path: &Path) -> Option<PathBuf> {
+        path.parent().map(|parent| parent.into())
+    }
+
+    /// Get a file's format from it's file name extension
+    pub fn format(path: &Path) -> Option<String> {
+        path.extension()
+            .map(|ext| ext.to_string_lossy().to_lowercase())
+    }
+
     /// Load a file from a path
     ///
     /// Note: this function is infallible, in that it will always return a
@@ -69,13 +88,9 @@ impl File {
     pub fn load(path: &Path) -> File {
         let path = path.canonicalize().unwrap_or_else(|_error| path.into());
 
-        let parent = path.parent().map(|path| path.into());
-
-        let name = path
-            .file_name()
-            .map(|os_str| os_str.to_string_lossy())
-            .unwrap_or_default()
-            .into();
+        let name = File::name(&path);
+        let parent = File::parent(&path);
+        let format = File::format(&path);
 
         let (modified, size) = match path.metadata() {
             Ok(metadata) => {
@@ -90,10 +105,6 @@ impl File {
             }
             Err(_) => (None, None),
         };
-
-        let format = path
-            .extension()
-            .map(|ext| ext.to_string_lossy().to_lowercase());
 
         let (media_type, children) = if path.is_file() {
             let media_type = if let Some(ext) = &format {
@@ -327,15 +338,12 @@ impl FileRegistry {
 
     /// Is the file a Git ignore file?
     fn is_ignore_file(path: &Path) -> bool {
-        if let Some(name) = path
-            .file_name()
-            .map(|os_str| os_str.to_string_lossy().to_string())
-        {
-            if FileRegistry::GITIGNORE_NAMES.contains(&name.as_str()) {
-                return true;
-            }
+        let name = File::name(path);
+        if FileRegistry::GITIGNORE_NAMES.contains(&name.as_str()) {
+            true
+        } else {
+            false
         }
-        false
     }
 
     /// Should a path be ignored?
@@ -410,7 +418,7 @@ impl FileRegistry {
         )
     }
 
-    // Update a project file registry when a file is created
+    // Update the file registry when a file is created
     pub fn created(&mut self, path: &Path) {
         if self.should_ignore(path) || self.did_refresh(path) {
             return;
@@ -448,7 +456,7 @@ impl FileRegistry {
         )
     }
 
-    // Update a project file registry when a file is removed
+    // Update the file registry when a file is removed
     pub fn removed(&mut self, path: &Path) {
         if self.should_ignore(path) || self.did_refresh(path) {
             return;
@@ -465,7 +473,7 @@ impl FileRegistry {
         FileEvent::publish(&self.path, path, FileEventType::Removed, None, &self.files)
     }
 
-    // Update a project file registry when a file is renamed
+    // Update the file registry when a file is renamed
     pub fn renamed(&mut self, old_path: &Path, new_path: &Path) {
         if self.should_refresh(old_path) || self.should_refresh(new_path) {
             return self.refresh();
@@ -484,11 +492,13 @@ impl FileRegistry {
         // Move the file
         let file = match self.files.entry(old_path.into()) {
             Entry::Occupied(entry) => {
-                // Update it's path and parent properties, and the paths of
+                // Update it's path, name etc, and the paths of
                 // all it's descendants. Move the file from old to new path.
                 let mut file = entry.remove();
                 file.path = new_path.into();
-                file.parent = new_path.parent().map(|parent| parent.into());
+                file.name = File::name(new_path);
+                file.parent = File::parent(new_path);
+                file.format = File::format(new_path);
                 rename_children(&mut self.files, &mut file, old_path, new_path);
                 self.files.insert(new_path.into(), file.clone());
                 file
@@ -502,7 +512,7 @@ impl FileRegistry {
             }
         };
 
-        // Recursively rename children of a file
+        // Recursively rename children of a `File` (if it has `children` i.e. is a directory)
         fn rename_children(
             registry: &mut BTreeMap<PathBuf, File>,
             file: &mut File,
@@ -532,10 +542,12 @@ impl FileRegistry {
             }
         }
 
-        // Remove the old path from the old parent's children
-        if let Some(parent) = self.files.get_mut(old_path) {
-            if let Some(children) = &mut parent.children {
-                children.remove(old_path);
+        // Remove the old path from the old path's parent's children
+        if let Some(parent_path) = old_path.parent() {
+            if let Some(parent) = self.files.get_mut(parent_path) {
+                if let Some(children) = &mut parent.children {
+                    children.remove(old_path);
+                }
             }
         }
 
@@ -551,7 +563,7 @@ impl FileRegistry {
         )
     }
 
-    // Update a project file registry when a file is modified
+    // Update the file registry when a file is modified
     pub fn modified(&mut self, path: &Path) {
         if self.should_ignore(path) || self.did_refresh(path) {
             return;
