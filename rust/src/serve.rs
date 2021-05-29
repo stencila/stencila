@@ -1,8 +1,7 @@
 use crate::{
     documents::Documents,
     jwt,
-    protocols::Protocol,
-    rpc::{Error, Request, Response},
+    rpc::{Error, Protocol, Request, Response},
     utils::urls,
 };
 use eyre::{bail, Result};
@@ -115,7 +114,7 @@ struct Viewer;
 /// # #![recursion_limit = "256"]
 /// use std::sync::{Arc, Mutex};
 /// use stencila::documents::Documents;
-/// use stencila::protocols::Protocol;
+/// use stencila::rpc::Protocol;
 /// use stencila::serve::serve_on;
 ///
 /// serve_on(

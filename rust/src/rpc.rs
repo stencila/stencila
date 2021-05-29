@@ -1,6 +1,18 @@
 use crate::nodes::Node;
 use eyre::Result;
 use serde::{Deserialize, Serialize};
+use strum::{Display, EnumString, EnumVariantNames};
+
+#[derive(Debug, Display, EnumString, EnumVariantNames, PartialEq)]
+#[strum(serialize_all = "lowercase")]
+pub enum Protocol {
+    #[cfg(any(feature = "request-stdio", feature = "serve-stdio"))]
+    Stdio,
+    #[cfg(any(feature = "request-http", feature = "serve-http"))]
+    Http,
+    #[cfg(any(feature = "request-ws", feature = "serve-ws"))]
+    Ws,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GenericRequest<P> {

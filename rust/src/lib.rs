@@ -61,8 +61,7 @@ pub mod serve;
 
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod jwt;
-#[cfg(any(feature = "request", feature = "serve"))]
-pub mod protocols;
+
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod rpc;
 
