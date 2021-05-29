@@ -93,7 +93,7 @@ pub enum Command {
 }
 
 /// Run a command
-#[tracing::instrument(skip(documents, config))]
+#[tracing::instrument(skip(documents, projects, config))]
 pub async fn run_command(
     interactive: bool,
     command: Command,
@@ -626,7 +626,7 @@ mod interact {
     }
 
     /// Run the interactive REPL
-    #[tracing::instrument(skip(documents, config))]
+    #[tracing::instrument(skip(documents, projects, config))]
     pub async fn run(
         prefix: Vec<String>,
         formats: &[String],
