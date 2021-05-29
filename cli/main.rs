@@ -4,7 +4,6 @@ use std::{env, path::Path};
 use stencila::{
     config, documents,
     eyre::{bail, Error, Result},
-    inspect,
     logging::{
         self,
         config::{LoggingConfig, LoggingStdErrConfig},
@@ -77,7 +76,6 @@ pub enum Command {
 
     // Commands defined in the `stencila` library
     //
-
     Serve(serve::cli::Args),
 
     #[structopt(aliases = &["document", "docs", "doc"])]
@@ -92,8 +90,6 @@ pub enum Command {
     Config(config::cli::Command),
 
     Upgrade(upgrade::cli::Args),
-
-    Inspect(inspect::cli::Args),
 }
 
 /// Run a command
@@ -126,7 +122,6 @@ pub async fn run_command(
             display::render(interactive, formats, config::cli::run(command, config)?)
         }
         Command::Upgrade(args) => upgrade::cli::run(args, &config.upgrade).await,
-        Command::Inspect(args) => inspect::cli::run(args).await,
     }
 }
 
@@ -176,7 +171,11 @@ impl OpenCommand {
 
         // Generate a key and a login URL
         let key = serve::generate_key();
-        let login_url = serve::login_url(&key, Some(60), doc_path.map(|path| path.display().to_string()))?;
+        let login_url = serve::login_url(
+            &key,
+            Some(60),
+            doc_path.map(|path| path.display().to_string()),
+        )?;
 
         // Open browser at the login page and start serving
         webbrowser::open(login_url.as_str())?;
@@ -695,10 +694,9 @@ mod interact {
                                 formats.into()
                             };
 
-                            if let Err(error) = run_command(
-                                true, command, &formats, documents, projects, config,
-                            )
-                            .await
+                            if let Err(error) =
+                                run_command(true, command, &formats, documents, projects, config)
+                                    .await
                             {
                                 print_error(error);
                             };

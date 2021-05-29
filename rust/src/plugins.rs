@@ -1714,6 +1714,10 @@ pub mod cli {
         )]
         Aliases,
 
+        Methods(Methods),
+
+        Delegate(Delegate),
+
         #[structopt(
             about = "Get the JSON Schema for plugins",
             setting = structopt::clap::AppSettings::ColoredHelp
@@ -1843,15 +1847,14 @@ pub mod cli {
     }
 
     impl Methods {
-        pub async fn run(&self, plugins: &mut Plugins) -> Result<()> {
+        pub async fn run(&self, plugins: &mut Plugins) -> display::Result {
             let Methods { method } = self;
 
             let content = match method {
                 None => plugins.display_methods()?,
                 Some(method) => plugins.display_method(&method)?,
             };
-            println!("{}", content);
-            Ok(())
+            display::content("md", &content)
         }
     }
 
@@ -1876,7 +1879,7 @@ pub mod cli {
     }
 
     impl Delegate {
-        pub async fn run(&self, plugins: &mut Plugins) -> Result<()> {
+        pub async fn run(&self, plugins: &mut Plugins) -> display::Result {
             let Delegate {
                 method,
                 plugin,
@@ -1887,9 +1890,7 @@ pub mod cli {
                 Some(plugin) => plugins.delegate_to(&plugin, &method, &params).await?,
                 None => plugins.delegate(&method, &params).await?,
             };
-            println!("{}", serde_json::to_string_pretty(&result)?);
-
-            Ok(())
+            display::value(&result)
         }
     }
 
@@ -1988,6 +1989,8 @@ pub mod cli {
                 let md = plugins.display_aliases(aliases)?;
                 display::content("md", &md)
             }
+            Action::Methods(methods) => methods.run(plugins).await,
+            Action::Delegate(delegate) => delegate.run(plugins).await,
             Action::Schema => {
                 let value = Plugin::schema()?;
                 display::value(value)
