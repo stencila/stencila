@@ -275,9 +275,6 @@ pub async fn main() -> Result<()> {
     // Create document store
     let mut documents = documents::Documents::new();
 
-    // Load plugins
-    let mut plugins = plugins::Plugins::load()?;
-
     // Initialize projects
     let mut projects = projects::Projects::new();
 
@@ -320,7 +317,6 @@ pub async fn main() -> Result<()> {
                 &formats,
                 &mut documents,
                 &mut projects,
-                &mut plugins,
                 &mut config,
             )
             .await
@@ -630,13 +626,12 @@ mod interact {
     }
 
     /// Run the interactive REPL
-    #[tracing::instrument(skip(documents, plugins, config))]
+    #[tracing::instrument(skip(documents, config))]
     pub async fn run(
         prefix: Vec<String>,
         formats: &[String],
         documents: &mut documents::Documents,
         projects: &mut projects::Projects,
-        plugins: &mut plugins::Plugins,
         config: &mut config::Config,
     ) -> Result<()> {
         let history_file = config::dir(true)?.join("history.txt");
