@@ -1,5 +1,7 @@
 use crate::{
+    methods::Method,
     pubsub::{publish_progress, ProgressEvent},
+    request::{Client, ClientStdio},
     utils::schemas,
 };
 use bollard::{container::RemoveContainerOptions, models::CreateImageInfo};
@@ -22,7 +24,7 @@ use std::{
     sync::{Arc, Mutex, MutexGuard},
     thread,
 };
-use strum::{Display, EnumIter, EnumString, IntoEnumIterator};
+use strum::{Display, EnumIter, EnumString, IntoEnumIterator, VariantNames};
 
 /// Plugin installation method
 ///
@@ -1244,6 +1246,42 @@ impl Plugin {
         }
         Ok(())
     }
+
+    /// Serve a plugin and return a client that can be used to send it
+    /// JSON-RPC requests
+    #[tracing::instrument(skip(self))]
+    pub fn instance(&self) -> Result<PluginInstance> {
+        tracing::debug!("Serving plugin '{}'", self.name);
+
+        let installation = match self.installation {
+            Some(installation) => installation,
+            None => bail!("Plugin '{}' is not yet installed", self.name),
+        };
+
+        let client = match installation {
+            PluginInstallation::Link => {
+                // TODO warn the user that link is currently only available for
+                // node packages and/or implement for other languages
+                // TODO get `bin` from the NPM package.json
+                let path = Plugin::dir(&self.name)?
+                    .join("dist")
+                    .join("src")
+                    .join("index.js");
+                let command = format!("node {} serve", path.display())
+                    .split_whitespace()
+                    .map(str::to_string)
+                    .collect();
+                Client::Stdio(ClientStdio::new(command)?)
+            }
+            // TODO create clients for other plugin installations
+            _ => bail!("Not yet implemented"),
+        };
+
+        Ok(PluginInstance {
+            plugin: self.name.clone(),
+            client,
+        })
+    }
 }
 
 /// An in-memory store for an implementation of a method
@@ -1258,6 +1296,16 @@ struct MethodImplem {
     /// The plugin's JSON Schema compiled
     #[allow(dead_code)]
     compiled_schema: JSONSchema<'static>,
+}
+
+/// A record of a plugin instance
+#[derive(Debug, Serialize)]
+pub struct PluginInstance {
+    /// The name of the plugin that this is an instance of
+    plugin: String,
+
+    /// The client for the plugin
+    client: Client,
 }
 
 /// An in-memory store of plugins and the methods that they implement
@@ -1275,34 +1323,19 @@ pub struct Plugins {
     /// The plugins manifests
     pub plugins: HashMap<String, Plugin>,
 
-    /// The methods that are implemented by installed plugins
+    /// The methods that are implemented by plugins
     #[serde(skip)]
     methods: HashMap<String, Vec<MethodImplem>>,
-}
 
-/// In some cases it is necessary to clone the plugins store, e.g. when doing
-/// a background update in a separate thread. In these cases just clone the plugins
-/// info, not the derived methods.
-impl Clone for Plugins {
-    fn clone(&self) -> Self {
-        Plugins {
-            aliases: self.aliases.clone(),
-            registry: self.registry.clone(),
-            plugins: self.plugins.clone(),
-            methods: HashMap::new(),
-        }
-    }
+    /// The current instances of plugins
+    #[serde(skip)]
+    instances: HashMap<String, PluginInstance>,
 }
 
 impl Plugins {
-    /// Create an empty plugins store (mainly for testing)
-    pub fn empty() -> Self {
-        Plugins {
-            aliases: HashMap::new(),
-            registry: HashMap::new(),
-            plugins: HashMap::new(),
-            methods: HashMap::new(),
-        }
+    /// Create an empty plugins store
+    pub fn new() -> Self {
+        Self::default()
     }
 
     /// Load the registry, aliases, and any plugin manifests
@@ -1597,26 +1630,86 @@ impl Plugins {
 
     /// Delegate a method call to a particular plugin
     ///
-    /// Note that this function does not do any validation of parameters against
-    /// the plugin schema before sending a JSON-RPC request.
-    pub async fn delegate_to(
-        &self,
-        _plugin: &str,
-        _method: &str,
+    /// This function,
+    ///
+    /// - checks that there is a known plugin with the name
+    /// - if necessary creates an instance of the plugin
+    /// - delegates the call to that instance
+    #[tracing::instrument(skip(self, params))]
+    pub async fn delegate_to_plugin(
+        &mut self,
+        plugin: &str,
+        method: Method,
         params: &serde_json::Value,
     ) -> Result<serde_json::Value> {
-        // TODO Check if the plugin has an existing client and create one if necessary
-        Ok(params.clone())
+        tracing::debug!(
+            "Delegating method '{}' to plugin '{}'",
+            method.to_string(),
+            plugin
+        );
+
+        let plugin = match self.plugins.get(plugin) {
+            Some(plugin) => plugin,
+            None => bail!("Unknown plugin {}", plugin),
+        };
+
+        // Get or create instance for plugin
+        let instance = match self.instances.get_mut(&plugin.name) {
+            Some(instance) => instance,
+            None => {
+                let instance = plugin.instance()?;
+                self.instances.insert(plugin.name.clone(), instance);
+                self.instances.get_mut(&plugin.name).unwrap()
+            }
+        };
+
+        // "Call" the instance client
+        return instance.client.call(method, params).await;
     }
 
     /// Delegate a method call to any of the plugins
+    ///
+    /// This function,
+    ///
+    /// - checks that the method is implemented by at least one
+    ///   registered plugin
+    /// - finds the first plugin for which the provided
+    ///   parameters are valid for that method (with respect to the method's schema)
+    /// - delegates the call to that plugin
+    #[tracing::instrument(skip(self, params))]
     pub async fn delegate(
-        &self,
-        _method: &str,
+        &mut self,
+        method: Method,
         params: &serde_json::Value,
     ) -> Result<serde_json::Value> {
-        // TODO find a plugin with matching schema
-        Ok(params.clone())
+        tracing::debug!("Delegating method '{}'", method.to_string());
+
+        // Get the implementations for the method
+        let implems = match self.methods.get(&method.to_string()) {
+            Some(method) => method,
+            None => bail!(
+                "None of the registered plugins implement method '{}'",
+                method.to_string()
+            ),
+        };
+
+        // Find the first implementation for which the params validate against
+        // the method schema
+        let mut plugin: Option<String> = None;
+        for implem in implems {
+            if implem.compiled_schema.is_valid(params) {
+                plugin = Some(implem.plugin.clone());
+                break;
+            }
+        }
+
+        match plugin {
+            Some(plugin) => self.delegate_to_plugin(&plugin, method, params).await,
+            None => bail!(
+                "None of the registered plugins implement method '{}' with those parameter values",
+                method.to_string()
+            ),
+        }
     }
 }
 
@@ -1713,6 +1806,12 @@ pub mod cli {
             setting = structopt::clap::AppSettings::ColoredHelp
         )]
         Aliases,
+
+        #[structopt(
+            about = "List current plugin instances",
+            setting = structopt::clap::AppSettings::ColoredHelp
+        )]
+        Instances,
 
         Methods(Methods),
 
@@ -1866,12 +1965,11 @@ pub mod cli {
     )]
     pub struct Delegate {
         /// The method to call
-        #[structopt()]
-        pub method: String,
+        #[structopt(possible_values = Method::VARIANTS, case_insensitive = true)]
+        method: Method,
 
         /// The plugin to delegate to
-        #[structopt()]
-        pub plugin: Option<String>,
+        plugin: Option<String>,
 
         /// Method parameters (after `--`) as strings (e.g. `format=json`) or JSON (e.g. `node:='{"type":...}'`)
         #[structopt(raw(true))]
@@ -1879,16 +1977,16 @@ pub mod cli {
     }
 
     impl Delegate {
-        pub async fn run(&self, plugins: &mut Plugins) -> display::Result {
+        pub async fn run(self, plugins: &mut Plugins) -> display::Result {
             let Delegate {
                 method,
                 plugin,
                 params,
             } = self;
-            let params = crate::cli::args::params(params);
+            let params = crate::cli::args::params(&params);
             let result = match plugin {
-                Some(plugin) => plugins.delegate_to(&plugin, &method, &params).await?,
-                None => plugins.delegate(&method, &params).await?,
+                Some(plugin) => plugins.delegate_to_plugin(&plugin, method, &params).await?,
+                None => plugins.delegate(method, &params).await?,
             };
             display::value(&result)
         }
@@ -1989,6 +2087,7 @@ pub mod cli {
                 let md = plugins.display_aliases(aliases)?;
                 display::content("md", &md)
             }
+            Action::Instances => display::value(&plugins.instances),
             Action::Methods(methods) => methods.run(plugins).await,
             Action::Delegate(delegate) => delegate.run(plugins).await,
             Action::Schema => {

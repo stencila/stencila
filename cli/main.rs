@@ -312,14 +312,7 @@ pub async fn main() -> Result<()> {
                 // Remove the global args which can not be applied to each interactive line
                 .filter(|arg| !GLOBAL_ARGS.contains(&arg.as_str()))
                 .collect();
-            interact::run(
-                prefix,
-                &formats,
-                &mut documents,
-                &mut projects,
-                &mut config,
-            )
-            .await
+            interact::run(prefix, &formats, &mut documents, &mut projects, &mut config).await
         }
         #[cfg(not(feature = "interact"))]
         {
