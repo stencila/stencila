@@ -11,11 +11,11 @@ use std::path::Path;
 /// - `output`: The URL to export to
 /// - `format`: The format to export the node to.
 ///             Defaults to the URL's file extension. Falling back to JSON.
-pub fn export(node: Node, output: &str, format: Option<String>) -> Result<()> {
+pub async fn export(node: Node, output: &str, format: Option<String>) -> Result<()> {
     let format = format.unwrap_or_else(|| match Path::new(output).extension() {
         Some(ext) => ext.to_string_lossy().into(),
         None => "json".to_string(),
     });
-    let content = encode(node, &format)?;
+    let content = encode(node, &format).await?;
     write(&content, output)
 }

@@ -1,23 +1,24 @@
-use crate::nodes::Node;
+use crate::{nodes::Node, plugins};
 use eyre::Result;
 
 // Allow these for when no features are enabled
 #[allow(unused_variables, unreachable_code)]
-pub fn decode(content: String, format: &str) -> Result<Node> {
+pub async fn decode(content: &str, format: &str) -> Result<Node> {
     let node = match format {
         #[cfg(feature = "format-json")]
-        "json" => serde_json::from_str::<Node>(content.as_str())?,
+        "json" => serde_json::from_str::<Node>(content)?,
         #[cfg(feature = "format-yaml")]
-        "yaml" => serde_yaml::from_str::<Node>(content.as_str())?,
+        "yaml" => serde_yaml::from_str::<Node>(content)?,
         _ => {
             #[cfg(feature = "request")]
-            return super::delegate::delegate(
+            return plugins::delegate(
                 super::Method::Decode,
-                serde_json::json!({
+                &serde_json::json!({
                     "content": content,
                     "format": format
                 }),
-            );
+            )
+            .await;
 
             #[cfg(not(feature = "request"))]
             eyre::bail!("Unable to decode a node from format \"{}\"", from)
@@ -25,6 +26,7 @@ pub fn decode(content: String, format: &str) -> Result<Node> {
     };
     Ok(node)
 }
+
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod rpc {
     use super::*;
@@ -37,8 +39,8 @@ pub mod rpc {
         pub format: Option<String>,
     }
 
-    pub fn decode(params: Params) -> Result<Node> {
+    pub async fn decode(params: Params) -> Result<Node> {
         let Params { content, format } = params;
-        super::decode(content, &format.unwrap_or_else(|| "json".to_string()))
+        super::decode(&content, &format.unwrap_or_else(|| "json".to_string())).await
     }
 }

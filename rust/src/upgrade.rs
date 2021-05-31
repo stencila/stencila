@@ -63,7 +63,7 @@ pub async fn upgrade(
     .map_err(|_| eyre!("Error joining thread"))??;
 
     if include_plugins {
-        plugins::Plugin::upgrade_all(&mut *plugins::lock()).await?;
+        plugins::Plugin::upgrade_all(&mut *plugins::lock().await).await?;
     }
 
     Ok(())

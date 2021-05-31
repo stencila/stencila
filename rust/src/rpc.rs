@@ -47,10 +47,12 @@ impl Request {
         }
     }
 
-    pub fn dispatch(self) -> Result<Node> {
+    pub async fn dispatch(self) -> Result<Node> {
         match self {
-            Request::Decode(request) => crate::methods::decode::rpc::decode(request.params),
-            Request::Execute(request) => crate::methods::execute::rpc::execute(request.params),
+            Request::Decode(request) => crate::methods::decode::rpc::decode(request.params).await,
+            Request::Execute(request) => {
+                crate::methods::execute::rpc::execute(request.params).await
+            }
         }
     }
 }

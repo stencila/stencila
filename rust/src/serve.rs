@@ -185,7 +185,7 @@ pub async fn serve_on(
             while let Some(line) = lines.next_line().await? {
                 // TODO capture any json errors and send
                 let request = serde_json::from_str::<Request>(&line)?;
-                let response = respond(request);
+                let response = respond(request).await;
                 let json = serde_json::to_string(&response)? + "\n";
                 // TODO: unwrap any of these errors and log them
                 stdout.write_all(json.as_bytes()).await?;
@@ -217,17 +217,20 @@ pub async fn serve_on(
                 .and(authorize())
                 .map(get_handler);
 
+            // The following POST routes are temporarily disabled
+            // pending working out how to make them async.
+
             let post = warp::post()
                 .and(warp::path::end())
                 .and(warp::body::json::<Request>())
                 .and(authorize())
-                .map(post_handler);
+                .and_then(post_handler);
 
             let post_wrap = warp::post()
                 .and(warp::path::param())
                 .and(warp::body::json::<serde_json::Value>())
                 .and(authorize())
-                .map(post_wrap_handler);
+                .and_then(post_wrap_handler);
 
             let ws = warp::path::end().and(warp::ws()).map(ws_handler);
 
@@ -519,17 +522,20 @@ fn get_handler(
 }
 
 /// Handle a HTTP `POST /` request
-fn post_handler(request: Request, _claims: jwt::Claims) -> impl warp::Reply {
-    let response = respond(request);
-    warp::reply::json(&response)
+async fn post_handler(
+    request: Request,
+    _claims: jwt::Claims,
+) -> Result<impl warp::Reply, std::convert::Infallible> {
+    let response = respond(request).await;
+    Ok(warp::reply::json(&response))
 }
 
 /// Handle a HTTP `POST /<method>` request
-fn post_wrap_handler(
+async fn post_wrap_handler(
     method: String,
     params: serde_json::Value,
     _claims: jwt::Claims,
-) -> impl warp::Reply {
+) -> Result<impl warp::Reply, std::convert::Infallible> {
     use warp::reply;
 
     // Wrap the method and parameters into a request
@@ -540,18 +546,18 @@ fn post_wrap_handler(
     let request = match request {
         Ok(request) => request,
         Err(error) => {
-            return reply::with_status(
+            return Ok(reply::with_status(
                 reply::json(&serde_json::json!({
                     "message": error.to_string()
                 })),
                 StatusCode::BAD_REQUEST,
-            )
+            ))
         }
     };
 
     // Unwrap the response into results or error message
-    let Response { result, error, .. } = respond(request);
-    match result {
+    let Response { result, error, .. } = respond(request).await;
+    let reply = match result {
         Some(result) => reply::with_status(reply::json(&result), StatusCode::OK),
         None => match error {
             Some(error) => reply::with_status(reply::json(&error), StatusCode::BAD_REQUEST),
@@ -562,7 +568,8 @@ fn post_wrap_handler(
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
         },
-    }
+    };
+    Ok(reply)
 }
 
 /// Handle a Websocket connection
@@ -607,9 +614,9 @@ async fn rejection_handler(
 ///
 /// Optionally pass a dispatching closure which dispatches the requested method
 /// and parameters to a function that returns a result.
-fn respond(request: Request) -> Response {
+async fn respond(request: Request) -> Response {
     let id = request.id();
-    match request.dispatch() {
+    match request.dispatch().await {
         Ok(node) => Response::new(id, Some(node), None),
         Err(error) => Response::new(id, None, Some(error)),
     }

@@ -1,5 +1,15 @@
-use crate::nodes::Node;
+use crate::{nodes::Node, plugins};
 use eyre::Result;
+
+// Allow these for when no features are enabled
+#[allow(unused_variables, unreachable_code)]
+pub async fn execute(node: Node) -> Result<Node> {
+    #[cfg(feature = "request")]
+    return plugins::delegate(super::Method::Execute, &serde_json::json!({ "node": node })).await;
+
+    #[cfg(not(feature = "request"))]
+    eyre::bail!("Unable to execute node")
+}
 
 #[cfg(any(feature = "request", feature = "serve"))]
 pub mod rpc {
@@ -11,18 +21,8 @@ pub mod rpc {
         pub node: Node,
     }
 
-    pub fn execute(params: Params) -> Result<Node> {
+    pub async fn execute(params: Params) -> Result<Node> {
         let Params { node } = params;
-        super::execute(node)
+        super::execute(node).await
     }
-}
-
-// Allow these for when no features are enabled
-#[allow(unused_variables, unreachable_code)]
-pub fn execute(node: Node) -> Result<Node> {
-    #[cfg(feature = "request")]
-    return super::delegate::delegate(super::Method::Execute, serde_json::json!({ "node": node }));
-
-    #[cfg(not(feature = "request"))]
-    eyre::bail!("Unable to execute node")
 }

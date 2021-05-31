@@ -1,9 +1,8 @@
+use crate::nodes::Node;
 use eyre::{bail, Result};
 use jsonschema::JSONSchema;
 use once_cell::sync::Lazy;
 use serde_json::{json, Value};
-
-use crate::nodes::Node;
 
 pub fn validate(node: Node) -> Result<Node> {
     static SCHEMA: Lazy<Value> = Lazy::new(|| json!({ "maxLength": 5, "pattern": "aaa" }));

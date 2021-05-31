@@ -31,8 +31,6 @@ pub mod methods {
     pub mod validate;
 
     pub mod execute;
-
-    pub mod delegate;
 }
 
 // Features

@@ -4,10 +4,10 @@ use crate::{
 };
 use neon::{prelude::*, result::Throw};
 use std::str::FromStr;
-use std::sync::MutexGuard;
 use stencila::{
     config::Config,
     plugins::{self, Plugin, PluginInstallation, Plugins, PLUGINS},
+    tokio::sync::MutexGuard,
 };
 
 /// Lock the global plugins store

@@ -1,5 +1,6 @@
 use crate::{
     methods::Method,
+    nodes::Node,
     pubsub::{publish_progress, ProgressEvent},
     request::{Client, ClientStdio},
     utils::{self, schemas},
@@ -21,10 +22,11 @@ use std::{
     fs,
     path::PathBuf,
     process::{Command, Stdio},
-    sync::{Arc, Mutex, MutexGuard},
+    sync::Arc,
     thread,
 };
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator, VariantNames};
+use tokio::sync::{Mutex, MutexGuard};
 
 /// Plugin installation method
 ///
@@ -1845,8 +1847,17 @@ pub static PLUGINS: Lazy<Arc<Mutex<Plugins>>> =
     Lazy::new(|| Arc::new(Mutex::new(Plugins::load().expect("Unable to load plugins"))));
 
 /// Lock the global plugins store
-pub fn lock() -> MutexGuard<'static, Plugins> {
-    PLUGINS.lock().expect("Unable to lock PLUGINS")
+pub async fn lock() -> MutexGuard<'static, Plugins> {
+    PLUGINS.lock().await
+}
+
+/// Delegate a method call to a plugin
+///
+/// This is a convenience function that locks the global
+/// `PLUGINS` store and delegates a call to it.
+pub async fn delegate(method: Method, params: &serde_json::Value) -> Result<Node> {
+    let mut plugins = lock().await;
+    plugins.delegate(method, params).await
 }
 
 #[cfg(feature = "config")]
@@ -2121,7 +2132,7 @@ pub mod cli {
             installations,
         } = config;
 
-        let plugins = &mut *lock();
+        let plugins = &mut *lock().await;
 
         match action {
             Action::List => {

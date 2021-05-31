@@ -1,9 +1,9 @@
-use crate::nodes::Node;
+use crate::{nodes::Node, plugins};
 use eyre::Result;
 
 // Allow these for when no features are enabled
 #[allow(unused_variables, unreachable_code)]
-pub fn encode(node: Node, format: &str) -> Result<String> {
+pub async fn encode(node: Node, format: &str) -> Result<String> {
     let content = match format {
         #[cfg(feature = "format-json")]
         "json" => serde_json::to_string(&node)?,
@@ -12,13 +12,14 @@ pub fn encode(node: Node, format: &str) -> Result<String> {
         _ => {
             #[cfg(feature = "request")]
             {
-                let node = super::delegate::delegate(
+                let node = plugins::delegate(
                     super::Method::Encode,
-                    serde_json::json!({
+                    &serde_json::json!({
                         "node": node,
                         "format": format,
                     }),
-                )?;
+                )
+                .await?;
                 // Delegate returns a node so always convert it to a string
                 return Ok(node.to_string());
             };
@@ -42,8 +43,8 @@ pub mod rpc {
         pub format: Option<String>,
     }
 
-    pub fn encode(params: Params) -> Result<String> {
+    pub async fn encode(params: Params) -> Result<String> {
         let Params { node, format } = params;
-        super::encode(node, &format.unwrap_or_else(|| "json".to_string()))
+        super::encode(node, &format.unwrap_or_else(|| "json".to_string())).await
     }
 }
