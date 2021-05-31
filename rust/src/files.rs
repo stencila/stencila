@@ -339,11 +339,7 @@ impl FileRegistry {
     /// Is the file a Git ignore file?
     fn is_ignore_file(path: &Path) -> bool {
         let name = File::name(path);
-        if FileRegistry::GITIGNORE_NAMES.contains(&name.as_str()) {
-            true
-        } else {
-            false
-        }
+        FileRegistry::GITIGNORE_NAMES.contains(&name.as_str())
     }
 
     /// Should a path be ignored?
