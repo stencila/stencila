@@ -1,3 +1,24 @@
+# [0.71.0](https://github.com/stencila/stencila/compare/v0.70.0...v0.71.0) (2021-05-31)
+
+
+### Bug Fixes
+
+* **CLI:** Don't show projects in traces ([3ab04c6](https://github.com/stencila/stencila/commit/3ab04c689c6263f07679a87ee56660cc258ea13f))
+* **dependencies:** update rust crate handlebars to v4 ([a2cb4c2](https://github.com/stencila/stencila/commit/a2cb4c2728fb4747b82f6614e3bfcfc30ad1283a))
+* **dependencies:** update rust crate linya to 0.2.0 ([800ae2a](https://github.com/stencila/stencila/commit/800ae2a513b8c0aca4f092fc91fda607f0babf4d))
+* **dependencies:** update rust crate stencila-schema to 1.7.2 ([9acd4f4](https://github.com/stencila/stencila/commit/9acd4f4c580a1f908419370d11226deee49e73a3))
+* **dependencies:** update rust crate termimad to 0.10.3 ([9d8ea01](https://github.com/stencila/stencila/commit/9d8ea01ef941a2ba946c0197675ed572e3fd25af))
+* **dependencies:** update rust crate tokio to 1.6.1 ([a85a67c](https://github.com/stencila/stencila/commit/a85a67c07b6f1669628a0a633ff12cc73818b738))
+* **Documents:** Publish encoded event from load; fix Node.js test ([5e0c888](https://github.com/stencila/stencila/commit/5e0c888b9f767f1bfb6d46741e351a376f5a360b))
+* **Plugins:** Error on bad status and log as warning ([d69283d](https://github.com/stencila/stencila/commit/d69283d1212740990b31fda84fb30aaca865175c))
+* **Project files:** Refresh name and format and remove old path from parent when renaming a file or folder ([69546e3](https://github.com/stencila/stencila/commit/69546e3395df26568477a828a5e1d3fa5ace3d6f))
+
+
+### Features
+
+* **Plugins:** Delegate method calls to plugins ([2203914](https://github.com/stencila/stencila/commit/22039141e8ffa51bc6764188c1d7ef874c6d406a))
+* **Plugins:** Plugin clients for Javascript plugins (installed and linked) ([a4d2a83](https://github.com/stencila/stencila/commit/a4d2a830de1cdc13d144e7c5730039a0882fcecd))
+
 # [0.70.0](https://github.com/stencila/stencila/compare/v0.69.0...v0.70.0) (2021-05-28)
 
 
