@@ -11,7 +11,6 @@ use std::{
     env, fs,
     io::Write,
     path::{Path, PathBuf},
-    process::Command,
     sync::{
         mpsc::{channel, TryRecvError},
         Arc, Mutex, MutexGuard,
@@ -231,17 +230,43 @@ impl Document {
             self.format = Some(format)
         }
 
+        // To decode the content we need to know, or assume, its format
+        let format = match &self.format {
+            Some(format) => format.as_str(),
+            None => "txt",
+        };
+
         // Import the content into the root of the document
-        if let Some(format) = self.format.clone() {
-            if format == "json" {
-                self.root = serde_json::from_str(&self.content)?
-            }
-        }
+        // TODO: call the `decode` method with `self.content`
+        let node = if format == "json" {
+            serde_json::from_str(&self.content)?
+        } else {
+            serde_json::json!({
+                "type": "Article",
+                "content": [
+                    {
+                        "type": "Paragraph",
+                        "content": [
+                            "This is a temporary representation of the document until async decoding is implemented".to_string()
+                        ]
+                    },
+                    {
+                        "type": "Paragraph",
+                        "content": [
+                            self.content.clone()
+                        ]
+                    },
+                ]
+            })
+        };
+        self.root = serde_json::from_value(node)?;
 
         // Encode to each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {
             if let Some(format) = subscription.strip_prefix("encoded:") {
-                match self.encode(format) {
+                // TODO: call the `encode` method with `self.root`
+                let json = serde_json::to_string_pretty(&self.root);
+                match json {
                     Ok(content) => {
                         // Publish an event for this encoding
                         DocumentEvent::publish(
@@ -283,58 +308,6 @@ impl Document {
         Ok(self)
     }
 
-    /// Encode the document's content to another format
-    ///
-    /// In contrast to `convert()`, this does not rely on the presence of the file
-    /// on the file system. It converts the current in-memory `root` node of the document
-    /// to some other format and does not touch the file system.
-    /// Intended mainly for in-application display of the document in alternative formats.
-    fn encode(&self, format: &str) -> Result<String> {
-        // Shortcut encoding to JSON
-        if format == "json" {
-            if let Some(node) = &self.root {
-                return Ok(serde_json::to_string(node)?);
-            }
-        }
-
-        // TODO: replace this use of temp files and convert with delegation of `encode` call
-        let input = env::temp_dir().join(uuids::generate(uuids::Family::File));
-        fs::write(input, self.content.clone())?;
-        let output = env::temp_dir().join(uuids::generate(uuids::Family::File));
-        self.convert(&output.display().to_string(), Some(format.into()))?;
-        let content = fs::read_to_string(output)?;
-
-        Ok(content)
-    }
-
-    /// Convert the document's file to another format
-    fn convert(&self, output: &str, format: Option<String>) -> Result<()> {
-        let mut command = Command::new("encoda");
-        command
-            .arg("convert")
-            .arg(self.path.display().to_string())
-            .arg(output);
-
-        if let Some(from) = self.format.clone() {
-            command.arg(format!("--from={}", from));
-        }
-
-        if let Some(to) = format {
-            command.arg(format!("--to={}", to));
-        }
-
-        let output = command.output()?;
-        if !output.status.success() {
-            bail!(
-                "While attempting to convert: {} {}",
-                String::from_utf8_lossy(&output.stdout),
-                String::from_utf8_lossy(&output.stderr)
-            )
-        } else {
-            Ok(())
-        }
-    }
-
     /// Save the document to another file, possibly in another format
     ///
     /// # Arguments
@@ -345,6 +318,7 @@ impl Document {
     ///
     /// Note: this does not change the `path` or `format` of the current
     /// document.
+    #[cfg(ignore)]
     fn save_as(&self, path: &str, format: Option<String>) -> Result<()> {
         let mut file = fs::File::create(path)?;
         file.write_all(self.dump(format)?.as_bytes())?;
@@ -736,8 +710,9 @@ pub mod cli {
                 from,
                 to,
             } = self;
-            let document = documents.open(input, from.clone())?;
-            document.convert(output, to.clone())?;
+            let _document = documents.open(input, from.clone())?;
+            todo!("convert to {} as format {:?}", output, to);
+            #[allow(unreachable_code)]
             display::nothing()
         }
     }

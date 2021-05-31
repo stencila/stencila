@@ -43,8 +43,11 @@ export class AppDocumentPreview {
       <Host>
         <div
           class="app-document-preview"
-          innerHTML={this.previewContents}
-        ></div>
+        >
+          <p>Temporary: JSON preview of document content</p>
+          <pre innerHTML={this.previewContents}>
+          </pre>
+        </div>
       </Host>
     )
   }
