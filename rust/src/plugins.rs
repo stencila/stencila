@@ -2,7 +2,7 @@ use crate::{
     methods::Method,
     pubsub::{publish_progress, ProgressEvent},
     request::{Client, ClientStdio},
-    utils::schemas,
+    utils::{self, schemas},
 };
 use bollard::{container::RemoveContainerOptions, models::CreateImageInfo};
 use chrono::{DateTime, Duration, TimeZone, Utc};
@@ -367,8 +367,10 @@ impl Plugin {
                     false,
                     true,
                 ),
-                PluginInstallation::Javascript => Plugin::install_js(&plugin, owner, name, version),
-                PluginInstallation::Python => Plugin::install_py(&plugin, name, version),
+                PluginInstallation::Javascript => {
+                    Plugin::install_javascript(&plugin, owner, name, version)
+                }
+                PluginInstallation::Python => Plugin::install_python(&plugin, name, version),
                 PluginInstallation::R => Plugin::install_r(&plugin, name, version),
                 PluginInstallation::Link => Plugin::install_link(spec),
             };
@@ -434,7 +436,7 @@ impl Plugin {
     /// Installs the package within the `plugins/node_modules` directory so that it
     /// is not necessary to run as root (the NPM `--global` flag requires sudo).
     #[cfg(any(feature = "plugins-javascript"))]
-    pub fn install_js(
+    pub fn install_javascript(
         plugin: &Option<Plugin>,
         owner: &str,
         name: &str,
@@ -494,10 +496,15 @@ impl Plugin {
                     let bin = node_modules.join(".bin").join(&name).display().to_string();
                     tracing::debug!("Obtaining manifest from {}", bin);
 
-                    let mut plugin =
-                        Plugin::load_from_command(Command::new("node").arg(bin).arg("manifest"))?;
+                    let mut plugin = Plugin::load_from_command(
+                        Command::new("node").arg(bin.clone()).arg("manifest"),
+                    )?;
                     plugin.installation = Some(PluginInstallation::Javascript);
                     Plugin::replace(&name, &plugin)?;
+
+                    // Create link to the bin script for easier spawning of the plugin
+                    utils::fs::symlink_file(bin, Plugin::dir(&name)?.join(name))?;
+
                     Ok(plugin)
                 } else {
                     bail!(
@@ -535,7 +542,7 @@ impl Plugin {
     ///
     /// Installs the package globally for the user.
     #[cfg(any(feature = "plugins-python"))]
-    pub fn install_py(plugin: &Option<Plugin>, name: &str, version: &str) -> Result<Plugin> {
+    pub fn install_python(plugin: &Option<Plugin>, name: &str, version: &str) -> Result<Plugin> {
         // If this is a known, registered plugin then check that it can be installed
         // as a Python package and use declared package name.
         // Otherwise, use the name parsed from the spec.
@@ -1042,10 +1049,7 @@ impl Plugin {
 
         // Create the soft link
         let link = Plugin::dir(name)?;
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
-        std::os::unix::fs::symlink(path, link)?;
-        #[cfg(target_os = "windows")]
-        std::os::windows::fs::symlink_dir(path, link)?;
+        utils::fs::symlink_dir(path, link)?;
 
         Ok(plugin)
     }
@@ -1253,34 +1257,152 @@ impl Plugin {
     pub fn instance(&self) -> Result<PluginInstance> {
         tracing::debug!("Serving plugin '{}'", self.name);
 
-        let installation = match self.installation {
-            Some(installation) => installation,
-            None => bail!("Plugin '{}' is not yet installed", self.name),
-        };
-
-        let client = match installation {
-            PluginInstallation::Link => {
-                // TODO warn the user that link is currently only available for
-                // node packages and/or implement for other languages
-                // TODO get `bin` from the NPM package.json
-                let path = Plugin::dir(&self.name)?
-                    .join("dist")
-                    .join("src")
-                    .join("index.js");
-                let command = format!("node {} serve", path.display())
-                    .split_whitespace()
-                    .map(str::to_string)
-                    .collect();
-                Client::Stdio(ClientStdio::new(command)?)
-            }
-            // TODO create clients for other plugin installations
-            _ => bail!("Not yet implemented"),
-        };
+        let client = self.client()?;
 
         Ok(PluginInstance {
             plugin: self.name.clone(),
             client,
         })
+    }
+
+    /// Create a client for a plugin based on its installation
+    fn client(&self) -> Result<Client> {
+        let installation = match self.installation {
+            Some(installation) => installation,
+            None => bail!("Plugin '{}' is not yet installed", self.name),
+        };
+
+        let name = self.name.as_str();
+        match installation {
+            PluginInstallation::Docker => Plugin::client_docker(name),
+            PluginInstallation::Binary => Plugin::client_binary(name),
+            PluginInstallation::Javascript => Plugin::client_javascript(name, installation),
+            PluginInstallation::Python => Plugin::client_python(name),
+            PluginInstallation::R => Plugin::client_r(name),
+            PluginInstallation::Link => Plugin::client_link(name),
+        }
+    }
+
+    /// Create a client for a Docker installation of a plugin
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: The name of the plugin
+    fn client_docker(_name: &str) -> Result<Client> {
+        todo!("support for Docker plugin clients")
+    }
+
+    /// Create a client for a binary installation of a plugin
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: The name of the plugin
+    fn client_binary(name: &str) -> Result<Client> {
+        let binary_path = Plugin::dir(name)?.join(&name);
+        let command = vec![binary_path.display().to_string(), "serve".to_string()];
+        Ok(Client::Stdio(ClientStdio::new(command)?))
+    }
+
+    /// Create a client for a JavaScript package installation of a plugin
+    ///
+    /// Gets the `bin` path of a Javascript package and runs `node` on it.
+    /// For installed Javascript packages uses the symlink created at the time
+    /// of install.
+    /// For linked Javascript packages, gets the `package.json` file of the package,
+    /// and extracts its `bin` property.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: The name of the plugin
+    /// - `installation`: The installation method for the plugin (should be `Javascript` or `Link`)
+    fn client_javascript(name: &str, installation: PluginInstallation) -> Result<Client> {
+        let dir = Plugin::dir(name)?;
+        let bin = match installation {
+            PluginInstallation::Javascript => name.to_string(),
+            PluginInstallation::Link => {
+                let json = match fs::read_to_string(dir.join("package.json")) {
+                    Ok(json) => json,
+                    Err(error) => bail!(
+                        "Unable to read package.json file for plugin '{}': {}",
+                        name,
+                        error
+                    ),
+                };
+
+                let package: HashMap<String, serde_json::Value> = match serde_json::from_str(&json)
+                {
+                    Ok(package) => package,
+                    Err(error) => bail!(
+                        "While parsing `package.json` file for plugin '{}': {}",
+                        name,
+                        error
+                    ),
+                };
+
+                let bin = match package.get("bin") {
+                    Some(bin) => bin,
+                    None => bail!(
+                        "The package.json file for plugin '{}' appears to be missing a `bin` entry",
+                        name
+                    ),
+                };
+
+                let bin = match bin {
+                    serde_json::Value::String(bin) => &bin,
+                    serde_json::Value::Object(obj) => {
+                        match obj.get(name) {
+                            Some(bin) => bin.as_str().ok_or_else(|| eyre!("The `{}` property of the `bin` property of the `package.json` file for plugin '{}' should be a string", name, name))?,
+                            None => bail!("The `bin` property of the `package.json` file for plugin '{}' does not have an '{}' entry", name, name)
+                        }
+                    },
+                    _ => bail!("Unexpected value type for the `bin` property of the `package.json` file for plugin '{}'", name)
+                };
+
+                bin.to_string()
+            }
+            _ => bail!("Unexpected plugin installation type `{}`", installation),
+        };
+
+        let bin = dir.join(bin).display().to_string();
+
+        let command = vec!["node".to_string(), bin, "serve".to_string()];
+        Ok(Client::Stdio(ClientStdio::new(command)?))
+    }
+
+    /// Create a client for a Python package installation of a plugin
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: The name of the plugin
+    fn client_python(_name: &str) -> Result<Client> {
+        todo!("support for Python package clients")
+    }
+
+    /// Create a client for a R package installation of a plugin
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: The name of the plugin
+    fn client_r(_name: &str) -> Result<Client> {
+        todo!("support for R package clients")
+    }
+
+    /// Create a client for a link installation of a plugin
+    ///
+    /// Inspects the symlinked folder to try to determine the type of plugin
+    /// that is linked to e.g. `javascript` or `python`. Then dispatches to
+    /// the appropriate `client_xxx` method e.g `client_javascript`.
+    ///
+    /// # Arguments
+    ///
+    /// - `name`: The name of the plugin
+    fn client_link(name: &str) -> Result<Client> {
+        let dir = Plugin::dir(name)?;
+        if dir.join("package.json").exists() {
+            Plugin::client_javascript(name, PluginInstallation::Link)
+        } else {
+            todo!("Unable to create a client for linked plugin '{}'. Please create an issue at https://github.com/stencila/stencila if you would like this implemented.", name)
+        }
     }
 }
 

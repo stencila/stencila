@@ -204,8 +204,16 @@ impl ClientTrait for ClientStdio {
             }
         }
 
+        if let Some(logger) = &mut self.logger {
+            if let Some(line) = logger.lines().next_line().await? {
+                tracing::debug!("Received log entry: {:?}", line);
+            }
+        }
+
         let response = Response {
-            error: Some(Error::server_error("Errored")),
+            error: Some(Error::server_error(
+                "Did not get a response from the stdio server",
+            )),
             ..Default::default()
         };
         Ok(response)

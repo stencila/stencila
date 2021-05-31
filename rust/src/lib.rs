@@ -72,6 +72,7 @@ pub mod pubsub;
 // Usually just small functions that are often wrappers around other crates.
 
 pub mod utils {
+    pub mod fs;
     pub mod schemas;
     pub mod urls;
     pub mod uuids;
