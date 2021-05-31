@@ -1436,9 +1436,9 @@ checksum = "7fb9b38af92608140b86b693604b9ffcc5824240a484d1ecd4795bacb2fe88f3"
 
 [[package]]
 name = "linya"
-version = "0.1.1"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17da0877fe876f8ad44acb54efc37f069db25d66e93baa18367bc556eec0bdd2"
+checksum = "751b3c88843ff35cbe851ec7321ffd0b0f88035aba8cf4f75166e641cbc8e4ba"
 dependencies = [
  "terminal_size",
 ]
