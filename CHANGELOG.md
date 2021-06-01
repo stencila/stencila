@@ -1,3 +1,17 @@
+# [0.72.0](https://github.com/stencila/stencila/compare/v0.71.0...v0.72.0) (2021-06-01)
+
+
+### Bug Fixes
+
+* **Desktop:** Improve usability and legibility of tab close icon ([f47b582](https://github.com/stencila/stencila/commit/f47b582c62c9bc2188703c4684cc528bdac6989d))
+* **Tabs:** Fix width distribution of document tabs ([4dcaedb](https://github.com/stencila/stencila/commit/4dcaedbd92ff5643bb178bce2d453ed79038161a))
+* **Tabs:** Improve visibility of active document tab ([f788409](https://github.com/stencila/stencila/commit/f78840991efcc38e47de890278308af448f46822))
+
+
+### Features
+
+* **Desktop:** Support saving document changes to disk ([ea76aec](https://github.com/stencila/stencila/commit/ea76aecbab3dcac0d30a0363eb0d9689d2d6c85e))
+
 # [0.71.0](https://github.com/stencila/stencila/compare/v0.70.0...v0.71.0) (2021-05-31)
 
 

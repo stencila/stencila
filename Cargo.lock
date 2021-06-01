@@ -2305,11 +2305,10 @@ dependencies = [
 
 [[package]]
 name = "regex-automata"
-version = "0.1.9"
+version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae1ded71d66a4a97f5e961fd0cb25a5f366a42a41570d16a763a69c092c26ae4"
+checksum = "6c230d73fb8d8c1b9c0b3135c5142a8acee3a0558fb8db5cf1cb65f8d7862132"
 dependencies = [
- "byteorder",
  "regex-syntax",
 ]
 
@@ -2757,9 +2756,9 @@ dependencies = [
 
 [[package]]
 name = "signal-hook-registry"
-version = "1.3.0"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "16f1d0fef1604ba8f7a073c7e701f213e056707210e9020af4528e0101ce11a6"
+checksum = "e51e73328dc4ac0c7ccbda3a494dfa03df1de2f46018127f60c693f2648455b0"
 dependencies = [
  "libc",
 ]
@@ -2805,7 +2804,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "stencila"
-version = "0.71.0"
+version = "0.72.0"
 dependencies = [
  "ansi_term 0.12.1",
  "async-trait",
@@ -2859,7 +2858,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-cli"
-version = "0.71.0"
+version = "0.72.0"
 dependencies = [
  "ansi_term 0.12.1",
  "color-eyre",
@@ -2877,7 +2876,7 @@ dependencies = [
 
 [[package]]
 name = "stencila-node"
-version = "0.71.0"
+version = "0.72.0"
 dependencies = [
  "neon",
  "stencila",
@@ -2885,9 +2884,9 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.7.2"
+version = "1.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "751f77ba337d9455d2cf15b2ecf2a106fe4c1764360e3c67067151a1d63d4ee3"
+checksum = "69662c31013133f388b122e3249b39232cd0fbdd5aef76e1121e6abac157e47b"
 dependencies = [
  "chrono",
  "defaults",
