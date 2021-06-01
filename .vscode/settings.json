@@ -46,6 +46,8 @@
     "Pyla",
     "Rscript",
     "Stencila",
+    "itemscope",
+    "itemtype",
     "schemars",
     "structopt"
   ]
