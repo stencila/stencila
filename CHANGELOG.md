@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/stencila/schema/compare/v1.7.2...v1.7.3) (2021-06-01)
+
+
+### Bug Fixes
+
+* **Rust:** Improve primitive types ([98296aa](https://github.com/stencila/schema/commit/98296aad9be1cb5b7e32517aee1d7e034ed90848))
+
 ## [1.7.2](https://github.com/stencila/schema/compare/v1.7.1...v1.7.2) (2021-05-27)
 
 

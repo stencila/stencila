@@ -1,6 +1,6 @@
 [package]
 name = "stencila-schema"
-version = "1.7.2"
+version = "1.7.3"
 edition = "2018"
 description = "Rust bindings for Stencila Schema"
 authors = ["Nokome Bentley <nokome@stenci.la>"]
