@@ -2822,6 +2822,7 @@ dependencies = [
  "ignore",
  "jsonschema",
  "jsonwebtoken",
+ "maplit",
  "mime_guess",
  "nanoid",
  "notify",

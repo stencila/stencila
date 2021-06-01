@@ -109,6 +109,10 @@ pub struct Document {
     /// open in memory (e.g. if the `load` function sets a different format).
     format: Option<String>,
 
+    /// The root Stencila Schema node of the document
+    #[serde(skip)]
+    root: Option<CreativeWorkTypes>,
+
     /// The set of unique subscriptions to this document
     ///
     /// Keeps track of the number of subscribers to each of the document's
@@ -124,10 +128,6 @@ pub struct Document {
     ///   is changed internally or externally and  conversions have been
     ///   completed e.g. `encoded:html`
     subscriptions: HashMap<String, u32>,
-
-    /// The root Stencila Schema node of the document
-    #[serde(skip)]
-    root: Option<CreativeWorkTypes>,
 }
 
 impl Document {
@@ -135,8 +135,7 @@ impl Document {
     ///
     /// # Arguments
     ///
-    /// - `format`: The format of the document. Without this, it is
-    ///    not possible to provide previews.
+    /// - `format`: The format of the document.
     ///
     /// This function is intended to be used by editors when creating
     /// a new document. The created document will be `temporary: true`
@@ -149,6 +148,42 @@ impl Document {
             format,
             ..Default::default()
         }
+    }
+
+    /// Open a document from an existing file.
+    ///
+    /// # Arguments
+    ///
+    /// - `path`: the path of the file to create the document from
+    ///
+    /// - `format`: The format of the document. If `None` will be inferred from
+    ///             the file extension.
+    fn open(path: PathBuf, format: Option<String>) -> Result<Document> {
+        if path.is_dir() {
+            bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
+        }
+
+        let name = path
+            .file_name()
+            .map(|os_str| os_str.to_string_lossy())
+            .unwrap_or_else(|| "Untitled".into())
+            .into();
+
+        let format = format.or_else(|| {
+            path.extension()
+                .map(|ext| ext.to_string_lossy().to_lowercase())
+        });
+
+        let mut document = Document {
+            path: path.clone(),
+            name,
+            format,
+            temporary: false,
+            ..Default::default()
+        };
+        document.read()?;
+
+        Ok(document)
     }
 
     /// Add a subscriber to one of the document's topics
@@ -436,29 +471,7 @@ impl DocumentHandle {
     ///
     /// - `path`: the path of the file to create the document from
     fn open(path: PathBuf, format: Option<String>, watch: bool) -> Result<DocumentHandle> {
-        if path.is_dir() {
-            bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
-        }
-
-        let name = path
-            .file_name()
-            .map(|os_str| os_str.to_string_lossy())
-            .unwrap_or_else(|| "Untitled".into())
-            .into();
-
-        let format = format.or_else(|| {
-            path.extension()
-                .map(|ext| ext.to_string_lossy().to_lowercase())
-        });
-
-        let mut document = Document {
-            path: path.clone(),
-            name,
-            temporary: false,
-            ..Document::new(format)
-        };
-        document.read()?;
-
+        let document = Document::open(path.clone(), format)?;
         let document: Arc<Mutex<Document>> = Arc::new(Mutex::new(document));
 
         let watcher = if watch {
@@ -728,5 +741,51 @@ pub mod cli {
             let schema = schemas()?;
             display::value(schema)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use maplit::hashmap;
+
+    use super::*;
+
+    #[test]
+    fn document_new() {
+        let doc = Document::new(None);
+        assert!(doc.path.starts_with(env::temp_dir()));
+        assert!(doc.temporary);
+        assert!(doc.format.is_none());
+        assert_eq!(doc.content, "");
+        assert!(doc.root.is_none());
+        assert_eq!(doc.subscriptions, hashmap! {});
+
+        let doc = Document::new(Some("md".to_string()));
+        assert!(doc.path.starts_with(env::temp_dir()));
+        assert!(doc.temporary);
+        assert_eq!(doc.format.unwrap(), "md");
+        assert_eq!(doc.content, "");
+        assert!(doc.root.is_none());
+        assert_eq!(doc.subscriptions, hashmap! {});
+    }
+
+    #[test]
+    fn document_open() -> Result<()> {
+        let fixtures = &PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("fixtures")
+            .join("articles");
+
+        for file in vec!["elife-small.json", "era-plotly.json"] {
+            let doc = Document::open(fixtures.join(file), None)?;
+            assert!(doc.path.starts_with(fixtures));
+            assert!(!doc.temporary);
+            assert_eq!(doc.format.unwrap(), "json");
+            assert!(doc.content.len() > 0);
+            assert!(doc.root.is_some());
+            assert_eq!(doc.subscriptions, hashmap! {});
+        }
+
+        Ok(())
     }
 }
