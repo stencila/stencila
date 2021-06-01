@@ -244,7 +244,7 @@ export function unionSchemaToEnum(
   const variants = anyOf
     ?.map((schema) => {
       const name = schemaToType(schema, context)
-      return `    ${name}(${name}),\n`
+      return name === 'Null' ? `    ${name},\n` : `    ${name}(${name}),\n`
     })
     .join('')
 
@@ -288,7 +288,7 @@ function anyOfToEnum(anyOf: JsonSchema[], context: Context): string {
     .map((schema) => {
       const type = schemaToType(schema, context)
       const name = type.replace('<', '').replace('>', '')
-      return `    ${name}(${type}),\n`
+      return type === 'Null' ? name : `    ${name}(${type}),\n`
     })
     .join('')
 

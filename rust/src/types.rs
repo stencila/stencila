@@ -4904,7 +4904,7 @@ pub enum InlineContent {
     Subscript(Subscript),
     Superscript(Superscript),
     VideoObject(VideoObject),
-    Null(Null),
+    Null,
     Bool(Bool),
     Integer(Integer),
     Number(Number),
@@ -4949,7 +4949,7 @@ pub enum MediaObjectTypes {
 #[serde(untagged)]
 pub enum Node {
     Entity(Entity),
-    Null(Null),
+    Null,
     Bool(Bool),
     Integer(Integer),
     Number(Number),
