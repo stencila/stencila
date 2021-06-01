@@ -34,7 +34,13 @@ li {
 }
 
 stencila-icon {
-  @apply opacity-0;
+  @apply opacity-0 rounded-sm;
+
+  &:hover,
+  &:active {
+    color: var(--color-neutral-300);
+    background: var(--color-neutral-700);
+  }
 }
 
 a,
