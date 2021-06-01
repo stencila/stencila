@@ -1,4 +1,5 @@
 import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
+import { Keymap } from '@stencila/components/dist/types/components/editor/editor'
 import { DocumentEvent, File } from 'stencila'
 import { CHANNEL } from '../../../../preload'
 
@@ -59,6 +60,30 @@ export class AppDocumentEditor {
     }
   }
 
+  private saveDoc = () => {
+    this.editorRef
+      ?.getContents()
+      .then(({ text }) => {
+        window.api.invoke(CHANNEL.SAVE_DOCUMENT, {
+          filePath: this.filePath,
+          content: text,
+        })
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+  }
+
+  private keymap: Keymap[] = [
+    {
+      key: 'Mod-s',
+      run: () => {
+        this.saveDoc()
+        return true
+      },
+    },
+  ]
+
   componentDidLoad() {
     this.editorRef = this.el.querySelector('stencila-editor')
     this.subscribeToUpdates()
@@ -70,6 +95,7 @@ export class AppDocumentEditor {
         <div class="app-document-editor">
           <stencila-editor
             activeLanguage={this.fileFormatToLanguage()}
+            keymap={this.keymap}
           ></stencila-editor>
         </div>
       </Host>

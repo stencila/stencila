@@ -51,4 +51,11 @@ export const registerDocumentHandlers = () => {
       closeDocument(filePath)
     } catch (e) {}
   })
+
+  ipcMain.handle(
+    CHANNEL.SAVE_DOCUMENT,
+    async (_event, {filePath, content}: {filePath: string, content: string}) => {
+      documents.write(filePath, content)
+    }
+  )
 }
