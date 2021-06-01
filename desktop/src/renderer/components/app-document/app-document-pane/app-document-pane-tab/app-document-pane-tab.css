@@ -1,5 +1,5 @@
 :host {
-  @apply inline-block list-none h-full text-xs text-center pl-1 pr-4 py-2 leading-none flex-grow border;
+  @apply inline-block list-none h-full text-xs text-center pl-1 pr-4 py-2 leading-none flex-1 border;
   background: var(--color-neutral-300);
   color: var(--color-neutral-700);
   border-bottom-width: 1px;
