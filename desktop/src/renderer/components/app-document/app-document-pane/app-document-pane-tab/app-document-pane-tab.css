@@ -13,7 +13,8 @@
   }
 
   &.isActive {
-    border-bottom-color: var(--color-neutral-300);
+    background: var(--color-stock);
+    border-bottom-color: var(--color-stock);
     box-shadow: inset 0px 3px var(--color-brand);
   }
 
@@ -34,7 +35,7 @@ li {
 }
 
 stencila-icon {
-  @apply opacity-0 rounded-sm;
+  @apply opacity-0 rounded-sm mr-1;
 
   &:hover,
   &:active {
@@ -46,5 +47,5 @@ stencila-icon {
 a,
 a:link,
 a:visited {
-  @apply block no-underline whitespace-nowrap leading-none text-current flex-grow cursor-default;
+  @apply block no-underline whitespace-nowrap leading-none text-current flex-grow cursor-default pr-1;
 }
