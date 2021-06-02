@@ -2107,7 +2107,7 @@ pub struct ListItem {
     pub alternate_names: Option<Vec<String>>,
 
     /// The content of the list item.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<ListItemContent>,
 
     /// A description of the item.
     pub description: Option<ThingDescription>,
@@ -4328,6 +4328,14 @@ pub enum ListOrder {
     Ascending,
     Descending,
     Unordered,
+}
+
+/// Types permitted for the `content` property of a `ListItem` node.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ListItemContent {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
 }
 
 /// Types permitted for the `funders` property of a `MonetaryGrant` node.

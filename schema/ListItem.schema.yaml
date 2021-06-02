@@ -19,9 +19,13 @@ properties:
     '@id': stencila:content
     description: The content of the list item.
     $comment: Use either `content` or `item`, not both.
-    type: array
-    items:
-      $ref: Node
+    anyOf:
+      - type: array
+        items:
+          $ref: BlockContent
+      - type: array
+        items:
+          $ref: InlineContent
   isChecked:
     '@id': stencila:isChecked
     description: A flag to indicate if this list item is checked.

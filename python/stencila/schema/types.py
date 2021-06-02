@@ -2079,7 +2079,7 @@ class List(Entity):
 class ListItem(Thing):
     """A single item in a list."""
 
-    content: Optional[Array["Node"]] = None
+    content: Optional[Union[Array["BlockContent"], Array["InlineContent"]]] = None
     """The content of the list item."""
 
     isChecked: Optional[bool] = None
@@ -2095,7 +2095,7 @@ class ListItem(Thing):
     def __init__(
         self,
         alternateNames: Optional[Array[str]] = None,
-        content: Optional[Array["Node"]] = None,
+        content: Optional[Union[Array["BlockContent"], Array["InlineContent"]]] = None,
         description: Optional[Union[Array["BlockContent"], Array["InlineContent"], str]] = None,
         id: Optional[str] = None,
         identifiers: Optional[Array[Union["PropertyValue", str]]] = None,

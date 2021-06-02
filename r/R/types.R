@@ -2308,7 +2308,7 @@ ListItem <- function(
     url = url
   )
   self$type <- as_scalar("ListItem")
-  self[["content"]] <- check_property("ListItem", "content", FALSE, missing(content), Array(Node), content)
+  self[["content"]] <- check_property("ListItem", "content", FALSE, missing(content), Union(Array(BlockContent), Array(InlineContent)), content)
   self[["isChecked"]] <- check_property("ListItem", "isChecked", FALSE, missing(isChecked), "logical", isChecked)
   self[["item"]] <- check_property("ListItem", "item", FALSE, missing(item), Node, item)
   self[["position"]] <- check_property("ListItem", "position", FALSE, missing(position), "numeric", position)
@@ -4114,9 +4114,9 @@ Table <- function(
 #' A cell within a `Table`.
 #'
 #' @name TableCell
-#' @param content Contents of the table cell. \bold{Required}.
 #' @param cellType Indicates whether the cell is a header or data.
 #' @param colspan How many columns the cell extends.
+#' @param content Contents of the table cell.
 #' @param id The identifier for this item.
 #' @param meta Metadata associated with this item.
 #' @param name The name of the cell.
@@ -4125,9 +4125,9 @@ Table <- function(
 #' @seealso \code{\link{Entity}}
 #' @export
 TableCell <- function(
-  content,
   cellType,
   colspan,
+  content,
   id,
   meta,
   name,
@@ -4138,9 +4138,9 @@ TableCell <- function(
     meta = meta
   )
   self$type <- as_scalar("TableCell")
-  self[["content"]] <- check_property("TableCell", "content", TRUE, missing(content), Union(Array(BlockContent), Array(InlineContent)), content)
   self[["cellType"]] <- check_property("TableCell", "cellType", FALSE, missing(cellType), Enum("Data", "Header"), cellType)
   self[["colspan"]] <- check_property("TableCell", "colspan", FALSE, missing(colspan), "numeric", colspan)
+  self[["content"]] <- check_property("TableCell", "content", FALSE, missing(content), Union(Array(BlockContent), Array(InlineContent)), content)
   self[["name"]] <- check_property("TableCell", "name", FALSE, missing(name), "character", name)
   self[["rowspan"]] <- check_property("TableCell", "rowspan", FALSE, missing(rowspan), "numeric", rowspan)
   class(self) <- c(class(self), "TableCell")
