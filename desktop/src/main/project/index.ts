@@ -1,7 +1,7 @@
 import { dialog, ipcMain } from 'electron'
 import { projects } from 'stencila'
 import { CHANNEL } from '../../preload'
-import { openProjectWindow, projectWindow } from './window'
+import { openProjectWindow } from './window'
 
 export const registerProjectHandlers = () => {
   ipcMain.handle(
@@ -31,9 +31,9 @@ export const registerProjectHandlers = () => {
 
   ipcMain.handle(
     CHANNEL.GET_PROJECT_FILES,
-    async (_event, directoryPath: string) => {
-      return projects.open(directoryPath, (_topic, event) => {
-        projectWindow?.webContents.send(CHANNEL.GET_PROJECT_FILES, event)
+    async (ipcEvent, directoryPath: string) => {
+      return projects.open(directoryPath, (_topic, projectEvent) => {
+        ipcEvent.sender.send(CHANNEL.GET_PROJECT_FILES, projectEvent)
       })
     }
   )

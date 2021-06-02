@@ -1,7 +1,6 @@
 import { ipcMain } from 'electron'
 import { Document, documents } from 'stencila'
 import { CHANNEL } from '../../preload'
-import { projectWindow } from '../project/window'
 
 const documentRefs: Record<string, Document | undefined> = {}
 
@@ -26,10 +25,10 @@ const closeDocument = (filePath: string) => {
 export const registerDocumentHandlers = () => {
   ipcMain.handle(
     CHANNEL.GET_DOCUMENT_CONTENTS,
-    async (_event, filePath: string) => {
+    async (ipcEvent, filePath: string) => {
       getDocument(filePath)
-      documents.subscribe(filePath, ['modified'], (_topic, event) => {
-        projectWindow?.webContents.send(CHANNEL.GET_DOCUMENT_CONTENTS, event)
+      documents.subscribe(filePath, ['modified'], (_topic, docEvent) => {
+        ipcEvent.sender.send(CHANNEL.GET_DOCUMENT_CONTENTS, docEvent)
       })
 
       return documents.read(filePath)
@@ -38,10 +37,10 @@ export const registerDocumentHandlers = () => {
 
   ipcMain.handle(
     CHANNEL.DOCUMENT_GET_PREVIEW,
-    async (_event, filePath: string) => {
+    async (ipcEvent, filePath: string) => {
       getDocument(filePath)
-      documents.subscribe(filePath, ['encoded:html'], (_topic, event) => {
-        projectWindow?.webContents.send(CHANNEL.DOCUMENT_GET_PREVIEW, event)
+      documents.subscribe(filePath, ['encoded:html'], (_topic, docEvent) => {
+        ipcEvent.sender.send(CHANNEL.DOCUMENT_GET_PREVIEW, docEvent)
       })
     }
   )
@@ -54,7 +53,10 @@ export const registerDocumentHandlers = () => {
 
   ipcMain.handle(
     CHANNEL.SAVE_DOCUMENT,
-    async (_event, {filePath, content}: {filePath: string, content: string}) => {
+    async (
+      _event,
+      { filePath, content }: { filePath: string; content: string }
+    ) => {
       documents.write(filePath, content)
     }
   )

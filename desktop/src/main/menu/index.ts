@@ -1,5 +1,6 @@
 import { app, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
 import { showSettings } from '../config/window'
+import { saveActiveDoc } from '../window/windowUtils'
 
 const isMac = process.platform === 'darwin'
 
@@ -40,6 +41,12 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
       { type: 'separator' },
       { label: 'Open…' },
       { label: 'Open Recent' },
+      { type: 'separator' },
+      {
+        label: 'Save',
+        click: saveActiveDoc,
+        accelerator: 'CommandOrControl+s',
+      },
       { type: 'separator' },
       ...(isMac
         ? [{ role: 'close' as const }]
