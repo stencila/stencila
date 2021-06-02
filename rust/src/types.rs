@@ -538,7 +538,7 @@ pub struct CreativeWork {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -874,7 +874,7 @@ pub struct Collection {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -980,7 +980,7 @@ pub struct Comment {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -1093,7 +1093,7 @@ pub struct Datatable {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -1205,7 +1205,7 @@ pub struct MediaObject {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// File size in megabits (Mbit, Mb).
     pub content_size: Option<Number>,
@@ -1329,7 +1329,7 @@ pub struct AudioObject {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// File size in megabits (Mbit, Mb).
     pub content_size: Option<Number>,
@@ -1680,7 +1680,7 @@ pub struct Figure {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -1891,7 +1891,7 @@ pub struct ImageObject {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// File size in megabits (Mbit, Mb).
     pub content_size: Option<Number>,
@@ -2531,7 +2531,7 @@ pub struct Periodical {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -2866,7 +2866,7 @@ pub struct PublicationIssue {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -2984,7 +2984,7 @@ pub struct PublicationVolume {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -3150,7 +3150,7 @@ pub struct Review {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -3262,7 +3262,7 @@ pub struct SoftwareApplication {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -3512,7 +3512,7 @@ pub struct SoftwareSourceCode {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -3726,7 +3726,7 @@ pub struct Table {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// Date/time of acceptance.
     pub date_accepted: Option<Date>,
@@ -3940,7 +3940,7 @@ pub struct VideoObject {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<Vec<Node>>,
+    pub content: Option<CreativeWorkContent>,
 
     /// File size in megabits (Mbit, Mb).
     pub content_size: Option<Number>,
@@ -4204,6 +4204,15 @@ pub enum BrandLogo {
 pub enum CreativeWorkAuthors {
     Person(Person),
     Organization(Organization),
+}
+
+/// Types permitted for the `content` property of a `CreativeWork` node.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CreativeWorkContent {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
+    String(String),
 }
 
 /// Types permitted for the `fundedBy` property of a `CreativeWork` node.

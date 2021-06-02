@@ -124,8 +124,6 @@ export async function jsonSchemaProperties(): Promise<
               ', '
             )}`
             if (id !== existing.id) throw new Error(`${message}: @id ${id}`)
-            if (isArray !== existing.isArray)
-              throw new Error(`${message}: isArray ${isArray.toString()}`)
             if (isPlural !== existing.isPlural)
               throw new Error(`${message}: isPlural ${isPlural.toString()}`)
             // Add the type...

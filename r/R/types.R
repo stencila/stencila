@@ -679,7 +679,7 @@ CreativeWork <- function(
   self[["about"]] <- check_property("CreativeWork", "about", FALSE, missing(about), Array(ThingTypes), about)
   self[["authors"]] <- check_property("CreativeWork", "authors", FALSE, missing(authors), Array(Union(Person, Organization)), authors)
   self[["comments"]] <- check_property("CreativeWork", "comments", FALSE, missing(comments), Array(Comment), comments)
-  self[["content"]] <- check_property("CreativeWork", "content", FALSE, missing(content), Array(Node), content)
+  self[["content"]] <- check_property("CreativeWork", "content", FALSE, missing(content), Union(Array(BlockContent), Array(InlineContent), "character"), content)
   self[["dateAccepted"]] <- check_property("CreativeWork", "dateAccepted", FALSE, missing(dateAccepted), Date, dateAccepted)
   self[["dateCreated"]] <- check_property("CreativeWork", "dateCreated", FALSE, missing(dateCreated), Date, dateCreated)
   self[["dateModified"]] <- check_property("CreativeWork", "dateModified", FALSE, missing(dateModified), Date, dateModified)
