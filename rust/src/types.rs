@@ -4908,6 +4908,8 @@ pub enum InlineContent {
     Bool(Bool),
     Integer(Integer),
     Number(Number),
+    Array(Array),
+    Object(Object),
     String(String),
 }
 

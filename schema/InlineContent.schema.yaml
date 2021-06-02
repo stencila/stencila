@@ -34,4 +34,6 @@ anyOf:
   - type: boolean
   - type: integer
   - type: number
+  - type: array
+  - type: object
   - type: string

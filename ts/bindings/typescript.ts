@@ -313,7 +313,7 @@ export const generateTypeMaps = async (): Promise<string> => {
     T extends { type: string } & object = { type: string }
   > = { [key in T['type']]: key }
 
-  type Primitives = undefined | null | boolean | string | number;
+  type Primitives = undefined | null | boolean | number | string | object;
   ` +
     files
       .map((file) => {
