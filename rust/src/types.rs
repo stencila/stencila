@@ -3822,14 +3822,14 @@ pub struct TableCell {
     #[serde(rename = "type", deserialize_with = "TableCell::deserialize_type")]
     pub type_: String,
 
-    /// Contents of the table cell.
-    pub content: Vec<Node>,
-
     /// Indicates whether the cell is a header or data.
     pub cell_type: Option<TableCellCellType>,
 
     /// How many columns the cell extends.
     pub colspan: Option<Integer>,
+
+    /// Contents of the table cell.
+    pub content: Option<TableCellContent>,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -4506,6 +4506,14 @@ pub enum TableCaption {
 pub enum TableCellCellType {
     Data,
     Header,
+}
+
+/// Types permitted for the `content` property of a `TableCell` node.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum TableCellContent {
+    VecBlockContent(Vec<BlockContent>),
+    VecInlineContent(Vec<InlineContent>),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

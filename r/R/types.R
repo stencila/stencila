@@ -4138,7 +4138,7 @@ TableCell <- function(
     meta = meta
   )
   self$type <- as_scalar("TableCell")
-  self[["content"]] <- check_property("TableCell", "content", TRUE, missing(content), Array(Node), content)
+  self[["content"]] <- check_property("TableCell", "content", TRUE, missing(content), Union(Array(BlockContent), Array(InlineContent)), content)
   self[["cellType"]] <- check_property("TableCell", "cellType", FALSE, missing(cellType), Enum("Data", "Header"), cellType)
   self[["colspan"]] <- check_property("TableCell", "colspan", FALSE, missing(colspan), "numeric", colspan)
   self[["name"]] <- check_property("TableCell", "name", FALSE, missing(name), "character", name)

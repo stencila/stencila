@@ -3790,15 +3790,15 @@ class Table(CreativeWork):
 class TableCell(Entity):
     """A cell within a `Table`."""
 
-    content: Array["Node"]
-    """Contents of the table cell."""
-
     cellType: Optional["ECellType"] = None
     """Indicates whether the cell is a header or data."""
 
     colspan: Optional[int] = None
     """How many columns the cell extends.
 """
+
+    content: Optional[Union[Array["BlockContent"], Array["InlineContent"]]] = None
+    """Contents of the table cell."""
 
     name: Optional[str] = None
     """The name of the cell."""
@@ -3809,9 +3809,9 @@ class TableCell(Entity):
 
     def __init__(
         self,
-        content: Array["Node"],
         cellType: Optional["ECellType"] = None,
         colspan: Optional[int] = None,
+        content: Optional[Union[Array["BlockContent"], Array["InlineContent"]]] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
@@ -3821,12 +3821,12 @@ class TableCell(Entity):
             id=id,
             meta=meta
         )
-        if content is not None:
-            self.content = content
         if cellType is not None:
             self.cellType = cellType
         if colspan is not None:
             self.colspan = colspan
+        if content is not None:
+            self.content = content
         if name is not None:
             self.name = name
         if rowspan is not None:
