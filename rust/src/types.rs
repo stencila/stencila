@@ -4739,7 +4739,6 @@ pub enum BlockContent {
     Figure(Figure),
     Heading(Heading),
     List(List),
-    ListItem(ListItem),
     MathBlock(MathBlock),
     Paragraph(Paragraph),
     QuoteBlock(QuoteBlock),

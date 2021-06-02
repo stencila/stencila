@@ -10,7 +10,6 @@ anyOf:
   - $ref: Figure
   - $ref: Heading
   - $ref: List
-  - $ref: ListItem
   - $ref: MathBlock
   - $ref: Paragraph
   - $ref: QuoteBlock
