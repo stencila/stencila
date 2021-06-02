@@ -14,7 +14,7 @@ properties:
   depth:
     '@id': stencila:depth
     description: The depth of the heading.
-    type: number
+    type: integer
     default: 1
     minimum: 1
     maximum: 6

@@ -1824,14 +1824,14 @@ class Heading(Entity):
     content: Array["InlineContent"]
     """Content of the heading."""
 
-    depth: Optional[float] = None
+    depth: Optional[int] = None
     """The depth of the heading."""
 
 
     def __init__(
         self,
         content: Array["InlineContent"],
-        depth: Optional[float] = None,
+        depth: Optional[int] = None,
         id: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None
     ) -> None:
@@ -2088,7 +2088,7 @@ class ListItem(Thing):
     item: Optional["Node"] = None
     """The item represented by this list item."""
 
-    position: Optional[float] = None
+    position: Optional[int] = None
     """The position of the item in a series or sequence of items."""
 
 
@@ -2104,7 +2104,7 @@ class ListItem(Thing):
         item: Optional["Node"] = None,
         meta: Optional[Dict[str, Any]] = None,
         name: Optional[str] = None,
-        position: Optional[float] = None,
+        position: Optional[int] = None,
         url: Optional[str] = None
     ) -> None:
         super().__init__(

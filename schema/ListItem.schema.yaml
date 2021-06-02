@@ -36,7 +36,7 @@ properties:
   position:
     '@id': schema:position
     description: The position of the item in a series or sequence of items.
-    type: number
+    type: integer
 examples:
   - type: ListItem
     content:

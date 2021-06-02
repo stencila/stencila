@@ -1849,7 +1849,7 @@ pub struct Heading {
     pub content: Vec<InlineContent>,
 
     /// The depth of the heading.
-    pub depth: Option<Number>,
+    pub depth: Option<Integer>,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -2134,7 +2134,7 @@ pub struct ListItem {
     pub name: Option<String>,
 
     /// The position of the item in a series or sequence of items.
-    pub position: Option<Number>,
+    pub position: Option<Integer>,
 
     /// The URL of the item.
     pub url: Option<String>,
