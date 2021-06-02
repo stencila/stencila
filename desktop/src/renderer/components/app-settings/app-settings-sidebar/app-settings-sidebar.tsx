@@ -16,40 +16,51 @@ export class AppSettingsSidebar {
       <nav class="app-side-nav">
         <ul>
           <li>
-            <a
-              {...href('/settings')}
-              class={{ active: activePath === '/settings', disabled: true }}
-            >
-              <stencila-icon icon="settings-3"></stencila-icon>
-              <span>{i18n.t('settings.general.title')}</span>
-            </a>
+            <stencila-tooltip text="Coming soon!">
+              <a
+                {...href('/settings')}
+                class={{ active: activePath === '/settings', disabled: true }}
+                onClick={(e) => {
+                  e.preventDefault()
+                  ;(e.currentTarget as HTMLAnchorElement).blur()
+                }}
+              >
+                <stencila-icon icon="settings-3"></stencila-icon>
+                <span>{i18n.t('settings.general.title')}</span>
+              </a>
+            </stencila-tooltip>
           </li>
 
           <li>
-            <a
-              {...href('/settings/advanced')}
-              class={{
-                navItem: true,
-                active: activePath === '/settings/advanced',
-              }}
-            >
-              <stencila-icon icon="list-settings"></stencila-icon>
-              <span>Advanced</span>
-            </a>
+            <stencila-tooltip text="Coming soon!">
+              <a
+                {...href('/settings/')}
+                class={{ disabled: true }}
+                onClick={(e) => {
+                  e.preventDefault()
+                  ;(e.currentTarget as HTMLAnchorElement).blur()
+                }}
+              >
+                <stencila-icon icon="user"></stencila-icon>
+                Account
+              </a>
+            </stencila-tooltip>
           </li>
 
           <li>
-            <a {...href('/settings/')} class={{ disabled: true }}>
-              <stencila-icon icon="user"></stencila-icon>
-              Account
-            </a>
-          </li>
-
-          <li>
-            <a {...href('/settings/')} class={{ disabled: true }}>
-              <stencila-icon icon="palette"></stencila-icon>
-              Appearance
-            </a>
+            <stencila-tooltip text="Coming soon!">
+              <a
+                {...href('/settings/')}
+                class={{ disabled: true }}
+                onClick={(e) => {
+                  e.preventDefault()
+                  ;(e.currentTarget as HTMLAnchorElement).blur()
+                }}
+              >
+                <stencila-icon icon="palette"></stencila-icon>
+                Appearance
+              </a>
+            </stencila-tooltip>
           </li>
 
           <li>
@@ -66,16 +77,47 @@ export class AppSettingsSidebar {
           </li>
 
           <li>
-            <a {...href('/settings/')} class={{ disabled: true }}>
-              <stencila-icon icon="file-edit"></stencila-icon>
-              Editor
-            </a>
+            <stencila-tooltip text="Coming soon!">
+              <a
+                {...href('/settings/')}
+                class={{ disabled: true }}
+                onClick={(e) => {
+                  e.preventDefault()
+                  ;(e.currentTarget as HTMLAnchorElement).blur()
+                }}
+              >
+                <stencila-icon icon="file-edit"></stencila-icon>
+                Editor
+              </a>
+            </stencila-tooltip>
           </li>
 
           <li>
-            <a {...href('/settings/')} class={{ disabled: true }}>
-              <stencila-icon icon="newspaper"></stencila-icon>
-              Publishing
+            <stencila-tooltip text="Coming soon!">
+              <a
+                {...href('/settings/')}
+                class={{ disabled: true }}
+                onClick={(e) => {
+                  e.preventDefault()
+                  ;(e.currentTarget as HTMLAnchorElement).blur()
+                }}
+              >
+                <stencila-icon icon="newspaper"></stencila-icon>
+                Publishing
+              </a>
+            </stencila-tooltip>
+          </li>
+
+          <li>
+            <a
+              {...href('/settings/advanced')}
+              class={{
+                navItem: true,
+                active: activePath === '/settings/advanced',
+              }}
+            >
+              <stencila-icon icon="list-settings"></stencila-icon>
+              <span>Advanced</span>
             </a>
           </li>
         </ul>

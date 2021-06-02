@@ -1,5 +1,6 @@
 import { h, VNode } from '@stencil/core'
 import { JSONSchema7Definition } from 'json-schema'
+import { capitalize } from '../stringUtils'
 import { arrayGuard, arrayInput } from './elements/arrayConfig'
 import { booleanGuard, checkbox } from './elements/booleanConfig'
 import { generic } from './elements/genericConfig'
@@ -9,10 +10,6 @@ import { stringGuard, stringInput } from './elements/stringConfig'
 import { FormElementOptions } from './elements/types'
 
 export type ConfigSchema = JSONSchema7Definition
-
-const capitalize = ([head, ...tail]: string): string => {
-  return [head?.toUpperCase() ?? '', ...tail].join('')
-}
 
 export const changeHandler = (e: Event): void => {
   e.preventDefault()

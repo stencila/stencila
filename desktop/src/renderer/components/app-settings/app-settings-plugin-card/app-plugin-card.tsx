@@ -2,6 +2,7 @@ import { Component, h, Prop, State } from '@stencil/core'
 import { Plugin } from 'stencila'
 import { i18n } from '../../../../i18n'
 import { CHANNEL } from '../../../../preload/index'
+import { capitalize } from '../../utils/stringUtils'
 import {
   getAvailablePlugins,
   pluginStore,
@@ -95,7 +96,7 @@ export class AppSettingsPluginCard {
       <div class="pluginCard">
         <div class="title">
           <span>
-            <h2>{this.plugin?.alias ?? this.pluginName}</h2>
+            <h2>{capitalize(this.plugin?.alias ?? this.pluginName)}</h2>
             {this.plugin?.softwareVersion && (
               <span class="meta">v{this.plugin.softwareVersion}</span>
             )}
