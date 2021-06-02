@@ -1,6 +1,7 @@
-import { dialog, ipcMain } from 'electron'
+import { ipcMain } from 'electron'
 import { projects } from 'stencila'
 import { CHANNEL } from '../../preload'
+import { openProject } from './handlers'
 import { openProjectWindow } from './window'
 
 export const registerProjectHandlers = () => {
@@ -12,14 +13,7 @@ export const registerProjectHandlers = () => {
   )
 
   ipcMain.handle(CHANNEL.SELECT_PROJECT_DIR, async () => {
-    const { filePaths } = await dialog.showOpenDialog({
-      properties: ['openDirectory', 'createDirectory'],
-    })
-    const projectPath = filePaths[0]
-
-    if (projectPath !== undefined) {
-      openProjectWindow(projectPath)
-    }
+    openProject()
   })
 
   ipcMain.handle(

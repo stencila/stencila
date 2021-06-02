@@ -1,5 +1,6 @@
 import { app, Menu, MenuItem, MenuItemConstructorOptions } from 'electron'
 import { showSettings } from '../config/window'
+import { openProject } from '../project/handlers'
 import { saveActiveDoc } from '../window/windowUtils'
 
 const isMac = process.platform === 'darwin'
@@ -15,11 +16,8 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
             { type: 'separator' as const },
             {
               label: 'Preferences…',
-              // TODO: Support cross-platform shortcuts
               accelerator: 'CommandOrControl+,',
-              click: async () => {
-                showSettings()
-              },
+              click: showSettings,
             },
             { type: 'separator' as const },
             { role: 'services' as const },
@@ -37,10 +35,10 @@ const template: (MenuItemConstructorOptions | MenuItem)[] = [
   {
     label: 'File',
     submenu: [
-      { label: 'New' },
-      { type: 'separator' },
-      { label: 'Open…' },
-      { label: 'Open Recent' },
+      // { label: 'New' },
+      // { type: 'separator' },
+      { label: 'Open…', click: openProject, accelerator: 'CommandOrControl+o' },
+      // { label: 'Open Recent' },
       { type: 'separator' },
       {
         label: 'Save',
