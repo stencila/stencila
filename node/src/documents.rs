@@ -32,11 +32,29 @@ pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
     to_json_or_throw(cx, documents.list())
 }
 
-/// Open a document
+/// Create a new empty document
+pub fn create(mut cx: FunctionContext) -> JsResult<JsString> {
+    let format = cx.argument::<JsString>(0)?.value(&mut cx);
+    let format = if format.is_empty() {
+        None
+    } else {
+        Some(format)
+    };
+    let documents = &mut *obtain(&mut cx)?;
+    to_json_or_throw(cx, documents.create(format))
+}
+
+/// Open an existing document
 pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
     let path = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let format = cx.argument::<JsString>(1)?.value(&mut cx);
+    let format = if format.is_empty() {
+        None
+    } else {
+        Some(format)
+    };
     let documents = &mut *obtain(&mut cx)?;
-    to_json_or_throw(cx, documents.open(path, None))
+    to_json_or_throw(cx, documents.open(path, format))
 }
 
 /// Close a document

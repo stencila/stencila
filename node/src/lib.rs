@@ -14,6 +14,7 @@ mod pubsub;
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("documentsSchemas", documents::schemas)?;
     cx.export_function("documentsList", documents::list)?;
+    cx.export_function("documentsCreate", documents::create)?;
     cx.export_function("documentsOpen", documents::open)?;
     cx.export_function("documentsClose", documents::close)?;
     cx.export_function("documentsSubscribe", documents::subscribe)?;

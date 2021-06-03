@@ -107,6 +107,7 @@ pub struct Document {
     /// On initialization, this is inferred, if possible, from the file name extension
     /// of the document's `path`. However, it may change whilst the document is
     /// open in memory (e.g. if the `load` function sets a different format).
+    #[serde(skip_serializing_if = "Option::is_none")]
     format: Option<String>,
 
     /// The root Stencila Schema node of the document
@@ -456,7 +457,7 @@ impl DocumentWatcher {
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct DocumentHandle {
+pub struct DocumentHandler {
     #[serde(flatten)]
     document: Arc<Mutex<Document>>,
 
@@ -464,23 +465,24 @@ pub struct DocumentHandle {
     watcher: Option<DocumentWatcher>,
 }
 
-impl DocumentHandle {
-    /// Create a document handle from an existing file path.
+impl DocumentHandler {
+    /// Create a new document handler.
     ///
     /// # Arguments
     ///
-    /// - `path`: the path of the file to create the document from
-    fn open(path: PathBuf, format: Option<String>, watch: bool) -> Result<DocumentHandle> {
-        let document = Document::open(path.clone(), format)?;
-        let document: Arc<Mutex<Document>> = Arc::new(Mutex::new(document));
-
-        let watcher = if watch {
-            Some(DocumentWatcher::new(path, Arc::clone(&document)))
-        } else {
-            None
+    /// - `format`: The format of the document.
+    fn new(document: Document) -> DocumentHandler {
+        let path = document.path.clone();
+        let temp = document.temporary;
+        let arc: Arc<Mutex<Document>> = Arc::new(Mutex::new(document));
+        let watcher = match temp {
+            true => None,
+            false => Some(DocumentWatcher::new(path, Arc::clone(&arc))),
         };
-
-        Ok(DocumentHandle { document, watcher })
+        DocumentHandler {
+            document: arc,
+            watcher,
+        }
     }
 }
 
@@ -488,7 +490,7 @@ impl DocumentHandle {
 #[derive(Clone, Debug, Default)]
 pub struct Documents {
     /// A mapping of file paths to open documents
-    registry: HashMap<PathBuf, DocumentHandle>,
+    registry: HashMap<PathBuf, DocumentHandler>,
 }
 
 impl Documents {
@@ -504,16 +506,23 @@ impl Documents {
             .collect::<Vec<String>>())
     }
 
+    pub fn create(&mut self, format: Option<String>) -> Result<Document> {
+        let document = Document::new(format);
+        let handler = DocumentHandler::new(document.clone());
+        self.registry.insert(document.path.clone(), handler);
+        Ok(document)
+    }
+
     pub fn open(&mut self, path: &str, format: Option<String>) -> Result<Document> {
         let path = Path::new(path).canonicalize()?;
-        let handle = match self.registry.entry(path.clone()) {
+        let handler = match self.registry.entry(path.clone()) {
             Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => match DocumentHandle::open(path, format, true) {
-                Ok(handle) => entry.insert(handle),
+            Entry::Vacant(entry) => match Document::open(path, format) {
+                Ok(document) => entry.insert(DocumentHandler::new(document)),
                 Err(error) => return Err(error),
             },
         };
-        let document = handle.document.lock().expect("Unable to lock document");
+        let document = handler.document.lock().expect("Unable to lock document");
         Ok(document.clone())
     }
 

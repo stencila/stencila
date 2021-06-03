@@ -2,6 +2,7 @@ import fs from 'fs'
 import tmp from 'tmp'
 import {
   close,
+  create,
   get,
   list,
   load,
@@ -11,13 +12,30 @@ import {
 } from './documents'
 import { DocumentEvent } from './types'
 
+test('create', async () => {
+  expect(create()).toEqual(
+    expect.objectContaining({
+      temporary: true,
+      name: 'Unnamed',
+    })
+  )
+
+  expect(create('md')).toEqual(
+    expect.objectContaining({
+      temporary: true,
+      name: 'Unnamed',
+      format: 'md',
+    })
+  )
+})
+
 /**
  * Test of a workflow involving opening and modifying a document
- * 
+ *
  * Uses a JSON document as input so that this test is not dependant
  * on having a converter plugin installed.
  */
-test('workflow', async () => {
+test('workflow-open-modify', async () => {
   const path = tmp.fileSync({ postfix: '.json' }).name
   fs.writeFileSync(path, '{"type": "Article"}')
 
@@ -52,13 +70,16 @@ test('workflow', async () => {
   })
 
   // Load some new content into the document (and wait a bit for events)
-  load(path, `{
+  load(
+    path,
+    `{
     "type": "Article",
     "content": [{
       "type": "Paragraph",
       "content": ["Some content"]
     }]
-  }`)
+  }`
+  )
   await new Promise((resolve) => setTimeout(resolve, 1000))
   expect(events).toEqual([
     expect.objectContaining({
@@ -69,13 +90,16 @@ test('workflow', async () => {
 
   // Modify the file on disk (and wait a bit for events)
   events = []
-  fs.writeFileSync(path,  `{
+  fs.writeFileSync(
+    path,
+    `{
     "type": "Article",
     "content": [{
       "type": "Paragraph",
       "content": ["Some new content"]
     }]
-  }`)
+  }`
+  )
   await new Promise((resolve) => setTimeout(resolve, 1000))
   expect(events).toEqual(
     expect.arrayContaining([
@@ -100,7 +124,6 @@ test('workflow', async () => {
 
   // Close the document
   close(path)
-  expect(list()).toEqual([])
 
   fs.unlinkSync(path)
 })

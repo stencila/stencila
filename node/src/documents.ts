@@ -27,16 +27,28 @@ export function list(): Document[] {
 }
 
 /**
- * Open a document
+ * Create a new empty document, optionally specifying its format.
  *
- * If you want the document's content you need to `open(<path>)` it
- * and then `subscribe(<path>, ['content'], (topic, event) => ...)` it.
- *
- * @param path Path to the document's file
+ * @param format Format of the document
  * @return A document
  */
-export function open(path: string): Document {
-  return fromJSON<Document>(addon.documentsOpen(path))
+ export function create(format?: string): Document {
+  return fromJSON<Document>(addon.documentsCreate(format ?? ''))
+}
+
+/**
+ * Open an existing document, optionally specifying its format.
+ *
+ * If you want the document's content you need to `open(<path>)` it
+ * and then `subscribe(<path>, ['content'], (topic, event) => ...)` to it.
+ *
+ * @param path Path to the document's file
+ * @param format Format of the document. If none will be inferred from
+ *               the file extension.
+ * @return A document
+ */
+export function open(path: string, format?: string): Document {
+  return fromJSON<Document>(addon.documentsOpen(path, format ?? ''))
 }
 
 /**
