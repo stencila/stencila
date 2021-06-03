@@ -1218,8 +1218,8 @@ impl Plugin {
             // the latest version is greater than the current then, indicate
             // it can be upgraded using `next`, otherwise just use the latest version.
             if plugin.installation.is_some()
-                && Version::parse(&latest.software_version)
-                    > Version::parse(&plugin.software_version)
+                && Version::parse(&latest.software_version)?
+                    > Version::parse(&plugin.software_version)?
             {
                 let mut plugin = plugin.clone();
                 plugin.next = Some(Box::new(latest));
