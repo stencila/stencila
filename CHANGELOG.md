@@ -1,3 +1,15 @@
+# [0.73.0](https://github.com/stencila/stencila/compare/v0.72.0...v0.73.0) (2021-06-03)
+
+
+### Bug Fixes
+
+* **Desktop:** Send IPC events only to relevant project windows ([ae1e8fe](https://github.com/stencila/stencila/commit/ae1e8fec447ad22d80f65b422e287eb8ca35093f))
+
+
+### Features
+
+* **Desktop:** Add ability to open project folder from menu item ([51f1730](https://github.com/stencila/stencila/commit/51f1730a510d0403e891ffd068c46c0bb776a2f6))
+
 # [0.72.0](https://github.com/stencila/stencila/compare/v0.71.0...v0.72.0) (2021-06-01)
 
 
