@@ -9,7 +9,7 @@ import { EntityId } from "@reduxjs/toolkit";
 import { O } from "fp-ts";
 export namespace Components {
     interface AppDocumentEditor {
-        "filePath": string;
+        "documentId": string;
     }
     interface AppDocumentPane {
     }
@@ -26,7 +26,7 @@ export namespace Components {
         "paneId": EntityId;
     }
     interface AppDocumentPreview {
-        "filePath": string;
+        "documentId": string;
     }
     interface AppLauncher {
     }
@@ -179,7 +179,7 @@ declare global {
 }
 declare namespace LocalJSX {
     interface AppDocumentEditor {
-        "filePath"?: string;
+        "documentId"?: string;
     }
     interface AppDocumentPane {
     }
@@ -196,7 +196,7 @@ declare namespace LocalJSX {
         "paneId"?: EntityId;
     }
     interface AppDocumentPreview {
-        "filePath"?: string;
+        "documentId"?: string;
     }
     interface AppLauncher {
     }

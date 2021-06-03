@@ -27,13 +27,13 @@ export class AppDocumentPane {
 
         {pipe(
           activeDocument,
-          O.map((activeFilePath) => (
+          O.map((activeDocumentId) => (
             <div class="documentPaneContents">
               <app-document-editor
-                filePath={activeFilePath}
+                documentId={activeDocumentId}
               ></app-document-editor>
               <app-document-preview
-                filePath={activeFilePath}
+                documentId={activeDocumentId}
               ></app-document-preview>
             </div>
           )),

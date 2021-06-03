@@ -8,10 +8,10 @@ import { DocumentEvent } from 'stencila'
   scoped: true,
 })
 export class AppDocumentPreview {
-  @Prop() filePath: string
+  @Prop() documentId: string
 
-  @Watch('filePath')
-  filePathWatchHandler(newValue: string, prevValue: string) {
+  @Watch('documentId')
+  documentIdWatchHandler(newValue: string, prevValue: string) {
     if (newValue !== prevValue) {
       this.closeDoc(prevValue).then(() => {
         this.subscribeToUpdates(newValue)
@@ -21,18 +21,23 @@ export class AppDocumentPreview {
 
   @State() previewContents: string
 
-  private subscribeToUpdates = (filePath = this.filePath) => {
-    window.api.invoke(CHANNEL.DOCUMENT_GET_PREVIEW, filePath)
+  private subscribeToUpdates = (documentId = this.documentId) => {
+    window.api.invoke(CHANNEL.DOCUMENT_GET_PREVIEW, documentId)
     window.api.receive(CHANNEL.DOCUMENT_GET_PREVIEW, (event) => {
       const e = event as DocumentEvent
-      if (e.type === 'encoded' && e.path === filePath) {
+      if (
+        e.type === 'encoded' &&
+        e.document.id === documentId &&
+        e.content !== undefined &&
+        e.format == 'html'
+      ) {
         this.previewContents = e.content
       }
     })
   }
 
-  private closeDoc = (filePath = this.filePath) =>
-    window.api.invoke(CHANNEL.CLOSE_DOCUMENT, filePath)
+  private closeDoc = (documentId = this.documentId) =>
+    window.api.invoke(CHANNEL.CLOSE_DOCUMENT, documentId)
 
   componentWillLoad() {
     this.subscribeToUpdates()
@@ -41,12 +46,9 @@ export class AppDocumentPreview {
   render() {
     return (
       <Host>
-        <div
-          class="app-document-preview"
-        >
+        <div class="app-document-preview">
           <p>Temporary: JSON preview of document content</p>
-          <pre innerHTML={this.previewContents}>
-          </pre>
+          <pre innerHTML={this.previewContents}></pre>
         </div>
       </Host>
     )
