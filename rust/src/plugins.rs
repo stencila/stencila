@@ -741,12 +741,20 @@ impl Plugin {
         fs::create_dir_all(&install_dir)?;
         let install_path = install_dir.join(&name);
 
+        // We need to pass a semver for current version
+        let current_version = current_version.unwrap_or_default();
+        let current_version = if current_version == "" {
+            "0.0.0".into()
+        } else {
+            current_version
+        };
+
         let mut builder = self_update::backends::github::Update::configure();
         builder
             .repo_owner(&owner)
             .repo_name(&name)
             .bin_name(&name)
-            .current_version(&current_version.unwrap_or_else(|| "0.0.0".into()))
+            .current_version(&current_version)
             .bin_install_path(&install_path)
             .no_confirm(!confirm)
             .show_output(verbose)
@@ -2289,7 +2297,9 @@ mod tests {
 
         run(
             Command {
-                action: Action::Upgrade(Upgrade { plugins: vec![] }),
+                action: Action::Upgrade(Upgrade {
+                    plugins: vec!["jesta".to_string()],
+                }),
             },
             &config,
         )
