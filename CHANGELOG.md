@@ -1,3 +1,18 @@
+# [0.74.0](https://github.com/stencila/stencila/compare/v0.73.0...v0.74.0) (2021-06-03)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate semver to v1 ([05457ac](https://github.com/stencila/stencila/commit/05457ac653ae2d2dc01fc407e33510936cb15f80))
+* **Plugins:** Adjust for upgrade to semver v1 ([15e0112](https://github.com/stencila/stencila/commit/15e011220e224b8ff8938caf7c04cc9881ea9d2b))
+* **Plugins:** Ensure that not using an empty string for current version ([ad59c16](https://github.com/stencila/stencila/commit/ad59c168ee6e8cfe00884aa4b761609c4577641b))
+* **Rust:** Upgrade Stencila Schema version ([7fa221e](https://github.com/stencila/stencila/commit/7fa221e960b1dd301a7f23058c20778afe82994f))
+
+
+### Features
+
+* **Documents:** Add function to create a new empty document ([1dbce29](https://github.com/stencila/stencila/commit/1dbce2931c61b2ee5d923fcfb213e598a9d9be50))
+
 # [0.73.0](https://github.com/stencila/stencila/compare/v0.72.0...v0.73.0) (2021-06-03)
 
 
