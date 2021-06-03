@@ -13,13 +13,13 @@ export interface Document {
    */
   path: string
   /**
-   * Whether or not the document's file is temporary.
+   * Whether or not the document's file is in the temporary directory.
    */
   temporary: boolean
   /**
-   * The synchronization status of the document
+   * The synchronization status of the document. This is orthogonal to `temporary` because a document's `content` can be synced or un-synced with the file system regardless of whether or not its `path` is temporary..
    */
-  status: 'new' | 'synced' | 'unwritten' | 'unread' | 'deleted'
+  status: 'synced' | 'unwritten' | 'unread' | 'deleted'
   /**
    * The name of the document
    *

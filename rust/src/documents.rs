@@ -63,9 +63,6 @@ impl DocumentEvent {
 #[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
 enum DocumentStatus {
-    /// The document is newly created and not yet been read from,
-    /// or written to, its `path`, not had it's content modified.
-    New,
     /// The document `content` is the same as on disk at its `path`.
     Synced,
     /// The document `content` has modifications that have not yet
@@ -90,11 +87,15 @@ pub struct Document {
     /// The absolute path of the document's file.
     pub path: PathBuf,
 
-    /// Whether or not the document's file is temporary.
+    /// Whether or not the document's file is in the temporary
+    /// directory.
     temporary: bool,
 
-    /// The synchronization status of the document
-    #[def = "DocumentStatus::New"]
+    /// The synchronization status of the document.
+    /// This is orthogonal to `temporary` because a document's
+    /// `content` can be synced or un-synced with the file system
+    /// regardless of whether or not its `path` is temporary..
+    #[def = "DocumentStatus::Unread"]
     status: DocumentStatus,
 
     /// The name of the document
@@ -154,6 +155,7 @@ impl Document {
     /// and have a temporary file path.
     fn new(format: Option<String>) -> Document {
         let path = env::temp_dir().join(uuids::generate(uuids::Family::File));
+        // Ensure that the file exists
         if !path.exists() {
             fs::write(path.clone(), "").expect("Unable to write temporary file");
         }
@@ -164,7 +166,7 @@ impl Document {
             id,
             path,
             temporary: true,
-            status: DocumentStatus::New,
+            status: DocumentStatus::Synced,
             name: "Unnamed".into(),
             format,
             ..Default::default()
@@ -796,7 +798,7 @@ mod tests {
         let doc = Document::new(None);
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
-        assert!(matches!(doc.status, DocumentStatus::New));
+        assert!(matches!(doc.status, DocumentStatus::Synced));
         assert!(doc.format.is_none());
         assert_eq!(doc.content, "");
         assert!(doc.root.is_none());
@@ -805,7 +807,7 @@ mod tests {
         let doc = Document::new(Some("md".to_string()));
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
-        assert!(matches!(doc.status, DocumentStatus::New));
+        assert!(matches!(doc.status, DocumentStatus::Synced));
         assert_eq!(doc.format.unwrap(), "md");
         assert_eq!(doc.content, "");
         assert!(doc.root.is_none());
