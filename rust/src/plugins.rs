@@ -743,7 +743,7 @@ impl Plugin {
 
         // We need to pass a semver for current version
         let current_version = current_version.unwrap_or_default();
-        let current_version = if current_version == "" {
+        let current_version = if current_version.is_empty() {
             "0.0.0".into()
         } else {
             current_version

@@ -175,7 +175,7 @@ impl Document {
         });
 
         let mut document = Document {
-            path: path.clone(),
+            path,
             name,
             format,
             temporary: false,
