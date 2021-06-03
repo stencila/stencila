@@ -4,12 +4,13 @@ use crate::{
 };
 use defaults::Defaults;
 use eyre::{bail, Result};
-use schemars::JsonSchema;
+use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
+use serde_with::skip_serializing_none;
+use sha2::Digest;
 use std::{
     collections::{hash_map::Entry, HashMap},
     env, fs,
-    io::Write,
     path::{Path, PathBuf},
     sync::{
         mpsc::{channel, TryRecvError},
@@ -17,80 +18,91 @@ use std::{
     },
 };
 use stencila_schema::CreativeWorkTypes;
-use strum::{EnumVariantNames, ToString};
+use strum::ToString;
 
-#[derive(Debug, JsonSchema, Serialize)]
-#[schemars(deny_unknown_fields)]
-struct DocumentRemovedEvent {}
-
-#[derive(Debug, JsonSchema, Serialize)]
-#[schemars(deny_unknown_fields)]
-struct DocumentRenamedEvent {
-    to: PathBuf,
-}
-
-#[derive(Debug, JsonSchema, Serialize)]
-#[schemars(deny_unknown_fields)]
-struct DocumentModifiedEvent {
-    content: String,
-}
-
-#[derive(Debug, JsonSchema, Serialize)]
-#[schemars(deny_unknown_fields)]
-struct DocumentEncodedEvent {
-    format: String,
-    content: String,
-}
-
-#[derive(Debug, JsonSchema, Serialize, ToString, EnumVariantNames)]
-#[serde(tag = "type", rename_all = "lowercase")]
+#[derive(Debug, JsonSchema, Serialize, ToString)]
+#[serde(rename_all = "lowercase")]
 #[strum(serialize_all = "lowercase")]
+#[schemars(deny_unknown_fields)]
 enum DocumentEventType {
-    Removed(DocumentRemovedEvent),
-    Renamed(DocumentRenamedEvent),
-    Modified(DocumentModifiedEvent),
-    Encoded(DocumentEncodedEvent),
+    Deleted,
+    Renamed,
+    Modified,
+    Encoded,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, JsonSchema, Serialize)]
 #[schemars(deny_unknown_fields)]
 struct DocumentEvent {
-    path: PathBuf,
-
-    #[serde(flatten)]
+    /// The type of event
+    #[serde(rename = "type")]
     type_: DocumentEventType,
+
+    /// The document associated with the event
+    #[schemars(schema_with = "DocumentEvent::schema_document")]
+    document: Document,
+
+    /// The content associated with the event, only provided for, `modified`
+    /// and `encoded` events.
+    content: Option<String>,
+
+    /// The format of the document, only provided for, `modified` (the format
+    /// of the document) and `encoded` events (the format of the encoding).
+    format: Option<String>,
 }
 
 impl DocumentEvent {
-    fn publish(path: PathBuf, type_: DocumentEventType) {
-        let topic = match &type_ {
-            DocumentEventType::Encoded(encoded) => {
-                format!("encoded:{}", encoded.format)
-            }
-            _ => type_.to_string(),
-        };
-        publish(
-            &format!("documents:{}:{}", path.display(), topic),
-            &Self { path, type_ },
-        )
+    /// Generate the JSON Schema for the `document` property to avoid nesting
+    fn schema_document(_generator: &mut SchemaGenerator) -> Schema {
+        schemas::typescript("Document", true)
     }
+}
+
+/// The status of a document with respect to on-disk synchronization
+#[derive(Debug, Clone, JsonSchema, Serialize, ToString)]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
+enum DocumentStatus {
+    /// The document is newly created and not yet been read from,
+    /// or written to, its `path`, not had it's content modified.
+    New,
+    /// The document `content` is the same as on disk at its `path`.
+    Synced,
+    /// The document `content` has modifications that have not yet
+    /// been written to its `path`.
+    Unwritten,
+    /// The document `path` has modifications that have not yet
+    /// been read into its `content`.
+    Unread,
+    /// The document `path` no longer exists and is now set to `None`.
+    /// The user will need to choose a new path for the document if they
+    /// want to save it.
+    Deleted,
 }
 
 /// An in-memory representation of a document
 #[derive(Debug, Clone, JsonSchema, Defaults, Serialize)]
 #[schemars(deny_unknown_fields)]
 pub struct Document {
+    /// The document identifier
+    pub id: String,
+
     /// The absolute path of the document's file.
     pub path: PathBuf,
+
+    /// Whether or not the document's file is temporary.
+    temporary: bool,
+
+    /// The synchronization status of the document
+    #[def = "DocumentStatus::New"]
+    status: DocumentStatus,
 
     /// The name of the document
     ///
     /// Usually the filename from the `path` but "Unnamed"
     /// for temporary documents.
     name: String,
-
-    /// Whether or not the document is temporary
-    temporary: bool,
 
     /// The current content of the document.
     ///
@@ -132,6 +144,11 @@ pub struct Document {
 }
 
 impl Document {
+    /// Generate an id for a document based on its path
+    fn generate_id(path: &str) -> String {
+        format!("{:x}", sha2::Sha256::digest(path.as_bytes()))
+    }
+
     /// Create a new empty document.
     ///
     /// # Arguments
@@ -142,10 +159,19 @@ impl Document {
     /// a new document. The created document will be `temporary: true`
     /// and have a temporary file path.
     fn new(format: Option<String>) -> Document {
+        let path = env::temp_dir().join(uuids::generate(uuids::Family::File));
+        if !path.exists() {
+            fs::write(path.clone(), "").expect("Unable to write temporary file");
+        }
+
+        let id = Document::generate_id(&path.display().to_string());
+
         Document {
-            path: env::temp_dir().join(uuids::generate(uuids::Family::File)),
-            name: "Unnamed".into(),
+            id,
+            path,
             temporary: true,
+            status: DocumentStatus::New,
+            name: "Unnamed".into(),
             format,
             ..Default::default()
         }
@@ -164,6 +190,8 @@ impl Document {
             bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
         }
 
+        let id = Document::generate_id(&path.display().to_string());
+
         let name = path
             .file_name()
             .map(|os_str| os_str.to_string_lossy())
@@ -176,10 +204,11 @@ impl Document {
         });
 
         let mut document = Document {
+            id,
             path,
+            temporary: false,
             name,
             format,
-            temporary: false,
             ..Default::default()
         };
         document.read()?;
@@ -187,43 +216,13 @@ impl Document {
         Ok(document)
     }
 
-    /// Add a subscriber to one of the document's topics
-    #[allow(clippy::unnecessary_wraps)]
-    fn subscribe(&mut self, topic: &str) -> Result<()> {
-        match self.subscriptions.entry(topic.into()) {
-            Entry::Occupied(mut entry) => {
-                let subscribers = entry.get_mut();
-                *subscribers += 1;
-            }
-            Entry::Vacant(entry) => {
-                entry.insert(1);
-            }
-        }
-        Ok(())
-    }
-
-    /// Remove a subscriber to one of the document's topics
-    #[allow(clippy::unnecessary_wraps)]
-    fn unsubscribe(&mut self, topic: &str) -> Result<()> {
-        match self.subscriptions.entry(topic.into()) {
-            Entry::Occupied(mut entry) => {
-                let subscribers = entry.get_mut();
-                *subscribers -= 1;
-                if *subscribers == 0 {
-                    entry.remove();
-                }
-            }
-            Entry::Vacant(_) => {}
-        }
-        Ok(())
-    }
-
     /// Read the document from the file system and return its content.
     ///
-    /// If the document does not have a `path` yet, then this is a no op.
+    /// Sets `status` to `Synced`.
     fn read(&mut self) -> Result<String> {
         let content = fs::read_to_string(&self.path)?;
         self.load(content, None)?;
+        self.status = DocumentStatus::Synced;
         Ok(self.content.clone())
     }
 
@@ -256,12 +255,14 @@ impl Document {
     ///    the document's existing format.
     ///
     /// Publishes `encoded:` events for each of the formats subscribed to.
+    /// Sets `status` to `Unwritten`.
     /// In the future, this will also trigger an `import()` to convert the `content`
     /// into a Stencila `CreativeWork` nodes and set the document's `root` (from which
     /// the conversions will be done).
     fn load(&mut self, content: String, format: Option<String>) -> Result<&Self> {
-        // Set the content of the document
+        // Set the `content` and `status` of the document
         self.content = content;
+        self.status = DocumentStatus::Unwritten;
         if let Some(format) = format {
             self.format = Some(format)
         }
@@ -305,12 +306,10 @@ impl Document {
                 match json {
                     Ok(content) => {
                         // Publish an event for this encoding
-                        DocumentEvent::publish(
-                            self.path.clone(),
-                            DocumentEventType::Encoded(DocumentEncodedEvent {
-                                format: format.into(),
-                                content: content.clone(),
-                            }),
+                        self.publish(
+                            DocumentEventType::Encoded,
+                            Some(content),
+                            Some(format.into()),
                         );
                     }
                     Err(error) => {
@@ -332,14 +331,14 @@ impl Document {
     /// - `format`: the format of the content; if not supplied assumed to be
     ///    the document's existing format.
     ///
-    /// If the document does not have a `path` yet, then nothing will be written.
+    /// Sets `status` to `Synced`.
     fn write(&mut self, content: Option<String>, format: Option<String>) -> Result<&Self> {
         if let Some(content) = content {
             self.load(content, format)?;
         }
 
-        let mut file = fs::File::create(&self.path)?;
-        file.write_all(self.content.as_bytes())?;
+        fs::write(&self.path, self.content.as_bytes())?;
+        self.status = DocumentStatus::Synced;
 
         Ok(self)
     }
@@ -361,46 +360,95 @@ impl Document {
         Ok(())
     }
 
+    /// Add a subscriber to one of the document's topics
+    #[allow(clippy::unnecessary_wraps)]
+    fn subscribe(&mut self, topic: &str) -> Result<()> {
+        match self.subscriptions.entry(topic.into()) {
+            Entry::Occupied(mut entry) => {
+                let subscribers = entry.get_mut();
+                *subscribers += 1;
+            }
+            Entry::Vacant(entry) => {
+                entry.insert(1);
+            }
+        }
+        Ok(())
+    }
+
+    /// Remove a subscriber to one of the document's topics
+    #[allow(clippy::unnecessary_wraps)]
+    fn unsubscribe(&mut self, topic: &str) -> Result<()> {
+        match self.subscriptions.entry(topic.into()) {
+            Entry::Occupied(mut entry) => {
+                let subscribers = entry.get_mut();
+                *subscribers -= 1;
+                if *subscribers == 0 {
+                    entry.remove();
+                }
+            }
+            Entry::Vacant(_) => {}
+        }
+        Ok(())
+    }
+
+    /// Publish a `DocumentEvent` for this document
+    fn publish(&self, type_: DocumentEventType, content: Option<String>, format: Option<String>) {
+        let topic = match type_ {
+            DocumentEventType::Encoded => format!("encoded:{}", format.clone().unwrap_or_default()),
+            _ => type_.to_string(),
+        };
+        let topic = format!("documents:{}:{}", self.id, topic);
+
+        publish(
+            &topic,
+            &DocumentEvent {
+                type_,
+                document: self.clone(),
+                content,
+                format,
+            },
+        )
+    }
+
     /// Called when the file is removed from the file system
     ///
-    /// Publishes a `Removed` event so that, for example, a document's
-    /// tab can be updated to indicate it is deleted.
-    fn removed(&self, path: PathBuf) {
+    /// Sets `status` to `Deleted` and publishes a `Deleted` event so that,
+    /// for example, a document's tab can be updated to indicate it is deleted.
+    fn deleted(&mut self, path: PathBuf) {
         tracing::debug!("Document removed: {}", path.display());
 
-        DocumentEvent::publish(path, DocumentEventType::Removed(DocumentRemovedEvent {}))
+        self.status = DocumentStatus::Deleted;
+
+        self.publish(DocumentEventType::Deleted, None, None)
     }
 
     /// Called when the file is renamed
     ///
-    /// Publishes a `Renamed` event so that, for example, a document's
-    /// tab can be updated with the new file name.
-    fn renamed(&self, from: PathBuf, to: PathBuf) {
+    /// Changes the `path` and publishes a `Renamed` event so that, for example,
+    /// a document's tab can be updated with the new file name.
+    fn renamed(&mut self, from: PathBuf, to: PathBuf) {
         tracing::debug!("Document renamed: {} to {}", from.display(), to.display());
 
-        DocumentEvent::publish(
-            from,
-            DocumentEventType::Renamed(DocumentRenamedEvent { to }),
-        )
+        self.path = to;
+
+        self.publish(DocumentEventType::Renamed, None, None)
     }
 
     /// Called when the file is modified
     ///
-    /// Reads the file into `content` and emits both a `Modified` and
-    /// `Content` event so that the user can be asked if they
-    /// want to load the new content into editor, or overwrite with
-    /// existing editor content. Read only views may wish to only
-    /// subscribe to `Content` events.
-    ///
-    /// If there are any subscribers to `PreviewUpdated` events
-    /// will regenerate previews and emit those.
+    /// Reads the file into `content` and emits a `Modified` event so that the user
+    /// can be asked if they want to load the new content into editor, or overwrite with
+    /// existing editor content.
     fn modified(&mut self, path: PathBuf) {
         tracing::debug!("Document modified: {}", path.display());
 
+        self.status = DocumentStatus::Unread;
+
         match self.read() {
-            Ok(content) => DocumentEvent::publish(
-                path,
-                DocumentEventType::Modified(DocumentModifiedEvent { content }),
+            Ok(content) => self.publish(
+                DocumentEventType::Modified,
+                Some(content),
+                self.format.clone(),
             ),
             Err(error) => tracing::error!("While attempting to read modified file: {}", error),
         }
@@ -431,7 +479,7 @@ impl DocumentWatcher {
             let lock = || document.lock().expect("Unable to lock document");
 
             let handle = |event| match event {
-                DebouncedEvent::Remove(path) => lock().removed(path),
+                DebouncedEvent::Remove(path) => lock().deleted(path),
                 DebouncedEvent::Rename(from, to) => lock().renamed(from, to),
                 DebouncedEvent::Write(path) => lock().modified(path),
                 _ => {}
@@ -462,7 +510,7 @@ pub struct DocumentHandler {
     document: Arc<Mutex<Document>>,
 
     #[serde(skip)]
-    watcher: Option<DocumentWatcher>,
+    watcher: DocumentWatcher,
 }
 
 impl DocumentHandler {
@@ -473,16 +521,9 @@ impl DocumentHandler {
     /// - `format`: The format of the document.
     fn new(document: Document) -> DocumentHandler {
         let path = document.path.clone();
-        let temp = document.temporary;
-        let arc: Arc<Mutex<Document>> = Arc::new(Mutex::new(document));
-        let watcher = match temp {
-            true => None,
-            false => Some(DocumentWatcher::new(path, Arc::clone(&arc))),
-        };
-        DocumentHandler {
-            document: arc,
-            watcher,
-        }
+        let document: Arc<Mutex<Document>> = Arc::new(Mutex::new(document));
+        let watcher = DocumentWatcher::new(path, Arc::clone(&document));
+        DocumentHandler { document, watcher }
     }
 }
 
@@ -490,7 +531,7 @@ impl DocumentHandler {
 #[derive(Clone, Debug, Default)]
 pub struct Documents {
     /// A mapping of file paths to open documents
-    registry: HashMap<PathBuf, DocumentHandler>,
+    registry: HashMap<String, DocumentHandler>,
 }
 
 impl Documents {
@@ -499,23 +540,20 @@ impl Documents {
     }
 
     pub fn list(&self) -> Result<Vec<String>> {
-        Ok(self
-            .registry
-            .keys()
-            .map(|path| path.display().to_string())
-            .collect::<Vec<String>>())
+        Ok(self.registry.keys().cloned().collect::<Vec<String>>())
     }
 
     pub fn create(&mut self, format: Option<String>) -> Result<Document> {
         let document = Document::new(format);
         let handler = DocumentHandler::new(document.clone());
-        self.registry.insert(document.path.clone(), handler);
+        self.registry.insert(document.id.clone(), handler);
         Ok(document)
     }
 
     pub fn open(&mut self, path: &str, format: Option<String>) -> Result<Document> {
         let path = Path::new(path).canonicalize()?;
-        let handler = match self.registry.entry(path.clone()) {
+        let id = Document::generate_id(&path.display().to_string());
+        let handler = match self.registry.entry(id) {
             Entry::Occupied(entry) => entry.into_mut(),
             Entry::Vacant(entry) => match Document::open(path, format) {
                 Ok(document) => entry.insert(DocumentHandler::new(document)),
@@ -526,48 +564,46 @@ impl Documents {
         Ok(document.clone())
     }
 
-    pub fn close(&mut self, path: &str) -> Result<()> {
-        let path = Path::new(path).canonicalize()?;
-        self.registry.remove(&path);
+    pub fn close(&mut self, id: &str) -> Result<()> {
+        self.registry.remove(id);
         Ok(())
     }
 
-    pub fn get(&mut self, path: &str) -> Result<MutexGuard<Document>> {
-        let path = Path::new(path).canonicalize()?;
-        if let Some(handle) = self.registry.get(&path) {
+    pub fn get(&mut self, id: &str) -> Result<MutexGuard<Document>> {
+        if let Some(handle) = self.registry.get(id) {
             if let Ok(guard) = handle.document.lock() {
                 Ok(guard)
             } else {
-                bail!("Unable to lock document")
+                bail!("Unable to lock document {}", id)
             }
         } else {
-            bail!("Document has not been opened yet")
+            bail!("Document {} has not been opened yet", id)
         }
     }
 
-    pub fn subscribe(&mut self, path: &str, topic: &str) -> Result<()> {
-        self.get(&path)?.subscribe(topic)
+    pub fn subscribe(&mut self, id: &str, topic: &str) -> Result<()> {
+        self.get(&id)?.subscribe(topic)
     }
 
-    pub fn unsubscribe(&mut self, path: &str, topic: &str) -> Result<()> {
-        self.get(&path)?.unsubscribe(topic)
+    pub fn unsubscribe(&mut self, id: &str, topic: &str) -> Result<()> {
+        self.get(&id)?.unsubscribe(topic)
     }
 
-    pub fn read(&mut self, path: &str) -> Result<String> {
-        self.get(&path)?.read()
+    pub fn read(&mut self, id: &str) -> Result<String> {
+        self.get(&id)?.read()
     }
 
-    pub fn dump(&mut self, path: &str) -> Result<String> {
-        self.get(&path)?.dump(None)
+    pub fn dump(&mut self, id: &str) -> Result<String> {
+        self.get(&id)?.dump(None)
     }
 
-    pub fn load(&mut self, path: &str, content: String) -> Result<()> {
-        self.get(&path)?.load(content, None)?;
+    pub fn load(&mut self, id: &str, content: String) -> Result<()> {
+        self.get(&id)?.load(content, None)?;
         Ok(())
     }
 
-    pub fn write(&mut self, path: &str, content: Option<String>) -> Result<()> {
-        self.get(&path)?.write(content, None)?;
+    pub fn write(&mut self, id: &str, content: Option<String>) -> Result<()> {
+        self.get(&id)?.write(content, None)?;
         Ok(())
     }
 }
@@ -764,6 +800,7 @@ mod tests {
         let doc = Document::new(None);
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
+        assert!(matches!(doc.status, DocumentStatus::New));
         assert!(doc.format.is_none());
         assert_eq!(doc.content, "");
         assert!(doc.root.is_none());
@@ -772,6 +809,7 @@ mod tests {
         let doc = Document::new(Some("md".to_string()));
         assert!(doc.path.starts_with(env::temp_dir()));
         assert!(doc.temporary);
+        assert!(matches!(doc.status, DocumentStatus::New));
         assert_eq!(doc.format.unwrap(), "md");
         assert_eq!(doc.content, "");
         assert!(doc.root.is_none());
@@ -789,6 +827,7 @@ mod tests {
             let doc = Document::open(fixtures.join(file), None)?;
             assert!(doc.path.starts_with(fixtures));
             assert!(!doc.temporary);
+            assert!(matches!(doc.status, DocumentStatus::Synced));
             assert_eq!(doc.format.unwrap(), "json");
             assert!(doc.content.len() > 0);
             assert!(doc.root.is_some());
