@@ -7,7 +7,6 @@ use eyre::{bail, Result};
 use schemars::{gen::SchemaGenerator, schema::Schema, JsonSchema};
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use sha2::Digest;
 use std::{
     collections::{hash_map::Entry, HashMap},
     env, fs,
@@ -144,11 +143,6 @@ pub struct Document {
 }
 
 impl Document {
-    /// Generate an id for a document based on its path
-    fn generate_id(path: &str) -> String {
-        format!("{:x}", sha2::Sha256::digest(path.as_bytes()))
-    }
-
     /// Create a new empty document.
     ///
     /// # Arguments
@@ -164,7 +158,7 @@ impl Document {
             fs::write(path.clone(), "").expect("Unable to write temporary file");
         }
 
-        let id = Document::generate_id(&path.display().to_string());
+        let id = uuids::generate(uuids::Family::Document);
 
         Document {
             id,
@@ -190,7 +184,7 @@ impl Document {
             bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
         }
 
-        let id = Document::generate_id(&path.display().to_string());
+        let id = uuids::generate(uuids::Family::Document);
 
         let name = path
             .file_name()
@@ -545,23 +539,25 @@ impl Documents {
 
     pub fn create(&mut self, format: Option<String>) -> Result<Document> {
         let document = Document::new(format);
-        let handler = DocumentHandler::new(document.clone());
-        self.registry.insert(document.id.clone(), handler);
+        self.registry
+            .insert(document.id.clone(), DocumentHandler::new(document.clone()));
         Ok(document)
     }
 
     pub fn open(&mut self, path: &str, format: Option<String>) -> Result<Document> {
         let path = Path::new(path).canonicalize()?;
-        let id = Document::generate_id(&path.display().to_string());
-        let handler = match self.registry.entry(id) {
-            Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => match Document::open(path, format) {
-                Ok(document) => entry.insert(DocumentHandler::new(document)),
-                Err(error) => return Err(error),
-            },
-        };
-        let document = handler.document.lock().expect("Unable to lock document");
-        Ok(document.clone())
+
+        for handler in self.registry.values() {
+            let document = handler.document.lock().expect("Unable to lock document");
+            if document.path == path {
+                return Ok(document.clone());
+            }
+        }
+
+        let document = Document::open(path, format)?;
+        self.registry
+            .insert(document.id.clone(), DocumentHandler::new(document.clone()));
+        Ok(document)
     }
 
     pub fn close(&mut self, id: &str) -> Result<()> {
