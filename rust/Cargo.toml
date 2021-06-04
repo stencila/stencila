@@ -20,4 +20,4 @@ serde_with = "1.9.1"
 
 [dev-dependencies]
 maplit = "1.0.2"
-pretty_assertions = "0.7.1"
+pretty_assertions = "0.7.2"
