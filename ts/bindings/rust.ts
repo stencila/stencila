@@ -172,7 +172,7 @@ export function interfaceSchemaToEnum(
       const isPointer =
         pointerProperties.includes(propertyPath) ||
         pointerProperties.includes(`*.${name}`)
-      type = isPointer ? `Arc<${type}>` : type
+      type = isPointer ? `Box<${type}>` : type
 
       type = optional ? `Option<${type}>` : type
 
