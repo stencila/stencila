@@ -1,3 +1,26 @@
+# [1.8.0](https://github.com/stencila/schema/compare/v1.7.3...v1.8.0) (2021-06-04)
+
+
+### Bug Fixes
+
+* **BlockContent:** Remove ListItem from block content ([b904684](https://github.com/stencila/schema/commit/b9046842a188d44599a6da0eb45a17c86eabb2fc))
+* **CreativeWork:** Narrow allowed content to arrays of inline or block content or string ([a85fd06](https://github.com/stencila/schema/commit/a85fd060cee638d6185708bc6c8e1abd75ea9115))
+* **Deps:** NPM audit fix ([d6c500d](https://github.com/stencila/schema/commit/d6c500d62ec46304d930684d96e0295e137746fb))
+* **Heading, ListItem:** Use integer instead of number for properties ([cfcb195](https://github.com/stencila/schema/commit/cfcb195be857babfb691e4dd88291bfbcf7a27a9))
+* **InlineContent:** Add array and object to valid inline content ([7483e80](https://github.com/stencila/schema/commit/7483e80a9b3356603402fd3e68e425eed410e496))
+* **InlineContent:** Remove  MediaObject from inline content ([010efad](https://github.com/stencila/schema/commit/010efad536a6d49a8450218d1fc116742cc56dc4))
+* **ListItem:** Narrow allowed content to arrays of inline or block content ([5c80b17](https://github.com/stencila/schema/commit/5c80b17177420aa781b1a91130168465c2bd3ecf))
+* **Node:** Expand the `Node` union type to include all entity types ([b658222](https://github.com/stencila/schema/commit/b658222f540ae107c458e9b5f9902140c3863941))
+* **Rust bindings:** Use a Box rather than Arc since do not need shared ownership ([fa939cd](https://github.com/stencila/schema/commit/fa939cd1650c98ee47deb330bccfeeaa6aa54e4d))
+* **Rust bindings:** Use Boolean for consistency with schema.org ([c754d33](https://github.com/stencila/schema/commit/c754d33bb2024a8e508df2730987741c4b0ea570))
+* **TableCell:** Narrow allowed content to arrays of inline or block content ([a207782](https://github.com/stencila/schema/commit/a2077829e48749c1f17cc3343366a50f7846b874))
+
+
+### Features
+
+* **Rust:** Add trait for type name and id ([fd6f0a3](https://github.com/stencila/schema/commit/fd6f0a37dde54d5363b7854aae9be6b4ebcfbfd6))
+* **Rust bindings:** Add type name and id traits ([43c0554](https://github.com/stencila/schema/commit/43c05549f8a69f5308708de4ea6189d430d5d984))
+
 ## [1.7.3](https://github.com/stencila/schema/compare/v1.7.2...v1.7.3) (2021-06-01)
 
 
