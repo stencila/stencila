@@ -39,13 +39,26 @@ pub type Array = Vec<Primitive>;
 /// Uses `BTreeMap` to preserve order.
 pub type Object = BTreeMap<String, Primitive>;
 
-// Checks the `type` property during deserialization.
-// See notes in TypesScript function `interfaceSchemaToEnum`
-// and https://github.com/serde-rs/serde/issues/760.
+/// A trait to retrieve the `type` of entities
+/// Needs to be called `type_name` because `type` is a reserved word
+pub trait TypeName {
+    fn type_name(&self) -> String;
+}
+
+/// A trait to retrieve the `id` of entities
+pub trait Id {
+    fn id(&self) -> Option<String>;
+}
+
+/// Macro to implement functions and types for a schema type
 #[macro_export]
 macro_rules! impl_type {
     ($type:ident) => {
         impl $type {
+            /// Deserialize the `type` property
+            ///
+            /// See notes in TypesScript function `interfaceSchemaToEnum`
+            /// and https://github.com/serde-rs/serde/issues/760.
             pub fn deserialize_type<'de, D>(d: D) -> Result<String, D::Error>
             where
                 D: Deserializer<'de>,
@@ -58,6 +71,18 @@ macro_rules! impl_type {
                     ));
                 }
                 Ok(value)
+            }
+        }
+
+        impl TypeName for $type {
+            fn type_name(&self) -> String {
+                return self.type_.clone();
+            }
+        }
+
+        impl Id for $type {
+            fn id(&self) -> Option<String> {
+                return self.id.clone();
             }
         }
     };
