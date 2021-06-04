@@ -1,36 +1,59 @@
-import {
-  createEntityAdapter,
-  createSlice,
-  EntityId,
-  PayloadAction
-} from '@reduxjs/toolkit'
+import { createSlice, EntityId, PayloadAction } from '@reduxjs/toolkit'
 import { array as A, option as O, string } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
+import {
+  DocumentView,
+  DocumentPane,
+  NormalizedDocumentPaneStore,
+} from './documentPaneTypes'
 
-type DocumentPane = {
-  id: string
-  documents: string[]
-  activeDocument: O.Option<string>
+const initialState: NormalizedDocumentPaneStore = {
+  entities: {
+    panes: {},
+    views: {},
+  },
+  ids: [],
 }
-
-const documentPaneAdapter = createEntityAdapter<DocumentPane>()
 
 export const documentPaneSlice = createSlice({
   name: 'documentPanes',
-  initialState: documentPaneAdapter.getInitialState(),
+  initialState: initialState,
   reducers: {
-    createPane: documentPaneAdapter.addOne,
-    updatePane: documentPaneAdapter.updateOne,
+    createPane: (state) => {
+      const newPaneId = state.ids.length + 1
+      state.entities.panes[newPaneId] = {
+        id: newPaneId,
+        activeView: O.none,
+        views: [],
+      }
+      state.ids = [...state.ids, newPaneId]
+    },
+    updatePane: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{ id: EntityId; changes: Partial<DocumentPane> }>
+    ) => {
+      const prevPane = state.entities.panes[payload.id]
+      if (prevPane) {
+        state.entities.panes[payload.id] = {
+          ...prevPane,
+          ...payload.changes,
+        }
+      }
+    },
     addDocToPane: (
       state,
-      { payload }: PayloadAction<{ paneId: EntityId; docPath: string }>
+      { payload }: PayloadAction<{ paneId: EntityId; doc: DocumentView }>
     ) => {
-      const pane = state.entities[payload.paneId]
+      const pane = state.entities.panes[payload.paneId]
       if (pane) {
-        if (!pane.documents.includes(payload.docPath)) {
-          pane.documents = [...pane.documents, payload.docPath]
+        if (!pane.views.includes(payload.doc.id)) {
+          pane.views = [...pane.views, payload.doc.id]
+
+          state.entities.views[payload.doc.id] = payload.doc
         }
-        pane.activeDocument = O.some(payload.docPath)
+        pane.activeView = O.some(payload.doc.id)
       }
       return state
     },
@@ -38,15 +61,15 @@ export const documentPaneSlice = createSlice({
       state,
       { payload }: PayloadAction<{ paneId: EntityId; docPath: string }>
     ) => {
-      const pane = state.entities[payload.paneId]
+      const pane = state.entities.panes[payload.paneId]
 
       if (pane) {
-        const docIndex = pane.documents.indexOf(payload.docPath)
+        const docIndex = pane.views.indexOf(payload.docPath)
 
         // Remove document from list
-        if (pane.documents.includes(payload.docPath)) {
-          pane.documents = pipe(
-            pane.documents,
+        if (pane.views.includes(payload.docPath)) {
+          pane.views = pipe(
+            pane.views,
             A.deleteAt(docIndex),
             O.getOrElse<string[]>(() => [])
           )
@@ -56,13 +79,13 @@ export const documentPaneSlice = createSlice({
         // change focus to the closest tab
         if (
           O.getEq(string.Eq).equals(
-            pane.activeDocument,
+            pane.activeView,
             O.some(payload.docPath)
           )
         ) {
-          pane.activeDocument = pipe(
-            A.lookup(docIndex)(pane.documents),
-            O.alt(() => A.lookup(docIndex - 1)(pane.documents))
+          pane.activeView = pipe(
+            A.lookup(docIndex)(pane.views),
+            O.alt(() => A.lookup(docIndex - 1)(pane.views))
           )
         }
       }

@@ -16,7 +16,7 @@ export class AppProjectRoot {
     const projectPath = decodeURI(
       window.location.pathname.replace('/project', '')
     )
-    initPane(projectPath)
+    initPane()
     store.dispatch(fetchProject(projectPath))
     listenForFileEvents()
   }

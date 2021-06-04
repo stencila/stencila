@@ -3,32 +3,45 @@ import { documents } from 'stencila'
 import { CHANNEL } from '../../preload'
 
 export const registerDocumentHandlers = () => {
-  ipcMain.handle(
-    CHANNEL.GET_DOCUMENT_CONTENTS,
-    async (ipcEvent, filePath: string) => {
-      let documentId = documents.open(filePath).id
-      documents.subscribe(documentId, ['modified'], (_topic, docEvent) => {
-        ipcEvent.sender.send(CHANNEL.GET_DOCUMENT_CONTENTS, docEvent)
-      })
-      return documents.read(documentId)
-    }
-  )
-
-  ipcMain.handle(
-    CHANNEL.DOCUMENT_GET_PREVIEW,
-    async (ipcEvent, filePath: string) => {
-      let documentId = documents.open(filePath).id
-      documents.subscribe(documentId, ['encoded:html'], (_topic, docEvent) => {
-        ipcEvent.sender.send(CHANNEL.DOCUMENT_GET_PREVIEW, docEvent)
-      })
-    }
-  )
+  ipcMain.handle(CHANNEL.OPEN_DOCUMENT, async (_event, filePath: string) => {
+    return documents.open(filePath)
+  })
 
   ipcMain.handle(CHANNEL.CLOSE_DOCUMENT, async (_event, documentId: string) => {
     try {
       documents.close(documentId)
     } catch (e) {}
   })
+
+  ipcMain.handle(
+    CHANNEL.UNSUBSCRIBE_DOCUMENT,
+    async (
+      _event,
+      { documentId, topics }: { documentId: string; topics: string[] }
+    ) => {
+      documents.unsubscribe(documentId, topics)
+    }
+  )
+
+  ipcMain.handle(
+    CHANNEL.GET_DOCUMENT_CONTENTS,
+    async (ipcEvent, documentId: string) => {
+      documents.subscribe(documentId, ['modified'], (_topic, docEvent) => {
+        ipcEvent.sender.send(CHANNEL.GET_DOCUMENT_CONTENTS, docEvent)
+      })
+
+      return documents.read(documentId)
+    }
+  )
+
+  ipcMain.handle(
+    CHANNEL.DOCUMENT_GET_PREVIEW,
+    async (ipcEvent, documentId: string) => {
+      documents.subscribe(documentId, ['encoded:html'], (_topic, docEvent) => {
+        ipcEvent.sender.send(CHANNEL.DOCUMENT_GET_PREVIEW, docEvent)
+      })
+    }
+  )
 
   ipcMain.handle(
     CHANNEL.SAVE_DOCUMENT,

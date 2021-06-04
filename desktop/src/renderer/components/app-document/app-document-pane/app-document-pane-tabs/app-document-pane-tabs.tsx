@@ -24,10 +24,10 @@ export class AppDocumentPaneTabs {
     return (
       <Host>
         <ul class="documentPaneTabs">
-          {this.documents.map((docPath) => (
+          {this.documents.map((docId) => (
             <app-document-pane-tab
-              isActive={this.isActive(docPath)}
-              documentPath={docPath}
+              isActive={this.isActive(docId)}
+              documentId={docId}
               paneId={this.paneId}
             ></app-document-pane-tab>
           ))}

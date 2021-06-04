@@ -19,7 +19,10 @@ export class AppDocumentEditor {
   private file?: File
 
   private closeDoc = (documentId = this.documentId) =>
-    window.api.invoke(CHANNEL.CLOSE_DOCUMENT, documentId)
+    window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
+      documentId,
+      topics: ['modified'],
+    })
 
   @Watch('documentId')
   documentIdWatchHandler(newValue: string, prevValue: string) {
@@ -40,7 +43,7 @@ export class AppDocumentEditor {
       })
 
     window.api.receive(CHANNEL.GET_DOCUMENT_CONTENTS, (event) => {
-      const {type, content} = event as DocumentEvent
+      const { type, content } = event as DocumentEvent
       if (type === 'modified' && typeof content == 'string') {
         this.editorRef?.setContents(content)
       }

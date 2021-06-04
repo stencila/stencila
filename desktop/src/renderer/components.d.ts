@@ -16,7 +16,7 @@ export namespace Components {
     interface AppDocumentPaneEmpty {
     }
     interface AppDocumentPaneTab {
-        "documentPath": string;
+        "documentId": string;
         "isActive": boolean;
         "paneId": EntityId;
     }
@@ -186,7 +186,7 @@ declare namespace LocalJSX {
     interface AppDocumentPaneEmpty {
     }
     interface AppDocumentPaneTab {
-        "documentPath"?: string;
+        "documentId"?: string;
         "isActive"?: boolean;
         "paneId"?: EntityId;
     }

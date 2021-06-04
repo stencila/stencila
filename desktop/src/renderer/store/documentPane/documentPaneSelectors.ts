@@ -8,13 +8,22 @@ export const selectPaneId = (state: RootState) => {
 }
 
 export const selectPaneDocs = (state: RootState) => (paneId?: EntityId) => {
-  return paneId ? state.panes.entities[paneId]?.documents ?? [] : []
+  return paneId ? state.panes.entities.panes[paneId]?.views ?? [] : []
 }
+
+export const selectDoc = (state: RootState) => (docId: EntityId) => {
+  return state.panes.entities.views[docId]
+}
+
+export const selectDocSubscriptionTopics =
+  (state: RootState) => (docId: EntityId) => {
+    return Object.keys(state.panes.entities.views[docId]?.subscriptions ?? {})
+  }
 
 export const selectActiveDoc = (state: RootState) => {
   return pipe(
     selectPane(state),
-    O.chain((pane) => pane.activeDocument)
+    O.chain((pane) => pane.activeView)
   )
 }
 
@@ -22,7 +31,7 @@ export const selectPane = (state: RootState) => {
   return pipe(
     state.panes.ids,
     A.head,
-    O.chain((id) => O.some(state.panes.entities[id]) ?? O.none),
+    O.chain((id) => O.some(state.panes.entities.panes[id]) ?? O.none),
     O.chain(O.fromNullable)
   )
 }

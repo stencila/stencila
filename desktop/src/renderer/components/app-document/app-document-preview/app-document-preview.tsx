@@ -1,6 +1,8 @@
 import { Component, h, Host, Prop, State, Watch } from '@stencil/core'
-import { CHANNEL } from '../../../../preload'
+import { state } from '../../../store'
 import { DocumentEvent } from 'stencila'
+import { CHANNEL } from '../../../../preload'
+import { selectDocSubscriptionTopics } from '../../../store/documentPane/documentPaneSelectors'
 
 @Component({
   tag: 'app-document-preview',
@@ -37,7 +39,10 @@ export class AppDocumentPreview {
   }
 
   private closeDoc = (documentId = this.documentId) =>
-    window.api.invoke(CHANNEL.CLOSE_DOCUMENT, documentId)
+    window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
+      documentId,
+      topics: ['encoded:html'],
+    })
 
   componentWillLoad() {
     this.subscribeToUpdates()

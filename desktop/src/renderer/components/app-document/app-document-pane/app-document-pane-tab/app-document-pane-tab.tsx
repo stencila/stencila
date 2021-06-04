@@ -5,7 +5,7 @@ import {
   closeDocument,
   setActiveDocument,
 } from '../../../../store/documentPane/documentPaneActions'
-import { selectProjectFile } from '../../../../store/project/projectSelectors'
+import { selectDoc } from '../../../../store/documentPane/documentPaneSelectors'
 
 @Component({
   tag: 'app-document-pane-tab',
@@ -15,19 +15,19 @@ import { selectProjectFile } from '../../../../store/project/projectSelectors'
 export class AppDocumentPaneTab {
   @Prop() isActive: boolean
 
-  @Prop() documentPath: string
+  @Prop() documentId: string
 
   @Prop() paneId: EntityId
 
   private activateDoc = (e: MouseEvent) => {
     e.preventDefault()
-    setActiveDocument(this.paneId, this.documentPath)
+    setActiveDocument(this.paneId, this.documentId)
   }
 
   private closeDoc = (e: MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
-    closeDocument(this.paneId, this.documentPath)
+    closeDocument(this.paneId, this.documentId)
   }
 
   render() {
@@ -35,7 +35,7 @@ export class AppDocumentPaneTab {
       <Host class={{ isActive: this.isActive }} onClick={this.activateDoc}>
         <li>
           <stencila-icon icon="close" onClick={this.closeDoc}></stencila-icon>
-          <a href="#">{selectProjectFile(state)(this.documentPath)?.name}</a>
+          <a href="#">{selectDoc(state)(this.documentId)?.name}</a>
         </li>
       </Host>
     )
