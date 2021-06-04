@@ -24,18 +24,28 @@ export class AppProjectRoot {
   render() {
     return (
       <div class="projectWindow">
-        <app-project-sidebar-files></app-project-sidebar-files>
+        <split-me
+          n={2}
+          sizes={[0.2, 0.8]}
+          minSizes={[0.05, 0.2]}
+          maxSizes={[0.5, 1]}
+          d="horizontal"
+        >
+          <app-project-sidebar-files slot="0"></app-project-sidebar-files>
 
-        <ProjectRouter.Switch>
-          <Route
-            path={() => true}
-            render={() => (
-              <main>
-                <app-document-pane></app-document-pane>
-              </main>
-            )}
-          ></Route>
-        </ProjectRouter.Switch>
+          <div slot="1">
+            <ProjectRouter.Switch>
+              <Route
+                path={() => true}
+                render={() => (
+                  <main>
+                    <app-document-pane></app-document-pane>
+                  </main>
+                )}
+              ></Route>
+            </ProjectRouter.Switch>
+          </div>
+        </split-me>
       </div>
     )
   }

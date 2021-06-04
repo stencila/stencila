@@ -3,5 +3,5 @@
 }
 
 .documentPaneContents {
-  @apply flex-grow flex max-h-full overflow-hidden;;
+  @apply block h-full overflow-hidden;
 }
