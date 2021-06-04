@@ -24,6 +24,10 @@
 
   &:hover,
   &:focus {
+    &:not(.isActive) {
+      background: var(--color-neutral-400);
+    }
+
     stencila-icon {
       @apply opacity-100;
     }
