@@ -4920,7 +4920,6 @@ pub enum InlineContent {
     ImageObject(ImageObject),
     Link(Link),
     MathFragment(MathFragment),
-    MediaObject(MediaObject),
     NontextualAnnotation(NontextualAnnotation),
     Note(Note),
     Quote(Quote),

@@ -20,7 +20,6 @@ anyOf:
   - $ref: ImageObject
   - $ref: Link
   - $ref: MathFragment
-  - $ref: MediaObject
   - $ref: NontextualAnnotation
   - $ref: Note
   - $ref: Quote
