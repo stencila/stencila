@@ -87,7 +87,7 @@ async function build(): Promise<void> {
 
 #![allow(clippy::large_enum_variant)]
 
-use crate::impl_type;
+use crate::{impl_enum, impl_struct};
 use crate::prelude::*;
 
 /*********************************************************************
@@ -207,7 +207,7 @@ pub struct ${title} {
 
 ${fields}
 }
-impl_type!(${title});`
+impl_struct!(${title});`
 
   return code
 }
@@ -231,7 +231,8 @@ export function enumSchemaToEnum(
   return `${docComment(description)}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ${title} {\n${variants}}\n`
+pub enum ${title} {\n${variants}}
+impl_enum!(${title});`
 }
 
 /**
@@ -254,7 +255,12 @@ export function unionSchemaToEnum(
     })
     .join('')
 
-  return `${docComment(description)}
+  return `${docComment(description)}${
+    // Can not use enum dispatch on enums that include `Null`
+    !['Node', 'InlineContent'].includes(title)
+      ? '\n#[enum_dispatch(NodeTrait)]'
+      : ''
+  }
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ${title} {\n${variants}}\n`

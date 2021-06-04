@@ -2,7 +2,7 @@
 
 #![allow(clippy::large_enum_variant)]
 
-use crate::impl_type;
+use crate::{impl_enum, impl_struct};
 use crate::prelude::*;
 
 /*********************************************************************
@@ -26,7 +26,7 @@ pub struct Entity {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Entity);
+impl_struct!(Entity);
 
 /// A reference to a CreativeWork that is cited in another CreativeWork.
 #[skip_serializing_none]
@@ -71,7 +71,7 @@ pub struct Cite {
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
 }
-impl_type!(Cite);
+impl_struct!(Cite);
 
 /// A group of Cite nodes.
 #[skip_serializing_none]
@@ -92,7 +92,7 @@ pub struct CiteGroup {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(CiteGroup);
+impl_struct!(CiteGroup);
 
 /// Base type for code nodes e.g. CodeBlock, CodeExpression.
 #[skip_serializing_none]
@@ -119,7 +119,7 @@ pub struct Code {
     /// The programming language of the code.
     pub programming_language: Option<String>,
 }
-impl_type!(Code);
+impl_struct!(Code);
 
 /// A code block.
 #[skip_serializing_none]
@@ -152,7 +152,7 @@ pub struct CodeBlock {
     /// The programming language of the code.
     pub programming_language: Option<String>,
 }
-impl_type!(CodeBlock);
+impl_struct!(CodeBlock);
 
 /// A executable chunk of code.
 #[skip_serializing_none]
@@ -218,7 +218,7 @@ pub struct CodeChunk {
     /// Names of variables that the code chunk uses (but does not alter).
     pub uses: Option<Vec<CodeChunkUses>>,
 }
-impl_type!(CodeChunk);
+impl_struct!(CodeChunk);
 
 /// Inline code.
 #[skip_serializing_none]
@@ -245,7 +245,7 @@ pub struct CodeFragment {
     /// The programming language of the code.
     pub programming_language: Option<String>,
 }
-impl_type!(CodeFragment);
+impl_struct!(CodeFragment);
 
 /// An expression defined in programming language source code.
 #[skip_serializing_none]
@@ -279,7 +279,7 @@ pub struct CodeExpression {
     /// The programming language of the code.
     pub programming_language: Option<String>,
 }
-impl_type!(CodeExpression);
+impl_struct!(CodeExpression);
 
 /// An error that occurred when parsing, compiling or executing a Code node.
 #[skip_serializing_none]
@@ -306,7 +306,7 @@ pub struct CodeError {
     /// Stack trace leading up to the error.
     pub stack_trace: Option<String>,
 }
-impl_type!(CodeError);
+impl_struct!(CodeError);
 
 /// A date encoded as a ISO 8601 string.
 #[skip_serializing_none]
@@ -328,7 +328,7 @@ pub struct Date {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Date);
+impl_struct!(Date);
 
 /// A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
 #[skip_serializing_none]
@@ -349,7 +349,7 @@ pub struct Mark {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Mark);
+impl_struct!(Mark);
 
 /// Content that is marked for deletion
 #[skip_serializing_none]
@@ -370,7 +370,7 @@ pub struct Delete {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Delete);
+impl_struct!(Delete);
 
 /// Emphasised content.
 #[skip_serializing_none]
@@ -391,7 +391,7 @@ pub struct Emphasis {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Emphasis);
+impl_struct!(Emphasis);
 
 /// The most generic type of item.
 #[skip_serializing_none]
@@ -427,7 +427,7 @@ pub struct Thing {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(Thing);
+impl_struct!(Thing);
 
 /// A brand used by an organization or person for labeling a product, product group, or similar.
 #[skip_serializing_none]
@@ -469,7 +469,7 @@ pub struct Brand {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(Brand);
+impl_struct!(Brand);
 
 /// A contact point, usually within an organization.
 #[skip_serializing_none]
@@ -514,7 +514,7 @@ pub struct ContactPoint {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(ContactPoint);
+impl_struct!(ContactPoint);
 
 /// A creative work, including books, movies, photographs, software programs, etc.
 #[skip_serializing_none]
@@ -620,7 +620,7 @@ pub struct CreativeWork {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(CreativeWork);
+impl_struct!(CreativeWork);
 
 /// An article, including news and scholarly articles.
 #[skip_serializing_none]
@@ -735,7 +735,7 @@ pub struct Article {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(Article);
+impl_struct!(Article);
 
 /// A claim represents specific reviewable facts or statements.
 #[skip_serializing_none]
@@ -847,7 +847,7 @@ pub struct Claim {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(Claim);
+impl_struct!(Claim);
 
 /// A collection of CreativeWorks or other artifacts.
 #[skip_serializing_none]
@@ -953,7 +953,7 @@ pub struct Collection {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(Collection);
+impl_struct!(Collection);
 
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
 #[skip_serializing_none]
@@ -1066,7 +1066,7 @@ pub struct Comment {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(Comment);
+impl_struct!(Comment);
 
 /// A table of data.
 #[skip_serializing_none]
@@ -1175,7 +1175,7 @@ pub struct Datatable {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(Datatable);
+impl_struct!(Datatable);
 
 /// A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
 #[skip_serializing_none]
@@ -1296,7 +1296,7 @@ pub struct MediaObject {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(MediaObject);
+impl_struct!(MediaObject);
 
 /// An audio file
 #[skip_serializing_none]
@@ -1423,7 +1423,7 @@ pub struct AudioObject {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(AudioObject);
+impl_struct!(AudioObject);
 
 /// A column of data within a Datatable.
 #[skip_serializing_none]
@@ -1465,7 +1465,7 @@ pub struct DatatableColumn {
     /// The validator to use to validate data in the column.
     pub validator: Option<ArrayValidator>,
 }
-impl_type!(DatatableColumn);
+impl_struct!(DatatableColumn);
 
 /// A word, name, acronym, phrase, etc. with a formal definition.
 #[skip_serializing_none]
@@ -1504,7 +1504,7 @@ pub struct DefinedTerm {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(DefinedTerm);
+impl_struct!(DefinedTerm);
 
 /// A base for all validator types.
 #[skip_serializing_none]
@@ -1522,7 +1522,7 @@ pub struct Validator {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Validator);
+impl_struct!(Validator);
 
 /// A validator specifying constraints on an array node.
 #[skip_serializing_none]
@@ -1557,7 +1557,7 @@ pub struct ArrayValidator {
     /// A flag to indicate that each value in the array should be unique.
     pub unique_items: Option<Boolean>,
 }
-impl_type!(ArrayValidator);
+impl_struct!(ArrayValidator);
 
 /// A schema specifying that a node must be a boolean value.
 #[skip_serializing_none]
@@ -1575,7 +1575,7 @@ pub struct BooleanValidator {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(BooleanValidator);
+impl_struct!(BooleanValidator);
 
 /// A validator specifying a constant value that a node must have.
 #[skip_serializing_none]
@@ -1597,7 +1597,7 @@ pub struct ConstantValidator {
     #[serde(skip)]
     pub value: Option<Box<Node>>,
 }
-impl_type!(ConstantValidator);
+impl_struct!(ConstantValidator);
 
 /// A schema specifying that a node must be one of several values.
 #[skip_serializing_none]
@@ -1618,7 +1618,7 @@ pub struct EnumValidator {
     /// A node is valid if it is equal to any of these values.
     pub values: Option<Vec<Node>>,
 }
-impl_type!(EnumValidator);
+impl_struct!(EnumValidator);
 
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
 #[skip_serializing_none]
@@ -1654,7 +1654,7 @@ pub struct Enumeration {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(Enumeration);
+impl_struct!(Enumeration);
 
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 #[skip_serializing_none]
@@ -1766,7 +1766,7 @@ pub struct Figure {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(Figure);
+impl_struct!(Figure);
 
 /// A function with a name, which might take Parameters and return a value of a certain type.
 #[skip_serializing_none]
@@ -1793,7 +1793,7 @@ pub struct Function {
     /// The return type of the function.
     pub returns: Option<ValidatorTypes>,
 }
-impl_type!(Function);
+impl_struct!(Function);
 
 /// A grant, typically financial or otherwise quantifiable, of resources.
 #[skip_serializing_none]
@@ -1835,7 +1835,7 @@ pub struct Grant {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(Grant);
+impl_struct!(Grant);
 
 /// A heading.
 #[skip_serializing_none]
@@ -1859,7 +1859,7 @@ pub struct Heading {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Heading);
+impl_struct!(Heading);
 
 /// An image file.
 #[skip_serializing_none]
@@ -1988,7 +1988,7 @@ pub struct ImageObject {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(ImageObject);
+impl_struct!(ImageObject);
 
 /// A directive to include content from an external source (e.g. file, URL) or content.
 #[skip_serializing_none]
@@ -2015,7 +2015,7 @@ pub struct Include {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Include);
+impl_struct!(Include);
 
 /// A validator specifying the constraints on an integer node.
 #[skip_serializing_none]
@@ -2033,7 +2033,7 @@ pub struct IntegerValidator {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(IntegerValidator);
+impl_struct!(IntegerValidator);
 
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
 #[skip_serializing_none]
@@ -2069,7 +2069,7 @@ pub struct Link {
     /// A title for the link.
     pub title: Option<String>,
 }
-impl_type!(Link);
+impl_struct!(Link);
 
 /// A list of items.
 #[skip_serializing_none]
@@ -2093,7 +2093,7 @@ pub struct List {
     /// Type of ordering.
     pub order: Option<ListOrder>,
 }
-impl_type!(List);
+impl_struct!(List);
 
 /// A single item in a list.
 #[skip_serializing_none]
@@ -2142,7 +2142,7 @@ pub struct ListItem {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(ListItem);
+impl_struct!(ListItem);
 
 /// A mathematical variable or equation.
 #[skip_serializing_none]
@@ -2169,7 +2169,7 @@ pub struct Math {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Math);
+impl_struct!(Math);
 
 /// A block of math, e.g an equation, to be treated as block content.
 #[skip_serializing_none]
@@ -2199,7 +2199,7 @@ pub struct MathBlock {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(MathBlock);
+impl_struct!(MathBlock);
 
 /// A fragment of math, e.g a variable name, to be treated as inline content.
 #[skip_serializing_none]
@@ -2226,7 +2226,7 @@ pub struct MathFragment {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(MathFragment);
+impl_struct!(MathFragment);
 
 /// A monetary grant.
 #[skip_serializing_none]
@@ -2274,7 +2274,7 @@ pub struct MonetaryGrant {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(MonetaryGrant);
+impl_struct!(MonetaryGrant);
 
 /// Inline text that has a non-textual annotation.
 #[skip_serializing_none]
@@ -2295,7 +2295,7 @@ pub struct NontextualAnnotation {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(NontextualAnnotation);
+impl_struct!(NontextualAnnotation);
 
 /// Additional content which is not part of the main content of a document.
 #[skip_serializing_none]
@@ -2319,7 +2319,7 @@ pub struct Note {
     /// Determines where the note content is displayed within the document.
     pub note_type: Option<NoteNoteType>,
 }
-impl_type!(Note);
+impl_struct!(Note);
 
 /// A validator specifying the constraints on a numeric node.
 #[skip_serializing_none]
@@ -2352,7 +2352,7 @@ pub struct NumberValidator {
     /// A number that a numeric node must be a multiple of.
     pub multiple_of: Option<Number>,
 }
-impl_type!(NumberValidator);
+impl_struct!(NumberValidator);
 
 /// An organization such as a school, NGO, corporation, club, etc.
 #[skip_serializing_none]
@@ -2416,7 +2416,7 @@ pub struct Organization {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(Organization);
+impl_struct!(Organization);
 
 /// Paragraph
 #[skip_serializing_none]
@@ -2437,7 +2437,7 @@ pub struct Paragraph {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Paragraph);
+impl_struct!(Paragraph);
 
 /// A variable representing a name / value pair.
 #[skip_serializing_none]
@@ -2468,7 +2468,7 @@ pub struct Variable {
     #[serde(skip)]
     pub value: Option<Box<Node>>,
 }
-impl_type!(Variable);
+impl_struct!(Variable);
 
 /// A parameter that can be set and used in evaluated code.
 #[skip_serializing_none]
@@ -2512,7 +2512,7 @@ pub struct Parameter {
     #[serde(skip)]
     pub value: Option<Box<Node>>,
 }
-impl_type!(Parameter);
+impl_struct!(Parameter);
 
 /// A periodical publication.
 #[skip_serializing_none]
@@ -2627,7 +2627,7 @@ pub struct Periodical {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(Periodical);
+impl_struct!(Periodical);
 
 /// A person (alive, dead, undead, or fictional).
 #[skip_serializing_none]
@@ -2696,7 +2696,7 @@ pub struct Person {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(Person);
+impl_struct!(Person);
 
 /// A physical mailing address.
 #[skip_serializing_none]
@@ -2759,7 +2759,7 @@ pub struct PostalAddress {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(PostalAddress);
+impl_struct!(PostalAddress);
 
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
 #[skip_serializing_none]
@@ -2804,7 +2804,7 @@ pub struct Product {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(Product);
+impl_struct!(Product);
 
 /// A property-value pair.
 #[skip_serializing_none]
@@ -2847,7 +2847,7 @@ pub struct PropertyValue {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(PropertyValue);
+impl_struct!(PropertyValue);
 
 /// A part of a successively published publication such as a periodical or publication volume, often numbered.
 #[skip_serializing_none]
@@ -2965,7 +2965,7 @@ pub struct PublicationIssue {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(PublicationIssue);
+impl_struct!(PublicationIssue);
 
 /// A part of a successively published publication such as a periodical or multi-volume work.
 #[skip_serializing_none]
@@ -3083,7 +3083,7 @@ pub struct PublicationVolume {
     /// Identifies the volume of publication or multi-part work; for example, "iii" or "2".
     pub volume_number: Option<PublicationVolumeVolumeNumber>,
 }
-impl_type!(PublicationVolume);
+impl_struct!(PublicationVolume);
 
 /// Inline, quoted content.
 #[skip_serializing_none]
@@ -3107,7 +3107,7 @@ pub struct Quote {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Quote);
+impl_struct!(Quote);
 
 /// A section quoted from somewhere else.
 #[skip_serializing_none]
@@ -3131,7 +3131,7 @@ pub struct QuoteBlock {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(QuoteBlock);
+impl_struct!(QuoteBlock);
 
 /// A review of an item, e.g of an Article, or SoftwareSourceCode.
 #[skip_serializing_none]
@@ -3243,7 +3243,7 @@ pub struct Review {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(Review);
+impl_struct!(Review);
 
 /// A software application.
 #[skip_serializing_none]
@@ -3355,7 +3355,7 @@ pub struct SoftwareApplication {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(SoftwareApplication);
+impl_struct!(SoftwareApplication);
 
 /// A computational environment.
 #[skip_serializing_none]
@@ -3400,7 +3400,7 @@ pub struct SoftwareEnvironment {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(SoftwareEnvironment);
+impl_struct!(SoftwareEnvironment);
 
 /// Definition of a compute session, including its software and compute resource requirements and status.
 #[skip_serializing_none]
@@ -3487,7 +3487,7 @@ pub struct SoftwareSession {
     /// Volumes to mount in the session.
     pub volume_mounts: Option<Vec<VolumeMount>>,
 }
-impl_type!(SoftwareSession);
+impl_struct!(SoftwareSession);
 
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
 #[skip_serializing_none]
@@ -3611,7 +3611,7 @@ pub struct SoftwareSourceCode {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(SoftwareSourceCode);
+impl_struct!(SoftwareSourceCode);
 
 /// A schema specifying constraints on a string node.
 #[skip_serializing_none]
@@ -3638,7 +3638,7 @@ pub struct StringValidator {
     /// A regular expression that a string node must match.
     pub pattern: Option<String>,
 }
-impl_type!(StringValidator);
+impl_struct!(StringValidator);
 
 /// Strongly emphasised content.
 #[skip_serializing_none]
@@ -3659,7 +3659,7 @@ pub struct Strong {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Strong);
+impl_struct!(Strong);
 
 /// Subscripted content.
 #[skip_serializing_none]
@@ -3680,7 +3680,7 @@ pub struct Subscript {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Subscript);
+impl_struct!(Subscript);
 
 /// Superscripted content.
 #[skip_serializing_none]
@@ -3701,7 +3701,7 @@ pub struct Superscript {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(Superscript);
+impl_struct!(Superscript);
 
 /// A table.
 #[skip_serializing_none]
@@ -3816,7 +3816,7 @@ pub struct Table {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(Table);
+impl_struct!(Table);
 
 /// A cell within a `Table`.
 #[skip_serializing_none]
@@ -3849,7 +3849,7 @@ pub struct TableCell {
     /// How many columns the cell extends.
     pub rowspan: Option<Integer>,
 }
-impl_type!(TableCell);
+impl_struct!(TableCell);
 
 /// A row within a Table.
 #[skip_serializing_none]
@@ -3873,7 +3873,7 @@ pub struct TableRow {
     /// If present, indicates that all cells in this row should be treated as header cells.
     pub row_type: Option<TableRowRowType>,
 }
-impl_type!(TableRow);
+impl_struct!(TableRow);
 
 /// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
 #[skip_serializing_none]
@@ -3891,7 +3891,7 @@ pub struct ThematicBreak {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(ThematicBreak);
+impl_struct!(ThematicBreak);
 
 /// A validator specifying constraints on an array of heterogeneous items.
 #[skip_serializing_none]
@@ -3912,7 +3912,7 @@ pub struct TupleValidator {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
-impl_type!(TupleValidator);
+impl_struct!(TupleValidator);
 
 /// A video file.
 #[skip_serializing_none]
@@ -4042,7 +4042,7 @@ pub struct VideoObject {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
-impl_type!(VideoObject);
+impl_struct!(VideoObject);
 
 /// Describes a volume mount from a host to container.
 #[skip_serializing_none]
@@ -4090,7 +4090,7 @@ pub struct VolumeMount {
     /// The URL of the item.
     pub url: Option<String>,
 }
-impl_type!(VolumeMount);
+impl_struct!(VolumeMount);
 
 /*********************************************************************
  * Types for properties that are manually defined
@@ -4728,13 +4728,14 @@ pub enum CitationIntentEnumeration {
     /// The citing entity describes work that uses a method detailed in the cited entity
     UsesMethodIn,
 }
-
+impl_enum!(CitationIntentEnumeration);
 
 /*********************************************************************
  * Enums for "union" schemas
  ********************************************************************/
   
 /// Union type for valid block content.
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BlockContent {
@@ -4753,6 +4754,7 @@ pub enum BlockContent {
 }
 
 /// All type schemas that are derived from CodeBlock
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeBlockTypes {
@@ -4761,6 +4763,7 @@ pub enum CodeBlockTypes {
 }
 
 /// All type schemas that are derived from CodeFragment
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeFragmentTypes {
@@ -4769,6 +4772,7 @@ pub enum CodeFragmentTypes {
 }
 
 /// All type schemas that are derived from Code
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CodeTypes {
@@ -4780,6 +4784,7 @@ pub enum CodeTypes {
 }
 
 /// All type schemas that are derived from ContactPoint
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ContactPointTypes {
@@ -4788,6 +4793,7 @@ pub enum ContactPointTypes {
 }
 
 /// All type schemas that are derived from CreativeWork
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreativeWorkTypes {
@@ -4812,6 +4818,7 @@ pub enum CreativeWorkTypes {
 }
 
 /// All type schemas that are derived from Entity
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EntityTypes {
@@ -4897,6 +4904,7 @@ pub enum EntityTypes {
 }
 
 /// All type schemas that are derived from Enumeration
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnumerationTypes {
@@ -4905,6 +4913,7 @@ pub enum EnumerationTypes {
 }
 
 /// All type schemas that are derived from Grant
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GrantTypes {
@@ -4943,6 +4952,7 @@ pub enum InlineContent {
 }
 
 /// All type schemas that are derived from Mark
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MarkTypes {
@@ -4957,6 +4967,7 @@ pub enum MarkTypes {
 }
 
 /// All type schemas that are derived from Math
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MathTypes {
@@ -4966,6 +4977,7 @@ pub enum MathTypes {
 }
 
 /// All type schemas that are derived from MediaObject
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MediaObjectTypes {
@@ -5067,6 +5079,7 @@ pub enum Node {
 }
 
 /// All type schemas that are derived from Thing
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ThingTypes {
@@ -5109,6 +5122,7 @@ pub enum ThingTypes {
 }
 
 /// All type schemas that are derived from Validator
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ValidatorTypes {
@@ -5124,6 +5138,7 @@ pub enum ValidatorTypes {
 }
 
 /// All type schemas that are derived from Variable
+#[enum_dispatch(NodeTrait)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum VariableTypes {

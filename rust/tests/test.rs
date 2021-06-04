@@ -5,8 +5,8 @@ use maplit::btreemap;
 use pretty_assertions::assert_eq;
 use serde_json::{json, Result, Value};
 use stencila_schema::{
-    Article, BlockContent, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle, InlineContent,
-    Paragraph, Person, Primitive,
+    Article, BlockContent, CodeExpression, CreativeWorkAuthors, CreativeWorkTitle,
+    CreativeWorkTypes, Entity, InlineContent, NodeTrait, Paragraph, Person, Primitive,
 };
 
 #[test]
@@ -193,4 +193,34 @@ fn entity_is_serdeable() -> Result<()> {
     assert_eq!(json_val2, json_val1);
 
     Ok(())
+}
+
+#[test]
+fn entity_has_type_name() {
+    let article = Article::default();
+
+    assert_eq!(article.type_name(), "Article")
+}
+
+#[test]
+fn entity_has_id() {
+    let id = Some("whateva".into());
+    let entity = Entity {
+        id: id.clone(),
+        ..Default::default()
+    };
+
+    assert_eq!(entity.id(), id)
+}
+
+#[test]
+fn union_types_have_typename_and_id() {
+    let id = Some("whateva".into());
+    let work = CreativeWorkTypes::Article(Article {
+        id: id.clone(),
+        ..Default::default()
+    });
+
+    assert_eq!(work.type_name(), "Article");
+    assert_eq!(work.id(), id)
 }
