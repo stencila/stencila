@@ -80,16 +80,6 @@ export const isA = <K extends keyof Types>(
   return isEntity(node) && node.type === type
 }
 
-export const isInstanceOf = <
-  E = never,
-  TM = TypeMap<E extends Entity ? E : never>
->(
-  typeMap: E extends never ? never : TM,
-  node?: Node
-): node is E => {
-  return isEntity(node) && Object.keys(typeMap).includes(node.type)
-}
-
 /**
  * Returns a type guard to determine whether a node is of a specific type.
  * Returns a boolean value and narrows the TypeScript inferred type to

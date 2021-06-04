@@ -1,21 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import {
-  blockContentTypes,
-  Code,
-  CodeBlock,
-  codeBlockTypes,
-  codeTypes,
-  CreativeWork,
-  creativeWorkTypes,
-  inlineContentTypes,
-  TypeMap,
-} from '../types'
+import { blockContentTypes, inlineContentTypes, TypeMap } from '../types'
 import {
   isA,
   isInlineContent,
   isInlineEntity,
-  isInstanceOf,
   isPrimitive,
   isType,
   nodeIs,
@@ -164,34 +153,4 @@ describe('isInlineContent', () => {
       expect(isInlineContent({ type })).toBe(true)
     }
   )
-})
-
-describe('handle descendant type matching', () => {
-  test('it matches the descendent schema', () => {
-    expect(
-      isInstanceOf<Code>(codeTypes, { type: 'Code' })
-    ).toBe(true)
-
-    expect(
-      isInstanceOf<Code>(codeTypes, { type: 'CodeFragment' })
-    ).toBe(true)
-  })
-
-  test('it does not match against parent schema', () => {
-    expect(
-      isInstanceOf<CodeBlock>(codeBlockTypes, { type: 'Code' })
-    ).toBe(false)
-
-    expect(
-      isInstanceOf<CodeBlock>(codeBlockTypes, { type: 'Code' })
-    ).toBe(false)
-  })
-
-  test('it does not match across schemas', () => {
-    expect(
-      isInstanceOf<CreativeWork>(creativeWorkTypes, {
-        type: 'CodeFragment',
-      })
-    ).toBe(false)
-  })
 })
