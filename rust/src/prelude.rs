@@ -10,7 +10,7 @@ pub use std::sync::Arc;
 #[serde(untagged)]
 pub enum Primitive {
     Null,
-    Bool(Bool),
+    Boolean(Boolean),
     Integer(Integer),
     Number(Number),
     String(String),
@@ -19,7 +19,7 @@ pub enum Primitive {
 }
 
 /// A boolean value
-pub type Bool = bool;
+pub type Boolean = bool;
 
 /// An integer value
 ///

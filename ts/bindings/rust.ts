@@ -272,7 +272,7 @@ function schemaToType(schema: JsonSchema, context: Context): string {
   if (schema.enum !== undefined) return enumToEnum(schema.enum, context)
 
   if (type === 'null') return 'Null'
-  if (type === 'boolean') return 'Bool'
+  if (type === 'boolean') return 'Boolean'
   if (type === 'number') return 'Number'
   if (type === 'integer') return 'Integer'
   if (type === 'string') return 'String'

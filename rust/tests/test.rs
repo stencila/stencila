@@ -15,10 +15,10 @@ fn primitives_deserialize() -> Result<()> {
     assert!(matches!(null, Primitive::Null));
 
     let bool: Primitive = serde_json::from_str("true")?;
-    assert!(matches!(bool, Primitive::Bool(_)));
+    assert!(matches!(bool, Primitive::Boolean(_)));
 
     let bool: Primitive = serde_json::from_str("false")?;
-    assert!(matches!(bool, Primitive::Bool(_)));
+    assert!(matches!(bool, Primitive::Boolean(_)));
 
     let integer: Primitive = serde_json::from_str("42")?;
     assert!(matches!(integer, Primitive::Integer(_)));
@@ -32,7 +32,7 @@ fn primitives_deserialize() -> Result<()> {
     let array: Primitive = serde_json::from_str(r#"[null, false, 42, 3.14, "string"]"#)?;
     if let Primitive::Array(array) = array {
         assert!(matches!(array[0], Primitive::Null));
-        assert!(matches!(array[1], Primitive::Bool(false)));
+        assert!(matches!(array[1], Primitive::Boolean(false)));
         assert!(matches!(array[2], Primitive::Integer(_)));
         assert!(matches!(array[3], Primitive::Number(_)));
         assert!(matches!(array[4], Primitive::String(_)));
@@ -51,7 +51,7 @@ fn primitives_deserialize() -> Result<()> {
     )?;
     if let Primitive::Object(object) = object {
         assert!(matches!(object["a"], Primitive::Null));
-        assert!(matches!(object["b"], Primitive::Bool(false)));
+        assert!(matches!(object["b"], Primitive::Boolean(false)));
         assert!(matches!(object["c"], Primitive::Integer(_)));
         assert!(matches!(object["d"], Primitive::Number(_)));
         assert!(matches!(object["e"], Primitive::String(_)));
@@ -67,10 +67,10 @@ fn primitives_serialize() -> Result<()> {
     let null = Primitive::Null;
     assert_eq!(serde_json::to_string(&null)?, "null");
 
-    let bool = Primitive::Bool(true);
+    let bool = Primitive::Boolean(true);
     assert_eq!(serde_json::to_string(&bool)?, "true");
 
-    let bool = Primitive::Bool(false);
+    let bool = Primitive::Boolean(false);
     assert_eq!(serde_json::to_string(&bool)?, "false");
 
     let integer = Primitive::Integer(42);
@@ -84,7 +84,7 @@ fn primitives_serialize() -> Result<()> {
 
     let array = Primitive::Array(vec![
         Primitive::Null,
-        Primitive::Bool(false),
+        Primitive::Boolean(false),
         Primitive::Integer(42),
         Primitive::Number(3.14),
         Primitive::String("string".to_string()),
@@ -96,7 +96,7 @@ fn primitives_serialize() -> Result<()> {
 
     let object = Primitive::Object(btreemap! {
         "a".to_string() => Primitive::Null,
-        "b".to_string() => Primitive::Bool(false),
+        "b".to_string() => Primitive::Boolean(false),
         "c".to_string() => Primitive::Integer(42),
         "d".to_string() => Primitive::Number(3.14),
         "e".to_string() => Primitive::String("string".to_string())

@@ -1555,7 +1555,7 @@ pub struct ArrayValidator {
     pub min_items: Option<Number>,
 
     /// A flag to indicate that each value in the array should be unique.
-    pub unique_items: Option<Bool>,
+    pub unique_items: Option<Boolean>,
 }
 impl_type!(ArrayValidator);
 
@@ -2124,7 +2124,7 @@ pub struct ListItem {
     pub images: Option<Vec<ThingImages>>,
 
     /// A flag to indicate if this list item is checked.
-    pub is_checked: Option<Bool>,
+    pub is_checked: Option<Boolean>,
 
     /// The item represented by this list item.
     #[serde(skip)]
@@ -2456,7 +2456,7 @@ pub struct Variable {
     pub id: Option<String>,
 
     /// Whether or not a property is mutable. Default is false.
-    pub is_readonly: Option<Bool>,
+    pub is_readonly: Option<Boolean>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2491,16 +2491,16 @@ pub struct Parameter {
     pub id: Option<String>,
 
     /// Indicates that this parameter is variadic and can accept multiple named arguments.
-    pub is_extensible: Option<Bool>,
+    pub is_extensible: Option<Boolean>,
 
     /// Whether or not a property is mutable. Default is false.
-    pub is_readonly: Option<Bool>,
+    pub is_readonly: Option<Boolean>,
 
     /// Is this parameter required, if not it should have a default or default is assumed to be null.
-    pub is_required: Option<Bool>,
+    pub is_required: Option<Boolean>,
 
     /// Indicates that this parameter is variadic and can accept multiple arguments.
-    pub is_variadic: Option<Bool>,
+    pub is_variadic: Option<Boolean>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -4419,7 +4419,7 @@ pub enum ProductLogo {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PropertyValueValue {
-    Bool(Bool),
+    Boolean(Boolean),
     Integer(Integer),
     Number(Number),
     String(String),
@@ -4934,7 +4934,7 @@ pub enum InlineContent {
     Superscript(Superscript),
     VideoObject(VideoObject),
     Null,
-    Bool(Bool),
+    Boolean(Boolean),
     Integer(Integer),
     Number(Number),
     Array(Array),
@@ -5058,7 +5058,7 @@ pub enum Node {
     VideoObject(VideoObject),
     VolumeMount(VolumeMount),
     Null,
-    Bool(Bool),
+    Boolean(Boolean),
     Integer(Integer),
     Number(Number),
     String(String),
