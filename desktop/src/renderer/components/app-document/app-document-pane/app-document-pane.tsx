@@ -5,7 +5,7 @@ import { IResizeEvent } from 'split-me/dist/types/components/split-me/interfaces
 import { state } from '../../../store'
 import {
   selectActiveDoc,
-  selectPaneDocs,
+  selectPaneViews,
   selectPaneId,
 } from '../../../store/documentPane/documentPaneSelectors'
 
@@ -31,7 +31,7 @@ export class AppDocumentPane {
         <app-document-pane-tabs
           activeDocument={activeDocument}
           paneId={selectPaneId(state)}
-          documents={selectPaneDocs(state)(selectPaneId(state))}
+          viewIds={selectPaneViews(state)(selectPaneId(state))}
         ></app-document-pane-tabs>
 
         {pipe(

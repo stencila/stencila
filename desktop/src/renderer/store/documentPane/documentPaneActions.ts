@@ -9,30 +9,30 @@ export const initPane = () => {
   store.dispatch(documentPaneActions.createPane())
 }
 
-export const addDocumentToPane = async (paneId: EntityId, docPath: string) => {
+export const addDocumentToPane = async (paneId: EntityId, docId: EntityId) => {
   const document = (await window.api.invoke(
     CHANNEL.OPEN_DOCUMENT,
-    docPath
+    docId
   )) as Document
 
   return store.dispatch(
     documentPaneActions.addDocToPane({
       paneId,
-      doc: { type: 'editor', ...document },
+      view: { type: 'editor', ...document },
     })
   )
 }
 
-export const closeDocument = (paneId: EntityId, docPath: string) => {
+export const closeDocument = (paneId: EntityId, docId: EntityId) => {
   store.dispatch(
     documentPaneActions.removeDocFromPane({
       paneId,
-      docPath,
+      docId,
     })
   )
 }
 
-export const setActiveDocument = (paneId: EntityId, docId: string) => {
+export const setActiveDocument = (paneId: EntityId, docId: EntityId) => {
   store.dispatch(
     documentPaneActions.updatePane({
       id: paneId,

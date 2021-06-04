@@ -15,19 +15,19 @@ import { selectDoc } from '../../../../store/documentPane/documentPaneSelectors'
 export class AppDocumentPaneTab {
   @Prop() isActive: boolean
 
-  @Prop() documentId: string
+  @Prop() viewId: EntityId
 
   @Prop() paneId: EntityId
 
   private activateDoc = (e: MouseEvent) => {
     e.preventDefault()
-    setActiveDocument(this.paneId, this.documentId)
+    setActiveDocument(this.paneId, this.viewId)
   }
 
   private closeDoc = (e: MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
-    closeDocument(this.paneId, this.documentId)
+    closeDocument(this.paneId, this.viewId)
   }
 
   render() {
@@ -35,7 +35,7 @@ export class AppDocumentPaneTab {
       <Host class={{ isActive: this.isActive }} onClick={this.activateDoc}>
         <li>
           <stencila-icon icon="close" onClick={this.closeDoc}></stencila-icon>
-          <a href="#">{selectDoc(state)(this.documentId)?.name}</a>
+          <a href="#">{selectDoc(state)(this.viewId)?.name}</a>
         </li>
       </Host>
     )

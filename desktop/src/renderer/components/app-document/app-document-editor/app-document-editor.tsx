@@ -1,3 +1,4 @@
+import { EntityId } from '@reduxjs/toolkit'
 import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
 import { DocumentEvent, File } from 'stencila'
 import { CHANNEL } from '../../../../preload'
@@ -14,7 +15,7 @@ export class AppDocumentEditor {
 
   private editorRef: HTMLStencilaEditorElement | null = null
 
-  @Prop() documentId: string
+  @Prop() documentId: EntityId
 
   private file?: File
 

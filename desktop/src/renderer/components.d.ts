@@ -9,24 +9,24 @@ import { EntityId } from "@reduxjs/toolkit";
 import { O } from "fp-ts";
 export namespace Components {
     interface AppDocumentEditor {
-        "documentId": string;
+        "documentId": EntityId;
     }
     interface AppDocumentPane {
     }
     interface AppDocumentPaneEmpty {
     }
     interface AppDocumentPaneTab {
-        "documentId": string;
         "isActive": boolean;
         "paneId": EntityId;
+        "viewId": EntityId;
     }
     interface AppDocumentPaneTabs {
-        "activeDocument": O.Option<string>;
-        "documents": string[];
+        "activeDocument": O.Option<EntityId>;
         "paneId": EntityId;
+        "viewIds": EntityId[];
     }
     interface AppDocumentPreview {
-        "documentId": string;
+        "documentId": EntityId;
     }
     interface AppLauncher {
     }
@@ -179,24 +179,24 @@ declare global {
 }
 declare namespace LocalJSX {
     interface AppDocumentEditor {
-        "documentId"?: string;
+        "documentId"?: EntityId;
     }
     interface AppDocumentPane {
     }
     interface AppDocumentPaneEmpty {
     }
     interface AppDocumentPaneTab {
-        "documentId"?: string;
         "isActive"?: boolean;
         "paneId"?: EntityId;
+        "viewId"?: EntityId;
     }
     interface AppDocumentPaneTabs {
-        "activeDocument"?: O.Option<string>;
-        "documents"?: string[];
+        "activeDocument"?: O.Option<EntityId>;
         "paneId"?: EntityId;
+        "viewIds"?: EntityId[];
     }
     interface AppDocumentPreview {
-        "documentId"?: string;
+        "documentId"?: EntityId;
     }
     interface AppLauncher {
     }

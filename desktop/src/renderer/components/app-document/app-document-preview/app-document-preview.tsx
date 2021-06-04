@@ -1,8 +1,7 @@
+import { EntityId } from '@reduxjs/toolkit'
 import { Component, h, Host, Prop, State, Watch } from '@stencil/core'
-import { state } from '../../../store'
 import { DocumentEvent } from 'stencila'
 import { CHANNEL } from '../../../../preload'
-import { selectDocSubscriptionTopics } from '../../../store/documentPane/documentPaneSelectors'
 
 @Component({
   tag: 'app-document-preview',
@@ -10,7 +9,7 @@ import { selectDocSubscriptionTopics } from '../../../store/documentPane/documen
   scoped: true,
 })
 export class AppDocumentPreview {
-  @Prop() documentId: string
+  @Prop() documentId: EntityId
 
   @Watch('documentId')
   documentIdWatchHandler(newValue: string, prevValue: string) {

@@ -7,18 +7,13 @@ export const selectPaneId = (state: RootState) => {
   return state.panes.ids[0]
 }
 
-export const selectPaneDocs = (state: RootState) => (paneId?: EntityId) => {
+export const selectPaneViews = (state: RootState) => (paneId?: EntityId) => {
   return paneId ? state.panes.entities.panes[paneId]?.views ?? [] : []
 }
 
 export const selectDoc = (state: RootState) => (docId: EntityId) => {
   return state.panes.entities.views[docId]
 }
-
-export const selectDocSubscriptionTopics =
-  (state: RootState) => (docId: EntityId) => {
-    return Object.keys(state.panes.entities.views[docId]?.subscriptions ?? {})
-  }
 
 export const selectActiveDoc = (state: RootState) => {
   return pipe(
