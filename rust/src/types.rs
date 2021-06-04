@@ -273,7 +273,8 @@ pub struct CodeExpression {
     pub meta: Option<Object>,
 
     /// The value of the expression when it was last evaluated.
-    pub output: Option<Node>,
+    #[serde(skip)]
+    pub output: Option<Arc<Node>>,
 
     /// The programming language of the code.
     pub programming_language: Option<String>,
@@ -1593,7 +1594,8 @@ pub struct ConstantValidator {
     pub meta: Option<Object>,
 
     /// The value that the node must have.
-    pub value: Option<Node>,
+    #[serde(skip)]
+    pub value: Option<Arc<Node>>,
 }
 impl_type!(ConstantValidator);
 
@@ -2125,7 +2127,8 @@ pub struct ListItem {
     pub is_checked: Option<Bool>,
 
     /// The item represented by this list item.
-    pub item: Option<Node>,
+    #[serde(skip)]
+    pub item: Option<Arc<Node>>,
 
     /// Metadata associated with this item.
     pub meta: Option<Object>,
@@ -2462,7 +2465,8 @@ pub struct Variable {
     pub validator: Option<ValidatorTypes>,
 
     /// The value of the variable.
-    pub value: Option<Node>,
+    #[serde(skip)]
+    pub value: Option<Arc<Node>>,
 }
 impl_type!(Variable);
 
@@ -2480,7 +2484,8 @@ pub struct Parameter {
     pub name: String,
 
     /// The default value of the parameter.
-    pub default: Option<Node>,
+    #[serde(skip)]
+    pub default: Option<Arc<Node>>,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -2504,7 +2509,8 @@ pub struct Parameter {
     pub validator: Option<ValidatorTypes>,
 
     /// The value of the variable.
-    pub value: Option<Node>,
+    #[serde(skip)]
+    pub value: Option<Arc<Node>>,
 }
 impl_type!(Parameter);
 
@@ -4969,11 +4975,88 @@ pub enum MediaObjectTypes {
     VideoObject(VideoObject),
 }
 
-/// Union type for all valid nodes.
+/// Union type for all schema nodes, including primitives and entities
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Node {
-    Entity(Entity),
+    ArrayValidator(ArrayValidator),
+    Article(Article),
+    AudioObject(AudioObject),
+    BooleanValidator(BooleanValidator),
+    Brand(Brand),
+    CitationIntentEnumeration(CitationIntentEnumeration),
+    Cite(Cite),
+    CiteGroup(CiteGroup),
+    Claim(Claim),
+    Code(Code),
+    CodeBlock(CodeBlock),
+    CodeChunk(CodeChunk),
+    CodeError(CodeError),
+    CodeExpression(CodeExpression),
+    CodeFragment(CodeFragment),
+    Collection(Collection),
+    Comment(Comment),
+    ConstantValidator(ConstantValidator),
+    ContactPoint(ContactPoint),
+    CreativeWork(CreativeWork),
+    Datatable(Datatable),
+    DatatableColumn(DatatableColumn),
+    Date(Date),
+    DefinedTerm(DefinedTerm),
+    Delete(Delete),
+    Emphasis(Emphasis),
+    EnumValidator(EnumValidator),
+    Enumeration(Enumeration),
+    Figure(Figure),
+    Function(Function),
+    Grant(Grant),
+    Heading(Heading),
+    ImageObject(ImageObject),
+    Include(Include),
+    IntegerValidator(IntegerValidator),
+    Link(Link),
+    List(List),
+    ListItem(ListItem),
+    Mark(Mark),
+    Math(Math),
+    MathBlock(MathBlock),
+    MathFragment(MathFragment),
+    MediaObject(MediaObject),
+    MonetaryGrant(MonetaryGrant),
+    NontextualAnnotation(NontextualAnnotation),
+    Note(Note),
+    NumberValidator(NumberValidator),
+    Organization(Organization),
+    Paragraph(Paragraph),
+    Parameter(Parameter),
+    Periodical(Periodical),
+    Person(Person),
+    PostalAddress(PostalAddress),
+    Product(Product),
+    PropertyValue(PropertyValue),
+    PublicationIssue(PublicationIssue),
+    PublicationVolume(PublicationVolume),
+    Quote(Quote),
+    QuoteBlock(QuoteBlock),
+    Review(Review),
+    SoftwareApplication(SoftwareApplication),
+    SoftwareEnvironment(SoftwareEnvironment),
+    SoftwareSession(SoftwareSession),
+    SoftwareSourceCode(SoftwareSourceCode),
+    StringValidator(StringValidator),
+    Strong(Strong),
+    Subscript(Subscript),
+    Superscript(Superscript),
+    Table(Table),
+    TableCell(TableCell),
+    TableRow(TableRow),
+    ThematicBreak(ThematicBreak),
+    Thing(Thing),
+    TupleValidator(TupleValidator),
+    Validator(Validator),
+    Variable(Variable),
+    VideoObject(VideoObject),
+    VolumeMount(VolumeMount),
     Null,
     Bool(Bool),
     Integer(Integer),

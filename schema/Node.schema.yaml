@@ -1,18 +1,18 @@
 title: Node
 category: other
 status: unstable
-description: Union type for all valid nodes.
+description: Union type for all schema nodes, including primitives and entities
 $comment: |
+  The entity types in this union are automatically inserted during the build.
   The order of these types is important because it determines the
-  order of attempted coercion (ie. parsing and reshaping to arrays)
+  order of attempted coercion (ie. parsing and reshaping to arrays).
+  Array should come last to avoid single items (e.g. a single string)
+  being coerced into an array.
 anyOf:
-  - $ref: Entity
   - type: 'null'
   - type: boolean
   - type: integer
   - type: number
   - type: string
   - type: object
-  # Array should come last to avoid single items (e.g. a single string)
-  # being coerced into an array.
   - type: array

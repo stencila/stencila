@@ -13,7 +13,7 @@ from . import types
 from .types import Node, Entity
 
 
-def decode(serialized: str) -> typing.Union[dict, Node]:
+def decode(serialized: str) -> Node:
     """Decode JSON as a `Node`"""
     node = json.loads(serialized)
     return dict_decode(node) if isinstance(node, dict) else node
@@ -24,7 +24,7 @@ def encode(node: Node) -> str:
     return json.dumps(node, default=object_encode, indent=2)
 
 
-def dict_decode(node_dict: dict) -> typing.Union[dict, Entity]:
+def dict_decode(node_dict: dict) -> Node:
     """Convert a dictionary to an `Entity` node (if it has a `type` item)."""
     if "type" not in node_dict:
         return node_dict

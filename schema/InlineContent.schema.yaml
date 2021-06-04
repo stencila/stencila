@@ -3,11 +3,8 @@ category: text
 status: stable
 description: Union type for valid inline content.
 $comment: |
-  Note that this definition currently does not include
-  `array` and `object` nodes (which are included in `Node`).
-  This seems incongruent, and may be changed in the future.
   The order of these types is important because it determines the
-  order of attempted coercion (particularly important for primitive types).
+  order of attempted coercion (this is particularly important for primitive types).
 anyOf:
   # Entity types in alphabetical order
   - $ref: AudioObject

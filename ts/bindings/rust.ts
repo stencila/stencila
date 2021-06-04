@@ -50,9 +50,15 @@ const pointerProperties = [
   'Organization.parentOrganization',
   'ImageObject.publisher', // recursive because publisher has `logo`
   'ImageObject.thumbnail',
+  'ListItem.item',
   'Comment.parentItem',
   'ArrayValidator.contains',
   'ArrayValidator.itemsValidator',
+  'ConstantValidator.value',
+  'CodeExpression.output',
+  'Parameter.default',
+  'Parameter.value',
+  'Variable.value',
 ]
 
 /**

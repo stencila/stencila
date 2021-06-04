@@ -94,6 +94,9 @@ export async function build(cleanup = true): Promise<void> {
   // Process each of the schemas
   schemata.forEach((schema) => processSchema(schemas, schema))
 
+  // Update the `Node` union schema`
+  updateNodeSchema(schemas)
+
   // Generate additional schemas
   addTypesSchemas(schemas)
 
@@ -438,6 +441,20 @@ const parentSchema = (
     throw new Error(`Unknown schema used in "extends": "${schema.extends}"`)
 
   return parent
+}
+
+/**
+ * Add all entity types to the `Node` union schema.
+ */
+const updateNodeSchema = (schemas: Map<string, JsonSchema>): void => {
+  const entitySchema = schemas.get('Entity') as JsonSchema
+  const entityRefs = (entitySchema.descendants ?? []).map((descendant) => ({
+    $ref: `${descendant}.schema.json`,
+  }))
+
+  const nodeSchema = schemas.get('Node') as JsonSchema
+  nodeSchema.anyOf = [...(entityRefs ?? []), ...(nodeSchema.anyOf ?? [])]
+  schemas.set('Node', nodeSchema)
 }
 
 /**
