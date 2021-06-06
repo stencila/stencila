@@ -16,9 +16,8 @@ use crate::prelude::*;
 #[serde(default, rename_all = "camelCase")]
 pub struct Entity {
     /// The name of this type
-    #[def = "\"Entity\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Entity::deserialize_type")]
-    pub type_: String,
+    #[def = "Entity_::Entity"]
+    pub type_: Entity_,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -26,6 +25,12 @@ pub struct Entity {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Entity_ {
+  Entity
+}
+
 impl_struct!(Entity);
 
 /// A reference to a CreativeWork that is cited in another CreativeWork.
@@ -34,9 +39,8 @@ impl_struct!(Entity);
 #[serde(default, rename_all = "camelCase")]
 pub struct Cite {
     /// The name of this type
-    #[def = "\"Cite\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Cite::deserialize_type")]
-    pub type_: String,
+    #[def = "Cite_::Cite"]
+    pub type_: Cite_,
 
     /// The target of the citation (URL or reference ID).
     pub target: String,
@@ -71,6 +75,12 @@ pub struct Cite {
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
     pub pagination: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Cite_ {
+  Cite
+}
+
 impl_struct!(Cite);
 
 /// A group of Cite nodes.
@@ -79,9 +89,8 @@ impl_struct!(Cite);
 #[serde(default, rename_all = "camelCase")]
 pub struct CiteGroup {
     /// The name of this type
-    #[def = "\"CiteGroup\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "CiteGroup::deserialize_type")]
-    pub type_: String,
+    #[def = "CiteGroup_::CiteGroup"]
+    pub type_: CiteGroup_,
 
     /// One or more `Cite`s to be referenced in the same surrounding text.
     pub items: Vec<Cite>,
@@ -92,6 +101,12 @@ pub struct CiteGroup {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum CiteGroup_ {
+  CiteGroup
+}
+
 impl_struct!(CiteGroup);
 
 /// Base type for code nodes e.g. CodeBlock, CodeExpression.
@@ -100,9 +115,8 @@ impl_struct!(CiteGroup);
 #[serde(default, rename_all = "camelCase")]
 pub struct Code {
     /// The name of this type
-    #[def = "\"Code\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Code::deserialize_type")]
-    pub type_: String,
+    #[def = "Code_::Code"]
+    pub type_: Code_,
 
     /// The text of the code.
     pub text: String,
@@ -119,6 +133,12 @@ pub struct Code {
     /// The programming language of the code.
     pub programming_language: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Code_ {
+  Code
+}
+
 impl_struct!(Code);
 
 /// A code block.
@@ -127,9 +147,8 @@ impl_struct!(Code);
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeBlock {
     /// The name of this type
-    #[def = "\"CodeBlock\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "CodeBlock::deserialize_type")]
-    pub type_: String,
+    #[def = "CodeBlock_::CodeBlock"]
+    pub type_: CodeBlock_,
 
     /// The text of the code.
     pub text: String,
@@ -152,6 +171,12 @@ pub struct CodeBlock {
     /// The programming language of the code.
     pub programming_language: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum CodeBlock_ {
+  CodeBlock
+}
+
 impl_struct!(CodeBlock);
 
 /// A executable chunk of code.
@@ -160,9 +185,8 @@ impl_struct!(CodeBlock);
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeChunk {
     /// The name of this type
-    #[def = "\"CodeChunk\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "CodeChunk::deserialize_type")]
-    pub type_: String,
+    #[def = "CodeChunk_::CodeChunk"]
+    pub type_: CodeChunk_,
 
     /// The text of the code.
     pub text: String,
@@ -218,6 +242,12 @@ pub struct CodeChunk {
     /// Names of variables that the code chunk uses (but does not alter).
     pub uses: Option<Vec<CodeChunkUses>>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum CodeChunk_ {
+  CodeChunk
+}
+
 impl_struct!(CodeChunk);
 
 /// Inline code.
@@ -226,9 +256,8 @@ impl_struct!(CodeChunk);
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeFragment {
     /// The name of this type
-    #[def = "\"CodeFragment\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "CodeFragment::deserialize_type")]
-    pub type_: String,
+    #[def = "CodeFragment_::CodeFragment"]
+    pub type_: CodeFragment_,
 
     /// The text of the code.
     pub text: String,
@@ -245,6 +274,12 @@ pub struct CodeFragment {
     /// The programming language of the code.
     pub programming_language: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum CodeFragment_ {
+  CodeFragment
+}
+
 impl_struct!(CodeFragment);
 
 /// An expression defined in programming language source code.
@@ -253,9 +288,8 @@ impl_struct!(CodeFragment);
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeExpression {
     /// The name of this type
-    #[def = "\"CodeExpression\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "CodeExpression::deserialize_type")]
-    pub type_: String,
+    #[def = "CodeExpression_::CodeExpression"]
+    pub type_: CodeExpression_,
 
     /// The text of the code.
     pub text: String,
@@ -279,6 +313,12 @@ pub struct CodeExpression {
     /// The programming language of the code.
     pub programming_language: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum CodeExpression_ {
+  CodeExpression
+}
+
 impl_struct!(CodeExpression);
 
 /// An error that occurred when parsing, compiling or executing a Code node.
@@ -287,9 +327,8 @@ impl_struct!(CodeExpression);
 #[serde(default, rename_all = "camelCase")]
 pub struct CodeError {
     /// The name of this type
-    #[def = "\"CodeError\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "CodeError::deserialize_type")]
-    pub type_: String,
+    #[def = "CodeError_::CodeError"]
+    pub type_: CodeError_,
 
     /// The error message or brief description of the error.
     pub error_message: String,
@@ -306,6 +345,12 @@ pub struct CodeError {
     /// Stack trace leading up to the error.
     pub stack_trace: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum CodeError_ {
+  CodeError
+}
+
 impl_struct!(CodeError);
 
 /// A date encoded as a ISO 8601 string.
@@ -314,9 +359,8 @@ impl_struct!(CodeError);
 #[serde(default, rename_all = "camelCase")]
 pub struct Date {
     /// The name of this type
-    #[def = "\"Date\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Date::deserialize_type")]
-    pub type_: String,
+    #[def = "Date_::Date"]
+    pub type_: Date_,
 
     /// The date as an ISO 8601 string.
     #[def = "chrono::Utc::now().to_rfc3339()"]
@@ -328,6 +372,12 @@ pub struct Date {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Date_ {
+  Date
+}
+
 impl_struct!(Date);
 
 /// A base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
@@ -336,9 +386,8 @@ impl_struct!(Date);
 #[serde(default, rename_all = "camelCase")]
 pub struct Mark {
     /// The name of this type
-    #[def = "\"Mark\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Mark::deserialize_type")]
-    pub type_: String,
+    #[def = "Mark_::Mark"]
+    pub type_: Mark_,
 
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -349,6 +398,12 @@ pub struct Mark {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Mark_ {
+  Mark
+}
+
 impl_struct!(Mark);
 
 /// Content that is marked for deletion
@@ -357,9 +412,8 @@ impl_struct!(Mark);
 #[serde(default, rename_all = "camelCase")]
 pub struct Delete {
     /// The name of this type
-    #[def = "\"Delete\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Delete::deserialize_type")]
-    pub type_: String,
+    #[def = "Delete_::Delete"]
+    pub type_: Delete_,
 
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -370,6 +424,12 @@ pub struct Delete {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Delete_ {
+  Delete
+}
+
 impl_struct!(Delete);
 
 /// Emphasised content.
@@ -378,9 +438,8 @@ impl_struct!(Delete);
 #[serde(default, rename_all = "camelCase")]
 pub struct Emphasis {
     /// The name of this type
-    #[def = "\"Emphasis\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Emphasis::deserialize_type")]
-    pub type_: String,
+    #[def = "Emphasis_::Emphasis"]
+    pub type_: Emphasis_,
 
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -391,6 +450,12 @@ pub struct Emphasis {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Emphasis_ {
+  Emphasis
+}
+
 impl_struct!(Emphasis);
 
 /// The most generic type of item.
@@ -399,9 +464,8 @@ impl_struct!(Emphasis);
 #[serde(default, rename_all = "camelCase")]
 pub struct Thing {
     /// The name of this type
-    #[def = "\"Thing\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Thing::deserialize_type")]
-    pub type_: String,
+    #[def = "Thing_::Thing"]
+    pub type_: Thing_,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -427,6 +491,12 @@ pub struct Thing {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Thing_ {
+  Thing
+}
+
 impl_struct!(Thing);
 
 /// A brand used by an organization or person for labeling a product, product group, or similar.
@@ -435,9 +505,8 @@ impl_struct!(Thing);
 #[serde(default, rename_all = "camelCase")]
 pub struct Brand {
     /// The name of this type
-    #[def = "\"Brand\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Brand::deserialize_type")]
-    pub type_: String,
+    #[def = "Brand_::Brand"]
+    pub type_: Brand_,
 
     /// The name of the item.
     pub name: String,
@@ -469,6 +538,12 @@ pub struct Brand {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Brand_ {
+  Brand
+}
+
 impl_struct!(Brand);
 
 /// A contact point, usually within an organization.
@@ -477,9 +552,8 @@ impl_struct!(Brand);
 #[serde(default, rename_all = "camelCase")]
 pub struct ContactPoint {
     /// The name of this type
-    #[def = "\"ContactPoint\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "ContactPoint::deserialize_type")]
-    pub type_: String,
+    #[def = "ContactPoint_::ContactPoint"]
+    pub type_: ContactPoint_,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -514,6 +588,12 @@ pub struct ContactPoint {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ContactPoint_ {
+  ContactPoint
+}
+
 impl_struct!(ContactPoint);
 
 /// A creative work, including books, movies, photographs, software programs, etc.
@@ -522,9 +602,8 @@ impl_struct!(ContactPoint);
 #[serde(default, rename_all = "camelCase")]
 pub struct CreativeWork {
     /// The name of this type
-    #[def = "\"CreativeWork\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "CreativeWork::deserialize_type")]
-    pub type_: String,
+    #[def = "CreativeWork_::CreativeWork"]
+    pub type_: CreativeWork_,
 
     /// The subject matter of the content.
     pub about: Option<Vec<ThingTypes>>,
@@ -620,6 +699,12 @@ pub struct CreativeWork {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum CreativeWork_ {
+  CreativeWork
+}
+
 impl_struct!(CreativeWork);
 
 /// An article, including news and scholarly articles.
@@ -628,9 +713,8 @@ impl_struct!(CreativeWork);
 #[serde(default, rename_all = "camelCase")]
 pub struct Article {
     /// The name of this type
-    #[def = "\"Article\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Article::deserialize_type")]
-    pub type_: String,
+    #[def = "Article_::Article"]
+    pub type_: Article_,
 
     /// The subject matter of the content.
     pub about: Option<Vec<ThingTypes>>,
@@ -735,6 +819,12 @@ pub struct Article {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Article_ {
+  Article
+}
+
 impl_struct!(Article);
 
 /// A claim represents specific reviewable facts or statements.
@@ -743,9 +833,8 @@ impl_struct!(Article);
 #[serde(default, rename_all = "camelCase")]
 pub struct Claim {
     /// The name of this type
-    #[def = "\"Claim\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Claim::deserialize_type")]
-    pub type_: String,
+    #[def = "Claim_::Claim"]
+    pub type_: Claim_,
 
     /// Content of the claim, usually a single paragraph.
     pub content: Vec<BlockContent>,
@@ -847,6 +936,12 @@ pub struct Claim {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Claim_ {
+  Claim
+}
+
 impl_struct!(Claim);
 
 /// A collection of CreativeWorks or other artifacts.
@@ -855,9 +950,8 @@ impl_struct!(Claim);
 #[serde(default, rename_all = "camelCase")]
 pub struct Collection {
     /// The name of this type
-    #[def = "\"Collection\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Collection::deserialize_type")]
-    pub type_: String,
+    #[def = "Collection_::Collection"]
+    pub type_: Collection_,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Vec<CreativeWorkTypes>,
@@ -953,6 +1047,12 @@ pub struct Collection {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Collection_ {
+  Collection
+}
+
 impl_struct!(Collection);
 
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
@@ -961,9 +1061,8 @@ impl_struct!(Collection);
 #[serde(default, rename_all = "camelCase")]
 pub struct Comment {
     /// The name of this type
-    #[def = "\"Comment\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Comment::deserialize_type")]
-    pub type_: String,
+    #[def = "Comment_::Comment"]
+    pub type_: Comment_,
 
     /// The subject matter of the content.
     pub about: Option<Vec<ThingTypes>>,
@@ -1066,6 +1165,12 @@ pub struct Comment {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Comment_ {
+  Comment
+}
+
 impl_struct!(Comment);
 
 /// A table of data.
@@ -1074,9 +1179,8 @@ impl_struct!(Comment);
 #[serde(default, rename_all = "camelCase")]
 pub struct Datatable {
     /// The name of this type
-    #[def = "\"Datatable\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Datatable::deserialize_type")]
-    pub type_: String,
+    #[def = "Datatable_::Datatable"]
+    pub type_: Datatable_,
 
     /// The columns of data.
     pub columns: Vec<DatatableColumn>,
@@ -1175,6 +1279,12 @@ pub struct Datatable {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Datatable_ {
+  Datatable
+}
+
 impl_struct!(Datatable);
 
 /// A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
@@ -1183,9 +1293,8 @@ impl_struct!(Datatable);
 #[serde(default, rename_all = "camelCase")]
 pub struct MediaObject {
     /// The name of this type
-    #[def = "\"MediaObject\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "MediaObject::deserialize_type")]
-    pub type_: String,
+    #[def = "MediaObject_::MediaObject"]
+    pub type_: MediaObject_,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
     pub content_url: String,
@@ -1296,6 +1405,12 @@ pub struct MediaObject {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum MediaObject_ {
+  MediaObject
+}
+
 impl_struct!(MediaObject);
 
 /// An audio file
@@ -1304,9 +1419,8 @@ impl_struct!(MediaObject);
 #[serde(default, rename_all = "camelCase")]
 pub struct AudioObject {
     /// The name of this type
-    #[def = "\"AudioObject\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "AudioObject::deserialize_type")]
-    pub type_: String,
+    #[def = "AudioObject_::AudioObject"]
+    pub type_: AudioObject_,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
     pub content_url: String,
@@ -1423,6 +1537,12 @@ pub struct AudioObject {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum AudioObject_ {
+  AudioObject
+}
+
 impl_struct!(AudioObject);
 
 /// A column of data within a Datatable.
@@ -1431,9 +1551,8 @@ impl_struct!(AudioObject);
 #[serde(default, rename_all = "camelCase")]
 pub struct DatatableColumn {
     /// The name of this type
-    #[def = "\"DatatableColumn\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "DatatableColumn::deserialize_type")]
-    pub type_: String,
+    #[def = "DatatableColumn_::DatatableColumn"]
+    pub type_: DatatableColumn_,
 
     /// The name of the item.
     pub name: String,
@@ -1465,6 +1584,12 @@ pub struct DatatableColumn {
     /// The validator to use to validate data in the column.
     pub validator: Option<ArrayValidator>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum DatatableColumn_ {
+  DatatableColumn
+}
+
 impl_struct!(DatatableColumn);
 
 /// A word, name, acronym, phrase, etc. with a formal definition.
@@ -1473,9 +1598,8 @@ impl_struct!(DatatableColumn);
 #[serde(default, rename_all = "camelCase")]
 pub struct DefinedTerm {
     /// The name of this type
-    #[def = "\"DefinedTerm\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "DefinedTerm::deserialize_type")]
-    pub type_: String,
+    #[def = "DefinedTerm_::DefinedTerm"]
+    pub type_: DefinedTerm_,
 
     /// The name of the item.
     pub name: String,
@@ -1504,6 +1628,12 @@ pub struct DefinedTerm {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum DefinedTerm_ {
+  DefinedTerm
+}
+
 impl_struct!(DefinedTerm);
 
 /// A base for all validator types.
@@ -1512,9 +1642,8 @@ impl_struct!(DefinedTerm);
 #[serde(default, rename_all = "camelCase")]
 pub struct Validator {
     /// The name of this type
-    #[def = "\"Validator\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Validator::deserialize_type")]
-    pub type_: String,
+    #[def = "Validator_::Validator"]
+    pub type_: Validator_,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -1522,6 +1651,12 @@ pub struct Validator {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Validator_ {
+  Validator
+}
+
 impl_struct!(Validator);
 
 /// A validator specifying constraints on an array node.
@@ -1530,9 +1665,8 @@ impl_struct!(Validator);
 #[serde(default, rename_all = "camelCase")]
 pub struct ArrayValidator {
     /// The name of this type
-    #[def = "\"ArrayValidator\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "ArrayValidator::deserialize_type")]
-    pub type_: String,
+    #[def = "ArrayValidator_::ArrayValidator"]
+    pub type_: ArrayValidator_,
 
     /// An array node is valid if at least one of its items is valid against the `contains` schema.
     #[serde(skip)]
@@ -1557,6 +1691,12 @@ pub struct ArrayValidator {
     /// A flag to indicate that each value in the array should be unique.
     pub unique_items: Option<Boolean>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ArrayValidator_ {
+  ArrayValidator
+}
+
 impl_struct!(ArrayValidator);
 
 /// A schema specifying that a node must be a boolean value.
@@ -1565,9 +1705,8 @@ impl_struct!(ArrayValidator);
 #[serde(default, rename_all = "camelCase")]
 pub struct BooleanValidator {
     /// The name of this type
-    #[def = "\"BooleanValidator\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "BooleanValidator::deserialize_type")]
-    pub type_: String,
+    #[def = "BooleanValidator_::BooleanValidator"]
+    pub type_: BooleanValidator_,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -1575,6 +1714,12 @@ pub struct BooleanValidator {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum BooleanValidator_ {
+  BooleanValidator
+}
+
 impl_struct!(BooleanValidator);
 
 /// A validator specifying a constant value that a node must have.
@@ -1583,9 +1728,8 @@ impl_struct!(BooleanValidator);
 #[serde(default, rename_all = "camelCase")]
 pub struct ConstantValidator {
     /// The name of this type
-    #[def = "\"ConstantValidator\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "ConstantValidator::deserialize_type")]
-    pub type_: String,
+    #[def = "ConstantValidator_::ConstantValidator"]
+    pub type_: ConstantValidator_,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -1597,6 +1741,12 @@ pub struct ConstantValidator {
     #[serde(skip)]
     pub value: Option<Box<Node>>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ConstantValidator_ {
+  ConstantValidator
+}
+
 impl_struct!(ConstantValidator);
 
 /// A schema specifying that a node must be one of several values.
@@ -1605,9 +1755,8 @@ impl_struct!(ConstantValidator);
 #[serde(default, rename_all = "camelCase")]
 pub struct EnumValidator {
     /// The name of this type
-    #[def = "\"EnumValidator\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "EnumValidator::deserialize_type")]
-    pub type_: String,
+    #[def = "EnumValidator_::EnumValidator"]
+    pub type_: EnumValidator_,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -1618,6 +1767,12 @@ pub struct EnumValidator {
     /// A node is valid if it is equal to any of these values.
     pub values: Option<Vec<Node>>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum EnumValidator_ {
+  EnumValidator
+}
+
 impl_struct!(EnumValidator);
 
 /// Lists or enumerations, for example, a list of cuisines or music genres, etc.
@@ -1626,9 +1781,8 @@ impl_struct!(EnumValidator);
 #[serde(default, rename_all = "camelCase")]
 pub struct Enumeration {
     /// The name of this type
-    #[def = "\"Enumeration\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Enumeration::deserialize_type")]
-    pub type_: String,
+    #[def = "Enumeration_::Enumeration"]
+    pub type_: Enumeration_,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -1654,6 +1808,12 @@ pub struct Enumeration {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Enumeration_ {
+  Enumeration
+}
+
 impl_struct!(Enumeration);
 
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
@@ -1662,9 +1822,8 @@ impl_struct!(Enumeration);
 #[serde(default, rename_all = "camelCase")]
 pub struct Figure {
     /// The name of this type
-    #[def = "\"Figure\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Figure::deserialize_type")]
-    pub type_: String,
+    #[def = "Figure_::Figure"]
+    pub type_: Figure_,
 
     /// The subject matter of the content.
     pub about: Option<Vec<ThingTypes>>,
@@ -1766,6 +1925,12 @@ pub struct Figure {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Figure_ {
+  Figure
+}
+
 impl_struct!(Figure);
 
 /// A function with a name, which might take Parameters and return a value of a certain type.
@@ -1774,9 +1939,8 @@ impl_struct!(Figure);
 #[serde(default, rename_all = "camelCase")]
 pub struct Function {
     /// The name of this type
-    #[def = "\"Function\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Function::deserialize_type")]
-    pub type_: String,
+    #[def = "Function_::Function"]
+    pub type_: Function_,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -1793,6 +1957,12 @@ pub struct Function {
     /// The return type of the function.
     pub returns: Option<ValidatorTypes>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Function_ {
+  Function
+}
+
 impl_struct!(Function);
 
 /// A grant, typically financial or otherwise quantifiable, of resources.
@@ -1801,9 +1971,8 @@ impl_struct!(Function);
 #[serde(default, rename_all = "camelCase")]
 pub struct Grant {
     /// The name of this type
-    #[def = "\"Grant\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Grant::deserialize_type")]
-    pub type_: String,
+    #[def = "Grant_::Grant"]
+    pub type_: Grant_,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -1835,6 +2004,12 @@ pub struct Grant {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Grant_ {
+  Grant
+}
+
 impl_struct!(Grant);
 
 /// A heading.
@@ -1843,9 +2018,8 @@ impl_struct!(Grant);
 #[serde(default, rename_all = "camelCase")]
 pub struct Heading {
     /// The name of this type
-    #[def = "\"Heading\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Heading::deserialize_type")]
-    pub type_: String,
+    #[def = "Heading_::Heading"]
+    pub type_: Heading_,
 
     /// Content of the heading.
     pub content: Vec<InlineContent>,
@@ -1859,6 +2033,12 @@ pub struct Heading {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Heading_ {
+  Heading
+}
+
 impl_struct!(Heading);
 
 /// An image file.
@@ -1867,9 +2047,8 @@ impl_struct!(Heading);
 #[serde(default, rename_all = "camelCase")]
 pub struct ImageObject {
     /// The name of this type
-    #[def = "\"ImageObject\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "ImageObject::deserialize_type")]
-    pub type_: String,
+    #[def = "ImageObject_::ImageObject"]
+    pub type_: ImageObject_,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
     pub content_url: String,
@@ -1988,6 +2167,12 @@ pub struct ImageObject {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ImageObject_ {
+  ImageObject
+}
+
 impl_struct!(ImageObject);
 
 /// A directive to include content from an external source (e.g. file, URL) or content.
@@ -1996,9 +2181,8 @@ impl_struct!(ImageObject);
 #[serde(default, rename_all = "camelCase")]
 pub struct Include {
     /// The name of this type
-    #[def = "\"Include\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Include::deserialize_type")]
-    pub type_: String,
+    #[def = "Include_::Include"]
+    pub type_: Include_,
 
     /// The source of the content, a URL or file path, or the content itself.
     pub source: String,
@@ -2015,6 +2199,12 @@ pub struct Include {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Include_ {
+  Include
+}
+
 impl_struct!(Include);
 
 /// A validator specifying the constraints on an integer node.
@@ -2023,9 +2213,8 @@ impl_struct!(Include);
 #[serde(default, rename_all = "camelCase")]
 pub struct IntegerValidator {
     /// The name of this type
-    #[def = "\"IntegerValidator\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "IntegerValidator::deserialize_type")]
-    pub type_: String,
+    #[def = "IntegerValidator_::IntegerValidator"]
+    pub type_: IntegerValidator_,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -2033,6 +2222,12 @@ pub struct IntegerValidator {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum IntegerValidator_ {
+  IntegerValidator
+}
+
 impl_struct!(IntegerValidator);
 
 /// A hyperlink to other pages, sections within the same document, resources, or any URL.
@@ -2041,9 +2236,8 @@ impl_struct!(IntegerValidator);
 #[serde(default, rename_all = "camelCase")]
 pub struct Link {
     /// The name of this type
-    #[def = "\"Link\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Link::deserialize_type")]
-    pub type_: String,
+    #[def = "Link_::Link"]
+    pub type_: Link_,
 
     /// The textual content of the link.
     pub content: Vec<InlineContent>,
@@ -2069,6 +2263,12 @@ pub struct Link {
     /// A title for the link.
     pub title: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Link_ {
+  Link
+}
+
 impl_struct!(Link);
 
 /// A list of items.
@@ -2077,9 +2277,8 @@ impl_struct!(Link);
 #[serde(default, rename_all = "camelCase")]
 pub struct List {
     /// The name of this type
-    #[def = "\"List\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "List::deserialize_type")]
-    pub type_: String,
+    #[def = "List_::List"]
+    pub type_: List_,
 
     /// The items in the list
     pub items: Vec<ListItem>,
@@ -2093,6 +2292,12 @@ pub struct List {
     /// Type of ordering.
     pub order: Option<ListOrder>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum List_ {
+  List
+}
+
 impl_struct!(List);
 
 /// A single item in a list.
@@ -2101,9 +2306,8 @@ impl_struct!(List);
 #[serde(default, rename_all = "camelCase")]
 pub struct ListItem {
     /// The name of this type
-    #[def = "\"ListItem\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "ListItem::deserialize_type")]
-    pub type_: String,
+    #[def = "ListItem_::ListItem"]
+    pub type_: ListItem_,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -2142,6 +2346,12 @@ pub struct ListItem {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ListItem_ {
+  ListItem
+}
+
 impl_struct!(ListItem);
 
 /// A mathematical variable or equation.
@@ -2150,9 +2360,8 @@ impl_struct!(ListItem);
 #[serde(default, rename_all = "camelCase")]
 pub struct Math {
     /// The name of this type
-    #[def = "\"Math\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Math::deserialize_type")]
-    pub type_: String,
+    #[def = "Math_::Math"]
+    pub type_: Math_,
 
     /// The text of the equation in the language.
     pub text: String,
@@ -2169,6 +2378,12 @@ pub struct Math {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Math_ {
+  Math
+}
+
 impl_struct!(Math);
 
 /// A block of math, e.g an equation, to be treated as block content.
@@ -2177,9 +2392,8 @@ impl_struct!(Math);
 #[serde(default, rename_all = "camelCase")]
 pub struct MathBlock {
     /// The name of this type
-    #[def = "\"MathBlock\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "MathBlock::deserialize_type")]
-    pub type_: String,
+    #[def = "MathBlock_::MathBlock"]
+    pub type_: MathBlock_,
 
     /// The text of the equation in the language.
     pub text: String,
@@ -2199,6 +2413,12 @@ pub struct MathBlock {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum MathBlock_ {
+  MathBlock
+}
+
 impl_struct!(MathBlock);
 
 /// A fragment of math, e.g a variable name, to be treated as inline content.
@@ -2207,9 +2427,8 @@ impl_struct!(MathBlock);
 #[serde(default, rename_all = "camelCase")]
 pub struct MathFragment {
     /// The name of this type
-    #[def = "\"MathFragment\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "MathFragment::deserialize_type")]
-    pub type_: String,
+    #[def = "MathFragment_::MathFragment"]
+    pub type_: MathFragment_,
 
     /// The text of the equation in the language.
     pub text: String,
@@ -2226,6 +2445,12 @@ pub struct MathFragment {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum MathFragment_ {
+  MathFragment
+}
+
 impl_struct!(MathFragment);
 
 /// A monetary grant.
@@ -2234,9 +2459,8 @@ impl_struct!(MathFragment);
 #[serde(default, rename_all = "camelCase")]
 pub struct MonetaryGrant {
     /// The name of this type
-    #[def = "\"MonetaryGrant\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "MonetaryGrant::deserialize_type")]
-    pub type_: String,
+    #[def = "MonetaryGrant_::MonetaryGrant"]
+    pub type_: MonetaryGrant_,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -2274,6 +2498,12 @@ pub struct MonetaryGrant {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum MonetaryGrant_ {
+  MonetaryGrant
+}
+
 impl_struct!(MonetaryGrant);
 
 /// Inline text that has a non-textual annotation.
@@ -2282,9 +2512,8 @@ impl_struct!(MonetaryGrant);
 #[serde(default, rename_all = "camelCase")]
 pub struct NontextualAnnotation {
     /// The name of this type
-    #[def = "\"NontextualAnnotation\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "NontextualAnnotation::deserialize_type")]
-    pub type_: String,
+    #[def = "NontextualAnnotation_::NontextualAnnotation"]
+    pub type_: NontextualAnnotation_,
 
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -2295,6 +2524,12 @@ pub struct NontextualAnnotation {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum NontextualAnnotation_ {
+  NontextualAnnotation
+}
+
 impl_struct!(NontextualAnnotation);
 
 /// Additional content which is not part of the main content of a document.
@@ -2303,9 +2538,8 @@ impl_struct!(NontextualAnnotation);
 #[serde(default, rename_all = "camelCase")]
 pub struct Note {
     /// The name of this type
-    #[def = "\"Note\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Note::deserialize_type")]
-    pub type_: String,
+    #[def = "Note_::Note"]
+    pub type_: Note_,
 
     /// Content of the note, usually a paragraph.
     pub content: Vec<BlockContent>,
@@ -2319,6 +2553,12 @@ pub struct Note {
     /// Determines where the note content is displayed within the document.
     pub note_type: Option<NoteNoteType>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Note_ {
+  Note
+}
+
 impl_struct!(Note);
 
 /// A validator specifying the constraints on a numeric node.
@@ -2327,9 +2567,8 @@ impl_struct!(Note);
 #[serde(default, rename_all = "camelCase")]
 pub struct NumberValidator {
     /// The name of this type
-    #[def = "\"NumberValidator\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "NumberValidator::deserialize_type")]
-    pub type_: String,
+    #[def = "NumberValidator_::NumberValidator"]
+    pub type_: NumberValidator_,
 
     /// The exclusive upper limit for a numeric node.
     pub exclusive_maximum: Option<Number>,
@@ -2352,6 +2591,12 @@ pub struct NumberValidator {
     /// A number that a numeric node must be a multiple of.
     pub multiple_of: Option<Number>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum NumberValidator_ {
+  NumberValidator
+}
+
 impl_struct!(NumberValidator);
 
 /// An organization such as a school, NGO, corporation, club, etc.
@@ -2360,9 +2605,8 @@ impl_struct!(NumberValidator);
 #[serde(default, rename_all = "camelCase")]
 pub struct Organization {
     /// The name of this type
-    #[def = "\"Organization\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Organization::deserialize_type")]
-    pub type_: String,
+    #[def = "Organization_::Organization"]
+    pub type_: Organization_,
 
     /// Postal address for the organization.
     pub address: Option<OrganizationAddress>,
@@ -2416,6 +2660,12 @@ pub struct Organization {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Organization_ {
+  Organization
+}
+
 impl_struct!(Organization);
 
 /// Paragraph
@@ -2424,9 +2674,8 @@ impl_struct!(Organization);
 #[serde(default, rename_all = "camelCase")]
 pub struct Paragraph {
     /// The name of this type
-    #[def = "\"Paragraph\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Paragraph::deserialize_type")]
-    pub type_: String,
+    #[def = "Paragraph_::Paragraph"]
+    pub type_: Paragraph_,
 
     /// The contents of the paragraph.
     pub content: Vec<InlineContent>,
@@ -2437,6 +2686,12 @@ pub struct Paragraph {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Paragraph_ {
+  Paragraph
+}
+
 impl_struct!(Paragraph);
 
 /// A variable representing a name / value pair.
@@ -2445,9 +2700,8 @@ impl_struct!(Paragraph);
 #[serde(default, rename_all = "camelCase")]
 pub struct Variable {
     /// The name of this type
-    #[def = "\"Variable\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Variable::deserialize_type")]
-    pub type_: String,
+    #[def = "Variable_::Variable"]
+    pub type_: Variable_,
 
     /// The name of the variable.
     pub name: String,
@@ -2468,6 +2722,12 @@ pub struct Variable {
     #[serde(skip)]
     pub value: Option<Box<Node>>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Variable_ {
+  Variable
+}
+
 impl_struct!(Variable);
 
 /// A parameter that can be set and used in evaluated code.
@@ -2476,9 +2736,8 @@ impl_struct!(Variable);
 #[serde(default, rename_all = "camelCase")]
 pub struct Parameter {
     /// The name of this type
-    #[def = "\"Parameter\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Parameter::deserialize_type")]
-    pub type_: String,
+    #[def = "Parameter_::Parameter"]
+    pub type_: Parameter_,
 
     /// The name of the variable.
     pub name: String,
@@ -2512,6 +2771,12 @@ pub struct Parameter {
     #[serde(skip)]
     pub value: Option<Box<Node>>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Parameter_ {
+  Parameter
+}
+
 impl_struct!(Parameter);
 
 /// A periodical publication.
@@ -2520,9 +2785,8 @@ impl_struct!(Parameter);
 #[serde(default, rename_all = "camelCase")]
 pub struct Periodical {
     /// The name of this type
-    #[def = "\"Periodical\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Periodical::deserialize_type")]
-    pub type_: String,
+    #[def = "Periodical_::Periodical"]
+    pub type_: Periodical_,
 
     /// The subject matter of the content.
     pub about: Option<Vec<ThingTypes>>,
@@ -2627,6 +2891,12 @@ pub struct Periodical {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Periodical_ {
+  Periodical
+}
+
 impl_struct!(Periodical);
 
 /// A person (alive, dead, undead, or fictional).
@@ -2635,9 +2905,8 @@ impl_struct!(Periodical);
 #[serde(default, rename_all = "camelCase")]
 pub struct Person {
     /// The name of this type
-    #[def = "\"Person\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Person::deserialize_type")]
-    pub type_: String,
+    #[def = "Person_::Person"]
+    pub type_: Person_,
 
     /// Postal address for the person.
     pub address: Option<PersonAddress>,
@@ -2696,6 +2965,12 @@ pub struct Person {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Person_ {
+  Person
+}
+
 impl_struct!(Person);
 
 /// A physical mailing address.
@@ -2704,9 +2979,8 @@ impl_struct!(Person);
 #[serde(default, rename_all = "camelCase")]
 pub struct PostalAddress {
     /// The name of this type
-    #[def = "\"PostalAddress\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "PostalAddress::deserialize_type")]
-    pub type_: String,
+    #[def = "PostalAddress_::PostalAddress"]
+    pub type_: PostalAddress_,
 
     /// The country.
     pub address_country: Option<String>,
@@ -2759,6 +3033,12 @@ pub struct PostalAddress {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum PostalAddress_ {
+  PostalAddress
+}
+
 impl_struct!(PostalAddress);
 
 /// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
@@ -2767,9 +3047,8 @@ impl_struct!(PostalAddress);
 #[serde(default, rename_all = "camelCase")]
 pub struct Product {
     /// The name of this type
-    #[def = "\"Product\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Product::deserialize_type")]
-    pub type_: String,
+    #[def = "Product_::Product"]
+    pub type_: Product_,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -2804,6 +3083,12 @@ pub struct Product {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Product_ {
+  Product
+}
+
 impl_struct!(Product);
 
 /// A property-value pair.
@@ -2812,9 +3097,8 @@ impl_struct!(Product);
 #[serde(default, rename_all = "camelCase")]
 pub struct PropertyValue {
     /// The name of this type
-    #[def = "\"PropertyValue\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "PropertyValue::deserialize_type")]
-    pub type_: String,
+    #[def = "PropertyValue_::PropertyValue"]
+    pub type_: PropertyValue_,
 
     /// The value of the property.
     #[def = "PropertyValueValue::String(String::new())"]
@@ -2847,6 +3131,12 @@ pub struct PropertyValue {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum PropertyValue_ {
+  PropertyValue
+}
+
 impl_struct!(PropertyValue);
 
 /// A part of a successively published publication such as a periodical or publication volume, often numbered.
@@ -2855,9 +3145,8 @@ impl_struct!(PropertyValue);
 #[serde(default, rename_all = "camelCase")]
 pub struct PublicationIssue {
     /// The name of this type
-    #[def = "\"PublicationIssue\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "PublicationIssue::deserialize_type")]
-    pub type_: String,
+    #[def = "PublicationIssue_::PublicationIssue"]
+    pub type_: PublicationIssue_,
 
     /// The subject matter of the content.
     pub about: Option<Vec<ThingTypes>>,
@@ -2965,6 +3254,12 @@ pub struct PublicationIssue {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum PublicationIssue_ {
+  PublicationIssue
+}
+
 impl_struct!(PublicationIssue);
 
 /// A part of a successively published publication such as a periodical or multi-volume work.
@@ -2973,9 +3268,8 @@ impl_struct!(PublicationIssue);
 #[serde(default, rename_all = "camelCase")]
 pub struct PublicationVolume {
     /// The name of this type
-    #[def = "\"PublicationVolume\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "PublicationVolume::deserialize_type")]
-    pub type_: String,
+    #[def = "PublicationVolume_::PublicationVolume"]
+    pub type_: PublicationVolume_,
 
     /// The subject matter of the content.
     pub about: Option<Vec<ThingTypes>>,
@@ -3083,6 +3377,12 @@ pub struct PublicationVolume {
     /// Identifies the volume of publication or multi-part work; for example, "iii" or "2".
     pub volume_number: Option<PublicationVolumeVolumeNumber>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum PublicationVolume_ {
+  PublicationVolume
+}
+
 impl_struct!(PublicationVolume);
 
 /// Inline, quoted content.
@@ -3091,9 +3391,8 @@ impl_struct!(PublicationVolume);
 #[serde(default, rename_all = "camelCase")]
 pub struct Quote {
     /// The name of this type
-    #[def = "\"Quote\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Quote::deserialize_type")]
-    pub type_: String,
+    #[def = "Quote_::Quote"]
+    pub type_: Quote_,
 
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -3107,6 +3406,12 @@ pub struct Quote {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Quote_ {
+  Quote
+}
+
 impl_struct!(Quote);
 
 /// A section quoted from somewhere else.
@@ -3115,9 +3420,8 @@ impl_struct!(Quote);
 #[serde(default, rename_all = "camelCase")]
 pub struct QuoteBlock {
     /// The name of this type
-    #[def = "\"QuoteBlock\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "QuoteBlock::deserialize_type")]
-    pub type_: String,
+    #[def = "QuoteBlock_::QuoteBlock"]
+    pub type_: QuoteBlock_,
 
     /// The content of the quote.
     pub content: Vec<BlockContent>,
@@ -3131,6 +3435,12 @@ pub struct QuoteBlock {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum QuoteBlock_ {
+  QuoteBlock
+}
+
 impl_struct!(QuoteBlock);
 
 /// A review of an item, e.g of an Article, or SoftwareSourceCode.
@@ -3139,9 +3449,8 @@ impl_struct!(QuoteBlock);
 #[serde(default, rename_all = "camelCase")]
 pub struct Review {
     /// The name of this type
-    #[def = "\"Review\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Review::deserialize_type")]
-    pub type_: String,
+    #[def = "Review_::Review"]
+    pub type_: Review_,
 
     /// The subject matter of the content.
     pub about: Option<Vec<ThingTypes>>,
@@ -3243,6 +3552,12 @@ pub struct Review {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Review_ {
+  Review
+}
+
 impl_struct!(Review);
 
 /// A software application.
@@ -3251,9 +3566,8 @@ impl_struct!(Review);
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareApplication {
     /// The name of this type
-    #[def = "\"SoftwareApplication\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "SoftwareApplication::deserialize_type")]
-    pub type_: String,
+    #[def = "SoftwareApplication_::SoftwareApplication"]
+    pub type_: SoftwareApplication_,
 
     /// The subject matter of the content.
     pub about: Option<Vec<ThingTypes>>,
@@ -3355,6 +3669,12 @@ pub struct SoftwareApplication {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum SoftwareApplication_ {
+  SoftwareApplication
+}
+
 impl_struct!(SoftwareApplication);
 
 /// A computational environment.
@@ -3363,9 +3683,8 @@ impl_struct!(SoftwareApplication);
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareEnvironment {
     /// The name of this type
-    #[def = "\"SoftwareEnvironment\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "SoftwareEnvironment::deserialize_type")]
-    pub type_: String,
+    #[def = "SoftwareEnvironment_::SoftwareEnvironment"]
+    pub type_: SoftwareEnvironment_,
 
     /// The name of the item.
     pub name: String,
@@ -3400,6 +3719,12 @@ pub struct SoftwareEnvironment {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum SoftwareEnvironment_ {
+  SoftwareEnvironment
+}
+
 impl_struct!(SoftwareEnvironment);
 
 /// Definition of a compute session, including its software and compute resource requirements and status.
@@ -3408,9 +3733,8 @@ impl_struct!(SoftwareEnvironment);
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareSession {
     /// The name of this type
-    #[def = "\"SoftwareSession\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "SoftwareSession::deserialize_type")]
-    pub type_: String,
+    #[def = "SoftwareSession_::SoftwareSession"]
+    pub type_: SoftwareSession_,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -3487,6 +3811,12 @@ pub struct SoftwareSession {
     /// Volumes to mount in the session.
     pub volume_mounts: Option<Vec<VolumeMount>>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum SoftwareSession_ {
+  SoftwareSession
+}
+
 impl_struct!(SoftwareSession);
 
 /// Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
@@ -3495,9 +3825,8 @@ impl_struct!(SoftwareSession);
 #[serde(default, rename_all = "camelCase")]
 pub struct SoftwareSourceCode {
     /// The name of this type
-    #[def = "\"SoftwareSourceCode\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "SoftwareSourceCode::deserialize_type")]
-    pub type_: String,
+    #[def = "SoftwareSourceCode_::SoftwareSourceCode"]
+    pub type_: SoftwareSourceCode_,
 
     /// The subject matter of the content.
     pub about: Option<Vec<ThingTypes>>,
@@ -3611,6 +3940,12 @@ pub struct SoftwareSourceCode {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum SoftwareSourceCode_ {
+  SoftwareSourceCode
+}
+
 impl_struct!(SoftwareSourceCode);
 
 /// A schema specifying constraints on a string node.
@@ -3619,9 +3954,8 @@ impl_struct!(SoftwareSourceCode);
 #[serde(default, rename_all = "camelCase")]
 pub struct StringValidator {
     /// The name of this type
-    #[def = "\"StringValidator\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "StringValidator::deserialize_type")]
-    pub type_: String,
+    #[def = "StringValidator_::StringValidator"]
+    pub type_: StringValidator_,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -3638,6 +3972,12 @@ pub struct StringValidator {
     /// A regular expression that a string node must match.
     pub pattern: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum StringValidator_ {
+  StringValidator
+}
+
 impl_struct!(StringValidator);
 
 /// Strongly emphasised content.
@@ -3646,9 +3986,8 @@ impl_struct!(StringValidator);
 #[serde(default, rename_all = "camelCase")]
 pub struct Strong {
     /// The name of this type
-    #[def = "\"Strong\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Strong::deserialize_type")]
-    pub type_: String,
+    #[def = "Strong_::Strong"]
+    pub type_: Strong_,
 
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -3659,6 +3998,12 @@ pub struct Strong {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Strong_ {
+  Strong
+}
+
 impl_struct!(Strong);
 
 /// Subscripted content.
@@ -3667,9 +4012,8 @@ impl_struct!(Strong);
 #[serde(default, rename_all = "camelCase")]
 pub struct Subscript {
     /// The name of this type
-    #[def = "\"Subscript\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Subscript::deserialize_type")]
-    pub type_: String,
+    #[def = "Subscript_::Subscript"]
+    pub type_: Subscript_,
 
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -3680,6 +4024,12 @@ pub struct Subscript {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Subscript_ {
+  Subscript
+}
+
 impl_struct!(Subscript);
 
 /// Superscripted content.
@@ -3688,9 +4038,8 @@ impl_struct!(Subscript);
 #[serde(default, rename_all = "camelCase")]
 pub struct Superscript {
     /// The name of this type
-    #[def = "\"Superscript\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Superscript::deserialize_type")]
-    pub type_: String,
+    #[def = "Superscript_::Superscript"]
+    pub type_: Superscript_,
 
     /// The content that is marked.
     pub content: Vec<InlineContent>,
@@ -3701,6 +4050,12 @@ pub struct Superscript {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Superscript_ {
+  Superscript
+}
+
 impl_struct!(Superscript);
 
 /// A table.
@@ -3709,9 +4064,8 @@ impl_struct!(Superscript);
 #[serde(default, rename_all = "camelCase")]
 pub struct Table {
     /// The name of this type
-    #[def = "\"Table\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "Table::deserialize_type")]
-    pub type_: String,
+    #[def = "Table_::Table"]
+    pub type_: Table_,
 
     /// Rows of cells in the table.
     pub rows: Vec<TableRow>,
@@ -3816,6 +4170,12 @@ pub struct Table {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum Table_ {
+  Table
+}
+
 impl_struct!(Table);
 
 /// A cell within a `Table`.
@@ -3824,9 +4184,8 @@ impl_struct!(Table);
 #[serde(default, rename_all = "camelCase")]
 pub struct TableCell {
     /// The name of this type
-    #[def = "\"TableCell\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "TableCell::deserialize_type")]
-    pub type_: String,
+    #[def = "TableCell_::TableCell"]
+    pub type_: TableCell_,
 
     /// Indicates whether the cell is a header or data.
     pub cell_type: Option<TableCellCellType>,
@@ -3849,6 +4208,12 @@ pub struct TableCell {
     /// How many columns the cell extends.
     pub rowspan: Option<Integer>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum TableCell_ {
+  TableCell
+}
+
 impl_struct!(TableCell);
 
 /// A row within a Table.
@@ -3857,9 +4222,8 @@ impl_struct!(TableCell);
 #[serde(default, rename_all = "camelCase")]
 pub struct TableRow {
     /// The name of this type
-    #[def = "\"TableRow\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "TableRow::deserialize_type")]
-    pub type_: String,
+    #[def = "TableRow_::TableRow"]
+    pub type_: TableRow_,
 
     /// An array of cells in the row.
     pub cells: Vec<TableCell>,
@@ -3873,6 +4237,12 @@ pub struct TableRow {
     /// If present, indicates that all cells in this row should be treated as header cells.
     pub row_type: Option<TableRowRowType>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum TableRow_ {
+  TableRow
+}
+
 impl_struct!(TableRow);
 
 /// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
@@ -3881,9 +4251,8 @@ impl_struct!(TableRow);
 #[serde(default, rename_all = "camelCase")]
 pub struct ThematicBreak {
     /// The name of this type
-    #[def = "\"ThematicBreak\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "ThematicBreak::deserialize_type")]
-    pub type_: String,
+    #[def = "ThematicBreak_::ThematicBreak"]
+    pub type_: ThematicBreak_,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -3891,6 +4260,12 @@ pub struct ThematicBreak {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ThematicBreak_ {
+  ThematicBreak
+}
+
 impl_struct!(ThematicBreak);
 
 /// A validator specifying constraints on an array of heterogeneous items.
@@ -3899,9 +4274,8 @@ impl_struct!(ThematicBreak);
 #[serde(default, rename_all = "camelCase")]
 pub struct TupleValidator {
     /// The name of this type
-    #[def = "\"TupleValidator\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "TupleValidator::deserialize_type")]
-    pub type_: String,
+    #[def = "TupleValidator_::TupleValidator"]
+    pub type_: TupleValidator_,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -3912,6 +4286,12 @@ pub struct TupleValidator {
     /// Metadata associated with this item.
     pub meta: Option<Object>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum TupleValidator_ {
+  TupleValidator
+}
+
 impl_struct!(TupleValidator);
 
 /// A video file.
@@ -3920,9 +4300,8 @@ impl_struct!(TupleValidator);
 #[serde(default, rename_all = "camelCase")]
 pub struct VideoObject {
     /// The name of this type
-    #[def = "\"VideoObject\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "VideoObject::deserialize_type")]
-    pub type_: String,
+    #[def = "VideoObject_::VideoObject"]
+    pub type_: VideoObject_,
 
     /// URL for the actual bytes of the media object, for example the image file or video file.
     pub content_url: String,
@@ -4042,6 +4421,12 @@ pub struct VideoObject {
     /// The version of the creative work.
     pub version: Option<CreativeWorkVersion>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum VideoObject_ {
+  VideoObject
+}
+
 impl_struct!(VideoObject);
 
 /// Describes a volume mount from a host to container.
@@ -4050,9 +4435,8 @@ impl_struct!(VideoObject);
 #[serde(default, rename_all = "camelCase")]
 pub struct VolumeMount {
     /// The name of this type
-    #[def = "\"VolumeMount\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "VolumeMount::deserialize_type")]
-    pub type_: String,
+    #[def = "VolumeMount_::VolumeMount"]
+    pub type_: VolumeMount_,
 
     /// The mount location inside the container.
     pub mount_destination: String,
@@ -4090,6 +4474,12 @@ pub struct VolumeMount {
     /// The URL of the item.
     pub url: Option<String>,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum VolumeMount_ {
+  VolumeMount
+}
+
 impl_struct!(VolumeMount);
 
 /*********************************************************************

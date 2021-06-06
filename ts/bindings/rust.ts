@@ -138,12 +138,15 @@ function docComment(description: string): string {
 /**
  * Generate a Rust `struct` for an "interface" schema.
  *
- * Adds a `type_` property that is intended to help in de-serialization
+ * Adds a `type_` property that is required for in de-serialization
  * to disambiguate among alternative types in an enum. This is
  * necessary because we can not use `#[serde(tag = "type")]` for enums
  * that involve primitive types. Although we could add that option
  * to each struct it does not help with disambiguation when it comes to
  * deserialization. See https://github.com/serde-rs/serde/issues/760.
+ * This current solution is preferable to adding a `String` field
+ * to each struct because it takes up less memory (single variant enum
+ * takes up no space)
  */
 export function interfaceSchemaToEnum(
   schema: JsonSchema,
@@ -201,12 +204,17 @@ ${docComment(description)}
 #[serde(default, rename_all = "camelCase")]
 pub struct ${title} {
     /// The name of this type
-    #[def = "\\"${title}\\".to_string()"]
-    #[serde(rename = "type", deserialize_with = "${title}::deserialize_type")]
-    pub type_: String,
+    #[def = "${title}_::${title}"]
+    pub type_: ${title}_,
 
 ${fields}
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ${title}_ {
+  ${title}
+}
+
 impl_struct!(${title});`
 
   return code

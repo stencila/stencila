@@ -74,26 +74,6 @@ impl_primitive!(Object);
 #[macro_export]
 macro_rules! impl_struct {
     ($type:ident) => {
-        impl $type {
-            /// Deserialize the `type` property
-            ///
-            /// See notes in TypesScript function `interfaceSchemaToEnum`
-            /// and https://github.com/serde-rs/serde/issues/760.
-            pub fn deserialize_type<'de, D>(d: D) -> Result<String, D::Error>
-            where
-                D: Deserializer<'de>,
-            {
-                let value = String::deserialize(d)?;
-                if value != stringify!($type) {
-                    return Err(de::Error::invalid_value(
-                        de::Unexpected::Str(value.as_str()),
-                        &stringify!($type),
-                    ));
-                }
-                Ok(value)
-            }
-        }
-
         impl NodeTrait for $type {
             fn type_name(&self) -> String {
                 stringify!($type).into()
