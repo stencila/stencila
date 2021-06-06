@@ -21,9 +21,6 @@ pub struct Entity {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -63,9 +60,6 @@ pub struct Cite {
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The page on which the work ends; for example "138" or "xvi".
     pub page_end: Option<Box<CitePageEnd>>,
 
@@ -97,9 +91,6 @@ pub struct CiteGroup {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -126,9 +117,6 @@ pub struct Code {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The programming language of the code.
     pub programming_language: Option<Box<String>>,
@@ -164,9 +152,6 @@ pub struct CodeBlock {
 
     /// A compilation directive giving the name of the variable to import the content of the code block as.
     pub import_to: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The programming language of the code.
     pub programming_language: Option<Box<String>>,
@@ -227,9 +212,6 @@ pub struct CodeChunk {
     /// A short label for the CodeChunk.
     pub label: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// Outputs from executing the chunk.
     pub outputs: Option<Vec<Node>>,
 
@@ -268,9 +250,6 @@ pub struct CodeFragment {
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The programming language of the code.
     pub programming_language: Option<Box<String>>,
 }
@@ -302,9 +281,6 @@ pub struct CodeExpression {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The value of the expression when it was last evaluated.
     #[serde(skip)]
@@ -339,9 +315,6 @@ pub struct CodeError {
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// Stack trace leading up to the error.
     pub stack_trace: Option<Box<String>>,
 }
@@ -368,9 +341,6 @@ pub struct Date {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -394,9 +364,6 @@ pub struct Mark {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -420,9 +387,6 @@ pub struct Delete {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -446,9 +410,6 @@ pub struct Emphasis {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -481,9 +442,6 @@ pub struct Thing {
 
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -529,9 +487,6 @@ pub struct Brand {
     /// A logo associated with the brand.
     pub logo: Option<Box<BrandLogo>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// Reviews of the brand.
     pub reviews: Option<Vec<String>>,
 
@@ -575,9 +530,6 @@ pub struct ContactPoint {
 
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -671,9 +623,6 @@ pub struct CreativeWork {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -782,9 +731,6 @@ pub struct Article {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -909,9 +855,6 @@ pub struct Claim {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -963,9 +906,6 @@ pub struct ClaimSimple {
 
     /// A short label for the claim.
     pub label: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
@@ -1057,9 +997,6 @@ pub struct Collection {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -1105,9 +1042,6 @@ pub struct CollectionSimple {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1195,9 +1129,6 @@ pub struct Comment {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -1313,9 +1244,6 @@ pub struct Datatable {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -1439,9 +1367,6 @@ pub struct MediaObject {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -1569,9 +1494,6 @@ pub struct AudioObject {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -1639,9 +1561,6 @@ pub struct AudioObjectSimple {
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
@@ -1686,9 +1605,6 @@ pub struct DatatableColumn {
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The URL of the item.
     pub url: Option<Box<String>>,
 
@@ -1730,9 +1646,6 @@ pub struct DefinedTerm {
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// A code that identifies this DefinedTerm within a DefinedTermSet
     pub term_code: Option<Box<String>>,
 
@@ -1758,9 +1671,6 @@ pub struct Validator {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1793,9 +1703,6 @@ pub struct ArrayValidator {
     /// An array node is valid if its size is less than, or equal to, this value.
     pub max_items: Option<Box<Number>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// An array node is valid if its size is greater than, or equal to, this value.
     pub min_items: Option<Box<Number>>,
 
@@ -1821,9 +1728,6 @@ pub struct BooleanValidator {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1844,9 +1748,6 @@ pub struct ConstantValidator {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The value that the node must have.
     #[serde(skip)]
@@ -1871,9 +1772,6 @@ pub struct EnumValidator {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// A node is valid if it is equal to any of these values.
     pub values: Option<Vec<Node>>,
@@ -1909,9 +1807,6 @@ pub struct Enumeration {
 
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -2009,9 +1904,6 @@ pub struct Figure {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -2064,9 +1956,6 @@ pub struct FigureSimple {
     /// A short label for the figure.
     pub label: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 }
@@ -2089,9 +1978,6 @@ pub struct Function {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the function.
     pub name: Option<Box<String>>,
@@ -2137,9 +2023,6 @@ pub struct Grant {
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -2174,9 +2057,6 @@ pub struct Heading {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2280,9 +2160,6 @@ pub struct ImageObject {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -2352,9 +2229,6 @@ pub struct ImageObjectSimple {
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
@@ -2389,9 +2263,6 @@ pub struct Include {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2412,9 +2283,6 @@ pub struct IntegerValidator {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2448,9 +2316,6 @@ pub struct Link {
     /// A compilation directive giving the name of the variable to import the link target as.
     pub import_to: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The relation between the target and the current thing.
     pub relation: Option<Box<String>>,
 
@@ -2479,9 +2344,6 @@ pub struct List {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// Type of ordering.
     pub order: Option<Box<ListOrder>>,
@@ -2528,9 +2390,6 @@ pub struct ListItem {
     #[serde(skip)]
     pub item: Option<Box<Node>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -2568,9 +2427,6 @@ pub struct Math {
 
     /// The language used for the equation e.g tex, mathml, asciimath.
     pub math_language: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2603,9 +2459,6 @@ pub struct MathBlock {
 
     /// The language used for the equation e.g tex, mathml, asciimath.
     pub math_language: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2635,9 +2488,6 @@ pub struct MathFragment {
 
     /// The language used for the equation e.g tex, mathml, asciimath.
     pub math_language: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2680,9 +2530,6 @@ pub struct MonetaryGrant {
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -2714,9 +2561,6 @@ pub struct NontextualAnnotation {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2740,9 +2584,6 @@ pub struct Note {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// Determines where the note content is displayed within the document.
     pub note_type: Option<Box<NoteNoteType>>,
@@ -2775,9 +2616,6 @@ pub struct NumberValidator {
 
     /// The inclusive upper limit for a numeric node.
     pub maximum: Option<Box<Number>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The inclusive lower limit for a numeric node.
     pub minimum: Option<Box<Number>>,
@@ -2841,9 +2679,6 @@ pub struct Organization {
     /// Person(s) or organization(s) who are members of this organization.
     pub members: Option<Vec<OrganizationMembers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -2876,9 +2711,6 @@ pub struct Paragraph {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2905,9 +2737,6 @@ pub struct Variable {
 
     /// Whether or not a property is mutable. Default is false.
     pub is_readonly: Option<Box<Boolean>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The validator that the value is validated against.
     pub validator: Option<Box<ValidatorTypes>>,
@@ -2954,9 +2783,6 @@ pub struct Parameter {
 
     /// Indicates that this parameter is variadic and can accept multiple arguments.
     pub is_variadic: Option<Box<Boolean>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The validator that the value is validated against.
     pub validator: Option<Box<ValidatorTypes>>,
@@ -3058,9 +2884,6 @@ pub struct Periodical {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -3147,9 +2970,6 @@ pub struct Person {
     /// An organization (or program membership) to which this person belongs.
     pub member_of: Option<Vec<Organization>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -3205,9 +3025,6 @@ pub struct PostalAddress {
 
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -3265,9 +3082,6 @@ pub struct Product {
     /// The logo of the product.
     pub logo: Option<Box<ProductLogo>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -3312,9 +3126,6 @@ pub struct PropertyValue {
 
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -3411,9 +3222,6 @@ pub struct PublicationIssue {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -3532,9 +3340,6 @@ pub struct PublicationVolume {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -3596,9 +3401,6 @@ pub struct Quote {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3625,9 +3427,6 @@ pub struct QuoteBlock {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3715,9 +3514,6 @@ pub struct Review {
 
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -3830,9 +3626,6 @@ pub struct SoftwareApplication {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -3904,9 +3697,6 @@ pub struct SoftwareEnvironment {
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The packages that this environment removes from the base environments listed under `extends` (if any).,
     pub removes: Option<Vec<SoftwareSourceCode>>,
 
@@ -3977,9 +3767,6 @@ pub struct SoftwareSession {
 
     /// The amount of memory requested for the session.
     pub memory_request: Option<Box<Number>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
     pub name: Option<Box<String>>,
@@ -4095,9 +3882,6 @@ pub struct SoftwareSourceCode {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -4157,9 +3941,6 @@ pub struct StringValidator {
     /// The maximum length for a string node.
     pub max_length: Option<Box<Number>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The minimum length for a string node.
     pub min_length: Option<Box<Number>>,
 
@@ -4188,9 +3969,6 @@ pub struct Strong {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4214,9 +3992,6 @@ pub struct Subscript {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4240,9 +4015,6 @@ pub struct Superscript {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4337,9 +4109,6 @@ pub struct Table {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -4395,9 +4164,6 @@ pub struct TableSimple {
     /// A short label for the table.
     pub label: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 }
@@ -4430,9 +4196,6 @@ pub struct TableCell {
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the cell.
     pub name: Option<Box<String>>,
 
@@ -4462,9 +4225,6 @@ pub struct TableRow {
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// If present, indicates that all cells in this row should be treated as header cells.
     pub row_type: Option<Box<TableRowRowType>>,
 }
@@ -4487,9 +4247,6 @@ pub struct ThematicBreak {
 
     /// The identifier for this item.
     pub id: Option<Box<String>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4513,9 +4270,6 @@ pub struct TupleValidator {
 
     /// An array of validators specifying the constraints on each successive item in the array.
     pub items: Option<Vec<ValidatorTypes>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4619,9 +4373,6 @@ pub struct VideoObject {
     /// The people or organizations who maintain this CreativeWork.
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// The name of the item.
     pub name: Option<Box<String>>,
 
@@ -4692,9 +4443,6 @@ pub struct VideoObjectSimple {
     /// The identifier for this item.
     pub id: Option<Box<String>>,
 
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
-
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
@@ -4738,9 +4486,6 @@ pub struct VolumeMount {
 
     /// Images of the item.
     pub images: Option<Vec<ThingImages>>,
-
-    /// Metadata associated with this item.
-    pub meta: Option<Box<Object>>,
 
     /// A list of options to use when applying the mount.
     pub mount_options: Option<Vec<String>>,

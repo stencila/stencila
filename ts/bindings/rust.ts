@@ -193,6 +193,7 @@ export function interfaceSchemaToStruct(
   const { all } = getSchemaProperties(schema)
 
   const fields = all
+    .filter(({ name }) => name !== 'meta')
     .map(({ name, schema, optional, inherited, override }) => {
       const { description = name, from } = schema
 
