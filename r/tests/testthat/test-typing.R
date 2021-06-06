@@ -80,7 +80,6 @@ test_that("is_type", {
   expect_true(is_type(p, Union(numeric, Node)))
   expect_true(is_type(p, Paragraph))
   expect_true(is_type(p, BlockContent))
-  expect_false(is_type(p, InlineContent))
   expect_true(is_type(p, Union(InlineContent, BlockContent)))
 })
 
