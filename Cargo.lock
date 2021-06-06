@@ -2891,12 +2891,13 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.7.3"
+version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69662c31013133f388b122e3249b39232cd0fbdd5aef76e1121e6abac157e47b"
+checksum = "1834d673ae9a4d8c8b9633aed3183f9f3acf56620369a836a77dcf58e4003197"
 dependencies = [
  "chrono",
  "defaults",
+ "enum_dispatch",
  "serde",
  "serde_json",
  "serde_with",
