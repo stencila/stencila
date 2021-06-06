@@ -26,9 +26,10 @@ type ExtractGeneric<Type> = Type extends TypeMap<infer X>
  *
  * @param {TypeMap} typeMap An object containing schema type values
  */
-export const typeIs = <T extends Partial<TypeMap | TypeMapGeneric>>(
-  typeMap: T
-) => (type: string): boolean => Object.keys(typeMap).includes(type)
+export const typeIs =
+  <T extends Partial<TypeMap | TypeMapGeneric>>(typeMap: T) =>
+  (type: string): boolean =>
+    Object.keys(typeMap).includes(type)
 
 /**
  * Returns a type guard to determine whether a node belongs to a set
@@ -40,11 +41,11 @@ export const typeIs = <T extends Partial<TypeMap | TypeMapGeneric>>(
  * @param {T} typeMap
  * @param {Node} node A Stencila schema node object
  */
-export const nodeIs = <T extends Partial<TypeMap | TypeMapGeneric>>(
-  typeMap: T
-) => (node?: Node): node is ExtractGeneric<T> => {
-  return isEntity(node) ? typeIs(typeMap)(node.type) : false
-}
+export const nodeIs =
+  <T extends Partial<TypeMap | TypeMapGeneric>>(typeMap: T) =>
+  (node?: Node): node is ExtractGeneric<T> => {
+    return isEntity(node) ? typeIs(typeMap)(node.type) : false
+  }
 
 /**
  * Returns a type guard to determine whether a node is of a particular type.
@@ -89,11 +90,11 @@ export const isA = <K extends keyof Types>(
  *
  * @param type The type to test for
  */
-export const isType = <K extends keyof Types>(type: K) => (
-  node?: Node
-): node is Types[K] => {
-  return node !== undefined && isA(type, node)
-}
+export const isType =
+  <K extends keyof Types>(type: K) =>
+  (node?: Node): node is Types[K] => {
+    return node !== undefined && isA(type, node)
+  }
 
 /**
  * Type guard to determine whether a node is a primitive type.

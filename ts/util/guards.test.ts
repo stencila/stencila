@@ -13,10 +13,10 @@ import {
 
 const primitives = [null, true, false, NaN, 2, 'string']
 
-const typeMap = ({
+const typeMap = {
   someType: 'someType',
   myCustomType: 'myCustomType',
-} as unknown) as TypeMap
+} as unknown as TypeMap
 
 describe('typeIs', () => {
   it('finds the given type', () => {

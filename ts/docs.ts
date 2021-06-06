@@ -176,28 +176,27 @@ async function build(): Promise<void> {
 const sortAlphabetically = (a: string, b: string): number =>
   a < b ? -1 : a > b ? 1 : 0
 
-const requiredPropsFirst = (requiredProps: string[]) => (
-  a: string,
-  b: string
-): number => {
-  // If both fields being compared are required, sort alphabetically
-  if (requiredProps.includes(a) && requiredProps.includes(b)) {
+const requiredPropsFirst =
+  (requiredProps: string[]) =>
+  (a: string, b: string): number => {
+    // If both fields being compared are required, sort alphabetically
+    if (requiredProps.includes(a) && requiredProps.includes(b)) {
+      return sortAlphabetically(a, b)
+    }
+
+    // If field `a` is required and `b` is not, `a` should be listed before `b`
+    if (requiredProps.includes(a)) {
+      return -1
+    }
+
+    // If field `b` is required and `a` is not, `b` should be listed before `a`
+    if (requiredProps.includes(b)) {
+      return 1
+    }
+
+    // If neither fields are required, fall back to sorting them alphabetically
     return sortAlphabetically(a, b)
   }
-
-  // If field `a` is required and `b` is not, `a` should be listed before `b`
-  if (requiredProps.includes(a)) {
-    return -1
-  }
-
-  // If field `b` is required and `a` is not, `b` should be listed before `a`
-  if (requiredProps.includes(b)) {
-    return 1
-  }
-
-  // If neither fields are required, fall back to sorting them alphabetically
-  return sortAlphabetically(a, b)
-}
 
 /**
  * Separates elements of an array with a provided separators

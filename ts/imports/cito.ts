@@ -26,9 +26,7 @@ import { pascalCase, sentenceCase } from 'change-case'
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 ;(async () => {
-  const {
-    body,
-  } = await got.get(
+  const { body } = await got.get(
     'https://raw.githubusercontent.com/SPAROntologies/cito/b4c5b10a8d7b5f0da6ea8a4f3edcc00d7984f9a4/docs/current/cito.json',
     { responseType: 'json' }
   )

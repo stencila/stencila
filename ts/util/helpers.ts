@@ -25,13 +25,11 @@ export async function readSchemas(
 ): Promise<JsonSchema[]> {
   const files = await globby(glob)
   return Promise.all(
-    files.map(
-      async (file: string): Promise<JsonSchema> => {
-        const resolver = new Resolver()
-        const resolved = await resolver.resolve(await fs.readJSON(file))
-        return resolved.result as JsonSchema
-      }
-    )
+    files.map(async (file: string): Promise<JsonSchema> => {
+      const resolver = new Resolver()
+      const resolved = await resolver.resolve(await fs.readJSON(file))
+      return resolved.result as JsonSchema
+    })
   )
 }
 
@@ -106,9 +104,7 @@ interface Property {
  * Properties are arranged in groups according to required (or not)
  * and inherited (or not).
  */
-export function getSchemaProperties(
-  schema: JsonSchema
-): {
+export function getSchemaProperties(schema: JsonSchema): {
   all: Property[]
   inherited: Property[]
   own: Property[]
@@ -120,14 +116,12 @@ export function getSchemaProperties(
   const props = Object.entries(properties)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     .filter(([name, _]) => name !== 'type')
-    .map(
-      ([name, schema]): Property => {
-        const { from, isOverride: override = false } = schema
-        const inherited = from !== title
-        const optional = required === undefined || !required.includes(name)
-        return { name, schema, inherited, override, optional }
-      }
-    )
+    .map(([name, schema]): Property => {
+      const { from, isOverride: override = false } = schema
+      const inherited = from !== title
+      const optional = required === undefined || !required.includes(name)
+      return { name, schema, inherited, override, optional }
+    })
     .sort((a, b) => {
       if (a.optional === b.optional) {
         if (a.name === b.name) return 0

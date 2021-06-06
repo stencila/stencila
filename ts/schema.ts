@@ -53,26 +53,24 @@ export async function build(cleanup = true): Promise<void> {
   const files = await globby('*.schema.yaml', { cwd: SCHEMA_SOURCE_DIR })
   const schemas = new Map<string, JsonSchema>(
     await Promise.all(
-      files.map(
-        async (file: string): Promise<[string, JsonSchema]> => {
-          const schema = yaml.load(
-            await fs.readFile(path.join(SCHEMA_SOURCE_DIR, file), 'utf-8')
+      files.map(async (file: string): Promise<[string, JsonSchema]> => {
+        const schema = yaml.load(
+          await fs.readFile(path.join(SCHEMA_SOURCE_DIR, file), 'utf-8')
+        )
+
+        if (!recordGuard(schema)) {
+          throw new Error(
+            `Schema does not have valid FrontMatter in source file: ${file}`
           )
-
-          if (!recordGuard(schema)) {
-            throw new Error(
-              `Schema does not have valid FrontMatter in source file: ${file}`
-            )
-          }
-
-          const title = schema.title
-          if (title === undefined || typeof title !== 'string')
-            throw new Error(`Schema title is required in source file: ${file}`)
-          if (file.split('.')[0] !== title)
-            log.warn(`Schema title differs to filename: "${title}" in ${file}`)
-          return [title, { ...schema, file }]
         }
-      )
+
+        const title = schema.title
+        if (title === undefined || typeof title !== 'string')
+          throw new Error(`Schema title is required in source file: ${file}`)
+        if (file.split('.')[0] !== title)
+          log.warn(`Schema title differs to filename: "${title}" in ${file}`)
+        return [title, { ...schema, file }]
+      })
     )
   )
 
