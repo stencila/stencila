@@ -1,3 +1,17 @@
+## [1.8.1](https://github.com/stencila/schema/compare/v1.8.0...v1.8.1) (2021-06-06)
+
+
+### Bug Fixes
+
+* **Rust:** Box optional properties ([be279c0](https://github.com/stencila/schema/commit/be279c010446a0eacdefb22f2b9c97664075141e))
+
+
+### Performance Improvements
+
+* **Rust:** Do not include meta property ([893de26](https://github.com/stencila/schema/commit/893de2697a9a505783312d09dd7f4d1a62af470e))
+* **Rust:** Reduce memory footprint of type deserialization discriminant ([7c36200](https://github.com/stencila/schema/commit/7c3620054089918ea9ad0b2c2dbdd643a30c7487))
+* **Rust:** Use simple structs for creative works when present as inline or block content ([9a650d1](https://github.com/stencila/schema/commit/9a650d13206c0f8d0abba7b0995cebabbc606b0a))
+
 # [1.8.0](https://github.com/stencila/schema/compare/v1.7.3...v1.8.0) (2021-06-04)
 
 
