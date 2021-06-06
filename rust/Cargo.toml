@@ -119,7 +119,7 @@ serde = { version = "1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "1.0.64", features = ["preserve_order"] }
 serde_with = "1.9.1"
 serde_yaml = { version = "0.8.17", optional = true }
-stencila-schema = "1.7.3"
+stencila-schema = "1.8.1"
 structopt = { version = "0.3.21", optional = true }
 strum = { version = "0.21", features = ["derive"] }
 strum_macros = "0.21.1"

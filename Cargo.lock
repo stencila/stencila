@@ -2851,11 +2851,7 @@ dependencies = [
  "stencila-schema",
  "structopt",
  "strum",
-<<<<<<< HEAD
- "strum_macros 0.20.1",
-=======
- "strum_macros 0.21.1",
->>>>>>> strum_macros-0.x
+ "strum_macros",
  "thiserror",
  "tokio",
  "tokio-tungstenite 0.14.0",
@@ -2898,9 +2894,9 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.8.0"
+version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "883b04c9a5ac4c33c56e8b4d48006614e7b880b1c0033c42809ab38861be8f5c"
+checksum = "1834d673ae9a4d8c8b9633aed3183f9f3acf56620369a836a77dcf58e4003197"
 dependencies = [
  "chrono",
  "defaults",
@@ -2958,23 +2954,7 @@ version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aaf86bbcfd1fa9670b7a129f64fc0c9fcbbfe4f1bc4210e9e98fe71ffc12cde2"
 dependencies = [
-<<<<<<< HEAD
- "strum_macros 0.21.1",
-=======
- "strum_macros 0.20.1",
->>>>>>> strum_macros-0.x
-]
-
-[[package]]
-name = "strum_macros"
-version = "0.20.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee8bc6b87a5112aeeab1f4a9f7ab634fe6cbefc4850006df31267f4cfb9e3149"
-dependencies = [
- "heck",
- "proc-macro2 1.0.27",
- "quote 1.0.9",
- "syn 1.0.72",
+ "strum_macros",
 ]
 
 [[package]]
