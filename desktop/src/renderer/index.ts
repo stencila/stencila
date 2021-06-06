@@ -15,3 +15,4 @@
 
 import '@stencil/router'
 import '@stencila/components'
+import 'split-me'

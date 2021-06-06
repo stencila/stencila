@@ -1,68 +1,92 @@
-import {
-  createEntityAdapter,
-  createSlice,
-  EntityId,
-  PayloadAction
-} from '@reduxjs/toolkit'
+import { createSlice, EntityId, PayloadAction } from '@reduxjs/toolkit'
 import { array as A, option as O, string } from 'fp-ts'
 import { pipe } from 'fp-ts/function'
+import {
+  PaneView,
+  DocumentPane,
+  NormalizedDocumentPaneStore,
+} from './documentPaneTypes'
 
-type DocumentPane = {
-  id: string
-  documents: string[]
-  activeDocument: O.Option<string>
+const initialState: NormalizedDocumentPaneStore = {
+  entities: {
+    panes: {},
+    views: {},
+  },
+  ids: [],
 }
-
-const documentPaneAdapter = createEntityAdapter<DocumentPane>()
 
 export const documentPaneSlice = createSlice({
   name: 'documentPanes',
-  initialState: documentPaneAdapter.getInitialState(),
+  initialState: initialState,
   reducers: {
-    createPane: documentPaneAdapter.addOne,
-    updatePane: documentPaneAdapter.updateOne,
+    createPane: (state) => {
+      const newPaneId = state.ids.length + 1
+      state.entities.panes[newPaneId] = {
+        id: newPaneId,
+        activeView: O.none,
+        views: [],
+      }
+      state.ids = [...state.ids, newPaneId]
+    },
+    updatePane: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{ id: EntityId; changes: Partial<DocumentPane> }>
+    ) => {
+      const prevPane = state.entities.panes[payload.id]
+      if (prevPane) {
+        state.entities.panes[payload.id] = {
+          ...prevPane,
+          ...payload.changes,
+        }
+      }
+    },
     addDocToPane: (
       state,
-      { payload }: PayloadAction<{ paneId: EntityId; docPath: string }>
+      { payload }: PayloadAction<{ paneId: EntityId; view: PaneView }>
     ) => {
-      const pane = state.entities[payload.paneId]
+      const pane = state.entities.panes[payload.paneId]
       if (pane) {
-        if (!pane.documents.includes(payload.docPath)) {
-          pane.documents = [...pane.documents, payload.docPath]
+        if (!pane.views.includes(payload.view.id)) {
+          pane.views = [...pane.views, payload.view.id]
+
+          state.entities.views[payload.view.id] = payload.view
         }
-        pane.activeDocument = O.some(payload.docPath)
+        pane.activeView = O.some(payload.view.id)
       }
       return state
     },
     removeDocFromPane: (
       state,
-      { payload }: PayloadAction<{ paneId: EntityId; docPath: string }>
+      { payload }: PayloadAction<{ paneId: EntityId; docId: EntityId }>
     ) => {
-      const pane = state.entities[payload.paneId]
+      const pane = state.entities.panes[payload.paneId]
 
       if (pane) {
-        const docIndex = pane.documents.indexOf(payload.docPath)
+        const docIndex = pane.views.indexOf(payload.docId)
 
         // Remove document from list
-        if (pane.documents.includes(payload.docPath)) {
-          pane.documents = pipe(
-            pane.documents,
+        if (pane.views.includes(payload.docId)) {
+          pane.views = pipe(
+            pane.views,
             A.deleteAt(docIndex),
-            O.getOrElse<string[]>(() => [])
+            O.getOrElse<EntityId[]>(() => [])
           )
         }
 
         // If document being closed is not the currently active document,
         // change focus to the closest tab
         if (
-          O.getEq(string.Eq).equals(
-            pane.activeDocument,
-            O.some(payload.docPath)
+          pipe(
+            pane.activeView,
+            O.map((doc) => doc === payload.docId),
+            O.getOrElse(() => false)
           )
         ) {
-          pane.activeDocument = pipe(
-            A.lookup(docIndex)(pane.documents),
-            O.alt(() => A.lookup(docIndex - 1)(pane.documents))
+          pane.activeView = pipe(
+            A.lookup(docIndex)(pane.views),
+            O.alt(() => A.lookup(docIndex - 1)(pane.views))
           )
         }
       }

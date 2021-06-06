@@ -32,6 +32,9 @@ use strum::ToString;
 /// The available families of identifiers
 #[derive(ToString)]
 pub enum Family {
+    #[strum(serialize = "do")]
+    Document,
+
     #[strum(serialize = "fi")]
     File,
 }

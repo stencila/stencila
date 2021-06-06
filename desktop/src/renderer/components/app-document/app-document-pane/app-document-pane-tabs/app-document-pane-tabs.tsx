@@ -1,6 +1,7 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { Component, h, Host, Prop } from '@stencil/core'
-import { option as O, string } from 'fp-ts'
+import { option as O } from 'fp-ts'
+import { constFalse, pipe } from 'fp-ts/function'
 
 @Component({
   tag: 'app-document-pane-tabs',
@@ -8,26 +9,28 @@ import { option as O, string } from 'fp-ts'
   scoped: true,
 })
 export class AppDocumentPaneTabs {
-  @Prop() activeDocument: O.Option<string>
+  @Prop() activeDocument: O.Option<EntityId>
 
-  @Prop() documents: string[] = []
+  @Prop() viewIds: EntityId[] = []
 
   @Prop() paneId: EntityId
 
-  private eq = O.getEq(string.Eq).equals
-
-  private isActive = (path: string): boolean => {
-    return this.eq(this.activeDocument, O.some(path))
+  private isActive = (id: EntityId): boolean => {
+    return pipe(
+      this.activeDocument,
+      O.map((activeId) => activeId === id),
+      O.getOrElse(constFalse)
+    )
   }
 
   render() {
     return (
       <Host>
         <ul class="documentPaneTabs">
-          {this.documents.map((docPath) => (
+          {this.viewIds.map((docId) => (
             <app-document-pane-tab
-              isActive={this.isActive(docPath)}
-              documentPath={docPath}
+              isActive={this.isActive(docId)}
+              viewId={docId}
               paneId={this.paneId}
             ></app-document-pane-tab>
           ))}

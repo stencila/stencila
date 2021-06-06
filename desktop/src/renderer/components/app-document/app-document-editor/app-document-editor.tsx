@@ -1,3 +1,4 @@
+import { EntityId } from '@reduxjs/toolkit'
 import { Component, Element, h, Host, Prop, Watch } from '@stencil/core'
 import { DocumentEvent, File } from 'stencila'
 import { CHANNEL } from '../../../../preload'
@@ -14,15 +15,18 @@ export class AppDocumentEditor {
 
   private editorRef: HTMLStencilaEditorElement | null = null
 
-  @Prop() filePath: string
+  @Prop() documentId: EntityId
 
   private file?: File
 
-  private closeDoc = (filePath = this.filePath) =>
-    window.api.invoke(CHANNEL.CLOSE_DOCUMENT, filePath)
+  private closeDoc = (documentId = this.documentId) =>
+    window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
+      documentId,
+      topics: ['modified'],
+    })
 
-  @Watch('filePath')
-  filePathWatchHandler(newValue: string, prevValue: string) {
+  @Watch('documentId')
+  documentIdWatchHandler(newValue: string, prevValue: string) {
     if (newValue !== prevValue) {
       this.closeDoc(prevValue).then(() => {
         this.subscribeToUpdates(newValue)
@@ -30,9 +34,9 @@ export class AppDocumentEditor {
     }
   }
 
-  private subscribeToUpdates = (filePath = this.filePath) => {
+  private subscribeToUpdates = (documentId = this.documentId) => {
     window.api
-      .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, filePath)
+      .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, documentId)
       .then((contents) => {
         if (typeof contents === 'string') {
           this.editorRef?.setContents(contents)
@@ -40,9 +44,9 @@ export class AppDocumentEditor {
       })
 
     window.api.receive(CHANNEL.GET_DOCUMENT_CONTENTS, (event) => {
-      const e = event as DocumentEvent
-      if (e.type === 'modified') {
-        this.editorRef?.setContents(e.content)
+      const { type, content } = event as DocumentEvent
+      if (type === 'modified' && typeof content == 'string') {
+        this.editorRef?.setContents(content)
       }
     })
 
@@ -68,7 +72,7 @@ export class AppDocumentEditor {
       ?.getContents()
       .then(({ text }) => {
         window.api.invoke(CHANNEL.SAVE_DOCUMENT, {
-          filePath: this.filePath,
+          documentId: this.documentId,
           content: text,
         })
       })

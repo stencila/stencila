@@ -1,41 +1,42 @@
 import { EntityId } from '@reduxjs/toolkit'
 import { option as O } from 'fp-ts'
+import { Document } from 'stencila'
+import { CHANNEL } from '../../../preload'
 import { store } from '../index'
 import { documentPaneActions } from './documentPaneStore'
 
-export const initPane = (path: string) => {
-  store.dispatch(
-    documentPaneActions.createPane({
-      id: path + 'main',
-      documents: [],
-      activeDocument: O.none,
-    })
-  )
+export const initPane = () => {
+  store.dispatch(documentPaneActions.createPane())
 }
 
-export const addDocumentToPane = (paneId: EntityId, docPath: string) => {
-  store.dispatch(
+export const addDocumentToPane = async (paneId: EntityId, docId: EntityId) => {
+  const document = (await window.api.invoke(
+    CHANNEL.OPEN_DOCUMENT,
+    docId
+  )) as Document
+
+  return store.dispatch(
     documentPaneActions.addDocToPane({
       paneId,
-      docPath,
+      view: { type: 'editor', ...document },
     })
   )
 }
 
-export const closeDocument = (paneId: EntityId, docPath: string) => {
+export const closeDocument = (paneId: EntityId, docId: EntityId) => {
   store.dispatch(
     documentPaneActions.removeDocFromPane({
       paneId,
-      docPath,
+      docId,
     })
   )
 }
 
-export const setActiveDocument = (paneId: EntityId, filePath: string) => {
+export const setActiveDocument = (paneId: EntityId, docId: EntityId) => {
   store.dispatch(
     documentPaneActions.updatePane({
       id: paneId,
-      changes: { activeDocument: O.some(filePath) },
+      changes: { activeView: O.some(docId) },
     })
   )
 }
