@@ -70,10 +70,10 @@ let creativeWorkTypes: string[]
 let inlineContent: string[]
 let blockContent: string[]
 
-function initializeGlobals(schemas: JsonSchema[]) {
+function initializeGlobals(schemas: JsonSchema[]): void {
   const entries = schemas.map((schema) => [schema.title, schema])
-  const lookup = Object.fromEntries(entries)
-  const extract = (title: string) => {
+  const lookup = Object.fromEntries(entries) as Record<string, JsonSchema>
+  const extract = (title: string): string[] => {
     return (lookup[title].anyOf ?? []).map((obj: JsonSchema) =>
       (obj.$ref ?? '').replace('.schema.json', '')
     )
@@ -83,7 +83,7 @@ function initializeGlobals(schemas: JsonSchema[]) {
   blockContent = extract('BlockContent')
 }
 
-function isCreativeWorkContent(title: string) {
+function isCreativeWorkContent(title: string): boolean {
   return (
     creativeWorkTypes.includes(title) &&
     (inlineContent.includes(title) || blockContent.includes(title))
