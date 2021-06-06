@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "@stencila/schema": "1.7.2",
+    "@stencila/schema": "1.8.0",
     "@types/jest": "26.0.23",
     "@types/node": "15.6.0",
     "solid-js": "0.26.5",
