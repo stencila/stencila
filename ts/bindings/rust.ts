@@ -47,7 +47,6 @@ const propertyTypes: Record<string, [string, string]> = {
 // (the "recursive type has infinite size" error) or because it is
 // memory efficient (especially for optional properties on deeply nested structs)
 const pointerProperties = [
-  // Recursive properties
   '*.isPartOf',
   'Organization.parentOrganization',
   'ImageObject.publisher', // recursive because publisher has `logo`
@@ -61,12 +60,6 @@ const pointerProperties = [
   'Parameter.default',
   'Parameter.value',
   'Variable.value',
-  // Optional properties of inline content types that by have as boxes
-  // reduce the size of the `InlineContent` enum (determined by the
-  // variant)
-  'ImageObjectSimple.thumbnail',
-  'VideoObjectSimple.thumbnail',
-  'Quote.cite',
 ]
 
 // For types that extend `CreativeWork`, _and_ which are part of `InlineContent`
@@ -221,7 +214,11 @@ export function interfaceSchemaToStruct(
         pointerProperties.includes(`*.${name}`)
       type = isPointer ? `Box<${type}>` : type
 
-      type = optional ? `Option<${type}>` : type
+      type = optional
+        ? `Option<${
+            isPointer || type.startsWith('Vec<') ? type : `Box<${type}>`
+          }>`
+        : type
 
       let attrs = propertyAttributes[propertyPath] ?? []
       if (isPointer) attrs = [...attrs, '#[serde(skip)]']
@@ -274,10 +271,10 @@ export function interfaceSchemaToSimpleStruct(
   const filteredProperties = Object.fromEntries(
     Object.entries(properties).reduce(
       (prev: [string, JsonSchema][], [name, property]) => {
-        return name !== 'content' &&
-          ['Thing', 'CreativeWork'].includes(property.from ?? '')
-          ? prev
-          : [...prev, [name, property]]
+        const keep =
+          ['content', 'parts'].includes(name) ||
+          !['Thing', 'CreativeWork'].includes(property.from ?? '')
+        return keep ? [...prev, [name, property]] : prev
       },
       []
     )
@@ -334,7 +331,7 @@ export function unionSchemaToEnum(
         (title === 'InlineContent' || title === 'BlockContent') &&
         isCreativeWorkContent(name)
       ) {
-        return `    ${name}Simple(${name}Simple),\n`
+        return `    ${name}(${name}Simple),\n`
       }
       return `    ${name}(${name}),\n`
     })

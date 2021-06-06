@@ -128,6 +128,7 @@ fn sizes() {
     sizeof!(Vec<Primitive>);
     sizeof!(BTreeMap<String, Primitive>);
     sizeof!(String);
+    sizeof!(Option<Box<String>>);
     println!("----------------------------------------------");
 
     println!("");

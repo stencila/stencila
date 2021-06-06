@@ -80,7 +80,10 @@ macro_rules! impl_struct {
             }
 
             fn id(&self) -> Option<String> {
-                self.id.clone()
+                match &self.id {
+                    None => None,
+                    Some(id) => Some(*id.clone()),
+                }
             }
         }
     };

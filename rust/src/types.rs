@@ -20,10 +20,10 @@ pub struct Entity {
     pub type_: Entity_,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -49,31 +49,31 @@ pub struct Cite {
     pub citation_intent: Option<Vec<CitationIntentEnumeration>>,
 
     /// Determines how the citation is shown within the surrounding text.
-    pub citation_mode: Option<CiteCitationMode>,
+    pub citation_mode: Option<Box<CiteCitationMode>>,
 
     /// Text to show before the citation.
-    pub citation_prefix: Option<String>,
+    pub citation_prefix: Option<Box<String>>,
 
     /// Text to show after the citation.
-    pub citation_suffix: Option<String>,
+    pub citation_suffix: Option<Box<String>>,
 
     /// Optional structured content/text of this citation.
     pub content: Option<Vec<InlineContent>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The page on which the work ends; for example "138" or "xvi".
-    pub page_end: Option<CitePageEnd>,
+    pub page_end: Option<Box<CitePageEnd>>,
 
     /// The page on which the work starts; for example "135" or "xiii".
-    pub page_start: Option<CitePageStart>,
+    pub page_start: Option<Box<CitePageStart>>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
-    pub pagination: Option<String>,
+    pub pagination: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -96,10 +96,10 @@ pub struct CiteGroup {
     pub items: Vec<Cite>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -122,16 +122,16 @@ pub struct Code {
     pub text: String,
 
     /// Media type, typically expressed using a MIME format, of the code.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The programming language of the code.
-    pub programming_language: Option<String>,
+    pub programming_language: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -154,22 +154,22 @@ pub struct CodeBlock {
     pub text: String,
 
     /// A compilation directive giving the name of the variable to export into the content of the code block.
-    pub export_from: Option<String>,
+    pub export_from: Option<Box<String>>,
 
     /// Media type, typically expressed using a MIME format, of the code.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// A compilation directive giving the name of the variable to import the content of the code block as.
-    pub import_to: Option<String>,
+    pub import_to: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The programming language of the code.
-    pub programming_language: Option<String>,
+    pub programming_language: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -198,43 +198,43 @@ pub struct CodeChunk {
     pub assigns: Option<Vec<CodeChunkAssigns>>,
 
     /// A caption for the CodeChunk.
-    pub caption: Option<CodeChunkCaption>,
+    pub caption: Option<Box<CodeChunkCaption>>,
 
     /// Variables that the code chunk declares.
     pub declares: Option<Vec<CodeChunkDeclares>>,
 
     /// Duration in seconds of the last execution of the chunk.
-    pub duration: Option<Number>,
+    pub duration: Option<Box<Number>>,
 
     /// Errors when compiling or executing the chunk.
     pub errors: Option<Vec<CodeError>>,
 
     /// A compilation directive giving the name of the variable to export into the content of the code block.
-    pub export_from: Option<String>,
+    pub export_from: Option<Box<String>>,
 
     /// Media type, typically expressed using a MIME format, of the code.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// A compilation directive giving the name of the variable to import the content of the code block as.
-    pub import_to: Option<String>,
+    pub import_to: Option<Box<String>>,
 
     /// Software packages that the code chunk imports
     pub imports: Option<Vec<CodeChunkImports>>,
 
     /// A short label for the CodeChunk.
-    pub label: Option<String>,
+    pub label: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// Outputs from executing the chunk.
     pub outputs: Option<Vec<Node>>,
 
     /// The programming language of the code.
-    pub programming_language: Option<String>,
+    pub programming_language: Option<Box<String>>,
 
     /// Filesystem paths that this code chunk reads from.
     pub reads: Option<Vec<String>>,
@@ -263,16 +263,16 @@ pub struct CodeFragment {
     pub text: String,
 
     /// Media type, typically expressed using a MIME format, of the code.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The programming language of the code.
-    pub programming_language: Option<String>,
+    pub programming_language: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -298,20 +298,20 @@ pub struct CodeExpression {
     pub errors: Option<Vec<CodeError>>,
 
     /// Media type, typically expressed using a MIME format, of the code.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The value of the expression when it was last evaluated.
     #[serde(skip)]
     pub output: Option<Box<Node>>,
 
     /// The programming language of the code.
-    pub programming_language: Option<String>,
+    pub programming_language: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -334,16 +334,16 @@ pub struct CodeError {
     pub error_message: String,
 
     /// The type of error e.g. "SyntaxError", "ZeroDivisionError".
-    pub error_type: Option<String>,
+    pub error_type: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// Stack trace leading up to the error.
-    pub stack_trace: Option<String>,
+    pub stack_trace: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -367,10 +367,10 @@ pub struct Date {
     pub value: DateValue,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -393,10 +393,10 @@ pub struct Mark {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -419,10 +419,10 @@ pub struct Delete {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -445,10 +445,10 @@ pub struct Emphasis {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -471,10 +471,10 @@ pub struct Thing {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -483,13 +483,13 @@ pub struct Thing {
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -515,10 +515,10 @@ pub struct Brand {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -527,16 +527,16 @@ pub struct Brand {
     pub images: Option<Vec<ThingImages>>,
 
     /// A logo associated with the brand.
-    pub logo: Option<BrandLogo>,
+    pub logo: Option<Box<BrandLogo>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// Reviews of the brand.
     pub reviews: Option<Vec<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -562,13 +562,13 @@ pub struct ContactPoint {
     pub available_languages: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// Email address for correspondence.
     pub emails: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -577,16 +577,16 @@ pub struct ContactPoint {
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Telephone numbers for the contact point.
     pub telephone_numbers: Option<Vec<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -618,25 +618,25 @@ pub struct CreativeWork {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -651,7 +651,7 @@ pub struct CreativeWork {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -673,31 +673,31 @@ pub struct CreativeWork {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -732,22 +732,22 @@ pub struct Article {
     pub content: Option<Vec<BlockContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -762,7 +762,7 @@ pub struct Article {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -784,40 +784,40 @@ pub struct Article {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// The page on which the article ends; for example "138" or "xvi".
-    pub page_end: Option<ArticlePageEnd>,
+    pub page_end: Option<Box<ArticlePageEnd>>,
 
     /// The page on which the article starts; for example "135" or "xiii".
-    pub page_start: Option<ArticlePageStart>,
+    pub page_start: Option<Box<ArticlePageStart>>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
-    pub pagination: Option<String>,
+    pub pagination: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -849,28 +849,28 @@ pub struct Claim {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Kind of the claim.
-    pub claim_type: Option<ClaimClaimType>,
+    pub claim_type: Option<Box<ClaimClaimType>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -885,7 +885,7 @@ pub struct Claim {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -901,7 +901,7 @@ pub struct Claim {
     pub keywords: Option<Vec<String>>,
 
     /// A short label for the claim.
-    pub label: Option<String>,
+    pub label: Option<Box<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
     pub licenses: Option<Vec<CreativeWorkLicenses>>,
@@ -910,31 +910,31 @@ pub struct Claim {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -956,16 +956,19 @@ pub struct ClaimSimple {
     pub content: Vec<BlockContent>,
 
     /// Kind of the claim.
-    pub claim_type: Option<ClaimClaimType>,
+    pub claim_type: Option<Box<ClaimClaimType>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// A short label for the claim.
-    pub label: Option<String>,
+    pub label: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
+
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    pub parts: Option<Vec<CreativeWorkTypes>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1000,25 +1003,25 @@ pub struct Collection {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1033,7 +1036,7 @@ pub struct Collection {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1055,28 +1058,28 @@ pub struct Collection {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1094,14 +1097,17 @@ pub struct CollectionSimple {
     #[def = "CollectionSimple_::Collection"]
     pub type_: CollectionSimple_,
 
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    pub parts: Vec<CreativeWorkTypes>,
+
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1130,31 +1136,31 @@ pub struct Comment {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// The part or facet of the item that is being commented on.
-    pub comment_aspect: Option<String>,
+    pub comment_aspect: Option<Box<String>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1169,7 +1175,7 @@ pub struct Comment {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1191,10 +1197,10 @@ pub struct Comment {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// The parent comment of this comment.
     #[serde(skip)]
@@ -1204,22 +1210,22 @@ pub struct Comment {
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1254,25 +1260,25 @@ pub struct Datatable {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1287,7 +1293,7 @@ pub struct Datatable {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1309,31 +1315,31 @@ pub struct Datatable {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1365,43 +1371,43 @@ pub struct MediaObject {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Number>,
+    pub bitrate: Option<Box<Number>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Number>,
+    pub content_size: Option<Box<Number>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
-    pub embed_url: Option<String>,
+    pub embed_url: Option<Box<String>>,
 
     /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
@@ -1413,7 +1419,7 @@ pub struct MediaObject {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1435,31 +1441,31 @@ pub struct MediaObject {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1491,46 +1497,46 @@ pub struct AudioObject {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Number>,
+    pub bitrate: Option<Box<Number>>,
 
     /// The caption for this audio recording.
-    pub caption: Option<String>,
+    pub caption: Option<Box<String>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Number>,
+    pub content_size: Option<Box<Number>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
-    pub embed_url: Option<String>,
+    pub embed_url: Option<Box<String>>,
 
     /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
@@ -1542,7 +1548,7 @@ pub struct AudioObject {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1564,34 +1570,34 @@ pub struct AudioObject {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The transcript of this audio recording.
-    pub transcript: Option<String>,
+    pub transcript: Option<Box<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1613,31 +1619,34 @@ pub struct AudioObjectSimple {
     pub content_url: String,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Number>,
+    pub bitrate: Option<Box<Number>>,
 
     /// The caption for this audio recording.
-    pub caption: Option<String>,
+    pub caption: Option<Box<String>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Number>,
+    pub content_size: Option<Box<Number>>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
-    pub embed_url: Option<String>,
+    pub embed_url: Option<Box<String>>,
 
     /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
+
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// The transcript of this audio recording.
-    pub transcript: Option<String>,
+    pub transcript: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1666,10 +1675,10 @@ pub struct DatatableColumn {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1678,13 +1687,13 @@ pub struct DatatableColumn {
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The validator to use to validate data in the column.
-    pub validator: Option<ArrayValidator>,
+    pub validator: Option<Box<ArrayValidator>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1710,10 +1719,10 @@ pub struct DefinedTerm {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1722,13 +1731,13 @@ pub struct DefinedTerm {
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// A code that identifies this DefinedTerm within a DefinedTermSet
-    pub term_code: Option<String>,
+    pub term_code: Option<Box<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1748,10 +1757,10 @@ pub struct Validator {
     pub type_: Validator_,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1775,23 +1784,23 @@ pub struct ArrayValidator {
     pub contains: Option<Box<ValidatorTypes>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Another validator node specifying the constraints on all items in the array.
     #[serde(skip)]
     pub items_validator: Option<Box<ValidatorTypes>>,
 
     /// An array node is valid if its size is less than, or equal to, this value.
-    pub max_items: Option<Number>,
+    pub max_items: Option<Box<Number>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// An array node is valid if its size is greater than, or equal to, this value.
-    pub min_items: Option<Number>,
+    pub min_items: Option<Box<Number>>,
 
     /// A flag to indicate that each value in the array should be unique.
-    pub unique_items: Option<Boolean>,
+    pub unique_items: Option<Box<Boolean>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1811,10 +1820,10 @@ pub struct BooleanValidator {
     pub type_: BooleanValidator_,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1834,10 +1843,10 @@ pub struct ConstantValidator {
     pub type_: ConstantValidator_,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The value that the node must have.
     #[serde(skip)]
@@ -1861,10 +1870,10 @@ pub struct EnumValidator {
     pub type_: EnumValidator_,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// A node is valid if it is equal to any of these values.
     pub values: Option<Vec<Node>>,
@@ -1890,10 +1899,10 @@ pub struct Enumeration {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1902,13 +1911,13 @@ pub struct Enumeration {
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -1937,31 +1946,31 @@ pub struct Figure {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// A caption for the figure.
-    pub caption: Option<FigureCaption>,
+    pub caption: Option<Box<FigureCaption>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -1976,7 +1985,7 @@ pub struct Figure {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -1992,7 +2001,7 @@ pub struct Figure {
     pub keywords: Option<Vec<String>>,
 
     /// A short label for the figure.
-    pub label: Option<String>,
+    pub label: Option<Box<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
     pub licenses: Option<Vec<CreativeWorkLicenses>>,
@@ -2001,31 +2010,31 @@ pub struct Figure {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2044,19 +2053,22 @@ pub struct FigureSimple {
     pub type_: FigureSimple_,
 
     /// A caption for the figure.
-    pub caption: Option<FigureCaption>,
+    pub caption: Option<Box<FigureCaption>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// A short label for the figure.
-    pub label: Option<String>,
+    pub label: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
+
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    pub parts: Option<Vec<CreativeWorkTypes>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2076,19 +2088,19 @@ pub struct Function {
     pub type_: Function_,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the function.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// The parameters of the function.
     pub parameters: Option<Vec<Parameter>>,
 
     /// The return type of the function.
-    pub returns: Option<ValidatorTypes>,
+    pub returns: Option<Box<ValidatorTypes>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2111,13 +2123,13 @@ pub struct Grant {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// Indicates an item funded or sponsored through a Grant.
     pub funded_items: Option<Vec<Thing>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -2126,16 +2138,16 @@ pub struct Grant {
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// A person or organization that supports a thing through a pledge, promise, or financial contribution.
     pub sponsors: Option<Vec<GrantSponsors>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2158,13 +2170,13 @@ pub struct Heading {
     pub content: Vec<InlineContent>,
 
     /// The depth of the heading.
-    pub depth: Option<Integer>,
+    pub depth: Option<Box<Integer>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2196,46 +2208,46 @@ pub struct ImageObject {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Number>,
+    pub bitrate: Option<Box<Number>>,
 
     /// The caption for this image.
-    pub caption: Option<String>,
+    pub caption: Option<Box<String>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Number>,
+    pub content_size: Option<Box<Number>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
-    pub embed_url: Option<String>,
+    pub embed_url: Option<Box<String>>,
 
     /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
@@ -2247,7 +2259,7 @@ pub struct ImageObject {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -2269,10 +2281,10 @@ pub struct ImageObject {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
@@ -2285,20 +2297,20 @@ pub struct ImageObject {
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// Thumbnail image of this image.
     #[serde(skip)]
     pub thumbnail: Option<Box<ImageObject>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2320,31 +2332,33 @@ pub struct ImageObjectSimple {
     pub content_url: String,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Number>,
+    pub bitrate: Option<Box<Number>>,
 
     /// The caption for this image.
-    pub caption: Option<String>,
+    pub caption: Option<Box<String>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Number>,
+    pub content_size: Option<Box<Number>>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
-    pub embed_url: Option<String>,
+    pub embed_url: Option<Box<String>>,
 
     /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
+
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// Thumbnail image of this image.
-    #[serde(skip)]
     pub thumbnail: Option<Box<ImageObject>>,
 }
 
@@ -2371,13 +2385,13 @@ pub struct Include {
     pub content: Option<Vec<BlockContent>>,
 
     /// Media type, typically expressed using a MIME format, of the source content.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2397,10 +2411,10 @@ pub struct IntegerValidator {
     pub type_: IntegerValidator_,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2426,22 +2440,22 @@ pub struct Link {
     pub target: String,
 
     /// A compilation directive giving the name of the variable to export to the link target.
-    pub export_from: Option<String>,
+    pub export_from: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// A compilation directive giving the name of the variable to import the link target as.
-    pub import_to: Option<String>,
+    pub import_to: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The relation between the target and the current thing.
-    pub relation: Option<String>,
+    pub relation: Option<Box<String>>,
 
     /// A title for the link.
-    pub title: Option<String>,
+    pub title: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2464,13 +2478,13 @@ pub struct List {
     pub items: Vec<ListItem>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// Type of ordering.
-    pub order: Option<ListOrder>,
+    pub order: Option<Box<ListOrder>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2493,13 +2507,13 @@ pub struct ListItem {
     pub alternate_names: Option<Vec<String>>,
 
     /// The content of the list item.
-    pub content: Option<ListItemContent>,
+    pub content: Option<Box<ListItemContent>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -2508,23 +2522,23 @@ pub struct ListItem {
     pub images: Option<Vec<ThingImages>>,
 
     /// A flag to indicate if this list item is checked.
-    pub is_checked: Option<Boolean>,
+    pub is_checked: Option<Box<Boolean>>,
 
     /// The item represented by this list item.
     #[serde(skip)]
     pub item: Option<Box<Node>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// The position of the item in a series or sequence of items.
-    pub position: Option<Integer>,
+    pub position: Option<Box<Integer>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2550,13 +2564,13 @@ pub struct Math {
     pub errors: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
-    pub math_language: Option<String>,
+    pub math_language: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2582,16 +2596,16 @@ pub struct MathBlock {
     pub errors: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// A short label for the math block.
-    pub label: Option<String>,
+    pub label: Option<Box<String>>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
-    pub math_language: Option<String>,
+    pub math_language: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2617,13 +2631,13 @@ pub struct MathFragment {
     pub errors: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// The language used for the equation e.g tex, mathml, asciimath.
-    pub math_language: Option<String>,
+    pub math_language: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2646,10 +2660,10 @@ pub struct MonetaryGrant {
     pub alternate_names: Option<Vec<String>>,
 
     /// The amount of money.
-    pub amounts: Option<Number>,
+    pub amounts: Option<Box<Number>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// Indicates an item funded or sponsored through a Grant.
     pub funded_items: Option<Vec<Thing>>,
@@ -2658,7 +2672,7 @@ pub struct MonetaryGrant {
     pub funders: Option<Vec<MonetaryGrantFunders>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -2667,16 +2681,16 @@ pub struct MonetaryGrant {
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// A person or organization that supports a thing through a pledge, promise, or financial contribution.
     pub sponsors: Option<Vec<GrantSponsors>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2699,10 +2713,10 @@ pub struct NontextualAnnotation {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2725,13 +2739,13 @@ pub struct Note {
     pub content: Vec<BlockContent>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// Determines where the note content is displayed within the document.
-    pub note_type: Option<NoteNoteType>,
+    pub note_type: Option<Box<NoteNoteType>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2751,25 +2765,25 @@ pub struct NumberValidator {
     pub type_: NumberValidator_,
 
     /// The exclusive upper limit for a numeric node.
-    pub exclusive_maximum: Option<Number>,
+    pub exclusive_maximum: Option<Box<Number>>,
 
     /// The exclusive lower limit for a numeric node.
-    pub exclusive_minimum: Option<Number>,
+    pub exclusive_minimum: Option<Box<Number>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// The inclusive upper limit for a numeric node.
-    pub maximum: Option<Number>,
+    pub maximum: Option<Box<Number>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The inclusive lower limit for a numeric node.
-    pub minimum: Option<Number>,
+    pub minimum: Option<Box<Number>>,
 
     /// A number that a numeric node must be a multiple of.
-    pub multiple_of: Option<Number>,
+    pub multiple_of: Option<Box<Number>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2789,7 +2803,7 @@ pub struct Organization {
     pub type_: Organization_,
 
     /// Postal address for the organization.
-    pub address: Option<OrganizationAddress>,
+    pub address: Option<Box<OrganizationAddress>>,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -2804,13 +2818,13 @@ pub struct Organization {
     pub departments: Option<Vec<Organization>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// Organization(s) or person(s) funding the organization.
     pub funders: Option<Vec<OrganizationFunders>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -2819,26 +2833,26 @@ pub struct Organization {
     pub images: Option<Vec<ThingImages>>,
 
     /// Legal name for the Organization. Should only include letters and spaces.
-    pub legal_name: Option<String>,
+    pub legal_name: Option<Box<String>>,
 
     /// The logo of the organization.
-    pub logo: Option<OrganizationLogo>,
+    pub logo: Option<Box<OrganizationLogo>>,
 
     /// Person(s) or organization(s) who are members of this organization.
     pub members: Option<Vec<OrganizationMembers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Entity that the Organization is a part of. For example, parentOrganization to a department is a university.
     #[serde(skip)]
     pub parent_organization: Option<Box<Organization>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2861,10 +2875,10 @@ pub struct Paragraph {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -2887,16 +2901,16 @@ pub struct Variable {
     pub name: String,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Whether or not a property is mutable. Default is false.
-    pub is_readonly: Option<Boolean>,
+    pub is_readonly: Option<Box<Boolean>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The validator that the value is validated against.
-    pub validator: Option<ValidatorTypes>,
+    pub validator: Option<Box<ValidatorTypes>>,
 
     /// The value of the variable.
     #[serde(skip)]
@@ -2927,25 +2941,25 @@ pub struct Parameter {
     pub default: Option<Box<Node>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Indicates that this parameter is variadic and can accept multiple named arguments.
-    pub is_extensible: Option<Boolean>,
+    pub is_extensible: Option<Box<Boolean>>,
 
     /// Whether or not a property is mutable. Default is false.
-    pub is_readonly: Option<Boolean>,
+    pub is_readonly: Option<Box<Boolean>>,
 
     /// Is this parameter required, if not it should have a default or default is assumed to be null.
-    pub is_required: Option<Boolean>,
+    pub is_required: Option<Box<Boolean>>,
 
     /// Indicates that this parameter is variadic and can accept multiple arguments.
-    pub is_variadic: Option<Boolean>,
+    pub is_variadic: Option<Box<Boolean>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The validator that the value is validated against.
-    pub validator: Option<ValidatorTypes>,
+    pub validator: Option<Box<ValidatorTypes>>,
 
     /// The value of the variable.
     #[serde(skip)]
@@ -2981,31 +2995,31 @@ pub struct Periodical {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// The date this Periodical ceased publication.
-    pub date_end: Option<Date>,
+    pub date_end: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// The date this Periodical was first published.
-    pub date_start: Option<Date>,
+    pub date_start: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -3020,7 +3034,7 @@ pub struct Periodical {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3045,31 +3059,31 @@ pub struct Periodical {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3089,7 +3103,7 @@ pub struct Person {
     pub type_: Person_,
 
     /// Postal address for the person.
-    pub address: Option<PersonAddress>,
+    pub address: Option<Box<PersonAddress>>,
 
     /// Organizations that the person is affiliated with.
     pub affiliations: Option<Vec<Organization>>,
@@ -3098,7 +3112,7 @@ pub struct Person {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// Email addresses for the person.
     pub emails: Option<Vec<String>>,
@@ -3113,13 +3127,13 @@ pub struct Person {
     pub given_names: Option<Vec<String>>,
 
     /// An honorific prefix preceding a person's name such as Dr/Mrs/Mr.
-    pub honorific_prefix: Option<String>,
+    pub honorific_prefix: Option<Box<String>>,
 
     /// An honorific suffix after a person's name such as MD/PhD/MSCSW.
-    pub honorific_suffix: Option<String>,
+    pub honorific_suffix: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3128,22 +3142,22 @@ pub struct Person {
     pub images: Option<Vec<ThingImages>>,
 
     /// The job title of the person (for example, Financial Manager).
-    pub job_title: Option<String>,
+    pub job_title: Option<Box<String>>,
 
     /// An organization (or program membership) to which this person belongs.
     pub member_of: Option<Vec<Organization>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Telephone numbers for the person.
     pub telephone_numbers: Option<Vec<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3163,13 +3177,13 @@ pub struct PostalAddress {
     pub type_: PostalAddress_,
 
     /// The country.
-    pub address_country: Option<String>,
+    pub address_country: Option<Box<String>>,
 
     /// The locality in which the street address is, and which is in the region.
-    pub address_locality: Option<String>,
+    pub address_locality: Option<Box<String>>,
 
     /// The region in which the locality is, and which is in the country.
-    pub address_region: Option<String>,
+    pub address_region: Option<Box<String>>,
 
     /// Alternate names (aliases) for the item.
     pub alternate_names: Option<Vec<String>>,
@@ -3178,13 +3192,13 @@ pub struct PostalAddress {
     pub available_languages: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// Email address for correspondence.
     pub emails: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3193,25 +3207,25 @@ pub struct PostalAddress {
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// The post office box number.
-    pub post_office_box_number: Option<String>,
+    pub post_office_box_number: Option<Box<String>>,
 
     /// The postal code.
-    pub postal_code: Option<String>,
+    pub postal_code: Option<Box<String>>,
 
     /// The street address.
-    pub street_address: Option<String>,
+    pub street_address: Option<Box<String>>,
 
     /// Telephone numbers for the contact point.
     pub telephone_numbers: Option<Vec<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3237,10 +3251,10 @@ pub struct Product {
     pub brands: Option<Vec<Brand>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3249,19 +3263,19 @@ pub struct Product {
     pub images: Option<Vec<ThingImages>>,
 
     /// The logo of the product.
-    pub logo: Option<ProductLogo>,
+    pub logo: Option<Box<ProductLogo>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Product identification code.
-    pub product_id: Option<String>,
+    pub product_id: Option<Box<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3288,10 +3302,10 @@ pub struct PropertyValue {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3300,16 +3314,16 @@ pub struct PropertyValue {
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// A commonly used identifier for the characteristic represented by the property.
-    pub property_id: Option<String>,
+    pub property_id: Option<Box<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3341,25 +3355,25 @@ pub struct PublicationIssue {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -3374,7 +3388,7 @@ pub struct PublicationIssue {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3387,7 +3401,7 @@ pub struct PublicationIssue {
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// Identifies the issue of publication; for example, "iii" or "2".
-    pub issue_number: Option<PublicationIssueIssueNumber>,
+    pub issue_number: Option<Box<PublicationIssueIssueNumber>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
     pub keywords: Option<Vec<String>>,
@@ -3399,40 +3413,40 @@ pub struct PublicationIssue {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// The page on which the issue ends; for example "138" or "xvi".
-    pub page_end: Option<PublicationIssuePageEnd>,
+    pub page_end: Option<Box<PublicationIssuePageEnd>>,
 
     /// The page on which the issue starts; for example "135" or "xiii".
-    pub page_start: Option<PublicationIssuePageStart>,
+    pub page_start: Option<Box<PublicationIssuePageStart>>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
-    pub pagination: Option<String>,
+    pub pagination: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3464,25 +3478,25 @@ pub struct PublicationVolume {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -3497,7 +3511,7 @@ pub struct PublicationVolume {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3519,43 +3533,43 @@ pub struct PublicationVolume {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// The page on which the volume ends; for example "138" or "xvi".
-    pub page_end: Option<PublicationVolumePageEnd>,
+    pub page_end: Option<Box<PublicationVolumePageEnd>>,
 
     /// The page on which the volume starts; for example "135" or "xiii".
-    pub page_start: Option<PublicationVolumePageStart>,
+    pub page_start: Option<Box<PublicationVolumePageStart>>,
 
     /// Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
-    pub pagination: Option<String>,
+    pub pagination: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 
     /// Identifies the volume of publication or multi-part work; for example, "iii" or "2".
-    pub volume_number: Option<PublicationVolumeVolumeNumber>,
+    pub volume_number: Option<Box<PublicationVolumeVolumeNumber>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3578,14 +3592,13 @@ pub struct Quote {
     pub content: Vec<InlineContent>,
 
     /// The source of the quote.
-    #[serde(skip)]
     pub cite: Option<Box<QuoteCite>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3608,13 +3621,13 @@ pub struct QuoteBlock {
     pub content: Vec<BlockContent>,
 
     /// The source of the quote.
-    pub cite: Option<QuoteBlockCite>,
+    pub cite: Option<Box<QuoteBlockCite>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3646,25 +3659,25 @@ pub struct Review {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -3679,7 +3692,7 @@ pub struct Review {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3692,7 +3705,7 @@ pub struct Review {
     pub is_part_of: Option<Box<CreativeWorkTypes>>,
 
     /// The item that is being reviewed.
-    pub item_reviewed: Option<Thing>,
+    pub item_reviewed: Option<Box<Thing>>,
 
     /// Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.
     pub keywords: Option<Vec<String>>,
@@ -3704,34 +3717,34 @@ pub struct Review {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The part or facet of the item that is being reviewed.
-    pub review_aspect: Option<String>,
+    pub review_aspect: Option<Box<String>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3763,25 +3776,25 @@ pub struct SoftwareApplication {
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -3796,7 +3809,7 @@ pub struct SoftwareApplication {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3818,16 +3831,16 @@ pub struct SoftwareApplication {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
@@ -3836,19 +3849,19 @@ pub struct SoftwareApplication {
     pub software_requirements: Option<Vec<SoftwareApplication>>,
 
     /// Version of the software.
-    pub software_version: Option<String>,
+    pub software_version: Option<Box<String>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3877,13 +3890,13 @@ pub struct SoftwareEnvironment {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// Other environments that this environment extends by adding or removing packages.,
     pub extends: Option<Vec<SoftwareEnvironment>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3892,13 +3905,13 @@ pub struct SoftwareEnvironment {
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The packages that this environment removes from the base environments listed under `extends` (if any).,
     pub removes: Option<Vec<SoftwareSourceCode>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -3921,37 +3934,37 @@ pub struct SoftwareSession {
     pub alternate_names: Option<Vec<String>>,
 
     /// The maximum number of concurrent clients the session is limited to.
-    pub clients_limit: Option<Number>,
+    pub clients_limit: Option<Box<Number>>,
 
     /// The maximum number of concurrent clients requested for the session.
-    pub clients_request: Option<Number>,
+    pub clients_request: Option<Box<Number>>,
 
     /// The amount of CPU the session is limited to.
-    pub cpu_limit: Option<Number>,
+    pub cpu_limit: Option<Box<Number>>,
 
     /// The amount of CPU requested for the session.
-    pub cpu_request: Option<Number>,
+    pub cpu_request: Option<Box<Number>>,
 
     /// The date-time that the session ended.
-    pub date_end: Option<Date>,
+    pub date_end: Option<Box<Date>>,
 
     /// The date-time that the session began.
-    pub date_start: Option<Date>,
+    pub date_start: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// The maximum duration (seconds) the session is limited to.
-    pub duration_limit: Option<Number>,
+    pub duration_limit: Option<Box<Number>>,
 
     /// The maximum duration (seconds) requested for the session.
-    pub duration_request: Option<Number>,
+    pub duration_request: Option<Box<Number>>,
 
     /// The software environment to execute this session in.
-    pub environment: Option<SoftwareEnvironment>,
+    pub environment: Option<Box<SoftwareEnvironment>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -3960,34 +3973,34 @@ pub struct SoftwareSession {
     pub images: Option<Vec<ThingImages>>,
 
     /// The amount of memory that the session is limited to.
-    pub memory_limit: Option<Number>,
+    pub memory_limit: Option<Box<Number>>,
 
     /// The amount of memory requested for the session.
-    pub memory_request: Option<Number>,
+    pub memory_request: Option<Box<Number>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// The amount of network data transfer (GiB) that the session is limited to.
-    pub network_transfer_limit: Option<Number>,
+    pub network_transfer_limit: Option<Box<Number>>,
 
     /// The amount of network data transfer (GiB) requested for the session.
-    pub network_transfer_request: Option<Number>,
+    pub network_transfer_request: Option<Box<Number>>,
 
     /// The status of the session (starting, stopped, etc).
-    pub status: Option<SoftwareSessionStatus>,
+    pub status: Option<Box<SoftwareSessionStatus>>,
 
     /// The inactivity timeout (seconds) the session is limited to.
-    pub timeout_limit: Option<Number>,
+    pub timeout_limit: Option<Box<Number>>,
 
     /// The inactivity timeout (seconds) requested for the session.
-    pub timeout_request: Option<Number>,
+    pub timeout_request: Option<Box<Number>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// Volumes to mount in the session.
     pub volume_mounts: Option<Vec<VolumeMount>>,
@@ -4019,34 +4032,34 @@ pub struct SoftwareSourceCode {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Link to the repository where the un-compiled, human readable code and related code is located.
-    pub code_repository: Option<String>,
+    pub code_repository: Option<Box<String>>,
 
     /// What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
-    pub code_sample_type: Option<String>,
+    pub code_sample_type: Option<Box<String>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -4061,7 +4074,7 @@ pub struct SoftwareSourceCode {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4083,19 +4096,19 @@ pub struct SoftwareSourceCode {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// The computer programming language.
-    pub programming_language: Option<String>,
+    pub programming_language: Option<Box<String>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
@@ -4110,16 +4123,16 @@ pub struct SoftwareSourceCode {
     pub target_products: Option<Vec<SoftwareApplication>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4139,19 +4152,19 @@ pub struct StringValidator {
     pub type_: StringValidator_,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// The maximum length for a string node.
-    pub max_length: Option<Number>,
+    pub max_length: Option<Box<Number>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The minimum length for a string node.
-    pub min_length: Option<Number>,
+    pub min_length: Option<Box<Number>>,
 
     /// A regular expression that a string node must match.
-    pub pattern: Option<String>,
+    pub pattern: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4174,10 +4187,10 @@ pub struct Strong {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4200,10 +4213,10 @@ pub struct Subscript {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4226,10 +4239,10 @@ pub struct Superscript {
     pub content: Vec<InlineContent>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4261,31 +4274,31 @@ pub struct Table {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// A caption for the table.
-    pub caption: Option<TableCaption>,
+    pub caption: Option<Box<TableCaption>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
@@ -4300,7 +4313,7 @@ pub struct Table {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4316,7 +4329,7 @@ pub struct Table {
     pub keywords: Option<Vec<String>>,
 
     /// A short label for the table.
-    pub label: Option<String>,
+    pub label: Option<Box<String>>,
 
     /// License documents that applies to this content, typically indicated by URL.
     pub licenses: Option<Vec<CreativeWorkLicenses>>,
@@ -4325,31 +4338,31 @@ pub struct Table {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4371,19 +4384,22 @@ pub struct TableSimple {
     pub rows: Vec<TableRow>,
 
     /// A caption for the table.
-    pub caption: Option<TableCaption>,
+    pub caption: Option<Box<TableCaption>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// A short label for the table.
-    pub label: Option<String>,
+    pub label: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
+
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    pub parts: Option<Vec<CreativeWorkTypes>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4403,25 +4419,25 @@ pub struct TableCell {
     pub type_: TableCell_,
 
     /// Indicates whether the cell is a header or data.
-    pub cell_type: Option<TableCellCellType>,
+    pub cell_type: Option<Box<TableCellCellType>>,
 
     /// How many columns the cell extends.
-    pub colspan: Option<Integer>,
+    pub colspan: Option<Box<Integer>>,
 
     /// Contents of the table cell.
-    pub content: Option<TableCellContent>,
+    pub content: Option<Box<TableCellContent>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the cell.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// How many columns the cell extends.
-    pub rowspan: Option<Integer>,
+    pub rowspan: Option<Box<Integer>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4444,13 +4460,13 @@ pub struct TableRow {
     pub cells: Vec<TableCell>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// If present, indicates that all cells in this row should be treated as header cells.
-    pub row_type: Option<TableRowRowType>,
+    pub row_type: Option<Box<TableRowRowType>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4470,10 +4486,10 @@ pub struct ThematicBreak {
     pub type_: ThematicBreak_,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4493,13 +4509,13 @@ pub struct TupleValidator {
     pub type_: TupleValidator_,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// An array of validators specifying the constraints on each successive item in the array.
     pub items: Option<Vec<ValidatorTypes>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4531,46 +4547,46 @@ pub struct VideoObject {
     pub authors: Option<Vec<CreativeWorkAuthors>>,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Number>,
+    pub bitrate: Option<Box<Number>>,
 
     /// The caption for this video recording.
-    pub caption: Option<String>,
+    pub caption: Option<Box<String>>,
 
     /// Comments about this creative work.
     pub comments: Option<Vec<Comment>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Number>,
+    pub content_size: Option<Box<Number>>,
 
     /// Date/time of acceptance.
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<Box<Date>>,
 
     /// Date/time of creation.
-    pub date_created: Option<Date>,
+    pub date_created: Option<Box<Date>>,
 
     /// Date/time of most recent modification.
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<Box<Date>>,
 
     /// Date of first publication.
-    pub date_published: Option<Date>,
+    pub date_published: Option<Box<Date>>,
 
     /// Date/time that work was received.
-    pub date_received: Option<Date>,
+    pub date_received: Option<Box<Date>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// People who edited the `CreativeWork`.
     pub editors: Option<Vec<Person>>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
-    pub embed_url: Option<String>,
+    pub embed_url: Option<Box<String>>,
 
     /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// Grants that funded the `CreativeWork`; reverse of `fundedItems`.
     pub funded_by: Option<Vec<CreativeWorkFundedBy>>,
@@ -4582,7 +4598,7 @@ pub struct VideoObject {
     pub genre: Option<Vec<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4604,37 +4620,37 @@ pub struct VideoObject {
     pub maintainers: Option<Vec<CreativeWorkMaintainers>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// A publisher of the CreativeWork.
-    pub publisher: Option<CreativeWorkPublisher>,
+    pub publisher: Option<Box<CreativeWorkPublisher>>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     pub references: Option<Vec<CreativeWorkReferences>>,
 
     /// The textual content of this creative work.
-    pub text: Option<String>,
+    pub text: Option<Box<String>>,
 
     /// Thumbnail image of this video recording.
-    pub thumbnail: Option<ImageObject>,
+    pub thumbnail: Option<Box<ImageObject>>,
 
     /// The title of the creative work.
-    pub title: Option<CreativeWorkTitle>,
+    pub title: Option<Box<CreativeWorkTitle>>,
 
     /// The transcript of this video recording.
-    pub transcript: Option<String>,
+    pub transcript: Option<Box<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 
     /// The version of the creative work.
-    pub version: Option<CreativeWorkVersion>,
+    pub version: Option<Box<CreativeWorkVersion>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4656,35 +4672,37 @@ pub struct VideoObjectSimple {
     pub content_url: String,
 
     /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
-    pub bitrate: Option<Number>,
+    pub bitrate: Option<Box<Number>>,
 
     /// The caption for this video recording.
-    pub caption: Option<String>,
+    pub caption: Option<Box<String>>,
 
     /// The structured content of this creative work c.f. property `text`.
-    pub content: Option<CreativeWorkContent>,
+    pub content: Option<Box<CreativeWorkContent>>,
 
     /// File size in megabits (Mbit, Mb).
-    pub content_size: Option<Number>,
+    pub content_size: Option<Box<Number>>,
 
     /// URL that can be used to embed the media on a web page via a specific media player.
-    pub embed_url: Option<String>,
+    pub embed_url: Option<Box<String>>,
 
     /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
-    pub format: Option<String>,
+    pub format: Option<Box<String>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
+
+    /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
+    pub parts: Option<Vec<CreativeWorkTypes>>,
 
     /// Thumbnail image of this video recording.
-    #[serde(skip)]
     pub thumbnail: Option<Box<ImageObject>>,
 
     /// The transcript of this video recording.
-    pub transcript: Option<String>,
+    pub transcript: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -4710,10 +4728,10 @@ pub struct VolumeMount {
     pub alternate_names: Option<Vec<String>>,
 
     /// A description of the item.
-    pub description: Option<ThingDescription>,
+    pub description: Option<Box<ThingDescription>>,
 
     /// The identifier for this item.
-    pub id: Option<String>,
+    pub id: Option<Box<String>>,
 
     /// Any kind of identifier for any kind of Thing.
     pub identifiers: Option<Vec<ThingIdentifiers>>,
@@ -4722,22 +4740,22 @@ pub struct VolumeMount {
     pub images: Option<Vec<ThingImages>>,
 
     /// Metadata associated with this item.
-    pub meta: Option<Object>,
+    pub meta: Option<Box<Object>>,
 
     /// A list of options to use when applying the mount.
     pub mount_options: Option<Vec<String>>,
 
     /// The mount source directory on the host.
-    pub mount_source: Option<String>,
+    pub mount_source: Option<Box<String>>,
 
     /// The type of mount.
-    pub mount_type: Option<String>,
+    pub mount_type: Option<Box<String>>,
 
     /// The name of the item.
-    pub name: Option<String>,
+    pub name: Option<Box<String>>,
 
     /// The URL of the item.
-    pub url: Option<String>,
+    pub url: Option<Box<String>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -5394,17 +5412,17 @@ impl_enum!(CitationIntentEnumeration);
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BlockContent {
-    ClaimSimple(ClaimSimple),
+    Claim(ClaimSimple),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
-    CollectionSimple(CollectionSimple),
-    FigureSimple(FigureSimple),
+    Collection(CollectionSimple),
+    Figure(FigureSimple),
     Heading(Heading),
     List(List),
     MathBlock(MathBlock),
     Paragraph(Paragraph),
     QuoteBlock(QuoteBlock),
-    TableSimple(TableSimple),
+    Table(TableSimple),
     ThematicBreak(ThematicBreak),
 }
 
@@ -5580,14 +5598,14 @@ pub enum GrantTypes {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineContent {
-    AudioObjectSimple(AudioObjectSimple),
+    AudioObject(AudioObjectSimple),
     Cite(Cite),
     CiteGroup(CiteGroup),
     CodeExpression(CodeExpression),
     CodeFragment(CodeFragment),
     Delete(Delete),
     Emphasis(Emphasis),
-    ImageObjectSimple(ImageObjectSimple),
+    ImageObject(ImageObjectSimple),
     Link(Link),
     MathFragment(MathFragment),
     NontextualAnnotation(NontextualAnnotation),
@@ -5596,7 +5614,7 @@ pub enum InlineContent {
     Strong(Strong),
     Subscript(Subscript),
     Superscript(Superscript),
-    VideoObjectSimple(VideoObjectSimple),
+    VideoObject(VideoObjectSimple),
     Null,
     Boolean(Boolean),
     Integer(Integer),

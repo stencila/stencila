@@ -111,7 +111,9 @@ fn primitives_serialize() -> Result<()> {
 
 fn article_fixture() -> Article {
     Article {
-        title: Some(CreativeWorkTitle::String("The article title".into())),
+        title: Some(Box::new(CreativeWorkTitle::String(
+            "The article title".into(),
+        ))),
         authors: Some(vec![CreativeWorkAuthors::Person({
             Person {
                 given_names: Some(vec!["Jane".into()]),
@@ -123,7 +125,7 @@ fn article_fixture() -> Article {
             content: vec![
                 InlineContent::String("A paragraph with a ".into()),
                 InlineContent::CodeExpression(CodeExpression {
-                    programming_language: Some("r".into()),
+                    programming_language: Some(Box::new("r".into())),
                     text: "2^2".into(),
                     ..Default::default()
                 }),
@@ -206,7 +208,7 @@ fn entity_has_type_name() {
 fn entity_has_id() {
     let id = Some("whateva".into());
     let entity = Entity {
-        id: id.clone(),
+        id: Some(Box::new("whateva".into())),
         ..Default::default()
     };
 
@@ -217,7 +219,7 @@ fn entity_has_id() {
 fn union_types_have_typename_and_id() {
     let id = Some("whateva".into());
     let work = CreativeWorkTypes::Article(Article {
-        id: id.clone(),
+        id: Some(Box::new("whateva".into())),
         ..Default::default()
     });
 
