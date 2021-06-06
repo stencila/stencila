@@ -2,9 +2,9 @@
 # It is not intended for manual editing.
 [[package]]
 name = "addr2line"
-version = "0.15.1"
+version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03345e98af8f3d786b6d9f656ccfa6ac316d954e92bc4841f0bba20789d5fb5a"
+checksum = "e7a2e47a1fbe209ee101dd6d61285226744c6c8d3c21c8dc878ba6cb9f467f3a"
 dependencies = [
  "gimli",
 ]
@@ -95,9 +95,9 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "backtrace"
-version = "0.3.59"
+version = "0.3.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4717cfcbfaa661a0fd48f8453951837ae7e8f81e481fbb136e3202d72805a744"
+checksum = "b7815ea54e4d821e791162e078acbebfd6d8c8939cd559c9335dceb1c8ca7282"
 dependencies = [
  "addr2line",
  "cc",
@@ -1842,9 +1842,12 @@ checksum = "17b02fc0ff9a9e4b35b3342880f48e896ebf69f2967921fe8646bf5b7125956a"
 
 [[package]]
 name = "object"
-version = "0.24.0"
+version = "0.25.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a5b3dd1c072ee7963717671d1ca129f1048fda25edea6b752bfc71ac8854170"
+checksum = "f8bc1d42047cf336f0f939c99e97183cf31551bf0f2865a2ec9c8d91fd4ffb5e"
+dependencies = [
+ "memchr",
+]
 
 [[package]]
 name = "once_cell"
@@ -2544,9 +2547,9 @@ dependencies = [
 
 [[package]]
 name = "security-framework"
-version = "2.2.0"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3670b1d2fdf6084d192bc71ead7aabe6c06aa2ea3fbd9cc3ac111fa5c2b1bd84"
+checksum = "b239a3d5db51252f6f48f42172c65317f37202f4a21021bf5f9d40a408f4592c"
 dependencies = [
  "bitflags",
  "core-foundation",
@@ -2557,9 +2560,9 @@ dependencies = [
 
 [[package]]
 name = "security-framework-sys"
-version = "2.2.0"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3676258fd3cfe2c9a0ec99ce3038798d847ce3e4bb17746373eb9f0f1ac16339"
+checksum = "7e4effb91b4b8b6fb7732e670b6cee160278ff8e6bf485c7805d9e319d76e284"
 dependencies = [
  "core-foundation-sys",
  "libc",
@@ -2606,9 +2609,9 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "1.0.2"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "965645ad4a66d27024921aa1e2e47a76524a4cfd55e038b62104eca65c363230"
+checksum = "5f3aac57ee7f3272d8395c6e4f502f434f0e289fcd62876f70daa008c20dcabe"
 
 [[package]]
 name = "semver-parser"
@@ -2840,7 +2843,7 @@ dependencies = [
  "rust-embed",
  "schemars",
  "self_update",
- "semver 1.0.2",
+ "semver 1.0.3",
  "serde",
  "serde_json",
  "serde_with",
@@ -2891,12 +2894,13 @@ dependencies = [
 
 [[package]]
 name = "stencila-schema"
-version = "1.7.3"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69662c31013133f388b122e3249b39232cd0fbdd5aef76e1121e6abac157e47b"
+checksum = "883b04c9a5ac4c33c56e8b4d48006614e7b880b1c0033c42809ab38861be8f5c"
 dependencies = [
  "chrono",
  "defaults",
+ "enum_dispatch",
  "serde",
  "serde_json",
  "serde_with",
@@ -3792,9 +3796,9 @@ dependencies = [
 
 [[package]]
 name = "zip"
-version = "0.5.12"
+version = "0.5.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c83dc9b784d252127720168abd71ea82bf8c3d96b17dc565b5e2a02854f2b27"
+checksum = "93ab48844d61251bb3835145c521d88aa4031d7139e8485990f60ca911fa0815"
 dependencies = [
  "byteorder",
  "crc32fast",
