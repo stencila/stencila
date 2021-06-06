@@ -943,6 +943,37 @@ pub enum Claim_ {
 }
 
 impl_struct!(Claim);
+/// A claim represents specific reviewable facts or statements.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct ClaimSimple {
+    /// The name of this type
+    #[def = "ClaimSimple_::Claim"]
+    pub type_: ClaimSimple_,
+
+    /// Content of the claim, usually a single paragraph.
+    pub content: Vec<BlockContent>,
+
+    /// Kind of the claim.
+    pub claim_type: Option<ClaimClaimType>,
+
+    /// The identifier for this item.
+    pub id: Option<String>,
+
+    /// A short label for the claim.
+    pub label: Option<String>,
+
+    /// Metadata associated with this item.
+    pub meta: Option<Object>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ClaimSimple_ {
+  Claim
+}
+
+impl_struct!(ClaimSimple);
 
 /// A collection of CreativeWorks or other artifacts.
 #[skip_serializing_none]
@@ -1054,6 +1085,31 @@ pub enum Collection_ {
 }
 
 impl_struct!(Collection);
+/// A collection of CreativeWorks or other artifacts.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct CollectionSimple {
+    /// The name of this type
+    #[def = "CollectionSimple_::Collection"]
+    pub type_: CollectionSimple_,
+
+    /// The structured content of this creative work c.f. property `text`.
+    pub content: Option<CreativeWorkContent>,
+
+    /// The identifier for this item.
+    pub id: Option<String>,
+
+    /// Metadata associated with this item.
+    pub meta: Option<Object>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum CollectionSimple_ {
+  Collection
+}
+
+impl_struct!(CollectionSimple);
 
 /// A comment on an item, e.g on a Article, or SoftwareSourceCode.
 #[skip_serializing_none]
@@ -1544,6 +1600,52 @@ pub enum AudioObject_ {
 }
 
 impl_struct!(AudioObject);
+/// An audio file
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct AudioObjectSimple {
+    /// The name of this type
+    #[def = "AudioObjectSimple_::AudioObject"]
+    pub type_: AudioObjectSimple_,
+
+    /// URL for the actual bytes of the media object, for example the image file or video file.
+    pub content_url: String,
+
+    /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
+    pub bitrate: Option<Number>,
+
+    /// The caption for this audio recording.
+    pub caption: Option<String>,
+
+    /// The structured content of this creative work c.f. property `text`.
+    pub content: Option<CreativeWorkContent>,
+
+    /// File size in megabits (Mbit, Mb).
+    pub content_size: Option<Number>,
+
+    /// URL that can be used to embed the media on a web page via a specific media player.
+    pub embed_url: Option<String>,
+
+    /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
+    pub format: Option<String>,
+
+    /// The identifier for this item.
+    pub id: Option<String>,
+
+    /// Metadata associated with this item.
+    pub meta: Option<Object>,
+
+    /// The transcript of this audio recording.
+    pub transcript: Option<String>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum AudioObjectSimple_ {
+  AudioObject
+}
+
+impl_struct!(AudioObjectSimple);
 
 /// A column of data within a Datatable.
 #[skip_serializing_none]
@@ -1932,6 +2034,37 @@ pub enum Figure_ {
 }
 
 impl_struct!(Figure);
+/// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct FigureSimple {
+    /// The name of this type
+    #[def = "FigureSimple_::Figure"]
+    pub type_: FigureSimple_,
+
+    /// A caption for the figure.
+    pub caption: Option<FigureCaption>,
+
+    /// The structured content of this creative work c.f. property `text`.
+    pub content: Option<CreativeWorkContent>,
+
+    /// The identifier for this item.
+    pub id: Option<String>,
+
+    /// A short label for the figure.
+    pub label: Option<String>,
+
+    /// Metadata associated with this item.
+    pub meta: Option<Object>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum FigureSimple_ {
+  Figure
+}
+
+impl_struct!(FigureSimple);
 
 /// A function with a name, which might take Parameters and return a value of a certain type.
 #[skip_serializing_none]
@@ -2174,6 +2307,53 @@ pub enum ImageObject_ {
 }
 
 impl_struct!(ImageObject);
+/// An image file.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct ImageObjectSimple {
+    /// The name of this type
+    #[def = "ImageObjectSimple_::ImageObject"]
+    pub type_: ImageObjectSimple_,
+
+    /// URL for the actual bytes of the media object, for example the image file or video file.
+    pub content_url: String,
+
+    /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
+    pub bitrate: Option<Number>,
+
+    /// The caption for this image.
+    pub caption: Option<String>,
+
+    /// The structured content of this creative work c.f. property `text`.
+    pub content: Option<CreativeWorkContent>,
+
+    /// File size in megabits (Mbit, Mb).
+    pub content_size: Option<Number>,
+
+    /// URL that can be used to embed the media on a web page via a specific media player.
+    pub embed_url: Option<String>,
+
+    /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
+    pub format: Option<String>,
+
+    /// The identifier for this item.
+    pub id: Option<String>,
+
+    /// Metadata associated with this item.
+    pub meta: Option<Object>,
+
+    /// Thumbnail image of this image.
+    #[serde(skip)]
+    pub thumbnail: Option<Box<ImageObject>>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum ImageObjectSimple_ {
+  ImageObject
+}
+
+impl_struct!(ImageObjectSimple);
 
 /// A directive to include content from an external source (e.g. file, URL) or content.
 #[skip_serializing_none]
@@ -3398,7 +3578,8 @@ pub struct Quote {
     pub content: Vec<InlineContent>,
 
     /// The source of the quote.
-    pub cite: Option<QuoteCite>,
+    #[serde(skip)]
+    pub cite: Option<Box<QuoteCite>>,
 
     /// The identifier for this item.
     pub id: Option<String>,
@@ -4177,6 +4358,40 @@ pub enum Table_ {
 }
 
 impl_struct!(Table);
+/// A table.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct TableSimple {
+    /// The name of this type
+    #[def = "TableSimple_::Table"]
+    pub type_: TableSimple_,
+
+    /// Rows of cells in the table.
+    pub rows: Vec<TableRow>,
+
+    /// A caption for the table.
+    pub caption: Option<TableCaption>,
+
+    /// The structured content of this creative work c.f. property `text`.
+    pub content: Option<CreativeWorkContent>,
+
+    /// The identifier for this item.
+    pub id: Option<String>,
+
+    /// A short label for the table.
+    pub label: Option<String>,
+
+    /// Metadata associated with this item.
+    pub meta: Option<Object>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum TableSimple_ {
+  Table
+}
+
+impl_struct!(TableSimple);
 
 /// A cell within a `Table`.
 #[skip_serializing_none]
@@ -4428,6 +4643,56 @@ pub enum VideoObject_ {
 }
 
 impl_struct!(VideoObject);
+/// A video file.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Defaults, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct VideoObjectSimple {
+    /// The name of this type
+    #[def = "VideoObjectSimple_::VideoObject"]
+    pub type_: VideoObjectSimple_,
+
+    /// URL for the actual bytes of the media object, for example the image file or video file.
+    pub content_url: String,
+
+    /// Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).
+    pub bitrate: Option<Number>,
+
+    /// The caption for this video recording.
+    pub caption: Option<String>,
+
+    /// The structured content of this creative work c.f. property `text`.
+    pub content: Option<CreativeWorkContent>,
+
+    /// File size in megabits (Mbit, Mb).
+    pub content_size: Option<Number>,
+
+    /// URL that can be used to embed the media on a web page via a specific media player.
+    pub embed_url: Option<String>,
+
+    /// Media type (MIME type) as per http://www.iana.org/assignments/media-types/media-types.xhtml.
+    pub format: Option<String>,
+
+    /// The identifier for this item.
+    pub id: Option<String>,
+
+    /// Metadata associated with this item.
+    pub meta: Option<Object>,
+
+    /// Thumbnail image of this video recording.
+    #[serde(skip)]
+    pub thumbnail: Option<Box<ImageObject>>,
+
+    /// The transcript of this video recording.
+    pub transcript: Option<String>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum VideoObjectSimple_ {
+  VideoObject
+}
+
+impl_struct!(VideoObjectSimple);
 
 /// Describes a volume mount from a host to container.
 #[skip_serializing_none]
@@ -5129,17 +5394,17 @@ impl_enum!(CitationIntentEnumeration);
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BlockContent {
-    Claim(Claim),
+    ClaimSimple(ClaimSimple),
     CodeBlock(CodeBlock),
     CodeChunk(CodeChunk),
-    Collection(Collection),
-    Figure(Figure),
+    CollectionSimple(CollectionSimple),
+    FigureSimple(FigureSimple),
     Heading(Heading),
     List(List),
     MathBlock(MathBlock),
     Paragraph(Paragraph),
     QuoteBlock(QuoteBlock),
-    Table(Table),
+    TableSimple(TableSimple),
     ThematicBreak(ThematicBreak),
 }
 
@@ -5315,14 +5580,14 @@ pub enum GrantTypes {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InlineContent {
-    AudioObject(AudioObject),
+    AudioObjectSimple(AudioObjectSimple),
     Cite(Cite),
     CiteGroup(CiteGroup),
     CodeExpression(CodeExpression),
     CodeFragment(CodeFragment),
     Delete(Delete),
     Emphasis(Emphasis),
-    ImageObject(ImageObject),
+    ImageObjectSimple(ImageObjectSimple),
     Link(Link),
     MathFragment(MathFragment),
     NontextualAnnotation(NontextualAnnotation),
@@ -5331,7 +5596,7 @@ pub enum InlineContent {
     Strong(Strong),
     Subscript(Subscript),
     Superscript(Superscript),
-    VideoObject(VideoObject),
+    VideoObjectSimple(VideoObjectSimple),
     Null,
     Boolean(Boolean),
     Integer(Integer),

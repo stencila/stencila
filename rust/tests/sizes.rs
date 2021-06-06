@@ -105,14 +105,14 @@ fn sizes() {
     println!("----------------------------------------------");
     sizeof!(InlineContent);
     println!("----------------------------------------------");
-    sizeof!(AudioObject);
+    sizeof!(AudioObjectSimple);
     sizeof!(Cite);
     sizeof!(CiteGroup);
     sizeof!(CodeExpression);
     sizeof!(CodeFragment);
     sizeof!(Delete);
     sizeof!(Emphasis);
-    sizeof!(ImageObject);
+    sizeof!(ImageObjectSimple);
     sizeof!(Link);
     sizeof!(MathFragment);
     sizeof!(NontextualAnnotation);
@@ -121,7 +121,7 @@ fn sizes() {
     sizeof!(Strong);
     sizeof!(Subscript);
     sizeof!(Superscript);
-    sizeof!(VideoObject);
+    sizeof!(VideoObjectSimple);
     sizeof!(bool);
     sizeof!(i64);
     sizeof!(f64);
@@ -134,17 +134,17 @@ fn sizes() {
     println!("----------------------------------------------");
     sizeof!(BlockContent);
     println!("----------------------------------------------");
-    sizeof!(Claim);
+    sizeof!(ClaimSimple);
     sizeof!(CodeBlock);
     sizeof!(CodeChunk);
-    sizeof!(Collection);
-    sizeof!(Figure);
+    sizeof!(CollectionSimple);
+    sizeof!(FigureSimple);
     sizeof!(Heading);
     sizeof!(List);
     sizeof!(MathBlock);
     sizeof!(Paragraph);
     sizeof!(QuoteBlock);
-    sizeof!(Table);
+    sizeof!(TableSimple);
     sizeof!(ThematicBreak);
     println!("----------------------------------------------");
 

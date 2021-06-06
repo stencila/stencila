@@ -43,9 +43,11 @@ const propertyTypes: Record<string, [string, string]> = {
   'Date.value': ['DateValue', 'String'],
 }
 
-// Properties that need to use a pointer to prevent circular references
-// (the "recursive type has infinite size" error)
+// Properties that need to use a `Box` pointer to prevent circular references
+// (the "recursive type has infinite size" error) or because it is
+// memory efficient (especially for optional properties on deeply nested structs)
 const pointerProperties = [
+  // Recursive properties
   '*.isPartOf',
   'Organization.parentOrganization',
   'ImageObject.publisher', // recursive because publisher has `logo`
@@ -59,20 +61,61 @@ const pointerProperties = [
   'Parameter.default',
   'Parameter.value',
   'Variable.value',
+  // Optional properties of inline content types that by have as boxes
+  // reduce the size of the `InlineContent` enum (determined by the
+  // variant)
+  'ImageObjectSimple.thumbnail',
+  'VideoObjectSimple.thumbnail',
+  'Quote.cite',
 ]
+
+// For types that extend `CreativeWork`, _and_ which are part of `InlineContent`
+// or `BlockContent`, we generate a separate `XxxxSimple` struct that
+// excludes all of the properties inherited from `CreativeWork` other than `content`
+
+let creativeWorkTypes: string[]
+let inlineContent: string[]
+let blockContent: string[]
+
+function initializeGlobals(schemas: JsonSchema[]) {
+  const entries = schemas.map((schema) => [schema.title, schema])
+  const lookup = Object.fromEntries(entries)
+  const extract = (title: string) => {
+    return (lookup[title].anyOf ?? []).map((obj: JsonSchema) =>
+      (obj.$ref ?? '').replace('.schema.json', '')
+    )
+  }
+  creativeWorkTypes = extract('CreativeWorkTypes')
+  inlineContent = extract('InlineContent')
+  blockContent = extract('BlockContent')
+}
+
+function isCreativeWorkContent(title: string) {
+  return (
+    creativeWorkTypes.includes(title) &&
+    (inlineContent.includes(title) || blockContent.includes(title))
+  )
+}
 
 /**
  * Generate `../../rust/types.rs` from schemas.
  */
 async function build(): Promise<void> {
   const schemas = await readSchemas()
+  initializeGlobals(schemas)
 
   const context = {
     anonEnums: {},
   }
 
   const structs = filterInterfaceSchemas(schemas)
-    .map((schema) => interfaceSchemaToEnum(schema, context))
+    .map((schema) => {
+      let structs = interfaceSchemaToStruct(schema, context)
+      if (isCreativeWorkContent(schema.title ?? '')) {
+        structs += interfaceSchemaToSimpleStruct(schema, context)
+      }
+      return structs
+    })
     .join('\n')
 
   const enumEnums = filterEnumSchemas(schemas)
@@ -148,9 +191,10 @@ function docComment(description: string): string {
  * to each struct because it takes up less memory (single variant enum
  * takes up no space)
  */
-export function interfaceSchemaToEnum(
+export function interfaceSchemaToStruct(
   schema: JsonSchema,
-  context: Context
+  context: Context,
+  typeName?: string
 ): string {
   const { title = 'Untitled', description = title } = schema
   const { all } = getSchemaProperties(schema)
@@ -197,14 +241,14 @@ ${attrs.map((attr) => `    ${attr}\n`).join('')}    pub ${snakeCase(
     'Deserialize',
   ].join(', ')
 
-  const code = `
+  return `
 ${docComment(description)}
 #[skip_serializing_none]
 #[derive(${derives})]
 #[serde(default, rename_all = "camelCase")]
 pub struct ${title} {
     /// The name of this type
-    #[def = "${title}_::${title}"]
+    #[def = "${title}_::${typeName ?? title}"]
     pub type_: ${title}_,
 
 ${fields}
@@ -212,12 +256,38 @@ ${fields}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ${title}_ {
-  ${title}
+  ${typeName ?? title}
 }
 
 impl_struct!(${title});`
+}
 
-  return code
+/**
+ * Generate a Rust `struct` for a type derived from `CreativeWork`
+ * for when it is part of content.
+ */
+export function interfaceSchemaToSimpleStruct(
+  schema: JsonSchema,
+  context: Context
+): string {
+  const { title, properties = {} } = schema
+  const filteredProperties = Object.fromEntries(
+    Object.entries(properties).reduce(
+      (prev: [string, JsonSchema][], [name, property]) => {
+        return name !== 'content' &&
+          ['Thing', 'CreativeWork'].includes(property.from ?? '')
+          ? prev
+          : [...prev, [name, property]]
+      },
+      []
+    )
+  )
+  const contentSchema: JsonSchema = {
+    ...schema,
+    title: `${title}Simple`,
+    properties: filteredProperties,
+  }
+  return interfaceSchemaToStruct(contentSchema, context, title)
 }
 
 /**
@@ -259,7 +329,14 @@ export function unionSchemaToEnum(
   const variants = anyOf
     ?.map((schema) => {
       const name = schemaToType(schema, context)
-      return name === 'Null' ? `    ${name},\n` : `    ${name}(${name}),\n`
+      if (name === 'Null') return `    Null,\n`
+      if (
+        (title === 'InlineContent' || title === 'BlockContent') &&
+        isCreativeWorkContent(name)
+      ) {
+        return `    ${name}Simple(${name}Simple),\n`
+      }
+      return `    ${name}(${name}),\n`
     })
     .join('')
 
