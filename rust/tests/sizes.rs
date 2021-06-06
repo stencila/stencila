@@ -3,22 +3,24 @@
 //! Run with `cargo test sizes -- --nocapture`
 //! to get the printed output.
 
+use std::collections::BTreeMap;
+
 use stencila_schema::*;
 
 macro_rules! sizeof {
-    ($type:ident) => {
-        {
-            let size = std::mem::size_of::<$type>();
-            println!("{}: {}", stringify!($type), size);
-            size
-        }
-    };
+    ($type:ty) => {{
+        let size = std::mem::size_of::<$type>();
+        println!("{}: {}", stringify!($type), size);
+        size
+    }};
 }
 
 #[test]
 fn sizes() {
-    sizeof!(Primitive);
-
+    println!("");
+    println!("----------------------------------------------");
+    sizeof!(Node);
+    println!("----------------------------------------------");
     sizeof!(ArrayValidator);
     sizeof!(Article);
     sizeof!(AudioObject);
@@ -97,10 +99,76 @@ fn sizes() {
     sizeof!(Variable);
     sizeof!(VideoObject);
     sizeof!(VolumeMount);
+    println!("----------------------------------------------");
 
+    println!("");
+    println!("----------------------------------------------");
     sizeof!(InlineContent);
-    sizeof!(BlockContent);
+    println!("----------------------------------------------");
+    sizeof!(AudioObject);
+    sizeof!(Cite);
+    sizeof!(CiteGroup);
+    sizeof!(CodeExpression);
+    sizeof!(CodeFragment);
+    sizeof!(Delete);
+    sizeof!(Emphasis);
+    sizeof!(ImageObject);
+    sizeof!(Link);
+    sizeof!(MathFragment);
+    sizeof!(NontextualAnnotation);
+    sizeof!(Note);
+    sizeof!(Quote);
+    sizeof!(Strong);
+    sizeof!(Subscript);
+    sizeof!(Superscript);
+    sizeof!(VideoObject);
+    sizeof!(bool);
+    sizeof!(i64);
+    sizeof!(f64);
+    sizeof!(Vec<Primitive>);
+    sizeof!(BTreeMap<String, Primitive>);
+    sizeof!(String);
+    println!("----------------------------------------------");
 
-    sizeof!(CreativeWork);
+    println!("");
+    println!("----------------------------------------------");
+    sizeof!(BlockContent);
+    println!("----------------------------------------------");
+    sizeof!(Claim);
+    sizeof!(CodeBlock);
+    sizeof!(CodeChunk);
+    sizeof!(Collection);
+    sizeof!(Figure);
+    sizeof!(Heading);
+    sizeof!(List);
+    sizeof!(MathBlock);
+    sizeof!(Paragraph);
+    sizeof!(QuoteBlock);
+    sizeof!(Table);
+    sizeof!(ThematicBreak);
+    println!("----------------------------------------------");
+
+    println!("");
+    println!("----------------------------------------------");
     sizeof!(CreativeWorkTypes);
+    println!("----------------------------------------------");
+    sizeof!(CreativeWork);
+    sizeof!(Article);
+    sizeof!(AudioObject);
+    sizeof!(Claim);
+    sizeof!(Collection);
+    sizeof!(Comment);
+    sizeof!(Datatable);
+    sizeof!(Figure);
+    sizeof!(ImageObject);
+    sizeof!(MediaObject);
+    sizeof!(Periodical);
+    sizeof!(PublicationIssue);
+    sizeof!(PublicationVolume);
+    sizeof!(Review);
+    sizeof!(SoftwareApplication);
+    sizeof!(SoftwareSourceCode);
+    sizeof!(Table);
+    sizeof!(VideoObject);
+    println!("----------------------------------------------");
 }
