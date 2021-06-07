@@ -1,5 +1,5 @@
 import { JSONSchema7 } from 'json-schema'
-import { ConfigSchema } from '../formBuilder'
+import { ConfigSchema } from './types'
 
 type ObjectConfig = JSONSchema7 & { type: 'object' }
 

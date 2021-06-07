@@ -1,18 +1,7 @@
-import { createSlice, EntityId, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { File } from '../../types'
-import { NormalizedProject } from './entities'
 import { fetchProject } from './projectActions'
-import produce from 'immer'
-
-export type ProjectStoreEntities = {
-  projects: Record<EntityId, NormalizedProject | undefined>
-  files: Record<EntityId, File | undefined>
-}
-
-export type NormalizedProjectStore = {
-  entities: ProjectStoreEntities
-  ids: string[]
-}
+import { NormalizedProjectStore } from './ProjectStoreTypes'
 
 const initialState: NormalizedProjectStore = {
   entities: {

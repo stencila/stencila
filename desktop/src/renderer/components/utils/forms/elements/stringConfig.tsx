@@ -1,7 +1,6 @@
 import { h } from '@stencil/core'
 import { JSONSchema7 } from 'json-schema'
-import { ConfigSchema } from '../formBuilder'
-import { FormElement } from './types'
+import { ConfigSchema, FormElement } from './types'
 
 type StringConfig = JSONSchema7 & {
   type: 'string'

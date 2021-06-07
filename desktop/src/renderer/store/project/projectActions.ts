@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import { normalize } from 'normalizr'
 import { CHANNEL } from '../../../preload'
 import { projectEntity } from './entities'
-import { ProjectStoreEntities } from './projectStore'
+import { ProjectStoreEntities } from "./ProjectStoreTypes"
 
 const StoreKeys = {
   recentProjects: 'recentProjects',

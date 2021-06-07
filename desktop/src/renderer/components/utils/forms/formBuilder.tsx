@@ -1,5 +1,4 @@
 import { h, VNode } from '@stencil/core'
-import { JSONSchema7Definition } from 'json-schema'
 import { capitalize } from '../stringUtils'
 import { arrayGuard, arrayInput } from './elements/arrayConfig'
 import { booleanGuard, checkbox } from './elements/booleanConfig'
@@ -7,9 +6,7 @@ import { generic } from './elements/genericConfig'
 import { objectGuard } from './elements/objectConfig'
 import { select, selectGuard } from './elements/selectConfig'
 import { stringGuard, stringInput } from './elements/stringConfig'
-import { FormElementOptions } from './elements/types'
-
-export type ConfigSchema = JSONSchema7Definition
+import { ConfigSchema, FormElementOptions } from './elements/types'
 
 export const changeHandler = (e: Event): void => {
   e.preventDefault()

@@ -1,5 +1,7 @@
 import { VNode } from '@stencil/core'
-import { ConfigSchema } from '../formBuilder'
+import { JSONSchema7Definition } from 'json-schema'
+
+export type ConfigSchema = JSONSchema7Definition
 
 export type FormElementOptions = {
   label?: string

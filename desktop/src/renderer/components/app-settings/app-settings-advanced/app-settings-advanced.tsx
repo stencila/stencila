@@ -1,6 +1,7 @@
 import { Component, h, State } from '@stencil/core'
 import { CHANNEL } from '../../../../preload/index'
-import { build, ConfigSchema } from '../../utils/forms/formBuilder'
+import { ConfigSchema } from '../../utils/forms/elements/types'
+import { build } from '../../utils/forms/formBuilder'
 
 type Config = Record<string, unknown>
 type Settings = {
@@ -17,7 +18,7 @@ export class AppSettingsAdvanced {
   @State() settings: Settings | undefined
 
   private readConfig = () =>
-    (window.api.invoke(CHANNEL.READ_CONFIG) as unknown) as Promise<Settings>
+    window.api.invoke(CHANNEL.READ_CONFIG) as unknown as Promise<Settings>
 
   async componentWillLoad() {
     this.settings = await this.readConfig()
