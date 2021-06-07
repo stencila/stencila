@@ -7,7 +7,6 @@
 
 pub mod documents;
 pub mod files;
-pub mod nodes;
 pub mod projects;
 
 // Methods

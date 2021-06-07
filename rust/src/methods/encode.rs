@@ -1,5 +1,6 @@
-use crate::{nodes::Node, plugins};
-use eyre::Result;
+use crate::plugins;
+use eyre::{bail, Result};
+use stencila_schema::Node;
 
 // Allow these for when no features are enabled
 #[allow(unused_variables, unreachable_code)]
@@ -21,7 +22,11 @@ pub async fn encode(node: Node, format: &str) -> Result<String> {
                 )
                 .await?;
                 // Delegate returns a node so always convert it to a string
-                return Ok(node.to_string());
+                let string = match node {
+                    Node::String(string) => string,
+                    _ => bail!("Unexpectedly got a non-string type"),
+                };
+                return Ok(string);
             };
 
             #[cfg(not(feature = "request"))]
