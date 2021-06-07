@@ -58,7 +58,7 @@
     "node-loader": "2.0.0",
     "postcss": "8.3.0",
     "postcss-nested": "5.0.5",
-    "puppeteer": "9.1.1",
+    "puppeteer": "10.0.0",
     "rollup-plugin-node-polyfills": "0.2.1",
     "secure-electron-store": "3.0.1",
     "style-loader": "2.0.0",
