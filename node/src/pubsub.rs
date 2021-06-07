@@ -1,3 +1,4 @@
+use crate::prelude::from_json;
 use neon::prelude::*;
 use std::sync::{Mutex, MutexGuard};
 use stencila::{
@@ -5,17 +6,21 @@ use stencila::{
     pubsub, serde_json,
 };
 
-use crate::prelude::from_json;
+/// The Neon event queue to which published events will be sent
+static QUEUE: OnceCell<EventQueue> = OnceCell::new();
 
+/// A JavaScript subscription
+#[derive(Debug)]
 pub struct JsSubscription {
+    /// The topic that is subscribed to
     topic: String,
+
+    /// The subscriber function
     subscriber: Root<JsFunction>,
 }
 
+/// A list of JavaScript subscriptions
 static SUBSCRIPTIONS: Lazy<Mutex<Vec<JsSubscription>>> = Lazy::new(|| Mutex::new(Vec::new()));
-
-/// The Neon event queue to which published events will be sent
-static QUEUE: OnceCell<EventQueue> = OnceCell::new();
 
 /// Obtain the subscriptions store
 pub fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Vec<JsSubscription>>> {
