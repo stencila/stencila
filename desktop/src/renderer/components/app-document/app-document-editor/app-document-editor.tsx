@@ -19,22 +19,16 @@ export class AppDocumentEditor {
 
   private file?: File
 
-  private closeDoc = (documentId = this.documentId) =>
-    window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
-      documentId,
-      topics: ['modified'],
-    })
-
   @Watch('documentId')
   documentIdWatchHandler(newValue: string, prevValue: string) {
     if (newValue !== prevValue) {
-      this.closeDoc(prevValue).then(() => {
-        this.subscribeToUpdates(newValue)
+      this.unsubscribeFromDocument(prevValue).then(() => {
+        this.subscribeToDocument(newValue)
       })
     }
   }
 
-  private subscribeToUpdates = (documentId = this.documentId) => {
+  private subscribeToDocument = (documentId = this.documentId) => {
     window.api
       .invoke(CHANNEL.GET_DOCUMENT_CONTENTS, documentId)
       .then((contents) => {
@@ -54,6 +48,12 @@ export class AppDocumentEditor {
       this.saveDoc()
     })
   }
+
+  private unsubscribeFromDocument = (documentId = this.documentId) =>
+    window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
+      documentId,
+      topics: ['modified'],
+    })
 
   private fileFormatToLanguage = (): string => {
     switch (this.file?.format) {
@@ -83,7 +83,11 @@ export class AppDocumentEditor {
 
   componentDidLoad() {
     this.editorRef = this.el.querySelector('stencila-editor')
-    this.subscribeToUpdates()
+    this.subscribeToDocument()
+  }
+
+  disconnectedCallback() {
+    this.unsubscribeFromDocument()
   }
 
   render() {
