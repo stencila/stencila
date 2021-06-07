@@ -96,7 +96,7 @@ pub fn serve_background(
 #[cfg(feature = "serve-static")]
 #[derive(RustEmbed)]
 #[folder = "static"]
-struct Viewer;
+struct Static;
 
 /// Serve JSON-RPC requests over one of alternative transport protocols
 ///
@@ -447,7 +447,7 @@ fn get_handler(
 
     if path.starts_with("static/") || !path.ends_with(".json") {
         let content = if path.starts_with("static/") {
-            Viewer::get(path)
+            Static::get(path)
         } else {
             std::fs::read(path).ok().map(|content| content.into())
         };
@@ -462,7 +462,7 @@ fn get_handler(
             return response;
         }
     } else if accept.contains("text/html") {
-        if let Some(asset) = Viewer::get("index.html") {
+        if let Some(asset) = Static::get("index.html") {
             return warp::reply::html(asset).into_response();
         }
     } else {
