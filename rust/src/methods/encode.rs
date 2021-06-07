@@ -1,3 +1,4 @@
+use super::encode_html::encode_html;
 use crate::plugins;
 use eyre::{bail, Result};
 use stencila_schema::Node;
@@ -8,8 +9,13 @@ pub async fn encode(node: Node, format: &str) -> Result<String> {
     let content = match format {
         #[cfg(feature = "format-json")]
         "json" => serde_json::to_string(&node)?,
+
         #[cfg(feature = "format-yaml")]
         "yaml" => serde_yaml::to_string(&node)?,
+
+        #[cfg(feature = "format-html")]
+        "html" => encode_html(&node)?,
+
         _ => {
             #[cfg(feature = "request")]
             {
