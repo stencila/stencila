@@ -1,3 +1,24 @@
+# [0.75.0](https://github.com/stencila/stencila/compare/v0.74.0...v0.75.0) (2021-06-07)
+
+
+### Bug Fixes
+
+* **dependencies:** update rust crate neon to 0.8.3 ([c3ee1ab](https://github.com/stencila/stencila/commit/c3ee1abb83bc8384355c35bec14dac612f1602b2))
+* **dependencies:** update rust crate semver to 1.0.3 ([74ac76b](https://github.com/stencila/stencila/commit/74ac76b11202c7fcd39356e384aaa508d74db83c))
+* **dependencies:** update rust crate strum to 0.21 ([fd1d2ca](https://github.com/stencila/stencila/commit/fd1d2ca5b4023ec334e3a2a6e64168e0d4149810))
+* **dependencies:** update rust crate strum_macros to 0.21.1 ([546bb42](https://github.com/stencila/stencila/commit/546bb42b28def3042b211bed317215fd4a22f37a))
+* **dependencies:** update rust crate termimad to 0.11.1 ([74b40f6](https://github.com/stencila/stencila/commit/74b40f6c75444ce32253ea4da5a1e3789dcf8935))
+* **Dependencies:** Upgrade Stencila Schema ([c58c1b2](https://github.com/stencila/stencila/commit/c58c1b261e62d04473763ebafc62f87a878dfbf7))
+* **Desktop:** NPM audit fix ([0405553](https://github.com/stencila/stencila/commit/0405553447156a2cefe150b754dff7674ceb8656))
+* **Rust:** Improve error message when no matching document ([40b28cd](https://github.com/stencila/stencila/commit/40b28cdb62a4f444c4b77729bf2941ed466f57fa))
+* **Tabs:** Add visual feedback when hovering over tabs ([d8f67ee](https://github.com/stencila/stencila/commit/d8f67eedbaf2e922884e0fac4b91a44b01d1f071))
+
+
+### Features
+
+* **Desktop:** Allow resizing panes using entire height of right border ([c078a91](https://github.com/stencila/stencila/commit/c078a913c9100a82bd74c3ea2f5abfa34a2e292d))
+* **Node.js:** Add separate get function ([d75e684](https://github.com/stencila/stencila/commit/d75e684ab738b8ff8d27c4416be080dae97ce363))
+
 # [0.74.0](https://github.com/stencila/stencila/compare/v0.73.0...v0.74.0) (2021-06-03)
 
 
