@@ -20,7 +20,7 @@ serve = []
 serve-stdio = []
 serve-http = ["warp", "jsonwebtoken"]
 serve-ws = ["warp", "jsonwebtoken"]
-serve-viewer = ["warp", "rust-embed"]
+serve-static = ["warp", "rust-embed"]
 
 request = []
 request-stdio = []
@@ -44,6 +44,7 @@ inspect = []
 
 format-json = []
 format-yaml = ["serde_yaml"]
+format-html = ["html-escape"]
 
 query-jsonptr = [] #"json-pointer"]
 query-jmespath = [] #"jmespatch"]
@@ -58,7 +59,7 @@ default = [
     "serve-stdio",
     "serve-http",
     "serve-ws",
-    "serve-viewer",
+    "serve-static",
     "request",
     "request-docker",
     "request-http",
@@ -76,6 +77,7 @@ default = [
     "inspect",
     "format-json",
     "format-yaml",
+    "format-html",
     "query-jsonptr",
     "query-jmespath",
     "template-handlebars",
@@ -95,6 +97,7 @@ futures = "0.3.15"
 gitignore = "1.0.7"
 glob = "0.3.0"
 handlebars = { version = "4.0.0", optional = true }
+html-escape = { version = "0.2.9", optional = true }
 humantime = { version = "2.1.0", optional = true }
 ignore = "0.4.17"
 jsonschema = { version = "0.9.0", optional = true }

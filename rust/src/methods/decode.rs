@@ -1,5 +1,6 @@
-use crate::{nodes::Node, plugins};
+use crate::plugins;
 use eyre::Result;
+use stencila_schema::Node;
 
 // Allow these for when no features are enabled
 #[allow(unused_variables, unreachable_code)]

@@ -1,4 +1,3 @@
-use crate::nodes::Node;
 use eyre::Result;
 use serde::{Deserialize, Serialize};
 use strum::{Display, EnumString, EnumVariantNames};
@@ -47,13 +46,15 @@ impl Request {
         }
     }
 
-    pub async fn dispatch(self) -> Result<Node> {
-        match self {
+    pub async fn dispatch(self) -> Result<serde_json::Value> {
+        let node = match self {
             Request::Decode(request) => crate::methods::decode::rpc::decode(request.params).await,
             Request::Execute(request) => {
                 crate::methods::execute::rpc::execute(request.params).await
             }
-        }
+        }?;
+        let value = serde_json::to_value(&node)?;
+        Ok(value)
     }
 }
 
@@ -72,7 +73,7 @@ pub struct Response {
 
     /// The result of the method call
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub result: Option<Node>,
+    pub result: Option<serde_json::Value>,
 
     /// Any error that may have occurred
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -80,7 +81,11 @@ pub struct Response {
 }
 
 impl Response {
-    pub fn new(id: Option<u64>, result: Option<Node>, error: Option<eyre::Error>) -> Self {
+    pub fn new(
+        id: Option<u64>,
+        result: Option<serde_json::Value>,
+        error: Option<eyre::Error>,
+    ) -> Self {
         Response {
             id,
             result,

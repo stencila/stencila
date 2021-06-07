@@ -1,6 +1,6 @@
 use super::{decode::decode, read::read};
-use crate::nodes::Node;
 use eyre::Result;
+use stencila_schema::Node;
 
 /// Import a node from a URL (including `file://` or `string://` URL)
 ///

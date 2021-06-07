@@ -1,17 +1,19 @@
-use crate::nodes::Node;
 use eyre::{bail, Result};
 use jsonschema::JSONSchema;
 use once_cell::sync::Lazy;
 use serde_json::{json, Value};
+use stencila_schema::Node;
 
 pub fn validate(node: Node) -> Result<Node> {
-    static SCHEMA: Lazy<Value> = Lazy::new(|| json!({ "maxLength": 5, "pattern": "aaa" }));
+    // TODO Read the actual schema
+    static SCHEMA: Lazy<Value> = Lazy::new(|| json!({}));
     static VALIDATOR: Lazy<JSONSchema<'static>> =
         Lazy::new(|| JSONSchema::compile(&SCHEMA).unwrap());
 
-    let result = VALIDATOR.validate(&node);
+    let value = serde_json::to_value(node)?;
+    let result = VALIDATOR.validate(&value);
     match result {
-        Ok(_) => Ok(Node::Bool(true)),
+        Ok(_) => Ok(Node::Boolean(true)),
         Err(errors) => {
             let message = errors
                 .map(|error| error.to_string())

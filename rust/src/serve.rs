@@ -92,10 +92,10 @@ pub fn serve_background(
     Ok(())
 }
 
-/// Static assets for the `viewer`
-#[cfg(feature = "serve-viewer")]
+/// Static assets
+#[cfg(feature = "serve-static")]
 #[derive(RustEmbed)]
-#[folder = "../viewer/build/"]
+#[folder = "static"]
 struct Viewer;
 
 /// Serve JSON-RPC requests over one of alternative transport protocols

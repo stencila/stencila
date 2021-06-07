@@ -7,7 +7,6 @@
 
 pub mod documents;
 pub mod files;
-pub mod nodes;
 pub mod projects;
 
 // Methods
@@ -24,6 +23,7 @@ pub mod methods {
 
     pub mod decode;
     pub mod encode;
+    pub mod encode_html;
 
     pub mod export;
     pub mod import;

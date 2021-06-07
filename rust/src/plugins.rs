@@ -1,6 +1,5 @@
 use crate::{
     methods::Method,
-    nodes::Node,
     pubsub::{publish_progress, ProgressEvent},
     request::{Client, ClientStdio},
     utils::{self, schemas},
@@ -25,6 +24,7 @@ use std::{
     sync::Arc,
     thread,
 };
+use stencila_schema::Node;
 use strum::{Display, EnumIter, EnumString, IntoEnumIterator, VariantNames};
 use tokio::sync::{Mutex, MutexGuard};
 
@@ -1862,10 +1862,13 @@ pub async fn lock() -> MutexGuard<'static, Plugins> {
 /// Delegate a method call to a plugin
 ///
 /// This is a convenience function that locks the global
-/// `PLUGINS` store and delegates a call to it.
+/// `PLUGINS` store, delegates a call to it and transforms
+/// the result into a `Node`.
 pub async fn delegate(method: Method, params: &serde_json::Value) -> Result<Node> {
     let mut plugins = lock().await;
-    plugins.delegate(method, params).await
+    let value = plugins.delegate(method, params).await?;
+    let node = serde_json::from_value(value)?;
+    Ok(node)
 }
 
 #[cfg(feature = "config")]

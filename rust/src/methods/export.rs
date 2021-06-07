@@ -1,7 +1,7 @@
 use super::{encode::encode, write::write};
-use crate::nodes::Node;
 use eyre::Result;
 use std::path::Path;
+use stencila_schema::Node;
 
 /// Export a node to a URL (including a `file://` or `string://` URL)
 ///
