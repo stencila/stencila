@@ -7,10 +7,10 @@ use stencila::{
 };
 
 /// A global documents store
-pub static DOCUMENTS: Lazy<Mutex<Documents>> = Lazy::new(|| Mutex::new(Documents::default()));
+static DOCUMENTS: Lazy<Mutex<Documents>> = Lazy::new(|| Mutex::new(Documents::default()));
 
 /// Obtain the documents store
-pub fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Documents>> {
+fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Documents>> {
     match DOCUMENTS.try_lock() {
         Ok(guard) => Ok(guard),
         Err(error) => cx.throw_error(format!(
@@ -32,7 +32,7 @@ pub fn list(mut cx: FunctionContext) -> JsResult<JsString> {
     to_json_or_throw(cx, documents.list())
 }
 
-/// Create a new empty document
+/// Create a document
 pub fn create(mut cx: FunctionContext) -> JsResult<JsString> {
     let format = cx.argument::<JsString>(0)?.value(&mut cx);
     let format = if format.is_empty() {
@@ -44,7 +44,7 @@ pub fn create(mut cx: FunctionContext) -> JsResult<JsString> {
     to_json_or_throw(cx, documents.create(format))
 }
 
-/// Open an existing document
+/// Open a document
 pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
     let path = &cx.argument::<JsString>(0)?.value(&mut cx);
     let format = cx.argument::<JsString>(1)?.value(&mut cx);
@@ -57,53 +57,43 @@ pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
     to_json_or_throw(cx, documents.open(path, format))
 }
 
-/// Close a document
-pub fn close(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
+/// Get a document
+pub fn get(mut cx: FunctionContext) -> JsResult<JsString> {
+    let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.close(path) {
-        Ok(_) => Ok(cx.undefined()),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
-}
-
-/// Subscribe to a document topic
-pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
-    let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
-    let documents = &mut *obtain(&mut cx)?;
-    match documents.subscribe(path, topic) {
-        Ok(_) => Ok(cx.undefined()),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
-}
-
-/// Unsubscribe from a document topic
-pub fn unsubscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
-    let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
-    let documents = &mut *obtain(&mut cx)?;
-    match documents.unsubscribe(path, topic) {
-        Ok(_) => Ok(cx.undefined()),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
+    let document = match documents.get(id) {
+        Ok(document) => document.clone(),
+        Err(error) => return cx.throw_error(error.to_string()),
+    };
+    to_json(cx, document)
 }
 
 /// Read a document
 pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {
-    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.read(path) {
+    match documents.read(id) {
         Ok(content) => Ok(cx.string(content)),
+        Err(error) => cx.throw_error(error.to_string()),
+    }
+}
+
+/// Write a document
+pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let id = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let content = cx.argument::<JsString>(1)?.value(&mut cx);
+    let documents = &mut *obtain(&mut cx)?;
+    match documents.write(id, Some(content)) {
+        Ok(_) => Ok(cx.undefined()),
         Err(error) => cx.throw_error(error.to_string()),
     }
 }
 
 /// Dump a document
 pub fn dump(mut cx: FunctionContext) -> JsResult<JsString> {
-    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.dump(path) {
+    match documents.dump(id) {
         Ok(content) => Ok(cx.string(content)),
         Err(error) => cx.throw_error(error.to_string()),
     }
@@ -111,21 +101,42 @@ pub fn dump(mut cx: FunctionContext) -> JsResult<JsString> {
 
 /// Load a document
 pub fn load(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let content = cx.argument::<JsString>(1)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.load(path, content) {
+    match documents.load(id, content) {
         Ok(_) => Ok(cx.undefined()),
         Err(error) => cx.throw_error(error.to_string()),
     }
 }
 
-/// Write a document
-pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
-    let path = &cx.argument::<JsString>(0)?.value(&mut cx);
-    let content = cx.argument::<JsString>(1)?.value(&mut cx);
+/// Subscribe to one or more of a document's topics
+pub fn subscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let id = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.write(path, Some(content)) {
+    match documents.subscribe(id, topic) {
+        Ok(_) => Ok(cx.undefined()),
+        Err(error) => cx.throw_error(error.to_string()),
+    }
+}
+
+/// Unsubscribe from one or more of a document's topics
+pub fn unsubscribe(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let id = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let topic = &cx.argument::<JsString>(1)?.value(&mut cx);
+    let documents = &mut *obtain(&mut cx)?;
+    match documents.unsubscribe(id, topic) {
+        Ok(_) => Ok(cx.undefined()),
+        Err(error) => cx.throw_error(error.to_string()),
+    }
+}
+
+/// Close a document
+pub fn close(mut cx: FunctionContext) -> JsResult<JsUndefined> {
+    let id = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let documents = &mut *obtain(&mut cx)?;
+    match documents.close(id) {
         Ok(_) => Ok(cx.undefined()),
         Err(error) => cx.throw_error(error.to_string()),
     }

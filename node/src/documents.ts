@@ -8,10 +8,9 @@ import { Document, DocumentEvent } from './types'
 const addon = require('../index.node')
 
 /**
- * Get the JSON Schemas for a document module
+ * Get the JSON Schemas associated with the `documents` module
  *
- * @returns An array of JSON Schema v7 objects describing the properties of
- *          types in this module
+ * @returns An array of JSON Schema v7 objects
  */
 export function schemas(): JSONSchema7 {
   return fromJSON<JSONSchema7>(addon.documentsSchema())
@@ -32,7 +31,7 @@ export function list(): Document[] {
  * @param format Format of the document
  * @return A document
  */
- export function create(format?: string): Document {
+export function create(format?: string): Document {
   return fromJSON<Document>(addon.documentsCreate(format ?? ''))
 }
 
@@ -52,25 +51,58 @@ export function open(path: string, format?: string): Document {
 }
 
 /**
- * Close a document
+ * Get a document
  *
- * @param path Path to the document's file
+ * @param id Id of the document
  */
-export function close(path: string): void {
-  addon.documentsClose(path)
+export function get(id: string): Document {
+  return fromJSON<Document>(addon.documentsGet(id))
 }
 
 /**
- * Get a document
+ * Read a document from the file system.
  *
- * Currently, the same as open but may change.
+ * @param id Id of the document
  */
-export const get = open
+export function read(id: string): string {
+  return addon.documentsRead(id)
+}
 
 /**
- * Subscribe to one or more of the document's topics
+ * Write the content of a document to the file system.
  *
- * @param path Path to the document's file
+ * @param id Id of the document
+ */
+export function write(id: string, content: string): string {
+  return addon.documentsWrite(id, content)
+}
+
+/**
+ * Dump the current content of a document
+ * without reading it from the file system.
+ * The inverse of `load()`.
+ *
+ * @param id Id of the document
+ */
+export function dump(id: string): string {
+  return addon.documentsDump(id)
+}
+
+/**
+ * Load content into a document without writing it
+ * to the file system. The inverse of `dump()`.
+ *
+ *
+ * @param id Id of the document
+ */
+export function load(id: string, content: string): void {
+  return addon.documentsLoad(id, content)
+}
+
+/**
+ * Subscribe to one or more of a document's topics
+ *
+ * @param id Id of the document
  * @param topic See docs for `Document#subscriptions` for valid values
  * @param subscriber A subscriber function that will receive published
  *                   events for the document topic/s
@@ -90,55 +122,24 @@ export function subscribe(
 }
 
 /**
- * Unsubscribe from one or more of the document's topics
+ * Unsubscribe from one or more of a document's topics
  *
- * @param path Path to the document's file
+ * @param id Id of the document
  * @param subscriber A subscriber function that will receive published
  *                   events for the document topic/s
  */
-export function unsubscribe(path: string, topics: string[]): void {
+export function unsubscribe(id: string, topics: string[]): void {
   for (const topic of topics) {
-    addon.documentsUnsubscribe(path, topic)
-    pubsub.unsubscribe(`documents:${path}:${topic}`)
+    addon.documentsUnsubscribe(id, topic)
+    pubsub.unsubscribe(`documents:${id}:${topic}`)
   }
 }
 
 /**
- * Read a document from the file system.
+ * Close a document
  *
- * @param path Path to the document's file
+ * @param id Id of the document
  */
-export function read(path: string): string {
-  return addon.documentsRead(path)
-}
-
-/**
- * Dump the current content of the document
- * without reading it from the file system.
- * The inverse of `load()`.
- *
- * @param path Path to the document's file
- */
-export function dump(path: string): string {
-  return addon.documentsDump(path)
-}
-
-/**
- * Load content into the document without writing it
- * to the file system. The inverse of `dump()`.
- *
- *
- * @param path Path to the document's file
- */
-export function load(path: string, content: string): void {
-  return addon.documentsLoad(path, content)
-}
-
-/**
- * Write the content of the document to the file system.
- *
- * @param path Path to the document's file
- */
-export function write(path: string, content: string): string {
-  return addon.documentsWrite(path, content)
+ export function close(id: string): void {
+  addon.documentsClose(id)
 }

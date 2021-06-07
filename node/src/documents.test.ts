@@ -4,7 +4,6 @@ import {
   close,
   create,
   get,
-  list,
   load,
   open,
   subscribe,
@@ -42,7 +41,9 @@ test('workflow-open-modify', async () => {
   let events: DocumentEvent[] = []
 
   // Open the document
-  expect(open(path)).toEqual(
+  const doc = open(path)
+  const docId = doc.id
+  expect(doc).toEqual(
     expect.objectContaining({
       format: 'json',
       temporary: false,
@@ -51,18 +52,18 @@ test('workflow-open-modify', async () => {
   )
 
   // Subscribe an editor panel to some of the document's topics
-  subscribe(path, ['removed', 'renamed', 'modified'], (_topic, event) =>
+  subscribe(docId, ['removed', 'renamed', 'modified'], (_topic, event) =>
     events.push(event)
   )
-  expect(get(path).subscriptions).toEqual({
+  expect(get(docId).subscriptions).toEqual({
     removed: 1,
     renamed: 1,
     modified: 1,
   })
 
   // Subscribe a preview panel to the the `encoded:json` topic
-  subscribe(path, ['encoded:json'], (_topic, event) => events.push(event))
-  expect(get(path).subscriptions).toEqual({
+  subscribe(docId, ['encoded:json'], (_topic, event) => events.push(event))
+  expect(get(docId).subscriptions).toEqual({
     removed: 1,
     renamed: 1,
     modified: 1,
@@ -71,7 +72,7 @@ test('workflow-open-modify', async () => {
 
   // Load some new content into the document (and wait a bit for events)
   load(
-    path,
+    docId,
     `{
     "type": "Article",
     "content": [{
@@ -115,15 +116,15 @@ test('workflow-open-modify', async () => {
   )
 
   // Unsubscribe from `encoded:json` because say we closed the preview panel
-  unsubscribe(path, ['encoded:json'])
-  expect(get(path).subscriptions).toEqual({
+  unsubscribe(docId, ['encoded:json'])
+  expect(get(docId).subscriptions).toEqual({
     removed: 1,
     renamed: 1,
     modified: 1,
   })
 
   // Close the document
-  close(path)
+  close(docId)
 
   fs.unlinkSync(path)
 })
