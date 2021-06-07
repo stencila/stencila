@@ -20,7 +20,7 @@ serve = []
 serve-stdio = []
 serve-http = ["warp", "jsonwebtoken"]
 serve-ws = ["warp", "jsonwebtoken"]
-serve-viewer = ["warp", "rust-embed"]
+serve-static = ["warp", "rust-embed"]
 
 request = []
 request-stdio = []
@@ -59,7 +59,7 @@ default = [
     "serve-stdio",
     "serve-http",
     "serve-ws",
-    "serve-viewer",
+    "serve-static",
     "request",
     "request-docker",
     "request-http",
