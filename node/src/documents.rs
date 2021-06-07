@@ -7,7 +7,7 @@ use stencila::{
 };
 
 /// A global documents store
-static DOCUMENTS: Lazy<Mutex<Documents>> = Lazy::new(|| Mutex::new(Documents::default()));
+static DOCUMENTS: Lazy<Mutex<Documents>> = Lazy::new(|| Mutex::new(Documents::new()));
 
 /// Obtain the documents store
 fn obtain(cx: &mut FunctionContext) -> NeonResult<MutexGuard<'static, Documents>> {
