@@ -89,8 +89,14 @@ pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
 /// Dump a document
 pub fn dump(mut cx: FunctionContext) -> JsResult<JsString> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
+    let format = cx.argument::<JsString>(1)?.value(&mut cx);
+    let format = if format.is_empty() {
+        None
+    } else {
+        Some(format)
+    };
     let documents = &mut *obtain(&mut cx)?;
-    let result = documents.dump(id);
+    let result = RUNTIME.block_on(async { documents.dump(id, format).await });
     to_string_or_throw(cx, result)
 }
 

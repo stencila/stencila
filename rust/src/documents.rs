@@ -262,23 +262,21 @@ impl Document {
     }
 
     /// Dump the document's content to a string in its current, or
-    // a different, format
+    /// a different, format
     ///
     /// # Arguments
     ///
     /// - `format`: the format to dump the content as; if not supplied assumed to be
     ///    the document's existing format.
-    pub fn dump(&self, format: Option<String>) -> Result<String> {
-        let content = if let Some(format) = format {
-            if format == "json" {
-                serde_json::to_string(&self.root)?
-            } else {
-                "TODO".into()
-            }
-        } else {
-            self.content.clone()
+    async fn dump(&self, format: Option<String>) -> Result<String> {
+        let format = match format {
+            Some(format) => format,
+            None => return Ok(self.content.clone()),
         };
-        Ok(content)
+        if let Some(root) = &self.root {
+            return encode(root, &format).await;
+        }
+        bail!("Document has no root node")
     }
 
     /// Load content into the document
@@ -563,8 +561,8 @@ impl Documents {
         self.get(&id)?.write(content, None).await
     }
 
-    pub fn dump(&mut self, id: &str) -> Result<String> {
-        self.get(&id)?.dump(None)
+    pub async fn dump(&mut self, id: &str, format: Option<String>) -> Result<String> {
+        self.get(&id)?.dump(format).await
     }
 
     pub async fn load(&mut self, id: &str, content: String) -> Result<()> {

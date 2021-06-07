@@ -84,8 +84,8 @@ export function write(id: string, content: string): string {
  *
  * @param id Id of the document
  */
-export function dump(id: string): string {
-  return addon.documentsDump(id)
+export function dump(id: string, format?: string): string {
+  return addon.documentsDump(id, format ?? '')
 }
 
 /**
@@ -140,6 +140,6 @@ export function unsubscribe(id: string, topics: string[]): void {
  *
  * @param id Id of the document
  */
- export function close(id: string): void {
+export function close(id: string): void {
   addon.documentsClose(id)
 }
