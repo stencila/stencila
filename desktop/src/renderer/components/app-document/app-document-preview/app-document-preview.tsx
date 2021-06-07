@@ -14,46 +14,53 @@ export class AppDocumentPreview {
   @Watch('documentId')
   documentIdWatchHandler(newValue: string, prevValue: string) {
     if (newValue !== prevValue) {
-      this.closeDoc(prevValue).then(() => {
-        this.subscribeToUpdates(newValue)
+      this.unsubscribeFromDocument(prevValue).then(() => {
+        this.subscribeToDocument(newValue)
       })
     }
   }
 
   @State() previewContents: string
 
-  private subscribeToUpdates = (documentId = this.documentId) => {
-    window.api.invoke(CHANNEL.DOCUMENT_GET_PREVIEW, documentId)
+  private subscribeToDocument = (documentId = this.documentId) => {
+    window.api.invoke(CHANNEL.DOCUMENT_GET_PREVIEW, documentId).then((html) => {
+      this.previewContents = html as string
+    })
+
     window.api.receive(CHANNEL.DOCUMENT_GET_PREVIEW, (event) => {
       const e = event as DocumentEvent
       if (
-        e.type === 'encoded' &&
         e.document.id === documentId &&
-        e.content !== undefined &&
-        e.format == 'html'
+        e.type === 'encoded' &&
+        e.format == 'html' &&
+        e.content !== undefined
       ) {
         this.previewContents = e.content
       }
     })
   }
 
-  private closeDoc = (documentId = this.documentId) =>
+  private unsubscribeFromDocument = (documentId = this.documentId) =>
     window.api.invoke(CHANNEL.UNSUBSCRIBE_DOCUMENT, {
       documentId,
       topics: ['encoded:html'],
     })
 
   componentWillLoad() {
-    this.subscribeToUpdates()
+    this.subscribeToDocument()
+  }
+
+  disconnectedCallback() {
+    this.unsubscribeFromDocument()
   }
 
   render() {
     return (
       <Host>
-        <div class="app-document-preview">
-          <p>Temporary: JSON preview of document content</p>
-          <pre innerHTML={this.previewContents}></pre>
-        </div>
+        <div
+          class="app-document-preview"
+          innerHTML={this.previewContents}
+        ></div>
       </Host>
     )
   }

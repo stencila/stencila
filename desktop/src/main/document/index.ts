@@ -30,7 +30,10 @@ export const registerDocumentHandlers = () => {
         ipcEvent.sender.send(CHANNEL.GET_DOCUMENT_CONTENTS, docEvent)
       })
 
-      return documents.read(documentId)
+      // Use `dump` to get document content, rather than `read`, to avoid
+      // (a) a re-read of the file (that is done on open) (b) re-encoding for
+      // each subscriber.
+      return documents.dump(documentId)
     }
   )
 
@@ -40,6 +43,8 @@ export const registerDocumentHandlers = () => {
       documents.subscribe(documentId, ['encoded:html'], (_topic, docEvent) => {
         ipcEvent.sender.send(CHANNEL.DOCUMENT_GET_PREVIEW, docEvent)
       })
+
+      return documents.dump(documentId, 'html')
     }
   )
 
