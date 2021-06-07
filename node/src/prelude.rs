@@ -1,9 +1,33 @@
 use neon::{prelude::*, result::Throw};
 use stencila::{
     eyre,
+    once_cell::sync::Lazy,
     serde::{Deserialize, Serialize},
-    serde_json, tokio,
+    serde_json,
+    tokio::runtime::Runtime,
 };
+
+/// Convert a result to an `undefined` if it is OK, otherwise throw an error.
+pub fn to_undefined_or_throw(
+    mut cx: FunctionContext,
+    result: eyre::Result<()>,
+) -> JsResult<JsUndefined> {
+    match result {
+        Ok(_) => Ok(cx.undefined()),
+        Err(error) => cx.throw_error(error.to_string()),
+    }
+}
+
+/// Convert a result to a string if it is OK, otherwise throw an error.
+pub fn to_string_or_throw(
+    mut cx: FunctionContext,
+    result: eyre::Result<String>,
+) -> JsResult<JsString> {
+    match result {
+        Ok(value) => Ok(cx.string(value)),
+        Err(error) => cx.throw_error(error.to_string()),
+    }
+}
 
 // We currently JSON serialize / deserialize objects when passing them to / from Rust
 // and Node.js. That's because, at the time of writing, the `neon-serde` crate
@@ -45,10 +69,5 @@ where
     }
 }
 
-/// Create a async runtime to await on async functions
-pub fn runtime(cx: &mut FunctionContext) -> Result<tokio::runtime::Runtime, Throw> {
-    match tokio::runtime::Runtime::new() {
-        Ok(runtime) => Ok(runtime),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
-}
+/// A global async runtime used to run any async functions
+pub static RUNTIME: Lazy<Runtime> = Lazy::new(|| Runtime::new().expect("Unable to create runtime"));

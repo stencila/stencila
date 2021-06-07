@@ -54,7 +54,8 @@ pub fn open(mut cx: FunctionContext) -> JsResult<JsString> {
         Some(format)
     };
     let documents = &mut *obtain(&mut cx)?;
-    to_json_or_throw(cx, documents.open(path, format))
+    let result = RUNTIME.block_on(async { documents.open(path, format).await });
+    to_json_or_throw(cx, result)
 }
 
 /// Get a document
@@ -72,10 +73,8 @@ pub fn get(mut cx: FunctionContext) -> JsResult<JsString> {
 pub fn read(mut cx: FunctionContext) -> JsResult<JsString> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.read(id) {
-        Ok(content) => Ok(cx.string(content)),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
+    let result = RUNTIME.block_on(async { documents.read(id).await });
+    to_string_or_throw(cx, result)
 }
 
 /// Write a document
@@ -83,20 +82,16 @@ pub fn write(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let content = cx.argument::<JsString>(1)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.write(id, Some(content)) {
-        Ok(_) => Ok(cx.undefined()),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
+    let result = RUNTIME.block_on(async { documents.write(id, Some(content)).await });
+    to_undefined_or_throw(cx, result)
 }
 
 /// Dump a document
 pub fn dump(mut cx: FunctionContext) -> JsResult<JsString> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.dump(id) {
-        Ok(content) => Ok(cx.string(content)),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
+    let result = documents.dump(id);
+    to_string_or_throw(cx, result)
 }
 
 /// Load a document
@@ -104,10 +99,8 @@ pub fn load(mut cx: FunctionContext) -> JsResult<JsUndefined> {
     let id = &cx.argument::<JsString>(0)?.value(&mut cx);
     let content = cx.argument::<JsString>(1)?.value(&mut cx);
     let documents = &mut *obtain(&mut cx)?;
-    match documents.load(id, content) {
-        Ok(_) => Ok(cx.undefined()),
-        Err(error) => cx.throw_error(error.to_string()),
-    }
+    let result = RUNTIME.block_on(async { documents.load(id, content).await });
+    to_undefined_or_throw(cx, result)
 }
 
 /// Subscribe to one or more of a document's topics

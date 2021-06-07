@@ -106,7 +106,7 @@ pub async fn run_command(
         Command::Open(command) => command.run(projects, documents, config).await,
         Command::Serve(args) => serve::cli::run(args, documents, &config.serve).await,
         Command::Documents(command) => {
-            display::render(interactive, formats, command.run(documents)?)
+            display::render(interactive, formats, command.run(documents).await?)
         }
         Command::Projects(command) => display::render(
             interactive,
@@ -158,7 +158,7 @@ impl OpenCommand {
             let project = projects.open(&path, &config.projects, true)?;
             project.main_path
         } else {
-            let document = documents.open(&path, None)?;
+            let document = documents.open(&path, None).await?;
             Some(document.path)
         };
 

@@ -466,7 +466,9 @@ fn get_handler(
             return warp::reply::html(asset).into_response();
         }
     } else {
+        // TODO: Make this function async to handle the following
         let mut documents = documents.lock().expect("Unable to obtain lock");
+        #[cfg(ignore)]
         match documents.open(path, None) {
             Ok(document) => {
                 let mime = accept.split(',').next().unwrap_or("text/plain");

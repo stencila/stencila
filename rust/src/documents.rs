@@ -1,4 +1,5 @@
 use crate::{
+    methods::{decode::decode, encode::encode},
     pubsub::publish,
     utils::{schemas, uuids},
 };
@@ -16,7 +17,7 @@ use std::{
         Arc, Mutex, MutexGuard,
     },
 };
-use stencila_schema::CreativeWorkTypes;
+use stencila_schema::Node;
 use strum::ToString;
 
 #[derive(Debug, JsonSchema, Serialize, ToString)]
@@ -124,7 +125,7 @@ pub struct Document {
 
     /// The root Stencila Schema node of the document
     #[serde(skip)]
-    root: Option<CreativeWorkTypes>,
+    root: Option<Node>,
 
     /// The set of unique subscriptions to this document
     ///
@@ -181,7 +182,7 @@ impl Document {
     ///
     /// - `format`: The format of the document. If `None` will be inferred from
     ///             the file extension.
-    fn open(path: PathBuf, format: Option<String>) -> Result<Document> {
+    async fn open(path: PathBuf, format: Option<String>) -> Result<Document> {
         if path.is_dir() {
             bail!("Can not open a folder as a document; maybe try opening it as a project instead.")
         }
@@ -207,7 +208,7 @@ impl Document {
             format,
             ..Default::default()
         };
-        document.read()?;
+        document.read().await?;
 
         Ok(document)
     }
@@ -215,11 +216,49 @@ impl Document {
     /// Read the document from the file system and return its content.
     ///
     /// Sets `status` to `Synced`.
-    fn read(&mut self) -> Result<String> {
+    async fn read(&mut self) -> Result<String> {
         let content = fs::read_to_string(&self.path)?;
-        self.load(content, None)?;
+        self.load(content, None).await?;
         self.status = DocumentStatus::Synced;
         Ok(self.content.clone())
+    }
+
+    /// Write the document to the file system, optionally load new `content`
+    /// and set `format` before doing so.
+    ///
+    /// # Arguments
+    ///
+    /// - `content`: the content to load into the document
+    /// - `format`: the format of the content; if not supplied assumed to be
+    ///    the document's existing format.
+    ///
+    /// Sets `status` to `Synced`.
+    async fn write(&mut self, content: Option<String>, format: Option<String>) -> Result<()> {
+        if let Some(content) = content {
+            self.load(content, format).await?;
+        }
+
+        fs::write(&self.path, self.content.as_bytes())?;
+        self.status = DocumentStatus::Synced;
+
+        Ok(())
+    }
+
+    /// Save the document to another file, possibly in another format
+    ///
+    /// # Arguments
+    ///
+    /// - `path`: the path for the new file.
+    /// - `format`: the format to dump the content as; if not supplied assumed to be
+    ///    the document's existing format.
+    ///
+    /// Note: this does not change the `path` or `format` of the current
+    /// document.
+    #[cfg(ignore)]
+    fn save_as(&self, path: &str, format: Option<String>) -> Result<()> {
+        let mut file = fs::File::create(path)?;
+        file.write_all(self.dump(format)?.as_bytes())?;
+        Ok(())
     }
 
     /// Dump the document's content to a string in its current, or
@@ -255,7 +294,7 @@ impl Document {
     /// In the future, this will also trigger an `import()` to convert the `content`
     /// into a Stencila `CreativeWork` nodes and set the document's `root` (from which
     /// the conversions will be done).
-    fn load(&mut self, content: String, format: Option<String>) -> Result<&Self> {
+    async fn load(&mut self, content: String, format: Option<String>) -> Result<()> {
         // Set the `content` and `status` of the document
         self.content = content;
         self.status = DocumentStatus::Unwritten;
@@ -269,39 +308,14 @@ impl Document {
             None => "txt",
         };
 
-        // Import the content into the root of the document
-        // TODO: call the `decode` method with `self.content`
-        let node = if format == "json" {
-            serde_json::from_str(&self.content)?
-        } else {
-            serde_json::json!({
-                "type": "Article",
-                "content": [
-                    {
-                        "type": "Paragraph",
-                        "content": [
-                            "This is a temporary representation of the document until async decoding is implemented".to_string()
-                        ]
-                    },
-                    {
-                        "type": "Paragraph",
-                        "content": [
-                            self.content.clone()
-                        ]
-                    },
-                ]
-            })
-        };
-        self.root = serde_json::from_value(node)?;
+        // Import the content into the `root` node of the document
+        let root = decode(&self.content, format).await?;
 
-        // Encode to each of the formats for which there are subscriptions
+        // Encode the `root` node into each of the formats for which there are subscriptions
         for subscription in self.subscriptions.keys() {
             if let Some(format) = subscription.strip_prefix("encoded:") {
-                // TODO: call the `encode` method with `self.root`
-                let json = serde_json::to_string_pretty(&self.root);
-                match json {
+                match encode(&root, format).await {
                     Ok(content) => {
-                        // Publish an event for this encoding
                         self.publish(
                             DocumentEventType::Encoded,
                             Some(content),
@@ -315,44 +329,10 @@ impl Document {
             }
         }
 
-        Ok(self)
-    }
+        // Now that we're done borrowing the root node for encoding to
+        // different formats, store it.
+        self.root = Some(root);
 
-    /// Write the document to the file system, optionally load new `content`
-    /// and set `format` before doing so.
-    ///
-    /// # Arguments
-    ///
-    /// - `content`: the content to load into the document
-    /// - `format`: the format of the content; if not supplied assumed to be
-    ///    the document's existing format.
-    ///
-    /// Sets `status` to `Synced`.
-    fn write(&mut self, content: Option<String>, format: Option<String>) -> Result<&Self> {
-        if let Some(content) = content {
-            self.load(content, format)?;
-        }
-
-        fs::write(&self.path, self.content.as_bytes())?;
-        self.status = DocumentStatus::Synced;
-
-        Ok(self)
-    }
-
-    /// Save the document to another file, possibly in another format
-    ///
-    /// # Arguments
-    ///
-    /// - `path`: the path for the new file.
-    /// - `format`: the format to dump the content as; if not supplied assumed to be
-    ///    the document's existing format.
-    ///
-    /// Note: this does not change the `path` or `format` of the current
-    /// document.
-    #[cfg(ignore)]
-    fn save_as(&self, path: &str, format: Option<String>) -> Result<()> {
-        let mut file = fs::File::create(path)?;
-        file.write_all(self.dump(format)?.as_bytes())?;
         Ok(())
     }
 
@@ -435,12 +415,12 @@ impl Document {
     /// Reads the file into `content` and emits a `Modified` event so that the user
     /// can be asked if they want to load the new content into editor, or overwrite with
     /// existing editor content.
-    fn modified(&mut self, path: PathBuf) {
+    async fn modified(&mut self, path: PathBuf) {
         tracing::debug!("Document modified: {}", path.display());
 
         self.status = DocumentStatus::Unread;
 
-        match self.read() {
+        match self.read().await {
             Ok(content) => self.publish(
                 DocumentEventType::Modified,
                 Some(content),
@@ -477,7 +457,8 @@ impl DocumentWatcher {
             let handle = |event| match event {
                 DebouncedEvent::Remove(path) => lock().deleted(path),
                 DebouncedEvent::Rename(from, to) => lock().renamed(from, to),
-                DebouncedEvent::Write(path) => lock().modified(path),
+                // TODO: reinstate once this is async
+                //DebouncedEvent::Write(path) => lock().modified(path).await,
                 _ => {}
             };
 
@@ -546,7 +527,7 @@ impl Documents {
         Ok(document)
     }
 
-    pub fn open(&mut self, path: &str, format: Option<String>) -> Result<Document> {
+    pub async fn open(&mut self, path: &str, format: Option<String>) -> Result<Document> {
         let path = Path::new(path).canonicalize()?;
 
         for handler in self.registry.values() {
@@ -556,15 +537,10 @@ impl Documents {
             }
         }
 
-        let document = Document::open(path, format)?;
+        let document = Document::open(path, format).await?;
         self.registry
             .insert(document.id.clone(), DocumentHandler::new(document.clone()));
         Ok(document)
-    }
-
-    pub fn close(&mut self, id: &str) -> Result<()> {
-        self.registry.remove(id);
-        Ok(())
     }
 
     pub fn get(&mut self, id: &str) -> Result<MutexGuard<Document>> {
@@ -579,6 +555,22 @@ impl Documents {
         }
     }
 
+    pub async fn read(&mut self, id: &str) -> Result<String> {
+        self.get(&id)?.read().await
+    }
+
+    pub async fn write(&mut self, id: &str, content: Option<String>) -> Result<()> {
+        self.get(&id)?.write(content, None).await
+    }
+
+    pub fn dump(&mut self, id: &str) -> Result<String> {
+        self.get(&id)?.dump(None)
+    }
+
+    pub async fn load(&mut self, id: &str, content: String) -> Result<()> {
+        self.get(&id)?.load(content, None).await
+    }
+
     pub fn subscribe(&mut self, id: &str, topic: &str) -> Result<()> {
         self.get(&id)?.subscribe(topic)
     }
@@ -587,21 +579,8 @@ impl Documents {
         self.get(&id)?.unsubscribe(topic)
     }
 
-    pub fn read(&mut self, id: &str) -> Result<String> {
-        self.get(&id)?.read()
-    }
-
-    pub fn dump(&mut self, id: &str) -> Result<String> {
-        self.get(&id)?.dump(None)
-    }
-
-    pub fn load(&mut self, id: &str, content: String) -> Result<()> {
-        self.get(&id)?.load(content, None)?;
-        Ok(())
-    }
-
-    pub fn write(&mut self, id: &str, content: Option<String>) -> Result<()> {
-        self.get(&id)?.write(content, None)?;
+    pub fn close(&mut self, id: &str) -> Result<()> {
+        self.registry.remove(id);
         Ok(())
     }
 }
@@ -646,14 +625,14 @@ pub mod cli {
     }
 
     impl Command {
-        pub fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(&self, documents: &mut Documents) -> display::Result {
             let Self { action } = self;
             match action {
                 Action::List(action) => action.run(documents),
-                Action::Open(action) => action.run(documents),
+                Action::Open(action) => action.run(documents).await,
                 Action::Close(action) => action.run(documents),
-                Action::Show(action) => action.run(documents),
-                Action::Convert(action) => action.run(documents),
+                Action::Show(action) => action.run(documents).await,
+                Action::Convert(action) => action.run(documents).await,
                 Action::Schemas(action) => action.run(),
             }
         }
@@ -686,9 +665,9 @@ pub mod cli {
     }
 
     impl Open {
-        pub fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(&self, documents: &mut Documents) -> display::Result {
             let Self { file } = self;
-            documents.open(file, None)?;
+            documents.open(file, None).await?;
             display::nothing()
         }
     }
@@ -729,9 +708,9 @@ pub mod cli {
     }
 
     impl Show {
-        pub fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(&self, documents: &mut Documents) -> display::Result {
             let Self { file, format } = self;
-            let document = documents.open(file, format.clone())?;
+            let document = documents.open(file, format.clone()).await?;
             display::value(document)
         }
     }
@@ -759,14 +738,14 @@ pub mod cli {
     }
 
     impl Convert {
-        pub fn run(&self, documents: &mut Documents) -> display::Result {
+        pub async fn run(&self, documents: &mut Documents) -> display::Result {
             let Self {
                 input,
                 output,
                 from,
                 to,
             } = self;
-            let _document = documents.open(input, from.clone())?;
+            let _document = documents.open(input, from.clone()).await?;
             todo!("convert to {} as format {:?}", output, to);
             #[allow(unreachable_code)]
             display::nothing()
@@ -814,15 +793,15 @@ mod tests {
         assert_eq!(doc.subscriptions, hashmap! {});
     }
 
-    #[test]
-    fn document_open() -> Result<()> {
+    #[tokio::test]
+    async fn document_open() -> Result<()> {
         let fixtures = &PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
             .join("fixtures")
             .join("articles");
 
-        for file in vec!["elife-small.json", "era-plotly.json"] {
-            let doc = Document::open(fixtures.join(file), None)?;
+        for file in vec!["elife-small.json", "elife-mid.json", "era-plotly.json"] {
+            let doc = Document::open(fixtures.join(file), None).await?;
             assert!(doc.path.starts_with(fixtures));
             assert!(!doc.temporary);
             assert!(matches!(doc.status, DocumentStatus::Synced));

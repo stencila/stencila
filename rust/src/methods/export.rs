@@ -16,6 +16,6 @@ pub async fn export(node: Node, output: &str, format: Option<String>) -> Result<
         Some(ext) => ext.to_string_lossy().into(),
         None => "json".to_string(),
     });
-    let content = encode(node, &format).await?;
+    let content = encode(&node, &format).await?;
     write(&content, output)
 }

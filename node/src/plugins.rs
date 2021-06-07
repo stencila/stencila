@@ -44,8 +44,7 @@ pub fn install(mut cx: FunctionContext) -> JsResult<JsString> {
     let aliases = &config.plugins.aliases;
     let plugins = &mut *lock(&mut cx)?;
 
-    match runtime(&mut cx)?
-        .block_on(async { Plugin::install(spec, installs, aliases, plugins, None).await })
+    match RUNTIME.block_on(async { Plugin::install(spec, installs, aliases, plugins, None).await })
     {
         Ok(_) => to_json(cx, plugins.list_plugins(aliases)),
         Err(error) => cx.throw_error(error.to_string()),
@@ -72,9 +71,7 @@ pub fn upgrade(mut cx: FunctionContext) -> JsResult<JsString> {
     let aliases = &config.plugins.aliases;
     let plugins = &mut *lock(&mut cx)?;
 
-    match runtime(&mut cx)?
-        .block_on(async { Plugin::upgrade(spec, installs, aliases, plugins).await })
-    {
+    match RUNTIME.block_on(async { Plugin::upgrade(spec, installs, aliases, plugins).await }) {
         Ok(_) => to_json(cx, plugins.list_plugins(aliases)),
         Err(error) => cx.throw_error(error.to_string()),
     }
@@ -96,7 +93,7 @@ pub fn refresh(mut cx: FunctionContext) -> JsResult<JsString> {
     let aliases = &config.plugins.aliases;
     let plugins = &mut *lock(&mut cx)?;
 
-    match runtime(&mut cx)?.block_on(async { Plugin::refresh_list(list, aliases, plugins).await }) {
+    match RUNTIME.block_on(async { Plugin::refresh_list(list, aliases, plugins).await }) {
         Ok(_) => to_json(cx, plugins.list_plugins(aliases)),
         Err(error) => cx.throw_error(error.to_string()),
     }
