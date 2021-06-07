@@ -575,7 +575,7 @@ impl Documents {
                 bail!("Unable to lock document {}", id)
             }
         } else {
-            bail!("Document {} has not been opened yet", id)
+            bail!("No document with id {}", id)
         }
     }
 
