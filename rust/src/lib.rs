@@ -23,6 +23,7 @@ pub mod methods {
 
     pub mod decode;
     pub mod encode;
+    #[cfg(feature = "format-html")]
     pub mod encode_html;
 
     pub mod export;
@@ -85,6 +86,7 @@ pub use once_cell;
 pub use regex;
 pub use serde;
 pub use serde_json;
+#[cfg(feature = "format-yaml")]
 pub use serde_yaml;
 pub use strum;
 pub use tokio;

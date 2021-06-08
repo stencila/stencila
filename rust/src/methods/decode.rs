@@ -1,31 +1,33 @@
-use crate::plugins;
 use eyre::Result;
 use stencila_schema::Node;
 
 // Allow these for when no features are enabled
 #[allow(unused_variables, unreachable_code)]
 pub async fn decode(content: &str, format: &str) -> Result<Node> {
-    let node = match format {
+    Ok(match format {
         #[cfg(feature = "format-json")]
         "json" => serde_json::from_str::<Node>(content)?,
+
         #[cfg(feature = "format-yaml")]
         "yaml" => serde_yaml::from_str::<Node>(content)?,
+
         _ => {
             #[cfg(feature = "request")]
-            return plugins::delegate(
-                super::Method::Decode,
-                &serde_json::json!({
-                    "content": content,
-                    "format": format
-                }),
-            )
-            .await;
+            {
+                crate::plugins::delegate(
+                    super::Method::Decode,
+                    &serde_json::json!({
+                        "content": content,
+                        "format": format
+                    }),
+                )
+                .await?
+            }
 
             #[cfg(not(feature = "request"))]
-            eyre::bail!("Unable to decode a node from format \"{}\"", from)
+            eyre::bail!("Unable to decode format \"{}\"", format)
         }
-    };
-    Ok(node)
+    })
 }
 
 #[cfg(any(feature = "request", feature = "serve"))]
