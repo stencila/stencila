@@ -1,3 +1,17 @@
+# [0.76.0](https://github.com/stencila/stencila/compare/v0.75.0...v0.76.0) (2021-06-08)
+
+
+### Bug Fixes
+
+* **Desktop:** Get and use  preview when changing document ([daeac8d](https://github.com/stencila/stencila/commit/daeac8dd0398bb4d3bd068436466879678a521ba))
+* **Desktop:** Unsubscribe from document when component is disconnected ([51d181c](https://github.com/stencila/stencila/commit/51d181c2f70f47564ba6724692950d57ed2b300c))
+* **Documents:** Complete implementation of dump method ([b672a95](https://github.com/stencila/stencila/commit/b672a956036f76a5ca6141da7eeabbdac163bea4))
+
+
+### Features
+
+* **Rust:** Internally encode nodes to HTML ([de11fc9](https://github.com/stencila/stencila/commit/de11fc927a442f806d69c5e0b83592a5d624f6e3))
+
 # [0.75.0](https://github.com/stencila/stencila/compare/v0.74.0...v0.75.0) (2021-06-07)
 
 
