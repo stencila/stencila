@@ -1,3 +1,4 @@
+use crate::errors::throw_error;
 use neon::{prelude::*, result::Throw};
 use stencila::{
     eyre,
@@ -14,7 +15,7 @@ pub fn to_undefined_or_throw(
 ) -> JsResult<JsUndefined> {
     match result {
         Ok(_) => Ok(cx.undefined()),
-        Err(error) => cx.throw_error(error.to_string()),
+        Err(error) => throw_error(cx, error),
     }
 }
 
@@ -25,7 +26,7 @@ pub fn to_string_or_throw(
 ) -> JsResult<JsString> {
     match result {
         Ok(value) => Ok(cx.string(value)),
-        Err(error) => cx.throw_error(error.to_string()),
+        Err(error) => throw_error(cx, error),
     }
 }
 
@@ -36,6 +37,7 @@ pub fn to_string_or_throw(
 // See https://github.com/neon-bindings/neon/pull/701 for progress on "native" neon serde
 // compatibility.
 
+/// Convert a value to JSON, throwing an error if that fails
 pub fn to_json<Type>(mut cx: FunctionContext, value: Type) -> JsResult<JsString>
 where
     Type: Serialize,
@@ -46,19 +48,18 @@ where
     }
 }
 
-pub fn to_json_or_throw<Type>(
-    mut cx: FunctionContext,
-    result: eyre::Result<Type>,
-) -> JsResult<JsString>
+/// Convert a result to JSON if it is OK, otherwise throw an error
+pub fn to_json_or_throw<Type>(cx: FunctionContext, result: eyre::Result<Type>) -> JsResult<JsString>
 where
     Type: Serialize,
 {
     match result {
         Ok(value) => to_json(cx, value),
-        Err(error) => cx.throw_error(error.to_string()),
+        Err(error) => throw_error(cx, error),
     }
 }
 
+/// Convert JSON to a value
 pub fn from_json<'a, Type>(cx: &mut FunctionContext, json: &'a str) -> Result<Type, Throw>
 where
     Type: Deserialize<'a>,

@@ -1,5 +1,6 @@
 use crate::plugins;
 use eyre::Result;
+use maplit::hashmap;
 use stencila_schema::Node;
 
 // Allow these for when no features are enabled
@@ -14,10 +15,10 @@ pub async fn decode(content: &str, format: &str) -> Result<Node> {
             #[cfg(feature = "request")]
             return plugins::delegate(
                 super::Method::Decode,
-                &serde_json::json!({
-                    "content": content,
-                    "format": format
-                }),
+                hashmap! {
+                    "content".to_string() => serde_json::to_value(content)?,
+                    "format".to_string() => serde_json::to_value(format)?
+                },
             )
             .await;
 

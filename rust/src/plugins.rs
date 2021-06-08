@@ -1,4 +1,5 @@
 use crate::{
+    errors::Error,
     methods::Method,
     pubsub::{publish_progress, ProgressEvent},
     request::{Client, ClientStdio},
@@ -1279,7 +1280,9 @@ impl Plugin {
     fn client(&self) -> Result<Client> {
         let installation = match self.installation {
             Some(installation) => installation,
-            None => bail!("Plugin '{}' is not yet installed", self.name),
+            None => Err(Error::PluginNotInstalled {
+                plugin: self.name.clone(),
+            })?,
         };
 
         let name = self.name.as_str();
@@ -1772,7 +1775,7 @@ impl Plugins {
         &mut self,
         plugin: &str,
         method: Method,
-        params: &serde_json::Value,
+        params: HashMap<String, serde_json::Value>,
     ) -> Result<serde_json::Value> {
         tracing::debug!(
             "Delegating method '{}' to plugin '{}'",
@@ -1812,24 +1815,22 @@ impl Plugins {
     pub async fn delegate(
         &mut self,
         method: Method,
-        params: &serde_json::Value,
+        params: HashMap<String, serde_json::Value>,
     ) -> Result<serde_json::Value> {
         tracing::debug!("Delegating method '{}'", method.to_string());
 
         // Get the implementations for the method
         let implems = match self.methods.get(&method.to_string()) {
             Some(method) => method,
-            None => bail!(
-                "None of the registered plugins implement method '{}'",
-                method.to_string()
-            ),
+            None => Err(Error::UndelegatableMethod { method })?,
         };
 
         // Find the first implementation for which the params validate against
         // the method schema
+        let params_value = &serde_json::to_value(&params)?;
         let mut plugin: Option<String> = None;
         for implem in implems {
-            if implem.compiled_schema.is_valid(params) {
+            if implem.compiled_schema.is_valid(params_value) {
                 plugin = Some(implem.plugin.clone());
                 break;
             }
@@ -1837,10 +1838,7 @@ impl Plugins {
 
         match plugin {
             Some(plugin) => self.delegate_to_plugin(&plugin, method, params).await,
-            None => bail!(
-                "None of the registered plugins implement method '{}' with those parameter values",
-                method.to_string()
-            ),
+            None => Err(Error::UndelegatableCall { method, params })?,
         }
     }
 }
@@ -1864,7 +1862,7 @@ pub async fn lock() -> MutexGuard<'static, Plugins> {
 /// This is a convenience function that locks the global
 /// `PLUGINS` store, delegates a call to it and transforms
 /// the result into a `Node`.
-pub async fn delegate(method: Method, params: &serde_json::Value) -> Result<Node> {
+pub async fn delegate(method: Method, params: HashMap<String, serde_json::Value>) -> Result<Node> {
     let mut plugins = lock().await;
     let value = plugins.delegate(method, params).await?;
     let node = serde_json::from_value(value)?;
@@ -2129,8 +2127,8 @@ pub mod cli {
             } = self;
             let params = crate::cli::args::params(&params);
             let result = match plugin {
-                Some(plugin) => plugins.delegate_to_plugin(&plugin, method, &params).await?,
-                None => plugins.delegate(method, &params).await?,
+                Some(plugin) => plugins.delegate_to_plugin(&plugin, method, params).await?,
+                None => plugins.delegate(method, params).await?,
             };
             display::value(&result)
         }

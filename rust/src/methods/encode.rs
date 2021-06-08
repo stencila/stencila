@@ -1,6 +1,7 @@
 use super::encode_html::encode_html;
 use crate::plugins;
 use eyre::{bail, Result};
+use maplit::hashmap;
 use stencila_schema::Node;
 
 // Allow these for when no features are enabled
@@ -21,10 +22,10 @@ pub async fn encode(node: &Node, format: &str) -> Result<String> {
             {
                 let node = plugins::delegate(
                     super::Method::Encode,
-                    &serde_json::json!({
-                        "node": node,
-                        "format": format,
-                    }),
+                    hashmap! {
+                        "node".to_string() => serde_json::to_value(node)?,
+                        "format".to_string() => serde_json::to_value(format)?
+                    },
                 )
                 .await?;
                 // Delegate returns a node so always convert it to a string

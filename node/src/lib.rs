@@ -4,6 +4,7 @@ use neon::prelude::*;
 
 mod config;
 mod documents;
+mod errors;
 mod logging;
 mod plugins;
 mod prelude;
@@ -51,6 +52,8 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
 
     cx.export_function("loggingInit", logging::init)?;
     cx.export_function("loggingTest", logging::test)?;
+
+    cx.export_function("errorsSchema", errors::schema)?;
 
     Ok(())
 }

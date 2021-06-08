@@ -62,6 +62,7 @@ pub mod rpc;
 
 // Internal messaging
 
+pub mod errors;
 pub mod logging;
 pub mod pubsub;
 
